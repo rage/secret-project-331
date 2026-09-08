@@ -85,5 +85,28 @@ export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
 /** Where a student can check that credits actually arrived. */
 export const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
 
+/** `RadioGroup.variant` for a short closed question whose answers read as a choice, not a list. */
+export const SEGMENTED = "segmented" as const
+
+/** The two answers to which university relationship a student has; the wire values of the enum. */
+export const UNIVERSITY_OF_HELSINKI = "university_of_helsinki" as const
+export const OPEN_UNIVERSITY = "open_university" as const
+
+/** The form field the answer is entered in. */
+export const ROUTE_FIELD = "enrolmentRoute" as const
+
+// The Open University only publishes this page in Finnish and English; other languages fall back to
+// the English version.
+const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI =
+  "https://www.helsinki.fi/fi/hakeminen-ja-opetus/avoin-yliopisto/ilmoittautuminen-ja-opintomaksut"
+const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN =
+  "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
+
+/** How the Open University explains enrolling, for a module that names no product of its own. */
+export const openUniversityEnrolmentInfoUrl = (language: string): string =>
+  /^fi(?:-|$)/.test(language)
+    ? OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI
+    : OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN
+
 /** Kept in one place so every page that names it can change together. */
 export const SUPPORT_EMAIL = "mooc@cs.helsinki.fi"

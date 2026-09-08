@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "@vectopus/atlas-icons-react"
+import { useSearchParams } from "next/navigation"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -19,39 +20,50 @@ import {
 import {
   registrationGradeLabel,
   registrationStatusLabel,
-  registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import RegistrationStatusCard from "@/components/credit-registration/RegistrationStatusCard"
+import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
+import {
+  isPreviewState,
+  PREVIEW_STATE_PARAM,
+  previewPage,
+} from "@/components/credit-registration/previewRegistration"
+import { RegistrationActions } from "@/components/credit-registration/RegistrationStatusCard"
 import { useStudentRegistrationActions } from "@/components/credit-registration/studentRegistrationActions"
 import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
 import { registrationSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
-  monospaceCss,
+  bandedCardCss,
   narrowPageCss,
   noteCss,
   pageTitleCss,
-  rowCss,
+  sectionCss,
+  sectionHeaderCss,
   sectionsCss,
   subheadingCss,
-  subsectionCss,
 } from "@/components/credit-registration/styles"
 import SupportMailLink from "@/components/credit-registration/SupportMailLink"
+import {
+  asksWhereYouEnrolled,
+  saysWhatIsHappening,
+  showsRegistrationFacts,
+} from "@/components/credit-registration/trackerView"
 import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import {
   getMyCreditRegistrationForCourseModuleOptions,
+  getMyEnrolmentRouteOptions,
   getMyVerifiedStudentNumberOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import {
-  profileStudiesRoute,
-  userSettingsStudentNumberRoute,
-} from "@/shared-module/common/utils/routes"
+import type {
+  MyCreditRegistration,
+  MyEnrolmentRoute,
+  MyVerifiedStudentNumber,
+} from "@/generated/api/types.generated"
+import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
 import {
   DescriptionList,
   Infobox,
   Link,
   QueryResult,
-  RegistrationStatusBadge,
   RelativeTime,
 } from "@/shared-module/components"
 
@@ -83,11 +95,14 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   ectsCredits,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const heading = moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName
+  const previewParam = useSearchParams()?.get(PREVIEW_STATE_PARAM) ?? null
+  const preview = isPreviewState(previewParam) ? previewPage(previewParam) : null
+
   const query = useQuery({
     ...getMyCreditRegistrationForCourseModuleOptions({
       path: { course_module_id: courseModuleId },
     }),
+    enabled: preview === null,
     refetchInterval: (latestQuery) => {
       const registration = latestQuery.state.data?.registration
       if (!registration?.status_is_moving) {
@@ -98,6 +113,32 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
         : MOVING_REFETCH_INTERVAL_MS
     },
   })
+  const routeQuery = useQuery({
+    ...getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
+    enabled: preview === null,
+  })
+  const numberQuery = useQuery({
+    ...getMyVerifiedStudentNumberOptions(),
+    enabled: preview === null,
+  })
+
+  const data = preview ? preview.registration : (query.data ?? null)
+  const enrolmentRoute = preview ? preview.enrolmentRoute : (routeQuery.data ?? null)
+  const verifiedNumber = numberQuery.data ?? null
+
+  const body = data ? (
+    <Tracker
+      courseModuleId={courseModuleId}
+      courseName={courseName}
+      moduleName={moduleName}
+      ectsCredits={ectsCredits}
+      registration={data.registration}
+      enrolmentRoute={enrolmentRoute}
+      verifiedNumber={verifiedNumber}
+      checkedAt={query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()}
+      earlierAttempts={data.earlier_attempts}
+    />
+  ) : null
 
   return (
     <div className={narrowPageCss}>
@@ -107,35 +148,19 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
           {t("heading-my-studies")}
         </Link>
       </div>
-      {/* The page's subject; the coloured headline below it is the answer. */}
-      <h1 className={pageTitleCss}>{heading}</h1>
-      <QueryResult
-        query={query}
-        treatNullAsEmpty
-        refreshIndicator={QUIET_REFRESH}
-        emptyFallback={<NotInThePipelineYet />}
-        contentClassName={sectionsCss}
-      >
-        {(data) =>
-          data ? (
-            <>
-              <LiveRegistration
-                registration={data.registration}
-                checkedAt={new Date(query.dataUpdatedAt).toISOString()}
-                moduleEctsCredits={ectsCredits}
-              />
-              {data.earlier_attempts.length > 0 ? (
-                <div className={subsectionCss}>
-                  <h3 className={subheadingCss}>{t("heading-earlier-attempts")}</h3>
-                  {data.earlier_attempts.map((attempt) => (
-                    <EarlierAttempt key={attempt.id} attempt={attempt} />
-                  ))}
-                </div>
-              ) : null}
-            </>
-          ) : null
-        }
-      </QueryResult>
+      {preview ? (
+        <div className={sectionsCss}>{body}</div>
+      ) : (
+        <QueryResult
+          query={query}
+          treatNullAsEmpty
+          refreshIndicator={QUIET_REFRESH}
+          emptyFallback={<NotInThePipelineYet />}
+          contentClassName={sectionsCss}
+        >
+          {() => body}
+        </QueryResult>
+      )}
     </div>
   )
 }
@@ -145,14 +170,39 @@ const NotInThePipelineYet: React.FC = () => {
   return <Infobox tone={TONE.NEUTRAL}>{t("credit-registration-not-in-the-pipeline-yet")}</Infobox>
 }
 
-const LiveRegistration: React.FC<{
+interface TrackerProps {
+  courseModuleId: string
+  courseName: string
+  moduleName: string | null | undefined
+  ectsCredits: number | null | undefined
   registration: MyCreditRegistration
-  checkedAt: string
-  moduleEctsCredits: number | null | undefined
-}> = ({ registration, checkedAt, moduleEctsCredits }) => {
+  enrolmentRoute: MyEnrolmentRoute | null
+  verifiedNumber: MyVerifiedStudentNumber | null
+  checkedAt: string | null
+  earlierAttempts: MyCreditRegistration[]
+}
+
+/**
+ * One card showing only where the registration stands right now.
+ *
+ * Never a checklist. Steps still to come would have the student reading about work they cannot
+ * affect, and steps already behind them stay on screen only while their own answers can still
+ * change something: once an enrolment exists the page is about the registration, and once the
+ * credits are in Sisu it is about the credits.
+ */
+const Tracker: React.FC<TrackerProps> = ({
+  courseModuleId,
+  courseName,
+  moduleName,
+  ectsCredits,
+  registration,
+  enrolmentRoute,
+  verifiedNumber,
+  checkedAt,
+  earlierAttempts,
+}) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
-  const state = registrationStatusState(status)
   const statusLabel = registrationStatusLabel(t, status)
   const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions, supportMail } = useStudentRegistrationActions({
@@ -170,48 +220,91 @@ const LiveRegistration: React.FC<{
     }
   }, [status, statusLabel, t])
 
+  const view = { registration, enrolmentRoute }
+
   return (
-    <RegistrationStatusCard
-      state={state}
-      headline={statusLabel}
-      explanation={<StudentRegistrationExplanation registration={registration} />}
-      primaryAction={primaryAction}
-      secondaryActions={secondaryActions}
-      meta={
-        <>
-          <RegistrationFacts registration={registration} moduleEctsCredits={moduleEctsCredits} />
-          {status === "registered" ? (
-            <p className={noteCss}>
-              {t("credit-registration-registered-not-showing-in-sisu")}{" "}
-              <SupportMailLink
-                {...registrationSupportMail(t, registration)}
-                appearance={SUPPORT_MAIL_INLINE}
-                label={t("link-text-still-missing-email-support")}
+    <>
+      <article className={bandedCardCss}>
+        <header className={sectionHeaderCss}>
+          <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+          <p className={subheadingCss}>
+            {t("course")}: {moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName}
+          </p>
+          {typeof ectsCredits === "number" ? (
+            <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+          ) : null}
+        </header>
+
+        {asksWhereYouEnrolled(view) && enrolmentRoute ? (
+          <EnrolmentRouteStep
+            courseModuleId={courseModuleId}
+            enrolmentRoute={enrolmentRoute}
+            openUniversityEnrolmentLink={registration.enrolment_link}
+          />
+        ) : null}
+
+        {saysWhatIsHappening(view) ? (
+          <section className={sectionCss}>
+            <h2 className={subheadingCss}>{statusLabel}</h2>
+            <StudentRegistrationExplanation registration={registration} />
+            <RegistrationActions
+              primaryAction={primaryAction}
+              secondaryActions={secondaryActions}
+            />
+            {showsRegistrationFacts(registration) ? (
+              <RegistrationFacts
+                registration={registration}
+                verifiedNumber={verifiedNumber}
+                moduleEctsCredits={ectsCredits}
               />
+            ) : null}
+            {status === "registered" ? (
+              <p className={noteCss}>
+                {t("credit-registration-registered-not-showing-in-sisu")}{" "}
+                <SupportMailLink
+                  {...registrationSupportMail(t, registration)}
+                  appearance={SUPPORT_MAIL_INLINE}
+                  label={t("link-text-still-missing-email-support")}
+                />
+              </p>
+            ) : supportMail ? (
+              <SupportMailLink {...supportMail} />
+            ) : null}
+            {registration.status_is_moving && checkedAt ? (
+              <p className={noteCss}>
+                {t("credit-registration-last-checked")}{" "}
+                <RelativeTime at={checkedAt} absoluteTime={TIME_IN_TITLE} />{" "}
+                {t("credit-registration-checks-again-automatically")}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+      </article>
+
+      {earlierAttempts.length > 0 ? (
+        <section className={sectionCss}>
+          <h2 className={subheadingCss}>{t("heading-earlier-attempts")}</h2>
+          {earlierAttempts.map((attempt) => (
+            <p key={attempt.id} className={noteCss}>
+              {t("credit-registration-earlier-attempt-summary", {
+                attempt: attempt.attempt_number,
+                grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
+              })}
             </p>
-          ) : supportMail ? (
-            <SupportMailLink {...supportMail} />
-          ) : null}
-          {registration.status_is_moving ? (
-            <p className={noteCss}>
-              {t("credit-registration-last-checked")}{" "}
-              <RelativeTime at={checkedAt} absoluteTime={TIME_IN_TITLE} />{" "}
-              {t("credit-registration-checks-again-automatically")}
-            </p>
-          ) : null}
-        </>
-      }
-    />
+          ))}
+        </section>
+      ) : null}
+    </>
   )
 }
 
 /** The transcript facts: what was registered, under which number, and to whom. */
 const RegistrationFacts: React.FC<{
   registration: MyCreditRegistration
+  verifiedNumber: MyVerifiedStudentNumber | null
   moduleEctsCredits: number | null | undefined
-}> = ({ registration, moduleEctsCredits }) => {
+}> = ({ registration, verifiedNumber, moduleEctsCredits }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const verifiedNumber = useQuery({ ...getMyVerifiedStudentNumberOptions() }).data
   const credits = registration.credits ?? moduleEctsCredits
   // The number frozen on the row is not always the account's link now, so the name only belongs
   // beside a number the link still covers.
@@ -220,42 +313,26 @@ const RegistrationFacts: React.FC<{
       ? [verifiedNumber.first_names, verifiedNumber.last_name].filter(Boolean).join(" ")
       : ""
 
+  if (!registration.registered_at) {
+    return null
+  }
   const items = [
-    ...(registration.registered_at
-      ? [
-          {
-            label: t("label-registered-at"),
-            value: <RelativeTime at={registration.registered_at} absoluteTime={TIME_DATE} />,
-          },
-          {
-            label: t("label-grade"),
-            value: registrationGradeLabel(t, registration.grade_id, registration.grade_scale_id),
-          },
-          ...(typeof credits === "number"
-            ? [{ label: t("label-credits"), value: t("ects-n", { n: credits }) }]
-            : []),
-          ...(registration.student_number
-            ? [
-                {
-                  label: t("label-student-number"),
-                  value: (
-                    <>
-                      <span className={monospaceCss}>{registration.student_number}</span>{" "}
-                      <Link href={userSettingsStudentNumberRoute()}>
-                        {t("link-text-not-your-number-change-it")}
-                      </Link>
-                    </>
-                  ),
-                },
-              ]
-            : []),
-          ...(nameInRegistry
-            ? [{ label: t("label-name-in-university-records"), value: nameInRegistry }]
-            : []),
-        ]
+    {
+      label: t("label-registered-at"),
+      value: <RelativeTime at={registration.registered_at} absoluteTime={TIME_DATE} />,
+    },
+    {
+      label: t("label-grade"),
+      value: registrationGradeLabel(t, registration.grade_id, registration.grade_scale_id),
+    },
+    ...(typeof credits === "number"
+      ? [{ label: t("label-credits"), value: t("ects-n", { n: credits }) }]
       : []),
-    ...(registration.enrolment_realisation_name
-      ? [{ label: t("label-enrolment"), value: registration.enrolment_realisation_name }]
+    ...(registration.student_number
+      ? [{ label: t("label-student-number"), value: registration.student_number }]
+      : []),
+    ...(nameInRegistry
+      ? [{ label: t("label-name-in-university-records"), value: nameInRegistry }]
       : []),
   ]
 
@@ -264,36 +341,15 @@ const RegistrationFacts: React.FC<{
     typeof moduleEctsCredits === "number" &&
     registration.credits !== moduleEctsCredits
 
-  if (items.length === 0) {
-    return null
-  }
   return (
-    <div className={subsectionCss}>
+    <>
       <DescriptionList items={items} />
       {wasRegisteredAtAnotherAmount ? (
         <p className={noteCss}>
           {t("credit-registration-credits-differ-from-current", { current: moduleEctsCredits })}
         </p>
       ) : null}
-    </div>
-  )
-}
-
-const EarlierAttempt: React.FC<{ attempt: MyCreditRegistration }> = ({ attempt }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const status = attempt.student_facing_status
-  return (
-    <div className={rowCss}>
-      <RegistrationStatusBadge state={registrationStatusState(status)}>
-        {registrationStatusLabel(t, status)}
-      </RegistrationStatusBadge>
-      <span>
-        {t("credit-registration-earlier-attempt-summary", {
-          attempt: attempt.attempt_number,
-          grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
-        })}
-      </span>
-    </div>
+    </>
   )
 }
 

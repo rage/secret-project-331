@@ -86,6 +86,42 @@ const ActionButton: React.FC<{ action: RegistrationCardAction; isPrimary: boolea
   )
 }
 
+export interface RegistrationActionsProps {
+  primaryAction?: RegistrationCardAction | null | undefined
+  secondaryActions?: readonly RegistrationCardAction[] | undefined
+}
+
+/**
+ * The levers for one registration, with the reason under any that cannot be used.
+ *
+ * Its own component so the card and the step list draw a state's actions the same way; a lever
+ * that reads as a button on one surface and a link on the other is two states to the reader.
+ */
+export const RegistrationActions: React.FC<RegistrationActionsProps> = ({
+  primaryAction,
+  secondaryActions = [],
+}) => {
+  const actions = [...(primaryAction ? [primaryAction] : []), ...secondaryActions]
+  const reasons = actions.filter((action) => action.isDisabled && action.disabledReason)
+  if (actions.length === 0) {
+    return null
+  }
+  return (
+    <>
+      <div className={rowCss}>
+        {actions.map((action) => (
+          <ActionButton key={action.key} action={action} isPrimary={action === primaryAction} />
+        ))}
+      </div>
+      {reasons.map((action) => (
+        <p key={action.key} className={noteCss}>
+          {action.disabledReason}
+        </p>
+      ))}
+    </>
+  )
+}
+
 /**
  * One registration's state, what it means, and what can be done about it.
  *
@@ -105,8 +141,6 @@ const RegistrationStatusCard: React.FC<RegistrationStatusCardProps> = ({
   className,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const actions = [...(primaryAction ? [primaryAction] : []), ...secondaryActions]
-  const reasons = actions.filter((action) => action.isDisabled && action.disabledReason)
 
   const heading =
     state === "failed"
@@ -134,18 +168,7 @@ const RegistrationStatusCard: React.FC<RegistrationStatusCardProps> = ({
           {body}
         </Infobox>
       )}
-      {actions.length > 0 ? (
-        <div className={rowCss}>
-          {actions.map((action) => (
-            <ActionButton key={action.key} action={action} isPrimary={action === primaryAction} />
-          ))}
-        </div>
-      ) : null}
-      {reasons.map((action) => (
-        <p key={action.key} className={noteCss}>
-          {action.disabledReason}
-        </p>
-      ))}
+      <RegistrationActions primaryAction={primaryAction} secondaryActions={secondaryActions} />
       {meta ? <div className={subsectionCss}>{meta}</div> : null}
     </div>
   )

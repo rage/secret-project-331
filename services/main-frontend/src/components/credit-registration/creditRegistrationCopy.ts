@@ -8,15 +8,6 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, widenedLookup } from "./labelFrom"
-import {
-  STEP_ENROLMENT_FOUND,
-  STEP_ENROLMENT_ROUTE,
-  STEP_REGISTERED,
-  STEP_SENT,
-  STEP_STUDENT_NUMBER,
-  type RegistrationStepKey,
-  type RegistrationStepState,
-} from "./registrationSteps"
 
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
@@ -332,30 +323,3 @@ export const registrationLedgerStateLabel = (
   state === "pending" && pendingReason
     ? labelFrom(t, PENDING_REASON_STATE_KEYS, pendingReason, LEDGER_STATE_KEYS.pending)
     : labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)
-
-const STEP_TITLE_KEYS = {
-  [STEP_ENROLMENT_ROUTE]: "step-where-you-enrolled",
-  [STEP_STUDENT_NUMBER]: "step-student-number-linked",
-  [STEP_ENROLMENT_FOUND]: "step-we-found-your-enrolment",
-  [STEP_SENT]: "step-sent-to-the-study-registry",
-  [STEP_REGISTERED]: "step-registered",
-} as const satisfies Record<RegistrationStepKey, string>
-
-/** The word in the margin. Said for every step, including the ones still to come. */
-const STEP_STATE_KEYS = {
-  done: "step-state-done",
-  current: "step-state-waiting",
-  "action-needed": "step-state-your-turn",
-  failed: "step-state-failed",
-  upcoming: "step-state-not-yet",
-} as const satisfies Record<RegistrationStepState, string>
-
-export const registrationStepTitle = (
-  t: CreditRegistrationTFunction,
-  key: RegistrationStepKey,
-): string => t(STEP_TITLE_KEYS[key])
-
-export const registrationStepStateLabel = (
-  t: CreditRegistrationTFunction,
-  state: RegistrationStepState,
-): string => t(STEP_STATE_KEYS[state])

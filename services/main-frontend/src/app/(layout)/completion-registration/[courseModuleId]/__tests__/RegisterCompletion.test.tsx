@@ -23,8 +23,8 @@ describe("RegisterCompletion", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "register-completion" }),
     ).toBeInTheDocument()
-    expect(screen.getByText("label-course-with-name")).toBeInTheDocument()
-    expect(screen.getByText("label-credits-with-amount")).toBeInTheDocument()
+    expect(screen.getByText(/Automatic Completions/)).toBeInTheDocument()
+    expect(screen.getByText("credits-n-ects")).toBeInTheDocument()
   })
 
   it("asks the student type as a yes/no choice that is still a radio group", () => {
@@ -38,7 +38,10 @@ describe("RegisterCompletion", () => {
   it("holds back the instructions until the student has answered", () => {
     renderPage()
 
-    expect(screen.queryByText("teacher@example.com")).not.toBeInTheDocument()
+    expect(screen.queryByText("sisu-email-matching-explanation")).not.toBeInTheDocument()
+    expect(
+      screen.queryByText("use-this-email-on-enrollment-form-or-credits-wont-register"),
+    ).not.toBeInTheDocument()
     expect(
       screen.queryByText("changed-email-since-completing-course-disclosure-title"),
     ).not.toBeInTheDocument()
@@ -49,7 +52,8 @@ describe("RegisterCompletion", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: "yes" }))
 
-    expect(screen.getByText("teacher@example.com")).toBeInTheDocument()
+    expect(screen.getByText("enroll-through-sisu-to-register-credits")).toBeInTheDocument()
+    expect(screen.getByText("sisu-email-matching-explanation")).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "go-to-sisu" })).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "to-the-registration-form" })).not.toBeInTheDocument()
   })
@@ -59,6 +63,9 @@ describe("RegisterCompletion", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: "no" }))
 
+    expect(
+      screen.getByText("use-this-email-on-enrollment-form-or-credits-wont-register"),
+    ).toBeInTheDocument()
     expect(screen.getByRole("link", { name: "to-the-registration-form" })).toHaveAttribute(
       "href",
       "/completion-registration/module-1/redirect",

@@ -13,7 +13,20 @@ import Sidebar from "./Sidebar"
 
 const gridContainer = css`
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+
+  // Sidebar by default width of 400px
+  // but when collapsed or on mobile
+  // takes width of its elements
+  grid-template-columns: 400px minmax(0, 1fr);
+
+  &:has([hidden="until-found"]) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
   margin: 0 1rem;
   gap: 0.5rem;
   // remove navbar height and add 1rem of space to top and bottom

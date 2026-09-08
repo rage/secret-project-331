@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-interface MobileDisclosureOverlay {
+interface MobileDisclosureOverlayProps {
   state: OverlayTriggerState
   onClose?: () => void
   children?: ReactNode
@@ -76,7 +76,7 @@ const closeButtonCss = css`
   }
 `
 
-const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlay> = ({
+const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlayProps> = ({
   state,
   onClose,
   children,

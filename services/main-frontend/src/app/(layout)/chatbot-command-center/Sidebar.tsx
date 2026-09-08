@@ -36,8 +36,7 @@ const sideBarContainerCss = css`
   margin: 0;
   padding: 0;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-  max-width: 400px;
-  min-width: 50px;
+
   // Applied when disclosure is open
   &:has(> [data-expanded]) {
     overflow-y: auto;

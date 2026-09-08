@@ -11,7 +11,7 @@ import type { ChatbotConversation } from "@/generated/course-material-api/types.
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Infobox } from "@/shared-module/components"
 
-interface ConversationHistory {
+interface ConversationHistoryProps {
   conversations: ChatbotConversation[]
   chatbots: ChatbotConfiguration[]
   menuState?: OverlayTriggerState
@@ -50,7 +50,7 @@ const chatbotLabelCss = css`
   max-width: 100px;
 `
 
-const ConversationHistory: React.FC<ConversationHistory> = ({
+const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   conversations,
   chatbots,
   menuState,
@@ -59,14 +59,14 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
   const { t } = useTranslation()
   const { setConvId } = useChatbotContext()
   return (
-    <>
+    <div>
       {conversations.length === 0 ? (
         <div
           className={css`
             padding: 0 1rem;
           `}
         >
-          <Infobox tone="info">{t("no-existing-conversations")}</Infobox>
+          <Infobox>{t("no-existing-conversations")}</Infobox>
         </div>
       ) : (
         conversations.map((conversation) => (
@@ -97,7 +97,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
                 className={css`
                   white-space: nowrap;
                   // 400px is the width of the sidebar
-                  max-width: calc(400px - 2rem);
+                  max-width: calc(400px - 2.1rem);
                   overflow: hidden;
                   text-overflow: ellipsis;
                   padding-bottom: 5px;
@@ -117,7 +117,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
           </Button>
         ))
       )}
-    </>
+    </div>
   )
 }
 

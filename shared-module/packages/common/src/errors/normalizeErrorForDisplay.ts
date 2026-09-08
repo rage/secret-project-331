@@ -64,7 +64,7 @@ export interface ErrorViewModel {
   retryAfterSeconds: number | null
   issues: ErrorViewIssue[]
   blockId: string | null
-  metadata: string | Record<string, unknown> | null
+  metadata: Record<string, unknown> | null
   technicalDetails: ErrorViewTechnicalDetails | null
   raw: unknown
 }

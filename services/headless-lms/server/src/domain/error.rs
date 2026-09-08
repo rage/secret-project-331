@@ -519,12 +519,12 @@ impl error::ResponseError for ControllerError {
             _ => None,
         };
 
-        let metadata_json = metadata.and_then(|metadata| match metadata {
-            ErrorMetadata::BlockId(id) => Some(serde_json::json!({ "block_id": id })),
+        let metadata_json = metadata.map(|metadata| match metadata {
+            ErrorMetadata::BlockId(id) => serde_json::json!({ "block_id": id }),
             ErrorMetadata::ForeignKeyViolationMetadata { constraint, table } => {
-                Some(serde_json::json!({
+                serde_json::json!({
             "constraint": constraint,
-            "table": table }))
+            "table": table })
             }
         });
 

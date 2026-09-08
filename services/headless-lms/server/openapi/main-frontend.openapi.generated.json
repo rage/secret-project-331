@@ -22978,6 +22978,10 @@
           "current_course_instance_name": {
             "type": ["string", "null"]
           },
+          "exam_passed": {
+            "type": ["boolean", "null"],
+            "description": "Whether the student has passed an exam of this course, on the terms the completion check\nuses. `None` when no module requires one, so it was never checked."
+          },
           "first_enrolled_at": {
             "type": "string",
             "format": "date-time"
@@ -23014,9 +23018,26 @@
           "course_module_id",
           "order_number",
           "supports_credit_registration",
-          "score_given"
+          "score_given",
+          "attempted_exercises",
+          "automatic_completion",
+          "requires_exam"
         ],
         "properties": {
+          "attempted_exercises": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Exercises the student has answered."
+          },
+          "attempted_exercises_required": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Attempted exercises an automatic completion requires. `None` when the module is completed\nmanually or sets no attempt threshold."
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold says anything about\ncompleting it."
+          },
           "completion": {
             "oneOf": [
               {
@@ -23044,6 +23065,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds qualify the student to sit an exam rather than complete the module."
+          },
           "score_given": {
             "type": "number",
             "format": "float",
@@ -23062,6 +23087,12 @@
           },
           "supports_credit_registration": {
             "type": "boolean"
+          },
+          "total_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercises the module offers. `None` when it has none.",
+            "minimum": 0
           },
           "uh_course_code": {
             "type": ["string", "null"]

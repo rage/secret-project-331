@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -25,7 +25,6 @@ import {
   sectionHeaderCss,
   spacedRowCss,
   statusTriggerCss,
-  subheadingCss,
 } from "@/components/credit-registration/styles"
 import type {
   MyCreditRegistration,
@@ -41,15 +40,45 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { Link, Meter, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
 
+import { completionThresholdList } from "./completionRequirements"
+
 export interface StudiesCourseCardProps {
   course: MyStudiesCourse
   /** Newest credit registration per course module id; empty for a student with none. */
   registrationByCourseModuleId: ReadonlyMap<string, MyCreditRegistration>
 }
 
-const moduleNameCss = css`
-  font-weight: 600;
+/**
+ * The card's title band. The rule is pulled back out to the card's edges: one inset by the card's
+ * own padding reads as an underlined paragraph, where one that spans the full width reads as a
+ * header.
+ */
+const cardHeaderCss = cx(
+  sectionHeaderCss,
+  css`
+    margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0;
+    padding: var(--space-3-5) var(--space-4);
+    border-bottom: 1px solid var(--color-clear-300);
+  `,
+)
+
+/** Lets a long course name shrink and wrap onto its own lines instead of pushing the button below. */
+const courseTitleCss = css`
+  margin: 0;
+  min-width: 0;
   color: var(--color-gray-700);
+  font-size: var(--font-size-3);
+  font-weight: 600;
+  line-height: 1.3;
+`
+
+/** A step below the course title, so a card of several modules reads as one thing with parts. */
+const moduleNameCss = css`
+  margin: 0;
+  color: var(--color-gray-700);
+  font-size: var(--font-size-2);
+  font-weight: 600;
+  line-height: 1.3;
 `
 
 /** The result is the datum beside the name's label, so it carries less weight. */
@@ -65,14 +94,6 @@ const moduleHeaderCss = css`
   gap: var(--space-1);
 `
 
-/** Lets a long course name shrink and wrap onto its own lines instead of pushing the button below. */
-const courseTitleCss = cx(
-  subheadingCss,
-  css`
-    min-width: 0;
-  `,
-)
-
 /** Keeps its own size on the title row rather than shrinking to make room. */
 const goToCourseLinkCss = css`
   flex: none;
@@ -83,6 +104,33 @@ const detailsLabelCss = css`
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+`
+
+/** What the module still asks of the student: the group label, the bars, and the notes on them. */
+const requirementsCss = css`
+  display: grid;
+  gap: var(--space-3);
+`
+
+const requirementsHeadingCss = css`
+  margin: 0;
+  color: var(--color-gray-700);
+  font-size: var(--font-size-1);
+  font-weight: 600;
+`
+
+/** Matches a `Meter` label row, because the exam is one more requirement in the same list. */
+const examRowCss = css`
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--font-size-1);
+  color: var(--color-gray-600);
+`
+
+const examResultCss = css`
+  color: var(--color-gray-700);
+  font-weight: 600;
 `
 
 const STATUS_ARROW_SIZE = 16
@@ -100,7 +148,7 @@ const completionResultLabel = (
   return completion.passed ? t("label-passed") : t("label-not-passed")
 }
 
-/** One course, always open: every module's points, result and credit-registration status. */
+/** One course, always open: every module's progress, result and credit-registration status. */
 const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   course,
   registrationByCourseModuleId,
@@ -110,10 +158,15 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   const modules = course.modules.toSorted((a, b) => a.order_number - b.order_number)
   const hasSeveralParts = modules.length > 1
   const hasAnyCompletion = modules.some((module) => module.completion)
+  // Said once for the course rather than under each of its parts, where it would be the only thing
+  // most of them have to say.
+  const teacherGradesWholeCourse =
+    modules.every((module) => !module.automatic_completion) &&
+    modules.some((module) => !module.completion)
 
   return (
     <article className={cardCss} data-testid="profile-course-card">
-      <div className={sectionHeaderCss}>
+      <header className={cardHeaderCss}>
         <div className={spacedRowCss}>
           <h3 className={courseTitleCss}>{course.course_name}</h3>
           <Link
@@ -135,11 +188,14 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
               })}`
             : null}
         </p>
+        {teacherGradesWholeCourse ? (
+          <p className={noteCss}>{t("note-teacher-grades-this-course")}</p>
+        ) : null}
         {/* "Kept for its completions" is only true once there are some. */}
         {course.is_current || !hasAnyCompletion ? null : (
           <p className={noteCss}>{t("note-course-different-language-version")}</p>
         )}
-      </div>
+      </header>
 
       <ul className={dividedListCss}>
         {modules.map((module) => (
@@ -151,6 +207,8 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
             // phone and carries nothing.
             nameLabel={hasSeveralParts ? (module.name ?? t("label-default-course-module")) : null}
             registration={registrationByCourseModuleId.get(module.course_module_id) ?? null}
+            examPassed={course.exam_passed ?? null}
+            explainTeacherGrading={!teacherGradesWholeCourse}
           />
         ))}
       </ul>
@@ -162,7 +220,9 @@ const ModuleRow: React.FC<{
   module: MyStudiesCourseModule
   nameLabel: string | null
   registration: MyCreditRegistration | null
-}> = ({ module, nameLabel, registration }) => {
+  examPassed: boolean | null
+  explainTeacherGrading: boolean
+}> = ({ module, nameLabel, registration, examPassed, explainTeacherGrading }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const completion = module.completion
 
@@ -187,7 +247,7 @@ const ModuleRow: React.FC<{
   return (
     <li className={sectionHeaderCss}>
       <div className={moduleHeaderCss}>
-        {nameLabel !== null ? <span className={moduleNameCss}>{nameLabel}</span> : null}
+        {nameLabel !== null ? <h4 className={moduleNameCss}>{nameLabel}</h4> : null}
         <div className={rowCss}>
           <span className={completion ? resultCss : noteCss}>
             {completionResultLabel(t, completion)}
@@ -218,20 +278,115 @@ const ModuleRow: React.FC<{
 
       {factsLine ? <p className={noteCss}>{factsLine}</p> : null}
 
-      {!completion && typeof module.score_maximum === "number" ? (
-        <Meter
-          label={t("label-points")}
-          value={module.score_given}
-          maxValue={module.score_maximum}
-          valueLabel={t("points-given-of-maximum", {
-            given: module.score_given,
-            maximum: module.score_maximum,
-          })}
-          tone={TONE.NEUTRAL}
-          {...omitUndefined({ threshold: module.score_required ?? undefined })}
+      {completion ? null : (
+        <ModuleRequirements
+          module={module}
+          examPassed={examPassed}
+          explainTeacherGrading={explainTeacherGrading}
         />
-      ) : null}
+      )}
     </li>
+  )
+}
+
+/**
+ * Where the student stands and what is left, for a module they have not completed.
+ *
+ * The thresholds mean different things by policy: a manually graded module has none, and one that
+ * requires an exam measures them for admission to the exam rather than for the completion itself.
+ */
+const ModuleRequirements: React.FC<{
+  module: MyStudiesCourseModule
+  /** Course-wide, since an exam belongs to the course rather than to one of its modules. */
+  examPassed: boolean | null
+  /** False once the card has said it for every part at once. */
+  explainTeacherGrading: boolean
+}> = ({ module, examPassed, explainTeacherGrading }) => {
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+
+  const pointsMaximum = module.score_maximum ?? 0
+  const exercisesTotal = module.total_exercises ?? 0
+  const pointsRequired = module.score_required ?? null
+  const attemptedExercisesRequired = module.attempted_exercises_required ?? null
+  const hasThresholds = pointsRequired !== null || attemptedExercisesRequired !== null
+
+  const pointsMeter =
+    pointsMaximum > 0 ? (
+      <Meter
+        label={t("label-points")}
+        value={module.score_given}
+        maxValue={pointsMaximum}
+        valueLabel={t("value-of-maximum", {
+          value: module.score_given,
+          maximum: pointsMaximum,
+        })}
+        tone={TONE.NEUTRAL}
+        {...omitUndefined({ threshold: pointsRequired ?? undefined })}
+      />
+    ) : null
+  const exercisesMeter =
+    exercisesTotal > 0 ? (
+      <Meter
+        label={t("exercises-attempted")}
+        value={module.attempted_exercises}
+        maxValue={exercisesTotal}
+        valueLabel={t("value-of-maximum", {
+          value: module.attempted_exercises,
+          maximum: exercisesTotal,
+        })}
+        tone={TONE.NEUTRAL}
+        {...omitUndefined({ threshold: attemptedExercisesRequired ?? undefined })}
+      />
+    ) : null
+
+  // A teacher decides this module, so it carries no threshold to measure against.
+  const unmeasured = !module.automatic_completion
+  if (unmeasured || (!hasThresholds && !module.requires_exam)) {
+    const teacherGradingNote =
+      unmeasured && explainTeacherGrading ? (
+        <p className={noteCss}>{t("note-teacher-grades-this-part")}</p>
+      ) : null
+    if (pointsMeter === null && exercisesMeter === null && teacherGradingNote === null) {
+      return null
+    }
+    return (
+      <div className={requirementsCss}>
+        {pointsMeter}
+        {exercisesMeter}
+        {teacherGradingNote}
+      </div>
+    )
+  }
+
+  const showsThresholdMark =
+    (pointsRequired !== null && pointsMeter !== null) ||
+    (attemptedExercisesRequired !== null && exercisesMeter !== null)
+
+  return (
+    <div className={requirementsCss} role="group" aria-labelledby={headingId}>
+      <p id={headingId} className={requirementsHeadingCss}>
+        {module.requires_exam && hasThresholds
+          ? t("heading-to-take-the-exam")
+          : t("heading-to-complete-this-part")}
+      </p>
+      {hasThresholds ? (
+        <p className={noteCss}>
+          {completionThresholdList(t, i18n.language, pointsRequired, attemptedExercisesRequired)}
+        </p>
+      ) : null}
+      {pointsMeter}
+      {exercisesMeter}
+      {showsThresholdMark ? <p className={noteCss}>{t("note-mark-shows-what-you-need")}</p> : null}
+      {module.requires_exam ? (
+        <div className={examRowCss}>
+          <span>{t("label-exam")}</span>
+          <span className={examResultCss}>
+            {examPassed ? t("label-passed") : t("label-not-passed")}
+          </span>
+        </div>
+      ) : null}
+    </div>
   )
 }
 

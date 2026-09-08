@@ -352,6 +352,18 @@ pub struct MyStudiesCourseModule {
     /// Exercise points an automatic completion requires. `None` when the module is completed
     /// manually or sets no point threshold.
     pub score_required: Option<i32>,
+    /// Exercises the module offers. `None` when it has none.
+    pub total_exercises: Option<u32>,
+    /// Exercises the student has answered.
+    pub attempted_exercises: i32,
+    /// Attempted exercises an automatic completion requires. `None` when the module is completed
+    /// manually or sets no attempt threshold.
+    pub attempted_exercises_required: Option<i32>,
+    /// False when a teacher grades the module, in which case neither threshold says anything about
+    /// completing it.
+    pub automatic_completion: bool,
+    /// When true, the thresholds qualify the student to sit an exam rather than complete the module.
+    pub requires_exam: bool,
     /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
@@ -384,6 +396,9 @@ pub struct MyStudiesCourse {
     pub current_course_instance_id: Option<Uuid>,
     pub current_course_instance_name: Option<String>,
     pub supports_credit_registration: bool,
+    /// Whether the student has passed an exam of this course, on the terms the completion check
+    /// uses. `None` when no module requires one, so it was never checked.
+    pub exam_passed: Option<bool>,
     pub modules: Vec<MyStudiesCourseModule>,
 }
 
@@ -444,7 +459,7 @@ async fn get_my_studies(
         .iter()
         .map(|enrollment| enrollment.course_id)
         .collect();
-    let scores_by_module = models::user_exercise_states::get_user_course_module_scores(
+    let progress_by_module = models::user_exercise_states::get_user_course_module_progress(
         &mut conn,
         &course_ids,
         user.id,
@@ -485,7 +500,7 @@ async fn get_my_studies(
             .course_modules
             .iter()
             .map(|course_module| {
-                let score = scores_by_module.get(&course_module.id);
+                let progress = progress_by_module.get(&course_module.id);
                 MyStudiesCourseModule {
                     course_module_id: course_module.id,
                     name: course_module.name.clone(),
@@ -494,14 +509,38 @@ async fn get_my_studies(
                     uh_course_code: course_module.uh_course_code.clone(),
                     supports_credit_registration: course_module
                         .enable_credit_registration_via_suotar,
-                    score_given: score.map_or(0.0, |score| score.score_given),
-                    score_maximum: score.and_then(|score| score.score_maximum),
-                    score_required: score.and_then(|score| score.score_required),
+                    score_given: progress.map_or(0.0, |progress| progress.score_given),
+                    score_maximum: progress.and_then(|progress| progress.score_maximum),
+                    score_required: progress.and_then(|progress| progress.score_required),
+                    total_exercises: progress.and_then(|progress| progress.total_exercises),
+                    attempted_exercises: progress
+                        .map_or(0, |progress| progress.attempted_exercises),
+                    attempted_exercises_required: progress
+                        .and_then(|progress| progress.attempted_exercises_required),
+                    // Defaults to automatic: a missing row must not make the profile claim a
+                    // teacher grades the module.
+                    automatic_completion: progress
+                        .is_none_or(|progress| progress.automatic_completion),
+                    requires_exam: progress.is_some_and(|progress| progress.requires_exam),
                     completion: best_completion_by_module.remove(&course_module.id),
                 }
             })
             .collect();
         modules.sort_by_key(|m| m.order_number);
+
+        // Only worth the queries when a module's requirements hinge on an exam.
+        let exam_passed = if modules.iter().any(|module| module.requires_exam) {
+            Some(
+                models::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
+                    &mut conn,
+                    user.id,
+                    enrollment.course_id,
+                )
+                .await?,
+            )
+        } else {
+            None
+        };
 
         // Prefer the settings' instance: it is the one the course material shows progress for.
         let settings_instance_id = enrollment
@@ -544,6 +583,7 @@ async fn get_my_studies(
             current_course_instance_id: current_instance.map(|ci| ci.id),
             current_course_instance_name: current_instance.and_then(|ci| ci.name.clone()),
             supports_credit_registration: modules.iter().any(|m| m.supports_credit_registration),
+            exam_passed,
             modules,
         });
     }

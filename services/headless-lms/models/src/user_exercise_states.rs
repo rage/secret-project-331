@@ -400,30 +400,42 @@ pub async fn get_user_course_progress(
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
-/// One course module's exercise points for one user. Points are exercise scores, never ECTS credits.
+/// One course module's exercise standing for one user, and the thresholds an automatic completion
+/// measures it against. Points are exercise scores, never ECTS credits.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct UserCourseModuleScore {
+pub struct UserCourseModuleProgress {
     pub score_given: f32,
     /// `None` when the module has no exercises.
     pub score_maximum: Option<u32>,
     /// `None` when the module is completed manually or sets no point threshold.
     pub score_required: Option<i32>,
+    /// `None` when the module has no exercises.
+    pub total_exercises: Option<u32>,
+    /// Exercises the user has answered, counted as the completion check counts them.
+    pub attempted_exercises: i32,
+    /// `None` when the module is completed manually or sets no attempt threshold.
+    pub attempted_exercises_required: Option<i32>,
+    /// False when a teacher grades the module, in which case neither threshold applies.
+    pub automatic_completion: bool,
+    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
+    pub requires_exam: bool,
 }
 
-/// The user's exercise points in every module of the given courses, keyed by course module id.
+/// The user's standing in every module of the given courses, keyed by course module id.
 ///
 /// Every non-deleted module of those courses gets an entry, whether or not the user has answered
 /// anything in it. Closed chapters are included. Confusable with `get_user_course_progress`, which
-/// answers the same question one course at a time and also reports exercise counts.
-pub async fn get_user_course_module_scores(
+/// answers the same question one course at a time.
+pub async fn get_user_course_module_progress(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
     user_id: Uuid,
-) -> ModelResult<HashMap<Uuid, UserCourseModuleScore>> {
-    let score_maximum_rows = sqlx::query!(
+) -> ModelResult<HashMap<Uuid, UserCourseModuleProgress>> {
+    let exercise_rows = sqlx::query!(
         r#"
 SELECT chapters.course_module_id AS "course_module_id!",
-  SUM(exercises.score_maximum) AS "score_maximum!"
+  SUM(exercises.score_maximum) AS "score_maximum!",
+  COUNT(exercises.id) AS "total_exercises!"
 FROM exercises
   JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.course_id = ANY($1)
@@ -436,15 +448,18 @@ GROUP BY chapters.course_module_id
     )
     .fetch_all(&mut *conn)
     .await?;
-    let score_maximum_by_module: HashMap<Uuid, i64> = score_maximum_rows
-        .into_iter()
-        .map(|x| (x.course_module_id, x.score_maximum))
-        .collect();
+    let mut score_maximum_by_module: HashMap<Uuid, i64> = HashMap::new();
+    let mut total_exercises_by_module: HashMap<Uuid, i64> = HashMap::new();
+    for row in exercise_rows {
+        score_maximum_by_module.insert(row.course_module_id, row.score_maximum);
+        total_exercises_by_module.insert(row.course_module_id, row.total_exercises);
+    }
 
-    let score_given_rows = sqlx::query!(
+    let answered_rows = sqlx::query!(
         r#"
 SELECT chapters.course_module_id AS "course_module_id!",
-  COALESCE(SUM(ues.score_given), 0) AS "score_given!"
+  COALESCE(SUM(ues.score_given), 0) AS "score_given!",
+  COUNT(ues.exercise_id) AS "attempted_exercises!"
 FROM user_exercise_states AS ues
   JOIN exercises ON (ues.exercise_id = exercises.id)
   JOIN chapters ON (exercises.chapter_id = chapters.id)
@@ -462,16 +477,19 @@ GROUP BY chapters.course_module_id
     )
     .fetch_all(&mut *conn)
     .await?;
-    let score_given_by_module: HashMap<Uuid, f32> = score_given_rows
-        .into_iter()
-        .map(|x| (x.course_module_id, x.score_given))
-        .collect();
+    let mut score_given_by_module: HashMap<Uuid, f32> = HashMap::new();
+    let mut attempted_exercises_by_module: HashMap<Uuid, i64> = HashMap::new();
+    for row in answered_rows {
+        score_given_by_module.insert(row.course_module_id, row.score_given);
+        attempted_exercises_by_module.insert(row.course_module_id, row.attempted_exercises);
+    }
 
     course_modules::get_by_course_ids(conn, course_ids)
         .await?
         .into_iter()
         .map(|course_module| {
-            let score = UserCourseModuleScore {
+            let requirements = course_module.completion_policy.automatic();
+            let progress = UserCourseModuleProgress {
                 score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     score_given_by_module.get(&course_module.id).copied(),
                 ),
@@ -480,12 +498,23 @@ GROUP BY chapters.course_module_id
                     .copied()
                     .map(TryInto::try_into)
                     .transpose()?,
-                score_required: course_module
-                    .completion_policy
-                    .automatic()
-                    .and_then(|requirements| requirements.number_of_points_treshold),
+                score_required: requirements.and_then(|x| x.number_of_points_treshold),
+                total_exercises: total_exercises_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises: attempted_exercises_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .unwrap_or(0)
+                    .try_into()?,
+                attempted_exercises_required: requirements
+                    .and_then(|x| x.number_of_exercises_attempted_treshold),
+                automatic_completion: requirements.is_some(),
+                requires_exam: requirements.is_some_and(|x| x.requires_exam),
             };
-            Ok((course_module.id, score))
+            Ok((course_module.id, progress))
         })
         .collect::<ModelResult<_>>()
 }

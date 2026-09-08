@@ -3392,6 +3392,11 @@ export type MyStudiesCourse = {
    */
   current_course_instance_id?: string | null
   current_course_instance_name?: string | null
+  /**
+   * Whether the student has passed an exam of this course, on the terms the completion check
+   * uses. `None` when no module requires one, so it was never checked.
+   */
+  exam_passed?: boolean | null
   first_enrolled_at: string
   /**
    * Hidden courses are included here, unlike in `getMyCourses`, so the profile can offer unhiding.
@@ -3411,6 +3416,20 @@ export type MyStudiesCourse = {
  * A course module as the student's own profile shows it, with their best visible completion.
  */
 export type MyStudiesCourseModule = {
+  /**
+   * Exercises the student has answered.
+   */
+  attempted_exercises: number
+  /**
+   * Attempted exercises an automatic completion requires. `None` when the module is completed
+   * manually or sets no attempt threshold.
+   */
+  attempted_exercises_required?: number | null
+  /**
+   * False when a teacher grades the module, in which case neither threshold says anything about
+   * completing it.
+   */
+  automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
   ects_credits?: number | null
@@ -3419,6 +3438,10 @@ export type MyStudiesCourseModule = {
    */
   name?: string | null
   order_number: number
+  /**
+   * When true, the thresholds qualify the student to sit an exam rather than complete the module.
+   */
+  requires_exam: boolean
   /**
    * Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
    */
@@ -3433,6 +3456,10 @@ export type MyStudiesCourseModule = {
    */
   score_required?: number | null
   supports_credit_registration: boolean
+  /**
+   * Exercises the module offers. `None` when it has none.
+   */
+  total_exercises?: number | null
   uh_course_code?: string | null
 }
 

@@ -22,11 +22,19 @@ const courseModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCours
   score_given: 12,
   score_maximum: 20,
   score_required: 16,
+  total_exercises: 10,
+  attempted_exercises: 6,
+  attempted_exercises_required: 8,
+  automatic_completion: true,
+  requires_exam: false,
   completion: null,
   ...overrides,
 })
 
-const course = (modules: MyStudiesCourseModule[]): MyStudiesCourse => ({
+const course = (
+  modules: MyStudiesCourseModule[],
+  overrides: Partial<MyStudiesCourse> = {},
+): MyStudiesCourse => ({
   course_id: "course-1",
   course_name: "Introduction to Programming",
   course_slug: "intro-to-programming",
@@ -37,7 +45,9 @@ const course = (modules: MyStudiesCourseModule[]): MyStudiesCourse => ({
   hidden: false,
   current_course_instance_id: null,
   supports_credit_registration: false,
+  exam_passed: null,
   modules,
+  ...overrides,
 })
 
 const completion = (passed: boolean) => ({
@@ -53,6 +63,14 @@ const twoModules = (passed: boolean): MyStudiesCourseModule[] => [
   courseModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
 ]
 
+const teacherGradedModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCourseModule =>
+  courseModule({
+    automatic_completion: false,
+    score_required: null,
+    attempted_exercises_required: null,
+    ...overrides,
+  })
+
 const noRegistrations = new Map<string, MyCreditRegistration>()
 
 describe("StudiesCourseCard", () => {
@@ -64,7 +82,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText("points-given-of-maximum")).toBeInTheDocument()
+    expect(screen.getAllByRole("meter")).toHaveLength(2)
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
@@ -155,5 +173,85 @@ describe("StudiesCourseCard", () => {
     expect(
       screen.getByRole("link", { name: "credit-registration-status-link-label" }),
     ).toHaveAttribute("href", "/completion-registration/module-default")
+  })
+
+  it("states both thresholds under one heading, so the numbers say what they buy", () => {
+    render(
+      <StudiesCourseCard
+        course={course([courseModule({})])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("heading-to-complete-this-part")).toBeInTheDocument()
+    expect(screen.getByText(/n-points/)).toBeInTheDocument()
+    expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
+  })
+
+  it("says the thresholds admit the student to an exam when one stands between them and the completion", () => {
+    render(
+      <StudiesCourseCard
+        course={course([courseModule({ requires_exam: true })], { exam_passed: false })}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("heading-to-take-the-exam")).toBeInTheDocument()
+    expect(screen.getByText("label-exam")).toBeInTheDocument()
+    expect(screen.getByText("label-not-passed")).toBeInTheDocument()
+  })
+
+  it("offers no threshold for a module a teacher grades, since nothing measures one", () => {
+    render(
+      <StudiesCourseCard
+        course={course([teacherGradedModule({})])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("note-teacher-grades-this-course")).toBeInTheDocument()
+    expect(screen.queryByText("heading-to-complete-this-part")).not.toBeInTheDocument()
+  })
+
+  it("says a whole teacher-graded course is one once, not under each of its parts", () => {
+    render(
+      <StudiesCourseCard
+        course={course([
+          teacherGradedModule({}),
+          teacherGradedModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
+        ])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("note-teacher-grades-this-course")).toBeInTheDocument()
+    expect(screen.queryByText("note-teacher-grades-this-part")).not.toBeInTheDocument()
+  })
+
+  it("names the teacher-graded part of a course whose other parts complete on their own", () => {
+    render(
+      <StudiesCourseCard
+        course={course([
+          teacherGradedModule({}),
+          courseModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
+        ])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("note-teacher-grades-this-part")).toBeInTheDocument()
+    expect(screen.queryByText("note-teacher-grades-this-course")).not.toBeInTheDocument()
+  })
+
+  it("drops the requirements of a module the student has completed", () => {
+    render(
+      <StudiesCourseCard
+        course={course([courseModule({ completion: completion(true) })])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.queryByText("heading-to-complete-this-part")).not.toBeInTheDocument()
+    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
   })
 })

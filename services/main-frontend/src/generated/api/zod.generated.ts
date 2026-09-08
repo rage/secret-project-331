@@ -3326,6 +3326,16 @@ export const zMyStudiesCompletion = z.object({
  * A course module as the student's own profile shows it, with their best visible completion.
  */
 export const zMyStudiesCourseModule = z.object({
+  attempted_exercises: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  attempted_exercises_required: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  automatic_completion: z.boolean(),
   completion: zMyStudiesCompletion.nullish(),
   course_module_id: z.uuid(),
   ects_credits: z.number().nullish(),
@@ -3334,6 +3344,7 @@ export const zMyStudiesCourseModule = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -3346,6 +3357,11 @@ export const zMyStudiesCourseModule = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   supports_credit_registration: z.boolean(),
+  total_exercises: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   uh_course_code: z.string().nullish(),
 })
 
@@ -3355,6 +3371,7 @@ export const zMyStudiesCourse = z.object({
   course_slug: z.string(),
   current_course_instance_id: z.uuid().nullish(),
   current_course_instance_name: z.string().nullish(),
+  exam_passed: z.boolean().nullish(),
   first_enrolled_at: z.iso.datetime(),
   hidden: z.boolean(),
   is_current: z.boolean(),

@@ -301,7 +301,7 @@ pub async fn user_can_take_exam(
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-async fn user_has_passed_exam_for_the_course_based_on_points(
+pub async fn user_has_passed_exam_for_the_course_based_on_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,

@@ -18,6 +18,7 @@ const course: MyStudiesCourse = {
   is_current: true,
   hidden: false,
   supports_credit_registration: false,
+  exam_passed: null,
   modules: [
     {
       course_module_id: "module-default",
@@ -28,6 +29,11 @@ const course: MyStudiesCourse = {
       score_given: 12,
       score_maximum: 20,
       score_required: 16,
+      total_exercises: 10,
+      attempted_exercises: 10,
+      attempted_exercises_required: 8,
+      automatic_completion: true,
+      requires_exam: false,
       completion: {
         course_module_completion_id: "completion-1",
         completion_date: "2026-01-12T09:00:00Z",
@@ -45,6 +51,11 @@ const course: MyStudiesCourse = {
       score_given: 9,
       score_maximum: 15,
       score_required: 10,
+      total_exercises: 12,
+      attempted_exercises: 7,
+      attempted_exercises_required: 9,
+      automatic_completion: true,
+      requires_exam: false,
       completion: null,
     },
   ],
@@ -79,11 +90,19 @@ describe("StudiesCourseCard accessibility", () => {
     expect(screen.getByText("module-not-completed-yet")).toBeInTheDocument()
   })
 
-  it("labels the points meter and states its value in text", () => {
+  it("labels each meter and states its value in text", () => {
     renderCard()
 
-    expect(screen.getByRole("meter")).toHaveAccessibleName("label-points")
-    expect(screen.getByText("points-given-of-maximum")).toBeInTheDocument()
+    const [points, exercises] = screen.getAllByRole("meter")
+    expect(points).toHaveAccessibleName("label-points")
+    expect(exercises).toHaveAccessibleName("exercises-attempted")
+    expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
+  })
+
+  it("names what the meters are measured for, so the numbers are not read bare", () => {
+    renderCard()
+
+    expect(screen.getByRole("group", { name: "heading-to-complete-this-part" })).toBeInTheDocument()
   })
 
   it("announces the modules as a list", () => {

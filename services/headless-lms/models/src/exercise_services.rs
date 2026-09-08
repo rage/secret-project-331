@@ -333,6 +333,7 @@ mod test {
                 has_custom_view: false,
                 supports_native_client,
                 produces_file_answers: false,
+                declares_spec_files: false,
             },
         )
         .await
@@ -380,6 +381,7 @@ mod test {
                 csv_export_answers_endpoint_path: None,
                 supports_native_client: true,
                 produces_file_answers: false,
+                declares_spec_files: false,
             },
         )
         .await

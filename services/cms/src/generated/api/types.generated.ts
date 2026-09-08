@@ -77,6 +77,16 @@ export type CmsPageExerciseTask = {
   id: string
   order_number: number
   private_spec?: unknown
+  /**
+   * The stored files this task's private spec references, as the exercise service declared them
+   * in the editor. The host cannot read the spec, so this list is the only thing keeping the
+   * files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+   * attribute, so a load that leaves it empty makes the next save drop the references.
+   *
+   * Only the private spec's. Each derived spec declares its own files in the response of the
+   * endpoint that produced it, since a derivation may upload files of its own.
+   */
+  private_spec_files?: Array<string>
 }
 
 export type CmsPageUpdate = {

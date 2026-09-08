@@ -24,16 +24,32 @@ export type MessageFromIframe =
 export interface CurrentStateMessage {
   message: "current-state"
   /**
-   * The plugin's own answer JSON. When `files` is present this is metadata *about* those files,
-   * and may be omitted entirely by a plugin whose answer is nothing but the files.
+   * The plugin's own answer JSON, or `{ private_spec }` from the exercise editor. When `files` is
+   * present in an answer this is metadata *about* those files, and may be omitted entirely by a
+   * plugin whose answer is nothing but the files.
    */
   data: unknown
   /**
-   * Host file ids from `upload-result` that this answer consists of, in the order the plugin
-   * wants them graded and displayed. Present makes the answer file-typed; absent leaves it
-   * JSON-typed. The host verifies every id was uploaded by this user for this exercise.
+   * From `answer-exercise`: host file ids from `upload-result` for the files the answer consists
+   * of, in the order the plugin wants them graded and displayed. Present makes the answer
+   * file-typed; absent leaves it JSON-typed. The host verifies every id was uploaded by this user
+   * for this exercise, and rejects a list that is empty or repeats an id.
+   *
+   * Ignored from the other views — the editor declares its files as `private_spec_files`.
    */
   files?: string[]
+  /**
+   * From `exercise-editor`: host file ids from `upload-result` for every file the private spec
+   * references, in any order. The host cannot read the spec, so this list is the only thing that
+   * keeps those files from being reclaimed as abandoned uploads. Send the complete list on every
+   * `current-state`, and `[]` to release every file; omitting it leaves the previous declaration
+   * standing, so a plugin that forgets the field cannot silently lose files. Only meaningful for a
+   * service whose service-info declares `declares_spec_files`.
+   *
+   * Ignored from the other views. Unlike `files`, the host does not verify these ids belong to the
+   * editing user, but it does reject ids it has no upload for.
+   */
+  private_spec_files?: string[]
   valid: boolean
   /**
    * Optional, already-localized reasons the current answer is not yet submittable

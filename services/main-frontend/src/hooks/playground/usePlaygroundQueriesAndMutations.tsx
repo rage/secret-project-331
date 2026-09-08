@@ -3,7 +3,6 @@
 import { isServer, useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import type {
   GetPlaygroundViewsWebsocketData,
@@ -15,16 +14,13 @@ import type {
   GradingRequestFile,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
-import type {
-  ExerciseServiceInfoApi,
-  ExerciseTaskGradingResult,
-  SpecRequest,
-} from "@/utils/playgroundSchemas"
+import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 import {
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
 } from "@/utils/playgroundSchemas"
+import { fetchDerivedSpec, readJsonResponse } from "@/utils/playgroundSpecRequests"
 
 import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
@@ -33,18 +29,6 @@ const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
   "/api/v0/main-frontend/playground-views/ws"
 const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
   "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
-
-async function readJsonResponse(res: Response): Promise<unknown> {
-  const text = await res.text()
-  if (!text) {
-    return null
-  }
-  try {
-    return JSON.parse(text) as unknown
-  } catch {
-    return text
-  }
-}
 
 interface UsePlaygroundQueriesArguments {
   url: string
@@ -92,8 +76,9 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       args.parsedPrivateSpec.privateSpecValidJson,
       args.parsedPrivateSpec.parsedPrivateSpec,
       serviceInfoQuery.data?.public_spec_endpoint_path,
+      serviceInfoQuery.data?.declares_spec_files,
     ],
-    queryFn: async (): Promise<unknown> => {
+    queryFn: (): Promise<unknown> => {
       if (
         !serviceInfoQuery.data ||
         !isValidServiceInfo ||
@@ -101,23 +86,13 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       ) {
         throw new Error("This query should be disabled.")
       }
-      const payload: SpecRequest = {
-        request_id: v4(),
-        private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
-        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
-      }
-      const res = await fetch(
-        `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      )
-      if (!res.ok) {
-        throw new Error(`Failed to load public spec (${res.status})`)
-      }
-      return readJsonResponse(res)
+      return fetchDerivedSpec({
+        endpointUrl: `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
+        privateSpec: args.parsedPrivateSpec.parsedPrivateSpec,
+        uploadUrl: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
+        declaresSpecFiles: serviceInfoQuery.data.declares_spec_files === true,
+        specDescription: "public spec",
+      })
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -136,8 +111,9 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       args.parsedPrivateSpec.privateSpecValidJson,
       args.parsedPrivateSpec.parsedPrivateSpec,
       serviceInfoQuery.data?.model_solution_spec_endpoint_path,
+      serviceInfoQuery.data?.declares_spec_files,
     ],
-    queryFn: async (): Promise<unknown> => {
+    queryFn: (): Promise<unknown> => {
       if (
         !serviceInfoQuery.data ||
         !isValidServiceInfo ||
@@ -145,23 +121,13 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       ) {
         throw new Error("This query should be disabled.")
       }
-      const payload: SpecRequest = {
-        request_id: v4(),
-        private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
-        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
-      }
-      const res = await fetch(
-        `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      )
-      if (!res.ok) {
-        throw new Error(`Failed to load model solution spec (${res.status})`)
-      }
-      return readJsonResponse(res)
+      return fetchDerivedSpec({
+        endpointUrl: `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
+        privateSpec: args.parsedPrivateSpec.parsedPrivateSpec,
+        uploadUrl: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
+        declaresSpecFiles: serviceInfoQuery.data.declares_spec_files === true,
+        specDescription: "model solution spec",
+      })
     },
     enabled:
       serviceInfoQuery.isSuccess &&

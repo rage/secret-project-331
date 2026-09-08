@@ -134,6 +134,17 @@
             "name": "produces_file_answers"
           }
         }
+      },
+      {
+        "ordinal": 12,
+        "name": "declares_spec_files",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "declares_spec_files"
+          }
+        }
       }
     ],
     "parameters": {
@@ -152,6 +163,7 @@
       false,
       true,
       true,
+      false,
       false,
       false
     ]

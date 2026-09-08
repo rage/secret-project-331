@@ -41,9 +41,16 @@ export type AnswerArchiveError = "load" | "save"
  */
 export function currentStateMessage(state: ExerciseIframeState | null): MessageToParent | null {
   if (state?.view_type === "exercise-editor") {
+    // An empty declaration on every message, not an omitted one: this service declares its spec
+    // files, and a private spec that names none must say so rather than stay silent.
     return state.private_spec === null
       ? null
-      : { message: "current-state", data: { private_spec: state.private_spec }, valid: true }
+      : {
+          message: "current-state",
+          data: { private_spec: state.private_spec },
+          private_spec_files: [],
+          valid: true,
+        }
   }
   if (state?.view_type === "answer-exercise") {
     const archiveId = state.uploaded_archive_id

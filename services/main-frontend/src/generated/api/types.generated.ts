@@ -1590,6 +1590,10 @@ export type CourseModuleCompletion = {
   needs_to_be_reviewed: boolean
   passed: boolean
   prerequisite_modules_completed: boolean
+  /**
+   * Whether the push path owns this completion. See the column comment; decided at insert.
+   */
+  register_credits_via_suotar: boolean
   updated_at: string
   user_id: string
 }
@@ -2165,6 +2169,11 @@ export type CreditRegistrationDetails = {
   not_improved_attainment?: null | NotImprovedAttainment
   registration: CourseCreditRegistration
 }
+
+/**
+ * Which university relationship a student picked, which decides only where they are told to enrol.
+ */
+export type CreditRegistrationEnrolmentRoute = "university_of_helsinki" | "open_university"
 
 /**
  * Why a ledger row is where it is; `state` says what happens to it next.
@@ -3318,6 +3327,15 @@ export type MyCreditRegistration = {
   credits?: number | null
   ects_credits?: number | null
   /**
+   * When we last looked for an enrolment, so the page can say how fresh its answer is.
+   */
+  enrolment_checked_at?: string | null
+  /**
+   * Whether an enrolment has been settled on, which is what ticks the step rather than the name
+   * below it: a realisation with no teacher label yet leaves that name empty.
+   */
+  enrolment_found: boolean
+  /**
    * The open university enrolment page, for a row the study registry has no enrolment for.
    */
   enrolment_link?: string | null
@@ -3352,6 +3370,11 @@ export type MyCreditRegistration = {
    * checked against the student's own card; `None` before the row was ready to send.
    */
   student_number?: string | null
+  /**
+   * When the attainment went to the study registry. Ticks the sending step; `registered_at` is
+   * when the registry confirmed it.
+   */
+  submitted_at?: string | null
   superseded: boolean
   uh_course_code?: string | null
 }
@@ -3366,6 +3389,20 @@ export type MyCreditRegistrationForCourseModule = {
    */
   earlier_attempts: Array<MyCreditRegistration>
   registration: MyCreditRegistration
+}
+
+/**
+ * The caller's answer about where they enrol one module, and whether it can still be changed.
+ */
+export type MyEnrolmentRoute = {
+  /**
+   * False once an enrolment has been found: the answer only picks which enrolment instructions to
+   * show, so once we have the enrolment there is nothing left for it to change.
+   */
+  can_change: boolean
+  course_module_completion_id: string
+  enrolment_confirmed_at?: string | null
+  route?: null | CreditRegistrationEnrolmentRoute
 }
 
 export type MyStudies = {
@@ -4502,6 +4539,10 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
+export type SetEnrolmentRoutePayload = {
+  route: CreditRegistrationEnrolmentRoute
+}
+
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
@@ -4527,8 +4568,9 @@ export type StuckThresholds = {
 export type StudentFacingCreditRegistrationStatus =
   | "waiting_for_completion"
   | "needs_student_number"
-  | "in_progress"
+  | "looking_for_enrolment"
   | "needs_enrolment"
+  | "sending"
   | "waiting_for_sisu"
   | "registered"
   | "failed"
@@ -4908,6 +4950,11 @@ export type UserCompletionInformation = {
   email: string
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
+  /**
+   * Whether this completion in particular goes through the push path. Both this and the module
+   * flag above must hold; the module's is permission, this is the per-student switch.
+   */
+  register_credits_via_suotar: boolean
   /**
    * `None` only on a module registering through credit registration.
    */
@@ -10248,6 +10295,94 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
   GetMyCreditRegistrationForCourseModuleResponses[keyof GetMyCreditRegistrationForCourseModuleResponses]
+
+export type GetMyEnrolmentRouteData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route"
+}
+
+export type GetMyEnrolmentRouteResponses = {
+  /**
+   * The caller's answer for the module
+   */
+  200: MyEnrolmentRoute
+}
+
+export type GetMyEnrolmentRouteResponse =
+  GetMyEnrolmentRouteResponses[keyof GetMyEnrolmentRouteResponses]
+
+export type SetMyEnrolmentRouteData = {
+  body: SetEnrolmentRoutePayload
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route"
+}
+
+export type SetMyEnrolmentRouteResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type SetMyEnrolmentRouteResponse =
+  SetMyEnrolmentRouteResponses[keyof SetMyEnrolmentRouteResponses]
+
+export type WithdrawMyEnrolmentConfirmationData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm"
+}
+
+export type WithdrawMyEnrolmentConfirmationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyEnrolmentConfirmationResponse =
+  WithdrawMyEnrolmentConfirmationResponses[keyof WithdrawMyEnrolmentConfirmationResponses]
+
+export type ConfirmMyEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm"
+}
+
+export type ConfirmMyEnrolmentResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ConfirmMyEnrolmentResponse =
+  ConfirmMyEnrolmentResponses[keyof ConfirmMyEnrolmentResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never

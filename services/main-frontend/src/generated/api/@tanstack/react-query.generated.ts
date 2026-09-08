@@ -39,6 +39,7 @@ import {
   claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
+  confirmMyEnrolment,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -235,6 +236,7 @@ import {
   getMyCreditRegistrationForCourseModule,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
+  getMyEnrolmentRoute,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
@@ -359,6 +361,7 @@ import {
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
+  setMyEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
@@ -393,6 +396,7 @@ import {
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
+  withdrawMyEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -441,6 +445,8 @@ import type {
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   ConfirmCourseSuspectedCheaterData,
+  ConfirmMyEnrolmentData,
+  ConfirmMyEnrolmentResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -805,6 +811,8 @@ import type {
   GetMyCreditRegistrationsResponse,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponse,
+  GetMyEnrolmentRouteData,
+  GetMyEnrolmentRouteResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -1036,6 +1044,8 @@ import type {
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
+  SetMyEnrolmentRouteData,
+  SetMyEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -1093,6 +1103,8 @@ import type {
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
+  WithdrawMyEnrolmentConfirmationData,
+  WithdrawMyEnrolmentConfirmationResponse,
 } from "../types.generated"
 
 /**
@@ -7269,6 +7281,115 @@ export const getMyCreditRegistrationForCourseModuleOptions = (
       }),
     queryKey: getMyCreditRegistrationForCourseModuleQueryKey(options),
   })
+
+export const getMyEnrolmentRouteQueryKey = (options: Options<GetMyEnrolmentRouteData>) =>
+  createQueryKey("getMyEnrolmentRoute", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - What the caller said about where they enrol this module.
+ */
+export const getMyEnrolmentRouteOptions = (options: Options<GetMyEnrolmentRouteData>) =>
+  queryOptions<
+    GetMyEnrolmentRouteResponse,
+    DefaultError,
+    GetMyEnrolmentRouteResponse,
+    ReturnType<typeof getMyEnrolmentRouteQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyEnrolmentRoute({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyEnrolmentRouteQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - Records which university relationship the caller has, which decides where they are told to enrol.
+ */
+export const setMyEnrolmentRouteMutation = (
+  options?: Partial<Options<SetMyEnrolmentRouteData>>,
+): UseMutationOptions<
+  SetMyEnrolmentRouteResponse,
+  DefaultError,
+  Options<SetMyEnrolmentRouteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyEnrolmentRouteResponse,
+    DefaultError,
+    Options<SetMyEnrolmentRouteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller takes back saying they had enrolled.
+ */
+export const withdrawMyEnrolmentConfirmationMutation = (
+  options?: Partial<Options<WithdrawMyEnrolmentConfirmationData>>,
+): UseMutationOptions<
+  WithdrawMyEnrolmentConfirmationResponse,
+  DefaultError,
+  Options<WithdrawMyEnrolmentConfirmationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyEnrolmentConfirmationResponse,
+    DefaultError,
+    Options<WithdrawMyEnrolmentConfirmationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyEnrolmentConfirmation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller says they have enrolled.
+ *
+ * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
+ * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ */
+export const confirmMyEnrolmentMutation = (
+  options?: Partial<Options<ConfirmMyEnrolmentData>>,
+): UseMutationOptions<
+  ConfirmMyEnrolmentResponse,
+  DefaultError,
+  Options<ConfirmMyEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ConfirmMyEnrolmentResponse,
+    DefaultError,
+    Options<ConfirmMyEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await confirmMyEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getMyCreditRegistrationEnrolmentBannersQueryKey = (
   options: Options<GetMyCreditRegistrationEnrolmentBannersData>,

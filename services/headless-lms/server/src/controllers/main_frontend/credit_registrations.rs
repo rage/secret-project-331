@@ -10,6 +10,7 @@ use std::collections::HashMap;
 
 use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
+    credit_registration_enrolment_routes::{self, CreditRegistrationEnrolmentRoute},
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
@@ -47,6 +48,10 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
     request_credit_registration_enrolment_recheck,
     dismiss_credit_registration_enrolment_banner,
     get_my_verified_student_number,
+    get_my_enrolment_route,
+    set_my_enrolment_route,
+    confirm_my_enrolment,
+    withdraw_my_enrolment_confirmation,
     dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
@@ -126,7 +131,15 @@ pub struct MyCreditRegistration {
     pub attempt_number: i32,
     pub superseded: bool,
     pub can_request_enrolment_recheck: bool,
+    /// Whether an enrolment has been settled on, which is what ticks the step rather than the name
+    /// below it: a realisation with no teacher label yet leaves that name empty.
+    pub enrolment_found: bool,
+    /// When we last looked for an enrolment, so the page can say how fresh its answer is.
+    pub enrolment_checked_at: Option<DateTime<Utc>>,
     pub enrolment_realisation_name: Option<String>,
+    /// When the attainment went to the study registry. Ticks the sending step; `registered_at` is
+    /// when the registry confirmed it.
+    pub submitted_at: Option<DateTime<Utc>>,
     /// The open university enrolment page, for a row the study registry has no enrolment for.
     pub enrolment_link: Option<String>,
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
@@ -737,7 +750,11 @@ async fn build_my_credit_registrations(
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let state = row.state;
-        let status = StudentFacingCreditRegistrationStatus::of(state, row.preconditions());
+        let status = StudentFacingCreditRegistrationStatus::of(
+            state,
+            row.preconditions(),
+            row.enrolment_resolved,
+        );
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             resolve_enrolment_link(conn, &row, &mut enrolment_links).await?
         } else {
@@ -796,7 +813,10 @@ fn to_my_credit_registration(
         attempt_number: row.attempt_number,
         superseded: row.superseded_by_id.is_some(),
         can_request_enrolment_recheck,
+        enrolment_found: row.enrolment_resolved,
+        enrolment_checked_at: row.enrolment_checked_at,
         enrolment_realisation_name: row.enrolment_realisation_name,
+        submitted_at: row.submitted_at,
         enrolment_link,
         linking_email,
         notification_email,
@@ -943,6 +963,295 @@ pub(crate) fn mask_email(email: &str) -> String {
     }
 }
 
+/// The caller's answer about where they enrol one module, and whether it can still be changed.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyEnrolmentRoute {
+    pub course_module_completion_id: Uuid,
+    /// `None` until the student answers the question.
+    pub route: Option<CreditRegistrationEnrolmentRoute>,
+    pub enrolment_confirmed_at: Option<DateTime<Utc>>,
+    /// False once an enrolment has been found: the answer only picks which enrolment instructions to
+    /// show, so once we have the enrolment there is nothing left for it to change.
+    pub can_change: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct SetEnrolmentRoutePayload {
+    pub route: CreditRegistrationEnrolmentRoute,
+}
+
+/// The caller's completion for a module, which is also the ownership check: the lookup is scoped to
+/// their own user, so a module someone else completed is a not-found rather than a forbidden.
+async fn my_completion_for_module(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> Result<Uuid, ControllerError> {
+    let completion = models::course_module_completions::get_latest_by_course_and_user_ids(
+        conn,
+        course_module_id,
+        user_id,
+    )
+    .await?;
+    Ok(completion.id)
+}
+
+/// The caller's live registration for a module, or `None` before the pipeline has created one.
+async fn my_live_registration_for_module(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> Result<Option<StudentCreditRegistration>, ControllerError> {
+    let rows = models::credit_registrations::get_student_facing_by_user_id(
+        conn,
+        user_id,
+        StudentRegistrationFilter {
+            course_module_id: Some(course_module_id),
+            ..StudentRegistrationFilter::default()
+        },
+    )
+    .await?;
+    Ok(rows.into_iter().find(|row| row.superseded_by_id.is_none()))
+}
+
+async fn build_my_enrolment_route(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> Result<(MyEnrolmentRoute, Option<StudentCreditRegistration>), ControllerError> {
+    let course_module_completion_id =
+        my_completion_for_module(conn, user_id, course_module_id).await?;
+    let registration = my_live_registration_for_module(conn, user_id, course_module_id).await?;
+    let answer = credit_registration_enrolment_routes::get_by_completion_id(
+        conn,
+        course_module_completion_id,
+    )
+    .await?;
+    let can_change = !registration
+        .as_ref()
+        .is_some_and(|row| row.enrolment_resolved);
+    Ok((
+        MyEnrolmentRoute {
+            course_module_completion_id,
+            route: answer.as_ref().map(|answer| answer.route),
+            enrolment_confirmed_at: answer.and_then(|answer| answer.enrolment_confirmed_at),
+            can_change,
+        },
+        registration,
+    ))
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+- What the caller said about where they enrol this module.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route",
+    operation_id = "getMyEnrolmentRoute",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The caller's answer for the module", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn get_my_enrolment_route(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+- Records which university relationship the caller has, which decides where they are told to enrol.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route",
+    operation_id = "setMyEnrolmentRoute",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    request_body = SetEnrolmentRoutePayload,
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn set_my_enrolment_route(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+    payload: web::Json<SetEnrolmentRoutePayload>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    if !current.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "Your enrolment has already been found, so this answer no longer changes anything."
+                .to_string()
+        ));
+    }
+    credit_registration_enrolment_routes::set_route(
+        &mut conn,
+        current.course_module_completion_id,
+        user.id,
+        payload.route,
+    )
+    .await?;
+    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+- The caller says they have enrolled.
+
+Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
+enrolment check forward, and only when the hourly allowance the manual button spends is free.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    operation_id = "confirmMyEnrolment",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn confirm_my_enrolment(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (current, registration) =
+        build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    if current.route.is_none() {
+        return Err(controller_err!(
+            BadRequest,
+            "Answer where you enrol before confirming that you have.".to_string()
+        ));
+    }
+    if !current.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "Your enrolment has already been found.".to_string()
+        ));
+    }
+    credit_registration_enrolment_routes::set_enrolment_confirmed(
+        &mut conn,
+        current.course_module_completion_id,
+        true,
+    )
+    .await?;
+    if let Some(registration) = registration {
+        bring_enrolment_check_forward(&mut conn, user.id, &registration).await?;
+    }
+    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+- The caller takes back saying they had enrolled.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    operation_id = "withdrawMyEnrolmentConfirmation",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn withdraw_my_enrolment_confirmation(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    if !current.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "Your enrolment has already been found, so there is nothing to take back.".to_string()
+        ));
+    }
+    credit_registration_enrolment_routes::set_enrolment_confirmed(
+        &mut conn,
+        current.course_module_completion_id,
+        false,
+    )
+    .await?;
+    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/// Makes the row due for its next enrolment check, unless we looked recently enough that asking
+/// again would tell the student nothing new.
+///
+/// Shares [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`] with the manual button rather than getting an
+/// allowance of its own, so pressing Done cannot be used to poll the study registry.
+async fn bring_enrolment_check_forward(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    registration: &StudentCreditRegistration,
+) -> Result<(), ControllerError> {
+    let looked_recently = registration.enrolment_checked_at.is_some_and(|checked| {
+        checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS) > Utc::now()
+    });
+    if registration.enrolment_resolved || looked_recently {
+        return Ok(());
+    }
+    let mut tx = conn.begin().await?;
+    models::credit_registration_events::insert(
+        &mut tx,
+        &NewCreditRegistrationEvent {
+            actor_user_id: Some(user_id),
+            message: Some("The student said they had enrolled.".to_string()),
+            ..NewCreditRegistrationEvent::new(
+                registration.id,
+                CreditRegistrationEventKind::StudentAction,
+            )
+        },
+    )
+    .await?;
+    models::credit_registrations::make_due_now_batch(&mut tx, &[registration.id]).await?;
+    recompute_preconditions(
+        &mut tx,
+        &RegistrationScope {
+            credit_registration_ids: vec![registration.id],
+            ..RegistrationScope::default()
+        },
+        PRECONDITIONS_LIMIT,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(())
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/my", web::get().to(get_my_credit_registrations))
         .route(
@@ -960,6 +1269,19 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/my/by-course-module/{course_module_id}",
             web::get().to(get_my_credit_registration_for_course_module),
+        )
+        .route(
+            "/my/by-course-module/{course_module_id}/enrolment-route",
+            web::get().to(get_my_enrolment_route),
+        )
+        .service(
+            web::resource("/my/by-course-module/{course_module_id}/enrolment-route")
+                .route(web::put().to(set_my_enrolment_route)),
+        )
+        .service(
+            web::resource("/my/by-course-module/{course_module_id}/enrolment-route/confirm")
+                .route(web::post().to(confirm_my_enrolment))
+                .route(web::delete().to(withdraw_my_enrolment_confirmation)),
         )
         .route(
             "/my/enrolment-banners/by-course/{course_id}",

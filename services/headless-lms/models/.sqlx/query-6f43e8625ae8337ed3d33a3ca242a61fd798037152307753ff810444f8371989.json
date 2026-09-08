@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.course_module_id,\n  cr.state,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE cr.needs_admin_attention\n  ) AS \"needs_admin_attention_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.course_id = $1\n  AND (\n    $2::uuid IS NULL\n    OR cr.course_instance_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY cr.course_module_id,\n  cr.state,\n  p.completion_eligible,\n  p.has_verified_student_number\n        ",
+  "query": "\nSELECT cr.course_module_id,\n  cr.state,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE cr.needs_admin_attention\n  ) AS \"needs_admin_attention_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.course_id = $1\n  AND (\n    $2::uuid IS NULL\n    OR cr.course_instance_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY cr.course_module_id,\n  cr.state,\n  p.completion_eligible,\n  p.has_verified_student_number,\n  (cr.selected_enrolment_id IS NOT NULL)\n        ",
   "describe": {
     "columns": [
       {
@@ -73,12 +73,18 @@
       },
       {
         "ordinal": 4,
+        "name": "enrolment_resolved!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
         "name": "count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "needs_admin_attention_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -96,8 +102,9 @@
       true,
       true,
       null,
+      null,
       null
     ]
   },
-  "hash": "3f832ed93566ecd502c5297e68034cd54ec16340b98163e1110c9ef7fed6596f"
+  "hash": "6f43e8625ae8337ed3d33a3ca242a61fd798037152307753ff810444f8371989"
 }

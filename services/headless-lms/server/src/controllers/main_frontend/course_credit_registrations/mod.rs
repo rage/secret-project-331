@@ -319,6 +319,7 @@ fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationSt
             completion_eligible: group.completion_eligible,
             has_verified_student_number: group.has_verified_student_number,
         },
+        group.enrolment_resolved,
     )
 }
 
@@ -396,7 +397,9 @@ pub async fn get_course_credit_registration_summary(
                 paused: config.credit_registration_paused_at.is_some(),
                 registration_count: groups.iter().map(|group| group.count).sum(),
                 registered_count: in_stage(Stage::Registered),
-                in_progress_count: in_stage(Stage::InProgress) + in_stage(Stage::WaitingForSisu),
+                in_progress_count: in_stage(Stage::LookingForEnrolment)
+                    + in_stage(Stage::Sending)
+                    + in_stage(Stage::WaitingForSisu),
                 waiting_on_student_count: in_stage(Stage::WaitingForCompletion)
                     + in_stage(Stage::NeedsStudentNumber)
                     + in_stage(Stage::NeedsEnrolment),
@@ -945,8 +948,11 @@ pub(crate) async fn build_teacher_registrations(
     let waiting: Vec<&TeacherCreditRegistration> = rows
         .iter()
         .filter(|row| {
-            StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions())
-                == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
+            StudentFacingCreditRegistrationStatus::of(
+                row.state,
+                row.preconditions(),
+                row.enrolment_resolved,
+            ) == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
         })
         .collect();
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
@@ -981,6 +987,7 @@ impl From<TeacherCreditRegistration> for CourseCreditRegistration {
             student_facing_status: StudentFacingCreditRegistrationStatus::of(
                 row.state,
                 row.preconditions(),
+                row.enrolment_resolved,
             ),
             superseded: row.superseded_by_id.is_some(),
             linking_email: None,

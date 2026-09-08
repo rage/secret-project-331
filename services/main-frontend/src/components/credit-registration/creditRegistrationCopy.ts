@@ -8,11 +8,21 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, widenedLookup } from "./labelFrom"
+import {
+  STEP_ENROLMENT_FOUND,
+  STEP_ENROLMENT_ROUTE,
+  STEP_REGISTERED,
+  STEP_SENT,
+  STEP_STUDENT_NUMBER,
+  type RegistrationStepKey,
+  type RegistrationStepState,
+} from "./registrationSteps"
 
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
   needs_student_number: "action-needed",
-  in_progress: "current",
+  looking_for_enrolment: "current",
+  sending: "current",
   needs_enrolment: "action-needed",
   waiting_for_sisu: "current",
   registered: "done",
@@ -23,7 +33,8 @@ const STATUS_STATES = {
 const STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-status-waiting-for-completion",
   needs_student_number: "credit-registration-status-needs-student-number",
-  in_progress: "credit-registration-status-in-progress",
+  looking_for_enrolment: "credit-registration-status-looking-for-enrolment",
+  sending: "credit-registration-status-sending",
   needs_enrolment: "credit-registration-status-needs-enrolment",
   waiting_for_sisu: "credit-registration-status-waiting-for-sisu",
   registered: "credit-registration-status-registered",
@@ -37,7 +48,8 @@ const STATUS_LABEL_UNKNOWN_KEY = "credit-registration-status-unknown"
 const TEACHER_STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-teacher-status-waiting-for-completion",
   needs_student_number: "credit-registration-teacher-status-needs-student-number",
-  in_progress: "credit-registration-teacher-status-in-progress",
+  looking_for_enrolment: "credit-registration-teacher-status-looking-for-enrolment",
+  sending: "credit-registration-teacher-status-sending",
   needs_enrolment: "credit-registration-teacher-status-needs-enrolment",
   waiting_for_sisu: "credit-registration-teacher-status-waiting-for-sisu",
   registered: "credit-registration-teacher-status-registered",
@@ -50,7 +62,8 @@ const TEACHER_STATUS_LABEL_UNKNOWN_KEY = "credit-registration-teacher-status-unk
 const STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-explanation-waiting-for-completion",
   needs_student_number: "credit-registration-explanation-needs-student-number",
-  in_progress: "credit-registration-explanation-in-progress",
+  looking_for_enrolment: "credit-registration-explanation-looking-for-enrolment",
+  sending: "credit-registration-explanation-sending",
   needs_enrolment: "credit-registration-explanation-needs-enrolment",
   waiting_for_sisu: "credit-registration-explanation-waiting-for-sisu",
   registered: "credit-registration-explanation-registered",
@@ -61,7 +74,8 @@ const STATUS_EXPLANATION_KEYS = {
 const TEACHER_STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-teacher-explanation-waiting-for-completion",
   needs_student_number: "credit-registration-teacher-explanation-needs-student-number",
-  in_progress: "credit-registration-teacher-explanation-in-progress",
+  looking_for_enrolment: "credit-registration-teacher-explanation-looking-for-enrolment",
+  sending: "credit-registration-teacher-explanation-sending",
   needs_enrolment: "credit-registration-teacher-explanation-needs-enrolment",
   waiting_for_sisu: "credit-registration-teacher-explanation-waiting-for-sisu",
   registered: "credit-registration-teacher-explanation-registered",
@@ -318,3 +332,30 @@ export const registrationLedgerStateLabel = (
   state === "pending" && pendingReason
     ? labelFrom(t, PENDING_REASON_STATE_KEYS, pendingReason, LEDGER_STATE_KEYS.pending)
     : labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)
+
+const STEP_TITLE_KEYS = {
+  [STEP_ENROLMENT_ROUTE]: "step-where-you-enrolled",
+  [STEP_STUDENT_NUMBER]: "step-student-number-linked",
+  [STEP_ENROLMENT_FOUND]: "step-we-found-your-enrolment",
+  [STEP_SENT]: "step-sent-to-the-study-registry",
+  [STEP_REGISTERED]: "step-registered",
+} as const satisfies Record<RegistrationStepKey, string>
+
+/** The word in the margin. Said for every step, including the ones still to come. */
+const STEP_STATE_KEYS = {
+  done: "step-state-done",
+  current: "step-state-waiting",
+  "action-needed": "step-state-your-turn",
+  failed: "step-state-failed",
+  upcoming: "step-state-not-yet",
+} as const satisfies Record<RegistrationStepState, string>
+
+export const registrationStepTitle = (
+  t: CreditRegistrationTFunction,
+  key: RegistrationStepKey,
+): string => t(STEP_TITLE_KEYS[key])
+
+export const registrationStepStateLabel = (
+  t: CreditRegistrationTFunction,
+  state: RegistrationStepState,
+): string => t(STEP_STATE_KEYS[state])

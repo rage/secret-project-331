@@ -1167,6 +1167,7 @@ export const zCourseModuleCompletion = z.object({
   needs_to_be_reviewed: z.boolean(),
   passed: z.boolean(),
   prerequisite_modules_completed: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1470,6 +1471,14 @@ export const zCreditRegistrationCourseConfigCheck = z.object({
   message: z.string().nullish(),
   product_token_found: z.boolean().nullish(),
 })
+
+/**
+ * Which university relationship a student picked, which decides only where they are told to enrol.
+ */
+export const zCreditRegistrationEnrolmentRoute = z.enum([
+  "university_of_helsinki",
+  "open_university",
+])
 
 /**
  * Why a ledger row is where it is; `state` says what happens to it next.
@@ -3308,6 +3317,16 @@ export const zMyCourse = zCourse.and(
 )
 
 /**
+ * The caller's answer about where they enrol one module, and whether it can still be changed.
+ */
+export const zMyEnrolmentRoute = z.object({
+  can_change: z.boolean(),
+  course_module_completion_id: z.uuid(),
+  enrolment_confirmed_at: z.iso.datetime().nullish(),
+  route: zCreditRegistrationEnrolmentRoute.nullish(),
+})
+
+/**
  * A completion as the student may see it. `needs_to_be_reviewed` ones are excluded so a student
  * cannot infer that they are under suspicion.
  */
@@ -4604,6 +4623,10 @@ export const zServiceInfo = z.object({
   ports: z.array(zServicePortInfo),
 })
 
+export const zSetEnrolmentRoutePayload = z.object({
+  route: zCreditRegistrationEnrolmentRoute,
+})
+
 export const zSisuDescriptionResponse = z.object({
   audience: z.array(z.string()),
   course_description: z.string(),
@@ -4663,8 +4686,9 @@ export const zCreditRegistrationHealth = z.object({
 export const zStudentFacingCreditRegistrationStatus = z.enum([
   "waiting_for_completion",
   "needs_student_number",
-  "in_progress",
+  "looking_for_enrolment",
   "needs_enrolment",
+  "sending",
   "waiting_for_sisu",
   "registered",
   "failed",
@@ -4685,6 +4709,8 @@ export const zMyCreditRegistration = z.object({
   course_slug: z.string(),
   credits: z.number().nullish(),
   ects_credits: z.number().nullish(),
+  enrolment_checked_at: z.iso.datetime().nullish(),
+  enrolment_found: z.boolean(),
   enrolment_link: z.string().nullish(),
   enrolment_realisation_name: z.string().nullish(),
   error_code: zCreditRegistrationErrorCode.nullish(),
@@ -4700,6 +4726,7 @@ export const zMyCreditRegistration = z.object({
   status_is_moving: z.boolean(),
   student_facing_status: zStudentFacingCreditRegistrationStatus,
   student_number: z.string().nullish(),
+  submitted_at: z.iso.datetime().nullish(),
   superseded: z.boolean(),
   uh_course_code: z.string().nullish(),
 })
@@ -5646,6 +5673,7 @@ export const zUserCompletionInformation = z.object({
   email: z.string(),
   enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
   uh_course_code: z.string().nullish(),
 })
 
@@ -8269,6 +8297,44 @@ export const zGetMyCreditRegistrationForCourseModulePath = z.object({
  */
 export const zGetMyCreditRegistrationForCourseModuleResponse =
   zMyCreditRegistrationForCourseModule.nullable()
+
+export const zGetMyEnrolmentRoutePath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The caller's answer for the module
+ */
+export const zGetMyEnrolmentRouteResponse = zMyEnrolmentRoute
+
+export const zSetMyEnrolmentRouteBody = zSetEnrolmentRoutePayload
+
+export const zSetMyEnrolmentRoutePath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zSetMyEnrolmentRouteResponse = zMyEnrolmentRoute
+
+export const zWithdrawMyEnrolmentConfirmationPath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zWithdrawMyEnrolmentConfirmationResponse = zMyEnrolmentRoute
+
+export const zConfirmMyEnrolmentPath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zConfirmMyEnrolmentResponse = zMyEnrolmentRoute
 
 export const zGetMyCreditRegistrationEnrolmentBannersPath = z.object({
   course_id: z.uuid(),

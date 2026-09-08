@@ -39,7 +39,7 @@ const VIEW_STATUSES = {
   needs_attention: ALL_REGISTRATION_STATUSES.filter((status) => registrationNeedsAttention(status)),
   needs_student_number: ["needs_student_number"],
   waiting_on_student: ["waiting_for_completion", "needs_student_number", "needs_enrolment"],
-  in_progress: ["in_progress", "waiting_for_sisu"],
+  in_progress: ["looking_for_enrolment", "sending", "waiting_for_sisu"],
   registered: ["registered"],
   failed: ["failed"],
   not_registering: ["not_registering"],

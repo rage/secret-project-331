@@ -61,4 +61,6 @@ jest.mock("react-i18next", () => ({
     i18n: { changeLanguage: () => Promise.resolve() },
   }),
   Translation: ({ children }) => children((key) => key),
+  // Renders the key, as `t` does, so a component that mixes running text with links can be tested.
+  Trans: ({ i18nKey }) => i18nKey,
 }))

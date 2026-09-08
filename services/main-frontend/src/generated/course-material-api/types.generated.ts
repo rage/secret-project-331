@@ -575,6 +575,10 @@ export type CourseModuleCompletion = {
   needs_to_be_reviewed: boolean
   passed: boolean
   prerequisite_modules_completed: boolean
+  /**
+   * Whether the push path owns this completion. See the column comment; decided at insert.
+   */
+  register_credits_via_suotar: boolean
   updated_at: string
   user_id: string
 }

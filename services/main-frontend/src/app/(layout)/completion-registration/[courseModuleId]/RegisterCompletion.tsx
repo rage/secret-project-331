@@ -5,10 +5,9 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { SISU_URL } from "@/components/credit-registration/constants"
+import { SISU_URL, TONE } from "@/components/credit-registration/constants"
 import {
-  cardCss,
-  headingCss,
+  bandedCardCss,
   monospaceCss,
   narrowPageCss,
   noteCss,
@@ -17,7 +16,14 @@ import {
   sectionHeaderCss,
   stepsCss,
 } from "@/components/credit-registration/styles"
-import { CopyButton, Disclosure, Link, Radio, RadioGroup } from "@/shared-module/components"
+import {
+  CopyButton,
+  Disclosure,
+  Infobox,
+  Link,
+  Radio,
+  RadioGroup,
+} from "@/shared-module/components"
 
 // The Open University only publishes this page in Finnish and English; other languages fall
 // back to the English version.
@@ -31,18 +37,18 @@ const STUDY_RIGHT_AT_UH = "study-right-at-uh"
 const OPEN_UNIVERSITY_OR_NEITHER = "open-university-or-neither"
 const STUDENT_TYPE_FIELD = "studentType"
 
+const SEGMENTED = "segmented" as const
+
 // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
 const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
 
-const emailBlockCss = cx(
-  cardCss,
-  css`
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-  `,
-)
+/** The address and its copy button sit on one line, and wrap together when the line runs out. */
+const emailRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+`
 
 const emailValueCss = cx(
   monospaceCss,
@@ -85,75 +91,85 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
 
   return (
     <div className={narrowPageCss}>
-      <div className={sectionHeaderCss}>
-        <h1 className={pageTitleCss}>{courseName}</h1>
-        {typeof ectsCredits === "number" ? (
-          <p className={noteCss}>{t("ects-n", { n: ectsCredits })}</p>
+      <article className={bandedCardCss}>
+        <header className={sectionHeaderCss}>
+          <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+          <p>{t("label-course-with-name", { course: courseName })}</p>
+          {typeof ectsCredits === "number" ? (
+            <p className={noteCss}>
+              {t("label-credits-with-amount", { credits: t("ects-n", { n: ectsCredits }) })}
+            </p>
+          ) : null}
+        </header>
+
+        <section className={sectionCss}>
+          <RadioGroup
+            name={STUDENT_TYPE_FIELD}
+            control={control}
+            variant={SEGMENTED}
+            label={t("question-are-you-a-student-or-exchange-student-at-uh")}
+            description={t("hint-not-sure-which-student-type")}
+          >
+            <Radio value={STUDY_RIGHT_AT_UH} label={t("yes")} />
+            <Radio value={OPEN_UNIVERSITY_OR_NEITHER} label={t("no")} />
+          </RadioGroup>
+        </section>
+
+        {studentType === STUDY_RIGHT_AT_UH ? (
+          <section className={sectionCss}>
+            <EmailToUse email={email} />
+            <ol className={stepsCss}>
+              <li>{t("enroll-through-sisu-to-register-credits")}</li>
+              <li>{t("sisu-add-this-address-as-a-secondary-address")}</li>
+            </ol>
+            {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+            <div>
+              <Link
+                href={SISU_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                styledAsButton
+                variant="primary"
+                size="medium"
+              >
+                {t("go-to-sisu")}
+              </Link>
+            </div>
+            <p>{t("credits-appear-in-sisu-after-enrolling")}</p>
+          </section>
         ) : null}
-      </div>
 
-      <RadioGroup
-        name={STUDENT_TYPE_FIELD}
-        control={control}
-        label={t("how-do-you-study-at-the-university-of-helsinki")}
-        description={t("hint-not-sure-which-student-type")}
-      >
-        <Radio value={STUDY_RIGHT_AT_UH} label={t("option-degree-or-exchange-student-at-uh")} />
-        <Radio value={OPEN_UNIVERSITY_OR_NEITHER} label={t("option-open-university-or-neither")} />
-      </RadioGroup>
+        {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
+          <section className={sectionCss}>
+            <EmailToUse email={email} />
+            <p>
+              <Trans
+                t={t}
+                i18nKey="open-university-credits-registered-through-ou-explanation"
+                components={{ openUniversityInfoLink }}
+              />
+            </p>
+            <div>
+              <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
+                {t("to-the-registration-form")}
+              </Link>
+            </div>
+            <p>
+              <Trans
+                t={t}
+                i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
+                components={{ myStudyInfoLink }}
+              />
+            </p>
+          </section>
+        ) : null}
 
-      {studentType === STUDY_RIGHT_AT_UH ? (
-        <section className={sectionCss}>
-          <h2 className={headingCss}>{t("heading-get-these-credits-into-sisu")}</h2>
-          <EmailToUse email={email} />
-          <ol className={stepsCss}>
-            <li>{t("enroll-through-sisu-to-register-credits")}</li>
-            <li>{t("sisu-add-this-address-as-a-secondary-address")}</li>
-          </ol>
-          {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+        {studentType ? (
           <div>
-            <Link
-              href={SISU_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              styledAsButton
-              variant="primary"
-              size="medium"
-            >
-              {t("go-to-sisu")}
-            </Link>
+            <ChangedEmailNote />
           </div>
-          <p>{t("credits-appear-in-sisu-after-enrolling")}</p>
-          <ChangedEmailNote />
-        </section>
-      ) : null}
-
-      {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
-        <section className={sectionCss}>
-          <h2 className={headingCss}>{t("heading-get-these-credits-into-sisu")}</h2>
-          <EmailToUse email={email} />
-          <p>
-            <Trans
-              t={t}
-              i18nKey="open-university-credits-registered-through-ou-explanation"
-              components={{ openUniversityInfoLink }}
-            />
-          </p>
-          <div>
-            <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
-              {t("to-the-registration-form")}
-            </Link>
-          </div>
-          <p>
-            <Trans
-              t={t}
-              i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
-              components={{ myStudyInfoLink }}
-            />
-          </p>
-          <ChangedEmailNote />
-        </section>
-      ) : null}
+        ) : null}
+      </article>
     </div>
   )
 }
@@ -161,14 +177,14 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
 const EmailToUse: React.FC<{ email: string }> = ({ email }) => {
   const { t } = useTranslation()
   return (
-    <>
-      <div className={emailBlockCss}>
+    <Infobox tone={TONE.INFO}>
+      <div className={emailRowCss}>
         <span className={noteCss}>{t("label-the-email-address-to-use")}</span>
         <span className={emailValueCss}>{email}</span>
         <CopyButton value={email} label={t("copy-the-email-address")} />
       </div>
       <p>{t("registration-is-matched-to-you-by-this-address")}</p>
-    </>
+    </Infobox>
   )
 }
 

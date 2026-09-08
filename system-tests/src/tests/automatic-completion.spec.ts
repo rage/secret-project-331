@@ -53,7 +53,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
 
-  await page.getByRole("radio", { name: /Open University student/ }).check()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",
@@ -110,7 +110,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
-  await page.getByRole("radio", { name: /Open University student/ }).check()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",

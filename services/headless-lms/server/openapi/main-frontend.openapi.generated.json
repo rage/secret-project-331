@@ -8435,6 +8435,136 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- What the caller said about where they enrol this module.",
+        "operationId": "getMyEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's answer for the module",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- Records which university relationship the caller has, which decides where they are told to enrol.",
+        "operationId": "setMyEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetEnrolmentRoutePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nAdvisory: the pipeline was already looking. Beyond recording the click this only brings the next\nenrolment check forward, and only when the hourly allowance the manual button spends is free.",
+        "operationId": "confirmMyEnrolment",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller takes back saying they had enrolled.",
+        "operationId": "withdrawMyEnrolmentConfirmation",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}": {
       "get": {
         "tags": ["credit-registrations"],
@@ -18402,7 +18532,8 @@
           "email",
           "passed",
           "prerequisite_modules_completed",
-          "needs_to_be_reviewed"
+          "needs_to_be_reviewed",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "completion_date": {
@@ -18458,6 +18589,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the push path owns this completion. See the column comment; decided at insert."
           },
           "updated_at": {
             "type": "string",
@@ -19690,6 +19825,11 @@
             "$ref": "#/components/schemas/CourseCreditRegistration"
           }
         }
+      },
+      "CreditRegistrationEnrolmentRoute": {
+        "type": "string",
+        "description": "Which university relationship a student picked, which decides only where they are told to enrol.",
+        "enum": ["university_of_helsinki", "open_university"]
       },
       "CreditRegistrationErrorCode": {
         "type": "string",
@@ -22763,7 +22903,8 @@
           "next_attempt_at",
           "attempt_number",
           "superseded",
-          "can_request_enrolment_recheck"
+          "can_request_enrolment_recheck",
+          "enrolment_found"
         ],
         "properties": {
           "attempt_number": {
@@ -22801,6 +22942,15 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enrolment_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When we last looked for an enrolment, so the page can say how fresh its answer is."
+          },
+          "enrolment_found": {
+            "type": "boolean",
+            "description": "Whether an enrolment has been settled on, which is what ticks the step rather than the name\nbelow it: a realisation with no teacher label yet leaves that name empty."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -22878,6 +23028,11 @@
             "type": ["string", "null"],
             "description": "The student number we submitted this registration under, so a `registered` row can be\nchecked against the student's own card; `None` before the row was ready to send."
           },
+          "submitted_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the attainment went to the study registry. Ticks the sending step; `registered_at` is\nwhen the registry confirmed it."
+          },
           "superseded": {
             "type": "boolean"
           },
@@ -22900,6 +23055,36 @@
           },
           "registration": {
             "$ref": "#/components/schemas/MyCreditRegistration"
+          }
+        }
+      },
+      "MyEnrolmentRoute": {
+        "type": "object",
+        "description": "The caller's answer about where they enrol one module, and whether it can still be changed.",
+        "required": ["course_module_completion_id", "can_change"],
+        "properties": {
+          "can_change": {
+            "type": "boolean",
+            "description": "False once an enrolment has been found: the answer only picks which enrolment instructions to\nshow, so once we have the enrolment there is nothing left for it to change."
+          },
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "enrolment_confirmed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "route": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute",
+                "description": "`None` until the student answers the question."
+              }
+            ]
           }
         }
       },
@@ -26084,6 +26269,15 @@
           }
         }
       },
+      "SetEnrolmentRoutePayload": {
+        "type": "object",
+        "required": ["route"],
+        "properties": {
+          "route": {
+            "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+          }
+        }
+      },
       "SisuDescriptionResponse": {
         "type": "object",
         "required": ["course_description", "audience", "modules"],
@@ -26139,8 +26333,9 @@
         "enum": [
           "waiting_for_completion",
           "needs_student_number",
-          "in_progress",
+          "looking_for_enrolment",
           "needs_enrolment",
+          "sending",
           "waiting_for_sisu",
           "registered",
           "failed",
@@ -27055,7 +27250,8 @@
           "course_name",
           "email",
           "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
+          "enable_credit_registration_via_suotar",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "course_module_completion_id": {
@@ -27082,6 +27278,10 @@
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether this completion in particular goes through the push path. Both this and the module\nflag above must hold; the module's is permission, this is the per-student switch."
           },
           "uh_course_code": {
             "type": ["string", "null"],

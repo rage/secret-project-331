@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  r.label AS \"enrolment_realisation_name?\",\n  conf.open_university_product_id AS \"open_university_product_id?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  r.label AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  conf.open_university_product_id AS \"open_university_product_id?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id\n  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id\n  AND r.deleted_at IS NULL\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -312,6 +312,12 @@
       },
       {
         "ordinal": 23,
+        "name": "enrolment_resolved!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 24,
         "name": "enrolment_realisation_name?",
         "type_info": "Varchar",
         "origin": {
@@ -322,7 +328,18 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
+        "name": "submitted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "submitted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
         "name": "open_university_product_id?",
         "type_info": "Varchar",
         "origin": {
@@ -333,7 +350,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 27,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -344,7 +361,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 28,
         "name": "has_verified_student_number!",
         "type_info": "Bool",
         "origin": {
@@ -387,11 +404,13 @@
       true,
       true,
       true,
+      null,
+      true,
       true,
       true,
       true,
       true
     ]
   },
-  "hash": "ee2734e43a17d004333c67392dd2ef4b69306ad949dbf157a6193a6d518a31fa"
+  "hash": "e506c5bd1ce46a83dc2e7024e994333ab165cd77c6015aaf6a4f8dcf326f635d"
 }

@@ -191,6 +191,29 @@ export const cardCss = css`
   background: var(--color-clear-50);
 `
 
+/**
+ * A card whose content is a stack of full-width bands, each ruled off from the last: a title
+ * block, then a step, then the step after it. The card carries no padding of its own, because each
+ * band takes the padding and the rule has to reach both edges to read as a divider.
+ */
+export const bandedCardCss = css`
+  display: grid;
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+  background: var(--color-clear-50);
+  overflow: hidden;
+
+  > * {
+    min-width: 0;
+    padding: var(--space-4-5);
+    border-top: 1px solid var(--color-clear-300);
+  }
+
+  > *:first-child {
+    border-top: none;
+  }
+`
+
 /** Rows separated by rules rather than boxes: module rows, certificates, phases. */
 export const dividedListCss = css`
   display: grid;

@@ -145,11 +145,18 @@ FROM (
           JOIN UNNEST(
               $7::credit_registration_state [],
               $8::boolean [],
-              $9::boolean []
-            ) AS stage(state, completion_eligible, has_verified_student_number)
+              $9::boolean [],
+              $10::boolean []
+            ) AS stage(
+              state,
+              completion_eligible,
+              has_verified_student_number,
+              enrolment_resolved
+            )
             ON stage.state = cr.state
             AND stage.completion_eligible = p.completion_eligible
             AND stage.has_verified_student_number = p.has_verified_student_number
+            AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
         WHERE cr.user_id = u.id
           AND cr.course_id = $1
           AND cr.superseded_by_id IS NULL
@@ -170,6 +177,7 @@ FROM (
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.enrolment_resolved as &[bool],
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -243,11 +251,18 @@ WHERE cie.course_id = $1
         JOIN UNNEST(
             $11::credit_registration_state [],
             $12::boolean [],
-            $13::boolean []
-          ) AS stage(state, completion_eligible, has_verified_student_number)
+            $13::boolean [],
+            $14::boolean []
+          ) AS stage(
+            state,
+            completion_eligible,
+            has_verified_student_number,
+            enrolment_resolved
+          )
           ON stage.state = cr.state
           AND stage.completion_eligible = p.completion_eligible
           AND stage.has_verified_student_number = p.has_verified_student_number
+          AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
       WHERE cr.user_id = u.id
         AND cr.course_id = $1
         AND cr.superseded_by_id IS NULL
@@ -296,6 +311,7 @@ LIMIT $5 OFFSET $6
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(&mut *conn)
     .await?;

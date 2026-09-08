@@ -1207,8 +1207,12 @@ pub struct StudentCreditRegistration {
     pub superseded_by_id: Option<Uuid>,
     pub superseded_at: Option<DateTime<Utc>>,
     pub enrolment_checked_at: Option<DateTime<Utc>>,
+    /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where the
+    /// realisation has no teacher label yet, so the step list ticks from this rather than the name.
+    pub enrolment_resolved: bool,
     /// The teacher's label for the realisation we submitted against, not a Sisu id.
     pub enrolment_realisation_name: Option<String>,
+    pub submitted_at: Option<DateTime<Utc>>,
     /// Needed to build the enrolment link a student with no usable enrolment is sent to.
     pub open_university_product_id: Option<String>,
     pub completion_eligible: bool,
@@ -1268,7 +1272,9 @@ SELECT cr.id,
   cr.superseded_by_id,
   cr.superseded_at,
   cr.enrolment_checked_at,
+  cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   r.label AS "enrolment_realisation_name?",
+  cr.submitted_at,
   conf.open_university_product_id AS "open_university_product_id?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!"
@@ -1811,6 +1817,7 @@ pub struct CourseModuleStateCount {
     pub state: CreditRegistrationState,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub enrolment_resolved: bool,
     pub count: i64,
     /// Of `count`, how many carry the pipeline's flag. Overlaps every other group's, so it is never
     /// added to them.
@@ -1830,6 +1837,7 @@ SELECT cr.course_module_id,
   cr.state,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
+  cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COUNT(*) AS "count!",
   COUNT(*) FILTER (
     WHERE cr.needs_admin_attention
@@ -1846,7 +1854,8 @@ WHERE cr.course_id = $1
 GROUP BY cr.course_module_id,
   cr.state,
   p.completion_eligible,
-  p.has_verified_student_number
+  p.has_verified_student_number,
+  (cr.selected_enrolment_id IS NOT NULL)
         "#,
         course_id,
         course_instance_id,
@@ -1888,6 +1897,7 @@ pub struct TeacherCreditRegistration {
     pub student_number_verified_via: Option<StudentNumberVerificationMethod>,
     /// Needed to find the account's linking mails, which are keyed on the Sisu person.
     pub sisu_person_id: Option<String>,
+    pub enrolment_resolved: bool,
     pub enrolment_realisation_name: Option<String>,
     pub completion_eligible: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
@@ -1962,6 +1972,7 @@ SELECT cr.id,
   vsn.verified_at AS "student_number_verified_at?",
   vsn.verified_via AS "student_number_verified_via?",
   vsn.sisu_person_id AS "sisu_person_id?",
+  cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   r.label AS "enrolment_realisation_name?",
   p.completion_eligible AS "completion_eligible!",
   COUNT(*) OVER () AS "total_count!"
@@ -1998,11 +2009,18 @@ WHERE cr.deleted_at IS NULL
       FROM UNNEST(
           $10::credit_registration_state [],
           $11::boolean [],
-          $12::boolean []
-        ) AS stage(state, completion_eligible, has_verified_student_number)
+          $12::boolean [],
+          $13::boolean []
+        ) AS stage(
+          state,
+          completion_eligible,
+          has_verified_student_number,
+          enrolment_resolved
+        )
       WHERE stage.state = cr.state
         AND stage.completion_eligible = p.completion_eligible
         AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)
+        AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
     )
   )
 ORDER BY cmc.completion_date DESC,
@@ -2022,6 +2040,7 @@ LIMIT $8 OFFSET $9
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(conn)
     .await?;

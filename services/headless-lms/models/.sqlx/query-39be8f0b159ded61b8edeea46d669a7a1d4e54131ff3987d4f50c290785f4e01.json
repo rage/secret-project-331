@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = ANY($1)\n  AND prerequisite_modules_completed\n  AND eligible_for_ects IS TRUE\n  -- Completions still awaiting suspected-cheater review are withheld from study-registry\n  -- registration until a teacher dismisses or confirms them.\n  AND needs_to_be_reviewed = FALSE\n  AND deleted_at IS NULL\n  -- Modules on the push path are registered by us; letting the registry pull them too would put a\n  -- second attainment on the student's transcript.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM course_modules cm\n    WHERE cm.id = course_module_completions.course_module_id\n      AND cm.enable_credit_registration_via_suotar\n      AND cm.deleted_at IS NULL\n  )\n  -- A completion the push path has already sent stays out for good, whatever the flag above says now:\n  -- a pull that registered it again would put a second attainment on a real transcript.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations cr\n    WHERE cr.course_module_completion_id = course_module_completions.id\n      AND cr.submitted_at IS NOT NULL\n      AND cr.deleted_at IS NULL\n  )\n  AND id NOT IN (\n    SELECT course_module_completion_id\n    FROM course_module_completion_registered_to_study_registries\n    WHERE course_module_id = ANY($1)\n      AND (\n        study_registry_registrar_id = $2\n        -- Our own rows count as already registered too, whatever the flag says now: the module check\n        -- above stops firing the moment a teacher turns the push path back off.\n        OR study_registry_registrar_id IS NULL\n      )\n      AND deleted_at IS NULL\n  )\n        ",
+  "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = ANY($1)\n  AND prerequisite_modules_completed\n  AND eligible_for_ects IS TRUE\n  -- Completions still awaiting suspected-cheater review are withheld from study-registry\n  -- registration until a teacher dismisses or confirms them.\n  AND needs_to_be_reviewed = FALSE\n  AND deleted_at IS NULL\n  -- Completions on the push path are registered by us; letting the registry pull them too would put\n  -- a second attainment on the student's transcript. Per completion, not per module: a module can\n  -- be switched on while completions made before that stay the pull path's to register.\n  AND NOT course_module_completions.register_credits_via_suotar\n  -- Belt and braces behind the flag above: anything the push path already sent stays out for\n  -- good, since re-registering it would double the attainment on a real transcript.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations cr\n    WHERE cr.course_module_completion_id = course_module_completions.id\n      AND cr.submitted_at IS NOT NULL\n      AND cr.deleted_at IS NULL\n  )\n  AND id NOT IN (\n    SELECT course_module_completion_id\n    FROM course_module_completion_registered_to_study_registries\n    WHERE course_module_id = ANY($1)\n      AND (\n        study_registry_registrar_id = $2\n        -- Our own rows count as already registered too: what the push path put in the registry is\n        -- in it whichever registrar's export this is.\n        OR study_registry_registrar_id IS NULL\n      )\n      AND deleted_at IS NULL\n  )\n        ",
   "describe": {
     "columns": [
       {
@@ -189,6 +189,17 @@
             "name": "needs_to_be_reviewed"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "register_credits_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "register_credits_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
@@ -214,8 +225,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "b3f4583a51e4a056d01166d523ed55c3cbf7544c01ffb57a7ad911c834cca292"
+  "hash": "39be8f0b159ded61b8edeea46d669a7a1d4e54131ff3987d4f50c290785f4e01"
 }

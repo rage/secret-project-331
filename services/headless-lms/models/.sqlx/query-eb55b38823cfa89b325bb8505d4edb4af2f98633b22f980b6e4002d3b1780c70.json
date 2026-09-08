@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    completion_language,\n    eligible_for_ects,\n    email,\n    grade,\n    passed,\n    completion_granter_user_id\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12\n  )\nRETURNING *\n        ",
+  "query": "\nINSERT INTO course_module_completions (\n    id,\n    course_id,\n    course_module_id,\n    user_id,\n    completion_date,\n    completion_registration_attempt_date,\n    completion_language,\n    eligible_for_ects,\n    email,\n    grade,\n    passed,\n    completion_granter_user_id,\n    register_credits_via_suotar\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    -- Decided here rather than by the caller: the flag is what keeps the two registration paths\n    -- from both claiming a completion, and a caller that forgot it would hand the row to neither.\n    (\n      SELECT cm.enable_credit_registration_via_suotar\n        AND EXISTS (\n          SELECT 1\n          FROM verified_student_numbers vsn\n          WHERE vsn.user_id = $4\n            AND vsn.deleted_at IS NULL\n        )\n      FROM course_modules cm\n      WHERE cm.id = $3\n    )\n  )\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -189,6 +189,17 @@
             "name": "needs_to_be_reviewed"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "register_credits_via_suotar",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "register_credits_via_suotar"
+          }
+        }
       }
     ],
     "parameters": {
@@ -224,8 +235,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "db0ae253876c1772c663df4da622b1527423af43643cf321cde3f49a01b652c2"
+  "hash": "eb55b38823cfa89b325bb8505d4edb4af2f98633b22f980b6e4002d3b1780c70"
 }

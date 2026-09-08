@@ -761,6 +761,9 @@ pub struct UserCompletionInformation {
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub enable_credit_registration_via_suotar: bool,
+    /// Whether this completion in particular goes through the push path. Both this and the module
+    /// flag above must hold; the module's is permission, this is the per-student switch.
+    pub register_credits_via_suotar: bool,
 }
 
 pub async fn get_user_completion_information(
@@ -800,6 +803,7 @@ pub async fn get_user_completion_information(
             .enable_registering_completion_to_uh_open_university,
         enable_credit_registration_via_suotar: credit_registration_config
             .enable_credit_registration_via_suotar,
+        register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
     })
 }
 

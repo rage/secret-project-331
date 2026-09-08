@@ -46,8 +46,9 @@ const CompletionPage: React.FC = () => {
   return (
     <QueryResult query={userCompletionInformation}>
       {(data) => {
-        // A module being migrated can still carry the old flag, so the new pipeline wins.
-        if (data.enable_credit_registration_via_suotar) {
+        // Both flags: the module's is permission to use the push path, the completion's own is
+        // whether this student's completion was put on it. Without both, this shows the old page.
+        if (data.enable_credit_registration_via_suotar && data.register_credits_via_suotar) {
           return (
             <CreditRegistrationStatus
               courseModuleId={courseModuleId}

@@ -186,6 +186,8 @@ import type {
   DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponses,
   DuplicateExamData,
   DuplicateExamResponses,
   EditCourseInstanceData,
@@ -195,6 +197,8 @@ import type {
   ExchangeOauthTokenData,
   ExchangeOauthTokenErrors,
   ExchangeOauthTokenResponses,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponses,
   ExportCourseCreditRegistrationsData,
   ExportCourseCreditRegistrationsResponses,
   ExportCourseExerciseTasksCsvData,
@@ -794,6 +798,8 @@ import type {
   UpdateUserInfoResponses,
   UploadCourseMediaData,
   UploadCourseMediaResponses,
+  UploadFilesForExerciseAnswerData,
+  UploadFilesForExerciseAnswerResponses,
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponses,
   UpsertCoursePartnersBlockData,
@@ -855,7 +861,9 @@ import {
   zDenyOauthDeviceVerificationResponse,
   zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
+  zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
+  zExerciseHasAnswerFilesResponse,
   zExportCourseCreditRegistrationsResponse,
   zExportCourseExerciseTasksCsvResponse,
   zExportCourseInstanceCompletionsCsvResponse,
@@ -1117,6 +1125,7 @@ import {
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
   zUploadCourseMediaResponse,
+  zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
   zVerifyEmailOwnershipResponse,
 } from "./zod.generated"
@@ -1138,6 +1147,38 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
+
+/**
+ *
+ * POST `/api/v0/files/answer-uploads/:exercise_task_id`
+ * Used to upload the files a student is attaching to an answer for the given exercise task.
+ *
+ * Unlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and
+ * the task's exercise, which is what lets a later submission verify that the answer only names files
+ * the submitter uploaded for that exercise.
+ *
+ * # Returns
+ * An ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.
+ */
+export const uploadFilesForExerciseAnswer = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesForExerciseAnswerData, ThrowOnError>,
+): RequestResult<UploadFilesForExerciseAnswerResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesForExerciseAnswerResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) => await zUploadFilesForExerciseAnswerResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/answer-uploads/{exercise_task_id}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
+  })
 
 /**
  *
@@ -6356,7 +6397,7 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(
   options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>,
@@ -6371,6 +6412,25 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = t
       await zGetExerciseCsvExportTaskOptionsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<DownloadExerciseAnswerFilesData, ThrowOnError>,
+): RequestResult<DownloadExerciseAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    DownloadExerciseAnswerFilesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDownloadExerciseAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files",
     ...options,
   })
 
@@ -6404,6 +6464,20 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zExportExerciseDefinitionsCsvResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<ExerciseHasAnswerFilesData, ThrowOnError>,
+): RequestResult<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zExerciseHasAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files",
     ...options,
   })
 

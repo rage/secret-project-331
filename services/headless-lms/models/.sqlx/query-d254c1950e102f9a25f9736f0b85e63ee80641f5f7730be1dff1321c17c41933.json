@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_history_spec_files (page_history_id, file_upload_id)\nSELECT DISTINCT $1::uuid,\n  file_upload_id\nFROM UNNEST($2::uuid []) AS t(file_upload_id)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d254c1950e102f9a25f9736f0b85e63ee80641f5f7730be1dff1321c17c41933"
+}

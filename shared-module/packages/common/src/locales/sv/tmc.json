@@ -1,4 +1,6 @@
 {
+  "answer-load-failed": "Det gick inte att öppna dina övningsfiler. Ingenting har gått förlorat; försök igen.",
+  "answer-save-failed": "Det gick inte att spara ditt svar. Ditt arbete finns kvar, men du kan inte lämna in förrän det har sparats.",
   "are-you-sure": "Är du säker?",
   "button.cancel": "Avbryt",
   "button.ok": "OK",
@@ -35,6 +37,7 @@
   "test": "Testa",
   "test-results": "Testresultat",
   "tests-unavailable": "Tester inte tillgängliga",
+  "try-again": "Försök igen",
   "upload-solution-instructions": "Ladda upp lösningsarkiv. Stödda arkivtyper: .tar.zst",
   "waiting-for-content": "Väntar på innehåll...",
   "waiting-for-input": "Väntar på indata",

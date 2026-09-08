@@ -116,7 +116,8 @@ RETURNING *
         exercise_task_submission_ids.len()
     );
     for id in &exercise_task_submission_ids {
-        let exercise_task_submission = exercise_task_submissions::get_by_id(&mut tx, *id).await?;
+        let exercise_task_submission =
+            exercise_task_submissions::get_grading_ref(&mut tx, *id).await?;
         if exercise_task_submission.deleted_at.is_some() {
             warn!(
                 "Skipping regrading of deleted exercise task submission {:?}",

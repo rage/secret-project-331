@@ -1,6 +1,6 @@
 {
   "name": "@moocfi/exercise-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Framework-agnostic browser runtime for moocfi exercise-service iframes: parent-connection, height-observer, and output-state engines plus the createExerciseClient facade.",
   "keywords": [
     "exercise-service",
@@ -48,6 +48,7 @@
     "verify": "pnpm run build && pnpm run test && pnpm run test:playwright"
   },
   "dependencies": {
+    "@fontsource/commit-mono": "^5.3.0",
     "immer": "^11.1.8"
   },
   "devDependencies": {

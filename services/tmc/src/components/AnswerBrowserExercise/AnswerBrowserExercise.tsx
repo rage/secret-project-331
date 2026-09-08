@@ -12,7 +12,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   publicSpec,
   initialState,
   testRequestResponse: _testRequestResponse,
-  setState,
+  onFilesChange,
   grading,
   readOnly = false,
 }) => {
@@ -27,7 +27,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
   const { editorFiles, editorKey, setEditorState, resetToInitial } = useEditorState(
     initialState,
     publicSpec.stub_download_url,
-    setState,
+    onFilesChange,
   )
   const {
     runOutput,

@@ -17,7 +17,6 @@
     "create-exercise-service": "bin/create-exercise-service",
     "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
     "format": "oxfmt",
-    "format:bindings": "oxfmt shared-module/packages/common/src/bindings.ts",
     "format:check": "oxfmt --check",
     "format:generated-docs": "oxfmt services/headless-lms/server/generated-docs/",
     "lint": "oxlint --fix",

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM exercise_task_submissions AS ets\n      JOIN exercise_slide_submissions AS ess ON ets.exercise_slide_submission_id = ess.id\n      JOIN exercise_task_submission_files AS etsf ON etsf.exercise_task_submission_id = ets.id\n      JOIN file_uploads AS fu ON fu.id = etsf.file_upload_id\n    WHERE ess.exercise_id = $1\n      AND ets.answer_kind = 'file'\n      AND ets.deleted_at IS NULL\n      AND ess.deleted_at IS NULL\n      AND etsf.deleted_at IS NULL\n      AND fu.deleted_at IS NULL\n  ) AS \"exists!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "bbd9cfb2d3cf9411a84cbd29501ee1f361f327841900a98bde7c81ef0317c8c8"
+}

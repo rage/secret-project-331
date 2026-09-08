@@ -35,6 +35,19 @@ pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
     Ok(app_config)
 }
 
+/// A file store for tests that only need download URLs, not stored bytes.
+///
+/// Built field-wise because `LocalFileStore::new` insists on `HEADLESS_LMS_CACHE_FILES_PATH`, which
+/// no test environment sets; nothing here reaches the cache, and setting the variable from one test
+/// would race every other test in the binary.
+pub fn init_file_store() -> LocalFileStore {
+    LocalFileStore {
+        base_path: "uploads".into(),
+        base_url: "http://localhost:3000".to_string(),
+        cache_files_path: env::temp_dir(),
+    }
+}
+
 pub async fn test_config() -> ServerConfig {
     let database_url = env::var("DATABASE_URL_TEST")
         .or_else(|_| env::var("DATABASE_URL"))
@@ -154,6 +167,102 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     fn as_mut(&mut self) -> &mut Transaction<'a, Postgres> {
         &mut self.0
     }
+}
+
+/// A file store backed by a temp dir, for tests that upload real bytes.
+///
+/// `LocalFileStore` is unusable for that: it demands the `HEADLESS_LMS_CACHE_FILES_PATH` env var,
+/// and mutating the environment from a test that runs alongside others is worse than implementing
+/// the handful of methods tests reach.
+pub struct TempFileStore(pub tempfile::TempDir);
+
+#[async_trait::async_trait(?Send)]
+impl headless_lms_utils::file_store::FileStore for TempFileStore {
+    async fn upload(
+        &self,
+        path: &std::path::Path,
+        contents: Vec<u8>,
+        _mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        let full = self.0.path().join(path);
+        if let Some(parent) = full.parent() {
+            tokio::fs::create_dir_all(parent).await?;
+        }
+        tokio::fs::write(full, contents).await?;
+        Ok(())
+    }
+
+    async fn upload_stream(
+        &self,
+        path: &std::path::Path,
+        mut contents: headless_lms_utils::file_store::GenericPayload,
+        mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        use futures::StreamExt;
+        let mut bytes = Vec::new();
+        while let Some(chunk) = contents.next().await {
+            bytes.extend_from_slice(&chunk?);
+        }
+        self.upload(path, bytes, mime_type).await
+    }
+
+    async fn download(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<Vec<u8>> {
+        Ok(tokio::fs::read(self.0.path().join(path)).await?)
+    }
+
+    async fn download_stream(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<
+        Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>,
+    > {
+        let file = tokio::fs::File::open(self.0.path().join(path)).await?;
+        Ok(Box::new(tokio_util::io::ReaderStream::new(file)))
+    }
+
+    async fn get_direct_download_url(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<String> {
+        let full_path = self.0.path().join(path);
+        tokio::fs::metadata(&full_path).await?;
+        Ok(format!("file://{}", full_path.display()))
+    }
+
+    async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {
+        Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
+    }
+
+    fn get_cache_files_folder_path(
+        &self,
+    ) -> headless_lms_utils::prelude::UtilResult<&std::path::Path> {
+        Ok(self.0.path())
+    }
+}
+
+/// The `message_key` a controller error puts in its response body, which is the part of an error a
+/// client branches on.
+pub fn message_key_of(error: &crate::domain::error::ControllerError) -> String {
+    use actix_web::ResponseError;
+    use futures::FutureExt;
+    let response = error.error_response();
+    let bytes = actix_web::body::to_bytes(response.into_body())
+        .now_or_never()
+        .expect("response should resolve immediately")
+        .expect("body bytes");
+    let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+    value["message_key"]
+        .as_str()
+        .unwrap_or_default()
+        .to_string()
+}
+
+/// A `TempFileStore` whose directory is removed when it is dropped.
+pub fn temp_file_store() -> TempFileStore {
+    TempFileStore(tempfile::tempdir().expect("temp dir"))
 }
 
 #[macro_export]

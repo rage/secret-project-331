@@ -1,4 +1,5 @@
 export type {
+  DerivedSpecResponse,
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,

@@ -2,6 +2,7 @@ import { expect, test as base } from "@playwright/test"
 
 import { withBrowserDiagnostics } from "../../../exercise-service-test-utils/playwright/fixtures/diagnostics"
 import {
+  isCurrentStateMessage,
   isFileUploadMessage,
   isMessageFromIframe,
   isMessageToIframe,
@@ -102,4 +103,26 @@ test("upload-result guards require ordered id/url entries on success but accept 
   ).toBe(false)
   expect(isUploadResultMessage({ ...failure, requestId: 12 })).toBe(false)
   expect(isUploadResultMessage({ ...failure, error: null })).toBe(false)
+})
+
+test("current-state guards accept both json-only and file-typed answers", () => {
+  const jsonOnly = {
+    message: "current-state",
+    data: { answer: "hello" },
+    valid: true,
+  }
+  const fileTyped = {
+    message: "current-state",
+    data: { note: "see attached" },
+    files: ["0f1d7b2e-1f4a-4c53-9a9e-4d3d3f1b0c11"],
+    valid: true,
+  }
+
+  expect(isCurrentStateMessage(jsonOnly)).toBe(true)
+  expect(isMessageFromIframe(jsonOnly)).toBe(true)
+  expect(isCurrentStateMessage(fileTyped)).toBe(true)
+  expect(isMessageFromIframe(fileTyped)).toBe(true)
+  expect(isCurrentStateMessage({ ...fileTyped, files: [] })).toBe(true)
+  expect(isCurrentStateMessage({ ...fileTyped, files: [123] })).toBe(false)
+  expect(isCurrentStateMessage({ ...fileTyped, files: "not-an-array" })).toBe(false)
 })

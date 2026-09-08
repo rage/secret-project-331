@@ -56,6 +56,23 @@ const segmentedListCss = css`
   gap: var(--space-3);
 `
 
+/**
+ * A closed question is the band's subject, not a field label above a control, so it is sized as
+ * the heading it reads as.
+ */
+const segmentedLegendCss = css`
+  color: var(--color-gray-700);
+  font-size: var(--font-size-3);
+  font-weight: 600;
+  line-height: 1.3;
+`
+
+/** Hint before the answers: read after them, it is advice on a choice already made. */
+const segmentedDescriptionCss = css`
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-3-5);
+`
+
 const resolveRadioListCss = (
   variant: RadioGroupVariant,
   orientation: "vertical" | "horizontal",
@@ -162,6 +179,13 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     state,
   )
 
+  const isSegmented = variant === "segmented"
+  const descriptionBlock = description ? (
+    <div {...descriptionProps} className={descriptionCss}>
+      {description}
+    </div>
+  ) : null
+
   const resolvedRenderedError =
     resolvedError ??
     (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
@@ -182,21 +206,21 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       className={cx(fieldRootCss, fieldsetCss, className)}
       disabled={state.isDisabled}
     >
-      <legend {...labelProps} className={stackedLabelCss}>
+      <legend {...labelProps} className={isSegmented ? segmentedLegendCss : stackedLabelCss}>
         {label}
       </legend>
+
+      {isSegmented && descriptionBlock ? (
+        <div className={segmentedDescriptionCss}>{descriptionBlock}</div>
+      ) : null}
 
       <RadioGroupContext.Provider value={{ fieldSize, state, variant }}>
         <div className={resolveRadioListCss(variant, orientation)}>{children}</div>
       </RadioGroupContext.Provider>
 
-      {description || resolvedRenderedError ? (
+      {(!isSegmented && description) || resolvedRenderedError ? (
         <div className={messagesCss}>
-          {description ? (
-            <div {...descriptionProps} className={descriptionCss}>
-              {description}
-            </div>
-          ) : null}
+          {isSegmented ? null : descriptionBlock}
           {resolvedRenderedError ? (
             <div {...errorMessageProps} className={errorCss} role="alert">
               {resolvedRenderedError}

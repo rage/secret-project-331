@@ -33,8 +33,9 @@ test.describe("A student whose grade was registered twice", () => {
     // The card is always open, so the module's registration status needs no click.
     await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
     // A registered, non-superseded attempt needs nothing from the student, so the section is absent.
+    await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
     await expect(
-      page.getByRole("heading", { name: "Registrations that need attention" }),
+      page.getByRole("heading", { name: "Credits that did not go through" }),
     ).toHaveCount(0)
 
     const [firstLive] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
@@ -60,8 +61,9 @@ test.describe("A student on a Suotar course and nothing else", () => {
     await page.goto(PROFILE_STUDIES_URL)
 
     await expect(page.getByText("No student number linked yet.")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
     await expect(
-      page.getByRole("heading", { name: "Registrations that need attention" }),
+      page.getByRole("heading", { name: "Credits that did not go through" }),
     ).toHaveCount(0)
   })
 

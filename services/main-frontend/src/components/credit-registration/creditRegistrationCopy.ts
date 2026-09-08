@@ -1,4 +1,5 @@
 import type {
+  CreditRegistrationEnrolmentRoute,
   CreditRegistrationErrorCode,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
@@ -7,7 +8,7 @@ import type {
 import type { RegistrationStatusState } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "./constants"
-import { labelFrom, widenedLookup } from "./labelFrom"
+import { labelFrom, translateKey, widenedLookup } from "./labelFrom"
 
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
@@ -323,3 +324,17 @@ export const registrationLedgerStateLabel = (
   state === "pending" && pendingReason
     ? labelFrom(t, PENDING_REASON_STATE_KEYS, pendingReason, LEDGER_STATE_KEYS.pending)
     : labelFrom(t, LEDGER_STATE_KEYS, state, LEDGER_STATE_UNKNOWN_KEY)
+
+/** Which "you told us you enrolled" sentence a stored answer earns; they name different places. */
+export const enrolmentConfirmedSentence = (
+  t: CreditRegistrationTFunction,
+  route: CreditRegistrationEnrolmentRoute | null | undefined,
+  date: string,
+): string =>
+  translateKey(
+    t,
+    route === "open_university"
+      ? "credit-registration-you-told-us-you-enrolled-open-university"
+      : "credit-registration-you-told-us-you-enrolled-sisu",
+    { date },
+  )

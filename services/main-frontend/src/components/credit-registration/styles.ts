@@ -85,6 +85,12 @@ export const sectionHeaderCss = css`
   gap: var(--space-2);
 `
 
+/** A `bandedCardCss` title band: the page's h1 over the two lines that say what it is about. */
+export const cardTitleBandCss = css`
+  display: grid;
+  gap: var(--space-3);
+`
+
 /** An h3 and the block it introduces. */
 export const subsectionCss = cx(
   stackCss,
@@ -205,14 +211,31 @@ export const bandedCardCss = css`
 
   > * {
     min-width: 0;
-    padding: var(--space-4-5);
+    padding: var(--space-5);
     border-top: 1px solid var(--color-clear-300);
+  }
+
+  @media (max-width: 40rem) {
+    > * {
+      padding: var(--space-4-5) var(--space-4);
+    }
   }
 
   > *:first-child {
     border-top: none;
   }
 `
+
+/**
+ * One band of a [`bandedCardCss`]: a heading, its prose, and the control it leads to. Roomier than
+ * [`sectionCss`], because a band is the only thing on screen rather than one of six on a dashboard.
+ */
+export const bandCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-4-5);
+  `,
+)
 
 /** Rows separated by rules rather than boxes: module rows, certificates, phases. */
 export const dividedListCss = css`

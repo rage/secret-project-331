@@ -25,7 +25,6 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
-import SupportMailLink from "@/components/credit-registration/SupportMailLink"
 import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
@@ -93,12 +92,11 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const canConfirmEmail = useCanConfirmEmailAddress()
-  const { primaryAction, secondaryActions, supportMail, supportMailPromoted } =
-    useStudentRegistrationActions({
-      registration,
-      canConfirmEmail,
-      linkToStatusPage: true,
-    })
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
+    registration,
+    canConfirmEmail,
+    linkToStatusPage: true,
+  })
 
   const subject = registration.course_module_name
     ? `${registration.course_name}${MIDDLE_DOT}${registration.course_module_name}`
@@ -114,15 +112,10 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
       primaryAction={primaryAction}
       secondaryActions={secondaryActions}
       meta={
-        <>
-          {supportMail ? (
-            <SupportMailLink {...supportMail} referenceOnly={supportMailPromoted} />
-          ) : null}
-          <p className={noteCss}>
-            {t("credit-registration-course-part-completed")}{" "}
-            <RelativeTime at={registration.completion_date} absoluteTime={TIME_DATE} />
-          </p>
-        </>
+        <p className={noteCss}>
+          {t("credit-registration-course-part-completed")}{" "}
+          <RelativeTime at={registration.completion_date} absoluteTime={TIME_DATE} />
+        </p>
       }
     />
   )

@@ -173,7 +173,7 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
     await page.goto(completionRegistrationUrl(live.course_module_id))
     await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
     await expect(
-      page.getByText("The study registry already holds an equal or better grade"),
+      page.getByText("Sisu already holds an equal or better grade for this course"),
     ).toBeVisible()
     // Collapsed beneath the live one, never hidden: the registry may hold both attainments.
     await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()

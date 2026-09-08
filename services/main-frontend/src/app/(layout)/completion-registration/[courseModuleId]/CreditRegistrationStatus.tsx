@@ -12,7 +12,6 @@ import {
   CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   QUIET_REFRESH,
-  SUPPORT_MAIL_INLINE,
   TIME_DATE,
   TIME_IN_TITLE,
   TONE,
@@ -27,23 +26,30 @@ import {
   PREVIEW_STATE_PARAM,
   previewPage,
 } from "@/components/credit-registration/previewRegistration"
-import { RegistrationActions } from "@/components/credit-registration/RegistrationStatusCard"
-import { useStudentRegistrationActions } from "@/components/credit-registration/studentRegistrationActions"
-import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
-import { registrationSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
+  RegistrationActions,
+  type RegistrationCardAction,
+} from "@/components/credit-registration/RegistrationStatusCard"
+import { StudentNumberLinkStep } from "@/components/credit-registration/StudentNumberLinkStep"
+import {
+  CONFIRM_EMAIL_ACTION_KEY,
+  RECHECK_ENROLMENT_ACTION_KEY,
+  useStudentRegistrationActions,
+} from "@/components/credit-registration/studentRegistrationActions"
+import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
+import {
+  bandCss,
   bandedCardCss,
+  cardTitleBandCss,
   narrowPageCss,
   noteCss,
   pageTitleCss,
-  sectionCss,
-  sectionHeaderCss,
   sectionsCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
-import SupportMailLink from "@/components/credit-registration/SupportMailLink"
 import {
   asksWhereYouEnrolled,
+  isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
 } from "@/components/credit-registration/trackerView"
@@ -124,7 +130,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 
   const data = preview ? preview.registration : (query.data ?? null)
   const enrolmentRoute = preview ? preview.enrolmentRoute : (routeQuery.data ?? null)
-  const verifiedNumber = numberQuery.data ?? null
+  const verifiedNumber = preview ? preview.verifiedStudentNumber : (numberQuery.data ?? null)
 
   const body = data ? (
     <Tracker
@@ -164,6 +170,13 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
     </div>
   )
 }
+
+const CONTACT_SUPPORT = "contact-support"
+
+/** Drops the mail-your-support-inbox lever, which this page does not offer. */
+const withoutSupportMail = (
+  action: RegistrationCardAction | null,
+): RegistrationCardAction | null => (action?.key === CONTACT_SUPPORT ? null : action)
 
 const NotInThePipelineYet: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -205,11 +218,17 @@ const Tracker: React.FC<TrackerProps> = ({
   const status = registration.student_facing_status
   const statusLabel = registrationStatusLabel(t, status)
   const canConfirmEmail = useCanConfirmEmailAddress()
-  const { primaryAction, secondaryActions, supportMail } = useStudentRegistrationActions({
+  const actions = useStudentRegistrationActions({
     registration,
     canConfirmEmail,
     linkToStatusPage: false,
   })
+  // This page never sends a student to their mail client: whatever is wrong, it is either something
+  // they can do here or something we are already dealing with.
+  const primaryAction = withoutSupportMail(actions.primaryAction)
+  const secondaryActions = actions.secondaryActions.filter(
+    (action) => withoutSupportMail(action) !== null,
+  )
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
   const announcedStatus = useRef(status)
@@ -221,11 +240,13 @@ const Tracker: React.FC<TrackerProps> = ({
   }, [status, statusLabel, t])
 
   const view = { registration, enrolmentRoute }
+  const leverByKey = (key: string): RegistrationCardAction | null =>
+    [primaryAction, ...secondaryActions].find((action) => action?.key === key) ?? null
 
   return (
     <>
       <article className={bandedCardCss}>
-        <header className={sectionHeaderCss}>
+        <header className={cardTitleBandCss}>
           <h1 className={pageTitleCss}>{t("register-completion")}</h1>
           <p className={subheadingCss}>
             {t("course")}: {moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName}
@@ -235,6 +256,12 @@ const Tracker: React.FC<TrackerProps> = ({
           ) : null}
         </header>
 
+        <StudentNumberLinkStep
+          registration={registration}
+          verifiedNumber={verifiedNumber}
+          confirmEmailAction={leverByKey(CONFIRM_EMAIL_ACTION_KEY)}
+        />
+
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
             courseModuleId={courseModuleId}
@@ -243,8 +270,17 @@ const Tracker: React.FC<TrackerProps> = ({
           />
         ) : null}
 
+        {isWaitingForEnrolment(view) ? (
+          <WaitingForEnrolment
+            registration={registration}
+            // Only this lever: the plan's other one sends the student off to the open university,
+            // under a band where half of them have just said they enrolled through Sisu.
+            recheckAction={leverByKey(RECHECK_ENROLMENT_ACTION_KEY)}
+          />
+        ) : null}
+
         {saysWhatIsHappening(view) ? (
-          <section className={sectionCss}>
+          <section className={bandCss}>
             <h2 className={subheadingCss}>{statusLabel}</h2>
             <StudentRegistrationExplanation registration={registration} />
             <RegistrationActions
@@ -258,18 +294,6 @@ const Tracker: React.FC<TrackerProps> = ({
                 moduleEctsCredits={ectsCredits}
               />
             ) : null}
-            {status === "registered" ? (
-              <p className={noteCss}>
-                {t("credit-registration-registered-not-showing-in-sisu")}{" "}
-                <SupportMailLink
-                  {...registrationSupportMail(t, registration)}
-                  appearance={SUPPORT_MAIL_INLINE}
-                  label={t("link-text-still-missing-email-support")}
-                />
-              </p>
-            ) : supportMail ? (
-              <SupportMailLink {...supportMail} />
-            ) : null}
             {registration.status_is_moving && checkedAt ? (
               <p className={noteCss}>
                 {t("credit-registration-last-checked")}{" "}
@@ -282,7 +306,7 @@ const Tracker: React.FC<TrackerProps> = ({
       </article>
 
       {earlierAttempts.length > 0 ? (
-        <section className={sectionCss}>
+        <section className={bandCss}>
           <h2 className={subheadingCss}>{t("heading-earlier-attempts")}</h2>
           {earlierAttempts.map((attempt) => (
             <p key={attempt.id} className={noteCss}>
@@ -295,6 +319,33 @@ const Tracker: React.FC<TrackerProps> = ({
         </section>
       ) : null}
     </>
+  )
+}
+
+/**
+ * The wait between the student enrolling and the enrolment appearing in the University's records.
+ *
+ * Says the expectation before anything else, because the pipeline reaches "not there yet" within
+ * minutes of the student pressing the button, and a student reading that as a verdict concludes
+ * something is broken when nothing is.
+ */
+const WaitingForEnrolment: React.FC<{
+  registration: MyCreditRegistration
+  recheckAction: RegistrationCardAction | null
+}> = ({ registration, recheckAction }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <section className={bandCss}>
+      <h2 className={subheadingCss}>{t("credit-registration-waiting-for-enrolment-heading")}</h2>
+      <p>{t("credit-registration-waiting-for-enrolment-body")}</p>
+      <RegistrationActions primaryAction={recheckAction} />
+      {registration.enrolment_checked_at ? (
+        <p className={noteCss}>
+          {t("credit-registration-last-looked")}{" "}
+          <RelativeTime at={registration.enrolment_checked_at} absoluteTime={TIME_IN_TITLE} />
+        </p>
+      ) : null}
+    </section>
   )
 }
 

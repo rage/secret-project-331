@@ -16,6 +16,7 @@ import type {
   MyEnrolmentRoute,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { Button, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
 
 import {
@@ -29,7 +30,8 @@ import {
   SISU_URL,
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
-import { rowCss, sectionCss } from "./styles"
+import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
+import { bandCss, rowCss } from "./styles"
 
 interface RouteForm {
   [ROUTE_FIELD]: string
@@ -118,8 +120,14 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   if (enrolmentRoute.enrolment_confirmed_at) {
     return (
-      <section className={sectionCss}>
-        <p>{t("credit-registration-you-told-us-you-enrolled")}</p>
+      <section className={bandCss}>
+        <p>
+          {enrolmentConfirmedSentence(
+            t,
+            enrolmentRoute.route,
+            humanReadableDate(enrolmentRoute.enrolment_confirmed_at, i18n.language) ?? "",
+          )}
+        </p>
         <div>
           <Button
             variant={BUTTON_TERTIARY}
@@ -136,7 +144,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   return (
     <>
-      <section className={sectionCss}>
+      <section className={bandCss}>
         <RadioGroup
           name={ROUTE_FIELD}
           control={control}
@@ -150,7 +158,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
       </section>
 
       {picked === UNIVERSITY_OF_HELSINKI ? (
-        <section className={sectionCss}>
+        <section className={bandCss}>
           <p>{t("enroll-through-sisu-to-register-credits")}</p>
           <div className={rowCss}>
             <Link
@@ -169,7 +177,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
       ) : null}
 
       {picked === OPEN_UNIVERSITY ? (
-        <section className={sectionCss}>
+        <section className={bandCss}>
           <p>
             <Trans
               t={t}

@@ -38,7 +38,6 @@ import {
 
 import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { LinkingEmailLine, sentLinkingEmail } from "./EmailStatusLine"
-import { NEED_A_NEW_LINK, studentNumberLinkSupportMail } from "./studentSupportMail"
 import {
   headingCss,
   monospaceCss,
@@ -50,7 +49,6 @@ import {
   studentNumberCss,
   subheadingCss,
 } from "./styles"
-import SupportMailLink from "./SupportMailLink"
 import { useCanConfirmEmailAddress } from "./useCanConfirmEmailAddress"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
@@ -282,7 +280,6 @@ const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ link
           </div>
         </>
       ) : null}
-      <SupportMailLink {...studentNumberLinkSupportMail(t, NEED_A_NEW_LINK)} />
     </>
   )
 }

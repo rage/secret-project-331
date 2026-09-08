@@ -54,7 +54,7 @@ describe("useStudentRegistrationActions", () => {
 
     expect(primaryAction?.href).toBe("https://example.com/enrol")
     expect(secondaryActions.map((action) => action.label)).toContain(
-      "credit-registration-action-recheck-enrolment",
+      "credit-registration-action-look-again",
     )
   })
 
@@ -71,14 +71,13 @@ describe("useStudentRegistrationActions", () => {
     expect(recheck?.disabledReason).toBe("credit-registration-enrolment-checked-recently")
   })
 
-  test("offers no primary action on a failure nobody but support can clear", () => {
-    const { primaryAction, secondaryActions, supportMail } = actionsFor(
+  test("offers no action at all on a failure nobody but support can clear", () => {
+    const { primaryAction, secondaryActions } = actionsFor(
       registration("failed", { error_code: "misregistered" }),
     )
 
     expect(primaryAction).toBeNull()
     expect(secondaryActions).toHaveLength(0)
-    expect(supportMail?.reference).toBe("registration-1")
   })
 
   test("sends a wrong student number to the settings page that can change it", () => {
@@ -98,34 +97,25 @@ describe("useStudentRegistrationActions", () => {
 
     expect(withFastTrack.primaryAction?.label).toBe("button-confirm-your-email-address")
     expect(withoutFastTrack.primaryAction).toBeNull()
-    expect(withoutFastTrack.supportMail).not.toBeNull()
   })
 
-  test("puts no support line under a registration that worked", () => {
-    const { primaryAction, secondaryActions, supportMail } = actionsFor(
+  test("offers nothing under a registration that worked", () => {
+    const { primaryAction, secondaryActions } = actionsFor(
       registration("registered", { registered_at: "2026-02-03T10:00:00Z" }),
     )
 
     expect(primaryAction).toBeNull()
     expect(secondaryActions).toHaveLength(0)
-    expect(supportMail).toBeNull()
   })
 
-  test("promotes the support mail to primary and demotes the onward link to text when a failure has no lever of its own", () => {
-    const { primaryAction, secondaryActions, supportMailPromoted } = actionsFor(
+  test("leaves a failure with no lever of its own with only the onward link", () => {
+    const { primaryAction, secondaryActions } = actionsFor(
       registration("failed", { error_code: "misregistered" }),
       { linkToStatusPage: true },
     )
 
-    expect(primaryAction?.label).toBe("credit-registration-action-label-contact-support")
-    expect(primaryAction?.href).toMatch(/^mailto:/)
-    expect(secondaryActions).toEqual([
-      expect.objectContaining({
-        label: "link-text-details-arrow",
-        href: "/completion-registration/module-1",
-        appearance: "link",
-      }),
-    ])
-    expect(supportMailPromoted).toBe(true)
+    expect(primaryAction?.label).toBe("link-text-see-what-happened")
+    expect(primaryAction?.href).toBe("/completion-registration/module-1")
+    expect(secondaryActions).toHaveLength(0)
   })
 })

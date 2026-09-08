@@ -27,9 +27,10 @@ test("the studies page shows the student's points and result, with no credit-reg
 
   await expect(page.getByRole("heading", { level: 1, name: "Your studies" })).toBeVisible()
   // No course here offers credit registration, so the attention section never mounts.
-  await expect(
-    page.getByRole("heading", { name: "Registrations that need attention" }),
-  ).toHaveCount(0)
+  await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
+  await expect(page.getByRole("heading", { name: "Credits that did not go through" })).toHaveCount(
+    0,
+  )
 
   await expect(page.getByText(/ECTS/)).toBeVisible()
 

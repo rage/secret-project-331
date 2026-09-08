@@ -11,12 +11,12 @@ import {
   openUniversityEnrolmentInfoUrl,
 } from "@/components/credit-registration/constants"
 import {
+  bandCss,
   bandedCardCss,
+  cardTitleBandCss,
   narrowPageCss,
   noteCss,
   pageTitleCss,
-  sectionCss,
-  sectionHeaderCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
 import { Disclosure, Infobox, Link, Radio, RadioGroup } from "@/shared-module/components"
@@ -66,7 +66,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
   return (
     <div className={narrowPageCss}>
       <article className={bandedCardCss}>
-        <header className={sectionHeaderCss}>
+        <header className={cardTitleBandCss}>
           <h1 className={pageTitleCss}>{t("register-completion")}</h1>
           <p className={subheadingCss}>
             {t("course")}: {courseName}
@@ -76,7 +76,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
           ) : null}
         </header>
 
-        <section className={sectionCss}>
+        <section className={bandCss}>
           <RadioGroup
             name={STUDENT_TYPE_FIELD}
             control={control}
@@ -90,7 +90,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
         </section>
 
         {studentType === STUDY_RIGHT_AT_UH ? (
-          <section className={sectionCss}>
+          <section className={bandCss}>
             <p>{t("enroll-through-sisu-to-register-credits")}</p>
             <Infobox tone={TONE.INFO}>
               <Trans t={t} i18nKey="sisu-email-matching-explanation" values={{ email }} />
@@ -112,7 +112,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
         ) : null}
 
         {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
-          <section className={sectionCss}>
+          <section className={bandCss}>
             <Infobox tone={TONE.INFO}>
               <Trans
                 t={t}

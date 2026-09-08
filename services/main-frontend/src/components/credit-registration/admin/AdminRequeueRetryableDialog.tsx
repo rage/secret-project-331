@@ -8,7 +8,7 @@ import type { AdminRequeueRetryableResult } from "@/generated/api/types.generate
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Infobox, Select } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
+import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { AdminActionDialog } from "./AdminActionDialog"
 import {
   useCreditRegistrationCourseStats,
@@ -25,7 +25,7 @@ const EVERY_MODULE = ""
 
 /** Clears the backoff on every retryable row, which is the button to press once an outage is over. */
 const AdminRequeueRetryableDialog: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const courseStatsQuery = useCreditRegistrationCourseStats()
   const invalidateAttentionItems = useInvalidateAttentionItems()
 

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { TONE } from "@/components/credit-registration/constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
 import { monospaceCss, noteCss, pageTitleCss } from "@/components/credit-registration/styles"
 import {
   linkingEmailSentence,
@@ -112,7 +112,7 @@ const quietCopyButtonCss = css`
 
 /** The number the credits are registered under, or what we last did about getting one confirmed. */
 const StudentNumberValue: React.FC<{ state: StudentNumberState }> = ({ state }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
 
   if (state.studentNumber) {
     const provenance = studentNumberVerificationLabel(t, state.verifiedVia)
@@ -154,7 +154,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userDetailsNotFound,
   studentNumber,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
   const userQuery = useQuery({ ...getUserOptions({ path: { user_id: userId } }) })
 

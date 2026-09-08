@@ -2,7 +2,6 @@
 
 import { css, cx } from "@emotion/css"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import React from "react"
@@ -23,7 +22,13 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { Disclosure, Link as ActionLink } from "@/shared-module/components"
 
-import { BUTTON_SECONDARY, BUTTON_SMALL, PLAIN_DISCLOSURE } from "../constants"
+import {
+  BUTTON_SECONDARY,
+  BUTTON_SMALL,
+  CREDIT_REGISTRATION_NS,
+  PLAIN_DISCLOSURE,
+} from "../constants"
+import type { CreditRegistrationTFunction } from "../constants"
 import { dividedListCss, emptyStateCss, noteCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
@@ -158,7 +163,7 @@ const ALERT_TONE_CSS = {
 } as const
 
 /** A rule's window in words: it lands in a sentence, where "7 d" reads as a typo. */
-const windowInWords = (t: TFunction, seconds: number): string => {
+const windowInWords = (t: CreditRegistrationTFunction, seconds: number): string => {
   if (seconds >= DAY_SECS) {
     return t("credit-registration-window-days", { count: Math.round(seconds / DAY_SECS) })
   }
@@ -177,7 +182,7 @@ const windowInWords = (t: TFunction, seconds: number): string => {
 const AlertWindowCaption: React.FC<{ windowSecs: number | null | undefined }> = ({
   windowSecs,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (windowSecs === null || windowSecs === undefined) {
     return null
   }
@@ -194,7 +199,7 @@ const AlertOpenLink: React.FC<{ alert: CreditRegistrationAlert; sentence: string
   alert,
   sentence,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <ActionLink
       href={ALERT_ROUTES[alert.id]}
@@ -233,7 +238,7 @@ const AlertCardContent: React.FC<{ action: React.ReactNode; children: React.Reac
  * page of links, where one button per card says there is one thing to do with each.
  */
 const AlertRow: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   // oxlint-disable-next-line i18next/no-literal-string -- CSS lookup key, not user-facing text
   const tone = alert.severity === CRITICAL ? "critical" : "warning"
   const sentence = alertSentence(t, alert.id, alert.count, alert.subject, alert.total)
@@ -249,7 +254,7 @@ const AlertRow: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
 }
 
 const AlertLine: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={alertLineCss}>
       <Link href={ALERT_ROUTES[alert.id]} prefetch={false}>
@@ -276,7 +281,7 @@ const bySeverity = (alerts: CreditRegistrationAlert[], severity: CreditRegistrat
  * behind a toggle is a warning nobody reads.
  */
 export const CreditRegistrationAttentionSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const overviewQuery = useCreditRegistrationOverview()
   const alerts = overviewQuery.data?.health.alerts ?? []
   const notices = bySeverity(alerts, INFO)
@@ -318,7 +323,7 @@ export const CreditRegistrationAttentionSection: React.FC = () => {
  * it, rather than only counting it, while there is one thing to name.
  */
 const SummaryStrip: React.FC<{ alerts: CreditRegistrationAlert[] }> = ({ alerts }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const criticals = bySeverity(alerts, CRITICAL)
   // The one thing on fire gets named; several get counted, because naming the first of five picks
   // for the reader.
@@ -380,7 +385,7 @@ const SummaryStrip: React.FC<{ alerts: CreditRegistrationAlert[] }> = ({ alerts 
 
 /** The health rules that are firing right now, weighted by how much of the tab they deserve. */
 const CreditRegistrationAlertBanner: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const pathname = usePathname()
   const overviewQuery = useCreditRegistrationOverview()
   const alerts = overviewQuery.data?.health.alerts ?? []

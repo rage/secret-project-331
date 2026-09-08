@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { Select } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { HOUR_SECS } from "./adminCreditRegistrationHooks"
 import { useQueryParamFilters } from "./useQueryParamFilters"
 
@@ -31,7 +32,7 @@ export function WindowSecsSelect<T extends WindowFields>({
   control,
   includeMonth = false,
 }: WindowSecsSelectProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Select
       name={"window_secs" as Path<T>}

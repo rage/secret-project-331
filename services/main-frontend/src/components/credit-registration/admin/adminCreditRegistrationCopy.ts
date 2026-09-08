@@ -1,5 +1,3 @@
-import type { TFunction } from "i18next"
-
 import type {
   AdminManualLinkOutcome,
   CreditRegistrationAdminAction,
@@ -18,6 +16,7 @@ import type {
 import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import type { CreditRegistrationTFunction } from "../constants"
 import {
   isLedgerState,
   registrationErrorShortLabel,
@@ -141,7 +140,7 @@ const adminErrorKey = (
  * `course_code_not_found`, whose sentences quote the value Sisu rejected.
  */
 export const registrationErrorAdminHelp = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
   subject?: AdminErrorSubject,
 ): string | null => {
@@ -167,14 +166,16 @@ const EVENT_KIND_KEYS = {
 const EVENT_KIND_UNKNOWN_KEY = "credit-registration-admin-event-unknown"
 
 /** What kind of thing the timeline entry records. */
-export const eventKindLabel = (t: TFunction, kind: CreditRegistrationEventKind): string =>
-  labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
+export const eventKindLabel = (
+  t: CreditRegistrationTFunction,
+  kind: CreditRegistrationEventKind,
+): string => labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
 
 export const COURSE_TEACHER_ROLE = "course_teacher"
 export const GLOBAL_ADMIN_ROLE = "global_admin"
 
 /** Whose permission authorised the action. The backend types the role as a bare string. */
-export const actorRoleLabel = (t: TFunction, actorRole: string): string =>
+export const actorRoleLabel = (t: CreditRegistrationTFunction, actorRole: string): string =>
   actorRole === COURSE_TEACHER_ROLE
     ? t("credit-registration-admin-actor-course-teacher")
     : t("credit-registration-admin-actor-global-admin")
@@ -208,7 +209,7 @@ const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
  * passed through as the backend wrote it.
  */
 export const alertSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   id: CreditRegistrationAlertId,
   count: number,
   subject: string | null | undefined,
@@ -244,7 +245,7 @@ export const isAttentionReason = (
 
 /** Which detector put a row on the attention table. */
 export const attentionReasonLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   reason: CreditRegistrationAttentionReason,
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
 
@@ -253,7 +254,7 @@ export const attentionReasonLabel = (
  * (e.g. a misregistered row's error label and state label are the same sentence).
  */
 export const registrationErrorNote = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   state: CreditRegistrationState,
   errorCode: CreditRegistrationErrorCode | null | undefined,
   pendingReason?: CreditRegistrationPendingReason | null,
@@ -276,8 +277,10 @@ const RETRYABILITY_KEYS = {
 const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown"
 
 /** What can be done about an error code, which is the difference between waiting and fixing. */
-export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
-  labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+export const retryabilityLabel = (
+  t: CreditRegistrationTFunction,
+  retryability: Retryability,
+): string => labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
 
 const RETRYABILITY_TONES = {
   retryable_transient: TONE.NEUTRAL,
@@ -312,8 +315,10 @@ export const ADMIN_ACTION_KEYS = {
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
 
-export const adminActionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string =>
-  labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
+export const adminActionLabel = (
+  t: CreditRegistrationTFunction,
+  action: CreditRegistrationAdminAction,
+): string => labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
 
 export const ADMIN_TARGET_KEYS = {
   credit_registration: "credit-registration-admin-action-target-registration",
@@ -327,7 +332,7 @@ export const ADMIN_TARGET_KEYS = {
 const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"
 
 export const adminActionTargetLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   target: CreditRegistrationAdminActionTarget,
 ): string => labelFrom(t, ADMIN_TARGET_KEYS, target, ADMIN_TARGET_UNKNOWN_KEY)
 
@@ -341,7 +346,7 @@ const SEND_STATUS_KEYS = {
 const SEND_STATUS_UNKNOWN_KEY = "credit-registration-admin-send-status-unknown"
 
 /** Our send status only, never a delivery; an unknown status must not read as `queued`. */
-export const sendStatusLabel = (t: TFunction, status: EmailSendStatus): string =>
+export const sendStatusLabel = (t: CreditRegistrationTFunction, status: EmailSendStatus): string =>
   labelFrom(t, SEND_STATUS_KEYS, status, SEND_STATUS_UNKNOWN_KEY)
 
 /** `Partial`: `no_student_number_known` is the teacher endpoint's, whose target may never have held one. */
@@ -358,8 +363,10 @@ const RESEND_OUTCOME_KEYS = {
 const RESEND_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-resend-unknown-outcome"
 
 /** An unrecognised outcome must not fall back to `queued`: that reads as the resend having worked. */
-export const resendOutcomeLabel = (t: TFunction, outcome: ResendOutcome): string =>
-  labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
+export const resendOutcomeLabel = (
+  t: CreditRegistrationTFunction,
+  outcome: ResendOutcome,
+): string => labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {
   linked: "credit-registration-admin-manual-link-linked",
@@ -373,5 +380,7 @@ const MANUAL_LINK_OUTCOME_KEYS = {
 const MANUAL_LINK_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-manual-link-unknown-outcome"
 
 /** An unrecognised outcome must not fall back to `linked`: that reads as the link having been made. */
-export const manualLinkOutcomeLabel = (t: TFunction, outcome: AdminManualLinkOutcome): string =>
-  labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)
+export const manualLinkOutcomeLabel = (
+  t: CreditRegistrationTFunction,
+  outcome: AdminManualLinkOutcome,
+): string => labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)

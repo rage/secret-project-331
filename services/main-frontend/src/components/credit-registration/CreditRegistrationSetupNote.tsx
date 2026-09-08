@@ -10,7 +10,7 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import { Link } from "@/shared-module/components"
 
-import { MIDDLE_DOT } from "./constants"
+import { CREDIT_REGISTRATION_NS, MIDDLE_DOT } from "./constants"
 import { noteCss, proseCss, rowCss } from "./styles"
 
 interface Props {
@@ -24,7 +24,7 @@ interface Props {
  * "credit registration was never switched on", and those call for opposite responses.
  */
 const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const configsQuery = useQuery(
     getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: courseId } }),
   )

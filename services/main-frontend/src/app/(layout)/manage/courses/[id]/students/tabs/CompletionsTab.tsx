@@ -2,12 +2,16 @@
 
 import { cx } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
-import type { TFunction } from "i18next"
 import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import { ABSENT, QUIET_REFRESH } from "@/components/credit-registration/constants"
+import {
+  ABSENT,
+  CREDIT_REGISTRATION_NS,
+  QUIET_REFRESH,
+} from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
 import CreditRegistrationSetupNote from "@/components/credit-registration/CreditRegistrationSetupNote"
 import CreditRegistrationStatusCell, {
@@ -84,7 +88,7 @@ const pivotCompletions = (
   }[],
   completions: CompletionGridRow[],
   structureModules: StructureModule[],
-  t: TFunction,
+  t: CreditRegistrationTFunction,
 ) => {
   const numericModuleIds = new Set(
     completions.filter((r) => typeof r.grade === "number").map((r) => r.module_id),
@@ -128,7 +132,7 @@ const pivotCompletions = (
   return { modulesInOrder, data }
 }
 
-const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
+const gradeLabel = (grade: unknown, passed: unknown, t: CreditRegistrationTFunction): string => {
   if (typeof grade === "number") {
     return String(grade)
   }
@@ -156,7 +160,7 @@ const GradeCell: React.FC<{
   needsReview: boolean
   isNumeric: boolean
 }> = ({ grade, passed, needsReview, isNumeric }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={cx(inlineCellCss, isNumeric && numericCellCss)}>
       <span>{gradeLabel(grade, passed, t)}</span>
@@ -177,7 +181,7 @@ const RegistrationCell: React.FC<{
   creditRegistration: CourseCreditRegistration | undefined
   isCreditRegistrationsPending: boolean
 }> = ({ registered, creditRegistration, isCreditRegistrationsPending }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (creditRegistration) {
     return <CreditRegistrationStatusCell registration={creditRegistration} />
   }
@@ -196,7 +200,7 @@ const RegistrationCell: React.FC<{
 
 const buildColumns = (
   modulesInOrder: ModuleColumn[],
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   locale: string,
   creditRegistrations: CreditRegistrationIndex,
   isCreditRegistrationsPending: boolean,
@@ -272,7 +276,7 @@ const buildColumns = (
 }
 
 export const CompletionsTabContent: React.FC = () => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const { courseId, courseInstanceId, moduleId, registrationView, setRegistrationView } =
     useStudentsContext()
   const params = useStudentsListParams(DETAIL_SORT_COLUMNS)

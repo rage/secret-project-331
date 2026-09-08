@@ -1,6 +1,6 @@
-import type { TFunction } from "i18next"
-
 import { formatDuration } from "@/utils/moduleTimeline"
+
+import type { CreditRegistrationTFunction } from "../constants"
 
 const MINUTE_SECS = 60
 
@@ -8,7 +8,7 @@ const MINUTE_SECS = 60
  * A phase's tick interval in words. Not `formatDuration` alone: it rounds to whole minutes, which
  * turns the phases that tick every 30 seconds into "0 min".
  */
-export const formatIntervalSecs = (seconds: number, t: TFunction): string =>
+export const formatIntervalSecs = (seconds: number, t: CreditRegistrationTFunction): string =>
   seconds < MINUTE_SECS ? t("duration-seconds", { seconds }) : formatDuration(seconds, t)
 
 export type PhaseHealth =
@@ -61,7 +61,7 @@ const HEALTH_KEYS = {
 } as const satisfies Record<PhaseHealth, string>
 
 /** The System tab's status text for a phase health. */
-export const phaseHealthLabel = (t: TFunction, health: PhaseHealth): string =>
+export const phaseHealthLabel = (t: CreditRegistrationTFunction, health: PhaseHealth): string =>
   t(HEALTH_KEYS[health])
 
 /** Whether a health should stand out in the phase list rather than read as ordinary. */

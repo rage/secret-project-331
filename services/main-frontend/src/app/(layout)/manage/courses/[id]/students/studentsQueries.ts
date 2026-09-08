@@ -1,5 +1,4 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
-import type { TFunction } from "i18next"
 import { useEffect } from "react"
 
 import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
@@ -16,6 +15,7 @@ import {
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import type { ServiceTFunction } from "@/utils/translationNamespaces"
 
 export type SortDirection = "asc" | "desc"
 
@@ -231,7 +231,7 @@ export const useCourseStudentsProgressDetail = (courseId: string, userIds: strin
 /** "Last, First" for a sorted student list; falls back to the single set name or a generic label. */
 export const formatStudentName = (
   row: { first_name?: string | null; last_name?: string | null },
-  t: TFunction,
+  t: ServiceTFunction,
 ): string => {
   const first = (row.first_name ?? "").trim()
   const last = (row.last_name ?? "").trim()

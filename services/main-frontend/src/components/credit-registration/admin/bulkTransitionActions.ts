@@ -1,10 +1,9 @@
-import type { TFunction } from "i18next"
-
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "../constants"
 import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
 import { canRetryFailure } from "../registrationFailures"
 import type { TransitionChoice } from "./TransitionTargetSelect"
@@ -64,7 +63,10 @@ export const groupSelectionByState = (rows: readonly BulkTransitionRow[]): Selec
 }
 
 /** The selection in words: "18 waiting for Sisu to confirm", one entry per state. */
-export const selectionSummary = (t: TFunction, groups: readonly SelectionGroup[]): string[] =>
+export const selectionSummary = (
+  t: CreditRegistrationTFunction,
+  groups: readonly SelectionGroup[],
+): string[] =>
   groups.map((group) =>
     t("credit-registration-admin-bulk-state-count", {
       count: group.count,

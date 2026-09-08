@@ -5,6 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   STATE_ACTION_NEEDED,
   STATE_FAILED,
@@ -42,7 +43,7 @@ import { QueryResult, RelativeTime } from "@/shared-module/components"
  * the course list below does not.
  */
 const RegistrationsNeedingAttention: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const query = useQuery({ ...getMyCreditRegistrationsOptions() })
 
   return (
@@ -89,7 +90,7 @@ const AttentionSection: React.FC<{
   )
 
 const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions, supportMail, supportMailPromoted } =

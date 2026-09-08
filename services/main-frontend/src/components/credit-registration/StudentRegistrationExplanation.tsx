@@ -8,7 +8,7 @@ import { userSettingsStudentNumberRoute } from "@/shared-module/common/utils/rou
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { TransLink } from "@/shared-module/components"
 
-import { SISU_URL } from "./constants"
+import { CREDIT_REGISTRATION_NS, SISU_URL } from "./constants"
 import {
   registrationErrorHelp,
   registrationExplanation,
@@ -29,7 +29,7 @@ const MISREGISTERED = "misregistered"
 
 /** The sentence, or the steps, that the state itself wants said. */
 const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
 
   if (status === "needs_student_number") {
@@ -106,7 +106,7 @@ export interface StudentRegistrationExplanationProps {
 export const StudentRegistrationExplanation: React.FC<StudentRegistrationExplanationProps> = ({
   registration,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
   const isNobodyElsesToFix =

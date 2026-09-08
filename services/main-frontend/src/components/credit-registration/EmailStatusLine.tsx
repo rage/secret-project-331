@@ -11,6 +11,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 
+import { CREDIT_REGISTRATION_NS } from "./constants"
 import { translateKey, widenedLookup } from "./labelFrom"
 import { noteCss } from "./styles"
 
@@ -22,7 +23,7 @@ interface EmailStatusLineProps {
 
 /** Says nothing while the mail is queued or retrying, and never that it was delivered. */
 const EmailStatusLine: React.FC<EmailStatusLineProps> = ({ status, sentText, sendFailedText }) => {
-  const { i18n } = useTranslation()
+  const { i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   if (!status) {
     return null
   }
@@ -55,7 +56,7 @@ export const sentLinkingEmail = (
     : null
 
 export const LinkingEmailLine: React.FC<LinkingEmailLineProps> = ({ linkingEmail }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <EmailStatusLine
       status={linkingEmail}
@@ -92,7 +93,7 @@ export interface NotificationEmailLineProps {
 export const NotificationEmailLine: React.FC<NotificationEmailLineProps> = ({
   notificationEmail,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const kind = notificationEmail?.kind ?? ACTION_NEEDED_KIND
   // A kind outside the known enum (an old client against a newer backend) falls back to the
   // action-needed copy, never the registered one, so it can't misreport credits as registered.

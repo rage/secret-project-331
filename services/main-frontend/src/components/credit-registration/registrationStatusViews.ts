@@ -1,7 +1,6 @@
-import type { TFunction } from "i18next"
-
 import type { StudentFacingCreditRegistrationStatus } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { ALL_REGISTRATION_STATUSES, registrationNeedsAttention } from "./creditRegistrationCopy"
 import { labelFrom } from "./labelFrom"
 
@@ -68,5 +67,7 @@ const VIEW_LABEL_KEYS = {
   not_registering: "credit-registration-teacher-status-not-registering",
 } as const satisfies Record<RegistrationStatusView, string>
 
-export const registrationStatusViewLabel = (t: TFunction, view: RegistrationStatusView): string =>
-  labelFrom(t, VIEW_LABEL_KEYS, view, VIEW_LABEL_KEYS.everyone)
+export const registrationStatusViewLabel = (
+  t: CreditRegistrationTFunction,
+  view: RegistrationStatusView,
+): string => labelFrom(t, VIEW_LABEL_KEYS, view, VIEW_LABEL_KEYS.everyone)

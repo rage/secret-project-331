@@ -10,7 +10,7 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
-import { ABSENT, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
+import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
 import {
   emptyStateCss,
   monospaceCss,
@@ -43,7 +43,7 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
  * reference table is where the names and student numbers behind each `requestItemId` live.
  */
 export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const detailQuery = useQuery(
     getSuotarApiCallOptions({ path: { suotar_api_call_id: suotarApiCallId } }),
   )
@@ -164,7 +164,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
 
 /** The same bodies behind a button, for a table whose rows cannot expand. */
 const SuotarApiCallDetail: React.FC<Props> = ({ suotarApiCallId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
 
   return (

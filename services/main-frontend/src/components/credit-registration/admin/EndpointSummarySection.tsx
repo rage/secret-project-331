@@ -8,6 +8,7 @@ import { QueryResult, RelativeTime, Table } from "@/shared-module/components"
 import {
   ABSENT,
   ALIGN_END,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
@@ -26,7 +27,7 @@ import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSele
 
 /** One row per study registry endpoint over the chosen window: how much we called it, and how it went. */
 const EndpointSummarySection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const healthQuery = useSuotarHealth()
   const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
 

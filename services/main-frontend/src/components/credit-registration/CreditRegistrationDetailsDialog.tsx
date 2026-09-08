@@ -22,7 +22,14 @@ import {
 
 import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
-import { MIDDLE_DOT, PLAIN_DISCLOSURE, STACKED, TIME_COMPACT, TONE } from "./constants"
+import {
+  CREDIT_REGISTRATION_NS,
+  MIDDLE_DOT,
+  PLAIN_DISCLOSURE,
+  STACKED,
+  TIME_COMPACT,
+  TONE,
+} from "./constants"
 import {
   registrationErrorTeacherHelp,
   registrationGradeLabel,
@@ -79,7 +86,7 @@ const supportReferenceValueCss = css`
 `
 
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },

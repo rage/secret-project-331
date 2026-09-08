@@ -10,7 +10,7 @@ import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import { Button, Infobox, Link } from "@/shared-module/components"
 
-import { BUTTON_SECONDARY, TONE } from "./constants"
+import { BUTTON_SECONDARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import type { FailureAction } from "./registrationFailures"
 import { failureActionLabel, failureActions, failureOwnerHeading } from "./registrationFailures"
@@ -35,7 +35,7 @@ const SUPPORT_LINK_APPEARANCE = "link" as const
  * gets a retry button; when the teacher has no action at all the block names the owner instead.
  */
 const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const invalidateAfterRetry = useInvalidateAfterRetry(registration.course_id)
 

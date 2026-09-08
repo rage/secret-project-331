@@ -5,13 +5,13 @@ import {
   Warning,
   XmarkCircle,
 } from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
 import type React from "react"
 
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
 import type { BadgeTone } from "@/shared-module/components"
 
 import { TONE } from "../constants"
+import type { CreditRegistrationTFunction } from "../constants"
 
 export type CourseModuleStatus =
   | "broken_config"
@@ -79,8 +79,10 @@ const STATUS_TONES = {
 } as const satisfies Record<CourseModuleStatus, BadgeTone>
 
 /** The Courses tab's badge text for a module verdict. */
-export const courseModuleStatusLabel = (t: TFunction, status: CourseModuleStatus): string =>
-  t(STATUS_KEYS[status])
+export const courseModuleStatusLabel = (
+  t: CreditRegistrationTFunction,
+  status: CourseModuleStatus,
+): string => t(STATUS_KEYS[status])
 
 /** The Courses tab's badge tone for a module verdict. */
 export const courseModuleStatusTone = (status: CourseModuleStatus): BadgeTone =>
@@ -130,8 +132,10 @@ const CONFIG_FAILURE_REASON_KEYS = {
 } as const satisfies Record<ConfigFailureReason, string>
 
 /** Human status for a module's failed check, in place of the raw backend message. */
-export const configFailureReasonLabel = (t: TFunction, reason: ConfigFailureReason): string =>
-  t(CONFIG_FAILURE_REASON_KEYS[reason])
+export const configFailureReasonLabel = (
+  t: CreditRegistrationTFunction,
+  reason: ConfigFailureReason,
+): string => t(CONFIG_FAILURE_REASON_KEYS[reason])
 
 /** `configFailureReason`, defaulting to `"other"` for a caller that already knows `check.message` is set. */
 export const configFailureReasonOrOther = (

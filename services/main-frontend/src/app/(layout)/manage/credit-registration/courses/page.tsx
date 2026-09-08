@@ -25,6 +25,7 @@ import FacetChip from "@/components/credit-registration/admin/FacetChip"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import {
   ALIGN_END,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
   MIDDLE_DOT,
@@ -130,7 +131,7 @@ const statusIconDangerCss = css`
  * is exactly the chrome Overview removed.
  */
 const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = courseModuleStatus(module)
   const label = courseModuleStatusLabel(t, status)
   const StatusIcon = courseModuleStatusIcon(status)
@@ -158,7 +159,7 @@ const CONFIG_FAILURE_BANNER_KEYS = {
 
 /** Which of the four configuration checks passed, in a dialog so the row stays one line high. */
 const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
   const checks: { label: string; value: boolean | null }[] = [
     {
@@ -223,7 +224,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
 /** Failed share of the module's finished rows: a percent and a bar on every row, so the shape of the
  * column never itself looks like the signal. Only the tone marks a rate worth acting on. */
 const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const rate = failureRatePercent(module)
   const terminal = module.success_count + module.failed_count
   if (rate === null) {
@@ -258,7 +259,7 @@ const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ 
 
 /** Registrations against eligible completions; the gap itself only earns a colour once it is non-zero. */
 const BackfillCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const gap = backfillGap(module)
   const valueText = t("credit-registration-admin-backfill-value", {
     registered: module.registration_count,
@@ -301,7 +302,7 @@ const moduleSubtitle = (module: CreditRegistrationCourseStats): string[] => {
 
 /** Which course modules register credits, how well each does it, and what is wrong with the rest. */
 const CoursesPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statsQuery = useCreditRegistrationCourseStats()
   const { control, watch } = useForm<ViewFields>({
     defaultValues: { sort: SORT_NAME, problemsOnly: false },

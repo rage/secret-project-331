@@ -12,7 +12,7 @@ import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
@@ -45,7 +45,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   courseId,
   courseName,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,

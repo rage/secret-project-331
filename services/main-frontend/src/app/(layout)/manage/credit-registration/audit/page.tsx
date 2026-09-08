@@ -28,6 +28,7 @@ import {
   ARROW,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   LINK_QUIET,
@@ -202,7 +203,7 @@ const actorName = (row: CreditRegistrationAdminActionRow): string =>
 
 /** The actor with the role under the name, so one cell answers who did this and on what authority. */
 const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
       <span>{actorName(row)}</span>
@@ -215,7 +216,7 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
 
 /** What the action was about, named rather than prefixed with its kind and identified by an id. */
 const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const student =
     row.target_first_name || row.target_last_name
       ? formatUserName({ first_name: row.target_first_name, last_name: row.target_last_name })
@@ -293,7 +294,7 @@ const filteredTargetLabel = (
  * point of the tab: without it a teacher's retry on their own course reads as an admin's.
  */
 const AuditPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const courseStatsQuery = useCreditRegistrationCourseStats()
   // The stats are one row per module, and a course can have several Suotar-enabled modules: dedupe
   // by course_id or the Select gets two options with the same value and refuses to render at all.

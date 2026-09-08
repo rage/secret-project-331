@@ -2,13 +2,18 @@
 
 import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
 import React, { useEffect, useState } from "react"
 import type { Path } from "react-hook-form"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { ABSENT, MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import {
+  ABSENT,
+  CREDIT_REGISTRATION_NS,
+  MIDDLE_DOT,
+  TONE,
+} from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
@@ -213,7 +218,7 @@ const GRADE_SCALE_LABEL_KEYS = {
   [NUMERIC_GRADE_SCALE_ID]: "grade-scale-numeric",
 } as const
 
-const gradeScaleLabel = (t: TFunction, gradeScaleId: string): string =>
+const gradeScaleLabel = (t: CreditRegistrationTFunction, gradeScaleId: string): string =>
   labelFrom(t, GRADE_SCALE_LABEL_KEYS, gradeScaleId, GRADE_SCALE_LABEL_KEYS[DERIVED_GRADE_SCALE])
 
 /** The grade scale as a fact about the module rather than as the select's option label. */
@@ -231,7 +236,7 @@ const REGISTRATION_PATH_BADGE_KEYS = {
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
 const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const path = registrationPathOf(module)
   const parts: string[] = []
   if (module.uh_course_code) {
@@ -263,7 +268,7 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
 const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }> = ({
   fields,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={subsectionCss}>
       <DescriptionList
@@ -322,7 +327,7 @@ const CourseModuleForm: React.FC<Props> = ({
   onCancel,
   children,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isCreate = mode === "create"
   const [editing, setEditing] = useState(isCreate)
   const {
@@ -409,7 +414,6 @@ const CourseModuleForm: React.FC<Props> = ({
               name="name"
               control={control}
               label={isCreate ? t("name-of-module") : t("edit-module")}
-              placeholder={t("name-of-module")}
               rules={{ required: t("required-field") }}
             />
           ) : (
@@ -525,7 +529,6 @@ const CourseModuleForm: React.FC<Props> = ({
                 name="uh_course_code"
                 control={control}
                 label={t("uh-course-code")}
-                placeholder={t("uh-course-code")}
                 isRequired={registersToStudyRegistry}
                 rules={
                   registersToStudyRegistry
@@ -676,7 +679,6 @@ const CourseModuleForm: React.FC<Props> = ({
               name="completion_registration_link_override"
               control={control}
               label={t("completion-registration-link")}
-              placeholder={t("completion-registration-link")}
               isDisabled={!overrideLink}
               // The field stays mounted while the override is off, so its rule has to go with it.
               rules={

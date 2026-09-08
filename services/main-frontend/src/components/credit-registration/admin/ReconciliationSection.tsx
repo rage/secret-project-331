@@ -12,6 +12,7 @@ import { Badge, Disclosure, RelativeTime, Table } from "@/shared-module/componen
 import {
   BADGE_COMPACT,
   BUTTON_SECONDARY,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
   TIME_COMPACT,
@@ -54,7 +55,7 @@ const Check: React.FC<{
   maxRows: number
   children: React.ReactNode
 }> = ({ heading, count, explanation, maxRows, children }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (count === 0) {
     return (
       <li className={spacedRowCss}>
@@ -90,7 +91,7 @@ const Check: React.FC<{
 }
 
 const MaterializeButton: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateReconciliation = useInvalidateReconciliation()
   const { button, dialog } = useReasonConfirmAction({
     mutationFn: (fields) =>
@@ -116,7 +117,7 @@ const MaterializeButton: React.FC = () => {
  * two pages.
  */
 const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   const detectors = [
     {

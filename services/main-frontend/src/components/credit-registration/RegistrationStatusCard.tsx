@@ -15,7 +15,7 @@ import {
   registrationStatusTone,
 } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "./constants"
+import { BUTTON_PRIMARY, BUTTON_SECONDARY, CREDIT_REGISTRATION_NS } from "./constants"
 import { noteCss, rowCss, sectionCss, spacedRowCss, subheadingCss, subsectionCss } from "./styles"
 
 export interface RegistrationCardAction {
@@ -104,7 +104,7 @@ const RegistrationStatusCard: React.FC<RegistrationStatusCardProps> = ({
   meta,
   className,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const actions = [...(primaryAction ? [primaryAction] : []), ...secondaryActions]
   const reasons = actions.filter((action) => action.isDisabled && action.disabledReason)
 

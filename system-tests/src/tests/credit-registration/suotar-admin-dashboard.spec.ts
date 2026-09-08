@@ -438,7 +438,7 @@ test("The errors tab shows the window's verdicts and what needs a human", async 
   await expect(
     page.getByRole("heading", { name: "How registrations ended in this window" }),
   ).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Needs a human" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Needs attention" })).toBeVisible()
   await expect(page.getByRole("button", { name: "Requeue everything retryable" })).toBeVisible()
 
   // The selection bar stays out of the way until something is ticked.

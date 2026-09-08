@@ -5,13 +5,15 @@ import { useTranslation } from "react-i18next"
 
 import { Link } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "./constants"
+
 interface Props {
   courseId: string
 }
 
 /** One element, not a Button inside an anchor: a download is a link wherever the keyboard is concerned. */
 const CreditRegistrationExportLink: React.FC<Props> = ({ courseId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Link
       href={`/api/v0/main-frontend/course-credit-registrations/courses/${courseId}/export`}

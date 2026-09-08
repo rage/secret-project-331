@@ -18,6 +18,7 @@ import {
 import {
   ABSENT,
   ALIGN_END,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
   QUIET_REFRESH,
@@ -61,7 +62,7 @@ const PhaseTable: React.FC<{
   phases: CreditRegistrationPhaseRow[]
   caption: string
 }> = ({ phases, caption }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Table
       caption={caption}
@@ -191,7 +192,7 @@ const groupByProcess = (
 }
 
 const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const counts = countPhasesByHealth(list.phases)
 
   return (

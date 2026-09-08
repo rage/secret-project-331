@@ -36,7 +36,7 @@ import {
   QueryResult,
 } from "@/shared-module/components"
 
-import { BUTTON_TERTIARY, TONE } from "./constants"
+import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { LinkingEmailLine, sentLinkingEmail } from "./EmailStatusLine"
 import { NEED_A_NEW_LINK, studentNumberLinkSupportMail } from "./studentSupportMail"
 import {
@@ -69,7 +69,7 @@ const dangerZoneCss = css`
 `
 
 const StudentNumberCard: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const linkQuery = useQuery({ ...getMyVerifiedStudentNumberOptions() })
   const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
@@ -106,7 +106,7 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
   link,
   hasRegisteringCourse,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
 
@@ -200,7 +200,7 @@ const AutoLinkNotice: React.FC<{
   link: MyVerifiedStudentNumber
   onUnlink: () => void
 }> = ({ link, onUnlink }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
 
   const dismiss = useToastMutation<void, unknown, void>(
@@ -250,7 +250,7 @@ const AutoLinkNotice: React.FC<{
  * a mail to support that already asks for a new link.
  */
 const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ linkingEmail }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const canConfirmEmail = useCanConfirmEmailAddress()
   const sent = sentLinkingEmail(linkingEmail)
 
@@ -318,7 +318,7 @@ const StudentNumberSummaryLineComponent: React.FC<StudentNumberSummaryLineProps>
 }
 
 const LinkedSummary: React.FC<{ studentNumber: string }> = ({ studentNumber }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   // Not a flex row: that spreads the sentence's own text nodes apart and strands the full stop
   // behind a gap.
   return (
@@ -335,7 +335,7 @@ const LinkedSummary: React.FC<{ studentNumber: string }> = ({ studentNumber }) =
 }
 
 const NotLinkedSummary: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <p className={noteCss}>
       {t("student-number-summary-not-linked")}{" "}

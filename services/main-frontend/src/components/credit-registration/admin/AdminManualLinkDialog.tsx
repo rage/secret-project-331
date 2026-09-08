@@ -34,6 +34,7 @@ import {
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   STACKED,
   TONE,
@@ -118,7 +119,7 @@ const AccountPicker: React.FC<{
   /** Whether this is the wizard's current step, so its button reads as the thing to do next. */
   isCurrentStep: boolean
 }> = ({ onChoose, isCurrentStep }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, handleSubmit } = useForm<SearchFields>({ defaultValues: { term: "" } })
   const [query, setQuery] = useState("")
   const accountsQuery = useQuery({
@@ -178,7 +179,7 @@ const AccountPicker: React.FC<{
 
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
 const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, account }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const [chosenAccount, setChosenAccount] = useState<ManualLinkAccount | null>(account ?? null)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({

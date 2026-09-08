@@ -2,13 +2,14 @@
 
 import { css, cx } from "@emotion/css"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
 import { useParams, useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
 import {
   REGISTRATION_STATUS_VIEWS,
@@ -54,7 +55,7 @@ const GRADE_FILTER_OPTIONS: GradeFilterValue[] = [
   "5",
 ]
 
-const gradeFilterLabel = (value: GradeFilterValue, t: TFunction): string => {
+const gradeFilterLabel = (value: GradeFilterValue, t: CreditRegistrationTFunction): string => {
   switch (value) {
     case "not_completed":
       return t("not-completed")
@@ -122,7 +123,7 @@ interface FilterFields {
 function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const {
     courseId: ctxCourseId,
     searchInput,

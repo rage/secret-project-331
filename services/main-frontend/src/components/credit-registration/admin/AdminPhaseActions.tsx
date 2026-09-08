@@ -13,6 +13,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Menu, type MenuItemDescriptor } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
@@ -23,7 +24,7 @@ interface Props {
 
 /** Pause, resume and run-now for one pipeline phase, collapsed into the System tab's row menu. */
 const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
 

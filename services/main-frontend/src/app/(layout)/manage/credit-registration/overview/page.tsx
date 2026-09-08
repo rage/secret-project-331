@@ -34,6 +34,7 @@ import {
 } from "@/components/credit-registration/admin/WindowSecsSelect"
 import {
   ALIGN_END,
+  CREDIT_REGISTRATION_NS,
   DAY_AND_MONTH_FORMAT,
   DENSITY_COMPACT,
   LINK_INHERIT,
@@ -155,7 +156,7 @@ const stateIconCss = css`
 
 /** How the window's finished registrations ended, which is the throughput question. */
 const ThroughputSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, windowSecs } = useWindowSecsParam(WEEK_SECS)
   const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
 
@@ -220,7 +221,7 @@ const StageTable: React.FC<{
   liveTotal: number
   deepestLiveCount: number
 }> = ({ bucket, rows, liveTotal, deepestLiveCount }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isLive = bucket !== "done"
   const subtotal = rows.reduce((sum, row) => sum + row.count, 0)
 
@@ -296,7 +297,7 @@ const StageTable: React.FC<{
  * are the counts an operator quotes; they are not the work queue, which is a row-by-row judgement.
  */
 const QueueSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ overview }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const rows: StateRow[] = overview.counts_by_state.filter((row) => row.count > 0)
   const liveRows = rows.filter((row) => BUCKET_OF_STATE[row.state] !== "done")
   const liveTotal = liveRows.reduce((sum, row) => sum + row.count, 0)
@@ -416,7 +417,7 @@ const useMeasuredWidth = (): [React.RefObject<HTMLDivElement | null>, number] =>
 
 /** Does the pipeline drain? The three live buckets stacked, so the top edge is the whole backlog. */
 const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
   const { points, days, depthOf } = useMemo(() => readHistory(history), [history])
   const gaps = useMemo(() => missingRanges(points), [points])
@@ -489,7 +490,7 @@ const BucketAreaChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
 
 /** Which state is piling up? One small line per state, all on the same scale. */
 const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
   const [panelRef, panelWidth] = useMeasuredWidth()
   const { days, depthOf } = useMemo(() => readHistory(history), [history])
@@ -596,7 +597,7 @@ const RangeChips: React.FC<{ days: number; onChange: (days: number) => void }> =
   days,
   onChange,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   return (
     <div
@@ -617,7 +618,7 @@ const RangeChips: React.FC<{ days: number; onChange: (days: number) => void }> =
 }
 
 const TrendSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [historyDays, setHistoryDays] = useState(MONTH_DAYS)
   const historyQuery = useCreditRegistrationPipelineHistory(historyDays)
 

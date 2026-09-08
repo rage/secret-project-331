@@ -1,8 +1,7 @@
-import type { TFunction } from "i18next"
-
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { registrationErrorShortLabel, registrationStatusLabel } from "./creditRegistrationCopy"
 import { translateKey } from "./labelFrom"
 
@@ -20,7 +19,7 @@ export interface SupportMailContents {
  * still leaves the student something to quote.
  */
 export const registrationSupportMail = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   registration: MyCreditRegistration,
 ): SupportMailContents => {
   const part = registration.course_module_name
@@ -59,7 +58,7 @@ const LINK_PROBLEM_KEYS = {
 
 /** A support mail about a confirmation link the student never received or can no longer use. */
 export const studentNumberLinkSupportMail = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   problem: StudentNumberLinkProblem,
   studentNumber?: string | null,
 ): SupportMailContents => ({

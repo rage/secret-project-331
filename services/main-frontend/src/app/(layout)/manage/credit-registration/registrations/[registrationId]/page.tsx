@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import type { TFunction } from "i18next"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
@@ -32,6 +31,7 @@ import {
   ABSENT,
   ALIGN_END,
   ARROW,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
   PLAIN_DISCLOSURE,
@@ -44,6 +44,7 @@ import {
   TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
   registrationGradeLabel,
   registrationLedgerStateLabel,
@@ -148,7 +149,7 @@ const JOIN_IDENTIFIERS = "\n"
 
 /** Each id is copyable on its own, and all of them together: these get quoted into tickets and SQL consoles. */
 const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   // The registration's own id is in the page header; this is everything else it points at.
   const identifiers: { label: string; value: string | null | undefined }[] = [
     {
@@ -212,7 +213,7 @@ const HeaderSection: React.FC<{
   isLive: boolean
   updatedAt: number
 }> = ({ details, isLive, updatedAt }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const stateLabel = registrationLedgerStateLabel(t, row.state, row.pending_reason)
   const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
@@ -287,7 +288,7 @@ const HeaderSection: React.FC<{
 }
 
 const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const studentNumber = row.verified_student_number ?? row.student_number
   const verifiedVia = verificationMethodLabel(t, row.verified_student_number_via)
@@ -384,7 +385,7 @@ const AttemptChainSection: React.FC<{
   attempts: AdminCreditRegistrationRow[]
   currentId: string
 }> = ({ attempts, currentId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (attempts.length < 2) {
     return null
   }
@@ -426,7 +427,7 @@ const AttemptChainSection: React.FC<{
 }
 
 const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, payload }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -445,7 +446,7 @@ const TimelineEntry: React.FC<{
   event: AdminCreditRegistrationEvent
   actorName: string | undefined
 }> = ({ event, actorName }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <li className={timelineEntryCss}>
       <span className={noteCss}>
@@ -492,7 +493,7 @@ const TimelineSection: React.FC<{
   events: AdminCreditRegistrationEvent[]
   actorNames: Map<string, string>
 }> = ({ events, actorNames }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <section className={sectionCardCss}>
       <div className={sectionCardHeaderCss}>
@@ -513,7 +514,7 @@ const TimelineSection: React.FC<{
 }
 
 const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (calls.length === 0) {
     return null
   }
@@ -579,7 +580,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
 
 /** Every mail table shares a send-status, handed-over and retries column; only the rest differ. */
 const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
-  t: TFunction,
+  t: CreditRegistrationTFunction,
 ): [TableColumn<T>, TableColumn<T>, TableColumn<T>] => [
   {
     header: t("credit-registration-admin-send-status-header"),
@@ -617,7 +618,7 @@ const MailTable = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
   firstColumn: TableColumn<T>
   extraColumns?: TableColumn<T>[]
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [sendStatusColumn, handedOverColumn, retriesColumn] = sendStatusColumns<T>(t)
   if (mails.length === 0) {
     return null
@@ -640,7 +641,7 @@ const MailTable = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
 }
 
 const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <MailTable
       mails={mails}
@@ -672,7 +673,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
 }
 
 const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ mails }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <MailTable
       mails={mails}
@@ -694,7 +695,7 @@ const AuditSection: React.FC<{
   registrationId: string
   query: AdminActionsQuery
 }> = ({ registrationId, query }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <section className={sectionCardCss}>
       <div className={sectionCardHeaderCss}>
@@ -761,7 +762,7 @@ const AuditSection: React.FC<{
 
 /** One ledger row end to end: what it is, what an admin can do to it, and everything it has done. */
 const RegistrationDetailPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const params = useParams<{ registrationId: string }>()
   const detailsQuery = useAdminCreditRegistration(params.registrationId)
   const actionsQuery = useCreditRegistrationAdminActions({

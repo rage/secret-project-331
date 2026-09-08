@@ -63,7 +63,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // create invalid module
   await page.getByRole("button", { name: "Add a module" }).click()
-  await page.locator('[placeholder="Name of module"]').fill("invalid module")
+  await page.getByRole("textbox", { name: "Name of module" }).fill("invalid module")
   await pickChapter(page, "#new-module-start", "2")
   await pickChapter(page, "#new-module-ends", "3")
   await page.getByRole("button", { name: "Create module" }).click()
@@ -71,7 +71,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // update invalid module to be valid
   await page.getByRole("button", { name: "Edit" }).nth(1).click()
-  await page.locator('[placeholder="Name of module"]').nth(0).fill("valid module")
+  await page.getByRole("textbox", { name: "Edit module" }).fill("valid module")
   await pickChapter(page, "#editing-module-ends", "4")
   await page.getByRole("button", { name: "Done" }).click()
   await page
@@ -83,7 +83,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // update last module
   await page.getByRole("button", { name: "Edit" }).nth(2).click()
-  await page.locator('[placeholder="Name of module"]').nth(0).fill("renamed module")
+  await page.getByRole("textbox", { name: "Edit module" }).fill("renamed module")
   await pickChapter(page, "#editing-module-start", "3")
   await page.getByRole("button", { name: "Done" }).click()
   await page.getByText("2. renamed module").waitFor()

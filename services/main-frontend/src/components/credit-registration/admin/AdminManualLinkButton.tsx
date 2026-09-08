@@ -7,6 +7,7 @@ import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { ManualLinkAccount } from "./AdminManualLinkDialog"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 
@@ -26,7 +27,7 @@ const AdminManualLinkButton: React.FC<Props> = ({
   label,
   variant = "tertiary",
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
 
   return (

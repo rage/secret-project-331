@@ -11,6 +11,7 @@ import type {
 import type { RegistrationStatusState } from "@/shared-module/components"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
 import { monospaceCss, noteCss, rowCss } from "../styles"
 import { stateTone } from "./adminCreditRegistrationCopy"
@@ -84,7 +85,7 @@ const AdminStateLabel: React.FC<Props> = ({
   attemptNumber,
   showToken = false,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const token = pendingReason ? `${state} (${pendingReason})` : state
   // Rendered, not a tooltip: a retried row is spotted by scanning the list, which rules out hover.
   const isRetry = attemptNumber !== undefined && attemptNumber > 1

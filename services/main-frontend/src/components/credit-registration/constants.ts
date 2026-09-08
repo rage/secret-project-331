@@ -1,6 +1,18 @@
 // The i18next literal-string lint only runs on .tsx, so these presentational literals live here.
 
+import type { TFunction } from "i18next"
+
 export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
+
+/**
+ * The namespace every view in this feature reads. Its strings are a third of the service's
+ * catalogue and only these pages need them, so they load as their own chunk rather than on every
+ * page. Labels shared with the rest of the app still resolve, through `fallbackNS`.
+ */
+export const CREDIT_REGISTRATION_NS = "credit-registration" as const
+
+/** The `t` that namespace gives: helpers that build labels take this, not the service-wide one. */
+export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_NS>
 
 /** How much of a uuid an operator needs to recognise a row in a chip or a target label. */
 export const ID_PREFIX_LENGTH = 8

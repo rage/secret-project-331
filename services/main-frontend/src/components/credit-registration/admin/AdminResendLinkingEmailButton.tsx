@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 
 interface Props {
@@ -22,7 +23,7 @@ const AdminResendLinkingEmailButton: React.FC<Props> = ({
   courseName,
   variant = "secondary",
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
 
   return (

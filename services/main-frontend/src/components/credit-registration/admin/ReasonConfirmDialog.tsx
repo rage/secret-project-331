@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ConfirmDialog, TextArea } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
+
 export interface WithReason {
   reason: string
 }
@@ -36,7 +38,7 @@ export function ReasonField<T extends FieldValues & WithReason>({
   description,
   isRequired = true,
 }: ReasonFieldProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <TextArea
       // TS can't verify a generic T contains "reason" from the WithReason bound alone.
@@ -79,7 +81,7 @@ export const ReasonConfirmDialog: React.FC<ReasonConfirmDialogProps> = ({
   isPending = false,
   onConfirm,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   return (
     <ConfirmDialog

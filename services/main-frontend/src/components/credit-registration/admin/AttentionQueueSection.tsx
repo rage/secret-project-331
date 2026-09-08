@@ -34,6 +34,7 @@ import { formatDuration } from "@/utils/moduleTimeline"
 import {
   ABSENT,
   BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
   MIDDLE_DOT,
@@ -149,7 +150,7 @@ const TimeInState: React.FC<{
   item: CreditRegistrationAttentionItem
   thresholds: StuckThresholds | undefined
 }> = ({ item, thresholds }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const threshold = thresholds ? stuckThresholdSecs(item.state, thresholds) : null
   const elapsed = secondsSince(item.state_entered_at)
 
@@ -184,7 +185,7 @@ const FacetChips: React.FC<{
   applyParams: QueryParamFilters["applyParams"]
   thresholds: StuckThresholds | undefined
 }> = ({ attention, facets, applyParams, thresholds }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const groups = attention.counts_by_reason.filter((group) => group.count > 0)
 
   // The two narrowings select disjoint sets and the endpoint refuses them together, so picking one
@@ -253,7 +254,7 @@ const FacetChips: React.FC<{
  * without one. Its length is the number the tab badge shows.
  */
 const AttentionQueueSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const thresholds = useCreditRegistrationThresholds().data
 
   const { control, param, params, applyParams, paginationInfo, query } = useFilteredAdminQuery<

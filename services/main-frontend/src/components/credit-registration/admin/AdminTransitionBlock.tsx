@@ -21,7 +21,13 @@ import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Infobox, Link } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, BUTTON_TERTIARY, TONE } from "../constants"
+import {
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+  BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
+  TONE,
+} from "../constants"
 import type { FailureAction, FailureRemedy } from "../registrationFailures"
 import {
   failureActionLabel,
@@ -137,7 +143,7 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
   triggerVariant,
   isDestructive = false,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
 
   return (
@@ -201,7 +207,7 @@ const offeredActions = (registration: AdminCreditRegistrationRow): readonly Fail
  * cancelling is the only action that ends the registration.
  */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   if (registration.superseded) {
     return <p className={noteCss}>{t("credit-registration-admin-superseded-no-actions")}</p>

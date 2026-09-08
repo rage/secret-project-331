@@ -5,7 +5,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query"
-import type { TFunction } from "i18next"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -30,6 +29,8 @@ import { includeIf } from "@/shared-module/common/utils/nullability"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+import { CREDIT_REGISTRATION_NS } from "./constants"
+import type { CreditRegistrationTFunction } from "./constants"
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
 import type { FailureOwner } from "./registrationFailures"
@@ -178,7 +179,7 @@ export const useCourseFailureReasons = (
   retryableCount: number
   isCapped: boolean
 } => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const query = useQuery({
     ...getCourseCreditRegistrationsOptions({
       path: { course_id: courseId },
@@ -241,7 +242,7 @@ const VERIFICATION_METHOD_KEYS = {
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
 export const studentNumberVerificationLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   method: StudentNumberVerificationMethod | null | undefined,
 ): string | null => {
   if (!method) {
@@ -260,7 +261,7 @@ const LINKING_EMAIL_KEYS = {
 
 /** Our own send status only: no wording here may imply a delivery. */
 export const linkingEmailSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   status: EmailSendStatus,
   sentAt: string | null | undefined,
   maskedAddress: string,
@@ -286,7 +287,7 @@ const LINKING_EMAIL_SHORT_KEYS = {
  * Use `linkingEmailSentence` wherever there is room for the whole sentence.
  */
 export const linkingEmailShortLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   linkingEmail: TeacherLinkingEmailStatus | null | undefined,
   locale: string,
 ): string | null =>
@@ -314,12 +315,14 @@ const NOTIFICATION_EMAIL_KEYS = {
   send_failed: "credit-registration-teacher-notification-email-send-failed",
 } as const satisfies Record<EmailSendStatus, string>
 
-export const notificationEmailLabel = (t: TFunction, kind: CreditRegistrationNotificationKind) =>
-  labelFrom(t, NOTIFICATION_EMAIL_LABEL_KEYS, kind, NOTIFICATION_EMAIL_LABEL_KEYS.registered)
+export const notificationEmailLabel = (
+  t: CreditRegistrationTFunction,
+  kind: CreditRegistrationNotificationKind,
+) => labelFrom(t, NOTIFICATION_EMAIL_LABEL_KEYS, kind, NOTIFICATION_EMAIL_LABEL_KEYS.registered)
 
 /** Our own send status only: no wording here may imply a delivery. */
 export const notificationEmailSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   notificationEmail: NotificationEmailStatus,
   locale: string,
 ): string =>

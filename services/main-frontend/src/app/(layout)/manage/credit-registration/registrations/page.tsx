@@ -32,6 +32,7 @@ import {
 import {
   BADGE_COMPACT,
   BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   MIDDLE_DOT,
@@ -169,7 +170,7 @@ const searchCss = css`
 
 /** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
 const RegistrationsPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   const {
     control,

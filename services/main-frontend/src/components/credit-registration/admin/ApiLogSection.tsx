@@ -17,6 +17,7 @@ import {
 import {
   ABSENT,
   ALIGN_END,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
@@ -104,7 +105,7 @@ const splitWorkerName = (workerName: string): { task: string; process: string | 
 
 /** The transport boundary's own log: one row per HTTP call, with the ledger rows it carried. */
 const ApiLogSection: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
   const { control, applyParams, handleSubmit, paginationInfo, query } = useFilteredAdminQuery(
     FILTER_FIELDS,

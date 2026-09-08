@@ -6,7 +6,7 @@ import { useParams } from "next/navigation"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { TONE } from "@/components/credit-registration/constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
 import type { StudentNumberLinkProblem } from "@/components/credit-registration/studentSupportMail"
 import { studentNumberLinkSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
@@ -117,7 +117,7 @@ const DEAD_ENDS = {
 type DeadEndReason = (typeof DEAD_ENDS)[keyof typeof DEAD_ENDS]
 
 const LinkStudentNumberPage: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   usePageTitle(t("heading-link-student-number"))
   const { token } = useParams<{ token: string }>()
   const loginState = useContext(LoginStateContext)
@@ -136,7 +136,7 @@ const LinkStudentNumberPage: React.FC = () => {
 
 /** Signup sits beside login: a first-time visitor arriving from this mail has no account yet. */
 const SignInOrSignUp: React.FC<{ token: string }> = ({ token }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const returnTo = linkStudentNumberRoute(token)
   return (
     <>
@@ -183,7 +183,7 @@ const DeadEnd: React.FC<{ reason: DeadEndReason; studentNumber?: string | null |
   reason,
   studentNumber,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const canConfirmEmail = useCanConfirmEmailAddress()
 
   return (
@@ -216,7 +216,7 @@ const Confirmation: React.FC<{
   preview: StudentNumberVerificationTokenPreview
   onClaimed: (result: ClaimStudentNumberVerificationTokenResult) => void
 }> = ({ token, preview, onClaimed }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { logout } = useLogout()
 
@@ -322,7 +322,7 @@ const ClaimOutcomeBody: React.FC<{
   result: ClaimStudentNumberVerificationTokenResult
   studentNumber: string | null | undefined
 }> = ({ result, studentNumber }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const failure = CLAIM_FAILURE_REASONS[result.outcome]
   if (failure) {
     return <DeadEnd reason={failure} studentNumber={studentNumber} />

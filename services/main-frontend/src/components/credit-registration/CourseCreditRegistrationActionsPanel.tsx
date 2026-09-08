@@ -17,6 +17,7 @@ import { Badge, Disclosure, Link, QueryResult, RelativeTime } from "@/shared-mod
 
 import {
   BADGE_COMPACT,
+  CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
@@ -74,7 +75,7 @@ const ActionTarget: React.FC<{ courseId: string; action: CourseCreditRegistratio
   courseId,
   action,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [isOpen, setIsOpen] = useState(false)
   const structureQuery = useCourseStructure(courseId)
 
@@ -111,7 +112,7 @@ const ActionEntry: React.FC<{ courseId: string; action: CourseCreditRegistration
   courseId,
   action,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const actorName =
     formatUserName({
       first_name: action.actor_first_name,
@@ -141,7 +142,7 @@ const ActionEntry: React.FC<{ courseId: string; action: CourseCreditRegistration
 
 /** Who has already acted on this course's registrations, newest first. */
 const CourseCreditRegistrationActionsPanel: React.FC<Props> = ({ courseId }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const actionsQuery = useQuery(
     getCourseCreditRegistrationActionsOptions({ path: { course_id: courseId } }),
   )

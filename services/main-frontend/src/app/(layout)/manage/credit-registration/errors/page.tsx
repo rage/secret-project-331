@@ -18,6 +18,7 @@ import {
 import {
   ALIGN_END,
   BADGE_COMPACT,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
   QUIET_REFRESH,
@@ -60,7 +61,7 @@ const fallingCss = css`
 
 /** Which error codes the window's failures ended on: the queue below is the work. */
 const ErrorCodeSummary: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
   const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
   const codes = errorsQuery.data?.codes ?? []

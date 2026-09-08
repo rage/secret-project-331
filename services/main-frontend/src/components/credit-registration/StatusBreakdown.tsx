@@ -9,7 +9,7 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import { Link } from "@/shared-module/components"
 
 import { formatSharePercent } from "./admin/percent"
-import { LINK_QUIET } from "./constants"
+import { CREDIT_REGISTRATION_NS, LINK_QUIET } from "./constants"
 import { noteCss, statusTriggerCss } from "./styles"
 
 const FULL_PERCENT = 100
@@ -134,7 +134,7 @@ const countCss = css`
  * is left out of both bar and legend; a breakdown with nothing in it renders its empty note.
  */
 const StatusBreakdown: React.FC<StatusBreakdownProps> = ({ label, segments, total }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const shown = segments.filter((segment) => segment.count > 0)
   const counted = shown.reduce((sum, segment) => sum + segment.count, 0)
   const whole = Math.max(total ?? counted, counted)
@@ -181,7 +181,7 @@ const LegendRow: React.FC<{ segment: StatusBreakdownSegment; whole: number }> = 
   segment,
   whole,
 }) => {
-  const { i18n } = useTranslation()
+  const { i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const body = (
     <>
       <span className={cx(swatchCss, segmentFillCss[segment.state])} aria-hidden="true" />

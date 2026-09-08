@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { Disclosure, Infobox, Link } from "@/shared-module/components"
 
-import { TONE } from "./constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { dividedListCss, monospaceCss, noteCss, sectionCss } from "./styles"
 
 /** One enabled module's saved credit-registration configuration, named for the callout. */
@@ -31,7 +31,7 @@ export const hasCreditRegistrationConfigProblem = (
 
 /** One callout naming every enabled module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
 const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const failing = configs.flatMap(({ moduleName, config }) =>
     hasCreditRegistrationConfigProblem(config) ? [{ moduleName, config }] : [],
   )

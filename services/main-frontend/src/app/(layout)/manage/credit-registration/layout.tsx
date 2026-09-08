@@ -13,6 +13,7 @@ import {
   useCreditRegistrationUnhealthyPhaseCount,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
+import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
@@ -44,7 +45,7 @@ const flushTabListCss = css`
 `
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const pathname = usePathname()
 
   const crumbs = useMemo(

@@ -32,6 +32,7 @@ import {
   ALIGN_END,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
@@ -198,7 +199,7 @@ const PauseNotice: React.FC<{
   /** False when the module's own row (with its "Paused" badge) is right below this notice. */
   showModuleName: boolean
 }> = ({ moduleName, config, showModuleName }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const hasReason = Boolean(
     config.credit_registration_paused_at || config.credit_registration_pause_reason,
   )
@@ -259,7 +260,7 @@ const FailuresByOwner: React.FC<{
   isAnyModulePaused,
   onSelectView,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (reasons.length === 0) {
     return null
   }
@@ -347,7 +348,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
   registrationView,
   onSelectView,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const summaryQuery = useQuery(
     getCourseCreditRegistrationSummaryOptions({
       path: { course_id: courseId },

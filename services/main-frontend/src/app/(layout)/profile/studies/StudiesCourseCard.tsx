@@ -2,16 +2,17 @@
 
 import { css, cx } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
-import type { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
   MIDDLE_DOT,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
   registrationStatusLabel,
   registrationStatusState,
@@ -87,7 +88,7 @@ const detailsLabelCss = css`
 const STATUS_ARROW_SIZE = 16
 
 const completionResultLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   completion: MyStudiesCompletion | null | undefined,
 ): string => {
   if (!completion) {
@@ -104,7 +105,7 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   course,
   registrationByCourseModuleId,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
 
   const modules = course.modules.toSorted((a, b) => a.order_number - b.order_number)
   const hasSeveralParts = modules.length > 1
@@ -162,7 +163,7 @@ const ModuleRow: React.FC<{
   nameLabel: string | null
   registration: MyCreditRegistration | null
 }> = ({ module, nameLabel, registration }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const completion = module.completion
 
   const ectsLabel =

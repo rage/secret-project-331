@@ -12,6 +12,7 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextField } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { RESEND_QUEUED, resendOutcomeLabel } from "../resendOutcome"
 import { controlCss, controlsCss, dialogFormCss } from "../styles"
 import { linkingEmailSentence } from "../teacherCreditRegistrations"
@@ -29,7 +30,7 @@ const REFUSED_TONE = "warning" as const
 
 /** The per-person caps are not overridable here, so a refusal is reported as it came back. */
 const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const [result, setResult] = useState<ResendLinkingEmailResult | null>(null)
   const { control, handleSubmit } = useForm<Fields>({
     defaultValues: { student_number: registration.student_number ?? "" },

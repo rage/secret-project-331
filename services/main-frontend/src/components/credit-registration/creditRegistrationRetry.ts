@@ -1,8 +1,7 @@
-import type { TFunction } from "i18next"
-
 import type { CreditRegistrationAdminAction } from "@/generated/api/types.generated"
 
 import { adminActionLabel } from "./admin/adminCreditRegistrationCopy"
+import type { CreditRegistrationTFunction } from "./constants"
 import { widenedLookup } from "./labelFrom"
 
 /**
@@ -24,7 +23,7 @@ const COUNTED_ACTION_KEYS = {
  * here too rather than reaching a teacher's history as its wire name.
  */
 export const actionSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   action: CreditRegistrationAdminAction,
   affectedRowCount: number | null | undefined,
 ): string => {

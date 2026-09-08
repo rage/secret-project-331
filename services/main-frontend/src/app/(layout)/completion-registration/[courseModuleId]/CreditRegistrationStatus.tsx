@@ -8,6 +8,7 @@ import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   QUIET_REFRESH,
   SUPPORT_MAIL_INLINE,
@@ -81,7 +82,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   moduleName,
   ectsCredits,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const heading = moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName
   const query = useQuery({
     ...getMyCreditRegistrationForCourseModuleOptions({
@@ -140,7 +141,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 }
 
 const NotInThePipelineYet: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return <Infobox tone={TONE.NEUTRAL}>{t("credit-registration-not-in-the-pipeline-yet")}</Infobox>
 }
 
@@ -149,7 +150,7 @@ const LiveRegistration: React.FC<{
   checkedAt: string
   moduleEctsCredits: number | null | undefined
 }> = ({ registration, checkedAt, moduleEctsCredits }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
   const statusLabel = registrationStatusLabel(t, status)
@@ -209,7 +210,7 @@ const RegistrationFacts: React.FC<{
   registration: MyCreditRegistration
   moduleEctsCredits: number | null | undefined
 }> = ({ registration, moduleEctsCredits }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const verifiedNumber = useQuery({ ...getMyVerifiedStudentNumberOptions() }).data
   const credits = registration.credits ?? moduleEctsCredits
   // The number frozen on the row is not always the account's link now, so the name only belongs
@@ -279,7 +280,7 @@ const RegistrationFacts: React.FC<{
 }
 
 const EarlierAttempt: React.FC<{ attempt: MyCreditRegistration }> = ({ attempt }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = attempt.student_facing_status
   return (
     <div className={rowCss}>

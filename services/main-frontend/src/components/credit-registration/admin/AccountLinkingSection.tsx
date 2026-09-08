@@ -31,6 +31,7 @@ import {
   ABSENT,
   ALIGN_END,
   BADGE_COMPACT,
+  CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   QUIET_REFRESH,
   STACKED,
@@ -147,7 +148,7 @@ const FunnelSteps: React.FC<{ steps: readonly FunnelStep[]; base: number }> = ({
  * page's opener — and missing its failure count on purpose, since the tab badge already flags that.
  */
 const RightNow: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <StatTileList
       ariaLabel={t("credit-registration-heading-linking-right-now")}
@@ -167,7 +168,7 @@ const WindowFunnel: React.FC<{ stats: AccountLinkingStats; windowDays: number }>
   stats,
   windowDays,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const funnel = stats.funnel
   const steps: FunnelStep[] = [
     {
@@ -206,7 +207,7 @@ const WindowFunnel: React.FC<{ stats: AccountLinkingStats; windowDays: number }>
  * branches below or was mailed, and the mails are the remainder rather than a counter of their own.
  */
 const DiscoveryRun: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const funnel = stats.funnel
   const listed = funnel.persons_discovered_last_run
   const branches: FunnelStep[] = [
@@ -264,7 +265,7 @@ const DiscoveryRun: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
 
 /** What our own sender did with the mails, and the domains it could not reach at all. */
 const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const totals = stats.send_status_totals
   return (
     <div className={subsectionCss}>
@@ -314,7 +315,7 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
 
 /** Why listed people got no mail on this realisation's last run; a counter of zero says nothing. */
 const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const counters: { label: string; value: number | null | undefined }[] = [
     {
       label: t("credit-registration-admin-funnel-already-linked"),
@@ -367,7 +368,7 @@ const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }>
 }
 
 const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={subsectionCss}>
       <div className={sectionHeaderCss}>
@@ -447,7 +448,7 @@ const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
 
 /** Both remedies for one stale row, out of the row's way until they are asked for. */
 const StaleAddressActions: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [isResendOpen, setResendOpen] = useState(false)
   const [isLinkOpen, setLinkOpen] = useState(false)
   return (
@@ -487,7 +488,7 @@ const StaleAddressActions: React.FC<{ row: AccountLinkingStaleAddress }> = ({ ro
 
 /** The addresses one person's mails went to, kept off the row until the reader asks for them. */
 const StaleAddressSends: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
     <ul className={addressListCss} role="list">
@@ -510,7 +511,7 @@ const StaleAddressSends: React.FC<{ row: AccountLinkingStaleAddress }> = ({ row 
 
 /** The people mail cannot reach, one line each: the work list this page exists for. */
 const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const addressSummary = (row: AccountLinkingStaleAddress): string => {
     const addressCount = new Set(row.sends.map((send) => send.address)).size
     return row.sends.some((send) => send.send_status === SEND_FAILED)
@@ -579,7 +580,7 @@ const UnlinkAction: React.FC<{ verifiedStudentNumberId: string; number: string }
   verifiedStudentNumberId,
   number,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { item, dialog } = useReasonConfirmAction({
     mutationFn: (fields) =>
@@ -607,7 +608,7 @@ const UnlinkAction: React.FC<{ verifiedStudentNumberId: string; number: string }
 }
 
 const RecentClaimsBlock: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const paginationInfo = usePaginationInfo(CLAIMS_PER_PAGE)
   const numbersQuery = useAdminVerifiedStudentNumbers({
     page: paginationInfo.page,
@@ -714,7 +715,7 @@ const RecentClaimsBlock: React.FC = () => {
 
 /** What our sender did with the mails, the last discovery run, and per-realisation counters: diagnostics for the funnel above. */
 const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <section className={sectionCardCss}>
       <div className={sectionCardHeaderCss}>
@@ -728,7 +729,7 @@ const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats
 }
 
 const RecentClaimsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const manualLinkTotal =
     stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
   return (

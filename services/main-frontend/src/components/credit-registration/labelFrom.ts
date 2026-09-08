@@ -1,4 +1,4 @@
-import type { TFunction } from "i18next"
+import type { CreditRegistrationTFunction } from "./constants"
 
 /** Reads a map keyed more narrowly than the runtime value: a backend enum may gain variants. */
 export function widenedLookup<V>(map: Record<string, V>, key: string): V | undefined {
@@ -14,13 +14,17 @@ type AnyKeyTFunction = (key: string, options?: Record<string, unknown>) => strin
  * For the common case — one map from an enum value to a key — use `labelFrom`, which does the
  * lookup and the fallback too.
  */
-export function translateKey(t: TFunction, key: string, options?: Record<string, unknown>): string {
+export function translateKey(
+  t: CreditRegistrationTFunction,
+  key: string,
+  options?: Record<string, unknown>,
+): string {
   const translate = t as unknown as AnyKeyTFunction
   return options === undefined ? translate(key) : translate(key, options)
 }
 
 export function labelFrom<V extends string>(
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   map: Record<string, V>,
   key: string,
   fallbackKey: V,

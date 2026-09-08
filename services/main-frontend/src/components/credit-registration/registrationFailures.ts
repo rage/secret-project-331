@@ -1,7 +1,6 @@
-import type { TFunction } from "i18next"
-
 import type { CreditRegistrationErrorCode } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, widenedLookup } from "./labelFrom"
 
 /**
@@ -227,11 +226,11 @@ const OWNER_HEADING_KEYS = {
  * For a heading over a group of failures use `failureOwnerHeading`, which says what to do rather
  * than naming the owner.
  */
-export const failureOwnerLabel = (t: TFunction, owner: FailureOwner): string =>
+export const failureOwnerLabel = (t: CreditRegistrationTFunction, owner: FailureOwner): string =>
   labelFrom(t, OWNER_LABEL_KEYS, owner, OWNER_LABEL_KEYS.support)
 
 /** A heading over the failures one owner has to clear, in the imperative the reader can act on. */
-export const failureOwnerHeading = (t: TFunction, owner: FailureOwner): string =>
+export const failureOwnerHeading = (t: CreditRegistrationTFunction, owner: FailureOwner): string =>
   labelFrom(t, OWNER_HEADING_KEYS, owner, OWNER_HEADING_KEYS.support)
 
 const ACTION_LABEL_KEYS = {
@@ -248,5 +247,5 @@ const ACTION_LABEL_KEYS = {
 } as const satisfies Record<FailureAction, string>
 
 /** The button label for an action, the same words on every surface that offers it. */
-export const failureActionLabel = (t: TFunction, action: FailureAction): string =>
+export const failureActionLabel = (t: CreditRegistrationTFunction, action: FailureAction): string =>
   labelFrom(t, ACTION_LABEL_KEYS, action, ACTION_LABEL_KEYS.contact_support)

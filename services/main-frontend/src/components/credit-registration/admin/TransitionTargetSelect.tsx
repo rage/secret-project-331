@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next"
 import type { AdminCreditRegistrationAction } from "@/generated/api/types.generated"
 import { Select } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
+
 export const READY_TO_SUBMIT = "ready_to_submit" as const
 export const CANCELLED = "cancelled" as const
 export const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
@@ -36,7 +38,7 @@ interface TransitionTargetSelectProps<T extends TransitionFields> {
 export function TransitionTargetSelect<T extends TransitionFields>({
   control,
 }: TransitionTargetSelectProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Select
       name={"action" as Path<T>}

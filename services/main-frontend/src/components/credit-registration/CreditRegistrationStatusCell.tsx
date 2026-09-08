@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +8,8 @@ import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 import { ChevronIcon } from "@/shared-module/components/components/primitives/ChevronIcon"
 
-import { BADGE_COMPACT } from "./constants"
+import { BADGE_COMPACT, CREDIT_REGISTRATION_NS } from "./constants"
+import type { CreditRegistrationTFunction } from "./constants"
 import {
   registrationErrorShortLabel,
   registrationLedgerStateLabel,
@@ -33,7 +33,7 @@ export const CREDIT_REGISTRATION_CELL_CHROME_PX = 46
  * earlier attempt would otherwise print a failure under a pill that says the row is still waiting.
  */
 const reasonLine = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   registration: CourseCreditRegistration,
   locale: string,
 ): string | null => {
@@ -54,7 +54,7 @@ const reasonLine = (
  * room the column gets. Without it the column falls back to its minimum and clips the badge.
  */
 export const creditRegistrationCellText = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   registration: CourseCreditRegistration | undefined,
   locale: string,
 ): string => {
@@ -122,7 +122,7 @@ const CHEVRON_RIGHT = "right" as const
  * course-wide cause (no course code) from a per-student one (student not found in Sisu).
  */
 const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
   const label = registrationStatusTeacherLabel(t, registration.student_facing_status)
   const reason = reasonLine(t, registration, i18n.language)

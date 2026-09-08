@@ -1,7 +1,7 @@
-import type { TFunction } from "i18next"
-
 import type { CreditRegistrationState } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import type { CreditRegistrationTFunction } from "../constants"
 
 /** What a row in this state is waiting for, which is what an operator groups the ledger by. */
 export type QueueBucket = "waiting" | "in_progress" | "failed_or_blocked" | "done"
@@ -50,7 +50,8 @@ const BUCKET_KEYS = {
   done: "credit-registration-admin-bucket-done",
 } as const satisfies Record<QueueBucket, string>
 
-export const bucketLabel = (t: TFunction, bucket: QueueBucket): string => t(BUCKET_KEYS[bucket])
+export const bucketLabel = (t: CreditRegistrationTFunction, bucket: QueueBucket): string =>
+  t(BUCKET_KEYS[bucket])
 
 /**
  * The badge tones the rest of the surface speaks, read off the theme rather than left to ECharts,

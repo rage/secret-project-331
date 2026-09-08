@@ -1,5 +1,3 @@
-import type { TFunction } from "i18next"
-
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationPendingReason,
@@ -8,6 +6,7 @@ import type {
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, widenedLookup } from "./labelFrom"
 
 const STATUS_STATES = {
@@ -157,7 +156,7 @@ const ERROR_CODE_SHORT_KEYS = {
 const SHORT_REASON_UNKNOWN_KEY = "credit-registration-reason-unknown"
 
 export const registrationStatusLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
 
@@ -169,7 +168,7 @@ export const registrationStatusLabel = (
  * says "your" on surfaces where that is somebody else.
  */
 export const registrationStatusTeacherLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): string => labelFrom(t, TEACHER_STATUS_LABEL_KEYS, status, TEACHER_STATUS_LABEL_UNKNOWN_KEY)
 
@@ -199,7 +198,7 @@ export const ALL_REGISTRATION_STATUSES = Object.keys(
 ) as StudentFacingCreditRegistrationStatus[]
 
 export const registrationExplanation = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): string =>
   labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
@@ -211,7 +210,7 @@ export const registrationExplanation = (
  * Not `registrationExplanation`, which addresses the student directly.
  */
 export const registrationTeacherExplanation = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): string =>
   labelFrom(t, TEACHER_STATUS_EXPLANATION_KEYS, status, TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY)
@@ -225,7 +224,7 @@ const PASS_GRADE_ID = "1"
  * scale it is "1" or "0" and showing it raw reads as a one or a zero out of five.
  */
 export const registrationGradeLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   gradeId: string | null | undefined,
   gradeScaleId: string | null | undefined,
 ): string => {
@@ -239,7 +238,7 @@ export const registrationGradeLabel = (
 }
 
 export const registrationErrorHelp = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
 ): string | null => (errorCode ? labelFrom(t, ERROR_CODE_KEYS, errorCode, GENERIC_ERROR_KEY) : null)
 
@@ -252,7 +251,7 @@ export const registrationErrorHelp = (
  * `failureActions` so the buttons match the sentence.
  */
 export const registrationErrorTeacherHelp = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
 ): string | null =>
   errorCode ? labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY) : null
@@ -265,7 +264,7 @@ export const registrationErrorTeacherHelp = (
  * this one only tells failures apart at a glance, so keep the sentence wherever there is room.
  */
 export const registrationErrorShortLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
 ): string | null =>
   errorCode ? labelFrom(t, ERROR_CODE_SHORT_KEYS, errorCode, SHORT_REASON_UNKNOWN_KEY) : null
@@ -312,7 +311,7 @@ export const isLedgerState = (value: string): value is CreditRegistrationState =
  * Not `registrationStatusLabel`, which names the collapsed stage the student is shown.
  */
 export const registrationLedgerStateLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   state: CreditRegistrationState,
   pendingReason?: CreditRegistrationPendingReason | null,
 ): string =>

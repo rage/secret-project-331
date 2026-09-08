@@ -10,6 +10,7 @@ import {
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 
+import { CREDIT_REGISTRATION_NS } from "./constants"
 import { registrationStatusState } from "./creditRegistrationCopy"
 import { useRequestEnrolmentRecheck } from "./enrolmentActions"
 import type { FailureAction } from "./registrationFailures"
@@ -62,7 +63,7 @@ export const useStudentRegistrationActions = ({
   canConfirmEmail,
   linkToStatusPage,
 }: StudentRegistrationActionsOptions): StudentRegistrationActions => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const recheckEnrolment = useRequestEnrolmentRecheck()
 
   const status = registration.student_facing_status

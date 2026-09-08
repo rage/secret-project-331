@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import type { CreditRegistrationErrorCode } from "@/generated/api/types.generated"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { registrationErrorShortLabel } from "../creditRegistrationCopy"
 import { monospaceCss, noteCss, stackedCellCss } from "../styles"
 
@@ -16,7 +17,7 @@ import { monospaceCss, noteCss, stackedCellCss } from "../styles"
  * needed, in that order. For the full sentence use `registrationErrorAdminHelp`.
  */
 const ErrorCodeCell: React.FC<{ errorCode: CreditRegistrationErrorCode }> = ({ errorCode }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
       <span>{registrationErrorShortLabel(t, errorCode)}</span>

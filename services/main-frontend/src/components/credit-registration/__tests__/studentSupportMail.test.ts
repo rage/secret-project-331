@@ -1,7 +1,6 @@
-import type { TFunction } from "i18next"
-
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "../constants"
 import {
   NEED_A_NEW_LINK,
   registrationSupportMail,
@@ -13,7 +12,7 @@ const t = ((key: string, params?: Record<string, unknown>) =>
   Object.entries(params ?? {}).reduce(
     (text, [name, value]) => `${text} ${name}=${String(value)}`,
     key,
-  )) as unknown as TFunction
+  )) as unknown as CreditRegistrationTFunction
 
 const registration = (overrides: Partial<MyCreditRegistration> = {}): MyCreditRegistration =>
   ({

@@ -5,13 +5,14 @@ import { useTranslation } from "react-i18next"
 
 import { CopyButton } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { emptyStateCss, payloadCss } from "../styles"
 
 const JSON_INDENT = 2
 
 /** One stored JSON body: pretty-printed and copyable, or the note that none was kept. */
 const PayloadBlock: React.FC<{ body: unknown }> = ({ body }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (body === null || body === undefined) {
     return <p className={emptyStateCss}>{t("credit-registration-admin-no-body-stored")}</p>
   }

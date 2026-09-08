@@ -9,7 +9,7 @@ import { adminBulkTransitionCreditRegistrations } from "@/generated/api/sdk.gene
 import type { AdminBulkTransitionResult } from "@/generated/api/types.generated"
 import { Checkbox, Infobox, Select } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
+import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
@@ -70,7 +70,7 @@ const BulkCancelGate: React.FC<{ control: Control<Fields>; count: number }> = ({
   control,
   count,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const action = useWatch({ control, name: ACTION_FIELD })
   if (action !== CANCELLED) {
     return null
@@ -96,7 +96,7 @@ const BulkCancelGate: React.FC<{ control: Control<Fields>; count: number }> = ({
  * preselected, so a mixed selection cannot be resubmitted by pressing Confirm.
  */
 const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAttentionItems = useInvalidateAttentionItems()
   const selectedIds = selectedRows.map((row) => row.credit_registration_id)
   const groups = groupSelectionByState(selectedRows)

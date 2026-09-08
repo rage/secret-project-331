@@ -7,7 +7,7 @@ import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.gen
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { Button, Infobox } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, TONE } from "./constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { refusalSentence } from "./resubmissionRefusal"
 import { sectionCss } from "./styles"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
@@ -36,7 +36,7 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
   retryableCount,
   isAnyModulePaused,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { confirm } = useDialog()
   const invalidateAfterRetry = useInvalidateAfterRetry(courseId)
 

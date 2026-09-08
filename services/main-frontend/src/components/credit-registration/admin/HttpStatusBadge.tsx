@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/shared-module/components"
 
-import { TONE } from "../constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { monospaceCss } from "../styles"
 
 interface Props {
@@ -29,7 +29,7 @@ const plainStatusCss = css`
  * whole column, which ranks nothing and buries the handful of calls that did fail.
  */
 const HttpStatusBadge: React.FC<Props> = ({ httpStatus, succeeded, errorItemCount = 0 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const label =
     httpStatus === null || httpStatus === undefined
       ? t("credit-registration-admin-no-http-answer")

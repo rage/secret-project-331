@@ -11,6 +11,7 @@ import {
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import { Menu } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
@@ -28,7 +29,7 @@ const AdminCourseModulePauseButton: React.FC<Props> = ({
   courseModuleName,
   paused,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const router = useRouter()
   const invalidateCourseStats = useInvalidateCourseStats()
 

@@ -9,8 +9,20 @@ import {
   TertiaryButtonStyles,
 } from "@/shared-module/common/components/Button"
 
+// One above the editor chrome's highest layer, so chart tooltips are not buried under it.
+const VEGA_TOOLTIP_Z_INDEX = 1000003
+
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const localCss = css`
+  /* Qualified with body to outrank vega-tooltip's own rule, which it injects after this one. */
+  body #vg-tooltip-element {
+    z-index: ${VEGA_TOOLTIP_Z_INDEX};
+  }
+  /* The editor makes block SVGs inert so they cannot intercept selecting and dragging a block, but
+     a chart has to answer the pointer or its tooltips never show. */
+  .wp-block[data-type="moocfi/chart"] svg.marks {
+    pointer-events: auto;
+  }
   .wp-block-button__link {
     border-radius: 0;
     ${BASE_BUTTON_STYLES({ variant: "primary", size: "large" })}

@@ -19,6 +19,7 @@ import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+import DesignTokensRoot from "../components/DesignTokensRoot"
 import Layout from "../components/Layout"
 import LocalStyles from "../styles/LocalStyles"
 
@@ -94,6 +95,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
           <DialogProvider>
             <GlobalStyles />
             <LocalStyles />
+            <DesignTokensRoot />
             <LoginStateContextProvider>
               <Layout
                 /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */

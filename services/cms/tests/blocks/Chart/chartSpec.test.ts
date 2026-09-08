@@ -1,0 +1,341 @@
+import {
+  dataFormatForUrl,
+  dataUrlFromSpec,
+  DEFAULT_CHART_HEIGHT,
+  extractInlineData,
+  MOBILE_CONTENT_WIDTH_PX,
+  resolveChartLayout,
+  specDefinesView,
+  specHasData,
+  specIsValidJson,
+  specLacksDataSource,
+  specWithDataUrl,
+  VEGA_LITE_SCHEMA_URL,
+  wouldSideScrollOnMobile,
+} from "../../../src/blocks/Chart/chartSpec"
+
+const specWith = (data: unknown): string => JSON.stringify({ mark: "bar", data })
+
+describe("extractInlineData", () => {
+  it("extracts an array of objects as a pretty-printed JSON file", () => {
+    const values = [
+      { category: "A", value: 1 },
+      { category: "B", value: 2 },
+    ]
+    const result = extractInlineData(specWith({ values }))
+
+    expect(result).not.toBeNull()
+    expect(result?.extension).toBe("json")
+    expect(result?.mime).toBe("application/json")
+    expect(JSON.parse(result?.contents ?? "")).toEqual(values)
+    expect(result?.specWithoutData).toEqual({ mark: "bar" })
+  })
+
+  it("extracts a CSV string and keeps the csv extension/mime", () => {
+    const csv = "category,value\nA,1\nB,2"
+    const result = extractInlineData(specWith({ values: csv, format: { type: "csv" } }))
+
+    expect(result?.extension).toBe("csv")
+    expect(result?.mime).toBe("text/plain")
+    expect(result?.contents).toBe(csv)
+  })
+
+  it("extracts a TSV string and keeps the tsv extension", () => {
+    const tsv = "category\tvalue\nA\t1"
+    const result = extractInlineData(specWith({ values: tsv, format: { type: "tsv" } }))
+
+    expect(result?.extension).toBe("tsv")
+    expect(result?.mime).toBe("text/plain")
+  })
+
+  it("treats a string with no/unknown format as JSON", () => {
+    const result = extractInlineData(specWith({ values: '[{"a":1}]' }))
+
+    expect(result?.extension).toBe("json")
+    expect(result?.mime).toBe("application/json")
+  })
+
+  it("returns null when there is no data key", () => {
+    expect(extractInlineData(JSON.stringify({ mark: "bar" }))).toBeNull()
+  })
+
+  it("returns null when data is a URL reference rather than inline values", () => {
+    expect(extractInlineData(specWith({ url: "/data.json" }))).toBeNull()
+  })
+
+  it("returns null for an empty array of values", () => {
+    expect(extractInlineData(specWith({ values: [] }))).toBeNull()
+  })
+
+  it("returns null for an empty string of values", () => {
+    expect(extractInlineData(specWith({ values: "" }))).toBeNull()
+  })
+
+  it("returns null when data.values is explicitly null", () => {
+    expect(extractInlineData(specWith({ values: null }))).toBeNull()
+  })
+
+  it("returns null for unparseable JSON", () => {
+    expect(extractInlineData("{ not json")).toBeNull()
+  })
+
+  it("returns null for JSON that isn't a spec object", () => {
+    expect(extractInlineData("null")).toBeNull()
+    expect(extractInlineData("[1, 2, 3]")).toBeNull()
+    expect(extractInlineData("42")).toBeNull()
+    expect(extractInlineData('"a string"')).toBeNull()
+  })
+})
+
+describe("dataFormatForUrl", () => {
+  it("detects csv, tsv and json extensions", () => {
+    expect(dataFormatForUrl("/files/data.csv")).toEqual({ type: "csv" })
+    expect(dataFormatForUrl("/files/data.tsv")).toEqual({ type: "tsv" })
+    expect(dataFormatForUrl("/files/data.json")).toEqual({ type: "json" })
+  })
+
+  it("ignores query parameters when sniffing the extension", () => {
+    expect(dataFormatForUrl("https://cdn.example.com/data.csv?token=abc&v=2")).toEqual({
+      type: "csv",
+    })
+  })
+
+  it("is case insensitive", () => {
+    expect(dataFormatForUrl("/DATA.CSV")).toEqual({ type: "csv" })
+  })
+
+  it("returns undefined for an unknown extension", () => {
+    expect(dataFormatForUrl("/files/data.txt")).toBeUndefined()
+  })
+})
+
+describe("specWithDataUrl", () => {
+  it("points data at the url and infers the format from the extension", () => {
+    const result = specWithDataUrl(JSON.stringify({ mark: "bar" }), "/files/data.csv")
+
+    expect(result).toEqual({
+      mark: "bar",
+      data: { url: "/files/data.csv", format: { type: "csv" } },
+    })
+  })
+
+  it("replaces any existing inline data", () => {
+    const result = specWithDataUrl(specWith({ values: [{ a: 1 }] }), "/files/data.json")
+
+    expect(result?.data).toEqual({ url: "/files/data.json", format: { type: "json" } })
+  })
+
+  it("omits the format when the extension is unknown", () => {
+    const result = specWithDataUrl(JSON.stringify({ mark: "bar" }), "/files/data")
+
+    expect(result).toEqual({ mark: "bar", data: { url: "/files/data" } })
+  })
+
+  it("returns null for unparseable JSON", () => {
+    expect(specWithDataUrl("{ not json", "/files/data.csv")).toBeNull()
+  })
+
+  it("creates a starter spec when the spec is empty", () => {
+    expect(specWithDataUrl("", "/files/data.csv")).toEqual({
+      $schema: VEGA_LITE_SCHEMA_URL,
+      data: { url: "/files/data.csv", format: { type: "csv" } },
+    })
+  })
+
+  it("treats a whitespace-only spec as empty", () => {
+    expect(specWithDataUrl("  \n\t", "/files/data.json")).toEqual({
+      $schema: VEGA_LITE_SCHEMA_URL,
+      data: { url: "/files/data.json", format: { type: "json" } },
+    })
+  })
+})
+
+describe("wouldSideScrollOnMobile", () => {
+  const wide = MOBILE_CONTENT_WIDTH_PX + 100
+  const narrow = MOBILE_CONTENT_WIDTH_PX - 100
+
+  it("never warns for single-view specs, however wide", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: false, naturalWidthPx: wide, scale: 1 })).toBe(
+      false,
+    )
+  })
+
+  it("warns when a multi-view chart is wider than a phone screen", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: wide, scale: 1 })).toBe(
+      true,
+    )
+  })
+
+  it("does not warn when a multi-view chart fits within a phone screen", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: narrow, scale: 1 })).toBe(
+      false,
+    )
+  })
+
+  it("accounts for the CSS scale: a wide chart scaled down enough no longer overflows", () => {
+    // 800px natural, but scaled to 0.4 -> 320px rendered, under the threshold.
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: 800, scale: 0.4 })).toBe(
+      false,
+    )
+  })
+
+  it("does not warn when the width is unknown yet", () => {
+    expect(wouldSideScrollOnMobile({ isMultiView: true, naturalWidthPx: null, scale: 1 })).toBe(
+      false,
+    )
+  })
+})
+
+describe("specDefinesView", () => {
+  it("is true when the spec has a mark", () => {
+    expect(specDefinesView({ mark: "bar" })).toBe(true)
+  })
+
+  it("is true for composed views (layer/concat/facet/repeat)", () => {
+    expect(specDefinesView({ layer: [] })).toBe(true)
+    expect(specDefinesView({ vconcat: [] })).toBe(true)
+    expect(specDefinesView({ facet: {}, spec: {} })).toBe(true)
+  })
+
+  it("is false for a data-only starter spec with no view yet", () => {
+    expect(specDefinesView({ $schema: "x", data: { url: "/d.csv" } })).toBe(false)
+  })
+
+  it("is false for non-objects", () => {
+    expect(specDefinesView(null)).toBe(false)
+    expect(specDefinesView("mark")).toBe(false)
+  })
+})
+
+describe("specHasData", () => {
+  it("finds a top-level data source", () => {
+    expect(specHasData({ data: { url: "data.csv" }, mark: "bar" })).toBe(true)
+  })
+
+  it("finds data carried by individual layers", () => {
+    expect(
+      specHasData({
+        layer: [
+          { data: { url: "a.csv" }, mark: "line" },
+          { data: { url: "b.csv" }, mark: "point" },
+        ],
+      }),
+    ).toBe(true)
+  })
+
+  it("finds data nested in a concatenated sub-spec", () => {
+    expect(specHasData({ hconcat: [{ vconcat: [{ data: { url: "a.csv" }, mark: "bar" }] }] })).toBe(
+      true,
+    )
+  })
+
+  it("finds data in a facet's inner spec", () => {
+    expect(specHasData({ facet: { field: "group" }, spec: { data: { url: "a.csv" } } })).toBe(true)
+  })
+
+  it("reports a spec with no data source anywhere", () => {
+    expect(specHasData({ layer: [{ mark: "line" }, { mark: "point" }] })).toBe(false)
+  })
+
+  it("reports non-spec values", () => {
+    expect(specHasData(null)).toBe(false)
+    expect(specHasData("data")).toBe(false)
+  })
+})
+
+describe("dataUrlFromSpec", () => {
+  it("returns the data url when present", () => {
+    expect(dataUrlFromSpec(specWith({ url: "/files/data.json" }))).toBe("/files/data.json")
+  })
+
+  it("returns undefined when data is inline values", () => {
+    expect(dataUrlFromSpec(specWith({ values: [{ a: 1 }] }))).toBeUndefined()
+  })
+
+  it("returns undefined when there is no data", () => {
+    expect(dataUrlFromSpec(JSON.stringify({ mark: "bar" }))).toBeUndefined()
+  })
+
+  it("returns undefined for unparseable JSON", () => {
+    expect(dataUrlFromSpec("{ not json")).toBeUndefined()
+  })
+})
+
+describe("specIsValidJson", () => {
+  it("accepts any parseable JSON, including values that aren't specs", () => {
+    expect(specIsValidJson(JSON.stringify({ mark: "bar" }))).toBe(true)
+    expect(specIsValidJson("[]")).toBe(true)
+    expect(specIsValidJson("null")).toBe(true)
+  })
+
+  it("rejects text that is being typed into an invalid state", () => {
+    expect(specIsValidJson("{ not json")).toBe(false)
+    expect(specIsValidJson('{ "mark": ')).toBe(false)
+  })
+
+  it("rejects an empty spec, which is not JSON either", () => {
+    expect(specIsValidJson("")).toBe(false)
+  })
+})
+
+describe("specLacksDataSource", () => {
+  it("reports a spec that names a data file", () => {
+    expect(specLacksDataSource(specWith({ url: "/files/data.csv" }))).toBe(false)
+  })
+
+  it("reports a spec whose data lives in its layers", () => {
+    const spec = JSON.stringify({ layer: [{ mark: "line", data: { url: "/files/a.csv" } }] })
+    expect(specLacksDataSource(spec)).toBe(false)
+  })
+
+  it("reports inline data as a data source", () => {
+    expect(specLacksDataSource(specWith({ values: [{ a: 1 }] }))).toBe(false)
+  })
+
+  it("finds a spec whose data was deleted", () => {
+    expect(specLacksDataSource(JSON.stringify({ mark: "bar" }))).toBe(true)
+  })
+
+  it("counts an empty spec, so a file can be pointed at again", () => {
+    expect(specLacksDataSource("   ")).toBe(true)
+  })
+
+  it("leaves mid-edit invalid JSON alone", () => {
+    expect(specLacksDataSource("{ not json")).toBe(false)
+  })
+})
+
+describe("resolveChartLayout", () => {
+  it("scales a multi-view chart to a height equal to the default", () => {
+    expect(
+      resolveChartLayout({
+        heightAttr: DEFAULT_CHART_HEIGHT,
+        heightIsAuto: false,
+        naturalHeightPx: 800,
+        isMultiView: true,
+      }),
+    ).toEqual({ boxHeightPx: DEFAULT_CHART_HEIGHT, scale: DEFAULT_CHART_HEIGHT / 800 })
+  })
+
+  it("shows a multi-view chart at natural size while its height is automatic", () => {
+    expect(
+      resolveChartLayout({
+        heightAttr: DEFAULT_CHART_HEIGHT,
+        heightIsAuto: true,
+        naturalHeightPx: 800,
+        isMultiView: true,
+      }),
+    ).toEqual({ boxHeightPx: 800, scale: 1 })
+  })
+
+  it("leaves single-view charts unscaled at the set height", () => {
+    expect(
+      resolveChartLayout({
+        heightAttr: 420,
+        heightIsAuto: false,
+        naturalHeightPx: 800,
+        isMultiView: false,
+      }),
+    ).toEqual({ boxHeightPx: 420, scale: 1 })
+  })
+})

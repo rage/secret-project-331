@@ -14,6 +14,11 @@ patches:
       version: v1
       kind: Ingress
       name: project-331-ingress
+  - path: patch-ingress.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-ai-suggestions
   - path: patch-ingress-other-domains.yml
     target:
       version: v1

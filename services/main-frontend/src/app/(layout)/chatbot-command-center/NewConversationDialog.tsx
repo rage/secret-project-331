@@ -167,7 +167,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   // oxlint-disable-next-line i18next/no-literal-string
   const { inputProps } = useSearchField(
     // oxlint-disable-next-line i18next/no-literal-string
-    { ...autoCompleteInputProps, placeholder: "search", "aria-label": "search" },
+    { ...autoCompleteInputProps, placeholder: t("search"), "aria-label": "search" },
     searchFieldState,
     searchRef,
   )

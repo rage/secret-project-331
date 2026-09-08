@@ -105,8 +105,7 @@ const ConversationHistory: React.FC<ConversationHistory> = ({
               >
                 {conversation.conversation_title !== null
                   ? conversation.conversation_title
-                  : // oxlint-disable-next-line i18next/no-literal-string
-                    "untitled conversation"}
+                  : t("untitled-conversation")}
               </div>
               <span className={chatbotLabelCss}>
                 {

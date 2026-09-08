@@ -187,7 +187,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
                 variant="icon"
                 onClick={() => setChatbotDialog(true)}
               >
-                New conversation
+                {t("new-conversation")}
               </Button>
             </OnlyRenderIfPermissions>
           </div>

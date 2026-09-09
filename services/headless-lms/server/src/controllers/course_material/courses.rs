@@ -801,9 +801,11 @@ pub async fn feedback(
     let mut tx = conn.begin().await?;
     let mut ids = vec![];
     for f in fs {
-        let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
+        let id =
+            feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f, None).await?;
         ids.push(id);
     }
+    // categorise
     tx.commit().await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(ids))

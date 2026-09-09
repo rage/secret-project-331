@@ -18,9 +18,21 @@ pub struct FeedbackBlock {
     pub order_number: Option<i32>,
 }
 
+pub struct FeedbackCategory {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub category_llm_id: u32,
+    pub name: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct FeedbackRow {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
@@ -28,9 +40,7 @@ pub struct FeedbackRow {
     pub feedback_given: String,
     pub selected_text: Option<String>,
     pub marked_as_read: bool,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
+    pub category_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -39,6 +49,7 @@ pub async fn insert(
     user_id: Option<Uuid>,
     course_id: Uuid,
     new_feedback: NewFeedback,
+    category: Option<i32>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
     let res = sqlx::query!(

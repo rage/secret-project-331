@@ -13,6 +13,7 @@ pub mod cms_ai_suggestion;
 pub mod content_cleaner;
 pub mod conversation_context;
 pub mod course_description_summary;
+pub mod feedback_categorization;
 pub mod llm_utils;
 pub mod message_suggestion;
 pub mod prompt_creation;

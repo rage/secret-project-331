@@ -40,6 +40,8 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};
       transition: filter 0.3s;
       width: max-content;
+      max-width: 50vw;
+      white-space: normal;
 
       &:active {
         transform: translateY(0);

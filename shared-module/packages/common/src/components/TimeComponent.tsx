@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
-import React, { useLayoutEffect, useRef, useState } from "react"
+import React from "react"
 
 import { dateToString } from "../utils/time"
 import Button from "./Button"
@@ -22,9 +22,6 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
   right,
   boldLabel,
 }) => {
-  const [visible, setVisible] = useState(false)
-
-  //${!visible && "display: none;"}
   return (
     <span
       className={css`
@@ -50,8 +47,6 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
         />
       </span>
       <Button
-        // onMouseEnter={() => setVisible(true)}
-        // onMouseLeave={() => setVisible(false)}
         size="small"
         aria-label={dateToString(date, true)}
         className={css`
@@ -64,27 +59,18 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
           size={18}
           className={css`
             &:hover + div {
-              opacity: 1;
               visibility: visible;
-              transform: translate(-50%, -4px);
             }
           `}
         />
-        <div
+        <SpeechBalloon
           className={css`
             bottom: 100%;
-            opacity: 0;
             visibility: hidden;
           `}
         >
-          <SpeechBalloon
-            className={css`
-              bottom: 100%;
-            `}
-          >
-            <p> {dateToString(date, true)} </p>
-          </SpeechBalloon>
-        </div>
+          <p> {dateToString(date, true)} </p>
+        </SpeechBalloon>
       </Button>
     </span>
   )

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT fb.*,\n  pages.title as \"page_title\",\n  pages.url_path as \"page_url_path\"\nFROM (\n    SELECT feedback.id as \"id!\",\n      feedback.user_id,\n      feedback.course_id as \"course_id!\",\n      feedback.page_id,\n      feedback.feedback_given as \"feedback_given!\",\n      feedback.selected_text,\n      feedback.marked_as_read as \"marked_as_read!\",\n      feedback.created_at as \"created_at!\",\n      array_agg(block_feedback.block_id) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_ids: Vec<Uuid>\",\n      array_agg(block_feedback.block_text) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_texts: Vec<Option<String>>\",\n      array_agg(block_feedback.order_number) filter (\n        where block_feedback.block_id IS NOT NULL\n      ) AS \"block_order_numbers: Vec<Option<i32>>\"\n    FROM feedback\n      LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\n    WHERE course_id = $1\n      AND feedback.marked_as_read = $2\n      AND feedback.deleted_at IS NULL\n      AND block_feedback.deleted_at IS NULL\n    GROUP BY feedback.id,\n      feedback.user_id,\n      feedback.course_id,\n      feedback.feedback_given,\n      feedback.marked_as_read,\n      feedback.created_at\n    ORDER BY feedback.created_at DESC,\n      feedback.id\n    LIMIT $3 OFFSET $4\n  ) fb\n  JOIN pages on pages.id = fb.page_id\n",
+  "query": "\nSELECT fb.*,\n  pages.title AS \"page_title\",\n  pages.url_path AS \"page_url_path\",\n  fbc.name AS \"feedback_category_name\",\n  fbc.id AS \"feedback_category_id\"\nFROM (\n    SELECT feedback.id AS \"id!\",\n      feedback.user_id,\n      feedback.course_id AS \"course_id!\",\n      feedback.page_id,\n      feedback.feedback_given AS \"feedback_given!\",\n      feedback.selected_text,\n      feedback.marked_as_read AS \"marked_as_read!\",\n      feedback.created_at AS \"created_at!\",\n      feedback.category_id,\n      array_agg(block_feedback.block_id) filter (\n        WHERE block_feedback.block_id IS NOT NULL\n      ) AS \"block_ids: Vec<Uuid>\",\n      array_agg(block_feedback.block_text) filter (\n        WHERE block_feedback.block_id IS NOT NULL\n      ) AS \"block_texts: Vec<Option<String>>\",\n      array_agg(block_feedback.order_number) filter (\n        WHERE block_feedback.block_id IS NOT NULL\n      ) AS \"block_order_numbers: Vec<Option<i32>>\"\n    FROM feedback\n      LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id\n    WHERE course_id = $1\n      AND feedback.marked_as_read = $2\n      AND feedback.deleted_at IS NULL\n      AND block_feedback.deleted_at IS NULL\n    GROUP BY feedback.id,\n      feedback.user_id,\n      feedback.course_id,\n      feedback.feedback_given,\n      feedback.marked_as_read,\n      feedback.created_at\n    ORDER BY feedback.created_at DESC,\n      feedback.id\n    LIMIT $3 OFFSET $4\n  ) fb\n  JOIN pages ON pages.id = fb.page_id\n  LEFT JOIN feedback_categories AS fbc ON fb.category_id = fbc.id",
   "describe": {
     "columns": [
       {
@@ -93,24 +93,35 @@
       },
       {
         "ordinal": 8,
+        "name": "category_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "category_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
         "name": "block_ids: Vec<Uuid>",
         "type_info": "UuidArray",
         "origin": "Expression"
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "block_texts: Vec<Option<String>>",
         "type_info": "VarcharArray",
         "origin": "Expression"
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "block_order_numbers: Vec<Option<i32>>",
         "type_info": "Int4Array",
         "origin": "Expression"
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "page_title",
         "type_info": "Varchar",
         "origin": {
@@ -121,13 +132,35 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "page_url_path",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "pages",
             "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "feedback_category_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "feedback_categories",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "feedback_category_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback_categories",
+            "name": "id"
           }
         }
       }
@@ -149,12 +182,15 @@
       true,
       false,
       false,
+      true,
       null,
       null,
       null,
       false,
-      false
+      false,
+      true,
+      true
     ]
   },
-  "hash": "b52cac8cc5563abf837991f96ecda33e14de41999b3b6fbb78203634035162e1"
+  "hash": "0789e0eb20076a8aed169520b90a9d84933cd2e35cf6ea8e1e7be91509a2fa20"
 }

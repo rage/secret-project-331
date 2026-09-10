@@ -163,7 +163,8 @@ pub struct Feedback {
     pub blocks: Vec<FeedbackBlock>,
     pub page_title: String,
     pub page_url_path: String,
-    // category
+    pub feedback_category_name: Option<String>,
+    pub feedback_category_id: Option<Uuid>,
 }
 
 pub async fn get_feedback_for_course(
@@ -175,25 +176,28 @@ pub async fn get_feedback_for_course(
     let res = sqlx::query!(
         r#"
 SELECT fb.*,
-  pages.title as "page_title",
-  pages.url_path as "page_url_path"
+  pages.title AS "page_title",
+  pages.url_path AS "page_url_path",
+  fbc.name AS "feedback_category_name",
+  fbc.id AS "feedback_category_id"
 FROM (
-    SELECT feedback.id as "id!",
+    SELECT feedback.id AS "id!",
       feedback.user_id,
-      feedback.course_id as "course_id!",
+      feedback.course_id AS "course_id!",
       feedback.page_id,
-      feedback.feedback_given as "feedback_given!",
+      feedback.feedback_given AS "feedback_given!",
       feedback.selected_text,
-      feedback.marked_as_read as "marked_as_read!",
-      feedback.created_at as "created_at!",
+      feedback.marked_as_read AS "marked_as_read!",
+      feedback.created_at AS "created_at!",
+      feedback.category_id,
       array_agg(block_feedback.block_id) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_ids: Vec<Uuid>",
       array_agg(block_feedback.block_text) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_texts: Vec<Option<String>>",
       array_agg(block_feedback.order_number) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_order_numbers: Vec<Option<i32>>"
     FROM feedback
       LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
@@ -211,8 +215,9 @@ FROM (
       feedback.id
     LIMIT $3 OFFSET $4
   ) fb
-  JOIN pages on pages.id = fb.page_id
-"#,
+  JOIN pages ON pages.id = fb.page_id
+  LEFT JOIN feedback_categories AS fbc ON fb.category_id = fbc.id
+        "#,
         course_id,
         read,
         pagination.limit(),
@@ -241,6 +246,8 @@ FROM (
             .collect(),
         page_title: r.page_title,
         page_url_path: r.page_url_path,
+        feedback_category_name: r.feedback_category_name,
+        feedback_category_id: r.feedback_category_id,
     })
     .fetch_all(conn)
     .await?;

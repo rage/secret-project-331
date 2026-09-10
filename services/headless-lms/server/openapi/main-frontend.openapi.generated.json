@@ -21928,6 +21928,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "feedback_category_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "feedback_category_name": {
+            "type": ["string", "null"]
+          },
           "feedback_given": {
             "type": "string"
           },

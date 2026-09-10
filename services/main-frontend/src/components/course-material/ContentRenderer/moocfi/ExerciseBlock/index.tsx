@@ -852,7 +852,10 @@ const ExerciseBlock: React.FC<
                     </div>
                   </YellowBox>
                 )}
-              <OutOfTriesNotification ranOutOfTries={Boolean(ranOutOfTries)} />
+              <OutOfTriesNotification
+                ranOutOfTries={Boolean(ranOutOfTries)}
+                reviewingStage={reviewingStage}
+              />
               <div>
                 {!inSubmissionView && !isChapterLocked && (
                   <ExerciseSubmitButton

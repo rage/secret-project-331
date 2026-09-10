@@ -6,11 +6,16 @@ import React from "react"
 
 export type StatTileDeltaTone = "positive" | "negative" | "neutral"
 
+/** Surface tones a tile can take. `success` marks the one figure a page is read for. */
+export type StatTileTone = "neutral" | "success"
+
 export interface StatTileProps {
   label: React.ReactNode
   value: React.ReactNode
   /** Recolours the value once it is a number above zero; the surface never changes. */
   alertWhenNonZero?: boolean
+  /** Tints the whole tile. Reserve `success` for the one figure that carries the page. */
+  tone?: StatTileTone
   /** If set, the whole tile becomes a link (e.g. jump to the relevant section). */
   href?: string
   /** Accessible label read as a single phrase, e.g. "Awaiting review: 3". Falls back to label + value. */
@@ -37,6 +42,21 @@ const rootCss = css`
   background: var(--color-clear-50);
   text-decoration: none;
 `
+
+const toneCss: Record<StatTileTone, string | undefined> = {
+  neutral: undefined,
+  success: css`
+    border-color: var(--color-green-100);
+    background: var(--color-green-75);
+  `,
+}
+
+const valueToneCss: Record<StatTileTone, string | undefined> = {
+  neutral: undefined,
+  success: css`
+    color: var(--color-green-700);
+  `,
+}
 
 const linkCss = css`
   transition:
@@ -134,6 +154,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   label,
   value,
   alertWhenNonZero = false,
+  tone = "neutral",
   href,
   ariaLabel,
   delta,
@@ -144,7 +165,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   const body = (
     <>
       <span className={valueRowCss}>
-        <span className={cx(valueCss, isAlert && alertValueCss)}>{value}</span>
+        <span className={cx(valueCss, valueToneCss[tone], isAlert && alertValueCss)}>{value}</span>
         {delta !== undefined ? (
           <span className={cx(deltaCss, deltaToneCss[deltaTone])}>{delta}</span>
         ) : null}
@@ -170,7 +191,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   )
   if (href) {
     return (
-      <a className={cx(rootCss, linkCss)} href={href} aria-label={ariaLabel}>
+      <a className={cx(rootCss, toneCss[tone], linkCss)} href={href} aria-label={ariaLabel}>
         {body}
         <span className={arrowCss} aria-hidden="true">
           <ArrowRight size={16} />
@@ -179,7 +200,11 @@ export const StatTile: React.FC<StatTileProps> = ({
     )
   }
   return (
-    <div className={rootCss} aria-label={ariaLabel} role={ariaLabel ? "group" : undefined}>
+    <div
+      className={cx(rootCss, toneCss[tone])}
+      aria-label={ariaLabel}
+      role={ariaLabel ? "group" : undefined}
+    >
       {body}
     </div>
   )

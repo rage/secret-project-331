@@ -128,7 +128,7 @@ pub struct CreditRegistrationOverview {
     /// The `pending` depth split by what each row is waiting on, which the ledger does not store.
     pub pending_by_reason: PendingReasonCounts,
     pub error_codes: Vec<CreditRegistrationErrorCodeTotal>,
-    /// Live rows at least one attention detector picked. The one definition of "needs a human":
+    /// Live rows a detector picked or the pipeline flagged. The one definition of "needs a human":
     /// `/attention` pages through exactly these rows and reports the same total.
     pub needs_admin_attention_count: i64,
     pub oldest_non_terminal: Option<CreditRegistrationOldestNonTerminal>,

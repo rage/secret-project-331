@@ -72,8 +72,8 @@ const outcomeCss = css`
 /**
  * Every way this page can end without a linked number, shared by the preview and the claim.
  *
- * `support` names what a mail to support would have to ask for, and `null` marks the one ending
- * that needs nothing: the number is already on this account.
+ * `offersEmailFastTrack` offers the "confirm your email" shortcut only for endings a confirmed
+ * address would actually resolve.
  */
 const DEAD_ENDS = {
   not_found: {

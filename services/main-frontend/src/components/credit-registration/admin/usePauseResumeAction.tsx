@@ -17,7 +17,7 @@ interface UsePauseResumeActionOptions {
   pauseActionLabel: string
   resumeActionLabel: string
   pauseDialogTitle: string
-  /** The pause dialog's consequence sentence, and the reason field's hint unless `reasonHint` overrides it. */
+  /** The pause dialog's consequence sentence, shown above the reason field. */
   pauseReasonDescription: string
 }
 

@@ -9,10 +9,9 @@ const HEADING_SELECTOR = "h1"
 
 const TABINDEX_ATTRIBUTE = "tabindex"
 
-// `:focus-visible` is what the browser uses to mean "this ring is for a keyboard user", so
-// excluding it can only ever drop a ring on focus moved by script or a mouse — never a real
-// keyboard-focus ring, which this must not weaken. Covers every programmatic focus target, not
-// just the headings this component moves focus to.
+// Excluding :focus-visible can only drop a ring on focus moved by script or a mouse, never a real
+// keyboard-focus ring. Applies globally, to every programmatic focus target — not just the
+// headings this component moves focus to.
 void injectGlobal`
   [tabindex="-1"]:focus:not(:focus-visible) {
     outline: none;

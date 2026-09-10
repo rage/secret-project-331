@@ -60,7 +60,7 @@ const completion = (passed: boolean) => ({
 
 const twoModules = (passed: boolean): MyStudiesCourseModule[] => [
   courseModule({ completion: completion(passed) }),
-  courseModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
+  courseModule({ course_module_id: "module-2", name: "Extra module", order_number: 1 }),
 ]
 
 const teacherGradedModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCourseModule =>
@@ -97,7 +97,7 @@ describe("StudiesCourseCard", () => {
     expect(screen.getAllByText("Introduction to Programming")).toHaveLength(1)
   })
 
-  it("names the unnamed default module beside a named sibling, rather than leaving its position to say so", () => {
+  it("titles the default module's row with the course name, because that module is the course", () => {
     render(
       <StudiesCourseCard
         course={course(twoModules(true))}
@@ -105,23 +105,25 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getAllByText("Introduction to Programming")).toHaveLength(1)
-    expect(screen.getByText("Part 2")).toBeInTheDocument()
-    expect(screen.getByText("label-default-course-module")).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { level: 4, name: "Introduction to Programming" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("heading", { level: 4, name: "Extra module" })).toBeInTheDocument()
   })
 
-  it("falls back to a generic module label for every row when none of them are named", () => {
+  it("asks for the course on the default module's row and for a module on the others", () => {
     render(
       <StudiesCourseCard
         course={course([
           courseModule({}),
-          courseModule({ course_module_id: "module-2", order_number: 1 }),
+          courseModule({ course_module_id: "module-2", name: "Extra module", order_number: 1 }),
         ])}
         registrationByCourseModuleId={noRegistrations}
       />,
     )
 
-    expect(screen.getAllByText("label-default-course-module")).toHaveLength(2)
+    expect(screen.getByText("x-to-complete-this-course")).toBeInTheDocument()
+    expect(screen.getByText("x-to-complete-this-module")).toBeInTheDocument()
   })
 
   it("names every module of a course that has several", () => {
@@ -132,7 +134,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText("Part 2")).toBeInTheDocument()
+    expect(screen.getByText("Extra module")).toBeInTheDocument()
   })
 
   it("shows the module count as running text rather than a badge", () => {
@@ -143,7 +145,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText(/modules-completed-of-total/)).toBeInTheDocument()
+    expect(screen.getByText(/completed-of-total/)).toBeInTheDocument()
   })
 
   it("explains a different language version as a sentence rather than a badge", () => {
@@ -175,7 +177,7 @@ describe("StudiesCourseCard", () => {
     ).toHaveAttribute("href", "/completion-registration/module-default")
   })
 
-  it("states both thresholds under one heading, so the numbers say what they buy", () => {
+  it("leads with what is still missing rather than with the raw fractions", () => {
     render(
       <StudiesCourseCard
         course={course([courseModule({})])}
@@ -183,8 +185,43 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText("heading-to-complete-this-part")).toBeInTheDocument()
-    expect(screen.getByText(/n-points/)).toBeInTheDocument()
+    expect(screen.getByText("x-to-complete-this-course")).toBeInTheDocument()
+    expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
+  })
+
+  it("calls a module whose thresholds are all met met, rather than not completed yet", () => {
+    render(
+      <StudiesCourseCard
+        course={course([courseModule({ score_given: 20, attempted_exercises: 10 })])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("label-requirements-met")).toBeInTheDocument()
+    expect(screen.queryByText("x-to-complete-this-course")).not.toBeInTheDocument()
+  })
+
+  it("bars both dimensions of a measured module, even the one no threshold marks", () => {
+    render(
+      <StudiesCourseCard
+        course={course([courseModule({ attempted_exercises_required: null })])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getAllByRole("meter")).toHaveLength(2)
+    expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
+  })
+
+  it("states a module a teacher decides as bare figures, since no threshold judges them", () => {
+    render(
+      <StudiesCourseCard
+        course={course([teacherGradedModule({})])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.queryAllByRole("meter")).toHaveLength(0)
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
@@ -196,7 +233,8 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText("heading-to-take-the-exam")).toBeInTheDocument()
+    expect(screen.getByText("x-to-take-the-exam")).toBeInTheDocument()
+    expect(screen.getByRole("group", { name: "heading-to-take-the-exam" })).toBeInTheDocument()
     expect(screen.getByText("label-exam")).toBeInTheDocument()
     expect(screen.getByText("label-not-passed")).toBeInTheDocument()
   })
@@ -209,38 +247,43 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getByText("note-teacher-grades-this-course")).toBeInTheDocument()
-    expect(screen.queryByText("heading-to-complete-this-part")).not.toBeInTheDocument()
+    expect(screen.getByText(/note-graded-by-your-teacher/)).toBeInTheDocument()
+    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
   })
 
-  it("says a whole teacher-graded course is one once, not under each of its parts", () => {
+  it("says a whole teacher-graded course is one once, not under each of its modules", () => {
     render(
       <StudiesCourseCard
         course={course([
           teacherGradedModule({}),
-          teacherGradedModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
+          teacherGradedModule({
+            course_module_id: "module-2",
+            name: "Extra module",
+            order_number: 1,
+          }),
         ])}
         registrationByCourseModuleId={noRegistrations}
       />,
     )
 
-    expect(screen.getByText("note-teacher-grades-this-course")).toBeInTheDocument()
-    expect(screen.queryByText("note-teacher-grades-this-part")).not.toBeInTheDocument()
+    expect(screen.getAllByText(/note-graded-by-your-teacher/)).toHaveLength(1)
   })
 
-  it("names the teacher-graded part of a course whose other parts complete on their own", () => {
+  it("names the teacher-graded module of a course whose others complete on their own", () => {
     render(
       <StudiesCourseCard
         course={course([
           teacherGradedModule({}),
-          courseModule({ course_module_id: "module-2", name: "Part 2", order_number: 1 }),
+          courseModule({ course_module_id: "module-2", name: "Extra module", order_number: 1 }),
         ])}
         registrationByCourseModuleId={noRegistrations}
       />,
     )
 
-    expect(screen.getByText("note-teacher-grades-this-part")).toBeInTheDocument()
-    expect(screen.queryByText("note-teacher-grades-this-course")).not.toBeInTheDocument()
+    // Once per card either way; here it belongs to the one module it is true of, not the header.
+    const teacherNote = screen.getByText("note-graded-by-your-teacher")
+    const [teacherGradedPart] = screen.getAllByRole("listitem")
+    expect(teacherGradedPart).toContainElement(teacherNote)
   })
 
   it("drops the requirements of a module the student has completed", () => {
@@ -251,7 +294,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.queryByText("heading-to-complete-this-part")).not.toBeInTheDocument()
+    expect(screen.queryByText("x-to-complete-this-course")).not.toBeInTheDocument()
     expect(screen.queryByRole("meter")).not.toBeInTheDocument()
   })
 })

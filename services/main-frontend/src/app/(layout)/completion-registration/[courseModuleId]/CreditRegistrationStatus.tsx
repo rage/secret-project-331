@@ -78,7 +78,7 @@ export interface CreditRegistrationStatusProps {
   courseName: string
   /** `null` on the course's default module. */
   moduleName: string | null | undefined
-  /** What the part is configured to be worth now, which a past registration may not match. */
+  /** What the module is configured to be worth now, which a past registration may not match. */
   ectsCredits: number | null | undefined
 }
 
@@ -397,7 +397,13 @@ const RegistrationFacts: React.FC<{
       <DescriptionList items={items} />
       {wasRegisteredAtAnotherAmount ? (
         <p className={noteCss}>
-          {t("credit-registration-credits-differ-from-current", { current: moduleEctsCredits })}
+          {registration.course_module_name
+            ? t("credit-registration-module-credits-differ-from-current", {
+                current: moduleEctsCredits,
+              })
+            : t("credit-registration-course-credits-differ-from-current", {
+                current: moduleEctsCredits,
+              })}
         </p>
       ) : null}
     </>

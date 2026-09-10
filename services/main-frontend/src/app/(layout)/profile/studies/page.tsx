@@ -28,6 +28,7 @@ import { EmptyState, Link, QueryResult } from "@/shared-module/components"
 
 import { FIND_MORE_COURSES_URL } from "../constants"
 import CertificatesSection from "./CertificatesSection"
+import { everyModulePassed } from "./completionRequirements"
 import HiddenCoursesSection from "./HiddenCoursesSection"
 import RegistrationsNeedingAttention from "./RegistrationsNeedingAttention"
 import StudiesCourseCard from "./StudiesCourseCard"
@@ -43,8 +44,19 @@ const summaryBlockCss = css`
   }
 `
 
-const isCompleted = (course: MyStudiesCourse): boolean =>
-  course.modules.length > 0 && course.modules.every((module) => module.completion?.passed === true)
+/** Cards are objects, and need more air between them than the blocks inside one get. */
+const courseListCss = css`
+  display: grid;
+  gap: var(--space-4-5);
+`
+
+/**
+ * Newest enrolment first, so the course a student is most likely to have come back for is the one
+ * they land on. Enrolment date is the closest thing the study record carries to recency; a
+ * last-visited timestamp would order this better.
+ */
+const mostRecentlyStartedFirst = (courses: MyStudiesCourse[]): MyStudiesCourse[] =>
+  courses.toSorted((a, b) => b.first_enrolled_at.localeCompare(a.first_enrolled_at))
 
 /**
  * The registration whose status a module's line should show: the newest attempt, since an earlier
@@ -110,14 +122,21 @@ const StudiesPage: React.FC = () => {
 
           const visibleCourses = myStudies.courses.filter((course) => !course.hidden)
           const hiddenCourses = myStudies.courses.filter((course) => course.hidden)
-          const completedCourses = visibleCourses.filter((course) => isCompleted(course))
-          const coursesInProgress = visibleCourses.filter((course) => !isCompleted(course))
+          const completedCourses = mostRecentlyStartedFirst(
+            visibleCourses.filter((course) => everyModulePassed(course.modules)),
+          )
+          const coursesInProgress = mostRecentlyStartedFirst(
+            visibleCourses.filter((course) => !everyModulePassed(course.modules)),
+          )
+          // A heading that covers every card on the page names nothing, and sits close enough to
+          // the card titles to read as one more course.
+          const groupsAreDistinguished = completedCourses.length > 0 && coursesInProgress.length > 0
 
           const courseSection = (heading: string, courses: MyStudiesCourse[]) =>
             courses.length === 0 ? null : (
-              <section className={sectionCss}>
-                <h2 className={headingCss}>{heading}</h2>
-                <div className={sectionCss}>
+              <section className={sectionCss} aria-label={heading}>
+                {groupsAreDistinguished ? <h2 className={headingCss}>{heading}</h2> : null}
+                <div className={courseListCss}>
                   {courses.map((course) => (
                     <StudiesCourseCard
                       key={course.course_id}

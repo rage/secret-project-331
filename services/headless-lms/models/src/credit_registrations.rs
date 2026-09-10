@@ -1819,8 +1819,7 @@ pub struct CourseModuleStateCount {
     pub has_verified_student_number: bool,
     pub enrolment_resolved: bool,
     pub count: i64,
-    /// Of `count`, how many carry the pipeline's flag. Overlaps every other group's, so it is never
-    /// added to them.
+    /// Of `count`, how many carry the pipeline's flag.
     pub needs_admin_attention_count: i64,
 }
 

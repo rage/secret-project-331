@@ -42,8 +42,8 @@ export interface StatusBreakdownProps {
 }
 
 /**
- * Fills matching `registrationStatusBadgeTone`'s hues. Solid rather than the badges' tints: a
- * 4-pixel slice of a pale fill is invisible, and the legend beside it carries the meaning anyway.
+ * Fills matching `registrationStatusTone`'s hues. Solid rather than the badges' tints: a 4-pixel
+ * slice of a pale fill is invisible, and the legend beside it carries the meaning anyway.
  */
 const segmentFillCss: Record<RegistrationStatusState, string> = {
   done: css`

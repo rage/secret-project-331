@@ -112,9 +112,9 @@ const MaterializeButton: React.FC = () => {
 
 /**
  * The checks that read Sisu and our ledger against each other, each one named and saying what it
- * found. Only checks that are absences: a reversed attainment or uncertain submission is a live
- * ledger row the work queue already lists, so repeating it here would put the same registration on
- * two pages.
+ * found. Excludes anything already visible as a ledger state: a reversed attainment or uncertain
+ * submission is a live row the work queue already lists, so repeating it here would put the same
+ * registration on two pages.
  */
 const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)

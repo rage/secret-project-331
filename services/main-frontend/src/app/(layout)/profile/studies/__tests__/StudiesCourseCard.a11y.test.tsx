@@ -44,7 +44,7 @@ const course: MyStudiesCourse = {
     },
     {
       course_module_id: "module-2",
-      name: "Part 2",
+      name: "Extra module",
       order_number: 1,
       ects_credits: null,
       supports_credit_registration: false,
@@ -84,10 +84,10 @@ describe("StudiesCourseCard accessibility", () => {
     expect(screen.getByText("grade-n")).toBeInTheDocument()
   })
 
-  it("spells out a module the student has not completed", () => {
+  it("spells out what a module the student has not completed still needs", () => {
     renderCard()
 
-    expect(screen.getByText("module-not-completed-yet")).toBeInTheDocument()
+    expect(screen.getByText("x-to-complete-this-module")).toBeInTheDocument()
   })
 
   it("labels each meter and states its value in text", () => {
@@ -102,7 +102,9 @@ describe("StudiesCourseCard accessibility", () => {
   it("names what the meters are measured for, so the numbers are not read bare", () => {
     renderCard()
 
-    expect(screen.getByRole("group", { name: "heading-to-complete-this-part" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("group", { name: "heading-to-complete-this-module" }),
+    ).toBeInTheDocument()
   })
 
   it("announces the modules as a list", () => {

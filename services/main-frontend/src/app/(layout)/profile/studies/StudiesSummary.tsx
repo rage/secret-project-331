@@ -3,6 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
 import type { MyStudiesTotals } from "@/generated/api/types.generated"
 import { StatTile, StatTileList } from "@/shared-module/components"
 
@@ -30,16 +31,13 @@ const StudiesSummary: React.FC<StudiesSummaryProps> = ({ totals }) => {
   }
 
   return (
-    <StatTileList
-      ariaLabel={t("heading-my-studies")}
-      maxColumns={SUMMARY_TILE_COUNT}
-      size="compact"
-    >
+    <StatTileList ariaLabel={t("heading-my-studies")} maxColumns={SUMMARY_TILE_COUNT}>
       <StatTile
         label={t("label-credits-earned")}
         value={t("ects-n", { n: formatEcts(totals.ects, i18n.language) })}
+        tone={TONE.SUCCESS}
       />
-      <StatTile label={t("label-course-parts-completed")} value={totals.completions} />
+      <StatTile label={t("label-completions")} value={totals.completions} />
     </StatTileList>
   )
 }

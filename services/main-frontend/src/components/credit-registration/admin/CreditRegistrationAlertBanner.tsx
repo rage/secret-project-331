@@ -273,9 +273,8 @@ const bySeverity = (alerts: CreditRegistrationAlert[], severity: CreditRegistrat
  *
  * Uncarded and unheaded: the cards are already tinted panels that say what they are, so a frame
  * and a title around them only add chrome to the first thing a reader looks at. The list keeps an
- * accessible name in place of the heading. The tab strip carries the standing counts, so the tile
- * row that used to sit here was the same four numbers a third time, under labels identical to the
- * tabs' own.
+ * accessible name in place of the heading. The tab strip carries the standing counts, so a tile
+ * row here would only repeat them under labels identical to the tabs' own.
  *
  * Only notices collapse. This is the one page whose job is to list what is wrong, so a warning
  * behind a toggle is a warning nobody reads.
@@ -392,8 +391,8 @@ const CreditRegistrationAlertBanner: React.FC = () => {
   if (alerts.length === 0) {
     return null
   }
-  // One registration's page is about that row — except for a critical, which is why the action on
-  // it will not work.
+  // One registration's page is about that row — except when it's critical, since then the row's
+  // own action cannot fix it either.
   if (pathname?.startsWith(`${creditRegistrationRegistrationsRoute()}/`)) {
     const criticals = bySeverity(alerts, CRITICAL)
     if (criticals.length === 0) {

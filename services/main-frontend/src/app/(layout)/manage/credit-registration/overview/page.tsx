@@ -123,9 +123,8 @@ const rangeChipsCss = css`
   gap: var(--space-2);
 `
 
-/** The window control alone above the tiles it scopes; it carries its own floating label, so it
- *  needs no heading beside it. Left, where the page's other content starts: pushed right it has
- *  nothing to sit against and reads as though it came loose. */
+/** No heading needed: the control's own floating label covers it. Left-aligned like the rest of
+ *  the page — pushed right it would have nothing to sit against. */
 const windowRowCss = css`
   display: flex;
 `
@@ -384,9 +383,7 @@ const missingRanges = (points: DayPoint[]): [string, string][] => {
 
 /**
  * Whether a line has two adjacent days to draw a segment between. `connectNulls` is off so a
- * missed snapshot stays a gap, which means a series of isolated days — the first day of a new
- * deployment, or a week the snapshot phase kept missing — paints nothing at all unless its points
- * are drawn as symbols.
+ * missed snapshot stays a gap, so an isolated day paints nothing unless drawn as a symbol.
  */
 const hasDrawableSegment = (points: (number | null)[]): boolean =>
   points.some((point, index) => point !== null && (points[index + 1] ?? null) !== null)

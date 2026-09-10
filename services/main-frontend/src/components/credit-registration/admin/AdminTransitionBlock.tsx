@@ -114,7 +114,7 @@ const cancelRowCss = css`
 const APPLIED = "applied" as const
 const REFUSED = "refused" as const
 
-/** Why sending this row to Sisu again cannot clear its failure. Nothing for a remedy a resend is. */
+/** Why resubmitting to Sisu can't fix this failure — one entry per remedy other than a resend. */
 const RETRY_BLOCKED_KEYS = {
   module_configuration: "credit-registration-admin-retry-blocked-configuration",
   student_number: "credit-registration-admin-retry-blocked-student-number",

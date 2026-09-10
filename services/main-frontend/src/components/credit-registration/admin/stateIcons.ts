@@ -32,8 +32,8 @@ type StateIcon = React.ComponentType<{ size?: number; className?: string }>
  * than rendering a blank cell.
  *
  * Two of this set's names do not draw what they sound like: `Cross` is a crucifix, not an X (use
- * `XmarkCircle`), and `ClockTime` is the same wall clock as `Clock`, so the two waiting states
- * were indistinguishable until one became a `Stopwatch`.
+ * `XmarkCircle`), and `ClockTime` is the same wall clock as `Clock` — `awaiting_verification` uses
+ * `Stopwatch` instead to stay visually distinct from `pending`.
  */
 export const STATE_ICONS = {
   pending: Clock,

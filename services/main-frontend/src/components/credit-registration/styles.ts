@@ -55,8 +55,8 @@ export const sectionCardCss = cx(
 
 /**
  * A `sectionCardCss` heading row, ruled off from the body, with room on the right for the one
- * control that scopes the section. The rule is what makes a section's start findable at a glance
- * once every section on the page is a card.
+ * control that scopes the section — the rule is what makes a section's start findable once every
+ * section on the page is a card.
  */
 export const sectionCardHeaderCss = css`
   display: flex;

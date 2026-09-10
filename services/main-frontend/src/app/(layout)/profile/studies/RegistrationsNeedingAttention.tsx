@@ -113,7 +113,7 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
       secondaryActions={secondaryActions}
       meta={
         <p className={noteCss}>
-          {t("credit-registration-course-part-completed")}{" "}
+          {t("label-completed")}{" "}
           <RelativeTime at={registration.completion_date} absoluteTime={TIME_DATE} />
         </p>
       }

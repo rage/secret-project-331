@@ -18,7 +18,7 @@ const registration = (overrides: Partial<MyCreditRegistration> = {}): MyCreditRe
   ({
     id: "registration-1",
     course_name: "Introduction to Programming",
-    course_module_name: "Part 2",
+    course_module_name: "Extra module",
     student_facing_status: "failed",
     error_code: "misregistered",
     student_number: "900000901",
@@ -31,7 +31,7 @@ describe("registrationSupportMail", () => {
 
     expect(mail.subject).toContain("course=Introduction to Programming")
     expect(mail.bodyLines.join("\n")).toContain("reference=registration-1")
-    expect(mail.bodyLines.join("\n")).toContain("part=Part 2")
+    expect(mail.bodyLines.join("\n")).toContain("module=Extra module")
     expect(mail.bodyLines.join("\n")).toContain("studentNumber=900000901")
     expect(mail.reference).toBe("registration-1")
   })
@@ -43,7 +43,7 @@ describe("registrationSupportMail", () => {
     )
     const body = mail.bodyLines.join("\n")
 
-    expect(body).not.toContain("support-mail-line-course-part")
+    expect(body).not.toContain("support-mail-line-module")
     expect(body).not.toContain("support-mail-line-student-number")
     expect(body).not.toContain("support-mail-line-reason")
   })

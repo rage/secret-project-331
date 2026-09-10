@@ -10,7 +10,7 @@ import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
 import { monospaceCss, noteCss, rowCss } from "./styles"
 
 export interface SupportMailLinkProps {
-  /** What the mail is about, in the reader's words: the course, the part, the status. */
+  /** What the mail is about, in the reader's words: the course, the module, the status. */
   subject: string
   /**
    * The prefilled body, one entry per line. Put everything support needs to find the case here —

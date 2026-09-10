@@ -22,13 +22,13 @@ export const registrationSupportMail = (
   t: CreditRegistrationTFunction,
   registration: MyCreditRegistration,
 ): SupportMailContents => {
-  const part = registration.course_module_name
+  const moduleName = registration.course_module_name
   const reason = registrationErrorShortLabel(t, registration.error_code)
   return {
     subject: t("support-mail-subject-credit-registration", { course: registration.course_name }),
     bodyLines: [
       t("support-mail-line-course", { course: registration.course_name }),
-      ...(part ? [t("support-mail-line-course-part", { part })] : []),
+      ...(moduleName ? [t("support-mail-line-module", { module: moduleName })] : []),
       t("support-mail-line-status", {
         status: registrationStatusLabel(t, registration.student_facing_status),
       }),

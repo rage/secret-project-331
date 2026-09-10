@@ -44,7 +44,7 @@ export interface RegistrationStatusCardProps {
   /** What the status means and what happens next. */
   explanation: React.ReactNode
   /**
-   * The course, the part, the student. Passing it switches the card to list context: the subject
+   * The course, the module, the student. Passing it switches the card to list context: the subject
    * becomes the heading and the state a badge beside it, rather than the subject captioning a big
    * coloured headline — a list of these repeats the same headline as many times as it has cards.
    * Omit it on a standalone status page, where the page title already names the course.

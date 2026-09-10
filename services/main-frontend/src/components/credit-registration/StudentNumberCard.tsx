@@ -241,11 +241,8 @@ const AutoLinkNotice: React.FC<{
 }
 
 /**
- * No number linked: the steps that link one, and the two levers a student actually has.
- *
- * There is no student-facing resend, so the fast track is confirming the account's own address —
- * an address the University also holds links the number with no mail at all — and the fallback is
- * a mail to support that already asks for a new link.
+ * No number linked: the steps that link one automatically, and the one shortcut around them —
+ * confirming the account's own address, which links the number without waiting for that mail.
  */
 const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ linkingEmail }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)

@@ -38,7 +38,8 @@ export const isBulkActionAllowed = (action: TransitionChoice, row: BulkTransitio
     case CHECK_NOW:
       return row.state === "submission_uncertain" || row.state === "awaiting_verification"
     case CANCELLED:
-      // A row whose outcome is unknown may already hold credits in Sisu; the server refuses it.
+      // May already hold credits in Sisu. The server does not refuse this, so the client
+      // withholds it.
       return row.state !== "submission_uncertain"
     case CLEAR_ATTENTION:
       return true

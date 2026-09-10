@@ -204,6 +204,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           height: 400px;
           overflow: auto;
         `}
+        aria-label="Chatbot list"
       >
         {chatbotOptionsFiltered.length === 0 ? (
           <div className={listBoxEmptyStateCss} role="presentation">
@@ -211,7 +212,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           </div>
         ) : (
           chatbotOptionsFiltered.map((category) => (
-            <li className={sectionCss} key={category.courseId}>
+            <li aria-label={category.label} className={sectionCss} key={category.courseId}>
               <span className={sectionHeadingCss}>{category.label}</span>
               <ul className={sectionGroupCss}>
                 {category.options.map((option) => (
@@ -224,7 +225,8 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                     }}
                     variant="icon"
                     className={buttonCss}
-                    aria-label={t("select-chatbot", { title: option.label })}
+                    aria-label={option.label}
+                    // aria-label={t("select-chatbot", { title: option.label })}
                   >
                     <li>
                       <span

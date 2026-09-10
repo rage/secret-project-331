@@ -40,14 +40,13 @@ const chatbotLabelCss = css`
   padding: 5px 8px;
   font-size: 10px;
   white-space: nowrap;
-  width: 200px;
   overflow: hidden;
+  max-width: calc(400px - 2.1rem);
   text-overflow: ellipsis;
   text-align: left;
   border: 1px solid ${baseTheme.colors.green[300]};
   border-radius: 999px;
   color: gray;
-  max-width: 100px;
 `
 
 const ConversationHistory: React.FC<ConversationHistoryProps> = ({

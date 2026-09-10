@@ -150,7 +150,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
                 // oxlint-disable-next-line i18next/no-literal-string
                 menuTestId="chatbot-header-menu"
                 // oxlint-disable-next-line i18next/no-literal-string
-                menuButtonTestId="chatbot-header-menu-button"
+                menuButtonTestId="sidebar-header-menu-button"
                 controlButtonClassName={dropdownMenuCss}
                 controlButtonIconColor={`${baseTheme.colors.green[700]}`}
                 controlButtonAriaLabel={t("label-actions")}

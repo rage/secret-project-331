@@ -13,7 +13,17 @@ test.describe("Chatbot command center testing", () => {
     await page.getByRole("button", { name: "New conversation" }).waitFor()
   })
 
-  test("Starting a new conversation", async ({ page }) => {
+  test("Infobox is shown when no conversations exist", async ({ page }) => {
+    await expect(page.getByText("There are no existing")).toBeVisible()
+  })
+
+  test("Sidebar opens and closes", async ({ page }) => {
+    await page.getByRole("button", { name: "Close sidebar" }).click()
+    await expect(page.getByRole("button", { name: "Open sidebar" })).toBeVisible()
+    await page.getByRole("button", { name: "Open sidebar" }).click()
+  })
+
+  test("New conversation dialog", async ({ page }) => {
     await page.getByRole("button", { name: "New conversation" }).click()
 
     await test.step("dialog opens", async () => {
@@ -198,7 +208,7 @@ test.describe("Chatbot command center testing", () => {
     })
   })
 
-  test("Chatbot is used after starting new conversation", async ({ page }) => {
+  test("Starting a new conversation", async ({ page }) => {
     await page.getByRole("button", { name: "New conversation" }).click()
     await expect(page.getByRole("heading", { name: "Chatbot selection" })).toBeVisible()
     await page
@@ -206,11 +216,41 @@ test.describe("Chatbot command center testing", () => {
       .getByRole("button", { name: "Genetic Lifeform and Disk" })
       .click()
 
-    await test.step("send message", async () => {
+    await test.step("conversation is untitled if no messages have been sent", async () => {
+      await expect(page.getByRole("button", { name: "untitled conversation" })).toBeVisible()
+    })
+
+    await test.step("sending first message sets the conversation title", async () => {
       await page.getByPlaceholder("Message").click()
       await page.getByPlaceholder("Message").fill("Hello, pls help me!")
       await page.getByRole("button", { name: "Send" }).click()
       await page.getByText("Hello! How can I assist you today?").waitFor()
+
+      await expect(page.getByRole("button", { name: "Hello, pls help me!" })).toBeVisible()
     })
+  })
+
+  test("Can change between conversations", async ({ page }) => {
+    await page.getByRole("button", { name: "New conversation" }).click()
+    await expect(page.getByRole("heading", { name: "Chatbot selection" })).toBeVisible()
+    await page
+      .getByLabel("Chatbot", { exact: true })
+      .getByRole("button", { name: "Genetic Lifeform and Disk" })
+      .click()
+    await page.getByPlaceholder("Message").click()
+    await page.getByPlaceholder("Message").fill("Hello, this is our first conversation!")
+    await page.getByRole("button", { name: "Send" }).click()
+    await page.getByText("Hello! How can I assist you today?").waitFor()
+
+    await page.getByTestId("chatbot-header-menu-button").click()
+    await page.getByTestId("chatbot-header-menu").getByText("New conversation").click()
+
+    await expect(page.getByRole("button", { name: "untitled conversation" })).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Hello! How can I assist you today?" }),
+    ).toBeHidden()
+
+    await page.getByRole("button", { name: "Hello, this is our first conversation!" }).click()
+    await expect(page.getByText("Hello! How can I assist you today?")).toBeVisible()
   })
 })

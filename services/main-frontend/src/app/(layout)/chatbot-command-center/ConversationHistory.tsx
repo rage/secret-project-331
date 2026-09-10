@@ -81,7 +81,9 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             }}
             className={buttonCss}
             key={conversation.id}
-            aria-label={t("select-conversation", { title: conversation.conversation_title })}
+            aria-label={t("conversation-title", {
+              title: conversation.conversation_title ?? "untitled conversation",
+            })}
           >
             <div
               className={css`

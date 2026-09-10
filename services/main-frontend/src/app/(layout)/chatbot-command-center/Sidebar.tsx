@@ -199,6 +199,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
             data-hovered={isHovered || undefined}
             data-focus-visible={isFocusVisible || undefined}
             data-disabled={undefined}
+            aria-label={state.isExpanded ? t("close-sidebar") : t("open-sidebar")}
           >
             <LayoutVertical weight="medium" size={16} />
           </button>

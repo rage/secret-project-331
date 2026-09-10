@@ -11,7 +11,8 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
-    chatbot_conversation_message_messages::MessageRole, feedback::Feedback,
+    chatbot_conversation_message_messages::MessageRole, feedback::NewFeedback,
+    feedback_categories::FeedbackCategory,
 };
 use headless_lms_utils::json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType};
 use indexmap::IndexMap;
@@ -20,7 +21,7 @@ use indexmap::IndexMap;
 /// [response_format]
 #[derive(serde::Deserialize)]
 pub struct FeedbackCategorisationResponse {
-    pub feedback_id: u32,
+    pub feedback_id: i32,
     pub category_name: String,
 }
 
@@ -57,15 +58,54 @@ fn response_format() -> LLMRequestResponseFormatParam {
     }
 }
 
+fn format_category_list(categories: &Vec<FeedbackCategory>) -> String {
+    let c = categories
+        .iter()
+        .map(|c| c.name.to_owned())
+        .collect::<Vec<String>>()
+        .join(",");
+    format!("[{c}]")
+}
+
+fn format_feedback(feedback: &NewFeedback) -> String {
+    let start = "\n\nThe feedback to format: \n<START FEEDBACK>\nFeedback: ".to_string();
+    let end = "\n<END FEEDBACK>";
+    let f = feedback.selected_text.as_ref().map_or("".to_string(), |s| {
+        format!("Associated course material text: {s}\n")
+    });
+
+    start + &feedback.feedback_given + &f + end
+}
+
 /// System prompt instructions for generating suggested next messages
-const SYSTEM_PROMPT: &str = r#""#;
+const SYSTEM_PROMPT: &str = r#"You are an expert text categorisation system. You are given written feedback submitted by a student who is completing a course, and a set of possible categories. Analyse the feedback and label it with one of the categories. If none of the categories fit, create a new category.
+
+Allowed response types:
+- Assign feedback into an existing category
+- Create a new category and assign the feedback to it
+
+Constraints:
+- analyse the meaning and context of the feedback
+- don't focus on specific details too much
+- understand the intention behind the feedback and what problem it is really aiming to convey
+
+Category constraints:
+- the name should be short and adequately descriptive
+- the name should describe the type of feedback in that category
+- the categories should not be overly specific
+
+Currently existing categories:
+
+"#;
 
 pub async fn categorize_feedback(
     app_config: &ApplicationConfiguration,
-    task_lm: TaskLMSpec,
-    feedback: Feedback,
+    task_lm: &TaskLMSpec,
+    feedback: &NewFeedback,
+    categories: &Vec<FeedbackCategory>,
 ) -> ChatbotResult<FeedbackCategorisationResponse> {
-    let prompt = SYSTEM_PROMPT.to_string() + "";
+    let prompt =
+        SYSTEM_PROMPT.to_string() + &format_category_list(categories) + &format_feedback(feedback);
     let input = vec![APIInputMessage {
         message_type: InputItem::Message {
             role: MessageRole::System,

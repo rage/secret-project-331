@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::{
+    feedback_categories::{self, NewFeedbackCategory},
+    prelude::*,
+};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
@@ -8,6 +11,7 @@ pub struct NewFeedback {
     pub selected_text: Option<String>,
     pub related_blocks: Vec<FeedbackBlock>,
     pub page_id: Uuid,
+    pub category: Option<NewFeedbackCategory>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -16,15 +20,6 @@ pub struct FeedbackBlock {
     pub id: Uuid,
     pub text: Option<String>,
     pub order_number: Option<i32>,
-}
-
-pub struct FeedbackCategory {
-    pub id: Uuid,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    pub category_llm_id: u32,
-    pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -49,9 +44,13 @@ pub async fn insert(
     user_id: Option<Uuid>,
     course_id: Uuid,
     new_feedback: NewFeedback,
-    category: Option<i32>,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
+    let category_id = if let Some(category) = new_feedback.category {
+        Some(feedback_categories::insert(&mut tx, category).await?)
+    } else {
+        None
+    };
     let res = sqlx::query!(
         "
 INSERT INTO feedback(
@@ -60,9 +59,10 @@ INSERT INTO feedback(
     course_id,
     feedback_given,
     selected_text,
-    page_id
+    page_id,
+    category_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -70,7 +70,8 @@ RETURNING *
         course_id,
         new_feedback.feedback_given,
         new_feedback.selected_text,
-        new_feedback.page_id
+        new_feedback.page_id,
+        category_id
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -162,6 +163,7 @@ pub struct Feedback {
     pub blocks: Vec<FeedbackBlock>,
     pub page_title: String,
     pub page_url_path: String,
+    // category
 }
 
 pub async fn get_feedback_for_course(

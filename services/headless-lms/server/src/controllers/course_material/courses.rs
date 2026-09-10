@@ -6,7 +6,10 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_chatbot::feedback_categorization::categorize_feedback;
+use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
+use headless_lms_models::feedback_categories::NewFeedbackCategory;
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -762,9 +765,10 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     )
 )]
 pub async fn feedback(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
-    pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
@@ -798,14 +802,43 @@ pub async fn feedback(
         }
     }
 
+    let task_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::MessageSuggestion,
+    )
+    .await
+    .ok();
     let mut tx = conn.begin().await?;
+    let feedback_categories = models::feedback_categories::get_all(&mut tx).await?;
     let mut ids = vec![];
     for f in fs {
-        let id =
-            feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f, None).await?;
+        let new_feedback = if let Some(llm) = &task_llm {
+            match categorize_feedback(&app_conf, llm, &f, &feedback_categories).await {
+                Ok(val) => NewFeedback {
+                    category: Some(NewFeedbackCategory {
+                        category_llm_id: val.feedback_id,
+                        name: val.category_name,
+                    }),
+                    ..f
+                },
+                Err(e) => {
+                    error!("Failed to categorise feedback: {e}");
+                    f
+                }
+            }
+        } else {
+            f
+        };
+        let id = feedback::insert(
+            &mut tx,
+            PKeyPolicy::Generate,
+            user_id,
+            *course_id,
+            new_feedback,
+        )
+        .await?;
         ids.push(id);
     }
-    // categorise
     tx.commit().await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(ids))

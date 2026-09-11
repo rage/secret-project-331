@@ -89,8 +89,10 @@ placement is its own decision, so put it to the user explicitly:
 
 - **Own repository** (reference/05's Track A): scaffold to a path *outside* the monorepo. The output
   is standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all work with no
-  enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
-  Registered with the host later by URL (reference/05 step 9). It is its **own git root**, unrelated
+  enclosing workspace or git repo) and gets the shared packages either vendored point-in-time (from
+  a monorepo checkout) or pinned from npm (from the published CLI). Hosted on the shared GCP setup
+  (reference/09) and registered with the host by URL (reference/05 step 9). It is its **own git
+  root**, unrelated
   to this monorepo — a fresh scaffold isn't even a git repo yet (`git init` it if you want version
   control from the start), and any subagent, `git worktree`, or CWD-relative command defaults to the
   *monorepo*, not the plugin, so it will strand the work in the wrong repo (see the delegation gotcha
@@ -335,6 +337,7 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
 - `06` the design rationale.
 - `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
 - `08` the mandatory browser-integration levels, upload evidence, and portable execution rules.
+- `09` hosting a standalone (Track A) plugin on the shared Google Cloud setup, and registering it.
 
 ---
 

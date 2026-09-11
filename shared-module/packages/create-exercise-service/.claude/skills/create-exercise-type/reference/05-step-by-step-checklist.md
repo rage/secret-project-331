@@ -184,11 +184,14 @@ bin/seed           # inserts the exercise_services row
 The `service_info_fetcher` worker discovers your endpoints within ~60s and populates
 `exercise_service_info`. Verify the row exists and that the CMS lists your exercise type.
 
-## Step 9 (Track A) — Register a standalone plugin by URL
+## Step 9 (Track A) — Deploy and register a standalone plugin
 
-Deploy the plugin on your own infra so its service-info URL is reachable, then register it via the
-admin API `POST /api/v0/main-frontend/exercise-services` (name/slug/public_url/internal_url), which
-immediately fetches its service-info. No monorepo changes.
+Host it per `09-external-hosting.md` (one Cloud Run service per plugin behind the shared
+`*.exercises.mooc.fi` load balancer; the plugin repo needs a `Dockerfile`, which the scaffold
+excludes). Then register it via the admin API `POST /api/v0/main-frontend/exercise-services` with
+`public_url` = the hosting's `service_info_url` output
+(`https://<name>.exercises.mooc.fi/api/service-info`) and `internal_url` unset; registration fetches
+service-info immediately. No monorepo changes.
 
 ## Definition of done
 

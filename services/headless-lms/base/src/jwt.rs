@@ -22,7 +22,14 @@ pub const DEVELOPMENT_JWT_PASSWORD: &str =
 pub struct JwtKey(Vec<u8>);
 
 impl JwtKey {
+    /// Builds the HS256 signing key from the configured secret.
+    ///
+    /// Errors on an empty or whitespace-only secret, which would leave every claim the host mints
+    /// forgeable.
     pub fn new(key: &SecretString) -> anyhow::Result<Self> {
+        if key.expose_secret().trim().is_empty() {
+            anyhow::bail!("JWT_PASSWORD cannot be empty");
+        }
         Ok(Self(key.expose_secret().as_bytes().to_vec()))
     }
 
@@ -135,6 +142,14 @@ mod tests {
 
     fn past_timestamp(seconds_ago: i64) -> i64 {
         (Utc::now() - Duration::seconds(seconds_ago)).timestamp()
+    }
+
+    #[test]
+    fn an_empty_jwt_password_is_rejected() {
+        for secret in ["", "   ", "\t\n"] {
+            JwtKey::new(&SecretString::new(secret.to_string().into()))
+                .expect_err("a blank secret must be rejected");
+        }
     }
 
     #[test]

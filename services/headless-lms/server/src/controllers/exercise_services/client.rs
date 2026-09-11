@@ -25,7 +25,6 @@ use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::HashSet;
 use std::future::{Ready, ready};
-use std::path::Path;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -60,10 +59,6 @@ pub(crate) struct ExerciseServicesClientRoutesApiDoc;
 
 /// Header a client sends to advertise its version, e.g. `0.39.4`.
 const CLIENT_VERSION_HEADER: &str = "X-Client-Version";
-
-/// Object-store namespace for files uploaded through this API. Not a service slug: at upload time
-/// no task is chosen yet, and the prefix carries no authorization meaning.
-const CLIENT_UPLOAD_PATH_PREFIX: &str = "exercise-services-client";
 
 /// Minimum client version the backend accepts. `None` disables the check; a
 /// `"major.minor.patch"` string rejects older clients with `426 Upgrade Required`.
@@ -725,12 +720,15 @@ async fn upload_exercise_files(
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_client_uploads(
         &mut conn,
-        exercise.id,
-        user.id,
+        &file_uploading::AnswerUploadDestination {
+            owner: CourseOrExamId::Course(course_id),
+            exercise_id: exercise.id,
+            user_id: user.id,
+        },
         payload,
         file_store.as_ref(),
         &mut cleanup.uploaded_paths,
-        &app_conf.base_url,
+        &app_conf,
     )
     .await;
     let uploads = match stored {
@@ -767,30 +765,33 @@ async fn upload_exercise_files(
 /// upload.
 async fn store_client_uploads(
     conn: &mut PgConnection,
-    exercise_id: Uuid,
-    user_id: Uuid,
+    destination: &file_uploading::AnswerUploadDestination,
     payload: Multipart,
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<file_uploading::ExerciseServiceUploadCleanup>,
-    base_url: &str,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<Vec<file_uploading::ExerciseServiceUpload>, ControllerError> {
     let streamed = file_uploading::stream_exercise_service_upload(
-        CLIENT_UPLOAD_PATH_PREFIX,
+        file_uploading::UploadPathScheme::Answer(destination),
         payload,
         file_store,
         uploaded_paths,
-        base_url,
+        app_conf,
     )
     .await?;
 
     let mut tx = conn.begin().await?;
-    let uploads =
-        file_uploading::record_exercise_service_upload(&mut tx, streamed, Some(user_id)).await?;
+    let uploads = file_uploading::record_exercise_service_upload(
+        &mut tx,
+        streamed,
+        Some(destination.user_id),
+    )
+    .await?;
     let file_upload_ids: Vec<Uuid> = uploads.iter().map(|u| u.entry.id).collect();
     models::exercise_answer_uploads::insert_many(
         &mut tx,
-        exercise_id,
-        user_id,
+        destination.exercise_id,
+        destination.user_id,
         &file_upload_ids,
         models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
     )
@@ -1116,7 +1117,7 @@ async fn download_submission(
         files,
         file_store.as_ref(),
         app_conf.as_ref(),
-    )))
+    )?))
 }
 
 /// The client API's answer kind as the model's. Two enums rather than one because the client crate
@@ -1134,20 +1135,22 @@ fn submission_files_response(
     files: Vec<models::exercise_task_submission_files::SubmissionFile>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
-) -> api::SubmissionFiles {
-    api::SubmissionFiles {
+) -> UtilResult<api::SubmissionFiles> {
+    Ok(api::SubmissionFiles {
         data_files: files
             .into_iter()
-            .map(|file| api::AnswerFile {
-                id: file.file_upload_id,
-                name: file.name,
-                mime: file.mime,
-                size_bytes: file.size_bytes,
-                order_number: Some(file.order_number),
-                url: file_store.get_download_url(Path::new(&file.path), app_conf),
+            .map(|file| {
+                Ok(api::AnswerFile {
+                    id: file.file_upload_id,
+                    name: file.name,
+                    mime: file.mime,
+                    size_bytes: file.size_bytes,
+                    order_number: Some(file.order_number),
+                    url: file_store.get_claimed_download_url(file.file_upload_id, app_conf)?,
+                })
             })
-            .collect(),
-    }
+            .collect::<UtilResult<_>>()?,
+    })
 }
 
 /**
@@ -1593,16 +1596,30 @@ mod tests {
 mod upload_tests {
     use super::*;
     use crate::domain::exercise_services::answer_uploads;
+    use crate::domain::models_requests::{DOWNLOAD_CLAIM_PARAM, DownloadClaim};
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
     use headless_lms_base::config::{
         ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
     };
+    use headless_lms_base::jwt::DEVELOPMENT_JWT_PASSWORD;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
     use models::exercise_task_gradings::UserPointsUpdateStrategy;
     use secrecy::SecretString;
 
     const BOUNDARY: &str = "clientuploadboundary";
+
+    fn answer_destination(
+        course: Uuid,
+        exercise_id: Uuid,
+        user_id: Uuid,
+    ) -> file_uploading::AnswerUploadDestination {
+        file_uploading::AnswerUploadDestination {
+            owner: CourseOrExamId::Course(course),
+            exercise_id,
+            user_id,
+        }
+    }
 
     pub(super) fn app_conf() -> ApplicationConfiguration {
         ApplicationConfiguration {
@@ -1620,6 +1637,7 @@ mod upload_tests {
             azure_configuration: None,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock".to_string().into()),
+            jwt_password: SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "unused".into(),
                 rsa_private_key: SecretString::new("unused".into()),
@@ -1709,12 +1727,11 @@ mod upload_tests {
 
         let uploads = store_client_uploads(
             tx.as_mut(),
-            exercise,
-            user,
+            &answer_destination(course, exercise, user),
             multipart(&[(first, "a.tar.zst", "first"), (second, "b.txt", "second")]),
             &store,
             &mut uploaded_paths,
-            "http://project-331.local",
+            &app_conf(),
         )
         .await
         .expect("the upload succeeds");
@@ -1729,20 +1746,30 @@ mod upload_tests {
                 .iter()
                 .all(|u| u.entry.id != first && u.entry.id != second)
         );
-        assert!(
-            uploads
-                .iter()
-                .all(|u| u.entry.url.contains(CLIENT_UPLOAD_PATH_PREFIX))
-        );
+        // The url carries a claim rather than the object path, which names the student.
+        assert!(uploads.iter().all(|u| {
+            u.entry.url.starts_with(&format!(
+                "http://project-331.local/api/v0/files/claimed/{}?{DOWNLOAD_CLAIM_PARAM}=",
+                u.entry.id
+            ))
+        }));
 
         let ids: Vec<Uuid> = uploads.iter().map(|u| u.entry.id).collect();
-        assert_eq!(
-            models::file_uploads::get_many(tx.as_mut(), &ids)
-                .await
-                .expect("file uploads")
-                .len(),
-            2
-        );
+        let stored = models::file_uploads::get_many(tx.as_mut(), &ids)
+            .await
+            .expect("file uploads");
+        assert_eq!(stored.len(), 2);
+        // Filed under the course, exercise and student and ending in the row's own id, so a
+        // retention or takedown rule can find the objects without the database.
+        for file in &stored {
+            assert_eq!(
+                file.path,
+                format!(
+                    "answers/v1/course/{course}/exercise/{exercise}/user/{user}/{}",
+                    file.id
+                )
+            );
+        }
         assert!(
             answer_uploads::verify_uploads_belong_to_exercise(tx.as_mut(), exercise, user, &ids)
                 .await
@@ -1761,15 +1788,14 @@ mod upload_tests {
 
         let uploads = store_client_uploads(
             tx.as_mut(),
-            exercise,
-            user,
+            &answer_destination(course, exercise, user),
             multipart(&[
                 (Uuid::new_v4(), "a.tar.zst", "first"),
                 (Uuid::new_v4(), "b.txt", "second"),
             ]),
             &store,
             &mut uploaded_paths,
-            "http://project-331.local",
+            &app_conf(),
         )
         .await
         .expect("the upload succeeds");
@@ -2021,32 +2047,37 @@ mod upload_tests {
         )
         .await
         .expect("submission files");
-        let response = submission_files_response(files, &store, &app_conf());
+        let response =
+            submission_files_response(files, &store, &app_conf()).expect("the response is built");
 
         assert_eq!(
             response
                 .data_files
                 .iter()
-                .map(|f| (f.id, f.name.as_str(), f.url.as_str()))
+                .map(|f| (f.id, f.name.as_str()))
                 .collect::<Vec<_>>(),
             vec![
-                (
-                    ids[0],
-                    "first.txt",
-                    "http://project-331.local/api/v0/files/exercise-services-client/first.txt"
-                ),
-                (
-                    ids[1],
-                    "second.txt",
-                    "http://project-331.local/api/v0/files/exercise-services-client/second.txt"
-                ),
-                (
-                    ids[2],
-                    "third.txt",
-                    "http://project-331.local/api/v0/files/exercise-services-client/third.txt"
-                ),
+                (ids[0], "first.txt"),
+                (ids[1], "second.txt"),
+                (ids[2], "third.txt"),
             ]
         );
+        // The url names the file by its id and carries a claim for it, never the storage path.
+        for file in &response.data_files {
+            let claim = file
+                .url
+                .strip_prefix(&format!(
+                    "http://project-331.local/api/v0/files/claimed/{}?{DOWNLOAD_CLAIM_PARAM}=",
+                    file.id
+                ))
+                .expect("a claimed-file url");
+            assert_eq!(
+                DownloadClaim::validate(claim, &JwtKey::test_key())
+                    .expect("the claim validates")
+                    .file_upload_id(),
+                file.id
+            );
+        }
         tx.rollback().await;
     }
 
@@ -2055,7 +2086,8 @@ mod upload_tests {
     #[test]
     fn download_reports_an_empty_list_rather_than_failing() {
         let store = temp_file_store();
-        let response = submission_files_response(Vec::new(), &store, &app_conf());
+        let response = submission_files_response(Vec::new(), &store, &app_conf())
+            .expect("the response is built");
         assert!(response.data_files.is_empty());
     }
 
@@ -2541,6 +2573,26 @@ mod route_tests {
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 
+    /// Every file under `root`, relative to it; the test file store is a directory tree on disk.
+    fn stored_object_paths(root: &std::path::Path) -> Vec<String> {
+        let mut found = Vec::new();
+        let mut pending = vec![root.to_path_buf()];
+        while let Some(directory) = pending.pop() {
+            let Ok(entries) = std::fs::read_dir(&directory) else {
+                continue;
+            };
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    pending.push(path);
+                } else if let Ok(relative) = path.strip_prefix(root) {
+                    found.push(relative.to_string_lossy().into_owned());
+                }
+            }
+        }
+        found
+    }
+
     /// Parts are streamed to the object store one at a time, so a body whose *second* part is
     /// invalid has already put an object there. Nothing points at that object — no `file_uploads`
     /// row, so not even the reaper can find it — which is why the route deletes it itself.
@@ -2577,20 +2629,7 @@ mod route_tests {
         let response = test::call_service(&app, request).await;
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
 
-        let namespace = store_path.join(CLIENT_UPLOAD_PATH_PREFIX);
-        let leftovers: Vec<String> = std::fs::read_dir(&namespace)
-            .map(|entries| {
-                entries
-                    .map(|entry| {
-                        entry
-                            .expect("dir entry")
-                            .file_name()
-                            .to_string_lossy()
-                            .into_owned()
-                    })
-                    .collect()
-            })
-            .unwrap_or_default();
+        let leftovers = stored_object_paths(&store_path);
         assert!(
             leftovers.is_empty(),
             "objects left in the store: {leftovers:?}"
@@ -3156,11 +3195,6 @@ mod route_tests {
         test::read_body_json(response).await
     }
 
-    /// Path of the object a file's `url` names, for reading it back out of the file store.
-    fn object_path(url: &str) -> &str {
-        url.split_once("/api/v0/files/").expect("a files URL").1
-    }
-
     /// Replaces the members that name *which stored object* a file is — necessarily a different
     /// row and a different object for two different submissions — with placeholders, leaving
     /// everything a client can otherwise observe: the response's field set, each file's field set,
@@ -3176,10 +3210,10 @@ mod route_tests {
                     let mut canonical = object.clone();
                     canonical.insert("id".to_string(), serde_json::json!("<uuid>"));
                     let url = object["url"].as_str().expect("url");
-                    let served_from = &url[..url.len() - object_path(url).len()];
+                    let (served_from, _) = url.split_once("/claimed/").expect("a claimed url");
                     canonical.insert(
                         "url".to_string(),
-                        serde_json::json!(format!("{served_from}<object>")),
+                        serde_json::json!(format!("{served_from}/claimed/<object>")),
                     );
                     serde_json::Value::Object(canonical)
                 })
@@ -3188,15 +3222,26 @@ mod route_tests {
     }
 
     /// What a client actually gets when it follows every file's `url`, in order.
+    ///
+    /// The url names the file by id and carries a claim for it, so the object is located the way
+    /// the claimed-file route locates it rather than by reading a path out of the url.
     async fn served_files(
         store: &dyn FileStore,
         body: &serde_json::Value,
     ) -> Vec<(String, String)> {
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
         let mut served = Vec::new();
         for file in body["data_files"].as_array().expect("data_files") {
-            let url = file["url"].as_str().expect("url");
+            let id: Uuid = file["id"].as_str().expect("id").parse().expect("a uuid");
+            let stored = models::file_uploads::get_many(&mut conn, &[id])
+                .await
+                .expect("file upload")
+                .pop()
+                .expect("a stored file");
             let bytes = store
-                .download(std::path::Path::new(object_path(url)))
+                .download(std::path::Path::new(&stored.path))
                 .await
                 .expect("stored object");
             served.push((

@@ -33,6 +33,7 @@ one seed row plus infra manifests.
 | **[06-design-rationale-thesis.md](06-design-rationale-thesis.md)**                   | The "why", from the thesis: needs, goals, isolation model, and why the design is shaped this way.                                                                                                                                              |
 | **[07-key-design-decisions.md](07-key-design-decisions.md)**                         | The decisions that matter when designing a plugin: data modelling (versioning, derivation, leaks, ids, answers, validity) and how to test the data models/forms. **This is the source of the SKILL's mandatory data-model design gate (Gate 2).** |
 | **[08-browser-integration-testing.md](08-browser-integration-testing.md)**           | The mandatory Playwright hierarchy and the distinct evidence supplied by plugin-contract, sandboxed iframe-boundary, and real-host system tests, including byte-level upload assertions.                                                     |
+| **[09-external-hosting.md](09-external-hosting.md)**                                 | Hosting a standalone (Track A) plugin on the shared Google Cloud setup (`exercise-services-infra`): the shape, what the plugin must provide, and how it gets registered. Complements `04`, which is the in-monorepo path.                  |
 
 ## Key facts worth internalizing
 

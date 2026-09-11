@@ -21,8 +21,11 @@ in-process; it integrates over two seams only:
 1. **Sandboxed IFrames over the Channel Messaging API.** The host embeds your UI and talks to it by
    `postMessage`. The handshake (child posts `ready` → parent transfers a `MessagePort` → all
    further messages go over that port), height auto-resizing, language, dialogs and file uploads are
-   **handled by the vendored shared module** (`src/shared-module/exercise-*`). You never hand-roll
-   the parent side; you render views and read/emit state.
+   **handled by the shared `exercise-*` packages** — `@moocfi/exercise-*` from npm in a project the
+   published CLI scaffolded, or vendored at `src/shared-module/exercise-*` (imported as
+   `@/shared-module/exercise-*`) in one scaffolded from a monorepo checkout; the deep paths after
+   the prefix are identical. You never hand-roll the parent side; you render views and read/emit
+   state.
 2. **REST endpoints the backend calls server-to-server.** The host stores everything and calls your
    endpoints to derive specs and to grade.
 
@@ -36,23 +39,33 @@ _envelopes_ (the request/response wrappers) are standardized.
 **The three IFrame views**, all served from one URL (`/{base}/iframe`) and switched by
 `set-state.view_type`:
 
-| View            | `view_type`       | Gets (via `set-state`)                                      | Emits (via `current-state`) |
-| --------------- | ----------------- | ----------------------------------------------------------- | --------------------------- |
-| Exercise editor | `exercise-editor` | `private_spec` (or null for new)                            | `private_spec`              |
-| Answer exercise | `answer-exercise` | `public_spec`, optional prior `answer`                      | `answer`                    |
-| View submission | `view-submission` | `public_spec`, `answer`, optional feedback + model solution | none (read-only)            |
+| View            | `view_type`       | Gets (via `set-state`)                                      | Emits (via `current-state`)             |
+| --------------- | ----------------- | ----------------------------------------------------------- | --------------------------------------- |
+| Exercise editor | `exercise-editor` | `private_spec` (or null for new)                            | `private_spec` (+ `private_spec_files`) |
+| Answer exercise | `answer-exercise` | `public_spec`, optional prior `answer`                      | `answer`                                |
+| View submission | `view-submission` | `public_spec`, `answer`, optional feedback + model solution | none (read-only)                        |
 
 `current-state`'s **`valid`** boolean gates whether the host lets the user save/submit.
 
 **The REST endpoints** (backend → plugin):
 
-| Endpoint         | In                                                                      | Out                   |
-| ---------------- | ----------------------------------------------------------------------- | --------------------- |
-| `service-info`   | —                                                                       | metadata + all paths  |
-| `public-spec`    | `SpecRequest { private_spec, ... }`                                     | `public_spec`         |
-| `model-solution` | `SpecRequest`                                                           | `model_solution_spec` |
-| `grade`          | `GradingRequest { exercise_spec=private_spec, submission_data=answer }` | `GradingResult`       |
-| csv export       | teacher data export                                                     | optional              |
+| Endpoint         | In                                                                      | Out                                            |
+| ---------------- | ----------------------------------------------------------------------- | ---------------------------------------------- |
+| `service-info`   | —                                                                       | metadata + all paths + capability flags        |
+| `public-spec`    | `SpecRequest { private_spec, ... }`                                     | `public_spec` (or `{ spec, files }`)           |
+| `model-solution` | `SpecRequest`                                                           | `model_solution_spec` (or `{ spec, files }`)   |
+| `grade`          | `GradingRequest { exercise_spec=private_spec, submission_data=answer }` | `GradingResult`                                |
+| csv export       | teacher data export                                                     | optional                                       |
+
+The parenthesised shapes apply only when service-info sets **`declares_spec_files: true`**. Set it
+if a spec ever stores host-uploaded files (example files, images in a prompt): the host cannot read a
+spec, so without declarations it can never tell an in-use file from an abandoned upload and keeps
+every one forever. Declaring commits you to both halves — the editor lists every referenced host
+file id in `private_spec_files` on **every** `current-state` (`[]` releases them; omitting the field
+leaves the last declaration standing), and both spec endpoints wrap their answer as
+`{ spec, files }` with both keys present (`spec: null` for "none"). A declared id the host has no
+upload for fails the whole page save; an upload nothing declares is reclaimed a week later. Off by
+default, and lossless to leave off.
 
 **Grading is server-side and normally pure.** `grade` derives its result from `exercise_spec`
 (= the private spec) + `submission_data` (= the answer) alone — no DB, no network. The one exception
@@ -103,6 +116,14 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
   it for your data types instead of replacing it with inline version checks.
 - **On an unknown/typo'd item type while migrating, throw — never fabricate a placeholder**, which
   would get persisted on the next save and corrupt data.
+- **A migration may widen what an exercise accepts, never narrow it.** Stored answers were valid
+  against the old spec and a regrade replays them against the migrated one, so when a step splits
+  one choice into several (one `document` category → `document`/`spreadsheet`/`presentation`), fan
+  every existing choice out to all successors at their widest tier rather than guessing which was
+  meant — and dedupe/normalize after the step, since fan-out can produce duplicates.
+- **All stored kinds share one version, so every kind needs a step at every bump** — a `relabel`
+  step (same shape, version stamped) for the kinds whose shape did not change, a real step for the
+  rest. Guard the loop against a step that fails to advance the version, or it spins forever.
 - **Never delete old types or their migration code**, and snapshot the shape you leave behind when
   you bump the version. Old data exists whether or not you still like its shape.
 
@@ -310,7 +331,7 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   required failing layer means verification is incomplete; do not hide it with a skip or an emulator
   substitute.
 - **File uploads**: plugins never store files or create file IDs. The `useFileUpload(port)` hook
-  (`src/shared-module/exercise-react/react/hooks/useFileUpload`) sends `file-upload` with an ordered
+  (`exercise-react/react/hooks/useFileUpload`) sends `file-upload` with an ordered
   `File[]` and a request-only `requestId`, then resolves to host-assigned
   `{ requestId, id, file, url }` entries. Store the returned ID and URL in the answer; never key
   uploads by filename or serialize a plugin-minted file ID. The test-utils host emulator can answer
@@ -340,13 +361,38 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   nothing at all, a same-tab navigation would replace the exercise, and browsers ignore the `download`
   attribute for cross-origin responses — which is why an ordinary download link in a plugin looks
   broken. Ask the parent instead, via `useParentLinks(port)`
-  (`src/shared-module/exercise-react/react/hooks/useParentLinks`): `openLink(url)` posts `open-link`
+  (`exercise-react/react/hooks/useParentLinks`): `openLink(url)` posts `open-link`
   and `downloadFile({ url, filename })` posts `download-file`. Both take absolute http(s) URLs only
   (anything else throws), the host confirms with the user in its own wording before acting, and neither
   gets a reply — so render such a control as a plain action, never one that waits for an outcome. The
   suggested filename is a hint: the host strips directory components and the browser may name the file
   from the response. The plugin-contract host emulator records both messages like any other, so assert
   with `waitForMessage("download-file")` rather than on a browser download.
+- **Previewing a host-stored file inline** (pdf.js, an image viewer) needs a same-origin proxy in
+  this service: the platform's file endpoint is another origin that sends no CORS headers, so the
+  iframe cannot `fetch()` it. That proxy fetches caller-supplied URLs, which is an SSRF sink — allow
+  only origins named in an env var (the platform's origin **and** the storage host its
+  `GET /api/v0/files/*` answers `302` to), proxy only the file path, re-check every redirect hop,
+  stream with a byte cap, and fail closed when the variable is unset. The file-submission plugin's
+  `src/server/fileProxy.ts` (`ALLOWED_FILE_ORIGINS`) is the worked shape.
+- **Browser callers need a real CORS preflight.** The Playground POSTs your spec endpoints as JSON
+  from the browser; `Access-Control-Allow-Origin: *` alone fails that preflight. The template ships
+  only `Allow-Origin` and no `OPTIONS` handler, so add `Access-Control-Allow-Methods` /
+  `-Allow-Headers: Content-Type` / `-Max-Age` to `iframe-headers.mjs` and answer `OPTIONS` with
+  `204` in `server.mjs` before routing (otherwise it falls through to the SPA shell as a `200` HTML
+  body, which the browser reports as a CORS error). A real course never hits this — headless-lms
+  calls server-to-server — so only the Playground and browser tests reveal it.
+- **Crash reports go to this service's own origin.** The template's `withErrorBoundary` only logs.
+  If you switch to `exercise-react`'s reporting boundary, its reporter POSTs to `/api/v0/errors`
+  relative to the iframe — this service — so add that route and forward to the platform
+  (`ERRORS_BASE_URL`; the default is an in-cluster hostname). Keep it out of service-info: the host
+  never calls it.
+- **Formatting and linting**: the platform standardized on `oxfmt` + `oxlint`; a standalone scaffold
+  ships neither, so copy the monorepo root's `.oxfmtrc.json` / `.oxlintrc.json` and wire
+  `format:check` + `lint:ci` into CI. Two autofixes are wrong and need a disable comment:
+  `unicorn/prefer-number-coercion` rewrites `Number.parseInt("3.pdf", 10)` (`3`) to
+  `Math.trunc(Number(...))` (`NaN`), and `require-await` strips an `async` that exists only to match
+  a `Promise`-returning signature.
 
 ## Where each concern lives
 
@@ -356,7 +402,7 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 | The three server transforms (grade **server-only**) | `src/server/{publicSpec,modelSolution,grade}.ts`                                        |
 | service-info (path contract), CSV export            | `src/server/serviceInfo.ts`, `src/server/export{Definitions,Answers}.ts`                |
 | The state machine / dispatcher / three views        | `src/components/{IframeView,Renderer,ExerciseEditor,AnswerExercise,ViewSubmission}.tsx` |
-| Generic host↔plugin envelopes (do not edit)         | `src/shared-module/exercise-protocol/...`                                               |
+| Generic host↔plugin envelopes (do not edit)         | `@moocfi/exercise-protocol/...` (npm) or `src/shared-module/exercise-protocol/...`      |
 | Plugin protocol contract (typed host emulator)      | `playwright/plugin-contract/`                                                           |
 | Sandboxed distinct-origin iframe boundary            | `playwright/iframe-boundary/`                                                           |
 | Real-host Playground system coverage                 | `playwright/system/`                                                                    |

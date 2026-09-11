@@ -76,10 +76,7 @@ pub async fn init_db() -> String {
 }
 
 pub fn make_jwt_key() -> JwtKey {
-    let test_jwt_key = SecretString::new(
-        "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
-    );
-    JwtKey::new(&test_jwt_key).unwrap()
+    JwtKey::test_key()
 }
 
 pub async fn test_config() -> ServerConfig {
@@ -98,9 +95,6 @@ pub async fn test_config() -> ServerConfig {
             .expect("Failed to build the mock application configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
         mock_suotar_redis_db_index: 2,
-        jwt_password: SecretString::new(
-            "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
-        ),
         tmc_client: TmcClient::mock_for_test(),
         sisu_client: SisuClient::mock_for_test(),
     }

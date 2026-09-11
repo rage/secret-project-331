@@ -1,3 +1,4 @@
+use crate::jwt::DEVELOPMENT_JWT_PASSWORD;
 use anyhow::Context;
 use secrecy::{ExposeSecret, SecretBox, SecretString};
 use std::sync::Arc;
@@ -63,6 +64,11 @@ pub struct ApplicationConfiguration {
     pub tmc_account_creation_origin: Option<String>,
     pub tmc_admin_access_token: SecretString,
     pub oauth_server_configuration: OAuthServerConfiguration,
+    /// Signing secret for the claims the host mints for exercise services and for the URLs it
+    /// hands out for answer files; callers build a [`crate::jwt::JwtKey`] from it at the point of
+    /// use. Carried here because the answer readers that mint those URLs live below the crate that
+    /// owns the claims.
+    pub jwt_password: SecretString,
 }
 
 impl ApplicationConfiguration {
@@ -116,6 +122,11 @@ impl ApplicationConfiguration {
         );
         let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
             .context("Failed to load OAuth server configuration")?;
+        let jwt_password = SecretString::new(
+            env::var("JWT_PASSWORD")
+                .context("JWT_PASSWORD must be defined")?
+                .into(),
+        );
 
         Ok(Self {
             base_url,
@@ -132,6 +143,7 @@ impl ApplicationConfiguration {
             tmc_account_creation_origin,
             tmc_admin_access_token,
             oauth_server_configuration,
+            jwt_password,
         })
     }
 
@@ -158,6 +170,7 @@ impl ApplicationConfiguration {
                 "test-key".into(),
             ))),
         };
+        let jwt_password = SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into());
         Ok(Self {
             base_url,
             test_mode,
@@ -173,6 +186,7 @@ impl ApplicationConfiguration {
             tmc_account_creation_origin,
             tmc_admin_access_token,
             oauth_server_configuration,
+            jwt_password,
         })
     }
 }

@@ -7,10 +7,12 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   CurrentStateMessage,
+  MessageToIframe,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import type { RepositoryExercise } from "@/utils/playgroundSchemas"
+import { uploadFilesFromExerciseServiceIframe } from "@/utils/uploadFilesFromExerciseIframe"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string
@@ -61,9 +63,34 @@ const PlaygroundExerciseEditorIframe: React.FC<
           user_information: userInformation,
           repository_exercises: repositoryExercises,
         }}
-        onMessageFromIframe={(msg, _responsePort) => {
-          if (isMessageFromIframe(msg) && msg.message === "current-state") {
+        onMessageFromIframe={async (msg, responsePort) => {
+          if (!isMessageFromIframe(msg)) {
+            return
+          }
+          if (msg.message === "current-state") {
             setCurrentStateReceivedFromIframe(msg)
+          } else if (msg.message === "file-upload") {
+            let response: MessageToIframe
+            try {
+              const files = await uploadFilesFromExerciseServiceIframe("playground", msg.files)
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: msg.requestId,
+                success: true,
+                files,
+              }
+            } catch (e) {
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: msg.requestId,
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }
+            }
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
+            responsePort.postMessage(response)
           }
         }}
         title={TITLE}

@@ -80,10 +80,10 @@ pub trait FileStore: Send + Sync {
             DownloadClaim::expiring_in_1_hour(file_upload_id),
         )
         .map_err(|err| {
-            UtilError::new(
-                UtilErrorType::Other,
+            util_err!(
+                Other,
                 "Failed to sign a file download claim.".to_string(),
-                Some(err.into()),
+                err
             )
         })
     }

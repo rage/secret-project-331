@@ -18,6 +18,7 @@ use uuid::Uuid;
 
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::jwt::{DownloadClaim, claimed_file_url};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**
@@ -54,6 +55,30 @@ pub trait FileStore: Send + Sync {
             app_conf.base_url,
             path.to_string_lossy()
         )
+    }
+    /// Get a url for a file whose storage path must not be handed out, such as anything derived
+    /// from a student's answer. The claim-bearing sibling of [`Self::get_download_url`].
+    ///
+    /// The claim authorizes this one file and expires within the hour, so the url has to be minted
+    /// again on every read: it cannot be persisted, and a response carrying one cannot be cached
+    /// for another reader.
+    fn get_claimed_download_url(
+        &self,
+        file_upload_id: Uuid,
+        app_conf: &ApplicationConfiguration,
+    ) -> UtilResult<String> {
+        claimed_file_url(
+            &app_conf.base_url,
+            &app_conf.jwt_key,
+            DownloadClaim::expiring_in_1_hour(file_upload_id),
+        )
+        .map_err(|err| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Failed to sign a file download claim.".to_string(),
+                Some(err.into()),
+            )
+        })
     }
     /// Delete a file.
     async fn delete(&self, path: &Path) -> UtilResult<()>;

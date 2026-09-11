@@ -73,7 +73,6 @@ pub struct ServerRuntimeConfig {
     pub redis_url: SecretString,
     /// The mock Suotar's own Redis database, off the cache's index 1 so a flush cannot reach it.
     pub mock_suotar_redis_db_index: i64,
-    pub jwt_password: SecretString,
     pub private_cookie_key: SecretString,
     pub test_mode: bool,
     pub allow_no_https_for_development: bool,
@@ -124,11 +123,6 @@ impl ServerRuntimeConfig {
                 .ok()
                 .and_then(|value| value.trim().parse().ok())
                 .unwrap_or(2),
-            jwt_password: SecretString::new(
-                env::var("JWT_PASSWORD")
-                    .context("JWT_PASSWORD must be defined")?
-                    .into(),
-            ),
             private_cookie_key: SecretString::new(
                 env::var("PRIVATE_COOKIE_KEY")
                     .context("PRIVATE_COOKIE_KEY must be defined")?
@@ -184,7 +178,6 @@ pub struct ServerConfigBuilder {
     pub app_conf: ApplicationConfiguration,
     pub redis_url: SecretString,
     pub mock_suotar_redis_db_index: i64,
-    pub jwt_password: SecretString,
     pub tmc_client: TmcClient,
     pub sisu_client: SisuClient,
 }
@@ -210,7 +203,6 @@ impl ServerConfigBuilder {
             app_conf: runtime_config.app_conf.clone(),
             redis_url: runtime_config.redis_url.clone(),
             mock_suotar_redis_db_index: runtime_config.mock_suotar_redis_db_index,
-            jwt_password: runtime_config.jwt_password.clone(),
             tmc_client: TmcClient::new(
                 runtime_config.app_conf.tmc_admin_access_token.clone(),
                 runtime_config.ratelimit_protection_safe_api_key.clone(),
@@ -274,8 +266,7 @@ impl ServerConfigBuilder {
             None
         };
 
-        let jwt_key = JwtKey::new(&self.jwt_password)?;
-        let jwt_key = Data::new(jwt_key);
+        let jwt_key = Data::new(app_conf.jwt_key.clone());
 
         let tmc_client = Data::new(self.tmc_client);
 

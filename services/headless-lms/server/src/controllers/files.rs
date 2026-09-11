@@ -379,7 +379,8 @@ async fn redirect_claimed_file(
 ) -> ControllerResult<HttpResponse> {
     // accessed from exercise services, which cannot authenticate using login
     let token = skip_authorize();
-    let claim = DownloadClaim::validate(&query.download_claim, &jwt_key)?;
+    let claim = DownloadClaim::validate(&query.download_claim, &jwt_key)
+        .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {err}"), err))?;
     if claim.file_upload_id() != *file_upload_id {
         return Err(controller_err!(
             BadRequest,

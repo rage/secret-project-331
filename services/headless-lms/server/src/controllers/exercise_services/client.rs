@@ -1602,6 +1602,7 @@ mod upload_tests {
     use headless_lms_base::config::{
         ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
     };
+    use headless_lms_base::jwt::DEVELOPMENT_JWT_PASSWORD;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
     use models::exercise_task_gradings::UserPointsUpdateStrategy;
     use secrecy::SecretString;
@@ -1636,7 +1637,7 @@ mod upload_tests {
             azure_configuration: None,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock".to_string().into()),
-            jwt_key: JwtKey::test_key(),
+            jwt_password: SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "unused".into(),
                 rsa_private_key: SecretString::new("unused".into()),

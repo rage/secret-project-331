@@ -15,7 +15,7 @@ pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
 
 /// The fixed password development and test builds sign with. Production reads `JWT_PASSWORD`, so
 /// nothing signed with this is accepted there.
-const DEVELOPMENT_JWT_PASSWORD: &str =
+pub const DEVELOPMENT_JWT_PASSWORD: &str =
     "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
 
 #[derive(Clone, Debug)]

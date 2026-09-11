@@ -266,7 +266,7 @@ impl ServerConfigBuilder {
             None
         };
 
-        let jwt_key = Data::new(app_conf.jwt_key.clone());
+        let jwt_key = Data::new(JwtKey::new(&app_conf.jwt_password)?);
 
         let tmc_client = Data::new(self.tmc_client);
 

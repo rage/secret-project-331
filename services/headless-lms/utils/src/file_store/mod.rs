@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_base::jwt::{DownloadClaim, claimed_file_url};
+use headless_lms_base::jwt::{DownloadClaim, JwtKey, claimed_file_url};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**
@@ -67,9 +67,16 @@ pub trait FileStore: Send + Sync {
         file_upload_id: Uuid,
         app_conf: &ApplicationConfiguration,
     ) -> UtilResult<String> {
+        let jwt_key = JwtKey::new(&app_conf.jwt_password).map_err(|err| {
+            util_err!(
+                Other,
+                "Failed to build the JWT signing key.".to_string(),
+                err
+            )
+        })?;
         claimed_file_url(
             &app_conf.base_url,
-            &app_conf.jwt_key,
+            &jwt_key,
             DownloadClaim::expiring_in_1_hour(file_upload_id),
         )
         .map_err(|err| {

@@ -253,7 +253,7 @@ async fn upload_from_exercise_service(
         file_store.as_ref(),
         &mut cleanup.uploaded_paths,
         user.map(|user| user.id),
-        &app_conf.base_url,
+        &app_conf,
     )
     .await
     {
@@ -311,8 +311,6 @@ async fn upload_answer_files(
     )
     .await?
     .ok_or_else(|| controller_err!(NotFound, "Exercise task not found".to_string()))?;
-    let exercise_task =
-        models::exercise_tasks::get_exercise_task_by_id(&mut conn, *exercise_task_id).await?;
     let token = authorize(
         &mut conn,
         Act::View,
@@ -331,15 +329,15 @@ async fn upload_answer_files(
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_answer_uploads(
         &mut conn,
-        AnswerUploadDestination {
+        &file_uploading::AnswerUploadDestination {
+            owner: CourseOrExamId::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)?,
             exercise_id: slide.exercise_id,
             user_id: user.id,
-            path_prefix: exercise_task.exercise_type,
         },
         payload,
         file_store.as_ref(),
         &mut cleanup.uploaded_paths,
-        &app_conf.base_url,
+        &app_conf,
     )
     .await;
     let uploads = match stored {
@@ -406,15 +404,6 @@ async fn redirect_claimed_file(
     )
 }
 
-/// Who an answer upload is bound to, and where its objects are stored.
-struct AnswerUploadDestination {
-    exercise_id: Uuid,
-    user_id: Uuid,
-    /// The task's exercise-service slug, so the stored objects stay laid out the way the slug
-    /// route lays them out.
-    path_prefix: String,
-}
-
 /// Stores the multipart parts and binds them to the exercise and user, so that a failure to record
 /// the binding cannot leave uploads the reaper is unable to find.
 ///
@@ -423,18 +412,18 @@ struct AnswerUploadDestination {
 /// upload.
 async fn store_answer_uploads(
     conn: &mut PgConnection,
-    destination: AnswerUploadDestination,
+    destination: &file_uploading::AnswerUploadDestination,
     payload: Multipart,
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<file_uploading::ExerciseServiceUploadCleanup>,
-    base_url: &str,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<Vec<file_uploading::ExerciseServiceUpload>, ControllerError> {
     let streamed = file_uploading::stream_exercise_service_upload(
-        &destination.path_prefix,
+        file_uploading::UploadPathScheme::Answer(destination),
         payload,
         file_store,
         uploaded_paths,
-        base_url,
+        app_conf,
     )
     .await?;
 

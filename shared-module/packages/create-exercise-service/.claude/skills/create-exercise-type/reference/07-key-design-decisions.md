@@ -65,6 +65,16 @@ migrator returned a hardcoded placeholder essay (literal-string content) for unk
 then got _persisted_ on the next save, silently corrupting data. Throw instead: the historical type
 set is closed, so an unknown type means corrupt input, and a clear error beats corrupted data.
 
+**A step may widen what an exercise accepts, never narrow it.** Stored answers were valid against
+the spec of their day and a regrade replays them against the migrated spec, so a step that splits
+one option into several must fan every existing choice out to all successors at their widest
+setting, not pick the likeliest one — then dedupe and normalize, because fan-out creates
+duplicates. Two mechanics fall out of one shared version across all stored kinds: every kind needs
+a registered step at every bump (a `relabel` step for kinds whose shape did not change — stamp the
+version, nothing else), and the chain loop must fail loud on a step that does not advance the
+version. The file-submission plugin's `src/util/migration/` (v1 → v2 → v3, with `v1.ts`/`v2.ts`
+snapshots) is the worked example of all three.
+
 If you take one thing from this doc: a `version: "1"` literal field costs nothing today and is the
 difference between quizzes' controlled migration chain and guessing shapes off `any`.
 
@@ -627,7 +637,8 @@ playwright/
   props and a port; all protocol handling stays in `IframeView`.
 - **Height and interaction constraints.** The iframe is sandboxed and auto-resized via
   `height-changed` — design views to grow vertically rather than scroll internally, and don't rely
-  on anything the sandbox denies (popups, top-navigation, downloads).
+  on anything the sandbox denies (popups, top-navigation, cross-origin downloads) — route links and
+  downloads through the host with `useParentLinks` (`01`).
 - **Feedback text vs feedback json.** `feedback_text` is host-rendered plain text; `feedback_json`
   is yours to render in view-submission. Put human summary in text, structure in json — don't smuggle
   markup through `feedback_text`. And mind the locale: the `GradingRequest` carries **no language**,

@@ -126,14 +126,20 @@ and must not put any UI into a pending state waiting for it.
 
 All three are rendered by one entry point (`/{base}/iframe`); `set-state.view_type` chooses which.
 
-| View                | `view_type`       | Inputs (via set-state)                                                       | Output (via current-state) |
-| ------------------- | ----------------- | ---------------------------------------------------------------------------- | -------------------------- |
-| **Exercise editor** | `exercise-editor` | `private_spec` (or null for new)                                             | `private_spec`             |
-| **Answer exercise** | `answer-exercise` | `public_spec`, optional prior `answer`                                       | `answer`                   |
-| **View submission** | `view-submission` | `public_spec`, `answer`, optional `grading_feedback` + `model_solution_spec` | none (read-only)           |
+| View                | `view_type`       | Inputs (via set-state)                                                       | Output (via current-state)              |
+| ------------------- | ----------------- | ---------------------------------------------------------------------------- | --------------------------------------- |
+| **Exercise editor** | `exercise-editor` | `private_spec` (or null for new)                                             | `private_spec` (+ `private_spec_files`) |
+| **Answer exercise** | `answer-exercise` | `public_spec`, optional prior `answer`                                       | `answer`                                |
+| **View submission** | `view-submission` | `public_spec`, `answer`, optional `grading_feedback` + `model_solution_spec` | none (read-only)                        |
 
 The host renders common chrome (name, points, instructions, submit button); the view renders only the
 exercise-specific portion.
+
+`private_spec_files` — and the `{ spec, files }` envelope in the endpoint table below — exist only for
+a plugin whose service-info sets `declares_spec_files: true` (`ExerciseServiceInfoApi`,
+`exerciseServiceTypes.ts`; `DerivedSpecResponse` is the envelope type). The flag is opt-in and off by
+default; `docs/plugin-system.md` ("Declaring the files a spec references") states the contract, and
+headless-lms `pages.rs::fetch_derived_spec` refuses a bare spec from a declaring service.
 
 ## The REST endpoints (backend → plugin, server-to-server)
 
@@ -141,8 +147,8 @@ exercise-specific portion.
 | -------------------------------------- | ------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | **service-info**                       | GET    | —                                                                                           | metadata + relative paths to all other endpoints |
 | **user-interface iframe**              | GET    | —                                                                                           | the HTML that loads the IFrame UI                |
-| **public-spec**                        | POST   | `SpecRequest { request_id, private_spec, upload_url }`                                      | `public_spec`                                    |
-| **model-solution**                     | POST   | `SpecRequest`                                                                               | `model_solution_spec`                            |
+| **public-spec**                        | POST   | `SpecRequest { request_id, private_spec, upload_url }`                                      | `public_spec`, or `{ spec, files }` if declaring |
+| **model-solution**                     | POST   | `SpecRequest`                                                                               | `model_solution_spec`, likewise                  |
 | **grade**                              | POST   | `GradingRequest { grading_update_url, exercise_spec=private_spec, submission_data=answer }` | `GradingResult`                                  |
 | **csv export** (definitions / answers) | POST   | `ExerciseServiceCsvExportRequest<T> { items: T[] }`                                         | optional; teacher data export                    |
 | **status/up**                          | GET    | —                                                                                           | health check for k8s probes                      |

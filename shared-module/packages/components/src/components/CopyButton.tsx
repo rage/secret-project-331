@@ -105,13 +105,14 @@ const tooltipCss = css`
   font-size: var(--font-size-1);
   line-height: 1.4;
   pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.12s ease;
+
+  /* display: none, not visibility: hidden -- an absolutely positioned nowrap label still
+     contributes scrollable overflow when merely invisible, pushing a page with a bare copy button
+     past its right edge and into horizontal panning on a 390px viewport. */
+  display: none;
 
   &[data-show="true"] {
-    opacity: 1;
-    visibility: visible;
+    display: block;
   }
 `
 

@@ -1,22 +1,33 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { cx } from "@emotion/css"
 import type { ColumnDef } from "@tanstack/react-table"
-import type { TFunction } from "i18next"
 import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
+import {
+  ABSENT,
+  CREDIT_REGISTRATION_NS,
+  QUIET_REFRESH,
+} from "@/components/credit-registration/constants"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
-import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import CreditRegistrationSetupNote from "@/components/credit-registration/CreditRegistrationSetupNote"
+import CreditRegistrationStatusCell, {
+  CREDIT_REGISTRATION_CELL_CHROME_PX,
+  creditRegistrationCellText,
+} from "@/components/credit-registration/CreditRegistrationStatusCell"
+import { sectionsCss } from "@/components/credit-registration/styles"
 import type { CreditRegistrationIndex } from "@/components/credit-registration/teacherCreditRegistrations"
 import {
   creditRegistrationKey,
   useTeacherCreditRegistrations,
 } from "@/components/credit-registration/teacherCreditRegistrations"
 import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { EmptyState, QueryResults } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -27,14 +38,10 @@ import {
 } from "../studentsQueries"
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
-import { COMPLETIONS_LEAF_MIN_WIDTH } from "../studentsTableStyles"
+import { COMPLETIONS_LEAF_MIN_WIDTH, inlineCellCss, numericCellCss } from "../studentsTableStyles"
+import CompletionsActions from "./CompletionsActions"
 import { StaleTableWrapper } from "./StaleTableWrapper"
 import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
-
-const PLACEHOLDER = "-"
-
-/** Stable identity so the column memo does not rebuild on every render before the fetch lands. */
-const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 type CompletionRow = Record<string, unknown> & {
   user_id: string
@@ -48,6 +55,8 @@ type CompletionRow = Record<string, unknown> & {
 interface ModuleColumn {
   id: string
   label: string
+  /** Whether this module grades numerically; a pass/fail word does not want right alignment. */
+  hasNumericGrades: boolean
 }
 
 const gradeKeyOf = (moduleId: string) => `${moduleId}__grade`
@@ -55,9 +64,20 @@ const passedKeyOf = (moduleId: string) => `${moduleId}__passed`
 const registeredKeyOf = (moduleId: string) => `${moduleId}__registered`
 const needsReviewKeyOf = (moduleId: string) => `${moduleId}__needsReview`
 
+interface StructureModule {
+  id: string
+  name?: string | null
+  order_number: number
+}
+
 /**
  * Pivots the flat (user × module) completion rows into one wide row per user. Columns are keyed by
  * `module_id` (names are not unique) so modules with identical names never collide onto the same cells.
+ *
+ * Column presence comes from the course structure, not from `completions`: a module with zero
+ * completions still gets its column, so the table's shape does not depend on who has finished it.
+ * Any module a completion row names but the structure no longer has (renamed or removed since) is
+ * appended after, so no historical data silently disappears.
  */
 const pivotCompletions = (
   identityRows: {
@@ -67,10 +87,23 @@ const pivotCompletions = (
     email?: string | null
   }[],
   completions: CompletionGridRow[],
-  t: TFunction,
+  structureModules: StructureModule[],
+  t: CreditRegistrationTFunction,
 ) => {
-  const modulesInOrder: ModuleColumn[] = []
+  const numericModuleIds = new Set(
+    completions.filter((r) => typeof r.grade === "number").map((r) => r.module_id),
+  )
   const seen = new Set<string>()
+  const modulesInOrder: ModuleColumn[] = structureModules
+    .toSorted((a, b) => a.order_number - b.order_number)
+    .map((module) => {
+      seen.add(module.id)
+      return {
+        id: module.id,
+        label: module.name && module.name.trim().length > 0 ? module.name : t("default-module"),
+        hasNumericGrades: numericModuleIds.has(module.id),
+      }
+    })
   const byUser = new Map<string, Record<string, unknown>>()
   for (const r of completions) {
     if (!seen.has(r.module_id)) {
@@ -78,6 +111,7 @@ const pivotCompletions = (
       modulesInOrder.push({
         id: r.module_id,
         label: r.module && r.module.trim().length > 0 ? r.module : t("default-module"),
+        hasNumericGrades: numericModuleIds.has(r.module_id),
       })
     }
     const existing = byUser.get(r.user_id) ?? {}
@@ -98,59 +132,85 @@ const pivotCompletions = (
   return { modulesInOrder, data }
 }
 
-const gradeLabel = (grade: unknown, passed: unknown, t: TFunction): string => {
+const gradeLabel = (grade: unknown, passed: unknown, t: CreditRegistrationTFunction): string => {
   if (typeof grade === "number") {
     return String(grade)
   }
   if (passed === true) {
-    return t("passed")
+    return t("label-passed")
   }
   if (passed === false) {
-    return t("failed")
+    return t("label-not-passed")
   }
-  return PLACEHOLDER
+  return ABSENT
 }
 
-// Single line so every row is the same height, which is what keeps the virtualized body from
-// shifting as it scrolls.
-const statusCellClass = css`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: nowrap;
-  min-width: 0;
-  gap: 0.25rem;
-`
+/** Width of the review badge, which the plain-text column measurement cannot see. */
+const NEEDS_REVIEW_BADGE_PX = 44
 
-const StatusCell: React.FC<{
-  registered: boolean
+/**
+ * Room for a full name. Truncating the one column that identifies the row leaves a narrow screen
+ * with a table of anonymous statuses.
+ */
+const STUDENT_COLUMN_MIN_WIDTH = 160
+
+const GradeCell: React.FC<{
+  grade: unknown
+  passed: unknown
   needsReview: boolean
-  creditRegistration: CourseCreditRegistration | undefined
-}> = ({ registered, needsReview, creditRegistration }) => {
-  const { t } = useTranslation()
-  const status = registered ? t("registered") : PLACEHOLDER
-  // The ledger also says why nothing has happened yet, so its badge wins over the legacy yes/no.
-  const showStatus = !creditRegistration && (registered || !needsReview)
+  isNumeric: boolean
+}> = ({ grade, passed, needsReview, isNumeric }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
-    <div className={statusCellClass}>
-      {creditRegistration && <CreditRegistrationStatusCell registration={creditRegistration} />}
-      {showStatus && <span>{status}</span>}
+    <div className={cx(inlineCellCss, isNumeric && numericCellCss)}>
+      <span>{gradeLabel(grade, passed, t)}</span>
       {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
     </div>
   )
 }
 
+/**
+ * The registry's own state when the ledger has a row, else the legacy registered flag.
+ *
+ * `isCreditRegistrationsPending` is true only while the index has never loaded at all; without it,
+ * a row whose registration has not arrived yet renders the same "no registration" glyph as a row
+ * that genuinely has none.
+ */
+const RegistrationCell: React.FC<{
+  registered: boolean
+  creditRegistration: CourseCreditRegistration | undefined
+  isCreditRegistrationsPending: boolean
+}> = ({ registered, creditRegistration, isCreditRegistrationsPending }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (creditRegistration) {
+    return <CreditRegistrationStatusCell registration={creditRegistration} />
+  }
+  if (registered) {
+    return <span>{t("registered")}</span>
+  }
+  if (isCreditRegistrationsPending) {
+    return (
+      <span aria-hidden="true">
+        <Spinner variant="small" disableMargin />
+      </span>
+    )
+  }
+  return <span>{ABSENT}</span>
+}
+
 const buildColumns = (
   modulesInOrder: ModuleColumn[],
-  t: TFunction,
+  t: CreditRegistrationTFunction,
+  locale: string,
   creditRegistrations: CreditRegistrationIndex,
+  isCreditRegistrationsPending: boolean,
 ): ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] => {
   const columns: ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] = [
     {
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",
       header: t("label-student"),
-      minSize: 80,
+      minSize: STUDENT_COLUMN_MIN_WIDTH,
       cell: ({ row }) => (
         <StudentPillCell
           userId={row.original.user_id}
@@ -163,9 +223,8 @@ const buildColumns = (
     },
   ]
 
-  modulesInOrder.forEach(({ id: moduleId, label }) => {
+  modulesInOrder.forEach(({ id: moduleId, label, hasNumericGrades }) => {
     columns.push({
-      // oxlint-disable-next-line i18next/no-literal-string
       id: `${moduleId}__group`,
       header: label || "",
       columns: [
@@ -175,24 +234,39 @@ const buildColumns = (
           accessorKey: gradeKeyOf(moduleId),
           enableSorting: false,
           minSize: COMPLETIONS_LEAF_MIN_WIDTH,
-          cell: ({ row }) =>
-            gradeLabel(row.original[gradeKeyOf(moduleId)], row.original[passedKeyOf(moduleId)], t),
+          cell: ({ row }) => (
+            <GradeCell
+              grade={row.original[gradeKeyOf(moduleId)]}
+              passed={row.original[passedKeyOf(moduleId)]}
+              needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
+              isNumeric={hasNumericGrades}
+            />
+          ),
+          meta: { measureExtraPx: NEEDS_REVIEW_BADGE_PX },
         },
         {
-          // oxlint-disable-next-line i18next/no-literal-string
-          id: `${moduleId}__status`,
-          header: t("status"),
+          id: `${moduleId}__registration`,
+          header: t("credit-registration-column-registration"),
           enableSorting: false,
           minSize: COMPLETIONS_LEAF_MIN_WIDTH,
           cell: ({ row }) => (
-            <StatusCell
+            <RegistrationCell
               registered={Boolean(row.original[registeredKeyOf(moduleId)])}
-              needsReview={Boolean(row.original[needsReviewKeyOf(moduleId)])}
               creditRegistration={creditRegistrations.get(
                 creditRegistrationKey(row.original.user_id, moduleId),
               )}
+              isCreditRegistrationsPending={isCreditRegistrationsPending}
             />
           ),
+          meta: {
+            measureValue: (row: CompletionRow) =>
+              creditRegistrationCellText(
+                t,
+                creditRegistrations.get(creditRegistrationKey(row.user_id, moduleId)),
+                locale,
+              ),
+            measureExtraPx: CREDIT_REGISTRATION_CELL_CHROME_PX,
+          },
         },
       ],
     })
@@ -202,8 +276,9 @@ const buildColumns = (
 }
 
 export const CompletionsTabContent: React.FC = () => {
-  const { t } = useTranslation()
-  const { courseId } = useStudentsContext()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { courseId, courseInstanceId, moduleId, registrationView, setRegistrationView } =
+    useStudentsContext()
   const params = useStudentsListParams(DETAIL_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(DETAIL_SORT_COLUMNS)
 
@@ -211,49 +286,88 @@ export const CompletionsTabContent: React.FC = () => {
   const identityRows = useMemo(() => identityQuery.data?.data ?? [], [identityQuery.data])
   const userIds = useMemo(() => identityRows.map((r) => r.user_id), [identityRows])
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
-  const { data: creditRegistrationsData, isAuthorized: canSeeCreditRegistrations } =
-    useTeacherCreditRegistrations(courseId, userIds)
+  const structureQuery = useCourseStructure(courseId)
+  const structureModules = useMemo(() => structureQuery.data?.modules ?? [], [structureQuery.data])
+  const {
+    data: creditRegistrations,
+    isAuthorized: canSeeCreditRegistrations,
+    isPending: isCreditRegistrationsPending,
+    isFetching: isCreditRegistrationsFetching,
+  } = useTeacherCreditRegistrations(courseId, userIds)
 
   // Deferred *after* userIds/detailQuery are derived so a search/sort/page commit still fires the
   // detail request promptly -- only the expensive pivot below is deprioritized.
   const deferredIdentityRows = useDeferredValue(identityRows)
   const deferredDetailData = useDeferredValue(detailQuery.data)
-  const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
+  // The credit-registration index is fetched separately, keyed by the same user ids: while it is
+  // refetching for a changed filter, a stale index may no longer match the (also stale) rows on
+  // screen, so the table stays dimmed until both have caught up.
+  const isStale =
+    deferredIdentityRows !== identityRows ||
+    deferredDetailData !== detailQuery.data ||
+    isCreditRegistrationsFetching
 
   const { modulesInOrder, data } = useMemo(
-    () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], t),
-    [deferredIdentityRows, deferredDetailData, t],
+    () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], structureModules, t),
+    [deferredIdentityRows, deferredDetailData, structureModules, t],
   )
-  const creditRegistrations = creditRegistrationsData ?? EMPTY_CREDIT_REGISTRATIONS
   const columns = useMemo(
-    () => buildColumns(modulesInOrder, t, creditRegistrations),
-    [modulesInOrder, t, creditRegistrations],
+    () =>
+      buildColumns(
+        modulesInOrder,
+        t,
+        i18n.language,
+        creditRegistrations,
+        isCreditRegistrationsPending,
+      ),
+    [modulesInOrder, t, i18n.language, creditRegistrations, isCreditRegistrationsPending],
   )
 
-  if (identityQuery.isError) {
-    return <ErrorBanner error={identityQuery.error} />
-  }
-  if (detailQuery.isError) {
-    return <ErrorBanner error={detailQuery.error} />
-  }
-  if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
-    return <Spinner variant="medium" />
-  }
+  // The detail request is skipped while the page lists nobody, so a query that can never resolve
+  // must stay out of the tuple.
+  const queries = userIds.length > 0 ? [identityQuery, detailQuery] : [identityQuery]
+  const isRosterEmpty = identityRows.length === 0 && !identityQuery.isPending
 
   return (
-    <>
-      {canSeeCreditRegistrations && <CourseCreditRegistrationSummaryPanel courseId={courseId} />}
-      <StaleTableWrapper isStale={isStale}>
-        <StudentsTable
-          columns={columns}
-          data={data}
-          colorHeaders
-          colorColumns
-          colorHeaderUnderline
-          sorting={sorting}
-          onSortingChange={onSortingChange}
+    <div className={sectionsCss}>
+      {canSeeCreditRegistrations && (
+        <CourseCreditRegistrationSummaryPanel
+          courseId={courseId}
+          courseInstanceId={courseInstanceId}
+          moduleId={moduleId}
+          registrationView={registrationView}
+          onSelectView={setRegistrationView}
         />
-      </StaleTableWrapper>
-    </>
+      )}
+      {/* Adding a completion by hand is the one way to seed a roster, so the actions outlive the
+          empty state rather than appearing only once somebody has completed something. */}
+      <CompletionsActions courseId={courseId} courseInstanceId={courseInstanceId} />
+      {isRosterEmpty ? (
+        <EmptyState
+          title={t("credit-registration-completions-empty-title")}
+          action={
+            canSeeCreditRegistrations ? (
+              <CreditRegistrationSetupNote courseId={courseId} />
+            ) : undefined
+          }
+        />
+      ) : (
+        <QueryResults
+          queries={queries}
+          treatEmptyAsData
+          refreshIndicator={QUIET_REFRESH}
+          renderData={() => (
+            <StaleTableWrapper isStale={isStale}>
+              <StudentsTable
+                columns={columns}
+                data={data}
+                sorting={sorting}
+                onSortingChange={onSortingChange}
+              />
+            </StaleTableWrapper>
+          )}
+        />
+      )}
+    </div>
   )
 }

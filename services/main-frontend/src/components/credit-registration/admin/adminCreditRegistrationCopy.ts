@@ -1,25 +1,48 @@
-import type { TFunction } from "i18next"
-
 import type {
   AdminManualLinkOutcome,
   CreditRegistrationAdminAction,
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationErrorCode,
+  CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   EmailSendStatus,
   ResendOutcome,
   Retryability,
+  StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
-import type { RegistrationStatusState } from "@/shared-module/components"
+import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
-import { labelFrom, widenedLookup } from "../labelFrom"
+import { TONE } from "../constants"
+import type { CreditRegistrationTFunction } from "../constants"
+import {
+  isLedgerState,
+  registrationErrorShortLabel,
+  registrationLedgerStateLabel,
+} from "../creditRegistrationCopy"
+import { labelFrom, translateKey, widenedLookup } from "../labelFrom"
 
 export {
   notificationEmailLabel as notificationKindLabel,
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
+
+/**
+ * How much the link is worth as proof. The automatic match is the weakest: nobody confirmed
+ * anything, an address just lined up — which is what the name-mismatch alert is about.
+ */
+const VERIFICATION_METHOD_TONES = {
+  emailed_link: TONE.SUCCESS,
+  email_match_fast_track: TONE.INFO,
+  admin_manual: TONE.NEUTRAL,
+} as const satisfies Record<StudentNumberVerificationMethod, BadgeTone>
+
+export const verificationMethodTone = (
+  method: StudentNumberVerificationMethod | null | undefined,
+): BadgeTone =>
+  method ? (widenedLookup(VERIFICATION_METHOD_TONES, method) ?? TONE.NEUTRAL) : TONE.NEUTRAL
 
 const STATE_TONES = {
   pending: "upcoming",
@@ -28,7 +51,7 @@ const STATE_TONES = {
   checking_enrolment: "current",
   no_usable_enrolment: "action-needed",
   submitting: "current",
-  submission_uncertain: "failed",
+  submission_uncertain: "action-needed",
   awaiting_verification: "current",
   registered: "done",
   duplicate: "done",
@@ -54,9 +77,108 @@ export const stateTone = (
   widenedLookup(STATE_TONES, state) ??
   "upcoming"
 
-/** The credit exists in the study registry, whoever put it there. */
-export const isSuccessState = (state: CreditRegistrationState): boolean =>
-  state === "registered" || state === "duplicate" || state === "not_improved"
+/** Each sentence: what Sisu said, what it usually means, what fixes it. */
+const ADMIN_ERROR_CODE_KEYS = {
+  person_not_found: "credit-registration-admin-error-person-not-found",
+  course_code_not_found: "credit-registration-admin-error-course-code-not-found",
+  enrolment_not_found: "credit-registration-admin-error-enrolment-not-found",
+  enrolment_not_accepted: "credit-registration-admin-error-enrolment-not-accepted",
+  invalid_grade_for_grade_scale: "credit-registration-admin-error-invalid-grade-for-grade-scale",
+  course_not_allowed: "credit-registration-admin-error-course-not-allowed",
+  invalid_credits: "credit-registration-admin-error-invalid-credits",
+  study_right_not_valid: "credit-registration-admin-error-study-right-not-valid",
+  acceptor_not_found: "credit-registration-admin-error-acceptor-not-found",
+  sisu_validation_failed: "credit-registration-admin-error-sisu-validation-failed",
+  sisu_timeout: "credit-registration-admin-error-sisu-timeout",
+  sisu_temporarily_unavailable: "credit-registration-admin-error-sisu-temporarily-unavailable",
+  misregistered: "credit-registration-admin-error-misregistered",
+  unauthorized: "credit-registration-admin-error-unauthorized",
+  malformed_request: "credit-registration-admin-error-malformed-request",
+  transport_error: "credit-registration-admin-error-transport-error",
+  unexpected_response: "credit-registration-admin-error-unexpected-response",
+  no_grade_scale_mapping: "credit-registration-admin-error-no-grade-scale-mapping",
+  missing_uh_course_code: "credit-registration-admin-error-missing-uh-course-code",
+  missing_ects_credits: "credit-registration-admin-error-missing-ects-credits",
+  retry_window_expired: "credit-registration-admin-error-retry-window-expired",
+  unknown: "credit-registration-admin-error-unknown",
+} as const satisfies Record<CreditRegistrationErrorCode, string>
+
+const ADMIN_ERROR_UNKNOWN_KEY = "credit-registration-admin-error-unknown"
+
+/**
+ * The two codes whose sentence names the value Sisu rejected. Without the value the sentence still
+ * has to read, so each has a variant that refers to it rather than quoting it.
+ */
+const ADMIN_ERROR_KEYS_WITHOUT_VALUE = {
+  person_not_found: "credit-registration-admin-error-person-not-found-no-number",
+  course_code_not_found: "credit-registration-admin-error-course-code-not-found-no-code",
+} as const satisfies Partial<Record<CreditRegistrationErrorCode, string>>
+
+/** What the registration carried, so the sentence can quote the value Sisu rejected. */
+export interface AdminErrorSubject {
+  studentNumber?: string | null
+  courseCode?: string | null
+}
+
+const adminErrorKey = (
+  errorCode: CreditRegistrationErrorCode,
+  subject: AdminErrorSubject | undefined,
+): string => {
+  const value = errorCode === "person_not_found" ? subject?.studentNumber : subject?.courseCode
+  return (
+    (value ? undefined : widenedLookup(ADMIN_ERROR_KEYS_WITHOUT_VALUE, errorCode)) ??
+    widenedLookup(ADMIN_ERROR_CODE_KEYS, errorCode) ??
+    ADMIN_ERROR_UNKNOWN_KEY
+  )
+}
+
+/**
+ * Why the registration failed, for the administrator who has to decide what to do about it.
+ *
+ * Not `registrationErrorHelp`, which is written to the student and ends by telling them to contact
+ * support — the reader here is support. `subject` only matters for `person_not_found` and
+ * `course_code_not_found`, whose sentences quote the value Sisu rejected.
+ */
+export const registrationErrorAdminHelp = (
+  t: CreditRegistrationTFunction,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+  subject?: AdminErrorSubject,
+): string | null => {
+  if (!errorCode) {
+    return null
+  }
+  return translateKey(t, adminErrorKey(errorCode, subject), {
+    studentNumber: subject?.studentNumber ?? "",
+    courseCode: subject?.courseCode ?? "",
+  })
+}
+
+const EVENT_KIND_KEYS = {
+  created: "credit-registration-admin-event-created",
+  state_changed: "credit-registration-admin-event-state-changed",
+  suotar_response: "credit-registration-admin-event-suotar-response",
+  retry_scheduled: "credit-registration-admin-event-retry-scheduled",
+  admin_action: "credit-registration-admin-event-admin-action",
+  student_action: "credit-registration-admin-event-student-action",
+  cancelled: "credit-registration-admin-event-cancelled",
+} as const satisfies Record<CreditRegistrationEventKind, string>
+
+const EVENT_KIND_UNKNOWN_KEY = "credit-registration-admin-event-unknown"
+
+/** What kind of thing the timeline entry records. */
+export const eventKindLabel = (
+  t: CreditRegistrationTFunction,
+  kind: CreditRegistrationEventKind,
+): string => labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
+
+export const COURSE_TEACHER_ROLE = "course_teacher"
+export const GLOBAL_ADMIN_ROLE = "global_admin"
+
+/** Whose permission authorised the action. The backend types the role as a bare string. */
+export const actorRoleLabel = (t: CreditRegistrationTFunction, actorRole: string): string =>
+  actorRole === COURSE_TEACHER_ROLE
+    ? t("credit-registration-admin-actor-course-teacher")
+    : t("credit-registration-admin-actor-global-admin")
 
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",
@@ -79,8 +201,15 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
+/**
+ * One alert as the sentence the banner links.
+ *
+ * `subject` is whatever the backend named as the commonest cause — a state, a mail domain, a phase.
+ * A state is translated on the way in, so the banner never shows a wire name; anything else is
+ * passed through as the backend wrote it.
+ */
 export const alertSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   id: CreditRegistrationAlertId,
   count: number,
   subject: string | null | undefined,
@@ -88,7 +217,10 @@ export const alertSentence = (
 ): string =>
   labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
     count,
-    subject: subject ?? "",
+    subject:
+      subject && isLedgerState(subject)
+        ? registrationLedgerStateLabel(t, subject)
+        : (subject ?? ""),
     total: total ?? 0,
   })
 
@@ -99,16 +231,40 @@ const ATTENTION_REASON_KEYS = {
   misregistered: "credit-registration-admin-reason-misregistered",
   too_many_attempts: "credit-registration-admin-reason-too-many-attempts",
   outcome_uncertain: "credit-registration-admin-reason-outcome-uncertain",
-  flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
 } as const satisfies Record<CreditRegistrationAttentionReason, string>
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
 
+// Derived from the copy table so a new reason can't reach the filter without a label.
+const ATTENTION_REASONS = Object.keys(ATTENTION_REASON_KEYS) as CreditRegistrationAttentionReason[]
+
+export const isAttentionReason = (
+  value: string | undefined,
+): value is CreditRegistrationAttentionReason =>
+  value !== undefined && (ATTENTION_REASONS as string[]).includes(value)
+
 /** Which detector put a row on the attention table. */
 export const attentionReasonLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   reason: CreditRegistrationAttentionReason,
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
+
+/**
+ * The error's short label beside a state badge, or `null` when it would just repeat the badge
+ * (e.g. a misregistered row's error label and state label are the same sentence).
+ */
+export const registrationErrorNote = (
+  t: CreditRegistrationTFunction,
+  state: CreditRegistrationState,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+  pendingReason?: CreditRegistrationPendingReason | null,
+): string | null => {
+  const errorLabel = registrationErrorShortLabel(t, errorCode)
+  if (errorLabel === null) {
+    return null
+  }
+  return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
+}
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",
@@ -121,8 +277,22 @@ const RETRYABILITY_KEYS = {
 const RETRYABILITY_UNKNOWN_KEY = "credit-registration-admin-retryability-unknown"
 
 /** What can be done about an error code, which is the difference between waiting and fixing. */
-export const retryabilityLabel = (t: TFunction, retryability: Retryability): string =>
-  labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+export const retryabilityLabel = (
+  t: CreditRegistrationTFunction,
+  retryability: Retryability,
+): string => labelFrom(t, RETRYABILITY_KEYS, retryability, RETRYABILITY_UNKNOWN_KEY)
+
+const RETRYABILITY_TONES = {
+  retryable_transient: TONE.NEUTRAL,
+  verify_only: TONE.NEUTRAL,
+  permanent_needs_student: TONE.WARNING,
+  permanent_needs_admin: TONE.DANGER,
+  permanent_needs_config: TONE.DANGER,
+} as const satisfies Record<Retryability, BadgeTone>
+
+/** The badge tone beside `retryabilityLabel`. */
+export const retryabilityTone = (retryability: Retryability): BadgeTone =>
+  widenedLookup(RETRYABILITY_TONES, retryability) ?? TONE.NEUTRAL
 
 export const ADMIN_ACTION_KEYS = {
   retry_item: "credit-registration-admin-action-retry-item",
@@ -145,8 +315,10 @@ export const ADMIN_ACTION_KEYS = {
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
 
-export const adminActionLabel = (t: TFunction, action: CreditRegistrationAdminAction): string =>
-  labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
+export const adminActionLabel = (
+  t: CreditRegistrationTFunction,
+  action: CreditRegistrationAdminAction,
+): string => labelFrom(t, ADMIN_ACTION_KEYS, action, ADMIN_ACTION_UNKNOWN_KEY)
 
 export const ADMIN_TARGET_KEYS = {
   credit_registration: "credit-registration-admin-action-target-registration",
@@ -160,7 +332,7 @@ export const ADMIN_TARGET_KEYS = {
 const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"
 
 export const adminActionTargetLabel = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   target: CreditRegistrationAdminActionTarget,
 ): string => labelFrom(t, ADMIN_TARGET_KEYS, target, ADMIN_TARGET_UNKNOWN_KEY)
 
@@ -174,7 +346,7 @@ const SEND_STATUS_KEYS = {
 const SEND_STATUS_UNKNOWN_KEY = "credit-registration-admin-send-status-unknown"
 
 /** Our send status only, never a delivery; an unknown status must not read as `queued`. */
-export const sendStatusLabel = (t: TFunction, status: EmailSendStatus): string =>
+export const sendStatusLabel = (t: CreditRegistrationTFunction, status: EmailSendStatus): string =>
   labelFrom(t, SEND_STATUS_KEYS, status, SEND_STATUS_UNKNOWN_KEY)
 
 /** `Partial`: `no_student_number_known` is the teacher endpoint's, whose target may never have held one. */
@@ -191,8 +363,10 @@ const RESEND_OUTCOME_KEYS = {
 const RESEND_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-resend-unknown-outcome"
 
 /** An unrecognised outcome must not fall back to `queued`: that reads as the resend having worked. */
-export const resendOutcomeLabel = (t: TFunction, outcome: ResendOutcome): string =>
-  labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
+export const resendOutcomeLabel = (
+  t: CreditRegistrationTFunction,
+  outcome: ResendOutcome,
+): string => labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {
   linked: "credit-registration-admin-manual-link-linked",
@@ -206,5 +380,7 @@ const MANUAL_LINK_OUTCOME_KEYS = {
 const MANUAL_LINK_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-manual-link-unknown-outcome"
 
 /** An unrecognised outcome must not fall back to `linked`: that reads as the link having been made. */
-export const manualLinkOutcomeLabel = (t: TFunction, outcome: AdminManualLinkOutcome): string =>
-  labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)
+export const manualLinkOutcomeLabel = (
+  t: CreditRegistrationTFunction,
+  outcome: AdminManualLinkOutcome,
+): string => labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)

@@ -6,15 +6,12 @@ import { useTranslation } from "react-i18next"
 import type { AdminCreditRegistrationAction } from "@/generated/api/types.generated"
 import { Select } from "@/shared-module/components"
 
-// oxlint-disable-next-line i18next/no-literal-string
+import { CREDIT_REGISTRATION_NS } from "../constants"
+
 export const READY_TO_SUBMIT = "ready_to_submit" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CANCELLED = "cancelled" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CLEAR_ATTENTION = "clear_needs_admin_attention" as const
-// oxlint-disable-next-line i18next/no-literal-string
 export const CHECK_NOW = "check_now" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const STATE_MOVE = "state_move" as const
 
 /** A dropdown carries one flat value, so the tagged shape the endpoint wants is rebuilt on submit. */
@@ -37,11 +34,11 @@ interface TransitionTargetSelectProps<T extends TransitionFields> {
   control: Control<T>
 }
 
-/** The four transition targets an admin can pick, shared by the single-item and bulk dialogs. */
+/** The four transition targets a bulk move can pick. One row at a time offers them as separate actions. */
 export function TransitionTargetSelect<T extends TransitionFields>({
   control,
 }: TransitionTargetSelectProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Select
       name={"action" as Path<T>}

@@ -5,6 +5,8 @@ import { screen } from "@testing-library/react"
 import { Infobox } from "../src/components/Infobox"
 import { renderUi } from "./testUtils"
 
+const fill = (container: HTMLElement) => getComputedStyle(container.firstElementChild!).background
+
 describe("Infobox", () => {
   test("renders the body without claiming to be an alert", () => {
     renderUi(<Infobox>No completions yet</Infobox>)
@@ -42,6 +44,17 @@ describe("Infobox", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Not saved")
   })
 
+  test("does not interrupt a screen reader to report success", () => {
+    renderUi(
+      <Infobox tone="success" announce>
+        Student number linked
+      </Infobox>,
+    )
+
+    expect(screen.getByRole("status")).toHaveTextContent("Student number linked")
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+  })
+
   test("distinguishes tones by border, not by text alone", () => {
     const { container: info } = renderUi(<Infobox>Text</Infobox>)
     const { container: warning } = renderUi(<Infobox tone="warning">Text</Infobox>)
@@ -50,6 +63,16 @@ describe("Infobox", () => {
     const warningBorder = getComputedStyle(warning.firstElementChild!).borderColor
     expect(infoBorder).not.toBe("")
     expect(warningBorder).not.toBe(infoBorder)
+  })
+
+  test("gives danger a fill of its own rather than sharing the info surface", () => {
+    const { container: info } = renderUi(<Infobox>Text</Infobox>)
+    const { container: warning } = renderUi(<Infobox tone="warning">Text</Infobox>)
+    const { container: danger } = renderUi(<Infobox tone="danger">Text</Infobox>)
+
+    expect(fill(danger)).not.toBe("")
+    expect(fill(danger)).not.toBe(fill(info))
+    expect(fill(danger)).not.toBe(fill(warning))
   })
 
   test("puts the caller's className on the root", () => {

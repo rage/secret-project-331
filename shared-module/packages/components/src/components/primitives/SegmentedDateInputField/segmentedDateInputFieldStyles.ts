@@ -19,7 +19,9 @@ export const segmentedSegmentsRowCss = css`
   max-width: 100%;
   min-width: 0;
   flex-wrap: nowrap;
-  align-items: baseline;
+  /* Centred, not baseline-aligned: baseline alignment sizes the row from the tallest item's line
+     box, which made the field a pixel or two taller than an input showing the same text. */
+  align-items: center;
   justify-content: flex-start;
   gap: 2px;
   white-space: nowrap;
@@ -56,7 +58,6 @@ export const segmentCss = css`
   position: relative;
   flex: 0 0 auto;
   min-width: 1ch;
-  padding: 2px 0;
   border-radius: 4px;
   color: inherit;
   outline: none;
@@ -125,24 +126,10 @@ export const segmentedPickerTriggerCss = css`
   margin-inline-start: auto;
 `
 
-/** When the label is at rest (unfloated) with no value: no vertical padding on the shell so height matches TextField. */
-export const segmentedFieldShellRestEmptyCss = css`
-  [data-field-control][data-floated="false"] & {
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 0;
-  }
-`
-
-/** Hides placeholder segment glyphs while the label is at rest; keeps row in layout flow at zero height for focus. */
+/** Hides the placeholder glyphs while the resting label sits over them. The row keeps its box:
+ *  collapsing it here is what made the field jump when the label floated and the glyphs returned. */
 export const segmentedSegmentsRowRestHiddenCss = css`
   visibility: hidden;
-  height: 0;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  line-height: 0;
   pointer-events: none;
 `
 

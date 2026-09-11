@@ -12,6 +12,10 @@ export interface PreviewUserListProps {
   users: ManualCompletionPreviewUser[]
 }
 
+/** Where a pass and a fail with no numeric grade sit on `previous_best_grade`'s numeric scale. */
+const PASS_GRADE_VALUE = 0.5
+const FAIL_GRADE_VALUE = -1
+
 const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
   const { t } = useTranslation()
 
@@ -19,7 +23,7 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
     if (grade !== null && grade !== undefined) {
       return grade.toString()
     }
-    return passed ? t("column-passed") : t("column-failed")
+    return passed ? t("label-passed") : t("label-not-passed")
   }
 
   return (
@@ -137,11 +141,11 @@ function formatGrade(grade: number | null | undefined, t: TFunction): string {
   if (grade === null || grade === undefined) {
     return "-"
   }
-  if (grade === -1) {
-    return t("column-failed")
+  if (grade === FAIL_GRADE_VALUE) {
+    return t("label-not-passed")
   }
-  if (grade === 0.5) {
-    return t("column-passed")
+  if (grade === PASS_GRADE_VALUE) {
+    return t("label-passed")
   }
   return grade.toString()
 }

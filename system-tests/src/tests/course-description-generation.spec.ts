@@ -45,21 +45,25 @@ test.describe("Course metadata generation", () => {
 
       await page
         .locator("form")
-        .filter({ hasText: "1. Another module." })
-        .getByLabel("Edit")
+        .filter({ hasText: "1. Another module" })
+        .getByRole("button", { name: "Edit" })
         .click()
       await expect(
         page
           .locator("form")
           .filter({ hasText: "Edit module" })
-          .getByPlaceholder("University of Helsinki course"),
+          .getByLabel("University of Helsinki course code"),
       ).toHaveValue("TEST002")
-      await page.locator("form").filter({ hasText: "Default module." }).getByLabel("Edit").click()
+      await page
+        .locator("form")
+        .filter({ hasText: "Default module" })
+        .getByRole("button", { name: "Edit" })
+        .click()
       await expect(
         page
           .locator("form")
           .filter({ hasText: "Default" })
-          .getByPlaceholder("University of Helsinki course"),
+          .getByLabel("University of Helsinki course code"),
       ).toHaveValue("")
     })
 
@@ -72,13 +76,21 @@ test.describe("Course metadata generation", () => {
       await expect(page.getByRole("button", { name: "Suggest metadata" })).toBeDisabled()
       await page.getByRole("tab", { name: "Modules" }).click()
 
-      await page.locator("form").filter({ hasText: "Default module." }).getByLabel("Edit").click()
+      await page
+        .locator("form")
+        .filter({ hasText: "Default module" })
+        .getByRole("button", { name: "Edit" })
+        .click()
       await page
         .locator("form")
         .filter({ hasText: "Default" })
-        .getByPlaceholder("University of Helsinki course")
+        .getByLabel("University of Helsinki course code")
         .fill("TEST001")
-      await page.locator("form").filter({ hasText: "Default" }).getByLabel("Confirm").click()
+      await page
+        .locator("form")
+        .filter({ hasText: "Default" })
+        .getByRole("button", { name: "Done" })
+        .click()
 
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Save changes" }).click()

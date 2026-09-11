@@ -5,12 +5,12 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
 import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 
 import CreditRegistrationStatus from "./CreditRegistrationStatus"
 import RegisterCompletion from "./RegisterCompletion"
@@ -19,7 +19,6 @@ const REDIRECT = "redirect"
 
 const CompletionPage: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("register-completion"))
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const [pathname, setPathname] = useState<string>("")
 
@@ -37,30 +36,43 @@ const CompletionPage: React.FC = () => {
     }),
   })
 
+  const courseName = userCompletionInformation.data?.course_name
+  usePageTitle(
+    courseName
+      ? t("page-title-credit-registration-for-course", { course: courseName })
+      : t("heading-credit-registration"),
+  )
+
   return (
     <QueryResult query={userCompletionInformation}>
       {(data) => {
-        // A module being migrated can still carry the old flag, so the new pipeline wins.
-        if (data.enable_credit_registration_via_suotar) {
+        // Both flags: the module's is permission to use the push path, the completion's own is
+        // whether this student's completion was put on it. Without both, this shows the old page.
+        if (data.enable_credit_registration_via_suotar && data.register_credits_via_suotar) {
           return (
             <CreditRegistrationStatus
               courseModuleId={courseModuleId}
-              heading={data.course_name}
+              courseName={data.course_name}
+              moduleName={data.course_module_name}
               ectsCredits={data.ects_credits}
             />
           )
         }
         if (!data.enable_registering_completion_to_uh_open_university) {
           return (
-            <ErrorBanner
-              error={t(
-                "error-registering-to-the-uh-open-university-not-enabled-for-this-course-module",
-              )}
-              variant={"readOnly"}
-            />
+            <Infobox tone={TONE.INFO} heading={t("register-completion")}>
+              {t("this-course-does-not-register-credits-for-you")}
+            </Infobox>
           )
         }
-        return <RegisterCompletion data={data} registrationFormUrl={`${pathname}/${REDIRECT}`} />
+        return (
+          <RegisterCompletion
+            email={data.email}
+            courseName={data.course_name}
+            ectsCredits={data.ects_credits}
+            registrationFormUrl={`${pathname}/${REDIRECT}`}
+          />
+        )
       }}
     </QueryResult>
   )

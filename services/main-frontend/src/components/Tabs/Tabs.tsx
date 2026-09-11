@@ -1,19 +1,22 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { TabListState } from "@react-stately/tabs"
 import { useTabListState } from "@react-stately/tabs"
 import { usePathname, useRouter } from "next/navigation"
-import React, { createContext, useContext, useMemo, useRef } from "react"
-import { useTabList } from "react-aria"
-import { useTranslation } from "react-i18next"
+import React, { createContext, useContext, useMemo } from "react"
 
-import { baseTheme } from "@/shared-module/common/styles"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { TabStrip } from "./tabStrip"
 
 interface TabsContextValue {
   state: TabListState<object>
   basePath: string
+  /**
+   * False on a route with no tab of its own, where the tab list would otherwise paint its first
+   * tab as the current one and tell the reader they are somewhere they are not.
+   */
+  isCurrentRouteATab: boolean
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null)
@@ -34,8 +37,6 @@ interface TabsProps {
 const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => {
   const pathname = usePathname()
   const router = useRouter()
-  const { t } = useTranslation()
-  const tabListRef = useRef<HTMLDivElement>(null)
 
   const basePath = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean)
@@ -78,12 +79,14 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
       })
   }, [tabChildren])
 
-  const selectedKey = useMemo(() => {
-    const currentSegment = pathname.split("/").filter(Boolean)[1]
-    return currentSegment && tabNames.includes(currentSegment)
-      ? currentSegment
-      : (tabNames[0] ?? null)
+  const currentTab = useMemo(() => {
+    const segment = pathname.split("/").filter(Boolean)[1]
+    return segment !== undefined && tabNames.includes(segment) ? segment : undefined
   }, [pathname, tabNames])
+
+  // react-stately insists on a selected tab, so a route with none of its own still resolves to
+  // the first for keyboard entry; the context flag is what keeps that off the screen.
+  const selectedKey = currentTab ?? tabNames[0] ?? null
 
   const items = useMemo(
     () =>
@@ -104,33 +107,11 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
     },
   })
 
-  const { tabListProps } = useTabList(
-    {
-      orientation,
-      "aria-label": t("tab-aria-label-default"),
-    },
-    state,
-    tabListRef,
-  )
-
   return (
-    <TabsContext.Provider value={{ state, basePath }}>
-      <div
-        {...tabListProps}
-        ref={tabListRef}
-        className={css`
-          display: flex;
-          background: ${baseTheme.colors.gray[75]};
-          padding: 4px;
-          border-radius: 8px;
-          gap: 4px;
-          flex-direction: ${orientation === "horizontal" ? "row" : "column"};
-          margin-bottom: 1.5rem;
-          border: 1px solid ${baseTheme.colors.gray[100]};
-        `}
-      >
+    <TabsContext.Provider value={{ state, basePath, isCurrentRouteATab: currentTab !== undefined }}>
+      <TabStrip state={state} orientation={orientation} selectedKey={selectedKey}>
         {tabChildren}
-      </div>
+      </TabStrip>
       {panelChildren}
     </TabsContext.Provider>
   )

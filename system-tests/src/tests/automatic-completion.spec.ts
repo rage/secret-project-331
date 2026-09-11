@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
@@ -52,7 +53,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
 
-  await page.getByRole("button", { name: "No" }).click()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",
@@ -64,7 +65,9 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "automatic-completion-registration-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Register completion")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Get these credits into Sisu" }),
+    ],
   })
 
   await page.getByText("To the registration form").click()
@@ -88,14 +91,15 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .locator('form:has-text("Default module")')
     .getByRole("button", { name: "Edit" })
     .click()
-  // await page.locator('[aria-label="Edit"]').nth(1).click()
   await page.getByLabel("Override completion registration link").check()
   await page.getByPlaceholder("Completion registration link").click()
   await page
     .getByPlaceholder("Completion registration link")
     .fill("https://www.example.com/override")
-  await page.getByLabel("Confirm").click()
-  await page.getByRole("button", { name: "Save changes" }).click()
+  await page.getByRole("button", { name: "Done" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save changes" }).click()
+  })
 
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
@@ -106,14 +110,14 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
-  await page.getByRole("button", { name: "No" }).click()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
       "Credits for this course are registered through the Open University of the University of Helsinki.",
     )
     .waitFor()
 
-  await page.getByText("Use this email address").first().waitFor()
+  await page.getByText("Email address to use").first().waitFor()
   await page.getByText("To the registration form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })

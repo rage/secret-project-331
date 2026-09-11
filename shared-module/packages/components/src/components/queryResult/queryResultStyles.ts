@@ -2,6 +2,8 @@ import { css, keyframes } from "@emotion/css"
 
 export type ThemeMode = "light" | "dark"
 
+export type RefreshIndicator = "blur" | "quiet"
+
 const shimmer = keyframes`
   0% { transform: translateX(-130%); }
   100% { transform: translateX(130%); }
@@ -13,9 +15,13 @@ const progressBeam = keyframes`
 `
 
 /**
- * `width: 100%` keeps the frame layout-transparent: it replaces content that relies on a full-width
- * parent (echarts in a flex container collapses to ~0 width otherwise, painting nothing).
- * `min-width: 0` lets it shrink in flex parents instead of overflowing. Do not remove.
+ * `width: 100%` keeps the frame as wide as the content it stands in for (echarts in a flex
+ * container collapses to ~0 width otherwise, painting nothing). `min-width: 0` lets it shrink in
+ * flex parents instead of overflowing. Do not remove.
+ *
+ * Width is all it preserves: the frame is an element between the parent and the children, so the
+ * parent's `gap` applies to the frame and never to the children. `contentClassName` is how a
+ * caller lays them out instead.
  */
 export const wrapperCss = css`
   position: relative;

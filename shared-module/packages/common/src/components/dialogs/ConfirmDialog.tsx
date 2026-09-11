@@ -3,12 +3,16 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+// Imported by module, never through the package barrel: this file is synced into every
+// service, and the barrel would make each one type-check the whole component package and
+// declare its react-stately dependencies.
+import { ConfirmDialog as SharedConfirmDialog } from "@/shared-module/components/components/ConfirmDialog"
+
 import {
   CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
   CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
   DIALOG_PROVIDER_DIALOG_TEST_ID,
 } from "./dialogTestIds"
-import StandardDialog from "./StandardDialog"
 
 export interface ConfirmDialogProps {
   open: boolean
@@ -33,30 +37,19 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const { t } = useTranslation()
   return (
-    <StandardDialog
+    <SharedConfirmDialog
       data-testid={DIALOG_PROVIDER_DIALOG_TEST_ID}
       open={open}
       onClose={onCancel}
       title={title}
-      closeable={false}
-      buttons={[
-        {
-          children: noButtonLabel ?? t("no"),
-          variant: "secondary",
-          onClick: onCancel,
-          "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
-        },
-        {
-          children: yesButtonLabel ?? t("yes"),
-          variant: "primary",
-          onClick: onConfirm,
-          disabled: confirmDisabled,
-          "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
-        },
-      ]}
-    >
-      {message}
-    </StandardDialog>
+      description={message}
+      confirmLabel={yesButtonLabel ?? t("yes")}
+      cancelLabel={noButtonLabel ?? t("no")}
+      isConfirmDisabled={confirmDisabled}
+      confirmTestId={CONFIRM_DIALOG_YES_BUTTON_TEST_ID}
+      cancelTestId={CONFIRM_DIALOG_NO_BUTTON_TEST_ID}
+      onConfirm={onConfirm}
+    />
   )
 }
 

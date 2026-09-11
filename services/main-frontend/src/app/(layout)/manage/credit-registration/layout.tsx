@@ -1,57 +1,52 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   useCreditRegistrationAttentionCount,
-  useCreditRegistrationFindingCount,
+  useCreditRegistrationLinkingFailureCount,
   useCreditRegistrationMisconfiguredCourseCount,
-  useCreditRegistrationPhasesNeedingAttentionCount,
-  useSuotarRequestFailureCount,
+  useCreditRegistrationUnhealthyPhaseCount,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
+import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
+import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
-  creditRegistrationApiLogRoute,
   creditRegistrationAuditRoute,
   creditRegistrationCoursesRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
-  creditRegistrationPipelineRoute,
-  creditRegistrationReconciliationRoute,
   creditRegistrationRegistrationsRoute,
-  creditRegistrationWorkersRoute,
+  creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const KEY_OVERVIEW = "overview"
-const KEY_PIPELINE = "pipeline"
 const KEY_REGISTRATIONS = "registrations"
 const KEY_ERRORS = "errors"
-const KEY_LINKING = "linking"
 const KEY_COURSES = "courses"
-const KEY_API_LOG = "api-log"
-const KEY_WORKERS = "workers"
-const KEY_RECONCILIATION = "reconciliation"
+const KEY_LINKING = "linking"
+const KEY_SYSTEM = "system"
 const KEY_AUDIT = "audit"
 
-const headingCss = css`
-  font-size: clamp(2rem, 3.6vh, 36px);
-  color: ${baseTheme.colors.gray[700]};
-  font-family: ${headingFont};
-  font-weight: bold;
+// The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
+const flushTabListCss = css`
+  margin-bottom: 0;
 `
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const pathname = usePathname()
 
   const crumbs = useMemo(
     () => [
@@ -73,11 +68,6 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         href: creditRegistrationOverviewRoute(),
       },
       {
-        key: KEY_PIPELINE,
-        title: t("credit-registration-tab-pipeline"),
-        href: creditRegistrationPipelineRoute(),
-      },
-      {
         key: KEY_REGISTRATIONS,
         title: t("credit-registration-tab-registrations"),
         href: creditRegistrationRegistrationsRoute(),
@@ -88,11 +78,8 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         title: t("credit-registration-tab-errors"),
         href: creditRegistrationErrorsRoute(),
         countHook: useCreditRegistrationAttentionCount,
-      },
-      {
-        key: KEY_LINKING,
-        title: t("credit-registration-tab-linking"),
-        href: creditRegistrationLinkingRoute(),
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
       },
       {
         key: KEY_COURSES,
@@ -101,22 +88,18 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
         countHook: useCreditRegistrationMisconfiguredCourseCount,
       },
       {
-        key: KEY_API_LOG,
-        title: t("credit-registration-tab-api-log"),
-        href: creditRegistrationApiLogRoute(),
-        countHook: useSuotarRequestFailureCount,
+        key: KEY_LINKING,
+        title: t("credit-registration-tab-linking"),
+        href: creditRegistrationLinkingRoute(),
+        countHook: useCreditRegistrationLinkingFailureCount,
       },
       {
-        key: KEY_WORKERS,
-        title: t("credit-registration-tab-workers"),
-        href: creditRegistrationWorkersRoute(),
-        countHook: useCreditRegistrationPhasesNeedingAttentionCount,
-      },
-      {
-        key: KEY_RECONCILIATION,
-        title: t("credit-registration-tab-reconciliation"),
-        href: creditRegistrationReconciliationRoute(),
-        countHook: useCreditRegistrationFindingCount,
+        key: KEY_SYSTEM,
+        title: t("credit-registration-tab-system"),
+        href: creditRegistrationSystemRoute(),
+        countHook: useCreditRegistrationUnhealthyPhaseCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
       },
       {
         key: KEY_AUDIT,
@@ -127,14 +110,20 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
     [t],
   )
 
+  // The breadcrumb already says "Credit registration"; the heading says which of its pages this is.
+  const activeTab = resolveActiveTab(tabs, pathname ?? "")
+  // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
+  // heading of its own (the student's name) — the tab title above it would only contradict it.
+  const isTabOwnPage = activeTab !== undefined && pathname === activeTab.href
+
   return (
-    <>
-      <h1 className={headingCss}>{t("title-credit-registration")}</h1>
+    <div className={sectionsCss}>
       <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
+      <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />
+      {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
       <CreditRegistrationAlertBanner />
-      <RouteTabList tabs={tabs} />
       {children}
-    </>
+    </div>
   )
 }
 

@@ -1,7 +1,8 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
-import type { TFunction } from "i18next"
 import { useEffect } from "react"
 
+import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
+import { registrationStatusesOf } from "@/components/credit-registration/registrationStatusViews"
 import {
   getCourseStudentsProgressStructureOptions,
   getCourseStudentsUsersOptions,
@@ -14,6 +15,7 @@ import {
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import type { ServiceTFunction } from "@/utils/translationNamespaces"
 
 export type SortDirection = "asc" | "desc"
 
@@ -52,6 +54,8 @@ export interface StudentsListParams {
   /** Module the `grade` filter is scoped to; `grade` is ignored server-side without it. */
   moduleId: string | null
   grade: GradeFilterValue | null
+  /** Narrows the page to students holding a live registration at one of the view's stages. */
+  registrationView: RegistrationStatusView
 }
 
 // Explicit caching opt-in: the global QueryClient sets gcTime ~0, so without these the shared
@@ -59,8 +63,34 @@ export interface StudentsListParams {
 const STALE_TIME = 60_000
 const GC_TIME = 5 * 60_000
 
-const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
-  getCourseStudentsUsersOptions({
+const IDENTITY_QUERY_ID = "getCourseStudentsUsers"
+const DETAIL_KEY_PREFIX = "course-students/"
+
+/**
+ * Marks the roster and every subtab's per-page detail stale, for a caller that changed a
+ * completion.
+ *
+ * Matched by predicate rather than by key: the identity query is keyed by every filter and the
+ * detail queries by the user ids that happened to be on screen, so no caller can name the keys.
+ */
+export const invalidateCourseStudents = (courseId: string): Promise<void> =>
+  queryClient.invalidateQueries({
+    predicate: (query) => {
+      const [first, second] = query.queryKey
+      if (typeof first === "string") {
+        return first.startsWith(DETAIL_KEY_PREFIX) && second === courseId
+      }
+      return (
+        typeof first === "object" &&
+        first !== null &&
+        (first as { _id?: string })._id === IDENTITY_QUERY_ID
+      )
+    },
+  })
+
+const buildIdentityOptions = (courseId: string, params: StudentsListParams) => {
+  const registrationStatuses = registrationStatusesOf(params.registrationView)
+  return getCourseStudentsUsersOptions({
     path: { course_id: courseId },
     // Optional keys are omitted (not set to undefined) to satisfy exactOptionalPropertyTypes.
     query: {
@@ -68,14 +98,18 @@ const buildIdentityOptions = (courseId: string, params: StudentsListParams) =>
       limit: params.limit,
       sort_column: params.sortColumn,
       sort_direction: params.sortDirection,
-      ...(params.search ? { search: params.search } : {}),
-      ...(params.courseInstanceId ? { course_instance_id: params.courseInstanceId } : {}),
+      ...includeIf(params.search, { search: params.search }),
+      ...includeIf(params.courseInstanceId, { course_instance_id: params.courseInstanceId }),
       ...omitUndefined({ module_id: params.moduleId ?? undefined }),
       // `grade` is only meaningful alongside a module (enforced server-side too), so it never gets
       // sent on its own.
       ...includeIf(params.moduleId, omitUndefined({ grade: params.grade ?? undefined })),
+      ...includeIf(registrationStatuses.length > 0, {
+        registration_status: [...registrationStatuses],
+      }),
     },
   })
+}
 
 /**
  * Shared, cached identity query that drives every subtab: a page of enrolled users plus the total
@@ -113,6 +147,7 @@ export const useCourseStudentsPrefetchNextPage = (
         courseInstanceId: params.courseInstanceId,
         moduleId: params.moduleId,
         grade: params.grade,
+        registrationView: params.registrationView,
       }),
       staleTime: STALE_TIME,
       gcTime: GC_TIME,
@@ -128,6 +163,7 @@ export const useCourseStudentsPrefetchNextPage = (
     params.courseInstanceId,
     params.moduleId,
     params.grade,
+    params.registrationView,
   ])
 }
 
@@ -152,7 +188,6 @@ const userScopedDetailOptions = <TData>(
       // `fetcher` is fixed per keyPrefix (already in the key), so it need not be in the key.
       // oxlint-disable-next-line @tanstack/query/exhaustive-deps
       queryOptions({
-        // oxlint-disable-next-line i18next/no-literal-string
         queryKey: [keyPrefix, courseId, ids],
         queryFn: () => fetcher(ids),
         staleTime: STALE_TIME,
@@ -162,7 +197,6 @@ const userScopedDetailOptions = <TData>(
 
 export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/completions", courseId, userIds, (ids) =>
       getCourseStudentsCompletions({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),
@@ -170,7 +204,6 @@ export const useCourseStudentsCompletionsDetail = (courseId: string, userIds: st
 
 export const useCourseStudentsCertificatesDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/certificates", courseId, userIds, (ids) =>
       getCourseStudentsCertificates({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),
@@ -190,7 +223,6 @@ export const useCourseStudentsProgressStructure = (courseId: string) =>
 /** Per-user progress detail (chapter progress + locking statuses) for the current page's users. */
 export const useCourseStudentsProgressDetail = (courseId: string, userIds: string[]) =>
   useQuery(
-    // oxlint-disable-next-line i18next/no-literal-string
     userScopedDetailOptions("course-students/progress", courseId, userIds, (ids) =>
       getCourseStudentsProgress({ path: { course_id: courseId }, body: { user_ids: ids } }),
     ),
@@ -199,7 +231,7 @@ export const useCourseStudentsProgressDetail = (courseId: string, userIds: strin
 /** "Last, First" for a sorted student list; falls back to the single set name or a generic label. */
 export const formatStudentName = (
   row: { first_name?: string | null; last_name?: string | null },
-  t: TFunction,
+  t: ServiceTFunction,
 ): string => {
   const first = (row.first_name ?? "").trim()
   const last = (row.last_name ?? "").trim()

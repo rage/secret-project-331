@@ -5,6 +5,7 @@ import { computeLaneBoxes, packLanes } from "../lanePacking"
 
 const GAP = 16
 const BASE_OPTS = {
+  plotLeftPx: 0,
   plotRightPx: 100_000,
   measureLabelPx: (s: string) => s.length * 7,
   maxLabelPx: 220,
@@ -204,6 +205,19 @@ describe("lanePacking", () => {
       const { boxes } = packBoxes([point("a", 10, "A", "a")], { plotRightPx: 200 })
       expect(boxes[0]?.labelFlipped).toBe(false)
     })
+
+    it("holds a flipped label at the left plot edge instead of reserving room outside it", () => {
+      const plotLeftPx = 12
+      const plotRightPx = 120
+      const { boxes } = packBoxes(
+        [point("a", 20, "A label far wider than this narrow plot area", "a")],
+        { plotLeftPx, plotRightPx },
+      )
+      const box = boxes[0]!
+      expect(box.labelFlipped).toBe(true)
+      expect(box.labelWidthPx).toBeLessThanOrEqual(plotRightPx - plotLeftPx)
+      expect(box.labelStartPx).toBeGreaterThanOrEqual(plotLeftPx)
+    })
   })
 
   // 7. Determinism: input order never affects lane assignment; identical input is deep-equal.
@@ -282,6 +296,7 @@ describe("lanePacking", () => {
       const msToPx = (ms: number) => ((ms - min) / (max - min)) * PLOT_PX
       const boxes = computeLaneBoxes(inputs, {
         msToPx,
+        plotLeftPx: 0,
         plotRightPx: PLOT_PX,
         measureLabelPx: (s) => s.length * 7,
         maxLabelPx: 220,

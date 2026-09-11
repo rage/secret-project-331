@@ -9,7 +9,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useLogout from "@/shared-module/common/hooks/useLogout"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import "@/shared-module/common/init/registerAuthApiClients"
-import { userSettingsRoute } from "@/shared-module/common/utils/routes"
+import { profileStudiesRoute, userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
   id: string
@@ -105,6 +105,7 @@ export function useUserMenuItems({
   }
 
   const defaultUserMenuItems = [
+    { type: "link" as const, href: profileStudiesRoute(), label: t("heading-my-studies") },
     { type: "link" as const, href: userSettingsRoute(), label: t("user-settings") },
     {
       type: "action" as const,
@@ -120,14 +121,12 @@ export function useUserMenuItems({
     return userMenuItems.map((item, i) => {
       if (item.type === "separator") {
         return {
-          // oxlint-disable-next-line i18next/no-literal-string
           id: `user-sep-${i}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // oxlint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
         ...omitUndefined({

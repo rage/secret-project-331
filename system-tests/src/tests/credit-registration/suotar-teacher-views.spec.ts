@@ -250,7 +250,7 @@ test("A teacher retries a failed registration, and the course says who did it", 
   await test.step("The history is on the page, so a colleague sees it before clicking", async () => {
     await page.goto(RETRY_COMPLETIONS_URL)
     await expect(page.getByRole("heading", { name: "Recent actions on this course" })).toBeVisible()
-    await expect(page.getByText("retried a registration").first()).toBeVisible()
+    await expect(page.getByText("Retried a registration").first()).toBeVisible()
     await accessibilityCheck(page, "Teacher credit registration action history")
   })
 })
@@ -351,7 +351,7 @@ test("A teacher cannot retry a registration on a course they do not teach", asyn
 test("The export carries verified student numbers in full", async ({ page }) => {
   await page.goto(STATES_COMPLETIONS_URL)
   await expect(
-    page.getByRole("button", { name: "Export credit registrations as CSV" }),
+    page.getByRole("link", { name: "Export registration statuses as CSV" }),
   ).toBeVisible()
 
   const response = await page.request.get(

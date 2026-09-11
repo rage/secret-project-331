@@ -25,6 +25,8 @@ pub struct CourseModuleCompletion {
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
     pub needs_to_be_reviewed: bool,
+    /// Whether the push path owns this completion. See the column comment; decided at insert.
+    pub register_credits_via_suotar: bool,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
@@ -78,7 +80,8 @@ INSERT INTO course_module_completions (
     email,
     grade,
     passed,
-    completion_granter_user_id
+    completion_granter_user_id,
+    register_credits_via_suotar
   )
 VALUES (
     $1,
@@ -92,7 +95,20 @@ VALUES (
     $9,
     $10,
     $11,
-    $12
+    $12,
+    -- Decided here rather than by the caller: the flag is what keeps the two registration paths
+    -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
+    (
+      SELECT cm.enable_credit_registration_via_suotar
+        AND EXISTS (
+          SELECT 1
+          FROM verified_student_numbers vsn
+          WHERE vsn.user_id = $4
+            AND vsn.deleted_at IS NULL
+        )
+      FROM course_modules cm
+      WHERE cm.id = $3
+    )
   )
 RETURNING *
         ",
@@ -146,9 +162,19 @@ pub async fn insert_seed_row(
             grade,
             passed,
             prerequisite_modules_completed,
-            needs_to_be_reviewed
+            needs_to_be_reviewed,
+            register_credits_via_suotar
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
+            -- From the module alone, unlike `insert`, which also requires a verified student
+            -- number: the seed deliberately builds push-path scenarios for students without one.
+            (
+              SELECT cm.enable_credit_registration_via_suotar
+              FROM course_modules cm
+              WHERE cm.id = $2
+            )
+        )
         RETURNING id
         "#,
         seed.course_id,
@@ -769,17 +795,12 @@ WHERE course_module_id = ANY($1)
   -- registration until a teacher dismisses or confirms them.
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
-  -- Modules on the push path are registered by us; letting the registry pull them too would put a
-  -- second attainment on the student's transcript.
-  AND NOT EXISTS (
-    SELECT 1
-    FROM course_modules cm
-    WHERE cm.id = course_module_completions.course_module_id
-      AND cm.enable_credit_registration_via_suotar
-      AND cm.deleted_at IS NULL
-  )
-  -- A completion the push path has already sent stays out for good, whatever the flag above says now:
-  -- a pull that registered it again would put a second attainment on a real transcript.
+  -- Completions on the push path are registered by us; letting the registry pull them too would put
+  -- a second attainment on the student's transcript. Per completion, not per module: a module can
+  -- be switched on while completions made before that stay the pull path's to register.
+  AND NOT course_module_completions.register_credits_via_suotar
+  -- Belt and braces behind the flag above: anything the push path already sent stays out for
+  -- good, since re-registering it would double the attainment on a real transcript.
   AND NOT EXISTS (
     SELECT 1
     FROM credit_registrations cr
@@ -793,8 +814,8 @@ WHERE course_module_id = ANY($1)
     WHERE course_module_id = ANY($1)
       AND (
         study_registry_registrar_id = $2
-        -- Our own rows count as already registered too, whatever the flag says now: the module check
-        -- above stops firing the moment a teacher turns the push path back off.
+        -- Our own rows count as already registered too: what the push path put in the registry is
+        -- in it whichever registrar's export this is.
         OR study_registry_registrar_id IS NULL
       )
       AND deleted_at IS NULL

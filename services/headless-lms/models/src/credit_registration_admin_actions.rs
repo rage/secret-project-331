@@ -235,8 +235,16 @@ pub struct CreditRegistrationAdminActionListRow {
     pub actor_first_name: Option<String>,
     pub actor_last_name: Option<String>,
     pub actor_email: Option<String>,
-    /// Named for the course-targeted and teacher-authorised rows; `None` where neither applies.
+    /// The course the action was about: the one a teacher's permission authorised, the one a
+    /// course-targeted action names, or the one a targeted registration belongs to.
     pub course_name: Option<String>,
+    /// The student a registration- or link-targeted action was about. `None` for a phase, a course
+    /// or a module, which are about nobody in particular.
+    pub target_user_id: Option<Uuid>,
+    pub target_first_name: Option<String>,
+    pub target_last_name: Option<String>,
+    /// In full, like the actor's.
+    pub target_email: Option<String>,
     pub total_count: i64,
 }
 
@@ -269,11 +277,24 @@ SELECT a.id,
   ud.last_name AS "actor_last_name?",
   ud.email AS "actor_email?",
   c.name AS "course_name?",
+  target_user.user_id AS "target_user_id?",
+  tud.first_name AS "target_first_name?",
+  tud.last_name AS "target_last_name?",
+  tud.email AS "target_email?",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registration_admin_actions a
   LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+  LEFT JOIN credit_registrations tcr ON tcr.id = a.target_id
+  AND a.target_kind = 'credit_registration'
+  LEFT JOIN verified_student_numbers tvsn ON tvsn.id = a.target_id
+  AND a.target_kind = 'verified_student_number'
+  CROSS JOIN LATERAL (
+    SELECT COALESCE(tcr.user_id, tvsn.user_id) AS user_id
+  ) target_user
+  LEFT JOIN user_details tud ON tud.user_id = target_user.user_id
   LEFT JOIN courses c ON c.id = COALESCE(
     a.actor_course_id,
+    tcr.course_id,
     CASE
       WHEN a.target_kind = 'course' THEN a.target_id
     END
@@ -326,6 +347,10 @@ LIMIT $10 OFFSET $11
             actor_last_name: row.actor_last_name,
             actor_email: row.actor_email,
             course_name: row.course_name,
+            target_user_id: row.target_user_id,
+            target_first_name: row.target_first_name,
+            target_last_name: row.target_last_name,
+            target_email: row.target_email,
             total_count: row.total_count,
             action: CreditRegistrationAdminActionRecord {
                 id: row.id,

@@ -1,5 +1,7 @@
 //! Contains helper functions needed for student view
 use crate::chapters::{self, ChapterAvailability, DatabaseChapter, UserChapterProgress};
+use crate::credit_registrations::CreditRegistrationState;
+use crate::library::credit_registration::{StageMatch, StudentFacingCreditRegistrationStatus};
 use crate::prelude::*;
 use crate::user_chapter_locking_statuses::UserChapterLockingStatus;
 use chrono::{DateTime, Utc};
@@ -58,6 +60,10 @@ pub const GRADE_FILTER_FAILED: &str = "failed";
 /// apply to modules that use the pass/fail scale, mirroring how `CompletionsTab` renders the grade
 /// column (a numeric grade takes precedence over passed/failed). `grade` is ignored unless `module_id`
 /// is also set.
+///
+/// `registration_stages` narrows to students holding at least one live credit registration at one of
+/// those stages, within `course_instance_id` and `module_id` where either is given. Empty means no
+/// narrowing.
 #[allow(clippy::too_many_arguments)]
 pub async fn get_course_students_page(
     conn: &mut PgConnection,
@@ -69,7 +75,9 @@ pub async fn get_course_students_page(
     course_instance_id: Option<Uuid>,
     module_id: Option<Uuid>,
     grade: Option<&str>,
+    registration_stages: &[StudentFacingCreditRegistrationStatus],
 ) -> ModelResult<StudentsListPage> {
+    let stages = StageMatch::of(registration_stages);
     // Empty/blank search behaves like no search.
     let search = search.map(str::trim).filter(|s| !s.is_empty());
     let user_id_exact = search.and_then(|s| Uuid::parse_str(s).ok());
@@ -128,6 +136,35 @@ FROM (
       OR ($6 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
       OR ($6 ~ '^[0-9]+$' AND gm.grade = $6::int)
     )
+    AND (
+      CARDINALITY($7::credit_registration_state []) = 0
+      OR EXISTS (
+        SELECT 1
+        FROM credit_registrations cr
+          JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+          JOIN UNNEST(
+              $7::credit_registration_state [],
+              $8::boolean [],
+              $9::boolean [],
+              $10::boolean []
+            ) AS stage(
+              state,
+              completion_eligible,
+              has_verified_student_number,
+              enrolment_resolved
+            )
+            ON stage.state = cr.state
+            AND stage.completion_eligible = p.completion_eligible
+            AND stage.has_verified_student_number = p.has_verified_student_number
+            AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
+        WHERE cr.user_id = u.id
+          AND cr.course_id = $1
+          AND cr.superseded_by_id IS NULL
+          AND cr.deleted_at IS NULL
+          AND ($2::uuid IS NULL OR cr.course_instance_id = $2)
+          AND ($5::uuid IS NULL OR cr.course_module_id = $5)
+      )
+    )
   GROUP BY u.id
 ) t
         "#,
@@ -137,6 +174,10 @@ FROM (
         user_id_exact,
         module_id,
         grade_filter,
+        &stages.states as &[CreditRegistrationState],
+        &stages.completion_eligible as &[bool],
+        &stages.has_verified_student_number as &[bool],
+        &stages.enrolment_resolved as &[bool],
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -201,6 +242,35 @@ WHERE cie.course_id = $1
     OR ($8 = 'failed' AND gm.grade IS NULL AND gm.passed = false)
     OR ($8 ~ '^[0-9]+$' AND gm.grade = $8::int)
   )
+  AND (
+    CARDINALITY($11::credit_registration_state []) = 0
+    OR EXISTS (
+      SELECT 1
+      FROM credit_registrations cr
+        JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+        JOIN UNNEST(
+            $11::credit_registration_state [],
+            $12::boolean [],
+            $13::boolean [],
+            $14::boolean []
+          ) AS stage(
+            state,
+            completion_eligible,
+            has_verified_student_number,
+            enrolment_resolved
+          )
+          ON stage.state = cr.state
+          AND stage.completion_eligible = p.completion_eligible
+          AND stage.has_verified_student_number = p.has_verified_student_number
+          AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
+      WHERE cr.user_id = u.id
+        AND cr.course_id = $1
+        AND cr.superseded_by_id IS NULL
+        AND cr.deleted_at IS NULL
+        AND ($4::uuid IS NULL OR cr.course_instance_id = $4)
+        AND ($7::uuid IS NULL OR cr.course_module_id = $7)
+    )
+  )
 GROUP BY u.id, ud.first_name, ud.last_name, ud.email
 ORDER BY
   CASE
@@ -238,6 +308,10 @@ LIMIT $5 OFFSET $6
         grade_filter,
         sort_column,
         sort_direction,
+        &stages.states as &[CreditRegistrationState],
+        &stages.completion_eligible as &[bool],
+        &stages.has_verified_student_number as &[bool],
+        &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(&mut *conn)
     .await?;

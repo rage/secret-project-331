@@ -27,13 +27,16 @@ use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NotImprovedAttainment,
 };
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionRefusal,
-    ResubmissionStrictness, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
+    CourseModuleStateCount, CreditRegistrationErrorCode, CreditRegistrationState,
+    ResubmissionRefusal, ResubmissionStrictness, TeacherCreditRegistration,
+    TeacherCreditRegistrationFilters,
 };
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
-use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use headless_lms_models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
 use headless_lms_models::library::credit_registration::student_notifications;
+use headless_lms_models::library::credit_registration::{
+    PendingPreconditions, StudentFacingCreditRegistrationStatus,
+};
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
 use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
@@ -160,30 +163,40 @@ pub struct CourseCreditRegistration {
     pub notification_email: Option<NotificationEmailStatus>,
 }
 
+/// One module's live registrations, split so a teacher can add the columns up.
+///
+/// `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
+/// `not_registering_count` partition `registration_count`: every live row falls in exactly one, and
+/// each is the same classification the row's own badge shows. `needs_admin_attention_count` is not
+/// one of them — it cuts across all five — so it is never added to them.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationModuleSummary {
     pub course_module_id: Uuid,
     pub course_module_name: Option<String>,
     pub enabled: bool,
     pub paused: bool,
-    pub counts_by_state: Vec<CreditRegistrationStateCount>,
-    /// `registered`, `duplicate` and `not_improved`: the credit exists in Sisu.
-    pub success_count: i64,
-    /// `failed_permanent` only: a retrying row is still working and `misregistered` is not terminal.
-    pub failed_permanent_count: i64,
+    /// Live registrations of this module, replaced attempts excluded. Registrations, not
+    /// completions: one per student per module, and a regrade replaces rather than adds.
+    pub registration_count: i64,
+    /// The credit exists in the study registry, whoever put it there.
+    pub registered_count: i64,
+    /// The pipeline is working on it and nobody has to do anything.
+    pub in_progress_count: i64,
+    /// Waiting for the student: their completion, their student number or their enrolment.
+    pub waiting_on_student_count: i64,
+    pub failed_count: i64,
+    /// Blocked or cancelled: nothing is happening and nothing will.
+    pub not_registering_count: i64,
+    /// Rows the pipeline handed to support. Nothing for a teacher to do; shown so a module's
+    /// failures do not read as unattended.
     pub needs_admin_attention_count: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationStateCount {
-    pub state: CreditRegistrationState,
-    pub count: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationSummary {
     pub modules: Vec<CourseCreditRegistrationModuleSummary>,
-    /// Enrolled students we hold no student number for.
+    /// Course-wide, whatever the per-module counts were narrowed to: enrolled students we hold no
+    /// student number for.
     pub unlinked_enrolled_student_count: i64,
     /// Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.
     pub linking_emails_failed_to_send_count: i64,
@@ -208,6 +221,7 @@ pub struct GetCourseCreditRegistrationsQuery {
     limit: Option<u32>,
     search: Option<String>,
     state: Option<CreditRegistrationState>,
+    status: Option<Vec<StudentFacingCreditRegistrationStatus>>,
     course_instance_id: Option<Uuid>,
 }
 
@@ -297,9 +311,29 @@ pub async fn get_course_credit_registration_module_configs(
     }))
 }
 
+/// One count group's stage, the same classification the group's own rows carry.
+fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationStatus {
+    StudentFacingCreditRegistrationStatus::of(
+        group.state,
+        PendingPreconditions {
+            completion_eligible: group.completion_eligible,
+            has_verified_student_number: group.has_verified_student_number,
+        },
+        group.enrolment_resolved,
+    )
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CourseCreditRegistrationSummaryQuery {
+    course_instance_id: Option<Uuid>,
+}
+
 /**
 GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
 counts plus the two reasons a student of this course will not get credits.
+
+Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+student-number totals are course-wide either way: a student holds one number, not one per instance.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -307,7 +341,10 @@ counts plus the two reasons a student of this course will not get credits.
     path = "/courses/{course_id}/summary",
     operation_id = "getCourseCreditRegistrationSummary",
     tag = "course-credit-registrations",
-    params(("course_id" = Uuid, Path, description = "Course id")),
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_instance_id" = Option<Uuid>, Query, description = "Narrows the per-module counts to one instance")
+    ),
     responses(
         (status = 200, description = "The course's credit registration summary", body = CourseCreditRegistrationSummary)
     )
@@ -316,6 +353,7 @@ pub async fn get_course_credit_registration_summary(
     user: AuthUser,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    query: web::Query<CourseCreditRegistrationSummaryQuery>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationSummary>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
@@ -329,25 +367,26 @@ pub async fn get_course_credit_registration_summary(
             .into_iter()
             .map(|module| (module.id, module.name))
             .collect();
-    let counts =
-        models::credit_registrations::count_by_module_and_state_for_course(&mut conn, *course_id)
-            .await?;
-    let mut attention: HashMap<Uuid, i64> = HashMap::new();
-    for (module_id, _, _, needs_admin_attention_count) in &counts {
-        *attention.entry(*module_id).or_insert(0) += needs_admin_attention_count;
-    }
+    let counts = models::credit_registrations::count_by_module_and_state_for_course(
+        &mut conn,
+        *course_id,
+        query.course_instance_id,
+    )
+    .await?;
 
+    use StudentFacingCreditRegistrationStatus as Stage;
     let modules = configs
         .into_iter()
         .map(|config| {
-            let counts_by_state: Vec<CreditRegistrationStateCount> = counts
+            let groups: Vec<&CourseModuleStateCount> = counts
                 .iter()
-                .filter(|(module_id, _, _, _)| *module_id == config.course_module_id)
-                .map(|(_, state, count, _)| CreditRegistrationStateCount {
-                    state: *state,
-                    count: *count,
-                })
+                .filter(|group| group.course_module_id == config.course_module_id)
                 .collect();
+            let mut by_stage: HashMap<Stage, i64> = HashMap::new();
+            for group in &groups {
+                *by_stage.entry(stage_of(group)).or_default() += group.count;
+            }
+            let in_stage = |stage: Stage| -> i64 { by_stage.get(&stage).copied().unwrap_or(0) };
             CourseCreditRegistrationModuleSummary {
                 course_module_id: config.course_module_id,
                 course_module_name: module_names
@@ -356,21 +395,20 @@ pub async fn get_course_credit_registration_summary(
                     .unwrap_or_default(),
                 enabled: config.enable_credit_registration_via_suotar,
                 paused: config.credit_registration_paused_at.is_some(),
-                success_count: counts_by_state
+                registration_count: groups.iter().map(|group| group.count).sum(),
+                registered_count: in_stage(Stage::Registered),
+                in_progress_count: in_stage(Stage::LookingForEnrolment)
+                    + in_stage(Stage::Sending)
+                    + in_stage(Stage::WaitingForSisu),
+                waiting_on_student_count: in_stage(Stage::WaitingForCompletion)
+                    + in_stage(Stage::NeedsStudentNumber)
+                    + in_stage(Stage::NeedsEnrolment),
+                failed_count: in_stage(Stage::Failed),
+                not_registering_count: in_stage(Stage::NotRegistering),
+                needs_admin_attention_count: groups
                     .iter()
-                    .filter(|row| row.state.is_success())
-                    .map(|row| row.count)
+                    .map(|group| group.needs_admin_attention_count)
                     .sum(),
-                failed_permanent_count: counts_by_state
-                    .iter()
-                    .filter(|row| row.state == CreditRegistrationState::FailedPermanent)
-                    .map(|row| row.count)
-                    .sum(),
-                needs_admin_attention_count: attention
-                    .get(&config.course_module_id)
-                    .copied()
-                    .unwrap_or(0),
-                counts_by_state,
             }
         })
         .collect();
@@ -466,6 +504,7 @@ course's registrations, filtered by state and searched by student name, email or
         ("limit" = Option<u32>, Query, description = "Rows per page"),
         ("search" = Option<String>, Query, description = "Student name, email or student number"),
         ("state" = Option<CreditRegistrationState>, Query, description = "Ledger state filter"),
+        ("status" = Option<Vec<StudentFacingCreditRegistrationStatus>>, Query, description = "Student-facing stage filter; repeat the parameter for several"),
         ("course_instance_id" = Option<Uuid>, Query, description = "Course instance filter")
     ),
     responses(
@@ -476,7 +515,7 @@ pub async fn get_course_credit_registrations(
     user: AuthUser,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    query: web::Query<GetCourseCreditRegistrationsQuery>,
+    query: MultiQuery<GetCourseCreditRegistrationsQuery>,
 ) -> ControllerResult<web::Json<CourseCreditRegistrationsPage>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
@@ -485,6 +524,7 @@ pub async fn get_course_credit_registrations(
     let search = non_empty(query.search.as_deref());
     let filters = TeacherCreditRegistrationFilters {
         state: query.state,
+        stages: query.status.as_deref().unwrap_or_default(),
         search,
         course_instance_id: query.course_instance_id,
         ..TeacherCreditRegistrationFilters::default()
@@ -908,8 +948,11 @@ pub(crate) async fn build_teacher_registrations(
     let waiting: Vec<&TeacherCreditRegistration> = rows
         .iter()
         .filter(|row| {
-            StudentFacingCreditRegistrationStatus::of(row.state, row.preconditions())
-                == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
+            StudentFacingCreditRegistrationStatus::of(
+                row.state,
+                row.preconditions(),
+                row.enrolment_resolved,
+            ) == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
         })
         .collect();
     let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
@@ -944,6 +987,7 @@ impl From<TeacherCreditRegistration> for CourseCreditRegistration {
             student_facing_status: StudentFacingCreditRegistrationStatus::of(
                 row.state,
                 row.preconditions(),
+                row.enrolment_resolved,
             ),
             superseded: row.superseded_by_id.is_some(),
             linking_email: None,

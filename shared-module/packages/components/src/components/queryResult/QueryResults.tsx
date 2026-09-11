@@ -10,7 +10,7 @@ import {
   type QueryTuple,
   type SuccessData,
 } from "./queryResultState"
-import type { ThemeMode } from "./queryResultStyles"
+import type { RefreshIndicator, ThemeMode } from "./queryResultStyles"
 
 export interface QueryResultsProps<E, TQueries extends QueryTuple<E>> {
   queries: TQueries
@@ -24,6 +24,9 @@ export interface QueryResultsProps<E, TQueries extends QueryTuple<E>> {
   treatEmptyAsData?: boolean
   minHeight?: number
   loadingDelayMs?: number
+  refreshIndicator?: RefreshIndicator
+  /** Class for the div holding the rendered children; see `AnimatedQueryFrame`. */
+  contentClassName?: string
   renderBlockingError?: AnimatedQueryFrameProps<E>["renderBlockingError"]
   renderStaleError?: AnimatedQueryFrameProps<E>["renderStaleError"]
 }
@@ -52,6 +55,8 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
   treatEmptyAsData = false,
   minHeight,
   loadingDelayMs,
+  refreshIndicator,
+  contentClassName,
   renderBlockingError,
   renderStaleError,
 }: QueryResultsProps<E, TQueries>) {
@@ -90,6 +95,8 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
       retry={retry}
       {...omitUndefined({ minHeight })}
       {...omitUndefined({ loadingDelayMs })}
+      {...omitUndefined({ refreshIndicator })}
+      {...omitUndefined({ contentClassName })}
       {...omitUndefined({ error: state.error })}
       {...omitUndefined({ renderBlockingError })}
       {...omitUndefined({ renderStaleError })}

@@ -4,11 +4,12 @@ import React, { useState } from "react"
 
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import type { MenuItemDescriptor } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
 
-type ToastOptions = Parameters<typeof useToastMutation>[1]
+const DESTRUCTIVE_TONE = "destructive" as const
 
 interface UseReasonConfirmActionOptions {
   mutationFn: (fields: { reason: string }) => Promise<unknown>
@@ -16,14 +17,17 @@ interface UseReasonConfirmActionOptions {
   invalidate: () => void
   buttonLabel: string
   dialogTitle: string
-  dialogMessage?: string
-  reasonDescription?: string
+  /** One sentence saying what confirming does. */
+  dialogMessage: string
+  /** Danger palette for an action that cannot be taken back. */
+  isDestructive?: boolean
   buttonVariant?: "primary" | "secondary" | "tertiary"
-  toastOptions?: ToastOptions
 }
 
 interface ReasonConfirmAction {
   button: React.ReactNode
+  /** The same action for a row's overflow menu, where a button of its own would be too loud. */
+  item: MenuItemDescriptor
   dialog: React.ReactNode
 }
 
@@ -34,18 +38,21 @@ export function useReasonConfirmAction({
   buttonLabel,
   dialogTitle,
   dialogMessage,
-  reasonDescription,
+  isDestructive = false,
   buttonVariant = "tertiary",
-  toastOptions = { notify: true, method: "POST" },
 }: UseReasonConfirmActionOptions): ReasonConfirmAction {
   const [open, setOpen] = useState(false)
 
-  const mutation = useToastMutation(mutationFn, toastOptions, {
-    onSuccess: () => {
-      setOpen(false)
-      invalidate()
+  const mutation = useToastMutation(
+    mutationFn,
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        setOpen(false)
+        invalidate()
+      },
     },
-  })
+  )
 
   const button = (
     <Button variant={buttonVariant} size="medium" onClick={() => setOpen(true)}>
@@ -53,17 +60,26 @@ export function useReasonConfirmAction({
     </Button>
   )
 
+  const item: MenuItemDescriptor = {
+    key: buttonLabel,
+    label: buttonLabel,
+    isDisabled: mutation.isPending,
+    onAction: () => setOpen(true),
+    ...includeIf(isDestructive, { tone: DESTRUCTIVE_TONE }),
+  }
+
   const dialog = (
     <ReasonConfirmDialog
       open={open}
       onClose={() => setOpen(false)}
       title={dialogTitle}
-      {...includeIf(dialogMessage, { message: dialogMessage })}
-      {...includeIf(reasonDescription, { reasonDescription })}
+      description={dialogMessage}
+      confirmLabel={buttonLabel}
+      isDestructive={isDestructive}
       isPending={mutation.isPending}
       onConfirm={(reason) => mutation.mutate({ reason })}
     />
   )
 
-  return { button, dialog }
+  return { button, item, dialog }
 }

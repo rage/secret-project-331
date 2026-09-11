@@ -1,6 +1,8 @@
 "use client"
 
 import type { OnChangeFn, SortingState } from "@tanstack/react-table"
+import type { ReadonlyURLSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, {
   createContext,
   type Dispatch,
@@ -11,6 +13,11 @@ import React, {
   useRef,
 } from "react"
 
+import type { RegistrationStatusView } from "@/components/credit-registration/registrationStatusViews"
+import {
+  DEFAULT_REGISTRATION_STATUS_VIEW,
+  REGISTRATION_STATUS_VIEWS,
+} from "@/components/credit-registration/registrationStatusViews"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 
@@ -22,6 +29,18 @@ import type {
 } from "./studentsQueries"
 
 const SEARCH_PARAM = "search"
+const PAGE_PARAM = "page"
+
+/**
+ * The filters that live in the query string.
+ *
+ * Shareable and linkable is the point: a count in the summary above the roster, a link from the
+ * modules page and a redirect from a course instance all arrive as one of these.
+ */
+export const INSTANCE_PARAM = "instance"
+export const MODULE_PARAM = "module"
+export const GRADE_PARAM = "grade"
+export const REGISTRATION_PARAM = "registration"
 const SEARCH_DEBOUNCE_MS = 300
 const DEFAULT_SORT_COLUMN: StudentsSortColumn = "last_name"
 const DEFAULT_SORT_DIRECTION: SortDirection = "asc"
@@ -53,6 +72,9 @@ interface StudentsContextValue {
   setModuleId: (value: string | null) => void
   grade: GradeFilterValue | null
   setGrade: (value: GradeFilterValue | null) => void
+  // Credit-registration filter, applied by the server to the shared identity query.
+  registrationView: RegistrationStatusView
+  setRegistrationView: (value: RegistrationStatusView) => void
 }
 
 const StudentsContext = createContext<StudentsContextValue | null>(null)
@@ -63,6 +85,48 @@ export function useStudentsContext() {
     throw new Error("useStudentsContext must be used within StudentsLayout")
   }
   return ctx
+}
+
+const isRegistrationStatusView = (value: string | null): value is RegistrationStatusView =>
+  value !== null && (REGISTRATION_STATUS_VIEWS as string[]).includes(value)
+
+/**
+ * The filter query string, and one writer for it.
+ *
+ * Writes several parameters at once because they move together — picking a module drops the grade,
+ * and every filter change drops the page, which would otherwise ask for a page the narrowed list
+ * no longer has.
+ */
+const useUrlFilters = (): {
+  params: ReadonlyURLSearchParams
+  setParams: (patch: Record<string, string | null>) => void
+} => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const query = searchParams.toString()
+
+  const setParams = useCallback(
+    (patch: Record<string, string | null>) => {
+      const next = new URLSearchParams(query)
+      for (const [key, value] of Object.entries(patch)) {
+        if (value === null || value === "") {
+          next.delete(key)
+        } else {
+          next.set(key, value)
+        }
+      }
+      next.delete(PAGE_PARAM)
+      const nextQuery = next.toString()
+      if (nextQuery === query) {
+        return
+      }
+      router.replace(`${pathname}${nextQuery ? `?${nextQuery}` : ""}`)
+    },
+    [pathname, query, router],
+  )
+
+  return { params: searchParams, setParams }
 }
 
 export function StudentsContextProvider({
@@ -84,24 +148,45 @@ export function StudentsContextProvider({
 
   const [sortColumn, setSortColumn] = React.useState<StudentsSortColumn>(DEFAULT_SORT_COLUMN)
   const [sortDirection, setSortDirection] = React.useState<SortDirection>(DEFAULT_SORT_DIRECTION)
-  const [courseInstanceId, setCourseInstanceId] = React.useState<string | null>(null)
-  const [moduleId, setModuleIdState] = React.useState<string | null>(null)
-  const [grade, setGrade] = React.useState<GradeFilterValue | null>(null)
+  const { params: filterParams, setParams: setFilterParams } = useUrlFilters()
+
+  const courseInstanceId = filterParams.get(INSTANCE_PARAM)
+  const moduleId = filterParams.get(MODULE_PARAM)
+  const grade = filterParams.get(GRADE_PARAM) as GradeFilterValue | null
+  const registrationViewParam = filterParams.get(REGISTRATION_PARAM)
+  const registrationView = isRegistrationStatusView(registrationViewParam)
+    ? registrationViewParam
+    : DEFAULT_REGISTRATION_STATUS_VIEW
 
   const setSort = useCallback((column: StudentsSortColumn, direction: SortDirection) => {
     setSortColumn(column)
     setSortDirection(direction)
   }, [])
 
+  const setCourseInstanceId = useCallback(
+    (value: string | null) => setFilterParams({ [INSTANCE_PARAM]: value }),
+    [setFilterParams],
+  )
   // Switching modules invalidates the previously chosen grade (a grade string from one module's
   // scale, e.g. a numeric "3", is not meaningful against another module or against no module).
-  const setModuleId = useCallback((value: string | null) => {
-    setModuleIdState(value)
-    setGrade(null)
-  }, [])
+  const setModuleId = useCallback(
+    (value: string | null) => setFilterParams({ [MODULE_PARAM]: value, [GRADE_PARAM]: null }),
+    [setFilterParams],
+  )
+  const setGrade = useCallback(
+    (value: GradeFilterValue | null) => setFilterParams({ [GRADE_PARAM]: value }),
+    [setFilterParams],
+  )
+  const setRegistrationView = useCallback(
+    (value: RegistrationStatusView) =>
+      setFilterParams({
+        [REGISTRATION_PARAM]: value === DEFAULT_REGISTRATION_STATUS_VIEW ? null : value,
+      }),
+    [setFilterParams],
+  )
 
   // Changing any filter or the sort order should return to the first page.
-  const filterSignature = `${search}|${courseInstanceId ?? ""}|${moduleId ?? ""}|${grade ?? ""}|${sortColumn}|${sortDirection}`
+  const filterSignature = `${search}|${courseInstanceId ?? ""}|${moduleId ?? ""}|${grade ?? ""}|${registrationView}|${sortColumn}|${sortDirection}`
   const previousSignature = useRef(filterSignature)
   useEffect(() => {
     if (previousSignature.current === filterSignature) {
@@ -135,6 +220,8 @@ export function StudentsContextProvider({
     setModuleId,
     grade,
     setGrade,
+    registrationView,
+    setRegistrationView,
   }
 
   return <StudentsContext.Provider value={value}>{children}</StudentsContext.Provider>
@@ -149,8 +236,17 @@ export function StudentsContextProvider({
  * a matching header indicator. Falls back to the default sort in that case.
  */
 export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): StudentsListParams {
-  const { page, limit, search, sortColumn, sortDirection, courseInstanceId, moduleId, grade } =
-    useStudentsContext()
+  const {
+    page,
+    limit,
+    search,
+    sortColumn,
+    sortDirection,
+    courseInstanceId,
+    moduleId,
+    grade,
+    registrationView,
+  } = useStudentsContext()
   const columnAllowed = !allowedColumns || allowedColumns.includes(sortColumn)
   return {
     page,
@@ -161,6 +257,7 @@ export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): St
     courseInstanceId,
     moduleId,
     grade,
+    registrationView,
   }
 }
 

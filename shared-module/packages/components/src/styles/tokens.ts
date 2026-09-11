@@ -5,6 +5,7 @@ export const tokensGlobal = injectGlobal`
     /* sizing */
     --control-gap: var(--space-3);
     --control-radius: var(--space-2);
+    --surface-radius: 8px;
 
     --control-height-sm: var(--space-5);
     --control-height-md: var(--space-6);
@@ -18,20 +19,29 @@ export const tokensGlobal = injectGlobal`
     --font-size-md: var(--font-size-2);
     --font-size-lg: var(--font-size-3);
 
-    /* spacing scale */
+    /* stacking order. A dropdown or tooltip portals to the body as a sibling of the dialog it
+       was opened from, not a descendant, so its layer has to clear the dialog's own. */
+    --z-dialog: 1000;
+    --z-popover: 1500;
+
+    /* spacing scale. A new step is inserted as a half step; renumbering would move every caller. */
     --space-0: 0px;
     --space-1: 2px;
     --space-2: 4px;
     --space-3: 8px;
+    --space-3-5: 12px;
     --space-4: 16px;
+    --space-4-5: 24px;
     --space-5: 32px;
     --space-6: 40px;
     --space-7: 48px;
 
     /* type scale */
+    --font-size-0: 12px;
     --font-size-1: 14px;
     --font-size-2: 16px;
     --font-size-3: 18px;
+    --font-size-3-5: 20px;
     --font-size-4: 24px;
     --font-size-5: 32px;
 
@@ -174,6 +184,11 @@ export const tokensGlobal = injectGlobal`
     --gradient-green: linear-gradient(to bottom right, #075854, #4de2c5);
     --gradient-blue: linear-gradient(-70deg, #020344 0%, #28b8d5 100%);
 
+    /* link. Blue, not the brand green: a green link is read as a status in a table of statuses,
+       and every other link in the app is blue. */
+    --link-fg: var(--color-blue-700);
+    --link-fg-hover: var(--color-blue-800);
+
     /* primary */
     --btn-primary-bg: var(--color-green-600);
     --btn-primary-fg: var(--color-primary-100);
@@ -207,15 +222,26 @@ export const tokensGlobal = injectGlobal`
     --btn-tertiary-shadow-hover: 0 4px 12px rgba(26, 35, 51, 0.15);
     --btn-tertiary-outline-width: 3px;
 
+    /* destructive */
+    --btn-destructive-bg: var(--color-crimson-700);
+    --btn-destructive-fg: var(--color-primary-100);
+    --btn-destructive-border: var(--color-crimson-700);
+    --btn-destructive-bg-hover: var(--color-primary-100);
+    --btn-destructive-fg-hover: var(--color-crimson-800);
+    --btn-destructive-border-hover: var(--color-primary-100);
+    --btn-destructive-bg-pressed: var(--color-crimson-900);
+    --btn-destructive-shadow-hover: 0 4px 12px rgba(116, 14, 25, 0.15);
+    --btn-destructive-outline-width: 3px;
+
     /* icon */
     --btn-icon-bg: transparent;
-    --btn-icon-fg: var(--color-gray-400);
+    --btn-icon-fg: var(--color-gray-700);
     --btn-icon-border: transparent;
     --btn-icon-bg-hover: transparent;
-    --btn-icon-fg-hover: var(--color-gray-700);
+    --btn-icon-fg-hover: var(--color-gray-800);
     --btn-icon-border-hover: transparent;
     --btn-icon-bg-pressed: transparent;
-    --btn-icon-fg-pressed: var(--color-gray-800);
+    --btn-icon-fg-pressed: var(--color-gray-900);
     --btn-icon-shadow-hover: none;
     --btn-icon-padding-x-sm: var(--space-3);
     --btn-icon-padding-x-md: calc(var(--space-4) - (var(--space-1) * 2));

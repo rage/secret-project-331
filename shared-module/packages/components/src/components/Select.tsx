@@ -294,7 +294,8 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const selectedOption = optionsByKey.get(String(state.value))
   const isPlaceholderState = selectedOption === undefined
-  const isFloated = state.isOpen || selectedOption !== undefined
+  // A placeholder is drawn in the same band as the resting label, so one has to give way.
+  const isFloated = state.isOpen || selectedOption !== undefined || placeholder !== undefined
   return (
     <div className={cx(fieldRootCss, className)}>
       <div

@@ -43,6 +43,7 @@ export interface CourseActivityTimelineProps {
 
 const OTHER_KEY = "__other__"
 const SUBMISSION_CAP = 5000
+const DAY_MS = 24 * 60 * 60 * 1000
 const LANE = "activity"
 const MARK_BORDER = "#ffffff"
 const SUBMISSION_SIZE = 9
@@ -193,11 +194,13 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
     },
   }
 
-  const { min, max } = timeAxisBounds([
+  const eventTimes = [
     enrolledMs,
     ...completions.map((c) => new Date(c.completion_date).getTime()),
     ...enrichedSubmissions.map((s) => s.ms),
-  ])
+  ]
+  const firstEventMs = Math.min(...eventTimes)
+  const { min, max } = timeAxisBounds(eventTimes)
 
   const moduleLabels = seriesKeys.map((key) => bucketLabel(key))
 
@@ -237,17 +240,27 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   }
 
   const hasChart = completions.length > 0 || enrichedSubmissions.length > 0
+  // Marks that all land on one day are a time axis, a zoom slider and a legend around one dot.
+  const isWithinOneDay = Math.max(...eventTimes) - firstEventMs < DAY_MS
 
   return (
     <div>
       {hasChart ? (
-        <>
-          <Echarts options={options} height={180} />
-          <p className={moduleTimingLegendCss}>{t("submission-legend")}</p>
-          {submissionsTruncated ? (
-            <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>
-          ) : null}
-        </>
+        isWithinOneDay ? (
+          <p className={noteCss}>
+            {t("course-activity-all-within-one-day", {
+              date: dateToString(new Date(firstEventMs)),
+            })}
+          </p>
+        ) : (
+          <>
+            <Echarts options={options} height={180} />
+            <p className={moduleTimingLegendCss}>{t("submission-legend")}</p>
+            {submissionsTruncated ? (
+              <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>
+            ) : null}
+          </>
+        )
       ) : null}
       <Disclosure title={t("show-underlying-data")}>
         <table className={moduleTimingTableCss}>

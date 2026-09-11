@@ -18,9 +18,17 @@ import {
 } from "./primitives/fieldShellStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
+/**
+ * `list`, the default, stacks or rows the options each behind its own circle. `segmented` draws
+ * them as one row of buttons, the chosen one filled: for a short closed question, typically two
+ * or three one-word answers, where the options read better as a choice than as a list.
+ */
+export type RadioGroupVariant = "list" | "segmented"
+
 interface RadioGroupContextValue {
   fieldSize: FieldSize
   state: RadioGroupState
+  variant: RadioGroupVariant
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(null)
@@ -41,6 +49,39 @@ const radioListHorizontalCss = css`
   flex-wrap: wrap;
   gap: var(--space-4);
 `
+
+const segmentedListCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
+
+/**
+ * A closed question is the band's subject, not a field label above a control, so it is sized as
+ * the heading it reads as.
+ */
+const segmentedLegendCss = css`
+  color: var(--color-gray-700);
+  font-size: var(--font-size-3);
+  font-weight: 600;
+  line-height: 1.3;
+`
+
+/** Hint before the answers: read after them, it is advice on a choice already made. */
+const segmentedDescriptionCss = css`
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-3-5);
+`
+
+const resolveRadioListCss = (
+  variant: RadioGroupVariant,
+  orientation: "vertical" | "horizontal",
+): string => {
+  if (variant === "segmented") {
+    return segmentedListCss
+  }
+  return orientation === "horizontal" ? radioListHorizontalCss : radioListCss
+}
 
 // oxlint-disable-next-line i18next/no-literal-string
 const radioInputSelector = 'input[type="radio"]'
@@ -66,6 +107,7 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   isReadOnly?: boolean
   isRequired?: boolean
   orientation?: "vertical" | "horizontal"
+  variant?: RadioGroupVariant
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
@@ -86,6 +128,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     isReadOnly = false,
     isRequired = false,
     orientation = "vertical",
+    variant = "list",
     className,
     children,
     "aria-label": ariaLabel,
@@ -136,6 +179,13 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     state,
   )
 
+  const isSegmented = variant === "segmented"
+  const descriptionBlock = description ? (
+    <div {...descriptionProps} className={descriptionCss}>
+      {description}
+    </div>
+  ) : null
+
   const resolvedRenderedError =
     resolvedError ??
     (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
@@ -156,23 +206,21 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       className={cx(fieldRootCss, fieldsetCss, className)}
       disabled={state.isDisabled}
     >
-      <legend {...labelProps} className={stackedLabelCss}>
+      <legend {...labelProps} className={isSegmented ? segmentedLegendCss : stackedLabelCss}>
         {label}
       </legend>
 
-      <RadioGroupContext.Provider value={{ fieldSize, state }}>
-        <div className={orientation === "horizontal" ? radioListHorizontalCss : radioListCss}>
-          {children}
-        </div>
+      {isSegmented && descriptionBlock ? (
+        <div className={segmentedDescriptionCss}>{descriptionBlock}</div>
+      ) : null}
+
+      <RadioGroupContext.Provider value={{ fieldSize, state, variant }}>
+        <div className={resolveRadioListCss(variant, orientation)}>{children}</div>
       </RadioGroupContext.Provider>
 
-      {description || resolvedRenderedError ? (
+      {(!isSegmented && description) || resolvedRenderedError ? (
         <div className={messagesCss}>
-          {description ? (
-            <div {...descriptionProps} className={descriptionCss}>
-              {description}
-            </div>
-          ) : null}
+          {isSegmented ? null : descriptionBlock}
           {resolvedRenderedError ? (
             <div {...errorMessageProps} className={errorCss} role="alert">
               {resolvedRenderedError}

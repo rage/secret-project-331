@@ -12,6 +12,12 @@ const customJestConfig = {
 
   transformIgnorePatterns: ["node_modules/(?!(uuid|until-async|msw|@mswjs/interceptors)/)"],
 
+  moduleNameMapper: {
+    "^react$": require.resolve("react"),
+    "^react-dom$": require.resolve("react-dom"),
+    "^react-i18next$": require.resolve("react-i18next"),
+  },
+
   testEnvironmentOptions: {
     customExportConditions: ["node"],
   },

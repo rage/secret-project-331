@@ -66,7 +66,7 @@ const CLOSE_SYMBOL = "×"
 const underlayCss = css`
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-dialog);
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
@@ -82,7 +82,7 @@ const surfaceCss = css`
   overflow: hidden;
   background: var(--color-clear-50);
   color: var(--color-gray-700);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   outline: none;
 `
 
@@ -163,6 +163,9 @@ const contentCss = css`
   }
 `
 
+/** Below this the footer stacks; `actionCss` has to know, so the two cannot drift apart. */
+const STACK_ACTIONS_BELOW_PX = 480
+
 const footerCss = css`
   flex: none;
   display: flex;
@@ -170,7 +173,7 @@ const footerCss = css`
   gap: var(--space-3);
   padding: 0 clamp(1rem, 5vw, 2rem) clamp(1rem, 5vw, 2rem);
 
-  @media (max-width: 480px) {
+  @media (max-width: ${STACK_ACTIONS_BELOW_PX}px) {
     flex-direction: column;
 
     & > * {
@@ -181,6 +184,12 @@ const footerCss = css`
 
 const actionCss = css`
   flex: 1 1 0;
+
+  /* On a column main axis that zero basis becomes a zero height and overrides the button's own,
+     leaving an action the height of its text. */
+  @media (max-width: ${STACK_ACTIONS_BELOW_PX}px) {
+    flex: 0 0 auto;
+  }
 `
 
 /**
@@ -191,7 +200,11 @@ const actionCss = css`
  * closes. Reflows without horizontal overflow down to 320px viewports.
  *
  * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
- * data, which share the footer width evenly.
+ * data; two or more share the footer width evenly, a lone action keeps its own width at the end of
+ * the row. A dialog whose body is a form should submit through
+ * `actions`, not a button rendered in `children` — `actions` is what positions, sizes, and stacks
+ * it consistently on narrow screens. For a confirm/cancel action pair, prefer the `ConfirmDialog`
+ * preset over assembling `actions` by hand.
  */
 export const Dialog: React.FC<DialogProps> = (props) => {
   // The overlay stack (focus trap, scroll lock, focus-on-mount) must mount and
@@ -274,7 +287,12 @@ const OpenDialog: React.FC<DialogProps> = ({
           {actions !== undefined && (
             <div className={footerCss}>
               {actions.map(({ label, ...buttonProps }, index) => (
-                <Button key={index} {...buttonProps} size="medium" className={actionCss}>
+                <Button
+                  key={index}
+                  {...buttonProps}
+                  size="medium"
+                  className={cx(actions.length > 1 && actionCss)}
+                >
                   {label}
                 </Button>
               ))}

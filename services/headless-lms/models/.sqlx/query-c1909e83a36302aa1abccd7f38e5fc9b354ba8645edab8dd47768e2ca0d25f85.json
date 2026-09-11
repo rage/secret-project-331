@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO course_module_completions (\n            course_id,\n            course_module_id,\n            user_id,\n            completion_date,\n            completion_language,\n            eligible_for_ects,\n            email,\n            grade,\n            passed,\n            prerequisite_modules_completed,\n            needs_to_be_reviewed,\n            register_credits_via_suotar\n        )\n        VALUES (\n            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,\n            -- From the module alone, unlike `insert`, which also requires a verified student\n            -- number: the seed deliberately builds push-path scenarios for students without one.\n            (\n              SELECT cm.enable_credit_registration_via_suotar\n              FROM course_modules cm\n              WHERE cm.id = $2\n            )\n        )\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Timestamptz",
+        "Varchar",
+        "Bool",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c1909e83a36302aa1abccd7f38e5fc9b354ba8645edab8dd47768e2ca0d25f85"
+}

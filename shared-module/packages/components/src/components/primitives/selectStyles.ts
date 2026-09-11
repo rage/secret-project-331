@@ -24,7 +24,7 @@ export const selectCaretCss = css`
 
 export const popoverCss = css`
   position: absolute;
-  z-index: 20;
+  z-index: var(--z-popover);
   min-width: var(--popover-trigger-width, 0);
   max-width: min(100vw - 24px, 560px);
   box-sizing: border-box;

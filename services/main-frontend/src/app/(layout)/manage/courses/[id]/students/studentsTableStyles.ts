@@ -1,6 +1,5 @@
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 // --- shared sizing ---
@@ -13,9 +12,9 @@ export const COMPLETIONS_LEAF_MIN_WIDTH = 60
 export const tableViewportCss = css`
   position: relative;
   width: 100%;
-  border: 1px solid #ced1d7;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+  background: var(--color-clear-50);
 `
 
 // Fixed-position clone of the header shown once the real thead scrolls above the viewport.
@@ -35,11 +34,20 @@ export const floatingHeaderShellDynamic = (left: number, width: number) => css`
 `
 
 export const floatingHeaderInnerCss = css`
-  background: #fff;
+  background: var(--color-clear-50);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;
   display: inline-block;
   pointer-events: auto;
+`
+
+// The table's own horizontal scroller, so a wide table scrolls without taking the rest of the tab
+// (the credit registration panel below it) sideways with it.
+export const tableScrollCss = css`
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 `
 
 // Dims a subtab's table while its columns/data are being recomputed from a newer
@@ -65,6 +73,22 @@ export const cellTruncateCss = css`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+`
+
+// Single line, so every row is the same height, which is what keeps the virtualized body from
+// shifting as it scrolls.
+export const inlineCellCss = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+`
+
+// Numbers line up on the right; a word stranded at the far edge of a wide column does not.
+export const numericCellCss = css`
+  justify-content: flex-end;
 `
 
 export const resizeHandleCss = css`
@@ -94,14 +118,14 @@ export const resizeHandleCss = css`
 
   &:hover::after,
   &:focus-visible::after {
-    background: ${baseTheme.colors.green[700]};
+    background: var(--color-green-700);
     right: -1px;
     width: 3px;
   }
 `
 
 export const headerRowStyle = css`
-  background: #f7f8f9;
+  background: var(--color-clear-100);
   height: 40px;
 
   ${respondToOrLarger.md} {
@@ -110,7 +134,7 @@ export const headerRowStyle = css`
 `
 
 export const thStyle = css`
-  color: ${baseTheme.colors.gray[700]};
+  color: var(--color-gray-700);
   font-weight: 500;
   font-size: 12px;
   line-height: 140%;
@@ -118,10 +142,10 @@ export const thStyle = css`
   padding-right: 8px;
   text-align: left;
   height: 40px;
-  background: #f7f8f9;
-  border-bottom: 1px solid #ced1d7;
+  background: var(--color-clear-100);
+  border-bottom: 1px solid var(--color-clear-300);
   vertical-align: middle;
-  border-right: 1px solid #ced1d7;
+  border-right: 1px solid var(--color-clear-300);
 
   ${respondToOrLarger.md} {
     font-size: 14px;
@@ -136,18 +160,10 @@ export const thStyle = css`
   }
 
   &:first-of-type {
-    border-radius: 4px 0 0 0;
-
-    ${respondToOrLarger.md} {
-      border-radius: 7px 0 0 0;
-    }
+    border-radius: var(--surface-radius) 0 0 0;
   }
   &:last-of-type {
-    border-radius: 0 4px 0 0;
-
-    ${respondToOrLarger.md} {
-      border-radius: 0 7px 0 0;
-    }
+    border-radius: 0 var(--surface-radius) 0 0;
   }
 `
 
@@ -156,7 +172,7 @@ export const sortableThCss = css`
   user-select: none;
 
   &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[700]};
+    outline: 2px solid var(--color-green-700);
     outline-offset: -2px;
   }
 `
@@ -170,18 +186,19 @@ export const rowStyle = css`
 `
 
 export const tdStyle = css`
-  color: ${baseTheme.colors.gray[700]};
+  color: var(--color-gray-700);
   opacity: 0.8;
   font-weight: 400;
   font-size: 12px;
   line-height: 140%;
+  font-variant-numeric: tabular-nums;
   padding-left: 8px;
   padding-right: 8px;
   height: 42px;
   vertical-align: middle;
-  background: #fff;
-  border-bottom: 1px solid #ced1d7;
-  border-right: 1px solid #ced1d7;
+  background: var(--color-clear-50);
+  border-bottom: 1px solid var(--color-clear-300);
+  border-right: 1px solid var(--color-clear-300);
 
   ${respondToOrLarger.md} {
     font-size: 14px;
@@ -211,7 +228,7 @@ export const noLeftBorder = css`
 export const tableEmptyCell = css`
   text-align: center;
   padding: 32px 16px;
-  color: ${baseTheme.colors.gray[500]};
+  color: var(--color-gray-500);
   font-size: 14px;
 `
 

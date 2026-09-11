@@ -7,7 +7,7 @@ import type {
   FieldValues,
   Path,
   UseFormHandleSubmit,
-  UseFormReset,
+  UseFormSetValue,
   UseFormWatch,
 } from "react-hook-form"
 import { useForm } from "react-hook-form"
@@ -47,12 +47,27 @@ export function selectFilterField<Fields extends FieldValues>(
 export interface UseFilteredAdminQueryResult<Fields extends FieldValues, Query> {
   control: Control<Fields>
   watch: UseFormWatch<Fields>
+  setValue: UseFormSetValue<Fields>
   handleSubmit: UseFormHandleSubmit<Fields>
-  reset: UseFormReset<Fields>
   param: QueryParamFilters["param"]
+  params: QueryParamFilters["params"]
   applyParams: QueryParamFilters["applyParams"]
+  /** How many of `fields` the URL currently narrows by. */
+  activeFilterCount: number
+  /**
+   * Drops every `fields` param and returns the form to its unfiltered values. `extraParams` names
+   * params the caller owns outside the descriptors, such as a free-text search.
+   */
+  clearFilters: (extraParams?: string[]) => void
   paginationInfo: PaginationInfo
   query: Query
+}
+
+/** An empty query string, so `manualDefaults` yields the values `clearFilters` resets to. */
+const CLEARED_FILTERS: QueryParamFilters = {
+  param: () => undefined,
+  params: () => [],
+  applyParams: () => undefined,
 }
 
 /**
@@ -64,13 +79,14 @@ export interface UseFilteredAdminQueryResult<Fields extends FieldValues, Query> 
  */
 export function useFilteredAdminQuery<Fields extends FieldValues, Query>(
   fields: FilterFieldDescriptor<Fields>[],
-  buildQuery: (param: QueryParamFilters["param"], paginationInfo: PaginationInfo) => Query,
+  buildQuery: (filters: QueryParamFilters, paginationInfo: PaginationInfo) => Query,
   options: {
-    manualDefaults?: (param: QueryParamFilters["param"]) => Partial<Fields>
+    manualDefaults?: (filters: QueryParamFilters) => Partial<Fields>
     rowsPerPage?: number
   } = {},
 ): UseFilteredAdminQueryResult<Fields, Query> {
-  const { param, applyParams } = useQueryParamFilters()
+  const filters = useQueryParamFilters()
+  const { param, params, applyParams } = filters
   const paginationInfo = usePaginationInfo(options.rowsPerPage)
 
   const defaultValues = useMemo(() => {
@@ -78,7 +94,7 @@ export function useFilteredAdminQuery<Fields extends FieldValues, Query>(
     for (const field of fields) {
       values[field.field] = field.fromParam(param(field.param))
     }
-    return { ...values, ...options.manualDefaults?.(param) } as DefaultValues<Fields>
+    return { ...values, ...options.manualDefaults?.(filters) } as DefaultValues<Fields>
     // Seeded once at mount; the effects below take over from here.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -128,10 +144,37 @@ export function useFilteredAdminQuery<Fields extends FieldValues, Query>(
   )
 
   const query = useMemo(
-    () => buildQuery(param, paginationInfo),
+    () => buildQuery(filters, paginationInfo),
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [param, paginationInfo.page, paginationInfo.limit],
+    [filters, paginationInfo.page, paginationInfo.limit],
   )
 
-  return { control, watch, handleSubmit, reset, param, applyParams, paginationInfo, query }
+  const activeFilterCount = fields.filter((field) => param(field.param) !== undefined).length
+
+  const clearFilters = (extraParams: string[] = []) => {
+    const values: Record<string, FilterFieldValue> = {}
+    for (const field of fields) {
+      values[field.field] = field.fromParam(undefined)
+    }
+    reset({ ...values, ...options.manualDefaults?.(CLEARED_FILTERS) } as DefaultValues<Fields>)
+    applyParams(
+      Object.fromEntries(
+        [...fields.map((field) => field.param), ...extraParams].map((name) => [name, undefined]),
+      ),
+    )
+  }
+
+  return {
+    control,
+    watch,
+    setValue,
+    handleSubmit,
+    param,
+    params,
+    applyParams,
+    activeFilterCount,
+    clearFilters,
+    paginationInfo,
+    query,
+  }
 }

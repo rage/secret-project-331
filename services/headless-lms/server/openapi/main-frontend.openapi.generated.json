@@ -1246,6 +1246,18 @@
             }
           },
           {
+            "name": "status",
+            "in": "query",
+            "description": "Student-facing stage filter; repeat the parameter for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
+              }
+            }
+          },
+          {
             "name": "course_instance_id",
             "in": "query",
             "description": "Course instance filter",
@@ -1389,7 +1401,7 @@
     "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary": {
       "get": {
         "tags": ["course-credit-registrations"],
-        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module\ncounts plus the two reasons a student of this course will not get credits.",
+        "summary": "\nGET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module\ncounts plus the two reasons a student of this course will not get credits.\n\nCourse-wide unless `course_instance_id` narrows the per-module counts to one instance. The two\nstudent-number totals are course-wide either way: a student holds one number, not one per instance.",
         "operationId": "getCourseCreditRegistrationSummary",
         "parameters": [
           {
@@ -1397,6 +1409,16 @@
             "in": "path",
             "description": "Course id",
             "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "query",
+            "description": "Narrows the per-module counts to one instance",
+            "required": false,
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -6360,6 +6382,18 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "registration_status",
+            "in": "query",
+            "description": "Only students holding a live credit registration at one of these stages; repeat the parameter for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
+              }
+            }
           }
         ],
         "responses": {
@@ -7182,11 +7216,65 @@
     "/api/v0/main-frontend/credit-registration-admin/attention": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector\nwants a human to look at, with the detectors that picked each.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one\ndetector wants a human to look at, with the detectors that picked each.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.\n`total_count` is the queue's length under the one definition of \"needs a human\"; `/overview`'s\n`needs_admin_attention_count` is the same number.",
         "operationId": "getCreditRegistrationAttentionItems",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "description": "Only rows one of these detectors picked; repeat the parameter for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+              }
+            }
+          },
+          {
+            "name": "without_reason",
+            "in": "query",
+            "description": "Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "time_in_state, next_attempt or course",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Rows needing a human, and how many for each reason",
+            "description": "A page of the rows needing a human, and how many for each reason",
             "content": {
               "application/json": {
                 "schema": {
@@ -8340,6 +8428,136 @@
                       "$ref": "#/components/schemas/MyCreditRegistrationForCourseModule"
                     }
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- What the caller said about where they enrol this module.",
+        "operationId": "getMyEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's answer for the module",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- Records which university relationship the caller has, which decides where they are told to enrol.",
+        "operationId": "setMyEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetEnrolmentRoutePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nAdvisory: the pipeline was already looking. Beyond recording the click this only brings the next\nenrolment check forward, and only when the hourly allowance the manual button spends is free.",
+        "operationId": "confirmMyEnrolment",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller takes back saying they had enrolled.",
+        "operationId": "withdrawMyEnrolmentConfirmation",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
                 }
               }
             }
@@ -17447,22 +17665,20 @@
       },
       "CourseCreditRegistrationModuleSummary": {
         "type": "object",
+        "description": "One module's live registrations, split so a teacher can add the columns up.\n\n`registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and\n`not_registering_count` partition `registration_count`: every live row falls in exactly one, and\neach is the same classification the row's own badge shows. `needs_admin_attention_count` is not\none of them — it cuts across all five — so it is never added to them.",
         "required": [
           "course_module_id",
           "enabled",
           "paused",
-          "counts_by_state",
-          "success_count",
-          "failed_permanent_count",
+          "registration_count",
+          "registered_count",
+          "in_progress_count",
+          "waiting_on_student_count",
+          "failed_count",
+          "not_registering_count",
           "needs_admin_attention_count"
         ],
         "properties": {
-          "counts_by_state": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreditRegistrationStateCount"
-            }
-          },
           "course_module_id": {
             "type": "string",
             "format": "uuid"
@@ -17473,22 +17689,42 @@
           "enabled": {
             "type": "boolean"
           },
-          "failed_permanent_count": {
+          "failed_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "in_progress_count": {
             "type": "integer",
             "format": "int64",
-            "description": "`failed_permanent` only: a retrying row is still working and `misregistered` is not terminal."
+            "description": "The pipeline is working on it and nobody has to do anything."
           },
           "needs_admin_attention_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Rows the pipeline handed to support. Nothing for a teacher to do; shown so a module's\nfailures do not read as unattended."
+          },
+          "not_registering_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Blocked or cancelled: nothing is happening and nothing will."
           },
           "paused": {
             "type": "boolean"
           },
-          "success_count": {
+          "registered_count": {
             "type": "integer",
             "format": "int64",
-            "description": "`registered`, `duplicate` and `not_improved`: the credit exists in Sisu."
+            "description": "The credit exists in the study registry, whoever put it there."
+          },
+          "registration_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live registrations of this module, replaced attempts excluded. Registrations, not\ncompletions: one per student per module, and a regrade replaces rather than adds."
+          },
+          "waiting_on_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Waiting for the student: their completion, their student number or their enrolment."
           }
         }
       },
@@ -17514,7 +17750,7 @@
           "unlinked_enrolled_student_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Enrolled students we hold no student number for."
+            "description": "Course-wide, whatever the per-module counts were narrowed to: enrolled students we hold no\nstudent number for."
           }
         }
       },
@@ -18296,7 +18532,8 @@
           "email",
           "passed",
           "prerequisite_modules_completed",
-          "needs_to_be_reviewed"
+          "needs_to_be_reviewed",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "completion_date": {
@@ -18352,6 +18589,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the push path owns this completion. See the column comment; decided at insert."
           },
           "updated_at": {
             "type": "string",
@@ -19113,7 +19354,8 @@
             ]
           },
           "course_name": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "The course the action was about: a teacher's own, a course target, or the course of a\ntargeted registration."
           },
           "created_at": {
             "type": "string",
@@ -19127,6 +19369,13 @@
           "reason": {
             "type": ["string", "null"]
           },
+          "target_email": {
+            "type": ["string", "null"],
+            "description": "In full, like the actor's."
+          },
+          "target_first_name": {
+            "type": ["string", "null"]
+          },
           "target_id": {
             "type": ["string", "null"],
             "format": "uuid",
@@ -19135,8 +19384,16 @@
           "target_kind": {
             "$ref": "#/components/schemas/CreditRegistrationAdminActionTarget"
           },
+          "target_last_name": {
+            "type": ["string", "null"]
+          },
           "target_phase": {
             "type": ["string", "null"]
+          },
+          "target_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The student a registration- or link-targeted action was about, so a row names who it\nconcerned rather than only an id prefix. `None` for a phase, course or module target."
           }
         }
       },
@@ -19179,6 +19436,11 @@
             "type": ["integer", "null"],
             "format": "int64",
             "description": "What `count` is out of, where the rule measured one. Not a threshold: thresholds are the\nsame for every evaluation and travel separately."
+          },
+          "window_secs": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "How far back the rule looked, where it looked back at all. `None` for a rule that reads the\nlive state or a threshold rather than a window; without it, two alerts counting the same\nthing over different windows read as a contradiction."
           }
         }
       },
@@ -19219,7 +19481,8 @@
           "state_entered_at",
           "attempt_count",
           "next_attempt_at",
-          "reasons"
+          "reasons",
+          "needs_admin_attention"
         ],
         "properties": {
           "attempt_count": {
@@ -19264,6 +19527,10 @@
           "last_name": {
             "type": ["string", "null"]
           },
+          "needs_admin_attention": {
+            "type": "boolean",
+            "description": "The pipeline's cached \"a human should look at this\". A fact about the row, never a reason:\nit says nothing about why, so it travels beside `reasons` rather than in them."
+          },
           "next_attempt_at": {
             "type": "string",
             "format": "date-time"
@@ -19273,7 +19540,7 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
             },
-            "description": "Every detector that picked this row, so the table can group by any of them."
+            "description": "Every detector that picked this row, so the table can group by any of them. Empty on a row\nthe pipeline flagged that no detector explains."
           },
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
@@ -19293,42 +19560,61 @@
       },
       "CreditRegistrationAttentionItems": {
         "type": "object",
-        "required": ["items", "total_count", "counts_by_reason", "max_items"],
+        "required": [
+          "items",
+          "total_count",
+          "filtered_count",
+          "total_pages",
+          "counts_by_reason",
+          "flagged_without_reason_count"
+        ],
         "properties": {
           "counts_by_reason": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionReasonCount"
-            }
+            },
+            "description": "Over the whole queue, not over the page or the filter, so the counts stay usable as facets."
+          },
+          "filtered_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Rows matching this request's narrowing, which is what `total_pages` pages through. Equal to\n`total_count` when neither `reason` nor `without_reason` was given."
+          },
+          "flagged_without_reason_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Queue rows no detector picked, which the pipeline's flag alone put there. No `reason`\nreaches them, so a surface that groups by reason has to offer `without_reason` beside the\nreasons or leave this many rows unreachable."
           },
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
-            }
-          },
-          "max_items": {
-            "type": "integer",
-            "format": "int64"
+            },
+            "description": "The requested page of the queue."
           },
           "total_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Rows returned, which is the tab badge. Capped at `max_items`; the counts per reason are over\nthe same capped set."
+            "description": "The whole queue, whatever this request filtered to: the canonical \"needs a human\" count, the\nsame number `/overview` reports and the tab badge shows."
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
       "CreditRegistrationAttentionReason": {
         "type": "string",
-        "description": "Why a row is on the attention table. One row can carry several.",
+        "description": "Which detector picked a row for the attention queue. A row can carry several.\n\nNot `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but\nit says nothing about why, so it is reported per row rather than as a reason of its own.",
         "enum": [
           "stuck_in_state",
           "permanent_error",
           "retry_window_expired",
           "misregistered",
           "too_many_attempts",
-          "outcome_uncertain",
-          "flagged_by_pipeline"
+          "outcome_uncertain"
         ]
       },
       "CreditRegistrationAttentionReasonCount": {
@@ -19539,6 +19825,11 @@
             "$ref": "#/components/schemas/CourseCreditRegistration"
           }
         }
+      },
+      "CreditRegistrationEnrolmentRoute": {
+        "type": "string",
+        "description": "Which university relationship a student picked, which decides only where they are told to enrol.",
+        "enum": ["university_of_helsinki", "open_university"]
       },
       "CreditRegistrationErrorCode": {
         "type": "string",
@@ -19820,7 +20111,8 @@
           },
           "needs_admin_attention_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Live rows at least one attention detector picked. The one definition of \"needs a human\":\n`/attention` pages through exactly these rows and reports the same total."
           },
           "oldest_non_terminal": {
             "oneOf": [
@@ -20167,19 +20459,6 @@
           "blocked",
           "cancelled"
         ]
-      },
-      "CreditRegistrationStateCount": {
-        "type": "object",
-        "required": ["state", "count"],
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "state": {
-            "$ref": "#/components/schemas/CreditRegistrationState"
-          }
-        }
       },
       "CreditRegistrationStateTotal": {
         "type": "object",
@@ -22624,7 +22903,8 @@
           "next_attempt_at",
           "attempt_number",
           "superseded",
-          "can_request_enrolment_recheck"
+          "can_request_enrolment_recheck",
+          "enrolment_found"
         ],
         "properties": {
           "attempt_number": {
@@ -22662,6 +22942,15 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enrolment_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When we last looked for an enrolment, so the page can say how fresh its answer is."
+          },
+          "enrolment_found": {
+            "type": "boolean",
+            "description": "Whether an enrolment has been settled on, which is what ticks the step rather than the name\nbelow it: a realisation with no teacher label yet leaves that name empty."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -22735,6 +23024,15 @@
           "student_facing_status": {
             "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
           },
+          "student_number": {
+            "type": ["string", "null"],
+            "description": "The student number we submitted this registration under, so a `registered` row can be\nchecked against the student's own card; `None` before the row was ready to send."
+          },
+          "submitted_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the attainment went to the study registry. Ticks the sending step; `registered_at` is\nwhen the registry confirmed it."
+          },
           "superseded": {
             "type": "boolean"
           },
@@ -22757,6 +23055,36 @@
           },
           "registration": {
             "$ref": "#/components/schemas/MyCreditRegistration"
+          }
+        }
+      },
+      "MyEnrolmentRoute": {
+        "type": "object",
+        "description": "The caller's answer about where they enrol one module, and whether it can still be changed.",
+        "required": ["course_module_completion_id", "can_change"],
+        "properties": {
+          "can_change": {
+            "type": "boolean",
+            "description": "False once an enrolment has been found: the answer only picks which enrolment instructions to\nshow, so once we have the enrolment there is nothing left for it to change."
+          },
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "enrolment_confirmed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "route": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute",
+                "description": "`None` until the student answers the question."
+              }
+            ]
           }
         }
       },
@@ -22843,6 +23171,10 @@
           "current_course_instance_name": {
             "type": ["string", "null"]
           },
+          "exam_passed": {
+            "type": ["boolean", "null"],
+            "description": "Whether the student has passed an exam of this course, on the terms the completion check\nuses. `None` when no module requires one, so it was never checked."
+          },
           "first_enrolled_at": {
             "type": "string",
             "format": "date-time"
@@ -22875,8 +23207,30 @@
       "MyStudiesCourseModule": {
         "type": "object",
         "description": "A course module as the student's own profile shows it, with their best visible completion.",
-        "required": ["course_module_id", "order_number", "supports_credit_registration"],
+        "required": [
+          "course_module_id",
+          "order_number",
+          "supports_credit_registration",
+          "score_given",
+          "attempted_exercises",
+          "automatic_completion",
+          "requires_exam"
+        ],
         "properties": {
+          "attempted_exercises": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Exercises the student has answered."
+          },
+          "attempted_exercises_required": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Attempted exercises an automatic completion requires. `None` when the module is completed\nmanually or sets no attempt threshold."
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold says anything about\ncompleting it."
+          },
           "completion": {
             "oneOf": [
               {
@@ -22904,8 +23258,34 @@
             "type": "integer",
             "format": "int32"
           },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds qualify the student to sit an exam rather than complete the module."
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Exercise points the student has in the module, rounded to two decimals. Not ECTS credits."
+          },
+          "score_maximum": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercise points the module offers. `None` when it has no exercises.",
+            "minimum": 0
+          },
+          "score_required": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercise points an automatic completion requires. `None` when the module is completed\nmanually or sets no point threshold."
+          },
           "supports_credit_registration": {
             "type": "boolean"
+          },
+          "total_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Exercises the module offers. `None` when it has none.",
+            "minimum": 0
           },
           "uh_course_code": {
             "type": ["string", "null"]
@@ -24478,7 +24858,8 @@
                   ]
                 },
                 "course_name": {
-                  "type": ["string", "null"]
+                  "type": ["string", "null"],
+                  "description": "The course the action was about: a teacher's own, a course target, or the course of a\ntargeted registration."
                 },
                 "created_at": {
                   "type": "string",
@@ -24492,6 +24873,13 @@
                 "reason": {
                   "type": ["string", "null"]
                 },
+                "target_email": {
+                  "type": ["string", "null"],
+                  "description": "In full, like the actor's."
+                },
+                "target_first_name": {
+                  "type": ["string", "null"]
+                },
                 "target_id": {
                   "type": ["string", "null"],
                   "format": "uuid",
@@ -24500,8 +24888,16 @@
                 "target_kind": {
                   "$ref": "#/components/schemas/CreditRegistrationAdminActionTarget"
                 },
+                "target_last_name": {
+                  "type": ["string", "null"]
+                },
                 "target_phase": {
                   "type": ["string", "null"]
+                },
+                "target_user_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid",
+                  "description": "The student a registration- or link-targeted action was about, so a row names who it\nconcerned rather than only an id prefix. `None` for a phase, course or module target."
                 }
               }
             }
@@ -25873,6 +26269,15 @@
           }
         }
       },
+      "SetEnrolmentRoutePayload": {
+        "type": "object",
+        "required": ["route"],
+        "properties": {
+          "route": {
+            "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+          }
+        }
+      },
       "SisuDescriptionResponse": {
         "type": "object",
         "required": ["course_description", "audience", "modules"],
@@ -25928,8 +26333,9 @@
         "enum": [
           "waiting_for_completion",
           "needs_student_number",
-          "in_progress",
+          "looking_for_enrolment",
           "needs_enrolment",
+          "sending",
           "waiting_for_sisu",
           "registered",
           "failed",
@@ -26844,15 +27250,21 @@
           "course_name",
           "email",
           "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
+          "enable_credit_registration_via_suotar",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "course_module_completion_id": {
             "type": "string",
             "format": "uuid"
           },
+          "course_module_name": {
+            "type": ["string", "null"],
+            "description": "The module's own name, `None` on a course's default module."
+          },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's own name, never the module's; the module is named by `course_module_name`."
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -26866,6 +27278,10 @@
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether this completion in particular goes through the push path. Both this and the module\nflag above must hold; the module's is permission, this is the per-student switch."
           },
           "uh_course_code": {
             "type": ["string", "null"],

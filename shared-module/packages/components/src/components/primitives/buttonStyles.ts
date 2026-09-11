@@ -4,7 +4,7 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "destructive"
 
 export interface PressHandlers {
   onPress?: (e: PressEvent) => void
@@ -48,6 +48,9 @@ export const rootBaseCss = css`
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
+  /* A button that wraps to two lines has already lost its shape. A label too long to fit wants
+     shortening; a caller that cannot shorten it overrides this through its own className. */
+  white-space: nowrap;
 
   border: 1px solid transparent;
   background: transparent;
@@ -168,92 +171,37 @@ const iconSizeLgCss = css`
   padding-inline: var(--btn-icon-padding-x-lg);
 `
 
-const primaryCss = css`
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-fg);
-  border-color: var(--btn-primary-border);
+/**
+ * One variant's colours, over the `--btn-<variant>-*` tokens.
+ *
+ * `insetHoverColor` is the inner ring drawn on hover and focus. It matches the resting fill on the
+ * filled variants; `tertiary` has no resting fill to match, so it takes the hover fill instead.
+ */
+const variantCss = (variant: string, insetHoverColor: string) => css`
+  background: var(--btn-${variant}-bg);
+  color: var(--btn-${variant}-fg);
+  border-color: var(--btn-${variant}-border);
 
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-primary-bg-hover);
-    color: var(--btn-primary-fg-hover);
-    border-color: var(--btn-primary-border-hover);
-    box-shadow:
-      var(--btn-primary-shadow-hover),
-      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
-  }
-
+  &:hover:not(:disabled):not([aria-disabled="true"]),
   &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-primary-bg-hover);
-    color: var(--btn-primary-fg-hover);
-    border-color: var(--btn-primary-border-hover);
+    background: var(--btn-${variant}-bg-hover);
+    color: var(--btn-${variant}-fg-hover);
+    border-color: var(--btn-${variant}-border-hover);
     box-shadow:
-      var(--btn-primary-shadow-hover),
-      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
+      var(--btn-${variant}-shadow-hover),
+      inset 0 0 0 var(--btn-${variant}-outline-width) ${insetHoverColor};
   }
 
   &[data-pressed="true"] {
-    background: var(--btn-primary-bg-pressed);
+    background: var(--btn-${variant}-bg-pressed);
     box-shadow: var(--btn-pressed-shadow);
   }
 `
 
-const secondaryCss = css`
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-fg);
-  border-color: var(--btn-secondary-border);
-
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-secondary-bg-hover);
-    color: var(--btn-secondary-fg-hover);
-    border-color: var(--btn-secondary-border-hover);
-    box-shadow:
-      var(--btn-secondary-shadow-hover),
-      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
-  }
-
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-secondary-bg-hover);
-    color: var(--btn-secondary-fg-hover);
-    border-color: var(--btn-secondary-border-hover);
-    box-shadow:
-      var(--btn-secondary-shadow-hover),
-      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
-  }
-
-  &[data-pressed="true"] {
-    background: var(--btn-secondary-bg-pressed);
-    box-shadow: var(--btn-pressed-shadow);
-  }
-`
-
-const tertiaryCss = css`
-  background: var(--btn-tertiary-bg);
-  color: var(--btn-tertiary-fg);
-  border-color: var(--btn-tertiary-border);
-
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-tertiary-bg-hover);
-    color: var(--btn-tertiary-fg-hover);
-    border-color: var(--btn-tertiary-border-hover);
-    box-shadow:
-      var(--btn-tertiary-shadow-hover),
-      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
-  }
-
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-tertiary-bg-hover);
-    color: var(--btn-tertiary-fg-hover);
-    border-color: var(--btn-tertiary-border-hover);
-    box-shadow:
-      var(--btn-tertiary-shadow-hover),
-      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
-  }
-
-  &[data-pressed="true"] {
-    background: var(--btn-tertiary-bg-pressed);
-    box-shadow: var(--btn-pressed-shadow);
-  }
-`
+const primaryCss = variantCss("primary", "var(--btn-primary-bg)")
+const secondaryCss = variantCss("secondary", "var(--btn-secondary-bg)")
+const tertiaryCss = variantCss("tertiary", "var(--btn-tertiary-bg-hover)")
+const destructiveCss = variantCss("destructive", "var(--btn-destructive-bg)")
 
 const iconCss = css`
   background: var(--btn-icon-bg);
@@ -292,6 +240,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary: secondaryCss,
   tertiary: tertiaryCss,
   icon: iconCss,
+  destructive: destructiveCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {

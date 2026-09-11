@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useId } from "react"
+import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
 import { joinAriaDescribedBy } from "../../lib/utils/field"
@@ -45,6 +45,27 @@ const segmentedContentCss = css`
   gap: var(--space-1);
   white-space: normal;
 `
+
+/** The option's own description and error, which both variants hang under the label. */
+const RadioNotes: React.FC<{
+  description: React.ReactNode
+  descriptionId: string
+  errorMessage: React.ReactNode
+  errorMessageId: string
+}> = ({ description, descriptionId, errorMessage, errorMessageId }) => (
+  <>
+    {description ? (
+      <span className={descriptionCss} id={descriptionId}>
+        {description}
+      </span>
+    ) : null}
+    {errorMessage ? (
+      <span className={errorCss} id={errorMessageId} role="alert">
+        {errorMessage}
+      </span>
+    ) : null}
+  </>
+)
 
 /** Renders a radio option when nested inside `RadioGroup`. */
 export function GroupedRadio({
@@ -128,16 +149,12 @@ export function GroupedRadio({
         />
         <span className={segmentedContentCss}>
           <span>{label}</span>
-          {description ? (
-            <span className={descriptionCss} id={descriptionId}>
-              {description}
-            </span>
-          ) : null}
-          {errorMessage ? (
-            <span className={errorCss} id={errorMessageId} role="alert">
-              {errorMessage}
-            </span>
-          ) : null}
+          <RadioNotes
+            description={description}
+            descriptionId={descriptionId}
+            errorMessage={errorMessage}
+            errorMessageId={errorMessageId}
+          />
         </span>
       </label>
     )
@@ -169,16 +186,12 @@ export function GroupedRadio({
       </span>
       <span className={checkableContentCss}>
         <span className={checkableLabelCss}>{label}</span>
-        {description ? (
-          <span className={descriptionCss} id={descriptionId}>
-            {description}
-          </span>
-        ) : null}
-        {errorMessage ? (
-          <span className={errorCss} id={errorMessageId} role="alert">
-            {errorMessage}
-          </span>
-        ) : null}
+        <RadioNotes
+          description={description}
+          descriptionId={descriptionId}
+          errorMessage={errorMessage}
+          errorMessageId={errorMessageId}
+        />
       </span>
     </label>
   )

@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 
-import { sectionHeaderCss } from "@/components/credit-registration/styles"
+import { dividedListCss, sectionHeaderCss } from "@/components/credit-registration/styles"
 
 /**
  * The shell every block on the study record shares: a tinted title band over a white body, lifted
@@ -36,24 +36,16 @@ export const studiesCardBodyCss = css`
  * Rows under a title band, ruled apart. The gap between two rows has to beat the gaps inside one,
  * or a card of three rows reads as nine lines of equal weight.
  */
-export const studiesCardListCss = css`
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+export const studiesCardListCss = cx(
+  dividedListCss,
+  css`
+    > li {
+      min-width: 0;
+      padding-block: var(--space-3-5);
+    }
 
-  > li {
-    min-width: 0;
-    padding-block: var(--space-3-5);
-    border-top: 1px solid var(--color-clear-300);
-  }
-
-  > li:first-of-type {
-    padding-top: 0;
-    border-top: none;
-  }
-
-  > li:last-of-type {
-    padding-bottom: 0;
-  }
-`
+    > li:last-of-type {
+      padding-bottom: 0;
+    }
+  `,
+)

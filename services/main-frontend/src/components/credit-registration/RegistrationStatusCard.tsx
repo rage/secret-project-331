@@ -33,8 +33,6 @@ export interface RegistrationCardAction {
    * and "why is this greyed out" is the whole question.
    */
   disabledReason?: string
-  /** `button` (default) draws a primary/secondary button; `link` is a plain text link beside it. */
-  appearance?: "button" | "link"
 }
 
 export interface RegistrationStatusCardProps {
@@ -62,9 +60,6 @@ const ActionButton: React.FC<{ action: RegistrationCardAction; isPrimary: boolea
   action,
   isPrimary,
 }) => {
-  if (action.appearance === "link" && action.href) {
-    return <Link href={action.href}>{action.label}</Link>
-  }
   const variant = isPrimary ? BUTTON_PRIMARY : BUTTON_SECONDARY
   if (action.href && !action.isDisabled) {
     return (

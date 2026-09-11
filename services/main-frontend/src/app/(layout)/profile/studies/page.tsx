@@ -122,11 +122,12 @@ const StudiesPage: React.FC = () => {
 
           const visibleCourses = myStudies.courses.filter((course) => !course.hidden)
           const hiddenCourses = myStudies.courses.filter((course) => course.hidden)
-          const completedCourses = mostRecentlyStartedFirst(
-            visibleCourses.filter((course) => everyModulePassed(course.modules)),
+          const sortedCourses = mostRecentlyStartedFirst(visibleCourses)
+          const completedCourses = sortedCourses.filter((course) =>
+            everyModulePassed(course.modules),
           )
-          const coursesInProgress = mostRecentlyStartedFirst(
-            visibleCourses.filter((course) => !everyModulePassed(course.modules)),
+          const coursesInProgress = sortedCourses.filter(
+            (course) => !everyModulePassed(course.modules),
           )
           // A heading that covers every card on the page names nothing, and sits close enough to
           // the card titles to read as one more course.

@@ -10,7 +10,9 @@ use std::collections::HashMap;
 
 use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
-    credit_registration_enrolment_routes::{self, CreditRegistrationEnrolmentRoute},
+    credit_registration_enrolment_routes::{
+        self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
+    },
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
@@ -385,6 +387,58 @@ pub async fn dismiss_credit_registration_enrolment_banner(
     token.authorized_ok(web::Json(()))
 }
 
+/// When the study registry may next be asked about this row, or `None` before it has been asked at
+/// all. The response tells the student when the button comes back.
+fn next_enrolment_recheck_allowed_at(
+    enrolment_checked_at: Option<DateTime<Utc>>,
+) -> Option<DateTime<Utc>> {
+    enrolment_checked_at
+        .map(|checked| checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS))
+}
+
+/// Whether we looked recently enough that looking again would tell the student nothing new.
+fn looked_for_enrolment_recently(enrolment_checked_at: Option<DateTime<Utc>>) -> bool {
+    next_enrolment_recheck_allowed_at(enrolment_checked_at)
+        .is_some_and(|allowed| allowed > Utc::now())
+}
+
+/// Records the student action and makes the row due for its next enrolment check.
+///
+/// Shared by the recheck button and by pressing Done, which differ only in what the event says and
+/// in how they decide the allowance is free.
+async fn start_enrolment_recheck(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    registration_id: Uuid,
+    message: &str,
+) -> Result<(), ControllerError> {
+    let mut tx = conn.begin().await?;
+    models::credit_registration_events::insert(
+        &mut tx,
+        &NewCreditRegistrationEvent {
+            actor_user_id: Some(user_id),
+            message: Some(message.to_string()),
+            ..NewCreditRegistrationEvent::new(
+                registration_id,
+                CreditRegistrationEventKind::StudentAction,
+            )
+        },
+    )
+    .await?;
+    models::credit_registrations::make_due_now_batch(&mut tx, &[registration_id]).await?;
+    recompute_preconditions(
+        &mut tx,
+        &RegistrationScope {
+            credit_registration_ids: vec![registration_id],
+            ..RegistrationScope::default()
+        },
+        PRECONDITIONS_LIMIT,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(())
+}
+
 /**
 POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
 look for an enrolment again, for a row parked because the study registry had none.
@@ -424,9 +478,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         ));
     }
 
-    let next_allowed = registration
-        .enrolment_checked_at
-        .map(|checked| checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS));
+    let next_allowed = next_enrolment_recheck_allowed_at(registration.enrolment_checked_at);
     if next_allowed.is_some_and(|allowed| allowed > Utc::now()) {
         return token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
             recheck_started: false,
@@ -434,30 +486,13 @@ pub async fn request_credit_registration_enrolment_recheck(
         }));
     }
 
-    let mut tx = conn.begin().await?;
-    models::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            actor_user_id: Some(user.id),
-            message: Some("The student asked us to look for an enrolment again.".to_string()),
-            ..NewCreditRegistrationEvent::new(
-                registration.id,
-                CreditRegistrationEventKind::StudentAction,
-            )
-        },
+    start_enrolment_recheck(
+        &mut conn,
+        user.id,
+        registration.id,
+        "The student asked us to look for an enrolment again.",
     )
     .await?;
-    models::credit_registrations::make_due_now_batch(&mut tx, &[registration.id]).await?;
-    recompute_preconditions(
-        &mut tx,
-        &RegistrationScope {
-            credit_registration_ids: vec![registration.id],
-            ..RegistrationScope::default()
-        },
-        PRECONDITIONS_LIMIT,
-    )
-    .await?;
-    tx.commit().await?;
 
     token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
         recheck_started: true,
@@ -1031,14 +1066,24 @@ async fn build_my_enrolment_route(
         .as_ref()
         .is_some_and(|row| row.enrolment_resolved);
     Ok((
-        MyEnrolmentRoute {
-            course_module_completion_id,
-            route: answer.as_ref().map(|answer| answer.route),
-            enrolment_confirmed_at: answer.and_then(|answer| answer.enrolment_confirmed_at),
-            can_change,
-        },
+        my_enrolment_route(course_module_completion_id, answer, can_change),
         registration,
     ))
+}
+
+/// Kept apart from [`build_my_enrolment_route`] so a write can answer from the row it already
+/// returned, instead of reading the completion and the registration back a second time.
+fn my_enrolment_route(
+    course_module_completion_id: Uuid,
+    answer: Option<EnrolmentRouteAnswer>,
+    can_change: bool,
+) -> MyEnrolmentRoute {
+    MyEnrolmentRoute {
+        course_module_completion_id,
+        route: answer.as_ref().map(|answer| answer.route),
+        enrolment_confirmed_at: answer.and_then(|answer| answer.enrolment_confirmed_at),
+        can_change,
+    }
 }
 
 /**
@@ -1102,16 +1147,19 @@ pub async fn set_my_enrolment_route(
                 .to_string()
         ));
     }
-    credit_registration_enrolment_routes::set_route(
+    let answer = credit_registration_enrolment_routes::set_route(
         &mut conn,
         current.course_module_completion_id,
         user.id,
         payload.route,
     )
     .await?;
-    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
 
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(my_enrolment_route(
+        current.course_module_completion_id,
+        Some(answer),
+        current.can_change,
+    )))
 }
 
 /**
@@ -1154,7 +1202,7 @@ pub async fn confirm_my_enrolment(
             "Your enrolment has already been found.".to_string()
         ));
     }
-    credit_registration_enrolment_routes::set_enrolment_confirmed(
+    let answer = credit_registration_enrolment_routes::set_enrolment_confirmed(
         &mut conn,
         current.course_module_completion_id,
         true,
@@ -1163,9 +1211,12 @@ pub async fn confirm_my_enrolment(
     if let Some(registration) = registration {
         bring_enrolment_check_forward(&mut conn, user.id, &registration).await?;
     }
-    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
 
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(my_enrolment_route(
+        current.course_module_completion_id,
+        Some(answer),
+        current.can_change,
+    )))
 }
 
 /**
@@ -1198,15 +1249,18 @@ pub async fn withdraw_my_enrolment_confirmation(
             "Your enrolment has already been found, so there is nothing to take back.".to_string()
         ));
     }
-    credit_registration_enrolment_routes::set_enrolment_confirmed(
+    let answer = credit_registration_enrolment_routes::set_enrolment_confirmed(
         &mut conn,
         current.course_module_completion_id,
         false,
     )
     .await?;
-    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
 
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(my_enrolment_route(
+        current.course_module_completion_id,
+        Some(answer),
+        current.can_change,
+    )))
 }
 
 /// Makes the row due for its next enrolment check, unless we looked recently enough that asking
@@ -1219,37 +1273,18 @@ async fn bring_enrolment_check_forward(
     user_id: Uuid,
     registration: &StudentCreditRegistration,
 ) -> Result<(), ControllerError> {
-    let looked_recently = registration.enrolment_checked_at.is_some_and(|checked| {
-        checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS) > Utc::now()
-    });
-    if registration.enrolment_resolved || looked_recently {
+    if registration.enrolment_resolved
+        || looked_for_enrolment_recently(registration.enrolment_checked_at)
+    {
         return Ok(());
     }
-    let mut tx = conn.begin().await?;
-    models::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            actor_user_id: Some(user_id),
-            message: Some("The student said they had enrolled.".to_string()),
-            ..NewCreditRegistrationEvent::new(
-                registration.id,
-                CreditRegistrationEventKind::StudentAction,
-            )
-        },
+    start_enrolment_recheck(
+        conn,
+        user_id,
+        registration.id,
+        "The student said they had enrolled.",
     )
-    .await?;
-    models::credit_registrations::make_due_now_batch(&mut tx, &[registration.id]).await?;
-    recompute_preconditions(
-        &mut tx,
-        &RegistrationScope {
-            credit_registration_ids: vec![registration.id],
-            ..RegistrationScope::default()
-        },
-        PRECONDITIONS_LIMIT,
-    )
-    .await?;
-    tx.commit().await?;
-    Ok(())
+    .await
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -1270,12 +1305,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/my/by-course-module/{course_module_id}",
             web::get().to(get_my_credit_registration_for_course_module),
         )
-        .route(
-            "/my/by-course-module/{course_module_id}/enrolment-route",
-            web::get().to(get_my_enrolment_route),
-        )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/enrolment-route")
+                .route(web::get().to(get_my_enrolment_route))
                 .route(web::put().to(set_my_enrolment_route)),
         )
         .service(

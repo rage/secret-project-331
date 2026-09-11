@@ -16,8 +16,8 @@ export interface MeterProps {
   label: string
   /** Human-readable value, e.g. "1.4 h of 3 h (47%)". Becomes the accessible value text. */
   valueLabel?: string
-  /** Optional reference marker on the same scale as `value` (e.g. a threshold). */
-  threshold?: number
+  /** Optional reference marker on the same scale as `value` (e.g. a threshold). `null` draws none. */
+  threshold?: number | null
   tone?: MeterTone
   /**
    * Show the label/value row above the bar. When false, the bar is compact and the label is
@@ -167,7 +167,8 @@ export const Meter: React.FC<MeterProps> = ({
   })
 
   const fillPct = clampPct(value, minValue, maxValue)
-  const thresholdPct = threshold !== undefined ? clampPct(threshold, minValue, maxValue) : null
+  const thresholdPct =
+    typeof threshold === "number" ? clampPct(threshold, minValue, maxValue) : null
 
   return (
     // react-aria sets role="meter progressbar" (an old multi-role fallback trick); axe-core treats
@@ -207,8 +208,8 @@ export interface MeterInlineProps {
   valueLabel?: string
   /** Short visible text after the bar, e.g. the threshold restated as "1 d". */
   secondaryText?: React.ReactNode
-  /** Optional reference marker on the same scale as `value` (e.g. a threshold). */
-  threshold?: number
+  /** Optional reference marker on the same scale as `value` (e.g. a threshold). `null` draws none. */
+  threshold?: number | null
   tone?: MeterTone
   /**
    * `compact`, the default, keeps the bar short and sizes the meter to its own content, for a
@@ -315,7 +316,8 @@ export const MeterInline: React.FC<MeterInlineProps> = ({
   })
 
   const fillPct = clampPct(value, minValue, maxValue)
-  const thresholdPct = threshold !== undefined ? clampPct(threshold, minValue, maxValue) : null
+  const thresholdPct =
+    typeof threshold === "number" ? clampPct(threshold, minValue, maxValue) : null
   const rootClassName = cx(inlineRootCss, inlineRootWidthCss[trackWidth], className)
   const trackClassName = cx(
     inlineTrackCss,

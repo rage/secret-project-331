@@ -470,10 +470,9 @@ const ModuleProgress: React.FC<{
 
   const pointsMaximum = module.score_maximum ?? 0
   const exercisesTotal = module.total_exercises ?? 0
-  // A teacher decides an unmeasured module, so neither threshold says anything about completing it.
-  const measured = module.automatic_completion
-  const pointsRequired = measured ? (module.score_required ?? null) : null
-  const attemptedExercisesRequired = measured ? (module.attempted_exercises_required ?? null) : null
+  // Both are already null on a module a teacher decides, which is what leaves it without bars.
+  const pointsRequired = module.score_required ?? null
+  const attemptedExercisesRequired = module.attempted_exercises_required ?? null
   // Either both dimensions of a module get a bar or neither does: one bar beside a bare figure
   // reads as a bar that failed to draw.
   const showBars = pointsRequired !== null || attemptedExercisesRequired !== null
@@ -570,7 +569,7 @@ const ModuleDimension: React.FC<{
       maxValue={maxValue}
       valueLabel={valueLabel}
       tone={PROGRESS_TONE}
-      {...(threshold !== null ? { threshold } : {})}
+      threshold={threshold}
     />
   ) : (
     <ModuleFigure label={label} value={valueLabel} />

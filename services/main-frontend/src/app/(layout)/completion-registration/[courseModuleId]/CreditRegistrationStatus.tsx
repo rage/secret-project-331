@@ -171,13 +171,6 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   )
 }
 
-const CONTACT_SUPPORT = "contact-support"
-
-/** Drops the mail-your-support-inbox lever, which this page does not offer. */
-const withoutSupportMail = (
-  action: RegistrationCardAction | null,
-): RegistrationCardAction | null => (action?.key === CONTACT_SUPPORT ? null : action)
-
 const NotInThePipelineYet: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return <Infobox tone={TONE.NEUTRAL}>{t("credit-registration-not-in-the-pipeline-yet")}</Infobox>
@@ -218,17 +211,11 @@ const Tracker: React.FC<TrackerProps> = ({
   const status = registration.student_facing_status
   const statusLabel = registrationStatusLabel(t, status)
   const canConfirmEmail = useCanConfirmEmailAddress()
-  const actions = useStudentRegistrationActions({
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
     canConfirmEmail,
     linkToStatusPage: false,
   })
-  // This page never sends a student to their mail client: whatever is wrong, it is either something
-  // they can do here or something we are already dealing with.
-  const primaryAction = withoutSupportMail(actions.primaryAction)
-  const secondaryActions = actions.secondaryActions.filter(
-    (action) => withoutSupportMail(action) !== null,
-  )
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
   const announcedStatus = useRef(status)

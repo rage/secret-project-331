@@ -16,6 +16,7 @@ import {
 import type {
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
+  ExerciseTaskSubmission,
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
@@ -41,6 +42,28 @@ import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
+
+/**
+ * The answer fields of a reviewer's `view-submission` state, with the submitter's filenames
+ * replaced by positional ones and the grading order left alone.
+ *
+ * A reviewer must not learn who wrote the answer, and an uploaded filename often says so outright.
+ * Plugins that offer students filename anonymization keep their display names in the answer itself,
+ * so those still reach the reviewer.
+ */
+function reviewerAnswerFields(previousSubmission: ExerciseTaskSubmission | null | undefined) {
+  const fields = storedAnswerToViewSubmissionFields(previousSubmission)
+  if (!fields.user_answer_files) {
+    return fields
+  }
+  return {
+    ...fields,
+    user_answer_files: fields.user_answer_files.map((file, index) => ({
+      ...file,
+      name: `file-${index + 1}`,
+    })),
+  }
+}
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -326,9 +349,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      ...storedAnswerToViewSubmissionFields(
-                        course_material_exercise_task.previous_submission,
-                      ),
+                      ...reviewerAnswerFields(course_material_exercise_task.previous_submission),
                       public_spec: course_material_exercise_task.public_spec,
                       model_solution_spec: course_material_exercise_task.model_solution_spec,
                     },

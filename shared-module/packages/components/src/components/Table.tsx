@@ -587,7 +587,9 @@ export function Table<Row>({
                         >
                           {detail === null ? null : (
                             <button
-                              aria-controls={detailId}
+                              // Only while expanded: the detail row it names is not in the
+                              // document until then, and a dangling target is worse than none.
+                              aria-controls={isExpanded ? detailId : undefined}
                               aria-expanded={isExpanded}
                               aria-label={
                                 isExpanded ? t("table.collapseRow") : t("table.expandRow")

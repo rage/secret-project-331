@@ -145,8 +145,9 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
         ) : null}
 
         {studentType ? (
-          <div>
+          <div className={bandCss}>
             <ChangedEmailNote email={email} />
+            {studentType === STUDY_RIGHT_AT_UH ? <AlreadyEnrolledNote email={email} /> : null}
           </div>
         ) : null}
       </article>
@@ -164,6 +165,17 @@ const ChangedEmailNote: React.FC<{ email: string }> = ({ email }) => {
           i18nKey="changed-email-since-completing-course-disclosure-body"
           values={{ email }}
         />
+      </p>
+    </Disclosure>
+  )
+}
+
+const AlreadyEnrolledNote: React.FC<{ email: string }> = ({ email }) => {
+  const { t } = useTranslation()
+  return (
+    <Disclosure title={t("already-enrolled-in-sisu-disclosure-title")}>
+      <p>
+        <Trans t={t} i18nKey="already-enrolled-in-sisu-disclosure-body" values={{ email }} />
       </p>
     </Disclosure>
   )

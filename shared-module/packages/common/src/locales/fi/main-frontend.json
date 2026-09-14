@@ -59,6 +59,8 @@
   "all-of-your-courses-are-hidden": "Kaikki kurssisi on piilotettu. Näytä jokin niistä uudelleen alta.",
   "all-submissions-by-user": "Kaikki käyttäjän lähetykset",
   "all-years": "Kaikki vuodet",
+  "already-enrolled-in-sisu-disclosure-body": "Jos ilmoittauduit Sisussa jo ennen tämän kurssin suorittamista, kaikki on kunnossa eikä sinun tarvitse ilmoittautua uudelleen. Varmista, että Sisu-profiilissasi on osoite <strong>{{email}}</strong>. Jos se ei ole ensisijainen osoitteesi Sisussa, lisää se toissijaiseksi sähköpostiosoitteeksi Sisun asetuksissa. Suoritus näkyy Sisussa parin päivän kuluttua.",
+  "already-enrolled-in-sisu-disclosure-title": "Olen jo ilmoittautunut kurssille Sisussa",
   "already-started-course-in-different-language-description": "Olet aiemmin aloittanut tämän kurssin eri kielellä. Vastataksesi tehtäviin tai nähdäksesi edistymisesi, palaa kieliversioosi.",
   "already-started-course-in-different-language-title": "Olet jo aloittanut tämän kurssin toisella kielellä",
   "american-english": "Englanti",

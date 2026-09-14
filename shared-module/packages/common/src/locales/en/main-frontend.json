@@ -60,6 +60,8 @@
   "all-of-your-courses-are-hidden": "All of your courses are hidden. Unhide one below to see it here.",
   "all-submissions-by-user": "All submissions by this user",
   "all-years": "All years",
+  "already-enrolled-in-sisu-disclosure-body": "If you enrolled through Sisu before completing this course, everything is in order and you do not need to enroll again. Make sure your Sisu profile includes <strong>{{email}}</strong>; if it is not your primary address in Sisu, add it as a secondary email address in your Sisu settings. The completion should appear in Sisu within a couple of days.",
+  "already-enrolled-in-sisu-disclosure-title": "I have already enrolled in the course in Sisu",
   "already-started-course-in-different-language-description": "You have previously started this course in a different language. To answer exercises or see your progress, please return to your language version.",
   "already-started-course-in-different-language-title": "You have already started this course in another language",
   "american-english": "English",

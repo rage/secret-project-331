@@ -82,4 +82,14 @@ describe("RegisterCompletion", () => {
       screen.getByText("changed-email-since-completing-course-disclosure-title"),
     ).toBeInTheDocument()
   })
+
+  it("keeps the already-enrolled note on the Sisu path, where enrolling is the task", () => {
+    renderPage()
+
+    fireEvent.click(screen.getByRole("radio", { name: "no" }))
+    expect(screen.queryByText("already-enrolled-in-sisu-disclosure-title")).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("radio", { name: "yes" }))
+    expect(screen.getByText("already-enrolled-in-sisu-disclosure-title")).toBeInTheDocument()
+  })
 })

@@ -15148,7 +15148,7 @@
           },
           "url": {
             "type": "string",
-            "description": "Capability download URL, minted at read time from the file's path. Never persisted."
+            "description": "Capability download URL, minted at read time and carrying a claim that expires within the\nhour. Never persisted, and a response containing one cannot be cached for another reader."
           }
         }
       },

@@ -66,9 +66,6 @@ pub async fn test_config() -> ServerConfig {
         app_conf: init_app_conf().expect("Failed to initialize mock app configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
         mock_suotar_redis_db_index: 2,
-        jwt_password: SecretString::new(
-            "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
-        ),
         tmc_client: TmcClient::mock_for_test(),
         sisu_client: SisuClient::mock_for_test(),
     }

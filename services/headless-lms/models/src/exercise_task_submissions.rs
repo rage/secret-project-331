@@ -1,5 +1,4 @@
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
 
 use chrono::Duration;
 use futures::{Stream, StreamExt, future::BoxFuture};
@@ -72,7 +71,8 @@ pub struct AnswerFile {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub size_bytes: Option<i64>,
     pub order_number: i32,
-    /// Capability download URL, minted at read time from the file's path. Never persisted.
+    /// Capability download URL, minted at read time and carrying a claim that expires within the
+    /// hour. Never persisted, and a response containing one cannot be cached for another reader.
     pub url: String,
 }
 
@@ -187,7 +187,7 @@ pub async fn attach_answer_data(
                     mime: file.mime,
                     size_bytes: file.size_bytes,
                     order_number: file.order_number,
-                    url: file_store.get_download_url(Path::new(&file.path), app_conf),
+                    url: file_store.get_claimed_download_url(file.file_upload_id, app_conf)?,
                 });
         }
     }
@@ -275,7 +275,6 @@ struct AggregatedAnswerFile {
     name: String,
     mime: String,
     size_bytes: Option<i64>,
-    path: String,
     order_number: i32,
 }
 
@@ -295,15 +294,17 @@ fn answer_from_aggregated_files(
             Ok(Some(AnswerData::File {
                 files: aggregated
                     .into_iter()
-                    .map(|file| AnswerFile {
-                        id: file.id,
-                        name: file.name,
-                        mime: file.mime,
-                        size_bytes: file.size_bytes,
-                        order_number: file.order_number,
-                        url: file_store.get_download_url(Path::new(&file.path), app_conf),
+                    .map(|file| {
+                        Ok(AnswerFile {
+                            id: file.id,
+                            name: file.name,
+                            mime: file.mime,
+                            size_bytes: file.size_bytes,
+                            order_number: file.order_number,
+                            url: file_store.get_claimed_download_url(file.id, app_conf)?,
+                        })
                     })
-                    .collect(),
+                    .collect::<ModelResult<_>>()?,
                 metadata: data_json,
             }))
         }
@@ -1274,6 +1275,7 @@ mod test {
     };
     use crate::exercise_task_gradings::UserPointsUpdateStrategy;
     use crate::test_helper::*;
+    use headless_lms_base::jwt::DOWNLOAD_CLAIM_PARAM;
 
     /// The exercise service protocol declares `size_bytes` optional but not nullable, so a null
     /// would make a plugin's generated guard reject the whole iframe state, not just the size.
@@ -1371,7 +1373,11 @@ mod test {
         );
         assert_eq!(files[0].size_bytes, Some(11));
         assert_eq!(files[1].size_bytes, None);
-        assert!(files[0].url.ends_with("/uploads/a.tar.zst"));
+        // A claim for the file, never its storage path.
+        assert!(files[0].url.starts_with(&format!(
+            "{}/api/v0/files/claimed/{first}?{DOWNLOAD_CLAIM_PARAM}=",
+            app_conf.base_url
+        )));
         tx.rollback().await;
     }
 

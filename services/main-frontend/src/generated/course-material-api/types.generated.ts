@@ -34,7 +34,8 @@ export type AnswerFile = {
    */
   size_bytes?: number | null
   /**
-   * Capability download URL, minted at read time from the file's path. Never persisted.
+   * Capability download URL, minted at read time and carrying a claim that expires within the
+   * hour. Never persisted, and a response containing one cannot be cached for another reader.
    */
   url: string
 }

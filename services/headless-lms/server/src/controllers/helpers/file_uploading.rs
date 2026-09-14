@@ -116,6 +116,7 @@ impl Drop for UploadCleanup {
 }
 
 struct ExerciseServiceUploadMetadata {
+    file_upload_id: Uuid,
     path: String,
     filename: String,
     mime_type: String,
@@ -123,7 +124,72 @@ struct ExerciseServiceUploadMetadata {
     url: String,
 }
 
-/// Processes an upload from an exercise service, an exercise iframe or a native client.
+/// Who an answer upload is bound to, and where its objects are stored.
+pub struct AnswerUploadDestination {
+    /// The course or exam the exercise belongs to, which the object path is filed under.
+    pub owner: CourseOrExamId,
+    pub exercise_id: Uuid,
+    pub user_id: Uuid,
+}
+
+/// Where an upload's objects are stored, and what the upload route hands back for them.
+pub enum UploadPathScheme<'a> {
+    /// `<exercise service slug>/<random>` and a permanent url naming that path, for files that
+    /// belong to course content rather than to one student: a teacher's spec files, and the
+    /// playground's throwaway uploads. The slug carries no authorization meaning.
+    ExerciseService { exercise_service_slug: &'a str },
+    /// `answers/v1/<course|exam>/<owner>/exercise/<exercise>/user/<user>/<file upload>`, so a
+    /// retention or takedown rule can find every object of one course, exercise or student without
+    /// reading the database, and every object leads back to its row.
+    ///
+    /// The path names the student, so the url handed back carries a claim instead of the path.
+    Answer(&'a AnswerUploadDestination),
+}
+
+impl UploadPathScheme<'_> {
+    /// Where one file of this upload is stored. Applies to new uploads only: old rows keep the
+    /// layout they were written under, since nothing derives a path from a row.
+    fn path(&self, file_upload_id: Uuid) -> String {
+        match self {
+            Self::ExerciseService {
+                exercise_service_slug,
+            } => format!("{exercise_service_slug}/{}", generate_random_string(32)),
+            Self::Answer(AnswerUploadDestination {
+                owner,
+                exercise_id,
+                user_id,
+            }) => {
+                // No fallback arm: a third kind of owner has to fail to compile here rather
+                // than land under a path no cleanup rule knows about.
+                let (owner_kind, owner_id) = match owner {
+                    CourseOrExamId::Course(course_id) => ("course", course_id),
+                    CourseOrExamId::Exam(exam_id) => ("exam", exam_id),
+                };
+                format!(
+                    "answers/v1/{owner_kind}/{owner_id}/exercise/{exercise_id}/user/{user_id}/{file_upload_id}"
+                )
+            }
+        }
+    }
+
+    /// The url the upload route hands back for one stored file.
+    fn download_url(
+        &self,
+        file_upload_id: Uuid,
+        path: &str,
+        file_store: &dyn FileStore,
+        app_conf: &ApplicationConfiguration,
+    ) -> Result<String, ControllerError> {
+        match self {
+            Self::ExerciseService { .. } => {
+                Ok(format!("{}/api/v0/files/{path}", app_conf.base_url))
+            }
+            Self::Answer(_) => Ok(file_store.get_claimed_download_url(file_upload_id, app_conf)?),
+        }
+    }
+}
+
+/// Processes a spec-file upload from an exercise service or the playground.
 /// This function assumes that any permission checks have already been made.
 ///
 /// `exercise_service_slug` namespaces the stored objects and is recorded with the upload; it
@@ -136,14 +202,16 @@ pub async fn process_exercise_service_upload(
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
     uploader: Option<Uuid>,
-    base_url: &str,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
     let streamed = stream_exercise_service_upload(
-        exercise_service_slug,
+        UploadPathScheme::ExerciseService {
+            exercise_service_slug,
+        },
         payload,
         file_store,
         uploaded_paths,
-        base_url,
+        app_conf,
     )
     .await?;
     let mut tx = conn.begin().await?;
@@ -174,11 +242,11 @@ pub struct StreamedExerciseServiceUpload {
 /// long as the client cares to trickle 100 MiB, and enough concurrent slow uploads would exhaust
 /// the pool and hold back the vacuum xmin horizon.
 pub async fn stream_exercise_service_upload(
-    path_prefix: &str,
+    path_scheme: UploadPathScheme<'_>,
     mut payload: Multipart,
     file_store: &dyn FileStore,
     uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
-    base_url: &str,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<StreamedExerciseServiceUpload, ControllerError> {
     let mut parts = Vec::new();
     let mut ids = HashSet::new();
@@ -211,8 +279,10 @@ pub async fn stream_exercise_service_upload(
         )?
         .to_string();
 
-        let random_filename = generate_random_string(32);
-        let path = format!("{path_prefix}/{random_filename}");
+        // Minted here rather than by the insert: the object is streamed to the store before its
+        // row exists, and a path may name the row it belongs to.
+        let file_upload_id = Uuid::new_v4();
+        let path = path_scheme.path(file_upload_id);
         uploaded_paths.push(ExerciseServiceUploadCleanup { path: path.clone() });
         let mime_type = field
             .content_type()
@@ -231,8 +301,9 @@ pub async fn stream_exercise_service_upload(
             return Err(error);
         }
         upload_result?;
-        let url = format!("{base_url}/api/v0/files/{path}");
+        let url = path_scheme.download_url(file_upload_id, &path, file_store, app_conf)?;
         parts.push(ExerciseServiceUploadMetadata {
+            file_upload_id,
             path,
             filename,
             mime_type,
@@ -256,8 +327,9 @@ pub async fn record_exercise_service_upload(
     let StreamedExerciseServiceUpload { parts } = streamed;
     let mut uploads = Vec::with_capacity(parts.len());
     for part in parts {
-        let file_upload_id = models::file_uploads::insert(
+        models::file_uploads::insert_with_id(
             tx,
+            part.file_upload_id,
             &part.filename,
             &part.path,
             &part.mime_type,
@@ -267,7 +339,7 @@ pub async fn record_exercise_service_upload(
         .await?;
         uploads.push(ExerciseServiceUpload {
             entry: ExerciseServiceUploadResultEntry {
-                id: file_upload_id,
+                id: part.file_upload_id,
                 url: part.url,
             },
             name: part.filename,

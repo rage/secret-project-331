@@ -101,6 +101,11 @@ const MIN_COMPLETION_LINK_LENGTH = 10
 /** Sisu rejects a registration missing either of these. */
 const SISU_REQUIRED_FIELDS: Path<CourseModuleFormState>[] = ["uh_course_code", "ects_credits"]
 
+const COMPLETION_LINK_FIELD: Path<CourseModuleFormState> = "completion_registration_link_override"
+
+/** A `minLength` that is not in force. Not `undefined`: `exactOptionalPropertyTypes` rejects it. */
+const NO_MINIMUM_LENGTH = 0
+
 const VALIDATE_ON_COMMIT = "validate" as const
 
 /** Realisation ids are validated as they are typed, so a bad one is caught before the save. */
@@ -353,12 +358,14 @@ const CourseModuleForm: React.FC<Props> = ({
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
   const registersToStudyRegistry = registrationPath === STUDY_REGISTRY
-  // Without this, picking the Sisu path shows up only as a disabled Done button.
+  // Without this, picking the Sisu path shows up only as a disabled Done button, and leaving it
+  // again leaves the message it raised under a field nothing requires any more.
   useEffect(() => {
-    if (registersToStudyRegistry) {
-      trigger(SISU_REQUIRED_FIELDS)
-    }
+    trigger(SISU_REQUIRED_FIELDS)
   }, [registersToStudyRegistry, trigger])
+  useEffect(() => {
+    trigger(COMPLETION_LINK_FIELD)
+  }, [overrideLink, trigger])
 
   const onSubmitFormWrapper = ({
     registration_path,
@@ -530,11 +537,13 @@ const CourseModuleForm: React.FC<Props> = ({
                 control={control}
                 label={t("uh-course-code")}
                 isRequired={registersToStudyRegistry}
-                rules={
-                  registersToStudyRegistry
-                    ? { required: t("error-course-code-required-for-sisu") }
-                    : {}
-                }
+                // `register` merges each render's options over the ones it holds, so a key left
+                // out keeps the rule it had: one that comes and goes is spelled out in both states.
+                rules={{
+                  required: registersToStudyRegistry
+                    ? t("error-course-code-required-for-sisu")
+                    : false,
+                }}
               />
               <NumberField
                 name="ects_credits"
@@ -680,17 +689,16 @@ const CourseModuleForm: React.FC<Props> = ({
               control={control}
               label={t("completion-registration-link")}
               isDisabled={!overrideLink}
-              // The field stays mounted while the override is off, so its rule has to go with it.
-              rules={
-                overrideLink
+              // The field stays mounted while the override is off, so its rule has to go with it —
+              // spelled out as no minimum rather than left out, which would keep the rule it had.
+              rules={{
+                minLength: overrideLink
                   ? {
-                      minLength: {
-                        value: MIN_COMPLETION_LINK_LENGTH,
-                        message: t("error-completion-registration-link-too-short"),
-                      },
+                      value: MIN_COMPLETION_LINK_LENGTH,
+                      message: t("error-completion-registration-link-too-short"),
                     }
-                  : {}
-              }
+                  : NO_MINIMUM_LENGTH,
+              }}
             />
           </fieldset>
 

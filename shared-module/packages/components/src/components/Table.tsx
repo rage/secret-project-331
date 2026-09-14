@@ -294,7 +294,9 @@ export function Table<Row>({
   const { t } = useTranslation("shared-module")
   const scrollRef = useRef<HTMLDivElement>(null)
   const detailIdPrefix = useId()
-  const [expandedRowIndexes, setExpandedRowIndexes] = useState<ReadonlySet<number>>(() => new Set())
+  // Keyed like the selection, not by row index: the rows under a paged or re-sorted table are not
+  // the ones an index pointed at, and an expanded index would open a different row's detail.
+  const [expandedRowKeys, setExpandedRowKeys] = useState<ReadonlySet<string>>(() => new Set())
   const [overflow, setOverflow] = useState({ start: false, end: false })
 
   // Stacking sets `display: block` on the table parts, which drops their implicit roles in most
@@ -426,13 +428,13 @@ export function Table<Row>({
     selection?.onChange(next)
   }
 
-  const toggleExpanded = (rowIndex: number) => {
-    setExpandedRowIndexes((previous) => {
+  const toggleExpanded = (key: string) => {
+    setExpandedRowKeys((previous) => {
       const next = new Set(previous)
-      if (next.has(rowIndex)) {
-        next.delete(rowIndex)
+      if (next.has(key)) {
+        next.delete(key)
       } else {
-        next.add(rowIndex)
+        next.add(key)
       }
       return next
     })
@@ -547,7 +549,7 @@ export function Table<Row>({
               rows.map((row, rowIndex) => {
                 const key = rowKey(row, rowIndex)
                 const detail = expandableRow?.(row) ?? null
-                const isExpanded = expandedRowIndexes.has(rowIndex)
+                const isExpanded = expandedRowKeys.has(String(key))
                 const detailId = `${detailIdPrefix}-${rowIndex}`
 
                 return (
@@ -592,7 +594,7 @@ export function Table<Row>({
                               }
                               className={expandButtonCss}
                               data-table-expand="true"
-                              onClick={() => toggleExpanded(rowIndex)}
+                              onClick={() => toggleExpanded(String(key))}
                               type="button"
                             >
                               <span

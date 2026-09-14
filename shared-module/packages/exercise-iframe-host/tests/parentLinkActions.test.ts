@@ -67,6 +67,8 @@ describe("sanitizeDownloadFilename", () => {
 describe("startFileDownload", () => {
   const clicked: { href: string; download: string; target: string; rel: string }[] = []
   let clickSpy: jest.SpyInstance
+  const originalCreateObjectUrl = URL.createObjectURL
+  const originalRevokeObjectUrl = URL.revokeObjectURL
 
   beforeEach(() => {
     clicked.length = 0
@@ -80,34 +82,76 @@ describe("startFileDownload", () => {
           rel: this.rel,
         })
       })
+    URL.createObjectURL = jest.fn(() => "blob:mock-url")
+    URL.revokeObjectURL = jest.fn()
   })
 
   afterEach(() => {
     clickSpy.mockRestore()
+    URL.createObjectURL = originalCreateObjectUrl
+    URL.revokeObjectURL = originalRevokeObjectUrl
+    jest.unstubAllGlobals()
+    jest.useRealTimers()
   })
 
-  it("clicks a download anchor that cannot navigate the host page away", () => {
-    startFileDownload("https://files.example/a", "answer.pdf")
+  // Every platform file URL redirects to cross-origin storage, so this is the path a real download
+  // takes: `download` is honored for a blob regardless of where its bytes came from.
+  describe("when the file can be fetched", () => {
+    beforeEach(() => {
+      jest.stubGlobal(
+        "fetch",
+        jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob(["x"])) }),
+      )
+    })
 
-    expect(clicked).toEqual([
-      {
-        href: "https://files.example/a",
-        download: "answer.pdf",
-        target: "_blank",
-        rel: "noopener noreferrer",
-      },
-    ])
+    it("downloads a blob URL instead of navigating to the original, cross-origin one", async () => {
+      await startFileDownload("https://files.example/a", "answer.pdf")
+
+      expect(clicked).toEqual([
+        { href: "blob:mock-url", download: "answer.pdf", target: "", rel: "" },
+      ])
+    })
+
+    it("leaves the name to the browser when none was suggested", async () => {
+      await startFileDownload("https://files.example/a", null)
+
+      expect(clicked[0]?.download).toBe("")
+    })
+
+    it("frees the blob URL only once the save has had time to start", async () => {
+      jest.useFakeTimers()
+      await startFileDownload("https://files.example/a", "answer.pdf")
+
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+      jest.runAllTimers()
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url")
+    })
   })
 
-  it("leaves the name to the browser when none was suggested", () => {
-    startFileDownload("https://files.example/a", null)
+  // A network error or a storage backend that never grants this origin CORS access must not leave the
+  // user with nothing: today's best-effort direct link is the floor, not a new failure mode.
+  describe("when the file cannot be fetched", () => {
+    beforeEach(() => {
+      jest.stubGlobal("fetch", jest.fn().mockRejectedValue(new Error("network error")))
+    })
 
-    expect(clicked[0]?.download).toBe("")
-  })
+    it("falls back to a direct link that cannot navigate the host page away", async () => {
+      await startFileDownload("https://files.example/a", "answer.pdf")
 
-  it("does not leave the anchor in the document", () => {
-    startFileDownload("https://files.example/a", "answer.pdf")
+      expect(clicked).toEqual([
+        {
+          href: "https://files.example/a",
+          download: "answer.pdf",
+          target: "_blank",
+          rel: "noopener noreferrer",
+        },
+      ])
+    })
 
-    expect(document.querySelectorAll("a")).toHaveLength(0)
+    it("does not leave the anchor in the document", async () => {
+      await startFileDownload("https://files.example/a", "answer.pdf")
+
+      expect(document.querySelectorAll("a")).toHaveLength(0)
+    })
   })
 })

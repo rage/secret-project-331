@@ -59,18 +59,25 @@ export const sanitizeDownloadFilename = (raw: unknown): string | null => {
 export const openUrlInNewTab = (url: string): boolean =>
   window.open(url, "_blank", "noopener,noreferrer") !== null
 
+/** How long a blob URL is kept alive so a slow save can still read it before it's freed. */
+const OBJECT_URL_LIFETIME_MS = 30_000
+
 /**
- * Starts downloading `url`, suggesting `filename` for the saved file.
- *
- * `target="_blank"` is the safety net rather than the goal: browsers ignore `download` for
- * cross-origin responses, and without a target such a URL would navigate the host page away from the
- * exercise. When `download` is honored the browser downloads the file and opens no tab at all.
+ * Clicks a throwaway `<a download>`. `newTab` is the fallback's safety net: browsers ignore `download`
+ * for a cross-origin response and would otherwise navigate the host page away from the exercise. A
+ * `blob:` URL never navigates anywhere, so the caller passes `newTab: false` for it.
  */
-export const startFileDownload = (url: string, filename: string | null): void => {
+const clickDownloadLink = (
+  url: string,
+  filename: string | null,
+  { newTab }: { newTab: boolean },
+): void => {
   const link = document.createElement("a")
   link.href = url
-  link.target = "_blank"
-  link.rel = "noopener noreferrer"
+  if (newTab) {
+    link.target = "_blank"
+    link.rel = "noopener noreferrer"
+  }
   // An empty value still marks this a download; the browser then names the file from the response.
   link.download = filename ?? ""
   document.body.append(link)
@@ -78,5 +85,34 @@ export const startFileDownload = (url: string, filename: string | null): void =>
     link.click()
   } finally {
     link.remove()
+  }
+}
+
+/**
+ * Downloads `url`, suggesting `filename` for the saved file.
+ *
+ * Every platform file URL redirects to cross-origin storage, and browsers ignore `download` for a
+ * cross-origin response — so a direct link only ever opens the file for viewing. Fetching the bytes
+ * and downloading the resulting `blob:` URL forces a real save regardless of the file's origin, since
+ * `download` is always honored for blobs. Falls back to a direct link — today's best-effort behavior —
+ * if the fetch itself fails or the response is blocked by CORS, so a storage backend that never grants
+ * this origin CORS access is no worse off than before.
+ */
+export const startFileDownload = async (url: string, filename: string | null): Promise<void> => {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Unexpected response status ${response.status}`)
+    }
+    const objectUrl = URL.createObjectURL(await response.blob())
+    clickDownloadLink(objectUrl, filename, { newTab: false })
+    // Revoking right away can truncate the save in some browsers; give it time to start reading first.
+    setTimeout(() => URL.revokeObjectURL(objectUrl), OBJECT_URL_LIFETIME_MS)
+  } catch (error) {
+    console.warn(
+      "[MessageChannelIFrame] Downloading via fetch failed, falling back to a direct link",
+      error,
+    )
+    clickDownloadLink(url, filename, { newTab: true })
   }
 }

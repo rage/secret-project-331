@@ -57,6 +57,16 @@ interface MessageChannelIFrameProps {
    * dialog system; pass its `useDialog()` result here.
    */
   dialog: ExerciseDialogApi
+  /**
+   * Names the file a `download-file` request saves as, replacing whatever the iframe suggested. The
+   * URL arrives as the host parsed it, so a lookup keyed by the URLs the host handed the iframe has
+   * to match that form.
+   *
+   * Set this where the iframe's suggestion must not be shown to the viewer: the host cannot tell a
+   * name a plugin anonymized from one it copied off the uploaded file, so the suggestion is then
+   * never used. Leave it unset to keep it, which is what someone looking at their own files wants.
+   */
+  overrideDownloadFilename?: (url: string) => string
 }
 
 const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
@@ -91,9 +101,13 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   disableSandbox = false,
   onReady,
   dialog,
+  overrideDownloadFilename,
 }) => {
   const { t, i18n } = useTranslation()
-  const { openLinkOnRequest, downloadFileOnRequest } = useIframeLinkRequests(dialog)
+  const { openLinkOnRequest, downloadFileOnRequest } = useIframeLinkRequests(
+    dialog,
+    overrideDownloadFilename,
+  )
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)

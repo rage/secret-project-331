@@ -30,6 +30,8 @@ interface ExerciseTaskIframeProps {
   setAnswer: ((answer: CapturedExerciseTaskAnswer) => void) | null
   title: string
   headingBeforeIframe?: string
+  /** Names the files the iframe asks to download; see `MessageChannelIFrame`. */
+  overrideDownloadFilename?: (url: string) => string
 }
 
 /**
@@ -44,6 +46,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   setAnswer,
   title,
   headingBeforeIframe,
+  overrideDownloadFilename,
 }) => {
   const { t } = useTranslation()
   const dialog = useDialog()
@@ -94,7 +97,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       return (
         <MessageChannelIFrame
           dialog={dialog}
-          {...omitUndefined({ headingBeforeIframe })}
+          {...omitUndefined({ headingBeforeIframe, overrideDownloadFilename })}
           url={url}
           postThisStateToIFrame={postThisStateToIFrame}
           onMessageFromIframe={handleMessageFromIframe}
@@ -103,7 +106,15 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
         />
       )
     },
-    [url, postThisStateToIFrame, handleMessageFromIframe, headingBeforeIframe, title, dialog],
+    [
+      url,
+      postThisStateToIFrame,
+      handleMessageFromIframe,
+      headingBeforeIframe,
+      title,
+      dialog,
+      overrideDownloadFilename,
+    ],
   )
 
   if (!url || url.trim() === "") {

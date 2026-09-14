@@ -16,7 +16,6 @@ import {
 import type {
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
-  ExerciseTaskSubmission,
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
@@ -28,10 +27,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import {
-  storedAnswerToViewSubmissionFields,
-  exerciseTaskGradingToExerciseTaskGradingResult,
-} from "@/shared-module/common/utils/typeMappter"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -42,28 +38,7 @@ import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
-
-/**
- * The answer fields of a reviewer's `view-submission` state, with the submitter's filenames
- * replaced by positional ones and the grading order left alone.
- *
- * A reviewer must not learn who wrote the answer, and an uploaded filename often says so outright.
- * Plugins that offer students filename anonymization keep their display names in the answer itself,
- * so those still reach the reviewer.
- */
-function reviewerAnswerFields(previousSubmission: ExerciseTaskSubmission | null | undefined) {
-  const fields = storedAnswerToViewSubmissionFields(previousSubmission)
-  if (!fields.user_answer_files) {
-    return fields
-  }
-  return {
-    ...fields,
-    user_answer_files: fields.user_answer_files.map((file, index) => ({
-      ...file,
-      name: `file-${index + 1}`,
-    })),
-  }
-}
+import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -320,6 +295,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
           .toSorted((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
+            const answerFields = reviewerAnswerFields(
+              course_material_exercise_task.previous_submission,
+            )
             return (
               <div key={course_material_exercise_task.id}>
                 <div data-testid="assignment">
@@ -349,12 +327,15 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      ...reviewerAnswerFields(course_material_exercise_task.previous_submission),
+                      ...answerFields,
                       public_spec: course_material_exercise_task.public_spec,
                       model_solution_spec: course_material_exercise_task.model_solution_spec,
                     },
                   }}
                   url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                  overrideDownloadFilename={(url) =>
+                    reviewerDownloadFileName(answerFields.user_answer_files, url)
+                  }
                   setAnswer={null}
                   title={t("exercise-task-content", {
                     "exercise-number": exerciseNumber + 1,

@@ -1,7 +1,17 @@
 ALTER TABLE course_module_completions
 ADD COLUMN register_credits_via_suotar BOOLEAN NOT NULL DEFAULT FALSE;
 
-COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar and whether the student already had a verified student number; never recomputed, so a module switched on mid-course does not move completions already made under the old flow. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
+COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar; never recomputed, so a module switched on or off mid-course leaves completions already made where they were. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
+
+-- Until now the module flag alone decided the path, so every completion on an enabled module was
+-- already the push path's. Without this they would all default to false and the pull export would
+-- claim them back while the push path still holds them: two attainments on one transcript.
+UPDATE course_module_completions cmc
+SET register_credits_via_suotar = TRUE
+FROM course_modules cm
+WHERE cm.id = cmc.course_module_id
+  AND cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL;
 
 CREATE TYPE credit_registration_enrolment_route AS ENUM ('university_of_helsinki', 'open_university');
 
@@ -31,8 +41,10 @@ COMMENT ON COLUMN credit_registration_enrolment_routes.user_id IS 'The student w
 COMMENT ON COLUMN credit_registration_enrolment_routes.route IS 'Which university relationship the student picked, which decides only where they are told to enrol. Not evidence of anything: it is unverified self-report, and the study registry is what actually settles whether an enrolment exists.';
 COMMENT ON COLUMN credit_registration_enrolment_routes.enrolment_confirmed_at IS 'When the student pressed Done to say they had enrolled. Null until they do, and cleared again if they take it back, which stays possible only until an enrolment is found -- after that the answer no longer changes anything.';
 
--- Gains the completion-level flag; unchanged otherwise. Replaced rather than dropped so
--- credit_registration_registrable_completions, which selects from it, survives.
+-- The module flag gives way to the completion flag, which is exactly what the pull path excludes:
+-- checking both would strand a completion the module flag is turned off under, owned by neither
+-- path. Replaced rather than dropped so credit_registration_registrable_completions, which selects
+-- from it, survives.
 CREATE OR REPLACE VIEW credit_registration_eligible_completions AS
 SELECT cmc.id AS course_module_completion_id,
   cmc.user_id,
@@ -44,11 +56,10 @@ SELECT cmc.id AS course_module_completion_id,
   AND NOT cmc.needs_to_be_reviewed AS fully_eligible
 FROM course_module_completions cmc
   JOIN course_modules cm ON cm.id = cmc.course_module_id
-WHERE cm.enable_credit_registration_via_suotar
-  AND cmc.register_credits_via_suotar
+WHERE cmc.register_credits_via_suotar
   AND cm.deleted_at IS NULL
   AND cmc.deleted_at IS NULL
   AND cmc.passed
   AND cmc.eligible_for_ects;
 
-COMMENT ON VIEW credit_registration_eligible_completions IS 'Completions the push path is responsible for: live, passed, ECTS-eligible, on a live module opted in to credit registration, and themselves marked for the push path when they were created. Membership is the hard half of the predicate, which nothing recovers from by waiting; fully_eligible is the soft half, which a prerequisite completed or a suspected-cheating review dismissed can turn true later. Deliberately silent about whether a completion is paused or already has a ledger row: pausing freezes rows where they stand rather than making them ineligible, and having a row is credit_registration_registrable_completions.';
+COMMENT ON VIEW credit_registration_eligible_completions IS 'Completions the push path is responsible for: live, passed, ECTS-eligible, on a live module, and marked for the push path when they were created. Marked, not on a module opted in now: the flag is frozen at creation and the pull path excludes exactly the rows carrying it, so demanding the module''s flag as well would strand a completion between the two paths. Turning the module off instead pauses these rows, in claim_due. Membership is the hard half of the predicate, which nothing recovers from by waiting; fully_eligible is the soft half, which a prerequisite completed or a suspected-cheating review dismissed can turn true later. Deliberately silent about whether a completion is paused or already has a ledger row: pausing freezes rows where they stand rather than making them ineligible, and having a row is credit_registration_registrable_completions.';

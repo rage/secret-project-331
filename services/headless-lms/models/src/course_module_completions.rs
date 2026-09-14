@@ -98,14 +98,10 @@ VALUES (
     $12,
     -- Decided here rather than by the caller: the flag is what keeps the two registration paths
     -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
+    -- The module alone decides it: a student with no linked number yet is what the registration
+    -- page's first step and the pipeline's student_number precondition are for.
     (
       SELECT cm.enable_credit_registration_via_suotar
-        AND EXISTS (
-          SELECT 1
-          FROM verified_student_numbers vsn
-          WHERE vsn.user_id = $4
-            AND vsn.deleted_at IS NULL
-        )
       FROM course_modules cm
       WHERE cm.id = $3
     )
@@ -167,8 +163,6 @@ pub async fn insert_seed_row(
         )
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
-            -- From the module alone, unlike `insert`, which also requires a verified student
-            -- number: the seed deliberately builds push-path scenarios for students without one.
             (
               SELECT cm.enable_credit_registration_via_suotar
               FROM course_modules cm

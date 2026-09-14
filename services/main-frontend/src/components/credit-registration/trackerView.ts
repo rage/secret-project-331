@@ -20,21 +20,15 @@ const wasListedByTheRegistry = (registration: MyCreditRegistration): boolean =>
   registration.linking_email !== null && registration.linking_email !== undefined
 
 /**
- * Whether the student is still being asked where they enrol.
+ * Whether the enrolment question still decides anything, judged from the ledger row alone.
  *
  * A found enrolment is the point of no return: the question only ever chose which enrolment
  * instructions to show, and by then those instructions have plainly been followed. The same is true
  * of every terminal state, where there is nothing left to enrol for, and of a student the registry
  * has already listed — telling them to go and enrol could cost them a second Open University fee.
  */
-export const asksWhereYouEnrolled = ({
-  registration,
-  enrolmentRoute,
-}: TrackerViewInput): boolean => {
-  if (registration === null) {
-    return false
-  }
-  if (registration.enrolment_found || enrolmentRoute?.can_change === false) {
+const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolean => {
+  if (registration.enrolment_found) {
     return false
   }
   if (wasListedByTheRegistry(registration)) {
@@ -42,6 +36,18 @@ export const asksWhereYouEnrolled = ({
   }
   return !["registered", "failed", "not_registering"].includes(registration.student_facing_status)
 }
+
+/**
+ * Whether the student is still being asked where they enrol.
+ *
+ * Never without the stored answer in hand: the question band cannot be drawn without it, and a page
+ * that counted as asking anyway would suppress the status band too and show an empty card.
+ */
+export const asksWhereYouEnrolled = ({ registration, enrolmentRoute }: TrackerViewInput): boolean =>
+  registration !== null &&
+  enrolmentRoute !== null &&
+  enrolmentRoute.can_change !== false &&
+  stillNeedsAnEnrolmentAnswer(registration)
 
 /** The two stages that both mean the same thing to a student: it is not in the records yet. */
 const ENROLMENT_WAIT = ["looking_for_enrolment", "needs_enrolment"]

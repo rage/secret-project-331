@@ -86,6 +86,10 @@ describe("whether the student is still asked where they enrol", () => {
     ).toBe(true)
   })
 
+  test("does not ask without the stored answer, which the question band is drawn from", () => {
+    expect(asksWhereYouEnrolled({ registration: registration(), enrolmentRoute: null })).toBe(false)
+  })
+
   test("stops asking once a linking mail exists, which only a listed enrolment can produce", () => {
     expect(
       asksWhereYouEnrolled({

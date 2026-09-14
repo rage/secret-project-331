@@ -69,7 +69,7 @@ import {
   DescriptionList,
   Infobox,
   Link,
-  QueryResult,
+  QueryResults,
   RelativeTime,
 } from "@/shared-module/components"
 
@@ -157,15 +157,16 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       {preview ? (
         <div className={sectionsCss}>{body}</div>
       ) : (
-        <QueryResult
-          query={query}
+        // Awaits both: which bands the card shows is decided from the two together, so drawing it
+        // from the registration alone can leave a card with no band on it at all.
+        <QueryResults
+          queries={[query, routeQuery] as const}
           treatNullAsEmpty
           refreshIndicator={QUIET_REFRESH}
           emptyFallback={<NotInThePipelineYet />}
           contentClassName={sectionsCss}
-        >
-          {() => body}
-        </QueryResult>
+          renderData={() => body}
+        />
       )}
     </div>
   )
@@ -251,6 +252,7 @@ const Tracker: React.FC<TrackerProps> = ({
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
+            courseId={registration.course_id}
             courseModuleId={courseModuleId}
             enrolmentRoute={enrolmentRoute}
             openUniversityEnrolmentLink={registration.enrolment_link}

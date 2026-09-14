@@ -31,6 +31,7 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
+import { invalidateRegistrationViews } from "./enrolmentActions"
 import { bandCss, rowCss } from "./styles"
 
 interface RouteForm {
@@ -38,6 +39,7 @@ interface RouteForm {
 }
 
 export interface EnrolmentRouteStepProps {
+  courseId: string
   courseModuleId: string
   enrolmentRoute: MyEnrolmentRoute
   /** Where a student who is not at the University is sent to enrol, when the module names one. */
@@ -52,6 +54,7 @@ export interface EnrolmentRouteStepProps {
  * what the answer asks of them. Rendered only while the answer can still change something.
  */
 export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
+  courseId,
   courseModuleId,
   enrolmentRoute,
   openUniversityEnrolmentLink,
@@ -84,7 +87,13 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
       await confirmMyEnrolment({ path: { course_module_id: courseModuleId } })
     },
     { notify: false },
-    { onSuccess: invalidate },
+    {
+      // Pressing Done also brings the next enrolment check forward, so the registration the rest of
+      // the page is drawn from has moved too.
+      onSuccess: async () => {
+        await Promise.all([invalidate(), invalidateRegistrationViews(queryClient, courseId)])
+      },
+    },
   )
 
   const withdraw = useToastMutation<void, unknown, void>(

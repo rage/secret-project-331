@@ -1019,6 +1019,9 @@ pub struct SetEnrolmentRoutePayload {
 
 /// The caller's completion for a module, which is also the ownership check: the lookup is scoped to
 /// their own user, so a module someone else completed is a not-found rather than a forbidden.
+///
+/// A completion the old path owns is a not-found too: these answers only exist for the push path,
+/// and nothing should be stored against a completion that will never ask the question.
 async fn my_completion_for_module(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -1030,6 +1033,9 @@ async fn my_completion_for_module(
         user_id,
     )
     .await?;
+    if !completion.register_credits_via_suotar {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
     Ok(completion.id)
 }
 

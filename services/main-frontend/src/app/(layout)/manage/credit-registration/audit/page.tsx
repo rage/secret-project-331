@@ -25,6 +25,7 @@ import {
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   ABSENT,
+  ADMIN_PAGE_SIZE_OPTIONS,
   ARROW,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
@@ -605,6 +606,7 @@ const AuditPage: React.FC = () => {
                 paginationInfo={paginationInfo}
                 totalPages={page.total_pages}
                 totalItems={page.total_count}
+                itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
               />
             </>
           )

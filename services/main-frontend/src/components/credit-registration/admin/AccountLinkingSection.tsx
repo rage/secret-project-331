@@ -29,6 +29,7 @@ import {
 
 import {
   ABSENT,
+  ADMIN_PAGE_SIZE_OPTIONS,
   ALIGN_END,
   BADGE_COMPACT,
   CREDIT_REGISTRATION_NS,
@@ -68,7 +69,6 @@ import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
 const CLAIMS_PER_PAGE = 25
-const CLAIMS_PAGE_SIZE_OPTIONS = [25, 50, 100]
 const DAY_SECS = 86_400
 /** A meter needs a non-zero maximum, and a funnel whose first step is zero has nothing to scale. */
 const MIN_FUNNEL_BASE = 1
@@ -703,7 +703,7 @@ const RecentClaimsBlock: React.FC = () => {
                 paginationInfo={paginationInfo}
                 totalPages={page.total_pages}
                 totalItems={page.total_count}
-                itemsPerPageOptions={CLAIMS_PAGE_SIZE_OPTIONS}
+                itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
               />
             </>
           )

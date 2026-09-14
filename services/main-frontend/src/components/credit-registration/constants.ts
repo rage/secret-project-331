@@ -79,6 +79,12 @@ export const BUTTON_DESTRUCTIVE = "destructive" as const
 /** `Table.responsive` for an operator table that becomes labelled cards on a phone. */
 export const TABLE_STACK = "stack" as const
 
+/**
+ * `Pagination.itemsPerPageOptions` for the operator tables. Small on purpose: these rows carry
+ * links, meters and badges, and the page turn is cheaper than a thousand of them.
+ */
+export const ADMIN_PAGE_SIZE_OPTIONS = [25, 50, 100]
+
 /** `useDateFormatter` options for a chart axis, where the year is in the heading and not the tick. */
 export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
 

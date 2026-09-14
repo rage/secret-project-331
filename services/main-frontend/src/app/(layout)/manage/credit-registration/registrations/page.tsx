@@ -30,6 +30,7 @@ import {
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
+  ADMIN_PAGE_SIZE_OPTIONS,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
@@ -557,6 +558,7 @@ const RegistrationsPage: React.FC = () => {
                   paginationInfo={paginationInfo}
                   totalPages={page.total_pages}
                   totalItems={page.total_count}
+                  itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
                 />
               </>
             )

@@ -33,6 +33,7 @@ import { formatDuration } from "@/utils/moduleTimeline"
 
 import {
   ABSENT,
+  ADMIN_PAGE_SIZE_OPTIONS,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
@@ -523,6 +524,7 @@ const AttentionQueueSection: React.FC = () => {
               paginationInfo={paginationInfo}
               totalPages={attention.total_pages}
               totalItems={attention.filtered_count}
+              itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
             />
           </>
         )}

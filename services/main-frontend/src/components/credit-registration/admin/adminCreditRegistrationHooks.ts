@@ -253,10 +253,15 @@ export const useCreditRegistrationReconciliation = () =>
     ...polled(RECONCILIATION_REFETCH_INTERVAL_MS),
   })
 
-export const useInvalidateReconciliation = () => {
+/** Materializing creates ledger rows, so the counts the reconciliation panel sits under move too. */
+export const useInvalidateAfterMaterialize = () => {
   const queryClient = useQueryClient()
   return () =>
-    queryClient.invalidateQueries({ queryKey: getCreditRegistrationReconciliationQueryKey() })
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: getCreditRegistrationReconciliationQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+    ])
 }
 
 export const useCreditRegistrationCourseStats = () =>

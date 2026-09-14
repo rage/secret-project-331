@@ -31,7 +31,7 @@ import {
   stackedCellCss,
   subsectionCss,
 } from "../styles"
-import { useInvalidateReconciliation } from "./adminCreditRegistrationHooks"
+import { useInvalidateAfterMaterialize } from "./adminCreditRegistrationHooks"
 import AdminStateLabel from "./AdminStateLabel"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
@@ -92,11 +92,11 @@ const Check: React.FC<{
 
 const MaterializeButton: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const invalidateReconciliation = useInvalidateReconciliation()
+  const invalidateAfterMaterialize = useInvalidateAfterMaterialize()
   const { button, dialog } = useReasonConfirmAction({
     mutationFn: (fields) =>
       adminMaterializeCreditRegistrations({ body: { reason: fields.reason } }),
-    invalidate: () => void invalidateReconciliation(),
+    invalidate: () => void invalidateAfterMaterialize(),
     buttonLabel: t("button-text-credit-registration-materialize"),
     dialogTitle: t("button-text-credit-registration-materialize"),
     dialogMessage: t("credit-registration-admin-materialize-note"),

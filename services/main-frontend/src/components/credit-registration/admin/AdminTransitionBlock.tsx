@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import {
   getCreditRegistrationForAdminQueryKey,
   getCreditRegistrationOverviewQueryKey,
+  listCreditRegistrationAdminActionsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminTransitionCreditRegistration } from "@/generated/api/sdk.generated"
@@ -170,6 +171,10 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
           }),
           queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+          // The action log on this very page, which the transition has just written a row to.
+          queryClient.invalidateQueries({
+            queryKey: listCreditRegistrationAdminActionsQueryKey(),
+          }),
         ])
       }}
       renderFields={(control) => <ReasonField control={control} />}

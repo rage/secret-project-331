@@ -32,7 +32,8 @@ test("the studies page shows the student's points and result, with no credit-reg
     0,
   )
 
-  await expect(page.getByText(/ECTS/)).toBeVisible()
+  // The tile's own label: the ECTS amount itself is on the module row as well.
+  await expect(page.getByText("Credits earned")).toBeVisible()
 
   const courseCard = page
     .getByTestId("profile-course-card")

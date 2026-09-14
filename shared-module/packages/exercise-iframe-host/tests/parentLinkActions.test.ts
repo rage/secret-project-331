@@ -66,9 +66,10 @@ describe("sanitizeDownloadFilename", () => {
 })
 
 /** A fetch Response whose body streams `bytes` in one chunk, the shape `startFileDownload` reads. */
-const streamedResponse = (bytes: Uint8Array): Response =>
+const streamedResponse = (bytes: Uint8Array, contentType = ""): Response =>
   ({
     ok: true,
+    headers: { get: (name: string) => (name === "Content-Type" ? contentType : null) },
     body: new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(bytes)
@@ -136,6 +137,19 @@ describe("startFileDownload", () => {
       jest.runAllTimers()
       expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url")
     })
+
+    it("keeps the response's content type on the downloaded blob", async () => {
+      jest.stubGlobal(
+        "fetch",
+        jest.fn().mockResolvedValue(streamedResponse(new Uint8Array([1]), "application/pdf")),
+      )
+
+      await startFileDownload("https://files.example/a", "answer.pdf")
+
+      expect(URL.createObjectURL).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "application/pdf" }),
+      )
+    })
   })
 
   // A network error or a storage backend that never grants this origin CORS access must not leave the
@@ -166,18 +180,27 @@ describe("startFileDownload", () => {
   })
 
   // A response over MAX_BLOB_DOWNLOAD_BYTES must not be buffered into memory in full before this is
-  // noticed — the whole point of streaming instead of calling response.blob() outright.
+  // noticed — the whole point of streaming instead of calling response.blob() outright. The mock chunk
+  // below only claims to be oversized (a plain object with a `byteLength`), so the test itself never
+  // allocates anywhere near that much memory either.
   describe("when the response exceeds the size limit", () => {
-    beforeEach(() => {
-      jest.stubGlobal(
-        "fetch",
-        jest.fn().mockResolvedValue(streamedResponse(new Uint8Array(MAX_BLOB_DOWNLOAD_BYTES + 1))),
-      )
-    })
-
     it("falls back to a direct link instead of building a blob from an oversized response", async () => {
+      const cancel = jest.fn().mockResolvedValue(undefined)
+      const response = {
+        ok: true,
+        body: {
+          getReader: () => ({
+            read: () =>
+              Promise.resolve({ done: false, value: { byteLength: MAX_BLOB_DOWNLOAD_BYTES + 1 } }),
+            cancel,
+          }),
+        },
+      } as unknown as Response
+      jest.stubGlobal("fetch", jest.fn().mockResolvedValue(response))
+
       await startFileDownload("https://files.example/a", "answer.pdf")
 
+      expect(cancel).toHaveBeenCalled()
       expect(URL.createObjectURL).not.toHaveBeenCalled()
       expect(clicked).toEqual([
         {

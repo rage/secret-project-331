@@ -128,7 +128,7 @@ const readBodyWithinLimit = async (response: Response): Promise<Blob> => {
     // SharedArrayBuffer, which is what the reader's own typed-array type admits.
     chunks.push(new Uint8Array(value))
   }
-  return new Blob(chunks)
+  return new Blob(chunks, { type: response.headers.get("Content-Type") ?? "" })
 }
 
 /**

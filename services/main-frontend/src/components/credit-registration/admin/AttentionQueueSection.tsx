@@ -284,10 +284,15 @@ const AttentionQueueSection: React.FC = () => {
   const items = attentionQuery.data?.items ?? []
   const filteredCount = attentionQuery.data?.filtered_count ?? 0
 
-  const [selectedKeys, setSelectedKeys] = useState<ReadonlySet<string>>(() => new Set())
+  // The picked rows themselves, not just their ids: this query polls, and a row a worker moves out
+  // of the queue between polls would otherwise drop out of a selection mid-way through acting on it,
+  // taking the toolbar's count and the open dialog's with it.
+  const [selectedRowsById, setSelectedRowsById] = useState<
+    ReadonlyMap<string, CreditRegistrationAttentionItem>
+  >(() => new Map())
   const [isSelectingFacet, setIsSelectingFacet] = useState(false)
   const clearSelection = useCallback(() => {
-    setSelectedKeys(new Set())
+    setSelectedRowsById(new Map())
     setIsSelectingFacet(false)
   }, [])
 
@@ -297,7 +302,17 @@ const AttentionQueueSection: React.FC = () => {
     { ...query, page: 1, limit: Math.max(filteredCount, 1) },
     { enabled: isSelectingFacet },
   )
-  const facetItems = facetQuery.data?.items ?? []
+  const facetRows = facetQuery.data?.items
+
+  // Taking the whole facet is one capture rather than a mode, so ticking a row off afterwards is
+  // just a smaller selection instead of a fight with the next poll.
+  useEffect(() => {
+    if (!isSelectingFacet || facetRows === undefined) {
+      return
+    }
+    setSelectedRowsById(new Map(facetRows.map((row) => [row.credit_registration_id, row])))
+    setIsSelectingFacet(false)
+  }, [isSelectingFacet, facetRows])
 
   // A facet or a page turn changes which rows exist to act on; ticks they hide would otherwise
   // reappear in the toolbar's count once the narrowing is cleared again.
@@ -308,18 +323,26 @@ const AttentionQueueSection: React.FC = () => {
     clearSelection,
   ])
 
-  const shownKeys = isSelectingFacet
-    ? new Set(facetItems.map((item) => item.credit_registration_id))
-    : selectedKeys
-  const rowsById = new Map(
-    [...items, ...facetItems].map((item) => [item.credit_registration_id, item] as const),
-  )
-  const selectedRows = Array.from(shownKeys).flatMap((id) => {
-    const row = rowsById.get(id)
-    return row ? [row] : []
-  })
+  const selectedKeys = new Set(selectedRowsById.keys())
+  const selectedRows = Array.from(selectedRowsById.values())
+  const pickRows = (keys: ReadonlySet<string>) => {
+    const rowsOnPage = new Map(items.map((row) => [row.credit_registration_id, row] as const))
+    setSelectedRowsById((previous) => {
+      const next = new Map<string, CreditRegistrationAttentionItem>()
+      for (const key of keys) {
+        const row = previous.get(key) ?? rowsOnPage.get(key)
+        if (row) {
+          next.set(key, row)
+        }
+      }
+      return next
+    })
+  }
   const canSelectWholeFacet =
-    filteredCount > items.length && filteredCount <= MAX_SELECT_ALL_ROWS && !isSelectingFacet
+    filteredCount > items.length &&
+    filteredCount <= MAX_SELECT_ALL_ROWS &&
+    !isSelectingFacet &&
+    selectedRowsById.size < filteredCount
 
   return (
     <section className={sectionCardCss}>
@@ -408,10 +431,10 @@ const AttentionQueueSection: React.FC = () => {
               stickyFirstColumn
               rowHover
               selection={{
-                selectedKeys: shownKeys,
+                selectedKeys,
                 onChange: (keys) => {
                   setIsSelectingFacet(false)
-                  setSelectedKeys(keys)
+                  pickRows(keys)
                 },
                 selectAllLabel: t("credit-registration-admin-select-every-row"),
                 rowLabel: (row) =>

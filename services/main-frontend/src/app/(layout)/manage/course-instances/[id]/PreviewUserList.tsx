@@ -12,9 +12,12 @@ export interface PreviewUserListProps {
   users: ManualCompletionPreviewUser[]
 }
 
-/** Where a pass and a fail with no numeric grade sit on `previous_best_grade`'s numeric scale. */
-const PASS_GRADE_VALUE = 0.5
-const FAIL_GRADE_VALUE = -1
+/**
+ * Where a pass and a fail with no numeric grade sit on `previous_best_grade`'s numeric scale.
+ * Whoever fills that field encodes it this way; `formatGrade` below is the only decoder.
+ */
+export const PASS_GRADE_VALUE = 0.5
+export const FAIL_GRADE_VALUE = -1
 
 const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
   const { t } = useTranslation()

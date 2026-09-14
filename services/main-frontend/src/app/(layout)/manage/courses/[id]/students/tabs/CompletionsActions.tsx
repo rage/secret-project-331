@@ -13,6 +13,7 @@ import {
   previewCourseInstanceCompletions,
 } from "@/generated/api/sdk.generated"
 import type {
+  CompletionGridRow,
   ManualCompletionPreview,
   ManualCompletionPreviewUser,
   TeacherManualCompletionRequest,
@@ -22,7 +23,22 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Link } from "@/shared-module/components"
 
 import CompletionRegistrationPreview from "../../../../course-instances/[id]/CompletionRegistrationPreview"
+import {
+  FAIL_GRADE_VALUE,
+  PASS_GRADE_VALUE,
+} from "../../../../course-instances/[id]/PreviewUserList"
 import { invalidateCourseStudents } from "../studentsQueries"
+
+/**
+ * A pass/fail module grades nothing numerically, so a pass and a fail go on the scale as the
+ * sentinels the preview decodes.
+ */
+const gradeValueOf = (row: CompletionGridRow): number => {
+  if (typeof row.grade === "number") {
+    return row.grade
+  }
+  return row.passed ? PASS_GRADE_VALUE : FAIL_GRADE_VALUE
+}
 
 /**
  * The grade each of these students already holds for the module, so the preview can say what a
@@ -42,10 +58,11 @@ const withPreviousBestGrades = async (
   })
   const best = new Map<string, number>()
   for (const row of rows) {
-    if (row.module_id !== courseModuleId || typeof row.grade !== "number") {
+    if (row.module_id !== courseModuleId) {
       continue
     }
-    best.set(row.user_id, Math.max(best.get(row.user_id) ?? row.grade, row.grade))
+    const grade = gradeValueOf(row)
+    best.set(row.user_id, Math.max(best.get(row.user_id) ?? grade, grade))
   }
   return users.map((user) => ({ ...user, previous_best_grade: best.get(user.user_id) ?? null }))
 }

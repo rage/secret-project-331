@@ -17,7 +17,7 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
-import { Button, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
 
 import {
   BUTTON_PRIMARY,
@@ -28,6 +28,7 @@ import {
   ROUTE_FIELD,
   SEGMENTED,
   SISU_URL,
+  TONE,
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
@@ -74,7 +75,11 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   // Destructured because react-query keeps `mutate` stable while the mutation object is not, and
   // the effect below has to list what it calls.
-  const { mutate: saveRoute } = useToastMutation<void, unknown, CreditRegistrationEnrolmentRoute>(
+  const { mutate: saveRoute, isError: saveFailed } = useToastMutation<
+    void,
+    unknown,
+    CreditRegistrationEnrolmentRoute
+  >(
     async (route) => {
       await setMyEnrolmentRoute({ path: { course_module_id: courseModuleId }, body: { route } })
     },
@@ -116,6 +121,17 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
     }
   }, [picked, saveRoute, stored])
 
+  // None of the three mutations toasts, so this is the only place a failed save is reported; the
+  // answer is a radio and a button that otherwise just look as though nothing happened.
+  const saveError =
+    saveFailed || confirm.isError || withdraw.isError ? (
+      <section className={bandCss}>
+        <Infobox tone={TONE.DANGER}>
+          {t("credit-registration-enrolment-answer-save-failed")}
+        </Infobox>
+      </section>
+    ) : null
+
   const iHaveEnrolled = (
     <Button
       variant={BUTTON_TERTIARY}
@@ -129,30 +145,34 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   if (enrolmentRoute.enrolment_confirmed_at) {
     return (
-      <section className={bandCss}>
-        <p>
-          {enrolmentConfirmedSentence(
-            t,
-            enrolmentRoute.route,
-            humanReadableDate(enrolmentRoute.enrolment_confirmed_at, i18n.language) ?? "",
-          )}
-        </p>
-        <div>
-          <Button
-            variant={BUTTON_TERTIARY}
-            size="medium"
-            isLoading={withdraw.isPending}
-            onClick={() => withdraw.mutate()}
-          >
-            {t("button-change-my-answer")}
-          </Button>
-        </div>
-      </section>
+      <>
+        {saveError}
+        <section className={bandCss}>
+          <p>
+            {enrolmentConfirmedSentence(
+              t,
+              enrolmentRoute.route,
+              humanReadableDate(enrolmentRoute.enrolment_confirmed_at, i18n.language) ?? "",
+            )}
+          </p>
+          <div>
+            <Button
+              variant={BUTTON_TERTIARY}
+              size="medium"
+              isLoading={withdraw.isPending}
+              onClick={() => withdraw.mutate()}
+            >
+              {t("button-change-my-answer")}
+            </Button>
+          </div>
+        </section>
+      </>
     )
   }
 
   return (
     <>
+      {saveError}
       <section className={bandCss}>
         <RadioGroup
           name={ROUTE_FIELD}

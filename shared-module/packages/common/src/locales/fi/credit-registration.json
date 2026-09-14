@@ -538,6 +538,7 @@
   "credit-registration-counts-across-the-course": "Kaikki luvut koskevat kurssin kaikkia kurssitoteutuksia.",
   "credit-registration-counts-this-instance-only": "Kaikki luvut koskevat vain tätä kurssitoteutusta.",
   "credit-registration-credits": "{{credits}} op",
+  "credit-registration-enrolment-answer-save-failed": "Vastauksen tallentaminen epäonnistui. Yritä uudelleen.",
   "credit-registration-enrolment-checked-recently": "Tarkistimme ilmoittautumisesi hetki sitten. Voit pyytää uuden tarkistuksen pian.",
   "credit-registration-error-acceptor-not-found": "Kurssin hyväksyjää ei löytynyt Sisusta, yliopiston opintorekisteristä.",
   "credit-registration-error-course-code-not-found": "Tätä kurssia ei ole vielä perustettu Sisuun, yliopiston opintorekisteriin.",

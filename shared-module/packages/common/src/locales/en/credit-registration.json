@@ -538,6 +538,7 @@
   "credit-registration-counts-across-the-course": "Every count is across all instances of this course.",
   "credit-registration-counts-this-instance-only": "Every count is for this instance only.",
   "credit-registration-credits": "{{credits}} credits",
+  "credit-registration-enrolment-answer-save-failed": "Saving your answer failed. Please try again.",
   "credit-registration-enrolment-checked-recently": "We checked your enrolment a moment ago. You can ask for another check shortly.",
   "credit-registration-error-acceptor-not-found": "The person who signs off this course could not be found in Sisu, the University's study registry.",
   "credit-registration-error-course-code-not-found": "This course is not set up in Sisu, the University's study registry, yet.",

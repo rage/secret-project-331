@@ -1251,16 +1251,22 @@ pub async fn withdraw_my_enrolment_confirmation(
             "Your enrolment has already been found, so there is nothing to take back.".to_string()
         ));
     }
-    let answer = credit_registration_enrolment_routes::set_enrolment_confirmed(
-        &mut conn,
-        current.course_module_completion_id,
-        false,
-    )
-    .await?;
+    let answer = match current.route {
+        // No answer is already what this asks for, so it is an answer rather than a 404.
+        None => None,
+        Some(_) => Some(
+            credit_registration_enrolment_routes::set_enrolment_confirmed(
+                &mut conn,
+                current.course_module_completion_id,
+                false,
+            )
+            .await?,
+        ),
+    };
 
     token.authorized_ok(web::Json(my_enrolment_route(
         current.course_module_completion_id,
-        Some(answer),
+        answer,
         current.can_change,
     )))
 }

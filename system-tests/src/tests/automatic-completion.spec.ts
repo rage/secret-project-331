@@ -52,6 +52,11 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
 
+  // The page still has to load its completion data; clicking "No" before that resolves races
+  // the button being replaced under the click, which can drop the click.
+  await page
+    .getByText("Are you a student or an exchange student at the University of Helsinki?")
+    .waitFor()
   await page.getByRole("button", { name: "No" }).click()
   await page
     .getByText(
@@ -106,6 +111,12 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
+
+  // The page still has to load its completion data; clicking "No" before that resolves races
+  // the button being replaced under the click, which can drop the click.
+  await page
+    .getByText("Are you a student or an exchange student at the University of Helsinki?")
+    .waitFor()
   await page.getByRole("button", { name: "No" }).click()
   await page
     .getByText(

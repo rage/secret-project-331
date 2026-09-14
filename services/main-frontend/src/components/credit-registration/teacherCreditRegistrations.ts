@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 
 import {
   getCourseCreditRegistrationActionsQueryKey,
+  getCourseCreditRegistrationModuleConfigsOptions,
   getCourseCreditRegistrationsOptions,
   getCourseCreditRegistrationSummaryQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -81,6 +82,23 @@ export const useCanViewCreditRegistrations = (courseId: string | null): boolean 
         ]
       : [],
   ).data?.[0] === true
+
+/**
+ * Whether any module of this course registers credits through the study registry.
+ *
+ * The gate for anything that names the study registry path: every teacher holds the permission on
+ * their own course, so permission alone would show the whole feature to a course nobody has opted
+ * in. Pair it with [`useCanViewCreditRegistrations`] wherever the surface also carries student data.
+ */
+export const useCourseHasStudyRegistryModules = (courseId: string | null): boolean => {
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
+    }),
+  )
+  return (query.data?.modules ?? []).some((module) => module.enable_credit_registration_via_suotar)
+}
 
 /**
  * Keyed `userId:moduleId`, newest attempt only.

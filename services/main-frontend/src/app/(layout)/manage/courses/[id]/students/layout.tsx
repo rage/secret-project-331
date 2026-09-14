@@ -16,7 +16,10 @@ import {
   registrationStatusViewLabel,
 } from "@/components/credit-registration/registrationStatusViews"
 import { noteCss, pageTitleCss } from "@/components/credit-registration/styles"
-import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
+import {
+  useCanViewCreditRegistrations,
+  useCourseHasStudyRegistryModules,
+} from "@/components/credit-registration/teacherCreditRegistrations"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
@@ -143,7 +146,9 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
     registrationView,
     setRegistrationView,
   } = useStudentsContext()
-  const canFilterByRegistration = useCanViewCreditRegistrations(courseId)
+  const canViewRegistrations = useCanViewCreditRegistrations(courseId)
+  const courseUsesStudyRegistry = useCourseHasStudyRegistryModules(courseId)
+  const canFilterByRegistration = canViewRegistrations && courseUsesStudyRegistry
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const listParams = useStudentsListParams()

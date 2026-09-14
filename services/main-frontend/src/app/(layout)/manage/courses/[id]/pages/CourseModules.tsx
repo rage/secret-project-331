@@ -235,9 +235,12 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
   // A registration carries the student's Sisu identity, so the counts need their own permission.
   const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
+  const courseUsesStudyRegistry = (creditRegistrationConfigs?.modules ?? []).some(
+    (module) => module.enable_credit_registration_via_suotar,
+  )
   const registrationSummaryQuery = useQuery({
     ...getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
-    enabled: canViewCreditRegistrations,
+    enabled: canViewCreditRegistrations && courseUsesStudyRegistry,
   })
   const registrationSummaries = registrationSummaryQuery.data?.modules
   const courseStructureQuery = useQuery({

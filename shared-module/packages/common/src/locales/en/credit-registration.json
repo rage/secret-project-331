@@ -662,7 +662,6 @@
   "credit-registration-module-paused-since": "Paused since",
   "credit-registration-no-enrolment-link-available": "We have no direct link to this course's enrolment page right now. Enrol at the Open University, then ask us to check again.",
   "credit-registration-no-student-number-linked": "No student number linked yet.",
-  "credit-registration-not-set-up-for-this-course": "Credit registration is not set up for this course.",
   "credit-registration-older-actions_one": "{{count}} older action",
   "credit-registration-older-actions_other": "{{count}} older actions",
   "credit-registration-open-module-settings": "Open module settings",

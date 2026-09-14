@@ -5,7 +5,10 @@ import { useTranslation } from "react-i18next"
 
 import CreditRegistrationExportLink from "@/components/credit-registration/CreditRegistrationExportLink"
 import { cardCss, noteCss, rowCss, sectionCss } from "@/components/credit-registration/styles"
-import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
+import {
+  useCanViewCreditRegistrations,
+  useCourseHasStudyRegistryModules,
+} from "@/components/credit-registration/teacherCreditRegistrations"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import {
   createCourseInstanceCompletions,
@@ -81,7 +84,9 @@ interface Props {
  */
 const CompletionsActions: React.FC<Props> = ({ courseId, courseInstanceId }) => {
   const { t } = useTranslation()
-  const canExportRegistrations = useCanViewCreditRegistrations(courseId)
+  const canViewRegistrations = useCanViewCreditRegistrations(courseId)
+  const courseUsesStudyRegistry = useCourseHasStudyRegistryModules(courseId)
+  const canExportRegistrations = canViewRegistrations && courseUsesStudyRegistry
   const courseStructureQuery = useCourseStructure(courseId)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [request, setRequest] = useState<TeacherManualCompletionRequest | null>(null)

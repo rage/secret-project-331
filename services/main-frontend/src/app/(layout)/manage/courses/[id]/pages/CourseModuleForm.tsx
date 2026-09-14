@@ -398,8 +398,12 @@ const CourseModuleForm: React.FC<Props> = ({
     label: chapter.toString(),
   }))
   const savedPath = registrationPathOf(module)
+  // A teacher who cannot switch this on has no business learning the path exists, so anything
+  // naming it appears only for support, or on a module support has already put on it.
+  const showsStudyRegistryOption = canConfigureStudyRegistry || savedPath === STUDY_REGISTRY
   const hasConfigProblem = hasCreditRegistrationConfigProblem(creditRegistrationConfig)
   const courseCodeFoundInSisu =
+    showsStudyRegistryOption &&
     module.uh_course_code !== null &&
     creditRegistrationConfig?.credit_registration_course_code_resolves === true
   const nameIsEditable = isCreate || module.name !== null
@@ -588,9 +592,9 @@ const CourseModuleForm: React.FC<Props> = ({
               label={t("label-module-registration-path")}
               isReadOnly={!canConfigureStudyRegistry && savedPath === STUDY_REGISTRY}
               description={
-                canConfigureStudyRegistry
-                  ? undefined
-                  : t("description-registration-path-support-only")
+                showsStudyRegistryOption && !canConfigureStudyRegistry
+                  ? t("description-registration-path-support-only")
+                  : undefined
               }
             >
               <Radio value={NO_REGISTRATION} label={t("registration-path-none")} />
@@ -599,12 +603,14 @@ const CourseModuleForm: React.FC<Props> = ({
                 label={t("registration-path-open-university")}
                 description={t("description-registration-path-open-university")}
               />
-              <Radio
-                value={STUDY_REGISTRY}
-                label={t("registration-path-study-registry")}
-                description={t("description-enable-credit-registration-via-suotar")}
-                isDisabled={!canConfigureStudyRegistry}
-              />
+              {showsStudyRegistryOption && (
+                <Radio
+                  value={STUDY_REGISTRY}
+                  label={t("registration-path-study-registry")}
+                  description={t("description-enable-credit-registration-via-suotar")}
+                  isDisabled={!canConfigureStudyRegistry}
+                />
+              )}
             </RadioGroup>
 
             {registrationPath === STUDY_REGISTRY &&

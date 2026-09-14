@@ -662,7 +662,6 @@
   "credit-registration-module-paused-since": "Pysäytetty",
   "credit-registration-no-enrolment-link-available": "Meillä ei ole juuri nyt suoraa linkkiä tämän kurssin ilmoittautumissivulle. Ilmoittaudu avoimeen yliopistoon ja pyydä meitä sitten tarkistamaan uudelleen.",
   "credit-registration-no-student-number-linked": "Opiskelijanumeroa ei ole vielä liitetty.",
-  "credit-registration-not-set-up-for-this-course": "Opintopisteiden kirjaamista ei ole otettu käyttöön tällä kurssilla.",
   "credit-registration-older-actions_one": "{{count}} aiempi toimenpide",
   "credit-registration-older-actions_other": "{{count}} aiempaa toimenpidettä",
   "credit-registration-open-module-settings": "Avaa moduulin asetukset",

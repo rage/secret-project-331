@@ -7,21 +7,20 @@ import { useTranslation } from "react-i18next"
 import { getCourseCreditRegistrationModuleConfigsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
-import { Link } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, MIDDLE_DOT } from "./constants"
-import { noteCss, proseCss, rowCss } from "./styles"
+import { noteCss, proseCss } from "./styles"
 
 interface Props {
   courseId: string
 }
 
 /**
- * Whether this course sends credits to Sisu at all, and on what settings.
+ * What this course sends to Sisu, and on what settings.
  *
- * For a roster with nothing on it: an empty table cannot distinguish "nobody has passed yet" from
- * "credit registration was never switched on", and those call for opposite responses.
+ * For a roster with nothing on it: an empty table says nothing about where the credits of the
+ * students who do pass will go. Renders nothing until a module is on that path — a course nobody
+ * has opted in must not learn the path exists from an empty state.
  */
 const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -32,18 +31,9 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
 
   const configs = configsQuery.data?.modules ?? []
   const enabled = configs.filter((config) => config.enable_credit_registration_via_suotar)
-  const modulesRoute = manageCourseModulesRoute(courseId)
 
-  if (configsQuery.isPending) {
-    return null
-  }
   if (enabled.length === 0) {
-    return (
-      <p className={rowCss}>
-        <span className={noteCss}>{t("credit-registration-not-set-up-for-this-course")}</span>
-        <Link href={modulesRoute}>{t("link-edit-course-modules")}</Link>
-      </p>
-    )
+    return null
   }
 
   const moduleName = (config: CourseModuleCreditRegistrationConfig): string =>

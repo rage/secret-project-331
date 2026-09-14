@@ -37,8 +37,11 @@ export function formatRelativeDistance(at: Date, locale: string): string {
   const formatter = relativeTimeFormatter(locale)
   let duration = (at.getTime() - Date.now()) / 1000
   for (const { limit, unit } of RELATIVE_TIME_UNITS) {
-    if (Math.abs(duration) < limit) {
-      return formatter.format(Math.round(duration), unit)
+    // Rounded before the test, or the top half-unit of a bucket rounds up to the next unit's own
+    // threshold and prints as "60 seconds ago" or "24 hours ago".
+    const rounded = Math.round(duration)
+    if (Math.abs(rounded) < limit) {
+      return formatter.format(rounded, unit)
     }
     duration /= limit
   }

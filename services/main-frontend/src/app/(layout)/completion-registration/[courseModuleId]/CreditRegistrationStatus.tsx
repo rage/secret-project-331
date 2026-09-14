@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "@vectopus/atlas-icons-react"
-import { useSearchParams } from "next/navigation"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -21,11 +20,6 @@ import {
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
-import {
-  isPreviewState,
-  PREVIEW_STATE_PARAM,
-  previewPage,
-} from "@/components/credit-registration/previewRegistration"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -101,14 +95,10 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   ectsCredits,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const previewParam = useSearchParams()?.get(PREVIEW_STATE_PARAM) ?? null
-  const preview = isPreviewState(previewParam) ? previewPage(previewParam) : null
-
   const query = useQuery({
     ...getMyCreditRegistrationForCourseModuleOptions({
       path: { course_module_id: courseModuleId },
     }),
-    enabled: preview === null,
     refetchInterval: (latestQuery) => {
       const registration = latestQuery.state.data?.registration
       if (!registration?.status_is_moving) {
@@ -119,18 +109,14 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
         : MOVING_REFETCH_INTERVAL_MS
     },
   })
-  const routeQuery = useQuery({
-    ...getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
-    enabled: preview === null,
-  })
-  const numberQuery = useQuery({
-    ...getMyVerifiedStudentNumberOptions(),
-    enabled: preview === null,
-  })
+  const routeQuery = useQuery(
+    getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
+  )
+  const numberQuery = useQuery(getMyVerifiedStudentNumberOptions())
 
-  const data = preview ? preview.registration : (query.data ?? null)
-  const enrolmentRoute = preview ? preview.enrolmentRoute : (routeQuery.data ?? null)
-  const verifiedNumber = preview ? preview.verifiedStudentNumber : (numberQuery.data ?? null)
+  const data = query.data ?? null
+  const enrolmentRoute = routeQuery.data ?? null
+  const verifiedNumber = numberQuery.data ?? null
 
   const body = data ? (
     <Tracker
@@ -154,20 +140,16 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
           {t("heading-my-studies")}
         </Link>
       </div>
-      {preview ? (
-        <div className={sectionsCss}>{body}</div>
-      ) : (
-        // Awaits both: which bands the card shows is decided from the two together, so drawing it
-        // from the registration alone can leave a card with no band on it at all.
-        <QueryResults
-          queries={[query, routeQuery] as const}
-          treatNullAsEmpty
-          refreshIndicator={QUIET_REFRESH}
-          emptyFallback={<NotInThePipelineYet />}
-          contentClassName={sectionsCss}
-          renderData={() => body}
-        />
-      )}
+      {/* Awaits both: which bands the card shows is decided from the two together, so drawing it
+          from the registration alone can leave a card with no band on it at all. */}
+      <QueryResults
+        queries={[query, routeQuery] as const}
+        treatNullAsEmpty
+        refreshIndicator={QUIET_REFRESH}
+        emptyFallback={<NotInThePipelineYet />}
+        contentClassName={sectionsCss}
+        renderData={() => body}
+      />
     </div>
   )
 }

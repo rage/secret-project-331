@@ -6,10 +6,10 @@ import { headingFont, monospaceFont, primaryFont, typography } from "../../style
 import { defaultFontSizePx, linkWithExtraIconClass } from "../../styles/constants"
 import cssReset from "../../styles/cssReset"
 
-// Exercise services ship only the Inter (variable) and Space Mono fonts to keep the
+// Exercise services ship only the Inter (variable) and Commit Mono fonts to keep the
 // dependency footprint minimal.
 import "@fontsource-variable/inter/wght.css"
-import "@fontsource/space-mono/400.css"
+import "@fontsource/commit-mono/400.css"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const globalCss = css`
@@ -54,8 +54,11 @@ const globalCss = css`
   kbd,
   tt {
     font-family: ${monospaceFont};
-    font-variant-ligatures: none;
-    font-feature-settings: "liga" 0;
+    /* Commit Mono's Smart Kerning is contextual alternates, so it has to stay on while
+       ligatures stay off. font-variant-ligatures: none would disable both. */
+    font-feature-settings:
+      "liga" 0,
+      "calt" 1;
   }
   .screen-reader-only {
     position: absolute;

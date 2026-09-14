@@ -222,11 +222,13 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
         (status = 200, description = "Exam submissions CSV export", body = String, content_type = "text/csv")
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 pub async fn export_submissions(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
@@ -240,7 +242,11 @@ pub async fn export_submissions(
             exam.name,
             Utc::now().format("%Y-%m-%d")
         ),
-        ExamSubmissionExportOperation { exam_id: *exam_id },
+        ExamSubmissionExportOperation {
+            exam_id: *exam_id,
+            file_store,
+            app_conf,
+        },
         token,
     )
     .await

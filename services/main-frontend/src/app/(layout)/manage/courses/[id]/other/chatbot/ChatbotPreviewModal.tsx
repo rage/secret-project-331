@@ -21,7 +21,7 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined, null)
   const { currentConversationInfo, newConversationMutation } = chatbotStateAndData
   const hasStartedFreshConversation = useRef(false)
 

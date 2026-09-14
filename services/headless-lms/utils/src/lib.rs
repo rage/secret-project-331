@@ -1,6 +1,7 @@
 //! Commonly used utils.
 
 pub mod azure_embedding;
+pub mod backoff;
 pub mod cache;
 pub mod document_schema_processor;
 pub mod email_processor;
@@ -20,6 +21,7 @@ pub mod page_visit_hasher;
 pub mod pagination;
 pub mod prelude;
 pub mod services;
+pub mod stable_digest;
 pub mod strings;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;

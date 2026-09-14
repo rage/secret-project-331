@@ -47,21 +47,35 @@ pub fn canonicalize_grouping_message(normalized_message: &str) -> String {
         .to_lowercase()
 }
 
+/// Frames the parts of an identifier. The stored `error_variants.exact_error_identifier` values were
+/// computed with it and its meaning is documented in that column's comment, so it cannot change
+/// without orphaning every row.
+const PART_SEPARATOR: u8 = 0;
+
+/// Digests `parts` framed by [`PART_SEPARATOR`], dropping the separator wherever a part contains it
+/// itself.
+///
+/// Without that the framing is forgeable: the service name, message and stack trace of an error
+/// report are whatever the reporter sent, and a separator placed where one part ends lets a crafted
+/// report claim another error's identity and merge into its aggregate. Dropping rather than
+/// escaping keeps every identifier already stored valid, and loses nothing real, since Postgres
+/// cannot hold a null byte in a text column anyway.
 fn hash_identifier(parts: &[&str]) -> String {
     let mut hasher = blake3::Hasher::new();
     for (idx, part) in parts.iter().enumerate() {
         if idx > 0 {
-            hasher.update(b"\x00");
+            hasher.update(&[PART_SEPARATOR]);
         }
-        hasher.update(part.as_bytes());
+        for run in part.as_bytes().split(|byte| *byte == PART_SEPARATOR) {
+            hasher.update(run);
+        }
     }
     hasher.finalize().to_hex().to_string()
 }
 
 /// Computes a stable BLAKE3 identifier for an exact error variant.
 ///
-/// Components are separated by null bytes so that ("foo", "") and ("", "foo")
-/// never collide.
+/// Framed by [`hash_identifier`], so ("foo", "") and ("", "foo") are different variants.
 pub fn calculate_exact_error_identifier(
     service: &str,
     error_source: &str,
@@ -260,11 +274,48 @@ mod tests {
         assert_ne!(fp1, fp2);
     }
 
+    /// One error's message ending where the next field begins must not make it that other error, or
+    /// the two are aggregated as one and the counts of both are wrong.
     #[test]
-    fn test_separator_prevents_collision() {
-        let fp1 = calculate_exact_error_identifier("main-frontend", "frontend", "foobar", None);
-        let fp2 = calculate_exact_error_identifier("main-frontend", "frontend", "foo", Some("bar"));
-        assert_ne!(fp1, fp2);
+    fn fields_that_only_differ_in_where_they_are_split_get_different_identifiers() {
+        assert_ne!(
+            calculate_exact_error_identifier("main-frontend", "frontend", "foobar", None),
+            calculate_exact_error_identifier("main-frontend", "frontend", "foo", Some("bar")),
+        );
+    }
+
+    /// The reporter chooses the message and the stack trace, so a separator byte inside one of them
+    /// would let a crafted report land on an existing error's identifier and poison its aggregate.
+    #[test]
+    fn a_separator_byte_inside_a_field_cannot_forge_another_errors_identifier() {
+        assert_ne!(
+            calculate_exact_error_identifier("main-frontend", "frontend", "x\0y", None),
+            calculate_exact_error_identifier("main-frontend", "frontend", "x", Some("y\0")),
+        );
+    }
+
+    /// `exact_error_identifier` is half of a unique constraint and years of occurrence counts hang
+    /// off it, so an identifier that was computed before must still come out the same: a changed
+    /// digest orphans every stored variant and silently restarts its statistics.
+    #[test]
+    fn an_identifier_computed_by_an_earlier_release_still_matches() {
+        assert_eq!(
+            calculate_exact_error_identifier(
+                "main-frontend",
+                "frontend",
+                "Record 123456 not found",
+                Some("at fn (app.abc12345def0.js:10:5)"),
+            ),
+            "52bb48c4ba91e36118ee65ac89da79c2ff6b6a16ccf0b405548628f495c8a80d",
+        );
+        assert_eq!(
+            calculate_error_grouping_identifier(
+                "main-frontend",
+                "frontend",
+                "Record 123456 not found",
+            ),
+            "17cb38f2ae609f927849a7591c4926b4c165e2cc7858810abb04a0607c38e52a",
+        );
     }
 
     #[test]

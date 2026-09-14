@@ -8,7 +8,7 @@ import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.gen
 import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
-import { retryOutcomeSentence } from "./creditRegistrationRetry"
+import { refusalSentence } from "./resubmissionRefusal"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
@@ -51,10 +51,10 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({ courseId }) => {
               {t("credit-registration-bulk-retry-retried", { count: result.retried_count })}
             </div>
             {result.skipped.map((skip) => (
-              <div key={skip.outcome}>
+              <div key={skip.refusal}>
                 {t("credit-registration-bulk-retry-skipped", {
                   count: skip.count,
-                  reason: retryOutcomeSentence(t, skip.outcome),
+                  reason: refusalSentence(t, skip.refusal),
                 })}
               </div>
             ))}

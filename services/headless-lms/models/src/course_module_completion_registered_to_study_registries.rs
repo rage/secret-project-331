@@ -341,6 +341,41 @@ WHERE study_registry_registrar_id = $1
     Ok(registrations)
 }
 
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
+/// A registration's state without the registrar-supplied student number, for surfaces that must
+/// never expose it (see `real_student_number` on [CourseModuleCompletionRegisteredToStudyRegistry]).
+pub struct CourseModuleCompletionRegistrationState {
+    pub course_module_completion_id: Uuid,
+    pub course_module_id: Uuid,
+    pub study_registry_registrar_id: Option<Uuid>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Registration state for the given completions, across all registrars. Selects no student
+/// number, unlike [get_by_registrar_id_and_completion_ids].
+pub async fn get_registrations_by_completion_ids(
+    conn: &mut PgConnection,
+    completion_ids: &[Uuid],
+) -> ModelResult<Vec<CourseModuleCompletionRegistrationState>> {
+    let registrations = sqlx::query_as!(
+        CourseModuleCompletionRegistrationState,
+        r#"
+SELECT course_module_completion_id,
+  course_module_id,
+  study_registry_registrar_id,
+  created_at
+FROM course_module_completion_registered_to_study_registries
+WHERE course_module_completion_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        completion_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(registrations)
+}
+
 /// Of the given completions, the ones some registrar has already registered.
 ///
 /// Rows this platform registered itself carry no registrar and are not counted, so a grade

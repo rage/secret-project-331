@@ -252,8 +252,8 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionProps>> = ({
   // set wide screen direction to row if there is multiple-choice item
   // in quiz items
   let direction: FlexDirection = COLUMN
+  // oxlint-disable-next-line array-callback-return -- .every short-circuit is intended; a return would change iteration
   publicAlternatives.items.every((item) => {
-    // oxlint-disable-next-line array-callback-return -- .every short-circuit is intended; a return would change iteration
     if (item.type === "multiple-choice") {
       direction = sanitizeFlexDirection(item.optionDisplayDirection, COLUMN)
       // oxlint-disable-next-line no-useless-return -- kept to preserve exact control flow

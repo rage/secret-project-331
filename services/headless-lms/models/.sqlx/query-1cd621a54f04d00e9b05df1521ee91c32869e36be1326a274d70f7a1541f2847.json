@@ -1,0 +1,202 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  endpoint AS \"endpoint!: SuotarEndpoint\",\n  request_item_count,\n  http_status,\n  duration_ms,\n  succeeded,\n  ok_item_count,\n  error_item_count,\n  request_level_error_code,\n  credit_registration_ids,\n  worker_name,\n  started_at,\n  COUNT(*) OVER () AS \"total_count!\"\nFROM suotar_api_calls\nWHERE deleted_at IS NULL\n  AND (\n    $1::suotar_endpoint IS NULL\n    OR endpoint = $1\n  )\n  AND ($2::bool IS NULL OR succeeded = $2)\n  AND ($3::text IS NULL OR worker_name = $3)\n  AND ($4::timestamptz IS NULL OR started_at >= $4)\n  AND ($5::timestamptz IS NULL OR started_at <= $5)\n  AND (\n    $6::uuid IS NULL\n    OR credit_registration_ids @> ARRAY [$6::uuid]\n  )\nORDER BY started_at DESC,\n  id\nLIMIT $7 OFFSET $8\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "endpoint!: SuotarEndpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "product_access_tokens",
+                "list_by_course"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "request_item_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "request_item_count"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "http_status",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "http_status"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "duration_ms",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "duration_ms"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "succeeded",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "succeeded"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "ok_item_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "ok_item_count"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "error_item_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "error_item_count"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "request_level_error_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "request_level_error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "credit_registration_ids",
+        "type_info": "UuidArray",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "credit_registration_ids"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "worker_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "worker_name"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "product_access_tokens",
+                "list_by_course"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "1cd621a54f04d00e9b05df1521ee91c32869e36be1326a274d70f7a1541f2847"
+}

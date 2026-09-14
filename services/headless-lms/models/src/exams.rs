@@ -199,6 +199,42 @@ pub struct CourseExam {
     pub name: String,
 }
 
+/// The exam fields needed to describe an exam without the courses/page join [`get`] does.
+pub struct ExamSummary {
+    pub id: Uuid,
+    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub minimum_points_treshold: i32,
+    pub grade_manually: bool,
+}
+
+pub async fn get_summaries_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<ExamSummary>> {
+    let exams = sqlx::query_as!(
+        ExamSummary,
+        "
+SELECT id,
+  name,
+  starts_at,
+  ends_at,
+  time_minutes,
+  minimum_points_treshold,
+  grade_manually
+FROM exams
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exams)
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct NewExam {

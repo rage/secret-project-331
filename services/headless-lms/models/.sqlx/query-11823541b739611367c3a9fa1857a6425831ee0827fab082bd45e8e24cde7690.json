@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_task_spec_files (exercise_task_id, file_upload_id, spec_kind)\nSELECT $1,\n  file_upload_id,\n  $3\nFROM UNNEST($2::uuid []) AS t(file_upload_id)\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_spec_files AS existing\n    WHERE existing.exercise_task_id = $1\n      AND existing.file_upload_id = t.file_upload_id\n      AND existing.spec_kind = $3\n      AND existing.deleted_at IS NULL\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "exercise_spec_kind",
+            "kind": {
+              "Enum": [
+                "private",
+                "public",
+                "model_solution"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "11823541b739611367c3a9fa1857a6425831ee0827fab082bd45e8e24cde7690"
+}

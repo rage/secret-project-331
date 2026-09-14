@@ -1,5 +1,6 @@
 "use client"
 
+import type { CalendarDate, CalendarDateTime, ZonedDateTime } from "@internationalized/date"
 import {
   createCalendar,
   getLocalTimeZone,
@@ -7,9 +8,14 @@ import {
   now,
   toCalendar,
   toCalendarDate,
+  toCalendarDateTime,
   toTime,
 } from "@internationalized/date"
-import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker"
+import {
+  useDateFieldState,
+  useDatePickerState,
+  type DateFieldStateOptions,
+} from "@react-stately/datepicker"
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
@@ -66,7 +72,7 @@ export function DateLikePickerInner({
 
   const pickerState = useDatePickerState(pickerProps)
   const pickerAria = useDatePicker(pickerProps, pickerState, base.groupRef)
-  const dateFieldProps = {
+  const dateFieldProps: DateFieldStateOptions<CalendarDate | CalendarDateTime | ZonedDateTime> = {
     ...pickerAria.fieldProps,
     createCalendar,
     locale: base.locale,
@@ -118,8 +124,10 @@ export function DateLikePickerInner({
               const calendar = currentValue?.calendar ?? new GregorianCalendar()
               const date = toCalendar(toCalendarDate(zdt), calendar)
               const time = toTime(zdt)
-              pickerState.setDateValue(date)
-              pickerState.setTimeValue(time)
+              // setDateValue/setTimeValue each close over the *other* field's pre-click
+              // value, so calling both in one tick races and the second call wins with
+              // a stale date or time. Commit the merged value once via setValue instead.
+              pickerState.setValue(toCalendarDateTime(date, time))
             }
           : undefined
       }

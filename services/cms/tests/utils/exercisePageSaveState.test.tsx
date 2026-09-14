@@ -146,6 +146,10 @@ it("keeps a loaded exercise page reported as saved across re-renders", async () 
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
   await withNodeEnv("production", async () => {
+    // Nothing below waits for the fetch, so the page has to be in the cache before the first
+    // render. Letting the render kick the fetch off instead makes the assertions depend on
+    // react-query delivering within act's flush, which it does not always do.
+    await queryClient.prefetchQuery({ queryKey: ["cms-page"], queryFn: () => savedExercisePage() })
     await act(() => {
       root.render(
         createElement(

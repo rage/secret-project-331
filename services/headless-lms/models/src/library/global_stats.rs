@@ -4,8 +4,7 @@
 //! set: a completion is registered if a third-party registrar recorded it in
 //! `course_module_completion_registered_to_study_registries`, or if a `credit_registrations` attempt
 //! of ours reached `registered`, `duplicate` or `not_improved`. Every other credit registration
-//! state — `abandoned_by_consent_withdrawal` included — leaves the credit's fate unknown to us and
-//! must not be counted either way.
+//! state leaves the credit's fate unknown to us and must not be counted either way.
 //!
 //! `UNION`, not `UNION ALL`, is what keeps the counts honest: one completion routinely has a row in
 //! both ledgers, because our pipeline mirrors its successes into the legacy one, and several rows in

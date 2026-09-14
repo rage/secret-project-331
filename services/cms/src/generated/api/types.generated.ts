@@ -25,6 +25,7 @@ export type ChatbotConfiguration = {
   default_chatbot: boolean
   deleted_at?: string | null
   enabled_to_students: boolean
+  enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
   hide_citations: boolean
   id: string
@@ -43,7 +44,6 @@ export type ChatbotConfiguration = {
   updated_at: string
   use_azure_search: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
   verbosity: VerbosityLevel
   weekly_tokens_per_user: number
 }
@@ -77,6 +77,16 @@ export type CmsPageExerciseTask = {
   id: string
   order_number: number
   private_spec?: unknown
+  /**
+   * The stored files this task's private spec references, as the exercise service declared them
+   * in the editor. The host cannot read the spec, so this list is the only thing keeping the
+   * files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+   * attribute, so a load that leaves it empty makes the next save drop the references.
+   *
+   * Only the private spec's. Each derived spec declares its own files in the response of the
+   * endpoint that produced it, since a derivation may upload files of its own.
+   */
+  private_spec_files?: Array<string>
 }
 
 export type CmsPageUpdate = {
@@ -217,6 +227,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -293,6 +304,15 @@ export type ExerciseServiceIframeRenderingInfo = {
   name: string
   public_iframe_url: string
   slug: string
+}
+
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
 }
 
 export type GutenbergBlock = {
@@ -472,6 +492,21 @@ export type ResearchFormQuestion = {
   research_consent_form_id: string
   updated_at: string
 }
+
+/**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export type ToolCategory =
+  | "course_material"
+  | "course_info"
+  | "course_catalog"
+  | "interaction"
+  | "admin_support_accounts"
+  | "admin_support_courses"
+  | "admin_support_learning_progress"
+  | "admin_support_academic_integrity"
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -1081,6 +1116,28 @@ export type UpdateCmsPageResponses = {
 
 export type UpdateCmsPageResponse = UpdateCmsPageResponses[keyof UpdateCmsPageResponses]
 
+export type GetExercisesWithSubmissionsData = {
+  body: Array<string>
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions"
+}
+
+export type GetExercisesWithSubmissionsResponses = {
+  /**
+   * Exercise ids, among the given ones, that have submissions
+   */
+  200: Array<string>
+}
+
+export type GetExercisesWithSubmissionsResponse =
+  GetExercisesWithSubmissionsResponses[keyof GetExercisesWithSubmissionsResponses]
+
 export type GetCmsPageInfoData = {
   body?: never
   path: {
@@ -1145,3 +1202,27 @@ export type GetCmsRepositoryExercisesForCourseResponses = {
 
 export type GetCmsRepositoryExercisesForCourseResponse =
   GetCmsRepositoryExercisesForCourseResponses[keyof GetCmsRepositoryExercisesForCourseResponses]
+
+export type UploadFilesFromExerciseServiceData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise service slug
+     */
+    exercise_service_slug: string
+  }
+  query?: never
+  url: "/api/v0/files/{exercise_service_slug}"
+}
+
+export type UploadFilesFromExerciseServiceResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesFromExerciseServiceResponse =
+  UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]

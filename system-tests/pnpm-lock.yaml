@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@axe-core/playwright':
-        specifier: ^4.12.1
-        version: 4.12.1(playwright-core@1.62.1)
+        specifier: ^4.13.0
+        version: 4.13.0(playwright-core@1.62.1)
       axe-core:
         specifier: ^4.13.0
         version: 4.13.0
       jose:
-        specifier: ^6.2.8
-        version: 6.2.8
+        specifier: ^6.2.10
+        version: 6.2.10
       js-yaml:
-        specifier: ^5.2.3
-        version: 5.2.3
+        specifier: ^5.4.0
+        version: 5.4.0
       png-metadata:
         specifier: ^1.0.2
         version: 1.0.2
@@ -37,8 +37,8 @@ importers:
         specifier: ^1.62.1
         version: 1.62.1
       '@types/node':
-        specifier: ^26.2.0
-        version: 26.2.0
+        specifier: ^26.3.0
+        version: 26.3.0
       '@types/tar-fs':
         specifier: ^2.0.4
         version: 2.0.4
@@ -60,8 +60,8 @@ importers:
 
 packages:
 
-  '@axe-core/playwright@4.12.1':
-    resolution: {integrity: sha512-rMd7xriptqKpP+w5265i4Hdkv2X5kbu6uiBi/B2I7uf3hieRBM3qDCfaKPtxfiYb2mKXfF+yLODJwIx+Jv1GDw==}
+  '@axe-core/playwright@4.13.0':
+    resolution: {integrity: sha512-6YLx+kxXu5GJceG4ozFg+33a2EMTdjYwWGloJ3sb9Kta5pp+ZNS53uxGVog5JetIY8s++P5UrtX+cri+u0VAVg==}
     peerDependencies:
       playwright-core: '>= 1.0.0'
 
@@ -74,8 +74,8 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@types/node@26.2.0':
-    resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
+  '@types/node@26.3.0':
+    resolution: {integrity: sha512-L3fgrnchriRC2ExBflb8j4uZZURHZfQsmQeyVzhjcHW4kkwVyo8/0h1B2MVzMTrYUJYu6G7EWs14hW/L9putqw==}
 
   '@types/tar-fs@2.0.4':
     resolution: {integrity: sha512-ipPec0CjTmVDWE+QKr9cTmIIoTl7dFG/yARCM5MqK8i6CNLIG1P8x4kwDsOQY1ChZOZjH0wO9nvfgBvWl4R3kA==}
@@ -213,10 +213,6 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  axe-core@4.12.1:
-    resolution: {integrity: sha512-s7iGf5GaVMxEG0ENN9x+xTr7GFZCb1ZP/1uATUpCEK2X78nDB3RwbtFCo9pGAf9ru+VwoQ464DkaLEeRM08wJA==}
-    engines: {node: '>=4'}
-
   axe-core@4.13.0:
     resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
     engines: {node: '>=4'}
@@ -288,11 +284,11 @@ packages:
     resolution: {integrity: sha512-FFUtZMpoZ8RqHS3XeXEmHWLA4thH+ZxCv2lOiPIn1Xc7CxrqhWzNSDzD+/chS/zbYezmiwWLdQC09JdQKmthOw==}
     engines: {node: '>=20'}
 
-  jose@6.2.8:
-    resolution: {integrity: sha512-Bsdjwm3Qsd/P0jR+BHDe3LytDfY7WBq2HmCCLIwuVRHMuEC9ae7/R474GIUdF1NgCyZjzVo/A9DOiOBtXq8ZoQ==}
+  jose@6.2.10:
+    resolution: {integrity: sha512-iiW7J9qRFlGxvCOIBDBDxFePQSn7ZMAnrYGhrrOo6siO/MIqwfyilLR27pkfDgUk+raLuzADS8A3S/KLBisc0g==}
 
-  js-yaml@5.2.3:
-    resolution: {integrity: sha512-n+mUVyUX5bVv7G/G2zyIHOhdxfuU1dY2NOFzTQUWiMUbFss8b57NFlgCCaggU78wSw5KVS9cllzeLyzyR+n5nw==}
+  js-yaml@5.4.0:
+    resolution: {integrity: sha512-jE7vUJIebKzYQI5xu4co5CRBDlDEYnHrdzsxs4O2giCz4v2SbVMYKpmt1D9L38OKQAeCWmrOTRiCV93u0UkaJA==}
     hasBin: true
 
   node@runtime:24.18.0:
@@ -473,9 +469,9 @@ packages:
 
 snapshots:
 
-  '@axe-core/playwright@4.12.1(playwright-core@1.62.1)':
+  '@axe-core/playwright@4.13.0(playwright-core@1.62.1)':
     dependencies:
-      axe-core: 4.12.1
+      axe-core: 4.13.0
       playwright-core: 1.62.1
 
   '@playwright/browser-chromium@1.62.1':
@@ -486,18 +482,18 @@ snapshots:
     dependencies:
       playwright: 1.62.1
 
-  '@types/node@26.2.0':
+  '@types/node@26.3.0':
     dependencies:
       undici-types: 8.3.0
 
   '@types/tar-fs@2.0.4':
     dependencies:
-      '@types/node': 26.2.0
+      '@types/node': 26.3.0
       '@types/tar-stream': 3.1.4
 
   '@types/tar-stream@3.1.4':
     dependencies:
-      '@types/node': 26.2.0
+      '@types/node': 26.3.0
 
   '@types/which@3.0.4': {}
 
@@ -567,8 +563,6 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  axe-core@4.12.1: {}
-
   axe-core@4.13.0: {}
 
   b4a@1.8.1: {}
@@ -623,9 +617,9 @@ snapshots:
 
   isexe@4.0.0: {}
 
-  jose@6.2.8: {}
+  jose@6.2.10: {}
 
-  js-yaml@5.2.3:
+  js-yaml@5.4.0:
     dependencies:
       argparse: 2.0.1
 
@@ -729,16 +723,16 @@ snapshots:
   wrappy@1.0.2: {}
 
 time:
-  '@axe-core/playwright@4.12.1': '2026-06-23T15:31:17.929Z'
+  '@axe-core/playwright@4.13.0': '2026-08-11T17:07:40.763Z'
   '@playwright/browser-chromium@1.62.1': '2026-07-30T16:37:24.950Z'
   '@playwright/test@1.62.1': '2026-07-30T16:36:55.324Z'
-  '@types/node@26.2.0': '2026-08-07T17:52:06.875Z'
+  '@types/node@26.3.0': '2026-08-24T19:42:30.879Z'
   '@types/tar-fs@2.0.4': '2023-11-07T17:40:09.496Z'
   '@types/which@3.0.4': '2024-05-30T17:36:03.133Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'
   axe-core@4.13.0: '2026-08-05T16:53:07.262Z'
-  jose@6.2.8: '2026-08-03T12:01:12.001Z'
-  js-yaml@5.2.3: '2026-08-01T06:25:05.164Z'
+  jose@6.2.10: '2026-08-21T20:51:43.107Z'
+  js-yaml@5.4.0: '2026-08-25T07:03:21.871Z'
   playwright@1.62.1: '2026-07-30T16:38:49.134Z'
   png-metadata@1.0.2: '2018-09-13T10:05:00.505Z'
   tar-fs@3.1.3: '2026-06-27T10:28:19.953Z'

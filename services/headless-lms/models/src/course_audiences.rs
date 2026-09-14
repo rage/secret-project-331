@@ -15,8 +15,10 @@ pub struct CourseAudience {
     pub embedding: Option<Vector>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
-pub struct NewCourseAudience {
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+pub struct EditCourseAudience {
+    pub id: Uuid,
+    pub course_id: Uuid,
     pub audience: String,
 }
 
@@ -53,6 +55,45 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn get_all_edit_course_audiences(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<EditCourseAudience>> {
+    let res = sqlx::query_as!(
+        EditCourseAudience,
+        "
+SELECT id,
+audience,
+course_id
+FROM course_audiences
+WHERE deleted_at IS NULL
+",
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_edit_course_audiences_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<EditCourseAudience>> {
+    let res = sqlx::query_as!(
+        EditCourseAudience,
+        "
+SELECT id,
+audience,
+course_id
+FROM course_audiences
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -69,6 +110,61 @@ AND deleted_at IS NULL
     )
     .fetch_all(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn upsert_course_audiences(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    audience_ids: Vec<Uuid>,
+    updated_audiences: Vec<String>,
+    embeddings: Vec<Vec<f32>>,
+) -> ModelResult<Vec<CourseAudience>> {
+    let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
+
+    let id_count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM course_audiences
+WHERE id = ANY($2)
+  AND course_id != $1
+"#,
+        course_id,
+        &audience_ids,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    if id_count != 0 {
+        return Err(model_err!(
+            InvalidRequest,
+            "Ids of some given audience entries already exists on other courses.".to_string()
+        ));
+    }
+
+    let res = sqlx::query_as!(
+        CourseAudience,
+        "
+INSERT INTO course_audiences (course_id, id, audience, embedding)
+SELECT $1,
+  course_audience.id,
+  course_audience.audience,
+  course_audience.embedding
+FROM UNNEST ($2::UUID [], $3::TEXT [], $4::VECTOR []) AS course_audience(id, audience, embedding) ON CONFLICT (id) DO
+UPDATE
+SET audience = EXCLUDED.audience,
+  embedding = EXCLUDED.embedding
+WHERE course_audiences.deleted_at IS NULL
+RETURNING *
+",
+        course_id,
+        &audience_ids,
+        &updated_audiences,
+        &embed_vecs as _
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
     Ok(res)
 }
 

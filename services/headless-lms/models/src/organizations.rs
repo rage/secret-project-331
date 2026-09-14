@@ -113,6 +113,25 @@ where id = $1;",
     Ok(org)
 }
 
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    organization_ids: &[Uuid],
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+SELECT *
+FROM organizations
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        organization_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
+}
+
 pub async fn get_organization_by_slug(
     conn: &mut PgConnection,
     organization_slug: &str,

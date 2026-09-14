@@ -229,16 +229,12 @@ SELECT cmsr.id AS "id!",
   cm.uh_course_code AS "uh_course_code?",
   co.language_code AS "course_language_code!"
 FROM course_module_suotar_realisations cmsr
-  JOIN course_modules cm ON cm.id = cmsr.course_module_id
-  JOIN courses co ON co.id = cm.course_id
-  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
-  AND c.deleted_at IS NULL
+  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cmsr.course_module_id
+  JOIN course_modules cm ON cm.id = acm.course_module_id
+  JOIN courses co ON co.id = acm.course_id
 WHERE cmsr.active
   AND cmsr.deleted_at IS NULL
-  AND cm.enable_credit_registration_via_suotar
-  AND c.paused_at IS NULL
-  AND cm.deleted_at IS NULL
-  AND ($2::uuid IS NULL OR cm.course_id = $2)
+  AND ($2::uuid IS NULL OR acm.course_id = $2)
 ORDER BY COALESCE(cmsr.last_listing_attempted_at, cmsr.last_listed_at) ASC NULLS FIRST,
   cmsr.id
 LIMIT $1
@@ -281,16 +277,12 @@ SELECT cmsr.id AS "id!",
   cm.uh_course_code AS "uh_course_code?",
   co.language_code AS "course_language_code!"
 FROM course_module_suotar_realisations cmsr
-  JOIN course_modules cm ON cm.id = cmsr.course_module_id
-  JOIN courses co ON co.id = cm.course_id
-  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
-  AND c.deleted_at IS NULL
+  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cmsr.course_module_id
+  JOIN course_modules cm ON cm.id = acm.course_module_id
+  JOIN courses co ON co.id = acm.course_id
 WHERE cmsr.active
   AND cmsr.deleted_at IS NULL
-  AND cm.enable_credit_registration_via_suotar
-  AND c.paused_at IS NULL
-  AND cm.deleted_at IS NULL
-  AND cm.course_id = $1
+  AND acm.course_id = $1
 ORDER BY cmsr.id
         "#,
         course_id,

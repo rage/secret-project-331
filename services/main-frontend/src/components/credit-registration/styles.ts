@@ -26,3 +26,19 @@ export const tilesCss = css`
   gap: 0.75rem;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 `
+
+/** A two-line table cell: primary value over a `noteCss` secondary line. */
+export const stackedCellCss = css`
+  display: grid;
+`
+
+export const controlsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+`
+
+export const controlCss = css`
+  min-width: 12rem;
+`

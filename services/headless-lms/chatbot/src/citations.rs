@@ -4,6 +4,7 @@ use secrecy::SecretString;
 
 use crate::{llm_utils::build_llm_headers, prelude::*};
 
+use futures::{StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages_citations::{
     self, ChatbotConversationMessageCitation,
 };
@@ -92,17 +93,24 @@ impl CourseMaterialDocument {
 pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
     test_chatbot: bool,
-    mut document_urls: Vec<Url>,
+    document_urls: Vec<Url>,
     api_key: &SecretString,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
 ) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
-    let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
-    for (idx, url) in document_urls.iter_mut().enumerate() {
-        let document = get_course_material_document(url, api_key).await?;
-        let citation_number = idx as i32;
-        documents.push((document, citation_number));
-    }
+    // Buffered rather than one at a time: a search returns up to fifteen documents and the learner
+    // waits for all of them. `buffered` keeps the results in the order the citation numbers follow.
+    let documents: Vec<(CourseMaterialDocument, i32)> =
+        futures::stream::iter(document_urls.into_iter().enumerate().map(
+            |(index, url)| async move {
+                get_course_material_document(url, api_key)
+                    .await
+                    .map(|document| (document, index as i32))
+            },
+        ))
+        .buffered(CONCURRENT_CITED_DOCUMENT_FETCHES)
+        .try_collect()
+        .await?;
     let res = save_documents(
         conn,
         test_chatbot,
@@ -115,9 +123,13 @@ pub async fn chatbot_cited_documents_to_citations(
     Ok(res)
 }
 
+/// How many cited documents are fetched at once, bounding what one search round asks of the search
+/// index at the same time.
+const CONCURRENT_CITED_DOCUMENT_FETCHES: usize = 5;
+
 /// Get a document from the search index with a LLM-provided get url
 async fn get_course_material_document(
-    endpoint: &mut Url,
+    mut endpoint: Url,
     api_key: &SecretString,
 ) -> ChatbotResult<CourseMaterialDocument> {
     endpoint.set_query(Some(
@@ -126,8 +138,9 @@ async fn get_course_material_document(
     let headers = build_llm_headers(api_key)?;
 
     let response = REQWEST_CLIENT
-        .get(endpoint.clone())
+        .get(endpoint)
         .headers(headers)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 

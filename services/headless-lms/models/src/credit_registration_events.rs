@@ -273,6 +273,68 @@ RETURNING id
 }
 
 /// Inserts the same event on many rows in one round trip.
+/// Appends one event per element, in one statement. The column list is [`insert`]'s, so a batch
+/// writes the same rows a loop would.
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    events: &[NewCreditRegistrationEvent],
+) -> ModelResult<()> {
+    if events.is_empty() {
+        return Ok(());
+    }
+    let ids: Vec<Uuid> = events.iter().map(|e| e.credit_registration_id).collect();
+    let kinds: Vec<CreditRegistrationEventKind> = events.iter().map(|e| e.kind).collect();
+    let from_states: Vec<Option<CreditRegistrationState>> =
+        events.iter().map(|e| e.from_state).collect();
+    let to_states: Vec<Option<CreditRegistrationState>> =
+        events.iter().map(|e| e.to_state).collect();
+    let error_codes: Vec<Option<CreditRegistrationErrorCode>> =
+        events.iter().map(|e| e.error_code).collect();
+    let messages: Vec<Option<String>> = events.iter().map(|e| e.message.clone()).collect();
+    let call_ids: Vec<Option<Uuid>> = events.iter().map(|e| e.suotar_api_call_id).collect();
+    let actors: Vec<Option<Uuid>> = events.iter().map(|e| e.actor_user_id).collect();
+    let details: Vec<Option<Value>> = events.iter().map(|e| e.details.clone()).collect();
+    sqlx::query!(
+        r#"
+INSERT INTO credit_registration_events (
+    credit_registration_id,
+    kind,
+    from_state,
+    to_state,
+    error_code,
+    message,
+    suotar_api_call_id,
+    actor_user_id,
+    details
+  )
+SELECT *
+FROM UNNEST(
+    $1::uuid [],
+    $2::credit_registration_event_kind [],
+    $3::credit_registration_state [],
+    $4::credit_registration_state [],
+    $5::credit_registration_error_code [],
+    $6::text [],
+    $7::uuid [],
+    $8::uuid [],
+    $9::jsonb []
+  )
+        "#,
+        &ids,
+        &kinds as &[CreditRegistrationEventKind],
+        &from_states as &[Option<CreditRegistrationState>],
+        &to_states as &[Option<CreditRegistrationState>],
+        &error_codes as &[Option<CreditRegistrationErrorCode>],
+        &messages as &[Option<String>],
+        &call_ids as &[Option<Uuid>],
+        &actors as &[Option<Uuid>],
+        &details as &[Option<Value>],
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn insert_many(
     conn: &mut PgConnection,
     credit_registration_ids: &[Uuid],

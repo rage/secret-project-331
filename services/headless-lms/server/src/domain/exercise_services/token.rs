@@ -1,5 +1,5 @@
 use crate::{
-    domain::{authorization, error::as_controller_error},
+    domain::{authentication, error::as_controller_error},
     prelude::*,
 };
 use actix_web::{FromRequest, http::header};
@@ -191,7 +191,7 @@ impl FromRequest for UserFromOAuthToken {
             if app_conf.test_mode {
                 warn!("Test mode is on: fixed test tokens map directly to seeded users.");
                 if let Some(user) =
-                    authorization::authenticate_test_token(&mut conn, &token, &app_conf)
+                    authentication::authenticate_test_token(&mut conn, &token, &app_conf)
                         .await
                         .map_err(as_controller_error(
                             ControllerErrorType::Unauthorized,

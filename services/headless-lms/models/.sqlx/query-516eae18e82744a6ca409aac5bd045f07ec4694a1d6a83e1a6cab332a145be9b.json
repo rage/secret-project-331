@@ -1,0 +1,154 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT et.email_template_type,\n  ed.created_at,\n  ed.sent,\n  ed.retryable,\n  ed.retry_count,\n  ed.next_retry_at,\n  ed.first_failed_at,\n  ed.last_attempt_at,\n  latest_error.error_code,\n  latest_error.is_transient AS \"is_transient?\"\nFROM email_deliveries ed\n  JOIN email_templates et ON et.id = ed.email_template_id\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE ed.user_id = $1\n  AND ed.deleted_at IS NULL\nORDER BY ed.created_at DESC\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email_template_type",
+        "type_info": {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code",
+                "credit_registration_account_linking",
+                "verify_email_address",
+                "credit_registration_action_needed",
+                "credit_registration_registered",
+                "credit_registration_student_number_linked"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "email_templates",
+            "name": "email_template_type"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "sent",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "retryable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "retry_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "next_retry_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "next_retry_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "last_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "error_code",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_transient?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "is_transient"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "516eae18e82744a6ca409aac5bd045f07ec4694a1d6a83e1a6cab332a145be9b"
+}

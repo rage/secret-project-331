@@ -25,7 +25,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 
-import CourseDescription from "./CourseDescription"
+import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
@@ -229,7 +229,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           >
             {t("suggest-metadata-card-title")}
           </p>
-          <CourseDescription course={course} refetch={refetch}></CourseDescription>
+          <CourseMetadata courseId={course.id} refetch={refetch}></CourseMetadata>
         </div>
         <div
           className={css`

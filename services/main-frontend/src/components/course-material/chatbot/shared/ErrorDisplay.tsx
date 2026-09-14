@@ -99,7 +99,10 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           backdrop-filter: blur(4px);
         `}
       >
+        {/* role=alert is atomic, so it must not reach the details: expanding them would otherwise
+            re-speak the whole block, raw JSON included. */}
         <div
+          role="alert"
           className={css`
             padding: 16px 20px;
             background: ${baseTheme.colors.red[100]}20;

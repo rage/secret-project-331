@@ -10,6 +10,7 @@ pub mod chapters;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
+pub mod course_auditing;
 pub mod course_credit_registrations;
 pub mod course_designer;
 pub mod course_instances;
@@ -55,6 +56,7 @@ use utoipa::OpenApi;
         (path = "/chatbot-models", api = chatbot_models::MainFrontendChatbotModelsApiDoc),
         (path = "/chatbots", api = chatbots::MainFrontendChatbotsApiDoc),
         (path = "/code-giveaways", api = code_giveaways::MainFrontendCodeGiveawaysApiDoc),
+        (path = "/course-auditing", api = course_auditing::MainFrontendCourseAuditingApiDoc),
         (path = "/course-credit-registrations", api = course_credit_registrations::MainFrontendCourseCreditRegistrationsApiDoc),
         (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
@@ -95,6 +97,7 @@ pub struct MainFrontendRoutesApiDoc;
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
+        .service(web::scope("/course-auditing").configure(course_auditing::_add_routes))
         .service(
             web::scope("/course-credit-registrations")
                 .configure(course_credit_registrations::_add_routes),

@@ -105,11 +105,24 @@ pub struct CourseMaterialExercise {
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
     pub should_show_reset_message: Option<String>,
+    /// The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden.
+    pub teacher_grading_decision: Option<CourseMaterialTeacherGradingDecision>,
+}
+
+/// What the student is told about a teacher's grading decision.
+///
+/// The decision type is included so the material can explain the decision in the student's own
+/// language; the justification is whatever the teacher wrote on top of that, if anything.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct CourseMaterialTeacherGradingDecision {
+    pub teacher_decision: TeacherDecisionType,
+    pub justification: Option<String>,
 }
 
 impl CourseMaterialExercise {
     pub fn clear_grading_information(&mut self) {
         self.exercise_status = None;
+        self.teacher_grading_decision = None;
         self.current_exercise_slide
             .exercise_tasks
             .iter_mut()
@@ -473,6 +486,8 @@ pub async fn get_course_material_exercise(
     user_id: Option<Uuid>,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialExercise> {
     let mut exercise = get_by_id(conn, exercise_id).await?;
     if exercise.deadline.is_none()
@@ -481,8 +496,15 @@ pub async fn get_course_material_exercise(
         let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
         exercise.deadline = chapter.deadline;
     }
-    let (current_exercise_slide, instance_or_exam_id) =
-        get_or_select_exercise_slide(&mut *conn, user_id, &exercise, fetch_service_info).await?;
+    let (current_exercise_slide, instance_or_exam_id) = get_or_select_exercise_slide(
+        &mut *conn,
+        user_id,
+        &exercise,
+        fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
     info!(
         "Current exercise slide id: {:#?}",
         current_exercise_slide.id
@@ -499,6 +521,25 @@ pub async fn get_course_material_exercise(
             .await?
         }
         _ => None,
+    };
+
+    let teacher_grading_decision = if let Some(user_id) = user_id {
+        let decision = crate::teacher_grading_decisions::try_to_get_latest_grading_decision_still_addressed_to_student(
+            &mut *conn, user_id, exercise.id,
+        )
+        .await?;
+        decision.and_then(|d| {
+            if d.teacher_decision != TeacherDecisionType::FullPoints && d.hidden != Some(true) {
+                Some(CourseMaterialTeacherGradingDecision {
+                    teacher_decision: d.teacher_decision,
+                    justification: d.justification,
+                })
+            } else {
+                None
+            }
+        })
+    } else {
+        None
     };
 
     let can_post_submission =
@@ -588,6 +629,7 @@ pub async fn get_course_material_exercise(
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
         should_show_reset_message,
+        teacher_grading_decision,
     })
 }
 
@@ -621,6 +663,8 @@ pub async fn get_or_select_exercise_slide(
     user_id: Option<Uuid>,
     exercise: &Exercise,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
@@ -632,6 +676,8 @@ pub async fn get_or_select_exercise_slide(
                 random_slide.id,
                 None,
                 fetch_service_info,
+                file_store,
+                app_conf,
             )
             .await?;
             Ok((
@@ -659,6 +705,8 @@ pub async fn get_or_select_exercise_slide(
                             exercise.id,
                             course_or_exam_id,
                             fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
                     Ok((tasks, Some(CourseOrExamId::Course(course_id))))
@@ -673,6 +721,8 @@ pub async fn get_or_select_exercise_slide(
                             exercise.id,
                             course_id,
                             &fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
                     if let Some(exercise_tasks) = exercise_tasks {
@@ -689,6 +739,8 @@ pub async fn get_or_select_exercise_slide(
                             random_slide.id,
                             Some(user_id),
                             &fetch_service_info,
+                            file_store,
+                            app_conf,
                         )
                         .await?;
 
@@ -721,6 +773,8 @@ pub async fn get_or_select_exercise_slide(
                 exercise.id,
                 CourseOrExamId::Exam(exam_id),
                 fetch_service_info,
+                file_store,
+                app_conf,
             )
             .await?;
             info!("selecting exam task {:#?}", tasks);
@@ -1147,6 +1201,8 @@ WHERE exercise_task_submission_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1186,24 +1242,6 @@ WHERE user_exercise_slide_state_id IN (
         sqlx::query!(
             r#"
 UPDATE user_exercise_slide_states
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND exercise_id = ANY($2)
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"
-UPDATE teacher_grading_decisions
 SET deleted_at = NOW()
 WHERE user_exercise_state_id IN (
     SELECT id
@@ -1354,27 +1392,6 @@ WHERE exercise_task_submission_id IN (
 
         sqlx::query!(
             r#"
-UPDATE teacher_grading_decisions
-SET deleted_at = NOW()
-WHERE user_exercise_state_id IN (
-    SELECT id
-    FROM user_exercise_states
-    WHERE user_id = $1
-      AND course_id = $2
-      AND exercise_id = ANY($3)
-      AND deleted_at IS NULL
-  )
-  AND deleted_at IS NULL
-            "#,
-            user_id,
-            course_id,
-            &validated_exercise_ids
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"
 UPDATE user_exercise_task_states
 SET deleted_at = NOW()
 WHERE user_exercise_slide_state_id IN (
@@ -1414,6 +1431,8 @@ WHERE user_exercise_state_id IN (
         .execute(&mut *tx)
         .await?;
 
+        // Teacher grading decisions are left in place: they hang off the state deleted here, so
+        // they cannot score the next attempt, and they carry what the teacher told the student.
         sqlx::query!(
             r#"
 UPDATE user_exercise_states
@@ -1457,6 +1476,51 @@ WHERE user_id = $1
     Ok(successful_resets)
 }
 
+/// Sets the exercise's own deadline, or clears it with `None`.
+///
+/// Clearing does not necessarily leave the exercise open: an exercise without a deadline inherits
+/// its chapter's, which [`get_course_material_exercise`] resolves.
+pub async fn set_deadline(
+    conn: &mut PgConnection,
+    id: Uuid,
+    deadline: Option<DateTime<Utc>>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercises SET deadline = $2 WHERE id = $1",
+        id,
+        deadline
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Sets how many tries an exercise allows per slide.
+///
+/// `max_tries_per_slide` is enforced only while `limit_number_of_tries` is set; otherwise it just
+/// remembers what the teacher last typed, so clearing the flag does not discard the number.
+pub async fn set_try_limit(
+    conn: &mut PgConnection,
+    id: Uuid,
+    limit_number_of_tries: bool,
+    max_tries_per_slide: Option<i32>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercises
+SET limit_number_of_tries = $2,
+  max_tries_per_slide = $3
+WHERE id = $1
+",
+        id,
+        limit_number_of_tries,
+        max_tries_per_slide
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1496,8 +1560,9 @@ mod test {
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
                 has_custom_view: false,
-                build_user_answer_endpoint_path: None,
-                answer_files_endpoint_path: None,
+                supports_native_client: false,
+                produces_file_answers: false,
+                declares_spec_files: false,
             },
         )
         .await
@@ -1546,6 +1611,8 @@ mod test {
             Some(user_id),
             exercise_id,
             |_| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("Application Configuration initialization failed"),
         )
         .await
         .unwrap();
@@ -1627,6 +1694,8 @@ mod test {
             Some(user_id),
             exercise_id,
             |_| unimplemented!(),
+            &init_file_store(),
+            &init_app_conf().expect("Application Configuration initialization failed"),
         )
         .await
         .unwrap();

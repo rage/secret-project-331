@@ -34,6 +34,17 @@ impl CreditRegistrationNotificationKind {
             Self::Registered => EmailTemplateType::CreditRegistrationRegistered,
         }
     }
+
+    /// The mail a row in this state is owed or already holds; `None` for a state that gets neither
+    /// mail. The single source of truth for the state -> mail mapping — both the queuing query below
+    /// and the student-facing status endpoint derive from this rather than keeping their own copy.
+    pub fn for_state(state: CreditRegistrationState) -> Option<Self> {
+        match state {
+            CreditRegistrationState::NoUsableEnrolment => Some(Self::ActionNeeded),
+            _ if CreditRegistrationState::SUCCESS_STATES.contains(&state) => Some(Self::Registered),
+            _ => None,
+        }
+    }
 }
 
 /// One row owed a mail, with everything the message renders. `open_university_product_id` is the
@@ -53,8 +64,8 @@ pub struct StudentNotificationToQueue {
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
-/// pass a transaction. Never claims `abandoned_by_consent_withdrawal`, `cancelled`, `blocked` or
-/// any failure state: those get nothing.
+/// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
+/// nothing.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -111,12 +122,8 @@ LIMIT $1
     Ok(res
         .into_iter()
         .map(|row| StudentNotificationToQueue {
-            kind: match row.state {
-                CreditRegistrationState::NoUsableEnrolment => {
-                    CreditRegistrationNotificationKind::ActionNeeded
-                }
-                _ => CreditRegistrationNotificationKind::Registered,
-            },
+            kind: CreditRegistrationNotificationKind::for_state(row.state)
+                .unwrap_or(CreditRegistrationNotificationKind::Registered),
             credit_registration_id: row.credit_registration_id,
             user_id: row.user_id,
             course_module_id: row.course_module_id,

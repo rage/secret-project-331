@@ -1,0 +1,9 @@
+<!-- Paper airplane glyph, authored in a font-glyph coordinate space, hence the y-axis flip. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-32 -32 1088 1088">
+  <g transform="translate(0, 960) scale(1, -1)">
+    <path d="M682.667-85.384l-248.042 434.624-434.624 248.042 1024 341.333z" fill="currentColor" />
+    <!-- Lower wing, shaded to read as the paper fold. Literal black rather than currentColor:
+         the same color over itself composites to a no-op. -->
+    <path d="M682.667-85.384L434.625 349.24 1024 938.615z" fill="#000" fill-opacity="0.12" />
+  </g>
+</svg>

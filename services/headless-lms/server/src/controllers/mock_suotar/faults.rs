@@ -1,9 +1,9 @@
 //! Addressed faults: what can go wrong that the world's own data cannot express.
 //!
 //! Predicates are AND-ed and order-independent, so a miss can name the single predicate that failed.
-//! No HTTP and no Redis: `explainFault` runs a fault against a hypothetical request with neither.
+//! No HTTP and no Redis: matching is decided from the fault and the request's item addresses alone.
 
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
 
@@ -272,12 +272,6 @@ pub enum FaultMatch {
     Missed(&'static str),
 }
 
-impl FaultMatch {
-    pub fn fires(&self) -> bool {
-        matches!(self, Self::Fires)
-    }
-}
-
 pub fn matches_item(
     fault: &Fault,
     endpoint: SuotarEndpoint,
@@ -374,7 +368,7 @@ impl FaultProblem {
 
 /// What an endpoint can resolve, not what its body carries: verify's body holds only a submitted
 /// attainment id, and the working set reads the person behind it.
-pub fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
+fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
     match endpoint {
         SuotarEndpoint::ResolvePersons => &["studentNumber", "owner"],
         SuotarEndpoint::ResolveEnrolments

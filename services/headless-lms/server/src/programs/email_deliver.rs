@@ -3,7 +3,7 @@ use std::{error::Error as StdError, time::Duration};
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use anyhow::{Context, Result};
-use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use chrono::{DateTime, Utc};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{
     Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
@@ -13,6 +13,7 @@ use headless_lms_models::email_deliveries::{
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
+use headless_lms_utils::backoff;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
@@ -525,20 +526,12 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 fn retry_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    match first_failed_at {
-        Some(ts) => (now - ts).num_seconds() > RETRY_WINDOW_SECS,
-        None => false,
-    }
+    backoff::window_expired(first_failed_at, now, RETRY_WINDOW_SECS)
 }
 
 fn compute_next_retry_at(now: DateTime<Utc>, retry_count: i32) -> DateTime<Utc> {
-    // Saturating math + MAX_BACKOFF_SECS clamp intentionally handles outlier values safely.
-    let exponent = retry_count.max(0) as u32;
-    let multiplier = 2_i64.checked_pow(exponent).unwrap_or(i64::MAX);
-    let backoff = BASE_BACKOFF_SECS.saturating_mul(multiplier);
-    let capped = backoff.min(MAX_BACKOFF_SECS);
-    let jitter = rand::rng().random_range(0..=JITTER_SECS);
-    now + ChronoDuration::seconds(capped + jitter)
+    let delay = backoff::exponential_backoff_secs(BASE_BACKOFF_SECS, MAX_BACKOFF_SECS, retry_count);
+    backoff::next_attempt_at(now, delay, JITTER_SECS)
 }
 
 fn is_transient_smtp_error(err: &SmtpError) -> bool {

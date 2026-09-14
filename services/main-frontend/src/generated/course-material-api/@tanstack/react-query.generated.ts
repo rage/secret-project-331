@@ -84,6 +84,8 @@ import {
   saveCourseMaterialCourseSettings,
   searchPagesWithPhrase,
   searchPagesWithWords,
+  sendChatbotMessage,
+  sendChatbotToolResponse,
   updateCourseMaterialGlossaryTerm,
   updateCourseMaterialUserInfo,
   updateMarketingConsent,
@@ -237,6 +239,10 @@ import type {
   SearchPagesWithPhraseResponse,
   SearchPagesWithWordsData,
   SearchPagesWithWordsResponse,
+  SendChatbotMessageData,
+  SendChatbotMessageResponse,
+  SendChatbotToolResponseData,
+  SendChatbotToolResponseResponse,
   UpdateCourseMaterialGlossaryTermData,
   UpdateCourseMaterialUserInfoData,
   UpdateCourseMaterialUserInfoResponse,
@@ -545,6 +551,64 @@ export const newChatbotConversationMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await newChatbotConversation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
+ *
+ * Sends a new chat message to the chatbot.
+ */
+export const sendChatbotMessageMutation = (
+  options?: Partial<Options<SendChatbotMessageData>>,
+): UseMutationOptions<
+  SendChatbotMessageResponse,
+  DefaultError,
+  Options<SendChatbotMessageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendChatbotMessageResponse,
+    DefaultError,
+    Options<SendChatbotMessageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendChatbotMessage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`
+ *
+ * Answers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else
+ * is outstanding. Responds with the same stream `send-message` does, carrying either the resumed
+ * turn or a lone `Suspended` event when the turn is still waiting for another answer.
+ */
+export const sendChatbotToolResponseMutation = (
+  options?: Partial<Options<SendChatbotToolResponseData>>,
+): UseMutationOptions<
+  SendChatbotToolResponseResponse,
+  DefaultError,
+  Options<SendChatbotToolResponseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendChatbotToolResponseResponse,
+    DefaultError,
+    Options<SendChatbotToolResponseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendChatbotToolResponse({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -2073,7 +2137,10 @@ export const fetchPeerOrSelfReviewDataByExerciseIdOptions = (
  * "exercise_task_answers": [
  * {
  * "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
- * "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * "answer": {
+ * "kind": "json",
+ * "data": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * }
  * }
  * ]
  * }

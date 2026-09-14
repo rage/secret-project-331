@@ -8,7 +8,7 @@
 use std::collections::BTreeSet;
 
 use base64::Engine;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 use itertools::Itertools;
 use serde::de::DeserializeOwned;
 use sqlx::PgPool;
@@ -19,117 +19,43 @@ use super::default_world;
 use super::faults::{Effect, Fault, FaultMatch, ItemAddress, Stage, matches_item, matches_request};
 use super::logic;
 use super::store::{MockSuotarStore, Preamble};
-use super::wire::{self, ItemStatus, RequestLevelError, ResponseItem};
+use super::wire::{self, ErasedResponseItem, RequestLevelError, SuotarItemStatus};
 use super::world::{MissedFault, RecordedCall, RecordedFaults, RecordedItem, WorkingSet};
 
 const RAW_BODY_LIMIT: usize = 8 * 1024;
 
-pub async fn resolve_persons(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::ResolvePersons,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
+/// Actix binds one handler per route, so the endpoint each route serves is all these differ by.
+macro_rules! endpoint_handlers {
+    ($($handler:ident => $endpoint:ident,)*) => {
+        $(
+            pub async fn $handler(
+                app_conf: web::Data<ApplicationConfiguration>,
+                store: web::Data<MockSuotarStore>,
+                pool: web::Data<PgPool>,
+                req: HttpRequest,
+                body: web::Bytes,
+            ) -> ControllerResult<HttpResponse> {
+                endpoint(
+                    SuotarEndpoint::$endpoint,
+                    app_conf,
+                    store,
+                    pool,
+                    req,
+                    body,
+                )
+                .await
+            }
+        )*
+    };
 }
 
-pub async fn resolve_enrolments(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::ResolveEnrolments,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
-}
-
-pub async fn list_by_course(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::ListByCourse,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
-}
-
-pub async fn import_attainments(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::ImportAttainments,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
-}
-
-pub async fn verify_attainments(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::VerifyAttainments,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
-}
-
-pub async fn resolve_product_access_tokens(
-    app_conf: web::Data<ApplicationConfiguration>,
-    store: web::Data<MockSuotarStore>,
-    pool: web::Data<PgPool>,
-    req: HttpRequest,
-    body: web::Bytes,
-) -> ControllerResult<HttpResponse> {
-    endpoint(
-        SuotarEndpoint::ProductAccessTokens,
-        app_conf,
-        store,
-        pool,
-        req,
-        body,
-    )
-    .await
+endpoint_handlers! {
+    resolve_persons => ResolvePersons,
+    resolve_enrolments => ResolveEnrolments,
+    list_by_course => ListByCourse,
+    import_attainments => ImportAttainments,
+    verify_attainments => VerifyAttainments,
+    resolve_product_access_tokens => ProductAccessTokens,
 }
 
 async fn endpoint(
@@ -380,8 +306,8 @@ async fn run(
             submitted_attainment_id: address.submitted_attainment_id.clone(),
             product_id: address.product_id.clone(),
             status: match item.status {
-                ItemStatus::Ok => "ok".to_string(),
-                ItemStatus::Error => "error".to_string(),
+                SuotarItemStatus::Ok => "ok".to_string(),
+                SuotarItemStatus::Error => "error".to_string(),
             },
             code: item.code.clone(),
         })
@@ -614,8 +540,8 @@ fn item_effect_response(
     endpoint: SuotarEndpoint,
     address: &ItemAddress,
     effect: &Effect,
-    resolved: Option<&ResponseItem>,
-) -> ResponseItem {
+    resolved: Option<&ErasedResponseItem>,
+) -> ErasedResponseItem {
     let Effect::ItemLevel {
         code,
         message,
@@ -623,14 +549,14 @@ fn item_effect_response(
     } = effect
     else {
         return resolved.cloned().unwrap_or_else(|| {
-            ResponseItem::error(endpoint, &address.request_item_id, "internalError")
+            wire::error_item(endpoint, &address.request_item_id, "internalError")
         });
     };
     let mut item = match message {
         Some(message) => {
-            ResponseItem::error_with_message(&address.request_item_id, code, message.clone())
+            wire::error_item_with_message(&address.request_item_id, code, message.clone())
         }
-        None => ResponseItem::error(endpoint, &address.request_item_id, code),
+        None => wire::error_item(endpoint, &address.request_item_id, code),
     };
     if *disclose_submitted_attainment_id
         && let Some(id) = resolved
@@ -645,12 +571,12 @@ fn item_effect_response(
 }
 
 enum ParsedRequest {
-    ResolvePersons(Vec<wire::ResolvePersonsItem>),
-    ResolveEnrolments(Vec<wire::ResolveEnrolmentsItem>),
-    Import(Vec<wire::ImportItem>),
-    Verify(Vec<wire::VerifyItem>),
-    ProductAccessTokens(Vec<wire::ProductAccessTokenItem>),
-    ListByCourse(Vec<wire::ListByCourseItem>),
+    ResolvePersons(Vec<wire::ResolvePersonRequestItem>),
+    ResolveEnrolments(Vec<wire::ResolveEnrolmentRequestItem>),
+    Import(Vec<wire::ImportAttainmentRequestItem>),
+    Verify(Vec<wire::VerifyAttainmentRequestItem>),
+    ProductAccessTokens(Vec<wire::ProductAccessTokenRequestItem>),
+    ListByCourse(Vec<wire::ListByCourseRequestItem>),
 }
 
 impl ParsedRequest {
@@ -727,18 +653,27 @@ impl ParsedRequest {
         }
     }
 
-    fn resolve(&self, index: usize, working: &mut WorkingSet, now: DateTime<Utc>) -> ResponseItem {
+    fn resolve(
+        &self,
+        index: usize,
+        working: &mut WorkingSet,
+        now: DateTime<Utc>,
+    ) -> ErasedResponseItem {
         match self {
-            Self::ResolvePersons(items) => logic::resolve_person_item(&items[index], working),
+            Self::ResolvePersons(items) => {
+                wire::erase(logic::resolve_person_item(&items[index], working))
+            }
             Self::ResolveEnrolments(items) => {
-                logic::resolve_enrolments_item(&items[index], working, now)
+                wire::erase(logic::resolve_enrolments_item(&items[index], working, now))
             }
-            Self::Import(items) => logic::import_item(&items[index], working, now),
-            Self::Verify(items) => logic::verify_item(&items[index], working, now),
+            Self::Import(items) => wire::erase(logic::import_item(&items[index], working, now)),
+            Self::Verify(items) => wire::erase(logic::verify_item(&items[index], working, now)),
             Self::ProductAccessTokens(items) => {
-                logic::product_access_token_item(&items[index], working)
+                wire::erase(logic::product_access_token_item(&items[index], working))
             }
-            Self::ListByCourse(items) => logic::list_by_course_item(&items[index], working),
+            Self::ListByCourse(items) => {
+                wire::erase(logic::list_by_course_item(&items[index], working))
+            }
         }
     }
 }

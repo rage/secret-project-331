@@ -131,6 +131,22 @@ WHERE id = $1
     Ok(user)
 }
 
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<User>> {
+    let users = sqlx::query_as!(
+        User,
+        "
+SELECT *
+FROM users
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(users)
+}
+
 /// Like [`get_by_id`], but only returns a user that is not soft-deleted.
 ///
 /// A soft-deleted (banned/removed) user yields `RecordNotFound`, the same as a nonexistent id,
@@ -229,10 +245,36 @@ AND deleted_at IS NULL
     Ok(res.iter().map(|x| x.id).collect::<Vec<_>>())
 }
 
-/// Points the account with this upstream id at a new address, keeping `users.email_domain` in step.
-///
-/// The `clear_email_verification` trigger drops proof of the old address as part of the update; the
-/// returned local user id lets the caller mail a fresh link.
+/// Writes the new email onto `user_details` and keeps `users.email_domain` in step, within an
+/// already-open transaction. The `clear_email_verification` trigger drops proof of the old
+/// address as part of the `user_details` update.
+async fn apply_email_update(
+    tx: &mut PgConnection,
+    user_id: Uuid,
+    new_email: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE user_details SET email = $1 WHERE user_id = $2",
+        new_email,
+        user_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let email_domain = email_domain_from_email(new_email);
+    sqlx::query!(
+        "UPDATE users SET email_domain = $1 WHERE id = $2",
+        email_domain,
+        user_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    Ok(())
+}
+
+/// Points the account with this upstream id at a new address. The returned local user id lets
+/// the caller mail a fresh link.
 pub async fn update_email_for_user(
     conn: &mut PgConnection,
     upstream_id: &i32,
@@ -249,27 +291,25 @@ pub async fn update_email_for_user(
     .fetch_one(&mut *tx)
     .await?;
 
-    sqlx::query!(
-        "UPDATE user_details SET email = $1 WHERE user_id = $2",
-        new_email,
-        user.id,
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    let email_domain = email_domain_from_email(&new_email);
-    sqlx::query!(
-        "UPDATE users SET email_domain = $1 WHERE id = $2",
-        email_domain,
-        user.id,
-    )
-    .execute(&mut *tx)
-    .await?;
+    apply_email_update(&mut tx, user.id, &new_email).await?;
 
     tx.commit().await?;
 
     info!("Email change succeeded");
     Ok(user.id)
+}
+
+/// Points the account at a new address by user id rather than upstream id, for accounts (e.g.
+/// local-only ones) that have no upstream id. Same effect as [update_email_for_user] otherwise.
+pub async fn update_email_for_user_by_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    new_email: &str,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    apply_email_update(&mut tx, user_id, new_email).await?;
+    tx.commit().await?;
+    Ok(())
 }
 
 /// Soft-deletes the user and takes their OAuth credentials down with the account.

@@ -55,6 +55,8 @@ import type {
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponses,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -69,6 +71,8 @@ import type {
   UploadCmsCourseMediaResponses,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponses,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponses,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
@@ -98,6 +102,7 @@ import {
   zGetCmsPageNavigationResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
+  zGetExercisesWithSubmissionsResponse,
   zRequestParagraphSuggestionsResponse,
   zUpdateCmsCourseDefaultPeerReviewResponse,
   zUpdateCmsEmailTemplateResponse,
@@ -105,6 +110,7 @@ import {
   zUpdateCmsPageResponse,
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
+  zUploadFilesFromExerciseServiceResponse,
   zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
@@ -679,6 +685,32 @@ export const updateCmsPage = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissions = <ThrowOnError extends boolean = true>(
+  options: Options<GetExercisesWithSubmissionsData, ThrowOnError>,
+): RequestResult<GetExercisesWithSubmissionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetExercisesWithSubmissionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetExercisesWithSubmissionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -721,4 +753,33 @@ export const getCmsRepositoryExercisesForCourse = <ThrowOnError extends boolean 
     responseStyle: "data",
     url: "/api/v0/cms/repository-exercises/{course_id}",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesFromExerciseServiceData, ThrowOnError>,
+): RequestResult<UploadFilesFromExerciseServiceResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesFromExerciseServiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) =>
+      await zUploadFilesFromExerciseServiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/{exercise_service_slug}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
   })

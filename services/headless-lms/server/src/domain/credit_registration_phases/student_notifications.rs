@@ -15,9 +15,31 @@ use headless_lms_models::library::credit_registration::student_notifications::{
 use headless_lms_models::open_university_product_access_tokens::enrolment_url_for_product;
 use serde_json::json;
 use sqlx::PgConnection;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::{MailQueuePhase, PhaseContext, PhaseScope, run_mail_queue_phase, template_language};
+
+/// One [`enrolment_url_for_product`] lookup per product id per phase run, rather than per row: many
+/// claimed rows share the same module's product.
+#[derive(Default)]
+struct ProductUrlCache(HashMap<Option<String>, Option<String>>);
+
+impl ProductUrlCache {
+    async fn url_for(
+        &mut self,
+        conn: &mut PgConnection,
+        open_university_product_id: Option<&str>,
+    ) -> anyhow::Result<Option<String>> {
+        let key = open_university_product_id.map(str::to_string);
+        if let Some(url) = self.0.get(&key) {
+            return Ok(url.clone());
+        }
+        let url = enrolment_url_for_product(conn, open_university_product_id).await?;
+        self.0.insert(key, url.clone());
+        Ok(url)
+    }
+}
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     run_mail_queue_phase::<StudentNotificationsPhase>(ctx, scope).await
@@ -27,6 +49,7 @@ struct StudentNotificationsPhase;
 
 impl MailQueuePhase for StudentNotificationsPhase {
     type Item = StudentNotificationToQueue;
+    type Cache = ProductUrlCache;
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
         Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
@@ -45,8 +68,9 @@ impl MailQueuePhase for StudentNotificationsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
+        cache: &mut Self::Cache,
     ) -> anyhow::Result<()> {
-        let placeholders = placeholders(ctx.base_url, conn, item).await?;
+        let placeholders = placeholders(ctx.base_url, conn, item, cache).await?;
         let delivery =
             insert_email_delivery_with_placeholders(conn, item.user_id, template_id, &placeholders)
                 .await?;
@@ -72,13 +96,13 @@ async fn placeholders(
     base_url: &str,
     conn: &mut PgConnection,
     notification: &StudentNotificationToQueue,
+    product_urls: &mut ProductUrlCache,
 ) -> anyhow::Result<serde_json::Value> {
     let enrolment_link = match notification.kind {
-        CreditRegistrationNotificationKind::ActionNeeded => {
-            enrolment_url_for_product(conn, notification.open_university_product_id.as_deref())
-                .await?
-                .unwrap_or_default()
-        }
+        CreditRegistrationNotificationKind::ActionNeeded => product_urls
+            .url_for(conn, notification.open_university_product_id.as_deref())
+            .await?
+            .unwrap_or_default(),
         CreditRegistrationNotificationKind::Registered => String::new(),
     };
     Ok(json!({

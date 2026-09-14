@@ -39,6 +39,12 @@ pub fn strip_html_tags(input: &str) -> String {
     HTML_TAG_REGEX.replace_all(input, "").into_owned()
 }
 
+/// Trims the string and returns `None` if the trimmed result is empty.
+pub fn non_empty_trimmed(s: &str) -> Option<&str> {
+    let trimmed = s.trim();
+    (!trimmed.is_empty()).then_some(trimmed)
+}
+
 /// Truncates UTF-8 text to a max byte length at a valid char boundary.
 pub fn truncate_utf8_at_boundary(s: &str, max_bytes: usize) -> &str {
     if s.len() <= max_bytes {
@@ -69,6 +75,13 @@ mod test {
         assert!(is_ietf_language_code_like("eng"));
         assert!(is_ietf_language_code_like("en-US"));
         assert!(is_ietf_language_code_like("in-Cans-CA"));
+    }
+
+    #[test]
+    fn non_empty_trimmed_trims_and_rejects_blank() {
+        assert_eq!(non_empty_trimmed("  hello  "), Some("hello"));
+        assert_eq!(non_empty_trimmed(""), None);
+        assert_eq!(non_empty_trimmed("   "), None);
     }
 
     #[test]

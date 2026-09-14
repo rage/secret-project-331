@@ -14,7 +14,12 @@ import React, {
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 
-import type { SortDirection, StudentsListParams, StudentsSortColumn } from "./studentsQueries"
+import type {
+  GradeFilterValue,
+  SortDirection,
+  StudentsListParams,
+  StudentsSortColumn,
+} from "./studentsQueries"
 
 const SEARCH_PARAM = "search"
 const SEARCH_DEBOUNCE_MS = 300
@@ -43,6 +48,11 @@ interface StudentsContextValue {
   // Course-instance filter.
   courseInstanceId: string | null
   setCourseInstanceId: (value: string | null) => void
+  // Grade filter, scoped to a module.
+  moduleId: string | null
+  setModuleId: (value: string | null) => void
+  grade: GradeFilterValue | null
+  setGrade: (value: GradeFilterValue | null) => void
 }
 
 const StudentsContext = createContext<StudentsContextValue | null>(null)
@@ -75,14 +85,23 @@ export function StudentsContextProvider({
   const [sortColumn, setSortColumn] = React.useState<StudentsSortColumn>(DEFAULT_SORT_COLUMN)
   const [sortDirection, setSortDirection] = React.useState<SortDirection>(DEFAULT_SORT_DIRECTION)
   const [courseInstanceId, setCourseInstanceId] = React.useState<string | null>(null)
+  const [moduleId, setModuleIdState] = React.useState<string | null>(null)
+  const [grade, setGrade] = React.useState<GradeFilterValue | null>(null)
 
   const setSort = useCallback((column: StudentsSortColumn, direction: SortDirection) => {
     setSortColumn(column)
     setSortDirection(direction)
   }, [])
 
+  // Switching modules invalidates the previously chosen grade (a grade string from one module's
+  // scale, e.g. a numeric "3", is not meaningful against another module or against no module).
+  const setModuleId = useCallback((value: string | null) => {
+    setModuleIdState(value)
+    setGrade(null)
+  }, [])
+
   // Changing any filter or the sort order should return to the first page.
-  const filterSignature = `${search}|${courseInstanceId ?? ""}|${sortColumn}|${sortDirection}`
+  const filterSignature = `${search}|${courseInstanceId ?? ""}|${moduleId ?? ""}|${grade ?? ""}|${sortColumn}|${sortDirection}`
   const previousSignature = useRef(filterSignature)
   useEffect(() => {
     if (previousSignature.current === filterSignature) {
@@ -112,15 +131,37 @@ export function StudentsContextProvider({
     setSort,
     courseInstanceId,
     setCourseInstanceId,
+    moduleId,
+    setModuleId,
+    grade,
+    setGrade,
   }
 
   return <StudentsContext.Provider value={value}>{children}</StudentsContext.Provider>
 }
 
-/** Collects the shared query params that key the identity query. */
-export function useStudentsListParams(): StudentsListParams {
-  const { page, limit, search, sortColumn, sortDirection, courseInstanceId } = useStudentsContext()
-  return { page, limit, search, sortColumn, sortDirection, courseInstanceId }
+/**
+ * Collects the shared query params that key the identity query.
+ *
+ * `allowedColumns`, when given, scopes the sort sent to the server to columns this caller's table
+ * actually renders as sortable: the shared sort state can point at a column from another subtab
+ * (e.g. Progress's `total_points`), which would otherwise silently sort this caller's page without
+ * a matching header indicator. Falls back to the default sort in that case.
+ */
+export function useStudentsListParams(allowedColumns?: StudentsSortColumn[]): StudentsListParams {
+  const { page, limit, search, sortColumn, sortDirection, courseInstanceId, moduleId, grade } =
+    useStudentsContext()
+  const columnAllowed = !allowedColumns || allowedColumns.includes(sortColumn)
+  return {
+    page,
+    limit,
+    search,
+    sortColumn: columnAllowed ? sortColumn : DEFAULT_SORT_COLUMN,
+    sortDirection: columnAllowed ? sortDirection : DEFAULT_SORT_DIRECTION,
+    courseInstanceId,
+    moduleId,
+    grade,
+  }
 }
 
 /**

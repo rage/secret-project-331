@@ -1,0 +1,124 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React from "react"
+import { useWatch, useFormContext } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import { validateUUID } from "@/shared-module/common/utils/strings"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import {
+  Checkbox,
+  DateTimeLocalField,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
+
+import { contentRowStyles } from "../page"
+import type { EditCourseAuditingData } from "./CourseCard"
+
+const EditClosedFields = (): React.ReactElement => {
+  const { t } = useTranslation()
+  const {
+    register,
+    setValue,
+    getValues,
+    formState: { errors },
+    control,
+  } = useFormContext<EditCourseAuditingData>()
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const isClosed = useWatch({ name: "set_course_closed_at", control })
+
+  return (
+    <div
+      className={css`
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 1rem;
+      `}
+      data-testid="edit-closed-fields"
+    >
+      <div>
+        <Checkbox
+          control={control}
+          label={t("set-course-closed-at")}
+          {...register("set_course_closed_at", {
+            // We purposefully do NOT clear related values when unchecked.
+            // Instead, we nullify `closed_at` at submit time (see submit mapping),
+            // so users can re-check and keep their previous inputs.
+            onChange: (e) => {
+              const checked = (e.target as HTMLInputElement).value
+              if (checked) {
+                const currentClosedAt = getValues("closed_at")
+                if (!currentClosedAt) {
+                  setValue("closed_at", formatDateForDateTimeLocalInputs(new Date()) ?? null)
+                }
+              }
+            },
+          })}
+        />
+      </div>
+      {isClosed && (
+        <div
+          className={css`
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 1rem;
+          `}
+        >
+          <div className={contentRowStyles}>
+            <div
+              className={css`
+                flex: auto;
+              `}
+            >
+              <DateTimeLocalField
+                control={control}
+                label={t("closed-at")}
+                name={"closed_at"}
+                rules={nullIfEmpty}
+                hourCycle={24}
+                // oxlint-disable-next-line i18next/no-literal-string
+                fieldSize={"sm"}
+              />
+            </div>
+            <div
+              className={css`
+                flex: auto;
+              `}
+            >
+              <TextField
+                control={control}
+                label={t("closed-course-successor-id")}
+                name={"closed_course_successor_id"}
+                errorMessage={errors.closed_course_successor_id?.message}
+                rules={{
+                  ...nullIfEmpty,
+                  validate: (value) => {
+                    if (!value) {
+                      return true
+                    }
+                    return validateUUID(value) || t("invalid-uuid-format")
+                  },
+                }}
+              />
+            </div>
+          </div>
+          <TextArea
+            control={control}
+            label={t("closed-additional-message")}
+            name={"closed_additional_message"}
+            autoResize={true}
+            rules={nullIfEmpty}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default EditClosedFields

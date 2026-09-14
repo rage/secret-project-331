@@ -7,7 +7,7 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
+import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import { useCourseData } from "@/hooks/course-material/useCourseData"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

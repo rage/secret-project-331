@@ -1,9 +1,10 @@
-//! How an error code is treated: the one place retryability is decided. The mock Suotar's fault
-//! validator reads it too. Timing (how long to wait) is [`super::backoff`].
+//! What a Suotar per-item `code` means: the one place the wire vocabulary is spelled out, and the
+//! one place retryability is decided. The mock Suotar's fault validator reads it too. Timing (how
+//! long to wait) is [`super::backoff`].
 
 use utoipa::ToSchema;
 
-use crate::credit_registrations::{CreditRegistrationErrorCode, map_wire_code};
+use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
@@ -49,10 +50,74 @@ pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
     }
 }
 
+/// What one `code` says about the row that carries it. Every view below narrows this.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum WireOutcome {
+    /// The answer settles the row, in this state.
+    Settled(CreditRegistrationState),
+    /// A real answer that decides nothing: the lookup endpoints' success codes, and verify's
+    /// `notRegistered`, which only means Sisu has not finished yet.
+    Unsettled,
+    Failure(CreditRegistrationErrorCode),
+}
+
+/// The contract's own reading of a `code`, before any hardening of ours.
+///
+/// An unrecognised code is a failure rather than an error, since Suotar may add codes; which of
+/// them are even recoverable is [`retryability`].
+fn wire_outcome(code: &str) -> WireOutcome {
+    use CreditRegistrationErrorCode as Code;
+    use CreditRegistrationState as State;
+    match code {
+        // The four import answers that end a row, and verify's `registered`, which is the same
+        // answer arriving later.
+        "sent" => WireOutcome::Settled(State::AwaitingVerification),
+        "registered" => WireOutcome::Settled(State::Registered),
+        "duplicateAttainment" => WireOutcome::Settled(State::Duplicate),
+        "notImprovedAttainment" => WireOutcome::Settled(State::NotImproved),
+        "personFound" | "enrolmentFound" | "found" | "enrolmentsListed" | "notRegistered" => {
+            WireOutcome::Unsettled
+        }
+        "personNotFound" => WireOutcome::Failure(Code::PersonNotFound),
+        "courseCodeNotFound" => WireOutcome::Failure(Code::CourseCodeNotFound),
+        "enrolmentNotFound" => WireOutcome::Failure(Code::EnrolmentNotFound),
+        "enrolmentNotAccepted" => WireOutcome::Failure(Code::EnrolmentNotAccepted),
+        "invalidGradeForGradeScale" => WireOutcome::Failure(Code::InvalidGradeForGradeScale),
+        "courseNotAllowed" => WireOutcome::Failure(Code::CourseNotAllowed),
+        "invalidCredits" => WireOutcome::Failure(Code::InvalidCredits),
+        "studyRightNotValid" => WireOutcome::Failure(Code::StudyRightNotValid),
+        "acceptorNotFound" => WireOutcome::Failure(Code::AcceptorNotFound),
+        "sisuValidationFailed" => WireOutcome::Failure(Code::SisuValidationFailed),
+        "sisuTimeout" => WireOutcome::Failure(Code::SisuTimeout),
+        "misregistered" => WireOutcome::Failure(Code::Misregistered),
+        "unauthorized" => WireOutcome::Failure(Code::Unauthorized),
+        "malformedRequest" => WireOutcome::Failure(Code::MalformedRequest),
+        "sisuTemporarilyUnavailable" => WireOutcome::Failure(Code::SisuTemporarilyUnavailable),
+        _ => WireOutcome::Failure(Code::Unknown),
+    }
+}
+
+/// [`wire_outcome`] hardened for the endpoint the code arrived on. Every caller that has an
+/// endpoint to name goes through here.
+pub fn outcome_of(endpoint: SuotarEndpoint, code: &str) -> WireOutcome {
+    let outcome = wire_outcome(code);
+    // Import's contract has no per-item transient, so one arriving there is no evidence that
+    // nothing was created; retrying it could put a second attainment on a transcript.
+    if endpoint == SuotarEndpoint::ImportAttainments
+        && outcome == WireOutcome::Failure(CreditRegistrationErrorCode::SisuTemporarilyUnavailable)
+    {
+        return WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout);
+    }
+    outcome
+}
+
 /// The class the contract gives a wire code, before any hardening of ours, which is what the mock's
 /// fault validator needs.
 pub fn wire_code_retryability(code: &str) -> Option<Retryability> {
-    map_wire_code(code).map(retryability)
+    match wire_outcome(code) {
+        WireOutcome::Failure(code) => Some(retryability(code)),
+        _ => None,
+    }
 }
 
 pub fn is_retryable_transient_wire_code(code: &str) -> bool {
@@ -60,16 +125,20 @@ pub fn is_retryable_transient_wire_code(code: &str) -> bool {
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
+/// `None` where the code names no failure to record.
 pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {
-    let mapped = map_wire_code(code)?;
-    // Import's contract has no per-item transient, so one arriving there is no evidence that
-    // nothing was created; retrying it could put a second attainment on a transcript.
-    if endpoint == SuotarEndpoint::ImportAttainments
-        && mapped == CreditRegistrationErrorCode::SisuTemporarilyUnavailable
-    {
-        return Some(CreditRegistrationErrorCode::SisuTimeout);
+    match outcome_of(endpoint, code) {
+        WireOutcome::Failure(code) => Some(code),
+        _ => None,
     }
-    Some(mapped)
+}
+
+/// The state a `code` settles a row in, or `None` where it settles nothing.
+pub fn settled_state(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationState> {
+    match outcome_of(endpoint, code) {
+        WireOutcome::Settled(state) => Some(state),
+        _ => None,
+    }
 }
 
 #[cfg(test)]
@@ -270,6 +339,36 @@ mod tests {
             ),
             Some(CreditRegistrationErrorCode::SisuTimeout)
         );
+    }
+
+    /// The success half of the vocabulary, which decides where a row ends up rather than what went
+    /// wrong with it.
+    #[test]
+    fn every_code_that_settles_a_row_names_the_state_it_settles_it_in() {
+        use CreditRegistrationState as State;
+        for (code, expected) in [
+            ("sent", State::AwaitingVerification),
+            ("registered", State::Registered),
+            ("duplicateAttainment", State::Duplicate),
+            ("notImprovedAttainment", State::NotImproved),
+        ] {
+            assert_eq!(
+                settled_state(SuotarEndpoint::ImportAttainments, code),
+                Some(expected),
+                "{code}"
+            );
+        }
+        assert_eq!(
+            settled_state(SuotarEndpoint::VerifyAttainments, "registered"),
+            Some(State::Registered)
+        );
+        for code in ["notRegistered", "personFound", "sisuTimeout"] {
+            assert_eq!(
+                settled_state(SuotarEndpoint::VerifyAttainments, code),
+                None,
+                "{code}"
+            );
+        }
     }
 
     #[test]

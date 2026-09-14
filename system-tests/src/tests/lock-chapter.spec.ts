@@ -137,10 +137,9 @@ test.describe("Chapter locking feature", () => {
         .contentFrame()
         .getByText("Correct answer", { exact: true })
         .waitFor()
-      await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
     })
 
@@ -296,10 +295,9 @@ test.describe("Chapter locking feature", () => {
         .contentFrame()
         .getByText("Correct answer", { exact: true })
         .waitFor()
-      await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("1")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
     })
 

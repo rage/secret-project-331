@@ -42,6 +42,17 @@ to access. Results are also streamed rather than included in the response body. 
 during transmission, an error message will be appended to the end of the broken stream output.
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
+A course with no completions returns an empty array `[]`.
+
+If no course matches the given identifier, the endpoint responds with `404 Not Found` and a JSON error body:
+
+```json
+{
+  "type": "not_found",
+  "message_key": "not_found",
+  "message": "No course found with the identifier 'BSCS1001'."
+}
+```
 
 ## Excluding already registering completions.
 
@@ -105,11 +116,24 @@ async fn get_completions(
         vec![module.id]
     } else {
         // The param is either a course slug or non-unique UH course code.
-        models::course_modules::get_ids_by_course_slug_or_uh_course_code(
+        let modules = models::course_modules::get_ids_by_course_slug_or_uh_course_code(
             &mut conn,
             course_id_slug_or_code.as_str(),
         )
-        .await?
+        .await?;
+        if modules.is_empty() {
+            // Distinguishes an unknown course from a known course with no completions, which
+            // answers with an empty array.
+            return Err(ControllerError::new(
+                ControllerErrorType::NotFound,
+                format!(
+                    "No course found with the identifier '{}'.",
+                    *course_id_slug_or_code
+                ),
+                None,
+            ));
+        }
+        modules
     };
 
     // Duplicated below but `spawn` requires static lifetime.
@@ -167,6 +191,10 @@ to access. Results are also streamed rather than included in the response body. 
 during transmission, an error message will be appended to the end of the broken stream output.
 
 This endpoint returns an array of [StudyRegistryCompletion](models::course_module_completions::StudyRegistryCompletion) structs.
+A module with no completions returns an empty array `[]`.
+
+If the course or the module does not exist, or the module does not belong to the course, the endpoint
+responds with `404 Not Found` and a JSON error body of the same shape as the course-wide endpoint.
 
 ## Excluding already registering completions.
 

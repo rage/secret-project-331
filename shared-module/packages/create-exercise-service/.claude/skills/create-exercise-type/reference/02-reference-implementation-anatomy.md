@@ -37,10 +37,11 @@ both the legacy bare-`Alternative[]` blob and the versioned envelope on read) an
 **`validatePrivateSpec(spec) → { valid, errors }`** authority (invariants: ≥1 option, ≥1 correct,
 non-empty names; errors are i18n keys) that the editor uses to both set `valid` and render errors.
 
-## 2. The two shared contracts (vendored, do not edit)
+## 2. The two shared contracts (shared packages, do not edit)
 
-The generic host↔plugin contract lives in the vendored shared module and is the same for every
-plugin:
+The generic host↔plugin contract lives in the shared `exercise-*` packages and is the same for every
+plugin. Paths below are the template's vendored form; an npm-mode scaffold has the same files under
+`@moocfi/exercise-protocol/...` (see `03`):
 
 - `src/shared-module/exercise-protocol/core/exercise-service-protocol-types.ts` — the
   `postMessage` envelope types: `MessageFromIframe` (`current-state`, `height-changed`,
@@ -216,7 +217,10 @@ name/port.
 - **`iframe-headers.mjs`**: the CSP/CORS/embedding headers. Permissive CSP
   (`default-src *`) is safe _because the iframe sandbox provides isolation_.
   `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Private-Network: true` because the
-  iframe fetches its own API/fonts/assets cross-origin.
+  iframe fetches its own API/fonts/assets cross-origin. **Known gap:** no `Allow-Methods` /
+  `Allow-Headers`, and `server.mjs` answers no `OPTIONS`, so a browser's JSON POST to the spec
+  endpoints (the Playground does this) fails preflight; headless-lms's server-to-server calls hide it.
+  A generated project should add both.
 - **`server.mjs`**: zero-dependency production Node server (the slim image ships no `node_modules`).
   It (1) serves `dist/client` static assets under the base path, (2) strips the base and forwards
   `/{base}/api/*` and `/{base}/_serverFn/*` to the built TanStack server-entry fetch handler —
@@ -243,7 +247,9 @@ Four packages are vendored (copied) into `src/shared-module/`:
 
 Consumers import via deep paths `@/shared-module/exercise-react/...`. The upstream source is
 `shared-module/packages/*`; a sync mechanism copies it in (see `03-scaffolding-cli.md`). **Treat
-`src/shared-module/` as read-only** — edits get overwritten on the next sync.
+`src/shared-module/` as read-only** — edits get overwritten on the next sync. A project scaffolded
+by the published CLI has no `src/shared-module/` at all: the same four packages come from npm as
+`@moocfi/exercise-*` and the imports are rewritten to that prefix.
 
 Every generated project inherits `playwright.config.ts`, `playwright/plugin-contract/`,
 `playwright/iframe-boundary/`, `playwright/system/`, and `playwright/fixtures/`. Keep this

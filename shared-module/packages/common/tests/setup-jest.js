@@ -16,7 +16,7 @@ global.Request = class Request {
   }
 }
 
-// oxlint-disable-next-line typescript/no-extraneous-class, max-classes-per-file -- Web API polyfill; must be a class for new/instanceof; polyfill classes are colocated in this test setup file
+// oxlint-disable-next-line typescript/no-extraneous-class -- Web API polyfill; must be a class for new/instanceof
 global.TransformStream = class TransformStream {
   constructor() {
     this.readable = {}

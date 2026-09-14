@@ -10,6 +10,14 @@ minimumReleaseAgeIgnoreMissingTime: false
 
 nodeVersion: 24.18.0
 
+packageExtensions:
+  # atlas-icons-react's index.js requires @babel/runtime/helpers/extends, but its manifest
+  # declares no dependencies at all. Resolution only ever worked when something else happened
+  # to hoist @babel/runtime into .pnpm/node_modules; declaring it here stops that being luck.
+  "@vectopus/atlas-icons-react":
+    dependencies:
+      "@babel/runtime": "^7.18.3"
+
 overrides:
   dompurify@<3.3.2: ">=3.3.2"
   dompurify@<=3.3.1: ">=3.3.2"

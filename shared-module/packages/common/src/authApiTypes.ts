@@ -25,6 +25,7 @@ export type Action =
   | { type: "view_internal_course_structure" }
   | { type: "view_stats" }
   | { type: "view_and_manage_credit_registrations" }
+  | { type: "administrate_user_account" }
   | { type: "administrate" }
 
 export interface ActionOnResource {
@@ -48,7 +49,7 @@ export type Resource =
   | { type: "study_registry"; id: string }
   | { type: "any_course" }
   | { type: "role" }
-  | { type: "user" }
+  | { type: "user"; id: string }
   | { type: "playground_example" }
   | { type: "exercise_service" }
 

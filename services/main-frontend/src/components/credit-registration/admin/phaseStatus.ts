@@ -8,8 +8,20 @@ export type PhaseHealth =
   | "never_reported"
   | "running"
 
+/**
+ * The fields `phaseHealth` needs. `CreditRegistrationPhaseStatus` (the Overview endpoint's row)
+ * satisfies this structurally too, minus `failing`, which it never reports.
+ */
+export interface PhaseHealthFields {
+  paused_at?: string | null
+  implemented: boolean
+  failing?: boolean
+  heartbeat_late: boolean
+  last_heartbeat_at?: string | null
+}
+
 /** What the Workers tab's status column says. `paused` wins: a paused phase is not late, it is stopped. */
-export const phaseHealth = (phase: CreditRegistrationPhaseRow): PhaseHealth => {
+export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   if (phase.paused_at) {
     return "paused"
   }

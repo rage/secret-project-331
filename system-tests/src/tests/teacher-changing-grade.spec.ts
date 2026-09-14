@@ -69,13 +69,10 @@ test.describe("test teacher changing grade behavior", () => {
 
       await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
 
-      await exerciseDetailsComponent.getByRole("button", { name: "Give custom points" }).click()
+      await exerciseDetailsComponent.getByRole("button", { name: "Grade" }).click()
       await teacherPage.getByRole("slider").fill("0.5")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage
-          .locator("#custom-point-popup")
-          .getByRole("button", { name: "Give custom points" })
-          .click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
       await expect(exerciseDetailsComponent).toContainText("0.5/1")
     })

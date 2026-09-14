@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM (\n    SELECT DISTINCT cie.user_id\n    FROM course_instance_enrollments cie\n    WHERE cie.course_id = $1\n      AND cie.deleted_at IS NULL\n  ) enrolled\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = enrolled.user_id\n  AND vsn.deleted_at IS NULL\nWHERE vsn.id IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "76336a8b8a962bfaa45fd3fc234a3aca5602bed1e670dad923c40c0d995bcc64"
+}

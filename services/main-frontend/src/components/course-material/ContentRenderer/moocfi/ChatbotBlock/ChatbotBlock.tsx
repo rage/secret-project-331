@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
@@ -10,6 +11,7 @@ import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-mate
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
+import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import type { BlockRendererProps } from "../.."
 
@@ -22,6 +24,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
   const { t } = useTranslation()
   const chatbotConfigurationId = data.attributes.chatbotConfigurationId
   const courseId = data.attributes.courseId
+  const pageId = useAtomValue(currentPageIdAtom)
 
   const defaultChatbotConfiguration = useQuery({
     queryKey: ["chatbot", "default-for-course", courseId],
@@ -51,6 +54,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
           <ChatbotChat
             chatbotConfigurationId={chatbotConfigurationId}
             isCourseMaterialBlock={true}
+            pageId={pageId}
           />
         </div>
       </div>
@@ -78,6 +82,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
                 isCourseMaterialBlock={true}
+                pageId={pageId}
               />
             </div>
           </div>

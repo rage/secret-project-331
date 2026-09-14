@@ -138,7 +138,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
           <p
             className={css`
               padding-top: 16px;
-              padding-bottom: 24px;
             `}
           >
             {t("research-consent-responsible")}
@@ -156,23 +155,32 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             </a>
             .
           </p>
+        </div>
 
-          <div>
-            <RadioButton
-              id="researchConsent"
-              label={t("research-consent-i-want-to-participate-in-educational-research")}
-              name="researchConsent"
-              onClick={() => handleConsentSelection(true)}
-              checked={consent === true}
-            />
-            <RadioButton
-              id="noResearchConsent"
-              label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-              name="researchConsent"
-              onClick={() => handleConsentSelection(false)}
-              checked={consent === false}
-            />
-          </div>
+        {/* Outside the scrolling area: the choices must stay visible, and a focused control
+            inside a scroller lets the browser scroll it at will. */}
+        <div
+          className={css`
+            flex-shrink: 0;
+            padding: 8px 24px;
+            font-family: ${headingFont};
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          <RadioButton
+            id="researchConsent"
+            label={t("research-consent-i-want-to-participate-in-educational-research")}
+            name="researchConsent"
+            onClick={() => handleConsentSelection(true)}
+            checked={consent === true}
+          />
+          <RadioButton
+            id="noResearchConsent"
+            label={t("research-consent-i-do-not-want-participate-in-educational-research")}
+            name="researchConsent"
+            onClick={() => handleConsentSelection(false)}
+            checked={consent === false}
+          />
         </div>
         <div
           className={css`

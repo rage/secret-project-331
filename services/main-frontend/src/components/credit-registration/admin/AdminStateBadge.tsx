@@ -3,13 +3,17 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import type { CreditRegistrationState } from "@/generated/api/types.generated"
+import type {
+  CreditRegistrationPendingReason,
+  CreditRegistrationState,
+} from "@/generated/api/types.generated"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
 import { stateTone } from "./adminCreditRegistrationCopy"
 
 interface Props {
   state: CreditRegistrationState
+  pendingReason?: CreditRegistrationPendingReason | null | undefined
   superseded?: boolean
   attemptNumber?: number
 }
@@ -21,12 +25,16 @@ const supersededCss = css`
 `
 
 /** The state name is deliberately untranslated: it is the identifier an operator quotes. */
-const AdminStateBadge: React.FC<Props> = ({ state, superseded, attemptNumber }) => (
-  <span className={superseded ? supersededCss : undefined}>
-    <RegistrationStatusBadge state={stateTone(state)}>
-      {attemptNumber !== undefined && attemptNumber > 1 ? `${attemptNumber}· ${state}` : state}
-    </RegistrationStatusBadge>
-  </span>
-)
+const AdminStateBadge: React.FC<Props> = ({ state, pendingReason, superseded, attemptNumber }) => {
+  // `pending` on its own does not say what the row is waiting for.
+  const name = pendingReason ? `${state} (${pendingReason})` : state
+  return (
+    <span className={superseded ? supersededCss : undefined}>
+      <RegistrationStatusBadge state={stateTone(state, pendingReason)}>
+        {attemptNumber !== undefined && attemptNumber > 1 ? `${attemptNumber}· ${name}` : name}
+      </RegistrationStatusBadge>
+    </span>
+  )
+}
 
 export default AdminStateBadge

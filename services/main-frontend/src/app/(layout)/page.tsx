@@ -11,6 +11,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
+  courseAuditingRoute,
   creditRegistrationOverviewRoute,
   domainStatsRoute,
   globalPermissionsRoute,
@@ -187,6 +188,20 @@ const FrontPage = () => {
             `}
           >
             {t("title-credit-registration")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link
+            href={courseAuditingRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("link-course-auditing")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

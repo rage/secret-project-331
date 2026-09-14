@@ -41,8 +41,8 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::authorization::{
-        Action, Resource, authorize_access_to_course_material,
-        authorize_with_fetched_list_of_roles, can_user_view_chapter, skip_authorize,
+        Action, Resource, authorize_access_to_course_material, can_user_view_chapter, is_permitted,
+        skip_authorize,
     },
     prelude::*,
 };
@@ -981,15 +981,14 @@ async fn get_all_course_language_versions_navigation_info_from_page(
         let user_roles = models::roles::get_roles(&mut conn, user_id).await?;
 
         for course_version in unfiltered_language_versions.iter().filter(|c| c.is_draft) {
-            if authorize_with_fetched_list_of_roles(
+            if is_permitted(
                 &mut conn,
                 Action::ViewMaterial,
-                Some(user_id),
                 Resource::Course(course_version.id),
                 &user_roles,
             )
             .await
-            .is_ok()
+            .unwrap_or(false)
             {
                 accessible_courses.push(course_version.clone());
             }

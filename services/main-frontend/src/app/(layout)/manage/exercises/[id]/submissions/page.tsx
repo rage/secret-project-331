@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
+  exerciseHasAnswerFilesOptions,
   getExerciseCsvExportTaskOptionsOptions,
   getExerciseOptions,
   getExerciseSubmissionsOptions,
@@ -31,6 +32,8 @@ import { QueryResults } from "@/shared-module/components"
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
+
+const ANSWER_FILES_DOWNLOAD_PATH = "download-answer-files"
 
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -92,6 +95,13 @@ const SubmissionsPage: React.FC = () => {
     [csvExportTaskOptionsQuery.data],
   )
 
+  // Deliberately not gated on the exercise service's `produces_file_answers` capability: a service
+  // that stopped declaring it, or an `exercise_service_info` row still at its default because the
+  // service-info fetcher has not run, would otherwise hide files that demonstrably exist.
+  const answerFilesExistQuery = useQuery(
+    exerciseHasAnswerFilesOptions({ path: { exercise_id: id } }),
+  )
+
   const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
     t("label-csv-export-task-option", {
       order: task.order_number + 1,
@@ -124,6 +134,8 @@ const SubmissionsPage: React.FC = () => {
         `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
       : // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
+
+  const answerFilesHref = `/api/v0/main-frontend/exercises/${id}/${ANSWER_FILES_DOWNLOAD_PATH}`
 
   return (
     <div>
@@ -188,6 +200,13 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
+        {answerFilesExistQuery.data && (
+          <a href={answerFilesHref} download>
+            <Button variant="secondary" size="small" type="button">
+              {t("button-text-download-answer-files")}
+            </Button>
+          </a>
+        )}
       </div>
       {csvExportTaskOptionsQuery.isSuccess &&
         definitionTaskOptions.length === 0 &&

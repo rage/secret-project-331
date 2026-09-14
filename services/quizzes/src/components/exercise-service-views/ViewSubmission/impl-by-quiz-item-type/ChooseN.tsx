@@ -6,21 +6,37 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { resolveDisplayedFeedback } from "@/util/feedbackMessages"
 
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import type { ModelSolutionQuizItemChooseN } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
+import { quizTheme } from "../../../../styles/QuizStyles"
+import ParsedText from "../../../ParsedText"
 import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "../../AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles"
 
+interface OptionFeedbackToDisplay {
+  optionId: string
+  optionText: string
+  message: string
+  correct: boolean
+}
+
 const MultipleChoiceClickableFeedback: React.FC<
   React.PropsWithChildren<
     QuizItemSubmissionComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>
   >
-> = ({ user_quiz_item_answer, public_quiz_item, quiz_item_model_solution }) => {
+> = ({
+  user_quiz_item_answer,
+  public_quiz_item,
+  quiz_item_model_solution,
+  quiz_item_answer_feedback,
+}) => {
   const { t } = useTranslation()
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemChooseN
 
@@ -44,6 +60,35 @@ const MultipleChoiceClickableFeedback: React.FC<
   }
 
   const shouldShowNotice = modelSolution && !allOptionsCorrect
+
+  // Only selected options carry feedback: grading (feedback.ts) only produces
+  // quiz_item_option_feedbacks entries for selectedOptionIds, mirroring MultipleChoice.tsx.
+  const optionFeedbacksToDisplay: OptionFeedbackToDisplay[] = public_quiz_item.options.flatMap(
+    (option) => {
+      const userSelected = user_quiz_item_answer.selectedOptionIds?.includes(option.id) ?? false
+      if (!userSelected) {
+        return []
+      }
+      const modelSolutionForOption = modelSolution?.options.find((mo) => mo.id === option.id)
+      const feedbackForOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
+        (f) => f.option_id === option.id,
+      )
+      const message = resolveDisplayedFeedback(
+        feedbackForOption?.option_feedback,
+        modelSolutionForOption?.messagesOnModelSolution,
+      )
+      if (!message) {
+        return []
+      }
+      // Prefer the model solution's correctness (including an explicit `false`), falling back to
+      // the feedback's this_option_was_correct only when the model solution has no verdict at all.
+      const correct =
+        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? false
+      return [
+        { optionId: option.id, optionText: option.title || option.body || "", message, correct },
+      ]
+    },
+  )
 
   return (
     <div
@@ -202,6 +247,53 @@ const MultipleChoiceClickableFeedback: React.FC<
                 {incorrectOptions.join(", ")}
               </div>
             )}
+          </div>
+        )}
+        {optionFeedbacksToDisplay.length > 0 && (
+          <div
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            <h3
+              className={css`
+                font-family: ${primaryFont};
+                font-size: 1rem;
+                font-weight: 500;
+                color: ${quizTheme.quizBodyColor};
+                margin: 0 0 0.5rem 0;
+              `}
+            >
+              {t("choose-n-feedback-heading")}
+            </h3>
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+              `}
+            >
+              {optionFeedbacksToDisplay.map(({ optionId, optionText, message, correct }) => (
+                <div
+                  key={optionId}
+                  className={css`
+                    color: ${quizTheme.quizBodyColor};
+                    border-left: 0.375rem solid
+                      ${
+                        correct
+                          ? quizTheme.gradingCorrectItemBorderColor
+                          : quizTheme.gradingWrongItemBorderColor
+                      };
+                    background: ${quizTheme.feedbackBackground};
+                    padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+                    box-sizing: border-box;
+                  `}
+                >
+                  <strong>{optionText}:</strong>{" "}
+                  <ParsedText inline parseLatex parseMarkdown addDotToEnd text={message} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

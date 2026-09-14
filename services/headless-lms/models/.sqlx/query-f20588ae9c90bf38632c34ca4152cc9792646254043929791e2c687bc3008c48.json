@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH registrable_completion AS (\n  SELECT uuid_generate_v4() AS id,\n    c.course_module_completion_id,\n    c.user_id,\n    c.course_id,\n    c.course_module_id,\n    enrolment.course_instance_id\n  FROM credit_registration_registrable_completions c\n    -- The completion does not name an instance, and the ledger row must. An inner join, so a\n    -- completion whose enrolment was removed is skipped rather than guessed at.\n    JOIN LATERAL (\n      SELECT cie.course_instance_id\n      FROM course_instance_enrollments cie\n      WHERE cie.user_id = c.user_id\n        AND cie.course_id = c.course_id\n        AND cie.deleted_at IS NULL\n      ORDER BY cie.created_at DESC\n      LIMIT 1\n    ) enrolment ON TRUE\n  WHERE ($2::uuid IS NULL OR c.course_id = $2)\n    AND ($3::uuid IS NULL OR c.user_id = $3)\n  ORDER BY c.created_at\n  LIMIT $1\n),\ninserted AS (\n  INSERT INTO credit_registrations (\n      id,\n      course_module_completion_id,\n      user_id,\n      course_id,\n      course_module_id,\n      course_instance_id,\n      request_item_id\n    )\n  SELECT id,\n    course_module_completion_id,\n    user_id,\n    course_id,\n    course_module_id,\n    course_instance_id,\n    'cr-' || id\n  FROM registrable_completion ON CONFLICT DO NOTHING\n  RETURNING id\n),\nevents AS (\n  INSERT INTO credit_registration_events (credit_registration_id, kind, to_state, message)\n  SELECT id,\n    'created',\n    'pending',\n    'Created for an eligible completion.'\n  FROM inserted\n  RETURNING credit_registration_id\n)\nSELECT COUNT(*) AS \"created!\"\nFROM events\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "f20588ae9c90bf38632c34ca4152cc9792646254043929791e2c687bc3008c48"
+}

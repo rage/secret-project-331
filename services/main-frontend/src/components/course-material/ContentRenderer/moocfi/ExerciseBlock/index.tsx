@@ -43,10 +43,15 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+import {
+  type CapturedExerciseTaskAnswer,
+  capturedAnswerToTaskSubmission,
+} from "@/utils/course-material/exerciseTaskAnswer"
 
 import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
@@ -240,9 +245,7 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<
-    Map<string, { valid: boolean; data: unknown; validityMessages?: string[] }>
-  >(new Map())
+  const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
@@ -293,7 +296,10 @@ const ExerciseBlock: React.FC<
     const a = new Map()
     getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
       if (et.previous_submission) {
-        a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+        a.set(et.id, {
+          valid: true,
+          ...storedAnswerToCapturedAnswerFields(et.previous_submission),
+        })
       }
     })
     setAnswers(a)
@@ -374,7 +380,10 @@ const ExerciseBlock: React.FC<
         const a = new Map()
         getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
           if (et.previous_submission) {
-            a.set(et.id, { valid: true, data: et.previous_submission.data_json ?? null })
+            a.set(et.id, {
+              valid: true,
+              ...storedAnswerToCapturedAnswerFields(et.previous_submission),
+            })
           }
         })
         setAnswers(a)
@@ -388,6 +397,34 @@ const ExerciseBlock: React.FC<
   const exerciseDeadline = useDateStringAsDateNullable(
     getCourseMaterialExercise.data?.exercise.deadline,
   )
+
+  // submissionBlockers below is only recomputed on render, so without this the submit button
+  // would stay clickable past the deadline until something else happens to re-render the page.
+  const [, forceRerenderAtDeadline] = useState(0)
+  useEffect(() => {
+    if (!exerciseDeadline) {
+      return
+    }
+    const msUntilDeadline = exerciseDeadline.getTime() - Date.now()
+    if (msUntilDeadline <= 0) {
+      return
+    }
+    // setTimeout's delay is a 32-bit int, so deadlines more than ~24.8 days out are scheduled
+    // in MAX_TIMEOUT_MS hops, recomputing the remaining time from Date.now() each hop, until
+    // the real deadline is within range.
+    const MAX_TIMEOUT_MS = 2 ** 31 - 1
+    let timeoutId: ReturnType<typeof setTimeout>
+    const scheduleCheck = () => {
+      const remainingMs = exerciseDeadline.getTime() - Date.now()
+      if (remainingMs <= 0) {
+        forceRerenderAtDeadline((c) => c + 1)
+        return
+      }
+      timeoutId = setTimeout(scheduleCheck, Math.min(remainingMs, MAX_TIMEOUT_MS))
+    }
+    timeoutId = setTimeout(scheduleCheck, Math.min(msUntilDeadline, MAX_TIMEOUT_MS))
+    return () => clearTimeout(timeoutId)
+  }, [exerciseDeadline])
 
   const startPeerOrSelfReviewMutation = useToastMutation(
     () =>
@@ -730,6 +767,7 @@ const ExerciseBlock: React.FC<
                 peerOrSelfReviewConfig={courseMaterialExercise.peer_or_self_review_config}
                 exercise={courseMaterialExercise.exercise}
                 shouldSeeResetMessage={courseMaterialExercise.should_show_reset_message ?? null}
+                teacherGradingDecision={courseMaterialExercise.teacher_grading_decision ?? null}
               />
               {/* Reviewing stage seems to be undefined at least for exams */}
               {reviewingStage !== "PeerReview" &&
@@ -814,7 +852,10 @@ const ExerciseBlock: React.FC<
                     </div>
                   </YellowBox>
                 )}
-              <OutOfTriesNotification ranOutOfTries={Boolean(ranOutOfTries)} />
+              <OutOfTriesNotification
+                ranOutOfTries={Boolean(ranOutOfTries)}
+                reviewingStage={reviewingStage}
+              />
               <div>
                 {!inSubmissionView && !isChapterLocked && (
                   <ExerciseSubmitButton
@@ -830,10 +871,8 @@ const ExerciseBlock: React.FC<
                           exercise_slide_id: courseMaterialExercise.current_exercise_slide.id,
                           exercise_task_submissions:
                             courseMaterialExercise.current_exercise_slide.exercise_tasks.map(
-                              (task) => ({
-                                exercise_task_id: task.id,
-                                data_json: answers.get(task.id)?.data,
-                              }),
+                              (task) =>
+                                capturedAnswerToTaskSubmission(task.id, answers.get(task.id)),
                             ),
                         },
                         {

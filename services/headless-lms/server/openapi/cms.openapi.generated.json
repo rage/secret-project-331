@@ -965,6 +965,55 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/exercises-with-submissions": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "\nPOST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns\nthe subset that has at least one existing submission. Used by the editor to warn the teacher before\nsaving a page edit that would remove one of these exercises, since that soft-deletes it and orphans\nits submissions.",
+        "operationId": "getExercisesWithSubmissions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise ids, among the given ones, that have submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/info": {
       "get": {
         "tags": ["cms_pages"],
@@ -1059,6 +1108,56 @@
           }
         }
       }
+    },
+    "/api/v0/files/{exercise_service_slug}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nAn ordered list of host-assigned file ids and stored URLs.",
+        "operationId": "uploadFilesFromExerciseService",
+        "parameters": [
+          {
+            "name": "exercise_service_slug",
+            "in": "path",
+            "description": "Exercise service slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1109,7 +1208,7 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible"
@@ -1139,6 +1238,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -1203,9 +1308,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -1325,7 +1427,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "private_spec": {}
+          "private_spec": {},
+          "private_spec_files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The stored files this task's private spec references, as the exercise service declared them\nin the editor. The host cannot read the spec, so this list is the only thing keeping the\nfiles from being reclaimed as abandoned uploads — and the CMS round-trips it through a block\nattribute, so a load that leaves it empty makes the next save drop the references.\n\nOnly the private spec's. Each derived spec declares its own files in the response of the\nendpoint that produced it, since a derivation may upload files of its own."
+          }
         }
       },
       "CmsPageUpdate": {
@@ -1800,7 +1910,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -1832,6 +1943,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -2039,6 +2153,20 @@
             "type": "string"
           },
           "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ExerciseServiceUploadResultEntry": {
+        "type": "object",
+        "description": "What an upload route returns for one stored file: the `file_uploads` row id an answer names it\nby, and the URL it can be fetched from.",
+        "required": ["id", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
             "type": "string"
           }
         }
@@ -2531,6 +2659,20 @@
             "format": "date-time"
           }
         }
+      },
+      "ToolCategory": {
+        "type": "string",
+        "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
+        "enum": [
+          "course_material",
+          "course_info",
+          "course_catalog",
+          "interaction",
+          "admin_support_accounts",
+          "admin_support_courses",
+          "admin_support_learning_progress",
+          "admin_support_academic_integrity"
+        ]
       },
       "UploadResult": {
         "type": "object",

@@ -369,6 +369,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
                 <ListBox
                   {...mergeProps(menuProps, collectionProps)}
+                  // useSelect asks for native-select behaviour, where the press that opens the
+                  // listbox also selects whatever it is released over. A long listbox is clamped
+                  // to the viewport and can then cover the trigger, so that release picks an
+                  // option the user never aimed at. Selecting needs its own press instead.
+                  shouldSelectOnPressUp={false}
                   state={state}
                   listBoxRef={mergedCollectionRef}
                 />

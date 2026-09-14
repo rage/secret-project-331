@@ -19,10 +19,11 @@ export const invalidateCourseQuery = (queryClient: QueryClient, courseId: string
   })
 }
 
-export const useCourseQuery = (courseId: string | null) => {
+export const useCourseQuery = (courseId: string | null, enabled = true) => {
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
+      enabled: enabled,
       isReady: (id): id is string => Boolean(id),
       build: (id) =>
         getCourseOptions({

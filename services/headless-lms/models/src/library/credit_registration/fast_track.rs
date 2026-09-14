@@ -6,6 +6,8 @@
 //! link. The population whose two addresses differ is exactly the population the linking mail exists
 //! for, and nothing here may narrow it.
 
+use std::collections::HashMap;
+
 use unicode_normalization::UnicodeNormalization;
 
 use crate::credit_registration_events::CreditRegistrationEventKind;
@@ -183,6 +185,96 @@ LIMIT 2 FOR SHARE OF ud
     .fetch_all(conn)
     .await?;
     Ok((candidates.len() == 1).then(|| candidates.remove(0)))
+}
+
+/// [`find_fast_track_candidate`] for a whole roster in one query, keyed by `sisu_person_id`.
+///
+/// Same rules, and the same silence about an address more than one account holds. Deliberately
+/// without the row lock: this is the cheap pass that says which few people are worth a
+/// transaction, and each of those is read again under [`find_fast_track_candidate`]'s lock before
+/// anything is written.
+pub async fn find_fast_track_candidates(
+    conn: &mut PgConnection,
+    people: &[FastTrackLookup],
+) -> ModelResult<HashMap<String, FastTrackCandidate>> {
+    let (emails, person_ids): (Vec<String>, Vec<String>) = people
+        .iter()
+        .filter(|person| !person.primary_email.trim().is_empty())
+        .map(|person| {
+            (
+                person.primary_email.trim().to_string(),
+                person.sisu_person_id.clone(),
+            )
+        })
+        .unzip();
+    if emails.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+SELECT wanted.sisu_person_id AS "sisu_person_id!",
+  ud.user_id,
+  ud.email,
+  ud.email_verified_at,
+  ud.email_verified_method AS "email_verified_method?: EmailVerificationMethod",
+  ud.first_name,
+  ud.last_name,
+  EXISTS(
+    SELECT 1
+    FROM verified_student_numbers vsn
+    WHERE vsn.user_id = ud.user_id
+      AND vsn.deleted_at IS NULL
+  ) AS "has_live_student_number!",
+  EXISTS(
+    SELECT 1
+    FROM verified_student_numbers vsn
+    WHERE vsn.user_id = ud.user_id
+      AND vsn.sisu_person_id = wanted.sisu_person_id
+      AND vsn.verified_via = 'email_match_fast_track'::student_number_verification_method
+      AND vsn.deleted_at IS NOT NULL
+  ) AS "unlinked_a_fast_track_link_before!"
+FROM UNNEST($1::text [], $2::text []) AS wanted(email, sisu_person_id)
+  JOIN user_details ud ON LOWER(ud.email) = LOWER(wanted.email)
+  JOIN users u ON u.id = ud.user_id
+WHERE u.deleted_at IS NULL
+  AND (
+    SELECT COUNT(*)
+    FROM user_details other
+      JOIN users other_user ON other_user.id = other.user_id
+    WHERE LOWER(other.email) = LOWER(wanted.email)
+      AND other_user.deleted_at IS NULL
+  ) = 1
+        "#,
+        &emails,
+        &person_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id,
+                FastTrackCandidate {
+                    user_id: row.user_id,
+                    email: row.email,
+                    email_verified_at: row.email_verified_at,
+                    email_verified_method: row.email_verified_method,
+                    first_name: row.first_name,
+                    last_name: row.last_name,
+                    has_live_student_number: row.has_live_student_number,
+                    unlinked_a_fast_track_link_before: row.unlinked_a_fast_track_link_before,
+                },
+            )
+        })
+        .collect())
+}
+
+/// One roster entry to look an account up by.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FastTrackLookup {
+    pub primary_email: String,
+    pub sisu_person_id: String,
 }
 
 /// One person the fast track is about to link, as the caller read them off the registry's roster.

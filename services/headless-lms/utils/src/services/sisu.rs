@@ -42,6 +42,33 @@ pub struct SisuCourseInfoElement {
     pub organisations: Vec<Organisation>,
     pub possible_attainment_languages: Vec<String>,
     pub part_of_degree: Option<serde_json::Value>,
+    #[serde(default)]
+    pub responsibility_infos: Option<Vec<ResponsibilityInfo>>,
+}
+
+/// One responsible-contact entry from Sisu's course-unit API, e.g. a responsible teacher.
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ResponsibilityInfo {
+    pub role_urn: String,
+    pub person: Option<SisuPerson>,
+    pub text: Option<Additional>,
+}
+
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct SisuPerson {
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+}
+
+/// A resolved staff contact for a course, derived from [ResponsibilityInfo].
+#[derive(Serialize, Deserialize, ToSchema, Debug, Clone)]
+pub struct SisuCourseContact {
+    pub name: String,
+    pub role_urn: String,
+    pub email: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -319,6 +346,41 @@ impl SisuClient {
             course_desc.insert(module.code, descriptions);
         }
         course_desc
+    }
+
+    /// Resolves a UH course code to its responsible-teacher contacts, via a course-id lookup
+    /// followed by a course-info fetch. A contact with no `person` name is dropped: it carries
+    /// nothing a support admin can act on.
+    pub async fn get_course_contacts(
+        &self,
+        uh_course_code: &str,
+    ) -> UtilResult<Vec<SisuCourseContact>> {
+        let course_ids = self
+            .get_course_ids(vec![uh_course_code.to_string()])
+            .await?;
+        let course_info = self.get_course_info(course_ids).await?;
+
+        let contacts = course_info
+            .into_iter()
+            .flat_map(|info| info.responsibility_infos.unwrap_or_default())
+            .filter_map(|info| {
+                let name = info.person.as_ref().and_then(|person| {
+                    let full_name = [person.first_names.as_deref(), person.last_name.as_deref()]
+                        .into_iter()
+                        .flatten()
+                        .collect::<Vec<_>>()
+                        .join(" ");
+                    (!full_name.is_empty()).then_some(full_name)
+                })?;
+                let email = info.person.as_ref().and_then(|person| person.email.clone());
+                Some(SisuCourseContact {
+                    name,
+                    role_urn: info.role_urn,
+                    email,
+                })
+            })
+            .collect();
+        Ok(contacts)
     }
 
     pub fn mock_for_test() -> Self {

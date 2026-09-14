@@ -100,7 +100,11 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
             `}
           ></div>
         ) : (
-          <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
+          <ChatbotChat
+            chatbotConfigurationId={configuration_id}
+            isCourseMaterialBlock={true}
+            pageId={null}
+          />
         )}
       </div>
     </div>

@@ -4,11 +4,14 @@
 
 # Enums
 'activity_progress' = "crate::exercises::ActivityProgress"
+'answer_kind' = "crate::exercise_task_submissions::AnswerKind"
+'answer_upload_origin' = "crate::exercise_answer_uploads::AnswerUploadOrigin"
 'application_task' = "crate::application_task_default_language_models::ApplicationTask"
 'application_type' = "crate::oauth_client::ApplicationType"
 'certificate_paper_size' = "crate::certificate_configurations::PaperSize"
 'certificate_text_anchor' = "crate::certificate_configurations::CertificateTextAnchor"
 'chapter_locking_status' = "crate::user_chapter_locking_statuses::ChapterLockingStatus"
+'chatbot_tool_category[]' = "Vec<crate::chatbot_configurations::ToolCategory>"
 'course_ai_policy' = "crate::courses::CourseAiPolicy"
 'course_background_question_type' = "crate::course_background_questions::CourseBackgroundQuestionType"
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"

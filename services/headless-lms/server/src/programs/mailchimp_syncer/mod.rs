@@ -95,6 +95,9 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 
 const BATCH_POLL_INTERVAL_SECS: u64 = 10;
 const BATCH_POLL_TIMEOUT_SECS: u64 = 300;
+/// Bulk archive of every operation's result, so it can be far larger and slower than the JSON
+/// calls the shared client's default timeout is sized for.
+const BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS: u64 = 600;
 
 #[derive(Debug)]
 struct SyncUser {

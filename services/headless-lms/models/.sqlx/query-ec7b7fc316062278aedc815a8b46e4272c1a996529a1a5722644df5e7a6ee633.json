@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_action_logs (\n    acting_user_id,\n    tool_call_id,\n    tool_name,\n    arguments,\n    target_user_id,\n    course_id,\n    summary\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_action_logs",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "ec7b7fc316062278aedc815a8b46e4272c1a996529a1a5722644df5e7a6ee633"
+}

@@ -47,8 +47,6 @@ reviews:
 
         If component sends requests to server, use either useQuery, or useToastMutation hooks, or use hooks wrapping those hooks.
 
-        If there is a form of any kind, make sure it uses useForm from react-hook-form, and make sure the form is integrated with the useToastMutation and useQuery hooks.
-
         For loading and error states, use the Spinner and ErrorBanner components from the shared module.
 
         For screen-reader-only text, use VisuallyHidden from react-aria instead of custom sr-only / visually-hidden CSS.
@@ -58,6 +56,10 @@ reviews:
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
+
+    - path: "!(services/quizzes|services/example-exercise)/**/*.tsx"
+      instructions: >
+        If there is a form of any kind, make sure it uses useForm from react-hook-form, and make sure the form is integrated with the useToastMutation and useQuery hooks.
 
     - path: "**/*.{ts,tsx}"
       instructions: >

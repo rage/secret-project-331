@@ -120,6 +120,7 @@ pub async fn seed_graded_course(
         &background_svg_path,
         "image/svg+xml",
         None,
+        None,
     )
     .await?;
 

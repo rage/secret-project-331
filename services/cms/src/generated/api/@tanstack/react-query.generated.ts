@@ -28,6 +28,7 @@ import {
   getCmsPageInfo,
   getCmsPageNavigation,
   getCmsRepositoryExercisesForCourse,
+  getExercisesWithSubmissions,
   type Options,
   requestParagraphSuggestions,
   updateCmsCourseDefaultPeerReview,
@@ -36,6 +37,7 @@ import {
   updateCmsPage,
   uploadCmsCourseMedia,
   uploadCmsExamMedia,
+  uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
   upsertCmsCourseResearchFormQuestions,
@@ -83,6 +85,8 @@ import type {
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponse,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
   UpdateCmsCourseDefaultPeerReviewData,
@@ -97,6 +101,8 @@ import type {
   UploadCmsCourseMediaResponse,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponse,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponse,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCourseResearchFormData,
   UpsertCmsCourseResearchFormQuestionsData,
@@ -895,6 +901,35 @@ export const updateCmsPageMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissionsMutation = (
+  options?: Partial<Options<GetExercisesWithSubmissionsData>>,
+): UseMutationOptions<
+  GetExercisesWithSubmissionsResponse,
+  DefaultError,
+  Options<GetExercisesWithSubmissionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    GetExercisesWithSubmissionsResponse,
+    DefaultError,
+    Options<GetExercisesWithSubmissionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getExercisesWithSubmissions({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCmsPageInfoQueryKey = (options: Options<GetCmsPageInfoData>) =>
   createQueryKey("getCmsPageInfo", options)
 
@@ -967,3 +1002,33 @@ export const getCmsRepositoryExercisesForCourseOptions = (
       }),
     queryKey: getCmsRepositoryExercisesForCourseQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseServiceMutation = (
+  options?: Partial<Options<UploadFilesFromExerciseServiceData>>,
+): UseMutationOptions<
+  UploadFilesFromExerciseServiceResponse,
+  DefaultError,
+  Options<UploadFilesFromExerciseServiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UploadFilesFromExerciseServiceResponse,
+    DefaultError,
+    Options<UploadFilesFromExerciseServiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await uploadFilesFromExerciseService({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}

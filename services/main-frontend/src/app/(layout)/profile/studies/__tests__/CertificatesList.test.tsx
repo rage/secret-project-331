@@ -10,6 +10,7 @@ import { CertificatesList } from "../CertificatesSection"
 // t is mocked in tests/setup-jest.js to return the key verbatim.
 const certificate = (overrides: Partial<UserCertificate>): UserCertificate => ({
   id: "certificate-1",
+  user_id: "user-1",
   name_on_certificate: "Example Learner",
   verification_id: "verification-1",
   created_at: "2026-02-03T10:00:00Z",

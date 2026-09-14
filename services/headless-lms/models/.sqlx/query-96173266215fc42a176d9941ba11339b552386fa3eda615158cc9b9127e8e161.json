@@ -1,0 +1,170 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($2::credit_registration_state [])\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (WHERE cr.needs_admin_attention) AS \"needs_admin_attention_count!\",\n  MAX(cr.registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY cr.course_module_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "success_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "in_flight_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "failed_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "needs_admin_attention_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_registered_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "top_error_code?: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "96173266215fc42a176d9941ba11339b552386fa3eda615158cc9b9127e8e161"
+}

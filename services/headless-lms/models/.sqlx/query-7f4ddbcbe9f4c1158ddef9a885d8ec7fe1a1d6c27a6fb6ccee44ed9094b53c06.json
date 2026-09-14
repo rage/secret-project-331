@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM chatbot_conversations\nWHERE id = $1\n  AND (\n    user_id = $2\n    OR anonymous_token = $3\n  )\n  AND chatbot_configuration_id = $4\n  AND deleted_at IS NULL\nFOR NO KEY UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7f4ddbcbe9f4c1158ddef9a885d8ec7fe1a1d6c27a6fb6ccee44ed9094b53c06"
+}

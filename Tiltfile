@@ -103,6 +103,7 @@ HEADLESS_LMS_REBUILD_FILES = [
     "Cargo.lock",
     "Cargo.toml",
     "Dockerfile",
+    "authorization/Cargo.toml",
     "base/Cargo.toml",
     "certificates/Cargo.toml",
     "chatbot/Cargo.toml",

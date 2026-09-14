@@ -82,7 +82,7 @@ export function nullIfEmptyString(string: string | undefined | null): string | n
   if (string === undefined || string === null) {
     return null
   }
-  return string === "" ? null : string
+  return string.trim() === "" ? null : string.trim()
 }
 
 export function errorToDescription(error: string | FieldError | undefined): string | null {

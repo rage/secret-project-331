@@ -11,6 +11,7 @@ use headless_lms_models::credit_registrations::{
     self, CreditRegistrationErrorCode, CreditRegistrationErrorCodeCount, CreditRegistrationState,
     OldestNonTerminalRegistration, StuckRegistrationCount,
 };
+use headless_lms_models::library::credit_registration::PendingReasonCounts;
 use headless_lms_models::suotar_api_calls::{
     self, SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow,
     SuotarEndpointStatsForWindow,
@@ -18,7 +19,7 @@ use headless_lms_models::suotar_api_calls::{
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
-    CreditRegistrationHealth, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, evaluate, stuck_thresholds,
+    CreditRegistrationHealth, evaluate, is_heartbeat_late, stuck_thresholds,
 };
 use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::domain::credit_registration_phases::breaker::{
@@ -52,6 +53,9 @@ pub struct CreditRegistrationOldestNonTerminal {
     pub credit_registration_id: Uuid,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
+    /// Computed server-side: a page comparing its own clock against a server timestamp misjudges
+    /// this on a skewed client, the same reason `seconds_since_heartbeat` is computed here too.
+    pub seconds_in_state: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -92,7 +96,8 @@ pub struct CreditRegistrationCircuitBreakerState {
 }
 
 /// One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
-/// narrowed one.
+/// narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
+/// `CreditRegistrationPhaseRow` instead, which is wider.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseStatus {
     pub phase: String,
@@ -120,6 +125,8 @@ pub struct CreditRegistrationPhaseStatus {
 pub struct CreditRegistrationOverview {
     pub health: CreditRegistrationHealth,
     pub counts_by_state: Vec<CreditRegistrationStateTotal>,
+    /// The `pending` depth split by what each row is waiting on, which the ledger does not store.
+    pub pending_by_reason: PendingReasonCounts,
     pub error_codes: Vec<CreditRegistrationErrorCodeTotal>,
     pub needs_admin_attention_count: i64,
     pub oldest_non_terminal: Option<CreditRegistrationOldestNonTerminal>,
@@ -128,7 +135,6 @@ pub struct CreditRegistrationOverview {
     pub stuck: Vec<CreditRegistrationStuckTotal>,
     pub endpoints: Vec<SuotarEndpointStanding>,
     pub circuit_breaker: CreditRegistrationCircuitBreakerState,
-    pub phases: Vec<CreditRegistrationPhaseStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -196,6 +202,7 @@ pub async fn get_credit_registration_overview(
         .iter()
         .map(|&(state, count)| CreditRegistrationStateTotal { state, count })
         .collect();
+    let pending_by_reason = credit_registrations::count_pending_by_reason(&mut conn).await?;
     let error_codes = credit_registrations::count_by_error_code(&mut conn)
         .await?
         .into_iter()
@@ -205,7 +212,7 @@ pub async fn get_credit_registration_overview(
         credit_registrations::count_needing_admin_attention(&mut conn).await?;
     let oldest_non_terminal = credit_registrations::get_oldest_non_terminal(&mut conn)
         .await?
-        .map(to_oldest_non_terminal);
+        .map(|row| to_oldest_non_terminal(row, Utc::now()));
     let throughput = credit_registrations::get_throughput_by_day(
         &mut conn,
         Utc::now() - chrono::Duration::days(THROUGHPUT_DAYS),
@@ -225,11 +232,11 @@ pub async fn get_credit_registration_overview(
         .into_iter()
         .map(to_endpoint_standing)
         .collect();
-    let phases = phase_statuses(&mut conn).await?;
 
     token.authorized_ok(web::Json(CreditRegistrationOverview {
         health,
         counts_by_state,
+        pending_by_reason,
         error_codes,
         needs_admin_attention_count,
         oldest_non_terminal,
@@ -238,7 +245,6 @@ pub async fn get_credit_registration_overview(
         stuck,
         endpoints,
         circuit_breaker: circuit_breaker_state(),
-        phases,
     }))
 }
 
@@ -445,17 +451,6 @@ fn require_known_phase(phase: &str) -> Result<&'static str, ControllerError> {
         })
 }
 
-async fn phase_statuses(
-    conn: &mut PgConnection,
-) -> Result<Vec<CreditRegistrationPhaseStatus>, ControllerError> {
-    let now = Utc::now();
-    Ok(credit_registration_phase_state::get_all(conn)
-        .await?
-        .into_iter()
-        .map(|row| to_phase_status(row, now))
-        .collect())
-}
-
 /// One phase's status, so a pause/resume/run-now response shows the effect without a second request.
 async fn one_phase_status(
     conn: &mut PgConnection,
@@ -470,11 +465,12 @@ fn to_phase_status(
     now: DateTime<Utc>,
 ) -> CreditRegistrationPhaseStatus {
     let seconds_since_heartbeat = row.last_heartbeat_at.map(|at| (now - at).num_seconds());
-    let heartbeat_late = row.paused_at.is_none()
-        && seconds_since_heartbeat.is_some_and(|secs| {
-            secs > i64::from(row.expected_interval_secs)
-                * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
-        });
+    let heartbeat_late = is_heartbeat_late(
+        row.last_heartbeat_at,
+        row.expected_interval_secs,
+        row.paused_at,
+        now,
+    );
     CreditRegistrationPhaseStatus {
         implemented: CreditRegistrationPhase::from_phase_name(&row.phase).is_some(),
         phase: row.phase,
@@ -513,10 +509,12 @@ fn to_error_code_total(row: CreditRegistrationErrorCodeCount) -> CreditRegistrat
 
 fn to_oldest_non_terminal(
     row: OldestNonTerminalRegistration,
+    now: DateTime<Utc>,
 ) -> CreditRegistrationOldestNonTerminal {
     CreditRegistrationOldestNonTerminal {
         credit_registration_id: row.id,
         state: row.state,
+        seconds_in_state: (now - row.state_entered_at).num_seconds(),
         state_entered_at: row.state_entered_at,
     }
 }

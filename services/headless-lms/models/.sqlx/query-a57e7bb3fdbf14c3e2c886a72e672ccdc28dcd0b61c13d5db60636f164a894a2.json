@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_answer_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE f.deleted_at IS NULL\n  AND u.created_at < now() - CASE\n    u.origin\n    WHEN 'native_client' THEN interval '1 hour'\n    ELSE interval '7 days'\n  END\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\nORDER BY u.created_at\nLIMIT $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_uploads",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_uploads",
+            "name": "file_upload_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "path"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a57e7bb3fdbf14c3e2c886a72e672ccdc28dcd0b61c13d5db60636f164a894a2"
+}

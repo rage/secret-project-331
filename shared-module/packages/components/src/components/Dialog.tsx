@@ -7,6 +7,7 @@ import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../lib/utils/nullability"
+import { Button, type ButtonProps } from "./Button"
 
 export type DialogSize = "normal" | "wide"
 
@@ -22,22 +23,43 @@ type DialogLabelling =
       "aria-label": string
     }
 
-export type DialogProps = DialogLabelling & {
-  open: boolean
-  onClose: () => void
-  children: React.ReactNode
-  size?: DialogSize
-  /** Whether clicking the underlay closes the dialog. */
-  isDismissable?: boolean
-  /** Hides the visible close button in the top corner. */
-  showCloseButton?: boolean
-  /** Slot for action buttons; stacks them full width on narrow screens. */
-  footer?: React.ReactNode
-  className?: string
-  /** Sets `lang` on the dialog root for correct screen reader pronunciation. */
-  lang?: string | undefined
-  "data-testid"?: string | undefined
+/**
+ * One footer button of a dialog.
+ *
+ * Accepts the `Button` props that make sense for a dialog action; `size` and layout are owned by
+ * the dialog. `label` is the visible text and the accessible name.
+ */
+export type DialogAction = Omit<ButtonProps, "size" | "children" | "className" | "aria-label"> & {
+  label: string
 }
+
+type DialogFooter =
+  | {
+      /** Slot for arbitrary footer content; stacks its children full width on narrow screens. */
+      footer?: React.ReactNode
+      actions?: undefined
+    }
+  | {
+      footer?: undefined
+      /** At least one action; rendered left to right, so put the primary action last. */
+      actions: readonly [DialogAction, ...DialogAction[]]
+    }
+
+export type DialogProps = DialogLabelling &
+  DialogFooter & {
+    open: boolean
+    onClose: () => void
+    children: React.ReactNode
+    size?: DialogSize
+    /** Whether clicking the underlay closes the dialog. */
+    isDismissable?: boolean
+    /** Hides the visible close button in the top corner. */
+    showCloseButton?: boolean
+    className?: string
+    /** Sets `lang` on the dialog root for correct screen reader pronunciation. */
+    lang?: string | undefined
+    "data-testid"?: string | undefined
+  }
 
 const CLOSE_SYMBOL = "×"
 
@@ -157,12 +179,19 @@ const footerCss = css`
   }
 `
 
+const actionCss = css`
+  flex: 1 1 0;
+`
+
 /**
  * Accessible modal dialog built on react-aria `useModalOverlay` + `useDialog`.
  *
  * Focus is trapped inside while open and restored to the trigger on close, the
  * background is scroll locked and hidden from assistive technology, and Escape
  * closes. Reflows without horizontal overflow down to 320px viewports.
+ *
+ * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
+ * data, which share the footer width evenly.
  */
 export const Dialog: React.FC<DialogProps> = (props) => {
   // The overlay stack (focus trap, scroll lock, focus-on-mount) must mount and
@@ -182,6 +211,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   isDismissable = false,
   showCloseButton = true,
   footer,
+  actions,
   className,
   lang,
   "data-testid": dataTestId,
@@ -241,6 +271,15 @@ const OpenDialog: React.FC<DialogProps> = ({
           <div className={contentCss} data-below-header={hasTitle}>
             {children}
           </div>
+          {actions !== undefined && (
+            <div className={footerCss}>
+              {actions.map(({ label, ...buttonProps }, index) => (
+                <Button key={index} {...buttonProps} size="medium" className={actionCss}>
+                  {label}
+                </Button>
+              ))}
+            </div>
+          )}
           {footer !== undefined && <div className={footerCss}>{footer}</div>}
         </div>
       </div>

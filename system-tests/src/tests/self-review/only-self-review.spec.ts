@@ -89,10 +89,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-      await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("0.7")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
     })
 

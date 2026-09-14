@@ -52,8 +52,8 @@ export const switchTrackCss = css`
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  width: 48px;
-  height: 30px;
+  width: 53px;
+  height: 35px;
   padding: 3px;
   border-radius: 999px;
   background: var(--switch-track-off);

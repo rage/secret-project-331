@@ -15,10 +15,9 @@ import { useTranslation } from "react-i18next"
 
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
+import { errorNotificationMessage } from "../components/Notifications/notificationHelpers"
 import SuccessNotification from "../components/Notifications/Success"
 import { isAppApiError } from "../errors/AppApiError"
-import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
-import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 import { baseTheme } from "../styles"
 import { includeIf, omitUndefined } from "../utils/nullability"
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
@@ -158,9 +157,7 @@ export default function useToastMutation<
         toast.remove()
         let errorMessage = notificationOptions.errorMessage
         if (!errorMessage) {
-          const view = normalizeErrorForDisplay(error, t)
-          const localizedCopy = resolveErrorDisplayCopy(view, t)
-          errorMessage = localizedCopy.message ?? localizedCopy.title
+          errorMessage = errorNotificationMessage(error, t)
         }
         if (!errorMessage && isAppApiError(error)) {
           errorMessage = error.userMessage ?? error.message

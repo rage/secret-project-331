@@ -642,8 +642,10 @@ pub async fn update_generated_certificate(
         *certificate_id,
         payload.date_issued,
         payload.name_on_certificate.clone(),
+        None,
     )
-    .await?;
+    .await?
+    .ok_or_else(|| controller_err!(NotFound, "Certificate not found".to_string()))?;
 
     token.authorized_ok(web::Json(updated))
 }

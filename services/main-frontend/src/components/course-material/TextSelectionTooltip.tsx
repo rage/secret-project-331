@@ -13,13 +13,21 @@ import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { baseTheme } from "@/shared-module/common/styles"
 import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
+import {
+  defaultChatbotCommunicationChannel,
+  defaultChatbotIsBusy,
+} from "@/stores/course-material/chatbotDialogStore"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
 
 export const TEXT_SELECTION_TOOLTIP_ID = "text-selection-tooltip"
+
+const CHATBOT_TEXT_SELECTION_ACTIONS = [
+  { labelKey: "summarize", promptKey: "text-selection-summarize-with-ai" },
+  { labelKey: "explain-this", promptKey: "text-selection-explain-with-ai" },
+] as const
 
 const svgCss = css`
   color: ${baseTheme.colors.green[1000]};
@@ -48,6 +56,7 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
   const [showTooltip, setShowTooltip] = useState(false)
 
   const chatbotCommunicationChannel = useAtomValue(defaultChatbotCommunicationChannel)
+  const chatbotIsBusy = useAtomValue(defaultChatbotIsBusy)
 
   // Show tooltip after a delay so that it's less annoying
   useEffect(() => {
@@ -147,6 +156,10 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
     return null
   }
 
+  const sendToChatbot = async (message: string) => {
+    await chatbotCommunicationChannel?.sendNewMessage(message)
+  }
+
   const giveFeedbackHandleClick = () => {
     // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type" as const)
@@ -209,40 +222,21 @@ const TextSelectionTooltip: React.FC<React.PropsWithChildren<Props>> = ({
             flex-flow: column nowrap;
           `}
         >
-          {courseName && pageTitle && courseHasChatbot && (
-            <>
+          {courseName &&
+            pageTitle &&
+            courseHasChatbot &&
+            CHATBOT_TEXT_SELECTION_ACTIONS.map(({ labelKey, promptKey }) => (
               <Button
-                isDisabled={chatbotCommunicationChannel === null}
+                key={labelKey}
+                isDisabled={chatbotIsBusy}
                 onClick={() => {
-                  chatbotCommunicationChannel?.sendNewMessage(
-                    t("text-selection-summarize-with-ai", {
-                      pageTitle,
-                      courseName,
-                      selection: selection.text,
-                    }),
-                  )
+                  sendToChatbot(t(promptKey, { pageTitle, courseName, selection: selection.text }))
                 }}
               >
-                {t("summarize")}
+                {t(labelKey)}
                 <AIChat className={svgCss} />
               </Button>
-              <Button
-                isDisabled={chatbotCommunicationChannel === null}
-                onClick={() => {
-                  chatbotCommunicationChannel?.sendNewMessage(
-                    t("text-selection-explain-with-ai", {
-                      pageTitle,
-                      courseName,
-                      selection: selection.text,
-                    }),
-                  )
-                }}
-              >
-                {t("explain-this")}
-                <AIChat className={svgCss} />
-              </Button>
-            </>
-          )}
+            ))}
 
           <Button onClick={giveFeedbackHandleClick}>{t("give-feedback")}</Button>
         </div>

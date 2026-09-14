@@ -1,12 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
-  HOUR_SECS,
   useSuotarApiCalls,
   useSuotarHealth,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
@@ -17,8 +15,11 @@ import {
   selectFilterField,
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
+import { DAY_SECS, WindowSecsSelect } from "@/components/credit-registration/admin/WindowSecsSelect"
 import { TONE } from "@/components/credit-registration/constants"
 import {
+  controlCss,
+  controlsCss,
   headingCss,
   noteCss,
   sectionCss,
@@ -30,8 +31,6 @@ import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Badge, QueryResult, Select, Table, TextField } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
-const DAY_SECS = 86_400
-const WEEK_SECS = 604_800
 
 // oxlint-disable-next-line i18next/no-literal-string
 const PARAM_ENDPOINT = "endpoint"
@@ -48,15 +47,21 @@ const SUCCEEDED = "true"
 // oxlint-disable-next-line i18next/no-literal-string
 const FAILED = "false"
 
-// oxlint-disable-next-line i18next/no-literal-string
-const ENDPOINTS: SuotarEndpoint[] = [
-  "resolve_persons",
-  "resolve_enrolments",
-  "import_attainments",
-  "verify_attainments",
-  "product_access_tokens",
-  "list_by_course",
-]
+// `satisfies` keeps this exhaustive over the endpoint enum, so a new one can't silently vanish
+// from the filter.
+const SUOTAR_ENDPOINT_KEYS = {
+  resolve_persons: true,
+  resolve_enrolments: true,
+  import_attainments: true,
+  verify_attainments: true,
+  product_access_tokens: true,
+  list_by_course: true,
+} satisfies Record<SuotarEndpoint, true>
+
+const ENDPOINTS = Object.keys(SUOTAR_ENDPOINT_KEYS) as SuotarEndpoint[]
+
+const isSuotarEndpoint = (value: string | undefined): value is SuotarEndpoint =>
+  value !== undefined && (ENDPOINTS as string[]).includes(value)
 
 interface FilterFields {
   endpoint: string
@@ -75,17 +80,6 @@ interface WindowFields {
   window_secs: string
 }
 
-const controlsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: end;
-`
-
-const controlCss = css`
-  min-width: 12rem;
-`
-
 const EndpointSummarySection: React.FC = () => {
   const { t } = useTranslation()
   const healthQuery = useSuotarHealth()
@@ -98,16 +92,7 @@ const EndpointSummarySection: React.FC = () => {
     <section className={sectionCss}>
       <h2 className={headingCss}>{t("credit-registration-heading-endpoints")}</h2>
       <div className={controlCss}>
-        <Select
-          name="window_secs"
-          control={control}
-          label={t("credit-registration-admin-window")}
-          options={[
-            { value: String(HOUR_SECS), label: t("credit-registration-admin-window-hour") },
-            { value: String(DAY_SECS), label: t("credit-registration-admin-window-day") },
-            { value: String(WEEK_SECS), label: t("credit-registration-admin-window-week") },
-          ]}
-        />
+        <WindowSecsSelect control={control} />
       </div>
       <QueryResult query={healthQuery}>
         {(health) => {
@@ -183,10 +168,11 @@ const ApiLogPage: React.FC = () => {
       const succeeded = filterParam(PARAM_SUCCEEDED)
       const worker = filterParam(PARAM_WORKER)
       const registrationId = filterParam(PARAM_REGISTRATION)
+      const validEndpoint = isSuotarEndpoint(endpoint) ? endpoint : undefined
       return {
         page: pagination.page,
         limit: pagination.limit,
-        ...includeIf(endpoint, { endpoint: endpoint as SuotarEndpoint }),
+        ...includeIf(validEndpoint, { endpoint: validEndpoint as SuotarEndpoint }),
         ...includeIf(succeeded, { succeeded: succeeded === SUCCEEDED }),
         ...includeIf(worker, { worker_name: worker }),
         ...includeIf(registrationId, { credit_registration_id: registrationId }),

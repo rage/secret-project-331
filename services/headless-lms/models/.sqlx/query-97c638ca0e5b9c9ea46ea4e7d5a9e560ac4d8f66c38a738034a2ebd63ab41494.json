@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ccmm.text\nFROM chatbot_conversation_message_messages AS ccmm\n  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmm.chatbot_conversation_message_id\nWHERE ccm.conversation_id = $1\n  AND ccmm.message_role = 'developer'\n  AND ccmm.deleted_at IS NULL\n  AND ccm.deleted_at IS NULL\nORDER BY ccm.order_number DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "text",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_messages",
+            "name": "text"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "97c638ca0e5b9c9ea46ea4e7d5a9e560ac4d8f66c38a738034a2ebd63ab41494"
+}

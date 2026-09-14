@@ -648,14 +648,22 @@ LIMIT $2
 
 /// Lets a rate-cap override or an admin resend mail the same address again.
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    soft_delete_batch(conn, std::slice::from_ref(&id)).await
+}
+
+/// Batch form of [`soft_delete`]: one `UPDATE` for every row instead of one per id.
+pub async fn soft_delete_batch(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
     sqlx::query!(
         r#"
 UPDATE credit_registration_account_linking_emails
 SET deleted_at = now()
-WHERE id = $1
+WHERE id = ANY($1)
   AND deleted_at IS NULL
         "#,
-        id
+        ids
     )
     .execute(conn)
     .await?;

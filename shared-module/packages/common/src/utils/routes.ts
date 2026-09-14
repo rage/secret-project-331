@@ -87,6 +87,10 @@ export function chatbotCommandCenterRoute() {
   return "/chatbot-command-center"
 }
 
+export function courseAuditingRoute() {
+  return "/manage/course-auditing"
+}
+
 export function manageOrganizationRoute(organizationId: string) {
   return `/manage/organizations/${organizationId}`
 }

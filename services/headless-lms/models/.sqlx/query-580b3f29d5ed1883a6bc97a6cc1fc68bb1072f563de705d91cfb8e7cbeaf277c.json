@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_task_spec_files\nSET deleted_at = now()\nWHERE exercise_task_id = $1\n  AND spec_kind = $3\n  AND deleted_at IS NULL\n  AND NOT file_upload_id = ANY($2)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "exercise_spec_kind",
+            "kind": {
+              "Enum": [
+                "private",
+                "public",
+                "model_solution"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "580b3f29d5ed1883a6bc97a6cc1fc68bb1072f563de705d91cfb8e7cbeaf277c"
+}

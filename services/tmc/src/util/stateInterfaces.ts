@@ -20,7 +20,13 @@ export interface ExerciseEditorState {
 export interface AnswerExerciseState {
   view_type: "answer-exercise"
   public_spec: PublicSpec
-  user_answer: UserAnswer
+  /** The student's working copy in browser mode; always empty in editor mode. */
+  editor_files: ExerciseFile[]
+  /**
+   * Host file id of the archive the answer consists of, or null while no upload matches
+   * {@link editor_files}. Null means the answer is not submittable yet.
+   */
+  uploaded_archive_id: string | null
   previous_submission: ExerciseTaskSubmission | null
 }
 
@@ -28,7 +34,10 @@ export interface ViewSubmissionState {
   view_type: "view-submission"
   exercise_task_id: string
   grading: ExerciseTaskGradingResult | null
-  submission: UserAnswer
+  /** Source files of the submitted archive; empty when it could not be read. */
+  submitted_files: ExerciseFile[]
+  /** Where the submitted archive can be downloaded, or null when the submission named no files. */
+  submitted_archive_url: string | null
   public_spec: PublicSpec
   model_solution_spec: ModelSolutionSpec | null
 }
@@ -74,23 +83,11 @@ export type MessageToParent =
       data: CurrentStateMessageData
     })
 
+/** `null` for an answer: a tmc answer is its archive and carries no metadata about it. */
 export type CurrentStateMessageData =
-  | { private_spec: PrivateSpec | UserAnswer }
+  | { private_spec: PrivateSpec }
   | { public_spec: PublicSpec }
-
-export type UserAnswer = BrowserUserAnswer | EditorUserAnswer
-
-export interface BrowserUserAnswer {
-  type: "browser"
-  files: ExerciseFile[]
-}
-
-export interface EditorUserAnswer {
-  type: "editor"
-  /** Opaque id assigned by the host when it stored the archive. */
-  archive_file_id?: string
-  archive_download_url: string
-}
+  | null
 
 export interface ExerciseFile {
   filepath: string

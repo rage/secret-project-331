@@ -1,7 +1,7 @@
 #!/bin/bash
 # Only meant to be ran against the database in minikube. You can start it with
 # either `bin/dev` or `bin/dev-only-db`.
-# set -euo pipefail
+set -euo pipefail
 source "$(dirname "$0")/.common"
 
 check_sqlx_cli_version

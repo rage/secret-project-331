@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO student_number_verification_tokens (\n    id,\n    token,\n    student_number,\n    sisu_person_id,\n    first_names,\n    last_name,\n    emailed_to,\n    course_id\n  )\nSELECT * FROM UNNEST($1::uuid [], $2::text [], $3::text [], $4::text [], $5::text [], $6::text [], $7::text [], $8::uuid [])\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "TextArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a6d70c5705cf53b81fcd230261bfefce739b963b896b79fd43a54d4109e5e800"
+}

@@ -1,26 +1,49 @@
 use crate::prelude::*;
+use chrono::Duration;
 
+/// Records a stored object under a fresh id. `size_bytes` is the byte count measured while
+/// receiving it; `None` where the upload path does not count bytes.
 pub async fn insert(
     conn: &mut PgConnection,
     name: &str,
     path: &str,
     mime: &str,
     uploader: Option<Uuid>,
+    size_bytes: Option<i64>,
 ) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+    let id = Uuid::new_v4();
+    insert_with_id(conn, id, name, path, mime, uploader, size_bytes).await?;
+    Ok(id)
+}
+
+/// Records a stored object under an id the caller has already chosen.
+///
+/// For paths that contain the id: the object reaches the store before this row exists, so a path
+/// built from the row's own id has to be settled first. Everything else wants [`insert`].
+pub async fn insert_with_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    name: &str,
+    path: &str,
+    mime: &str,
+    uploader: Option<Uuid>,
+    size_bytes: Option<i64>,
+) -> ModelResult<()> {
+    sqlx::query!(
         r#"
-INSERT INTO file_uploads(path, name, mime, uploaded_by_user)
-VALUES ($1, $2, $3, $4)
-RETURNING *
+INSERT INTO file_uploads(id, path, name, mime, uploaded_by_user, size_bytes)
+VALUES ($1, $2, $3, $4, $5, $6)
 "#,
+        id,
         path,
         name,
         mime,
-        uploader
+        uploader,
+        size_bytes
     )
-    .fetch_one(conn)
+    .execute(conn)
     .await?;
-    Ok(res.id)
+    Ok(())
 }
 
 /// A stored file's name and object-store path.
@@ -79,4 +102,19 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res.path)
+}
+
+/// Moves an upload's creation time `age` into the past, to bring it within a retention window.
+///
+/// Shifts the row rather than the clock because the retention filters compare against Postgres
+/// `now()`, which no Rust-side clock reaches.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE file_uploads SET created_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

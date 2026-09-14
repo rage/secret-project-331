@@ -1,7 +1,10 @@
 use secrecy::ExposeSecret;
 use serde_json::json;
 
-use crate::prelude::*;
+use crate::{
+    llm_utils::{azure_search_configuration, azure_search_request},
+    prelude::*,
+};
 
 const API_VERSION: &str = "2024-07-01";
 
@@ -9,29 +12,13 @@ pub async fn does_skillset_exist(
     skillset_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<bool> {
-    // Retrieve Azure configurations from the application configuration
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("skillsets('{}')", skillset_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let response = REQWEST_CLIENT
-        .get(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::GET, url, search_config)
         .send()
         .await?;
 
@@ -57,19 +44,7 @@ pub async fn create_skillset(
     target_index_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<()> {
-    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure configuration is missing from the application configuration"
-        )
-    })?;
-
-    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
-        chatbot_err!(
-            AzureRequestBuildError,
-            "Azure search configuration is missing from the Azure configuration"
-        )
-    })?;
+    let search_config = azure_search_configuration(app_config)?;
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("skillsets/{}", skillset_name));
@@ -200,10 +175,7 @@ pub async fn create_skillset(
         "encryptionKey": null
     });
 
-    let response = REQWEST_CLIENT
-        .put(url)
-        .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.expose_secret())
+    let response = azure_search_request(reqwest::Method::PUT, url, search_config)
         .json(&skillset_definition)
         .send()
         .await?;

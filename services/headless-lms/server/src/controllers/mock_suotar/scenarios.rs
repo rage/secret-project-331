@@ -9,7 +9,7 @@
 use std::collections::BTreeMap;
 
 use chrono::Duration;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 use serde_json::json;
 
 use crate::prelude::*;
@@ -39,13 +39,7 @@ pub struct ScenarioArgs {
     pub last_name: Option<String>,
 }
 
-pub const SCENARIOS: [&str; 5] = [
-    "happy-path",
-    "happy-path-auto",
-    "timeout-but-landed",
-    "timeout-nothing-landed",
-    "post-send-death",
-];
+pub const SCENARIOS: [&str; 2] = ["happy-path", "timeout-but-landed"];
 
 pub async fn apply(
     store: &MockSuotarStore,
@@ -61,20 +55,7 @@ pub async fn apply(
     }
     let mut result = match name {
         "happy-path" => plain(store, generation, &args, Ripeness::Manual).await?,
-        "happy-path-auto" => {
-            plain(
-                store,
-                generation,
-                &args,
-                Ripeness::AutoAfterVerifyCalls { calls: 1 },
-            )
-            .await?
-        }
-        "timeout-but-landed" => timeout(store, generation, &args, Stage::AfterWrite, true).await?,
-        "timeout-nothing-landed" => {
-            timeout(store, generation, &args, Stage::Resolve, false).await?
-        }
-        "post-send-death" => post_send_death(store, generation, &args).await?,
+        "timeout-but-landed" => timeout(store, generation, &args).await?,
         _ => unreachable!("checked against the catalogue above"),
     };
 
@@ -124,17 +105,15 @@ async fn plain(
     }))
 }
 
+/// `sisuTimeout` after the write leaves the world indistinguishable from a successful import, which
+/// is the case a client cannot resolve without verifying.
 async fn timeout(
     store: &MockSuotarStore,
     generation: &str,
     args: &ScenarioArgs,
-    stage: Stage,
-    disclose: bool,
 ) -> Result<serde_json::Value, CommandError> {
     let mut base = plain(store, generation, args, Ripeness::Manual).await?;
     let student_number = string_field(&base, "studentNumber")?;
-    // After the write, `sisuTimeout` leaves the world indistinguishable from a successful import; at
-    // `resolve` nothing landed.
     let fault_id = format!("timeout-{student_number}");
     arm(
         store,
@@ -142,13 +121,13 @@ async fn timeout(
         &fault_id,
         vec![
             Predicate::Endpoint(SuotarEndpoint::ImportAttainments),
-            Predicate::Stage(stage),
+            Predicate::Stage(Stage::AfterWrite),
             Predicate::StudentNumber(student_number.clone()),
         ],
         Effect::ItemLevel {
             code: "sisuTimeout".to_string(),
             message: None,
-            disclose_submitted_attainment_id: disclose,
+            disclose_submitted_attainment_id: true,
         },
         Lifetime {
             matching_items: Some(1),
@@ -158,36 +137,8 @@ async fn timeout(
     .await?;
     merge(
         &mut base,
-        json!({ "faultId": fault_id, "discloseId": disclose }),
+        json!({ "faultId": fault_id, "discloseId": true }),
     );
-    Ok(base)
-}
-
-async fn post_send_death(
-    store: &MockSuotarStore,
-    generation: &str,
-    args: &ScenarioArgs,
-) -> Result<serde_json::Value, CommandError> {
-    let mut base = plain(store, generation, args, Ripeness::Manual).await?;
-    let student_number = string_field(&base, "studentNumber")?;
-    let fault_id = format!("post-send-death-{student_number}");
-    arm(
-        store,
-        generation,
-        &fault_id,
-        vec![
-            Predicate::Endpoint(SuotarEndpoint::ImportAttainments),
-            Predicate::Stage(Stage::AfterWrite),
-            Predicate::StudentNumber(student_number),
-        ],
-        Effect::ConnectionReset,
-        Lifetime {
-            matching_calls: Some(1),
-            ..Default::default()
-        },
-    )
-    .await?;
-    merge(&mut base, json!({ "faultId": fault_id }));
     Ok(base)
 }
 

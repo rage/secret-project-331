@@ -10,6 +10,7 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
+import { GradingDecisionControls } from "@/components/grading/GradingDecisionControls"
 import { UserDisplay } from "@/components/UserDisplay"
 import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
@@ -23,7 +24,6 @@ import { dateToString } from "@/shared-module/common/utils/time"
 
 import FlaggedPeerReviewAccordion from "./FlaggedPeerReviewAccordion"
 import PeerOrSelfReviewAccordion from "./PeerOrSelfReviewAccordion"
-import TeacherGradingDecisionControls from "./TeacherGradingDecisionControls"
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -154,11 +154,16 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 rgba(15, 23, 42, 0.04) 0 0 0 1px;
             `}
           >
-            <TeacherGradingDecisionControls
-              userExerciseStateId={answerRequiringAttention.id}
-              exerciseId={answerRequiringAttention.exercise_id}
-              exerciseMaxPoints={exerciseMaxPoints}
-              onGradingDecisionSubmit={handleGradingDecisionSubmit}
+            <GradingDecisionControls
+              target={{
+                userExerciseStateId: answerRequiringAttention.id,
+                exerciseId: answerRequiringAttention.exercise_id,
+                exerciseMaxPoints,
+              }}
+              // Resetting requires a course_id (see teacher_grading_decisions.rs).
+              canResetExercise={courseId !== null}
+              isSubmitting={submitMutation.isPending}
+              onSubmit={handleGradingDecisionSubmit}
             />
 
             <div

@@ -119,6 +119,17 @@ export function isAppApiError(error: unknown): error is AppApiError {
   return error instanceof AppApiError
 }
 
+/**
+ * Returns true for a request that was cancelled rather than failed: the canonicalised failure when
+ * the abort beats the response headers, and the raw `DOMException` when it lands mid-stream.
+ */
+export function isAbortError(error: unknown): boolean {
+  return (
+    (isAppApiError(error) && error.kind === "abort") ||
+    (error instanceof Error && error.name === "AbortError")
+  )
+}
+
 /** Reads request id from headers, supporting common header casing variants. */
 export function extractRequestIdFromHeaders(headers: Headers | null | undefined): string | null {
   if (!headers) {

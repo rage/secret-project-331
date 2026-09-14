@@ -8,7 +8,7 @@ import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/
 const ChatbotEmbed = () => {
   const { id } = useParams<{ id: string }>()
 
-  const chatbotStateAndData = useChatbotStateAndData(id, undefined)
+  const chatbotStateAndData = useChatbotStateAndData(id, undefined, null)
 
   return (
     <div>

@@ -1,11 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  ADMIN_ACTION_KEYS,
+  ADMIN_TARGET_KEYS,
   adminActionLabel,
   adminActionTargetLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -22,10 +23,13 @@ import {
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import { MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
 import {
+  controlCss,
+  controlsCss,
   headingCss,
   noteCss,
   sectionCss,
   sectionsCss,
+  stackedCellCss,
 } from "@/components/credit-registration/styles"
 import type {
   CreditRegistrationAdminAction,
@@ -62,35 +66,17 @@ const OVERRIDE_RATE_CAP: CreditRegistrationAdminAction = "override_rate_cap"
 // oxlint-disable-next-line i18next/no-literal-string
 const REGISTRATION_TARGET: CreditRegistrationAdminActionTarget = "credit_registration"
 
-// oxlint-disable-next-line i18next/no-literal-string
-const ACTIONS: CreditRegistrationAdminAction[] = [
-  "retry_item",
-  "retry_failed_for_course",
-  "force_recheck",
-  "mark_resolved",
-  "requeue_batch",
-  "transition_item",
-  "cancel_registration",
-  "pause_course_module",
-  "resume_course_module",
-  "pause_phase",
-  "resume_phase",
-  "run_phase_now",
-  "resend_link_email",
-  "unlink_student_number",
-  "manual_link_student_number",
-  "override_rate_cap",
-]
+// Derived from the copy table so a new action can't appear in results without a filter option.
+const ACTIONS = Object.keys(ADMIN_ACTION_KEYS) as CreditRegistrationAdminAction[]
+const TARGET_KINDS = Object.keys(ADMIN_TARGET_KEYS) as CreditRegistrationAdminActionTarget[]
 
-// oxlint-disable-next-line i18next/no-literal-string
-const TARGET_KINDS: CreditRegistrationAdminActionTarget[] = [
-  "credit_registration",
-  "course_module",
-  "course",
-  "phase",
-  "verified_student_number",
-  "student_number_verification_token",
-]
+const isAdminAction = (value: string | undefined): value is CreditRegistrationAdminAction =>
+  value !== undefined && (ACTIONS as string[]).includes(value)
+
+const isAdminActionTarget = (
+  value: string | undefined,
+): value is CreditRegistrationAdminActionTarget =>
+  value !== undefined && (TARGET_KINDS as string[]).includes(value)
 
 interface FilterFields {
   actor_role: string
@@ -100,21 +86,6 @@ interface FilterFields {
   from: string
   to: string
 }
-
-const controlsCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: end;
-`
-
-const controlCss = css`
-  min-width: 12rem;
-`
-
-const stackedCellCss = css`
-  display: grid;
-`
 
 const dayStart = (day: string): string | undefined =>
   day === "" ? undefined : new Date(`${day}T00:00:00Z`).toISOString()
@@ -209,14 +180,16 @@ const AuditPage: React.FC = () => {
       const courseId = filterParam(PARAM_COURSE_ID)
       const from = filterParam(PARAM_FROM)
       const to = filterParam(PARAM_TO)
+      // Validated against the derived option list rather than cast blind, so a stale/tampered URL
+      // param can't reach the API as a value the Select never offered.
+      const validAction = isAdminAction(action) ? action : undefined
+      const validTargetKind = isAdminActionTarget(targetKind) ? targetKind : undefined
       return {
         page: pagination.page,
         limit: pagination.limit,
         ...includeIf(actorRole, { actor_role: actorRole }),
-        ...includeIf(action, { action: [action as CreditRegistrationAdminAction] }),
-        ...includeIf(targetKind, {
-          target_kind: targetKind as CreditRegistrationAdminActionTarget,
-        }),
+        ...includeIf(validAction, { action: [validAction as CreditRegistrationAdminAction] }),
+        ...includeIf(validTargetKind, { target_kind: validTargetKind }),
         ...includeIf(courseId, { course_id: courseId }),
         ...includeIf(from, { from }),
         ...includeIf(to, { to }),

@@ -11,7 +11,7 @@ import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { Button, Infobox } from "@/shared-module/components"
 
 import { TONE } from "./constants"
-import { RETRIED, retryOutcomeSentence } from "./creditRegistrationRetry"
+import { isUneventfulRefusal, refusalSentence } from "./resubmissionRefusal"
 import { useInvalidateAfterRetry } from "./teacherCreditRegistrations"
 import { useActionResult } from "./useActionResult"
 
@@ -25,17 +25,7 @@ const rootCss = css`
   margin-top: 1.5rem;
 `
 
-/** The one state a teacher may put back on the queue; everything else is refused server side. */
-// oxlint-disable-next-line i18next/no-literal-string
-const FAILED_FOR_GOOD = "failed_permanent" as const
-
-/** Looks retriable and is not, so the reason is spelled out where the button would have been. */
-// oxlint-disable-next-line i18next/no-literal-string
-const OUTCOME_UNKNOWN = "submission_uncertain" as const
-
-// oxlint-disable-next-line i18next/no-literal-string
-const REFUSED_SUBMISSION_UNCERTAIN = "refused_submission_uncertain" as const
-
+/** The retry button, or the reason the server gives for there not being one. */
 const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -55,17 +45,13 @@ const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
     },
   )
 
-  if (registration.state === OUTCOME_UNKNOWN) {
-    return (
+  const refusal = registration.resubmission_refusal
+  if (refusal) {
+    return isUneventfulRefusal(refusal) ? null : (
       <div className={rootCss}>
-        <Infobox tone={TONE.WARNING}>
-          {retryOutcomeSentence(t, REFUSED_SUBMISSION_UNCERTAIN)}
-        </Infobox>
+        <Infobox tone={TONE.WARNING}>{refusalSentence(t, refusal)}</Infobox>
       </div>
     )
-  }
-  if (registration.state !== FAILED_FOR_GOOD) {
-    return null
   }
 
   return (
@@ -82,8 +68,10 @@ const RetryCreditRegistrationBlock: React.FC<Props> = ({ registration }) => {
         </Button>
       </div>
       {result && (
-        <Infobox tone={result.outcome === RETRIED ? TONE.INFO : TONE.WARNING}>
-          {retryOutcomeSentence(t, result.outcome)}
+        <Infobox tone={result.refusal ? TONE.WARNING : TONE.INFO}>
+          {result.refusal
+            ? refusalSentence(t, result.refusal)
+            : t("credit-registration-retry-retried")}
         </Infobox>
       )}
     </div>

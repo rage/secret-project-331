@@ -24,7 +24,10 @@ test("User can create and respond to research form in a course", async ({
       .click()
     await page.getByRole("button", { name: "Create or edit research form" }).click()
     await page.getByRole("button", { name: "create" }).click()
-    await page.getByRole("button", { name: "Add block" }).click()
+    // Gutenberg 16.2's empty state is a ghost block, and no "Add block" button exists until it
+    // is selected. Clicking it turns it into a real paragraph; insert through the sidebar menu.
+    await page.getByRole("document", { name: "Add default block" }).click()
+    await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
     await page.getByRole("option", { name: "Heading", exact: true }).click()
     await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
     await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")

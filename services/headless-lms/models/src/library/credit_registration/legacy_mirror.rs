@@ -240,7 +240,7 @@ mod tests {
         )
         .await
         .unwrap();
-        crate::credit_registrations::transition(conn, id, &Transition::to(state))
+        crate::credit_registrations::transition(conn, id, &Transition::planted(state))
             .await
             .unwrap();
         id
@@ -334,14 +334,14 @@ mod tests {
             "900000102",
         )
         .await;
-        insert_data!(tx: tx; user: abandoned_student);
+        insert_data!(tx: tx; user: cancelled_student);
         registered_row(
             tx.as_mut(),
-            abandoned_student,
+            cancelled_student,
             course,
             instance.id,
             course_module.id,
-            CreditRegistrationState::AbandonedByConsentWithdrawal,
+            CreditRegistrationState::Cancelled,
             "900000103",
         )
         .await;

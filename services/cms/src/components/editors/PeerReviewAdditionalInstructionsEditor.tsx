@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
-import mediaUploadBuilder from "../../services/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]

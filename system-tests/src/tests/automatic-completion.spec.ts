@@ -51,6 +51,14 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
+
+  await page.getByRole("button", { name: "No" }).click()
+  await page
+    .getByText(
+      "Credits for this course are registered through the Open University of the University of Helsinki.",
+    )
+    .waitFor()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
@@ -98,6 +106,12 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register", exact: true }).click()
+  await page.getByRole("button", { name: "No" }).click()
+  await page
+    .getByText(
+      "Credits for this course are registered through the Open University of the University of Helsinki.",
+    )
+    .waitFor()
 
   await page.getByText("Use this email address").first().waitFor()
   await page.getByText("To the registration form").click()

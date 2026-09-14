@@ -12,14 +12,14 @@ import { USERS_SORT_COLUMNS, useCourseStudentsIdentity } from "../studentsQuerie
 import { StudentsTable } from "../StudentsTable"
 import type { StudentsTableFeatures } from "../studentsTableFeatures"
 import { StaleTableWrapper } from "./StaleTableWrapper"
-import { StudentPillCell } from "./StudentPillCell"
+import { STUDENT_PILL_CHROME_PX, StudentPillCell, studentPillText } from "./StudentPillCell"
 
 const EM_DASH = "—"
 
 export const UserTabContent: React.FC = () => {
   const { t } = useTranslation()
   const { courseId } = useStudentsContext()
-  const params = useStudentsListParams()
+  const params = useStudentsListParams(USERS_SORT_COLUMNS)
   const { sorting, onSortingChange } = useStudentsSorting(USERS_SORT_COLUMNS)
 
   const query = useCourseStudentsIdentity(courseId, params)
@@ -42,6 +42,7 @@ export const UserTabContent: React.FC = () => {
             email={row.original.email}
           />
         ),
+        meta: { measureValue: studentPillText, measureExtraPx: STUDENT_PILL_CHROME_PX },
       },
       {
         header: t("label-email"),

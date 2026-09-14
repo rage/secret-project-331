@@ -3,12 +3,36 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
+/// Who answers a tool call, which decides what happens to a call that has no output yet.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "tool_kind", rename_all = "kebab-case")]
 #[serde(rename_all = "snake_case")]
 pub enum ToolKind {
+    /// Server code, in the same turn that made the call.
     Function,
+    /// The provider, before we ever see the call.
     AzureAiSearch,
+    /// The client, in a later request. Until then the turn is suspended and the call is
+    /// legitimately unanswered, which is why the unanswered-call sweep has to leave it alone.
+    ClientTool,
+}
+
+impl ToolKind {
+    /// Whether a call of this kind without an output is a turn waiting for the client rather than
+    /// one that died.
+    pub fn is_answered_by_client(self) -> bool {
+        matches!(self, Self::ClientTool)
+    }
+
+    /// Whether the provider answers the call itself. That is the only distinction the wire shape of
+    /// a call depends on: every other kind is an ordinary function call to the provider, whoever
+    /// produces its output on this end.
+    pub fn is_provider_tool(self) -> bool {
+        match self {
+            ToolKind::AzureAiSearch => true,
+            ToolKind::Function | ToolKind::ClientTool => false,
+        }
+    }
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
@@ -28,6 +52,42 @@ pub struct ChatbotConversationMessageToolCall {
     pub tool_call_id: String,
     pub tool_kind: ToolKind,
     pub response_id: String,
+}
+
+impl ChatbotConversationMessageToolCall {
+    /// A call ready to be inserted, recording `arguments` as the JSON text the model wrote for it.
+    ///
+    /// Storing the text rather than the object it parses into is what lets [`Self::arguments_json`]
+    /// hand it back to the model unchanged; go through here rather than filling
+    /// [`Self::tool_arguments`] yourself.
+    pub fn new(
+        tool_call_id: String,
+        tool_name: String,
+        arguments: String,
+        tool_kind: ToolKind,
+        response_id: String,
+    ) -> Self {
+        Self {
+            tool_call_id,
+            tool_name,
+            tool_arguments: Value::String(arguments),
+            tool_kind,
+            response_id,
+            ..Default::default()
+        }
+    }
+
+    /// The argument JSON of the call. A call is recorded with the JSON text the model produced
+    /// rather than with its parsed shape, so [`Self::tool_arguments`] is normally a JSON string.
+    ///
+    /// Use this rather than serializing the stored value, which would escape that text a second
+    /// time and both feed the model garbage and break the prefix its prompt cache matches on.
+    pub fn arguments_json(&self) -> String {
+        match &self.tool_arguments {
+            Value::String(json) => json.clone(),
+            parsed => parsed.to_string(),
+        }
+    }
 }
 
 impl Default for ChatbotConversationMessageToolCall {
@@ -116,6 +176,34 @@ WHERE chatbot_conversation_message_id = $1
     Ok(res)
 }
 
+/// The call of this conversation that the provider gave `tool_call_id`, answered or not.
+///
+/// Scoped to the conversation because `tool_call_id` is the provider's string and can repeat in
+/// another conversation, which would otherwise let a caller reach a call that is not theirs.
+pub async fn get_by_conversation_and_tool_call_id(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    tool_call_id: &str,
+) -> ModelResult<Option<ChatbotConversationMessageToolCall>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageToolCall,
+        r#"
+SELECT ccmtc.*
+FROM chatbot_conversation_message_tool_calls AS ccmtc
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id
+WHERE ccm.conversation_id = $1
+  AND ccmtc.tool_call_id = $2
+  AND ccmtc.deleted_at IS NULL
+  AND ccm.deleted_at IS NULL
+        "#,
+        conversation_id,
+        tool_call_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete(
     conn: &mut PgConnection,
     id: Uuid,
@@ -136,11 +224,16 @@ RETURNING *
     Ok(res)
 }
 
-/// Sometimes during chatbot conversation streaming, the stream ends unexpectedly while
-/// a tool call has been made but not answered. This happens with provider tools that we
-/// can't control. In this case, the conversation is left in a state which is invalid,
-/// so we need to delete the un-answered tool call(s).
-pub async fn get_hanging_tool_calls_for_conversation(
+/// Every tool call of the conversation that has no output yet, whatever its kind.
+///
+/// A call is unanswered either because the turn that made it died, which leaves the conversation
+/// in a shape the LLM rejects until the call is answered, or because it is a [ToolKind::ClientTool]
+/// call whose turn is suspended waiting for the client. Callers decide which of the two they are
+/// looking at from `tool_kind`; the query does not.
+///
+/// `tool_call_id` is a provider-supplied string rather than a foreign key and is not unique
+/// across conversations, so outputs only count as answers within the same conversation.
+pub async fn get_unanswered_tool_calls_for_conversation(
     conn: &mut PgConnection,
     conversation_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
@@ -157,10 +250,13 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
   )
   AND ccmtc.deleted_at IS NULL
   AND NOT EXISTS (
-    SELECT id
-    FROM chatbot_conversation_message_tool_outputs
-    WHERE tool_call_id = ccmtc.tool_call_id
-      AND deleted_at IS NULL
+    SELECT ccmto.id
+    FROM chatbot_conversation_message_tool_outputs AS ccmto
+      JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmto.chatbot_conversation_message_id
+    WHERE ccmto.tool_call_id = ccmtc.tool_call_id
+      AND ccm.conversation_id = $1
+      AND ccmto.deleted_at IS NULL
+      AND ccm.deleted_at IS NULL
   )
         "#,
         conversation_id
@@ -168,4 +264,86 @@ WHERE ccmtc.chatbot_conversation_message_id IN (
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Locks the call row for the duration of the surrounding transaction and refuses to hand it over
+/// for execution if it already has an output.
+///
+/// This is the exactly-once guard for a confirmable action: two concurrent confirms of the same
+/// call serialize on `FOR UPDATE`, and the loser sees the output that the winner just inserted and
+/// errors here instead of running the mutation a second time. Errors with
+/// [ModelErrorType::InvalidRequest] when an output already exists, and with
+/// [ModelErrorType::RecordNotFound] when the call itself does not.
+pub async fn lock_unanswered_for_execution(
+    conn: &mut PgConnection,
+    tool_call_id: Uuid,
+) -> ModelResult<()> {
+    let call = sqlx::query!(
+        r#"
+SELECT ccmtc.id, ccmtc.tool_call_id, ccm.conversation_id
+FROM chatbot_conversation_message_tool_calls AS ccmtc
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id
+WHERE ccmtc.id = $1
+  AND ccmtc.deleted_at IS NULL
+FOR UPDATE OF ccmtc
+        "#,
+        tool_call_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?
+    .ok_or_else(|| {
+        model_err!(
+            RecordNotFound,
+            format!("No tool call {tool_call_id} to execute")
+        )
+    })?;
+
+    // tool_call_id is a provider string, not unique across conversations, so the check must be
+    // scoped to this call's conversation.
+    let already_answered = sqlx::query!(
+        r#"
+SELECT ccmto.id
+FROM chatbot_conversation_message_tool_outputs AS ccmto
+  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmto.chatbot_conversation_message_id
+WHERE ccmto.tool_call_id = $1
+  AND ccm.conversation_id = $2
+  AND ccmto.deleted_at IS NULL
+  AND ccm.deleted_at IS NULL
+        "#,
+        call.tool_call_id,
+        call.conversation_id
+    )
+    .fetch_optional(conn)
+    .await?
+    .is_some();
+
+    if already_answered {
+        return Err(model_err!(
+            InvalidRequest,
+            format!("Tool call {tool_call_id} has already been answered")
+        ));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Validating a tool answer means parsing the arguments the call was recorded with, and a call
+    /// is recorded with the argument text rather than with the object it parses into.
+    #[test]
+    fn stored_arguments_come_back_as_the_json_text_the_model_wrote() {
+        let recorded = ChatbotConversationMessageToolCall {
+            tool_arguments: Value::String(r#"{"choices":["a","b"]}"#.to_string()),
+            ..Default::default()
+        };
+        assert_eq!(recorded.arguments_json(), r#"{"choices":["a","b"]}"#);
+
+        let as_an_object = ChatbotConversationMessageToolCall {
+            tool_arguments: serde_json::json!({ "choices": ["a", "b"] }),
+            ..Default::default()
+        };
+        assert_eq!(as_an_object.arguments_json(), r#"{"choices":["a","b"]}"#);
+    }
 }

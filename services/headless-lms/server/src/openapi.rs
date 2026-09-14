@@ -5,7 +5,10 @@ use utoipa::{
 
 #[derive(OpenApi)]
 #[openapi(
-    nest((path = "/api/v0/cms", api = crate::controllers::cms::CmsRoutesApiDoc)),
+    nest(
+        (path = "/api/v0/cms", api = crate::controllers::cms::CmsRoutesApiDoc),
+        (path = "/api/v0/files", api = crate::controllers::files::CmsFilesApiDoc)
+    ),
     info(
         title = "CMS API",
         version = "0.1.0"

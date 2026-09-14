@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) FILTER (\n    WHERE NOT p.completion_eligible\n  ) AS \"completion_count!\",\n  COUNT(*) FILTER (\n    WHERE p.completion_eligible\n      AND NOT p.has_verified_student_number\n  ) AS \"student_number_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "completion_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "student_number_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "d42ea8153b81a1f744dff71b7684a0e3d81d19aee9906f6817c5a9b22b43b666"
+}

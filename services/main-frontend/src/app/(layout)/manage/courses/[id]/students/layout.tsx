@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import type { TFunction } from "i18next"
 import { useParams, useSearchParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +12,7 @@ import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -24,7 +26,37 @@ import {
   useStudentsListParams,
 } from "./StudentsContext"
 import * as styles from "./StudentsPageStyles"
+import type { GradeFilterValue } from "./studentsQueries"
 import { useCourseStudentsIdentity, useCourseStudentsPrefetchNextPage } from "./studentsQueries"
+
+// Fixed set: the platform only supports the sis-0-5 numeric scale and the sis-hyv-hyl pass/fail
+// scale (see StudyRegistryGrade), so every module's completions fit one of these. A numerically
+// graded module never has a null-grade "passed"/"failed" completion (or vice versa), so offering
+// both kinds together is harmless -- the ones that don't apply to a given module simply match nothing.
+const GRADE_FILTER_OPTIONS: GradeFilterValue[] = [
+  "not_completed",
+  "passed",
+  "failed",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+]
+
+const gradeFilterLabel = (value: GradeFilterValue, t: TFunction): string => {
+  switch (value) {
+    case "not_completed":
+      return t("not-completed")
+    case "passed":
+      return t("passed")
+    case "failed":
+      return t("failed")
+    default:
+      return value
+  }
+}
 
 const KEY_USERS = "users"
 const KEY_COMPLETIONS = "completions"
@@ -85,6 +117,10 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
     setLimit,
     courseInstanceId,
     setCourseInstanceId,
+    moduleId,
+    setModuleId,
+    grade,
+    setGrade,
   } = useStudentsContext()
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
@@ -100,6 +136,14 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const tabQuerySuffix = searchParams.toString() ? `?${searchParams.toString()}` : ""
 
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
+  const courseStructureQuery = useCourseStructure(courseId)
+  const modulesInOrder = useMemo(
+    () =>
+      (courseStructureQuery.data?.modules ?? []).toSorted(
+        (a, b) => a.order_number - b.order_number,
+      ),
+    [courseStructureQuery.data],
+  )
 
   const crumbs = useMemo(
     () => [
@@ -179,6 +223,38 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
                 </option>
               ))}
             </select>
+
+            <select
+              className={instanceSelect}
+              aria-label={t("module")}
+              value={moduleId ?? ""}
+              onChange={(e) => setModuleId(e.target.value === "" ? null : e.target.value)}
+            >
+              <option value="">{t("all-modules")}</option>
+              {modulesInOrder.map((module) => (
+                <option key={module.id} value={module.id}>
+                  {module.name ?? t("default-module")}
+                </option>
+              ))}
+            </select>
+
+            {moduleId && (
+              <select
+                className={instanceSelect}
+                aria-label={t("grade")}
+                value={grade ?? ""}
+                onChange={(e) =>
+                  setGrade(e.target.value === "" ? null : (e.target.value as GradeFilterValue))
+                }
+              >
+                <option value="">{t("all-grades")}</option>
+                {GRADE_FILTER_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {gradeFilterLabel(value, t)}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <RouteTabPageTitle
               tabs={tabs}

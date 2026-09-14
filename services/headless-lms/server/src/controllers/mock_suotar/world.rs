@@ -6,7 +6,7 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
 

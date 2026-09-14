@@ -9,11 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root"
-import { Route as ApiAnswerFilesRouteImport } from "./routes/api/answer-files"
-import { Route as ApiBuildUserAnswerRouteImport } from "./routes/api/build-user-answer"
 import { Route as ApiExtractStubRouteImport } from "./routes/api/extract-stub"
 import { Route as ApiGradeRouteImport } from "./routes/api/grade"
 import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
+import { Route as ApiPackBrowserAnswerRouteImport } from "./routes/api/pack-browser-answer"
 import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
 import { Route as ApiSandboxResultsRouteImport } from "./routes/api/sandbox-results"
 import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
@@ -58,6 +57,11 @@ const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
   path: "/api/public-spec",
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPackBrowserAnswerRoute = ApiPackBrowserAnswerRouteImport.update({
+  id: "/api/pack-browser-answer",
+  path: "/api/pack-browser-answer",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
   id: "/api/model-solution",
   path: "/api/model-solution",
@@ -73,16 +77,6 @@ const ApiExtractStubRoute = ApiExtractStubRouteImport.update({
   path: "/api/extract-stub",
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiBuildUserAnswerRoute = ApiBuildUserAnswerRouteImport.update({
-  id: "/api/build-user-answer",
-  path: "/api/build-user-answer",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAnswerFilesRoute = ApiAnswerFilesRouteImport.update({
-  id: "/api/answer-files",
-  path: "/api/answer-files",
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
   id: "/api/status/up",
   path: "/api/status/up",
@@ -92,11 +86,10 @@ const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
-  "/api/answer-files": typeof ApiAnswerFilesRoute
-  "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -107,11 +100,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
-  "/api/answer-files": typeof ApiAnswerFilesRoute
-  "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -123,11 +115,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   "/": typeof IndexRoute
   "/iframe": typeof IframeRoute
-  "/api/answer-files": typeof ApiAnswerFilesRoute
-  "/api/build-user-answer": typeof ApiBuildUserAnswerRoute
   "/api/extract-stub": typeof ApiExtractStubRoute
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
+  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -140,11 +131,10 @@ export interface FileRouteTypes {
   fullPaths:
     | "/"
     | "/iframe"
-    | "/api/answer-files"
-    | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
     | "/api/model-solution"
+    | "/api/pack-browser-answer"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -155,11 +145,10 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/iframe"
-    | "/api/answer-files"
-    | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
     | "/api/model-solution"
+    | "/api/pack-browser-answer"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -170,11 +159,10 @@ export interface FileRouteTypes {
     | "__root__"
     | "/"
     | "/iframe"
-    | "/api/answer-files"
-    | "/api/build-user-answer"
     | "/api/extract-stub"
     | "/api/grade"
     | "/api/model-solution"
+    | "/api/pack-browser-answer"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -186,11 +174,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IframeRoute: typeof IframeRoute
-  ApiAnswerFilesRoute: typeof ApiAnswerFilesRoute
-  ApiBuildUserAnswerRoute: typeof ApiBuildUserAnswerRoute
   ApiExtractStubRoute: typeof ApiExtractStubRoute
   ApiGradeRoute: typeof ApiGradeRoute
   ApiModelSolutionRoute: typeof ApiModelSolutionRoute
+  ApiPackBrowserAnswerRoute: typeof ApiPackBrowserAnswerRoute
   ApiPublicSpecRoute: typeof ApiPublicSpecRoute
   ApiSandboxResultsRoute: typeof ApiSandboxResultsRoute
   ApiServiceInfoRoute: typeof ApiServiceInfoRoute
@@ -250,6 +237,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiPublicSpecRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/api/pack-browser-answer": {
+      id: "/api/pack-browser-answer"
+      path: "/api/pack-browser-answer"
+      fullPath: "/api/pack-browser-answer"
+      preLoaderRoute: typeof ApiPackBrowserAnswerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/api/model-solution": {
       id: "/api/model-solution"
       path: "/api/model-solution"
@@ -271,20 +265,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiExtractStubRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/build-user-answer": {
-      id: "/api/build-user-answer"
-      path: "/api/build-user-answer"
-      fullPath: "/api/build-user-answer"
-      preLoaderRoute: typeof ApiBuildUserAnswerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/answer-files": {
-      id: "/api/answer-files"
-      path: "/api/answer-files"
-      fullPath: "/api/answer-files"
-      preLoaderRoute: typeof ApiAnswerFilesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     "/api/status/up": {
       id: "/api/status/up"
       path: "/api/status/up"
@@ -298,11 +278,10 @@ declare module "@tanstack/react-router" {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IframeRoute: IframeRoute,
-  ApiAnswerFilesRoute: ApiAnswerFilesRoute,
-  ApiBuildUserAnswerRoute: ApiBuildUserAnswerRoute,
   ApiExtractStubRoute: ApiExtractStubRoute,
   ApiGradeRoute: ApiGradeRoute,
   ApiModelSolutionRoute: ApiModelSolutionRoute,
+  ApiPackBrowserAnswerRoute: ApiPackBrowserAnswerRoute,
   ApiPublicSpecRoute: ApiPublicSpecRoute,
   ApiSandboxResultsRoute: ApiSandboxResultsRoute,
   ApiServiceInfoRoute: ApiServiceInfoRoute,

@@ -71,13 +71,11 @@ export const contentRowStyles = css`
   gap: 1rem;
 `
 
-export const filterSubsectionTitleStyles = css`
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[700]};
-  margin: 0.25rem 0 0 0;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+export const formButtonGridStyles = css`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  margin: 0.5rem 0;
+  gap: 0.5rem;
 `
 
 const CourseAuditing = () => {
@@ -319,15 +317,7 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div
-          className={css`
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-            margin: 0.5rem 0;
-            text-align: start;
-            gap: 0.5rem;
-          `}
-        >
+        <div className={formButtonGridStyles}>
           <Switch
             name="no_default_uh_course_code"
             control={control}
@@ -360,15 +350,7 @@ const CourseAuditing = () => {
         <Legend>{t("course-auditing-filter-course-data-title")}</Legend>
 
         <div className={contentRowStyles}>
-          <div
-            className={css`
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-              margin: 0.5rem 0;
-              text-align: start;
-              gap: 0.5rem;
-            `}
-          >
+          <div className={formButtonGridStyles}>
             <p
               className={css`
                 font-weight: 500;
@@ -414,15 +396,7 @@ const CourseAuditing = () => {
             />
           </div>
 
-          <div
-            className={css`
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-              margin: 0.5rem 0;
-              text-align: start;
-              gap: 0.5rem;
-            `}
-          >
+          <div className={formButtonGridStyles}>
             <p
               className={css`
                 font-weight: 500;
@@ -463,15 +437,7 @@ const CourseAuditing = () => {
             />
           </div>
 
-          <div
-            className={css`
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-              margin: 0.5rem 0;
-              text-align: start;
-              gap: 0.5rem;
-            `}
-          >
+          <div className={formButtonGridStyles}>
             <p
               className={css`
                 font-weight: 500;

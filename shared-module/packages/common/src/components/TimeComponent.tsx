@@ -60,13 +60,17 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
           className={css`
             &:hover + div {
               visibility: visible;
+              opacity: 1;
+              transition: opacity 0.3s ease;
             }
           `}
         />
         <SpeechBalloon
           className={css`
+            position: absolute;
             bottom: 100%;
             visibility: hidden;
+            opacity: 0;
           `}
         >
           <p> {dateToString(date, true)} </p>

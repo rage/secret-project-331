@@ -59,7 +59,9 @@ export const Tooltip: React.FC<TooltipProps> = ({
         size="small"
         aria-label={ariaLabel}
         className={cx(triggerCss, className)}
-        onPress={() => state.toggle()}
+        // A mouse has already opened it by hovering, so toggling there would shut it on the click
+        // that was meant to open it. Touch and keyboard have no hover, so they toggle.
+        onPress={(event) => (event.pointerType === "mouse" ? state.open() : state.toggle())}
         onKeyDown={(event) => {
           if (event.key === "Escape" && state.isOpen) {
             event.preventDefault()

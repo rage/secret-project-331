@@ -308,6 +308,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       >
         <button
           {...mergedButtonProps}
+          // react-aria merges its own generated id over the one given to `useSelect`, so the
+          // caller's `id` only reaches the DOM if it is set here.
+          id={triggerId}
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"

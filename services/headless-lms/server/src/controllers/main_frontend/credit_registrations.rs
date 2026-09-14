@@ -133,8 +133,8 @@ pub struct MyCreditRegistration {
     pub attempt_number: i32,
     pub superseded: bool,
     pub can_request_enrolment_recheck: bool,
-    /// Whether an enrolment has been settled on, which is what ticks the step rather than the name
-    /// below it: a realisation with no teacher label yet leaves that name empty.
+    /// Whether a usable enrolment has been settled on, which is what ticks the step rather than the
+    /// name below it: a realisation with no teacher label yet leaves that name empty.
     pub enrolment_found: bool,
     /// When we last looked for an enrolment, so the page can say how fresh its answer is.
     pub enrolment_checked_at: Option<DateTime<Utc>>,
@@ -820,6 +820,7 @@ fn to_my_credit_registration(
     linking_email: Option<LinkingEmailStatus>,
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
+    let enrolment_found = row.has_usable_enrolment();
     let can_request_enrolment_recheck = row.state == CreditRegistrationState::NoUsableEnrolment
         && row.enrolment_checked_at.is_none_or(|checked| {
             checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS) <= Utc::now()
@@ -848,7 +849,7 @@ fn to_my_credit_registration(
         attempt_number: row.attempt_number,
         superseded: row.superseded_by_id.is_some(),
         can_request_enrolment_recheck,
-        enrolment_found: row.enrolment_resolved,
+        enrolment_found,
         enrolment_checked_at: row.enrolment_checked_at,
         enrolment_realisation_name: row.enrolment_realisation_name,
         submitted_at: row.submitted_at,
@@ -1005,8 +1006,9 @@ pub struct MyEnrolmentRoute {
     /// `None` until the student answers the question.
     pub route: Option<CreditRegistrationEnrolmentRoute>,
     pub enrolment_confirmed_at: Option<DateTime<Utc>>,
-    /// False once an enrolment has been found: the answer only picks which enrolment instructions to
-    /// show, so once we have the enrolment there is nothing left for it to change.
+    /// False once a usable enrolment has been found: the answer only picks which enrolment
+    /// instructions to show, so once we have the enrolment there is nothing left for it to change.
+    /// A row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true.
     pub can_change: bool,
 }
 
@@ -1064,7 +1066,7 @@ async fn build_my_enrolment_route(
     .await?;
     let can_change = !registration
         .as_ref()
-        .is_some_and(|row| row.enrolment_resolved);
+        .is_some_and(|row| row.has_usable_enrolment());
     Ok((
         my_enrolment_route(course_module_completion_id, answer, can_change),
         registration,
@@ -1273,7 +1275,7 @@ async fn bring_enrolment_check_forward(
     user_id: Uuid,
     registration: &StudentCreditRegistration,
 ) -> Result<(), ControllerError> {
-    if registration.enrolment_resolved
+    if registration.has_usable_enrolment()
         || looked_for_enrolment_recently(registration.enrolment_checked_at)
     {
         return Ok(());

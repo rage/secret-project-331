@@ -20112,7 +20112,7 @@
           "needs_admin_attention_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Live rows at least one attention detector picked. The one definition of \"needs a human\":\n`/attention` pages through exactly these rows and reports the same total."
+            "description": "Live rows a detector picked or the pipeline flagged. The one definition of \"needs a human\":\n`/attention` pages through exactly these rows and reports the same total."
           },
           "oldest_non_terminal": {
             "oneOf": [
@@ -22950,7 +22950,7 @@
           },
           "enrolment_found": {
             "type": "boolean",
-            "description": "Whether an enrolment has been settled on, which is what ticks the step rather than the name\nbelow it: a realisation with no teacher label yet leaves that name empty."
+            "description": "Whether a usable enrolment has been settled on, which is what ticks the step rather than the\nname below it: a realisation with no teacher label yet leaves that name empty."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -23065,7 +23065,7 @@
         "properties": {
           "can_change": {
             "type": "boolean",
-            "description": "False once an enrolment has been found: the answer only picks which enrolment instructions to\nshow, so once we have the enrolment there is nothing left for it to change."
+            "description": "False once a usable enrolment has been found: the answer only picks which enrolment\ninstructions to show, so once we have the enrolment there is nothing left for it to change.\nA row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true."
           },
           "course_module_completion_id": {
             "type": "string",

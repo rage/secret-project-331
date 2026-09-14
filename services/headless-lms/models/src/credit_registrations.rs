@@ -1227,6 +1227,16 @@ impl StudentCreditRegistration {
             has_verified_student_number: self.has_verified_student_number,
         }
     }
+
+    /// Whether the row has settled on an enrolment it can actually be registered against, which is
+    /// the point past which the student's own answers about enrolling change nothing.
+    ///
+    /// Not `enrolment_resolved` on its own: an import the registry refused leaves the row in
+    /// `no_usable_enrolment` still holding the enrolment it tried, and nothing ever clears
+    /// `selected_enrolment_id`, so a student who has to go and enrol reads as resolved.
+    pub fn has_usable_enrolment(&self) -> bool {
+        self.enrolment_resolved && self.state != CreditRegistrationState::NoUsableEnrolment
+    }
 }
 
 /// Narrows [`get_student_facing_by_user_id`]; the default returns every row of the user's.

@@ -2317,7 +2317,7 @@ export type CreditRegistrationOverview = {
   error_codes: Array<CreditRegistrationErrorCodeTotal>
   health: CreditRegistrationHealth
   /**
-   * Live rows at least one attention detector picked. The one definition of "needs a human":
+   * Live rows a detector picked or the pipeline flagged. The one definition of "needs a human":
    * `/attention` pages through exactly these rows and reports the same total.
    */
   needs_admin_attention_count: number
@@ -3331,8 +3331,8 @@ export type MyCreditRegistration = {
    */
   enrolment_checked_at?: string | null
   /**
-   * Whether an enrolment has been settled on, which is what ticks the step rather than the name
-   * below it: a realisation with no teacher label yet leaves that name empty.
+   * Whether a usable enrolment has been settled on, which is what ticks the step rather than the
+   * name below it: a realisation with no teacher label yet leaves that name empty.
    */
   enrolment_found: boolean
   /**
@@ -3396,8 +3396,9 @@ export type MyCreditRegistrationForCourseModule = {
  */
 export type MyEnrolmentRoute = {
   /**
-   * False once an enrolment has been found: the answer only picks which enrolment instructions to
-   * show, so once we have the enrolment there is nothing left for it to change.
+   * False once a usable enrolment has been found: the answer only picks which enrolment
+   * instructions to show, so once we have the enrolment there is nothing left for it to change.
+   * A row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true.
    */
   can_change: boolean
   course_module_completion_id: string

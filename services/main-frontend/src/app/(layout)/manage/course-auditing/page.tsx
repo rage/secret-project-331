@@ -14,16 +14,10 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import {
-  Button,
-  Checkbox,
-  nullIfEmpty,
-  QueryResult,
-  Switch,
-  TextField,
-} from "@/shared-module/components"
+import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
+import CourseDataFilterForm from "./CourseDataFilterForm"
 
 export interface CourseFilter {
   search_course: string
@@ -95,12 +89,7 @@ const CourseAuditing = () => {
     },
   })
 
-  const {
-    control: courseDataFilterControl,
-    watch: courseDataFilterWatch,
-    reset: courseDataFilterReset,
-    setValue: courseDataFilterSetValue,
-  } = useForm<CourseDataFilter>({
+  const methods = useForm<CourseDataFilter>({
     defaultValues: {
       show_description: true,
       show_prerequisites: true,
@@ -115,6 +104,8 @@ const CourseAuditing = () => {
       show_ects_credits: true,
     },
   })
+
+  const { control: courseDataFilterControl } = methods
 
   const [
     searchCourse,
@@ -131,98 +122,6 @@ const CourseAuditing = () => {
     "no_prerequisites",
     "no_audiences",
   ])
-
-  const [
-    showDescription,
-    showPrerequisites,
-    showAudiences,
-    showSuggestMetadata,
-    showClosedAt,
-    showClosedCourseSuccessorId,
-    showAdditionalMessage,
-    showCompletionRegistrationLink,
-    showEnableRegisterinCompletionToUhOpenUniversity,
-    showUhCourseCode,
-    showEctsCredits,
-  ] = courseDataFilterWatch([
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_description",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_prerequisites",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_audiences",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_suggest_metadata",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_closed_at",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_closed_course_successor_id",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_additional_message",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_completion_registration_link",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_enable_registering_completion_to_uh_open_university",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_uh_course_code",
-    // oxlint-disable-next-line i18next/no-literal-string
-    "show_ects_credits",
-  ])
-
-  const allSelectedMetadata = Boolean(
-    showDescription && showPrerequisites && showAudiences && showSuggestMetadata,
-  )
-
-  const handleToggleAllMetadata = () => {
-    const next = !allSelectedMetadata
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_description", next, { shouldDirty: true })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_prerequisites", next, {
-      shouldDirty: true,
-    })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_audiences", next, { shouldDirty: true })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_suggest_metadata", next, { shouldDirty: true })
-  }
-
-  const allSelectedClosedAtData = Boolean(
-    showClosedAt && showClosedCourseSuccessorId && showAdditionalMessage,
-  )
-
-  const handleToggleAllClosedAtData = () => {
-    const next = !allSelectedClosedAtData
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_closed_at", next, { shouldDirty: true })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_closed_course_successor_id", next, {
-      shouldDirty: true,
-    })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_additional_message", next, { shouldDirty: true })
-  }
-
-  const allSelectedModuleData = Boolean(
-    showCompletionRegistrationLink &&
-    showEnableRegisterinCompletionToUhOpenUniversity &&
-    showUhCourseCode &&
-    showEctsCredits,
-  )
-
-  const handleToggleAllModuleData = () => {
-    const next = !allSelectedModuleData
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_completion_registration_link", next, { shouldDirty: true })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_enable_registering_completion_to_uh_open_university", next, {
-      shouldDirty: true,
-    })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_uh_course_code", next, { shouldDirty: true })
-    // oxlint-disable-next-line i18next/no-literal-string
-    courseDataFilterSetValue("show_ects_credits", next, { shouldDirty: true })
-  }
 
   const deferredSearchCourse = useDeferredValue(searchCourse)
 
@@ -346,155 +245,7 @@ const CourseAuditing = () => {
         </div>
       </FieldSet>
 
-      <FieldSet>
-        <Legend>{t("course-auditing-filter-course-data-title")}</Legend>
-
-        <div className={contentRowStyles}>
-          <div className={formButtonGridStyles}>
-            <p
-              className={css`
-                font-weight: 500;
-              `}
-            >
-              {t("course-auditing-filter-metadata-title")}
-            </p>
-            <label
-              className={css`
-                color: ${baseTheme.colors.gray[800]};
-                display: inline-flex;
-                align-items: center;
-                gap: var(--space-2, 0.5rem);
-                cursor: pointer;
-              `}
-            >
-              <input
-                type="checkbox"
-                checked={allSelectedMetadata}
-                onChange={handleToggleAllMetadata}
-              />
-              {t("course-auditing-filter-checkbox-all")}
-            </label>
-            <Checkbox
-              name="show_description"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-description")}
-            />
-            <Checkbox
-              name="show_prerequisites"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-prerequisites")}
-            />
-            <Checkbox
-              name="show_audiences"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-audiences")}
-            />
-            <Checkbox
-              name="show_suggest_metadata"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-suggest-metadata-button")}
-            />
-          </div>
-
-          <div className={formButtonGridStyles}>
-            <p
-              className={css`
-                font-weight: 500;
-              `}
-            >
-              {t("course-auditing-filter-closed-at-data-title")}
-            </p>
-            <label
-              className={css`
-                color: ${baseTheme.colors.gray[800]};
-                display: inline-flex;
-                align-items: center;
-                gap: var(--space-2, 0.5rem);
-                cursor: pointer;
-              `}
-            >
-              <input
-                type="checkbox"
-                checked={allSelectedClosedAtData}
-                onChange={handleToggleAllClosedAtData}
-              />
-              {t("course-auditing-filter-checkbox-all")}
-            </label>
-            <Checkbox
-              name="show_closed_at"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-closed-at")}
-            />
-            <Checkbox
-              name="show_closed_course_successor_id"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-closed-course-successor-id")}
-            />
-            <Checkbox
-              name="show_additional_message"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-additional-message")}
-            />
-          </div>
-
-          <div className={formButtonGridStyles}>
-            <p
-              className={css`
-                font-weight: 500;
-              `}
-            >
-              {t("course-auditing-filter-module-data-title")}
-            </p>
-            <label
-              className={css`
-                color: ${baseTheme.colors.gray[800]};
-                display: inline-flex;
-                align-items: center;
-                gap: var(--space-2, 0.5rem);
-                cursor: pointer;
-              `}
-            >
-              <input
-                type="checkbox"
-                checked={allSelectedModuleData}
-                onChange={handleToggleAllModuleData}
-              />
-              {t("course-auditing-filter-checkbox-all")}
-            </label>
-            <Checkbox
-              name="show_completion_registration_link"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-completion-registration-link")}
-            />
-            <Checkbox
-              name="show_enable_registering_completion_to_uh_open_university"
-              control={courseDataFilterControl}
-              label={t(
-                "course-auditing-filter-enable-registering-completion-to-uh-open-university",
-              )}
-            />
-            <Checkbox
-              name="show_uh_course_code"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-uh-course-code")}
-            />
-            <Checkbox
-              name="show_ects_credits"
-              control={courseDataFilterControl}
-              label={t("course-auditing-filter-ects-credits")}
-            />
-          </div>
-          <Button
-            type="submit"
-            variant="primary"
-            size="medium"
-            onClick={() => courseDataFilterReset()}
-            aria-label={t("course-auditing-reset-filter-aria")}
-          >
-            {t("button-reset")}
-          </Button>
-        </div>
-      </FieldSet>
+      <CourseDataFilterForm methods={methods} />
 
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
@@ -511,7 +262,7 @@ const CourseAuditing = () => {
                 key={course.id}
                 id={course.id}
                 courseAuditingData={course}
-                filterControl={courseDataFilterControl}
+                courseDataFilterControl={courseDataFilterControl}
               />
             ))}
           </div>

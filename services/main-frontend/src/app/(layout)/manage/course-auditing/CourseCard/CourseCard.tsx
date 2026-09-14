@@ -51,7 +51,7 @@ const linkStyles = css`
 interface CourseCardProps {
   id: string
   courseAuditingData: CourseAuditingData
-  filterControl: Control<CourseDataFilter>
+  courseDataFilterControl: Control<CourseDataFilter>
 }
 
 export interface EditModuleData extends CourseAuditingModuleUpdate {
@@ -79,7 +79,11 @@ export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingDat
   }
 }
 
-const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterControl }) => {
+const CourseCard: React.FC<CourseCardProps> = ({
+  id,
+  courseAuditingData,
+  courseDataFilterControl,
+}) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
 
@@ -103,7 +107,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData, filterC
     showUhCourseCode,
     showEctsCredits,
   ] = useWatch({
-    control: filterControl,
+    control: courseDataFilterControl,
     name: [
       "show_description",
       "show_prerequisites",

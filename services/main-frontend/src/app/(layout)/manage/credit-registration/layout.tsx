@@ -19,7 +19,10 @@ import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveAc
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
   creditRegistrationAuditRoute,
   creditRegistrationCoursesRoute,
@@ -44,7 +47,12 @@ const flushTabListCss = css`
   margin-bottom: 0;
 `
 
-const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ADMINISTRATE_GLOBALLY = [
+  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+] as const
+
+/** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
+const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const pathname = usePathname()
 
@@ -125,6 +133,21 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
       {children}
     </div>
   )
+}
+
+const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const permission = useAuthorizeMultiple([...ADMINISTRATE_GLOBALLY])
+
+  // Everyone this section is for holds the permission, so a denied banner while the check is still
+  // in flight would give the wrong answer to its only readers.
+  if (permission.isPending) {
+    return <Spinner variant="medium" />
+  }
+  if (permission.data?.[0] !== true) {
+    return <ErrorBanner variant="readOnly" error={t("error-unauthorized")} />
+  }
+  return <CreditRegistrationSection>{children}</CreditRegistrationSection>
 }
 
 export default withErrorBoundary(withSignedIn(CreditRegistrationLayout))

@@ -192,6 +192,8 @@ pub struct CourseCreditRegistrationModuleSummary {
     pub needs_admin_attention_count: i64,
 }
 
+/// The teacher-facing credit registration overview of one course. Both student-number totals are
+/// zero unless some module of the course registers credits.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationSummary {
     pub modules: Vec<CourseCreditRegistrationModuleSummary>,
@@ -361,6 +363,9 @@ pub async fn get_course_credit_registration_summary(
     let configs =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
             .await?;
+    let on_push_path = configs
+        .iter()
+        .any(|config| config.enable_credit_registration_via_suotar);
     let module_names: HashMap<Uuid, Option<String>> =
         models::course_modules::get_by_course_id(&mut conn, *course_id)
             .await?
@@ -413,13 +418,18 @@ pub async fn get_course_credit_registration_summary(
         })
         .collect();
 
-    let unlinked_enrolled_student_count =
-        verified_student_numbers::count_unlinked_enrolled_students_for_course(
-            &mut conn, *course_id,
-        )
-        .await?;
-    let linking_emails_failed_to_send_count =
-        count_failed_linking_emails(&mut conn, *course_id).await?;
+    // On a course that registers nothing these would report the whole roster as a backlog.
+    let unlinked_enrolled_student_count = if on_push_path {
+        verified_student_numbers::count_unlinked_enrolled_students_for_course(&mut conn, *course_id)
+            .await?
+    } else {
+        0
+    };
+    let linking_emails_failed_to_send_count = if on_push_path {
+        count_failed_linking_emails(&mut conn, *course_id).await?
+    } else {
+        0
+    };
 
     token.authorized_ok(web::Json(CourseCreditRegistrationSummary {
         modules,

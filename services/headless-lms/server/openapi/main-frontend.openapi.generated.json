@@ -17730,6 +17730,7 @@
       },
       "CourseCreditRegistrationSummary": {
         "type": "object",
+        "description": "The teacher-facing credit registration overview of one course. Both student-number totals are\nzero unless some module of the course registers credits.",
         "required": [
           "modules",
           "unlinked_enrolled_student_count",

@@ -1316,6 +1316,10 @@ export type CourseCreditRegistrationModuleSummary = {
   waiting_on_student_count: number
 }
 
+/**
+ * The teacher-facing credit registration overview of one course. Both student-number totals are
+ * zero unless some module of the course registers credits.
+ */
 export type CourseCreditRegistrationSummary = {
   /**
    * Of the unlinked enrolled students, the ones whose linking mail we never managed to hand over.

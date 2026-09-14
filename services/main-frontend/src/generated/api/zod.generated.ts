@@ -930,6 +930,10 @@ export const zCourseCreditRegistrationModuleSummary = z.object({
     }),
 })
 
+/**
+ * The teacher-facing credit registration overview of one course. Both student-number totals are
+ * zero unless some module of the course registers credits.
+ */
 export const zCourseCreditRegistrationSummary = z.object({
   linking_emails_failed_to_send_count: z.coerce
     .bigint()

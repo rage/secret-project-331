@@ -2,13 +2,24 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
 
-import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { FieldSet } from "@/app/(layout)/manage/course-auditing/page"
+import {
+  getCourseFeedbackCategoriesOptions,
+  getCourseFeedbackOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import type { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
 import FeedbackView from "./FeedbackView"
+
+const listClassName = css`
+  list-style: none;
+  padding: 0;
+`
 
 interface Props {
   courseId: string
@@ -25,6 +36,9 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   read,
   onChange,
 }) => {
+  const { t } = useTranslation()
+  // oxlint-disable-next-line i18next/no-literal-string
+  const [categoryFilter, setCategoryFilter] = useState("all")
   const limit = paginationInfo.limit
   const getFeedbackList = useQuery({
     ...getCourseFeedbackOptions({
@@ -38,31 +52,66 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
+  const getFeedbackCategories = useQuery({
+    ...getCourseFeedbackCategoriesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
 
-  const listClassName = css`
-    list-style: none;
-    padding: 0;
-  `
+  const AllButton = (
+    <RadioButton
+      key={0}
+      label={t("all")}
+      name={t("all")}
+      checked={"all" === categoryFilter}
+      // oxlint-disable-next-line i18next/no-literal-string
+      onClick={() => setCategoryFilter("all")}
+    />
+  )
 
   return (
-    <QueryResult query={getFeedbackList} emptyFallback={<ul className={listClassName} />}>
-      {(data) => (
-        <ul className={listClassName}>
-          {data.map((f) => (
-            <li key={f.id}>
-              <FeedbackView
-                courseId={courseId}
-                feedback={f}
-                setRead={async () => {
-                  await getFeedbackList.refetch()
-                  await onChange()
-                }}
+    <>
+      <QueryResult query={getFeedbackCategories} emptyFallback={AllButton}>
+        {(data) => (
+          <FieldSet>
+            {AllButton}
+            {data.map((c) => (
+              <RadioButton
+                key={c.id}
+                label={c.name} //option label accessible
+                name={c.name}
+                checked={c.name === categoryFilter}
+                onClick={() => setCategoryFilter(c.name)}
               />
-            </li>
-          ))}
-        </ul>
-      )}
-    </QueryResult>
+            ))}
+          </FieldSet>
+        )}
+      </QueryResult>
+      <QueryResult query={getFeedbackList} emptyFallback={<ul className={listClassName} />}>
+        {(data) => (
+          <ul className={listClassName}>
+            {data
+              .filter((f) => {
+                return categoryFilter === "all" ? true : f.feedback_category_name === categoryFilter
+              })
+              .map((f) => (
+                <li key={f.id}>
+                  <FeedbackView
+                    courseId={courseId}
+                    feedback={f}
+                    setRead={async () => {
+                      await getFeedbackList.refetch()
+                      await onChange()
+                    }}
+                  />
+                </li>
+              ))}
+          </ul>
+        )}
+      </QueryResult>
+    </>
   )
 }
 

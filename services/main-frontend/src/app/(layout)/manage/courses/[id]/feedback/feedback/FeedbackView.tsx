@@ -121,16 +121,17 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           />
         </div>
       </TextInformationWrapper>
+      {feedback.feedback_category_name && (
+        <TextInformationWrapper>
+          {t("assigned-feedback-category")}
+          <i>{feedback.feedback_category_name}</i>
+        </TextInformationWrapper>
+      )}
 
       <TextInformationWrapper>
         {t("feedback-given")}
         <ImportantText>{feedback.feedback_given}</ImportantText>
       </TextInformationWrapper>
-      {feedback.feedback_category_name && (
-        <TextInformationWrapper>
-          <ImportantText>{feedback.feedback_category_name}</ImportantText>
-        </TextInformationWrapper>
-      )}
       {feedback.selected_text && (
         <TextInformationWrapper>
           {t("selected-text")}

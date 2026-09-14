@@ -37,13 +37,20 @@ RETURNING *
     Ok(res.id)
 }
 
-pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<FeedbackCategory>> {
+pub async fn get_all(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<FeedbackCategory>> {
     let res = sqlx::query_as!(
         FeedbackCategory,
         "
-SELECT * FROM feedback_categories
-WHERE deleted_at IS NULL
-        "
+SELECT fc.* FROM feedback_categories AS fc
+INNER JOIN feedback AS f ON fc.id = f.category_id
+WHERE fc.deleted_at IS NULL
+AND f.deleted_at IS NULL
+AND f.course_id = $1
+        ",
+        course_id
     )
     .fetch_all(conn)
     .await?;

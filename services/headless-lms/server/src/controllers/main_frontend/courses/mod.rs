@@ -35,6 +35,7 @@ use models::{
     },
     exercises::{Exercise, ExerciseStatusSummaryForUser},
     feedback::{self, Feedback},
+    feedback_categories::{self, FeedbackCategory},
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
@@ -88,6 +89,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_submission_counts_by_exercise,
         get_course_instances,
         get_feedback,
+        get_feedback_categories,
         get_feedback_edit_proposals_count,
         new_course_instance,
         glossary,
@@ -1248,6 +1250,40 @@ pub async fn get_feedback_edit_proposals_count(
         handled_edits: edit_proposal_count.handled,
         total_waiting: feedback_count.unread + edit_proposal_count.pending,
     };
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback-categories",
+    operation_id = "getCourseFeedbackCategories",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "All feedback categories used in feedback for the course", body = Vec<FeedbackCategory>)
+    )
+)]
+#[instrument(skip(pool))]
+pub async fn get_feedback_categories(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<FeedbackCategory>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res = feedback_categories::get_all(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -2937,6 +2973,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/feedback-count",
             web::get().to(get_feedback_edit_proposals_count),
+        )
+        .route(
+            "/{course_id}/feedback-categories",
+            web::get().to(get_feedback_categories),
         )
         .route(
             "/{course_id}/new-course-instance",

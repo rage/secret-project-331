@@ -2958,6 +2958,18 @@ export const zFeedback = z.object({
   user_id: z.uuid().nullish(),
 })
 
+export const zFeedbackCategory = z.object({
+  category_llm_id: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zFeedbackEditProposalCounts = z.object({
   handled_edits: z
     .int()
@@ -7003,6 +7015,15 @@ export const zGetCourseFeedbackQuery = z.object({
  * Feedback for the course
  */
 export const zGetCourseFeedbackResponse = z.array(zFeedback)
+
+export const zGetCourseFeedbackCategoriesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * All feedback categories used in feedback for the course
+ */
+export const zGetCourseFeedbackCategoriesResponse = z.array(zFeedbackCategory)
 
 export const zGetCourseFeedbackCountPath = z.object({
   course_id: z.uuid(),

@@ -3041,6 +3041,15 @@ export type FeedbackBlock = {
   text?: string | null
 }
 
+export type FeedbackCategory = {
+  category_llm_id: number
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  name: string
+  updated_at: string
+}
+
 export type FeedbackEditProposalCounts = {
   handled_edits: number
   pending_edits: number
@@ -7257,6 +7266,28 @@ export type GetCourseFeedbackResponses = {
 }
 
 export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses]
+
+export type GetCourseFeedbackCategoriesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories"
+}
+
+export type GetCourseFeedbackCategoriesResponses = {
+  /**
+   * All feedback categories used in feedback for the course
+   */
+  200: Array<FeedbackCategory>
+}
+
+export type GetCourseFeedbackCategoriesResponse =
+  GetCourseFeedbackCategoriesResponses[keyof GetCourseFeedbackCategoriesResponses]
 
 export type GetCourseFeedbackCountData = {
   body?: never

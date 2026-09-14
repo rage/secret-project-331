@@ -152,6 +152,7 @@ import {
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
   getCourseFeedback,
+  getCourseFeedbackCategories,
   getCourseFeedbackCount,
   getCourseFlaggedSuspectedCheatersCount,
   getCourseGlossary,
@@ -639,6 +640,8 @@ import type {
   GetCourseExercisesResponse,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponse,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponse,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponse,
   GetCourseFeedbackData,
@@ -3995,6 +3998,33 @@ export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedb
   )
   return opts as Omit<typeof opts, "initialData">
 }
+
+export const getCourseFeedbackCategoriesQueryKey = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) => createQueryKey("getCourseFeedbackCategories", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategoriesOptions = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) =>
+  queryOptions<
+    GetCourseFeedbackCategoriesResponse,
+    DefaultError,
+    GetCourseFeedbackCategoriesResponse,
+    ReturnType<typeof getCourseFeedbackCategoriesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseFeedbackCategories({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseFeedbackCategoriesQueryKey(options),
+  })
 
 export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbackCountData>) =>
   createQueryKey("getCourseFeedbackCount", options)

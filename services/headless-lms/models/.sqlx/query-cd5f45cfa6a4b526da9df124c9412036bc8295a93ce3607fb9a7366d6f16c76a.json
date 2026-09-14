@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT * FROM feedback_categories\nWHERE deleted_at IS NULL\n        ",
+  "query": "\nSELECT fc.* FROM feedback_categories AS fc\nINNER JOIN feedback AS f ON fc.id = f.category_id\nWHERE fc.deleted_at IS NULL\nAND f.deleted_at IS NULL\nAND f.course_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -71,7 +71,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -82,5 +84,5 @@
       false
     ]
   },
-  "hash": "3ea2abc2df9ff3bdde1f8e20bed1aadbdf4fe8b03d22cff5fcdabe725d9a48f7"
+  "hash": "cd5f45cfa6a4b526da9df124c9412036bc8295a93ce3607fb9a7366d6f16c76a"
 }

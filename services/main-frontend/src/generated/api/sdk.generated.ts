@@ -308,6 +308,8 @@ import type {
   GetCourseExercisesResponses,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponses,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponses,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
@@ -914,6 +916,7 @@ import {
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
+  zGetCourseFeedbackCategoriesResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
   zGetCourseFlaggedSuspectedCheatersCountResponse,
@@ -3191,6 +3194,25 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFeedbackCategoriesData, ThrowOnError>,
+): RequestResult<GetCourseFeedbackCategoriesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFeedbackCategoriesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseFeedbackCategoriesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories",
     ...options,
   })
 

@@ -35,7 +35,7 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
     () => [
       {
         isLoading: false as const,
-        label: t("title-feedback"),
+        label: t("title-feedback-change-requests"),
         href: manageCourseFeedbackRoute(courseId),
       },
     ],
@@ -71,7 +71,7 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
           font-weight: bold;
         `}
       >
-        {t("title-feedback")}
+        {t("title-feedback-change-requests")}
       </h3>
       <RouteTabPageTitle
         tabs={tabs}

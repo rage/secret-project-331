@@ -143,8 +143,8 @@ impl Additional {
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Credits {
-    pub min: Option<i64>,
-    pub max: Option<i64>,
+    pub min: Option<f32>,
+    pub max: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]

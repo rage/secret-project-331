@@ -122,9 +122,9 @@ const UserPageContent: React.FC<UserPageContentProps> = ({
         </section>
       ) : null}
       {/* Unconditional, unlike the sections around it: CompletionReviewBanner links to this id,
-          and has to land somewhere even before the section's own query resolves. */}
+          and has to land somewhere even before the section's own query resolves. The heading is
+          the section's own, so an account with nothing to review leaves only the anchor. */}
       <section id={COMPLETION_REVIEW_ID} className={sectionCss}>
-        <h2 className={headingCss}>{t("completion-review")}</h2>
         <CompletionReviewSection userId={userId} enrollments={enrollments} />
       </section>
       <section className={sectionCss}>

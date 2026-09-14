@@ -6,6 +6,7 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingCss } from "@/components/credit-registration/styles"
 import { getUserSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseEnrollmentInfo,
@@ -134,6 +135,7 @@ const CompletionReviewSection: React.FC<CompletionReviewSectionProps> = ({
         }
         return (
           <>
+            <h2 className={headingCss}>{t("completion-review")}</h2>
             <p className={explanationCss}>{t("completion-review-explanation")}</p>
             {records.map((record) => {
               const durationSeconds = record.total_duration_seconds ?? 0

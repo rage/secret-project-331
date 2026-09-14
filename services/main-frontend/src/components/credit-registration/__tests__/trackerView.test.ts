@@ -218,6 +218,18 @@ describe("what the linking band says", () => {
     ).toBeNull()
   })
 
+  test("says nothing about a registered row whose account no longer holds the link", () => {
+    expect(
+      studentNumberLinkBand(
+        registration({
+          student_facing_status: "registered",
+          registered_at: "2026-09-08T09:00:00Z",
+        }),
+        null,
+      ),
+    ).toBeNull()
+  })
+
   test("says nothing about a row nobody is registering", () => {
     expect(
       studentNumberLinkBand(registration({ student_facing_status: "not_registering" }), linked),

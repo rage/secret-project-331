@@ -113,10 +113,12 @@ export const studentNumberLinkBand = (
   if (status === "not_registering") {
     return null
   }
+  // Judged before the link is read, not inside it: a registered row whose account has since been
+  // unlinked would otherwise fall through to the band telling them to go and enrol.
+  if (showsRegistrationFacts(registration)) {
+    return null
+  }
   if (verifiedStudentNumber !== null) {
-    if (showsRegistrationFacts(registration)) {
-      return null
-    }
     const studentNumber = verifiedStudentNumber.student_number
     return status === "failed"
       ? { kind: "linked", studentNumber }

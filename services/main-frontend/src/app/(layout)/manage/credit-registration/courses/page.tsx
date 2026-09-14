@@ -324,15 +324,22 @@ const CoursesPage: React.FC = () => {
         >
           {(stats) => {
             const pausedCount = stats.modules.filter((module) => module.paused_at !== null).length
+            const dominantFailure = dominantConfigFailureReason(stats.modules)
+            const bannerFailure =
+              dominantFailure && dominantFailure.count >= MANY_MODULES_THRESHOLD
+                ? dominantFailure
+                : null
+            // The banner's chip is the only control for this, so a banner that stops rendering —
+            // an admin fixed enough modules, say — must not leave the table narrowed for good.
+            const activeReason = bannerFailure?.reason === reasonFilter ? reasonFilter : null
             const shown = stats.modules.filter((module) => {
               const isProblem = courseModuleStatus(module) !== "ok" || module.paused_at !== null
               if (problemsOnly && !isProblem) {
                 return false
               }
-              return reasonFilter === null || configFailureReason(module) === reasonFilter
+              return activeReason === null || configFailureReason(module) === activeReason
             })
             const modules = shown.toSorted(SORT_COMPARATORS[sort])
-            const dominantFailure = dominantConfigFailureReason(stats.modules)
 
             return (
               <>
@@ -377,21 +384,21 @@ const CoursesPage: React.FC = () => {
                     />
                   </div>
                 </div>
-                {dominantFailure && dominantFailure.count >= MANY_MODULES_THRESHOLD && (
+                {bannerFailure && (
                   <Infobox tone={TONE.NEUTRAL}>
                     <span className={rowCss}>
                       <span>
-                        {t(CONFIG_FAILURE_BANNER_KEYS[dominantFailure.reason], {
-                          count: dominantFailure.count,
+                        {t(CONFIG_FAILURE_BANNER_KEYS[bannerFailure.reason], {
+                          count: bannerFailure.count,
                         })}
                       </span>
                       <FacetChip
                         label={t("credit-registration-admin-filter-to-these-modules")}
-                        count={dominantFailure.count}
-                        isSelected={reasonFilter === dominantFailure.reason}
+                        count={bannerFailure.count}
+                        isSelected={activeReason === bannerFailure.reason}
                         onToggle={() =>
                           setReasonFilter((current) =>
-                            current === dominantFailure.reason ? null : dominantFailure.reason,
+                            current === bannerFailure.reason ? null : bannerFailure.reason,
                           )
                         }
                       />

@@ -32,6 +32,10 @@ const labels = {
 const meta = {
   title: "Components/RegistrationStatus",
   component: RegistrationStatusBadge,
+  args: {
+    state: "done",
+    children: labels.done,
+  },
   parameters: {
     docs: {
       description: {

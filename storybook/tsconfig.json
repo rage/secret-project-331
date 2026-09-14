@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // Synced shared-module components import next/link, but next is not a dependency here. The
+      // Vite config aliases it to the same mock at runtime.
+      "next/link": ["./src/mocks/next-link.tsx"]
     },
     "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],

@@ -34,7 +34,7 @@ const wrapCss = css`
   max-width: 720px;
 `
 
-const meta = {
+const meta: Meta<typeof Table<Registration>> = {
   title: "Components/Table",
   component: Table,
   parameters: {
@@ -45,7 +45,7 @@ const meta = {
       },
     },
   },
-} satisfies Meta<typeof Table<Registration>>
+}
 
 export default meta
 

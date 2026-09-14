@@ -387,7 +387,11 @@ const CreditRegistrationAlertBanner: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const pathname = usePathname()
   const overviewQuery = useCreditRegistrationOverview()
-  const alerts = overviewQuery.data?.health.alerts ?? []
+  // Notices are not problems: the backend counts the pipeline healthy while one fires and the
+  // Overview collapses them, so a strip calling them warnings would contradict both.
+  const alerts = (overviewQuery.data?.health.alerts ?? []).filter(
+    (alert) => alert.severity !== INFO,
+  )
   if (alerts.length === 0) {
     return null
   }

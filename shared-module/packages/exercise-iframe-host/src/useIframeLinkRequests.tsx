@@ -57,7 +57,11 @@ const RequestBody: React.FC<{ explanation: string; url: string; caution: string 
   </div>
 )
 
-export default function useIframeLinkRequests(dialog: ExerciseDialogApi): IframeLinkRequests {
+export default function useIframeLinkRequests(
+  dialog: ExerciseDialogApi,
+  /** See `MessageChannelIFrame`'s prop of the same name. */
+  overrideDownloadFilename?: (url: string) => string,
+): IframeLinkRequests {
   const { t } = useTranslation()
 
   const confirmRequest = useEventCallback(
@@ -115,7 +119,9 @@ export default function useIframeLinkRequests(dialog: ExerciseDialogApi): Iframe
       })
       return
     }
-    const filename = sanitizeDownloadFilename(rawFilename)
+    const filename = sanitizeDownloadFilename(
+      overrideDownloadFilename ? overrideDownloadFilename(url.href) : rawFilename,
+    )
     void confirmRequest({
       url,
       title: t("exercise-wants-to-download-a-file-title"),

@@ -23,6 +23,26 @@ const renderCodeBlock = (content = 'console.log("Hello, World!")') =>
     />,
   )
 
+const originalClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard")
+
+/** Replaces navigator.clipboard with a mock and returns its writeText spy. */
+const mockClipboard = () => {
+  const writeText = jest.fn(() => Promise.resolve())
+  Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true })
+  // useCopyToClipboard logs every copied string, which would dump test fixtures into CI output.
+  jest.spyOn(console, "info").mockImplementation()
+  return writeText
+}
+
+afterEach(() => {
+  jest.restoreAllMocks()
+  if (originalClipboard) {
+    Object.defineProperty(navigator, "clipboard", originalClipboard)
+  } else {
+    Reflect.deleteProperty(navigator, "clipboard")
+  }
+})
+
 describe("CodeBlock", () => {
   const mockContent = 'console.log("Hello, World!")'
 
@@ -69,6 +89,63 @@ describe("CodeBlock", () => {
     expect(codeElement).toBeInTheDocument()
     // The code block should decode the encoded ampersands
     expect(codeElement?.textContent).toBe("apt-get update && apt-get install -y curl python3")
+  })
+
+  describe("content the CMS wrapped in <code>", () => {
+    // Real core/code content from the CMS: the <code> wrapper sits inside the block's content
+    // attribute, renders as nothing, and must not reach the clipboard.
+    const CMS_WRAPPED_CODE_TEXT = `[
+  {
+    "_id": "600c0e410d10256466898a6c",
+    "content": "HTML is easy"
+    "date": 2026-01-23T11:53:37.292+00:00,
+    "important": false
+    "__v": 0
+  },
+  {
+    "_id": "600c0edde86c7264ace9bb78",
+    "content": "CSS is hard"
+    "date": 2026-01-23T11:56:13.912+00:00,
+    "important": true
+    "__v": 0
+  },
+]`
+    const CMS_WRAPPED_CODE_CONTENT = `<code>${CMS_WRAPPED_CODE_TEXT}</code>`
+    const PARTIALLY_WRAPPED_CONTENT =
+      "$ cat .env\n<code>postgres://user@host:10789/defaultdb</code>"
+    const PARTIALLY_WRAPPED_TEXT = "$ cat .env\npostgres://user@host:10789/defaultdb"
+
+    it("renders the code without the wrapper", () => {
+      const { container } = renderCodeBlock(CMS_WRAPPED_CODE_CONTENT)
+      const codeElement = container.querySelector("code")
+      expect(codeElement).toBeInTheDocument()
+      expect(codeElement?.textContent).toBe(CMS_WRAPPED_CODE_TEXT)
+    })
+
+    it("copies the code without the wrapper", async () => {
+      const writeText = mockClipboard()
+      const { container } = renderCodeBlock(CMS_WRAPPED_CODE_CONTENT)
+      const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
+      expect(copyButton).toBeInTheDocument()
+      fireEvent.click(copyButton!)
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalled()
+      })
+      expect(writeText).toHaveBeenCalledWith(CMS_WRAPPED_CODE_TEXT)
+    })
+
+    it("renders and copies the same text when only part of the content is wrapped", async () => {
+      const writeText = mockClipboard()
+      const { container } = renderCodeBlock(PARTIALLY_WRAPPED_CONTENT)
+      const codeElement = container.querySelector("code")
+      expect(codeElement?.textContent).toBe(PARTIALLY_WRAPPED_TEXT)
+      const copyButton = container.querySelector('button[aria-label="copy-to-clipboard"]')
+      fireEvent.click(copyButton!)
+      await waitFor(() => {
+        expect(writeText).toHaveBeenCalled()
+      })
+      expect(writeText).toHaveBeenCalledWith(PARTIALLY_WRAPPED_TEXT)
+    })
   })
 
   describe("line highlighting", () => {

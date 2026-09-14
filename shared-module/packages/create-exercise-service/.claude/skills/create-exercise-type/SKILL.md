@@ -8,7 +8,8 @@ allowed-tools: Read, Edit, Write, AskUserQuestion, Bash(node *), Bash(pnpm *), B
 
 An exercise type on this platform is a standalone **exercise-service plugin**: five JSON data types,
 five REST endpoints, three iframe views. The `create-exercise-service` CLI (an interactive Node CLI
-that copies `services/example-exercise` and vendors the shared exercise packages) generates ~80% of
+that copies `services/example-exercise`; from a monorepo checkout it vendors the shared exercise
+packages, from the published package it depends on `@moocfi/exercise-*` from npm) generates ~80% of
 the code; the valuable — and dangerous — 20% is the design, which is why design comes first.
 
 Two parts. **Part A — Author a new exercise type**: three design gates with the user, then scaffold,
@@ -88,8 +89,10 @@ placement is its own decision, so put it to the user explicitly:
 
 - **Own repository** (reference/05's Track A): scaffold to a path *outside* the monorepo. The output
   is standalone (verified: fresh `pnpm install`, `tsc`, vitest, and dev-server boot all work with no
-  enclosing workspace or git repo) and keeps a point-in-time vendored shared-module.
-  Registered with the host later by URL (reference/05 step 9). It is its **own git root**, unrelated
+  enclosing workspace or git repo) and gets the shared packages either vendored point-in-time (from
+  a monorepo checkout) or pinned from npm (from the published CLI). Hosted on the shared GCP setup
+  (reference/09) and registered with the host by URL (reference/05 step 9). It is its **own git
+  root**, unrelated
   to this monorepo — a fresh scaffold isn't even a git repo yet (`git init` it if you want version
   control from the start), and any subagent, `git worktree`, or CWD-relative command defaults to the
   *monorepo*, not the plugin, so it will strand the work in the wrong repo (see the delegation gotcha
@@ -229,23 +232,33 @@ Authoring gotchas (each cost a real session a debugging round-trip):
 - **The scaffold is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`. The tsconfig has
   `noUncheckedIndexedAccess`, so `array[0]` is `T | undefined` — index with `?.`/`!` deliberately.
+- **Shared-package import prefix**: `@moocfi/exercise-*` in an npm-mode scaffold,
+  `@/shared-module/exercise-*` in a vendored one; the deep paths below are otherwise identical.
 - **File-upload exercises**: plugins never store files or mint file IDs. The `useFileUpload(port)`
-  hook (`@/shared-module/exercise-react/react/hooks/useFileUpload`) sends an ordered `File[]` with a
+  hook (`exercise-react/react/hooks/useFileUpload`) sends an ordered `File[]` with a
   request-only `requestId`, then resolves to ordered host-assigned `{ requestId, id, file, url }`
   entries. Store the returned id and URL in the answer; never key files by filename or generate a
   per-file id in the iframe. Meaningful upload tests disable the emulator's automatic response,
   inspect the real `File[]` request and exact bytes, then send a correlated ordered `{ id, url }[]`
   response; see `reference/08-browser-integration-testing.md`. If your grader downloads those URLs,
   they are attacker-controlled input — SSRF-guard every fetch and see reference/07 §8.
+- **If a spec stores uploaded files, set `declares_spec_files` in service-info** — and then emit
+  `private_spec_files` on every editor `current-state` and wrap both spec endpoints' answers as
+  `{ spec, files }` (reference/01). Skipping it is lossless; half-doing it fails page saves.
 - **Links and downloads go through the parent**: the iframe sandbox has no `allow-popups`, so a
   `target="_blank"` link silently does nothing, a same-tab navigation would replace your exercise, and
   the `download` attribute is ignored for cross-origin responses. Use `useParentLinks(port)`
-  (`@/shared-module/exercise-react/react/hooks/useParentLinks`) — `openLink(url)` /
+  (`exercise-react/react/hooks/useParentLinks`) — `openLink(url)` /
   `downloadFile({ url, filename })` — which post `open-link` / `download-file`. Absolute http(s) URLs
   only; the host confirms with the user in its own wording and never replies, so keep such a control a
   plain action and don't give it a pending state.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
+- **The template's CORS headers fail a browser preflight.** `iframe-headers.mjs` sets only
+  `Allow-Origin`, and `server.mjs` has no `OPTIONS` handler, so the Playground's browser-side JSON
+  POSTs to your spec endpoints are refused while a real course (server-to-server) works. Add
+  `Allow-Methods`/`Allow-Headers`/`Max-Age` and answer `OPTIONS` before routing; the project guide
+  has the details.
 
 ## Verify
 
@@ -324,6 +337,7 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
 - `06` the design rationale.
 - `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
 - `08` the mandatory browser-integration levels, upload evidence, and portable execution rules.
+- `09` hosting a standalone (Track A) plugin on the shared Google Cloud setup, and registering it.
 
 ---
 

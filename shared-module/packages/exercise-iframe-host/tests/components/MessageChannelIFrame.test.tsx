@@ -1435,7 +1435,10 @@ describe("MessageChannelIFrame", () => {
       confirm: jest.Mock
     }
 
-    const renderWithDialog = (confirms: boolean) => {
+    const renderWithDialog = (
+      confirms: boolean,
+      overrideDownloadFilename?: (url: string) => string,
+    ) => {
       const mockChannel = createMockMessageChannel()
       window.MessageChannel = jest.fn().mockImplementation(function () {
         return mockChannel
@@ -1452,6 +1455,7 @@ describe("MessageChannelIFrame", () => {
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
             title="test"
+            {...(overrideDownloadFilename ? { overrideDownloadFilename } : {})}
           />
         </I18nextProvider>,
       )
@@ -1564,6 +1568,32 @@ describe("MessageChannelIFrame", () => {
         "exercise-wants-to-download-a-file-title",
         expect.objectContaining({ yesButtonLabel: "download-file-confirm-button" }),
       )
+    })
+
+    it("saves the file under the host's name rather than the one the iframe suggested", async () => {
+      const { sendFromIframe } = renderWithDialog(true, () => "file-2")
+
+      sendFromIframe({
+        message: "download-file",
+        url: "https://files.example/a",
+        filename: "kaisa-virtanen-essay.pdf",
+      })
+
+      await waitFor(() => {
+        expect(clickedAnchors).toEqual([
+          { href: "https://files.example/a", download: "file-2", target: "_blank" },
+        ])
+      })
+    })
+
+    it("still names the file when the iframe suggested nothing", async () => {
+      const { sendFromIframe } = renderWithDialog(true, () => "file-1")
+
+      sendFromIframe({ message: "download-file", url: "https://files.example/a", filename: null })
+
+      await waitFor(() => {
+        expect(clickedAnchors[0]?.download).toBe("file-1")
+      })
     })
 
     it("does not download when the user cancels", async () => {

@@ -2768,6 +2768,7 @@ dependencies = [
  "backtrace",
  "chrono",
  "futures",
+ "jsonwebtoken",
  "secrecy",
  "serde",
  "serde_json",

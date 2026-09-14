@@ -75,3 +75,6 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
+
+# Create and decode JWTs.
+jsonwebtoken = { version = "11.0.0", features = ["rust_crypto"] }

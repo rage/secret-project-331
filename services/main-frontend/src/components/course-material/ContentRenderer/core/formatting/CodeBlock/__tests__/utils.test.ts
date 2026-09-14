@@ -1,8 +1,8 @@
 import { renderHook } from "@testing-library/react"
 
 import {
-  decodeHtmlEntities,
   formatHighlightedLinesRanges,
+  htmlToDisplayedText,
   replaceBrTagsWithNewlines,
   useCopyHtmlContentToClipboard,
 } from "../utils"
@@ -75,36 +75,50 @@ describe("replaceBrTagsWithNewlines", () => {
   })
 })
 
-describe("decodeHtmlEntities", () => {
+describe("htmlToDisplayedText", () => {
   it("should decode basic HTML entities", () => {
-    expect(decodeHtmlEntities("&lt;div&gt;")).toBe("<div>")
-    expect(decodeHtmlEntities("&amp;")).toBe("&")
-    expect(decodeHtmlEntities("&quot;hello&quot;")).toBe('"hello"')
+    expect(htmlToDisplayedText("&lt;div&gt;")).toBe("<div>")
+    expect(htmlToDisplayedText("&amp;")).toBe("&")
+    expect(htmlToDisplayedText("&quot;hello&quot;")).toBe('"hello"')
   })
 
   it("should decode multiple entities in the same string", () => {
-    expect(decodeHtmlEntities("&lt;p&gt;Hello &amp; goodbye&lt;/p&gt;")).toBe(
+    expect(htmlToDisplayedText("&lt;p&gt;Hello &amp; goodbye&lt;/p&gt;")).toBe(
       "<p>Hello & goodbye</p>",
     )
   })
 
-  it("should handle mixed encoded and non-encoded content", () => {
-    expect(decodeHtmlEntities("Regular text &amp; <actual tag> &lt;encoded tag&gt;")).toBe(
-      "Regular text & <actual tag> <encoded tag>",
+  it("should drop tags the rendered block also drops, keeping escaped ones as text", () => {
+    expect(htmlToDisplayedText("Regular text &amp; <actual tag> &lt;encoded tag&gt;")).toBe(
+      "Regular text &  <encoded tag>",
+    )
+  })
+
+  it("should drop the <code> wrapper the CMS stores around block content", () => {
+    expect(htmlToDisplayedText("<code>drop table notes;</code>")).toBe("drop table notes;")
+  })
+
+  it("should drop a <code> wrapper that covers only part of the content", () => {
+    expect(htmlToDisplayedText("$ cat .env\n<code>postgres://user@host/defaultdb</code>")).toBe(
+      "$ cat .env\npostgres://user@host/defaultdb",
     )
   })
 
   it("should handle numeric entities", () => {
-    expect(decodeHtmlEntities("&#60;div&#62;")).toBe("<div>")
-    expect(decodeHtmlEntities("&#x3C;div&#x3E;")).toBe("<div>")
+    expect(htmlToDisplayedText("&#60;div&#62;")).toBe("<div>")
+    expect(htmlToDisplayedText("&#x3C;div&#x3E;")).toBe("<div>")
+  })
+
+  it("should preserve newlines and blank lines", () => {
+    expect(htmlToDisplayedText("a\n\nb")).toBe("a\n\nb")
   })
 
   it("should return empty string for empty input", () => {
-    expect(decodeHtmlEntities("")).toBe("")
+    expect(htmlToDisplayedText("")).toBe("")
   })
 
   it("should return unchanged text when no entities present", () => {
-    expect(decodeHtmlEntities("Hello world!")).toBe("Hello world!")
+    expect(htmlToDisplayedText("Hello world!")).toBe("Hello world!")
   })
 })
 
@@ -187,6 +201,31 @@ describe("useCopyHtmlContentToClipboard", () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       "console.log('\\n');\nconst x = '\\n';",
     )
+  })
+
+  it("should not copy the <code> wrapper the CMS stores around block content", async () => {
+    const { result } = renderHook(() =>
+      useCopyHtmlContentToClipboard(
+        "<code>CREATE TABLE notes (<br>    id SERIAL PRIMARY KEY,<br>    content text NOT NULL<br>);</code>",
+      ),
+    )
+    const copyToClipboard = result.current
+
+    await copyToClipboard()
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      "CREATE TABLE notes (\n    id SERIAL PRIMARY KEY,\n    content text NOT NULL\n);",
+    )
+  })
+
+  it("should refuse to copy content that displays as nothing", async () => {
+    const { result } = renderHook(() => useCopyHtmlContentToClipboard("<script>alert(1)</script>"))
+    const copyToClipboard = result.current
+
+    const success = await copyToClipboard()
+
+    expect(success).toBe(false)
+    expect(navigator.clipboard.writeText).not.toHaveBeenCalled()
   })
 
   describe("Fallback behavior", () => {

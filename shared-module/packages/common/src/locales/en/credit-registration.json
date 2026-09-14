@@ -803,6 +803,7 @@
   "credit-registration-unlinked-enrolled-explanation_one": "{{count}} enrolled student on this course has not linked a student number yet. Their credits cannot be registered until they do, whether or not they have completed anything.",
   "credit-registration-unlinked-enrolled-explanation_other": "{{count}} enrolled students on this course have not linked a student number yet. Their credits cannot be registered until they do, whether or not they have completed anything.",
   "credit-registration-view-everyone": "Any status",
+  "credit-registration-view-in-progress": "In progress",
   "credit-registration-view-needs-attention": "Needs attention",
   "credit-registration-waiting-for-enrolment-body": "New enrolments usually show up there within a day or two. We check for yours regularly and register the credits as soon as it is there. You do not need to keep this page open.",
   "credit-registration-waiting-for-enrolment-heading": "Waiting for your enrolment to reach the University's records",

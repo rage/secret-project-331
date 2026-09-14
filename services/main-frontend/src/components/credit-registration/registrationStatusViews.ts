@@ -54,14 +54,14 @@ export const registrationStatusesOf = (
 
 /**
  * A view covering exactly one status borrows that status's label, so the filter option and the
- * cells it narrows to can never come to say different things.
+ * cells it narrows to can never come to say different things. The rest name themselves.
  */
 const VIEW_LABEL_KEYS = {
   everyone: "credit-registration-view-everyone",
   needs_attention: "credit-registration-view-needs-attention",
   needs_student_number: "credit-registration-teacher-status-needs-student-number",
   waiting_on_student: "credit-registration-column-waiting-on-student",
-  in_progress: "credit-registration-teacher-status-in-progress",
+  in_progress: "credit-registration-view-in-progress",
   registered: "credit-registration-teacher-status-registered",
   failed: "credit-registration-teacher-status-failed",
   not_registering: "credit-registration-teacher-status-not-registering",

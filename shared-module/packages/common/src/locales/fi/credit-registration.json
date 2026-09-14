@@ -803,6 +803,7 @@
   "credit-registration-unlinked-enrolled-explanation_one": "{{count}} kurssille ilmoittautunut opiskelija ei ole vielä liittänyt opiskelijanumeroa. Opintopisteitä ei voi kirjata ennen sitä, riippumatta siitä, onko hänellä suorituksia.",
   "credit-registration-unlinked-enrolled-explanation_other": "{{count}} kurssille ilmoittautunutta opiskelijaa ei ole vielä liittänyt opiskelijanumeroa. Opintopisteitä ei voi kirjata ennen sitä, riippumatta siitä, onko heillä suorituksia.",
   "credit-registration-view-everyone": "Mikä tahansa tila",
+  "credit-registration-view-in-progress": "Käsittelyssä",
   "credit-registration-view-needs-attention": "Vaatii huomiota",
   "credit-registration-waiting-for-enrolment-body": "Uudet ilmoittautumiset näkyvät siellä yleensä päivän tai kahden kuluessa. Tarkistamme omasi säännöllisesti ja kirjaamme opintopisteet heti kun se näkyy. Sinun ei tarvitse pitää tätä sivua auki.",
   "credit-registration-waiting-for-enrolment-heading": "Odotamme ilmoittautumisesi näkymistä yliopiston rekisterissä",

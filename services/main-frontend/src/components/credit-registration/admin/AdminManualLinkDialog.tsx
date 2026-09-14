@@ -193,25 +193,32 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
     AdminResolveStudentNumberResult,
     string
   >((number) => adminResolveStudentNumberForLinking({ body: { student_number: number } }))
-  const { result, mutation: linkMutation } = useActionResult<
-    AdminManuallyLinkStudentNumberResult,
-    Fields
-  >(
-    (values) =>
-      adminManuallyLinkStudentNumber({
-        body: {
-          user_id: chosenAccount?.userId ?? "",
-          student_number: values.student_number.trim(),
-          // Echoed from the preview; the endpoint re-resolves and refuses if it no longer matches.
-          sisu_person_id: preview?.sisu_person_id ?? "",
-          reason: values.reason,
-        },
-      }),
-    () => {
-      // Linking resolves waiting registrations synchronously, so their state changes too.
-      void invalidateAfterLinkingChange()
-    },
+  const {
+    result,
+    setResult,
+    mutation: linkMutation,
+  } = useActionResult<AdminManuallyLinkStudentNumberResult, Fields>((values) =>
+    adminManuallyLinkStudentNumber({
+      body: {
+        user_id: chosenAccount?.userId ?? "",
+        student_number: values.student_number.trim(),
+        // Echoed from the preview; the endpoint re-resolves and refuses if it no longer matches.
+        sisu_person_id: preview?.sisu_person_id ?? "",
+        reason: values.reason,
+      },
+    }),
   )
+
+  const closeDialog = () => {
+    onClose()
+    if (result) {
+      setResult(null)
+      // Deferred to close, not fired from onSuccess: linking also resolves the waiting
+      // registrations, and a refetch that lifts this row out of the table the dialog is rendered
+      // in would unmount it — and the outcome it is showing — before anyone had read it.
+      void invalidateAfterLinkingChange()
+    }
+  }
 
   // The two preconditions the endpoint refuses without; the reason and the checkbox are the form's.
   const isResolved =
@@ -231,7 +238,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={closeDialog}
       title={t("credit-registration-admin-manual-link-title")}
       actions={actions}
     >

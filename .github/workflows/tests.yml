@@ -55,11 +55,14 @@ jobs:
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
+          # cargo runs inside docker with CARGO_HOME redirected to .cargo-home/ (under the
+          # bind-mounted workspace) instead of the image's own /home/user/.cargo, which the
+          # runner's ~/.cargo never touches and can't cache.
           path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
+            .cargo-home/registry/index/
+            .cargo-home/registry/cache/
+            .cargo-home/registry/src/
+            .cargo-home/git/db/
             services/headless-lms/target/
           # flake.lock is part of the key because cached build-script binaries hard-code
           # /nix/store interpreter paths, and a nixpkgs bump makes those paths vanish.
@@ -94,6 +97,7 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace \
             -e CARGO_TERM_COLOR=always \
+            -e CARGO_HOME=/workspace/.cargo-home \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo clippy --manifest-path services/headless-lms/Cargo.toml --all-targets -- -D warnings
 
@@ -106,6 +110,7 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
+            -e CARGO_HOME=/workspace/.cargo-home \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose --tests
 
@@ -120,6 +125,7 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
+            -e CARGO_HOME=/workspace/.cargo-home \
             -e SQLX_OFFLINE=1 \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo run -p headless-lms-entrypoint -- export-openapi
@@ -182,16 +188,17 @@ jobs:
             -v "${{ github.workspace }}:/workspace" \
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
+            -e CARGO_HOME=/workspace/.cargo-home \
             -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
             -e DATABASE_URL_TEST=postgres://postgres:postgres@postgres/headless_lms_integration \
             -e REDIS_URL=redis://redis:6379/1 \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo test --verbose
 
-      # docker runs the dev-base image as root, so target/ ends up root-owned; the cache
+      # docker runs the dev-base image as root, so these end up root-owned; the cache
       # post-step's tar can't read rustc's 0-perm incremental *.lock files as the runner user.
-      - name: Fix target directory ownership for caching
-        run: sudo chown -R "$(id -u):$(id -g)" services/headless-lms/target/
+      - name: Fix cached directory ownership
+        run: sudo chown -R "$(id -u):$(id -g)" services/headless-lms/target/ .cargo-home/
 
   cms:
     permissions:

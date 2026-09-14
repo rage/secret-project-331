@@ -188,6 +188,11 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo test --verbose
 
+      # docker runs the dev-base image as root, so target/ ends up root-owned; the cache
+      # post-step's tar can't read rustc's 0-perm incremental *.lock files as the runner user.
+      - name: Fix target directory ownership for caching
+        run: sudo chown -R "$(id -u):$(id -g)" services/headless-lms/target/
+
   cms:
     permissions:
       contents: read

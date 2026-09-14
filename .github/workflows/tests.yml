@@ -107,7 +107,7 @@ jobs:
             -w /workspace/services/headless-lms \
             -e CARGO_TERM_COLOR=always \
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo build --verbose
+            cargo build --verbose --tests
 
       # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
       # differ from what is committed.

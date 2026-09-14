@@ -158,7 +158,7 @@ function buildPageSlots(page: number, totalPages: number): PageSlot[] {
 export interface PaginationProps {
   /** The page being shown, counting from 1. A value outside the range is clamped. */
   page: number
-  /** Renders nothing below 2 — one page, or none at all, needs no pager. */
+  /** Below 2 only the items-per-page control can render, and only when it would change the paging. */
   totalPages: number
   onPageChange: (page: number) => void
   /** Rows on one page. Feeds both the range readout and the items-per-page control. */
@@ -191,25 +191,36 @@ export function Pagination({
 }: PaginationProps) {
   const { t } = useTranslation("shared-module")
 
-  const itemsPerPageItems = useMemo<MenuItemDescriptor[]>(() => {
+  const offeredSizes = useMemo(() => {
     const offered = [...(itemsPerPageOptions ?? DEFAULT_ITEMS_PER_PAGE_OPTIONS)]
     // A hand-edited `limit` in the URL is a supported way in, so keep whatever it asked for.
     if (!offered.includes(itemsPerPage)) {
       offered.push(itemsPerPage)
     }
-    return offered
-      .toSorted((first, second) => first - second)
-      .map((size) => ({
+    return offered.toSorted((first, second) => first - second)
+  }, [itemsPerPage, itemsPerPageOptions])
+
+  const itemsPerPageItems = useMemo<MenuItemDescriptor[]>(
+    () =>
+      offeredSizes.map((size) => ({
         key: String(size),
         label: t("pagination.itemsPerPage", { rows: size }),
         onAction: () => onItemsPerPageChange?.(size),
-      }))
-  }, [itemsPerPage, itemsPerPageOptions, onItemsPerPageChange, t])
+      })),
+    [offeredSizes, onItemsPerPageChange, t],
+  )
 
   const currentPage = Math.min(Math.max(page, 1), Math.max(totalPages, 1))
   const slots = useMemo(() => buildPageSlots(currentPage, totalPages), [currentPage, totalPages])
 
-  if (totalPages < 2) {
+  const showsPageList = totalPages >= 2
+  // A single page keeps the size control only where the size might be why: a reader who raised it
+  // past the end of the list would otherwise have no way back down. At the smallest size on offer
+  // there is nothing to go back to, and a list known to be shorter than that cannot page either.
+  const smallestSize = offeredSizes[0] ?? itemsPerPage
+  const wouldPageAtASmallerSize =
+    itemsPerPage > smallestSize && (totalItems === undefined || totalItems > smallestSize)
+  if (!showsPageList && (onItemsPerPageChange === undefined || !wouldPageAtASmallerSize)) {
     return null
   }
 
@@ -236,59 +247,61 @@ export function Pagination({
         />
       )}
 
-      <ul className={pageListCss}>
-        <li className={listItemCss}>
-          <button
-            aria-label={t("go-to-previous-page")}
-            className={cx(slotCss, buttonCss)}
-            disabled={currentPage <= 1}
-            onClick={() => onPageChange(currentPage - 1)}
-            type="button"
-          >
-            <ChevronIcon direction={CHEVRON_LEFT} />
-          </button>
-        </li>
-
-        {slots.map((slot, slotIndex) =>
-          slot === null ? (
-            <li
-              aria-hidden="true"
-              className={cx(listItemCss, slotCss, gapCss)}
-              key={`gap-${slotIndex}`}
+      {showsPageList ? (
+        <ul className={pageListCss}>
+          <li className={listItemCss}>
+            <button
+              aria-label={t("go-to-previous-page")}
+              className={cx(slotCss, buttonCss)}
+              disabled={currentPage <= 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              type="button"
             >
-              <DotsHorizontal size={16} weight="bold" />
-            </li>
-          ) : (
-            <li className={listItemCss} key={slot}>
-              <button
-                aria-current={slot === currentPage ? "page" : undefined}
-                aria-label={
-                  slot === currentPage
-                    ? t("current-page-x", { number: slot })
-                    : t("go-to-page-x", { number: slot })
-                }
-                className={cx(slotCss, buttonCss, slot === currentPage && currentButtonCss)}
-                onClick={() => onPageChange(slot)}
-                type="button"
-              >
-                {slot}
-              </button>
-            </li>
-          ),
-        )}
+              <ChevronIcon direction={CHEVRON_LEFT} />
+            </button>
+          </li>
 
-        <li className={listItemCss}>
-          <button
-            aria-label={t("go-to-next-page")}
-            className={cx(slotCss, buttonCss)}
-            disabled={currentPage >= totalPages}
-            onClick={() => onPageChange(currentPage + 1)}
-            type="button"
-          >
-            <ChevronIcon direction={CHEVRON_RIGHT} />
-          </button>
-        </li>
-      </ul>
+          {slots.map((slot, slotIndex) =>
+            slot === null ? (
+              <li
+                aria-hidden="true"
+                className={cx(listItemCss, slotCss, gapCss)}
+                key={`gap-${slotIndex}`}
+              >
+                <DotsHorizontal size={16} weight="bold" />
+              </li>
+            ) : (
+              <li className={listItemCss} key={slot}>
+                <button
+                  aria-current={slot === currentPage ? "page" : undefined}
+                  aria-label={
+                    slot === currentPage
+                      ? t("current-page-x", { number: slot })
+                      : t("go-to-page-x", { number: slot })
+                  }
+                  className={cx(slotCss, buttonCss, slot === currentPage && currentButtonCss)}
+                  onClick={() => onPageChange(slot)}
+                  type="button"
+                >
+                  {slot}
+                </button>
+              </li>
+            ),
+          )}
+
+          <li className={listItemCss}>
+            <button
+              aria-label={t("go-to-next-page")}
+              className={cx(slotCss, buttonCss)}
+              disabled={currentPage >= totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              type="button"
+            >
+              <ChevronIcon direction={CHEVRON_RIGHT} />
+            </button>
+          </li>
+        </ul>
+      ) : null}
     </nav>
   )
 }

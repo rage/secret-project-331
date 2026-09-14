@@ -16,7 +16,7 @@ const LEGACY_ITEMS_PER_PAGE_OPTIONS = [100, 1000, 10000]
 
 interface PaginationProps {
   paginationInfo: PaginationInfo
-  /** Renders nothing below 2 — one page, or none at all, needs no pager. */
+  /** Below 2 only the items-per-page control can render, and only when it would change the paging. */
   totalPages: number
   disableItemsPerPage?: boolean
   /** Defaults to the sizes these callers have always had, not to the pager's own. */

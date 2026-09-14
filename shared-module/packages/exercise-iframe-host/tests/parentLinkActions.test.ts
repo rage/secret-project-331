@@ -1,4 +1,5 @@
 import {
+  MAX_BLOB_DOWNLOAD_BYTES,
   parseSafeHttpUrl,
   sanitizeDownloadFilename,
   startFileDownload,
@@ -64,6 +65,18 @@ describe("sanitizeDownloadFilename", () => {
   })
 })
 
+/** A fetch Response whose body streams `bytes` in one chunk, the shape `startFileDownload` reads. */
+const streamedResponse = (bytes: Uint8Array): Response =>
+  ({
+    ok: true,
+    body: new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes)
+        controller.close()
+      },
+    }),
+  }) as unknown as Response
+
 describe("startFileDownload", () => {
   const clicked: { href: string; download: string; target: string; rel: string }[] = []
   let clickSpy: jest.SpyInstance
@@ -98,10 +111,7 @@ describe("startFileDownload", () => {
   // takes: `download` is honored for a blob regardless of where its bytes came from.
   describe("when the file can be fetched", () => {
     beforeEach(() => {
-      jest.stubGlobal(
-        "fetch",
-        jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob(["x"])) }),
-      )
+      jest.stubGlobal("fetch", jest.fn().mockResolvedValue(streamedResponse(new Uint8Array([1]))))
     })
 
     it("downloads a blob URL instead of navigating to the original, cross-origin one", async () => {
@@ -152,6 +162,31 @@ describe("startFileDownload", () => {
       await startFileDownload("https://files.example/a", "answer.pdf")
 
       expect(document.querySelectorAll("a")).toHaveLength(0)
+    })
+  })
+
+  // A response over MAX_BLOB_DOWNLOAD_BYTES must not be buffered into memory in full before this is
+  // noticed — the whole point of streaming instead of calling response.blob() outright.
+  describe("when the response exceeds the size limit", () => {
+    beforeEach(() => {
+      jest.stubGlobal(
+        "fetch",
+        jest.fn().mockResolvedValue(streamedResponse(new Uint8Array(MAX_BLOB_DOWNLOAD_BYTES + 1))),
+      )
+    })
+
+    it("falls back to a direct link instead of building a blob from an oversized response", async () => {
+      await startFileDownload("https://files.example/a", "answer.pdf")
+
+      expect(URL.createObjectURL).not.toHaveBeenCalled()
+      expect(clicked).toEqual([
+        {
+          href: "https://files.example/a",
+          download: "answer.pdf",
+          target: "_blank",
+          rel: "noopener noreferrer",
+        },
+      ])
     })
   })
 })

@@ -43,7 +43,7 @@ pub const IMPORT_OUTCOMES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0004_4a5e
 /// Owned by `suotar-grade-improvement.spec.ts`, and the only graded module here.
 pub const GRADE_IMPROVEMENT_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0005_4a5e_9e6e_c0de00000005);
-/// Owned outright by `suotar-backfill.spec.ts`, which flips the Suotar flag on.
+/// The one course seeded with the Suotar flag off, so its completions stay on the pull path.
 pub const BACKFILL_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0003_4a5e_9e6e_c0de00000003);
 /// Owned exclusively by `suotar-admin-dashboard.spec.ts`: discovery and the linking mails tick by
 /// course, so the spec that ticks them needs a course no other spec has students on.

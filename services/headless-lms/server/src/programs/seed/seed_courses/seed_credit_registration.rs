@@ -1,8 +1,9 @@
 //! Database rows for the credit-registration (Suotar) system tests. The identities they are built
 //! from, and the matching registry world, are in [`crate::controllers::mock_suotar::fixtures`].
 //!
-//! The backfill course keeps `enable_credit_registration_via_suotar` off and nothing may turn it on:
-//! its spec flips it from the UI, which is one-way and run-wide. Every other course has it on.
+//! The backfill course is the one with `enable_credit_registration_via_suotar` off, so its
+//! completions carry no push-path flag. Every other course has it on. No spec drives it since
+//! opting a module in stopped reaching completions made before the opt-in.
 //!
 //! The workers tick every phase unscoped every few seconds in the test deployment, so a fixture row
 //! nothing may move has to sit on a paused module — that is what the states course is for.
@@ -560,8 +561,8 @@ async fn seed_old_flow_course(
     Ok(())
 }
 
-/// Four passed completions, one already registered by the legacy pull flow so the backfill spec can
-/// assert it is skipped rather than re-pushed.
+/// Four passed completions made while the module was opted out, so none of them carries
+/// `register_credits_via_suotar`; one is already registered by the legacy pull flow.
 async fn seed_backfill_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
@@ -629,7 +630,9 @@ async fn seed_backfill_course(
         "Credit registration backfill",
         BACKFILL_COURSE_SLUG,
     )
-    .desc("Fixture course with pre-existing passed completions, for the backfill-on-opt-in spec.")
+    .desc(
+        "Fixture course whose passed completions predate any opt-in, so the push path skips them.",
+    )
     .course_id(BACKFILL_COURSE_ID)
     .instance(instance_config(cx.v5(b"instance:backfill")))
     .module(module)

@@ -10,12 +10,9 @@ import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
 import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
@@ -82,11 +79,7 @@ const Submission: React.FC = () => {
 
   return (
     <div>
-      <BreakFromCentered sidebar={false}>
-        <PageMarginOffset marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`} marginBottom={"0rem"}>
-          <Breadcrumbs items={items} />
-        </PageMarginOffset>
-      </BreakFromCentered>
+      <Breadcrumbs items={items} />
       <QueryResult query={getSubmissionInfo}>
         {(submissionInfo) =>
           getExam.isSuccess && (

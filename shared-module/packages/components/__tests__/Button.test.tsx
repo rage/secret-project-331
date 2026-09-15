@@ -123,6 +123,28 @@ describe("Button", () => {
     expect(onPress).toHaveBeenCalledTimes(1)
   })
 
+  test("keyboard: Enter triggers onClick", () => {
+    const onClick = jest.fn()
+
+    renderUi(<Button onClick={onClick}>Save</Button>)
+
+    const button = screen.getByRole("button", { name: "Save" })
+    pressEnter(button)
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  test("keyboard: Space triggers onClick", () => {
+    const onClick = jest.fn()
+
+    renderUi(<Button onClick={onClick}>Save</Button>)
+
+    const button = screen.getByRole("button", { name: "Save" })
+    pressSpace(button)
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
   test("data-pressed reflects pointer press state", () => {
     renderUi(<Button>Save</Button>)
     const button = screen.getByRole("button", { name: "Save" })

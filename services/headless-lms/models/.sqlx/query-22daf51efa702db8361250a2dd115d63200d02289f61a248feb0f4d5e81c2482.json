@@ -26,6 +26,7 @@
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
+                "chart-spec-generation",
                 "prompt-creation"
               ]
             }
@@ -106,6 +107,7 @@
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
+                "chart-spec-generation",
                 "prompt-creation"
               ]
             }

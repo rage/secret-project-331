@@ -13,10 +13,10 @@
 //! mock Suotar's persons must reuse the same numbers: 02 `suotar-account-linking`,
 //! 03 `suotar-enrolment-problems`, 04 `suotar-import-outcomes`, 05 `suotar-verify-outcomes`,
 //! 06 `suotar-sisu-outage`, 08 `suotar-teacher-views`, 09 `suotar-admin-dashboard`,
-//! 10 `suotar-old-flow-coexistence`, 11 `suotar-backfill`, 12 `suotar-grade-improvement`,
+//! 10 `suotar-old-flow-coexistence`, 12 `suotar-grade-improvement`,
 //! 13 `suotar-student-emails`, 14 `suotar-fast-track-linking`, 15 `suotar-in-course-banner`,
 //! 16 `suotar-student-profile`. `01` belongs to no single spec: it holds the linked and unlinked
-//! students that read-only specs share. `07` is unused.
+//! students that read-only specs share. `07` and `11` are unused.
 //!
 //! Names and emails are unlikely strings (`Zzyzx …`) because a spec asserts their absence from the
 //! scrubbed Suotar API log.
@@ -43,8 +43,6 @@ pub const IMPORT_OUTCOMES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0004_4a5e
 /// Owned by `suotar-grade-improvement.spec.ts`, and the only graded module here.
 pub const GRADE_IMPROVEMENT_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0005_4a5e_9e6e_c0de00000005);
-/// The one course seeded with the Suotar flag off, so its completions stay on the pull path.
-pub const BACKFILL_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0003_4a5e_9e6e_c0de00000003);
 /// Owned exclusively by `suotar-admin-dashboard.spec.ts`: discovery and the linking mails tick by
 /// course, so the spec that ticks them needs a course no other spec has students on.
 pub const ADMIN_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0006_4a5e_9e6e_c0de00000006);
@@ -60,7 +58,6 @@ pub const CRS_OLD_101: &str = "CRS-OLD-101";
 /// The module `suotar-old-flow-coexistence.spec.ts` treats as already cut over: Suotar-enabled, but
 /// holding a completion the legacy pull path registered before the cutover happened.
 pub const CRS_OLD_102: &str = "CRS-OLD-102";
-pub const CRS_BACKFILL_101: &str = "CRS-BACKFILL-101";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
 pub const CRS_STATES_101: &str = "CRS-STATES-101";
 pub const CRS_RETRY_101: &str = "CRS-RETRY-101";
@@ -80,7 +77,6 @@ pub const IMPORT_OUTCOME_COURSE_CODES: [&str; 4] = [
 
 pub const SUOTAR_COURSE_SLUG: &str = "credit-registration-via-suotar";
 pub const OLD_FLOW_COURSE_SLUG: &str = "credit-registration-old-flow";
-pub const BACKFILL_COURSE_SLUG: &str = "credit-registration-backfill";
 pub const IMPORT_OUTCOMES_COURSE_SLUG: &str = "credit-registration-import-outcomes";
 pub const GRADE_IMPROVEMENT_COURSE_SLUG: &str = "credit-registration-grade-improvement";
 pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
@@ -369,37 +365,6 @@ pub const GRADE_IMPROVEMENT: MockPersonFixture = MockPersonFixture {
     account_email: Some("credit-registration-grade-improvement@example.com"),
 };
 
-pub const BACKFILL_STUDENTS: [MockPersonFixture; 4] = [
-    MockPersonFixture {
-        student_number: "900001101",
-        first_names: "Zzyzx",
-        last_name: "Backfill1",
-        sisu_email: "zzyzx.backfill1@helsinki.example",
-        account_email: Some("credit-registration-backfill-1@example.com"),
-    },
-    MockPersonFixture {
-        student_number: "900001102",
-        first_names: "Zzyzx",
-        last_name: "Backfill2",
-        sisu_email: "zzyzx.backfill2@helsinki.example",
-        account_email: Some("credit-registration-backfill-2@example.com"),
-    },
-    MockPersonFixture {
-        student_number: "900001103",
-        first_names: "Zzyzx",
-        last_name: "Backfill3",
-        sisu_email: "zzyzx.backfill3@helsinki.example",
-        account_email: Some("credit-registration-backfill-3@example.com"),
-    },
-    MockPersonFixture {
-        student_number: "900001104",
-        first_names: "Zzyzx",
-        last_name: "Backfill4",
-        sisu_email: "zzyzx.backfill4@helsinki.example",
-        account_email: Some("credit-registration-backfill-4@example.com"),
-    },
-];
-
 /// The world the mock Suotar serves, built from the same fixtures the database rows above are.
 ///
 /// Pure and pool-free on purpose: the restore-from-template setup path runs no seed and has the mock
@@ -469,7 +434,6 @@ pub fn mock_suotar_world() -> WorldPush {
     persons.push(person(&BANNER_REENROLS));
     persons.push(person(&IMPORT_OUTCOMES));
     persons.push(person(&GRADE_IMPROVEMENT));
-    persons.extend(BACKFILL_STUDENTS.iter().map(person));
 
     let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
         .iter()
@@ -481,15 +445,6 @@ pub fn mock_suotar_world() -> WorldPush {
         })
         .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
         .collect();
-    enrolments.extend(BACKFILL_STUDENTS.iter().map(|fixture| {
-        enrolment(
-            fixture,
-            CRS_BACKFILL_101,
-            RealisationKind::Degree,
-            wide.clone(),
-            now,
-        )
-    }));
     enrolments.extend(IMPORT_OUTCOME_COURSE_CODES.iter().map(|course_code| {
         EnrolmentUpsert {
             // The plain (student, kind) id would collide across all four: one student enrolled in
@@ -563,7 +518,6 @@ pub fn mock_suotar_world() -> WorldPush {
             ..CourseUnitShape::new(CRS_OLD_101, OLD_FLOW_COURSE_SLUG, 5.0)
         }
         .build(&wide),
-        CourseUnitShape::new(CRS_BACKFILL_101, BACKFILL_COURSE_SLUG, 5.0).build(&wide),
         CourseUnitShape {
             kinds: &[RealisationKind::Degree, RealisationKind::OpenUniversity],
             ..CourseUnitShape::new(CRS_ADMIN_101, ADMIN_COURSE_SLUG, 5.0)

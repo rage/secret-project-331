@@ -221,8 +221,8 @@ pub struct SuotarModuleOverview {
     pub config_check_message: Option<String>,
     pub active_realisation_count: i64,
     pub last_listed_at: Option<DateTime<Utc>>,
-    /// Completions `materialize` would take. The ledger count beside it is what makes an unfinished
-    /// backfill visible.
+    /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
+    /// what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`.
     pub eligible_completion_count: i64,
 }
 

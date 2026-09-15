@@ -2133,8 +2133,10 @@ export type CreditRegistrationCourseStats = {
   course_name: string
   ects_credits?: number | null
   /**
-   * Completions `materialize` would take. Against `registration_count` this is the backfill
-   * progress: a gap that stops closing is the actionable signal.
+   * Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
+   * what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
+   * a module opted in mid-course keeps a permanent gap against `registration_count` for the
+   * completions that predate the opt-in.
    */
   eligible_completion_count: number
   failed_count: number

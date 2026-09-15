@@ -59,8 +59,10 @@ pub struct CreditRegistrationCourseStats {
     pub config_checked_at: Option<DateTime<Utc>>,
     /// The verdict as the phase stored it, which may be older than `check`.
     pub stored_config_check_message: Option<String>,
-    /// Completions `materialize` would take. Against `registration_count` this is the backfill
-    /// progress: a gap that stops closing is the actionable signal.
+    /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
+    /// what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
+    /// a module opted in mid-course keeps a permanent gap against `registration_count` for the
+    /// completions that predate the opt-in.
     pub eligible_completion_count: i64,
     pub registration_count: i64,
     pub success_count: i64,

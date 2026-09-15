@@ -19720,7 +19720,7 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Completions `materialize` would take. Against `registration_count` this is the backfill\nprogress: a gap that stops closing is the actionable signal."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module opted in mid-course keeps a permanent gap against `registration_count` for the\ncompletions that predate the opt-in."
           },
           "failed_count": {
             "type": "integer",

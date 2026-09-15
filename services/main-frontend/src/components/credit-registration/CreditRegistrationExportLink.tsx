@@ -4,6 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Link } from "@/shared-module/components"
+import { courseCreditRegistrationsCsvUrl } from "@/utils/exportUrls"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 
@@ -16,7 +17,7 @@ const CreditRegistrationExportLink: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <Link
-      href={`/api/v0/main-frontend/course-credit-registrations/courses/${courseId}/export`}
+      href={courseCreditRegistrationsCsvUrl(courseId)}
       styledAsButton
       variant="secondary"
       size="medium"

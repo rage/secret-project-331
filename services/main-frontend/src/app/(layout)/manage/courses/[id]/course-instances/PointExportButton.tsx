@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next"
 
 import { Link } from "@/shared-module/components"
+import { courseInstancePointsCsvUrl } from "@/utils/exportUrls"
 
 const PointExportButton: React.FC<
   React.PropsWithChildren<{ courseInstanceId: string; courseInstanceName: string }>
@@ -10,7 +11,7 @@ const PointExportButton: React.FC<
   const { t } = useTranslation()
   return (
     <Link
-      href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points`}
+      href={courseInstancePointsCsvUrl(courseInstanceId)}
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
       download
       styledAsButton

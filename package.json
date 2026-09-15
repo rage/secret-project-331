@@ -22,7 +22,7 @@
     "lint": "oxlint --fix",
     "lint:ci": "oxlint --max-warnings=0",
     "lint:css": "stylelint '**/*.tsx'",
-    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
+    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/playground-views/page.tsx' --glob '!**/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts' --glob '!**/utils/exportUrls.ts' --glob '!**/*.test.ts' --glob '!**/*.test.tsx'\"",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },

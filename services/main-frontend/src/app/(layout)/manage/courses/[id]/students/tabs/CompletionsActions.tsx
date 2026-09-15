@@ -24,6 +24,7 @@ import type {
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Link } from "@/shared-module/components"
+import { courseInstanceCompletionsCsvUrl } from "@/utils/exportUrls"
 
 import CompletionRegistrationPreview from "../../../../course-instances/[id]/CompletionRegistrationPreview"
 import {
@@ -130,7 +131,7 @@ const CompletionsActions: React.FC<Props> = ({ courseId, courseInstanceId }) => 
       <div className={rowCss}>
         {courseInstanceId && (
           <Link
-            href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-completions`}
+            href={courseInstanceCompletionsCsvUrl(courseInstanceId)}
             styledAsButton
             variant="secondary"
             size="medium"

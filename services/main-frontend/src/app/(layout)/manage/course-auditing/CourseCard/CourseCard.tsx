@@ -640,7 +640,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   {t("modules")}
                 </div>
                 {courseAuditingData.modules.map((module) => (
-                  <FieldSet key={module.id} data-testid="module-display-field-set">
+                  <FieldSet key={module.id}>
                     <Legend>
                       {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
                     </Legend>

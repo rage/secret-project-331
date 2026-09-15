@@ -12,7 +12,7 @@ const ADDITIONAL_MESSAGE = "THIS COURSE HAS CLOSED UNTIL FURTHER NOTICE"
 const FOREIGN_KEY_VIOLATION_ERROR_MESSAGE =
   "Insert or update on table 'courses' failed due to constraint 'courses_closed_course_successor_id_fkey'. Please verify the data related to the constraint and try again."
 
-test.describe.only("Course auditing", () => {
+test.describe("Course auditing", () => {
   test("Editing course data successfully", async ({ page }) => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "Course auditing" }).click()
@@ -153,8 +153,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Default module" })
+        .getByRole("group", { name: "Default module" })
         .getByTestId("content-display-box")
         .filter({
           hasText: "Enable registering completion to the Open University of University of Helsinki",
@@ -164,8 +163,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Default module" })
+        .getByRole("group", { name: "Default module" })
         .getByTestId("content-display-box")
         .filter({ hasText: "University of Helsinki course code" })
         .getByText("TEST001"),
@@ -173,8 +171,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Default module" })
+        .getByRole("group", { name: "Default module" })
         .getByTestId("content-display-box")
         .filter({ hasText: "ECTS credits" })
         .getByText("3"),
@@ -182,8 +179,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Another module" })
+        .getByRole("group", { name: "Another module" })
         .getByTestId("content-display-box")
         .filter({ hasText: "ECTS credits" })
         .getByText("4"),
@@ -191,8 +187,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Bonus module" })
+        .getByRole("group", { name: "Bonus module" })
         .getByTestId("content-display-box")
         .filter({
           hasText: "Enable registering completion to the Open University of University of Helsinki",
@@ -202,8 +197,7 @@ test.describe.only("Course auditing", () => {
 
     await expect(
       auditingCourseCard
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Bonus module" })
+        .getByRole("group", { name: "Bonus module" })
         .getByTestId("content-display-box")
         .filter({
           hasText: "ECTS credits",
@@ -295,8 +289,7 @@ test.describe.only("Course auditing", () => {
     await expect(audiencesBox.getByText("everyone")).toBeVisible()
     await expect(
       page
-        .getByTestId("module-display-field-set")
-        .filter({ hasText: "Default module" })
+        .getByRole("group", { name: "Default module" })
         .getByTestId("content-display-box")
         .filter({ hasText: "University of Helsinki course code" })
         .getByText("TEST001"),

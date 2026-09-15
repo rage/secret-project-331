@@ -120,18 +120,16 @@ const breadcrumbList = css`
   margin: 0.5rem 0;
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
   gap: 0.75rem;
   padding-left: 0;
   list-style: none;
-
-  @media (min-width: 768px) {
-    padding-left: 2rem;
-  }
 `
 
+/* Inline flow rather than a flex row: a flex row pins the separator to the right of the whole
+   label, so a label that wraps leaves the separator stranded beside its second line. */
 const breadcrumbItem = css`
-  display: inline-flex;
-  align-items: center;
+  display: block;
 `
 
 const breadcrumbText = css`

@@ -3,7 +3,8 @@
     "target": "esnext",
     "module": "esnext",
     "paths": {
-      "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"]
+      "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"],
+      "@/shared-module/components/*": ["../components/src/*"]
     },
     "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
     "jsx": "preserve",
@@ -25,7 +26,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "jsxImportSource": "@emotion/react"
+    "jsxImportSource": "react"
   },
   "exclude": ["node_modules", "src/shared-module"],
   "include": ["env.d.ts", "**/*.ts", "**/*.tsx"]

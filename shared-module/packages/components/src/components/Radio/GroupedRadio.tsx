@@ -1,10 +1,11 @@
 "use client"
 
-import { cx } from "@emotion/css"
-import { useId } from "react"
+import { css, cx } from "@emotion/css"
+import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
 import { joinAriaDescribedBy } from "../../lib/utils/field"
+import { resolveButtonRootCss } from "../primitives/buttonStyles"
 import {
   checkableContentCss,
   checkableInputCss,
@@ -21,6 +22,50 @@ import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
+
+/**
+ * The focus ring the button styles draw on `:focus-visible`, moved onto the label: the focus is on
+ * the input the label covers, so the label itself never matches that selector.
+ */
+const segmentedOptionCss = css`
+  /* The button sizes fix a height, which a description under the label would overflow. */
+  height: auto;
+  min-height: var(--control-height-md);
+  padding-block: var(--space-2);
+
+  &[data-focus-visible="true"] {
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+  }
+`
+
+const segmentedContentCss = css`
+  display: grid;
+  gap: var(--space-1);
+  white-space: normal;
+`
+
+/** The option's own description and error, which both variants hang under the label. */
+const RadioNotes: React.FC<{
+  description: React.ReactNode
+  descriptionId: string
+  errorMessage: React.ReactNode
+  errorMessageId: string
+}> = ({ description, descriptionId, errorMessage, errorMessageId }) => (
+  <>
+    {description ? (
+      <span className={descriptionCss} id={descriptionId}>
+        {description}
+      </span>
+    ) : null}
+    {errorMessage ? (
+      <span className={errorCss} id={errorMessageId} role="alert">
+        {errorMessage}
+      </span>
+    ) : null}
+  </>
+)
 
 /** Renders a radio option when nested inside `RadioGroup`. */
 export function GroupedRadio({
@@ -80,6 +125,41 @@ export function GroupedRadio({
     type: "radio" as const,
   })
 
+  if (group.variant === "segmented") {
+    return (
+      <label
+        {...labelProps}
+        className={cx(
+          resolveButtonRootCss({
+            size: "medium",
+            variant: isSelected ? "primary" : "secondary",
+          }),
+          segmentedOptionCss,
+          className,
+        )}
+        data-disabled={String(isRadioDisabled)}
+        data-focus-visible={String(isFocusVisible)}
+        data-selected={String(isSelected)}
+      >
+        <input
+          {...mergedInputProps}
+          ref={inputRef}
+          className={checkableInputCss}
+          aria-describedby={describedBy}
+        />
+        <span className={segmentedContentCss}>
+          <span>{label}</span>
+          <RadioNotes
+            description={description}
+            descriptionId={descriptionId}
+            errorMessage={errorMessage}
+            errorMessageId={errorMessageId}
+          />
+        </span>
+      </label>
+    )
+  }
+
   return (
     <label
       {...labelProps}
@@ -106,16 +186,12 @@ export function GroupedRadio({
       </span>
       <span className={checkableContentCss}>
         <span className={checkableLabelCss}>{label}</span>
-        {description ? (
-          <span className={descriptionCss} id={descriptionId}>
-            {description}
-          </span>
-        ) : null}
-        {errorMessage ? (
-          <span className={errorCss} id={errorMessageId} role="alert">
-            {errorMessage}
-          </span>
-        ) : null}
+        <RadioNotes
+          description={description}
+          descriptionId={descriptionId}
+          errorMessage={errorMessage}
+          errorMessageId={errorMessageId}
+        />
       </span>
     </label>
   )

@@ -96,6 +96,8 @@ export function computeLaneBoxes<T>(
   opts: {
     /** Full-range time scale; packing at full range is the worst case so it stays valid when zoomed. */
     msToPx: (ms: number) => number
+    /** Left plot edge; a flipped label is never reserved room to the left of it. */
+    plotLeftPx: number
     /** Right plot edge; a label reaching past it flips inward. */
     plotRightPx: number
     /** Injected label measurer (canvas `measureText` in prod). */
@@ -105,9 +107,14 @@ export function computeLaneBoxes<T>(
     labelPadPx: number
   },
 ): LaneBox<T>[] {
-  const { msToPx, plotRightPx, measureLabelPx, maxLabelPx, markerPadPx, labelPadPx } = opts
+  const { msToPx, plotLeftPx, plotRightPx, measureLabelPx, maxLabelPx, markerPadPx, labelPadPx } =
+    opts
   return inputs.map((input) => {
-    const labelWidthPx = Math.min(measureLabelPx(input.label) + labelPadPx, maxLabelPx)
+    const labelWidthPx = Math.min(
+      measureLabelPx(input.label) + labelPadPx,
+      maxLabelPx,
+      Math.max(plotRightPx - plotLeftPx, 0),
+    )
     const spanStartPx = msToPx(input.startMs)
     const spanEndPx = msToPx(input.endMs)
     // Marker overhang extends the drawn footprint past both ends of the span: past the end (cluster
@@ -115,7 +122,11 @@ export function computeLaneBoxes<T>(
     const markerStartPx = spanStartPx - markerPadPx
     const markerEndPx = spanEndPx + markerPadPx
     const labelFlipped = spanStartPx + labelWidthPx > plotRightPx
-    const labelStartPx = labelFlipped ? markerEndPx - labelWidthPx : spanStartPx
+    // A flipped label ends at the marker, which for a course near the left edge would put its start
+    // outside the plot and clip the text; hold it at the edge and let the renderer truncate instead.
+    const labelStartPx = labelFlipped
+      ? Math.max(markerEndPx - labelWidthPx, plotLeftPx)
+      : spanStartPx
     return {
       key: input.key,
       item: input.item,

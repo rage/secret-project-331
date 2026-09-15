@@ -1,38 +1,32 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { Flag } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { BADGE_COMPACT, TONE } from "@/components/credit-registration/constants"
+import { Badge } from "@/shared-module/components"
 
-interface CourseModuleCompletionNeedsReviewBadgeProps {
-  className?: string
-}
+const ICON_SIZE = 12
 
-const badgeClass = css`
-  align-items: center;
-  background: ${baseTheme.colors.red[100]};
-  border: 1px solid ${baseTheme.colors.red[500]};
-  border-radius: 0.25rem;
-  color: ${baseTheme.colors.red[800]};
-  display: inline-flex;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  padding: 0.125rem 0.375rem;
-  white-space: nowrap;
-`
-
-const CourseModuleCompletionNeedsReviewBadge: React.FC<
-  CourseModuleCompletionNeedsReviewBadgeProps
-> = ({ className }) => {
+/**
+ * A completion held back for a cheating review.
+ *
+ * Deliberately not the warning tone the registration badges use: the two are unrelated states in
+ * adjacent roster columns, and one yellow should mean one thing.
+ */
+const CourseModuleCompletionNeedsReviewBadge: React.FC = () => {
   const { t } = useTranslation()
 
   return (
-    <span className={cx(badgeClass, className)} title={t("course-module-completion-needs-review")}>
+    <Badge
+      tone={TONE.INFO}
+      size={BADGE_COMPACT}
+      icon={<Flag size={ICON_SIZE} />}
+      title={t("course-module-completion-needs-review")}
+    >
       {t("course-module-completion-needs-review-short")}
-    </span>
+    </Badge>
   )
 }
 

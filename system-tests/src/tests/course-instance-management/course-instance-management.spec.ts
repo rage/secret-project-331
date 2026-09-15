@@ -19,6 +19,8 @@ test("Managing course instances works", async ({ page }) => {
   await page
     .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
     .click()
+  // The index route immediately replaces itself with /overview; asserting the bare course URL is a
+  // race against that redirect, which is why this only failed intermittently.
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/overview",
   )

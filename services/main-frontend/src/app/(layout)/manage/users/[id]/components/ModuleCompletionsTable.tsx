@@ -4,72 +4,62 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
-import { baseTheme } from "@/shared-module/common/styles"
-import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Meter } from "@/shared-module/components"
+import {
+  ABSENT,
+  DENSITY_COMPACT,
+  TIME_DATE,
+  TONE,
+} from "@/components/credit-registration/constants"
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import { emptyStateCss, rowCss } from "@/components/credit-registration/styles"
+import type {
+  CourseCreditRegistration,
+  CourseEnrollmentInfo,
+  CourseModuleCompletion,
+} from "@/generated/api/types.generated"
+import { Badge, RelativeTime, Table, type TableColumn } from "@/shared-module/components"
 
-import { TONE } from "../lib/displayConstants"
-import { computeModuleTimings } from "../lib/durations"
+import { computeModuleTimings, type ModuleTiming } from "../lib/durations"
 import Duration from "./Duration"
 
 export interface ModuleCompletionsTableProps {
   enrollment: CourseEnrollmentInfo
+  /**
+   * This course's credit registrations keyed by module. Null leaves the Credits column out
+   * entirely — either the viewer may not read registrations, or the course has none.
+   */
+  registrationByModuleId: Map<string, CourseCreditRegistration> | null
 }
 
-const tableCss = css`
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
+/** Gaps shorter than this are implausible for genuine work. */
+const SUSPICIOUSLY_FAST_GAP_SECONDS = 300
 
-  th,
-  td {
-    text-align: left;
-    padding: 0.5rem 0.6rem;
-    border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-    vertical-align: top;
-  }
-
-  th {
-    color: ${baseTheme.colors.gray[500]};
-    font-weight: 600;
-  }
-
-  td {
-    color: ${baseTheme.colors.gray[700]};
-    font-variant-numeric: tabular-nums;
-  }
+const stackedDurationCss = css`
+  display: grid;
+  gap: 2px;
 `
 
-const gapCellCss = css`
-  min-width: 8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-`
-
-const badgeRowCss = css`
+const secondaryDurationCss = css`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
   align-items: center;
+  gap: var(--space-2);
+  color: var(--color-gray-500);
+  font-size: var(--font-size-1);
 `
 
-const emptyCss = css`
-  color: ${baseTheme.colors.gray[500]};
-  font-style: italic;
-  padding: 0.5rem 0;
+const suspiciouslyFastCss = css`
+  color: var(--color-crimson-700);
 `
 
 /**
- * Per-module completion breakdown: each module's completion time and derived durations (cumulative
- * since enrollment, and gap since the previous completion). The gap bar is inverted — shorter gaps
- * are fuller and, when suspiciously short, red — so "too fast" rows stand out. Durations are derived
- * from `completion_date`; per-module durations are not stored.
+ * Per-module completion breakdown: time since enrolment, time since the previous module, and
+ * where its credits got to in Sisu. Both durations come from `completion_date`; neither is stored.
  */
-// Gaps shorter than this are implausible for genuine work; highlighted in red.
-const SUSPICIOUSLY_FAST_GAP_SECONDS = 300
-const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollment }) => {
+const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({
+  enrollment,
+  registrationByModuleId,
+}) => {
   const { t } = useTranslation()
 
   const enrolledAt = new Date(enrollment.first_enrolled_at)
@@ -80,7 +70,7 @@ const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollm
   )
 
   if (timings.length === 0) {
-    return <p className={emptyCss}>{t("no-module-completions-yet")}</p>
+    return <p className={emptyStateCss}>{t("no-module-completions-yet")}</p>
   }
 
   const moduleName = (courseModuleId: string): string => {
@@ -88,72 +78,84 @@ const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollm
     return courseModule?.name ?? t("default-module")
   }
 
-  const maxGap = Math.max(1, ...timings.map((row) => row.gapSeconds ?? 0))
+  const columns: TableColumn<ModuleTiming<CourseModuleCompletion>>[] = [
+    {
+      header: t("label-module"),
+      grow: true,
+      cell: (row) => moduleName(row.completion.course_module_id),
+    },
+    {
+      header: t("label-completed"),
+      nowrap: true,
+      cell: (row) => <RelativeTime at={row.completedAt.toISOString()} absoluteTime={TIME_DATE} />,
+    },
+    {
+      header: t("label-since-enrolled"),
+      nowrap: true,
+      cell: (row) => (
+        <span className={stackedDurationCss}>
+          <Duration seconds={row.sinceEnrollmentSeconds} />
+          {row.gapSeconds !== null && (
+            <span className={secondaryDurationCss}>
+              {t("label-gap-since-previous")}
+              <Duration seconds={row.gapSeconds} />
+              {row.gapSeconds < SUSPICIOUSLY_FAST_GAP_SECONDS && (
+                <span className={suspiciouslyFastCss}>
+                  {t("badge-completed-under-minutes", {
+                    minutes: SUSPICIOUSLY_FAST_GAP_SECONDS / 60,
+                  })}
+                </span>
+              )}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      header: t("label-result"),
+      cell: (row) => (
+        <span className={rowCss}>
+          {row.completion.passed ? (
+            <Badge tone={TONE.SUCCESS}>
+              {row.completion.grade !== null && row.completion.grade !== undefined
+                ? t("passed-with-grade", { grade: row.completion.grade })
+                : t("label-passed")}
+            </Badge>
+          ) : (
+            <Badge tone={TONE.NEUTRAL}>{t("label-not-passed")}</Badge>
+          )}
+          {row.completion.needs_to_be_reviewed ? (
+            <Badge tone={TONE.WARNING} title={t("hidden-from-student-explanation")}>
+              {t("badge-hidden-from-student")}
+            </Badge>
+          ) : null}
+          {row.completion.completion_granter_user_id ? (
+            <Badge tone={TONE.INFO}>{t("badge-manual-completion")}</Badge>
+          ) : null}
+        </span>
+      ),
+    },
+  ]
+
+  if (registrationByModuleId) {
+    columns.push({
+      header: t("credit-registration-column-registration"),
+      grow: true,
+      cell: (row) => {
+        const registration = registrationByModuleId.get(row.completion.course_module_id)
+        return registration ? <CreditRegistrationStatusCell registration={registration} /> : ABSENT
+      },
+    })
+  }
 
   return (
-    <table className={tableCss}>
-      <thead>
-        <tr>
-          <th scope="col">{t("label-module")}</th>
-          <th scope="col">{t("label-completed")}</th>
-          <th scope="col">{t("label-since-enrolled")}</th>
-          <th scope="col">{t("label-gap-since-previous")}</th>
-          <th scope="col">{t("label-result")}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {timings.map(({ completion, completedAt, sinceEnrollmentSeconds, gapSeconds }) => (
-          <tr key={completion.id}>
-            <td>{moduleName(completion.course_module_id)}</td>
-            <td>{dateToString(completedAt)}</td>
-            <td>
-              <Duration seconds={sinceEnrollmentSeconds} />
-            </td>
-            <td>
-              <div className={gapCellCss}>
-                {gapSeconds === null ? (
-                  <span>{t("first-completion-dash")}</span>
-                ) : (
-                  <Duration seconds={gapSeconds} />
-                )}
-                {gapSeconds !== null ? (
-                  <Meter
-                    label={t("gap-since-previous-for-module", {
-                      module: moduleName(completion.course_module_id),
-                    })}
-                    value={maxGap - gapSeconds}
-                    maxValue={maxGap}
-                    showLabel={false}
-                    tone={gapSeconds < SUSPICIOUSLY_FAST_GAP_SECONDS ? TONE.DANGER : TONE.NEUTRAL}
-                  />
-                ) : null}
-              </div>
-            </td>
-            <td>
-              <div className={badgeRowCss}>
-                {completion.passed ? (
-                  <Badge tone={TONE.SUCCESS}>
-                    {completion.grade !== null && completion.grade !== undefined
-                      ? t("passed-with-grade", { grade: completion.grade })
-                      : t("label-passed")}
-                  </Badge>
-                ) : (
-                  <Badge tone={TONE.NEUTRAL}>{t("label-not-passed")}</Badge>
-                )}
-                {completion.needs_to_be_reviewed ? (
-                  <Badge tone={TONE.WARNING} title={t("hidden-from-student-explanation")}>
-                    {t("badge-hidden-from-student")}
-                  </Badge>
-                ) : null}
-                {completion.completion_granter_user_id ? (
-                  <Badge tone={TONE.INFO}>{t("badge-manual-completion")}</Badge>
-                ) : null}
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <Table
+      caption={t("heading-module-completions")}
+      density={DENSITY_COMPACT}
+      rowKey={(row) => row.completion.id}
+      rows={timings}
+      columns={columns}
+    />
   )
 }
 

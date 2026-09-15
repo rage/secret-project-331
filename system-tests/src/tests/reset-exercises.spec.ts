@@ -53,33 +53,39 @@ test("Can manually reset exercises", async () => {
 
   await navigateToNextPageInMaterial(student1Page)
   await student1Page.getByText("Everything is a big topic.").waitFor({ state: "hidden" })
-  await student1Page
+  // The three exercises on this page share an iframe title and a Submit label, and they mount in
+  // whatever order their requests finish. A page-level nth match pairs one exercise's answer with
+  // another's button, so scope each answer and the buttons that follow it to a single card.
+  const exerciseCards = student1Page.locator(
+    'section:has(iframe[title="Exercise 1\\, task 1 content"])',
+  )
+  const firstExercise = exerciseCards.first()
+  const secondExercise = exerciseCards.nth(1)
+
+  await firstExercise
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
-    .first()
     .contentFrame()
     .getByRole("checkbox", { name: "c" })
     .click()
-  await student1Page.getByRole("button", { name: "Submit" }).first().click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
-  await student1Page.getByRole("button", { name: "Try again" }).click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
+  await firstExercise.getByRole("button", { name: "Submit" }).click()
+  await firstExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
+  await firstExercise.getByRole("button", { name: "Try again" }).click()
+  await firstExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
 
   await scrollLocatorsParentIframeToViewIfNeeded(
-    student1Page
+    secondExercise
       .locator('iframe[title="Exercise 1\\, task 1 content"]')
-      .nth(1)
       .contentFrame()
       .getByRole("checkbox", { name: "b" }),
   )
 
-  await student1Page
+  await secondExercise
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
-    .nth(1)
     .contentFrame()
     .getByRole("checkbox", { name: "b" })
     .click()
-  await student1Page.getByRole("button", { name: "Submit" }).first().click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
+  await secondExercise.getByRole("button", { name: "Submit" }).click()
+  await secondExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await navigateToNextPageInMaterial(student1Page)
 

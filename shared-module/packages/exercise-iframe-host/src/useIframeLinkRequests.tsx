@@ -18,9 +18,11 @@ import useEventCallback from "./useEventCallback"
  * start a download itself — its iframe is sandboxed without `allow-popups`, and a same-tab navigation
  * would replace the exercise — so it asks the parent, and the parent asks the user.
  *
- * The confirmation wording is deliberately the host's, not the plugin's: an exercise that could word
- * its own security prompt could talk the user into anything. All the plugin contributes is the URL and
- * a suggested file name, both shown as plain text.
+ * The confirmation wording is the host's, not the plugin's: an exercise that could word its own
+ * security prompt could talk the user into anything. Opening a link shows the full URL, since the
+ * browser is about to navigate there. A download names only the origin: the rest of a file URL is
+ * often a one-time access token, unreadable and unverifiable, so showing it made the prompt scarier
+ * without making it safer.
  */
 export interface IframeLinkRequests {
   /** Confirm, then open the requested URL in a new tab. */
@@ -45,33 +47,38 @@ const urlStyles = css`
   overflow-wrap: anywhere;
 `
 
-const RequestBody: React.FC<{ explanation: string; url: string; caution: string }> = ({
-  explanation,
-  url,
-  caution,
-}) => (
+const RequestBody: React.FC<{
+  explanation: string
+  url?: string | undefined
+  caution?: string | undefined
+}> = ({ explanation, url, caution }) => (
   <div className={bodyStyles}>
     <p className={paragraphStyles}>{explanation}</p>
-    <p className={urlStyles}>{url}</p>
-    <p className={paragraphStyles}>{caution}</p>
+    {url !== undefined && <p className={urlStyles}>{url}</p>}
+    {caution !== undefined && <p className={paragraphStyles}>{caution}</p>}
   </div>
 )
 
-export default function useIframeLinkRequests(dialog: ExerciseDialogApi): IframeLinkRequests {
+export default function useIframeLinkRequests(
+  dialog: ExerciseDialogApi,
+  /** See `MessageChannelIFrame`'s prop of the same name. */
+  overrideDownloadFilename?: (url: string) => string,
+): IframeLinkRequests {
   const { t } = useTranslation()
 
   const confirmRequest = useEventCallback(
     (request: {
-      url: URL
       title: string
       explanation: string
       confirmButtonLabel: string
+      url?: string
+      caution?: string
     }): Promise<boolean> =>
       dialog.confirm(
         <RequestBody
           explanation={request.explanation}
-          url={request.url.href}
-          caution={t("only-continue-if-you-recognize-the-address")}
+          url={request.url}
+          caution={request.caution}
         />,
         request.title,
         { yesButtonLabel: request.confirmButtonLabel, noButtonLabel: t("button-cancel") },
@@ -87,7 +94,8 @@ export default function useIframeLinkRequests(dialog: ExerciseDialogApi): Iframe
       return
     }
     void confirmRequest({
-      url,
+      url: url.href,
+      caution: t("only-continue-if-you-recognize-the-address"),
       title: t("exercise-wants-to-open-a-link-title"),
       explanation: t("exercise-wants-to-open-a-link-explanation"),
       confirmButtonLabel: t("open-link-confirm-button"),
@@ -115,18 +123,22 @@ export default function useIframeLinkRequests(dialog: ExerciseDialogApi): Iframe
       })
       return
     }
-    const filename = sanitizeDownloadFilename(rawFilename)
+    const filename = sanitizeDownloadFilename(
+      overrideDownloadFilename ? overrideDownloadFilename(url.href) : rawFilename,
+    )
     void confirmRequest({
-      url,
       title: t("exercise-wants-to-download-a-file-title"),
       explanation:
         filename === null
-          ? t("exercise-wants-to-download-a-file-explanation")
-          : t("exercise-wants-to-download-a-named-file-explanation", { filename }),
+          ? t("exercise-wants-to-download-a-file-explanation", { origin: url.origin })
+          : t("exercise-wants-to-download-a-named-file-explanation", {
+              filename,
+              origin: url.origin,
+            }),
       confirmButtonLabel: t("download-file-confirm-button"),
     }).then((confirmed) => {
       if (confirmed) {
-        startFileDownload(url.href, filename)
+        void startFileDownload(url.href, filename)
       }
     })
   })

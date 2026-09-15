@@ -60,13 +60,11 @@ export const COURSE_CREDIT_REGISTRATIONS_API = `${MAIN_FRONTEND_API}/course-cred
 export const SUOTAR_COURSE_SLUG = "credit-registration-via-suotar"
 export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
-export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
 export const OLD_FLOW_COURSE_SLUG = "credit-registration-old-flow"
 export const GRADE_IMPROVEMENT_COURSE_SLUG = "credit-registration-grade-improvement"
 
 /** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
-export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
 export const RETRY_COURSE_ID = "c5ed17ea-0009-4a5e-9e6e-c0de00000009"
 export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
@@ -87,6 +85,8 @@ export const courseFrontPageUrl = (courseSlug: string): string =>
 
 export const completionRegistrationUrl = (courseModuleId: string): string =>
   `${ORIGIN}/completion-registration/${courseModuleId}`
+
+export const PROFILE_STUDIES_URL = `${ORIGIN}/profile/studies`
 
 export const PROFILE_CREDIT_REGISTRATION_URL = `${ORIGIN}/profile/credit-registration`
 

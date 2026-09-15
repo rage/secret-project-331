@@ -1,6 +1,7 @@
-//! Creating ledger rows for completions that are allowed to be registered. The same statement is
-//! the backfill: flipping a module on makes every pre-existing eligible completion match, and they
-//! stop at `pending`, because historical completions belong to students nobody ever asked.
+//! Creating ledger rows for completions that are allowed to be registered. It catches up as well as
+//! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
+//! at `pending`, because historical completions belong to students nobody ever asked. Flipping a
+//! module on reaches none made before it — `register_credits_via_suotar` is frozen at creation.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
@@ -10,7 +11,7 @@ use crate::prelude::*;
 
 use super::grade_mapping::{GradeComparison, GradeSource, compare_grades, map_grade};
 
-/// How many rows one iteration may create. Also the backfill's rate limit.
+/// How many rows one iteration may create, and so the rate at which a catch-up drains.
 pub const MATERIALIZE_LIMIT: i64 = 500;
 
 /// How many re-attempts one iteration may start. Bounded apart from [`MATERIALIZE_LIMIT`] because

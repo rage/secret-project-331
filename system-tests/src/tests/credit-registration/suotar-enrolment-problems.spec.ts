@@ -8,7 +8,6 @@ import {
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runImportSubmissionTick,
   runMaterializeTick,
@@ -80,15 +79,8 @@ test.describe("A student the University has no enrolment for", () => {
           studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
         },
       ])
-      // The daily backoff otherwise leaves the row not due yet: this is what asking us to look
-      // again is for.
-      await waitForSuccessNotification(
-        page,
-        async () => {
-          await page.getByRole("button", { name: "Ask us to look again" }).click()
-        },
-        "Success",
-      )
+      // Answering the question already re-opens the look, so the row is due without the manual
+      // lever, which only ever renders on a row still parked on a missing enrolment.
       await runResolveEnrolmentsTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
       await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [

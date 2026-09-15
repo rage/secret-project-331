@@ -25,7 +25,7 @@ test("the studies page shows the student's points and result, with no credit-reg
 
   await page.goto(PROFILE_STUDIES_URL)
 
-  await expect(page.getByRole("heading", { level: 1, name: "Your studies" })).toBeVisible()
+  await expect(page.getByRole("heading", { level: 1, name: "My studies" })).toBeVisible()
   // No course here offers credit registration, so the attention section never mounts.
   await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
   await expect(page.getByRole("heading", { name: "Credits that did not go through" })).toHaveCount(
@@ -41,8 +41,9 @@ test("the studies page shows the student's points and result, with no credit-reg
     .first()
   await expect(courseCard.getByRole("heading", { level: 3, name: COURSE_NAME })).toBeVisible()
 
-  // Nothing to open: the points and the result are on the card as it renders.
-  await expect(courseCard.getByRole("meter", { name: "Points" })).toBeVisible()
+  // Nothing to open: the progress and the result are on the card as it renders. A module that is
+  // already passed states its result instead of drawing a bar towards a threshold it has cleared.
+  await expect(courseCard.getByText(/\d+ of \d+ completed/)).toBeVisible()
   await expect(courseCard.getByText("Passed")).toBeVisible()
   await expect(courseCard.getByRole("link", { name: "Go to course" })).toBeVisible()
 })

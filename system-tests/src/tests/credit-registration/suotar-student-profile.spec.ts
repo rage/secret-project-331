@@ -60,7 +60,7 @@ test.describe("A student on a Suotar course and nothing else", () => {
   test("A student with nothing linked sees explanatory copy, not empty cards", async ({ page }) => {
     await page.goto(PROFILE_STUDIES_URL)
 
-    await expect(page.getByText("No student number linked yet.")).toBeVisible()
+    await expect(page.getByText("No student number is linked yet.")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
     await expect(
       page.getByRole("heading", { name: "Credits that did not go through" }),

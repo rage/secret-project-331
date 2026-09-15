@@ -95,9 +95,8 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Edit" })
     .click()
   await page.getByLabel("Override completion registration link").check()
-  await page.getByPlaceholder("Completion registration link").click()
   await page
-    .getByPlaceholder("Completion registration link")
+    .getByLabel("Completion registration link", { exact: true })
     .fill("https://www.example.com/override")
   await page.getByRole("button", { name: "Done" }).click()
   await waitForSuccessNotification(page, async () => {
@@ -126,7 +125,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     )
     .waitFor()
 
-  await page.getByText("Email address to use").first().waitFor()
+  await page.getByText("Use this email address on the enrollment form").first().waitFor()
   await page.getByText("To the registration form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })

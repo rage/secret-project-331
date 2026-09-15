@@ -9,7 +9,7 @@ test.use({
 const ADDITIONAL_MESSAGE = "THIS COURSE HAS CLOSED UNTIL FURTHER NOTICE"
 
 const FOREIGN_KEY_VIOLATION_ERROR_MESSAGE =
-  "Insert or update on table 'courses' failed due to constraint 'courses_closed_course_successor_id_fkey'. Please verify the related data and try again."
+  "Insert or update on table 'courses' failed due to constraint 'courses_closed_course_successor_id_fkey'. Please verify the data related to the constraint and try again."
 
 test.describe("Course auditing", () => {
   test("Editing course data successfully", async ({ page }) => {

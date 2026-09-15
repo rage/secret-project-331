@@ -20,38 +20,40 @@ const ContentDisplayBox: React.FC<ContentDisplayBoxProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  return isVisible ? (
-    <div
-      className={css`
-        border-radius: 0.5rem;
-        border: 1px solid ${baseTheme.colors.blue[200]};
-        background: ${baseTheme.colors.blue[25]};
-        padding: 0.75rem 1rem;
-        flex-grow: 1;
-      `}
-      data-testid="content-display-box"
-    >
+  return (
+    isVisible && (
       <div
         className={css`
-          font-size: 1rem;
-          font-weight: 600;
-          color: ${baseTheme.colors.gray[800]};
-          margin: 0 0 0.5rem 0;
+          border-radius: 0.5rem;
+          border: 1px solid ${baseTheme.colors.blue[200]};
+          background: ${baseTheme.colors.blue[25]};
+          padding: 0.75rem 1rem;
+          flex-grow: 1;
         `}
+        data-testid="content-display-box"
       >
-        {label}
+        <div
+          className={css`
+            font-size: 1rem;
+            font-weight: 600;
+            color: ${baseTheme.colors.gray[800]};
+            margin: 0 0 0.5rem 0;
+          `}
+        >
+          {label}
+        </div>
+        <div
+          className={css`
+            font-size: 0.85rem;
+            color: ${baseTheme.colors.gray[700]};
+            margin: 0.35rem 0;
+          `}
+        >
+          {content ?? t("label-null")}
+        </div>
       </div>
-      <div
-        className={css`
-          font-size: 0.85rem;
-          color: ${baseTheme.colors.gray[700]};
-          margin: 0.35rem 0;
-        `}
-      >
-        {content ?? t("label-null")}
-      </div>
-    </div>
-  ) : null
+    )
+  )
 }
 
 export default ContentDisplayBox

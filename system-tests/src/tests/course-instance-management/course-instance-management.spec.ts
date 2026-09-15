@@ -20,7 +20,7 @@ test("Managing course instances works", async ({ page }) => {
     .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
     .click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
+    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/overview",
   )
 
   await page.getByText("For instructions on how to edit your course materials, view the").waitFor()

@@ -31,7 +31,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { nullIfFalsy, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
@@ -65,11 +65,13 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
 
 export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingData => {
   return {
-    ...omitUndefined({ description: data.description }),
+    ...omitUndefined({
+      description: data.description,
+      closed_at: data.closed_at && (formatDateForDateTimeLocalInputs(data.closed_at) ?? null),
+      closed_additional_message: data.closed_additional_message,
+      closed_course_successor_id: data.closed_course_successor_id,
+    }),
     set_course_closed_at: Boolean(data.closed_at),
-    closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
-    ...omitUndefined({ closed_additional_message: data.closed_additional_message }),
-    ...omitUndefined({ closed_course_successor_id: data.closed_course_successor_id }),
     prerequisites: data.prerequisites,
     audiences: data.audiences,
     modules: data.modules.map((module) => ({
@@ -178,11 +180,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
     await updateMutation.mutateAsync({
       body: {
         description: nullIfEmptyString(data.description),
-        closed_at: data.set_course_closed_at
-          ? data.closed_at
+        closed_at:
+          data.set_course_closed_at && data.closed_at
             ? parseISO(data.closed_at).toISOString()
-            : null
-          : null,
+            : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
         prerequisites: data.prerequisites,
@@ -190,9 +191,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
         modules: data.modules.map((module) => ({
           ...module,
           uh_course_code: nullIfEmptyString(module.uh_course_code),
-          completion_registration_link_override: module.override_completion_link
-            ? nullIfEmptyString(module.completion_registration_link_override)
-            : null,
+          completion_registration_link_override: nullIfFalsy(
+            module.override_completion_link,
+            nullIfEmptyString(module.completion_registration_link_override),
+          ),
         })),
       },
       path: {
@@ -513,81 +515,79 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <div className={contentRowStyles}>
               <ContentDisplayBox
                 label={t("prerequisites-fieldset-title")}
-                content={
-                  courseAuditingData.prerequisites.length > 0
-                    ? courseAuditingData.prerequisites.map((prerequisite) => (
-                        <ul
-                          key={prerequisite.id}
-                          className={css`
-                            list-style: none;
-                            padding: 0;
-                            margin: 0;
-                            font-size: 0.9rem;
-                            line-height: 1.5;
-                          `}
-                        >
-                          <li
-                            className={css`
-                              padding: 0.2rem 0;
-                              padding-left: 1.25rem;
-                              position: relative;
+                content={nullIfFalsy(
+                  courseAuditingData.prerequisites.length > 0,
+                  courseAuditingData.prerequisites.map((prerequisite) => (
+                    <ul
+                      key={prerequisite.id}
+                      className={css`
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                      `}
+                    >
+                      <li
+                        className={css`
+                          padding: 0.2rem 0;
+                          padding-left: 1.25rem;
+                          position: relative;
 
-                              ::before {
-                                content: "•";
-                                position: absolute;
-                                left: 0;
-                                color: ${baseTheme.colors.green[600]};
-                              }
-                            `}
-                          >
-                            {prerequisite.prerequisite}
-                          </li>
-                        </ul>
-                      ))
-                    : null
-                }
+                          ::before {
+                            content: "•";
+                            position: absolute;
+                            left: 0;
+                            color: ${baseTheme.colors.green[600]};
+                          }
+                        `}
+                      >
+                        {prerequisite.prerequisite}
+                      </li>
+                    </ul>
+                  )),
+                )}
                 isVisible={showPrerequisites}
               />
               <ContentDisplayBox
                 label={t("audiences-fieldset-title")}
-                content={
-                  courseAuditingData.audiences.length > 0
-                    ? courseAuditingData.audiences.map((audience) => (
-                        <ul
-                          key={audience.id}
-                          className={css`
-                            list-style: none;
-                            padding: 0;
-                            margin: 0;
-                            font-size: 0.9rem;
-                            line-height: 1.5;
-                          `}
-                        >
-                          <li
-                            className={css`
-                              padding: 0.2rem 0;
-                              padding-left: 1.25rem;
-                              position: relative;
+                content={nullIfFalsy(
+                  courseAuditingData.audiences.length > 0,
+                  courseAuditingData.audiences.map((audience) => (
+                    <ul
+                      key={audience.id}
+                      className={css`
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                      `}
+                    >
+                      <li
+                        className={css`
+                          padding: 0.2rem 0;
+                          padding-left: 1.25rem;
+                          position: relative;
 
-                              ::before {
-                                content: "•";
-                                position: absolute;
-                                left: 0;
-                                color: ${baseTheme.colors.green[600]};
-                              }
-                            `}
-                          >
-                            {audience.audience}
-                          </li>
-                        </ul>
-                      ))
-                    : null
-                }
+                          ::before {
+                            content: "•";
+                            position: absolute;
+                            left: 0;
+                            color: ${baseTheme.colors.green[600]};
+                          }
+                        `}
+                      >
+                        {audience.audience}
+                      </li>
+                    </ul>
+                  )),
+                )}
                 isVisible={showAudiences}
               />
             </div>
 
-            {showSuggestMetadata ? (
+            {showSuggestMetadata && (
               <CourseMetadata
                 courseId={courseAuditingData.id}
                 defaultModuleUhCourseCode={defaultModuleUhCourseCode}
@@ -595,38 +595,39 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 courseAuditingData={courseAuditingData}
                 queryClient={queryClient}
               />
-            ) : null}
+            )}
 
-            {courseAuditingData.closed_at ? (
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 1rem;
-                `}
-              >
-                <div className={contentRowStyles}>
-                  <ContentDisplayBox
-                    label={t("closed-at")}
-                    content={<TimeComponent date={parseISO(courseAuditingData.closed_at)} />}
-                    isVisible={showClosedAt}
-                  />
-                  <ContentDisplayBox
-                    label={t("closed-course-successor-id")}
-                    content={courseAuditingData.closed_course_successor_id}
-                    isVisible={showClosedCourseSuccessorId}
-                  />
-                </div>
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+              `}
+            >
+              <div className={contentRowStyles}>
                 <ContentDisplayBox
-                  label={t("closed-additional-message")}
-                  content={courseAuditingData.closed_additional_message}
-                  isVisible={showAdditionalMessage}
+                  label={t("closed-at")}
+                  content={
+                    courseAuditingData.closed_at && (
+                      <TimeComponent date={parseISO(courseAuditingData.closed_at)} />
+                    )
+                  }
+                  isVisible={showClosedAt}
+                />
+                <ContentDisplayBox
+                  label={t("closed-course-successor-id")}
+                  content={courseAuditingData.closed_course_successor_id}
+                  isVisible={Boolean(courseAuditingData.closed_at) && showClosedCourseSuccessorId}
                 />
               </div>
-            ) : (
-              <ContentDisplayBox label={t("closed-at")} isVisible={showClosedAt} />
-            )}
-            {showModules ? (
+              <ContentDisplayBox
+                label={t("closed-additional-message")}
+                content={courseAuditingData.closed_additional_message}
+                isVisible={Boolean(courseAuditingData.closed_at) && showAdditionalMessage}
+              />
+            </div>
+
+            {showModules && (
               <>
                 <div
                   className={css`
@@ -672,7 +673,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   </FieldSet>
                 ))}
               </>
-            ) : null}
+            )}
           </div>
         )}
         <div

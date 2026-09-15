@@ -67,7 +67,7 @@ test("User can create and respond to research form in a course", async ({
       snapshotName: "research-consent-form-shows-if-not-aswered",
       waitForTheseToBeVisibleAndStable: [page.getByText("Research form")],
     })
-    await page.getByText("I want to take part in research").click()
+    await page.getByRole("checkbox", { name: "I want to take part in research" }).check()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

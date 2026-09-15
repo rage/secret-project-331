@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { hideToasts, waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -147,8 +148,8 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await page.getByRole("button", { name: "Edit", exact: true }).click()
 
     await page.getByLabel("Name").first().fill("The intermediaries TEST change")
-    await page.getByLabel("Set Deadline").first().check()
-    await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
+    await page.getByRole("checkbox", { name: "Set Deadline" }).first().check()
+    await new DateTimeLocalField(page, "chapter-deadline-field").setValue("2050-01-01T23:59")
 
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Update" }).click()

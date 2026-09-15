@@ -120,7 +120,7 @@ test.skip("Testing exam works", async ({ page }) => {
     await page.waitForTimeout(100)
     await page.getByText("Your submission has been saved.").isVisible()
     await page.waitForTimeout(100)
-    await page.getByText("Show answers").click()
+    await page.getByRole("checkbox", { name: "Show answers" }).check()
     await page.waitForTimeout(100)
     await expect(quizzesIframe.getByText("Your answer was correct.")).toBeVisible()
   })

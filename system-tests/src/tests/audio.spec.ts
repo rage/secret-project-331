@@ -5,6 +5,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
+import { FileField } from "../utils/components/FileField"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -26,12 +27,8 @@ test.describe("Audio player accessibility", () => {
       .getByLabel("Dropdown menu")
       .click()
     await page.getByRole("button", { name: "Upload audio file" }).click()
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent("filechooser"),
-      page.locator("#audioFile").click(),
-    ])
-    await fileChooser.setFiles("src/fixtures/media/audio.ogg")
-    await page.getByRole("button", { name: "Upload" }).click()
+    await new FileField(page, "page-audio-file-field").upload("src/fixtures/media/audio.ogg")
+    await page.getByRole("button", { name: "Upload", exact: true }).click()
     await page.getByText("Success").first().waitFor()
     await page.getByText("audio/ogg").waitFor()
 

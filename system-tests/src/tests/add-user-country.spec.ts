@@ -70,7 +70,7 @@ test("User can add missing country information", async ({ page }) => {
     await researchConsentDialog
       .getByText("I want to participate in the")
       .waitFor({ timeout: 10000 })
-    await researchConsentDialog.getByText("I want to participate in the").click()
+    await researchConsentDialog.getByRole("radio", { name: "I want to participate in the" }).check()
     await researchConsentDialog.getByRole("button", { name: "Save" }).click()
 
     await page.getByText("Please confirm your email address.").waitFor()

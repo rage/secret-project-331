@@ -32,5 +32,5 @@ test("Can close courses and shows warning dialog", async ({ page }) => {
   await page.getByText("Additional information").waitFor()
   await page.getByText(ADDITIONAL_MESSAGE).waitFor()
   await page.getByText("New version of the course").click()
-  expect(page.url()).toBe("http://project-331.local/org/uh-mathstat/courses/self-review")
+  await expect(page).toHaveURL("http://project-331.local/org/uh-mathstat/courses/self-review")
 })

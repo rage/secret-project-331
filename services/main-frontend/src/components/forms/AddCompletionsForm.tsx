@@ -199,7 +199,12 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       />
 
       <p>{t("label-csv-completion-date")}</p>
-      <DateField control={control} name="date" label={t("date")} />
+      <DateField
+        control={control}
+        name="date"
+        label={t("date")}
+        data-testid="completion-date-field"
+      />
 
       <FormatInstructions>
         <FormatTitle>{t("label-csv-completions-format")}</FormatTitle>

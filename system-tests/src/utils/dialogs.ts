@@ -78,6 +78,24 @@ export async function respondToConfirmDialog(
 }
 
 /**
+ * Accepts a prompt dialog whose value its own body supplies instead of the built-in input.
+ *
+ * `fillPromptDialog` is the one to use when the dialog carries that input; this one only presses
+ * OK, which stays disabled until the body has armed it.
+ * @param page - Playwright page object
+ */
+export async function acceptPromptDialog(page: Page): Promise<void> {
+  await test.step("Accept prompt dialog", async () => {
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
+    await dialog.waitFor()
+
+    await dialog.getByTestId(PROMPT_DIALOG_OK_BUTTON_TEST_ID).click()
+
+    await dialog.waitFor({ state: "hidden" })
+  })
+}
+
+/**
  * Fill and submit or cancel a prompt dialog
  * @param page - Playwright page object
  * @param inputValue - The value to enter in the input field

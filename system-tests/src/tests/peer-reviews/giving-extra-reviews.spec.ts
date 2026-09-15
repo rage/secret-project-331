@@ -82,7 +82,7 @@ test.describe("Students should be able to give extra peer reviews to receive pri
       await adminPage.getByRole("button", { name: "Search" }).click()
       await adminPage
         .getByRole("row", { name: "02364d40-2aac-4763-8a06-" })
-        .getByRole("button")
+        .getByRole("link", { name: "Details" })
         .click()
       const courseCard = adminPage
         .getByTestId("course-status-card")

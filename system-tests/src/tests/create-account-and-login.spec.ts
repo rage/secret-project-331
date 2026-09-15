@@ -21,7 +21,7 @@ test("User can create an account and log in", async ({ page }) => {
     })
 
     await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
-    await page.getByText("I do not want to participate").click()
+    await page.getByRole("radio", { name: "I do not want to participate" }).check()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

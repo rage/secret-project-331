@@ -74,7 +74,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await student1Page.getByRole("button", { name: "Start self review" }).click()
       await student1Page.getByText("In this review, you have to do x.").waitFor()
       await student1Page
-        .getByPlaceholder("Write a review")
+        .getByRole("textbox", { name: "General feedback" })
         .fill("This was such a good answer 100/100.")
       await student1Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await waitForSuccessNotification(student1Page, async () => {

@@ -124,7 +124,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByRole("radio", { name: "Reject", exact: true }).nth(2).check()
 
   await waitForSuccessNotification(page, async () => {
-    await page.click('text="Send"')
+    await page.getByRole("button", { name: "Send" }).first().click()
   })
 
   await page.click('text="Old"')

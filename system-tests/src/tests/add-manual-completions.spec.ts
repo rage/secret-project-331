@@ -1,4 +1,8 @@
+import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
+
+import { DateField } from "@/utils/components/DateField"
+import { Select } from "@/utils/components/Select"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -19,7 +23,7 @@ test("Teacher can manually add completions with validations", async ({ page }) =
 
   await test.step("Open the add completions form", async () => {
     await page.getByRole("button", { name: "Manually add completions" }).click()
-    await page.getByLabel("date").fill("2024-02-21")
+    await fillCompletionDefaults(page)
   })
 
   await test.step("CSV missing required header", async () => {
@@ -31,7 +35,6 @@ test("Teacher can manually add completions with validations", async ({ page }) =
   })
 
   await test.step("Grade out of range", async () => {
-    await page.getByLabel("date").fill("2024-02-21")
     await page
       .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,6")
@@ -40,7 +43,6 @@ test("Teacher can manually add completions with validations", async ({ page }) =
   })
 
   await test.step("Invalid grade format", async () => {
-    await page.getByLabel("date").fill("2024-02-21")
     await page
       .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,excellent")
@@ -51,7 +53,6 @@ test("Teacher can manually add completions with validations", async ({ page }) =
   })
 
   await test.step("Valid submission", async () => {
-    await page.getByLabel("date").fill("2024-02-21")
     await page
       .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,3")
@@ -65,8 +66,8 @@ test("Teacher can manually add completions with validations", async ({ page }) =
 
   await test.step("Duplicate submission", async () => {
     await page.getByRole("button", { name: "Manually add completions" }).click()
+    await fillCompletionDefaults(page)
 
-    await page.getByLabel("date").fill("2024-02-21")
     await page
       .getByRole("textbox", { name: "CSV" })
       .fill("user_id,grade\nd7d6246c-45a8-4ff4-bf4d-31dedfaac159,5")
@@ -77,3 +78,16 @@ test("Teacher can manually add completions with validations", async ({ page }) =
     await expect(page.getByText("Completions submitted")).toBeVisible()
   })
 })
+
+/**
+ * Fills the two fields every check below depends on.
+ *
+ * The module select starts on its placeholder and is required, so leaving it alone makes "Check"
+ * fail validation before it ever parses the CSV the step is actually testing.
+ */
+async function fillCompletionDefaults(page: Page): Promise<void> {
+  await new Select(page, page.getByRole("button", { name: "Course module" })).chooseOption(
+    "Default",
+  )
+  await new DateField(page, "completion-date-field").setValue("2024-02-21")
+}

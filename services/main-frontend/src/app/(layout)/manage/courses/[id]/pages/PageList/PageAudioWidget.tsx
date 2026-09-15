@@ -213,6 +213,7 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             name="audioFile"
             label={t("audio-upload")}
             accept={ACCEPTABLE_MIME_TYPES.join(",")}
+            data-testid="page-audio-file-field"
           />
           <input type="submit" value={t("upload")} />
         </form>

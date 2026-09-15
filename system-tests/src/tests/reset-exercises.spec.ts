@@ -150,7 +150,7 @@ test("Can manually reset exercises", async () => {
 
   await adminPage.getByRole("button", { name: "Close" }).click()
 
-  await adminPage.getByText("Reset only if less than max").click()
+  await adminPage.getByRole("checkbox", { name: "Reset only if less than max" }).check()
   await adminPage.locator('input[type="checkbox"]').nth(3).check()
   await adminPage.locator('input[type="checkbox"]').nth(4).check()
   await adminPage.locator('input[type="checkbox"]').nth(5).check()

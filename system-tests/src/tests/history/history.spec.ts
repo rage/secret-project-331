@@ -90,7 +90,9 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await saveCMSPage(page)
-  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeEnabled()
+  // Save goes disabled once the editor's content matches what came back from the server, so this
+  // is what "the round trip is over" looks like from the outside.
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -186,7 +188,7 @@ screenshotTarget: page,
 
   await page.getByText("Restore").click()
   await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
-  await page.getByLabel("Page 1", { exact: true }).waitFor()
+  await page.getByLabel("Current page: 1", { exact: true }).waitFor()
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({

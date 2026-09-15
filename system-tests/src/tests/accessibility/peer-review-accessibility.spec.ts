@@ -49,7 +49,9 @@ test.describe("Students should be able to navigate and select peer review radiob
     const strDisBut = student1Page.getByRole("radio", { name: "Strongly disagree" }).first()
     await expect(strDisBut).toBeVisible()
     await expect(strDisBut).toBeEnabled()
-    await student1Page.getByPlaceholder("Write a review").press("Tab")
+    await student1Page
+      .getByRole("textbox", { name: "What are your thoughts on the answer" })
+      .press("Tab")
     await student1Page.keyboard.press("ArrowRight")
     await expect(
       student1Page.getByRole("radio", { name: "Disagree", exact: true }).first(),

@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { acceptPromptDialog } from "@/utils/dialogs"
+
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -24,7 +26,7 @@ test("Can get and accept paragraph AI suggestions", async ({ page }) => {
 
   await expect(page.getByText("Suggestion 1").first()).toBeVisible()
   await page.getByText("Suggestion 1").first().click()
-  await page.getByRole("button", { name: "Yes" }).click()
+  await acceptPromptDialog(page)
   await dialogLocator.waitFor({ state: "hidden" })
 
   await expect(page.getByText("Mock suggestion 1: The paragraph has been improved.")).toBeVisible()

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { Select } from "@/utils/components/Select"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { manageOrganization } from "@/utils/organizationUtils"
 
@@ -68,14 +69,12 @@ test("Organization workflow", async ({ page }) => {
       await page.getByRole("button", { name: "Save" }).click()
     })
     await page.getByText("Reviewer").click()
-    page.once("dialog", (dialog) => {
-      console.log(`Dialog message: ${dialog.message()}`)
-      dialog.dismiss().catch(() => {})
-    })
   })
 
   await test.step("Delete user permissions and organization", async () => {
     await page.getByRole("button", { name: "Delete user Teacher Example" }).click()
+    await respondToConfirmDialog(page, true, "Are you sure you want to delete user")
+    await expect(page.getByRole("button", { name: "Delete user Teacher Example" })).toHaveCount(0)
     await page.getByRole("tab", { name: "General" }).click()
     await page.getByRole("button", { name: "Edit" }).click()
     await page.getByRole("button", { name: "Delete organization" }).click()

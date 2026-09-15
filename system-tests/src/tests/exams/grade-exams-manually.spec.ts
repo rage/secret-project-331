@@ -132,14 +132,14 @@ test("Grade exams manually", async ({}) => {
     .getByRole("row", { name: "Grade 02364d40-2aac-4763-8a06" })
     .getByRole("button")
     .click()
-  await teacherPage.locator("#Justification").fill("Ok")
+  await teacherPage.getByRole("textbox", { name: "Justification / Feedback" }).fill("Ok")
   await teacherPage.getByLabel("Score", { exact: true }).fill("1")
   await waitForSuccessNotification(teacherPage, async () => {
     await teacherPage.getByRole("button", { name: "Save and next" }).click()
   })
   await waitForMessageChannelIframesToBeReady(teacherPage)
 
-  await teacherPage.locator("#Justification").fill("Good")
+  await teacherPage.getByRole("textbox", { name: "Justification / Feedback" }).fill("Good")
   await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")
   await waitForSuccessNotification(teacherPage, async () => {
     await teacherPage.getByRole("button", { name: "Submit" }).click()

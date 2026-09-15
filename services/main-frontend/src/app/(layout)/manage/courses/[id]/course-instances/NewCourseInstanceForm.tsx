@@ -64,6 +64,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <DateTimeLocalField
         name="openingTime"
         control={control}
+        data-testid="course-instance-opening-time-field"
         label={t("opening-time")}
         className={css`
           margin-bottom: 0.5rem;
@@ -72,6 +73,7 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       <DateTimeLocalField
         name="closingTime"
         control={control}
+        data-testid="course-instance-closing-time-field"
         label={t("closing-time")}
         className={css`
           margin-bottom: 0.5rem;

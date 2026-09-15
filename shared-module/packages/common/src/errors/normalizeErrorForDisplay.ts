@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next"
 import { ZodError } from "zod"
 
+import { isRecord } from "../utils/objects"
 import type { AppApiError } from "./AppApiError"
 import { isAppApiError } from "./AppApiError"
 
@@ -67,10 +68,6 @@ export interface ErrorViewModel {
   metadata: Record<string, unknown> | null
   technicalDetails: ErrorViewTechnicalDetails | null
   raw: unknown
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null
 }
 
 function isBackendMessageKey(value: unknown): value is BackendMessageKey {

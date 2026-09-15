@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next"
 
+import { isRecord } from "../utils/objects"
 import type { ErrorViewModel } from "./normalizeErrorForDisplay"
 
 export interface ResolvedErrorDisplayCopy {
@@ -14,10 +15,6 @@ function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction): string | 
   }
   const localized = t(`error-issue-code.${firstIssueCode}.message`, { defaultValue: "" })
   return localized.trim() === "" ? null : localized
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null
 }
 
 /**

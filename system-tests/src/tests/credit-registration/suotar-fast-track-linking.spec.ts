@@ -7,7 +7,6 @@ import {
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { adminResolveStudentNumber } from "@/utils/creditRegistrationAdmin"
-import { respondToConfirmDialog } from "@/utils/dialogs"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   queuedEmailsFor,
@@ -164,7 +163,10 @@ test("Every auto-link notifies the verified address and can be unlinked in one c
     await expect(notice.getByText(VERIFIED)).toBeVisible()
 
     await notice.getByRole("button", { name: "Not mine, remove it" }).click()
-    await respondToConfirmDialog(page, true)
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Remove this student number" })
+      .click()
     await expect(page.getByText("No student number is linked to this account yet.")).toBeVisible()
   })
 

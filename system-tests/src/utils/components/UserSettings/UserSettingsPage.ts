@@ -25,7 +25,7 @@ export class UserSettingsPage {
   }
 
   public async navigateToPermissionsTab(): Promise<void> {
-    await this.page.getByRole("tab", { name: "Permissions & Data" }).click()
+    await this.page.getByRole("tab", { name: "Permissions" }).click()
     await this.permissionsTab.waitForTab()
   }
 }

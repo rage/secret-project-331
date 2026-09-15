@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import type {
   CustomSeriesRenderItemAPI,
   CustomSeriesRenderItemParams,
@@ -10,6 +11,8 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
+import { PLAIN_DISCLOSURE } from "@/components/credit-registration/constants"
+import { emptyStateCss } from "@/components/credit-registration/styles"
 import {
   moduleTimingCaptionCss,
   ModuleTimingCells,
@@ -28,7 +31,6 @@ import {
   escapeHtml,
   LINE_BREAK,
   SERIES_COLORS,
-  SPLIT_AREA_COLORS,
   TIME_AXIS_LABEL,
   timeAxisBounds,
   TRACK_FILL,
@@ -50,7 +52,16 @@ const MARK_BORDER = "#ffffff"
 const REVIEW_DOT_FILL = "#c4281b" // off-palette review red; no baseTheme token matches
 const REVIEW_DOT_BORDER = "#ffffff"
 // Vertical pixels per lane row; the chart height scales with the lane count.
-const LANE_ROW_PX = 90
+const LANE_ROW_PX = 72
+// Axis, zoom slider and grid padding around the lanes.
+const CHART_CHROME_PX = 70
+const MIN_CHART_HEIGHT_PX = 160
+// Past this many lanes the chart scrolls inside its own frame: a bulk-enrolled account packs a lane
+// per course, and a band thousands of pixels tall buries the enrolment list below it.
+const LANES_BEFORE_SCROLLING = 6
+const SCROLLING_CHART_HEIGHT_PX = LANES_BEFORE_SCROLLING * LANE_ROW_PX + CHART_CHROME_PX
+// Below this the whole account happened at one instant and the axis would be an hour scale.
+const DAY_MS = 24 * 60 * 60 * 1000
 // Lane packing runs on rendered pixel footprints (marker overhang + measured label width), not raw data
 // spans, so two courses sharing a lane can never collide on screen. Constants: minimum horizontal gap
 // between two items in a lane; cap on a reserved label width; marker overhang reserved past the span end
@@ -99,6 +110,23 @@ const MIN_CLUSTER_MS = 60 * 60 * 1000
 // Separator between the stacked completions listed in a merged tooltip.
 const TOOLTIP_DIVIDER = '<div style="border-top:1px solid rgba(0,0,0,0.15);margin:5px 0"></div>'
 
+// A grid item's `min-width: auto` lets any too-wide descendant widen the whole page rather than
+// shrink; the chart and the raw table are both wider than a phone.
+const rootCss = css`
+  min-width: 0;
+`
+
+const scrollingChartFrameCss = css`
+  max-height: ${SCROLLING_CHART_HEIGHT_PX}px;
+  overflow-y: auto;
+`
+
+const tableFrameCss = css`
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+`
+
 // Lazily created, module-level offscreen 2D context reused for label width measurement. `undefined` = not
 // yet attempted; `null` = unavailable (SSR / jsdom), in which case callers fall back to a per-char estimate.
 let labelMeasureCtx: CanvasRenderingContext2D | null | undefined
@@ -135,12 +163,20 @@ interface CourseBar {
  * per-exercise scale, so lane heights are comparable; the course name sits just below the baseline. A
  * course with no activity shows a single diamond at enrollment. Module completions overlay as dots (red
  * when awaiting review), merging into one count-badged dot when they overlap. Same data in the table below.
+ *
+ * The chart itself is behind a closed disclosure, and is replaced by one sentence whenever it would
+ * have nothing to plot — no submissions anywhere, or an account whose whole history is one instant.
  */
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()
 
+  // The chart is a diagnostic, not what the page is for: each enrolment card carries its own
+  // per-course timeline, so this one stays shut until asked for.
+  const [chartOpen, setChartOpen] = useState(false)
+
   // Container width drives the pixel-aware lane packing below; the ResizeObserver fires on attach and on
-  // every resize, re-packing purely in render (integer width avoids sub-pixel churn).
+  // every resize, re-packing purely in render (integer width avoids sub-pixel churn). The disclosure
+  // renders its panel lazily, so the first measurement can only happen once it is open.
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(DEFAULT_WIDTH_PX)
   useLayoutEffect(() => {
@@ -162,7 +198,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     })
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [chartOpen])
 
   const moduleName = (enrollment: CourseEnrollmentInfo, courseModuleId: string): string =>
     enrollment.course_modules.find((m) => m.id === courseModuleId)?.name ?? t("default-module")
@@ -187,8 +223,11 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   )
 
   // Total time the chart spans; drives the completion-cluster threshold.
-  const spanMs =
-    Math.max(...bars.map((b) => b.lastActivityMs)) - Math.min(...bars.map((b) => b.enrolledMs))
+  const spanMs = useMemo(
+    () =>
+      Math.max(...bars.map((b) => b.lastActivityMs)) - Math.min(...bars.map((b) => b.enrolledMs)),
+    [bars],
+  )
 
   // Shared time-axis bounds, used both for the x-axis and for the packing scale below.
   const { min, max } = useMemo(
@@ -219,6 +258,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       })),
       {
         msToPx,
+        plotLeftPx: plotLeft,
         plotRightPx: plotRight,
         measureLabelPx,
         maxLabelPx: MAX_LABEL_PX,
@@ -455,7 +495,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
     // Course name written just below the baseline (the violin rises above it, leaving the underside free).
     // Left-aligned from the span start by default; when flipped it right-aligns to end at the marker so a
-    // course near the right edge stays inside the plot instead of clipping.
+    // course near the right edge stays inside the plot instead of clipping. The width is clamped to the
+    // room actually left at the live (zoomed) anchor, so a label truncates rather than running off the plot.
     const underLabel = (
       x: number,
       align: typeof ECHARTS.ALIGN_LEFT | typeof ECHARTS.ALIGN_RIGHT,
@@ -469,15 +510,21 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         fontSize: 12,
         verticalAlign: ECHARTS.VALIGN_TOP,
         align,
-        width: labelWidthPx,
+        width: Math.max(
+          0,
+          Math.min(
+            labelWidthPx,
+            align === ECHARTS.ALIGN_RIGHT ? x - coordSys.x : coordSys.x + coordSys.width - x,
+          ),
+        ),
         overflow: ECHARTS.OVERFLOW_TRUNCATE,
       },
     })
 
     // No activity yet: a single diamond on the baseline at the enrollment instant, name beneath it.
     if (!bar.hasActivity) {
-      const cx = startX
-      if (cx < coordSys.x || cx > coordSys.x + coordSys.width) {
+      const centerX = startX
+      if (centerX < coordSys.x || centerX > coordSys.x + coordSys.width) {
         return { type: "group", children: [] }
       }
       const h = Math.min((laneHeight * DIAMOND_FRACTION) / 2, MAX_DIAMOND_HALF)
@@ -488,10 +535,10 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
             type: "polygon",
             shape: {
               points: [
-                [cx, baselineY - h],
-                [cx + h, baselineY],
-                [cx, baselineY + h],
-                [cx - h, baselineY],
+                [centerX, baselineY - h],
+                [centerX + h, baselineY],
+                [centerX, baselineY + h],
+                [centerX - h, baselineY],
               ],
             },
             style: {
@@ -501,8 +548,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
             },
           },
           labelFlipped
-            ? underLabel(cx + h, ECHARTS.ALIGN_RIGHT)
-            : underLabel(cx - h, ECHARTS.ALIGN_LEFT),
+            ? underLabel(centerX + h, ECHARTS.ALIGN_RIGHT)
+            : underLabel(centerX - h, ECHARTS.ALIGN_LEFT),
         ],
       }
     }
@@ -565,6 +612,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   }
 
   const laneLabels = Array.from({ length: laneCount }, (_, i) => String(i))
+  const scrolls = laneCount > LANES_BEFORE_SCROLLING
 
   const options: EChartsOption = {
     tooltip: {
@@ -572,12 +620,12 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       formatter: (params) => (params as unknown as { data?: { _tip?: string } }).data?._tip ?? "",
     },
     grid: { left: GRID_LEFT, right: GRID_RIGHT, top: 16, bottom: 56, containLabel: true },
+    // No split areas: alternating tinted columns behind a lane chart read as bars of their own.
     xAxis: {
       type: "time",
       min,
       max,
       axisLabel: { formatter: TIME_AXIS_LABEL, hideOverlap: true },
-      splitArea: { show: true, areaStyle: { color: SPLIT_AREA_COLORS } },
     },
     yAxis: {
       type: "category",
@@ -595,7 +643,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         bottom: 8,
         height: 18,
       },
-      { type: "inside", filterMode: ECHARTS.FILTER_WEAK },
+      // Wheel zoom would swallow the scroll the reader needs to reach the lanes below the fold.
+      { type: "inside", filterMode: ECHARTS.FILTER_WEAK, zoomOnMouseWheel: !scrolls },
     ],
     aria: { enabled: true },
     series: [
@@ -621,34 +670,62 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     ],
   }
 
+  const earliestEnrolledMs = Math.min(...bars.map((b) => b.enrolledMs))
+  const hasSubmissions = [...densityByCourse.values()].some((density) => density !== null)
+  // A density chart with no density, or with everything at one instant, is chrome around one dot.
+  const insteadOfChart =
+    spanMs < DAY_MS
+      ? t("activity-all-within-one-day", { date: dateToString(new Date(earliestEnrolledMs)) })
+      : hasSubmissions
+        ? null
+        : t("activity-no-submissions-recorded")
+
   return (
-    <div ref={wrapperRef}>
-      <Echarts options={options} height={Math.max(160, laneCount * LANE_ROW_PX + 70)} />
-      <p className={moduleTimingLegendCss}>{t("density-legend")}</p>
-      <Disclosure title={t("show-underlying-data")}>
-        <table className={moduleTimingTableCss}>
-          <caption className={moduleTimingCaptionCss}>{t("gantt-timeline-caption")}</caption>
-          <thead>
-            <tr>
-              <th>{t("course")}</th>
-              <th>{t("label-module")}</th>
-              <th>{t("label-started")}</th>
-              <th>{t("label-completed")}</th>
-              <th>{t("label-time-in-module")}</th>
-              <th>{t("label-since-enrolled")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {moduleRowsByCourse.flatMap((course) =>
-              course.rows.map((row, i) => (
-                <tr key={row.moduleId}>
-                  {i === 0 ? <td rowSpan={course.rows.length}>{course.name}</td> : null}
-                  <ModuleTimingCells row={row} />
-                </tr>
-              )),
-            )}
-          </tbody>
-        </table>
+    <div className={rootCss}>
+      {insteadOfChart !== null ? (
+        <p className={emptyStateCss}>{insteadOfChart}</p>
+      ) : (
+        <Disclosure
+          variant={PLAIN_DISCLOSURE}
+          title={t("show-activity-chart")}
+          expanded={chartOpen}
+          onExpandedChange={setChartOpen}
+        >
+          <div ref={wrapperRef} className={scrolls ? scrollingChartFrameCss : undefined}>
+            <Echarts
+              options={options}
+              height={Math.max(MIN_CHART_HEIGHT_PX, laneCount * LANE_ROW_PX + CHART_CHROME_PX)}
+            />
+          </div>
+          <p className={moduleTimingLegendCss}>{t("density-legend")}</p>
+        </Disclosure>
+      )}
+      <Disclosure variant={PLAIN_DISCLOSURE} title={t("show-underlying-data")}>
+        <div className={tableFrameCss}>
+          <table className={moduleTimingTableCss}>
+            <caption className={moduleTimingCaptionCss}>{t("gantt-timeline-caption")}</caption>
+            <thead>
+              <tr>
+                <th>{t("course")}</th>
+                <th>{t("label-module")}</th>
+                <th>{t("label-started")}</th>
+                <th>{t("label-completed")}</th>
+                <th>{t("label-time-in-module")}</th>
+                <th>{t("label-since-enrolled")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {moduleRowsByCourse.flatMap((course) =>
+                course.rows.map((row, i) => (
+                  <tr key={row.moduleId}>
+                    {i === 0 ? <td rowSpan={course.rows.length}>{course.name}</td> : null}
+                    <ModuleTimingCells row={row} />
+                  </tr>
+                )),
+              )}
+            </tbody>
+          </table>
+        </div>
       </Disclosure>
     </div>
   )

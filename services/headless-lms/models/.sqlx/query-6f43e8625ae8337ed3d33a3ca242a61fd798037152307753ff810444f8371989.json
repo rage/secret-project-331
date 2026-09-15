@@ -1,0 +1,110 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.course_module_id,\n  cr.state,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE cr.needs_admin_attention\n  ) AS \"needs_admin_attention_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.course_id = $1\n  AND (\n    $2::uuid IS NULL\n    OR cr.course_instance_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nGROUP BY cr.course_module_id,\n  cr.state,\n  p.completion_eligible,\n  p.has_verified_student_number,\n  (cr.selected_enrolment_id IS NOT NULL)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "completion_eligible!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "completion_eligible"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "has_verified_student_number!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "has_verified_student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "enrolment_resolved!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "needs_admin_attention_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "6f43e8625ae8337ed3d33a3ca242a61fd798037152307753ff810444f8371989"
+}

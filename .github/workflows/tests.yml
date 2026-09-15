@@ -240,6 +240,11 @@ jobs:
       - name: Install dependencies for shared-module/packages/common
         run: pnpm install --frozen-lockfile
         working-directory: ./shared-module/packages/common
+        # The common package wraps components from shared-module/packages/components, so
+        # type-checking it compiles their sources and needs their dependencies too
+      - name: Install dependencies for shared-module/packages/components
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/components
         # Have to run pnpm install on main-frontend because we read next config from there
       - name: Install dependencies for services/main-frontend
         run: pnpm install --frozen-lockfile

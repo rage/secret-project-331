@@ -1,7 +1,6 @@
-import type { TFunction } from "i18next"
-
 import type { ResendOutcome } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom } from "./labelFrom"
 
 const RESEND_OUTCOME_KEYS = {
@@ -20,5 +19,7 @@ const RESEND_OUTCOME_UNKNOWN_KEY = "credit-registration-resend-unknown-outcome"
 export const RESEND_QUEUED: ResendOutcome = "queued"
 
 /** An unrecognised outcome must not fall back to `queued`: that reads as the resend having worked. */
-export const resendOutcomeLabel = (t: TFunction, outcome: ResendOutcome): string =>
-  labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
+export const resendOutcomeLabel = (
+  t: CreditRegistrationTFunction,
+  outcome: ResendOutcome,
+): string => labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)

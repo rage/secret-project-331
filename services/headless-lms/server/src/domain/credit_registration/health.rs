@@ -63,6 +63,7 @@ const PERMANENT_FAILURE_RATE_PERCENT: i64 = 10;
 const MISREGISTRATION_CRITICAL_COUNT: i64 = 5;
 /// Linking mails one hour may hand over before the volume itself is the problem.
 const LINKING_MAIL_HOURLY_CAP: i64 = 500;
+const LINKING_MAIL_RATE_WINDOW_SECS: i64 = 60 * 60;
 /// Queued work that makes a day without a single completion mean something.
 const IDLE_QUEUE_DEPTH: i64 = 20;
 /// How long a completion may sit outside the ledger before `materialize` is the suspect rather
@@ -117,6 +118,10 @@ pub struct CreditRegistrationAlert {
     /// What `count` is out of, where the rule measured one. Not a threshold: thresholds are the
     /// same for every evaluation and travel separately.
     pub total: Option<i64>,
+    /// How far back the rule looked, where it looked back at all. `None` for a rule that reads the
+    /// live state or a threshold rather than a window; without it, two alerts counting the same
+    /// thing over different windows read as a contradiction.
+    pub window_secs: Option<i64>,
     /// When it last happened, where the rule has an instant to point at.
     pub at: Option<DateTime<Utc>>,
     /// An identifier the operator can act on — a phase name, a ledger state, a mail domain. Never a
@@ -182,6 +187,7 @@ pub async fn evaluate(
     if credentials.count > 0 {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::CredentialsRejected,
+            window_secs: Some(CREDENTIAL_REJECTION_WINDOW_SECS),
             severity: CreditRegistrationAlertSeverity::Critical,
             count: credentials.count,
             total: None,
@@ -198,6 +204,7 @@ pub async fn evaluate(
     if unreachable.count >= UNREACHABLE_CONSECUTIVE_FAILURES {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::StudyRegistryUnreachable,
+            window_secs: Some(UNREACHABLE_WINDOW_SECS),
             severity: CreditRegistrationAlertSeverity::Critical,
             count: unreachable.count,
             total: None,
@@ -271,6 +278,7 @@ async fn sisu_outage_alert(
     }
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::SisuUnavailable,
+        window_secs: Some(SISU_OUTAGE_WINDOW_SECS),
         severity: CreditRegistrationAlertSeverity::Critical,
         count: totals.sisu_unavailable_count,
         total: Some(totals.item_count),
@@ -295,6 +303,7 @@ fn stuck_alert(stuck: &[StuckRegistrationCount]) -> Option<CreditRegistrationAle
     };
     Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::StuckRegistrations,
+        window_secs: None,
         severity,
         count: total,
         total: None,
@@ -325,6 +334,7 @@ async fn linking_mail_alert(
     .map(|row| row.domain);
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::LinkingMailSendFailed,
+        window_secs: Some(LINKING_MAIL_WINDOW_SECS),
         severity: CreditRegistrationAlertSeverity::Warning,
         count: totals.send_failed,
         total: Some(totals.mails_in_window),
@@ -341,7 +351,7 @@ async fn linking_mail_rate_alert(
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let sent = credit_registration_account_linking_emails::count_sent_since(
         conn,
-        now - chrono::Duration::hours(1),
+        now - chrono::Duration::seconds(LINKING_MAIL_RATE_WINDOW_SECS),
     )
     .await?;
     if sent <= LINKING_MAIL_HOURLY_CAP {
@@ -354,6 +364,7 @@ async fn linking_mail_rate_alert(
     };
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::LinkingMailRateCapExceeded,
+        window_secs: Some(LINKING_MAIL_RATE_WINDOW_SECS),
         severity,
         count: sent,
         total: Some(LINKING_MAIL_HOURLY_CAP),
@@ -411,6 +422,7 @@ async fn phase_alerts(
     if !stale.is_empty() {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PhaseHeartbeatStale,
+            window_secs: None,
             severity: CreditRegistrationAlertSeverity::Critical,
             count: stale.len() as i64,
             total: Some(phases.len() as i64),
@@ -421,6 +433,7 @@ async fn phase_alerts(
     if !failing.is_empty() {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PhaseFailing,
+            window_secs: None,
             severity: CreditRegistrationAlertSeverity::Critical,
             count: failing.len() as i64,
             total: Some(phases.len() as i64),
@@ -431,6 +444,7 @@ async fn phase_alerts(
     if paused > 0 && paused == phases.len() {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PipelinePausedGlobally,
+            window_secs: None,
             severity: CreditRegistrationAlertSeverity::Info,
             count: paused as i64,
             total: Some(phases.len() as i64),
@@ -458,6 +472,7 @@ async fn terminal_outcome_alerts(
     if totals.failed_permanent_count >= PERMANENT_FAILURE_COUNT || rate_broken {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PermanentFailuresAccumulating,
+            window_secs: Some(TERMINAL_WINDOW_SECS),
             severity: CreditRegistrationAlertSeverity::Warning,
             count: totals.failed_permanent_count,
             total: Some(totals.total_count),
@@ -475,6 +490,7 @@ async fn terminal_outcome_alerts(
     if misregistered > 0 {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::MisregistrationsDetected,
+            window_secs: Some(TERMINAL_WINDOW_SECS),
             severity: if misregistered >= MISREGISTRATION_CRITICAL_COUNT {
                 CreditRegistrationAlertSeverity::Critical
             } else {
@@ -492,6 +508,7 @@ async fn terminal_outcome_alerts(
     if totals.total_count == 0 && queued > IDLE_QUEUE_DEPTH {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PipelineIdle,
+            window_secs: Some(TERMINAL_WINDOW_SECS),
             severity: CreditRegistrationAlertSeverity::Warning,
             count: queued,
             total: None,
@@ -511,6 +528,7 @@ async fn course_configuration_alert(
         course_module_suotar_configurations::count_modules_failing_config_check(conn).await?;
     Ok((count > 0).then_some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::CourseConfigurationBroken,
+        window_secs: None,
         severity: CreditRegistrationAlertSeverity::Warning,
         count,
         total: None,
@@ -535,6 +553,7 @@ async fn never_entered_alert(
     }
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::CompletionsNeverEntered,
+        window_secs: None,
         severity: CreditRegistrationAlertSeverity::Warning,
         count: found.len() as i64,
         total: Some(NEVER_ENTERED_SAMPLE_LIMIT),
@@ -576,6 +595,7 @@ async fn latency_regression_alert(
     }
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::ConfirmationLatencyRegressed,
+        window_secs: Some(LATENCY_WINDOW_SECS),
         severity: CreditRegistrationAlertSeverity::Info,
         count: current_p95,
         total: Some(previous_p95),
@@ -595,6 +615,7 @@ async fn fast_track_name_mismatch_alert(
     Ok(
         (count >= FAST_TRACK_NAME_MISMATCH_COUNT).then_some(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::FastTrackNameMismatch,
+            window_secs: None,
             severity: CreditRegistrationAlertSeverity::Warning,
             count,
             total: None,

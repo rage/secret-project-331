@@ -6,12 +6,11 @@ import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { emptyStateCss } from "@/components/credit-registration/styles"
 import { getUserResetExerciseLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { CopyButton, QueryResult } from "@/shared-module/components"
-
-import { sectionHeadingCss } from "../lib/sectionHeading"
 
 export interface ExerciseResetLogSectionProps {
   userId: string
@@ -65,79 +64,69 @@ const idCellCss = css`
   font-variant-numeric: tabular-nums;
 `
 
-const emptyCss = css`
-  color: ${baseTheme.colors.gray[500]};
-`
-
 /** Teacher/admin audit view: exercises that have been reset for this user, grouped by day. */
 const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userId }) => {
   const { t } = useTranslation()
   const query = useQuery({ ...getUserResetExerciseLogsOptions({ path: { user_id: userId } }) })
 
   return (
-    <section>
-      <h2 className={sectionHeadingCss}>{t("label-exercise-reset-log")}</h2>
-      <QueryResult query={query} treatEmptyAsData>
-        {(data) => {
-          if (data.length === 0) {
-            return <p className={emptyCss}>{t("no-exercise-resets")}</p>
-          }
-          // Group by local day and resetter so same-day resets aggregate, but different people or days
-          // stay separate and attributed.
-          const grouped = groupBy(
-            data,
-            (log) => `${localDay(log.created_at)}::${log.reset_by ?? ""}`,
-          )
-          return (
-            <div>
-              {Object.entries(grouped).map(([groupKey, logs]) => {
-                const resetterName = [logs[0]?.reset_by_first_name, logs[0]?.reset_by_last_name]
-                  .filter(Boolean)
-                  .join(" ")
-                  .trim()
-                return (
-                  <div key={groupKey} className={groupCss}>
-                    <div className={groupHeaderCss}>
-                      {t("reset-group-header", {
-                        amount: logs.length,
-                        name: resetterName || t("reset-by-unknown-user"),
-                      })}
-                    </div>
-                    <table className={tableCss}>
-                      <thead>
-                        <tr>
-                          <th scope="col">{t("exercise")}</th>
-                          <th scope="col">{t("label-when")}</th>
-                          <th scope="col">{t("label-reason")}</th>
-                          <th scope="col">{t("label-exercise-id")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {logs.map((log) => (
-                          <tr key={log.id}>
-                            <td>{log.exercise_name}</td>
-                            <td>
-                              <TimeComponent date={new Date(log.created_at)} boldLabel={false} />
-                            </td>
-                            <td>{log.reason ?? t("label-not-specified")}</td>
-                            <td>
-                              <span className={idCellCss}>
-                                {log.exercise_id}
-                                <CopyButton value={log.exercise_id} label={t("copy-exercise-id")} />
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+    <QueryResult query={query} treatEmptyAsData>
+      {(data) => {
+        if (data.length === 0) {
+          return <p className={emptyStateCss}>{t("no-exercise-resets")}</p>
+        }
+        // Group by local day + resetter, so same-day resets by one person aggregate and the
+        // rest stay separate.
+        const grouped = groupBy(data, (log) => `${localDay(log.created_at)}::${log.reset_by ?? ""}`)
+        return (
+          <div>
+            {Object.entries(grouped).map(([groupKey, logs]) => {
+              const resetterName = [logs[0]?.reset_by_first_name, logs[0]?.reset_by_last_name]
+                .filter(Boolean)
+                .join(" ")
+                .trim()
+              return (
+                <div key={groupKey} className={groupCss}>
+                  <div className={groupHeaderCss}>
+                    {t("reset-group-header", {
+                      amount: logs.length,
+                      name: resetterName || t("reset-by-unknown-user"),
+                    })}
                   </div>
-                )
-              })}
-            </div>
-          )
-        }}
-      </QueryResult>
-    </section>
+                  <table className={tableCss}>
+                    <thead>
+                      <tr>
+                        <th scope="col">{t("exercise")}</th>
+                        <th scope="col">{t("label-when")}</th>
+                        <th scope="col">{t("label-reason")}</th>
+                        <th scope="col">{t("label-exercise-id")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {logs.map((log) => (
+                        <tr key={log.id}>
+                          <td>{log.exercise_name}</td>
+                          <td>
+                            <TimeComponent date={new Date(log.created_at)} boldLabel={false} />
+                          </td>
+                          <td>{log.reason ?? t("label-not-specified")}</td>
+                          <td>
+                            <span className={idCellCss}>
+                              {log.exercise_id}
+                              <CopyButton value={log.exercise_id} label={t("copy-exercise-id")} />
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            })}
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

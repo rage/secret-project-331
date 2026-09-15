@@ -4491,7 +4491,8 @@
           "email",
           "passed",
           "prerequisite_modules_completed",
-          "needs_to_be_reviewed"
+          "needs_to_be_reviewed",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "completion_date": {
@@ -4547,6 +4548,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the push path owns this completion. See the column comment; decided at insert."
           },
           "updated_at": {
             "type": "string",

@@ -1,4 +1,5 @@
 pub mod file_uploading;
+pub mod multi_query;
 pub mod pagination;
 
 /// Trims a query/payload string and turns a now-empty result into `None`, so "not provided" and

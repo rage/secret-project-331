@@ -40,7 +40,10 @@ export const isUserDetailsNotFound = (
 
 /** "First Last", trimmed; "" when neither is set (callers fall back to email / a generic label). */
 export const formatUserName = (
-  user: { first_name?: string | null; last_name?: string | null } | null | undefined,
+  user:
+    | { first_name?: string | null | undefined; last_name?: string | null | undefined }
+    | null
+    | undefined,
 ): string => `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim()
 
 /** Returns true when user details query inputs are sufficient to fetch data. */

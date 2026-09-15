@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 
-import { uploadArchiveAndGetUrl } from "./uploadArchive"
+import { uploadArchive } from "./uploadArchive"
 
 /** Reads a `form-data` request body and returns the multipart part name (the upload id). */
 async function readUploadId(body: unknown): Promise<string> {
@@ -35,11 +35,11 @@ function sentHeaders(): Record<string, string> {
 }
 
 /**
- * `uploadArchiveAndGetUrl` is the only place that validates the file endpoint's response, and its
- * failure mode is silent: a spec carrying an empty or wrong `stub_download_url` looks fine to the
- * backend and only breaks when a client tries to download the archive. Pin the accepted shape.
+ * `uploadArchive` is the only place that validates the file endpoint's response, and its failure
+ * mode is silent: a spec carrying an empty or wrong `stub_download_url` looks fine to the backend
+ * and only breaks when a client tries to download the archive. Pin the accepted shape.
  */
-describe("uploadArchiveAndGetUrl", () => {
+describe("uploadArchive", () => {
   const archiveName = "part01/ex01.tar.zst"
   const uploadUrl = "http://headless-lms/api/v0/files/tmc"
   let archivePath: string
@@ -50,9 +50,9 @@ describe("uploadArchiveAndGetUrl", () => {
   }
 
   /**
-   * Mocks the file endpoint with a body built from the upload id the client actually generated. The
-   * real endpoint echoes that id back, and it is a random UUID internal to
-   * `uploadArchiveAndGetUrl`, so it has to be read off the outgoing multipart body.
+   * Mocks the file endpoint with a body built from the multipart field name the client generated,
+   * for the tests that need to tell it apart from the id the endpoint answers with. The field name
+   * is a random UUID internal to `uploadArchive`, so it has to be read off the outgoing body.
    */
   function mockResponseWith(build: (uploadId: string) => unknown, status = 200): void {
     global.fetch = vi.fn(async (_url: unknown, init: RequestInit) => {
@@ -77,14 +77,36 @@ describe("uploadArchiveAndGetUrl", () => {
     await fsPromises.rm(path.dirname(archivePath), { recursive: true, force: true })
   })
 
-  function upload(uploadClaim: string | null = null): Promise<string> {
-    return uploadArchiveAndGetUrl({ archivePath, archiveName, uploadUrl, uploadClaim })
+  function upload(uploadClaim: string | null = null): Promise<{ id: string; url: string }> {
+    return uploadArchive({ archivePath, archiveName, uploadUrl, uploadClaim })
   }
 
-  it("returns the URL the endpoint reported for the upload id", async () => {
-    mockResponseWith((id) => [{ id, url: "http://files/part01/ex01.tar.zst" }])
+  it("returns the file id and URL the endpoint reported", async () => {
+    mockResponse([
+      { id: "3f1a6c2e-8f6b-4c5b-9d0e-1a2b3c4d5e6f", url: "http://files/part01/ex01.tar.zst" },
+    ])
 
-    await expect(upload()).resolves.toBe("http://files/part01/ex01.tar.zst")
+    await expect(upload()).resolves.toEqual({
+      id: "3f1a6c2e-8f6b-4c5b-9d0e-1a2b3c4d5e6f",
+      url: "http://files/part01/ex01.tar.zst",
+    })
+  })
+
+  /**
+   * The endpoint used to echo the multipart field name back as the id, and this function used to
+   * require that. It now answers with the host's own `file_uploads` id, which is the value a spec
+   * has to name to declare the file — rejecting it as a mismatch failed every derivation.
+   */
+  it("accepts an id that differs from the multipart field name", async () => {
+    let fieldName = ""
+    mockResponseWith((id) => {
+      fieldName = id
+      return [{ id: "b7c8d9e0-1112-4a3b-8c5d-6e7f80912345", url: "http://files/a" }]
+    })
+
+    const uploaded = await upload()
+    expect(uploaded.id).toBe("b7c8d9e0-1112-4a3b-8c5d-6e7f80912345")
+    expect(uploaded.id).not.toBe(fieldName)
   })
 
   it("sends the upload claim header when one is given, and omits it otherwise", async () => {
@@ -97,8 +119,8 @@ describe("uploadArchiveAndGetUrl", () => {
     expect(sentHeaders()).not.toHaveProperty(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
   })
 
-  it("rejects a URL reported under a different upload id", async () => {
-    mockResponse([{ id: "some-other-id", url: "http://files/a" }])
+  it("rejects a missing id", async () => {
+    mockResponse([{ url: "http://files/a" }])
 
     await expect(upload()).rejects.toThrow(/Unexpected upload response/)
   })

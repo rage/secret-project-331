@@ -39,6 +39,7 @@ import {
   claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
+  confirmMyEnrolment,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -90,10 +91,12 @@ import {
   dismissCreditRegistrationEnrolmentBanner,
   dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
+  downloadExerciseAnswerFiles,
   duplicateExam,
   editCourseInstance,
   editExam,
   exchangeOauthToken,
+  exerciseHasAnswerFiles,
   exportCourseCreditRegistrations,
   exportCourseExerciseTasksCsv,
   exportCourseInstanceCompletionsCsv,
@@ -233,6 +236,7 @@ import {
   getMyCreditRegistrationForCourseModule,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
+  getMyEnrolmentRoute,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
@@ -357,6 +361,7 @@ import {
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
+  setMyEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
@@ -387,9 +392,11 @@ import {
   updatePlaygroundExample,
   updateUserInfo,
   uploadCourseMedia,
+  uploadFilesForExerciseAnswer,
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
+  withdrawMyEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -438,6 +445,8 @@ import type {
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   ConfirmCourseSuspectedCheaterData,
+  ConfirmMyEnrolmentData,
+  ConfirmMyEnrolmentResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -521,11 +530,15 @@ import type {
   DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponse,
   DuplicateExamData,
   DuplicateExamResponse,
   EditCourseInstanceData,
   EditExamData,
   ExchangeOauthTokenData,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponse,
   ExportCourseCreditRegistrationsData,
   ExportCourseCreditRegistrationsResponse,
   ExportCourseExerciseTasksCsvData,
@@ -798,6 +811,8 @@ import type {
   GetMyCreditRegistrationsResponse,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponse,
+  GetMyEnrolmentRouteData,
+  GetMyEnrolmentRouteResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -1029,6 +1044,8 @@ import type {
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
+  SetMyEnrolmentRouteData,
+  SetMyEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -1079,12 +1096,50 @@ import type {
   UpdateUserInfoResponse,
   UploadCourseMediaData,
   UploadCourseMediaResponse,
+  UploadFilesForExerciseAnswerData,
+  UploadFilesForExerciseAnswerResponse,
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponse,
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
+  WithdrawMyEnrolmentConfirmationData,
+  WithdrawMyEnrolmentConfirmationResponse,
 } from "../types.generated"
+
+/**
+ *
+ * POST `/api/v0/files/answer-uploads/:exercise_task_id`
+ * Used to upload the files a student is attaching to an answer for the given exercise task.
+ *
+ * Unlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and
+ * the task's exercise, which is what lets a later submission verify that the answer only names files
+ * the submitter uploaded for that exercise.
+ *
+ * # Returns
+ * An ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.
+ */
+export const uploadFilesForExerciseAnswerMutation = (
+  options?: Partial<Options<UploadFilesForExerciseAnswerData>>,
+): UseMutationOptions<
+  UploadFilesForExerciseAnswerResponse,
+  DefaultError,
+  Options<UploadFilesForExerciseAnswerData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UploadFilesForExerciseAnswerResponse,
+    DefaultError,
+    Options<UploadFilesForExerciseAnswerData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await uploadFilesForExerciseAnswer({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -2180,6 +2235,9 @@ export const getCourseCreditRegistrationSummaryQueryKey = (
  *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
  */
 export const getCourseCreditRegistrationSummaryOptions = (
   options: Options<GetCourseCreditRegistrationSummaryData>,
@@ -6200,10 +6258,12 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
- * wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
  */
 export const getCreditRegistrationAttentionItemsOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6223,6 +6283,63 @@ export const getCreditRegistrationAttentionItemsOptions = (
       }),
     queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
   })
+
+export const getCreditRegistrationAttentionItemsInfiniteQueryKey = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+): QueryKey<Options<GetCreditRegistrationAttentionItemsData>> =>
+  createQueryKey("getCreditRegistrationAttentionItems", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
+ *
+ * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
+ */
+export const getCreditRegistrationAttentionItemsInfiniteOptions = (
+  options?: Options<GetCreditRegistrationAttentionItemsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetCreditRegistrationAttentionItemsResponse,
+    DefaultError,
+    InfiniteData<GetCreditRegistrationAttentionItemsResponse>,
+    QueryKey<Options<GetCreditRegistrationAttentionItemsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getCreditRegistrationAttentionItems({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getCreditRegistrationAttentionItemsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const listCreditRegistrationAdminActionsQueryKey = (
   options?: Options<ListCreditRegistrationAdminActionsData>,
@@ -7164,6 +7281,115 @@ export const getMyCreditRegistrationForCourseModuleOptions = (
       }),
     queryKey: getMyCreditRegistrationForCourseModuleQueryKey(options),
   })
+
+export const getMyEnrolmentRouteQueryKey = (options: Options<GetMyEnrolmentRouteData>) =>
+  createQueryKey("getMyEnrolmentRoute", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - What the caller said about where they enrol this module.
+ */
+export const getMyEnrolmentRouteOptions = (options: Options<GetMyEnrolmentRouteData>) =>
+  queryOptions<
+    GetMyEnrolmentRouteResponse,
+    DefaultError,
+    GetMyEnrolmentRouteResponse,
+    ReturnType<typeof getMyEnrolmentRouteQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyEnrolmentRoute({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyEnrolmentRouteQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - Records which university relationship the caller has, which decides where they are told to enrol.
+ */
+export const setMyEnrolmentRouteMutation = (
+  options?: Partial<Options<SetMyEnrolmentRouteData>>,
+): UseMutationOptions<
+  SetMyEnrolmentRouteResponse,
+  DefaultError,
+  Options<SetMyEnrolmentRouteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyEnrolmentRouteResponse,
+    DefaultError,
+    Options<SetMyEnrolmentRouteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller takes back saying they had enrolled.
+ */
+export const withdrawMyEnrolmentConfirmationMutation = (
+  options?: Partial<Options<WithdrawMyEnrolmentConfirmationData>>,
+): UseMutationOptions<
+  WithdrawMyEnrolmentConfirmationResponse,
+  DefaultError,
+  Options<WithdrawMyEnrolmentConfirmationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyEnrolmentConfirmationResponse,
+    DefaultError,
+    Options<WithdrawMyEnrolmentConfirmationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyEnrolmentConfirmation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller says they have enrolled.
+ *
+ * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
+ * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ */
+export const confirmMyEnrolmentMutation = (
+  options?: Partial<Options<ConfirmMyEnrolmentData>>,
+): UseMutationOptions<
+  ConfirmMyEnrolmentResponse,
+  DefaultError,
+  Options<ConfirmMyEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ConfirmMyEnrolmentResponse,
+    DefaultError,
+    Options<ConfirmMyEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await confirmMyEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getMyCreditRegistrationEnrolmentBannersQueryKey = (
   options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
@@ -8398,7 +8624,7 @@ export const getExerciseCsvExportTaskOptionsQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptionsOptions = (
   options: Options<GetExerciseCsvExportTaskOptionsData>,
@@ -8417,6 +8643,33 @@ export const getExerciseCsvExportTaskOptionsOptions = (
         throwOnError: true,
       }),
     queryKey: getExerciseCsvExportTaskOptionsQueryKey(options),
+  })
+
+export const downloadExerciseAnswerFilesQueryKey = (
+  options: Options<DownloadExerciseAnswerFilesData>,
+) => createQueryKey("downloadExerciseAnswerFiles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFilesOptions = (
+  options: Options<DownloadExerciseAnswerFilesData>,
+) =>
+  queryOptions<
+    DownloadExerciseAnswerFilesResponse,
+    DefaultError,
+    DownloadExerciseAnswerFilesResponse,
+    ReturnType<typeof downloadExerciseAnswerFilesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await downloadExerciseAnswerFiles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: downloadExerciseAnswerFilesQueryKey(options),
   })
 
 export const exportExerciseAnswersCsvQueryKey = (options: Options<ExportExerciseAnswersCsvData>) =>
@@ -8468,6 +8721,30 @@ export const exportExerciseDefinitionsCsvOptions = (
         throwOnError: true,
       }),
     queryKey: exportExerciseDefinitionsCsvQueryKey(options),
+  })
+
+export const exerciseHasAnswerFilesQueryKey = (options: Options<ExerciseHasAnswerFilesData>) =>
+  createQueryKey("exerciseHasAnswerFiles", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFilesOptions = (options: Options<ExerciseHasAnswerFilesData>) =>
+  queryOptions<
+    ExerciseHasAnswerFilesResponse,
+    DefaultError,
+    ExerciseHasAnswerFilesResponse,
+    ReturnType<typeof exerciseHasAnswerFilesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await exerciseHasAnswerFiles({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: exerciseHasAnswerFilesQueryKey(options),
   })
 
 export const getExerciseSubmissionsQueryKey = (options: Options<GetExerciseSubmissionsData>) =>

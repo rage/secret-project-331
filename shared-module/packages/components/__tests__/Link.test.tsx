@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
-import { disabledPlainLinkCss } from "../src/components/primitives/buttonStyles"
 import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, renderUi } from "./testUtils"
 
@@ -188,7 +187,11 @@ describe("Link", () => {
       </Link>,
     )
 
-    expect(screen.getByRole("link", { name: "Settings" })).toHaveClass(disabledPlainLinkCss)
+    // The appearance and the disabled rules are composed into one emotion class, so the affordance
+    // shows up in the computed style rather than as a class of its own.
+    const style = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+    expect(style.pointerEvents).toBe("none")
+    expect(style.cursor).toBe("default")
   })
 
   test("a caller mouse handler chains with react-aria press handling", () => {
@@ -248,11 +251,35 @@ describe("Link variants and sizes", () => {
   const variants: Variant[] = ["primary", "secondary", "tertiary"]
   const sizes: Size[] = ["small", "medium", "large"]
 
-  test("plain link does not receive button styles", () => {
+  test("plain link is drawn as a text link, not as a button", () => {
     renderUi(<Link href="/settings">Settings</Link>)
-    const link = screen.getByRole("link", { name: "Settings" })
-    expect(link).toBeInTheDocument()
-    expect(link.getAttribute("class")).toBeNull()
+    const styles = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+
+    expect(styles.textDecoration).toContain("underline")
+    expect(styles.color).not.toBe("")
+    expect(styles.display).not.toBe("inline-flex")
+  })
+
+  test("a quiet link keeps the colour and drops the resting underline", () => {
+    renderUi(
+      <Link href="/settings" appearance="quiet">
+        Settings
+      </Link>,
+    )
+    const styles = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+
+    expect(styles.textDecoration).toBe("none")
+    expect(styles.color).not.toBe("")
+  })
+
+  test("appearance=inherit adds no styles of its own", () => {
+    renderUi(
+      <Link href="/settings" appearance="inherit">
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByRole("link", { name: "Settings" }).getAttribute("class")).toBeNull()
   })
 
   test("plain link preserves caller supplied className", () => {

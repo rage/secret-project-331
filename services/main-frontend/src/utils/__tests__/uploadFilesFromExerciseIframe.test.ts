@@ -1,10 +1,17 @@
 import { v4 } from "uuid"
 
-import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
+import {
+  uploadFilesForExerciseAnswer,
+  uploadFilesFromExerciseService,
+} from "@/generated/api/sdk.generated"
 
-import { uploadFilesFromExerciseIframe } from "../uploadFilesFromExerciseIframe"
+import {
+  uploadFilesForExerciseTaskAnswer,
+  uploadFilesFromExerciseServiceIframe,
+} from "../uploadFilesFromExerciseIframe"
 
 jest.mock("@/generated/api/sdk.generated", () => ({
+  uploadFilesForExerciseAnswer: jest.fn(),
   uploadFilesFromExerciseService: jest.fn(),
 }))
 
@@ -14,14 +21,15 @@ jest.mock("@/generated/api/sdk.generated", () => ({
 // depended on.
 jest.mock("uuid", () => ({ v4: jest.fn() }))
 
-const upload = jest.mocked(uploadFilesFromExerciseService)
+const uploadAnswer = jest.mocked(uploadFilesForExerciseAnswer)
+const uploadService = jest.mocked(uploadFilesFromExerciseService)
 // `v4` is overloaded (it can also return a Uint8Array); pin the mock to the no-arg string form the
 // adapter uses so `mockReturnValueOnce` accepts string ids.
 const uuid = jest.mocked(v4 as () => string)
 
-describe("uploadFilesFromExerciseIframe", () => {
+describe("uploadFilesForExerciseTaskAnswer", () => {
   beforeEach(() => {
-    upload.mockReset()
+    uploadAnswer.mockReset()
     uuid.mockReset()
     uuid
       .mockReturnValueOnce("aaaaaaaa-0000-4000-8000-000000000000")
@@ -36,37 +44,37 @@ describe("uploadFilesFromExerciseIframe", () => {
     // @ts-expect-error deliberately removing the secure-context-only API for this test
     delete globalThis.crypto.randomUUID
     try {
-      upload.mockResolvedValue([
-        { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
+      uploadAnswer.mockResolvedValue([
+        { id: "11111111-0000-4000-8000-000000000000", url: "https://files.example/one" },
       ])
 
       await expect(
-        uploadFilesFromExerciseIframe("file-submission", [new File(["a"], "a.txt")]),
+        uploadFilesForExerciseTaskAnswer("exercise-task-1", [new File(["a"], "a.txt")]),
       ).resolves.toEqual([
-        { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
+        { id: "11111111-0000-4000-8000-000000000000", url: "https://files.example/one" },
       ])
     } finally {
       globalThis.crypto.randomUUID = originalRandomUUID
     }
   })
 
-  it("assigns UUID multipart names and retains ordered host results for duplicate filenames", async () => {
+  it("calls the answer-upload route with the exercise task id and UUID multipart names", async () => {
     const first = new File(["first"], "same.txt", { type: "text/plain" })
     const second = new File(["second"], "same.txt", { type: "text/plain" })
-    upload.mockResolvedValue([
-      { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
-      { id: "bbbbbbbb-0000-4000-8000-000000000000", url: "https://files.example/two" },
+    uploadAnswer.mockResolvedValue([
+      { id: "11111111-0000-4000-8000-000000000000", url: "https://files.example/one" },
+      { id: "22222222-0000-4000-8000-000000000000", url: "https://files.example/two" },
     ])
 
     await expect(
-      uploadFilesFromExerciseIframe("file-submission", [first, second]),
+      uploadFilesForExerciseTaskAnswer("exercise-task-1", [first, second]),
     ).resolves.toEqual([
-      { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
-      { id: "bbbbbbbb-0000-4000-8000-000000000000", url: "https://files.example/two" },
+      { id: "11111111-0000-4000-8000-000000000000", url: "https://files.example/one" },
+      { id: "22222222-0000-4000-8000-000000000000", url: "https://files.example/two" },
     ])
 
-    const options = upload.mock.calls[0]?.[0]
-    expect(options?.path).toEqual({ exercise_service_slug: "file-submission" })
+    const options = uploadAnswer.mock.calls[0]?.[0]
+    expect(options?.path).toEqual({ exercise_task_id: "exercise-task-1" })
     const body = options?.body as Record<string, File>
     // The adapter re-materializes each file into a fresh in-memory File (so the upload is a buffered
     // request, not a stream — see the adapter comment), so assert on the UUID field names and file
@@ -81,18 +89,21 @@ describe("uploadFilesFromExerciseIframe", () => {
     expect(await body["bbbbbbbb-0000-4000-8000-000000000000"]?.text()).toBe("second")
   })
 
-  it("rejects host results whose IDs do not match multipart UUID order", async () => {
-    upload.mockResolvedValue([
-      { id: "bbbbbbbb-0000-4000-8000-000000000000", url: "https://files.example/two" },
-      { id: "aaaaaaaa-0000-4000-8000-000000000000", url: "https://files.example/one" },
+  it("accepts host result ids that differ from the multipart field names, relying on order instead", async () => {
+    uploadAnswer.mockResolvedValue([
+      { id: "host-assigned-row-id-1", url: "https://files.example/one" },
+      { id: "host-assigned-row-id-2", url: "https://files.example/two" },
     ])
 
     await expect(
-      uploadFilesFromExerciseIframe("file-submission", [
+      uploadFilesForExerciseTaskAnswer("exercise-task-1", [
         new File(["first"], "first.txt"),
         new File(["second"], "second.txt"),
       ]),
-    ).rejects.toThrow("invalid file result")
+    ).resolves.toEqual([
+      { id: "host-assigned-row-id-1", url: "https://files.example/one" },
+      { id: "host-assigned-row-id-2", url: "https://files.example/two" },
+    ])
   })
 
   it.each([
@@ -107,13 +118,46 @@ describe("uploadFilesFromExerciseIframe", () => {
       ],
     ],
   ])("rejects malformed or mis-sized upload results (%#)", async (response) => {
-    upload.mockResolvedValue(response as never)
+    uploadAnswer.mockResolvedValue(response as never)
 
     await expect(
-      uploadFilesFromExerciseIframe("file-submission", [
+      uploadFilesForExerciseTaskAnswer("exercise-task-1", [
         new File(["a"], "a.txt"),
         new File(["b"], "b.txt"),
       ]),
+    ).rejects.toThrow("invalid file result")
+  })
+})
+
+describe("uploadFilesFromExerciseServiceIframe", () => {
+  beforeEach(() => {
+    uploadService.mockReset()
+    uuid.mockReset()
+    uuid
+      .mockReturnValueOnce("aaaaaaaa-0000-4000-8000-000000000000")
+      .mockReturnValueOnce("bbbbbbbb-0000-4000-8000-000000000000")
+  })
+
+  afterEach(() => jest.restoreAllMocks())
+
+  it("calls the exercise-service upload route with the slug", async () => {
+    uploadService.mockResolvedValue([
+      { id: "host-assigned-row-id-1", url: "https://files.example/one" },
+    ])
+
+    await expect(
+      uploadFilesFromExerciseServiceIframe("playground", [new File(["a"], "a.txt")]),
+    ).resolves.toEqual([{ id: "host-assigned-row-id-1", url: "https://files.example/one" }])
+
+    const options = uploadService.mock.calls[0]?.[0]
+    expect(options?.path).toEqual({ exercise_service_slug: "playground" })
+  })
+
+  it("rejects a wrong-length or malformed response", async () => {
+    uploadService.mockResolvedValue([])
+
+    await expect(
+      uploadFilesFromExerciseServiceIframe("playground", [new File(["a"], "a.txt")]),
     ).rejects.toThrow("invalid file result")
   })
 })

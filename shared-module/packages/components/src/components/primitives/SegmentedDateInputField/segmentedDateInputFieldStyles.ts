@@ -19,7 +19,9 @@ export const segmentedSegmentsRowCss = css`
   max-width: 100%;
   min-width: 0;
   flex-wrap: nowrap;
-  align-items: baseline;
+  /* Centred, not baseline-aligned: baseline alignment sizes the row from the tallest item's line
+     box, which made the field a pixel or two taller than an input showing the same text. */
+  align-items: center;
   justify-content: flex-start;
   gap: 2px;
   white-space: nowrap;
@@ -56,7 +58,6 @@ export const segmentCss = css`
   position: relative;
   flex: 0 0 auto;
   min-width: 1ch;
-  padding: 2px 0;
   border-radius: 4px;
   color: inherit;
   outline: none;
@@ -125,32 +126,17 @@ export const segmentedPickerTriggerCss = css`
   margin-inline-start: auto;
 `
 
-/** When the label is at rest (unfloated) with no value: no vertical padding on the shell so height matches TextField. */
-export const segmentedFieldShellRestEmptyCss = css`
-  [data-field-control][data-floated="false"] & {
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 0;
-  }
-`
-
 /**
- * Hides placeholder segment glyphs while the floating label is at rest, keeping the row in layout
- * flow at zero height so its segments stay focusable.
+ * Hides the placeholder glyphs while the resting label sits over them.
  *
  * Fades rather than `visibility: hidden`: react-aria's `isFocusable` rejects hidden elements, so
  * hiding strands an empty field — `useDateField` puts `focusManager.focusFirst()` on the label's
- * click, and it would find no segment to focus. `pointer-events: none` keeps the row, now painted
- * and hit-testable, from swallowing clicks meant for the field.
+ * click, and it would find no segment to focus. The row keeps its box; collapsing it is what made
+ * the field jump when the label floated and the glyphs returned. `pointer-events: none` keeps the
+ * row, still painted and hit-testable, from swallowing clicks meant for the field.
  */
 export const segmentedSegmentsRowRestHiddenCss = css`
   opacity: 0;
-  height: 0;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  line-height: 0;
   pointer-events: none;
 `
 

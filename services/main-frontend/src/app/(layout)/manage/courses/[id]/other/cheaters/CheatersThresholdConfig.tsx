@@ -29,6 +29,7 @@ const SECONDS_PER_HOUR = 3600
 // The backend stores the threshold as a 32-bit signed integer number of seconds, so reject
 // anything that would overflow it before sending the request.
 const MAX_DURATION_SECONDS = 2_147_483_647
+const ERROR_ANNOUNCEMENT = "off" as const
 
 interface ThresholdFormFields {
   durations: Record<string, number | null>
@@ -187,14 +188,14 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           <ErrorBanner
             variant="readOnly"
             error={postThresholdForModuleMutation.error}
-            announce="off"
+            announce={ERROR_ANNOUNCEMENT}
           />
         )}
         {deleteThresholdForModuleMutation.isError && (
           <ErrorBanner
             variant="readOnly"
             error={deleteThresholdForModuleMutation.error}
-            announce="off"
+            announce={ERROR_ANNOUNCEMENT}
           />
         )}
         <h5 className="heading">

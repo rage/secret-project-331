@@ -1,8 +1,7 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,20 +9,22 @@ import {
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import { Button, Checkbox, Dialog, Infobox } from "@/shared-module/components"
+import type { DialogAction } from "@/shared-module/components"
+import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
+import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
-import AdminManualLinkDialog from "./AdminManualLinkDialog"
-import { ReasonField, isReasonConfirmDisabled, useReasonRequiredForm } from "./ReasonConfirmDialog"
+import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
+  open: boolean
+  onClose: () => void
   studentNumber: string
   courseId: string
   courseName: string
-  hasMailHistory: boolean
 }
 
 interface Fields {
@@ -31,49 +32,26 @@ interface Fields {
   reason: string
 }
 
-const rootCss = css`
-  display: grid;
-  gap: 0.5rem;
-  justify-items: start;
-`
-
-const formCss = css`
-  display: grid;
-  gap: 0.75rem;
-`
-
-const lastResortCss = css`
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--color-gray-500);
-  font-size: var(--font-size-1);
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
-`
-
-/** The override retires the rows the caps count rather than relaxing a cap, and needs a reason. */
+/**
+ * Sends the account-linking mail for one person and course again.
+ *
+ * The override retires the mails the caps count rather than relaxing a cap, so it needs a reason;
+ * an ordinary resend does not. Controlled, so a row's overflow menu can open it.
+ */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
+  open,
+  onClose,
   studentNumber,
   courseId,
   courseName,
-  hasMailHistory,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
-  const [open, setOpen] = useState(false)
-  const [manualLinkOpen, setManualLinkOpen] = useState(false)
   const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
     override_rate_caps: false,
     reason: "",
   })
   const override = watch("override_rate_caps")
-  const reason = watch("reason")
 
   const { result, setResult, mutation } = useActionResult((fields: Fields) =>
     adminResendAccountLinkingEmail({
@@ -87,8 +65,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   )
 
   const closeDialog = () => {
-    setOpen(false)
+    onClose()
     if (result) {
+      setResult(null)
       // Deferred to close, not fired from onSuccess: a resend that lifts this row out of the
       // stale-addresses table it's rendered in would otherwise unmount the dialog — and the
       // outcome it's showing — the moment the refetch lands.
@@ -99,29 +78,24 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     }
   }
 
+  const submit = handleSubmit((fields) => mutation.mutate(fields))
+  const actions: readonly [DialogAction] = [
+    {
+      label: t("button-text-resend-linking-email"),
+      variant: BUTTON_PRIMARY,
+      isLoading: mutation.isPending,
+      onPress: () => void submit(),
+    },
+  ]
+
   return (
-    <div className={rootCss}>
-      <Button
-        variant="secondary"
-        size="medium"
-        onClick={() => {
-          setResult(null)
-          setOpen(true)
-        }}
-      >
-        {t("button-text-resend-linking-email")}
-      </Button>
-      {hasMailHistory && (
-        <button
-          type="button"
-          className={lastResortCss}
-          onClick={() => setManualLinkOpen(true)}
-          aria-label={t("credit-registration-admin-manual-link-last-resort")}
-        >
-          {t("credit-registration-admin-manual-link-last-resort")}
-        </button>
-      )}
-      <Dialog open={open} onClose={closeDialog} title={t("button-text-resend-linking-email")}>
+    <Dialog
+      open={open}
+      onClose={closeDialog}
+      title={t("button-text-resend-linking-email")}
+      actions={actions}
+    >
+      <div className={dialogFormCss}>
         {result && (
           <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
             <div>{resendOutcomeLabel(t, result.outcome)}</div>
@@ -147,15 +121,14 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             ))}
           </Infobox>
         )}
-        <form className={formCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
-          <p>
+        <form className={dialogFormCss} onSubmit={submit}>
+          <p className={proseCss}>
             {t("credit-registration-admin-resend-dialog-target", {
               studentNumber,
               course: courseName,
             })}
           </p>
-          <p>{t("credit-registration-admin-resend-dialog-addresses-note")}</p>
-          <p>{t("credit-registration-resend-address-they-can-read-hint")}</p>
+          <p className={noteCss}>{t("credit-registration-admin-resend-registry-addresses-only")}</p>
           <Checkbox
             name="override_rate_caps"
             control={control}
@@ -167,24 +140,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
             description={t("credit-registration-admin-resend-reason-description")}
             isRequired={override}
           />
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            disabled={isReasonConfirmDisabled(mutation.isPending, reason, override)}
-          >
-            {t("button-text-confirm")}
-          </Button>
         </form>
-      </Dialog>
-      {manualLinkOpen && (
-        <AdminManualLinkDialog
-          open={manualLinkOpen}
-          onClose={() => setManualLinkOpen(false)}
-          studentNumber={studentNumber}
-        />
-      )}
-    </div>
+      </div>
+    </Dialog>
   )
 }
 

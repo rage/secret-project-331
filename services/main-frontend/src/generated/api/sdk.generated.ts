@@ -79,6 +79,8 @@ import type {
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
   ConfirmCourseSuspectedCheaterResponses,
+  ConfirmMyEnrolmentData,
+  ConfirmMyEnrolmentResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -186,6 +188,8 @@ import type {
   DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponses,
   DuplicateExamData,
   DuplicateExamResponses,
   EditCourseInstanceData,
@@ -195,6 +199,8 @@ import type {
   ExchangeOauthTokenData,
   ExchangeOauthTokenErrors,
   ExchangeOauthTokenResponses,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponses,
   ExportCourseCreditRegistrationsData,
   ExportCourseCreditRegistrationsResponses,
   ExportCourseExerciseTasksCsvData,
@@ -477,6 +483,8 @@ import type {
   GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
+  GetMyEnrolmentRouteData,
+  GetMyEnrolmentRouteResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -733,6 +741,8 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyEnrolmentRouteData,
+  SetMyEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -794,6 +804,8 @@ import type {
   UpdateUserInfoResponses,
   UploadCourseMediaData,
   UploadCourseMediaResponses,
+  UploadFilesForExerciseAnswerData,
+  UploadFilesForExerciseAnswerResponses,
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponses,
   UpsertCoursePartnersBlockData,
@@ -801,6 +813,8 @@ import type {
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipErrors,
   VerifyEmailOwnershipResponses,
+  WithdrawMyEnrolmentConfirmationData,
+  WithdrawMyEnrolmentConfirmationResponses,
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
@@ -823,6 +837,7 @@ import {
   zChangeUserPasswordResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
+  zConfirmMyEnrolmentResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -855,7 +870,9 @@ import {
   zDenyOauthDeviceVerificationResponse,
   zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
+  zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
+  zExerciseHasAnswerFilesResponse,
   zExportCourseCreditRegistrationsResponse,
   zExportCourseExerciseTasksCsvResponse,
   zExportCourseInstanceCompletionsCsvResponse,
@@ -989,6 +1006,7 @@ import {
   zGetMyCreditRegistrationForCourseModuleResponse,
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
+  zGetMyEnrolmentRouteResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -1097,6 +1115,7 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -1117,8 +1136,10 @@ import {
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
   zUploadCourseMediaResponse,
+  zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
   zVerifyEmailOwnershipResponse,
+  zWithdrawMyEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
 export type Options<
@@ -1138,6 +1159,38 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
+
+/**
+ *
+ * POST `/api/v0/files/answer-uploads/:exercise_task_id`
+ * Used to upload the files a student is attaching to an answer for the given exercise task.
+ *
+ * Unlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and
+ * the task's exercise, which is what lets a later submission verify that the answer only names files
+ * the submitter uploaded for that exercise.
+ *
+ * # Returns
+ * An ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.
+ */
+export const uploadFilesForExerciseAnswer = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesForExerciseAnswerData, ThrowOnError>,
+): RequestResult<UploadFilesForExerciseAnswerResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesForExerciseAnswerResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) => await zUploadFilesForExerciseAnswerResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/answer-uploads/{exercise_task_id}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
+  })
 
 /**
  *
@@ -1879,6 +1932,9 @@ export const retryFailedCreditRegistrationsForCourse = <ThrowOnError extends boo
  *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
  */
 export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
@@ -4894,10 +4950,12 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
- * wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5542,6 +5600,79 @@ export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends bool
       await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - What the caller said about where they enrol this module.
+ */
+export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - Records which university relationship the caller has, which decides where they are told to enrol.
+ */
+export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller takes back saying they had enrolled.
+ */
+export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyEnrolmentConfirmationData, ThrowOnError>,
+): RequestResult<WithdrawMyEnrolmentConfirmationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    WithdrawMyEnrolmentConfirmationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyEnrolmentConfirmationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller says they have enrolled.
+ *
+ * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
+ * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ */
+export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmMyEnrolmentData, ThrowOnError>,
+): RequestResult<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zConfirmMyEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
     ...options,
   })
 
@@ -6356,7 +6487,7 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(
   options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>,
@@ -6371,6 +6502,25 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = t
       await zGetExerciseCsvExportTaskOptionsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<DownloadExerciseAnswerFilesData, ThrowOnError>,
+): RequestResult<DownloadExerciseAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    DownloadExerciseAnswerFilesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDownloadExerciseAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files",
     ...options,
   })
 
@@ -6404,6 +6554,20 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zExportExerciseDefinitionsCsvResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<ExerciseHasAnswerFilesData, ThrowOnError>,
+): RequestResult<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zExerciseHasAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files",
     ...options,
   })
 

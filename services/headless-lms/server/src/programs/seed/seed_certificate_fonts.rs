@@ -12,6 +12,7 @@ pub async fn seed_certificate_fonts(db_pool: PgPool) -> anyhow::Result<()> {
             file_path,
             "application/octet-stream",
             None,
+            None,
         )
         .await?;
         let font = NewCertificateFont {

@@ -1,0 +1,13 @@
+# No chown container of its own: the headless-lms deployment's file-storage patch already chowns the
+# claim to `user`, and both run the same image.
+- op: add
+  path: "/spec/jobTemplate/spec/template/spec/containers/0/volumeMounts/1"
+  value:
+    name: "persistent-file-storage-mount"
+    mountPath: "/app/uploads"
+- op: add
+  path: "/spec/jobTemplate/spec/template/spec/volumes/1"
+  value:
+    name: "persistent-file-storage-mount"
+    persistentVolumeClaim:
+      claimName: persistent-file-storage-pvc

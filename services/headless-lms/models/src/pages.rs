@@ -1368,14 +1368,23 @@ pub async fn get_page_with_exercises(
         .map(|x| x.into())
         .collect();
 
-    let exercise_tasks: Vec<CmsPageExerciseTask> =
-        crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
-            &mut *conn,
-            &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
-        )
-        .await?
+    let tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+        &mut *conn,
+        &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+    )
+    .await?;
+    let mut spec_files_by_task = crate::exercise_task_spec_files::get_by_exercise_task_ids(
+        &mut *conn,
+        &tasks.iter().map(|task| task.id).collect::<Vec<Uuid>>(),
+        crate::exercise_task_spec_files::SpecKind::Private,
+    )
+    .await?;
+    let exercise_tasks: Vec<CmsPageExerciseTask> = tasks
         .into_iter()
-        .map(|x| x.into())
+        .map(|task| {
+            let private_spec_files = spec_files_by_task.remove(&task.id).unwrap_or_default();
+            CmsPageExerciseTask::from_task(task, private_spec_files)
+        })
         .collect();
 
     let organization_id = get_organization_id(&mut *conn, page_id).await?;
@@ -1525,10 +1534,22 @@ pub struct CmsPageExerciseTask {
     pub exercise_type: String,
     pub private_spec: Option<serde_json::Value>,
     pub order_number: i32,
+    /// The stored files this task's private spec references, as the exercise service declared them
+    /// in the editor. The host cannot read the spec, so this list is the only thing keeping the
+    /// files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+    /// attribute, so a load that leaves it empty makes the next save drop the references.
+    ///
+    /// Only the private spec's. Each derived spec declares its own files in the response of the
+    /// endpoint that produced it, since a derivation may upload files of its own.
+    #[serde(default)]
+    pub private_spec_files: Vec<Uuid>,
 }
 
-impl From<ExerciseTask> for CmsPageExerciseTask {
-    fn from(task: ExerciseTask) -> Self {
+impl CmsPageExerciseTask {
+    /// Deliberately not a `From<ExerciseTask>`: the declared spec files live in their own table, so
+    /// a conversion that could not reach them would quietly produce an empty list and the next save
+    /// would drop every reference.
+    pub fn from_task(task: ExerciseTask, private_spec_files: Vec<Uuid>) -> Self {
         CmsPageExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,
@@ -1536,6 +1557,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
             exercise_type: task.exercise_type,
             private_spec: task.private_spec,
             order_number: task.order_number,
+            private_spec_files,
         }
     }
 }
@@ -2436,24 +2458,31 @@ async fn upsert_exercise_tasks(
             exercise_type: task_update.exercise_type.clone(),
             private_spec: task_update.private_spec.clone(),
         };
-        let model_solution_spec = fetch_derived_spec(
+        let declares_spec_files = exercise_service_hashmap
+            .get(&task_update.exercise_type)
+            .is_some_and(|(_service, info)| info.declares_spec_files);
+        let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
             &model_solution_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
+            declares_spec_files,
         )
         .await?;
-        let public_spec: Option<serde_json::Value> = fetch_derived_spec(
+        let public = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
             &public_spec_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
+            declares_spec_files,
         )
         .await?;
+        let model_solution_spec = model_solution.spec;
+        let public_spec = public.spec;
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
@@ -2465,8 +2494,7 @@ async fn upsert_exercise_tasks(
             .id;
 
         // Upsert
-        let exercise_task = sqlx::query_as!(
-            CmsPageExerciseTask,
+        let upserted = sqlx::query!(
             "
 INSERT INTO exercise_tasks(
     id,
@@ -2506,7 +2534,44 @@ RETURNING id,
         )
         .fetch_one(&mut *conn)
         .await?;
-        remapped_exercise_tasks.push(exercise_task)
+        // The exercise service declares these; the host cannot read them out of the specs it just
+        // stored. Rewritten in full per kind, so dropping a file from a spec releases it.
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            &mut *conn,
+            upserted.id,
+            crate::exercise_task_spec_files::SpecKind::Private,
+            &task_update.private_spec_files,
+        )
+        .await?;
+        // Only when this save actually re-derived and the service declared: a skipped derivation
+        // leaves the previous spec in place, so its declarations must stay in place too.
+        if let Some(declared) = public.declared_files.as_ref() {
+            crate::exercise_task_spec_files::replace_for_exercise_task(
+                &mut *conn,
+                upserted.id,
+                crate::exercise_task_spec_files::SpecKind::Public,
+                declared,
+            )
+            .await?;
+        }
+        if let Some(declared) = model_solution.declared_files.as_ref() {
+            crate::exercise_task_spec_files::replace_for_exercise_task(
+                &mut *conn,
+                upserted.id,
+                crate::exercise_task_spec_files::SpecKind::ModelSolution,
+                declared,
+            )
+            .await?;
+        }
+        remapped_exercise_tasks.push(CmsPageExerciseTask {
+            id: upserted.id,
+            exercise_slide_id: upserted.exercise_slide_id,
+            assignment: upserted.assignment,
+            exercise_type: upserted.exercise_type,
+            private_spec: upserted.private_spec,
+            order_number: upserted.order_number,
+            private_spec_files: task_update.private_spec_files.clone(),
+        })
     }
     Ok(remapped_exercise_tasks)
 }
@@ -2796,6 +2861,30 @@ struct ExerciseTaskIdAndSpec {
     pub model_solution_spec: Option<serde_json::Value>,
 }
 
+/// A derived spec, with the stored files the exercise service declared it references.
+#[derive(Debug)]
+struct DerivedSpec {
+    spec: Option<serde_json::Value>,
+    /// `None` when this save declared nothing about the spec: either it was not re-derived, so the
+    /// stored declarations still stand, or the service does not declare its spec files at all.
+    /// Distinct from `Some(vec![])`, which says the spec references no files and releases whatever
+    /// it referenced before.
+    declared_files: Option<Vec<Uuid>>,
+}
+
+/// The body a service that declares its spec files returns from the public-spec and
+/// model-solution endpoints, in place of the bare spec.
+///
+/// Both keys are required on purpose: serde reads a missing field of either an `Option` or a
+/// `#[serde(default)]` type without complaint, so a lenient envelope would swallow a bare spec
+/// object as "no spec, no files" and store `NULL` over a working exercise.
+#[derive(Deserialize)]
+struct DerivedSpecResponse {
+    /// `null` for a kind the service has no spec for, such as a model solution it cannot show.
+    spec: serde_json::Value,
+    files: Vec<Uuid>,
+}
+
 async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
@@ -2803,11 +2892,15 @@ async fn fetch_derived_spec(
     spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
-) -> Result<Option<serde_json::Value>, ModelError> {
-    let result_spec: Option<serde_json::Value> = match existing_exercise_task {
+    declares_spec_files: bool,
+) -> Result<DerivedSpec, ModelError> {
+    match existing_exercise_task {
         Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
             // Skip generating public spec for an existing exercise again if private spec is still the same.
-            previous_spec
+            Ok(DerivedSpec {
+                spec: previous_spec,
+                declared_files: None,
+            })
         }
         _ => {
             let url = urls_by_exercise_type
@@ -2828,10 +2921,35 @@ async fn fetch_derived_spec(
                 task_update.private_spec.as_ref(),
             )
             .await?;
-            Some(res)
+            if !declares_spec_files {
+                return Ok(DerivedSpec {
+                    spec: Some(res),
+                    declared_files: None,
+                });
+            }
+            // A declaring service answers with an envelope, so the same body cannot be read both
+            // ways: failing loudly beats storing an envelope as if it were the spec.
+            let response: DerivedSpecResponse = serde_json::from_value(res).map_err(|err| {
+                model_err!(
+                    PreconditionFailedWithCMSAnchorBlockId {
+                        id: cms_block_id,
+                        description: "Exercise service declares spec files but did not answer with a spec and its files.",
+                    },
+                    format!(
+                        "Exercise service {} declares spec files, so its derived spec must be a spec and its files: {err}",
+                        task_update.exercise_type
+                    )
+                )
+            })?;
+            Ok(DerivedSpec {
+                spec: match response.spec {
+                    serde_json::Value::Null => None,
+                    spec => Some(spec),
+                },
+                declared_files: Some(response.files),
+            })
         }
-    };
-    Ok(result_spec)
+    }
 }
 
 pub async fn insert_new_content_page(
@@ -4899,6 +5017,7 @@ mod test {
             exercise_type: "exercise".to_string(),
             private_spec: None,
             order_number: 1,
+            private_spec_files: vec![],
         };
 
         // Works without exercises
@@ -5393,5 +5512,74 @@ mod test {
         assert_eq!(page1_updated.order_number, 2);
         assert_eq!(page2_updated.order_number, 3);
         assert_eq!(page3_updated.order_number, 1);
+    }
+
+    fn declaring_task() -> NormalizedCmsExerciseTask {
+        NormalizedCmsExerciseTask {
+            id: Uuid::new_v4(),
+            assignment: serde_json::Value::Null,
+            exercise_type: "declaring-service".to_string(),
+            private_spec: Some(serde_json::json!({ "prompt": "hi" })),
+        }
+    }
+
+    async fn derive_from_declaring_service(body: serde_json::Value) -> ModelResult<DerivedSpec> {
+        let exercise_type = "declaring-service".to_string();
+        let mut urls = HashMap::new();
+        urls.insert(
+            &exercise_type,
+            Url::parse("http://example.com/spec").unwrap(),
+        );
+        fetch_derived_spec(
+            None,
+            &declaring_task(),
+            &urls,
+            move |_url, _slug, _spec| {
+                let body = body.clone();
+                Box::pin(async move { Ok(body) })
+            },
+            None,
+            Uuid::new_v4(),
+            true,
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn reads_the_spec_and_its_files_a_declaring_service_answers_with() {
+        let file = Uuid::new_v4();
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": { "prompt": "hi" },
+            "files": [file],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, Some(serde_json::json!({ "prompt": "hi" })));
+        assert_eq!(derived.declared_files, Some(vec![file]));
+    }
+
+    #[tokio::test]
+    async fn reads_a_null_spec_a_declaring_service_has_nothing_to_show_for() {
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": null,
+            "files": [],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, None);
+        assert_eq!(derived.declared_files, Some(vec![]));
+    }
+
+    #[tokio::test]
+    async fn refuses_a_bare_spec_from_a_declaring_service() {
+        // The dangerous shape: a lenient parse reads a bare spec as "no spec, no files".
+        derive_from_declaring_service(serde_json::json!({ "prompt": "hi", "options": [] }))
+            .await
+            .expect_err("a bare spec is not an envelope");
+        derive_from_declaring_service(serde_json::json!({ "files": [] }))
+            .await
+            .expect_err("an envelope without its spec key is not an envelope");
     }
 }

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE file_uploads SET created_at = now() - $2::interval WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "87a6e65c30762e127473801aa37cf46f395164aaa83ddb7dc474bd28345454d9"
+}

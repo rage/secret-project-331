@@ -27,7 +27,6 @@ import {
   segmentedFieldDisabledCss,
   segmentedFieldReadOnlyCss,
   segmentedFieldShellCss,
-  segmentedFieldShellRestEmptyCss,
   segmentedPickerFieldCss,
   segmentedPickerGroupCss,
   segmentedSegmentsRowCss,
@@ -131,6 +130,7 @@ export function PickerSegmentedField({
     notice ? noticeId : undefined,
   )
 
+  const isFloatingLayout = layout === "floating"
   const hideRestSegmentPlaceholders = shouldHideRestSegmentPlaceholders(
     layout,
     isFocused,
@@ -168,7 +168,11 @@ export function PickerSegmentedField({
 
   return (
     <FieldShell
-      controlClassName={cx(resolveControlSurfaceCss(fieldSize, layout === "floating"))}
+      controlClassName={cx(
+        // Only the floating layout moves the segments shell's padding; stacked has no label
+        // band inside the control, so there the surface keeps padding it.
+        resolveControlSurfaceCss(fieldSize, isFloatingLayout, !isFloatingLayout),
+      )}
       controlProps={{
         "data-disabled": resolvedState.isDisabled ? dataStateTrue : dataStateFalse,
         "data-invalid": pickerState.isInvalid ? dataStateTrue : dataStateFalse,
@@ -214,12 +218,7 @@ export function PickerSegmentedField({
             ref={fieldRef}
             className={cx(
               segmentedFieldShellCss,
-              layout === "floating" && !hideRestSegmentPlaceholders
-                ? resolveSegmentedFloatingShellCss(fieldSize)
-                : undefined,
-              layout === "floating" && hideRestSegmentPlaceholders
-                ? segmentedFieldShellRestEmptyCss
-                : undefined,
+              isFloatingLayout ? resolveSegmentedFloatingShellCss(fieldSize) : undefined,
               resolvedState.isDisabled ? segmentedFieldDisabledCss : undefined,
               resolvedState.isReadOnly ? segmentedFieldReadOnlyCss : undefined,
             )}

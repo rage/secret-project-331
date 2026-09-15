@@ -25,4 +25,4 @@ pub mod submission_context;
 pub use pending_reason::{
     CreditRegistrationPendingReason, PendingPreconditions, PendingReasonCounts,
 };
-pub use student_facing_status::StudentFacingCreditRegistrationStatus;
+pub use student_facing_status::{StageMatch, StudentFacingCreditRegistrationStatus};

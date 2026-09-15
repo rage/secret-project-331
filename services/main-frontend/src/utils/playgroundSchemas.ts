@@ -11,6 +11,7 @@ export const zExerciseServiceInfoApi = z.object({
   has_custom_view: z.boolean().optional(),
   csv_export_definitions_endpoint_path: z.string().optional(),
   csv_export_answers_endpoint_path: z.string().optional(),
+  declares_spec_files: z.boolean().optional(),
 })
 
 export type ExerciseServiceInfoApi = z.infer<typeof zExerciseServiceInfoApi>

@@ -57,37 +57,62 @@ pub struct ExerciseTask {
     pub exercise_service_slug: String,
 }
 
+/// Which of the two representations an answer is: the JSON in `data_json`, or the files in
+/// `data_files`. A request that omits it means `Json`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum AnswerKind {
+    Json,
+    File,
+}
+
 /// A file the host stored on a client's behalf. The host assigns `id`; a client never invents
 /// one. Returned by the upload endpoint and echoed back by submission download.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-pub struct UploadedFile {
+pub struct AnswerFile {
     /// The host's file id. Names this file in a submit request.
     pub id: Uuid,
     /// The original file name the client sent.
     pub name: String,
+    pub mime: String,
+    /// `None` for a file stored before the size was recorded; never a substitute zero, so a client
+    /// can tell an unknown size from an empty file.
+    pub size_bytes: Option<i64>,
+    /// The file's position in the answer it belongs to. `None` for a file that is not part of an
+    /// answer yet, which is every file the upload endpoint returns.
+    pub order_number: Option<i32>,
     /// Direct download URL; needs no bearer token.
-    pub download_url: String,
+    pub url: String,
 }
 
 /// Response of `POST exercises/{id}/files`, in the same order as the request's parts.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct UploadedFiles {
-    pub files: Vec<UploadedFile>,
+    pub data_files: Vec<AnswerFile>,
 }
 
-/// Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive. The host hands
-/// `uploaded_file_ids` to the exercise service, which builds the answer.
+/// Body of `POST exercises/{id}/submit`. Plain JSON — no file parts, no archive: the previously
+/// uploaded files named here are the answer.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_id: Uuid,
-    /// Ids from this exercise's `files` endpoint, in the order the exercise service should see
-    /// them. May be empty for a service whose answer needs no files. Every id must have been
-    /// uploaded by this user for this exercise.
-    pub uploaded_file_ids: Vec<Uuid>,
+    /// Absent means `json`. A client answering with files sends `file`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub answer_kind: Option<AnswerKind>,
+    /// The exercise service's own JSON: the whole answer for a `json` answer, the service's
+    /// metadata about the files for a `file` one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_json: Option<serde_json::Value>,
+    /// Ids from this exercise's `files` endpoint, in the order they are to be graded and
+    /// displayed. A `file` answer must name at least one, and every id must have been uploaded by
+    /// this user for this exercise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_files: Option<Vec<Uuid>>,
 }
 
 /// Result of a submit. Carries both ids so a client never re-derives one from the other:
@@ -158,7 +183,7 @@ pub struct ExerciseSlideSubmissionListItem {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct SubmissionFiles {
-    pub files: Vec<UploadedFile>,
+    pub data_files: Vec<AnswerFile>,
 }
 
 /// The current user's progress across every exercise they can see in a course, returned
@@ -253,23 +278,39 @@ mod test {
         );
     }
 
-    /// The submit body names ids only. No answer blob and no archive may appear in it: the
-    /// exercise service owns the answer's shape, and the host has no archive concept left.
+    /// A file answer names ids only. No archive may appear in the body: the named files are the
+    /// answer, and the host has no archive concept left.
     #[test]
-    fn exercise_slide_submission_carries_only_ids() {
+    fn exercise_slide_submission_names_files() {
         let file_id = Uuid::max();
         let value = serde_json::to_value(ExerciseSlideSubmission {
             exercise_slide_id: Uuid::nil(),
             exercise_task_id: Uuid::nil(),
-            uploaded_file_ids: vec![file_id],
+            answer_kind: Some(AnswerKind::File),
+            data_json: None,
+            data_files: Some(vec![file_id]),
         })
         .unwrap();
         let obj = value.as_object().unwrap();
         assert!(obj.contains_key("exercise_slide_id"));
         assert!(obj.contains_key("exercise_task_id"));
-        assert_eq!(obj["uploaded_file_ids"], json!([file_id]));
+        assert_eq!(obj["answer_kind"], json!("file"));
+        assert_eq!(obj["data_files"], json!([file_id]));
         assert!(!obj.contains_key("data_json"));
-        assert_eq!(obj.len(), 3);
+        assert_eq!(obj.len(), 4);
+    }
+
+    /// A client that only ever answers with JSON sends neither `answer_kind` nor `data_files`.
+    #[test]
+    fn exercise_slide_submission_answer_kind_is_optional() {
+        let submission: ExerciseSlideSubmission = serde_json::from_value(json!({
+            "exercise_slide_id": Uuid::nil(),
+            "exercise_task_id": Uuid::nil(),
+            "data_json": { "opaque": "service owned" },
+        }))
+        .unwrap();
+        assert_eq!(submission.answer_kind, None);
+        assert_eq!(submission.data_files, None);
     }
 
     /// A client must never have to derive one submission id from the other; both come back.
@@ -294,28 +335,34 @@ mod test {
     #[test]
     fn uploaded_and_submission_files_share_the_file_shape() {
         let id = Uuid::max();
-        let file = || UploadedFile {
+        let file = || AnswerFile {
             id,
             name: "src/main.rs".to_string(),
-            download_url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
+            mime: "application/octet-stream".to_string(),
+            size_bytes: Some(11),
+            order_number: Some(0),
+            url: "http://project-331.local/api/v0/files/tmc/abc".to_string(),
         };
         let expected = json!({
-            "files": [{
+            "data_files": [{
                 "id": id,
                 "name": "src/main.rs",
-                "download_url": "http://project-331.local/api/v0/files/tmc/abc",
+                "mime": "application/octet-stream",
+                "size_bytes": 11,
+                "order_number": 0,
+                "url": "http://project-331.local/api/v0/files/tmc/abc",
             }]
         });
         assert_eq!(
             serde_json::to_value(UploadedFiles {
-                files: vec![file()]
+                data_files: vec![file()]
             })
             .unwrap(),
             expected
         );
         assert_eq!(
             serde_json::to_value(SubmissionFiles {
-                files: vec![file()]
+                data_files: vec![file()]
             })
             .unwrap(),
             expected
@@ -327,8 +374,11 @@ mod test {
     #[test]
     fn submission_files_may_be_empty() {
         assert_eq!(
-            serde_json::to_value(SubmissionFiles { files: Vec::new() }).unwrap(),
-            json!({ "files": [] })
+            serde_json::to_value(SubmissionFiles {
+                data_files: Vec::new()
+            })
+            .unwrap(),
+            json!({ "data_files": [] })
         );
     }
 

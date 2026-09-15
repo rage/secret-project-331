@@ -10,8 +10,7 @@ import { useTranslation } from "react-i18next"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import PaginationControls from "@/shared-module/common/components/PaginationControls"
-import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
+import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -228,11 +227,10 @@ const GradingPage: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-              <PaginationControls
+              <Pagination
                 totalPages={getSubmissionsData.total_pages}
                 paginationInfo={paginationInfo}
               />
-              <PaginationItemsPerPage paginationInfo={paginationInfo} />
             </>
           )
         }

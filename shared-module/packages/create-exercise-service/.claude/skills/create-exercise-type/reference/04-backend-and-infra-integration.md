@@ -4,7 +4,8 @@ The scaffolding CLI produces a runnable plugin but does not wire it into the LMS
 documents what the Rust backend (`services/headless-lms`) and the infra need to discover, deploy,
 and route to a new exercise service. The backend is fully generic: no new Rust types or migrations
 are needed per exercise type. You add a **seed row + infra manifests**, and the plugin's own
-`service-info` response does the rest.
+`service-info` response does the rest. A standalone (Track A) plugin skips the infra half of this
+file and is hosted per `09-external-hosting.md` instead; the registration seam is the same.
 
 ## The data model (already exists — do not add migrations)
 

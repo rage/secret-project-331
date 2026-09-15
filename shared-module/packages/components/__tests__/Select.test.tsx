@@ -40,6 +40,20 @@ describe("Select", () => {
     expect(screen.getByText("Select your country")).toBeInTheDocument()
   })
 
+  test("puts a caller-provided id on the trigger, for a label or a test to point at", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        id="country-select"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
+
+    expect(screen.getByRole("button", { name: /Country/ })).toHaveAttribute("id", "country-select")
+  })
+
   test("updates RHF value on selection", () => {
     const { getValues } = renderWithForm<{ s: string }>(
       (control) => <Select name="s" control={control} label="Role" options={roleOptions} />,

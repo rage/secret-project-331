@@ -1314,6 +1314,38 @@ fn non_empty(value: &str) -> Option<&str> {
     (!trimmed.is_empty()).then_some(trimmed)
 }
 
+/// Whether applying `updates` would flip `enable_credit_registration_via_suotar` on any module.
+///
+/// Only support may put a module on the live study registry path, but the module editor round-trips
+/// the flag on every save, so gate on an actual change rather than on the field being sent. A module
+/// the update creates, and one whose id does not resolve, count as currently off.
+pub async fn would_change_credit_registration_via_suotar(
+    conn: &mut PgConnection,
+    updates: &ModuleUpdates,
+) -> ModelResult<bool> {
+    if updates
+        .new_modules
+        .iter()
+        .any(|module| module.enable_credit_registration_via_suotar)
+    {
+        return Ok(true);
+    }
+    let ids: Vec<Uuid> = updates
+        .modified_modules
+        .iter()
+        .map(|module| module.id)
+        .collect();
+    let stored: HashMap<Uuid, bool> = get_by_ids(conn, &ids)
+        .await?
+        .into_iter()
+        .map(|module| (module.id, module.enable_credit_registration_via_suotar))
+        .collect();
+    Ok(updates.modified_modules.iter().any(|module| {
+        stored.get(&module.id).copied().unwrap_or(false)
+            != module.enable_credit_registration_via_suotar
+    }))
+}
+
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,

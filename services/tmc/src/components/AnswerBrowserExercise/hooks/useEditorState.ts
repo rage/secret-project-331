@@ -1,12 +1,12 @@
 import cloneDeep from "lodash/cloneDeep"
 import { useEffect, useRef, useState } from "react"
 
-import type { ExerciseFile, ExerciseIframeState } from "@/util/stateInterfaces"
+import type { ExerciseFile } from "@/util/stateInterfaces"
 
 export function useEditorState(
   initialState: ExerciseFile[],
   stubDownloadUrl: string,
-  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void,
+  onFilesChange?: (files: ExerciseFile[]) => void,
 ) {
   const originalStateRef = useRef<ExerciseFile[]>(cloneDeep(initialState))
   const [editorFiles, setEditorFiles] = useState(initialState)
@@ -19,12 +19,7 @@ export function useEditorState(
 
   const setEditorState = (files: ExerciseFile[]) => {
     setEditorFiles(files)
-    setState((old) => {
-      if (old?.view_type === "answer-exercise") {
-        return { ...old, user_answer: { type: "browser", files } }
-      }
-      return old ?? null
-    })
+    onFilesChange?.(files)
   }
 
   const resetToInitial = () => {

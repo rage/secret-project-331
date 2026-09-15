@@ -8,10 +8,10 @@ import { DateTimeLocalField } from "../src/components/DateTimeLocalField"
 import { TimeField } from "../src/components/TimeField"
 import "../tests/test-i18n"
 
-// An empty floating field collapses its segment row away, and for a TimeField (no calendar
-// trigger) the label is then the only route in — react-aria puts `focusManager.focusFirst()` there.
-// So the collapse has to leave the segments focusable, which rules out `visibility: hidden` and
-// `display: none`.
+// An empty floating field fades its segment row out behind the resting label, and for a TimeField
+// (no calendar trigger) the label is then the only route in — react-aria puts
+// `focusManager.focusFirst()` there. So the hiding has to leave the segments focusable, which rules
+// out `visibility: hidden` and `display: none`.
 
 function EmptyTimeHarness() {
   const { control } = useForm<{ t: string }>({ defaultValues: { t: "" } })
@@ -86,16 +86,16 @@ describe("empty floating segmented field stays reachable", () => {
     expect(firstSegmentIn("Publish at")).toHaveFocus()
   })
 
-  test("the collapsed row hides its glyphs without going out of focus reach", () => {
+  test("the resting row hides its glyphs without going out of focus reach", () => {
     render(<EmptyTimeHarness />)
     const row = firstSegmentIn("Time").parentElement
     if (!row) {
       throw new Error("the segments row is missing")
     }
 
-    const { height, opacity, visibility } = getComputedStyle(row)
-    expect(height).toBe("0px")
+    const { display, opacity, visibility } = getComputedStyle(row)
     expect(opacity).toBe("0")
     expect(visibility).not.toBe("hidden")
+    expect(display).not.toBe("none")
   })
 })

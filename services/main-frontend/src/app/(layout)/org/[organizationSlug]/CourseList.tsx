@@ -7,8 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import PaginationControls from "@/shared-module/common/components/PaginationControls"
-import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
+import Pagination from "@/shared-module/common/components/Pagination"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -56,12 +55,11 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
             justify-content: center;
           `}
         >
-          <PaginationControls
+          <Pagination
             totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
             paginationInfo={paginationInfo}
           />
         </div>
-        <PaginationItemsPerPage paginationInfo={paginationInfo} />
 
         <NewCourseDialog
           open={newCourseFormOpen}

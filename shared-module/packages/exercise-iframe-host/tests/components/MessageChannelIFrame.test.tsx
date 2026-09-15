@@ -1435,7 +1435,10 @@ describe("MessageChannelIFrame", () => {
       confirm: jest.Mock
     }
 
-    const renderWithDialog = (confirms: boolean) => {
+    const renderWithDialog = (
+      confirms: boolean,
+      overrideDownloadFilename?: (url: string) => string,
+    ) => {
       const mockChannel = createMockMessageChannel()
       window.MessageChannel = jest.fn().mockImplementation(function () {
         return mockChannel
@@ -1452,6 +1455,7 @@ describe("MessageChannelIFrame", () => {
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
             title="test"
+            {...(overrideDownloadFilename ? { overrideDownloadFilename } : {})}
           />
         </I18nextProvider>,
       )
@@ -1481,11 +1485,15 @@ describe("MessageChannelIFrame", () => {
             target: this.target,
           })
         })
+      // startFileDownload's blob path is covered in parentLinkActions.test.ts; here a rejected fetch
+      // keeps these wiring tests on the same fallback path they asserted before that path existed.
+      jest.stubGlobal("fetch", jest.fn().mockRejectedValue(new Error("network error")))
     })
 
     afterEach(() => {
       openSpy.mockRestore()
       clickSpy.mockRestore()
+      jest.unstubAllGlobals()
     })
 
     it("opens a link only after the user confirms it", async () => {
@@ -1566,6 +1574,32 @@ describe("MessageChannelIFrame", () => {
           confirmLabel: "download-file-confirm-button",
         }),
       )
+    })
+
+    it("saves the file under the host's name rather than the one the iframe suggested", async () => {
+      const { sendFromIframe } = renderWithDialog(true, () => "file-2")
+
+      sendFromIframe({
+        message: "download-file",
+        url: "https://files.example/a",
+        filename: "kaisa-virtanen-essay.pdf",
+      })
+
+      await waitFor(() => {
+        expect(clickedAnchors).toEqual([
+          { href: "https://files.example/a", download: "file-2", target: "_blank" },
+        ])
+      })
+    })
+
+    it("still names the file when the iframe suggested nothing", async () => {
+      const { sendFromIframe } = renderWithDialog(true, () => "file-1")
+
+      sendFromIframe({ message: "download-file", url: "https://files.example/a", filename: null })
+
+      await waitFor(() => {
+        expect(clickedAnchors[0]?.download).toBe("file-1")
+      })
     })
 
     it("does not download when the user cancels", async () => {

@@ -49,7 +49,7 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
 
   await test.step("The certificate is listed on the holder's own profile", async () => {
     await page.goto("http://project-331.local/profile/studies")
-    await expect(page.getByRole("heading", { name: "Your certificates" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "My certificates" })).toBeVisible()
     await expect(page.getByRole("link", { name: "View certificate" }).first()).toBeVisible()
   })
 })

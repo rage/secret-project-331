@@ -1,115 +1,183 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
+import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import type { UserCompletionInformation } from "@/generated/api/types.generated"
-import { baseTheme, typography } from "@/shared-module/common/styles"
-import { Infobox, Link } from "@/shared-module/components"
+import {
+  SEGMENTED,
+  SISU_URL,
+  TONE,
+  openUniversityEnrolmentInfoUrl,
+} from "@/components/credit-registration/constants"
+import {
+  bandCss,
+  bandedCardCss,
+  cardTitleBandCss,
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  subheadingCss,
+} from "@/components/credit-registration/styles"
+import { Disclosure, Infobox, Link, Radio, RadioGroup } from "@/shared-module/components"
 
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 
+const STUDY_RIGHT_AT_UH = "study-right-at-uh"
+const OPEN_UNIVERSITY_OR_NEITHER = "open-university-or-neither"
+const STUDENT_TYPE_FIELD = "studentType"
+
+// oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+const myStudyInfoLink = <a href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
+
 export interface RegisterCompletionProps {
-  data: UserCompletionInformation
+  /** The address the completion was made under; registration matches on it and nothing else. */
+  email: string
+  courseName: string
+  ectsCredits: number | null | undefined
   registrationFormUrl: string
 }
 
-const RegisterCompletion: React.FC<React.PropsWithChildren<RegisterCompletionProps>> = ({
-  data,
+interface StudentTypeForm {
+  [STUDENT_TYPE_FIELD]: string
+}
+
+const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
+  email,
+  courseName,
+  ectsCredits,
   registrationFormUrl,
 }) => {
+  const { t, i18n } = useTranslation()
+  const { control, watch } = useForm<StudentTypeForm>({
+    defaultValues: { [STUDENT_TYPE_FIELD]: "" },
+  })
+  const studentType = watch(STUDENT_TYPE_FIELD)
+
+  const openUniversityInfoLink = (
+    // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+    <a
+      href={openUniversityEnrolmentInfoUrl(i18n.language)}
+      target="_blank"
+      rel="noopener noreferrer"
+    />
+  )
+
+  return (
+    <div className={narrowPageCss}>
+      <article className={bandedCardCss}>
+        <header className={cardTitleBandCss}>
+          <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+          <p className={subheadingCss}>
+            {t("course")}: {courseName}
+          </p>
+          {typeof ectsCredits === "number" ? (
+            <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+          ) : null}
+        </header>
+
+        <section className={bandCss}>
+          <RadioGroup
+            name={STUDENT_TYPE_FIELD}
+            control={control}
+            variant={SEGMENTED}
+            label={t("are-you-a-student-or-exchange-student-at-uh")}
+            description={t("open-university-students-and-everyone-else-select-no")}
+          >
+            <Radio value={STUDY_RIGHT_AT_UH} label={t("yes")} />
+            <Radio value={OPEN_UNIVERSITY_OR_NEITHER} label={t("no")} />
+          </RadioGroup>
+        </section>
+
+        {studentType === STUDY_RIGHT_AT_UH ? (
+          <section className={bandCss}>
+            <p>{t("enroll-through-sisu-to-register-credits")}</p>
+            <Infobox tone={TONE.INFO}>
+              <Trans t={t} i18nKey="sisu-email-matching-explanation" values={{ email }} />
+            </Infobox>
+            {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+            <div>
+              <Link
+                href={SISU_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                styledAsButton
+                variant="primary"
+                size="medium"
+              >
+                {t("go-to-sisu")}
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
+        {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
+          <section className={bandCss}>
+            <Infobox tone={TONE.INFO}>
+              <Trans
+                t={t}
+                i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register"
+                values={{ email }}
+              />
+            </Infobox>
+            <p>
+              <Trans
+                t={t}
+                i18nKey="open-university-credits-registered-through-ou-explanation"
+                values={{ email }}
+                components={{ openUniversityInfoLink }}
+              />
+            </p>
+            <div>
+              <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
+                {t("to-the-registration-form")}
+              </Link>
+            </div>
+            <p>
+              <Trans
+                t={t}
+                i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
+                values={{ url: MY_STUDYINFO }}
+                components={{ myStudyInfoLink }}
+              />
+            </p>
+          </section>
+        ) : null}
+
+        {studentType ? (
+          <div className={bandCss}>
+            <ChangedEmailNote email={email} />
+            {studentType === STUDY_RIGHT_AT_UH ? <AlreadyEnrolledNote email={email} /> : null}
+          </div>
+        ) : null}
+      </article>
+    </div>
+  )
+}
+
+const ChangedEmailNote: React.FC<{ email: string }> = ({ email }) => {
   const { t } = useTranslation()
   return (
-    <div>
-      <div
-        className={css`
-          margin: 0 0 1.5rem;
-          text-align: center;
-        `}
-      >
-        <h1
-          className={css`
-            font-weight: 600;
-            font-size: ${typography.h4};
-            margin: 2em 0em 1em 0em;
-            color: #333;
-          `}
-        >
-          {t("register-completion")}
-        </h1>
-        <h2
-          className={css`
-            font-weight: 600;
-            font-size: ${typography.h5};
-            margin: 2em 0em 1em 0em;
-            color: #333;
-          `}
-        >
-          {t("course")}: {data.course_name}
-        </h2>
-        {data.ects_credits && <p>{t("credits-n-ects", { n: data.ects_credits })}</p>}
-      </div>
-      <Infobox>
-        {t("use-this-email-address-on-the-registration-form")}: {data.email}
-      </Infobox>
-      <p
-        className={css`
-          margin: 1.5rem 0;
-        `}
-      >
-        <Trans t={t} i18nKey="open-university-credit-registration-responsibility-disclaimer">
-          The Open University of the University of Helsinki is responsible for registering the
-          credits. <strong>Registering the credits is free.</strong> Register to the Open University
-          of the University of Helsinki, so that we can process your credits.
-        </Trans>
+    <Disclosure title={t("changed-email-since-completing-course-disclosure-title")}>
+      <p>
+        <Trans
+          t={t}
+          i18nKey="changed-email-since-completing-course-disclosure-body"
+          values={{ email }}
+        />
       </p>
-      <div
-        className={css`
-          border: 2px solid ${baseTheme.colors.green[500]};
-          border-radius: 10px;
-          padding: 1rem;
-        `}
-      >
-        <p>{t("follow-these-instructions")}</p>
-        <ol>
-          <li>{t("fill-in-the-registration-form")}</li>
-          <li>
-            <Trans t={t} i18nKey="at-the-form-field-fill-in-your-email-address">
-              At the form field &apos;Your email address on the MOOC course&apos;
-              <strong>
-                fill in: <span>{{ email: data.email }}</span>
-              </strong>
-            </Trans>
-          </li>
-          <li>{t("tick-the-box-if-you-want-email-after-credits-have-been-registered")}</li>
-          <li>
-            <Trans
-              t={t}
-              i18nKey="after-completion-has-been-registered-you-can-view-completed-credits-at-url"
-            >
-              After your completion has been registered, you can view your completion in the{" "}
-              <strong>My StudyInfo</strong> service:{" "}
-              <a href={MY_STUDYINFO}>{{ url: MY_STUDYINFO }}</a> Note! There is some delay on
-              registering a completion and the credits being visible in My StudyInfo.
-            </Trans>
-          </li>
-        </ol>
-        <p>{t("credit-will-be-registered-within-few-days")}</p>
-      </div>
-      <div
-        className={css`
-          display: flex;
-          justify-content: center;
-          margin: 1.5rem 0;
-        `}
-      >
-        <Link href={registrationFormUrl} styledAsButton variant="primary" size="large">
-          {t("to-the-registration-form")}
-        </Link>
-      </div>
-      <p>{t("bachelor-and-master-degree-students-from-university-of-helsinki-notice")}</p>
-    </div>
+    </Disclosure>
+  )
+}
+
+const AlreadyEnrolledNote: React.FC<{ email: string }> = ({ email }) => {
+  const { t } = useTranslation()
+  return (
+    <Disclosure title={t("already-enrolled-in-sisu-disclosure-title")}>
+      <p>
+        <Trans t={t} i18nKey="already-enrolled-in-sisu-disclosure-body" values={{ email }} />
+      </p>
+    </Disclosure>
   )
 }
 

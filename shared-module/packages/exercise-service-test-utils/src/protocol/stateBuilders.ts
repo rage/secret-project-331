@@ -7,6 +7,7 @@
 
 import type {
   AnswerExerciseIframeState,
+  AnswerFileRef,
   CustomViewIframeState,
   ExerciseEditorIframeState,
   UserInformation,
@@ -38,6 +39,7 @@ export const DEFAULT_USER_INFO: UserInfo = {
 interface AnswerExerciseInput {
   public_spec: unknown
   previous_submission?: unknown | null
+  previous_submission_files?: AnswerFileRef[]
   exercise_task_id?: string
   user_information?: UserInformation
   user_variables?: UserVariablesMap | null
@@ -45,7 +47,7 @@ interface AnswerExerciseInput {
 
 /** Build an `answer-exercise` state (student view). */
 export function answerExerciseState(input: AnswerExerciseInput): AnswerExerciseIframeState {
-  return {
+  const state: AnswerExerciseIframeState = {
     view_type: "answer-exercise",
     exercise_task_id: input.exercise_task_id ?? ZERO_UUID,
     user_information: input.user_information ?? DEFAULT_USER_INFORMATION,
@@ -55,6 +57,10 @@ export function answerExerciseState(input: AnswerExerciseInput): AnswerExerciseI
       previous_submission: input.previous_submission ?? null,
     },
   }
+  if (input.previous_submission_files !== undefined) {
+    state.data.previous_submission_files = input.previous_submission_files
+  }
+  return state
 }
 
 interface ExerciseEditorInput {
@@ -81,6 +87,7 @@ export function exerciseEditorState(input: ExerciseEditorInput): ExerciseEditorI
 interface ViewSubmissionInput {
   public_spec: unknown
   user_answer: unknown
+  user_answer_files?: AnswerFileRef[]
   model_solution_spec?: unknown
   grading?: ExerciseTaskGradingResult | null
   exercise_task_id?: string
@@ -90,7 +97,7 @@ interface ViewSubmissionInput {
 
 /** Build a `view-submission` state (read-only, with optional grading + model solution). */
 export function viewSubmissionState(input: ViewSubmissionInput): ViewSubmissionIframeState {
-  return {
+  const state: ViewSubmissionIframeState = {
     view_type: "view-submission",
     exercise_task_id: input.exercise_task_id ?? ZERO_UUID,
     user_information: input.user_information ?? DEFAULT_USER_INFORMATION,
@@ -102,6 +109,10 @@ export function viewSubmissionState(input: ViewSubmissionInput): ViewSubmissionI
       model_solution_spec: input.model_solution_spec ?? null,
     },
   }
+  if (input.user_answer_files !== undefined) {
+    state.data.user_answer_files = input.user_answer_files
+  }
+  return state
 }
 
 interface CustomViewInput {

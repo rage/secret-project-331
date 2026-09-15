@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_spec_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE f.deleted_at IS NULL\n  AND u.created_at < now() - interval '7 days'\n  AND (\n    u.exercise_service_slug = 'playground'\n    OR EXISTS (\n      SELECT 1\n      FROM exercise_services AS s\n        JOIN exercise_service_info AS i ON i.exercise_service_id = s.id\n      WHERE s.slug = u.exercise_service_slug\n        AND s.deleted_at IS NULL\n        AND i.declares_spec_files\n    )\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_spec_files AS t\n    WHERE t.file_upload_id = u.file_upload_id\n      AND t.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM page_history_spec_files AS h\n    WHERE h.file_upload_id = u.file_upload_id\n      AND h.deleted_at IS NULL\n  )\nORDER BY u.created_at\nLIMIT $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_spec_uploads",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_spec_uploads",
+            "name": "file_upload_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "file_uploads",
+            "name": "path"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "8afe1e714f9e48b78ae31d564bf380906507c51c3528eede09333246240e4de1"
+}

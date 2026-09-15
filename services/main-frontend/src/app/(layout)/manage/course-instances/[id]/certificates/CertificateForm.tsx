@@ -61,6 +61,8 @@ const PAPER_SIZE_OPTIONS: { value: PaperSize; label: string }[] = [
   { value: "horizontal-a4", label: "Horizontal A4" },
 ]
 
+const ENABLE_GRADE_FIELD = "enableGrade" as const
+
 const CertificateForm: React.FC<Props> = ({
   configurationAndRequirements,
   onClickSave,
@@ -106,7 +108,7 @@ const CertificateForm: React.FC<Props> = ({
     onClickSave(data)
   })
 
-  const showGradeFields = useWatch({ control, name: "enableGrade" })
+  const showGradeFields = useWatch({ control, name: ENABLE_GRADE_FIELD })
 
   return (
     <form

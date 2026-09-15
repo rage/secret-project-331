@@ -33,6 +33,18 @@ export const Playground = {
   ),
 } satisfies Story
 
+export const Plain = {
+  args: { variant: "plain" },
+  render: (args) => (
+    <div className={wrapCss}>
+      <p>Your credits are registered automatically once the course staff confirm the grade.</p>
+      <Disclosure {...args}>
+        <p>We send the completion to the study registry within a day of the confirmation.</p>
+      </Disclosure>
+    </div>
+  ),
+} satisfies Story
+
 export const Expanded = {
   args: { defaultExpanded: true },
   render: (args) => (

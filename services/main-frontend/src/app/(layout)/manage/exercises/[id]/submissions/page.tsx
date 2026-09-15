@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
+  exerciseHasAnswerFilesOptions,
   getExerciseCsvExportTaskOptionsOptions,
   getExerciseOptions,
   getExerciseSubmissionsOptions,
@@ -16,8 +17,7 @@ import {
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import PaginationControls from "@/shared-module/common/components/PaginationControls"
-import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
+import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -29,6 +29,8 @@ import { Button, Checkbox, Dialog, Link, QueryResults, Select } from "@/shared-m
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
+
+const ANSWER_FILES_DOWNLOAD_PATH = "download-answer-files"
 
 interface ExportFormFields {
   taskId: string
@@ -98,6 +100,13 @@ const SubmissionsPage: React.FC = () => {
     [csvExportTaskOptionsQuery.data],
   )
 
+  // Deliberately not gated on the exercise service's `produces_file_answers` capability: a service
+  // that stopped declaring it, or an `exercise_service_info` row still at its default because the
+  // service-info fetcher has not run, would otherwise hide files that demonstrably exist.
+  const answerFilesExistQuery = useQuery(
+    exerciseHasAnswerFilesOptions({ path: { exercise_id: id } }),
+  )
+
   const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
     t("label-csv-export-task-option", {
       order: task.order_number + 1,
@@ -130,6 +139,8 @@ const SubmissionsPage: React.FC = () => {
         `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
       : // oxlint-disable-next-line i18next/no-literal-string
         `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
+
+  const answerFilesHref = `/api/v0/main-frontend/exercises/${id}/${ANSWER_FILES_DOWNLOAD_PATH}`
 
   return (
     <div>
@@ -194,6 +205,13 @@ const SubmissionsPage: React.FC = () => {
         >
           {t("button-text-export-answers-csv")}
         </Button>
+        {answerFilesExistQuery.data && (
+          <a href={answerFilesHref} download>
+            <Button variant="secondary" size="small" type="button">
+              {t("button-text-download-answer-files")}
+            </Button>
+          </a>
+        )}
       </div>
       {csvExportTaskOptionsQuery.isSuccess &&
         definitionTaskOptions.length === 0 &&
@@ -219,11 +237,10 @@ const SubmissionsPage: React.FC = () => {
                 exerciseSubmissions={exerciseSubmissions.data}
                 courseId={exercise.course_id}
               />
-              <PaginationControls
+              <Pagination
                 totalPages={exerciseSubmissions.total_pages}
                 paginationInfo={paginationInfo}
               />
-              <PaginationItemsPerPage paginationInfo={paginationInfo} />
             </>
           ) : null
         }

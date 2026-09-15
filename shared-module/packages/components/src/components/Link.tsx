@@ -1,6 +1,6 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import NextLink from "next/link"
 import React from "react"
 import { mergeProps, useLink, useObjectRef, VisuallyHidden } from "react-aria"
@@ -27,6 +27,53 @@ const SAME_TAB_TARGET = "_self"
 
 /** Scheme-qualified (`https:`, `mailto:`) or protocol-relative (`//host/path`) hrefs. */
 const ABSOLUTE_HREF = /^(?:[a-zA-Z][a-zA-Z\d+.-]*:|\/\/)/
+
+/**
+ * How a plain (non-button) link is drawn.
+ *
+ * - `text` (the default) is the body-copy link: the site's link colour, underlined.
+ * - `quiet` keeps the colour but underlines only on hover and focus, for a link that is the whole
+ *   content of a table cell or a list row, where fifty underlines are the loudest thing on screen.
+ * - `inherit` draws no colour or underline of its own: for a link wrapping a badge, a card or a
+ *   row, or one on a surface that sets its own text colour.
+ */
+export type LinkAppearance = "text" | "quiet" | "inherit"
+
+const plainLinkBaseCss = css`
+  color: var(--link-fg);
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    color: var(--link-fg-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--space-1);
+  }
+`
+
+const plainLinkCss: Record<LinkAppearance, string | undefined> = {
+  text: cx(
+    plainLinkBaseCss,
+    css`
+      text-decoration: underline;
+    `,
+  ),
+  quiet: cx(
+    plainLinkBaseCss,
+    css`
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
+    `,
+  ),
+  inherit: undefined,
+}
 
 type CommonLinkExtras = PressHandlers & {
   isDisabled?: boolean
@@ -56,8 +103,14 @@ type NextProps = React.ComponentProps<typeof NextLink>
 /** `href` is narrowed to a string: a `UrlObject` cannot be handed to a plain anchor. */
 type LinkSharedProps = Omit<NextProps, "href"> & CommonLinkExtras & { href: string }
 
-type LinkPlainProps = LinkSharedProps & {
+// `Trans` clones the element it is given in `components` and injects the sentence's parsed inner
+// content as children, so a plain (non-button) `Link` written as `<Link href="…" />` never actually
+// renders without children — but next/link's own type requires them. Widen just this variant so
+// that call site type-checks.
+type LinkPlainProps = Omit<LinkSharedProps, "children"> & {
+  children?: React.ReactNode
   styledAsButton?: false | undefined
+  appearance?: LinkAppearance
 }
 
 type LinkButtonProps = LinkSharedProps &
@@ -73,10 +126,13 @@ type LinkButtonProps = LinkSharedProps &
 
 export type LinkProps = LinkPlainProps | LinkButtonProps
 
+const DEFAULT_APPEARANCE: LinkAppearance = "text"
+
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
   function Link(props, forwardedRef) {
     const {
       styledAsButton,
+      appearance,
       variant,
       size,
       icon,
@@ -117,7 +173,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       transitionTypes,
       "data-testid": dataTestId,
       ...rest
-    } = props as LinkProps & ButtonLikeStyling
+    } = props as LinkProps & ButtonLikeStyling & { appearance?: LinkAppearance }
 
     const styledAsButtonResolved = styledAsButton === true
 
@@ -174,9 +230,10 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           size: (styledAsButtonResolved ? size : undefined) ?? "medium",
           variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
         })
-      : isInteractivelyDisabled
-        ? disabledPlainLinkCss
-        : undefined
+      : cx(
+          plainLinkCss[appearance ?? DEFAULT_APPEARANCE],
+          isInteractivelyDisabled && disabledPlainLinkCss,
+        )
 
     const rootClassName = cx(stateCss, className) || undefined
 
@@ -286,3 +343,10 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     )
   },
 )
+
+/**
+ * `Link`, named for use as a `<Trans>` substitution component:
+ * `<Trans components={{ a: <TransLink href="…" /> }}>...</Trans>`. `Trans` clones the element and
+ * supplies the sentence's own text as children, which is why none are passed here.
+ */
+export const TransLink = Link

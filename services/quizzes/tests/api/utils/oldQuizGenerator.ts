@@ -192,5 +192,6 @@ export const oldGenerateMultipleChoiceRequest = (
     grading_update_url: "example",
     exercise_spec: publicQuiz,
     submission_data: quizAnswer,
+    submission_files: [],
   }
 }

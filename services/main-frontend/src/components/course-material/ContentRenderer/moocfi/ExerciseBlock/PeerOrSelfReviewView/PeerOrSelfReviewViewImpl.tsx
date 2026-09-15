@@ -37,6 +37,7 @@ import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
+import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -293,6 +294,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
           .toSorted((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
+            const answerFields = reviewerAnswerFields(
+              course_material_exercise_task.previous_submission,
+            )
             return (
               <div key={course_material_exercise_task.id}>
                 <div data-testid="assignment">
@@ -305,7 +309,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
                 <ExerciseTaskIframe
                   exerciseTaskId={course_material_exercise_task.id}
-                  exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                   key={course_material_exercise_task.id}
                   postThisStateToIFrame={{
                     // oxlint-disable-next-line i18next/no-literal-string
@@ -323,12 +326,15 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      user_answer: course_material_exercise_task.previous_submission?.data_json,
+                      ...answerFields,
                       public_spec: course_material_exercise_task.public_spec,
                       model_solution_spec: course_material_exercise_task.model_solution_spec,
                     },
                   }}
                   url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                  overrideDownloadFilename={(url) =>
+                    reviewerDownloadFileName(answerFields.user_answer_files, url)
+                  }
                   setAnswer={null}
                   title={t("exercise-task-content", {
                     "exercise-number": exerciseNumber + 1,

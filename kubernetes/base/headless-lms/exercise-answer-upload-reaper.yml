@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: exercise-answer-upload-reaper
+  labels:
+    app: exercise-answer-upload-reaper
+    deploymentType: with-init-container-cronjob
+    needs-db: "job"
+spec:
+  schedule: "*/15 * * * *"
+  startingDeadlineSeconds: 300
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: exercise-answer-upload-reaper
+              image: headless-lms
+              command: ["bin/run", "exercise-answer-upload-reaper"]
+              resources:
+                requests:
+                  memory: 200Mi
+                  cpu: 20m
+                limits:
+                  memory: 500Mi
+                  cpu: 200m
+              envFrom:
+                - secretRef:
+                    name: headless-lms-secrets
+              volumeMounts:
+                - name: cache-volume
+                  mountPath: /cache
+          volumes:
+            - name: cache-volume
+              emptyDir:
+                sizeLimit: 2000Mi
+          initContainers:
+            - name: headless-lms-wait-for-db
+              image: headless-lms
+              command:
+                - bash
+                - "-c"
+                - |
+                  echo Waiting for postgres to be available
+                  timeout 120 ./wait-for-db.sh
+                  ./wait-for-db-migrations.sh
+              resources:
+                requests:
+                  memory: 200Mi
+                  cpu: 20m
+                limits:
+                  memory: 500Mi
+                  cpu: 200m
+              envFrom:
+                - secretRef:
+                    name: headless-lms-secrets

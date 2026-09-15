@@ -45,10 +45,12 @@ fn main() -> Result<()> {
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
         },
         Program {
-            name: "exercise-service-client-upload-reaper",
-            execute: Box::new(
-                || tokio_run(programs::exercise_service_client_upload_reaper::main()),
-            ),
+            name: "exercise-answer-upload-reaper",
+            execute: Box::new(|| tokio_run(programs::exercise_answer_upload_reaper::main())),
+        },
+        Program {
+            name: "exercise-spec-upload-reaper",
+            execute: Box::new(|| tokio_run(programs::exercise_spec_upload_reaper::main())),
         },
         Program {
             name: "open-university-registration-link-fetcher",

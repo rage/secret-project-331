@@ -13,7 +13,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-use super::{authorize_credit_registration_admin, one_or_many};
+use super::authorize_credit_registration_admin;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAdminActionRow {
@@ -33,7 +33,16 @@ pub struct CreditRegistrationAdminActionRow {
     pub actor_role: String,
     /// The course whose edit permission authorised a teacher action.
     pub actor_course_id: Option<Uuid>,
+    /// The course the action was about: a teacher's own, a course target, or the course of a
+    /// targeted registration.
     pub course_name: Option<String>,
+    /// The student a registration- or link-targeted action was about, so a row names who it
+    /// concerned rather than only an id prefix. `None` for a phase, course or module target.
+    pub target_user_id: Option<Uuid>,
+    pub target_first_name: Option<String>,
+    pub target_last_name: Option<String>,
+    /// In full, like the actor's.
+    pub target_email: Option<String>,
     pub reason: Option<String>,
     pub before_state: Option<CreditRegistrationState>,
     pub after_state: Option<CreditRegistrationState>,
@@ -45,7 +54,6 @@ pub struct CreditRegistrationAdminActionRow {
 pub struct ListAdminActionsQuery {
     page: Option<u32>,
     limit: Option<u32>,
-    #[serde(default, deserialize_with = "one_or_many")]
     action: Option<Vec<CreditRegistrationAdminAction>>,
     actor_user_id: Option<Uuid>,
     actor_role: Option<String>,
@@ -90,7 +98,7 @@ module, a course, a phase, a student-number link or its token.
 pub async fn list_credit_registration_admin_actions(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    query: web::Query<ListAdminActionsQuery>,
+    query: MultiQuery<ListAdminActionsQuery>,
 ) -> ControllerResult<web::Json<Page<CreditRegistrationAdminActionRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
@@ -131,6 +139,10 @@ fn to_action_row(row: CreditRegistrationAdminActionListRow) -> CreditRegistratio
         actor_last_name: row.actor_last_name,
         actor_email: row.actor_email,
         course_name: row.course_name,
+        target_user_id: row.target_user_id,
+        target_first_name: row.target_first_name,
+        target_last_name: row.target_last_name,
+        target_email: row.target_email,
         id: row.action.id,
         created_at: row.action.created_at,
         action: row.action.action,

@@ -22,6 +22,8 @@ import type {
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
+import type { PlaygroundUploadedFiles } from "@/utils/playgroundUploadedFiles"
+import { playgroundSubmissionFiles, recordPlaygroundUploads } from "@/utils/playgroundUploadedFiles"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
@@ -97,6 +99,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
   const [refreshKey, setRefreshKey] = useState(0)
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<PlaygroundUploadedFiles>({})
   const { control: previewOptionsControl, watch: watchPreviewOptions } = useForm<{
     sendPreviousSubmission: boolean
     sendModelSolutionSpec: boolean
@@ -258,6 +261,9 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                       disableSandbox={disableSandbox}
                       userInformation={userInformation}
                       userAnswer={answerExerciseViewSendPreviousSubmission ? userAnswer : null}
+                      onFilesUploaded={(files, entries) =>
+                        setUploadedFiles((known) => recordPlaygroundUploads(known, files, entries))
+                      }
                     />
                     <Button
                       variant={"primary"}
@@ -272,6 +278,10 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                         submitAnswerMutation.mutate({
                           type: "submit",
                           data: currentStateReceivedFromIframe.data,
+                          files: playgroundSubmissionFiles(
+                            currentStateReceivedFromIframe.files,
+                            uploadedFiles,
+                          ),
                         })
                       }}
                     >

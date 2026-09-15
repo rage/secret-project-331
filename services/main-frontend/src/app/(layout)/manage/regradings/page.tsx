@@ -20,8 +20,7 @@ import type {
   UserPointsUpdateStrategy,
 } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import PaginationControls from "@/shared-module/common/components/PaginationControls"
-import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
+import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -145,13 +144,10 @@ const RegradingsPage: React.FC = () => {
           </tbody>
         </FullWidthTable>
         {regradingsCountQuery.data !== undefined && (
-          <>
-            <PaginationControls
-              totalPages={Math.ceil(regradingsCountQuery.data / paginationInfo.limit)}
-              paginationInfo={paginationInfo}
-            />
-            <PaginationItemsPerPage paginationInfo={paginationInfo} />
-          </>
+          <Pagination
+            totalPages={Math.ceil(regradingsCountQuery.data / paginationInfo.limit)}
+            paginationInfo={paginationInfo}
+          />
         )}
       </div>
       <Button

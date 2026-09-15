@@ -77,6 +77,16 @@ export type CmsPageExerciseTask = {
   id: string
   order_number: number
   private_spec?: unknown
+  /**
+   * The stored files this task's private spec references, as the exercise service declared them
+   * in the editor. The host cannot read the spec, so this list is the only thing keeping the
+   * files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+   * attribute, so a load that leaves it empty makes the next save drop the references.
+   *
+   * Only the private spec's. Each derived spec declares its own files in the response of the
+   * endpoint that produced it, since a derivation may upload files of its own.
+   */
+  private_spec_files?: Array<string>
 }
 
 export type CmsPageUpdate = {
@@ -294,6 +304,15 @@ export type ExerciseServiceIframeRenderingInfo = {
   name: string
   public_iframe_url: string
   slug: string
+}
+
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
 }
 
 export type GutenbergBlock = {
@@ -1183,3 +1202,27 @@ export type GetCmsRepositoryExercisesForCourseResponses = {
 
 export type GetCmsRepositoryExercisesForCourseResponse =
   GetCmsRepositoryExercisesForCourseResponses[keyof GetCmsRepositoryExercisesForCourseResponses]
+
+export type UploadFilesFromExerciseServiceData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise service slug
+     */
+    exercise_service_slug: string
+  }
+  query?: never
+  url: "/api/v0/files/{exercise_service_slug}"
+}
+
+export type UploadFilesFromExerciseServiceResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesFromExerciseServiceResponse =
+  UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]

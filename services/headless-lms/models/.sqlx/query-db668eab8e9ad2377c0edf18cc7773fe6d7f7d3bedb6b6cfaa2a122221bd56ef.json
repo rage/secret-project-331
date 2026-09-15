@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT declared.file_upload_id\nFROM UNNEST($1::uuid []) AS declared(file_upload_id)\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM file_uploads\n    WHERE id = declared.file_upload_id\n      AND deleted_at IS NULL\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "db668eab8e9ad2377c0edf18cc7773fe6d7f7d3bedb6b6cfaa2a122221bd56ef"
+}

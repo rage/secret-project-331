@@ -59,18 +59,25 @@ export const sanitizeDownloadFilename = (raw: unknown): string | null => {
 export const openUrlInNewTab = (url: string): boolean =>
   window.open(url, "_blank", "noopener,noreferrer") !== null
 
+/** How long a blob URL is kept alive so a slow save can still read it before it's freed. */
+const OBJECT_URL_LIFETIME_MS = 30_000
+
 /**
- * Starts downloading `url`, suggesting `filename` for the saved file.
- *
- * `target="_blank"` is the safety net rather than the goal: browsers ignore `download` for
- * cross-origin responses, and without a target such a URL would navigate the host page away from the
- * exercise. When `download` is honored the browser downloads the file and opens no tab at all.
+ * Clicks a throwaway `<a download>`. `newTab` is the fallback's safety net: browsers ignore `download`
+ * for a cross-origin response and would otherwise navigate the host page away from the exercise. A
+ * `blob:` URL never navigates anywhere, so the caller passes `newTab: false` for it.
  */
-export const startFileDownload = (url: string, filename: string | null): void => {
+const clickDownloadLink = (
+  url: string,
+  filename: string | null,
+  { newTab }: { newTab: boolean },
+): void => {
   const link = document.createElement("a")
   link.href = url
-  link.target = "_blank"
-  link.rel = "noopener noreferrer"
+  if (newTab) {
+    link.target = "_blank"
+    link.rel = "noopener noreferrer"
+  }
   // An empty value still marks this a download; the browser then names the file from the response.
   link.download = filename ?? ""
   document.body.append(link)
@@ -78,5 +85,78 @@ export const startFileDownload = (url: string, filename: string | null): void =>
     link.click()
   } finally {
     link.remove()
+  }
+}
+
+/**
+ * Above this, buffering the whole response into memory for a blob download risks exhausting the tab's
+ * memory before the browser ever gets to save it. Generous for a submitted file, but a cap all the
+ * same: this module serves every exercise type, not just ones with small answers.
+ */
+export const MAX_BLOB_DOWNLOAD_BYTES = 200 * 1024 * 1024
+
+/** Thrown by {@link readBodyWithinLimit} once the response has grown past `MAX_BLOB_DOWNLOAD_BYTES`. */
+class ResponseTooLargeError extends Error {}
+
+/**
+ * Reads `response`'s body into a `Blob`, refusing once more than `MAX_BLOB_DOWNLOAD_BYTES` has arrived.
+ * `response.blob()` would buffer without limit; streaming lets a huge response be caught, and the
+ * in-flight read cancelled, instead of buffered in full first.
+ */
+const readBodyWithinLimit = async (response: Response): Promise<Blob> => {
+  const reader = response.body?.getReader()
+  if (!reader) {
+    // No stream to size-check as it arrives (an already-consumed response, or an environment without
+    // streaming fetch) — refuse rather than fall back to an unbounded `response.blob()`, which would
+    // defeat the whole point of this function.
+    throw new Error("Response has no readable body")
+  }
+  const chunks: Uint8Array<ArrayBuffer>[] = []
+  let receivedBytes = 0
+  for (;;) {
+    // oxlint-disable-next-line no-await-in-loop -- each read depends on the last; nothing to parallelize
+    const { done, value } = await reader.read()
+    if (done) {
+      break
+    }
+    receivedBytes += value.byteLength
+    if (receivedBytes > MAX_BLOB_DOWNLOAD_BYTES) {
+      await reader.cancel()
+      throw new ResponseTooLargeError(`Response exceeded ${MAX_BLOB_DOWNLOAD_BYTES} bytes`)
+    }
+    // Copied onto a fresh, plain ArrayBuffer: `BlobPart` refuses a view that could be backed by a
+    // SharedArrayBuffer, which is what the reader's own typed-array type admits.
+    chunks.push(new Uint8Array(value))
+  }
+  return new Blob(chunks, { type: response.headers.get("Content-Type") ?? "" })
+}
+
+/**
+ * Downloads `url`, suggesting `filename` for the saved file.
+ *
+ * Every platform file URL redirects to cross-origin storage, and browsers ignore `download` for a
+ * cross-origin response — so a direct link only ever opens the file for viewing. Fetching the bytes
+ * and downloading the resulting `blob:` URL forces a real save regardless of the file's origin, since
+ * `download` is always honored for blobs. Falls back to a direct link — today's best-effort behavior —
+ * if the fetch itself fails, the response is blocked by CORS, or it is too large to buffer safely, so
+ * neither a storage backend that never grants this origin CORS access nor an oversized file is worse
+ * off than before.
+ */
+export const startFileDownload = async (url: string, filename: string | null): Promise<void> => {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Unexpected response status ${response.status}`)
+    }
+    const objectUrl = URL.createObjectURL(await readBodyWithinLimit(response))
+    clickDownloadLink(objectUrl, filename, { newTab: false })
+    // Revoking right away can truncate the save in some browsers; give it time to start reading first.
+    setTimeout(() => URL.revokeObjectURL(objectUrl), OBJECT_URL_LIFETIME_MS)
+  } catch (error) {
+    console.warn(
+      "[MessageChannelIFrame] Downloading via fetch failed, falling back to a direct link",
+      error,
+    )
+    clickDownloadLink(url, filename, { newTab: true })
   }
 }

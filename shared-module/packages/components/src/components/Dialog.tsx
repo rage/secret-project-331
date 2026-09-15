@@ -131,7 +131,7 @@ const surfaceCss = css`
   overflow: hidden;
   background: var(--color-clear-50);
   color: var(--color-gray-700);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   outline: none;
 
   /* The scrim is dropped in high contrast mode, so without an edge the surface merges into the page. */
@@ -248,6 +248,12 @@ const footerCss = css`
 
 const actionCss = css`
   flex: 1 1 0;
+
+  /* On a column main axis that zero basis becomes a zero height and overrides the button's own,
+     leaving an action the height of its text. */
+  ${below("xs")} {
+    flex: 0 0 auto;
+  }
 `
 
 /**
@@ -259,7 +265,11 @@ const actionCss = css`
  * scrim animate open and closed, cross-fading instead of moving under `prefers-reduced-motion`.
  *
  * The footer is either arbitrary `footer` content or an `actions` row of buttons described as
- * data, which share the footer width evenly.
+ * data; two or more share the footer width evenly, a lone action keeps its own width at the end of
+ * the row. A dialog whose body is a form should submit through
+ * `actions`, not a button rendered in `children` — `actions` is what positions, sizes, and stacks
+ * it consistently on narrow screens. For a confirm/cancel action pair, prefer the `ConfirmDialog`
+ * preset over assembling `actions` by hand.
  */
 export const Dialog: React.FC<DialogProps> = (props) => (
   // AnimatePresence keeps the outgoing dialog mounted through its exit animation, which is why
@@ -407,7 +417,12 @@ const OpenDialog: React.FC<DialogProps> = ({
           {actions !== undefined && (
             <div className={footerCss}>
               {actions.map(({ label, ...buttonProps }, index) => (
-                <Button key={index} {...buttonProps} size="medium" className={actionCss}>
+                <Button
+                  key={index}
+                  {...buttonProps}
+                  size="medium"
+                  className={cx(actions.length > 1 && actionCss)}
+                >
                   {label}
                 </Button>
               ))}

@@ -10,8 +10,7 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import PaginationControls from "@/shared-module/common/components/PaginationControls"
-import PaginationItemsPerPage from "@/shared-module/common/components/PaginationItemsPerPage"
+import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -130,8 +129,8 @@ const SubmissionsPage: React.FC = () => {
               courseId={exerciseQuery.data?.course_id ?? null}
               refetch={answersQuery.refetch}
             />
-            <PaginationControls totalPages={answers.total_pages} paginationInfo={paginationInfo} />
-            <PaginationItemsPerPage
+            <Pagination
+              totalPages={answers.total_pages}
               paginationInfo={paginationInfo}
               itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
             />

@@ -19,8 +19,10 @@ test("Managing course instances works", async ({ page }) => {
   await page
     .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
     .click()
+  // The index route immediately replaces itself with /overview; asserting the bare course URL is a
+  // race against that redirect, which is why this only failed intermittently.
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
+    "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/overview",
   )
 
   await page.getByText("For instructions on how to edit your course materials, view the").waitFor()
@@ -36,7 +38,7 @@ test("Managing course instances works", async ({ page }) => {
 
   const submissionsCsvContents = await downloadToString(submissionsDownload)
   expect(submissionsCsvContents).toContain(
-    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_id,exercise_id,exercise_task_id,score_given,data_json",
+    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_id,exercise_id,exercise_task_id,score_given,data_json,data_files",
   )
   expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
   expect(submissionsCsvContents).toContain(

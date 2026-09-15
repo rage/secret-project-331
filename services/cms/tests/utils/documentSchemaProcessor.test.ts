@@ -128,6 +128,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       private_spec: {
         options: ["a", "b", "c"],
       },
+      private_spec_files: ["e6d6b3ba-6f4e-4f2e-9c1f-3d1a4f2b8a11"],
     },
   ],
   url_path: "/path/to/page",
@@ -164,6 +165,7 @@ const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes 
   id: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
   exercise_type: "quizzes",
   private_spec: '{"options":["a","b","c"]}',
+  private_spec_files: [],
   show_editor: false,
   order_number: 0,
 }

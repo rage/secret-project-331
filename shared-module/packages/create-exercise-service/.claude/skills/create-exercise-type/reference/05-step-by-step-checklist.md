@@ -61,6 +61,11 @@ pnpm run dev         # http://localhost:<port>
 
 (See `03-scaffolding-cli.md` for exactly what gets generated/renamed.)
 
+A standalone scaffold ships no formatter or linter. The platform uses `oxfmt` + `oxlint`; copy the
+monorepo root's `.oxfmtrc.json` and `.oxlintrc.json`, add `format:check` / `lint:ci` scripts, and
+run them in CI. Review autofixes before accepting them — `unicorn/prefer-number-coercion` and
+`require-await` both rewrite correct code (details in the project guide's gotchas).
+
 ## Step 2 — Define your 5 data types
 
 **Delete the template's exercise-specific test files up front** (`stateInterfaces.test.ts`,
@@ -121,7 +126,10 @@ blobs instead of migrating them.
 
 Verify against the **Playground** (courses.mooc.fi/playground-tabs): point it at your
 `http://localhost:<port>/<base-path>/api/service-info` and exercise all views + spec generation +
-grading. Run `pnpm test` (the endpoint tests double as an envelope spec).
+grading. The Playground POSTs your spec endpoints from the browser, so this is also the only place a
+missing CORS preflight (`OPTIONS` + `Allow-Methods`/`Allow-Headers`, which the template lacks) shows
+up — do not shim those headers away in a test. Run `pnpm test` (the endpoint tests double as an
+envelope spec).
 
 ## Step 5 (Track B) — Keep the vendored shared-module synced
 
@@ -176,11 +184,14 @@ bin/seed           # inserts the exercise_services row
 The `service_info_fetcher` worker discovers your endpoints within ~60s and populates
 `exercise_service_info`. Verify the row exists and that the CMS lists your exercise type.
 
-## Step 9 (Track A) — Register a standalone plugin by URL
+## Step 9 (Track A) — Deploy and register a standalone plugin
 
-Deploy the plugin on your own infra so its service-info URL is reachable, then register it via the
-admin API `POST /api/v0/main-frontend/exercise-services` (name/slug/public_url/internal_url), which
-immediately fetches its service-info. No monorepo changes.
+Host it per `09-external-hosting.md` (one Cloud Run service per plugin behind the shared
+`*.exercises.mooc.fi` load balancer; the plugin repo needs a `Dockerfile`, which the scaffold
+excludes). Then register it via the admin API `POST /api/v0/main-frontend/exercise-services` with
+`public_url` = the hosting's `service_info_url` output
+(`https://<name>.exercises.mooc.fi/api/service-info`) and `internal_url` unset; registration fetches
+service-info immediately. No monorepo changes.
 
 ## Definition of done
 

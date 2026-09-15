@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_module_completion_id,\n  route AS \"route: _\",\n  enrolment_confirmed_at\nFROM credit_registration_enrolment_routes\nWHERE course_module_completion_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "route: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "enrolment_confirmed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "a0ad66ec749f9b2157f8ed2f1b034a6f8191841113c39673bbbfba8247bc78bc"
+}

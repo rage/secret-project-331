@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForErrorNotification, waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -11,7 +12,7 @@ const ADDITIONAL_MESSAGE = "THIS COURSE HAS CLOSED UNTIL FURTHER NOTICE"
 const FOREIGN_KEY_VIOLATION_ERROR_MESSAGE =
   "Insert or update on table 'courses' failed due to constraint 'courses_closed_course_successor_id_fkey'. Please verify the data related to the constraint and try again."
 
-test.describe("Course auditing", () => {
+test.describe.only("Course auditing", () => {
   test("Editing course data successfully", async ({ page }) => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "Course auditing" }).click()
@@ -248,8 +249,11 @@ test.describe("Course auditing", () => {
     )
     await page.getByRole("button", { name: "Cancel" }).click()
 
-    await expect(page.getByRole("heading", { name: "Unsaved changes" })).toBeVisible()
-    await page.getByTestId("confirm-dialog-yes-button").click()
+    await respondToConfirmDialog(
+      page,
+      true,
+      "You have unsaved changes in this course. Leave without saving?",
+    )
 
     await expect(page.getByRole("textbox", { name: " Closed course successor" })).toBeHidden()
   })

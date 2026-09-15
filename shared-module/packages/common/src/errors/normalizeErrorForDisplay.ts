@@ -275,7 +275,7 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
     retryAfterSeconds: null,
     issues: parseIssues(payload.errors),
     blockId,
-    metadata: null,
+    metadata,
     technicalDetails: null,
     raw: payload,
   }

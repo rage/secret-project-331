@@ -52,19 +52,17 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
         className={css`
           position: relative;
           display: inline-flex;
+
+          &:hover > div,
+          &:focus-visible > div {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+          }
         `}
         variant={"icon"}
       >
-        <InfoCircle
-          size={18}
-          className={css`
-            &:hover + div {
-              visibility: visible;
-              opacity: 1;
-              transition: opacity 0.3s ease;
-            }
-          `}
-        />
+        <InfoCircle size={18} />
         <SpeechBalloon
           className={css`
             position: absolute;

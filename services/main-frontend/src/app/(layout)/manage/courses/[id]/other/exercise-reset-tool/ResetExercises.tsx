@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -43,13 +43,12 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const resetOnlyLockedPeerReviews = watch("resetOnlyLockedPeerReviews")
   const resetAllBelowMaxPoints = watch("resetAllBelowMaxPoints")
   const selectedExercisesMap = watch("selectedExercises")
-  const selectedExerciseIds = useMemo(
-    () =>
-      Object.entries(selectedExercisesMap)
-        .filter(([, selected]) => selected)
-        .map(([id]) => id),
-    [selectedExercisesMap],
-  )
+  // Not memoized: react-hook-form mutates the object `watch` returns in place, so a memo keyed on
+  // it would never see a new reference and would hold the empty first-render result, leaving the
+  // reset button disabled however many exercises the user ticks.
+  const selectedExerciseIds = Object.entries(selectedExercisesMap)
+    .filter(([, selected]) => selected)
+    .map(([id]) => id)
   const setSelectedExerciseIds = (ids: string[]) => {
     setValue("selectedExercises", Object.fromEntries(ids.map((id) => [id, true])))
   }

@@ -129,15 +129,14 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const decisions = watch("decisions")
   const editedTexts = watch("editedTexts")
 
-  const resolvedBlocks = useMemo(
-    () =>
-      proposal.block_proposals
-        .map((block) =>
-          resolveBlockProposalInfo(block, decisions[block.id] ?? "", editedTexts[block.id] ?? ""),
-        )
-        .filter((info): info is BlockProposalInfo => info !== null),
-    [proposal.block_proposals, decisions, editedTexts],
-  )
+  // Not memoized: react-hook-form mutates the object `watch` returns in place, so a memo keyed on
+  // `decisions` would never see a new reference and would hold the empty first-render result,
+  // leaving the send button disabled however many blocks the user decides.
+  const resolvedBlocks = proposal.block_proposals
+    .map((block) =>
+      resolveBlockProposalInfo(block, decisions[block.id] ?? "", editedTexts[block.id] ?? ""),
+    )
+    .filter((info): info is BlockProposalInfo => info !== null)
 
   const sendMutation = useToastMutation(
     () => handleProposal(proposal.page_id, proposal.id, resolvedBlocks),

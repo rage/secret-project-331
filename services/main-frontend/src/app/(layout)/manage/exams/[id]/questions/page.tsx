@@ -222,6 +222,8 @@ const GradingPage: React.FC = () => {
       </h3>
       <table
         className={css`
+          display: block;
+          overflow-x: auto;
           border-collapse: collapse;
           margin-top: 1.5rem;
           width: 100%;

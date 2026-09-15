@@ -17,6 +17,7 @@ import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBound
 import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
+import CourseDataFilterForm from "./CourseDataFilterForm"
 
 export interface CourseFilter {
   search_course: string
@@ -25,6 +26,20 @@ export interface CourseFilter {
   short_description: boolean
   no_prerequisites: boolean
   no_audiences: boolean
+}
+
+export interface CourseDataFilter {
+  show_description: boolean
+  show_prerequisites: boolean
+  show_audiences: boolean
+  show_suggest_metadata: boolean
+  show_closed_at: boolean
+  show_closed_course_successor_id: boolean
+  show_additional_message: boolean
+  show_completion_registration_link: boolean
+  show_enable_registering_completion_to_uh_open_university: boolean
+  show_uh_course_code: boolean
+  show_ects_credits: boolean
 }
 
 export const FieldSet = styled.fieldset`
@@ -50,6 +65,13 @@ export const contentRowStyles = css`
   gap: 1rem;
 `
 
+export const formButtonGridStyles = css`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  margin: 0.5rem 0;
+  gap: 0.5rem;
+`
+
 const CourseAuditing = () => {
   const { t } = useTranslation()
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
@@ -66,6 +88,24 @@ const CourseAuditing = () => {
       no_audiences: false,
     },
   })
+
+  const methods = useForm<CourseDataFilter>({
+    defaultValues: {
+      show_description: true,
+      show_prerequisites: true,
+      show_audiences: true,
+      show_suggest_metadata: true,
+      show_closed_at: true,
+      show_closed_course_successor_id: true,
+      show_additional_message: true,
+      show_completion_registration_link: true,
+      show_enable_registering_completion_to_uh_open_university: true,
+      show_uh_course_code: true,
+      show_ects_credits: true,
+    },
+  })
+
+  const { control: courseDataFilterControl } = methods
 
   const [
     searchCourse,
@@ -151,7 +191,7 @@ const CourseAuditing = () => {
     >
       <h1>{t("title-course-auditing")}</h1>
       <FieldSet>
-        <Legend>{t("filters")}</Legend>
+        <Legend>{t("course-auditing-filter-courses-title")}</Legend>
         <div className={contentRowStyles}>
           <div
             className={css`
@@ -176,16 +216,7 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div
-          className={css`
-            color: ${baseTheme.colors.gray[500]};
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-            margin: 0.5rem 0;
-            text-align: start;
-            gap: 0.5rem;
-          `}
-        >
+        <div className={formButtonGridStyles}>
           <Switch
             name="no_default_uh_course_code"
             control={control}
@@ -213,6 +244,9 @@ const CourseAuditing = () => {
           />
         </div>
       </FieldSet>
+
+      <CourseDataFilterForm methods={methods} />
+
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
           <div
@@ -224,7 +258,12 @@ const CourseAuditing = () => {
           >
             <p>{t("course-auditing-showing-courses", { count: filteredCourses.length })}</p>
             {filteredCourses.map((course) => (
-              <CourseCard key={course.id} id={course.id} courseAuditingData={course} />
+              <CourseCard
+                key={course.id}
+                id={course.id}
+                courseAuditingData={course}
+                courseDataFilterControl={courseDataFilterControl}
+              />
             ))}
           </div>
         )}

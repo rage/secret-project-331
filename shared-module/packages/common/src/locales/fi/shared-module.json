@@ -102,7 +102,7 @@
       "title": "Lyhyt nimi on jo käytössä"
     },
     "foreign_key_violation": {
-      "message": "Viittausta ei ole olemassa.",
+      "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
       "title": "Viiteavainvirhe"
     }
   },

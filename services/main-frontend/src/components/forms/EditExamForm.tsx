@@ -9,13 +9,15 @@ import { useTranslation } from "react-i18next"
 
 import type { Exam, NewExam } from "@/generated/api/types.generated"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { Button, Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+import { Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+
+// Shared with EditExamDialog.tsx, whose footer submit button targets this form by id.
+export const EDIT_EXAM_FORM_ID = "edit-exam-form"
 
 interface EditExamFormProps {
   initialData: Exam
   organizationId: string
   onEditExam: (form: NewExam) => void
-  onCancel: () => void
 }
 
 interface EditExamFields {
@@ -31,7 +33,6 @@ interface EditExamFields {
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   initialData,
   onEditExam,
-  onCancel: _onCancel,
   organizationId,
 }) => {
   const { t } = useTranslation()
@@ -74,10 +75,11 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
 
   return (
     <div>
-      <form onSubmit={onEditExamWrapper}>
+      <form id={EDIT_EXAM_FORM_ID} onSubmit={onEditExamWrapper}>
         <div
           className={css`
-            margin-bottom: 2rem;
+            display: grid;
+            gap: var(--space-4);
           `}
         >
           <TextField
@@ -122,17 +124,6 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
             />
           )}
         </div>
-
-        <Button
-          variant="primary"
-          size="medium"
-          type="submit"
-          className={css`
-            width: 100%;
-          `}
-        >
-          {t("button-text-submit")}
-        </Button>
       </form>
     </div>
   )

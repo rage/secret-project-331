@@ -3,7 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamForm from "@/components/forms/EditExamForm"
+import EditExamForm, { EDIT_EXAM_FORM_ID } from "@/components/forms/EditExamForm"
 import { editExamMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Exam, NewExam } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -46,7 +46,19 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={t("edit-exam")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("edit-exam")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: EDIT_EXAM_FORM_ID },
+        },
+      ]}
+    >
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {createExamMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
@@ -55,7 +67,6 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       <EditExamForm
         initialData={initialData}
         organizationId={organizationId}
-        onCancel={close}
         onEditExam={(exam: NewExam) =>
           createExamMutation.mutate({
             path: {

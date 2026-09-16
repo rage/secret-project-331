@@ -8,7 +8,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Dialog } from "@/shared-module/components"
 
-import NewCourseInstanceForm from "./NewCourseInstanceForm"
+import NewCourseInstanceForm, { NEW_COURSE_INSTANCE_FORM_ID } from "./NewCourseInstanceForm"
 
 interface NewCourseLanguageVersionDialogProps {
   showDialog: boolean
@@ -42,7 +42,19 @@ const NewCourseInstanceDialog: React.FC<
   )
 
   return (
-    <Dialog open={showDialog} onClose={onClose} title={t("new-course-instance")}>
+    <Dialog
+      open={showDialog}
+      onClose={onClose}
+      title={t("new-course-instance")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: NEW_COURSE_INSTANCE_FORM_ID },
+        },
+      ]}
+    >
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {mutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
@@ -53,7 +65,6 @@ const NewCourseInstanceDialog: React.FC<
         onSubmit={(data) => {
           mutation.mutate(data)
         }}
-        onCancel={onClose}
       />
     </Dialog>
   )

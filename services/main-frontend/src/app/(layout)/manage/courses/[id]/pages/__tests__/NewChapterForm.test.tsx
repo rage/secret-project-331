@@ -26,12 +26,10 @@ function pickNow(groupName: string) {
   fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" })
 }
 
-/** Waits for react-hook-form's async `mode: "onChange"` validation to enable the button first;
- *  clicking while it's still disabled (mid-validation) would be a silent no-op. */
-async function clickSubmit(buttonName: string) {
-  const button = screen.getByRole("button", { name: buttonName })
-  await waitFor(() => expect(button).not.toBeDisabled())
-  fireEvent.click(button)
+// The submit button now lives in ChapterFormDialog's footer, outside this component, so tests
+// submit the form directly rather than clicking a button that isn't rendered here.
+function submitForm() {
+  fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 }
 
 function renderForm(props: Partial<React.ComponentProps<typeof NewChapterForm>> = {}) {
@@ -45,6 +43,7 @@ function renderForm(props: Partial<React.ComponentProps<typeof NewChapterForm>> 
         chapterNumber={1}
         initialData={null}
         newRecord={true}
+        onCanSubmitChange={jest.fn()}
         {...props}
       />
     </QueryClientProvider>,
@@ -73,7 +72,7 @@ describe("NewChapterForm", () => {
     fireEvent.click(document.querySelector('input[name="has_deadline"]') as HTMLInputElement)
     pickNow("label-deadline")
 
-    await clickSubmit("button-text-create")
+    submitForm()
 
     await waitFor(() => expect(mockCreateChapter).toHaveBeenCalledTimes(1))
     const body = mockCreateChapter.mock.calls[0][0].body
@@ -88,7 +87,7 @@ describe("NewChapterForm", () => {
     fireEvent.change(document.querySelector('input[name="name"]') as HTMLInputElement, {
       target: { value: "Chapter 1" },
     })
-    await clickSubmit("button-text-create")
+    submitForm()
 
     await waitFor(() => expect(mockCreateChapter).toHaveBeenCalledTimes(1))
     const body = mockCreateChapter.mock.calls[0][0].body
@@ -110,7 +109,7 @@ describe("NewChapterForm", () => {
     }
     renderForm({ initialData, newRecord: false })
 
-    await clickSubmit("button-text-update")
+    submitForm()
 
     await waitFor(() => expect(mockUpdateChapter).toHaveBeenCalledTimes(1))
     const body = mockUpdateChapter.mock.calls[0][0].body

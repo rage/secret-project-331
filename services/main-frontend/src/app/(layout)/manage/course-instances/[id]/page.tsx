@@ -7,7 +7,9 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewCourseInstanceForm from "@/app/(layout)/manage/courses/[id]/course-instances/NewCourseInstanceForm"
+import NewCourseInstanceForm, {
+  NEW_COURSE_INSTANCE_FORM_ID,
+} from "@/app/(layout)/manage/courses/[id]/course-instances/NewCourseInstanceForm"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
@@ -17,6 +19,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, QueryResult } from "@/shared-module/components"
+
+/** The shared form renders no submit button, since its dialog caller puts one in the footer. */
+const editActionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+`
 
 const ManageCourseInstances: React.FC = () => {
   const { t } = useTranslation()
@@ -93,14 +103,28 @@ const ManageCourseInstances: React.FC = () => {
         {(data) => {
           if (editing) {
             return (
-              <NewCourseInstanceForm
-                initialData={data}
-                onSubmit={(formData) => {
-                  mutation.mutate(formData)
-                  setEditing(false)
-                }}
-                onCancel={() => setEditing(false)}
-              />
+              <>
+                <NewCourseInstanceForm
+                  initialData={data}
+                  onSubmit={(formData) => {
+                    mutation.mutate(formData)
+                    setEditing(false)
+                  }}
+                />
+                <div className={editActionsCss}>
+                  <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
+                    {t("button-text-cancel")}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="medium"
+                    type="submit"
+                    domProps={{ form: NEW_COURSE_INSTANCE_FORM_ID }}
+                  >
+                    {t("button-text-submit")}
+                  </Button>
+                </div>
+              </>
             )
           }
           const supportEmail = data.support_email ? (

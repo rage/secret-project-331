@@ -3,7 +3,7 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import EditReferenceForm from "@/components/forms/EditReferenceForm"
+import EditReferenceForm, { EDIT_REFERENCE_FORM_ID } from "@/components/forms/EditReferenceForm"
 import { deleteCourseReference, updateCourseReference } from "@/generated/api/sdk.generated"
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -77,12 +77,26 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
   )
 
   return (
-    <Dialog open={open} onClose={onClose} title={t("edit-reference")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("edit-reference")}
+      actions={[
+        {
+          label: t("delete"),
+          variant: "secondary",
+          onPress: () => deleteReferenceMutation.mutate({ courseId, id: reference.id }),
+        },
+        {
+          label: t("save"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: EDIT_REFERENCE_FORM_ID },
+        },
+      ]}
+    >
       <EditReferenceForm
         onCancel={onClose}
-        onDelete={(deleteCourseId, id) =>
-          deleteReferenceMutation.mutate({ courseId: deleteCourseId, id })
-        }
         onEdit={(editCourseId, id, editReference) =>
           updateReferenceMutation.mutate({
             courseId: editCourseId,

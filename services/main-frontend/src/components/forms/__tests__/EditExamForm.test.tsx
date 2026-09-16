@@ -43,15 +43,10 @@ describe("EditExamForm", () => {
   it("preserves the initial starts_at and ends_at when submitted untouched", async () => {
     const onEditExam = jest.fn()
     render(
-      <EditExamForm
-        initialData={initialData}
-        organizationId="org-1"
-        onEditExam={onEditExam}
-        onCancel={jest.fn()}
-      />,
+      <EditExamForm initialData={initialData} organizationId="org-1" onEditExam={onEditExam} />,
     )
 
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onEditExam).toHaveBeenCalledTimes(1))
     const submitted = onEditExam.mock.calls[0][0] as NewExam
@@ -62,16 +57,11 @@ describe("EditExamForm", () => {
   it("submits a freshly picked starts_at as a full ISO string", async () => {
     const onEditExam = jest.fn()
     render(
-      <EditExamForm
-        initialData={initialData}
-        organizationId="org-1"
-        onEditExam={onEditExam}
-        onCancel={jest.fn()}
-      />,
+      <EditExamForm initialData={initialData} organizationId="org-1" onEditExam={onEditExam} />,
     )
 
     pickNow("label-starts-at")
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onEditExam).toHaveBeenCalledTimes(1))
     const submitted = onEditExam.mock.calls[0][0] as NewExam

@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
-import React, { useContext, useState } from "react"
+import React, { useContext, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -15,12 +15,12 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog } from "@/shared-module/components"
+import { Button, Dialog, type DialogAction } from "@/shared-module/components"
 
 import OneTimeCodeForm from "./OneTimeCodeForm"
 import "@/shared-module/common/init/registerAuthApiClients"
 
-import VerifyPasswordForm from "./VerifyPasswordForm"
+import VerifyPasswordForm, { type VerifyPasswordFormHandle } from "./VerifyPasswordForm"
 
 interface DeleteUserAccountProps {
   email: string
@@ -40,6 +40,8 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
   const [credentialsError, setCredentialsError] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
+  const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
+  const closeDialog = () => setOpenDialog(false)
 
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) => {
@@ -87,6 +89,24 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
     },
   )
 
+  const cancelAction: DialogAction = {
+    label: t("button-text-cancel"),
+    variant: "tertiary",
+    onPress: closeDialog,
+  }
+  const actions: readonly [DialogAction, ...DialogAction[]] =
+    step === "password"
+      ? [
+          cancelAction,
+          {
+            label: t("confirm"),
+            variant: "danger",
+            disabled: sendEmailCodeMutation.isPending,
+            onPress: () => verifyPasswordFormRef.current?.submit(),
+          },
+        ]
+      : [cancelAction]
+
   return (
     <>
       <Button
@@ -101,7 +121,8 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
       <Dialog
         open={openDialog}
         title={t("title-delete-account")}
-        onClose={() => setOpenDialog(false)}
+        onClose={closeDialog}
+        actions={actions}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
           <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
@@ -109,11 +130,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
         {step === "password" && (
           <VerifyPasswordForm
+            ref={verifyPasswordFormRef}
             onSubmit={(passwordValue) => {
               setPassword(passwordValue)
               sendEmailCodeMutation.mutateAsync(passwordValue)
             }}
-            isPending={sendEmailCodeMutation.isPending}
             credentialsError={credentialsError}
           />
         )}

@@ -3,7 +3,7 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import NewReferenceForm from "@/components/forms/NewReferenceForm"
+import NewReferenceForm, { NEW_REFERENCE_FORM_ID } from "@/components/forms/NewReferenceForm"
 import { createCourseReferences } from "@/generated/api/sdk.generated"
 import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -45,7 +45,19 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
   )
 
   return (
-    <Dialog open={open} onClose={onClose} title={t("new-reference")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("new-reference")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: NEW_REFERENCE_FORM_ID },
+        },
+      ]}
+    >
       <NewReferenceForm
         onCancel={onClose}
         onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}

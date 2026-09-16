@@ -10,7 +10,10 @@ import { useTranslation } from "react-i18next"
 
 import type { NewMaterialReference } from "@/generated/api/types.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextArea } from "@/shared-module/components"
+import { TextArea } from "@/shared-module/components"
+
+// Shared with NewReferenceDialog.tsx, whose footer submit button targets this form by id.
+export const NEW_REFERENCE_FORM_ID = "new-reference-form"
 
 interface NewReferenceFormProps {
   onCreateNewReference: (form: NewMaterialReference[]) => void
@@ -88,6 +91,7 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
 
   return (
     <form
+      id={NEW_REFERENCE_FORM_ID}
       onSubmit={onCreateNewReferenceWrapper}
       className={css`
         width: 100%;
@@ -113,17 +117,6 @@ const NewReferenceForm: React.FC<React.PropsWithChildren<NewReferenceFormProps>>
             {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
           </ErrorText>
         ))}
-      <br />
-      <Button
-        variant="primary"
-        size="medium"
-        type="submit"
-        className={css`
-          width: 100%;
-        `}
-      >
-        {t("button-text-submit")}
-      </Button>
     </form>
   )
 }

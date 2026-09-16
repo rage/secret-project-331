@@ -53,7 +53,7 @@ describe("NewExamForm", () => {
     jest.setSystemTime(new Date(2026, 0, 15, 11, 0, 0))
     pickNow("label-ends-at")
 
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onCreateNewExam).toHaveBeenCalledTimes(1))
     const submitted = onCreateNewExam.mock.calls[0][0] as NewExam
@@ -89,7 +89,7 @@ describe("NewExamForm", () => {
     )
 
     fillRequiredNonDateFields()
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onCreateNewExam).toHaveBeenCalledTimes(1))
     const submitted = onCreateNewExam.mock.calls[0][0] as NewExam

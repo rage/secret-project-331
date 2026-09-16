@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -12,7 +12,10 @@ import {
 import type { Chapter, NewChapter } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
-import { Button, Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+import { Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+
+// Shared with ChapterFormDialog.tsx, whose footer submit button targets this form by id.
+export const NEW_CHAPTER_FORM_ID = "new-chapter-form"
 
 interface NewChapterFormProps {
   courseId: string
@@ -20,6 +23,8 @@ interface NewChapterFormProps {
   chapterNumber: number
   initialData: Chapter | null
   newRecord: boolean
+  /** Reports whether the footer's submit action should be enabled, since that button now lives outside this form. */
+  onCanSubmitChange: (canSubmit: boolean) => void
 }
 
 interface Fields {
@@ -39,6 +44,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
   chapterNumber,
   initialData,
   newRecord,
+  onCanSubmitChange,
 }) => {
   const { t } = useTranslation()
   const {
@@ -79,6 +85,11 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
     { onSuccess: () => onSubmitForm() },
   )
   const isPending = createChapterMutation.isPending || updateChapterMutation.isPending
+  const canSubmit = isValid && !isSubmitting && !isPending
+
+  useEffect(() => {
+    onCanSubmitChange(canSubmit)
+  }, [canSubmit, onCanSubmitChange])
 
   const submitForm = async (data: NewChapter) => {
     if (newRecord) {
@@ -109,6 +120,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
 
   return (
     <form
+      id={NEW_CHAPTER_FORM_ID}
       onSubmit={handleSubmit(async (data) => {
         await submitForm({
           course_id: courseId,
@@ -127,75 +139,69 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         padding: 1rem 0;
       `}
     >
-      <TextField
-        name="name"
-        control={control}
-        label={t("text-field-label-name")}
-        rules={{ required: t("required-field") }}
-      />
-      <TextField
-        name="chapter_number"
-        control={control}
-        label={t("text-field-label-chapter-number")}
-        type="number"
-        isDisabled={!newRecord}
-        rules={{ required: t("required-field") }}
-      />
-      <Checkbox
-        name="has_color"
-        control={control}
-        label={t("set-field-value", { name: t("input-field-chapter-color") })}
-      />
-      {hasColor && (
+      <div
+        className={css`
+          display: grid;
+          gap: var(--space-4);
+        `}
+      >
         <TextField
-          className={css`
-            height: 45px;
-            padding: 0px 0px 0px 0px !important;
-          `}
-          name="color"
+          name="name"
           control={control}
-          label={t("input-field-chapter-color")}
-          type="color"
+          label={t("text-field-label-name")}
+          rules={{ required: t("required-field") }}
         />
-      )}
-      <Checkbox
-        name="has_opens_at"
-        control={control}
-        label={t("set-field-value", { name: t("label-opens-at") })}
-      />
-      {hasOpensAt && (
-        <DateTimeLocalField
-          name="opens_at"
+        <TextField
+          name="chapter_number"
           control={control}
-          data-testid="chapter-opens-at-field"
-          label={t("label-opens-at")}
+          label={t("text-field-label-chapter-number")}
+          type="number"
+          isDisabled={!newRecord}
+          rules={{ required: t("required-field") }}
         />
-      )}
-      <Checkbox
-        name="has_deadline"
-        control={control}
-        label={t("set-field-value", { name: t("label-deadline") })}
-      />
-      {hasDeadline && (
-        <DateTimeLocalField
-          name="deadline"
+        <Checkbox
+          name="has_color"
           control={control}
-          data-testid="chapter-deadline-field"
-          label={t("label-deadline")}
+          label={t("set-field-value", { name: t("input-field-chapter-color") })}
         />
-      )}
-      <div>
-        <Button
-          type="submit"
-          variant="primary"
-          size="medium"
-          disabled={!isValid || isSubmitting || isPending}
-          className={css`
-            width: 100%;
-          `}
-        >
-          {newRecord ? t("button-text-create") : t("button-text-update")}
-        </Button>
+        {hasColor && (
+          <TextField
+            className={css`
+              height: 45px;
+              padding: 0px 0px 0px 0px !important;
+            `}
+            name="color"
+            control={control}
+            label={t("input-field-chapter-color")}
+            type="color"
+          />
+        )}
+        <Checkbox
+          name="has_opens_at"
+          control={control}
+          label={t("set-field-value", { name: t("label-opens-at") })}
+        />
+        {hasOpensAt && (
+          <DateTimeLocalField
+            name="opens_at"
+            control={control}
+            data-testid="chapter-opens-at-field"
+            label={t("label-opens-at")}
+          />
+        )}
+        <Checkbox
+          name="has_deadline"
+          control={control}
+          label={t("set-field-value", { name: t("label-deadline") })}
+        />
+        {hasDeadline && (
+          <DateTimeLocalField
+            name="deadline"
+            control={control}
+            data-testid="chapter-deadline-field"
+            label={t("label-deadline")}
+          />
+        )}
       </div>
     </form>
   )

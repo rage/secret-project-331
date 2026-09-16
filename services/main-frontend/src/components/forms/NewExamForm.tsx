@@ -9,7 +9,10 @@ import { useTranslation } from "react-i18next"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
-import { Button, Checkbox, DateTimeLocalField, Select, TextField } from "@/shared-module/components"
+import { Checkbox, DateTimeLocalField, Select, TextField } from "@/shared-module/components"
+
+// Shared with NewExamDialog.tsx, whose footer submit button targets this form by id.
+export const NEW_EXAM_FORM_ID = "new-exam-form"
 
 interface NewExamFormProps {
   initialData: OrgExam | null
@@ -208,10 +211,14 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
 
   return (
     <div>
-      <form onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}>
+      <form
+        id={NEW_EXAM_FORM_ID}
+        onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}
+      >
         <div
           className={css`
-            margin-bottom: 2rem;
+            display: grid;
+            gap: var(--space-4);
           `}
         >
           <TextField
@@ -287,17 +294,6 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             />
           )}
         </div>
-
-        <Button
-          variant="primary"
-          size="medium"
-          type="submit"
-          className={css`
-            width: 100%;
-          `}
-        >
-          {t("button-text-submit")}
-        </Button>
       </form>
     </div>
   )

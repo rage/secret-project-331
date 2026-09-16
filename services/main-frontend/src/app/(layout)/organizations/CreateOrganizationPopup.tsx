@@ -54,14 +54,14 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
       title={t("create-organization-title")}
       actions={[
         {
-          label: t("create"),
-          onClick: submitForm,
-          variant: "primary",
-        },
-        {
           label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
+        },
+        {
+          label: t("create"),
+          onClick: submitForm,
+          variant: "primary",
         },
       ]}
     >
@@ -75,32 +75,39 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
       </p>
 
       <form onSubmit={submitForm}>
-        <TextField
-          name="name"
-          control={control}
-          rules={{ required: t("validation-required") }}
-          label={t("label-organization-name")}
-        />
+        <div
+          className={css`
+            display: grid;
+            gap: var(--space-4);
+          `}
+        >
+          <TextField
+            name="name"
+            control={control}
+            rules={{ required: t("validation-required") }}
+            label={t("label-organization-name")}
+          />
 
-        <Select
-          name="visibility"
-          control={control}
-          id="org-visibility"
-          label={t("label-visibility")}
-          options={[
-            // oxlint-disable-next-line i18next/no-literal-string
-            { value: "public", label: t("label-visible") }, // uses internal value
-            // oxlint-disable-next-line i18next/no-literal-string
-            { value: "private", label: t("label-hidden") }, // uses internal value
-          ]}
-        />
+          <Select
+            name="visibility"
+            control={control}
+            id="org-visibility"
+            label={t("label-visibility")}
+            options={[
+              // oxlint-disable-next-line i18next/no-literal-string
+              { value: "public", label: t("label-visible") }, // uses internal value
+              // oxlint-disable-next-line i18next/no-literal-string
+              { value: "private", label: t("label-hidden") }, // uses internal value
+            ]}
+          />
 
-        <TextField
-          name="slug"
-          control={control}
-          rules={{ required: t("validation-required") }}
-          label={t("label-slug")}
-        />
+          <TextField
+            name="slug"
+            control={control}
+            rules={{ required: t("validation-required") }}
+            label={t("label-slug")}
+          />
+        </div>
       </form>
     </Dialog>
   )

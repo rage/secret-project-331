@@ -28,12 +28,12 @@ describe("NewCourseInstanceForm", () => {
 
   it("submits opening and closing times as full ISO strings", async () => {
     const onSubmit = jest.fn()
-    render(<NewCourseInstanceForm initialData={null} onSubmit={onSubmit} onCancel={jest.fn()} />)
+    render(<NewCourseInstanceForm initialData={null} onSubmit={onSubmit} />)
 
     pickNow("opening-time")
     pickNow("closing-time")
 
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     const submitted = onSubmit.mock.calls[0][0] as CourseInstanceForm
@@ -43,9 +43,9 @@ describe("NewCourseInstanceForm", () => {
 
   it("submits null for opening and closing times when left untouched", async () => {
     const onSubmit = jest.fn()
-    render(<NewCourseInstanceForm initialData={null} onSubmit={onSubmit} onCancel={jest.fn()} />)
+    render(<NewCourseInstanceForm initialData={null} onSubmit={onSubmit} />)
 
-    fireEvent.click(screen.getByRole("button", { name: "button-text-submit" }))
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     const submitted = onSubmit.mock.calls[0][0] as CourseInstanceForm

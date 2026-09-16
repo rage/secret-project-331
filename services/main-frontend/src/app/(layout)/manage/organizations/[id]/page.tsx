@@ -383,6 +383,7 @@ const content = (
         </div>
 
         <div
+          id="tab-permissions"
           role="tab"
           aria-selected={activeTab === PERMISSIONS_TAB}
           aria-controls="tab-panel-permissions"

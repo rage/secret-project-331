@@ -1,13 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
-import { Button, Dialog } from "@/shared-module/components"
+import { Dialog } from "@/shared-module/components"
 
 import ContentArea from "./ContentArea"
 
@@ -31,75 +30,55 @@ const ExerciseServiceCreationModal: React.FC<
   const { t } = useTranslation()
   return (
     <Dialog
-      className={css`
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      `}
       open={open}
       onClose={handleClose}
-      aria-label={t("button-text-create")}
-      padding="none"
+      title={t("button-text-create")}
+      actions={[
+        { label: t("button-text-cancel"), variant: "secondary", onPress: handleClose },
+        { label: t("button-text-create"), variant: "primary", onPress: handleSubmit },
+      ]}
     >
-      <div
-        className={css`
-          padding: 16px;
-        `}
-      >
-        <h1>{t("button-text-create")}</h1>
-        <div
-          className={css`
-            padding: 16px 0px 16px;
-          `}
-        >
-          <ContentArea
-            title={t("text-field-label-name")}
-            text={exercise_service.name}
-            editing={true}
-            onChange={onChangeName}
-            type={"text"}
-          />
-          <ContentArea
-            title={t("text-field-label-or-header-slug-or-short-name")}
-            text={exercise_service.slug}
-            editing={true}
-            onChange={onChange(EXERCISE_SERVICE_SLUG)}
-            type={"text"}
-          />
-          <ContentArea
-            title={t("title-public-url")}
-            text={exercise_service.public_url}
-            editing={true}
-            onChange={onChange(SERVICE_PUBLIC_URL)}
-            type={"text"}
-            {...includeIf(!validURL(exercise_service.public_url), { error: t("error-title") })}
-          />
-          <ContentArea
-            title={t("title-internal-url")}
-            text={exercise_service.internal_url ?? null}
-            editing={true}
-            onChange={onChange(SERVICE_INTERNAL_URL)}
-            type={"text"}
-          />
-          <ContentArea
-            title={t("title-reprocessing-submissions")}
-            text={exercise_service.max_reprocessing_submissions_at_once}
-            editing={true}
-            onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
-            type={"number"}
-            {...includeIf(exercise_service.max_reprocessing_submissions_at_once < 0, {
-              error: t("error-title"),
-            })}
-          />
-        </div>
-
-        <Button variant="primary" size="medium" onClick={handleSubmit}>
-          {t("button-text-create")}
-        </Button>
-        <Button variant="secondary" size="medium" onClick={handleClose}>
-          {t("button-text-cancel")}
-        </Button>
-      </div>
+      <ContentArea
+        title={t("text-field-label-name")}
+        text={exercise_service.name}
+        editing={true}
+        onChange={onChangeName}
+        type={"text"}
+      />
+      <ContentArea
+        title={t("text-field-label-or-header-slug-or-short-name")}
+        text={exercise_service.slug}
+        editing={true}
+        onChange={onChange(EXERCISE_SERVICE_SLUG)}
+        type={"text"}
+      />
+      <ContentArea
+        title={t("title-public-url")}
+        text={exercise_service.public_url}
+        editing={true}
+        onChange={onChange(SERVICE_PUBLIC_URL)}
+        type={"text"}
+        {...includeIf(!!exercise_service.public_url && !validURL(exercise_service.public_url), {
+          error: t("invalid-url"),
+        })}
+      />
+      <ContentArea
+        title={t("title-internal-url")}
+        text={exercise_service.internal_url ?? null}
+        editing={true}
+        onChange={onChange(SERVICE_INTERNAL_URL)}
+        type={"text"}
+      />
+      <ContentArea
+        title={t("title-reprocessing-submissions")}
+        text={exercise_service.max_reprocessing_submissions_at_once}
+        editing={true}
+        onChange={onChange(MAX_REPROCESSING_SUBMISSION_AT_ONCE)}
+        type={"number"}
+        {...includeIf(exercise_service.max_reprocessing_submissions_at_once < 0, {
+          error: t("error-title"),
+        })}
+      />
     </Dialog>
   )
 }

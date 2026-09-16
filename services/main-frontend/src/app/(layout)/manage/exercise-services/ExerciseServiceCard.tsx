@@ -24,7 +24,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
-import { Button, Dialog } from "@/shared-module/components"
+import { Button, ConfirmDialog } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
@@ -275,7 +275,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            {...includeIf(!validURL(service.public_url), { error: t("error-title") })}
+            {...includeIf(!!service.public_url && !validURL(service.public_url), {
+              error: t("invalid-url"),
+            })}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -284,7 +286,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            {...includeIf(!validURL(service.internal_url ?? ""), { error: t("error-title") })}
+            {...includeIf(!!service.internal_url && !validURL(service.internal_url), {
+              error: t("invalid-url"),
+            })}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -319,49 +323,16 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           />
         </div>
       </div>
-      <Dialog
+      <ConfirmDialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
-        padding="none"
-        aria-label={t("button-text-delete")}
-      >
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <h2
-            className={css`
-              padding: 16px 24px;
-            `}
-          >
-            {t("button-text-delete")}
-          </h2>
-
-          <div
-            className={css`
-              padding: 0px 24px 20px;
-            `}
-          >
-            {t("delete-confirmation", { name: service.name })}
-          </div>
-          <div
-            className={css`
-              padding: 8px;
-              display: flex;
-              justify-content: flex-end;
-            `}
-          >
-            <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
-              {t("button-text-cancel")}
-            </Button>
-            <Button variant="secondary" size="medium" onClick={deleteContent}>
-              {t("button-text-delete")}
-            </Button>
-          </div>
-        </div>
-      </Dialog>
+        title={t("button-text-delete")}
+        description={t("delete-confirmation", { name: service.name })}
+        confirmLabel={t("button-text-delete")}
+        cancelLabel={t("button-text-cancel")}
+        isDestructive
+        onConfirm={deleteContent}
+      />
     </div>
   )
 }

@@ -48,6 +48,10 @@ test("Organization workflow", async ({ page }) => {
     await page.getByLabel("General").getByText("newslugedited").waitFor()
   })
 
+  // Scoped to the panel: the role popup animates out after saving, so for a moment its own role
+  // select carries the same text as the row it just updated.
+  const permissionsPanel = page.getByRole("tabpanel", { name: "Permissions" })
+
   await test.step("Add user permissions", async () => {
     await page.getByRole("tab", { name: "Permissions" }).click()
     await page.getByRole("button", { name: "Add user" }).click()
@@ -57,7 +61,7 @@ test("Organization workflow", async ({ page }) => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.getByText("Teacher", { exact: true }).click()
+    await expect(permissionsPanel.getByText("Teacher", { exact: true })).toBeVisible()
   })
 
   await test.step("Edit user permissions", async () => {
@@ -68,7 +72,7 @@ test("Organization workflow", async ({ page }) => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.getByText("Reviewer").click()
+    await expect(permissionsPanel.getByText("Reviewer", { exact: true })).toBeVisible()
   })
 
   await test.step("Delete user permissions and organization", async () => {

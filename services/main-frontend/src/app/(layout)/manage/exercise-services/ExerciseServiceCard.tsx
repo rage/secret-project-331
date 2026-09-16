@@ -176,7 +176,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           `}
         >
           <div>
-            <h1
+            <h2
               className={css`
                 margin: 0;
                 font-weight: 400;
@@ -184,7 +184,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               `}
             >
               {editing ? t("edit") : service.name}
-            </h1>
+            </h2>
             <div
               className={css`
                 margin: 0;

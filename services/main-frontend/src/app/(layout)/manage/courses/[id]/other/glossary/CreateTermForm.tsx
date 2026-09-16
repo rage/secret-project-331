@@ -14,6 +14,11 @@ const formCss = css`
   gap: var(--space-4);
 `
 
+/** Grid items stretch by default, which would run the button the full width of the form. */
+const submitCss = css`
+  justify-self: start;
+`
+
 interface NewTermForm {
   newTerm: string
   newDefinition: string
@@ -86,7 +91,13 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
           },
         }}
       />
-      <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        disabled={!isValid}
+        className={submitCss}
+      >
         {t("button-text-save")}
       </Button>
     </form>

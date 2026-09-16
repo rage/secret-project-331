@@ -18,6 +18,12 @@ const entryCss = css`
   gap: var(--space-4);
 `
 
+/** A term names one entry in the list, so it stays well under the page title. */
+const termCss = css`
+  margin: 0;
+  font-size: var(--font-size-4);
+`
+
 const actionsCss = css`
   display: flex;
   flex-wrap: wrap;
@@ -134,7 +140,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
         </form>
       ) : (
         <div className={entryCss}>
-          <h2>{term.term}</h2>
+          <h2 className={termCss}>{term.term}</h2>
           <p>{term.definition}</p>
           <div className={actionsCss}>
             <Button variant="primary" size="medium" onClick={onEdit}>

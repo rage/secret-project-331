@@ -18,7 +18,7 @@ use anyhow::anyhow;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_email_codes::UserEmailCodePurpose, user_passwords, users,
+    user_email_codes::UserEmailCodePurpose, users,
 };
 use headless_lms_utils::{
     cache::Cache,
@@ -531,6 +531,36 @@ async fn handle_uuid_login(
     }
 }
 
+/// Verifies `password` for `user_id`, trying the seeded test-mode credentials before falling
+/// back to the stored password hash.
+///
+/// Seeded test users (e.g. `admin@example.com`) have no `user_passwords` row, so outside test
+/// mode this always falls through to `verify_user_password`.
+async fn authenticate_by_password(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email: &str,
+    password: &SecretString,
+    app_conf: &ApplicationConfiguration,
+) -> Result<bool, ControllerError> {
+    if app_conf.test_mode {
+        let is_test_user_authenticated =
+            authentication::authenticate_test_user(conn, email, password, app_conf)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Could not find the test user. Have you seeded the database?".to_string(),
+                        e,
+                    )
+                })?;
+        if is_test_user_authenticated {
+            return Ok(true);
+        }
+    }
+    Ok(models::user_passwords::verify_user_password(conn, user_id, password).await?)
+}
+
 async fn handle_test_mode_login(
     session: &Session,
     conn: &mut PgConnection,
@@ -549,21 +579,8 @@ async fn handle_test_mode_login(
         }
     };
 
-    let mut is_authenticated =
-        authentication::authenticate_test_user(conn, email, password, app_conf)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "Could not find the test user. Have you seeded the database?".to_string(),
-                    e,
-                )
-            })?;
-
-    if !is_authenticated {
-        is_authenticated =
-            models::user_passwords::verify_user_password(conn, user.id, password).await?;
-    }
+    let is_authenticated =
+        authenticate_by_password(conn, user.id, email, password, app_conf).await?;
 
     if is_authenticated {
         info!("Authentication successful");
@@ -780,12 +797,13 @@ POST `/api/v0/auth/send-email-code` If users password is correct, sends a code t
         (status = 200, description = "Whether a deletion code email was queued", body = bool)
     )
 )]
-#[instrument(skip(pool, payload, auth_user))]
+#[instrument(skip(pool, payload, auth_user, app_conf))]
 #[allow(clippy::async_yields_async)]
 pub async fn send_delete_user_email_code(
     auth_user: Option<AuthUser>,
     pool: web::Data<PgPool>,
     payload: web::Json<SendEmailCodeData>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<bool>> {
     let token = skip_authorize();
 
@@ -793,9 +811,19 @@ pub async fn send_delete_user_email_code(
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
 
-        let password_ok =
-            user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password)
-                .await?;
+        // The signed-in user's own address, never `payload.email`: the test-mode branch of
+        // `authenticate_by_password` matches on the address, so a client-supplied one would let
+        // any seeded account's credentials pass this check.
+        let user_details =
+            models::user_details::get_user_details_by_user_id(&mut conn, auth_user.id).await?;
+        let password_ok = authenticate_by_password(
+            &mut conn,
+            auth_user.id,
+            &user_details.email,
+            &payload.password,
+            &app_conf,
+        )
+        .await?;
 
         if !password_ok {
             info!(

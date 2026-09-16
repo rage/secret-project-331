@@ -43,15 +43,19 @@ const fieldsetCss = css`
  * A rendered `<legend>` sits outside its fieldset's formatting context, so the grid `gap` never
  * lands under it and the options end up flush against the label. The UA's 2px inline padding
  * would also push it off the options' left edge.
+ *
+ * It captions a block of rows rather than labelling one control, so it gets more room beneath it
+ * than a field label does.
  */
 const legendCss = css`
   padding: 0;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
 `
 
+/** Roomy enough that an option's description does not read as part of the option below it. */
 const radioListCss = css`
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 `
 
 const radioListHorizontalCss = css`

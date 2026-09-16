@@ -84,32 +84,21 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
+          gap: var(--space-3);
           background: #f5f6f7;
           padding: 1rem;
+          /* Gutenberg's own stylesheet loads last and can disable pointer events on the inspector. */
+          pointer-events: auto;
         `}
       >
-        <Button
-          variant="primary"
-          size="medium"
-          className={css`
-            margin-right: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
-          onClick={handleOnSave}
-          disabled={saving}
-        >
+        <Button variant="primary" size="medium" onClick={handleOnSave} disabled={saving}>
           {t("save")}
         </Button>
         <Button
           variant="secondary"
           size="medium"
-          className={css`
-            margin-left: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={async () => {
             const res = await confirm({
               message: t("are-you-sure-you-want-to-discard-changes"),

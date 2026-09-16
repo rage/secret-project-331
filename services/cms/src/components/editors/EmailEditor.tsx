@@ -150,18 +150,18 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     <div
       className={css`
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
+        gap: var(--space-3);
         background: #f5f6f7;
         padding: 1rem;
+        /* Gutenberg's own stylesheet loads last and can disable pointer events on the inspector. */
+        pointer-events: auto;
       `}
     >
       <Button
         variant="primary"
         size="medium"
-        className={css`
-          border: 1px black solid;
-          pointer-events: auto;
-        `}
         onClick={handleOnSave}
         disabled={saveMutation.isPending || !placeholderValidation.valid}
       >

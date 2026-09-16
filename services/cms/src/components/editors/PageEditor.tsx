@@ -16,7 +16,6 @@ import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 /* oxlint-disable i18next/no-literal-string */
@@ -273,19 +272,18 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
+          gap: var(--space-3);
           background: #f5f6f7;
           padding: 1rem;
+          /* Gutenberg's own stylesheet loads last and can disable pointer events on the inspector. */
+          pointer-events: auto;
         `}
       >
         <Button
           variant="primary"
           size="medium"
-          className={css`
-            margin-right: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={handleOnSave}
           disabled={currentContentStateSaved || currentlySaving}
         >
@@ -294,11 +292,6 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         <Button
           variant="secondary"
           size="medium"
-          className={css`
-            margin-left: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={async () => {
             const res = await confirm({
               message: t("are-you-sure-you-want-to-discard-changes"),
@@ -312,13 +305,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         >
           {t("reset")}
         </Button>
-        <Menu variant="bottom">
-          <li>
-            <Link href={nextPageUrl} isCrossService styledAsButton size="medium" variant="primary">
-              {t("next-page")}
-            </Link>
-          </li>
-        </Menu>
+        <Link href={nextPageUrl} isCrossService styledAsButton size="medium" variant="tertiary">
+          {t("next-page")}
+        </Link>
       </div>
     </div>
   )

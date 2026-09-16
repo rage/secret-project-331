@@ -1,22 +1,21 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useToggleGroupState } from "@react-stately/toggle"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { FieldSet } from "@/app/(layout)/manage/course-auditing/page"
 import {
   getCourseFeedbackCategoriesOptions,
   getCourseFeedbackOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import type { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ToggleGroup } from "@/shared-module/components"
 
 import FeedbackView from "./FeedbackView"
 
-const listClassName = css`
+const listCss = css`
   list-style: none;
   padding: 0;
 `
@@ -37,8 +36,12 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const { t } = useTranslation()
-  // oxlint-disable-next-line i18next/no-literal-string
-  const [categoryFilter, setCategoryFilter] = useState("all")
+  let state = useToggleGroupState({
+    // oxlint-disable-next-line i18next/no-literal-string
+    selectionMode: "single",
+    disallowEmptySelection: true,
+    defaultSelectedKeys: new Set([t("all")]),
+  })
   const limit = paginationInfo.limit
   const getFeedbackList = useQuery({
     ...getCourseFeedbackOptions({
@@ -60,41 +63,34 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     }),
   })
 
-  const AllButton = (
-    <RadioButton
-      key={0}
-      label={t("all")}
-      name={t("all")}
-      checked={"all" === categoryFilter}
-      // oxlint-disable-next-line i18next/no-literal-string
-      onClick={() => setCategoryFilter("all")}
-    />
-  )
+  const AllButton = <ToggleGroup labels={[t("all")]} state={state} />
 
   return (
     <>
       <QueryResult query={getFeedbackCategories} emptyFallback={AllButton}>
-        {(data) => (
-          <FieldSet>
-            {AllButton}
-            {data.map((c) => (
-              <RadioButton
-                key={c.id}
-                label={c.name} //option label accessible
-                name={c.name}
-                checked={c.name === categoryFilter}
-                onClick={() => setCategoryFilter(c.name)}
-              />
-            ))}
-          </FieldSet>
-        )}
+        {(data) => {
+          const categories = data.map((c) => c.name)
+          return (
+            <div
+              className={css`
+                display: flex;
+                flex-flow: row nowrap;
+              `}
+            >
+              <ToggleGroup labels={[t("all")].concat(categories)} state={state} />
+            </div>
+          )
+        }}
       </QueryResult>
-      <QueryResult query={getFeedbackList} emptyFallback={<ul className={listClassName} />}>
+      <QueryResult query={getFeedbackList} emptyFallback={<ul className={listCss} />}>
         {(data) => (
-          <ul className={listClassName}>
+          <ul className={listCss}>
             {data
               .filter((f) => {
-                return categoryFilter === "all" ? true : f.feedback_category_name === categoryFilter
+                // oxlint-disable-next-line i18next/no-literal-string
+                return state.selectedKeys.has(t("all"))
+                  ? true
+                  : state.selectedKeys.has(f.feedback_category_name ?? "") // todo nulls
               })
               .map((f) => (
                 <li key={f.id}>

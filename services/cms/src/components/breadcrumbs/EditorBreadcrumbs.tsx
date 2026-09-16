@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React from "react"
 
@@ -9,6 +10,14 @@ import { QueryResult } from "@/shared-module/components/components/queryResult/Q
 
 import usePageInfo from "../../hooks/usePageInfo"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
+
+/**
+ * The trail's own gutter. `BreakFromCentered` spans the viewport and leaves the crumbs to space
+ * themselves; without this the first one starts at the window edge.
+ */
+const breadcrumbBarCss = css`
+  padding: 1rem 2rem;
+`
 
 const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
@@ -51,7 +60,7 @@ const EditorBreadcrumbs: React.FC = () => {
 
         return (
           <BreakFromCentered {...breakFromCenteredProps}>
-            <Breadcrumbs items={items} />
+            <Breadcrumbs items={items} className={breadcrumbBarCss} />
           </BreakFromCentered>
         )
       }}

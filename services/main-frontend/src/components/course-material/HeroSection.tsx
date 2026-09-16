@@ -11,20 +11,18 @@ import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-modu
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
+import {
+  type HeroBackgroundImages,
+  heroTextReadabilityCss,
+  resolveHeroBackgroundImages,
+} from "./heroBackgroundImages"
 import ParsedText from "./ParsedText"
 
 interface TextBoxProps {
   fontColor?: string
   direction: string
+  backgroundImages: HeroBackgroundImages
 }
-
-// Keeps hero text legible over arbitrary author background images (WCAG 1.4.3).
-const TEXT_READABILITY_SHADOW = `
-  text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 0 6px rgba(0, 0, 0, 0.4);
-  paint-order: stroke fill;
-`
 
 const CENTERED_MARGIN = "0 auto"
 const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
@@ -39,15 +37,22 @@ const TextBox = styled.div<TextBoxProps>`
   text-align: ${({ direction }) => direction};
   align-items: ${({ direction }) => direction};
   justify-content: center;
+  ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.mobile)}
 
   ${respondToOrLarger.md} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
+    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.medium)}
   }
 
   ${respondToOrLarger.lg} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
+    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.large)}
+  }
+
+  ${respondToOrLarger.xl} {
+    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.xlarge)}
   }
 
   h1 {
@@ -56,7 +61,6 @@ const TextBox = styled.div<TextBoxProps>`
     margin-bottom: 0.5rem;
     line-height: 120%;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
-    ${TEXT_READABILITY_SHADOW}
   }
 
   .chapter {
@@ -68,7 +72,6 @@ const TextBox = styled.div<TextBoxProps>`
     font-family: ${headingFont};
     margin-bottom: 0.2rem;
     text-transform: capitalize;
-    ${TEXT_READABILITY_SHADOW}
   }
 
   span {
@@ -76,7 +79,6 @@ const TextBox = styled.div<TextBoxProps>`
     font-size: 18px;
     opacity: 0.9;
     z-index: 20;
-    ${TEXT_READABILITY_SHADOW}
   }
 `
 export interface HeroSectionProps {
@@ -123,21 +125,12 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
 
-  // Helper function to get background image for different breakpoints
-  const getBackgroundImageUrl = (breakpoint: "mobile" | "medium" | "large" | "xlarge") => {
-    switch (breakpoint) {
-      case "medium":
-        return backgroundImageMedium || backgroundImage
-      case "large":
-        return backgroundImageLarge || backgroundImageMedium || backgroundImage
-      case "xlarge":
-        return (
-          backgroundImageXLarge || backgroundImageLarge || backgroundImageMedium || backgroundImage
-        )
-      default:
-        return backgroundImage
-    }
-  }
+  const backgroundImages = resolveHeroBackgroundImages({
+    backgroundImage,
+    backgroundImageMedium,
+    backgroundImageLarge,
+    backgroundImageXLarge,
+  })
 
   return (
     <div
@@ -162,7 +155,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           height: 100%;
           content: "";
           opacity: 0.3;
-          background-image: url("${escapeUrlForCss(getBackgroundImageUrl("mobile"))}");
+          background-image: url("${escapeUrlForCss(backgroundImages.mobile)}");
           background-repeat: ${backgroundRepeatX ? "repeat-x" : "no-repeat"};
           background-position: center ${backgroundVerticalAlignment};
           position: absolute;
@@ -174,7 +167,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction === "center" ? "contain" : "22rem"};
             left: ${direction === "center" ? "0" : "30px"};
-            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("medium"))}");
+            background-image: url("${escapeUrlForCss(backgroundImages.medium)}");
           }
 
           ${respondToOrLarger.lg} {
@@ -182,16 +175,16 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             background-position: ${direction} ${backgroundVerticalAlignment};
             background-size: ${direction === "center" ? "contain" : "26rem"};
             left: ${direction === "center" ? "0" : "40px"};
-            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("large"))}");
+            background-image: url("${escapeUrlForCss(backgroundImages.large)}");
           }
 
           ${respondToOrLarger.xl} {
-            background-image: url("${escapeUrlForCss(getBackgroundImageUrl("xlarge"))}");
+            background-image: url("${escapeUrlForCss(backgroundImages.xlarge)}");
           }
         }
       `}
     >
-      <TextBox color={fontColor} direction={direction}>
+      <TextBox backgroundImages={backgroundImages} color={fontColor} direction={direction}>
         <span className="chapter">{label}</span>
         <ParsedText
           text={title}

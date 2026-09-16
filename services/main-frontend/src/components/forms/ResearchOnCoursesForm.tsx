@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -11,14 +10,46 @@ import { createUserResearchConsent } from "@/generated/api/sdk.generated"
 import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, Dialog, Radio } from "@/shared-module/components"
+import { Dialog, Radio, RadioGroup } from "@/shared-module/components"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
   initialConsentValue?: boolean
 }
+
+interface ResearchConsentFields {
+  consent: string
+}
+
+// oxlint-disable-next-line i18next/no-literal-string
+const CONSENT_GIVEN = "given"
+// oxlint-disable-next-line i18next/no-literal-string
+const CONSENT_DECLINED = "declined"
+
+const toConsentOption = (consent: boolean | undefined): string => {
+  if (consent === undefined) {
+    return ""
+  }
+  return consent ? CONSENT_GIVEN : CONSENT_DECLINED
+}
+
+const bodyCss = css`
+  display: grid;
+  gap: var(--space-4);
+  line-height: 1.5;
+
+  ol {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: var(--space-4-5);
+  }
+`
+
+const contactLinkCss = css`
+  color: var(--link-fg);
+  text-decoration: underline;
+`
 
 const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesFormProps>> = ({
   afterSubmit,
@@ -27,18 +58,17 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [researchConsentFormOpen, setResearchConsentFormOpen] = useState(true)
-  const { watch, setValue } = useForm<{ consent: boolean | null }>({
-    defaultValues: { consent: initialConsentValue ?? null },
+  const { control, watch } = useForm<ResearchConsentFields>({
+    defaultValues: { consent: toConsentOption(initialConsentValue) },
   })
   const consent = watch("consent")
-  const optionSelected = consent !== null
 
   const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
     // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () =>
       createUserResearchConsent({
         body: {
-          consent: assertNotNullOrUndefined(consent),
+          consent: consent === CONSENT_GIVEN,
         },
       }),
     {
@@ -52,10 +82,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     },
   )
 
-  const handleConsentSelection = (value: boolean) => {
-    setValue("consent", value)
-  }
-
   const handleOnSubmit = () => {
     setResearchConsentFormOpen(false)
     consentQuery.mutate()
@@ -65,148 +91,51 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
   }
 
   return (
-    <div>
-      <Dialog
-        open={researchConsentFormOpen}
-        // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
-        onClose={() => {}}
-        padding="none"
-        showCloseButton={false}
-        aria-label={t("title-reseach-consent-form")}
-        data-testid="research-consent-dialog"
-      >
-        <div
-          className={css`
-            display: flex;
-            padding: 24px;
-            gap: 13px;
-            line-height: 24px;
-            align-items: center;
-            flex-shrink: 0;
-            color: ${baseTheme.colors.gray[700]};
-          `}
-        >
-          <LinesClipboard size={21} />
-          <h2
-            className={css`
-              font-family: ${headingFont};
-              font-weight: ${fontWeights.medium};
-            `}
-          >
-            {t("research-consent-title")}
-          </h2>
-        </div>
-
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-            font-size: 16px;
-            padding: 24px;
-            border: ${baseTheme.colors.clear[700]};
-            border-style: solid;
-            border-width: 1px 0px;
-            line-height: 22px;
-            font-family: ${headingFont};
-            font-weight: ${fontWeights.medium};
-            color: ${baseTheme.colors.gray[700]};
-          `}
-        >
-          <div>{t("research-consent-educational-research-is-conducted-on-the-courses")}</div>
-          <ol
-            className={css`
-              margin: 0px;
-              padding-left: 24px;
-            `}
-          >
-            <li>{t("research-consent-goals-develop-learning")}</li>
-            <li>{t("research-consent-goals-advance-knowledge")}</li>
-            <li>{t("research-consent-goals-provide-research-based-support")}</li>
-          </ol>
-
-          <p
-            className={css`
-              padding-top: 24px;
-            `}
-          >
-            {t("research-consent-data-from-learning-process-is-used")}
-          </p>
-          <p
-            className={css`
-              padding-top: 16px;
-            `}
-          >
-            {t("research-consent-responsible")}
-            {/* oxlint-disable-next-line next/no-html-link-for-pages -- external email address, not an internal route */}
-            <a
-              className={css`
-                color: ${baseTheme.colors.blue[700]} !important;
-                text-decoration: underline !important;
-              `}
-              href="mooc@cs.helsinki.fi"
-              // oxlint-disable-next-line i18next/no-literal-string
-            >
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              mooc@cs.helsinki.fi
-            </a>
-            .
-          </p>
-        </div>
-
-        {/* Outside the scrolling area: the choices must stay visible, and a focused control
-            inside a scroller lets the browser scroll it at will. */}
-        <div
-          className={css`
-            flex-shrink: 0;
-            padding: 8px 24px;
-            font-family: ${headingFont};
-            color: ${baseTheme.colors.gray[700]};
-          `}
-        >
+    <Dialog
+      open={researchConsentFormOpen}
+      // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
+      showCloseButton={false}
+      title={t("research-consent-title")}
+      data-testid="research-consent-dialog"
+      actions={[
+        {
+          variant: "primary",
+          onClick: handleOnSubmit,
+          disabled: !consent,
+          label: t("button-text-save"),
+        },
+      ]}
+    >
+      <div className={bodyCss}>
+        <p>{t("research-consent-educational-research-is-conducted-on-the-courses")}</p>
+        <ol>
+          <li>{t("research-consent-goals-develop-learning")}</li>
+          <li>{t("research-consent-goals-advance-knowledge")}</li>
+          <li>{t("research-consent-goals-provide-research-based-support")}</li>
+        </ol>
+        <p>{t("research-consent-data-from-learning-process-is-used")}</p>
+        <p>
+          {t("research-consent-responsible")}
+          {/* oxlint-disable-next-line next/no-html-link-for-pages -- external email address, not an internal route */}
+          <a className={contactLinkCss} href="mailto:mooc@cs.helsinki.fi">
+            {/* oxlint-disable-next-line i18next/no-literal-string */}
+            mooc@cs.helsinki.fi
+          </a>
+          .
+        </p>
+        <RadioGroup name="consent" control={control} label={t("title-general-research-consent")}>
           <Radio
-            id="researchConsent"
+            value={CONSENT_GIVEN}
             label={t("research-consent-i-want-to-participate-in-educational-research")}
-            name="researchConsent"
-            onChange={() => handleConsentSelection(true)}
-            checked={consent === true}
           />
           <Radio
-            id="noResearchConsent"
+            value={CONSENT_DECLINED}
             label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-            name="researchConsent"
-            onChange={() => handleConsentSelection(false)}
-            checked={consent === false}
           />
-        </div>
-        <div
-          className={css`
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            padding: 16px 20px 16px 20px;
-            height: 72px;
-            font-family: ${headingFont};
-          `}
-        >
-          <Button
-            className={css`
-              font-size: 14px;
-            `}
-            variant="tertiary"
-            size="medium"
-            type="submit"
-            onClick={handleOnSubmit}
-            disabled={!optionSelected}
-          >
-            {t("button-text-save")}
-          </Button>
-        </div>
-      </Dialog>
-    </div>
+        </RadioGroup>
+      </div>
+    </Dialog>
   )
 }
 

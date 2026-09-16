@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { useEffect } from "react"
@@ -37,6 +38,21 @@ interface UserAnswer {
   questionId: string
   answer: boolean
 }
+
+/** The course-material heading scale outgrows the dialog title; hold the authored form under it. */
+const authoredFormCss = css`
+  h1 {
+    font-size: var(--font-size-3-5);
+  }
+
+  h2 {
+    font-size: var(--font-size-3);
+  }
+
+  h3 {
+    font-size: var(--font-size-2);
+  }
+`
 
 const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsentFormProps>> = ({
   editForm,
@@ -121,12 +137,14 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         {
           label: t("save"),
           onClick: handleOnSubmit,
-          variant: "tertiary",
+          variant: "primary",
         },
       ]}
     >
       <CheckboxContext.Provider value={{ control }}>
-        <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
+        <div className={authoredFormCss}>
+          <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
+        </div>
       </CheckboxContext.Provider>
     </Dialog>
   )

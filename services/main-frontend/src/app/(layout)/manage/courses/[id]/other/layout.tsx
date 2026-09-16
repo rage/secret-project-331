@@ -13,6 +13,7 @@ import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSusp
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   courseChatbotSettingsRoute,
+  manageCourseOtherCheatersRoute,
   manageCourseOtherCheatersSuspectedRoute,
   manageCourseOtherCodeGiveawaysRoute,
   manageCourseOtherExerciseResetToolRoute,
@@ -74,6 +75,7 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
         key: KEY_CHEATERS,
         title: t("link-cheaters"),
         href: manageCourseOtherCheatersSuspectedRoute(courseId),
+        pathPrefix: manageCourseOtherCheatersRoute(courseId),
         countHook: flaggedCheaterCountHook,
       },
       {

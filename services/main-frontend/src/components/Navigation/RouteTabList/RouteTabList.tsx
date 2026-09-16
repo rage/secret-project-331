@@ -30,7 +30,11 @@ function RouteTabListStandalone({
 }) {
   const pathname = usePathname()
 
-  const selectedKey = useMemo(() => resolveActiveTab(tabs, pathname)?.key, [pathname, tabs])
+  // Resolved without the fallback so a route with no matching tab can be told apart from one that
+  // genuinely matches the first tab; react-stately still needs some key selected for keyboard use.
+  const matchedTab = useMemo(() => resolveActiveTab(tabs, pathname, false), [pathname, tabs])
+  const isCurrentRouteATab = matchedTab !== undefined
+  const selectedKey = matchedTab?.key ?? tabs[0]?.key
 
   const items = useMemo(
     () =>
@@ -51,7 +55,7 @@ function RouteTabListStandalone({
   return (
     <TabStrip state={state} orientation={orientation} className={className}>
       {tabs.map((tab) => (
-        <RouteTab key={tab.key} item={tab} state={state} />
+        <RouteTab key={tab.key} item={tab} state={state} isCurrentRouteATab={isCurrentRouteATab} />
       ))}
     </TabStrip>
   )
@@ -62,12 +66,12 @@ function RouteTabListFromContext({ className }: Pick<RouteTabListProps, "classNa
   if (!context) {
     throw new Error("RouteTabList must be used with tabs prop or inside RouteTabListProvider")
   }
-  const { state, tabs, orientation } = context
+  const { state, tabs, orientation, isCurrentRouteATab } = context
 
   return (
     <TabStrip state={state} orientation={orientation} className={className}>
       {tabs.map((tab) => (
-        <RouteTab key={tab.key} item={tab} state={state} />
+        <RouteTab key={tab.key} item={tab} state={state} isCurrentRouteATab={isCurrentRouteATab} />
       ))}
     </TabStrip>
   )

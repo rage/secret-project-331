@@ -13,6 +13,8 @@ interface RouteTabListContextValue {
   state: TabListState<object>
   tabs: RouteTabDefinition[]
   orientation: "horizontal" | "vertical"
+  /** False when the route matches no tab, so `RouteTab` can avoid painting one as current. */
+  isCurrentRouteATab: boolean
 }
 
 const RouteTabListContext = createContext<RouteTabListContextValue | null>(null)
@@ -35,7 +37,11 @@ export function RouteTabListProvider({
 }: RouteTabListProviderProps) {
   const pathname = usePathname()
 
-  const selectedKey = useMemo(() => resolveActiveTab(tabs, pathname)?.key, [pathname, tabs])
+  // Resolved without the fallback so a route with no matching tab can be told apart from one that
+  // genuinely matches the first tab; react-stately still needs some key selected for keyboard use.
+  const matchedTab = useMemo(() => resolveActiveTab(tabs, pathname, false), [pathname, tabs])
+  const isCurrentRouteATab = matchedTab !== undefined
+  const selectedKey = matchedTab?.key ?? tabs[0]?.key
 
   const items = useMemo(
     () =>
@@ -53,7 +59,10 @@ export function RouteTabListProvider({
     items,
   })
 
-  const value = useMemo(() => ({ state, tabs, orientation }), [state, tabs, orientation])
+  const value = useMemo(
+    () => ({ state, tabs, orientation, isCurrentRouteATab }),
+    [state, tabs, orientation, isCurrentRouteATab],
+  )
 
   return <RouteTabListContext.Provider value={value}>{children}</RouteTabListContext.Provider>
 }

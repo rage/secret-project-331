@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
-import NextLink from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -18,7 +17,7 @@ import { getOrganization } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import {
   manageCourseByIdRoute,
@@ -27,24 +26,21 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Link, QueryResult, TextField } from "@/shared-module/components"
+import { Button, DescriptionList, Link, QueryResult, TextField } from "@/shared-module/components"
 import { examPointsCsvUrl, examSubmissionsCsvUrl } from "@/utils/exportUrls"
 
 import EditExamDialog from "../EditExamDialog"
 
 const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
 
-const detailRow = css`
-  font-family: ${primaryFont};
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: ${baseTheme.colors.gray[600]};
-  margin-bottom: 0.25rem;
-`
+// oxlint-disable-next-line i18next/no-literal-string -- typographic placeholder for an unset value
+const NO_VALUE = "—"
 
-const detailValue = css`
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[700]};
+const actionRow = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem 0;
 `
 
 const ManageExam: React.FC = () => {
@@ -146,41 +142,34 @@ const ManageExam: React.FC = () => {
                 border-bottom: 1px solid ${baseTheme.colors.clear[300]};
               `}
             >
-              <div className={detailRow}>
-                {t("label-starts-at")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable-next-line i18next/no-literal-string */}
-                  {humanReadableDateTime(data.starts_at, i18n.language) ?? "—"}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-ends-at")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable-next-line i18next/no-literal-string */}
-                  {humanReadableDateTime(data.ends_at, i18n.language) ?? "—"}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-duration")}:{" "}
-                <span className={detailValue}>
-                  {data.time_minutes} {t("minutes")}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-grade-exam-manually")}:{" "}
-                <span className={detailValue}>{data.grade_manually ? t("yes") : t("no")}</span>
-              </div>
-              <div className={detailRow}>
-                {t("label-minimum-points-threshold")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable i18next/no-literal-string */}
-                  {data.minimum_points_treshold > 0 ? String(data.minimum_points_treshold) : "—"}
-                  {/* oxlint-enable i18next/no-literal-string */}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-language")}: <span className={detailValue}>{data.language}</span>
-              </div>
+              <DescriptionList
+                items={[
+                  {
+                    label: t("label-starts-at"),
+                    value: humanReadableDateTime(data.starts_at, i18n.language) ?? NO_VALUE,
+                  },
+                  {
+                    label: t("label-ends-at"),
+                    value: humanReadableDateTime(data.ends_at, i18n.language) ?? NO_VALUE,
+                  },
+                  {
+                    label: t("label-duration"),
+                    value: t("minutes", { count: data.time_minutes }),
+                  },
+                  {
+                    label: t("label-grade-exam-manually"),
+                    value: data.grade_manually ? t("yes") : t("no"),
+                  },
+                  {
+                    label: t("label-minimum-points-threshold"),
+                    value:
+                      data.minimum_points_treshold > 0
+                        ? String(data.minimum_points_treshold)
+                        : NO_VALUE,
+                  },
+                  { label: t("label-language"), value: data.language },
+                ]}
+              />
               <Button
                 size="medium"
                 variant="primary"
@@ -211,62 +200,71 @@ const ManageExam: React.FC = () => {
               />
             )}
 
-            <ul
-              className={css`
-                list-style-type: none;
-                padding-left: 0;
-                margin: 0 0 1.5rem 0;
-                font-family: ${primaryFont};
-                font-size: 1rem;
-              `}
-            >
-              <li className={detailRow}>
-                <a href={`/cms/pages/${data.page_id}`}>{t("link-edit-exam-page")}</a>
-              </li>
-              <li className={detailRow}>
-                <NextLink
-                  href={`/manage/exams/${data.id}/permissions`}
-                  aria-label={`${t("link-manage-permissions")} ${data.name}`}
-                >
-                  {t("link-manage-permissions")}
-                </NextLink>
-              </li>
-              <li className={detailRow}>
-                <a href={`/cms/exams/${data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
-              </li>
-              <li className={detailRow}>
-                <Link
-                  href={examPointsCsvUrl(data.id)}
-                  download
-                  styledAsButton
-                  variant="tertiary"
-                  size="medium"
-                >
-                  {t("link-export-points")}
-                </Link>
-              </li>
-              <li className={detailRow}>
-                <Link
-                  href={examSubmissionsCsvUrl(data.id)}
-                  download
-                  styledAsButton
-                  variant="tertiary"
-                  size="medium"
-                >
-                  {t("link-export-submissions")}
-                </Link>
-              </li>
-              <li className={detailRow}>
-                <NextLink href={manageExamQuestionsRoute(data.id)}>{t("grading")}</NextLink>
-              </li>
+            <div className={actionRow}>
+              <Link
+                href={`/cms/pages/${data.page_id}`}
+                isCrossService
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-edit-exam-page")}
+              </Link>
+              <Link
+                href={`/cms/exams/${data.id}/edit`}
+                isCrossService
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-edit-exam-instructions")}
+              </Link>
+              <Link
+                href={`/manage/exams/${data.id}/permissions`}
+                aria-label={`${t("link-manage-permissions")} ${data.name}`}
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-manage-permissions")}
+              </Link>
+              <Link
+                href={manageExamQuestionsRoute(data.id)}
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("grading")}
+              </Link>
               {organizationSlug && (
-                <li className={detailRow}>
-                  <NextLink href={testExamRoute(organizationSlug, data.id)}>
-                    {t("link-test-exam")}
-                  </NextLink>
-                </li>
+                <Link
+                  href={testExamRoute(organizationSlug, data.id)}
+                  styledAsButton
+                  variant="tertiary"
+                  size="medium"
+                >
+                  {t("link-test-exam")}
+                </Link>
               )}
-            </ul>
+              <Link
+                href={examPointsCsvUrl(data.id)}
+                download
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-export-points")}
+              </Link>
+              <Link
+                href={examSubmissionsCsvUrl(data.id)}
+                download
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-export-submissions")}
+              </Link>
+            </div>
 
             <h2
               className={css`
@@ -290,7 +288,7 @@ const ManageExam: React.FC = () => {
                   margin-bottom: 0.5rem;
                 `}
               >
-                <NextLink href={manageCourseByIdRoute(c.id)}>{c.name}</NextLink>
+                <Link href={manageCourseByIdRoute(c.id)}>{c.name}</Link>
                 <Button
                   onClick={() => {
                     unsetCourseMutation.mutate({

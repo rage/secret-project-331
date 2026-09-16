@@ -102,9 +102,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
         </Detail>
         <Detail>
           <span className="label">{t("duration")}:</span>
-          <span className="value">
-            {exam.time_minutes} {t("minutes")}
-          </span>
+          <span className="value">{t("minutes", { count: exam.time_minutes })}</span>
         </Detail>
       </ExamDetails>
       <ManageLink>

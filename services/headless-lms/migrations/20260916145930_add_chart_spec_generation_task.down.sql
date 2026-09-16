@@ -8,7 +8,8 @@ CREATE TYPE application_task AS ENUM (
   'content-cleaning',
   'message-suggestion',
   'cms-paragraph-suggestion',
-  'sisu-description-summary'
+  'sisu-description-summary',
+  'prompt-creation'
 );
 
 ALTER TABLE application_task_default_language_models

@@ -2,23 +2,17 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   createRegradingMutation as createNewRegradingMutationOptions,
   getRegradingsCountOptions,
   getRegradingsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type {
-  NewRegradingIdType,
-  Regrading,
-  UserPointsUpdateStrategy,
-} from "@/generated/api/types.generated"
+import type { NewRegradingIdType, UserPointsUpdateStrategy } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -29,13 +23,47 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Dialog, QueryResult, Select, TextArea } from "@/shared-module/components"
+import {
+  ABSENT_LABEL,
+  Button,
+  Dialog,
+  Link,
+  QueryResult,
+  Select,
+  Table,
+  TextArea,
+} from "@/shared-module/components"
 
 interface Fields {
   ids: string
   userPointsUpdateStrategy: UserPointsUpdateStrategy
   idType: NewRegradingIdType
 }
+
+const pageCss = css`
+  margin-top: 40px;
+
+  ${respondToOrLarger.sm} {
+    margin-top: 80px;
+  }
+`
+
+const headerCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`
+
+const pageTitleCss = css`
+  margin: 0;
+`
+
+/** A regrading timestamp, or the absent glyph for a step that has not happened yet. */
+const timestampOrAbsent = (timestamp: string | null | undefined): string =>
+  timestamp ? dateToString(timestamp) : ABSENT_LABEL
 
 const RegradingsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -75,90 +103,95 @@ const RegradingsPage: React.FC = () => {
       onSuccess: (data) => {
         setNewRegradingDialogOpen(false)
         reset()
-        // oxlint-disable-next-line i18next/no-literal-string
-        router.push(`/manage/regradings/${data}`)
+        router.push(manageRegradingRoute(data))
       },
     },
   )
 
-  const renderRegradings = (regradings: Regrading[]) => (
-    <>
-      <div
-        className={css`
-          margin-top: 40px;
-          ${respondToOrLarger.sm} {
-            margin-top: 80px;
-          }
-        `}
-      >
-        <h1>{t("title-regradings")}</h1>
-        <FullWidthTable>
-          <thead>
-            <tr
-              className={css`
-                text-align: left;
-                font-size: 13px;
-              `}
-            >
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>id</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>created_at</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>updated_at</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>regrading_started_at</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>regrading_completed_at</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>total_grading_progress</th>
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              <th>user_points_update_strategy</th>
-            </tr>
-          </thead>
-          <tbody>
-            {regradings.map((regrading) => (
-              <FullWidthTableRow key={regrading.id}>
-                <td>
-                  <Link href={manageRegradingRoute(regrading.id)}>{regrading.id}</Link>
-                </td>
-                <td>{dateToString(regrading.created_at)}</td>
-                <td>{dateToString(regrading.updated_at)}</td>
-                <td>
-                  {regrading.regrading_started_at
-                    ? dateToString(regrading.regrading_started_at)
-                    : // oxlint-disable-next-line i18next/no-literal-string
-                      "null"}
-                </td>
-                <td>
-                  {" "}
-                  {regrading.regrading_completed_at
-                    ? dateToString(regrading.regrading_completed_at)
-                    : // oxlint-disable-next-line i18next/no-literal-string
-                      "null"}
-                </td>
-                <td>{regrading.total_grading_progress}</td>
-                <td>{regrading.user_points_update_strategy}</td>
-              </FullWidthTableRow>
-            ))}
-          </tbody>
-        </FullWidthTable>
-        {regradingsCountQuery.data !== undefined && (
-          <Pagination
-            totalPages={Math.ceil(regradingsCountQuery.data / paginationInfo.limit)}
-            paginationInfo={paginationInfo}
-          />
-        )}
+  const pointsUpdateStrategyLabel = (strategy: UserPointsUpdateStrategy): string => {
+    switch (strategy) {
+      case "CanAddPointsAndCanRemovePoints":
+        return t("option-can-add-points-and-can-remove-points")
+      case "CanAddPointsButCannotRemovePoints":
+        return t("option-can-add-points-but-cannot-remove-points")
+    }
+  }
+
+  return (
+    <div className={pageCss}>
+      <div className={headerCss}>
+        <h1 className={pageTitleCss}>{t("title-regradings")}</h1>
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => {
+            setNewRegradingDialogOpen(true)
+          }}
+        >
+          {t("button-text-new-regrading")}
+        </Button>
       </div>
-      <Button
-        variant="primary"
-        size="medium"
-        onClick={() => {
-          setNewRegradingDialogOpen(true)
-        }}
-      >
-        {t("button-text-new-regrading")}
-      </Button>
+
+      <QueryResult query={regradingsQuery} treatEmptyAsData>
+        {(regradings) => (
+          <>
+            <Table
+              caption={t("title-regradings")}
+              rows={regradings}
+              rowKey={(regrading) => regrading.id}
+              columns={[
+                {
+                  header: t("regradings-column-created"),
+                  minWidth: "14rem",
+                  nowrap: true,
+                  cell: (regrading) => (
+                    <Link href={manageRegradingRoute(regrading.id)}>
+                      {dateToString(regrading.created_at)}
+                    </Link>
+                  ),
+                },
+                {
+                  header: t("regradings-column-started"),
+                  minWidth: "14rem",
+                  nowrap: true,
+                  cell: (regrading) => timestampOrAbsent(regrading.regrading_started_at),
+                },
+                {
+                  header: t("regradings-column-completed"),
+                  minWidth: "14rem",
+                  nowrap: true,
+                  cell: (regrading) => timestampOrAbsent(regrading.regrading_completed_at),
+                },
+                {
+                  header: t("regradings-column-grading-progress"),
+                  minWidth: "9rem",
+                  cell: (regrading) => regrading.total_grading_progress,
+                },
+                {
+                  header: t("regradings-column-points-update-strategy"),
+                  minWidth: "14rem",
+                  cell: (regrading) =>
+                    pointsUpdateStrategyLabel(regrading.user_points_update_strategy),
+                },
+                {
+                  header: t("regradings-column-updated"),
+                  minWidth: "14rem",
+                  nowrap: true,
+                  cell: (regrading) => dateToString(regrading.updated_at),
+                },
+              ]}
+            />
+            {regradingsCountQuery.data !== undefined && (
+              <Pagination
+                totalPages={Math.ceil(regradingsCountQuery.data / paginationInfo.limit)}
+                paginationInfo={paginationInfo}
+              />
+            )}
+            <DebugModal data={regradings} />
+          </>
+        )}
+      </QueryResult>
+
       <Dialog
         open={newRegradingDialogOpen}
         onClose={() => setNewRegradingDialogOpen(false)}
@@ -239,14 +272,7 @@ const RegradingsPage: React.FC = () => {
           {t("button-text-create")}
         </Button>
       </Dialog>
-      <DebugModal data={regradings} />
-    </>
-  )
-
-  return (
-    <QueryResult query={regradingsQuery} treatEmptyAsData>
-      {(regradings) => renderRegradings(regradings)}
-    </QueryResult>
+    </div>
   )
 }
 

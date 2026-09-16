@@ -23,6 +23,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { Dialog } from "@/shared-module/components"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
+import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
 import ContentRenderer from "../ContentRenderer"
 
@@ -39,8 +40,34 @@ interface UserAnswer {
   answer: boolean
 }
 
-/** The course-material heading scale outgrows the dialog title; hold the authored form under it. */
+/**
+ * ContentRenderer sizes its blocks for a full-width course page — 20px text, 3rem between blocks,
+ * headings that outgrow the dialog title. Hold the authored form to the dialog's own scale and
+ * rhythm, and let the dialog's padding be the only gutter around the outermost blocks.
+ */
 const authoredFormCss = css`
+  .${courseMaterialBlockClass} {
+    font-size: var(--font-size-2);
+    margin-block: var(--space-4);
+  }
+
+  .${courseMaterialBlockClass}:first-child {
+    margin-block-start: 0;
+  }
+
+  .${courseMaterialBlockClass}:last-child {
+    margin-block-end: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  ol,
+  ul {
+    margin-block: 0;
+  }
+
   h1 {
     font-size: var(--font-size-3-5);
   }

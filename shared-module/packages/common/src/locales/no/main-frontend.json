@@ -311,7 +311,7 @@
   "course-language": "Kurs språk",
   "course-language-change-warning": "Merk: Kursmaterialet vil bli byttet til {{newLanguage}} kurs med annen kursfremgang.",
   "course-language-note": "Hvert språk er et separat kurs.",
-  "course-list": "Kurs:",
+  "course-list": "Kurs",
   "course-material-ai-instructions-help": "If the course material gives its own AI instructions, the notice points students to them instead of the general university guidelines.",
   "course-material-ai-instructions-label": "Does the course material contain AI instructions?",
   "course-material-ai-instructions-option-no": "No",

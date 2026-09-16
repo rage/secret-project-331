@@ -389,7 +389,7 @@
   "course-language": "Kurssin kieli",
   "course-language-change-warning": "Huom: Kurssimateriaali muuttuu suomenkielisen kurssin materiaaliksi, jossa on eri kurssin edistyminen.",
   "course-language-note": "Jokainen kieli on erillinen kurssi.",
-  "course-list": "Kurssit:",
+  "course-list": "Kurssit",
   "course-material-ai-instructions-help": "Jos kurssimateriaalissa on omat tekoälyohjeet, ilmoitus ohjaa opiskelijat niihin yleisten yliopiston ohjeiden sijaan.",
   "course-material-ai-instructions-label": "Sisältääkö kurssimateriaali tekoälyohjeet?",
   "course-material-ai-instructions-option-no": "Ei",

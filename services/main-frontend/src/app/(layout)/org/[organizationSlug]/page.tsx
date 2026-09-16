@@ -19,6 +19,11 @@ import { viewParamsAtom } from "@/state/course-material/params"
 import CourseList from "./CourseList"
 import ExamList from "./ExamList"
 
+/** Subordinate to the organization name above it, which is the page title. */
+const sectionHeadingCss = css`
+  font-size: var(--font-size-4);
+`
+
 const Organization: React.FC = () => {
   const { t } = useTranslation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
@@ -73,13 +78,7 @@ const Organization: React.FC = () => {
               />
             )}
             <section aria-labelledby={coursesSectionHeadingId}>
-              <h2
-                id={coursesSectionHeadingId}
-                className={css`
-                  font-size: clamp(26px, 3.6vw, 36px);
-                  margin-bottom: 10px;
-                `}
-              >
+              <h2 id={coursesSectionHeadingId} className={sectionHeadingCss}>
                 {t("course-list")}
               </h2>
               {/* TODO: Implement perPage dropdown? */}
@@ -92,7 +91,9 @@ const Organization: React.FC = () => {
               resource={{ id: organization.id, type: "organization" }}
             >
               <section aria-labelledby={examsSectionHeadingId}>
-                <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
+                <h2 id={examsSectionHeadingId} className={sectionHeadingCss}>
+                  {t("exam-list")}
+                </h2>
                 <ExamList organizationId={organization.id} organizationSlug={organizationSlug} />
               </section>
             </OnlyRenderIfPermissions>

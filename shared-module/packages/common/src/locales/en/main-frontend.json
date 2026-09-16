@@ -447,7 +447,7 @@
   "course-language": "Course language",
   "course-language-change-warning": "Note: The course material will be switched to the {{newLanguage}} course with different course progress.",
   "course-language-note": "Each language is a separate course.",
-  "course-list": "Courses:",
+  "course-list": "Courses",
   "course-material-ai-instructions-help": "If the course material gives its own AI instructions, the notice points students to them instead of the general university guidelines.",
   "course-material-ai-instructions-label": "Does the course material contain AI instructions?",
   "course-material-ai-instructions-option-no": "No",

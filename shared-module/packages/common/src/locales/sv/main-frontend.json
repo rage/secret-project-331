@@ -313,7 +313,7 @@
   "course-language": "Kursens språk",
   "course-language-change-warning": "Obs: Kursmaterialet kommer att bytas till kursen {{newLanguage}} med olika kursframsteg.",
   "course-language-note": "Varje språk är en separat kurs.",
-  "course-list": "Kurser:",
+  "course-list": "Kurser",
   "course-material-ai-instructions-help": "If the course material gives its own AI instructions, the notice points students to them instead of the general university guidelines.",
   "course-material-ai-instructions-label": "Does the course material contain AI instructions?",
   "course-material-ai-instructions-option-no": "No",

@@ -316,7 +316,7 @@
   "course-language": "Мова курсу",
   "course-language-change-warning": "Примітка: матеріал курсу буде переведено на {{newLanguage}} з іншим прогресом курсу.",
   "course-language-note": "Кожна мова є окремим курсом.",
-  "course-list": "Курси:",
+  "course-list": "Курси",
   "course-material-ai-instructions-help": "If the course material gives its own AI instructions, the notice points students to them instead of the general university guidelines.",
   "course-material-ai-instructions-label": "Does the course material contain AI instructions?",
   "course-material-ai-instructions-option-no": "No",

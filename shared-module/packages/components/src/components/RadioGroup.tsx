@@ -39,6 +39,16 @@ const fieldsetCss = css`
   border: 0;
 `
 
+/**
+ * A rendered `<legend>` sits outside its fieldset's formatting context, so the grid `gap` never
+ * lands under it and the options end up flush against the label. The UA's 2px inline padding
+ * would also push it off the options' left edge.
+ */
+const legendCss = css`
+  padding: 0;
+  margin-bottom: var(--space-2);
+`
+
 const radioListCss = css`
   display: grid;
   gap: var(--space-2);
@@ -210,7 +220,10 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       disabled={state.isDisabled}
       data-testid={dataTestId}
     >
-      <legend {...labelProps} className={isSegmented ? segmentedLegendCss : stackedLabelCss}>
+      <legend
+        {...labelProps}
+        className={cx(isSegmented ? segmentedLegendCss : stackedLabelCss, legendCss)}
+      >
         {label}
       </legend>
 

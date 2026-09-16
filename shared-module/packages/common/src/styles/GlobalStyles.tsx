@@ -30,6 +30,9 @@ const globalCss = css`
   h6 {
     font-family: ${headingFont};
     font-weight: 400;
+    /* The reset strips every heading margin, leaving titles flush against the content they
+       introduce. Scale the space back with the heading rather than fixing it per page. */
+    margin-block-end: 0.5em;
   }
   h1 {
     font-size: ${typography.h3};

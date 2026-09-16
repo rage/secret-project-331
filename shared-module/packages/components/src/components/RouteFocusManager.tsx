@@ -9,11 +9,14 @@ const HEADING_SELECTOR = "h1"
 
 const TABINDEX_ATTRIBUTE = "tabindex"
 
-// Excluding :focus-visible can only drop a ring on focus moved by script or a mouse, never a real
-// keyboard-focus ring. Applies globally, to every programmatic focus target — not just the
-// headings this component moves focus to.
+// Marks exactly the element this component focused: Chrome still matches :focus-visible on a
+// programmatic focus that lands before any user interaction, so a :not(:focus-visible) rule can't
+// tell it apart from real keyboard focus there. Cleared on blur, so a later real Tab to the same
+// element still gets a ring.
+const MANAGED_FOCUS_ATTRIBUTE = "data-route-focus-manager-active"
+
 void injectGlobal`
-  [tabindex="-1"]:focus:not(:focus-visible) {
+  [${MANAGED_FOCUS_ATTRIBUTE}]:focus {
     outline: none;
   }
 `
@@ -68,7 +71,11 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
     if (!target.hasAttribute(TABINDEX_ATTRIBUTE)) {
       target.setAttribute(TABINDEX_ATTRIBUTE, "-1")
     }
+    target.setAttribute(MANAGED_FOCUS_ATTRIBUTE, "")
+    const clearManagedFocus = () => target.removeAttribute(MANAGED_FOCUS_ATTRIBUTE)
+    target.addEventListener("blur", clearManagedFocus, { once: true })
     target.focus({ preventScroll: true })
+    return () => target.removeEventListener("blur", clearManagedFocus)
   }, [pathname, targetSelector])
 
   return null

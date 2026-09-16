@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -7,6 +8,11 @@ import { useTranslation } from "react-i18next"
 import { createCourseGlossaryTermMutation } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField } from "@/shared-module/components"
+
+const formCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
 
 interface NewTermForm {
   newTerm: string
@@ -55,7 +61,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
   }
 
   return (
-    <form onSubmit={handleSubmit(onCreate)}>
+    <form onSubmit={handleSubmit(onCreate)} className={formCss}>
       <TextField
         name="newTerm"
         control={control}

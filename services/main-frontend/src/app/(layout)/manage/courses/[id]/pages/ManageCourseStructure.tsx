@@ -147,7 +147,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       </h1>
       <h2
         className={css`
-          font-size: 1.875rem;
+          font-size: var(--font-size-4);
           color: ${baseTheme.colors.gray[700]};
           font-family: ${headingFont};
           font-weight: bold;

@@ -36,6 +36,12 @@ import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
+const actionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
+
 interface Props {
   course: Course
   refetch: (
@@ -163,37 +169,39 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           <b>{t("text-field-label-description")}</b>: {course.description}
         </p>
       </div>
-      <OnlyRenderIfPermissions
-        action={{
-          type: "usually_unacceptable_deletion",
-        }}
-        resource={{
-          type: "course",
-          id: course.id,
-        }}
-      >
-        <Button
-          variant="secondary"
-          size="medium"
-          onClick={async () => {
-            const confirmation = await confirm({
-              // oxlint-disable-next-line i18next/no-literal-string
-              message: `${t("delete-course-confirmation")}\n\n${t(
-                "delete-course-confirmation-explanation",
-              )}`,
-              isDestructive: true,
-            })
-            if (confirmation) {
-              deleteCourseMutation.mutate()
-            }
+      <div className={actionsCss}>
+        <OnlyRenderIfPermissions
+          action={{
+            type: "usually_unacceptable_deletion",
+          }}
+          resource={{
+            type: "course",
+            id: course.id,
           }}
         >
-          {t("button-text-delete")}
+          <Button
+            variant="secondary"
+            size="medium"
+            onClick={async () => {
+              const confirmation = await confirm({
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: `${t("delete-course-confirmation")}\n\n${t(
+                  "delete-course-confirmation-explanation",
+                )}`,
+                isDestructive: true,
+              })
+              if (confirmation) {
+                deleteCourseMutation.mutate()
+              }
+            }}
+          >
+            {t("button-text-delete")}
+          </Button>
+        </OnlyRenderIfPermissions>
+        <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
+          {t("edit")}
         </Button>
-      </OnlyRenderIfPermissions>
-      <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
-        {t("edit")}
-      </Button>
+      </div>
       <EditCourseForm
         course={course}
         onSubmitForm={handleOnUpdateCourse}

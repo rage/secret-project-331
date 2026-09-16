@@ -19,6 +19,22 @@ import SearchUsersResults from "./SearchUsersResults"
 import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
 import useSearchUsersQueries from "./useSearchUsersQueries"
 
+const pageCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+const searchFormCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+`
+
+const searchFieldCss = css`
+  flex: 1 1 16rem;
+`
+
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-user-search"))
@@ -69,55 +85,41 @@ const SearchUsersPage: React.FC = () => {
       resource={{ type: "global_permissions" }}
       elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
     >
-      <h1>{t("title-user-search")}</h1>
+      <div className={pageCss}>
+        <h1>{t("title-user-search")}</h1>
 
-      <div>
         <form
           onSubmit={(e) => {
             e.preventDefault()
             runImmediate()
           }}
-          className={css`
-            display: flex;
-          `}
+          className={searchFormCss}
         >
-          <div
-            className={css`
-              flex-grow: 1;
-            `}
-          >
+          <div className={searchFieldCss}>
             <TextField name="search" control={control} label={t("text-field-label-search")} />
           </div>
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              margin-left: 1rem;
-            `}
+          <Button
+            type="submit"
+            variant="primary"
+            size="medium"
+            disabled={searchByEmailQuery.isFetching}
           >
-            <Button
-              type="submit"
-              variant="primary"
-              size="medium"
-              disabled={searchByEmailQuery.isFetching}
-            >
-              {t("button-text-search")}
-            </Button>
-          </div>
+            {t("button-text-search")}
+          </Button>
         </form>
+
+        <VisuallyHidden aria-live="polite" aria-atomic>
+          {liveRegionMessage}
+        </VisuallyHidden>
+
+        {hasActiveSearch && (
+          <SearchUsersResults
+            searchByEmailQuery={searchByEmailQuery}
+            searchByOtherDetailsQuery={searchByOtherDetailsQuery}
+            searchFuzzyMatchQuery={searchFuzzyMatchQuery}
+          />
+        )}
       </div>
-
-      <VisuallyHidden aria-live="polite" aria-atomic>
-        {liveRegionMessage}
-      </VisuallyHidden>
-
-      {hasActiveSearch && (
-        <SearchUsersResults
-          searchByEmailQuery={searchByEmailQuery}
-          searchByOtherDetailsQuery={searchByOtherDetailsQuery}
-          searchFuzzyMatchQuery={searchFuzzyMatchQuery}
-        />
-      )}
     </OnlyRenderIfPermissions>
   )
 }

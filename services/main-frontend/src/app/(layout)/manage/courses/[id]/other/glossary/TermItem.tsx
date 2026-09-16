@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -11,6 +12,17 @@ import {
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField } from "@/shared-module/components"
+
+const entryCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+const actionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
 
 interface UpdateTermForm {
   updatedTerm: string
@@ -84,10 +96,9 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
   }
 
   return (
-    <div>
-      <hr />
+    <li>
       {isEditing ? (
-        <form onSubmit={handleSubmit(onUpdate)}>
+        <form onSubmit={handleSubmit(onUpdate)} className={entryCss}>
           <TextField
             name="updatedTerm"
             control={control}
@@ -112,37 +123,41 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
               },
             }}
           />
-          <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
-            {t("button-text-save")}
-          </Button>
-          <Button variant="tertiary" size="medium" type="button" onClick={onCancel}>
-            {t("button-text-cancel")}
-          </Button>
+          <div className={actionsCss}>
+            <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
+              {t("button-text-save")}
+            </Button>
+            <Button variant="tertiary" size="medium" type="button" onClick={onCancel}>
+              {t("button-text-cancel")}
+            </Button>
+          </div>
         </form>
       ) : (
-        <>
-          <div>{term.term}</div>
-          <div>{term.definition}</div>
-          <Button variant="primary" size="medium" onClick={onEdit}>
-            {t("edit")}
-          </Button>
-          <Button
-            variant="tertiary"
-            size="medium"
-            onClick={() =>
-              deleteMutation.mutate({
-                path: {
-                  term_id: term.id,
-                },
-              })
-            }
-            disabled={deleteMutation.isPending}
-          >
-            {t("button-text-delete")}
-          </Button>
-        </>
+        <div className={entryCss}>
+          <h2>{term.term}</h2>
+          <p>{term.definition}</p>
+          <div className={actionsCss}>
+            <Button variant="primary" size="medium" onClick={onEdit}>
+              {t("edit")}
+            </Button>
+            <Button
+              variant="tertiary"
+              size="medium"
+              onClick={() =>
+                deleteMutation.mutate({
+                  path: {
+                    term_id: term.id,
+                  },
+                })
+              }
+              disabled={deleteMutation.isPending}
+            >
+              {t("button-text-delete")}
+            </Button>
+          </div>
+        </div>
       )}
-    </div>
+    </li>
   )
 }
 

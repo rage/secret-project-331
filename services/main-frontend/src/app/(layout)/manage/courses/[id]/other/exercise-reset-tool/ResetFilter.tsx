@@ -36,6 +36,7 @@ const ResetFilter: React.FC<ResetFilterProps> = ({ control, threshold, setThresh
           name="onlyResetBelowThreshold"
           control={control}
           label={t("label-only-reset-if-less-than")}
+          isInline
         />
         <input
           id="pointsThreshold"

@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +8,11 @@ import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from 
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { Dialog, TextField } from "@/shared-module/components"
+
+const fieldsCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
 
 interface NewCodeGiveawayFormProps {
   courseId: string
@@ -82,13 +88,15 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
         },
       ]}
     >
-      <TextField name="name" control={control} label={t("label-name")} />
-      <TextField name="courseModuleId" control={control} label={t("label-course-module-id")} />
-      <TextField
-        name="requireCourseSpecificConsentFormQuestionId"
-        control={control}
-        label={t("label-require-course-specific-consent-form-question-id")}
-      />
+      <div className={fieldsCss}>
+        <TextField name="name" control={control} label={t("label-name")} />
+        <TextField name="courseModuleId" control={control} label={t("label-course-module-id")} />
+        <TextField
+          name="requireCourseSpecificConsentFormQuestionId"
+          control={control}
+          label={t("label-require-course-specific-consent-form-question-id")}
+        />
+      </div>
     </Dialog>
   )
 }

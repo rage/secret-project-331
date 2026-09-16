@@ -202,6 +202,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               className={css`
                 display: flex;
                 flex-direction: row;
+                gap: var(--space-3);
               `}
             >
               <Button
@@ -232,6 +233,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               className={css`
                 display: flex;
                 flex-direction: row;
+                gap: var(--space-3);
               `}
             >
               <Button

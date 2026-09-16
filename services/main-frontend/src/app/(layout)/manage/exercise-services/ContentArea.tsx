@@ -53,7 +53,7 @@ const ContentArea: React.FC<React.PropsWithChildren<ContentAreaProps>> = ({
   return (
     <div
       className={css`
-        margin-bottom: 12px;
+        margin-bottom: var(--space-4);
       `}
     >
       {editing ? (

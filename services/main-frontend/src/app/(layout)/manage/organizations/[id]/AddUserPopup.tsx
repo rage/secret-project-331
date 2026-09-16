@@ -9,6 +9,21 @@ import { USER_ROLES } from "@/constants/roles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Dialog, Select, TextField } from "@/shared-module/components"
 
+const descriptionCss = css`
+  margin-bottom: var(--space-4);
+`
+
+const fieldsCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+
+  ${respondToOrLarger.lg} {
+    flex-direction: row;
+  }
+`
+
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
 interface AddUserForm {
@@ -50,40 +65,20 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
       title={t("add-user-title")}
       actions={[
         {
-          label: t("save"),
-          onClick: submitForm,
-          variant: "primary",
-        },
-        {
           label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
         },
+        {
+          label: t("save"),
+          onClick: submitForm,
+          variant: "primary",
+        },
       ]}
     >
-      <p
-        className={css`
-          font-size: 16px;
-          margin-bottom: 32px;
-        `}
-      >
-        {t("add-user-description")}
-      </p>
+      <p className={descriptionCss}>{t("add-user-description")}</p>
 
-      <form
-        onSubmit={submitForm}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          margin-bottom: 32px;
-          width: 100%;
-
-          ${respondToOrLarger.lg} {
-            flex-direction: row;
-          }
-        `}
-      >
+      <form onSubmit={submitForm} className={fieldsCss}>
         <div
           className={css`
             flex: 1;
@@ -115,7 +110,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
               { value: "", label: t("button-select-role") },
               ...USER_ROLES.map((role) => ({
                 value: role.value,
-                label: role.value,
+                label: t(role.translationKey),
               })),
             ]}
           />

@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -22,6 +23,11 @@ import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBacke
 
 import ExerciseServiceContainer from "./ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
+
+const pageCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
 
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()
@@ -133,12 +139,11 @@ const ExerciseServicePage: React.FC = () => {
   )
 
   return (
-    <div>
+    <div className={pageCss}>
       <h1>{t("title-manage-exercise-services")}</h1>
       <Button onClick={openModal} variant="primary" size="medium">
         {t("button-text-new")}
       </Button>
-      <br />
       <QueryResult query={getExerciseServices} treatEmptyAsData>
         {() => renderExerciseServices()}
       </QueryResult>

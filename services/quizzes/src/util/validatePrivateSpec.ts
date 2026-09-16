@@ -1,13 +1,14 @@
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemClosedEndedQuestion,
+  PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
 
 /**
  * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
  * live; the editor reports the result as the `valid` flag in `current-state` and the host uses it to
  * gate saving. Half-finished specs are still representable (parseable) — validity is a separate
- * judgement. Only closed-ended items have type-specific checks for now; other item types are treated
+ * judgement. Closed-ended and matrix items have type-specific checks; other item types are treated
  * as valid until their invariants are encoded too. Feedback messages are checked at every scope.
  */
 
@@ -77,6 +78,12 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
   }
 }
 
+// A key the teacher can still fix is reported in the editor rather than blocked here, so an
+// unfinished matrix stays saveable. A tolerance outside [0, inf) is not a half-finished state: it
+// would make every numeric comparison meaningless, and migration never produces one.
+const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
+  Number.isFinite(item.tolerance) && item.tolerance >= 0
+
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {
     return false
@@ -98,6 +105,9 @@ export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolea
     }
     if (item.type === "closed-ended-question") {
       return isClosedEndedItemValid(item)
+    }
+    if (item.type === "matrix") {
+      return isMatrixItemValid(item)
     }
     return true
   })

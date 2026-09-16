@@ -37,7 +37,7 @@ export interface QuizItemOption {
 
 export type DisplayDirection = "horizontal" | "vertical"
 export interface PrivateSpecQuiz {
-  version: "4"
+  version: "5"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: GrantPointsPolicy
   items: PrivateSpecQuizItem[]
@@ -63,6 +63,17 @@ export type multipleChoiceMultipleOptionsGradingPolicy =
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
   | "some-correct-none-incorrect"
+
+/**
+ * How a matrix answer's score is derived from the number of cells that differ from the key.
+ *
+ * * `whole-matrix` - full marks only when nothing differs.
+ * * `per-cell` - each differing cell costs one cell's share of the key.
+ *
+ * @see {@link PrivateSpecQuizItemMatrix.partialCreditForWrongShape} for what happens when the
+ * student's dimensions differ from the key's.
+ */
+export type MatrixGradingPolicy = "whole-matrix" | "per-cell"
 
 export type PrivateSpecQuizItem =
   | PrivateSpecQuizItemMultiplechoice
@@ -187,6 +198,17 @@ export interface PrivateSpecQuizItemMatrix {
   title?: string | null
   optionCells: string[][] | null
   feedbackMessages: QuizFeedbackMessage[]
+  gradingPolicy: MatrixGradingPolicy
+  /** Absolute tolerance for numeric cells; 0 means the value must match exactly. Never applies to text cells. */
+  tolerance: number
+  /**
+   * Whether an answer whose dimensions differ from the key's can still earn credit, with each
+   * missing and each extra cell counting as one differing cell. Inert under `whole-matrix`, where
+   * differing dimensions already imply a differing cell.
+   */
+  partialCreditForWrongShape: boolean
+  /** Withhold per-cell verdicts from the student, so repeated attempts cannot resolve the key one cell at a time. */
+  fogOfWar: boolean
 }
 
 export interface PrivateSpecQuizItemTimelineItem {

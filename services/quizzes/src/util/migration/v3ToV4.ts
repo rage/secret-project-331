@@ -13,20 +13,12 @@
  * Null/blank sources produce no entry (trimmed). `sharedOptionFeedbackMessage` was dead (no UI,
  * never read) and is dropped. The model solution spec keeps only the on-model-solution strings.
  */
-import type { UserAnswer } from "../../../types/quizTypes/answer"
+import type { QuizItemOption as ModelSolutionQuizItemOption } from "../../../types/quizTypes/modelSolutionSpec"
 import type {
-  ModelSolutionQuiz,
-  ModelSolutionQuizItem,
-  QuizItemOption as ModelSolutionQuizItemOption,
-} from "../../../types/quizTypes/modelSolutionSpec"
-import type {
-  PrivateSpecQuiz,
-  PrivateSpecQuizItem,
   QuizFeedbackMessage,
   QuizItemOption,
   QuizOptionFeedbackMessage,
 } from "../../../types/quizTypes/privateSpec"
-import type { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
 import type {
   ModelSolutionQuizItemV3,
   ModelSolutionQuizV3,
@@ -36,6 +28,14 @@ import type {
   QuizItemOptionV3,
   UserAnswerV3,
 } from "../../../types/quizTypes/v3"
+import type {
+  ModelSolutionQuizItemV4,
+  ModelSolutionQuizV4,
+  PrivateSpecQuizItemV4,
+  PrivateSpecQuizV4,
+  PublicSpecQuizV4,
+  UserAnswerV4,
+} from "../../../types/quizTypes/v4"
 
 const nonEmpty = (message: string | null | undefined): string | null => {
   if (message === null || message === undefined) {
@@ -88,7 +88,7 @@ const migrateOption = (option: QuizItemOptionV3): QuizItemOption => ({
   feedbackMessages: optionFeedbackMessages(option),
 })
 
-const migratePrivateSpecItem = (item: PrivateSpecQuizItemV3): PrivateSpecQuizItem => {
+const migratePrivateSpecItem = (item: PrivateSpecQuizItemV3): PrivateSpecQuizItemV4 => {
   const feedbackMessages = itemFeedbackMessages(item)
   switch (item.type) {
     case "multiple-choice":
@@ -195,7 +195,7 @@ const migratePrivateSpecItem = (item: PrivateSpecQuizItemV3): PrivateSpecQuizIte
   }
 }
 
-export const migratePrivateSpecV3ToV4 = (quiz: PrivateSpecQuizV3): PrivateSpecQuiz => {
+export const migratePrivateSpecV3ToV4 = (quiz: PrivateSpecQuizV3): PrivateSpecQuizV4 => {
   const feedbackMessages: QuizFeedbackMessage[] = []
   const submit = nonEmpty(quiz.submitMessage)
   if (submit !== null) {
@@ -229,7 +229,7 @@ const migrateModelSolutionOption = (option: QuizItemOptionV3): ModelSolutionQuiz
   ),
 })
 
-const migrateModelSolutionItem = (item: ModelSolutionQuizItemV3): ModelSolutionQuizItem => {
+const migrateModelSolutionItem = (item: ModelSolutionQuizItemV3): ModelSolutionQuizItemV4 => {
   const messagesOnModelSolution = modelSolutionMessages(item.messageOnModelSolution)
   switch (item.type) {
     case "multiple-choice":
@@ -333,7 +333,7 @@ const migrateModelSolutionItem = (item: ModelSolutionQuizItemV3): ModelSolutionQ
   }
 }
 
-export const migrateModelSolutionV3ToV4 = (quiz: ModelSolutionQuizV3): ModelSolutionQuiz => {
+export const migrateModelSolutionV3ToV4 = (quiz: ModelSolutionQuizV3): ModelSolutionQuizV4 => {
   return {
     version: "4",
     awardPointsEvenIfWrong: quiz.awardPointsEvenIfWrong,
@@ -346,12 +346,12 @@ export const migrateModelSolutionV3ToV4 = (quiz: ModelSolutionQuizV3): ModelSolu
   }
 }
 
-export const migratePublicSpecV3ToV4 = (quiz: PublicSpecQuizV3): PublicSpecQuiz => {
+export const migratePublicSpecV3ToV4 = (quiz: PublicSpecQuizV3): PublicSpecQuizV4 => {
   // The public spec carries no feedback, so only the version literal changes.
   return { ...quiz, version: "4" }
 }
 
-export const migrateUserAnswerV3ToV4 = (answer: UserAnswerV3): UserAnswer => {
+export const migrateUserAnswerV3ToV4 = (answer: UserAnswerV3): UserAnswerV4 => {
   // The answer shape is structurally unchanged between v3 and v4.
   return { ...answer, version: "4" }
 }

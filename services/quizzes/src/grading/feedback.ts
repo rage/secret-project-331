@@ -2,6 +2,7 @@ import { applicableItemFeedbackMessages, joinFeedbackMessages } from "@/util/fee
 
 import type {
   UserAnswer,
+  UserItemAnswerMatrix,
   UserItemAnswerMultiplechoice,
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
@@ -13,9 +14,11 @@ import type {
 } from "../../types/quizTypes/grading"
 import type {
   PrivateSpecQuiz,
+  PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
+import { compareMatrices } from "./utils/matrixDifference"
 
 const submissionFeedback = (
   submission: UserAnswer,
@@ -34,6 +37,8 @@ const submissionFeedback = (
           quiz_item_feedback: null,
           quiz_item_option_feedbacks: null,
           timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           correctnessCoefficient: 1,
         }
       }
@@ -57,6 +62,8 @@ const submissionFeedback = (
             quiz_item_feedback: null,
             quiz_item_option_feedbacks: null,
             timeline_item_feedbacks: null,
+            matrix_cell_feedbacks: null,
+            matrix_score_breakdown: null,
             correctnessCoefficient: 1,
           }
         }
@@ -65,6 +72,8 @@ const submissionFeedback = (
 
         return {
           timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           quiz_item_id: multipleChoiceQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
           correctnessCoefficient: itemGrading.correctnessCoefficient,
@@ -106,6 +115,8 @@ const submissionFeedback = (
           quiz_item_id: timelineQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
           quiz_item_option_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           correctnessCoefficient: itemGrading.correctnessCoefficient,
           timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
             (timelineChoice) => {
@@ -128,11 +139,36 @@ const submissionFeedback = (
         }
       }
 
+      if (item.type === "matrix") {
+        const matrixQuizItem = item as PrivateSpecQuizItemMatrix
+        const matrixUserAnswer = itemAnswer as UserItemAnswerMatrix
+        const difference = compareMatrices(
+          matrixUserAnswer.matrix,
+          matrixQuizItem.optionCells,
+          matrixQuizItem.tolerance,
+        )
+        // Fog of war withholds the per-cell verdicts, which would otherwise let a student with
+        // repeated attempts resolve the key one cell at a time. The score itself still goes out.
+        const revealCells = !matrixQuizItem.fogOfWar
+
+        return {
+          quiz_item_id: matrixQuizItem.id,
+          quiz_item_feedback: quizItemFeedback,
+          quiz_item_option_feedbacks: null,
+          timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: revealCells ? difference.cellFeedbacks : null,
+          matrix_score_breakdown: revealCells ? difference.breakdown : null,
+          correctnessCoefficient: itemGrading.correctnessCoefficient,
+        }
+      }
+
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: quizItemFeedback,
         quiz_item_option_feedbacks: null,
         timeline_item_feedbacks: null,
+        matrix_cell_feedbacks: null,
+        matrix_score_breakdown: null,
         correctnessCoefficient: itemGrading.correctnessCoefficient,
       }
     },
@@ -147,6 +183,8 @@ const submissionFeedback = (
       quiz_item_feedback: quizLevelFeedback,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
+      matrix_cell_feedbacks: null,
+      matrix_score_breakdown: null,
       correctnessCoefficient: 1,
     })
   }

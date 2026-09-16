@@ -1,36 +1,46 @@
 import type { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
 import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import type { PrivateSpecQuizItemMatrix } from "../../../types/quizTypes/privateSpec"
+import { clamp01 } from "../utils/math"
+import { compareMatrices } from "../utils/matrixDifference"
 
 const assessMatrixQuiz = (
   quizItemAnswer: UserItemAnswerMatrix,
   quizItem: PrivateSpecQuizItemMatrix,
 ): QuizItemAnswerGrading => {
-  const userAnswer = quizItemAnswer.matrix
-  const correctAnswer = quizItem.optionCells
-
-  if (!userAnswer) {
+  if (!quizItemAnswer.matrix) {
     throw new Error("Answer not provided")
   }
 
-  if (!correctAnswer) {
-    throw new Error("No correct answer")
-  }
-
-  const isMatrixCorrect: boolean[] = []
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 6; j++) {
-      // safe: matrices are fixed 6x6 grids, so indices 0..5 are always present
-      isMatrixCorrect.push(correctAnswer[i]?.[j] === userAnswer[i]?.[j])
-    }
-  }
-
-  const correct = !isMatrixCorrect.includes(false)
+  const difference = compareMatrices(
+    quizItemAnswer.matrix,
+    quizItem.optionCells,
+    quizItem.tolerance,
+  )
+  const { keyCells } = difference.breakdown
 
   return {
     quizItemId: quizItem.id,
-    correctnessCoefficient: correct ? 1 : 0,
+    correctnessCoefficient: correctnessCoefficient(quizItem, difference, keyCells),
   }
+}
+
+const correctnessCoefficient = (
+  quizItem: PrivateSpecQuizItemMatrix,
+  difference: { differingCells: number; shapesMatch: boolean },
+  keyCells: number,
+): number => {
+  // An empty key defines no correct answer, so nothing can match it.
+  if (keyCells === 0) {
+    return 0
+  }
+  if (quizItem.gradingPolicy === "whole-matrix") {
+    return difference.differingCells === 0 ? 1 : 0
+  }
+  if (!difference.shapesMatch && !quizItem.partialCreditForWrongShape) {
+    return 0
+  }
+  return clamp01(1 - difference.differingCells / keyCells)
 }
 
 export { assessMatrixQuiz }

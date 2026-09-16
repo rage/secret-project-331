@@ -1,6 +1,8 @@
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
+import { emptyMatrixGrid, MATRIX_GRID_SIZE, matrixShape } from "@/util/matrix"
+
 import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
@@ -43,31 +45,15 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     if (selected && selected.optionCells) {
       return selected.optionCells
     }
-    const quizAnswers: string[][] = []
-    for (let i = 0; i < 6; i++) {
-      const columnArray: string[] = []
-      for (let j = 0; j < 6; j++) {
-        columnArray.push("")
-      }
-      quizAnswers.push(columnArray)
-    }
-    return quizAnswers
+    return emptyMatrixGrid()
   })
 
+  // The frame is drawn from the last non-blank row and column, so it is expressed as indices while
+  // `matrixShape` counts cells. It must agree with the grader, or the teacher sees a frame that is
+  // not the one their students are graded against.
   useEffect(() => {
-    const sizeOfTheMatrix = [0, 0]
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 6; j++) {
-        // safe: matrixVariable is a fixed 6x6 grid, so indices 0..5 are always present
-        if (matrixVariable[i]?.[j] !== "" && (sizeOfTheMatrix[0] ?? Number.NaN) < i) {
-          sizeOfTheMatrix[0] = i
-        }
-        if (matrixVariable[i]?.[j] !== "" && (sizeOfTheMatrix[1] ?? Number.NaN) < j) {
-          sizeOfTheMatrix[1] = j
-        }
-      }
-    }
-    setMatrixActiveSize(sizeOfTheMatrix)
+    const shape = matrixShape(matrixVariable)
+    setMatrixActiveSize([Math.max(0, shape.rows - 1), Math.max(0, shape.columns - 1)])
   }, [matrixVariable])
 
   const checkNeighbourCells = (column: number, row: number) => {
@@ -92,7 +78,7 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     })
   }
 
-  const tempArray = [0, 1, 2, 3, 4, 5]
+  const tempArray = Array.from({ length: MATRIX_GRID_SIZE }, (_unused, index) => index)
   return (
     <MatrixTableContainer>
       <tbody>

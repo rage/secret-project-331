@@ -10,7 +10,7 @@ import type {
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "../api/utils/privateSpecGenerator"
 
 const baseQuiz = (items: PrivateSpecQuizItem[]): PrivateSpecQuiz => ({
-  version: "4",
+  version: "5",
   awardPointsEvenIfWrong: false,
   grantPointsPolicy: "grant_whenever_possible",
   title: null,

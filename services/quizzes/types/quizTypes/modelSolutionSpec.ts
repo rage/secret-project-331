@@ -1,4 +1,4 @@
-import type { DisplayDirection } from "./privateSpec"
+import type { DisplayDirection, MatrixGradingPolicy } from "./privateSpec"
 
 type grantPointsPolicy = "grant_whenever_possible" | "grant_only_when_answer_fully_correct"
 
@@ -17,7 +17,7 @@ export interface QuizItemOption {
 }
 
 export interface ModelSolutionQuiz {
-  version: "4"
+  version: "5"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: grantPointsPolicy
   items: ModelSolutionQuizItem[]
@@ -123,6 +123,9 @@ export interface ModelSolutionQuizItemMatrix {
   order: number
   optionCells: string[][] | null
   messagesOnModelSolution: string[]
+  /** Carried so the submission view can phrase the score the same way the grader computed it. */
+  gradingPolicy: MatrixGradingPolicy
+  tolerance: number
 }
 
 export interface ModelSolutionQuizItemTimelineItem {

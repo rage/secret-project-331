@@ -20,7 +20,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
-import { pageRoute } from "@/shared-module/common/utils/routes"
+import { manageUserRoute, pageRoute } from "@/shared-module/common/utils/routes"
 import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 const ImportantText = styled.div`
@@ -153,12 +153,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     }
     return (
       <div>
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
         {diffChanges ? (
           <div>
             <div>
@@ -237,12 +231,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
       <div>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
         <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
-        <div>
           {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
         </div>
         <div>
@@ -266,12 +254,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     ) : (
       <div>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
         <div>
           {t("label-original-text")}
           <ImportantText>{block.original_text}</ImportantText>
@@ -330,10 +312,17 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         </div>
       )}
       <div>
-        <HideTextInSystemTests
-          text={t("sent-by", { user: proposal.user_id })}
-          testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        />
+        {t("label-sent-by")}{" "}
+        {proposal.user_id ? (
+          <Link href={manageUserRoute(proposal.user_id)}>
+            <HideTextInSystemTests
+              text={proposal.user_id}
+              testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            />
+          </Link>
+        ) : (
+          t("guest")
+        )}
       </div>
       <div>
         <TimeComponent

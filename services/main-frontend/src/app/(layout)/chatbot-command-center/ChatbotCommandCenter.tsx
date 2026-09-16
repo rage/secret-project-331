@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Select } from "@/shared-module/components"
+import { EmptyState, Select } from "@/shared-module/components"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
@@ -98,7 +98,12 @@ const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) 
               border-radius: 10px;
               box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
             `}
-          ></div>
+          >
+            <EmptyState
+              title={t("chatbot-command-center-empty-title")}
+              hint={t("chatbot-command-center-empty-hint")}
+            />
+          </div>
         ) : (
           <ChatbotChat
             chatbotConfigurationId={configuration_id}

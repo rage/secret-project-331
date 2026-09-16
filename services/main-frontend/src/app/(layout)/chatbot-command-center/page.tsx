@@ -48,29 +48,33 @@ const ChatbotCommandCenterPage: React.FC = () => {
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--space-4);
+          margin-bottom: var(--space-4);
         `}
       >
-        <h1>{t("link-text-chatbot-command-center")}</h1>
-        <div
+        <h1
           className={css`
-            margin-left: auto;
-            padding: 1.5rem;
+            margin-block-end: 0;
           `}
         >
-          <OnlyRenderIfPermissions
-            action={{ type: "edit" }}
-            resource={{ type: "global_permissions" }}
+          {t("link-text-chatbot-command-center")}
+        </h1>
+        <OnlyRenderIfPermissions
+          action={{ type: "edit" }}
+          resource={{ type: "global_permissions" }}
+        >
+          <Button
+            size="medium"
+            onClick={() => {
+              setCreateChatbotVisible(true)
+            }}
           >
-            <Button
-              size="medium"
-              onClick={() => {
-                setCreateChatbotVisible(true)
-              }}
-            >
-              {t("create-global-chatbot")}
-            </Button>
-          </OnlyRenderIfPermissions>
-        </div>
+            {t("create-global-chatbot")}
+          </Button>
+        </OnlyRenderIfPermissions>
       </div>
       <QueryResults
         queries={[chatbotsQuery, coursesQuery] as const}

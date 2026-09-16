@@ -16,11 +16,11 @@ import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestio
 import useCourse from "@/hooks/course-material/useCourse"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Checkbox, Radio } from "@/shared-module/components"
+import { Button, Checkbox, Radio, RadioGroup } from "@/shared-module/components"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
-const FieldContainer = styled.div`
+const courseInstanceGroupCss = css`
   margin-bottom: 1.5rem;
 `
 
@@ -30,6 +30,15 @@ const GreenText = styled.span`
 
 const AdditionalQuestionWrapper = styled.div`
   margin: 0.5rem 0;
+`
+
+/** Matches the radio group's legend, so the two question blocks in the dialog read as siblings. */
+const additionalQuestionsHeadingCss = css`
+  color: var(--field-label);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 var(--space-2);
 `
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -151,58 +160,44 @@ const SelectCourseInstanceForm: React.FC<
 
   return (
     <div>
-      <h2 data-testid="select-course-instance-heading">
-        {t("title-select-course-instance")}
-        <GreenText>*</GreenText>
-      </h2>
-      <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
-        {courseInstances.map((courseInstance) => (
-          <div key={courseInstance.id}>
-            <Radio
-              className={css`
-                span {
-                  font-weight: 500;
-                }
-              `}
-              key={courseInstance.id}
-              {...(courseInstance.name === null
-                ? // oxlint-disable-next-line i18next/no-literal-string
-                  { "data-testid": "default-course-instance-radiobutton" }
-                : undefined)}
-              label={courseInstance.name || t("default-course-instance-name")}
-              name="select-course-instance"
-              value={courseInstance.id}
-              checked={courseInstanceId === courseInstance.id}
-              onChange={() => setValue("courseInstanceId", courseInstance.id)}
-            />
-            <span
-              className={css`
-                font-size: 15px;
-                display: flex;
-                margin-top: -0.4rem;
-              `}
-            >
-              {courseInstance.description}
-            </span>
-          </div>
-        ))}
-      </FieldContainer>
-      <div
-        className={css`
-          margin-top: 1rem;
-          margin-bottom: 1rem;
-          color: ${baseTheme.colors.gray[600]};
-        `}
+      <RadioGroup
+        name="courseInstanceId"
+        control={control}
+        data-testid="select-course-instance-heading"
+        className={courseInstanceGroupCss}
+        isRequired
+        label={
+          <>
+            {t("title-select-course-instance")}
+            <GreenText>*</GreenText>
+          </>
+        }
+        description={
+          <>
+            <GreenText>*</GreenText> {t("select-course-instance-explanation")}
+          </>
+        }
       >
-        <GreenText>*</GreenText> {t("select-course-instance-explanation")}
-      </div>
+        {courseInstances.map((courseInstance) => (
+          <Radio
+            key={courseInstance.id}
+            {...(courseInstance.name === null
+              ? // oxlint-disable-next-line i18next/no-literal-string
+                { "data-testid": "default-course-instance-radiobutton" }
+              : undefined)}
+            label={courseInstance.name || t("default-course-instance-name")}
+            description={courseInstance.description}
+            value={courseInstance.id}
+          />
+        ))}
+      </RadioGroup>
       {courseInstanceId !== undefined && additionalQuestions && additionalQuestions.length > 0 && (
         <div
           className={css`
             margin-bottom: 1rem;
           `}
         >
-          <h2>{t("title-additional-questions")}</h2>
+          <h2 className={additionalQuestionsHeadingCss}>{t("title-additional-questions")}</h2>
           {additionalQuestions.map((additionalQuestion, index) => {
             const fieldId = answerFields[index]?.id ?? additionalQuestion.id
             if (additionalQuestion.question_type === "Checkbox") {

@@ -170,48 +170,42 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       // Settings must be completed explicitly: no close button, and closing on Escape is a no-op.
       onClose={() => {}}
       title={t("title-course-settings")}
-      padding="none"
       showCloseButton={false}
       lang={dialogLanguage}
     >
-      <div
-        className={css`
-          padding: 2rem clamp(1rem, 5vw, 3rem);
-        `}
-      >
-        {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
-        {pageId && selectedLangCourseId && (
-          <SelectCourseLanguage
-            selectedLangCourseId={selectedLangCourseId}
-            setSelectedLangCourseId={setSelectedLangCourseId}
-            setDialogLanguage={setDialogLanguage}
-            dialogLanguage={dialogLanguage}
-            currentPageId={pageId}
-          />
-        )}
-        {selectedLangCourseId && viewStatus === "ready" && (
-          <QueryResult query={getCourseInstances} treatEmptyAsData>
-            {(courseInstances) => {
-              const initialSelectedInstanceId =
-                materialSettings?.current_course_instance_id ?? materialInstance?.id
-              return (
-                <SelectCourseInstanceForm
-                  courseInstances={courseInstances}
-                  submitMutation={handleSubmitAndCloseMutation}
-                  {...omitUndefined({ initialSelectedInstanceId })}
-                  dialogLanguage={dialogLanguage}
-                  selectedLangCourseId={selectedLangCourseId}
-                />
-              )
-            }}
-          </QueryResult>
-        )}
-      </div>
+      {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
+      {pageId && selectedLangCourseId && (
+        <SelectCourseLanguage
+          selectedLangCourseId={selectedLangCourseId}
+          setSelectedLangCourseId={setSelectedLangCourseId}
+          setDialogLanguage={setDialogLanguage}
+          dialogLanguage={dialogLanguage}
+          currentPageId={pageId}
+        />
+      )}
+      {selectedLangCourseId && viewStatus === "ready" && (
+        <QueryResult query={getCourseInstances} treatEmptyAsData>
+          {(courseInstances) => {
+            const initialSelectedInstanceId =
+              materialSettings?.current_course_instance_id ?? materialInstance?.id
+            return (
+              <SelectCourseInstanceForm
+                courseInstances={courseInstances}
+                submitMutation={handleSubmitAndCloseMutation}
+                {...omitUndefined({ initialSelectedInstanceId })}
+                dialogLanguage={dialogLanguage}
+                selectedLangCourseId={selectedLangCourseId}
+              />
+            )
+          }}
+        </QueryResult>
+      )}
 
       {languageChanged && (
         <div
           className={css`
             background: ${baseTheme.colors.green[100]};
+            margin-top: 1.5rem;
             min-height: 57px;
             display: flex;
             justify-content: center;

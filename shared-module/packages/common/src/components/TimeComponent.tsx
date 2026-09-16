@@ -46,34 +46,42 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
           testPlaceholder="1970-01-01 00:00"
         />
       </span>
-      <Button
-        size="small"
-        aria-label={dateToString(date, true)}
+      <span
         className={css`
           position: relative;
           display: inline-flex;
 
-          &:hover > div,
-          &:focus-visible > div {
+          &:has(button:hover) > div,
+          &:has(button:hover) > div {
             visibility: visible;
             opacity: 1;
             transition: opacity 0.3s ease;
           }
         `}
-        variant={"icon"}
       >
-        <InfoCircle size={18} />
+        <Button
+          size="small"
+          aria-label={dateToString(date, true)}
+          className={css`
+            position: relative;
+          `}
+          variant={"icon"}
+        >
+          <InfoCircle size={18} />
+        </Button>
         <SpeechBalloon
           className={css`
             position: absolute;
             bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
             visibility: hidden;
             opacity: 0;
           `}
         >
           <p> {dateToString(date, true)} </p>
         </SpeechBalloon>
-      </Button>
+      </span>
     </span>
   )
 }

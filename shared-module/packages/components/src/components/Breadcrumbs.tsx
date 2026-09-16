@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx, keyframes } from "@emotion/css"
-import React, { useEffect, useId } from "react"
+import React, { useId } from "react"
 import {
   useBreadcrumbItem,
   useBreadcrumbs,
@@ -11,7 +11,6 @@ import {
 } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { below } from "../styles/breakpoints"
 import { Link } from "./Link"
 
 export type BreadcrumbItem =
@@ -40,8 +39,6 @@ export interface BreadcrumbsProps {
 const SEPARATOR_LTR = "›"
 const SEPARATOR_RTL = "‹"
 
-const SCROLL_CURRENT_INTO_VIEW_OPTIONS: ScrollIntoViewOptions = { inline: "end", block: "nearest" }
-
 const shimmer = keyframes`
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -54,26 +51,23 @@ const navCss = css`
 const listCss = css`
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
   min-inline-size: 0;
-  overflow-x: auto;
-
-  ${below("sm")} {
-    scroll-snap-type: inline mandatory;
-  }
 `
 
+// Crumbs stay shrinkable on purpose: one wider than a line has to ellipsise rather than push the
+// trail past the viewport edge.
 const itemCss = css`
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  flex: none;
+  min-inline-size: 0;
+  max-inline-size: 100%;
   min-block-size: var(--control-height-sm);
-  scroll-snap-align: start;
 `
 
 const crumbTextCss = css`
@@ -246,16 +240,6 @@ function CurrentCrumb({
     { children: label, isCurrent: true, elementType: currentAs },
     ref,
   )
-
-  useEffect(() => {
-    const node = ref.current
-    if (!node || typeof node.scrollIntoView !== "function") {
-      return
-    }
-    node.scrollIntoView(SCROLL_CURRENT_INTO_VIEW_OPTIONS)
-    // ref's identity never changes, so label is what actually triggers a re-scroll when a
-    // client-side navigation swaps in a longer crumb at the same depth without remounting this.
-  }, [label, ref])
 
   return React.createElement(
     currentAs,

@@ -13,12 +13,12 @@ import {
   setCourseChatbotAsNonDefaultMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import { Button, QueryResult } from "@/shared-module/components"
 import { CardList, CardListItem } from "@/styles/styles"
 
 import CreateChatbotDialog from "./CreateChatbotDialog"
+import { pageTitleCss, sectionHeadingCss } from "./styles"
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -72,21 +72,14 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     setCreateChatbotVisible(false)
   }
 
-  // use memo for sorting to sort once
   const content = (
     <>
       <div
         className={css`
           margin-bottom: 2.5rem;
-          .heading {
-            font-size: ${typography.h4};
-            color: ${baseTheme.colors.gray[700]};
-            font-family: ${headingFont};
-            font-weight: bold;
-          }
         `}
       >
-        <h1 className="heading">{t("chatbots")}</h1>
+        <h1 className={pageTitleCss}>{t("chatbots")}</h1>
         <Button
           size="medium"
           variant="secondary"
@@ -98,7 +91,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         </Button>
       </div>
       <div>
-        <h2>{t("customize-chatbot")}</h2>
+        <h2 className={sectionHeadingCss}>{t("customize-chatbot")}</h2>
         <CardList>
           {sortedChatbotsList.map((bot) => (
             <CardListItem key={bot.id}>

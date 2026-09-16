@@ -127,7 +127,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <div className={sectionsCss}>
       <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
-      <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />
+      <RouteTabList tabs={tabs} className={flushTabListCss} />
       {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
       <CreditRegistrationAlertBanner />
       {children}

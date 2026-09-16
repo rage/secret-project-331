@@ -109,7 +109,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
 
   return (
     <TabsContext.Provider value={{ state, basePath, isCurrentRouteATab: currentTab !== undefined }}>
-      <TabStrip state={state} orientation={orientation} selectedKey={selectedKey}>
+      <TabStrip state={state} orientation={orientation}>
         {tabChildren}
       </TabStrip>
       {panelChildren}

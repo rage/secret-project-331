@@ -15,6 +15,15 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Checkbox, TextField } from "@/shared-module/components"
 import type { ExerciseServiceInfoApi } from "@/utils/playgroundSchemas"
 
+const serviceInfoStatusRow = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding-left: 1rem;
+`
+
 interface PlayGroundSettingsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
   serviceInfoQuery: UseQueryResult<ExerciseServiceInfoApi, unknown>
@@ -39,34 +48,18 @@ const PlayGroundSettings: React.FC<PlayGroundSettingsProps> = ({
         <TextField name="url" control={control} label={t("service-info-url")} />
         {serviceInfoQuery.isError && t("error-fetching-service-info")}
         {!serviceInfoQuery.isLoading && (
-          <div
-            className={css`
-              margin-top: -0.7rem;
-              margin-bottom: 0.2rem;
-              padding-left: 1rem;
-            `}
-          >
+          <div className={serviceInfoStatusRow}>
             {isValidServiceInfo ? (
               <CheckCircle color={baseTheme.colors.green[400]} size={16} />
             ) : (
               <BellXmark color={baseTheme.colors.red[500]} size={16} />
             )}
-
-            <span
-              className={css`
-                margin: 0 0.5rem;
-              `}
-            >
-              {isValidServiceInfo ? t("valid-service-info") : t("invalid-service-info")}
-            </span>
+            <span>{isValidServiceInfo ? t("valid-service-info") : t("invalid-service-info")}</span>
             <DebugModal data={serviceInfoQuery.data} buttonSize="small" />
             {url !== DEFAULT_SERVICE_INFO_URL && (
               <Button
                 variant={"secondary"}
                 size={"small"}
-                className={css`
-                  margin-left: 0.5rem;
-                `}
                 onClick={() => {
                   settingsForm.setValue("url", DEFAULT_SERVICE_INFO_URL)
                 }}

@@ -128,6 +128,15 @@ const ServiceInfoUrlGridArea = styled.div`
   grid-area: service-info-url;
 `
 
+const serviceInfoStatusRow = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding-left: 1rem;
+`
+
 const MiscSettingsGridArea = styled.div`
   grid-area: misc-settings;
 `
@@ -416,24 +425,13 @@ const IframeViewPlayground: React.FC = () => {
             <TextField name="url" control={control} label={t("service-info-url")} />
             {serviceInfoQuery.isError && t("error-fetching-service-info")}
             {!serviceInfoQuery.isLoading && (
-              <div
-                className={css`
-                  margin-top: -0.7rem;
-                  margin-bottom: 0.2rem;
-                  padding-left: 1rem;
-                `}
-              >
+              <div className={serviceInfoStatusRow}>
                 {isValidServiceInfo ? (
                   <CheckCircle color={baseTheme.colors.green[400]} size={16} />
                 ) : (
                   <BellXmark color={baseTheme.colors.red[500]} size={16} />
                 )}
-
-                <span
-                  className={css`
-                    margin: 0 0.5rem;
-                  `}
-                >
+                <span>
                   {isValidServiceInfo ? t("valid-service-info") : t("invalid-service-info")}
                 </span>
                 <DebugModal data={serviceInfoQuery.data} buttonSize="small" />
@@ -441,9 +439,6 @@ const IframeViewPlayground: React.FC = () => {
                   <Button
                     variant={"secondary"}
                     size={"small"}
-                    className={css`
-                      margin-left: 0.5rem;
-                    `}
                     onClick={() => {
                       setValue("url", DEFAULT_SERVICE_INFO_URL)
                     }}

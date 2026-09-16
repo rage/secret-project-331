@@ -24,7 +24,7 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
   await page.locator("[aria-label=\"Manage course \\'Course Modules\\'\"] path").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244",
+    "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244/overview",
   )
   await page.getByRole("tab", { name: "Modules" }).click()
   await expect(page).toHaveURL(

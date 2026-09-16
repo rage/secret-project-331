@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { breadcrumbBarCss } from "@/components/breadcrumbs/breadcrumbBarCss"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import { getCourseMaterialPageChapterAndCourseInformation } from "@/generated/course-material-api/sdk.generated"
 import type {
@@ -86,7 +87,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
 
         return (
           <BreakFromCentered sidebar={false}>
-            <Breadcrumbs items={items} />
+            <Breadcrumbs items={items} className={breadcrumbBarCss} />
           </BreakFromCentered>
         )
       }}

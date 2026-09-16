@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useAtomValue } from "jotai"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -8,6 +7,7 @@ import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Breadcrumbs, type BreadcrumbItem } from "@/shared-module/components"
 
 import { breadcrumbCrumbsAtom } from "./breadcrumbAtoms"
+import { breadcrumbBarCss } from "./breadcrumbBarCss"
 
 /** Renders the trail accumulated by `useRegisterBreadcrumbs` across the active layouts. */
 export default function BreadcrumbRenderer() {
@@ -27,15 +27,7 @@ export default function BreadcrumbRenderer() {
 
   return (
     <BreakFromCentered sidebar={false}>
-      <Breadcrumbs items={items} className={wrapper} />
+      <Breadcrumbs items={items} className={breadcrumbBarCss} />
     </BreakFromCentered>
   )
 }
-
-const wrapper = css`
-  padding: 1rem 2rem;
-
-  &:nth-of-type(n + 2) {
-    margin-top: 2.5rem;
-  }
-`

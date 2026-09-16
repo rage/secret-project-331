@@ -7,11 +7,19 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Table } from "@/shared-module/components"
 
 interface Props {
   courseId: string
 }
+
+const rootCss = css`
+  margin: 0 auto;
+
+  ${respondToOrLarger.sm} {
+    padding-top: 100px;
+  }
+`
 
 const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -27,74 +35,25 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
   })
 
   const renderGlossary = (data: NonNullable<typeof glossary.data>) => (
-    <div
-      className={css`
-        margin: 0 auto;
-        a {
-          text-decoration: none;
-          color: #007bff;
-          :hover {
-            text-decoration: underline;
-          }
-        }
-        ${respondToOrLarger.sm} {
-          padding-top: 100px;
-        }
-      `}
-    >
-      <h1
-        className={css`
-          margin-bottom: 40px;
-          text-transform: uppercase;
-        `}
-      >
-        {t("glossary")}
-      </h1>
-      <table
-        className={css`
-          text-align: left;
-          border-spacing: 5px;
-          th {
-            padding: 20px;
-            background: #8fb4b1;
-          }
-          td {
-            vertical-align: top;
-            padding: 20px;
-          }
-          tr:nth-child(2n) {
-            background: #1f696466;
-          }
-          tr:nth-child(2n + 1) {
-            background: #1f696433;
-          }
-        `}
-      >
-        <thead>
-          <tr>
-            <th>{t("term")}</th>
-            <th
-              className={css`
-                width: 100%;
-              `}
-            >
-              {t("definition")}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data
-            .toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
-            .map((entry) => {
-              return (
-                <tr key={entry.id}>
-                  <td>{entry.term}</td>
-                  <td>{entry.definition}</td>
-                </tr>
-              )
-            })}
-        </tbody>
-      </table>
+    <div className={rootCss}>
+      <h1>{t("glossary")}</h1>
+      <Table
+        caption={t("glossary")}
+        rows={data.toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))}
+        rowKey={(entry) => entry.id}
+        columns={[
+          {
+            header: t("term"),
+            minWidth: "8rem",
+            cell: (entry) => entry.term,
+          },
+          {
+            header: t("definition"),
+            grow: 1,
+            cell: (entry) => entry.definition,
+          },
+        ]}
+      />
     </div>
   )
 

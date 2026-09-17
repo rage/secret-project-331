@@ -48,7 +48,7 @@ fn response_format() -> LLMRequestResponseFormatParam {
     }
 }
 
-fn format_category_list(categories: &Vec<FeedbackCategory>) -> String {
+fn format_category_list(categories: &[FeedbackCategory]) -> String {
     let c = categories
         .iter()
         .map(|c| c.name.to_owned())
@@ -92,7 +92,7 @@ pub async fn categorize_feedback(
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
     feedback: &NewFeedback,
-    categories: &Vec<FeedbackCategory>,
+    categories: &[FeedbackCategory],
 ) -> ChatbotResult<FeedbackCategorisationResponse> {
     let prompt =
         SYSTEM_PROMPT.to_string() + &format_category_list(categories) + &format_feedback(feedback);

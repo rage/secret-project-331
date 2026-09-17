@@ -94,6 +94,9 @@ export type DeleteUserAccountResult =
       type: "invalid_code"
     }
   | {
+      type: "expired_code"
+    }
+  | {
       type: "too_many_attempts"
     }
   | {

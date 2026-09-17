@@ -27,6 +27,9 @@ export const zDeleteUserAccountResult = z.union([
     type: z.enum(["invalid_code"]),
   }),
   z.object({
+    type: z.enum(["expired_code"]),
+  }),
+  z.object({
     type: z.enum(["too_many_attempts"]),
   }),
   z.object({

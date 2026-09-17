@@ -78,12 +78,15 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
-pub async fn get_unused_user_email_code_with_user_id(
+/// The user's outstanding code for `purpose`, whether or not it has expired.
+///
+/// Use this to tell a timed out code apart from one that was never requested, spent or retired;
+/// [`get_unused_user_email_code_with_user_id`] returns nothing for all of those.
+pub async fn get_outstanding_user_email_code(
     conn: &mut PgConnection,
     user_id: Uuid,
     purpose: UserEmailCodePurpose,
 ) -> ModelResult<Option<UserEmailCode>> {
-    let now = Utc::now();
     let record = sqlx::query_as!(
         UserEmailCode,
         r#"
@@ -102,16 +105,24 @@ WHERE user_id = $1
   AND purpose = $2
   AND deleted_at IS NULL
   AND used_at IS NULL
-  AND expires_at > $3
         "#,
         user_id,
         purpose as UserEmailCodePurpose,
-        now
     )
     .fetch_optional(conn)
     .await?;
 
     Ok(record)
+}
+
+/// The user's code for `purpose` if one is still usable right now.
+pub async fn get_unused_user_email_code_with_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<Option<UserEmailCode>> {
+    let code = get_outstanding_user_email_code(conn, user_id, purpose).await?;
+    Ok(code.filter(|code| code.expires_at > Utc::now()))
 }
 
 pub async fn is_reset_user_email_code_valid(

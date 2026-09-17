@@ -875,9 +875,12 @@ pub struct EmailCode {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum DeleteUserAccountResult {
     Deleted,
-    /// Wrong, expired, superseded and spent are one value: they are indistinguishable to someone
-    /// typing digits, and telling them apart only helps a guesser.
+    /// Wrong, superseded and spent are one value: they are indistinguishable to someone typing
+    /// digits, and telling them apart only helps a guesser.
     InvalidCode,
+    /// The outstanding code timed out. Read off that code's own expiry, so it reveals nothing about
+    /// what was typed.
+    ExpiredCode,
     /// The code was retired after too many wrong guesses; only a new code can get past this.
     TooManyAttempts,
     /// tmc.mooc.fi could not be reached. Nothing was deleted and retrying is safe.
@@ -979,6 +982,22 @@ pub async fn delete_user_account(
     .await?;
 
     if !code_ok {
+        let outstanding = user_email_codes::get_outstanding_user_email_code(
+            &mut conn,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+        )
+        .await?;
+        // Before counting the guess: attempts against a code that can no longer be spent would
+        // only strand the user on "too many attempts" for a code they have to replace anyway.
+        if outstanding.is_some_and(|code| code.expires_at <= Utc::now()) {
+            info!(
+                "User {} attempted account deletion with an expired code",
+                auth_user.id
+            );
+            return token.authorized_ok(web::Json(DeleteUserAccountResult::ExpiredCode));
+        }
+
         info!(
             "User {} attempted account deletion with incorrect code",
             auth_user.id

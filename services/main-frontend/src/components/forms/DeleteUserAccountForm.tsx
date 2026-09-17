@@ -88,6 +88,9 @@ const DeleteUserAccountForm: React.FC = () => {
           case "invalid_code":
             setCodeErrorMessage(t("incorrect-code"))
             break
+          case "expired_code":
+            setCodeErrorMessage(t("delete-account-code-expired"))
+            break
           case "too_many_attempts":
             setCodeErrorMessage(t("delete-account-too-many-attempts"))
             break

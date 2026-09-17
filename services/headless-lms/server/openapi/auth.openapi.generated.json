@@ -542,12 +542,23 @@
           },
           {
             "type": "object",
-            "description": "Wrong, expired, superseded and spent are one value: they are indistinguishable to someone\ntyping digits, and telling them apart only helps a guesser.",
+            "description": "Wrong, superseded and spent are one value: they are indistinguishable to someone typing\ndigits, and telling them apart only helps a guesser.",
             "required": ["type"],
             "properties": {
               "type": {
                 "type": "string",
                 "enum": ["invalid_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The outstanding code timed out. Read off that code's own expiry, so it reveals nothing about\nwhat was typed.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["expired_code"]
               }
             }
           },

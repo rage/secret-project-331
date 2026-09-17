@@ -16,7 +16,7 @@ pub struct NewFeedbackCategory {
 }
 
 pub async fn insert(conn: &mut PgConnection, category: NewFeedbackCategory) -> ModelResult<Uuid> {
-    if let Some(c) = get_by_name(conn, &category.name).await.ok() {
+    if let Some(c) = get_by_name(conn, &category.name).await? {
         return Ok(c.id);
     };
 
@@ -35,7 +35,10 @@ RETURNING *
     Ok(res.id)
 }
 
-pub async fn get_by_name(conn: &mut PgConnection, name: &String) -> ModelResult<FeedbackCategory> {
+pub async fn get_by_name(
+    conn: &mut PgConnection,
+    name: &String,
+) -> ModelResult<Option<FeedbackCategory>> {
     let res = sqlx::query_as!(
         FeedbackCategory,
         "
@@ -46,7 +49,7 @@ WHERE name = $1
         ",
         name
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
     Ok(res)

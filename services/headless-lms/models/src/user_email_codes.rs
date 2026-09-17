@@ -173,13 +173,16 @@ WHERE user_id = $1
 ///
 /// Keyed on the user and purpose rather than on what was typed: there is only ever one live code, so
 /// any refused guess is a guess against it.
+///
+/// Returns whether this guess retired the code, which is a caller's cue to send the user for a new
+/// one rather than another attempt. Also false when there was no live code to count against.
 pub async fn record_failed_attempt(
     conn: &mut PgConnection,
     user_id: Uuid,
     purpose: UserEmailCodePurpose,
     max_attempts: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<bool> {
+    let record = sqlx::query!(
         r#"
 UPDATE user_email_codes
 SET attempt_count = attempt_count + 1,
@@ -191,13 +194,14 @@ WHERE user_id = $1
   AND purpose = $2
   AND deleted_at IS NULL
   AND used_at IS NULL
+RETURNING deleted_at IS NOT NULL AS "retired!"
         "#,
         user_id,
         purpose as UserEmailCodePurpose,
         max_attempts,
     )
-    .execute(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(())
+    Ok(record.is_some_and(|record| record.retired))
 }

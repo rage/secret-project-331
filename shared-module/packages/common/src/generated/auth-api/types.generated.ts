@@ -83,6 +83,27 @@ export type CreateAccountDetails = {
   password_confirmation: string
 }
 
+/**
+ * Outcome of spending an account deletion code.
+ */
+export type DeleteUserAccountResult =
+  | {
+      type: "deleted"
+    }
+  | {
+      type: "invalid_code"
+    }
+  | {
+      type: "too_many_attempts"
+    }
+  | {
+      type: "upstream_unavailable"
+    }
+  | {
+      reference: string
+      type: "upstream_rejected"
+    }
+
 export type EmailCode = {
   code: string
 }
@@ -181,8 +202,22 @@ export type Resource =
       type: "exercise_service"
     }
 
+/**
+ * Outcome of asking for an account deletion code.
+ */
+export type SendDeleteUserEmailCodeResult =
+  | {
+      type: "queued"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
+  | {
+      type: "incorrect_password"
+    }
+
 export type SendEmailCodeData = {
-  email: string
   language: string
   password: string
 }
@@ -263,9 +298,9 @@ export type PostAuthDeleteUserAccountData = {
 
 export type PostAuthDeleteUserAccountResponses = {
   /**
-   * Whether the account was deleted
+   * Outcome of submitting the code
    */
-  200: boolean
+  200: DeleteUserAccountResult
 }
 
 export type PostAuthDeleteUserAccountResponse =
@@ -326,9 +361,9 @@ export type PostAuthSendEmailCodeData = {
 
 export type PostAuthSendEmailCodeResponses = {
   /**
-   * Whether a deletion code email was queued
+   * What the request did
    */
-  200: boolean
+  200: SendDeleteUserEmailCodeResult
 }
 
 export type PostAuthSendEmailCodeResponse =

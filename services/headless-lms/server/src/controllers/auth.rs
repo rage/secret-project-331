@@ -8,6 +8,7 @@ use crate::{
     domain::{
         authentication,
         authorization::{ActionOnResource, is_permitted, is_user_global_admin, skip_authorize},
+        email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
@@ -15,6 +16,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
+use chrono::Duration;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
@@ -22,8 +24,8 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     cache::Cache,
-    prelude::UtilErrorType,
-    services::tmc::{NewUserInfo, TmcClient},
+    prelude::{UtilError, UtilErrorType},
+    services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use tracing_log::log;
@@ -761,10 +763,21 @@ pub async fn user_info(
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct SendEmailCodeData {
-    pub email: String,
     #[schema(value_type = String)]
     pub password: SecretString,
     pub language: String,
+}
+
+/// Outcome of asking for an account deletion code.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SendDeleteUserEmailCodeResult {
+    Queued,
+    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.
+    RecentlySent {
+        retry_after_seconds: i64,
+    },
+    IncorrectPassword,
 }
 
 /**
@@ -777,78 +790,77 @@ POST `/api/v0/auth/send-email-code` If users password is correct, sends a code t
     operation_id = "postAuthSendEmailCode",
     request_body = SendEmailCodeData,
     responses(
-        (status = 200, description = "Whether a deletion code email was queued", body = bool)
+        (status = 200, description = "What the request did", body = SendDeleteUserEmailCodeResult)
     )
 )]
 #[instrument(skip(pool, payload, auth_user))]
-#[allow(clippy::async_yields_async)]
 pub async fn send_delete_user_email_code(
-    auth_user: Option<AuthUser>,
+    auth_user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<SendEmailCodeData>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<SendDeleteUserEmailCodeResult>> {
     let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
 
-    // Check user credentials
-    if let Some(auth_user) = auth_user {
-        let mut conn = pool.acquire().await?;
+    let password_ok =
+        user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password).await?;
 
-        let password_ok =
-            user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password)
-                .await?;
-
-        if !password_ok {
-            info!(
-                "User {} attempted account deletion with incorrect password",
-                auth_user.id
-            );
-
-            return token.authorized_ok(web::Json(false));
-        }
-
-        let language = &payload.language;
-
-        // Get user deletion email template
-        let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
-            &mut conn,
-            EmailTemplateType::DeleteUserEmail,
-            language,
-        )
-        .await
-        .map_err(|_e| {
-            anyhow::anyhow!(
-                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
-                language
-            )
-        })?;
-
-        let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
-
-        let code = match models::user_email_codes::get_unused_user_email_code_with_user_id(
-            &mut conn,
-            auth_user.id,
-            UserEmailCodePurpose::AccountDeletion,
-        )
-        .await?
-        {
-            Some(existing) => existing.code,
-            None => models::user_email_codes::generate_code(),
-        };
-
-        models::user_email_codes::insert_user_email_code(
-            &mut conn,
-            auth_user.id,
-            UserEmailCodePurpose::AccountDeletion,
-            &code,
-        )
-        .await?;
-        let _ =
-            models::email_deliveries::insert_email_delivery(&mut conn, user.id, delete_template.id)
-                .await?;
-
-        return token.authorized_ok(web::Json(true));
+    if !password_ok {
+        info!(
+            "User {} attempted account deletion with incorrect password",
+            auth_user.id
+        );
+        return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::IncorrectPassword));
     }
-    token.authorized_ok(web::Json(false))
+
+    let live_code = user_email_codes::get_unused_user_email_code_with_user_id(
+        &mut conn,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+    )
+    .await?;
+    if let Some(live_code) = live_code {
+        let retry_after_seconds =
+            (live_code.created_at + Duration::minutes(MIN_RESEND_INTERVAL_MINUTES) - Utc::now())
+                .num_seconds();
+        if retry_after_seconds > 0 {
+            return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::RecentlySent {
+                retry_after_seconds,
+            }));
+        }
+    }
+
+    let language = &payload.language;
+    let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
+        &mut conn,
+        EmailTemplateType::DeleteUserEmail,
+        language,
+    )
+    .await
+    .map_err(|_e| {
+        anyhow::anyhow!(
+            "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
+            language
+        )
+    })?;
+
+    // A fresh code every time: mailing the outstanding one again would keep a single code alive for
+    // as long as the user kept pressing resend.
+    let code = user_email_codes::generate_code();
+
+    let mut tx = conn.begin().await?;
+    user_email_codes::insert_user_email_code(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &code,
+    )
+    .await?;
+    models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+        .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::Queued))
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -856,6 +868,80 @@ pub async fn send_delete_user_email_code(
 pub struct EmailCode {
     #[schema(value_type = String)]
     pub code: DbSecret,
+}
+
+/// Outcome of spending an account deletion code.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum DeleteUserAccountResult {
+    Deleted,
+    /// Wrong, expired, superseded and spent are one value: they are indistinguishable to someone
+    /// typing digits, and telling them apart only helps a guesser.
+    InvalidCode,
+    /// The code was retired after too many wrong guesses; only a new code can get past this.
+    TooManyAttempts,
+    /// tmc.mooc.fi could not be reached. Nothing was deleted and retrying is safe.
+    UpstreamUnavailable,
+    /// tmc.mooc.fi refused the deletion. `reference` identifies the recorded error, and is the only
+    /// thing the user can hand to support.
+    UpstreamRejected {
+        reference: Uuid,
+    },
+}
+
+/// How a failed TMC delete should be treated. The upstream status is what separates a retry that
+/// may work from one that never will.
+enum TmcDeletionFailure {
+    /// TMC has no such account, so the local deletion is still the right thing to do.
+    AlreadyGone,
+    Transient,
+    Rejected,
+}
+
+fn classify_tmc_deletion_failure(error: &UtilError) -> TmcDeletionFailure {
+    match error.error_type() {
+        // The request never completed, so TMC provably did not act on it.
+        UtilErrorType::TmcHttpError => TmcDeletionFailure::Transient,
+        // The deletion contract reports an unknown user in the body, but deployments predating it
+        // answer a bare 404.
+        UtilErrorType::TmcHttpStatusError(404) => TmcDeletionFailure::AlreadyGone,
+        UtilErrorType::TmcHttpStatusError(429) => TmcDeletionFailure::Transient,
+        UtilErrorType::TmcHttpStatusError(status) if *status >= 500 => {
+            TmcDeletionFailure::Transient
+        }
+        _ => TmcDeletionFailure::Rejected,
+    }
+}
+
+/// Records a TMC refusal under `reference` in `error_variants`/`error_occurrences`, so support can
+/// find it from the reference alone.
+///
+/// Best effort: the deletion has already failed, and failing to record that must not turn a
+/// reported outcome into a 500.
+async fn report_tmc_deletion_rejection(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    reference: Uuid,
+    error: &UtilError,
+) {
+    let report = models::errors::NewErrorReport {
+        service: "headless-lms".to_string(),
+        error_source: Some(models::errors::ErrorSource::Backend),
+        message: format!(
+            "TMC refused to delete the account of user {user_id} (reference {reference}): {error}"
+        ),
+        stack_trace: Some(format!("{error:?}")),
+        path: None,
+        app_version: None,
+        details: Some(serde_json::json!({
+            "kind": "tmc_account_deletion_rejected",
+            "reference": reference,
+            "user_id": user_id,
+        })),
+    };
+    if let Err(e) = models::errors::insert(conn, Some(user_id), &report).await {
+        warn!("Could not record TMC account deletion rejection {reference}: {e}");
+    }
 }
 
 /**
@@ -868,80 +954,116 @@ POST `/api/v0/auth/delete-user-account` If users single-use code is correct then
     operation_id = "postAuthDeleteUserAccount",
     request_body = EmailCode,
     responses(
-        (status = 200, description = "Whether the account was deleted", body = bool)
+        (status = 200, description = "Outcome of submitting the code", body = DeleteUserAccountResult)
     )
 )]
 #[instrument(skip(pool, payload, auth_user, session, cache, app_conf))]
-#[allow(clippy::async_yields_async)]
 pub async fn delete_user_account(
-    auth_user: Option<AuthUser>,
+    auth_user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<EmailCode>,
     session: Session,
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     cache: web::Data<Cache>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<web::Json<DeleteUserAccountResult>> {
     let token = skip_authorize();
-    if let Some(auth_user) = auth_user {
-        let mut conn = pool.acquire().await?;
+    let mut conn = pool.acquire().await?;
 
-        // Check users code is valid
-        let code_ok = user_email_codes::is_reset_user_email_code_valid(
+    let code_ok = user_email_codes::is_reset_user_email_code_valid(
+        &mut conn,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &payload.code,
+    )
+    .await?;
+
+    if !code_ok {
+        info!(
+            "User {} attempted account deletion with incorrect code",
+            auth_user.id
+        );
+        let code_retired = user_email_codes::record_failed_attempt(
             &mut conn,
             auth_user.id,
             UserEmailCodePurpose::AccountDeletion,
-            &payload.code,
+            MAX_CODE_ATTEMPTS,
         )
         .await?;
-
-        if !code_ok {
-            info!(
-                "User {} attempted account deletion with incorrect code",
-                auth_user.id
-            );
-            return token.authorized_ok(web::Json(false));
-        }
-
-        let mut tx = conn.begin().await?;
-        let user = users::get_by_id(&mut tx, auth_user.id).await?;
-
-        // Delete user from TMC if they have upstream_id
-        if let Some(upstream_id) = user.upstream_id {
-            let upstream_id_str = upstream_id.to_string();
-            let tmc_success = tmc_client
-                .delete_user_from_tmc(upstream_id_str)
-                .await
-                .unwrap_or(false);
-
-            if !tmc_success {
-                info!("TMC deletion failed for user {}", auth_user.id);
-                return token.authorized_ok(web::Json(false));
-            }
-        }
-
-        // Delete user locally and mark email code as used
-        delete_user_and_invalidate_cached_tokens(
-            &mut tx,
-            &cache,
-            &app_conf.oauth_server_configuration.oauth_token_hmac_key,
-            auth_user.id,
-        )
-        .await?;
-        user_email_codes::mark_user_email_code_used(
-            &mut tx,
-            auth_user.id,
-            UserEmailCodePurpose::AccountDeletion,
-            &payload.code,
-        )
-        .await?;
-
-        tx.commit().await?;
-        authentication::forget(&session);
-        token.authorized_ok(web::Json(true))
-    } else {
-        return token.authorized_ok(web::Json(false));
+        return token.authorized_ok(web::Json(if code_retired {
+            DeleteUserAccountResult::TooManyAttempts
+        } else {
+            DeleteUserAccountResult::InvalidCode
+        }));
     }
+
+    let user = users::get_by_id(&mut conn, auth_user.id).await?;
+
+    // Outside the transaction below: this can wait minutes on tmc.mooc.fi, and a transaction held
+    // open that long pins a pool connection with it.
+    if let Some(upstream_id) = user.upstream_id
+        && !app_conf.test_mode
+    {
+        match tmc_client
+            .delete_user_from_tmc(upstream_id.to_string())
+            .await
+        {
+            Ok(TmcAccountDeletion::Deleted) => {}
+            Ok(TmcAccountDeletion::AlreadyDeleted) => {
+                info!(
+                    "TMC reported account {upstream_id} of user {} as already deleted; deleting locally anyway",
+                    auth_user.id
+                );
+            }
+            Err(error) => match classify_tmc_deletion_failure(&error) {
+                TmcDeletionFailure::AlreadyGone => {
+                    info!(
+                        "TMC has no account {upstream_id} for user {}; deleting locally anyway: {error}",
+                        auth_user.id
+                    );
+                }
+                TmcDeletionFailure::Transient => {
+                    warn!(
+                        "TMC was unavailable while deleting the account of user {}: {error}",
+                        auth_user.id
+                    );
+                    return token
+                        .authorized_ok(web::Json(DeleteUserAccountResult::UpstreamUnavailable));
+                }
+                TmcDeletionFailure::Rejected => {
+                    let reference = Uuid::new_v4();
+                    error!(
+                        "TMC refused to delete the account of user {} (reference {reference}): {error}",
+                        auth_user.id
+                    );
+                    report_tmc_deletion_rejection(&mut conn, auth_user.id, reference, &error).await;
+                    return token.authorized_ok(web::Json(
+                        DeleteUserAccountResult::UpstreamRejected { reference },
+                    ));
+                }
+            },
+        }
+    }
+
+    let mut tx = conn.begin().await?;
+    delete_user_and_invalidate_cached_tokens(
+        &mut tx,
+        &cache,
+        &app_conf.oauth_server_configuration.oauth_token_hmac_key,
+        auth_user.id,
+    )
+    .await?;
+    user_email_codes::mark_user_email_code_used(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &payload.code,
+    )
+    .await?;
+    tx.commit().await?;
+
+    authentication::forget(&session);
+    token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
 }
 
 pub async fn update_user_information_to_tmc(
@@ -1174,7 +1296,9 @@ pub async fn verify_email(
         headless_lms_authorization::Action,
         headless_lms_authorization::Resource,
         SendEmailCodeData,
+        SendDeleteUserEmailCodeResult,
         EmailCode,
+        DeleteUserAccountResult,
         VerifyEmailRequest,
         headless_lms_models::roles::UserRole,
     ))

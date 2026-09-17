@@ -23,70 +23,97 @@ import "@/shared-module/common/init/registerAuthApiClients"
 
 import VerifyPasswordForm from "./VerifyPasswordForm"
 
-interface DeleteUserAccountProps {
-  email: string
-}
+const PASSWORD_STEP = "password"
+const VERIFY_CODE_STEP = "verifyCode"
 
-type Step = "password" | "verifyCode"
+type Step = typeof PASSWORD_STEP | typeof VERIFY_CODE_STEP
 
-const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
+const DeleteUserAccountForm: React.FC = () => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  // oxlint-disable-next-line i18next/no-literal-string
-  const [step, setStep] = useState<Step>("password")
+  const [step, setStep] = useState<Step>(PASSWORD_STEP)
   const [password, setPassword] = useState("")
 
-  const [credentialsError, setCredentialsError] = useState(false)
+  const [incorrectPassword, setIncorrectPassword] = useState(false)
+  const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
 
   const sendEmailCodeMutation = useToastMutation(
-    async (passwordInput: string) => {
-      const result = await postAuthSendEmailCode({
-        body: { email, password: passwordInput, language: i18n.language },
-      })
-      setCredentialsError(!result)
-      return result
-    },
+    async (passwordInput: string) =>
+      await postAuthSendEmailCode({
+        body: { password: passwordInput, language: i18n.language },
+      }),
     { notify: false },
     {
       onSuccess: (result) => {
-        if (result) {
-          // oxlint-disable-next-line i18next/no-literal-string
-          setStep("verifyCode")
+        setIncorrectPassword(result.type === "incorrect_password")
+        switch (result.type) {
+          case "queued":
+            setCodeErrorMessage(null)
+            setStep(VERIFY_CODE_STEP)
+            break
+          // The outstanding code still works, so the user can go on and type it.
+          case "recently_sent":
+            setCodeErrorMessage(
+              t("delete-account-code-recently-sent", { seconds: result.retry_after_seconds }),
+            )
+            setStep(VERIFY_CODE_STEP)
+            break
+          case "incorrect_password":
+            break
         }
       },
       onError: () => {
-        setCredentialsError(false)
+        setIncorrectPassword(false)
+        setCodeErrorMessage(null)
       },
     },
   )
 
   const deleteAccountMutation = useToastMutation(
-    async (code: string) => {
-      const result = await postAuthDeleteUserAccount({
-        body: { code },
-      })
-      setCredentialsError(!result)
-      return result
-    },
+    async (code: string) => await postAuthDeleteUserAccount({ body: { code } }),
     { notify: false },
     {
       onSuccess: (result) => {
-        if (result) {
-          queryClient.removeQueries()
-          loginStateContext.refresh()
-
-          router.push(accountDeletedRoute())
+        switch (result.type) {
+          case "deleted":
+            setCodeErrorMessage(null)
+            queryClient.removeQueries()
+            loginStateContext.refresh()
+            router.push(accountDeletedRoute())
+            break
+          case "invalid_code":
+            setCodeErrorMessage(t("incorrect-code"))
+            break
+          case "too_many_attempts":
+            setCodeErrorMessage(t("delete-account-too-many-attempts"))
+            break
+          case "upstream_unavailable":
+            setCodeErrorMessage(t("delete-account-upstream-unavailable"))
+            break
+          case "upstream_rejected":
+            setCodeErrorMessage(
+              t("delete-account-upstream-rejected", { reference: result.reference }),
+            )
+            break
         }
       },
       onError: () => {
-        setCredentialsError(false)
+        setCodeErrorMessage(null)
       },
     },
   )
+
+  const requestDeletionCode = async (passwordInput: string) => {
+    try {
+      await sendEmailCodeMutation.mutateAsync(passwordInput)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   return (
     <>
@@ -111,18 +138,18 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
           <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
         )}
 
-        {step === "password" && (
+        {step === PASSWORD_STEP && (
           <VerifyPasswordForm
-            onSubmit={(passwordValue) => {
+            onSubmit={async (passwordValue) => {
               setPassword(passwordValue)
-              sendEmailCodeMutation.mutateAsync(passwordValue)
+              await requestDeletionCode(passwordValue)
             }}
             isPending={sendEmailCodeMutation.isPending}
-            credentialsError={credentialsError}
+            credentialsError={incorrectPassword}
           />
         )}
 
-        {step === "verifyCode" && (
+        {step === VERIFY_CODE_STEP && (
           <OneTimeCodeForm
             containerClassName={css`
               padding: 0;
@@ -132,12 +159,12 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
               await deleteAccountMutation.mutateAsync(code)
             }}
             submitLabel={t("button-text-verify")}
-            error={credentialsError ? t("incorrect-code") : null}
+            error={codeErrorMessage}
             isSubmitting={deleteAccountMutation.isPending}
             resend={{
               helperText: t("delete-account-did-not-receive-email"),
               label: t("resend"),
-              onResend: () => sendEmailCodeMutation.mutateAsync(password),
+              onResend: async () => await requestDeletionCode(password),
             }}
           />
         )}

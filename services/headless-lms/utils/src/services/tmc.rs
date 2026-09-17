@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
@@ -42,6 +44,18 @@ pub struct TMCUserResponse {
 #[derive(Deserialize)]
 struct TmcDeleteAccountResponse {
     success: bool,
+    /// Optional because TMC deployments older than the deletion contract omit it.
+    #[serde(default)]
+    already_deleted: Option<bool>,
+}
+
+/// What a delete left behind on the TMC side. Both values mean the upstream account is gone and the
+/// local one may follow.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum TmcAccountDeletion {
+    Deleted,
+    /// TMC had no such account to begin with.
+    AlreadyDeleted,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -78,10 +92,21 @@ enum TMCRequestAuth {
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
+/// Deliberately above tmc.mooc.fi's own 120 s request timeout: giving up earlier would abandon a
+/// delete that upstream then completes, leaving the account gone there and present here.
+const DELETE_ACCOUNT_TIMEOUT: Duration = Duration::from_secs(150);
+
 fn format_tmc_errors(errors: &serde_json::Value) -> String {
     let mut error_messages = Vec::new();
 
-    if let Some(errors_obj) = errors.as_object() {
+    if let Some(error_array) = errors.as_array() {
+        for error_msg in error_array {
+            match error_msg.as_str() {
+                Some(msg) => error_messages.push(msg.to_string()),
+                None => error_messages.push(error_msg.to_string()),
+            }
+        }
+    } else if let Some(errors_obj) = errors.as_object() {
         for (field, field_errors) in errors_obj {
             if let Some(error_array) = field_errors.as_array() {
                 for error_msg in error_array {
@@ -108,10 +133,20 @@ fn format_tmc_errors(errors: &serde_json::Value) -> String {
 
 fn parse_tmc_error_response(error_text: &str, status: Option<reqwest::StatusCode>) -> String {
     if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(error_text) {
-        if let Some(errors) = error_json.get("errors") {
-            return format_tmc_errors(errors);
-        } else if let Some(message) = error_json.get("message").and_then(|m| m.as_str()) {
-            return message.to_string();
+        // `code` is TMC's stable, machine-readable reason; the human text beside it is neither.
+        let code = error_json.get("code").and_then(|c| c.as_str());
+        let detail = match error_json.get("errors") {
+            Some(errors) => Some(format_tmc_errors(errors)),
+            None => error_json
+                .get("message")
+                .and_then(|m| m.as_str())
+                .map(str::to_string),
+        };
+        match (code, detail) {
+            (Some(code), Some(detail)) => return format!("{code}: {detail}"),
+            (Some(code), None) => return code.to_string(),
+            (None, Some(detail)) => return detail,
+            (None, None) => {}
         }
     }
 
@@ -208,6 +243,19 @@ impl TmcClient {
         tmc_request_auth: TMCRequestAuth,
         body: Option<serde_json::Value>,
     ) -> UtilResult<reqwest::Response> {
+        self.request_with_headers_and_timeout(method, url, tmc_request_auth, body, None)
+            .await
+    }
+
+    /// `timeout` overrides the shared client's default for this one request.
+    async fn request_with_headers_and_timeout(
+        &self,
+        method: reqwest::Method,
+        url: &str,
+        tmc_request_auth: TMCRequestAuth,
+        body: Option<serde_json::Value>,
+        timeout: Option<Duration>,
+    ) -> UtilResult<reqwest::Response> {
         let mut builder = self
             .client
             .request(method, url)
@@ -230,6 +278,10 @@ impl TmcClient {
 
         if let Some(json_body) = body {
             builder = builder.json(&json_body);
+        }
+
+        if let Some(timeout) = timeout {
+            builder = builder.timeout(timeout);
         }
 
         let res = builder.send().await.map_err(|e| {
@@ -409,15 +461,25 @@ impl TmcClient {
         Ok(user)
     }
 
-    pub async fn delete_user_from_tmc(&self, user_upstream_id: String) -> UtilResult<bool> {
+    /// Deletes the upstream tmc.mooc.fi account behind `user_upstream_id`.
+    ///
+    /// Every failure is an error carrying TMC's HTTP status, which is what separates a retryable
+    /// outage from a rejection the caller must not retry. An unknown user can arrive either way:
+    /// as [`TmcAccountDeletion::AlreadyDeleted`], or, from deployments predating the deletion
+    /// contract, as a [`UtilErrorType::TmcHttpStatusError`] carrying 404.
+    pub async fn delete_user_from_tmc(
+        &self,
+        user_upstream_id: String,
+    ) -> UtilResult<TmcAccountDeletion> {
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
 
         let res = self
-            .request_with_headers(
+            .request_with_headers_and_timeout(
                 reqwest::Method::DELETE,
                 &url,
                 TMCRequestAuth::UseAdminToken,
                 None,
+                Some(DELETE_ACCOUNT_TIMEOUT),
             )
             .await?;
 
@@ -425,7 +487,18 @@ impl TmcClient {
             .deserialize_response_with_tmc_error_check(res, "delete response from TMC")
             .await?;
 
-        Ok(body.success)
+        if !body.success {
+            return Err(util_err!(
+                TmcErrorResponse,
+                "TMC answered the account deletion with success: false".to_string()
+            ));
+        }
+
+        if body.already_deleted.unwrap_or(false) {
+            Ok(TmcAccountDeletion::AlreadyDeleted)
+        } else {
+            Ok(TmcAccountDeletion::Deleted)
+        }
     }
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(

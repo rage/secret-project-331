@@ -17,11 +17,19 @@ import { omitUndefined } from "../lib/utils/nullability"
 import { Button } from "./Button"
 
 const buttonCss = (selected: boolean) => css`
+  border-radius: 0;
+  &:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  &:last-child {
+    border-radius: 0 8px 8px 0;
+  }
   ${
     selected &&
     `
     color: white;
     background: black;
+    border: white;
   `
   }
 `
@@ -63,7 +71,6 @@ const Toggle: React.FC<{ label: string; state: ToggleGroupState }> = ({ label, s
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
 
-  console.log(isSelected)
   return (
     <Button
       {...omitUndefined(mergeProps(buttonProps2, hoverProps, focusProps))}

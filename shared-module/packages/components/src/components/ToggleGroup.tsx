@@ -1,4 +1,4 @@
-/// add a commemt
+/// A group of buttons that function like a radio group
 
 "use client"
 
@@ -13,7 +13,24 @@ import {
 } from "react-aria"
 import type { ToggleButtonGroupProps, ToggleGroupState } from "react-aria-components"
 
-const buttonCss = css``
+import { omitUndefined } from "../lib/utils/nullability"
+import { Button } from "./Button"
+
+const buttonCss = (selected: boolean) => css`
+  ${
+    selected &&
+    `
+    color: white;
+    background: black;
+  `
+  }
+`
+
+const buttonGroupCss = css`
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+`
 
 type Props = {
   labels: string[]
@@ -27,12 +44,7 @@ export const ToggleGroup: React.FC<Props> = (props) => {
   let { groupProps } = useToggleButtonGroup(props, state, ref)
 
   return (
-    <div
-      {...groupProps}
-      ref={ref}
-      className="react-aria-ToggleButtonGroup"
-      data-orientation={orientation}
-    >
+    <div {...groupProps} ref={ref} className={buttonGroupCss} data-orientation={orientation}>
       {props.labels.map((x, idx) => (
         <Toggle key={idx} label={x} state={state} />
       ))}
@@ -47,22 +59,24 @@ const Toggle: React.FC<{ label: string; state: ToggleGroupState }> = ({ label, s
     state,
     ref,
   )
+  const { formAction: _, ...buttonProps2 } = buttonProps
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
 
+  console.log(isSelected)
   return (
-    <button
-      {...mergeProps(buttonProps, hoverProps, focusProps)}
+    <Button
+      {...omitUndefined(mergeProps(buttonProps2, hoverProps, focusProps))}
       ref={ref}
-      className="react-aria-ToggleButton button-base"
-      data-variant="primary"
-      data-selected={isSelected || undefined}
-      data-pressed={isPressed || undefined}
-      data-hovered={isHovered || undefined}
-      data-focus-visible={isFocusVisible || undefined}
-      data-disabled={isDisabled || undefined}
+      variant="secondary"
+      className={buttonCss(isSelected)}
+      data-selected={isSelected}
+      data-pressed={isPressed}
+      data-hovered={isHovered}
+      data-focus-visible={isFocusVisible}
+      data-disabled={isDisabled}
     >
       {label}
-    </button>
+    </Button>
   )
 }

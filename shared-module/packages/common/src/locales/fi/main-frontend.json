@@ -1355,6 +1355,7 @@
   "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "failed-to-submit": "Lähettäminen epäonnistui {{ error }}",
   "false": "False",
+  "feedback-categories": "Palautekategoriat",
   "feedback-given": "Palaute:",
   "feedback-submitted-successfully": "Palaute lisätty onnistuneesti",
   "field-cannot-be-empty": "Kenttä ei voi olla tyhjä",

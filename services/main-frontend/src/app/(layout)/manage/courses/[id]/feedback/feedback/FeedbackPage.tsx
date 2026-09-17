@@ -71,14 +71,10 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
         {(data) => {
           const categories = data.map((c) => c.name)
           return (
-            <div
-              className={css`
-                display: flex;
-                flex-flow: row nowrap;
-              `}
-            >
+            <>
+              <span>{t("feedback-categories")}</span>
               <ToggleGroup labels={[t("all")].concat(categories)} state={state} />
-            </div>
+            </>
           )
         }}
       </QueryResult>

@@ -1485,6 +1485,7 @@
   "failed-to-send-message": "Failed to send message",
   "failed-to-submit": "Failed to submit {{ error }}",
   "false": "False",
+  "feedback-categories": "Feedback categories",
   "feedback-given": "Feedback given:",
   "feedback-submitted-successfully": "Feedback submitted successfully",
   "field-cannot-be-empty": "Field cannot be empty",

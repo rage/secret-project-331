@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO feedback_categories (\n    name,\n    category_llm_id\n  )\nVALUES ($1, $2)\nRETURNING *\n        ",
+  "query": "\nSELECT *\nFROM feedback_categories\nWHERE name = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -49,17 +49,6 @@
       },
       {
         "ordinal": 4,
-        "name": "category_llm_id",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "feedback_categories",
-            "name": "category_llm_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
@@ -72,8 +61,7 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Int4"
+        "Text"
       ]
     },
     "nullable": [
@@ -81,9 +69,8 @@
       false,
       false,
       true,
-      false,
       false
     ]
   },
-  "hash": "bd58d2c6707efd26877a35560f36ffd8d19b7a15ab6e7915cbc5bac0e40b1bac"
+  "hash": "cba9111176b5f03e467e2a10ab3c23ffc07f6510e099be28e3765a8781975459"
 }

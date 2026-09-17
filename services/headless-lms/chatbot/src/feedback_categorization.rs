@@ -21,7 +21,6 @@ use indexmap::IndexMap;
 /// [response_format]
 #[derive(serde::Deserialize)]
 pub struct FeedbackCategorisationResponse {
-    pub feedback_id: i32,
     pub category_name: String,
 }
 
@@ -36,22 +35,13 @@ fn response_format() -> LLMRequestResponseFormatParam {
         format_type: JSONType::JsonSchema,
         name: "FeedbackCategorisationResponse".to_string(),
         schema: Schema::strict_object(
-            IndexMap::from([
-                (
-                    "feedback_id".to_string(),
-                    SchemaPropertyType::Item(JsonItem {
-                        type_field: JSONType::Number,
-                        description: None, // add desc
-                    }),
-                ),
-                (
-                    "category_name".to_string(),
-                    SchemaPropertyType::Item(JsonItem {
-                        type_field: JSONType::String,
-                        description: None,
-                    }),
-                ),
-            ]),
+            IndexMap::from([(
+                "category_name".to_string(),
+                SchemaPropertyType::Item(JsonItem {
+                    type_field: JSONType::String,
+                    description: None,
+                }),
+            )]),
             None,
         ),
         strict: true,

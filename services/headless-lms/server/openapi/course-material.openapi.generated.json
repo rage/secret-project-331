@@ -5585,12 +5585,8 @@
       },
       "NewFeedbackCategory": {
         "type": "object",
-        "required": ["category_llm_id", "name"],
+        "required": ["name"],
         "properties": {
-          "category_llm_id": {
-            "type": "integer",
-            "format": "int32"
-          },
           "name": {
             "type": "string"
           }

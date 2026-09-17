@@ -816,7 +816,6 @@ pub async fn feedback(
             match categorize_feedback(&app_conf, llm, &f, &feedback_categories).await {
                 Ok(val) => NewFeedback {
                     category: Some(NewFeedbackCategory {
-                        category_llm_id: val.feedback_id,
                         name: val.category_name,
                     }),
                     ..f

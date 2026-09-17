@@ -3042,7 +3042,6 @@ export type FeedbackBlock = {
 }
 
 export type FeedbackCategory = {
-  category_llm_id: number
   created_at: string
   deleted_at?: string | null
   id: string

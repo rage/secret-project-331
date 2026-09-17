@@ -22017,12 +22017,8 @@
       },
       "FeedbackCategory": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "category_llm_id", "name"],
+        "required": ["id", "created_at", "updated_at", "name"],
         "properties": {
-          "category_llm_id": {
-            "type": "integer",
-            "format": "int32"
-          },
           "created_at": {
             "type": "string",
             "format": "date-time"

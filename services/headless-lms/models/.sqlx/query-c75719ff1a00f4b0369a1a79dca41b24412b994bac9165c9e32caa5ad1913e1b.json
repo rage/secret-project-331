@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT fc.* FROM feedback_categories AS fc\nINNER JOIN feedback AS f ON fc.id = f.category_id\nWHERE fc.deleted_at IS NULL\nAND f.deleted_at IS NULL\nAND f.course_id = $1\n        ",
+  "query": "\nSELECT fc.*\nFROM feedback_categories AS fc\nWHERE EXISTS (\n    SELECT id\n    FROM feedback AS f\n    WHERE fc.id = f.category_id\n      AND f.deleted_at IS NULL\n      AND f.course_id = $1\n  )\n  AND fc.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -49,17 +49,6 @@
       },
       {
         "ordinal": 4,
-        "name": "category_llm_id",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "feedback_categories",
-            "name": "category_llm_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
@@ -80,9 +69,8 @@
       false,
       false,
       true,
-      false,
       false
     ]
   },
-  "hash": "cd5f45cfa6a4b526da9df124c9412036bc8295a93ce3607fb9a7366d6f16c76a"
+  "hash": "c75719ff1a00f4b0369a1a79dca41b24412b994bac9165c9e32caa5ad1913e1b"
 }

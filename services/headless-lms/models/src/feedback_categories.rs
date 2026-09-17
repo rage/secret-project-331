@@ -7,34 +7,49 @@ pub struct FeedbackCategory {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub category_llm_id: i32,
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct NewFeedbackCategory {
-    pub category_llm_id: i32,
     pub name: String,
 }
 
 pub async fn insert(conn: &mut PgConnection, category: NewFeedbackCategory) -> ModelResult<Uuid> {
+    if let Some(c) = get_by_name(conn, &category.name).await.ok() {
+        return Ok(c.id);
+    };
+
     let res = sqlx::query_as!(
         FeedbackCategory,
         "
-INSERT INTO feedback_categories (
-    name,
-    category_llm_id
-  )
-VALUES ($1, $2)
+INSERT INTO feedback_categories (name)
+VALUES ($1)
 RETURNING *
         ",
         category.name,
-        category.category_llm_id
     )
     .fetch_one(conn)
     .await?;
 
     Ok(res.id)
+}
+
+pub async fn get_by_name(conn: &mut PgConnection, name: &String) -> ModelResult<FeedbackCategory> {
+    let res = sqlx::query_as!(
+        FeedbackCategory,
+        "
+SELECT *
+FROM feedback_categories
+WHERE name = $1
+  AND deleted_at IS NULL
+        ",
+        name
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
 }
 
 pub async fn get_all(
@@ -44,11 +59,16 @@ pub async fn get_all(
     let res = sqlx::query_as!(
         FeedbackCategory,
         "
-SELECT fc.* FROM feedback_categories AS fc
-INNER JOIN feedback AS f ON fc.id = f.category_id
-WHERE fc.deleted_at IS NULL
-AND f.deleted_at IS NULL
-AND f.course_id = $1
+SELECT fc.*
+FROM feedback_categories AS fc
+WHERE EXISTS (
+    SELECT id
+    FROM feedback AS f
+    WHERE fc.id = f.category_id
+      AND f.deleted_at IS NULL
+      AND f.course_id = $1
+  )
+  AND fc.deleted_at IS NULL
         ",
         course_id
     )

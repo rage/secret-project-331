@@ -889,7 +889,6 @@ export type NewFeedback = {
 }
 
 export type NewFeedbackCategory = {
-  category_llm_id: number
   name: string
 }
 

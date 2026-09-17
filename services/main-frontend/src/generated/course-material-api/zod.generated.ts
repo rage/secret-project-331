@@ -639,10 +639,6 @@ export const zNewCourseBackgroundQuestionAnswer = z.object({
 })
 
 export const zNewFeedbackCategory = z.object({
-  category_llm_id: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   name: z.string(),
 })
 

@@ -17,7 +17,8 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 // whole family is invalidated by query id rather than by the one key the caller happens to know.
 const CREDIT_REGISTRATION_FOR_COURSE_MODULE_QUERY_ID = "getMyCreditRegistrationForCourseModule"
 
-const invalidateRegistrationViews = async (
+/** Every student-facing view of a registration, for an action that moved the ledger row itself. */
+export const invalidateRegistrationViews = async (
   queryClient: QueryClient,
   courseId: string,
 ): Promise<void> => {

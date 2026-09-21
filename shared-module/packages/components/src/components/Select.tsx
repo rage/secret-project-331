@@ -294,7 +294,8 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const selectedOption = optionsByKey.get(String(state.value))
   const isPlaceholderState = selectedOption === undefined
-  const isFloated = state.isOpen || selectedOption !== undefined
+  // A placeholder is drawn in the same band as the resting label, so one has to give way.
+  const isFloated = state.isOpen || selectedOption !== undefined || placeholder !== undefined
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
@@ -307,6 +308,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       >
         <button
           {...mergedButtonProps}
+          // react-aria merges its own generated id over the one given to `useSelect`, so the
+          // caller's `id` only reaches the DOM if it is set here.
+          id={triggerId}
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"

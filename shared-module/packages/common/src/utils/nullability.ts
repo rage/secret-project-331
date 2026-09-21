@@ -51,3 +51,12 @@ export function includeIf<T extends object>(condition: unknown, obj: T): Include
 }
 
 type IncludeIf<T> = { [K in keyof T]?: NonNullable<T[K]> }
+
+/**
+ * Returns `value` when `condition` is truthy, otherwise `null`.
+ *
+ * Use instead of `condition ? value : null` when `condition && value` is not viable.
+ */
+export function nullIfFalsy<T>(condition: unknown, value: T): T | null {
+  return condition ? value : null
+}

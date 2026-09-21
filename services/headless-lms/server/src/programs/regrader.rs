@@ -2,11 +2,12 @@ use std::{env, error::Error, sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
-use crate::domain::models_requests::{self, JwtKey};
+use crate::domain::models_requests;
 use crate::programs::periodic_worker::{
     PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::jwt::JwtKey;
 use headless_lms_models as models;
 use models::library::regrading;
 use sqlx::PgPool;
@@ -20,9 +21,8 @@ pub async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     crate::setup_tracing()?;
     let db_url = ProgramConfig::database_url_with_default();
-    let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
-    let jwt_key = Arc::new(JwtKey::new(&jwt_password)?);
     let app_conf = ApplicationConfiguration::try_from_env()?;
+    let jwt_key = Arc::new(JwtKey::new(&app_conf.jwt_password)?);
     let file_store =
         crate::setup_file_store(&FileStoreRuntimeConfig::try_from_env()?, &app_conf.base_url).await;
 

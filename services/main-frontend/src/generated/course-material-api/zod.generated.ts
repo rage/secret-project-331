@@ -401,6 +401,7 @@ export const zCourseModuleCompletion = z.object({
   needs_to_be_reviewed: z.boolean(),
   passed: z.boolean(),
   prerequisite_modules_completed: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })

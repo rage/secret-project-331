@@ -1,12 +1,23 @@
+import { useCallback, useMemo } from "react"
+
 import { useCopyToClipboard as useCopyToClipboardBase } from "@/shared-module/common/hooks/useCopyToClipboard"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 /**
- * Decodes HTML entities in a string
+ * Returns the text a reader sees when `html` is rendered as a code block.
+ *
+ * A code block's content attribute is Gutenberg's HTML, not the author's literal code: the editor
+ * escapes the author's own `<` and `&` (`if (a<b && c>d)` is stored as `if (a&lt;b &amp;&amp; c>d)`),
+ * and adds markup of its own, such as `<br>` line breaks and a `<code>` wrapper around the value.
+ * Every live tag is therefore the editor's, never the code, and dropping tags the way the rendered
+ * block drops them is what makes the copied text equal the displayed text.
+ *
+ * Run replaceBrTagsWithNewlines first: a `<br>` holds no text, so its line break would be lost here.
  */
-export function decodeHtmlEntities(text: string): string {
-  const textarea = document.createElement("textarea")
-  textarea.innerHTML = text
-  return textarea.value
+export function htmlToDisplayedText(html: string): string {
+  const container = document.createElement("div")
+  container.innerHTML = sanitizeCourseMaterialHtml(html)
+  return container.textContent ?? ""
 }
 
 /**
@@ -57,15 +68,24 @@ export function replaceBrTagsWithNewlines(html: string | null | undefined): type
 }
 
 /**
- * Returns a callback for copying HTML content to clipboard.
- * Processes HTML content by replacing BR tags with newlines and decoding HTML entities before copying.
- * @param htmlContent - The HTML content to copy (will be processed before copying)
- * @returns A function that when called attempts to copy the processed text and returns true if successful
+ * Returns a callback for copying a code block's content to clipboard.
+ * `<br>` becomes a newline and the editor's remaining markup is dropped, so the clipboard gets the
+ * text the reader sees rather than the HTML Gutenberg stored. Content that displays as nothing is
+ * refused rather than copied, so a fully stripped block cannot clear the clipboard.
+ * @param htmlContent - A code block's content attribute, as stored by Gutenberg.
+ * @returns A function that when called attempts to copy the displayed text and returns true if successful.
  */
 export function useCopyHtmlContentToClipboard(htmlContent: string): () => Promise<boolean> {
-  const withoutNewLines = replaceBrTagsWithNewlines(htmlContent) ?? ""
-  const processedText = decodeHtmlEntities(withoutNewLines)
-  const baseCopyToClipboard = useCopyToClipboardBase(processedText)
+  const displayedText = useMemo(
+    () => htmlToDisplayedText(replaceBrTagsWithNewlines(htmlContent) ?? ""),
+    [htmlContent],
+  )
+  const copyDisplayedText = useCopyToClipboardBase(displayedText)
 
-  return baseCopyToClipboard
+  return useCallback(async () => {
+    if (displayedText === "") {
+      return false
+    }
+    return await copyDisplayedText()
+  }, [displayedText, copyDisplayedText])
 }

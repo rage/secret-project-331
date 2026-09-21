@@ -21,6 +21,7 @@ backtrace = "0.3.76"
 url = "2.5.8"
 anyhow = "1.0.104"
 secrecy.workspace = true
+jsonwebtoken.workspace = true
 
 [lints.clippy]
 unwrap_used = "deny"

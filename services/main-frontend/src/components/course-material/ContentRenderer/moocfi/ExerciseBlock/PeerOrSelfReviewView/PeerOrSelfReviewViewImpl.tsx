@@ -27,10 +27,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import {
-  storedAnswerToViewSubmissionFields,
-  exerciseTaskGradingToExerciseTaskGradingResult,
-} from "@/shared-module/common/utils/typeMappter"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -41,6 +38,7 @@ import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
+import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
 const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
@@ -297,6 +295,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
           .toSorted((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
+            const answerFields = reviewerAnswerFields(
+              course_material_exercise_task.previous_submission,
+            )
             return (
               <div key={course_material_exercise_task.id}>
                 <div data-testid="assignment">
@@ -326,14 +327,15 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                       grading: exerciseTaskGradingToExerciseTaskGradingResult(
                         course_material_exercise_task.previous_submission_grading,
                       ),
-                      ...storedAnswerToViewSubmissionFields(
-                        course_material_exercise_task.previous_submission,
-                      ),
+                      ...answerFields,
                       public_spec: course_material_exercise_task.public_spec,
                       model_solution_spec: course_material_exercise_task.model_solution_spec,
                     },
                   }}
                   url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                  overrideDownloadFilename={(url) =>
+                    reviewerDownloadFileName(answerFields.user_answer_files, url)
+                  }
                   setAnswer={null}
                   title={t("exercise-task-content", {
                     "exercise-number": exerciseNumber + 1,

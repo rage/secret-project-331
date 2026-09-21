@@ -91,10 +91,10 @@ test("initial loading shows skeleton immediately and status", () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument()
 })
 
-test("disabled query with no data renders an empty frame, not an infinite skeleton", () => {
+test("disabled query with no data renders nothing, not an infinite skeleton", () => {
   // enabled: false / skipToken queries stay isPending but never fetch. Without data there is nothing
-  // to render, so QueryResult shows neither a skeleton nor children (consumers that want to render
-  // without data should not wrap that case in QueryResult).
+  // to render, so QueryResult renders nothing at all rather than an empty node, which would still
+  // cost its parent a grid or flex gap.
   renderUi(
     <QueryResult
       query={makeQuery<string>({ data: undefined, isPending: true, isFetching: false })}
@@ -247,6 +247,24 @@ test("refreshing announces status", () => {
   expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument()
 })
 
+test("quiet refresh indicator does not blur or block clicks on content", () => {
+  renderUi(
+    <QueryResult
+      query={makeQuery({ data: "ok", isFetching: true })}
+      themeMode="light"
+      refreshIndicator="quiet"
+    >
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+  const content = screen.getByText("ok").parentElement as HTMLElement
+  const styles = getComputedStyle(content)
+  expect(styles.pointerEvents).not.toBe("none")
+  expect(styles.filter).not.toContain("blur")
+})
+
 test("loaded content is not wrapped in a clipping frame", () => {
   renderUi(
     <QueryResult query={makeQuery({ data: "ok" })} themeMode="light">
@@ -269,4 +287,18 @@ test("loaded content is not wrapped in a clipping frame", () => {
     expect(styles.overflow).not.toBe("hidden")
     node = node.parentElement
   }
+})
+
+test("contentClassName lands on the div that holds the children", () => {
+  renderUi(
+    <QueryResult
+      query={makeQuery({ data: "ok" })}
+      themeMode="light"
+      contentClassName="content-grid"
+    >
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByText("ok").parentElement).toHaveClass("content-grid")
 })

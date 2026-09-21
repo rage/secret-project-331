@@ -32,9 +32,11 @@ describe("CertificatesList", () => {
   })
 
   it("names the module when the certificate is for one", () => {
-    render(<CertificatesList certificates={[certificate({ course_module_name: "Part 2" })]} />)
+    render(
+      <CertificatesList certificates={[certificate({ course_module_name: "Extra module" })]} />,
+    )
 
-    expect(screen.getByText("Part 2")).toBeInTheDocument()
+    expect(screen.getByText("Extra module")).toBeInTheDocument()
     expect(screen.getByText(/Introduction to Programming/)).toBeInTheDocument()
   })
 })

@@ -49,6 +49,7 @@ pub mod courses;
 pub mod credit_registration_account_linking_emails;
 pub mod credit_registration_admin_actions;
 pub mod credit_registration_daily_snapshots;
+pub mod credit_registration_enrolment_routes;
 pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registrations;

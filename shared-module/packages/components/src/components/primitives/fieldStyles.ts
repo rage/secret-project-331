@@ -594,9 +594,13 @@ export const inputWithFloatingLabelCss = css`
   padding-top: 2px;
 `
 
-/** Top padding for inset floating labels; bottom padding comes from control surface (ComboBox pattern). */
-function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
+/** Inset floating label band, sized like a single-line input: `min-height` plus the padding pair
+ *  whose sum the `sizeValues` invariant fixes, so floating the label cannot change the height. */
+function makeFloatingInsetPaddingCss(s: SizeValues): string {
   return css`
+    min-height: ${s.controlHeight};
+    padding-top: ${s.inputPaddingYRest};
+    padding-bottom: ${s.inputPaddingYRest};
     transition:
       padding-top ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
       padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
@@ -605,11 +609,9 @@ function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
       transition: none;
     }
 
-    [data-field-control][data-floated="false"] & {
-      padding-top: ${s.inputPaddingYRest};
-    }
     [data-field-control][data-floated="true"] & {
       padding-top: ${s.inputPaddingTopFloated};
+      padding-bottom: ${s.inputPaddingBottomFloated};
     }
   `
 }
@@ -637,10 +639,10 @@ export function resolveComboBoxInputCss(fieldSize: FieldSize): string {
   )
 }
 
-/** Segmented date/time field shell: same top padding as ComboBox; bottom padding from control surface. */
+/** Segmented date/time field shell: carries the whole vertical padding, as a single-line input
+ *  does, because the control surface around it is flush for these fields. */
 export function resolveSegmentedFloatingShellCss(fieldSize: FieldSize): string {
-  const s = sizeValues[fieldSize]
-  return cx(inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
+  return makeFloatingInsetPaddingCss(sizeValues[fieldSize])
 }
 
 export const textareaResetCss = css`
@@ -681,37 +683,44 @@ export const inlineAffixCss = css`
   }
 `
 
-const controlSurfaceSizeSmCss = css`
-  min-height: var(--control-height-sm);
-  padding: calc(var(--control-padding-x-sm) - 2px) var(--control-padding-x-sm)
-    calc(var(--control-padding-x-sm) - 2px);
-  font-size: var(--font-size-sm);
-`
-
-const controlSurfaceSizeMdCss = css`
-  min-height: var(--control-height-md);
-  padding: calc(var(--control-padding-x-md) - 2px) var(--control-padding-x-md)
-    calc(var(--control-padding-x-md) - 2px);
-  font-size: var(--font-size-md);
-`
-
-const controlSurfaceSizeLgCss = css`
-  min-height: var(--control-height-lg);
-  padding: calc(var(--control-padding-x-lg) - 2px) var(--control-padding-x-lg)
-    calc(var(--control-padding-x-lg) - 2px);
-  font-size: var(--font-size-lg);
-`
-
-const controlSurfaceSizeStyles: Record<FieldSize, string> = {
-  sm: controlSurfaceSizeSmCss,
-  md: controlSurfaceSizeMdCss,
-  lg: controlSurfaceSizeLgCss,
+function makeControlSurfaceSizeCss(size: FieldSize, paddingY: string): string {
+  return css`
+    min-height: var(--control-height-${size});
+    padding: ${paddingY} var(--control-padding-x-${size});
+    font-size: var(--font-size-${size});
+  `
 }
 
-export function resolveControlSurfaceCss(fieldSize: FieldSize, isFloating = false) {
+const controlSurfaceSizeStyles: Record<FieldSize, string> = {
+  sm: makeControlSurfaceSizeCss("sm", "calc(var(--control-padding-x-sm) - 2px)"),
+  md: makeControlSurfaceSizeCss("md", "calc(var(--control-padding-x-md) - 2px)"),
+  lg: makeControlSurfaceSizeCss("lg", "calc(var(--control-padding-x-lg) - 2px)"),
+}
+
+const flushControlSurfaceSizeStyles: Record<FieldSize, string> = {
+  sm: makeControlSurfaceSizeCss("sm", "0"),
+  md: makeControlSurfaceSizeCss("md", "0"),
+  lg: makeControlSurfaceSizeCss("lg", "0"),
+}
+
+/**
+ * Styles the bordered box a field's parts sit in.
+ *
+ * `ownsVerticalPadding: false` is for a control whose inner element pads itself — a segmented
+ * date/time field, whose segments shell is the only box that can trade top padding for bottom as
+ * the label floats. Two boxes both padding the field is what made it grow on focus, since only one
+ * of the two moved.
+ */
+export function resolveControlSurfaceCss(
+  fieldSize: FieldSize,
+  isFloating = false,
+  ownsVerticalPadding = true,
+) {
   return cx(
     controlSurfaceBaseCss,
-    controlSurfaceSizeStyles[fieldSize],
+    ownsVerticalPadding
+      ? controlSurfaceSizeStyles[fieldSize]
+      : flushControlSurfaceSizeStyles[fieldSize],
     isFloating ? controlSurfaceFloatingCss : undefined,
   )
 }

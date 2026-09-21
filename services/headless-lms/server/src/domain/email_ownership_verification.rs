@@ -17,7 +17,7 @@ use crate::prelude::*;
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
 
 /// Mail-bomb guard, not a quota: how soon after mailing a code we refuse another.
-const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
+pub const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
 
 /// Wrong guesses one code tolerates before it is retired. Six digits are only safe with a cap.
 pub const MAX_CODE_ATTEMPTS: i32 = 5;

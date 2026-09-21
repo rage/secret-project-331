@@ -1649,7 +1649,21 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    let updates = payload.into_inner();
+    if models::course_modules::would_change_credit_registration_via_suotar(&mut conn, &updates)
+        .await?
+    {
+        // Editing a course is not enough to put a module on the live study registry path.
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?;
+    }
+
+    models::course_modules::update_modules(&mut conn, *course_id, updates).await?;
     token.authorized_ok(web::Json(()))
 }
 

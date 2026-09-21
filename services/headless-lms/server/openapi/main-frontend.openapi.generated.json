@@ -17119,6 +17119,10 @@
           "slug",
           "created_at",
           "updated_at",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "is_joinable_by_code_only",
           "organization_id",
           "organization_name",
           "organization_slug",
@@ -17154,6 +17158,18 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
           },
           "modules": {
             "type": "array",
@@ -17191,7 +17207,15 @@
       },
       "CourseAuditingDataUpdate": {
         "type": "object",
-        "required": ["prerequisites", "audiences", "modules"],
+        "required": [
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "is_joinable_by_code_only",
+          "prerequisites",
+          "audiences",
+          "modules"
+        ],
         "properties": {
           "audiences": {
             "type": "array",
@@ -17212,6 +17236,18 @@
           },
           "description": {
             "type": ["string", "null"]
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
           },
           "modules": {
             "type": "array",

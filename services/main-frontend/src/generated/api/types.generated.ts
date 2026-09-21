@@ -1126,6 +1126,10 @@ export type CourseAuditingData = {
   created_at: string
   description?: string | null
   id: string
+  is_draft: boolean
+  is_joinable_by_code_only: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
   modules: Array<CourseModule>
   name: string
   organization_id: string
@@ -1142,6 +1146,10 @@ export type CourseAuditingDataUpdate = {
   closed_at?: string | null
   closed_course_successor_id?: string | null
   description?: string | null
+  is_draft: boolean
+  is_joinable_by_code_only: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
   modules: Array<CourseAuditingModuleUpdate>
   prerequisites: Array<EditCoursePrerequisite>
 }

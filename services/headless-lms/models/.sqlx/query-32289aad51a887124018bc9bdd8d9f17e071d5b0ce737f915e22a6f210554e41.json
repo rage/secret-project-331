@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  o.name AS organization_name,\n  o.slug AS organization_slug\nFROM courses c\n  JOIN organizations o ON o.id = c.organization_id\nWHERE c.id = $1\n  AND c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\nGROUP BY c.id,\n  c.name,\n  o.name,\n  o.slug\n",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description,\n  c.is_draft,\n  c.is_test_mode,\n  c.is_unlisted,\n  c.is_joinable_by_code_only,\n  c.closed_at,\n  c.closed_additional_message,\n  c.closed_course_successor_id,\n  o.name AS organization_name,\n  o.slug AS organization_slug\nFROM courses c\n  JOIN organizations o ON o.id = c.organization_id\nWHERE c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\nGROUP BY c.id,\n  c.name,\n  o.name,\n  o.slug\n",
   "describe": {
     "columns": [
       {
@@ -82,6 +82,50 @@
       },
       {
         "ordinal": 7,
+        "name": "is_draft",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_draft"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "is_test_mode",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_test_mode"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_unlisted",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_unlisted"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "is_joinable_by_code_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_joinable_by_code_only"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
         "name": "closed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -92,7 +136,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 12,
         "name": "closed_additional_message",
         "type_info": "Text",
         "origin": {
@@ -103,7 +147,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 13,
         "name": "closed_course_successor_id",
         "type_info": "Uuid",
         "origin": {
@@ -114,7 +158,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 14,
         "name": "organization_name",
         "type_info": "Varchar",
         "origin": {
@@ -125,7 +169,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 15,
         "name": "organization_slug",
         "type_info": "Varchar",
         "origin": {
@@ -137,9 +181,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -149,6 +191,10 @@
       false,
       false,
       true,
+      false,
+      false,
+      false,
+      false,
       true,
       true,
       true,
@@ -156,5 +202,5 @@
       false
     ]
   },
-  "hash": "ecfee7ac694bb4eae1755f49aaf85945290bc9be3617a851dfb1a7c0647a052e"
+  "hash": "32289aad51a887124018bc9bdd8d9f17e071d5b0ce737f915e22a6f210554e41"
 }

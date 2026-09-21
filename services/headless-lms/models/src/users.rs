@@ -321,6 +321,8 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<D
     info!("Deleting user {id}");
     let mut tx = conn.begin().await?;
     crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
+    crate::completion_registration_credit_justifications::delete_all_by_user_id(&mut tx, id)
+        .await?;
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;

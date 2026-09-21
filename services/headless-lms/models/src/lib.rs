@@ -27,6 +27,7 @@ pub mod cheating_confirmation_grade_snapshots;
 pub mod cms_ai;
 pub mod code_giveaway_codes;
 pub mod code_giveaways;
+pub mod completion_registration_credit_justifications;
 pub mod course_audiences;
 pub mod course_background_question_answers;
 pub mod course_background_questions;

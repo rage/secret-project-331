@@ -51,7 +51,7 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
           position: relative;
           display: inline-flex;
 
-          &:has(button:hover) > div,
+          &:has(button:focus) > div,
           &:has(button:hover) > div {
             visibility: visible;
             opacity: 1;

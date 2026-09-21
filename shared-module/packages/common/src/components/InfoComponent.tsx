@@ -43,7 +43,7 @@ const InfoComponent: React.FC<React.PropsWithChildren<InfoComponentProps>> = ({
           position: relative;
           display: inline-flex;
 
-          &:has(button:hover) > div,
+          &:has(button:focus) > div,
           &:has(button:hover) > div {
             visibility: visible;
             opacity: 1;

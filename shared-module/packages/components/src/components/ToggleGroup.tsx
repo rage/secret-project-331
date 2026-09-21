@@ -8,6 +8,7 @@ import {
   mergeProps,
   useFocusRing,
   useHover,
+  useId,
   useToggleButtonGroup,
   useToggleButtonGroupItem,
 } from "react-aria"
@@ -19,10 +20,12 @@ import { Button } from "./Button"
 const buttonCss = (selected: boolean) => css`
   border-radius: 0;
   &:first-child {
-    border-radius: 8px 0 0 8px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
   }
   &:last-child {
-    border-radius: 0 8px 8px 0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
   ${
     selected &&
@@ -42,21 +45,32 @@ const buttonGroupCss = css`
 
 type Props = {
   labels: string[]
+  groupLabel: string
   state: ToggleGroupState
 } & ToggleButtonGroupProps
 
 export const ToggleGroup: React.FC<Props> = (props) => {
+  let labelId = useId()
   let { orientation = "horizontal" } = props
   let state = props.state
   let ref = useRef<HTMLDivElement>(null)
   let { groupProps } = useToggleButtonGroup(props, state, ref)
 
   return (
-    <div {...groupProps} ref={ref} className={buttonGroupCss} data-orientation={orientation}>
-      {props.labels.map((x, idx) => (
-        <Toggle key={idx} label={x} state={state} />
-      ))}
-    </div>
+    <>
+      <span id={labelId}>{props.groupLabel}</span>
+      <div
+        {...groupProps}
+        ref={ref}
+        className={buttonGroupCss}
+        data-orientation={orientation}
+        aria-labelledby={labelId}
+      >
+        {props.labels.map((x, idx) => (
+          <Toggle key={idx} label={x} state={state} />
+        ))}
+      </div>
+    </>
   )
 }
 

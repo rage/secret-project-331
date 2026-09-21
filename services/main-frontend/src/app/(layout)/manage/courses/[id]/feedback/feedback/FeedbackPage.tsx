@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import { useToggleGroupState } from "@react-stately/toggle"
 import { useQuery } from "@tanstack/react-query"
 import React from "react"
-import { useId } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -43,7 +42,6 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     disallowEmptySelection: true,
     defaultSelectedKeys: new Set([t("all")]),
   })
-  let labelId = useId()
   const limit = paginationInfo.limit
   const getFeedbackList = useQuery({
     ...getCourseFeedbackOptions({
@@ -65,7 +63,9 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     }),
   })
 
-  const AllButton = <ToggleGroup labels={[t("all")]} state={state} />
+  const AllButton = (
+    <ToggleGroup groupLabel={t("feedback-categories")} labels={[t("all")]} state={state} />
+  )
 
   return (
     <>
@@ -73,14 +73,11 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
         {(data) => {
           const categories = data.map((c) => c.name)
           return (
-            <>
-              <span id={labelId}>{t("feedback-categories")}</span>
-              <ToggleGroup
-                aria-labelledby={labelId}
-                labels={[t("all")].concat(categories)}
-                state={state}
-              />
-            </>
+            <ToggleGroup
+              groupLabel={t("feedback-categories")}
+              labels={[t("all")].concat(categories)}
+              state={state}
+            />
           )
         }}
       </QueryResult>

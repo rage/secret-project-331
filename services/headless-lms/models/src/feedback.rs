@@ -217,6 +217,8 @@ FROM (
   ) fb
   JOIN pages ON pages.id = fb.page_id
   LEFT JOIN feedback_categories AS fbc ON fb.category_id = fbc.id
+  ORDER BY fb."created_at!" DESC,
+      fb."id!"
         "#,
         course_id,
         read,

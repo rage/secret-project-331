@@ -97,7 +97,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               <div
                 className={css`
                   white-space: nowrap;
-                  // 400px is the width of the sidebar
+                  /* 400px is the width of the sidebar */
                   max-width: calc(400px - 2.1rem);
                   overflow: hidden;
                   text-overflow: ellipsis;

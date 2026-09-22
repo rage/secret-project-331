@@ -31,7 +31,7 @@ const gridContainer = css`
 
   margin: 0 1rem;
   gap: 0.5rem;
-  // remove navbar height and add 1rem of space to top and bottom
+  /* remove navbar height and add 1rem of space to top and bottom */
   height: calc(100vh - calc(64.8px + 2rem));
 `
 

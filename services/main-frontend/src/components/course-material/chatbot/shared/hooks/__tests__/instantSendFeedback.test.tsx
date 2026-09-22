@@ -44,12 +44,9 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(
-    () => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", undefined, null),
-    {
-      wrapper,
-    },
-  )
+  renderHook(() => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", null), {
+    wrapper,
+  })
 
 beforeEach(() => {
   jest.clearAllMocks()

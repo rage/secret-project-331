@@ -556,7 +556,7 @@ async fn conversation_info(
     req: HttpRequest,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let mut conn = pool.acquire().await?;
-    let conversation_id = query.conversation_id.map(|id| id);
+    let conversation_id = query.conversation_id;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 

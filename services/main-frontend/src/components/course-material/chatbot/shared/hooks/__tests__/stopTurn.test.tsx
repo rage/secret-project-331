@@ -76,7 +76,7 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, undefined, null), { wrapper })
+  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, null), { wrapper })
 
 /** The signal the pending turn was sent with, once the request has gone out. */
 const sentSignal = async (): Promise<AbortSignal> => {

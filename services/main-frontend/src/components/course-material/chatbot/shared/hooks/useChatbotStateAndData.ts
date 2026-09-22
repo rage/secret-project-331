@@ -73,6 +73,9 @@ export interface ChatbotStateAndData {
   setConvId: React.Dispatch<string>
 }
 
+type UnwantedKeysForTests = "setIsOpen" | "isOpen" | "convId" | "setConvId"
+export type ChatbotStateAndDataForTests = Omit<ChatbotStateAndData, UnwantedKeysForTests>
+
 /**
  * Queries, state and data for one mounted chatbot.
  *

@@ -126,6 +126,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
             justify-content: space-between;
 
             flex-direction: ${!state.isExpanded ? "column-reverse" : "row"};
+            border-bottom: 1px solid ${baseTheme.colors.gray[75]};
 
             @media (max-width: 767.98px) {
               flex-direction: column-reverse;
@@ -137,6 +138,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
               display: flex;
               flex-direction: ${!state.isExpanded ? "column" : "row"};
               align-items: center;
+
               @media (max-width: 767.98px) {
                 flex-direction: column;
               }

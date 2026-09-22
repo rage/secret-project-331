@@ -21,7 +21,7 @@ interface ConversationHistoryProps {
 const buttonCss = css`
   width: calc(100%);
   justify-content: flex-start;
-  border-top: 1px solid ${baseTheme.colors.gray[75]};
+  border-bottom: 1px solid ${baseTheme.colors.gray[75]};
   padding: 2rem 1rem;
   transition: background-color 0.2s;
 

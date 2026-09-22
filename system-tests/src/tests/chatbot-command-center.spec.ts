@@ -217,7 +217,11 @@ test.describe("Chatbot command center testing", () => {
       .click()
 
     await test.step("conversation is untitled if no messages have been sent", async () => {
-      await expect(page.getByRole("button", { name: "untitled conversation" })).toBeVisible()
+      await expect(
+        page
+          .getByRole("button", { name: "untitled conversation" })
+          .filter({ hasText: "untitled conversationGenetic" }),
+      ).toBeVisible()
     })
 
     await test.step("sending first message sets the conversation title", async () => {
@@ -245,7 +249,11 @@ test.describe("Chatbot command center testing", () => {
     await page.getByTestId("chatbot-header-menu-button").click()
     await page.getByTestId("chatbot-header-menu").getByText("New conversation").click()
 
-    await expect(page.getByRole("button", { name: "untitled conversation" })).toBeVisible()
+    await expect(
+      page
+        .getByRole("button", { name: "untitled conversation" })
+        .filter({ hasText: "untitled conversationGenetic" }),
+    ).toBeVisible()
     await expect(
       page.getByRole("button", { name: "Hello! How can I assist you today?" }),
     ).toBeHidden()

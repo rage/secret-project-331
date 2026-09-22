@@ -46,7 +46,7 @@ const chatbotLabelCss = css`
   text-align: left;
   border: 1px solid ${baseTheme.colors.green[300]};
   border-radius: 999px;
-  color: gray;
+  color: ${baseTheme.colors.gray[400]};
 `
 
 const ConversationHistory: React.FC<ConversationHistoryProps> = ({
@@ -104,9 +104,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                   padding-bottom: 5px;
                 `}
               >
-                {conversation.conversation_title !== null
-                  ? conversation.conversation_title
-                  : t("untitled-conversation")}
+                {conversation.conversation_title ?? t("untitled-conversation")}
               </div>
               <span className={chatbotLabelCss}>
                 {

@@ -23,7 +23,7 @@ const useConversationInfo = (
               conversation_id: conversationId,
             }),
           },
-          ...(anonymousToken && {
+          ...includeIf(anonymousToken, {
             headers: {
               authorization: `Bearer ${anonymousToken}`,
             },

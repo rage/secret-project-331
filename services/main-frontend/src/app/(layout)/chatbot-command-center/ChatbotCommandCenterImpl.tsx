@@ -7,6 +7,7 @@ import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import NewConversationDialog from "./NewConversationDialog"
 import Sidebar from "./Sidebar"
@@ -19,13 +20,12 @@ const gridContainer = css`
   but when collapsed or on mobile
   takes width of its elements
   */
-  grid-template-columns: 400px minmax(0, 1fr);
-
-  &:has([hidden="until-found"]) {
-    grid-template-columns: auto minmax(0, 1fr);
+  ${respondToOrLarger.md} {
+    grid-template-columns: 400px minmax(0, 1fr);
   }
 
-  @media (max-width: 767.98px) {
+  grid-template-columns: auto minmax(0, 1fr);
+  &:has([hidden="until-found"]) {
     grid-template-columns: auto minmax(0, 1fr);
   }
 

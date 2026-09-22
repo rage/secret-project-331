@@ -212,7 +212,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           </div>
         ) : (
           chatbotOptionsFiltered.map((category) => (
-            <li aria-label={category.label} className={sectionCss} key={category.courseId}>
+            <li aria-label={category.label} className={sectionCss} key={category.label}>
               <span className={sectionHeadingCss}>{category.label}</span>
               <ul className={sectionGroupCss}>
                 {category.options.map((option) => (

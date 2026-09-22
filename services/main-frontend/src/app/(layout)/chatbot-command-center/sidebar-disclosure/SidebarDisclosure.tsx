@@ -6,6 +6,8 @@ import React from "react"
 import type { ReactNode } from "react"
 import type { AriaDisclosureProps } from "react-aria"
 
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
 interface DisclosureProps extends AriaDisclosureProps {
   children?: ReactNode
   state: DisclosureState
@@ -14,9 +16,10 @@ interface DisclosureProps extends AriaDisclosureProps {
 }
 
 const reactAriaDisclosure = css`
-  @media (max-width: 767.98px) {
-    display: none !important;
+  ${respondToOrLarger.md} {
+    display: block;
   }
+  display: none;
 `
 
 const reactAriaDisclosurePanel = css`

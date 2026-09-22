@@ -6,6 +6,7 @@ import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import type { OverlayTriggerState } from "@react-stately/overlays"
 import React, { useRef, type ReactNode } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -121,19 +122,10 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlayProps> = ({
           {/* Helps screen reader users dismiss easily when tabbing */}
           <DismissButton onDismiss={handleClose} />
 
-          <h2
-            {...titleProps}
-            className={css`
-              position: absolute;
-              left: -10000px;
-              width: 1px;
-              height: 1px;
-              overflow: hidden;
-            `}
-          >
-            {t("navigation-menu")}
-          </h2>
-          <button className={closeButtonCss} onClick={handleClose}>
+          <VisuallyHidden>
+            <h2 {...titleProps}>{t("navigation-menu")}</h2>
+          </VisuallyHidden>
+          <button className={closeButtonCss} onClick={handleClose} aria-label={t("close")}>
             <span
               className={css`
                 font-size: 20px;

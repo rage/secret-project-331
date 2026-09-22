@@ -16,6 +16,7 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
@@ -68,19 +69,21 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
   let { focusProps, isFocusVisible } = useFocusRing()
 
   const disclosureButtonCss = css`
-    background: none;
-    border: none;
-    box-shadow: none;
-    text-shadow: none;
-    padding: 12px 16px;
-    border-radius: 12px;
-    &[data-hovered] {
-      background: #f3f4f6;
-      cursor: pointer;
+    ${respondToOrLarger.md} {
+      display: block;
+      background: none;
+      border: none;
+      box-shadow: none;
+      text-shadow: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      &[data-hovered] {
+        background: ${baseTheme.colors.clear[100]};
+        cursor: pointer;
+      }
     }
-    @media (max-width: 767.98px) {
-      display: none !important;
-    }
+
+    display: none;
   `
 
   let items: DropdownMenuItem[] = [
@@ -122,26 +125,25 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
         <div
           className={css`
             display: flex;
-            align-items: baseline;
-            justify-content: space-between;
 
-            flex-direction: ${!state.isExpanded ? "column-reverse" : "row"};
-            border-bottom: 1px solid ${baseTheme.colors.gray[75]};
-
-            @media (max-width: 767.98px) {
-              flex-direction: column-reverse;
+            ${respondToOrLarger.md} {
+              align-items: baseline;
+              justify-content: space-between;
+              flex-direction: ${state.isExpanded ? "row" : "column-reverse"};
+              border-bottom: ${state.isExpanded ? `1px solid ${baseTheme.colors.gray[75]}` : "none"};
             }
+
+            flex-direction: column-reverse;
           `}
         >
           <div
             className={css`
               display: flex;
-              flex-direction: ${!state.isExpanded ? "column" : "row"};
-              align-items: center;
-
-              @media (max-width: 767.98px) {
-                flex-direction: column;
+              ${respondToOrLarger.md} {
+                flex-direction: ${!state.isExpanded ? "column" : "row"};
+                align-items: center;
               }
+              flex-direction: column;
             `}
           >
             <OnlyRenderIfPermissions
@@ -168,10 +170,10 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
 
                   /* Hide button text when disclosure collapsed and when on mobile */
                   & span[id]:last-of-type {
-                    display: ${!state.isExpanded ? "none" : "block"};
-                    @media (max-width: 767.98px) {
-                      display: none !important;
+                    ${respondToOrLarger.md} {
+                      display: ${!state.isExpanded ? "none" : "block"};
                     }
+                    display: none;
                   }
                 `}
                 icon={

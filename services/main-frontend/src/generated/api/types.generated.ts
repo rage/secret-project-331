@@ -3322,6 +3322,15 @@ export type MyCourse = Course & {
   can_hide: boolean
 }
 
+/**
+ * What the caller wrote about needing the credits rather than a certificate.
+ */
+export type MyCreditJustification = {
+  course_module_completion_id: string
+  justification: string
+  updated_at: string
+}
+
 export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
@@ -4547,6 +4556,10 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
+export type SetCreditJustificationPayload = {
+  justification: string
+}
+
 export type SetEnrolmentRoutePayload = {
   route: CreditRegistrationEnrolmentRoute
 }
@@ -4945,6 +4958,15 @@ export type UserChapterProgress = {
 }
 
 export type UserCompletionInformation = {
+  /**
+   * `Some` only when the student can generate a certificate for this module right now, which is
+   * also the id `/generate-certificate` wants.
+   *
+   * Read off the same completion as the rest of this object, the latest one. The course page's
+   * congratulations card reads off the best one instead, so a student whose newest completion is
+   * not their best can see a certificate there and none here.
+   */
+  certificate_configuration_id?: string | null
   course_module_completion_id: string
   /**
    * The module's own name, `None` on a course's default module.
@@ -4954,6 +4976,11 @@ export type UserCompletionInformation = {
    * The course's own name, never the module's; the module is named by `course_module_name`.
    */
   course_name: string
+  /**
+   * Why the student said they need the credits rather than a certificate, if they have been
+   * asked and answered. Advisory; it seeds the field when they come back to the page.
+   */
+  credit_justification?: string | null
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean
@@ -10303,6 +10330,28 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
   GetMyCreditRegistrationForCourseModuleResponses[keyof GetMyCreditRegistrationForCourseModuleResponses]
+
+export type SetMyCreditJustificationData = {
+  body: SetCreditJustificationPayload
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification"
+}
+
+export type SetMyCreditJustificationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyCreditJustification
+}
+
+export type SetMyCreditJustificationResponse =
+  SetMyCreditJustificationResponses[keyof SetMyCreditJustificationResponses]
 
 export type GetMyEnrolmentRouteData = {
   body?: never

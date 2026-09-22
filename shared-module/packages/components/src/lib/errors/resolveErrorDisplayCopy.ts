@@ -2,6 +2,10 @@ import type { TFunction } from "i18next"
 
 import type { ErrorViewModel } from "./normalizeErrorForDisplay"
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
 export interface ResolvedErrorDisplayCopy {
   title: string
   message: string | null
@@ -35,9 +39,12 @@ export function resolveErrorDisplayCopy(
     }
   }
 
+  const translationVariables = isRecord(error.metadata) ? error.metadata : null
+
   if (error.messageKey) {
     const localizedMessage = t(`error-message-key.${error.messageKey}.message`, {
       defaultValue: "",
+      ...translationVariables,
     })
     if (localizedMessage.trim() !== "") {
       return {

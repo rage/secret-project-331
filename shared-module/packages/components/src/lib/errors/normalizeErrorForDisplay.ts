@@ -60,6 +60,7 @@ export interface ErrorViewModel {
   retryAfterSeconds: number | null
   issues: ErrorViewIssue[]
   blockId: string | null
+  metadata: Record<string, unknown> | null
   technicalDetails: ErrorViewTechnicalDetails | null
   raw: unknown
 }
@@ -245,6 +246,7 @@ function normalizeFrontendCrash(payload: FrontendCrashPayload, t: TFunction): Er
     retryAfterSeconds: null,
     issues: [],
     blockId: null,
+    metadata: null,
     technicalDetails:
       payload.stack === undefined ? null : { stack: payload.stack, detail: payload.message },
     raw: payload,
@@ -372,6 +374,7 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
     retryAfterSeconds: null,
     issues: parseIssues(payload.errors),
     blockId,
+    metadata,
     technicalDetails: null,
     raw: payload,
   }
@@ -405,6 +408,7 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction): ErrorViewMo
     retryAfterSeconds: error.retryAfterSeconds ?? null,
     issues: error.issues ?? [],
     blockId,
+    metadata: error.metadata ?? null,
     technicalDetails: {
       detail: error.detail ?? null,
       method: error.method ?? null,
@@ -456,6 +460,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       retryAfterSeconds: null,
       issues: [],
       blockId: data && typeof data.block_id === "string" ? data.block_id : null,
+      metadata: null,
       technicalDetails: { detail: typeof error.source === "string" ? error.source : null },
       raw: error,
     }
@@ -511,6 +516,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       retryAfterSeconds: firstNormalized?.retryAfterSeconds ?? null,
       issues: firstNormalized?.issues ?? [],
       blockId: firstNormalized?.blockId ?? null,
+      metadata: null,
       technicalDetails: { detail: `AggregateError(${String(error.errors?.length ?? 0)})` },
       raw: error,
     }
@@ -536,6 +542,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       retryAfterSeconds: null,
       issues,
       blockId: null,
+      metadata: null,
       technicalDetails: { raw: error.issues },
       raw: error,
     }
@@ -556,6 +563,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       retryAfterSeconds: null,
       issues: [],
       blockId: null,
+      metadata: null,
       technicalDetails: null,
       raw: error,
     }
@@ -577,6 +585,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
       retryAfterSeconds: null,
       issues: [],
       blockId: null,
+      metadata: null,
       technicalDetails: { stack: error.stack ?? null, detail: error.message },
       raw: error,
     }
@@ -605,6 +614,7 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorVie
     retryAfterSeconds: null,
     issues: [],
     blockId: null,
+    metadata: null,
     technicalDetails: null,
     raw: error,
   }

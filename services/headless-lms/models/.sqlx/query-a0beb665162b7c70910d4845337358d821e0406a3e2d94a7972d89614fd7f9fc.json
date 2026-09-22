@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  user_id,\n  code,\n  purpose AS \"purpose: UserEmailCodePurpose\",\n  attempt_count,\n  expires_at,\n  used_at,\n  created_at,\n  updated_at,\n  deleted_at\nFROM user_email_codes\nWHERE user_id = $1\n  AND purpose = $2\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n  AND expires_at > $3\n        ",
+  "query": "\nSELECT id,\n  user_id,\n  code,\n  purpose AS \"purpose: UserEmailCodePurpose\",\n  attempt_count,\n  expires_at,\n  used_at,\n  created_at,\n  updated_at,\n  deleted_at\nFROM user_email_codes\nWHERE user_id = $1\n  AND purpose = $2\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -139,8 +139,7 @@
               ]
             }
           }
-        },
-        "Timestamptz"
+        }
       ]
     },
     "nullable": [
@@ -156,5 +155,5 @@
       true
     ]
   },
-  "hash": "e5501a3e652db7a2714a6b19d5720227ded68e359fda0cc3f57185fae40c498b"
+  "hash": "a0beb665162b7c70910d4845337358d821e0406a3e2d94a7972d89614fd7f9fc"
 }

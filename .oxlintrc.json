@@ -751,7 +751,9 @@
                 "useRegisterBreadcrumbs",
                 "format",
                 "createFileRoute",
-                "createRootRoute"
+                "createRootRoute",
+                "useFieldArray",
+                "useWatch"
               ]
             },
             "object-properties": {

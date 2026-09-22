@@ -128,6 +128,9 @@ export type LinkProps = LinkPlainProps | LinkButtonProps
 
 const DEFAULT_APPEARANCE: LinkAppearance = "text"
 
+/** `VisuallyHidden.elementType`: a `<div>`, its own default, cannot sit inside an `<a>` in a `<p>`. */
+const VISUALLY_HIDDEN_INLINE = "span" as const
+
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
   function Link(props, forwardedRef) {
     const {
@@ -186,12 +189,26 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const loadingLabel = loadingLabelProp ?? t("link.loading")
     const loadingDescId = React.useId()
     const labelId = React.useId()
+    const opensInNewTabId = React.useId()
+
+    // A link leaving the page is an unremarkable, expected context change; one that leaves it in a
+    // tab the user didn't ask for is not, and nothing about the link's own text says so.
+    const opensInNewTab = rest.target === "_blank"
+    const opensInNewTabLabel = t("link.opensInNewTab")
+
+    // An explicit `aria-labelledby` replaces the link's own content in the accessible-name
+    // computation, so the hidden suffix rendered inside the link would otherwise go unannounced.
+    // `aria-label` already carries it (appended below); this covers the case that can't.
+    const announcesNewTabViaDescription =
+      opensInNewTab && Boolean(ariaLabelledByProp) && !ariaLabelProp
 
     const describedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
       isLoading && styledAsButtonResolved ? loadingDescId : undefined,
+      announcesNewTabViaDescription ? opensInNewTabId : undefined,
     )
-    const userAriaLabel = ariaLabelProp
+    const userAriaLabel =
+      opensInNewTab && ariaLabelProp ? `${ariaLabelProp} ${opensInNewTabLabel}` : ariaLabelProp
     const userLabelledBy = ariaLabelledByProp
     const labelledBy = userAriaLabel
       ? undefined
@@ -286,7 +303,15 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           {resolvedIcon && resolvedIconPosition === "start" ? (
             <span className={iconSlotCss}>{resolvedIcon}</span>
           ) : null}
-          <span id={labelledBy === labelId ? labelId : undefined}>{children}</span>
+          <span id={labelledBy === labelId ? labelId : undefined}>
+            {children}
+            {opensInNewTab && !ariaLabelProp ? (
+              <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
+                {" "}
+                {opensInNewTabLabel}
+              </VisuallyHidden>
+            ) : null}
+          </span>
           {resolvedIcon && resolvedIconPosition === "end" ? (
             <span className={iconSlotCss}>{resolvedIcon}</span>
           ) : null}
@@ -302,7 +327,15 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         ) : null}
       </>
     ) : (
-      children
+      <>
+        {children}
+        {opensInNewTab && !ariaLabelProp ? (
+          <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
+            {" "}
+            {opensInNewTabLabel}
+          </VisuallyHidden>
+        ) : null}
+      </>
     )
 
     if (!usesClientRouter) {

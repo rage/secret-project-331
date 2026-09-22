@@ -106,7 +106,7 @@
       "title": "Lyhyt nimi on jo käytössä"
     },
     "foreign_key_violation": {
-      "message": "Viittausta ei ole olemassa.",
+      "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
       "title": "Viiteavainvirhe"
     }
   },
@@ -154,6 +154,7 @@
   "likert-scale-strongly-agree": "Täysin samaa mieltä",
   "likert-scale-strongly-disagree": "Täysin eri mieltä",
   "link.loading": "Ladataan",
+  "link.opensInNewTab": "(avautuu uuteen välilehteen)",
   "listBox.noResults": "Tuloksia ei löytynyt",
   "log-in": "Kirjaudu sisään",
   "log-out": "Kirjaudu ulos",

@@ -30,7 +30,6 @@ const ClosedSectionFields = (): React.ReactElement => {
     control,
   } = useFormContext<EditCourseFormValues>()
 
-  // oxlint-disable-next-line i18next/no-literal-string
   const isClosed = useWatch({ name: "set_course_closed_at", control })
 
   // We purposefully do NOT clear related values when unchecked. Instead, we nullify `closed_at`

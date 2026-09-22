@@ -113,7 +113,7 @@
       "title": "Forbidden"
     },
     "foreign_key_violation": {
-      "message": "Reference does not exist.",
+      "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the data related to the constraint and try again.",
       "title": "Foreign key violation"
     },
     "generic_sisu_error": {
@@ -238,6 +238,7 @@
   "likert-scale-strongly-agree": "Strongly agree",
   "likert-scale-strongly-disagree": "Strongly disagree",
   "link.loading": "Loading",
+  "link.opensInNewTab": "(opens in a new tab)",
   "listBox.noResults": "No results found",
   "log-in": "Log in",
   "log-out": "Log out",

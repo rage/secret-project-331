@@ -126,6 +126,7 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
             fillWidth
             label={t("which-do-you-need")}
             description={t("credits-in-uh-registry-are-useful-mainly-if-you-study-in-finland")}
+            proseDescription
           >
             <Radio value={CERTIFICATE} label={t("a-certificate-of-completion")} />
             <Radio value={CREDITS} label={t("credits-in-the-uh-study-registry")} />
@@ -218,6 +219,7 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
             fillWidth
             label={t("reconsider-which-do-you-need")}
             description={t("without-suomi-fi-identification-we-verify-your-identity-manually")}
+            proseDescription
           >
             <Radio value={CERTIFICATE} label={t("a-certificate-of-completion")} />
             <Radio value={CREDITS} label={t("credits-in-the-uh-study-registry")} />

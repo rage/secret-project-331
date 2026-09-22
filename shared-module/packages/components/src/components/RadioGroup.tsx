@@ -77,6 +77,22 @@ const leadingDescriptionCss = css`
 `
 
 /**
+ * `proseDescription` styling: for a description that is itself an instruction (multi-sentence,
+ * consequential), not a one-line aside about the field — body text size and color instead of the
+ * smaller, muted field-hint style, so it doesn't read as a subtitle.
+ */
+const proseDescriptionCss = css`
+  max-width: 100%;
+  overflow-wrap: anywhere;
+`
+
+/** `leadingDescriptionCss` for `proseDescription`: the band's normal paragraph-to-paragraph gap. */
+const leadingProseDescriptionCss = css`
+  margin-top: var(--space-4-5);
+  margin-bottom: var(--space-4-5);
+`
+
+/**
  * The same clearance `leadingDescriptionCss` gives the options below a description — needed on the
  * options themselves when `segmented` has none, so its heading-weight legend isn't left touching
  * the option row underneath it.
@@ -92,6 +108,11 @@ const optionsWithoutDescriptionCss = css`
  */
 const stackedMessagesCss = css`
   margin-top: var(--space-3-5);
+`
+
+/** `stackedMessagesCss` for `proseDescription`: the band's normal paragraph-to-paragraph gap. */
+const stackedProseMessagesCss = css`
+  margin-top: var(--space-4-5);
 `
 
 const resolveRadioListCss = (
@@ -135,6 +156,12 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
    * for a short choice like Yes/No, where hugging the text is the more compact, expected look.
    */
   fillWidth?: boolean
+  /**
+   * Renders `description` as an ordinary paragraph — body text size and color, and the band's
+   * normal paragraph spacing — instead of the smaller, muted field-hint style. For a description
+   * that is itself a substantive instruction, not a short aside about the field.
+   */
+  proseDescription?: boolean
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
@@ -157,6 +184,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     orientation = "vertical",
     variant = "list",
     fillWidth = false,
+    proseDescription = false,
     className,
     children,
     "aria-label": ariaLabel,
@@ -209,7 +237,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const isSegmented = variant === "segmented"
   const descriptionBlock = description ? (
-    <div {...descriptionProps} className={descriptionCss}>
+    <div {...descriptionProps} className={proseDescription ? proseDescriptionCss : descriptionCss}>
       {description}
     </div>
   ) : null
@@ -239,7 +267,9 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       </legend>
 
       {isSegmented && descriptionBlock ? (
-        <div className={leadingDescriptionCss}>{descriptionBlock}</div>
+        <div className={proseDescription ? leadingProseDescriptionCss : leadingDescriptionCss}>
+          {descriptionBlock}
+        </div>
       ) : null}
 
       <RadioGroupContext.Provider value={{ fieldSize, state, variant, fillWidth }}>
@@ -254,7 +284,16 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       </RadioGroupContext.Provider>
 
       {(!isSegmented && descriptionBlock) || resolvedRenderedError ? (
-        <div className={cx(messagesCss, isSegmented ? undefined : stackedMessagesCss)}>
+        <div
+          className={cx(
+            messagesCss,
+            isSegmented
+              ? undefined
+              : proseDescription
+                ? stackedProseMessagesCss
+                : stackedMessagesCss,
+          )}
+        >
           {!isSegmented ? descriptionBlock : null}
           {resolvedRenderedError ? (
             <div {...errorMessageProps} className={errorCss} role="alert">

@@ -1,7 +1,6 @@
-import type { TFunction } from "i18next"
-
 import type { ResubmissionRefusal } from "@/generated/api/types.generated"
 
+import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom } from "./labelFrom"
 
 const REFUSAL_KEYS = {
@@ -18,7 +17,7 @@ const REFUSAL_UNKNOWN_KEY = "credit-registration-refusal-unknown"
  * both as a standalone explanation and after the colon of a bulk skip line.
  */
 export const refusalSentence = (
-  t: TFunction,
+  t: CreditRegistrationTFunction,
   refusal: ResubmissionRefusal | null | undefined,
 ): string =>
   refusal ? labelFrom(t, REFUSAL_KEYS, refusal, REFUSAL_UNKNOWN_KEY) : t(REFUSAL_UNKNOWN_KEY)

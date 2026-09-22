@@ -1,6 +1,5 @@
 //! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
 
-use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
@@ -18,10 +17,10 @@ use headless_lms_models::{
     exercise_task_submissions::{AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission},
     exercise_tasks::ExerciseTask,
 };
-use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_base::error::backend_error::BackendError;
-use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
+pub use headless_lms_base::jwt::{DOWNLOAD_CLAIM_PARAM, DownloadClaim, JwtKey};
+use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim, validate_hs256_claim};
 use models::SpecFetcher;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -34,32 +33,9 @@ use super::error::{ControllerError, ControllerErrorType};
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
-/// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
-pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
 
 /// A type for caching the spec fetching (only for the seed)
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
-
-#[derive(Clone, Debug)]
-pub struct JwtKey(Vec<u8>);
-
-impl JwtKey {
-    pub fn try_from_env() -> anyhow::Result<Self> {
-        let jwt_password = server_runtime_config().jwt_password.clone();
-        let jwt_key = Self::new(&jwt_password)?;
-        Ok(jwt_key)
-    }
-
-    pub fn new(key: &SecretString) -> anyhow::Result<Self> {
-        Ok(Self(key.expose_secret().as_bytes().to_vec()))
-    }
-
-    #[cfg(test)]
-    pub fn test_key() -> Self {
-        let test_jwt_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
-        Self(test_jwt_key.as_bytes().to_vec())
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UploadClaim {
@@ -129,45 +105,6 @@ impl FromRequest for UploadClaim {
             Result::<_, Self::Error>::Ok(claim)
         };
         ready(try_from_request())
-    }
-}
-
-/// Authorizes the bearer to read one specific host-stored file for a while.
-///
-/// Minted by the host when it hands a file-typed answer to an exercise service's grade endpoint, so
-/// the service fetches a URL the host chose rather than one a student supplied. The read-side mirror
-/// of [`UploadClaim`]; unlike it, this claim names a single file rather than a namespace, so a
-/// holder cannot reach any other file.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DownloadClaim {
-    file_upload_id: Uuid,
-    exp: usize,
-    iat: usize,
-}
-
-impl DownloadClaim {
-    pub fn file_upload_id(&self) -> Uuid {
-        self.file_upload_id
-    }
-
-    /// A day, not the grading request's 120 s: a service may finish asynchronously through
-    /// `grading_update_url` long after the request returns.
-    pub fn expiring_in_1_day(file_upload_id: Uuid) -> Self {
-        let now = Utc::now().timestamp().max(0) as usize;
-        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
-        Self {
-            file_upload_id,
-            exp,
-            iat: now,
-        }
-    }
-
-    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
-        sign_hs256_claim(&self, key)
-    }
-
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_claim(token, key)
     }
 }
 
@@ -474,16 +411,16 @@ fn grading_request_files(
     ordered
         .into_iter()
         .map(|file| {
-            let claim = DownloadClaim::expiring_in_1_day(file.id).sign(jwt_key)?;
             Ok(GradingRequestFile {
                 id: file.id,
                 name: file.name.clone(),
                 mime: file.mime.clone(),
                 size_bytes: file.size_bytes,
-                download_url: format!(
-                    "{base_url}/api/v0/files/claimed/{}?{DOWNLOAD_CLAIM_PARAM}={claim}",
-                    file.id
-                ),
+                download_url: claimed_file_url(
+                    base_url,
+                    jwt_key,
+                    DownloadClaim::expiring_in_1_day(file.id),
+                )?,
             })
         })
         .collect()
@@ -658,18 +595,6 @@ impl GivePeerReviewClaim {
     }
 }
 
-/// Signs any serializable claim payload as HS256 using the shared JWT secret.
-fn sign_hs256_claim<T: serde::Serialize>(
-    claim: &T,
-    key: &JwtKey,
-) -> Result<String, jsonwebtoken::errors::Error> {
-    encode(
-        &Header::new(Algorithm::HS256),
-        claim,
-        &EncodingKey::from_secret(&key.0),
-    )
-}
-
 /// Decodes a claim, reporting a bad token as a request error rather than a JWT one.
 ///
 /// [`validate_hs256_claim`] is the raw form that leaves the `jsonwebtoken` error unmapped, for the
@@ -680,16 +605,6 @@ fn validate_claim<T: serde::de::DeserializeOwned>(
 ) -> Result<T, ControllerError> {
     validate_hs256_claim(token, key)
         .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
-}
-
-/// Decodes and verifies an HS256 token into the requested claim type.
-fn validate_hs256_claim<T: serde::de::DeserializeOwned>(
-    token: &str,
-    key: &JwtKey,
-) -> Result<T, jsonwebtoken::errors::Error> {
-    let validation = Validation::new(Algorithm::HS256);
-    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
-        .map(|token_data| token_data.claims)
 }
 
 /// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
@@ -784,6 +699,7 @@ mod tests {
     use actix_web::test::TestRequest;
     use base64::Engine;
     use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use secrecy::SecretString;
     use serde_json::json;
 
     fn other_key() -> JwtKey {
@@ -823,48 +739,6 @@ mod tests {
             order_number,
             url: format!("http://project-331.local/api/v0/files/tmc/{name}"),
         }
-    }
-
-    #[test]
-    fn download_claim_round_trips() {
-        let key = JwtKey::test_key();
-        let file_upload_id = Uuid::new_v4();
-        let token = DownloadClaim::expiring_in_1_day(file_upload_id)
-            .sign(&key)
-            .expect("signing should succeed");
-        let claim = DownloadClaim::validate(&token, &key).expect("the claim should validate");
-        assert_eq!(claim.file_upload_id(), file_upload_id);
-    }
-
-    /// A grading request's claims outlive the request itself, but not by more than a day.
-    #[test]
-    fn download_claim_expires_in_a_day() {
-        let claim = DownloadClaim::expiring_in_1_day(Uuid::new_v4());
-        let lifetime = claim.exp as i64 - claim.iat as i64;
-        assert_eq!(lifetime, Duration::days(1).num_seconds());
-    }
-
-    #[test]
-    fn expired_download_claim_is_rejected() {
-        let key = JwtKey::test_key();
-        let token = sign_json(
-            json!({
-                "file_upload_id": Uuid::new_v4(),
-                "exp": past_timestamp(3600),
-                "iat": past_timestamp(7200),
-            }),
-            &key,
-        );
-        DownloadClaim::validate(&token, &key).expect_err("an expired claim must be rejected");
-    }
-
-    #[test]
-    fn download_claim_signed_with_another_key_is_rejected() {
-        let token = DownloadClaim::expiring_in_1_day(Uuid::new_v4())
-            .sign(&other_key())
-            .expect("signing should succeed");
-        DownloadClaim::validate(&token, &JwtKey::test_key())
-            .expect_err("a claim signed with another key must be rejected");
     }
 
     /// A downstream grader grades by position, so the request must list the files in the order the

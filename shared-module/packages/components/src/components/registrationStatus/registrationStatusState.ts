@@ -1,18 +1,34 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { CheckCircle, Clock, Cross, ExclamationTriangle } from "@vectopus/atlas-icons-react"
+import {
+  ArrowRightCircle,
+  CheckCircle,
+  Clock,
+  ExclamationTriangle,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 
 import type { BadgeTone } from "../Badge"
 
-/** `action-needed` is something the reader can fix, `failed` is not. */
-export type RegistrationStatusState = "done" | "current" | "action-needed" | "failed" | "upcoming"
+/**
+ * `action-needed` is something the reader can fix, `failed` is not, and `superseded` is an attempt
+ * a later one has replaced.
+ */
+export type RegistrationStatusState =
+  | "done"
+  | "current"
+  | "action-needed"
+  | "failed"
+  | "superseded"
+  | "upcoming"
 
-export const registrationStatusBadgeTone: Record<RegistrationStatusState, BadgeTone> = {
+/** One tone per state for both the badge and the infobox, whose tone unions are the same. */
+export const registrationStatusTone: Record<RegistrationStatusState, BadgeTone> = {
   done: "success",
   current: "info",
   "action-needed": "warning",
   failed: "danger",
+  superseded: "neutral",
   upcoming: "neutral",
 }
 
@@ -24,24 +40,7 @@ export const registrationStatusIcon: Record<
   done: CheckCircle,
   current: Clock,
   "action-needed": ExclamationTriangle,
-  failed: Cross,
+  failed: XmarkCircle,
+  superseded: ArrowRightCircle,
   upcoming: null,
-}
-
-export const registrationStatusColorCss: Record<RegistrationStatusState, string> = {
-  done: css`
-    color: var(--color-green-700);
-  `,
-  current: css`
-    color: var(--color-blue-600);
-  `,
-  "action-needed": css`
-    color: var(--color-red-700);
-  `,
-  failed: css`
-    color: var(--color-crimson-700);
-  `,
-  upcoming: css`
-    color: var(--color-gray-400);
-  `,
 }

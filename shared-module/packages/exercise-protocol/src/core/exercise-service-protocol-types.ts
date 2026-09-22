@@ -254,7 +254,10 @@ export type UserVariablesMap = Record<string, unknown>
 export interface AnswerFileRef {
   /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
   id: string
-  /** Host download URL. Needs no authentication; the plugin must not persist it. */
+  /**
+   * Host download URL. Needs no authentication, but expires within the hour and is minted anew on
+   * every read, so the plugin must not persist it.
+   */
   url: string
   /** Name the file was uploaded under. A plugin that anonymizes ignores this. */
   name: string

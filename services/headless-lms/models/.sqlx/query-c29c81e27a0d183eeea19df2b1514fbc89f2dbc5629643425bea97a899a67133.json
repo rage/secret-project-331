@@ -1,0 +1,393 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.submit_retry_count + cr.verify_attempt_count AS \"attempt_count!\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.student_number,\n  d.stuck_in_state AS \"stuck_in_state!\",\n  d.permanent_error AS \"permanent_error!\",\n  d.retry_window_expired AS \"retry_window_expired!\",\n  d.misregistered AS \"misregistered!\",\n  d.too_many_attempts AS \"too_many_attempts!\",\n  d.outcome_uncertain AS \"outcome_uncertain!\",\n  COUNT(*) OVER () AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE d.stuck_in_state\n  ) OVER () AS \"stuck_in_state_count!\",\n  COUNT(*) FILTER (\n    WHERE d.permanent_error\n  ) OVER () AS \"permanent_error_count!\",\n  COUNT(*) FILTER (\n    WHERE d.retry_window_expired\n  ) OVER () AS \"retry_window_expired_count!\",\n  COUNT(*) FILTER (\n    WHERE d.misregistered\n  ) OVER () AS \"misregistered_count!\",\n  COUNT(*) FILTER (\n    WHERE d.too_many_attempts\n  ) OVER () AS \"too_many_attempts_count!\",\n  COUNT(*) FILTER (\n    WHERE d.outcome_uncertain\n  ) OVER () AS \"outcome_uncertain_count!\",\n  COUNT(*) FILTER (\n    WHERE NOT any_d.any_reason\n  ) OVER () AS \"flagged_without_reason_count!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN LATERAL (\n    SELECT u.threshold_secs\n    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)\n    WHERE u.state = cr.state\n  ) t ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT cr.terminal_at IS NULL\n      AND t.threshold_secs IS NOT NULL\n      AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,\n      cr.state = 'failed_permanent'\n      AND cr.needs_admin_attention AS permanent_error,\n      -- Coalesced because error_code is nullable and this is selected into a plain `bool`: a row\n      -- another detector picked while holding no error code would otherwise fail to decode and take\n      -- the whole table down with it.\n      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,\n      cr.state = 'misregistered' AS misregistered,\n      cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,\n      cr.state = 'submission_uncertain' AS outcome_uncertain\n  ) d\n  CROSS JOIN LATERAL (\n    SELECT d.stuck_in_state\n      OR d.permanent_error\n      OR d.retry_window_expired\n      OR d.misregistered\n      OR d.too_many_attempts\n      OR d.outcome_uncertain AS any_reason\n  ) any_d\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    any_d.any_reason\n    OR cr.needs_admin_attention\n  )\n  AND (\n    NOT $8::bool\n    OR NOT any_d.any_reason\n  )\n  AND (\n    CARDINALITY($4::text []) = 0\n    OR (d.stuck_in_state AND 'stuck_in_state' = ANY($4))\n    OR (d.permanent_error AND 'permanent_error' = ANY($4))\n    OR (\n      d.retry_window_expired\n      AND 'retry_window_expired' = ANY($4)\n    )\n    OR (d.misregistered AND 'misregistered' = ANY($4))\n    OR (\n      d.too_many_attempts\n      AND 'too_many_attempts' = ANY($4)\n    )\n    OR (\n      d.outcome_uncertain\n      AND 'outcome_uncertain' = ANY($4)\n    )\n  )\nORDER BY CASE\n    WHEN $5::text = 'course' THEN c.name\n  END,\n  CASE\n    WHEN $5::text = 'next_attempt' THEN cr.next_attempt_at\n    ELSE cr.state_entered_at\n  END,\n  cr.id\nLIMIT $6 OFFSET $7\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_module_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "state",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "state_entered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_entered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "error_code?",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "acceptor_not_found",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "sisu_temporarily_unavailable",
+                "misregistered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "attempt_count!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 13,
+        "name": "needs_admin_attention",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "needs_admin_attention"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "next_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "next_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "stuck_in_state!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 17,
+        "name": "permanent_error!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 18,
+        "name": "retry_window_expired!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 19,
+        "name": "misregistered!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 20,
+        "name": "too_many_attempts!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 21,
+        "name": "outcome_uncertain!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 22,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 23,
+        "name": "stuck_in_state_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 24,
+        "name": "permanent_error_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 25,
+        "name": "retry_window_expired_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 26,
+        "name": "misregistered_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 27,
+        "name": "too_many_attempts_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 28,
+        "name": "outcome_uncertain_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 29,
+        "name": "flagged_without_reason_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Float8Array",
+        "Int4",
+        "TextArray",
+        "Text",
+        "Int8",
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      null,
+      false,
+      false,
+      true,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "c29c81e27a0d183eeea19df2b1514fbc89f2dbc5629643425bea97a899a67133"
+}

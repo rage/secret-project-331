@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 
 import { baseTheme } from "../styles"
@@ -40,6 +40,8 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};
       transition: filter 0.3s;
       width: max-content;
+      max-width: 50vw;
+      white-space: normal;
 
       &:active {
         transform: translateY(0);
@@ -117,7 +119,7 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         tabIndex={onClick ? 0 : undefined}
         onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
         onClick={onClick}
-        className={`${speechBalloonCss} ${className ?? ""}`}
+        className={cx(speechBalloonCss, className)}
       >
         {children}
       </div>

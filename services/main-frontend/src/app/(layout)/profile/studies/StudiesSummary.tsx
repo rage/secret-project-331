@@ -1,36 +1,44 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
 import type { MyStudiesTotals } from "@/generated/api/types.generated"
-import { StatTile } from "@/shared-module/components"
+import { StatTile, StatTileList } from "@/shared-module/components"
 
 export interface StudiesSummaryProps {
   totals: MyStudiesTotals
 }
 
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 0 0 1.5rem;
-`
-
 /** ECTS can be fractional, but a whole number should not read as "5.0". */
 const formatEcts = (ects: number, locale: string): string =>
   ects.toLocaleString(locale, { maximumFractionDigits: 1 })
 
+const SUMMARY_TILE_COUNT = 2
+
+/**
+ * How much the student has earned so far: the number a finishing student came to the page for.
+ *
+ * Renders nothing before the first completion — a row of zeros answers a question nobody asked and
+ * pushes the courses that would answer it off the screen.
+ */
 const StudiesSummary: React.FC<StudiesSummaryProps> = ({ totals }) => {
   const { t, i18n } = useTranslation()
 
+  if (totals.completions === 0 && totals.ects === 0) {
+    return null
+  }
+
   return (
-    <div className={rowCss}>
-      <StatTile label={t("stat-courses")} value={totals.courses} />
-      <StatTile label={t("stat-completions")} value={totals.completions} />
-      <StatTile label={t("stat-ects-earned")} value={formatEcts(totals.ects, i18n.language)} />
-    </div>
+    <StatTileList ariaLabel={t("heading-my-studies")} maxColumns={SUMMARY_TILE_COUNT}>
+      <StatTile
+        label={t("label-credits-earned")}
+        value={t("ects-n", { n: formatEcts(totals.ects, i18n.language) })}
+        tone={TONE.SUCCESS}
+      />
+      <StatTile label={t("label-completions")} value={totals.completions} />
+    </StatTileList>
   )
 }
 

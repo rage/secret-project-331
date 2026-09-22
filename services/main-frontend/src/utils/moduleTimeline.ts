@@ -2,17 +2,16 @@
 // "start" is stored, so an additional (non-base) module's start is inferred from its first submission
 // (`first_submission_at` on the enrollment DTO); the base module starts at enrollment.
 
-import type { TFunction } from "i18next"
-
 import type { CourseEnrollmentInfo, CourseModuleInfo } from "@/generated/api/types.generated"
+import type { ServiceTFunction } from "@/utils/translationNamespaces"
 
 /** Whole seconds between two instants, clamped at 0. */
 export function durationSeconds(from: Date, to: Date): number {
   return Math.max(0, Math.round((to.getTime() - from.getTime()) / 1000))
 }
 
-/** Localized, day-aware duration: `Xd` / `Xd Yh` / `Xh Ym` / `Ym`. */
-export function formatDuration(seconds: number, t: TFunction): string {
+/** Localized, day-aware duration: `Xd` / `Xd Yh` / `Xh` / `Xh Ym` / `Ym`. */
+export function formatDuration(seconds: number, t: ServiceTFunction): string {
   const totalMinutes = Math.round(seconds / 60)
   const days = Math.floor(totalMinutes / (60 * 24))
   const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
@@ -21,7 +20,9 @@ export function formatDuration(seconds: number, t: TFunction): string {
     return hours > 0 ? t("duration-days-hours", { days, hours }) : t("duration-days", { days })
   }
   if (hours > 0) {
-    return t("duration-hours-minutes", { hours, minutes })
+    return minutes > 0
+      ? t("duration-hours-minutes", { hours, minutes })
+      : t("duration-hours", { hours })
   }
   return t("duration-minutes", { minutes })
 }

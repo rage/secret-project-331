@@ -1,12 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { TONE } from "@/components/credit-registration/constants"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
-import { baseTheme } from "@/shared-module/common/styles"
+import { Infobox, Link } from "@/shared-module/components"
 
 import { awaitingReviewCount } from "../lib/completions"
 
@@ -16,26 +15,11 @@ export interface CompletionReviewBannerProps {
   targetId: string
 }
 
-const bannerCss = css`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 1.5rem 0;
-  padding: 0.9rem 1.2rem;
-  border-radius: 6px;
-  text-decoration: none;
-  background: ${baseTheme.colors.red[100]};
-  border: 1px solid ${baseTheme.colors.red[300]};
-  color: ${baseTheme.colors.red[800]};
-  font-weight: 500;
-
-  &:hover {
-    background: ${baseTheme.colors.red[200]};
-  }
-`
-
 /**
- * Alert shown when the student has completions awaiting review; links to the completion-review section.
+ * The page's only alert for completions awaiting cheating review; links to the review section.
+ *
+ * The stat tiles deliberately do not repeat this count: two alerts for one number read as two
+ * problems.
  */
 const CompletionReviewBanner: React.FC<CompletionReviewBannerProps> = ({
   enrollments,
@@ -49,10 +33,10 @@ const CompletionReviewBanner: React.FC<CompletionReviewBannerProps> = ({
   }
 
   return (
-    <a className={bannerCss} href={`#${targetId}`}>
-      <ExclamationTriangle size={18} weight="bold" aria-hidden="true" />
-      <span>{t("completions-awaiting-review", { count: awaitingReview })}</span>
-    </a>
+    <Infobox tone={TONE.DANGER}>
+      <p>{t("completions-awaiting-review", { count: awaitingReview })}</p>
+      <Link href={`#${targetId}`}>{t("completion-review")}</Link>
+    </Infobox>
   )
 }
 

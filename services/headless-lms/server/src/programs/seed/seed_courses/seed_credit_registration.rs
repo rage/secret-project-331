@@ -1,9 +1,6 @@
 //! Database rows for the credit-registration (Suotar) system tests. The identities they are built
 //! from, and the matching registry world, are in [`crate::controllers::mock_suotar::fixtures`].
 //!
-//! The backfill course keeps `enable_credit_registration_via_suotar` off and nothing may turn it on:
-//! its spec flips it from the UI, which is one-way and run-wide. Every other course has it on.
-//!
 //! The workers tick every phase unscoped every few seconds in the test deployment, so a fixture row
 //! nothing may move has to sit on a paused module — that is what the states course is for.
 
@@ -159,7 +156,6 @@ pub async fn seed_credit_registration(
             .await?;
 
     seed_old_flow_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_backfill_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_import_outcomes_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
@@ -557,91 +553,6 @@ async fn seed_old_flow_course(
     for student in [&still_legacy, &already_cut_over] {
         course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
     }
-    Ok(())
-}
-
-/// Four passed completions, one already registered by the legacy pull flow so the backfill spec can
-/// assert it is skipped rather than re-pushed.
-async fn seed_backfill_course(
-    conn: &mut PgConnection,
-    app_config: &ApplicationConfiguration,
-    org: Uuid,
-    teacher_user_id: Uuid,
-) -> Result<()> {
-    let cx = SeedContext {
-        teacher: teacher_user_id,
-        org,
-        base_course_ns: BACKFILL_COURSE_ID,
-    };
-    let registrar_id = get_or_create_default_registrar(conn).await?;
-
-    let mut module = ModuleBuilder::new()
-        .order(0)
-        .ects(5.0)
-        .uh_course_code(CRS_BACKFILL_101.to_string())
-        .default_registrar(registrar_id)
-        // The module-edit form's start/end chapter pickers are required; without one, the spec
-        // that opts this module in through that UI finds "Confirm" permanently disabled.
-        .chapter(
-            ChapterBuilder::new(1, "Content")
-                .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:front-page")),
-        );
-
-    for index in 1..=4 {
-        let student = insert_student(
-            conn,
-            cx.v5(format!("user:backfill:{index}").as_bytes()),
-            &format!("credit-registration-backfill-{index}@example.com"),
-            "Zzyzx",
-            &format!("Backfill{index}"),
-        )
-        .await?;
-        let mut completion = CompletionBuilder::new(student.user_id)
-            .email(student.email.clone())
-            .grade(3)
-            .passed(true)
-            .prerequisite_modules_completed(true);
-        if index == 1 {
-            completion = completion.registered(
-                CompletionRegisteredBuilder::new()
-                    .real_student_number(BACKFILL_STUDENTS[index - 1].student_number.to_string()),
-            );
-        }
-        module = module.completion(completion);
-    }
-    let failed_student = insert_student(
-        conn,
-        cx.v5(b"user:backfill:failed"),
-        "credit-registration-backfill-failed@example.com",
-        "Zzyzx",
-        "Backfillfailed",
-    )
-    .await?;
-    module = module.completion(
-        CompletionBuilder::new(failed_student.user_id)
-            .email(failed_student.email.clone())
-            .grade(0)
-            .passed(false)
-            .prerequisite_modules_completed(true),
-    );
-
-    let (course, instance, _) = CourseBuilder::new(
-        "Credit registration backfill",
-        BACKFILL_COURSE_SLUG,
-    )
-    .desc("Fixture course with pre-existing passed completions, for the backfill-on-opt-in spec.")
-    .course_id(BACKFILL_COURSE_ID)
-    .instance(instance_config(cx.v5(b"instance:backfill")))
-    .module(module)
-    .seed(conn, app_config, &cx)
-    .await?;
-
-    for index in 1..=4 {
-        let user_id = cx.v5(format!("user:backfill:{index}").as_bytes());
-        course_instance_enrollments::insert(conn, user_id, course.id, instance.id).await?;
-    }
-    course_instance_enrollments::insert(conn, failed_student.user_id, course.id, instance.id)
-        .await?;
     Ok(())
 }
 

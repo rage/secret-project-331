@@ -276,6 +276,7 @@
   "chatbot-generate-password-reset-link-email-row": "Email: {{email}}",
   "chatbot-generate-password-reset-link-title": "Generate a password reset link?",
   "chatbot-is-responding": "Chatbot is responding",
+  "chatbot-list": "Chatbot list",
   "chatbot-password-reset-link-payload-missing": "A reset link was generated. Run the tool again if you no longer have it.",
   "chatbot-preview-modal-title": "Chatbot preview",
   "chatbot-question-answered": "You answered this question.",

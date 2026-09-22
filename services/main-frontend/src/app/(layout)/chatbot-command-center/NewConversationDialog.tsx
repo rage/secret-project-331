@@ -204,7 +204,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           height: 400px;
           overflow: auto;
         `}
-        aria-label="Chatbot list"
+        aria-label={t("chatbot-list")}
       >
         {chatbotOptionsFiltered.length === 0 ? (
           <div className={listBoxEmptyStateCss} role="presentation">

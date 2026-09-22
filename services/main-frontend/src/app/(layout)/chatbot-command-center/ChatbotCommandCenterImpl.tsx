@@ -14,9 +14,11 @@ import Sidebar from "./Sidebar"
 const gridContainer = css`
   display: grid;
 
-  // Sidebar by default width of 400px
-  // but when collapsed or on mobile
-  // takes width of its elements
+  /*
+  Sidebar by default width of 400px
+  but when collapsed or on mobile
+  takes width of its elements
+  */
   grid-template-columns: 400px minmax(0, 1fr);
 
   &:has([hidden="until-found"]) {

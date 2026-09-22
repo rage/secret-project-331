@@ -255,6 +255,7 @@
   "chatbot-disclaimer-start": "Olet avaamassa keskustelurobotin, joka perustuu suureen kielimalliin (LLM). Käyttääksesi tätä keskustelurobottia, sinun on hyväksyttävä, että...",
   "chatbot-finished-responding": "Keskustelurobotti on vastannut",
   "chatbot-is-responding": "Keskustelurobotti on vastaamassa",
+  "chatbot-list": "Keskustelurobottien listaus",
   "chatbot-preview-modal-title": "Keskustelurobotin esikatselu",
   "chatbot-question-answered": "Vastasit tähän kysymykseen.",
   "chatbot-question-closed": "Tämä kysymys ei enää odota vastausta.",

@@ -37,7 +37,7 @@ const sideBarContainerCss = css`
   padding: 0;
   box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
 
-  // Applied when disclosure is open
+  /* Applied when disclosure is open */
   &:has(> [data-expanded]) {
     overflow-y: auto;
     overflow-x: hidden;
@@ -166,8 +166,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
                   text-wrap: nowrap;
                   padding: 0;
 
-                  // Hide button text when disclosure collapsed
-                  // and when on mobile
+                  /* Hide button text when disclosure collapsed and when on mobile */
                   & span[id]:last-of-type {
                     display: ${!state.isExpanded ? "none" : "block"};
                     @media (max-width: 767.98px) {

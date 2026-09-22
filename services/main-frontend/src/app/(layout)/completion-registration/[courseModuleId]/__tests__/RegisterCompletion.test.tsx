@@ -50,12 +50,17 @@ const answer = (name: string, option: string | RegExp) => {
   fireEvent.click(question(name).getByRole("radio", { name: option }))
 }
 
+/** The identification question answers itself with plain buttons, not a radio group. */
+const answerIdentification = (option: string | RegExp) => {
+  fireEvent.click(screen.getByRole("button", { name: option }))
+}
+
 /** Q1 = No, then credits, then no Suomi.fi method, then credits again: the only way to Screen 5. */
 const walkToTheLastQuestion = () => {
   answer(STUDENT_TYPE, "no")
   answer(FINNISH_ID, "no")
   answer(WHICH_DO_YOU_NEED, "credits-in-the-uh-study-registry")
-  answer(IDENTIFICATION, /choose-this-if-you-are-not-sure-which-option-applies-to-you/)
+  answerIdentification("no")
   answer(RECONSIDER, "credits-in-the-uh-study-registry")
 }
 
@@ -105,7 +110,7 @@ describe("RegisterCompletion", () => {
 
     expect(screen.getByText("enroll-through-sisu-to-register-credits")).toBeInTheDocument()
     expect(screen.getByText("sisu-email-matching-explanation")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "go-to-sisu" })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /go-to-sisu/ })).toBeInTheDocument()
     expect(screen.queryByRole("link", { name: "to-the-registration-form" })).not.toBeInTheDocument()
   })
 
@@ -191,7 +196,7 @@ describe("RegisterCompletion", () => {
         `/generate-certificate?module=module-1&ccid=${CERTIFICATE_CONFIGURATION_ID}`,
       )
       expect(openUniversityContentIsVisible()).toBe(false)
-      expect(screen.queryByRole("radiogroup", { name: IDENTIFICATION })).not.toBeInTheDocument()
+      expect(screen.queryByRole("heading", { name: IDENTIFICATION })).not.toBeInTheDocument()
       expect(
         screen.queryByText("changed-email-since-completing-course-disclosure-title"),
       ).not.toBeInTheDocument()
@@ -204,18 +209,16 @@ describe("RegisterCompletion", () => {
       answer(FINNISH_ID, "no")
       answer(WHICH_DO_YOU_NEED, "credits-in-the-uh-study-registry")
 
-      const options = question(IDENTIFICATION).getAllByRole("radio")
-      expect(options).toHaveLength(3)
+      expect(screen.getByRole("heading", { name: IDENTIFICATION })).toBeInTheDocument()
+      expect(screen.getByText("eidas-explanation")).toBeInTheDocument()
       expect(
-        question(IDENTIFICATION).getByText(
-          "https://www.suomi.fi/instructions-and-support/identification/information-on-identification-tokens-used-in-suomi-fi-e-identification",
-        ),
+        screen.getByText("other-suomi-fi-identification-methods-explanation"),
       ).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "eidas" })).toBeInTheDocument()
       expect(
-        question(IDENTIFICATION).getByText(
-          "choose-this-if-you-are-not-sure-which-option-applies-to-you",
-        ),
+        screen.getByRole("button", { name: "another-suomi-fi-identification-method" }),
       ).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: "no" })).toBeInTheDocument()
     })
 
     it("tips a student identifying with eIDAS and then lets them on", () => {
@@ -224,7 +227,7 @@ describe("RegisterCompletion", () => {
       answer(STUDENT_TYPE, "no")
       answer(FINNISH_ID, "no")
       answer(WHICH_DO_YOU_NEED, "credits-in-the-uh-study-registry")
-      answer(IDENTIFICATION, /yes-with-eidas/)
+      answerIdentification("eidas")
 
       expect(
         screen.getByText("tip-in-sisu-choose-suomi-fi-e-identification-then-eidas"),
@@ -239,7 +242,7 @@ describe("RegisterCompletion", () => {
       answer(STUDENT_TYPE, "no")
       answer(FINNISH_ID, "no")
       answer(WHICH_DO_YOU_NEED, "credits-in-the-uh-study-registry")
-      answer(IDENTIFICATION, /yes-with-another-suomi-fi-identification-method/)
+      answerIdentification("another-suomi-fi-identification-method")
 
       expect(
         screen.getByText("tip-in-sisu-choose-suomi-fi-e-identification-then-your-method"),
@@ -256,7 +259,7 @@ describe("RegisterCompletion", () => {
       answer(STUDENT_TYPE, "no")
       answer(FINNISH_ID, "no")
       answer(WHICH_DO_YOU_NEED, "credits-in-the-uh-study-registry")
-      answer(IDENTIFICATION, /choose-this-if-you-are-not-sure-which-option-applies-to-you/)
+      answerIdentification("no")
       answer(RECONSIDER, "a-certificate-of-completion")
 
       expect(screen.getByRole("link", { name: "go-to-certificate" })).toBeInTheDocument()

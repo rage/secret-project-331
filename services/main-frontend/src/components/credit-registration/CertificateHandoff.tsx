@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY } from "./constants"
-import { bandCss, rowCss } from "./styles"
+import { bandCss, headingCss, rowCss } from "./styles"
 
 const GENERATE_CERTIFICATE_PATH = "/generate-certificate"
 
@@ -28,6 +28,7 @@ export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
   const { t } = useTranslation()
   return (
     <section className={bandCss}>
+      <h2 className={headingCss}>{t("heading-your-certificate-is-ready")}</h2>
       <p>{t("you-can-get-your-certificate-of-completion-right-away")}</p>
       <div className={rowCss}>
         <Link

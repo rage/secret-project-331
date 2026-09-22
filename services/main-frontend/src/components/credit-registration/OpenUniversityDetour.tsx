@@ -1,16 +1,23 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { Infobox, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import { Button, Infobox, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import { questionLegendCss } from "@/shared-module/components/components/RadioGroup"
 
 import { CertificateHandoff } from "./CertificateHandoff"
-import { SEGMENTED, SUOMI_FI_EIDAS_URL, SUOMI_FI_IDENTIFICATION_URL, TONE } from "./constants"
+import {
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+  SEGMENTED,
+  SUOMI_FI_EIDAS_URL,
+  SUOMI_FI_IDENTIFICATION_URL,
+  TONE,
+} from "./constants"
 import { CreditJustificationForm } from "./CreditJustificationForm"
-import { bandCss } from "./styles"
+import { bandCss, rowCss } from "./styles"
 
 const HAS_FINNISH_ID_FIELD = "hasFinnishId"
 const NEED_FIELD = "need"
@@ -24,11 +31,6 @@ const CREDITS = "credits"
 const EIDAS = "eidas"
 const OTHER_SUOMI_FI = "other_suomi_fi"
 const NO_SUOMI_FI = "none"
-
-/** These addresses are longer than a phone is wide, so they have to break mid-word. */
-const addressCss = css`
-  overflow-wrap: anywhere;
-`
 
 interface DetourForm {
   [HAS_FINNISH_ID_FIELD]: string
@@ -65,7 +67,7 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
   // Default namespace, like the registration page these bands belong to, not the
   // `credit-registration` one the rest of this folder reads.
   const { t } = useTranslation()
-  const { control, watch } = useForm<DetourForm>({
+  const { control, watch, setValue } = useForm<DetourForm>({
     defaultValues: {
       [HAS_FINNISH_ID_FIELD]: "",
       [NEED_FIELD]: "",
@@ -74,6 +76,7 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
     },
   })
   const [justificationSaved, setJustificationSaved] = useState(false)
+  const identificationHeadingId = React.useId()
 
   const hasFinnishId = watch(HAS_FINNISH_ID_FIELD)
   const need = watch(NEED_FIELD)
@@ -120,8 +123,101 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
             name={NEED_FIELD}
             control={control}
             variant={SEGMENTED}
+            fillWidth
             label={t("which-do-you-need")}
             description={t("credits-in-uh-registry-are-useful-mainly-if-you-study-in-finland")}
+          >
+            <Radio value={CERTIFICATE} label={t("a-certificate-of-completion")} />
+            <Radio value={CREDITS} label={t("credits-in-the-uh-study-registry")} />
+          </RadioGroup>
+        </section>
+      ) : null}
+
+      {asksHowTheyIdentify ? (
+        <section className={bandCss}>
+          <h2 id={identificationHeadingId} className={questionLegendCss}>
+            {t("how-will-you-identify-yourself")}
+          </h2>
+          <p>{t("enrollment-requires-strong-authentication-choose-how-you-identify")}</p>
+          <p>
+            <Trans
+              t={t}
+              i18nKey="eidas-explanation"
+              components={{
+                eidasLink: (
+                  <TransLink href={SUOMI_FI_EIDAS_URL} target="_blank" rel="noopener noreferrer" />
+                ),
+              }}
+            />
+          </p>
+          <p>
+            <Trans
+              t={t}
+              i18nKey="other-suomi-fi-identification-methods-explanation"
+              components={{
+                suomiFiLink: (
+                  <TransLink
+                    href={SUOMI_FI_IDENTIFICATION_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                ),
+              }}
+            />
+          </p>
+          {/* Plain buttons, not radio inputs, so the selected one has to say so itself — the
+              toggle-button `aria-pressed` pattern, not a radio's native checked state. */}
+          <div role="group" aria-labelledby={identificationHeadingId} className={rowCss}>
+            <Button
+              variant={identification === EIDAS ? BUTTON_PRIMARY : BUTTON_SECONDARY}
+              domProps={{ "aria-pressed": identification === EIDAS }}
+              onClick={() => setValue(IDENTIFICATION_FIELD, EIDAS)}
+            >
+              {t("eidas")}
+            </Button>
+            <Button
+              variant={identification === OTHER_SUOMI_FI ? BUTTON_PRIMARY : BUTTON_SECONDARY}
+              domProps={{ "aria-pressed": identification === OTHER_SUOMI_FI }}
+              onClick={() => setValue(IDENTIFICATION_FIELD, OTHER_SUOMI_FI)}
+            >
+              {t("another-suomi-fi-identification-method")}
+            </Button>
+            <Button
+              variant={identification === NO_SUOMI_FI ? BUTTON_PRIMARY : BUTTON_SECONDARY}
+              domProps={{ "aria-pressed": identification === NO_SUOMI_FI }}
+              onClick={() => setValue(IDENTIFICATION_FIELD, NO_SUOMI_FI)}
+            >
+              {t("no")}
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
+      {identifiesWithEidas ? (
+        <section className={bandCss}>
+          <Infobox tone={TONE.INFO}>
+            {t("tip-in-sisu-choose-suomi-fi-e-identification-then-eidas")}
+          </Infobox>
+        </section>
+      ) : null}
+
+      {identifiesWithAnotherSuomiFiMethod ? (
+        <section className={bandCss}>
+          <Infobox tone={TONE.INFO}>
+            {t("tip-in-sisu-choose-suomi-fi-e-identification-then-your-method")}
+          </Infobox>
+        </section>
+      ) : null}
+
+      {asksToReconsider ? (
+        <section className={bandCss}>
+          <RadioGroup
+            name={NEED_AFTER_RECONSIDER_FIELD}
+            control={control}
+            variant={SEGMENTED}
+            fillWidth
+            label={t("reconsider-which-do-you-need")}
+            description={t("without-suomi-fi-identification-we-verify-your-identity-manually")}
           >
             <Radio value={CERTIFICATE} label={t("a-certificate-of-completion")} />
             <Radio value={CREDITS} label={t("credits-in-the-uh-study-registry")} />
@@ -134,95 +230,6 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
           courseModuleId={courseModuleId}
           certificateConfigurationId={certificateConfigurationId}
         />
-      ) : null}
-
-      {asksHowTheyIdentify ? (
-        <section className={bandCss}>
-          <RadioGroup
-            name={IDENTIFICATION_FIELD}
-            control={control}
-            label={t("how-will-you-identify-yourself")}
-            description={t("enrollment-requires-strong-authentication-choose-how-you-identify")}
-          >
-            {/* The address as text, not a link: an option's description sits inside its label, and
-                a link there is both part of the radio's name and a second thing to click on it. The
-                same address is a link in the tip the choice leads to. */}
-            <Radio
-              value={EIDAS}
-              label={t("yes-with-eidas")}
-              description={<span className={addressCss}>{SUOMI_FI_EIDAS_URL}</span>}
-            />
-            <Radio
-              value={OTHER_SUOMI_FI}
-              label={t("yes-with-another-suomi-fi-identification-method")}
-              description={<span className={addressCss}>{SUOMI_FI_IDENTIFICATION_URL}</span>}
-            />
-            <Radio
-              value={NO_SUOMI_FI}
-              label={t("no")}
-              description={t("choose-this-if-you-are-not-sure-which-option-applies-to-you")}
-            />
-          </RadioGroup>
-        </section>
-      ) : null}
-
-      {identifiesWithEidas ? (
-        <section className={bandCss}>
-          <Infobox tone={TONE.INFO}>
-            <Trans
-              t={t}
-              i18nKey="tip-in-sisu-choose-suomi-fi-e-identification-then-eidas"
-              values={{ url: SUOMI_FI_EIDAS_URL }}
-              components={{
-                suomiFiLink: (
-                  <TransLink
-                    className={addressCss}
-                    href={SUOMI_FI_EIDAS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                ),
-              }}
-            />
-          </Infobox>
-        </section>
-      ) : null}
-
-      {identifiesWithAnotherSuomiFiMethod ? (
-        <section className={bandCss}>
-          <Infobox tone={TONE.INFO}>
-            <Trans
-              t={t}
-              i18nKey="tip-in-sisu-choose-suomi-fi-e-identification-then-your-method"
-              values={{ url: SUOMI_FI_IDENTIFICATION_URL }}
-              components={{
-                suomiFiLink: (
-                  <TransLink
-                    className={addressCss}
-                    href={SUOMI_FI_IDENTIFICATION_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                ),
-              }}
-            />
-          </Infobox>
-        </section>
-      ) : null}
-
-      {asksToReconsider ? (
-        <section className={bandCss}>
-          <RadioGroup
-            name={NEED_AFTER_RECONSIDER_FIELD}
-            control={control}
-            variant={SEGMENTED}
-            label={t("reconsider-which-do-you-need")}
-            description={t("without-suomi-fi-identification-we-verify-your-identity-manually")}
-          >
-            <Radio value={CERTIFICATE} label={t("a-certificate-of-completion")} />
-            <Radio value={CREDITS} label={t("credits-in-the-uh-study-registry")} />
-          </RadioGroup>
-        </section>
       ) : null}
 
       {asksWhyCreditsAreNeeded ? (

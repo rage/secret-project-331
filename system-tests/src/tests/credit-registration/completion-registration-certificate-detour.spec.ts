@@ -24,7 +24,8 @@ const STUDENT_TYPE_QUESTION =
 const FINNISH_ID_QUESTION =
   "Are you Finnish, or do you have a Finnish personal identity code (henkilötunnus)?"
 const WHICH_DO_YOU_NEED_QUESTION = "Which do you need?"
-const IDENTIFICATION_QUESTION = "How will you identify yourself?"
+const IDENTIFICATION_QUESTION =
+  "Are you able to identify yourself with any of the Suomi.fi e-identification methods?"
 const RECONSIDER_QUESTION = "Reconsider: which do you need?"
 
 const CERTIFICATE_OPTION = "A certificate of completion"
@@ -44,6 +45,10 @@ const openRegistrationPage = async (page: Page, courseSlug: string) => {
 
 const answer = (page: Page, question: string, option: string | RegExp) =>
   page.getByRole("radiogroup", { name: question }).getByRole("radio", { name: option }).check()
+
+/** The identification question answers itself with plain buttons, not a radio group. */
+const answerIdentification = (page: Page, option: string | RegExp) =>
+  page.getByRole("button", { name: option }).click()
 
 test.describe("A module whose certificate a student could take instead of the credits", () => {
   test.use({ storageState: seededStudentStorageState(DETOUR_STUDENT_EMAIL) })
@@ -86,11 +91,12 @@ test.describe("A module whose certificate a student could take instead of the cr
     await answer(page, STUDENT_TYPE_QUESTION, "No")
     await answer(page, FINNISH_ID_QUESTION, "No")
     await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-    await answer(page, IDENTIFICATION_QUESTION, /Yes, with eIDAS/)
+    await expect(page.getByRole("heading", { name: IDENTIFICATION_QUESTION })).toBeVisible()
+    await answerIdentification(page, "eIDAS")
 
-    await expect(page.getByText(/Then select eIDAS/)).toBeVisible()
+    await expect(page.getByText(/Then select Identification methods for foreigners/)).toBeVisible()
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
-    await expect(page.getByRole("link", { name: "To the registration form" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Go to enrollment form" })).toBeVisible()
   })
 
   test("A student with another Suomi.fi method gets the other tip", async ({ page }) => {
@@ -99,14 +105,10 @@ test.describe("A module whose certificate a student could take instead of the cr
     await answer(page, STUDENT_TYPE_QUESTION, "No")
     await answer(page, FINNISH_ID_QUESTION, "No")
     await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-    await answer(
-      page,
-      IDENTIFICATION_QUESTION,
-      /Yes, with another Suomi.fi e-identification method/,
-    )
+    await answerIdentification(page, "Another Suomi.fi e-identification method")
 
     await expect(page.getByText(/Then select your identification method/)).toBeVisible()
-    await expect(page.getByText(/Then select eIDAS/)).toHaveCount(0)
+    await expect(page.getByText(/Then select Identification methods for foreigners/)).toHaveCount(0)
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
   })
 
@@ -118,7 +120,7 @@ test.describe("A module whose certificate a student could take instead of the cr
     await answer(page, STUDENT_TYPE_QUESTION, "No")
     await answer(page, FINNISH_ID_QUESTION, "No")
     await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-    await answer(page, IDENTIFICATION_QUESTION, /Choose this if you are not sure/)
+    await answerIdentification(page, "No")
     await answer(page, RECONSIDER_QUESTION, CERTIFICATE_OPTION)
 
     await expect(page.getByRole("link", { name: "Go to certificate" })).toBeVisible()
@@ -133,7 +135,7 @@ test.describe("A module whose certificate a student could take instead of the cr
     await answer(page, STUDENT_TYPE_QUESTION, "No")
     await answer(page, FINNISH_ID_QUESTION, "No")
     await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-    await answer(page, IDENTIFICATION_QUESTION, /Choose this if you are not sure/)
+    await answerIdentification(page, "No")
     await answer(page, RECONSIDER_QUESTION, CREDITS_OPTION)
 
     await test.step("An empty answer is refused rather than saved", async () => {
@@ -154,11 +156,13 @@ test.describe("A module whose certificate a student could take instead of the cr
       await answer(page, STUDENT_TYPE_QUESTION, "No")
       await answer(page, FINNISH_ID_QUESTION, "No")
       await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-      await answer(page, IDENTIFICATION_QUESTION, /Choose this if you are not sure/)
+      await answerIdentification(page, "No")
       await answer(page, RECONSIDER_QUESTION, CREDITS_OPTION)
 
       await expect(page.getByRole("textbox", { name: "Your reason" })).toHaveValue(reason)
       await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
+      // A saved reason means the flow already continued past this band.
+      await expect(page.getByRole("button", { name: "Update reason" })).toBeVisible()
     })
 
     await test.step("Changing an answer above it takes the instructions back down", async () => {
@@ -184,7 +188,7 @@ test.describe("A module whose certificate a student could take instead of the cr
     await answer(page, STUDENT_TYPE_QUESTION, "No")
     await answer(page, FINNISH_ID_QUESTION, "No")
     await answer(page, WHICH_DO_YOU_NEED_QUESTION, CREDITS_OPTION)
-    await answer(page, IDENTIFICATION_QUESTION, /Choose this if you are not sure/)
+    await answerIdentification(page, "No")
     await answer(page, RECONSIDER_QUESTION, CREDITS_OPTION)
     await page.getByRole("textbox", { name: "Your reason" }).fill("I need them in the registry.")
     await page.getByRole("button", { name: "Continue" }).click()

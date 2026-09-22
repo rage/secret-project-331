@@ -12,7 +12,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextArea } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, TONE } from "./constants"
-import { bandCss, rowCss } from "./styles"
+import { bandCss, headingCss, rowCss } from "./styles"
 
 const JUSTIFICATION_FIELD = "justification"
 const JUSTIFICATION_ROWS = 4
@@ -75,13 +75,21 @@ export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = (
     },
   )
 
+  // A saved reason from an earlier visit means the flow already continued past this band, so
+  // relabel the button: "Continue" would claim there is still somewhere to go from here.
+  const hasSavedAnswer = Boolean(savedJustification) || save.isSuccess
+
   return (
     <section className={bandCss}>
+      <h2 className={headingCss}>{t("heading-tell-us-why-you-need-the-credits")}</h2>
       <p>{t("tell-us-why-you-need-the-credits-instead-of-a-certificate")}</p>
       {/* The mutation does not toast, so without this a failed save looks like a button that did
-          nothing. */}
+          nothing. `announce` makes it an alert (assertive), not just news the reveal region would
+          otherwise get to on its own time — a failed submit is the one thing here worth interrupting. */}
       {save.isError ? (
-        <Infobox tone={TONE.DANGER}>{t("credit-justification-save-failed")}</Infobox>
+        <Infobox tone={TONE.DANGER} announce>
+          {t("credit-justification-save-failed")}
+        </Infobox>
       ) : null}
       <form
         className={formCss}
@@ -105,11 +113,15 @@ export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = (
             with nothing to read about why it is greyed out. */}
         <div className={rowCss}>
           <Button type="submit" variant={BUTTON_PRIMARY} size="medium" isLoading={save.isPending}>
-            {t("continue")}
+            {hasSavedAnswer ? t("update-reason") : t("continue")}
           </Button>
         </div>
       </form>
-      {save.isSuccess ? <p>{t("your-answer-has-been-saved")}</p> : null}
+      {save.isSuccess ? (
+        <Infobox tone={TONE.SUCCESS} announce>
+          {t("your-answer-has-been-saved")}
+        </Infobox>
+      ) : null}
     </section>
   )
 }

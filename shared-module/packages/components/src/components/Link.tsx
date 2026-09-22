@@ -153,15 +153,23 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const loadingLabel = loadingLabelProp ?? t("link.loading")
     const loadingDescId = React.useId()
     const labelId = React.useId()
+    const opensInNewTabId = React.useId()
 
     // A link leaving the page is an unremarkable, expected context change; one that leaves it in a
     // tab the user didn't ask for is not, and nothing about the link's own text says so.
     const opensInNewTab = rest.target === "_blank"
     const opensInNewTabLabel = t("link.opensInNewTab")
 
+    // An explicit `aria-labelledby` replaces the link's own content in the accessible-name
+    // computation, so the hidden suffix rendered inside the link would otherwise go unannounced.
+    // `aria-label` already carries it (appended below); this covers the case that can't.
+    const announcesNewTabViaDescription =
+      opensInNewTab && Boolean(ariaLabelledByProp) && !ariaLabelProp
+
     const describedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
       isLoading && styledAsButtonResolved ? loadingDescId : undefined,
+      announcesNewTabViaDescription ? opensInNewTabId : undefined,
     )
     const userAriaLabel =
       opensInNewTab && ariaLabelProp ? `${ariaLabelProp} ${opensInNewTabLabel}` : ariaLabelProp
@@ -249,7 +257,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
               <span id={labelledBy === labelId ? labelId : undefined}>
                 {children}
                 {opensInNewTab && !ariaLabelProp ? (
-                  <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE}>
+                  <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
                     {" "}
                     {opensInNewTabLabel}
                   </VisuallyHidden>
@@ -273,7 +281,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           <>
             {children}
             {opensInNewTab && !ariaLabelProp ? (
-              <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE}>
+              <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
                 {" "}
                 {opensInNewTabLabel}
               </VisuallyHidden>

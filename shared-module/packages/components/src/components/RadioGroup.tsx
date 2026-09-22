@@ -287,11 +287,9 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         <div
           className={cx(
             messagesCss,
-            isSegmented
-              ? undefined
-              : proseDescription
-                ? stackedProseMessagesCss
-                : stackedMessagesCss,
+            !isSegmented && descriptionBlock && proseDescription
+              ? stackedProseMessagesCss
+              : stackedMessagesCss,
           )}
         >
           {!isSegmented ? descriptionBlock : null}

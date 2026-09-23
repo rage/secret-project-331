@@ -19,7 +19,7 @@ use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
     courses::{self, Course, get_by_description_vectors},
-    external_courses::{ExternalCourse, get_external_courses_by_embeddings},
+    external_courses::{ExternalCourseOutput, get_external_courses_by_embeddings},
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
@@ -30,7 +30,7 @@ use headless_lms_utils::{
 #[derive(Debug, Serialize)]
 pub struct CourseFinderState {
     courses: Vec<CourseOccurrences>,
-    external_courses: Vec<ExternalCourse>,
+    external_courses: Vec<ExternalCourseOutput>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -138,11 +138,20 @@ impl ChatbotTool for CourseFinderTool {
         let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
             .map(|course| {
-                let organization = organization_by_id
-                    .get(&course.organization_id)
-                    .expect("course organization should exist");
+                let organization =
+                    organization_by_id
+                        .get(&course.organization_id)
+                        .ok_or_else(|| {
+                            chatbot_err!(
+                                Other,
+                                format!(
+                                    "Organization {} not found for course {}",
+                                    course.organization_id, course.id
+                                )
+                            )
+                        })?;
 
-                CourseOccurrences {
+                Ok(CourseOccurrences {
                     occurrences: counts[&course.id],
                     course_url: build_course_url(
                         &app_config.base_url,
@@ -150,9 +159,9 @@ impl ChatbotTool for CourseFinderTool {
                         &course.slug,
                     ),
                     course,
-                }
+                })
             })
-            .collect();
+            .collect::<ChatbotResult<_>>()?;
 
         course_occurrences.sort_by_key(|b| std::cmp::Reverse(b.occurrences));
 

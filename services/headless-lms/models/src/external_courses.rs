@@ -18,23 +18,26 @@ pub struct ExternalCourse {
     pub description_embedding: Option<Vector>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct ExternalCourseOutput {
+    id: Uuid,
+    name: String,
+    description: Option<String>,
+    url: String,
+}
+
 pub async fn get_external_courses_by_embeddings(
     conn: &mut PgConnection,
     keywords: Vec<String>,
     embeddings: Vec<Vec<f32>>,
-) -> ModelResult<Vec<ExternalCourse>> {
+) -> ModelResult<Vec<ExternalCourseOutput>> {
     let embed_vecs: Vec<Vector> = embeddings.into_iter().map(Vector::from).collect();
     let res = sqlx::query_as!(
-        ExternalCourse,
+        ExternalCourseOutput,
         r#"
 SELECT  t.id AS "id!",
-    t.created_at AS "created_at!",
-    t.updated_at AS "updated_at!",
-    t.deleted_at,
     t.name AS "name!",
-    t.name_embedding,
     t.description,
-    t.description_embedding,
     t.url AS "url!"
 FROM (
     SELECT
@@ -49,12 +52,18 @@ FROM (
     LIMIT 5
 ) t
 UNION
-SELECT ec.*
+SELECT ec.id,
+       ec.name,
+       ec.description,
+       ec.url
 FROM external_courses ec
 CROSS JOIN unnest($2::text[]) AS k(keyword)
 WHERE deleted_at IS NULL
-AND to_tsvector('english', description)
-@@ websearch_to_tsquery('english', k.keyword)
+AND to_tsvector(
+    'english',
+    ec.name || ' ' || coalesce(ec.description, '')
+) @@ websearch_to_tsquery('english', k.keyword)
+
       "#,
         &embed_vecs as _,
         &keywords,

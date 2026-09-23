@@ -634,6 +634,7 @@
   "create-configuration": "Luo konfiguraatio",
   "create-course-duplicate": "Kopioi sisältö toisesta kurssista",
   "create-course-duplicate-helper-text": "Vihje: Voit kirjoittaa osan kurssista saadaksesi vaihtoehtoja",
+  "create-global-chatbot": "Luo uusi globaali keskustelurobotti",
   "create-module": "Luo moduuli",
   "create-new-account": "Luo käyttäjätunnus",
   "create-new-language-version-of": "Luo uusi kieliversio kurssista {{course-name}}",

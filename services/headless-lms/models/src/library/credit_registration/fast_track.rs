@@ -8,6 +8,7 @@
 
 use std::collections::HashMap;
 
+use secrecy::ExposeSecret;
 use unicode_normalization::UnicodeNormalization;
 
 use crate::credit_registration_events::CreditRegistrationEventKind;
@@ -199,11 +200,11 @@ pub async fn find_fast_track_candidates(
 ) -> ModelResult<HashMap<String, FastTrackCandidate>> {
     let (emails, person_ids): (Vec<String>, Vec<String>) = people
         .iter()
-        .filter(|person| !person.primary_email.trim().is_empty())
+        .filter(|person| !person.primary_email.expose_secret().trim().is_empty())
         .map(|person| {
             (
-                person.primary_email.trim().to_string(),
-                person.sisu_person_id.clone(),
+                person.primary_email.expose_secret().trim().to_string(),
+                person.sisu_person_id.expose_secret().to_owned(),
             )
         })
         .unzip();
@@ -271,19 +272,19 @@ WHERE u.deleted_at IS NULL
 }
 
 /// One roster entry to look an account up by.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct FastTrackLookup {
-    pub primary_email: String,
-    pub sisu_person_id: String,
+    pub primary_email: DbSecret,
+    pub sisu_person_id: DbSecret,
 }
 
 /// One person the fast track is about to link, as the caller read them off the registry's roster.
-#[derive(Debug, Clone, PartialEq)]
-pub struct FastTrackLink<'a> {
-    pub student_number: &'a str,
-    pub sisu_person_id: &'a str,
-    pub first_names: Option<&'a str>,
-    pub last_name: Option<&'a str>,
+#[derive(Debug, Clone)]
+pub struct FastTrackLink {
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
     pub course_id: Uuid,
 }
 
@@ -295,7 +296,7 @@ pub struct FastTrackLink<'a> {
 /// [`FastTrackDecision::Link`] first; this function re-checks nothing.
 pub async fn link_by_email_match(
     conn: &mut PgConnection,
-    person: &FastTrackLink<'_>,
+    person: &FastTrackLink,
     candidate: &FastTrackCandidate,
 ) -> ModelResult<Uuid> {
     let (id, _) = replace_verified_student_number(
@@ -303,12 +304,12 @@ pub async fn link_by_email_match(
         None,
         &NewVerifiedStudentNumber {
             user_id: candidate.user_id,
-            student_number: person.student_number.to_string(),
-            sisu_person_id: person.sisu_person_id.to_string(),
-            first_names: person.first_names.map(str::to_string),
-            last_name: person.last_name.map(str::to_string),
+            student_number: person.student_number.clone(),
+            sisu_person_id: person.sisu_person_id.clone(),
+            first_names: person.first_names.clone(),
+            last_name: person.last_name.clone(),
             verified_via: StudentNumberVerificationMethod::EmailMatchFastTrack,
-            verified_via_email: Some(candidate.email.clone()),
+            verified_via_email: Some(DbSecret::new(candidate.email.clone())),
             verified_via_email_match_field: Some(MATCHED_FIELD_PRIMARY.to_string()),
             // Frozen onto the row: the account's own flag is cleared the first time the student
             // changes their address, and an audit years later still has to answer how old the proof

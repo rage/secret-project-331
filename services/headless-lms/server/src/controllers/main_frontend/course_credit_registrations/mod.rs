@@ -41,6 +41,8 @@ use headless_lms_models::{
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     verified_student_numbers,
 };
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 use std::collections::HashMap;
 use utoipa::{OpenApi, ToSchema};
 
@@ -212,7 +214,7 @@ pub struct CourseCreditRegistrationUserIdsPayload {
 pub struct GetCourseCreditRegistrationsQuery {
     page: Option<u32>,
     limit: Option<u32>,
-    search: Option<String>,
+    search: Option<SecretString>,
     state: Option<CreditRegistrationState>,
     status: Option<Vec<StudentFacingCreditRegistrationStatus>>,
     course_instance_id: Option<Uuid>,
@@ -250,7 +252,8 @@ pub struct CreditRegistrationDetails {
 pub struct ResendLinkingEmailPayload {
     /// One of the two names the person; `user_id` only resolves for an account that has held a number.
     pub user_id: Option<Uuid>,
-    pub student_number: Option<String>,
+    #[schema(value_type = Option<String>)]
+    pub student_number: Option<SecretString>,
     pub reason: Option<String>,
 }
 
@@ -516,7 +519,7 @@ pub async fn get_course_credit_registrations(
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
     let pagination = parse_pagination(query.page, query.limit, 100)?;
-    let search = non_empty(query.search.as_deref());
+    let search = non_empty(expose_option(&query.search));
     let filters = TeacherCreditRegistrationFilters {
         state: query.state,
         stages: query.status.as_deref().unwrap_or_default(),
@@ -730,9 +733,9 @@ async fn resolve_resend_target(
     conn: &mut PgConnection,
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
-) -> Result<Option<String>, ControllerError> {
-    if let Some(student_number) = non_empty(payload.student_number.as_deref()) {
-        return Ok(Some(student_number.to_string()));
+) -> Result<Option<SecretString>, ControllerError> {
+    if let Some(student_number) = non_empty(expose_option(&payload.student_number)) {
+        return Ok(Some(SecretString::from(student_number)));
     }
     let Some(user_id) = payload.user_id else {
         return Err(controller_err!(
@@ -751,7 +754,7 @@ async fn resolve_resend_target(
     Ok(
         verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
             .await?
-            .map(|link| link.student_number),
+            .map(|link| link.student_number.into()),
     )
 }
 
@@ -761,21 +764,21 @@ async fn finish_resend(
     user: &AuthUser,
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
-    student_number: Option<&str>,
+    student_number: Option<&SecretString>,
     outcome: ResendOutcome,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         course_id,
-        student_number,
+        student_number.map(ExposeSecret::expose_secret),
         user.id,
         COURSE_TEACHER_ROLE,
         Some(course_id),
         payload.reason.clone(),
         serde_json::json!({
             "outcome": outcome,
-            "student_number": student_number,
+            "student_number": student_number.map(ExposeSecret::expose_secret),
         }),
     )
     .await?;
@@ -859,7 +862,7 @@ fn linking_email_status_of(
         last_attempt_at: report.last_attempt_at,
         retry_count: report.retry_count,
         next_retry_at: report.next_retry_at,
-        emailed_to_masked: mask_email(&mail.emailed_to),
+        emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
     }
 }
 
@@ -884,7 +887,7 @@ async fn linking_email_statuses(
         verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
             .await?
             .into_iter()
-            .map(|link| (link.user_id, link.sisu_person_id))
+            .map(|link| (link.user_id, link.sisu_person_id.expose_secret().to_owned()))
             .collect()
     };
     let per_row: Vec<(Uuid, String)> = waiting
@@ -892,7 +895,8 @@ async fn linking_email_statuses(
         .filter_map(|row| {
             let person_id = row
                 .sisu_person_id
-                .clone()
+                .as_ref()
+                .map(|id| id.expose_secret().to_owned())
                 .or_else(|| latest_links.get(&row.user_id).cloned())?;
             Some((row.id, person_id))
         })
@@ -1009,7 +1013,7 @@ impl From<TeacherCreditRegistration> for CourseCreditRegistration {
             grade_id: row.grade_id,
             credits: row.credits,
             attempt_number: row.attempt_number,
-            student_number: row.student_number,
+            student_number: expose_option(&row.student_number).map(str::to_owned),
             student_number_verified_at: row.student_number_verified_at,
             student_number_verified_via: row.student_number_verified_via,
             enrolment_realisation_name: row.enrolment_realisation_name,

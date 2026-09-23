@@ -31,10 +31,10 @@ impl From<&CourseModuleCompletion> for CompletionFacts {
 }
 
 /// Everything outside the completion that the payload is built from.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct PayloadSources<'a> {
-    pub student_number: &'a str,
-    pub sisu_person_id: &'a str,
+    pub student_number: &'a DbSecret,
+    pub sisu_person_id: &'a DbSecret,
     pub uh_course_code: Option<&'a str>,
     pub ects_credits: Option<f32>,
     pub configured_grade_scale_id: Option<&'a str>,
@@ -42,7 +42,7 @@ pub struct PayloadSources<'a> {
 }
 
 /// A snapshot and whatever had to be adjusted to make it acceptable.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct BuiltPayload {
     pub snapshot: PayloadSnapshot,
     /// Set when the module's credits did not fit the enrolment's range; recorded, not refused.
@@ -78,8 +78,8 @@ pub fn build_payload_snapshot(
 
     Ok(BuiltPayload {
         snapshot: PayloadSnapshot {
-            student_number: sources.student_number.to_string(),
-            sisu_person_id: sources.sisu_person_id.to_string(),
+            student_number: sources.student_number.clone(),
+            sisu_person_id: sources.sisu_person_id.clone(),
             uh_course_code: uh_course_code.to_string(),
             selected_enrolment_id: sources.enrolment.map(|enrolment| enrolment.id.clone()),
             selected_enrolment_kind: sources.enrolment.map(|enrolment| enrolment.kind.clone()),
@@ -129,6 +129,8 @@ fn attainment_language(completion_language: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::LazyLock;
+
     use chrono::NaiveDate;
     use headless_lms_utils::services::suotar::{CreditRange, DatePeriod, LocalizedName};
 
@@ -168,10 +170,13 @@ mod tests {
         }
     }
 
+    static STUDENT_NUMBER: LazyLock<DbSecret> = LazyLock::new(|| DbSecret::new("012345678"));
+    static SISU_PERSON_ID: LazyLock<DbSecret> = LazyLock::new(|| DbSecret::new("hy-hlo-1"));
+
     fn sources<'a>(enrolment: Option<&'a SuotarEnrolment>) -> PayloadSources<'a> {
         PayloadSources {
-            student_number: "012345678",
-            sisu_person_id: "hy-hlo-1",
+            student_number: &STUDENT_NUMBER,
+            sisu_person_id: &SISU_PERSON_ID,
             uh_course_code: Some("TKT10001"),
             ects_credits: Some(5.0),
             configured_grade_scale_id: None,
@@ -212,8 +217,9 @@ mod tests {
                     uh_course_code: None,
                     ..sources(None)
                 }
-            ),
-            Err(CreditRegistrationErrorCode::MissingUhCourseCode)
+            )
+            .err(),
+            Some(CreditRegistrationErrorCode::MissingUhCourseCode)
         );
         assert_eq!(
             build_payload_snapshot(
@@ -222,8 +228,9 @@ mod tests {
                     uh_course_code: Some("  "),
                     ..sources(None)
                 }
-            ),
-            Err(CreditRegistrationErrorCode::MissingUhCourseCode)
+            )
+            .err(),
+            Some(CreditRegistrationErrorCode::MissingUhCourseCode)
         );
         assert_eq!(
             build_payload_snapshot(
@@ -232,8 +239,9 @@ mod tests {
                     ects_credits: None,
                     ..sources(None)
                 }
-            ),
-            Err(CreditRegistrationErrorCode::MissingEctsCredits)
+            )
+            .err(),
+            Some(CreditRegistrationErrorCode::MissingEctsCredits)
         );
     }
 

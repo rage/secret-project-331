@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.student_number AS \"student_number!\",\n  e.sisu_person_id AS \"sisu_person_id!\",\n  e.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  COUNT(*) AS \"mail_count!\",\n  MIN(e.sent_at) AS \"first_sent_at!\",\n  MAX(e.sent_at) AS \"last_sent_at!\",\n  ARRAY_AGG(\n    e.id\n    ORDER BY e.sent_at\n  ) AS \"mail_ids!\",\n  ARRAY_AGG(\n    e.emailed_to\n    ORDER BY e.sent_at\n  ) AS \"addresses!\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.sisu_person_id = e.sisu_person_id\n      AND vsn.deleted_at IS NULL\n  )\nGROUP BY e.student_number,\n  e.sisu_person_id,\n  e.course_id,\n  c.name\nHAVING COUNT(*) >= $1\nORDER BY MAX(e.sent_at) DESC\nLIMIT $2\n        ",
+  "query": "\nSELECT e.student_number AS \"student_number!\",\n  e.sisu_person_id AS \"sisu_person_id!\",\n  e.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  COUNT(*) AS \"mail_count!\",\n  MIN(e.sent_at) AS \"first_sent_at!\",\n  MAX(e.sent_at) AS \"last_sent_at!\",\n  ARRAY_AGG(\n    e.id\n    ORDER BY e.sent_at\n  ) AS \"mail_ids!\",\n  ARRAY_AGG(\n    e.emailed_to\n    ORDER BY e.sent_at\n  ) AS \"addresses!: Vec<DbSecret>\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\nWHERE e.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.sisu_person_id = e.sisu_person_id\n      AND vsn.deleted_at IS NULL\n  )\nGROUP BY e.student_number,\n  e.sisu_person_id,\n  e.course_id,\n  c.name\nHAVING COUNT(*) >= $1\nORDER BY MAX(e.sent_at) DESC\nLIMIT $2\n        ",
   "describe": {
     "columns": [
       {
@@ -73,7 +73,7 @@
       },
       {
         "ordinal": 8,
-        "name": "addresses!",
+        "name": "addresses!: Vec<DbSecret>",
         "type_info": "VarcharArray",
         "origin": "Expression"
       }
@@ -96,5 +96,5 @@
       null
     ]
   },
-  "hash": "1927dc8ec9c01a4343a617996dd7a6e4f62f83e9a9deda374d1d99f9bec52f3c"
+  "hash": "bb8327a020f749fc5f4e5030d939904aa6f0504b4e207b345d55633292a1f523"
 }

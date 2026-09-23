@@ -8,6 +8,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
+use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -45,7 +46,7 @@ pub enum LinkingMailResendOutcome {
 pub async fn resend_linking_mail(
     ctx: &PhaseContext<'_>,
     course_id: Uuid,
-    student_number: &str,
+    student_number: &SecretString,
 ) -> anyhow::Result<LinkingMailResendOutcome> {
     let course_codes: BTreeSet<String> = {
         let mut conn = ctx.pool.acquire().await?;
@@ -88,7 +89,9 @@ pub async fn resend_linking_mail(
             .filter(|item| item.status == SuotarItemStatus::Ok)
             .filter_map(|item| item.result.as_ref())
             .flat_map(|result| result.people.iter())
-            .find(|candidate| candidate.student_number == student_number)
+            .find(|candidate| {
+                candidate.student_number.expose_secret() == student_number.expose_secret()
+            })
             .cloned();
         if person.is_some() {
             break;
@@ -99,10 +102,10 @@ pub async fn resend_linking_mail(
     };
 
     let discovered = DiscoveredPerson {
-        sisu_person_id: person.person_id.clone(),
-        student_number: person.student_number.clone(),
-        first_names: person.first_names.clone(),
-        last_name: person.last_name.clone(),
+        sisu_person_id: person.person_id.clone().into(),
+        student_number: person.student_number.clone().into(),
+        first_names: person.first_names.clone().map(Into::into),
+        last_name: person.last_name.clone().map(Into::into),
         course_id,
         addresses: listed_person_addresses(&person),
     };
@@ -196,12 +199,12 @@ impl From<ResendDecision> for ResendOutcome {
 pub async fn resend_linking_mail_for_target<'a>(
     ctx: &PhaseContext<'_>,
     course_id: Uuid,
-    student_number: &str,
+    student_number: &SecretString,
     before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + 'a>>,
 ) -> anyhow::Result<ResendAttempt> {
     let already_linked = {
         let mut conn = ctx.pool.acquire().await?;
-        verified_student_numbers::get_by_student_number(&mut conn, student_number)
+        verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
             .await?
             .is_some()
     };
@@ -221,9 +224,9 @@ pub async fn resend_linking_mail_for_target<'a>(
 }
 
 pub struct ResolvedPerson {
-    pub sisu_person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
+    pub sisu_person_id: SecretString,
+    pub first_names: Option<SecretString>,
+    pub last_name: Option<SecretString>,
     /// The registry's own per-item code, an identifier rather than prose.
     pub code: String,
 }
@@ -244,7 +247,7 @@ pub enum ResolvePersonError {
 /// `Ok(None)` means the registry answered and does not know the number; `Err` means we could not ask.
 pub async fn resolve_person(
     ctx: &PhaseContext<'_>,
-    student_number: &str,
+    student_number: &SecretString,
 ) -> Result<Option<ResolvedPerson>, ResolvePersonError> {
     let request_item_id = new_request_item_id();
     let response = ctx
@@ -253,7 +256,7 @@ pub async fn resolve_person(
             SuotarCallContext::new(ctx.caller).interactive(),
             vec![ResolvePersonRequestItem {
                 request_item_id: request_item_id.clone(),
-                student_number: student_number.to_string(),
+                student_number: student_number.clone(),
             }],
         )
         .await

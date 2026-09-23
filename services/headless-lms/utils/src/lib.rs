@@ -21,6 +21,7 @@ pub mod numbers;
 pub mod page_visit_hasher;
 pub mod pagination;
 pub mod prelude;
+pub mod secret_string;
 pub mod services;
 pub mod stable_digest;
 pub mod strings;

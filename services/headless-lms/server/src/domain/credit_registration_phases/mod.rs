@@ -41,6 +41,7 @@ use headless_lms_models::library::credit_registration::outcomes::{
 use headless_lms_models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
+use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{credit_registration_phase_state, credit_registrations};
 use headless_lms_models::{
     credit_registration_phase_state::PhaseRunOutcome, verified_student_numbers,
@@ -52,6 +53,7 @@ use headless_lms_utils::services::suotar::{
     SuotarRequestItem, SuotarResponseItem,
 };
 use itertools::izip;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::{BTreeSet, HashMap};
 use std::future::Future;
@@ -660,7 +662,7 @@ pub(crate) trait SuotarBatchPhase {
 
     /// The student number this row's request carried, where it carried one: a number the registry
     /// rejects may only cost the link it was sent under.
-    fn sent_student_number(_row: &Self::Row) -> Option<&str> {
+    fn sent_student_number(_row: &Self::Row) -> Option<&DbSecret> {
         None
     }
 
@@ -817,11 +819,12 @@ pub(crate) fn template_language(course_language_code: &str) -> String {
 
 /// Every address the study registry holds for a listed person, in the order it lists them; which
 /// one they read is not something we can know.
-pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
-    [person.primary_email.clone(), person.secondary_email.clone()]
+pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<DbSecret> {
+    [&person.primary_email, &person.secondary_email]
         .into_iter()
         .flatten()
-        .filter(|address| !address.trim().is_empty())
+        .filter(|address| !address.expose_secret().trim().is_empty())
+        .map(|address| DbSecret::from(address.clone()))
         .collect()
 }
 
@@ -865,7 +868,8 @@ pub(crate) async fn apply_outcome(
     if outcome.drop_verified_student_number
         && let Some(linked) =
             verified_student_numbers::get_by_user_id(conn, registration.user_id).await?
-        && event.sent_student_number == Some(linked.student_number.as_str())
+        && event.sent_student_number.map(ExposeSecret::expose_secret)
+            == Some(linked.student_number.expose_secret())
     {
         verified_student_numbers::soft_delete(conn, linked.id).await?;
     }
@@ -996,7 +1000,7 @@ pub(crate) fn suotar_error_variant(error: &UtilError) -> SuotarErrorVariant {
 pub(crate) struct OutcomeEvent<'a> {
     /// The student number this row's request actually carried, which may no longer be the linked
     /// one by the time the answer is applied.
-    pub sent_student_number: Option<&'a str>,
+    pub sent_student_number: Option<&'a DbSecret>,
     pub message: Option<&'a str>,
     /// Persisted on the ledger row, so it is scrubbed before it is written.
     pub error_message: Option<&'a str>,

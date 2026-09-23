@@ -30,10 +30,12 @@ use headless_lms_models::{
         self, NewVerifiedStudentNumber, StudentNumberVerificationMethod, VerifiedStudentNumber,
     },
 };
+use headless_lms_utils::secret_string::expose_option;
 use models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
 use models::library::credit_registration::student_number_change;
+use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
@@ -641,17 +643,18 @@ pub async fn preview_student_number_verification_token(
     let already_used = verification_token.used_at.is_some();
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
-        student_number: verification_token.student_number.clone(),
-        first_names: verification_token.first_names.clone(),
-        last_name: verification_token.last_name.clone(),
+        student_number: verification_token.student_number.expose_secret().to_owned(),
+        first_names: expose_option(&verification_token.first_names).map(str::to_owned),
+        last_name: expose_option(&verification_token.last_name).map(str::to_owned),
         course_name,
-        emailed_to_masked: mask_email(&verification_token.emailed_to),
+        emailed_to_masked: mask_email(verification_token.emailed_to.expose_secret()),
         expires_at: verification_token.expires_at,
         expired,
         already_used,
         already_used_by_this_account: verification_token.claimed_by_user_id == Some(user.id),
         conflicts_with_other_account: conflict,
-        current_student_number: current_link.map(|link| link.student_number),
+        current_student_number: current_link
+            .map(|link| link.student_number.expose_secret().to_owned()),
         target_account_email: details.email,
         claimable: !expired && !already_used && !conflict,
     }))
@@ -710,9 +713,9 @@ pub async fn claim_student_number_verification_token(
 
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
-    let already_ours = current_link
-        .as_ref()
-        .is_some_and(|link| link.student_number == verification_token.student_number);
+    let already_ours = current_link.as_ref().is_some_and(|link| {
+        link.student_number.expose_secret() == verification_token.student_number.expose_secret()
+    });
 
     let mut tx = conn.begin().await?;
     // The atomic single-use guard: two concurrent claims cannot both win here.
@@ -728,7 +731,7 @@ pub async fn claim_student_number_verification_token(
         tx.commit().await?;
         return auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
             outcome: ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount,
-            student_number: Some(verification_token.student_number),
+            student_number: Some(verification_token.student_number.expose_secret().to_owned()),
             linked_course_name: course_name,
             newly_unblocked_registration_count: 0,
         }));
@@ -763,7 +766,7 @@ pub async fn claim_student_number_verification_token(
 
     auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
         outcome: ClaimStudentNumberVerificationTokenOutcome::Linked,
-        student_number: Some(verification_token.student_number),
+        student_number: Some(verification_token.student_number.expose_secret().to_owned()),
         linked_course_name: course_name,
         newly_unblocked_registration_count,
     }))
@@ -843,7 +846,7 @@ fn to_my_credit_registration(
         next_attempt_at: row.next_attempt_at,
         registered_at: row.registered_at,
         sisu_attainment_id: row.sisu_attainment_id,
-        student_number: row.student_number,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
         grade_id: row.grade_id,
         grade_scale_id: row.grade_scale_id,
         credits: row.credits,
@@ -883,7 +886,7 @@ async fn resolve_linking_email(
                 Some(link) => {
                     credit_registration_account_linking_emails::get_by_sisu_person_id(
                         conn,
-                        &link.sisu_person_id,
+                        link.sisu_person_id.expose_secret(),
                     )
                     .await?
                 }
@@ -913,18 +916,18 @@ async fn resolve_linking_email(
     Ok(Some(LinkingEmailStatus {
         email_send_status: report.email_send_status,
         sent_at: report.sent_at,
-        emailed_to_masked: mask_email(&mail.emailed_to),
+        emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
     }))
 }
 
 fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStudentNumber {
     MyVerifiedStudentNumber {
-        student_number: link.student_number,
+        student_number: link.student_number.expose_secret().to_owned(),
         verified_at: link.verified_at,
         verified_via: link.verified_via,
-        verified_via_email_masked: link.verified_via_email.as_deref().map(mask_email),
-        first_names: link.first_names,
-        last_name: link.last_name,
+        verified_via_email_masked: expose_option(&link.verified_via_email).map(mask_email),
+        first_names: expose_option(&link.first_names).map(str::to_owned),
+        last_name: expose_option(&link.last_name).map(str::to_owned),
         linked_automatically: link.verified_via
             == StudentNumberVerificationMethod::EmailMatchFastTrack,
         auto_link_notice_dismissed: link.auto_link_notice_dismissed_at.is_some(),
@@ -951,12 +954,14 @@ async fn find_conflicting_account(
     user_id: Uuid,
 ) -> Result<bool, ControllerError> {
     let by_number =
-        verified_student_numbers::get_by_student_number(conn, &token.student_number).await?;
+        verified_student_numbers::get_by_student_number(conn, token.student_number.expose_secret())
+            .await?;
     if by_number.is_some_and(|link| link.user_id != user_id) {
         return Ok(true);
     }
     let by_person =
-        verified_student_numbers::get_by_sisu_person_id(conn, &token.sisu_person_id).await?;
+        verified_student_numbers::get_by_sisu_person_id(conn, token.sisu_person_id.expose_secret())
+            .await?;
     Ok(by_person.is_some_and(|link| link.user_id != user_id))
 }
 

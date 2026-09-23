@@ -17,11 +17,13 @@ use headless_lms_models::library::credit_registration::outcomes::{
     import_success_outcome, import_success_state, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
 };
+use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
     SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 
 use super::{
@@ -117,8 +119,8 @@ impl SuotarBatchPhase for Import {
         row
     }
 
-    fn sent_student_number(row: &Self::Row) -> Option<&str> {
-        row.student_number.as_deref()
+    fn sent_student_number(row: &Self::Row) -> Option<&DbSecret> {
+        row.student_number.as_ref()
     }
 
     async fn send(
@@ -425,7 +427,7 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
         Some(grade_id),
         Some(credits),
     ) = (
-        row.student_number.as_deref(),
+        row.student_number.as_ref().map(ExposeSecret::expose_secret),
         row.uh_course_code.as_deref(),
         row.selected_enrolment_id.as_deref(),
         row.attainment_date,
@@ -466,7 +468,7 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     }
     Ok(ImportAttainmentRequestItem {
         request_item_id: new_request_item_id(),
-        student_number: student_number.to_string(),
+        student_number: student_number.into(),
         course_code: course_code.to_string(),
         enrolment_id: enrolment_id.to_string(),
         attainment_date,

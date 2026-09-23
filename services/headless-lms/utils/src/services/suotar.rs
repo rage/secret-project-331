@@ -19,7 +19,10 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer};
 use utoipa::ToSchema;
 
-use crate::{error::util_error::SuotarErrorVariant, helsinki_time::helsinki_date, prelude::*};
+use crate::{
+    error::util_error::SuotarErrorVariant, helsinki_time::helsinki_date, prelude::*,
+    secret_string::serialize_exposed,
+};
 
 /// Under the ingress's 60 s, so an admin waiting on a call gets our answer rather than a 504.
 pub const INTERACTIVE_REQUEST_TIMEOUT: Duration = Duration::from_secs(50);
@@ -121,28 +124,31 @@ macro_rules! request_item {
     };
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolvePersonRequestItem {
     pub request_item_id: String,
-    pub student_number: String,
+    #[serde(serialize_with = "serialize_exposed")]
+    pub student_number: SecretString,
 }
 request_item!(ResolvePersonRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolveEnrolmentRequestItem {
     pub request_item_id: String,
-    pub student_number: String,
+    #[serde(serialize_with = "serialize_exposed")]
+    pub student_number: SecretString,
     pub course_code: String,
 }
 request_item!(ResolveEnrolmentRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportAttainmentRequestItem {
     pub request_item_id: String,
-    pub student_number: String,
+    #[serde(serialize_with = "serialize_exposed")]
+    pub student_number: SecretString,
     pub course_code: String,
     pub enrolment_id: String,
     pub attainment_date: NaiveDate,
@@ -214,14 +220,14 @@ pub struct CreditRange {
     pub max: Option<f64>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PersonResult {
-    pub student_number: String,
-    pub person_id: String,
+    pub student_number: SecretString,
+    pub person_id: SecretString,
     /// `None` when Sisu holds no name.
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
+    pub first_names: Option<SecretString>,
+    pub last_name: Option<SecretString>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -343,19 +349,19 @@ pub struct ListedEnrolment {
     pub enrolment_date_time: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListedPerson {
-    pub student_number: String,
-    pub person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
-    pub primary_email: Option<String>,
-    pub secondary_email: Option<String>,
+    pub student_number: SecretString,
+    pub person_id: SecretString,
+    pub first_names: Option<SecretString>,
+    pub last_name: Option<SecretString>,
+    pub primary_email: Option<SecretString>,
+    pub secondary_email: Option<SecretString>,
     pub enrolment: ListedEnrolment,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentsListedResult {
     /// A person the importer handed over without a student number or person id drops out alone.
@@ -859,9 +865,10 @@ impl SuotarClient {
             .iter()
             .filter_map(|item| match SuotarResponseItem::<R>::deserialize(item) {
                 Ok(parsed) => Some(parsed),
-                Err(error) => {
+                // Not the serde message: it quotes the offending value, which may be personal data.
+                Err(_) => {
                     error!(
-                        "Suotar {} answered with an item that could not be read; treating it as unanswered: {error}",
+                        "Suotar {} answered with an item that could not be read; treating it as unanswered.",
                         endpoint.path()
                     );
                     None
@@ -1111,7 +1118,7 @@ mod tests {
         ids.iter()
             .map(|id| ResolvePersonRequestItem {
                 request_item_id: (*id).to_string(),
-                student_number: "012345678".to_string(),
+                student_number: "012345678".into(),
             })
             .collect()
     }
@@ -1200,7 +1207,7 @@ mod tests {
     fn a_request_batch_serializes_to_the_documented_shape() {
         let items = vec![ImportAttainmentRequestItem {
             request_item_id: "11111111-1111-1111-1111-111111111111".to_string(),
-            student_number: "012345678".to_string(),
+            student_number: "012345678".into(),
             course_code: "TKT10001".to_string(),
             enrolment_id: "selected-enrolment-id".to_string(),
             attainment_date: NaiveDate::from_ymd_opt(2026, 5, 22).expect("valid date"),
@@ -1386,7 +1393,7 @@ mod tests {
         let items: Vec<ResolvePersonRequestItem> = (0..1001)
             .map(|index| ResolvePersonRequestItem {
                 request_item_id: format!("item-{index}"),
-                student_number: "012345678".to_string(),
+                student_number: "012345678".into(),
             })
             .collect();
         for (endpoint, size) in [

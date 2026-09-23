@@ -225,8 +225,8 @@ mod tests {
             conn,
             id,
             &PayloadSnapshot {
-                student_number: student_number.to_string(),
-                sisu_person_id: format!("hy-hlo-{student_number}"),
+                student_number: DbSecret::new(student_number),
+                sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
                 uh_course_code: "CRS-101".to_string(),
                 selected_enrolment_id: Some("otm-900000101-degree".to_string()),
                 selected_enrolment_kind: Some("degree".to_string()),

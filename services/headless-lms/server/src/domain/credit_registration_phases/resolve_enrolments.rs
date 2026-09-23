@@ -32,6 +32,7 @@ use headless_lms_models::library::credit_registration::payload::{
 use headless_lms_models::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
+use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
@@ -117,7 +118,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     .await?;
                     let request = ResolveEnrolmentRequestItem {
                         request_item_id: new_request_item_id(),
-                        student_number: item.student_number,
+                        student_number: item.student_number.into(),
                         course_code: item.course_code,
                     };
                     prepared.sendable.push(((row, context), request));
@@ -136,8 +137,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         row
     }
 
-    fn sent_student_number((_, context): &Self::Row) -> Option<&str> {
-        context.student_number.as_deref()
+    fn sent_student_number((_, context): &Self::Row) -> Option<&DbSecret> {
+        context.student_number.as_ref()
     }
 
     async fn send(
@@ -345,11 +346,12 @@ async fn choose(
         }
     };
 
+    let absent = DbSecret::new("");
     let built = build_payload_snapshot(
         &context.completion,
         PayloadSources {
-            student_number: context.student_number.as_deref().unwrap_or_default(),
-            sisu_person_id: context.sisu_person_id.as_deref().unwrap_or_default(),
+            student_number: context.student_number.as_ref().unwrap_or(&absent),
+            sisu_person_id: context.sisu_person_id.as_ref().unwrap_or(&absent),
             uh_course_code: context.uh_course_code.as_deref(),
             ects_credits: context.ects_credits,
             configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
@@ -426,7 +428,7 @@ fn improves_on_all(
 }
 
 struct ResolveRequest {
-    student_number: String,
+    student_number: DbSecret,
     course_code: String,
 }
 

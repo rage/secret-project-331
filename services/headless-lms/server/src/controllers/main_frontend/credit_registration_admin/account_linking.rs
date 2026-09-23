@@ -19,6 +19,8 @@ use headless_lms_models::library::credit_registration::account_linking::{
 use headless_lms_models::verified_student_numbers::{
     self, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
@@ -173,7 +175,8 @@ pub struct AccountLinkingStatsQuery {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminResendAccountLinkingEmailPayload {
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
     pub course_id: Uuid,
     /// Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
     pub override_rate_caps: bool,
@@ -193,7 +196,8 @@ pub struct AdminResendAccountLinkingEmailResult {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminResolveStudentNumberPayload {
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
 }
 
 /// The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers
@@ -218,10 +222,12 @@ pub struct AdminResolveStudentNumberResult {
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminManuallyLinkStudentNumberPayload {
     pub user_id: Uuid,
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
     /// From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a
     /// link to somebody else.
-    pub sisu_person_id: String,
+    #[schema(value_type = String)]
+    pub sisu_person_id: SecretString,
     pub reason: String,
 }
 
@@ -443,8 +449,8 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
+    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
+    if student_number.expose_secret().is_empty() {
         return Err(controller_err!(
             BadRequest,
             "Name a student number.".to_string()
@@ -483,7 +489,7 @@ pub async fn admin_resend_account_linking_email(
                     user.id,
                     GLOBAL_ADMIN_ROLE,
                     payload.course_id,
-                    student_number,
+                    student_number.expose_secret(),
                     reason,
                 )
                 .await?)
@@ -491,7 +497,7 @@ pub async fn admin_resend_account_linking_email(
             None => Box::pin(async { Ok(0) }),
         };
     let attempt =
-        resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
+        resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, before_send)
             .await?;
     let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.decision);
@@ -500,7 +506,7 @@ pub async fn admin_resend_account_linking_email(
         &mut conn,
         &user,
         &payload,
-        student_number,
+        &student_number,
         outcome,
         attempt.retired_mail_count,
         token,
@@ -544,8 +550,8 @@ pub async fn admin_resolve_student_number_for_linking(
         ));
     }
 
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
+    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
+    if student_number.expose_secret().is_empty() {
         return Err(controller_err!(
             BadRequest,
             "Name a student number.".to_string()
@@ -555,20 +561,21 @@ pub async fn admin_resolve_student_number_for_linking(
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
-    let resolved = resolve_person(&ctx, student_number).await;
+    let resolved = resolve_person(&ctx, &student_number).await;
     let mut conn = pool.acquire().await?;
-    let existing = verified_student_numbers::get_by_student_number(&mut conn, student_number)
-        .await?
-        .or(match &resolved {
-            Ok(Some(person)) => verified_student_numbers::get_by_sisu_person_ids(
-                &mut conn,
-                std::slice::from_ref(&person.sisu_person_id),
-            )
+    let existing =
+        verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
             .await?
-            .into_iter()
-            .next(),
-            _ => None,
-        });
+            .or(match &resolved {
+                Ok(Some(person)) => verified_student_numbers::get_by_sisu_person_ids(
+                    &mut conn,
+                    &[person.sisu_person_id.expose_secret().to_owned()],
+                )
+                .await?
+                .into_iter()
+                .next(),
+                _ => None,
+            });
     let already_linked_to_user_email = match &existing {
         Some(link) => models::user_details::get_user_details_by_user_id(&mut conn, link.user_id)
             .await
@@ -581,7 +588,7 @@ pub async fn admin_resolve_student_number_for_linking(
         Ok(Some(person)) => {
             credit_registration_account_linking_emails::get_by_sisu_person_id(
                 &mut conn,
-                &person.sisu_person_id,
+                person.sisu_person_id.expose_secret(),
             )
             .await?
         }
@@ -591,7 +598,7 @@ pub async fn admin_resolve_student_number_for_linking(
 
     let shared = AdminResolveStudentNumberResult {
         found: false,
-        student_number: student_number.to_string(),
+        student_number: student_number.expose_secret().to_owned(),
         sisu_person_id: None,
         first_names: None,
         last_name: None,
@@ -605,9 +612,9 @@ pub async fn admin_resolve_student_number_for_linking(
     let result = match resolved {
         Ok(Some(person)) => AdminResolveStudentNumberResult {
             found: true,
-            sisu_person_id: Some(person.sisu_person_id),
-            first_names: person.first_names,
-            last_name: person.last_name,
+            sisu_person_id: Some(person.sisu_person_id.expose_secret().to_owned()),
+            first_names: expose_option(&person.first_names).map(str::to_owned),
+            last_name: expose_option(&person.last_name).map(str::to_owned),
             code: Some(person.code),
             ..shared
         },
@@ -673,7 +680,7 @@ pub async fn admin_manually_link_student_number(
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
-    let person: ResolvedPerson = match resolve_person(&ctx, student_number).await {
+    let person: ResolvedPerson = match resolve_person(&ctx, &student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {
             return token.authorized_ok(web::Json(refused(
@@ -686,12 +693,14 @@ pub async fn admin_manually_link_student_number(
             )));
         }
     };
-    if person.sisu_person_id != previewed_person_id {
+    if person.sisu_person_id.expose_secret() != previewed_person_id.expose_secret() {
         return token.authorized_ok(web::Json(refused(AdminManualLinkOutcome::PreviewMismatch)));
     }
     let mut conn = pool.acquire().await?;
 
-    let holder = verified_student_numbers::get_by_student_number(&mut conn, student_number).await?;
+    let holder =
+        verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
+            .await?;
     if let Some(holder) = &holder {
         let outcome = if holder.user_id == payload.user_id {
             AdminManualLinkOutcome::AlreadyLinkedToThisAccount
@@ -704,8 +713,11 @@ pub async fn admin_manually_link_student_number(
     // person id and gets a new number, so checking the number alone lets this through and then
     // trips `uq_verified_student_numbers_person` as a bare 500. See `find_conflicting_account` on
     // the student's own claim path, which this mirrors.
-    let person_holder =
-        verified_student_numbers::get_by_sisu_person_id(&mut conn, &person.sisu_person_id).await?;
+    let person_holder = verified_student_numbers::get_by_sisu_person_id(
+        &mut conn,
+        person.sisu_person_id.expose_secret(),
+    )
+    .await?;
     if let Some(holder) = &person_holder {
         let outcome = if holder.user_id == payload.user_id {
             AdminManualLinkOutcome::AlreadyLinkedToThisAccount
@@ -727,10 +739,10 @@ pub async fn admin_manually_link_student_number(
             current_link_id,
             &NewVerifiedStudentNumber {
                 user_id: payload.user_id,
-                student_number: student_number.to_string(),
-                sisu_person_id: person.sisu_person_id.clone(),
-                first_names: person.first_names.clone(),
-                last_name: person.last_name.clone(),
+                student_number: student_number.clone().into(),
+                sisu_person_id: person.sisu_person_id.clone().into(),
+                first_names: person.first_names.clone().map(Into::into),
+                last_name: person.last_name.clone().map(Into::into),
                 verified_via: StudentNumberVerificationMethod::AdminManual,
                 // No mailbox was proved, so there is no address the proof could rest on.
                 verified_via_email: None,
@@ -752,7 +764,7 @@ pub async fn admin_manually_link_student_number(
             reason: Some(reason),
             details: Some(serde_json::json!({
                 "user_id": payload.user_id,
-                "student_number": student_number,
+                "student_number": student_number.expose_secret(),
             })),
             affected_row_count: Some(
                 i32::try_from(affected_registration_count).unwrap_or(i32::MAX),
@@ -778,8 +790,8 @@ pub async fn admin_manually_link_student_number(
 /// The three values a manual link may not be attempted without.
 struct ManualLinkRequest<'a> {
     reason: &'a str,
-    student_number: &'a str,
-    previewed_person_id: &'a str,
+    student_number: SecretString,
+    previewed_person_id: SecretString,
 }
 
 /// Refuses a manual link that skipped the preview or gave no reason, before anything is asked of the
@@ -789,15 +801,15 @@ fn manual_link_request(
     payload: &AdminManuallyLinkStudentNumberPayload,
 ) -> Result<ManualLinkRequest<'_>, ControllerError> {
     let reason = required_reason(&payload.reason)?;
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
+    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
+    if student_number.expose_secret().is_empty() {
         return Err(controller_err!(
             BadRequest,
             "Name a student number.".to_string()
         ));
     }
-    let previewed_person_id = payload.sisu_person_id.trim();
-    if previewed_person_id.is_empty() {
+    let previewed_person_id = SecretString::from(payload.sisu_person_id.expose_secret().trim());
+    if previewed_person_id.expose_secret().is_empty() {
         return Err(controller_err!(
             BadRequest,
             "Check the number in the study registry first.".to_string()
@@ -815,7 +827,7 @@ async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
     payload: &AdminResendAccountLinkingEmailPayload,
-    student_number: &str,
+    student_number: &SecretString,
     outcome: ResendOutcome,
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
@@ -823,14 +835,14 @@ async fn finish_resend(
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         payload.course_id,
-        Some(student_number),
+        Some(student_number.expose_secret()),
         user.id,
         GLOBAL_ADMIN_ROLE,
         None,
         payload.reason.clone(),
         serde_json::json!({
             "outcome": outcome,
-            "student_number": student_number,
+            "student_number": student_number.expose_secret(),
             "override_rate_caps": payload.override_rate_caps,
             "retired_mail_count": retired_mail_count,
         }),
@@ -863,7 +875,7 @@ async fn build_stale_addresses(
                 .iter()
                 .zip(row.addresses)
                 .map(|(id, address)| AccountLinkingSendOutcome {
-                    address,
+                    address: address.expose_secret().to_owned(),
                     send_status: reports
                         .get(id)
                         .map(|report| report.email_send_status)
@@ -872,8 +884,8 @@ async fn build_stale_addresses(
                 .collect();
             AccountLinkingStaleAddress {
                 sends,
-                student_number: row.student_number,
-                sisu_person_id: row.sisu_person_id,
+                student_number: row.student_number.expose_secret().to_owned(),
+                sisu_person_id: row.sisu_person_id.expose_secret().to_owned(),
                 course_id: row.course_id,
                 course_name: row.course_name,
                 mail_count: row.mail_count,
@@ -911,8 +923,8 @@ mod tests {
     ) -> AdminManuallyLinkStudentNumberPayload {
         AdminManuallyLinkStudentNumberPayload {
             user_id: Uuid::new_v4(),
-            student_number: student_number.to_string(),
-            sisu_person_id: sisu_person_id.to_string(),
+            student_number: student_number.into(),
+            sisu_person_id: sisu_person_id.into(),
             reason: reason.to_string(),
         }
     }
@@ -942,7 +954,7 @@ mod tests {
         let allowed = manual_link_request(&payload)
             .expect("a reason, a number and a previewed person id are all there");
         assert_eq!(allowed.reason, "Host bounces our mail.");
-        assert_eq!(allowed.student_number, "012345678");
-        assert_eq!(allowed.previewed_person_id, "hy-hlo-1");
+        assert_eq!(allowed.student_number.expose_secret(), "012345678");
+        assert_eq!(allowed.previewed_person_id.expose_secret(), "hy-hlo-1");
     }
 }

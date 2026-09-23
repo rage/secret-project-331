@@ -418,7 +418,7 @@ impl SuotarBatchPhase for UncertainRecovery {
             };
             let item = ResolveEnrolmentRequestItem {
                 request_item_id: new_request_item_id(),
-                student_number,
+                student_number: student_number.into(),
                 course_code,
             };
             prepared.sendable.push((recovery, item));

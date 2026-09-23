@@ -44,6 +44,18 @@ impl From<String> for DbSecret {
     }
 }
 
+impl From<SecretString> for DbSecret {
+    fn from(value: SecretString) -> Self {
+        Self(value)
+    }
+}
+
+impl From<DbSecret> for SecretString {
+    fn from(value: DbSecret) -> Self {
+        value.0
+    }
+}
+
 // Deserialize is provided (it only *wraps* an incoming value, never exposes one) so that
 // `DbSecret` can be used directly for inbound request fields that feed DB queries, avoiding
 // a lossy `SecretString` <-> `DbSecret` round-trip. There is deliberately no `Serialize`

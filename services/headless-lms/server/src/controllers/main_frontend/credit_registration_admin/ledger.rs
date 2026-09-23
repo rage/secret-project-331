@@ -25,6 +25,8 @@ use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 
 use super::{
     AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
@@ -270,11 +272,11 @@ pub struct ListCreditRegistrationsQuery {
     course_id: Option<Uuid>,
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
-    student_number: Option<String>,
+    student_number: Option<SecretString>,
     needs_admin_attention: Option<bool>,
     submitted_after: Option<DateTime<Utc>>,
     submitted_before: Option<DateTime<Utc>>,
-    search: Option<String>,
+    search: Option<SecretString>,
     include_superseded: Option<bool>,
     sort: Option<String>,
 }
@@ -318,8 +320,8 @@ pub async fn list_credit_registrations_for_admin(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let pagination = parse_pagination(query.page, query.limit, 50)?;
-    let search = non_empty(query.search.as_deref());
-    let student_number = non_empty(query.student_number.as_deref());
+    let search = non_empty(expose_option(&query.search));
+    let student_number = non_empty(expose_option(&query.student_number));
     let filters = AdminCreditRegistrationFilters {
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
@@ -454,7 +456,8 @@ pub async fn get_credit_registration_for_admin(
     let linking_emails = match sisu_person_id {
         Some(person_id) => {
             let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
-                &mut conn, &person_id,
+                &mut conn,
+                person_id.expose_secret(),
             )
             .await?;
             build_linking_emails(&mut conn, mails).await?
@@ -903,8 +906,8 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         submitted_at: row.submitted_at,
         registered_at: row.registered_at,
         terminal_at: row.terminal_at,
-        student_number: row.student_number,
-        sisu_person_id: row.sisu_person_id,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
+        sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         uh_course_code: row.uh_course_code,
         selected_enrolment_id: row.selected_enrolment_id,
         grade_scale_id: row.grade_scale_id,
@@ -916,7 +919,7 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         verify_attempt_count: row.verify_attempt_count,
         attempt_number: row.attempt_number,
         superseded_by_id: row.superseded_by_id,
-        verified_student_number: row.verified_student_number,
+        verified_student_number: expose_option(&row.verified_student_number).map(str::to_owned),
         verified_student_number_at: row.verified_student_number_at,
         verified_student_number_via: row.verified_student_number_via,
     }

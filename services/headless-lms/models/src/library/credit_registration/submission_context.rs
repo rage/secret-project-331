@@ -8,12 +8,12 @@ use crate::prelude::*;
 use super::payload::CompletionFacts;
 
 /// The module configuration, the linked student number and the completion, for one ledger row.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct SubmissionContext {
     pub registration_id: Uuid,
     /// `None` once the account's number has been unlinked.
-    pub student_number: Option<String>,
-    pub sisu_person_id: Option<String>,
+    pub student_number: Option<DbSecret>,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub configured_grade_scale_id: Option<String>,

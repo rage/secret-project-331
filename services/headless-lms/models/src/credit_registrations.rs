@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
+use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
@@ -380,7 +381,7 @@ impl CreditRegistrationErrorCode {
     ];
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreditRegistration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -397,8 +398,8 @@ pub struct CreditRegistration {
     pub error_message: Option<String>,
     pub needs_admin_attention: bool,
     pub enrolment_banner_dismissed_at: Option<DateTime<Utc>>,
-    pub student_number: Option<String>,
-    pub sisu_person_id: Option<String>,
+    pub student_number: Option<DbSecret>,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
@@ -1160,7 +1161,7 @@ ORDER BY created_at DESC
 
 /// One ledger row with the course, module and enrolment facts every student view needs, so a status
 /// page is one query rather than a fan-out per row.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct StudentCreditRegistration {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -1179,7 +1180,7 @@ pub struct StudentCreditRegistration {
     pub sisu_attainment_id: Option<String>,
     /// The number frozen on the row before it was sent, which is the one a student would check a
     /// registration against; `None` until the row leaves `checking_enrolment`.
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub credits: Option<f32>,
     pub grade_id: Option<String>,
     /// Needed to read `grade_id`: "1" is a pass on the pass/fail scale and a one out of five on the
@@ -1305,10 +1306,10 @@ ORDER BY cmc.completion_date DESC,
 
 /// Frozen copy of what we are about to submit. Written once, before the row leaves
 /// `checking_enrolment`: a later regrade must not alter a submitted row.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct PayloadSnapshot {
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
     pub uh_course_code: String,
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
@@ -1346,8 +1347,8 @@ WHERE id = $1
   AND deleted_at IS NULL
         "#,
         id,
-        snapshot.student_number,
-        snapshot.sisu_person_id,
+        snapshot.student_number.expose_secret(),
+        snapshot.sisu_person_id.expose_secret(),
         snapshot.uh_course_code,
         snapshot.selected_enrolment_id,
         snapshot.selected_enrolment_kind,
@@ -1910,7 +1911,7 @@ GROUP BY cr.course_module_id,
 
 /// One ledger row as a teacher sees it: the raw state, the student's identity and the unmasked
 /// verified student number, but never the study registry's own error text.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct TeacherCreditRegistration {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -1935,11 +1936,11 @@ pub struct TeacherCreditRegistration {
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
     /// Live only: a soft-deleted link is no longer a number we hold for this student.
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
     pub student_number_verified_via: Option<StudentNumberVerificationMethod>,
     /// Needed to find the account's linking mails, which are keyed on the Sisu person.
-    pub sisu_person_id: Option<String>,
+    pub sisu_person_id: Option<DbSecret>,
     pub enrolment_resolved: bool,
     pub enrolment_realisation_name: Option<String>,
     pub completion_eligible: bool,
@@ -2160,7 +2161,7 @@ pub async fn get_teacher_facing_attempts_for_completion(
 ///
 /// Not the study registry's own error text: it is written for an integrator, may name a person and
 /// is untranslated. The error code and the scrubbed call bodies stand in for it.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct AdminCreditRegistration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -2186,8 +2187,8 @@ pub struct AdminCreditRegistration {
     pub registered_at: Option<DateTime<Utc>>,
     pub terminal_at: Option<DateTime<Utc>>,
     /// Frozen on the row when it left `checking_enrolment`, so it is what we actually sent.
-    pub student_number: Option<String>,
-    pub sisu_person_id: Option<String>,
+    pub student_number: Option<DbSecret>,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
@@ -2200,7 +2201,7 @@ pub struct AdminCreditRegistration {
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
     /// The account's live link now, which may differ from the number frozen on the row.
-    pub verified_student_number: Option<String>,
+    pub verified_student_number: Option<DbSecret>,
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
     pub completion_eligible: bool,
@@ -2809,7 +2810,7 @@ impl AttentionSort {
 ///
 /// The `*_count` fields are totals over the whole queue this call selected, not over the page, so a
 /// caller reads them off the first row instead of running a second aggregate.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct AttentionRegistration {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -2828,7 +2829,7 @@ pub struct AttentionRegistration {
     /// on it alone, and it is never reported as a reason.
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub stuck_in_state: bool,
     pub permanent_error: bool,
     pub retry_window_expired: bool,

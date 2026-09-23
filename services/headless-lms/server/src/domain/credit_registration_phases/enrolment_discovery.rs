@@ -26,14 +26,17 @@ use headless_lms_models::library::credit_registration::fast_track::{
     decide_fast_track, find_fast_track_candidate, find_fast_track_candidates, link_by_email_match,
 };
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
+use headless_lms_models::secret::DbSecret;
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::BackendError;
 use headless_lms_utils::prelude::Utc;
+use headless_lms_utils::secret_string::expose_option;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ListedPerson, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
     new_request_item_id,
 };
+use secrecy::ExposeSecret;
 use serde_json::json;
 use sqlx::{Connection, PgConnection};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -170,7 +173,7 @@ fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
     let mut kept: Vec<&ListedPerson> = Vec::new();
     let mut index_by_person: HashMap<&str, usize> = HashMap::new();
     for person in people {
-        match index_by_person.get(person.person_id.as_str()) {
+        match index_by_person.get(person.person_id.expose_secret()) {
             Some(&index) => {
                 if person.enrolment.enrolment_date_time > kept[index].enrolment.enrolment_date_time
                 {
@@ -178,7 +181,7 @@ fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
                 }
             }
             None => {
-                index_by_person.insert(&person.person_id, kept.len());
+                index_by_person.insert(person.person_id.expose_secret(), kept.len());
                 kept.push(person);
             }
         }
@@ -199,12 +202,12 @@ async fn reconcile(
     };
     let person_ids: Vec<String> = people
         .iter()
-        .map(|person| person.person_id.clone())
+        .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
     let linked = verified_student_numbers::get_by_sisu_person_ids(conn, &person_ids).await?;
     let linked_person_ids: HashSet<&str> = linked
         .iter()
-        .map(|row| row.sisu_person_id.as_str())
+        .map(|row| row.sisu_person_id.expose_secret())
         .collect();
 
     let mut fast_track = FastTrackRun::new(ctx, module);
@@ -214,12 +217,12 @@ async fn reconcile(
             people
                 .iter()
                 .copied()
-                .filter(|person| !linked_person_ids.contains(person.person_id.as_str())),
+                .filter(|person| !linked_person_ids.contains(person.person_id.expose_secret())),
         )
         .await?;
     let mut discovered = Vec::new();
     for &person in people {
-        if linked_person_ids.contains(person.person_id.as_str()) {
+        if linked_person_ids.contains(person.person_id.expose_secret()) {
             outcome.already_linked_count += 1;
             continue;
         }
@@ -233,10 +236,10 @@ async fn reconcile(
             continue;
         }
         discovered.push(DiscoveredPerson {
-            sisu_person_id: person.person_id.clone(),
-            student_number: person.student_number.clone(),
-            first_names: person.first_names.clone(),
-            last_name: person.last_name.clone(),
+            sisu_person_id: person.person_id.clone().into(),
+            student_number: person.student_number.clone().into(),
+            first_names: person.first_names.clone().map(Into::into),
+            last_name: person.last_name.clone().map(Into::into),
             course_id: module.course_id,
             addresses,
         });
@@ -296,10 +299,10 @@ impl<'a> FastTrackRun<'a> {
         }
         let wanted: Vec<FastTrackLookup> = people
             .filter_map(|person| {
-                let primary_email = person.primary_email.as_deref()?.trim();
+                let primary_email = person.primary_email.as_ref()?.expose_secret().trim();
                 (!primary_email.is_empty()).then(|| FastTrackLookup {
-                    primary_email: primary_email.to_string(),
-                    sisu_person_id: person.person_id.clone(),
+                    primary_email: DbSecret::new(primary_email),
+                    sisu_person_id: person.person_id.clone().into(),
                 })
             })
             .collect();
@@ -315,8 +318,8 @@ impl<'a> FastTrackRun<'a> {
         decide_fast_track(
             candidate,
             RegistryName {
-                first_names: person.first_names.as_deref(),
-                last_name: person.last_name.as_deref(),
+                first_names: expose_option(&person.first_names),
+                last_name: expose_option(&person.last_name),
             },
             Utc::now(),
             self.max_verification_age,
@@ -338,13 +341,13 @@ impl<'a> FastTrackRun<'a> {
         // account address there and be handed their student number.
         let Some(primary_email) = person
             .primary_email
-            .as_deref()
-            .map(str::trim)
+            .as_ref()
+            .map(|address| address.expose_secret().trim())
             .filter(|address| !address.is_empty())
         else {
             return Ok(false);
         };
-        let decision = self.decide(self.accounts.get(&person.person_id), person);
+        let decision = self.decide(self.accounts.get(person.person_id.expose_secret()), person);
         if decision != FastTrackDecision::Link {
             count_decision(outcome, decision);
             return Ok(false);
@@ -355,7 +358,8 @@ impl<'a> FastTrackRun<'a> {
         // above is only ever a way to skip the people no link is possible for.
         let mut tx = conn.begin().await?;
         let candidate =
-            find_fast_track_candidate(&mut tx, primary_email, &person.person_id).await?;
+            find_fast_track_candidate(&mut tx, primary_email, person.person_id.expose_secret())
+                .await?;
         let decision = self.decide(candidate.as_ref(), person);
         count_decision(outcome, decision);
         let (FastTrackDecision::Link, Some(candidate)) = (decision, candidate) else {
@@ -365,10 +369,10 @@ impl<'a> FastTrackRun<'a> {
         link_by_email_match(
             &mut tx,
             &FastTrackLink {
-                student_number: &person.student_number,
-                sisu_person_id: &person.person_id,
-                first_names: person.first_names.as_deref(),
-                last_name: person.last_name.as_deref(),
+                student_number: person.student_number.clone().into(),
+                sisu_person_id: person.person_id.clone().into(),
+                first_names: person.first_names.clone().map(Into::into),
+                last_name: person.last_name.clone().map(Into::into),
                 course_id: self.module.course_id,
             },
             &candidate,
@@ -409,7 +413,7 @@ impl<'a> FastTrackRun<'a> {
             template_id,
             &json!({
                 "NAME": candidate.first_name.clone().unwrap_or_default(),
-                "STUDENT_NUMBER": person.student_number,
+                "STUDENT_NUMBER": person.student_number.expose_secret(),
                 "LINK": student_number_settings_url(self.ctx.base_url),
             }),
         )

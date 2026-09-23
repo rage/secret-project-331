@@ -240,12 +240,13 @@ ORDER BY chatbot_conversations.created_at DESC;
     Ok(res)
 }
 
-/// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
-pub async fn get_current_conversation_info(
+/// Gets specific conversation or latest conversation for the user, if any. If conversation_id is not provided then latest conversation is given. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
+pub async fn get_conversation_info(
     tx: &mut PgConnection,
     user_id: Option<Uuid>,
     anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
+    conversation_id: Option<Uuid>,
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
@@ -255,20 +256,32 @@ pub async fn get_current_conversation_info(
         None
     };
 
-    let current_conversation =
+    let current_conversation = if let Some(conversation_id) = conversation_id {
+        get_conversation_for_user(
+            tx,
+            user_id,
+            anonymous_token,
+            chatbot_configuration_id,
+            conversation_id,
+        )
+        .await
+        .optional()?
+    } else {
         get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
-            .optional()?;
-    let current_conversation_id = current_conversation.as_ref().map(|c| c.id);
-    // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(current_conversation_id.map(|id| {
+            .optional()?
+    };
+
+    let conversation_id = current_conversation.as_ref().map(|c| c.id);
+
+    let current_conversation_messages = OptionFuture::from(conversation_id.map(|id| {
         crate::chatbot_conversation_messages::get_by_conversation_id_for_display(tx, id)
     }))
     .await
     .transpose()?;
 
     let current_conversation_message_citations =
-        OptionFuture::from(current_conversation_id.map(|id| {
+        OptionFuture::from(conversation_id.map(|id| {
             crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, id)
         }))
         .await
@@ -279,74 +292,6 @@ pub async fn get_current_conversation_info(
         // A suspended turn is waiting for the learner to answer the chatbot's own question, which
         // is not a moment to suggest asking something else.
         && !crate::chatbot_conversation_messages::turn_is_suspended(ccm)
-        && let Some(last_ccm) = ccm.last()
-    {
-        let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
-            tx,
-            last_ccm.id.to_owned(),
-        )
-        .await?;
-        // return an empty vec if there are not yet any suggested messages
-        Some(sm)
-    } else {
-        None
-    };
-
-    Ok(ChatbotConversationInfo {
-        current_conversation,
-        current_conversation_messages,
-        current_conversation_message_citations,
-        suggested_messages,
-        // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
-        chatbot_name: chatbot_configuration.chatbot_name,
-        course_name: course.map(|course| course.name),
-        hide_citations: chatbot_configuration.hide_citations,
-    })
-}
-
-/// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
-pub async fn get_conversation_info(
-    tx: &mut PgConnection,
-    user_id: Option<Uuid>,
-    anonymous_token: Option<String>,
-    chatbot_configuration_id: Uuid,
-    conversation_id: Uuid,
-) -> ModelResult<ChatbotConversationInfo> {
-    let chatbot_configuration =
-        crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
-    let course = if let Some(course_id) = chatbot_configuration.course_id {
-        Some(crate::courses::get_course(tx, course_id).await?)
-    } else {
-        None
-    };
-
-    let current_conversation = get_conversation_for_user(
-        tx,
-        user_id,
-        anonymous_token,
-        chatbot_configuration_id,
-        conversation_id,
-    )
-    .await
-    .optional()?;
-    // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(
-        current_conversation
-            .clone()
-            .map(|c| crate::chatbot_conversation_messages::get_by_conversation_id(tx, c.id)),
-    )
-    .await
-    .transpose()?;
-
-    let current_conversation_message_citations =
-        OptionFuture::from(current_conversation.clone().map(|c| {
-            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
-        }))
-        .await
-        .transpose()?;
-
-    let suggested_messages = if chatbot_configuration.suggest_next_messages
-        && let Some(ccm) = &current_conversation_messages
         && let Some(last_ccm) = ccm.last()
     {
         let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(

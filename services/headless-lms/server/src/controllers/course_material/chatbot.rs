@@ -416,11 +416,12 @@ async fn current_conversation_info(
 
     let anonymous_token = handle_anonymous_token(&req, user);
 
-    let res = chatbot_conversations::get_current_conversation_info(
+    let res = chatbot_conversations::get_conversation_info(
         &mut conn,
         user.map(|u| u.id),
         anonymous_token.as_ref().map(|a| a.to_owned()),
         chatbot_configuration.id,
+        None,
     )
     .await?;
 
@@ -484,11 +485,12 @@ async fn current_conversation_info(
             .await?;
         }
 
-        let res = chatbot_conversations::get_current_conversation_info(
+        let res = chatbot_conversations::get_conversation_info(
             &mut conn,
             user.map(|u| u.id),
             anonymous_token,
             chatbot_configuration.id,
+            None,
         )
         .await?;
         return token.authorized_ok(web::Json(res));
@@ -571,15 +573,16 @@ async fn conversation_info(
             user.map(|u| u.id),
             anonymous_token.as_ref().map(|a| a.to_owned()),
             chatbot_configuration.id,
-            conversation_id,
+            Some(conversation_id),
         )
         .await?
     } else {
-        chatbot_conversations::get_current_conversation_info(
+        chatbot_conversations::get_conversation_info(
             &mut conn,
             user.map(|u| u.id),
             anonymous_token.as_ref().map(|a| a.to_owned()),
             chatbot_configuration.id,
+            None,
         )
         .await?
     };
@@ -649,15 +652,16 @@ async fn conversation_info(
                 user.map(|u| u.id),
                 anonymous_token.as_ref().map(|a| a.to_owned()),
                 chatbot_configuration.id,
-                conversation_id,
+                Some(conversation_id),
             )
             .await?
         } else {
-            chatbot_conversations::get_current_conversation_info(
+            chatbot_conversations::get_conversation_info(
                 &mut conn,
                 user.map(|u| u.id),
                 anonymous_token.as_ref().map(|a| a.to_owned()),
                 chatbot_configuration.id,
+                None,
             )
             .await?
         };

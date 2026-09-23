@@ -29,12 +29,8 @@ const matrixCorrectnessCoefficient = (
   quizItem: PrivateSpecQuizItemMatrix,
   difference: MatrixDifference,
 ): number => {
+  // compareMatrices already refuses a key with no cells, so keyCells is a safe divisor here.
   const { incorrectCells, missingCells, extraCells, keyCells } = difference.breakdown
-  // An empty key defines no correct answer, which the editor blocks saving; a key that reaches
-  // grading in this state is a data bug worth surfacing rather than silently scoring everyone 0.
-  if (keyCells === 0) {
-    throw new Error("Matrix item has no correct answer configured")
-  }
   const differingCells = incorrectCells + missingCells + extraCells
   if (quizItem.gradingPolicy === "whole-matrix") {
     return differingCells === 0 ? 1 : 0

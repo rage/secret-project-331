@@ -28,6 +28,10 @@ const quantizeForFogOfWar = (correctnessCoefficient: number): number => {
   return 0.5
 }
 
+/** Collapses the coefficient to wrong/partial/fully-correct when fog of war is on, leaves it exact otherwise. */
+const applyFogOfWar = (correctnessCoefficient: number, fogOfWar: boolean): number =>
+  fogOfWar ? quantizeForFogOfWar(correctnessCoefficient) : correctnessCoefficient
+
 const submissionFeedback = (
   submission: UserAnswer,
   quiz: PrivateSpecQuiz,
@@ -80,9 +84,7 @@ const submissionFeedback = (
         // Same leak the matrix branch below guards against: the raw coefficient moves by
         // 1/optionCount per selection under partial-credit policies, so leaving it unquantized
         // would let a student bisect the answer key across retries even with fog of war on.
-        const correctnessCoefficient = fogOfWar
-          ? quantizeForFogOfWar(itemGrading.correctnessCoefficient)
-          : itemGrading.correctnessCoefficient
+        const correctnessCoefficient = applyFogOfWar(itemGrading.correctnessCoefficient, fogOfWar)
 
         return {
           timeline_item_feedbacks: null,
@@ -167,9 +169,10 @@ const submissionFeedback = (
         // already exposes (wrong / partial / fully correct) so the actually-awarded points (which
         // come from the separate, full-precision QuizItemAnswerGrading, not this feedback object)
         // are unaffected.
-        const correctnessCoefficient = revealCells
-          ? itemGrading.correctnessCoefficient
-          : quantizeForFogOfWar(itemGrading.correctnessCoefficient)
+        const correctnessCoefficient = applyFogOfWar(
+          itemGrading.correctnessCoefficient,
+          !revealCells,
+        )
 
         return {
           quiz_item_id: matrixQuizItem.id,

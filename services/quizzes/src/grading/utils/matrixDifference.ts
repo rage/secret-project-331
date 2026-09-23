@@ -40,6 +40,11 @@ export const compareMatrices = (
   }
 
   const keyShape = matrixShape(keyMatrix)
+  // An empty key defines no correct answer, which the editor blocks saving; a key that reaches
+  // grading in this state is a data bug worth surfacing rather than silently scoring everyone 0.
+  if (keyShape.rows === 0 || keyShape.columns === 0) {
+    throw new Error("Matrix item has no correct answer configured")
+  }
   const studentShape = matrixShape(studentMatrix)
 
   const holes = blankCellsInsideShape(keyMatrix, keyShape)

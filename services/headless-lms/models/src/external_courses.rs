@@ -25,7 +25,10 @@ pub struct ExternalCourseOutput {
     description: Option<String>,
     url: String,
 }
-
+/**
+Searches for external courses with a list of given keywords, with both matching its embedding vector to embeddings of external course name and description,
+and doing a keyword search to concatenated name and description tsvector.
+*/
 pub async fn get_external_courses_by_embeddings(
     conn: &mut PgConnection,
     keywords: Vec<String>,

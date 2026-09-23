@@ -55,6 +55,7 @@
  * |                             | student5 (nothing linked)       | via-suotar     |
  * | suotar-old-flow-coexistence | student7, student8              | old-flow       |
  * | completion-registration-certificate-detour | student7         | certificate-detour |
+ * |                             | student8                        | certificate-detour |
  * | suotar-teacher-views        | credit-registration-student-1–4 | retry          |
  * |                             | frozen rows only                | states         |
  * | suotar-account-linking      | credit-registration-link-claimer | none          |

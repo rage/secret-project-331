@@ -6,6 +6,7 @@ import {
   OLD_FLOW_COURSE_SLUG,
   seededStudentStorageState,
   STUDENT_7,
+  STUDENT_8,
 } from "@/utils/creditRegistration"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
@@ -15,10 +16,13 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
  *
  * This path never reaches Suotar. The fixture course is seeded by `seed_certificate_detour_course`,
  * and `credit-registration-old-flow` stands in for the modules that must keep showing the plain page.
- * `student7` has a completion on both.
+ * `student7` has a completion on both. `student8` has its own completion on the same detour module,
+ * so the failed-save test below never shares a (module, student) pair with the test that saves a
+ * reason for good.
  */
 const DETOUR_STUDENT_EMAIL = STUDENT_7.email
 const OLD_FLOW_STUDENT_EMAIL = STUDENT_7.email
+const FAILED_SAVE_STUDENT_EMAIL = STUDENT_8.email
 
 const STUDENT_TYPE_QUESTION =
   "Are you a student or an exchange student at the University of Helsinki?"
@@ -49,7 +53,7 @@ const answer = (page: Page, question: string, option: string | RegExp) =>
 
 /** The identification question answers itself with plain buttons, not a radio group. */
 const answerIdentification = (page: Page, option: string | RegExp) =>
-  page.getByRole("button", { name: option }).click()
+  page.getByRole("button", { name: option, exact: true }).click()
 
 test.describe("A module whose certificate a student could take instead of the credits", () => {
   test.use({ storageState: seededStudentStorageState(DETOUR_STUDENT_EMAIL) })
@@ -177,6 +181,10 @@ test.describe("A module whose certificate a student could take instead of the cr
       await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
     })
   })
+})
+
+test.describe("A failed save on the certificate detour module", () => {
+  test.use({ storageState: seededStudentStorageState(FAILED_SAVE_STUDENT_EMAIL) })
 
   test("A failed save is reported instead of quietly letting the student past", async ({
     page,

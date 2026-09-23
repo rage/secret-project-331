@@ -30,7 +30,7 @@ use headless_lms_models::{
     secret::DbSecret,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
-    user_details,
+    user_ai_usage_notice_acknowledgements, user_details,
     user_passwords::{hash_password, upsert_user_password},
     users,
     verified_student_numbers::{self, NewVerifiedStudentNumber, StudentNumberVerificationMethod},
@@ -190,6 +190,7 @@ pub async fn seed_credit_registration(
         org,
         teacher_user_id,
         students.get(&STUDENT_7)?,
+        students.get(&STUDENT_8)?,
     )
     .await?;
     seed_import_outcomes_course(
@@ -536,12 +537,16 @@ async fn seed_old_flow_course(
 /// The one combination that draws the certificate detour on the old registration page: open
 /// university registration and a certificate the student can generate instead. No sample course has
 /// both, and the courses that come closest must keep the plain page they already test.
+///
+/// `failed_save_student` gets a completion of its own on the same module, so the spec's failed-save
+/// test can run independently of the test that saves a reason for `student` permanently.
 async fn seed_certificate_detour_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
     student: &SeededStudent,
+    failed_save_student: &SeededStudent,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
@@ -568,6 +573,13 @@ async fn seed_certificate_detour_course(
                     .grade(3)
                     .passed(true)
                     .prerequisite_modules_completed(true),
+            )
+            .completion(
+                CompletionBuilder::new(failed_save_student.user_id)
+                    .email(failed_save_student.email.clone())
+                    .grade(3)
+                    .passed(true)
+                    .prerequisite_modules_completed(true),
             ),
     )
     .certificate_config("svgs/certificate-background.svg", None)
@@ -577,7 +589,9 @@ async fn seed_certificate_detour_course(
     course_modules::update_certification_enabled(conn, module.id, true).await?;
     open_university_registration_links::upsert(conn, CRS_DETOUR_101, "https://www.example.com")
         .await?;
-    enroll(conn, student.user_id, course.id, instance.id).await?;
+    for enrolled_student in [student, failed_save_student] {
+        enroll(conn, enrolled_student.user_id, course.id, instance.id).await?;
+    }
     Ok(())
 }
 
@@ -950,8 +964,8 @@ async fn link_student_number(
     Ok(())
 }
 
-/// Enrols the way the course settings dialog does; without `user_course_settings` the course pages
-/// open on that dialog.
+/// Enrols the way a student who has been through the course's opening dialogs is: without
+/// `user_course_settings` and the AI notice acknowledgement, the course pages open on a dialog.
 async fn enroll(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -967,6 +981,7 @@ async fn enroll(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(conn, user_id, course_id).await?;
     Ok(())
 }
 

@@ -9,6 +9,8 @@ import {
   getJson,
   type MyCreditRegistration,
   seededStudentStorageState,
+  STUDENT_7,
+  STUDENT_8,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -23,17 +25,17 @@ import {
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns student numbers `9000015xx` and reads the seeded chapter page of
- * `credit-registration-via-suotar`.
+ * Owns `student7` and `student8` on `credit-registration-via-suotar`, and reads its seeded chapter
+ * page.
  *
  * The banner's substance — a working enrolment link and a check-again action on a missing enrolment
  * — is asserted on the status page in suotar-enrolment-problems.spec.ts. What is only testable here
  * is where it appears, that it does not block reading, and that its visibility follows the ledger
  * state rather than the browser.
  */
-const STUCK_EMAIL = "credit-registration-banner-stuck@example.com"
-const REENROLS_EMAIL = "credit-registration-banner-reenrols@example.com"
-const REENROLS_STUDENT_NUMBER = "900001502"
+const STUCK_EMAIL = STUDENT_7.email
+const REENROLS_EMAIL = STUDENT_8.email
+const REENROLS_STUDENT_NUMBER = STUDENT_8.studentNumber
 
 const CHAPTER_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1/page-1`
 const CHAPTER_FRONT_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1`
@@ -47,7 +49,7 @@ const parkOnMissingEnrolment = async (
   adminApi: APIRequestContext,
   userEmail: string,
 ) => {
-  const scope = { userEmail }
+  const scope = { userEmail, courseSlug: SUOTAR_COURSE_SLUG }
   await runMaterializeTick(page.request, scope)
   await runPreconditionsTick(page.request, scope)
   await runResolveEnrolmentsTick(page.request, scope)
@@ -95,7 +97,7 @@ test.describe("A student the University has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: STUCK_EMAIL }
+    const scope = { userEmail: STUCK_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
     const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
 
     await page.goto(CHAPTER_PAGE_URL)
@@ -135,7 +137,7 @@ test.describe("A student who enrols after being told to", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: REENROLS_EMAIL }
+    const scope = { userEmail: REENROLS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
     await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
 
     await page.goto(CHAPTER_PAGE_URL)

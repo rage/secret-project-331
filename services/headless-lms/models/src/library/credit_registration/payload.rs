@@ -34,7 +34,7 @@ impl From<&CourseModuleCompletion> for CompletionFacts {
 #[derive(Debug, Clone, Copy)]
 pub struct PayloadSources<'a> {
     pub student_number: &'a DbSecret,
-    pub sisu_person_id: &'a DbSecret,
+    pub sisu_person_id: Option<&'a DbSecret>,
     pub uh_course_code: Option<&'a str>,
     pub ects_credits: Option<f32>,
     pub enrolment: Option<&'a SuotarEnrolment>,
@@ -77,7 +77,7 @@ pub fn build_payload_snapshot(
     Ok(BuiltPayload {
         snapshot: PayloadSnapshot {
             student_number: sources.student_number.clone(),
-            sisu_person_id: sources.sisu_person_id.clone(),
+            sisu_person_id: sources.sisu_person_id.cloned(),
             uh_course_code: uh_course_code.to_string(),
             selected_enrolment_id: sources.enrolment.map(|enrolment| enrolment.id.clone()),
             selected_enrolment_kind: sources
@@ -177,7 +177,7 @@ mod tests {
     fn sources<'a>(enrolment: Option<&'a SuotarEnrolment>) -> PayloadSources<'a> {
         PayloadSources {
             student_number: &STUDENT_NUMBER,
-            sisu_person_id: &SISU_PERSON_ID,
+            sisu_person_id: Some(&SISU_PERSON_ID),
             uh_course_code: Some("TKT10001"),
             ects_credits: Some(5.0),
             enrolment,

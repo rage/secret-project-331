@@ -4,6 +4,10 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
   COURSE_CREDIT_REGISTRATIONS_API,
+  CREDIT_REGISTRATION_STUDENT_1,
+  CREDIT_REGISTRATION_STUDENT_2,
+  CREDIT_REGISTRATION_STUDENT_3,
+  CREDIT_REGISTRATION_STUDENT_4,
   CRS_STATES_101,
   getJson,
   ORIGIN,
@@ -18,18 +22,18 @@ import {
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
- * Owns student numbers `9000008xx`. Reads the `credit-registration-states` course and writes to the
- * `credit-registration-retry` one; both have a paused module so their rows hold still — a read model
- * needs every state present at once, and the workers in the test deployment would otherwise walk
- * them onwards.
+ * Reads the `credit-registration-states` course and writes to the `credit-registration-retry` one,
+ * where `credit-registration-student-1`–`4` hold one row each. Both have paused modules so their rows
+ * hold still — a read model needs every state present at once, and the workers in the test deployment
+ * would otherwise walk them onwards.
  *
  * The retry fixtures are a course of their own because a bulk retry sweeps a whole course: run
  * against the states course it would leave that fixture with no failure and no error codes.
  *
  * `teacher@example.com` teaches the fixture courses and nothing else here, which is what makes the
  * authorization cases meaningful.
- * Serial and order-dependent: the single-row retry test spends `Retry01`'s `failed_permanent` state,
- * and the bulk retry after it sweeps the whole retry course. `retries: 0` because neither state comes
+ * Serial and order-dependent: the single-row retry test spends one `failed_permanent` row, and the
+ * bulk retry after it sweeps the whole retry course. `retries: 0` because neither state comes
  * back, so retrying only turns one failure into three.
  */
 test.describe.configure({ mode: "serial", retries: 0 })
@@ -39,14 +43,14 @@ test.use({ storageState: "src/states/teacher@example.com.json" })
 const STATES_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${STATES_COURSE_ID}/students/completions`
 const RETRY_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${RETRY_COURSE_ID}/students/completions`
 
-const EMAIL_LINK_STUDENT_NUMBER = "900000801"
-const ADMIN_MANUAL_STUDENT_NUMBER = "900000802"
+const EMAIL_LINK_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
+const ADMIN_MANUAL_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
 
-/** The retry fixtures, by the last name the seed gives each one. */
-const RETRIABLE = "Retry01"
-const BULK_RETRIABLE = "Retry02"
-const SUBMISSION_UNCERTAIN = "Retry03"
-const NOT_A_FAILURE = "Retry04"
+/** The retry fixtures, by the last name of the account holding each one. */
+const RETRIABLE = CREDIT_REGISTRATION_STUDENT_1.lastName
+const BULK_RETRIABLE = CREDIT_REGISTRATION_STUDENT_2.lastName
+const SUBMISSION_UNCERTAIN = CREDIT_REGISTRATION_STUDENT_3.lastName
+const NOT_A_FAILURE = CREDIT_REGISTRATION_STUDENT_4.lastName
 
 /** The subset of the teacher's per-course row these tests read. */
 interface TeacherRegistrationRow {

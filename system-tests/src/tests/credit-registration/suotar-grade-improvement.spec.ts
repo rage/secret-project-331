@@ -2,6 +2,8 @@ import {
   completionRegistrationUrl,
   CRS_GRADED_101,
   countMockCallsForStudent,
+  CREDIT_REGISTRATION_STUDENT_2,
+  GRADE_IMPROVEMENT_COURSE_ID,
   GRADE_IMPROVEMENT_COURSE_SLUG,
   mockCallsForStudent,
   myRegistrationOnCourse,
@@ -25,16 +27,16 @@ import {
 } from "@/utils/suotarControl"
 
 /**
- * Owns student numbers `9000012xx` and the grade-improvement course outright: it is the only seeded
- * module on a graded scale, and both tests below regrade the one completion on it, so they run in
- * order and nothing else may write to that course.
+ * Owns the grade-improvement course outright, with `credit-registration-student-2` on it: it is the
+ * only seeded module on a graded scale, and both tests below regrade the one completion on it, so
+ * they run in order and nothing else may write to that course.
  * `retries: 0` follows: a retry replays the group from its first test, which by then would run against
  * the grade the last one left behind, so retrying only turns one failure into three.
  */
-const STUDENT_EMAIL = "credit-registration-grade-improvement@example.com"
-const STUDENT_NUMBER = "900001201"
+const STUDENT_EMAIL = CREDIT_REGISTRATION_STUDENT_2.email
+const STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
 const NUMERIC_SCALE = "sis-0-5"
-const scope = { userEmail: STUDENT_EMAIL }
+const scope = { userEmail: STUDENT_EMAIL, courseSlug: GRADE_IMPROVEMENT_COURSE_SLUG }
 
 test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
 test.describe.configure({ mode: "serial", retries: 0 })
@@ -124,7 +126,12 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
     expect(details.registration.grade_id, "the new attempt froze the old grade").toBe("4")
     expect(details.registration.grade_scale_id).toBe(NUMERIC_SCALE)
 
-    const imports = await mockCallsForStudent(page.request, STUDENT_NUMBER, "import_attainments")
+    const imports = await mockCallsForStudent(
+      page.request,
+      STUDENT_NUMBER,
+      CRS_GRADED_101,
+      "import_attainments",
+    )
     expect(imports).toHaveLength(2)
     const sentItemIds = imports.flatMap((call) => call.items.map((item) => item.requestItemId))
     // What makes a line in the registry's log map to one attempt rather than to the completion.
@@ -158,13 +165,18 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
 
     const bucket = await listAdminRegistrations(adminApi, {
       student_number: STUDENT_NUMBER,
+      course_id: GRADE_IMPROVEMENT_COURSE_ID,
       state: "not_improved",
     })
     expect(bucket.data.map((row) => row.id)).toContain(second.id)
     const failureStates = ["failed_permanent", "failed_retryable"]
     const failedBuckets = await Promise.all(
       failureStates.map((state) =>
-        listAdminRegistrations(adminApi, { student_number: STUDENT_NUMBER, state }),
+        listAdminRegistrations(adminApi, {
+          student_number: STUDENT_NUMBER,
+          course_id: GRADE_IMPROVEMENT_COURSE_ID,
+          state,
+        }),
       ),
     )
     failedBuckets.forEach((failed, index) => {
@@ -194,6 +206,7 @@ test("A downward, equal or cross-scale regrade resubmits nothing", async ({ page
   const importsBefore = await countMockCallsForStudent(
     page.request,
     STUDENT_NUMBER,
+    CRS_GRADED_101,
     "import_attainments",
   )
 
@@ -210,7 +223,12 @@ test("A downward, equal or cross-scale regrade resubmits nothing", async ({ page
       expect(details.registration.state).toBe("not_improved")
       expect(details.registration.needs_admin_attention).toBe(false)
       expect(
-        await countMockCallsForStudent(page.request, STUDENT_NUMBER, "import_attainments"),
+        await countMockCallsForStudent(
+          page.request,
+          STUDENT_NUMBER,
+          CRS_GRADED_101,
+          "import_attainments",
+        ),
       ).toBe(importsBefore)
     })
   }

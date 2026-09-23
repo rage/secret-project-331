@@ -6,7 +6,6 @@ import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   completionRegistrationRoute,
-  userSettingsRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 
@@ -19,8 +18,6 @@ import type { RegistrationCardAction } from "./RegistrationStatusCard"
 
 export interface StudentRegistrationActionsOptions {
   registration: MyCreditRegistration
-  /** From `useCanConfirmEmailAddress`. Adds the fast track when the emailed link is out of reach. */
-  canConfirmEmail: boolean
   /** Set on a list. The registration's own status page has nowhere further to send the reader. */
   linkToStatusPage: boolean
 }
@@ -34,14 +31,10 @@ export interface StudentRegistrationActions {
 /** The one lever the enrolment wait offers, which that band picks out of the plan by key. */
 export const RECHECK_ENROLMENT_ACTION_KEY = "recheck-enrolment"
 
-/** The one lever the linking band offers, which that band picks out of the plan by key. */
-export const CONFIRM_EMAIL_ACTION_KEY = "confirm-email"
-
 const ACTION_KEY = {
   enrol: "enrol",
   recheckEnrolment: RECHECK_ENROLMENT_ACTION_KEY,
   checkStudentNumber: "check-student-number",
-  confirmEmail: CONFIRM_EMAIL_ACTION_KEY,
   details: "details",
 }
 
@@ -54,7 +47,6 @@ const ACTION_KEY = {
  */
 export const useStudentRegistrationActions = ({
   registration,
-  canConfirmEmail,
   linkToStatusPage,
 }: StudentRegistrationActionsOptions): StudentRegistrationActions => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -89,12 +81,6 @@ export const useStudentRegistrationActions = ({
     href: userSettingsStudentNumberRoute(),
   })
 
-  const confirmEmailAction = (): RegistrationCardAction => ({
-    key: ACTION_KEY.confirmEmail,
-    label: t("button-confirm-your-email-address"),
-    href: userSettingsRoute(),
-  })
-
   const studentLever = (action: FailureAction): RegistrationCardAction | null => {
     switch (action) {
       case "enrol":
@@ -127,8 +113,6 @@ export const useStudentRegistrationActions = ({
       levers.push(enrol)
     }
     levers.push(recheckEnrolmentAction())
-  } else if (status === "needs_student_number" && canConfirmEmail) {
-    levers.push(confirmEmailAction())
   }
 
   if (linkToStatusPage && (state === "failed" || state === "action-needed")) {

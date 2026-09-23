@@ -26,7 +26,6 @@ import {
 } from "@/components/credit-registration/RegistrationStatusCard"
 import { StudentNumberLinkStep } from "@/components/credit-registration/StudentNumberLinkStep"
 import {
-  CONFIRM_EMAIL_ACTION_KEY,
   RECHECK_ENROLMENT_ACTION_KEY,
   useStudentRegistrationActions,
 } from "@/components/credit-registration/studentRegistrationActions"
@@ -47,7 +46,6 @@ import {
   saysWhatIsHappening,
   showsRegistrationFacts,
 } from "@/components/credit-registration/trackerView"
-import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import {
   getMyCreditRegistrationForCourseModuleOptions,
   getMyEnrolmentRouteOptions,
@@ -193,10 +191,8 @@ const Tracker: React.FC<TrackerProps> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const statusLabel = registrationStatusLabel(t, status)
-  const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
-    canConfirmEmail,
     linkToStatusPage: false,
   })
 
@@ -226,11 +222,7 @@ const Tracker: React.FC<TrackerProps> = ({
           ) : null}
         </header>
 
-        <StudentNumberLinkStep
-          registration={registration}
-          verifiedNumber={verifiedNumber}
-          confirmEmailAction={leverByKey(CONFIRM_EMAIL_ACTION_KEY)}
-        />
+        <StudentNumberLinkStep registration={registration} verifiedNumber={verifiedNumber} />
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep

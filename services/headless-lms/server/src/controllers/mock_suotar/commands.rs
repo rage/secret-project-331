@@ -801,8 +801,7 @@ async fn generate_roster(
             format!("`{realisation_id}` is not a realisation of `{course_code}`."),
         )
     })?;
-    // A spec index owns only a hundred numbers, so a large roster has to come from the allocator
-    // range.
+    // The allocator range, clear of every seeded fixture's `900…` number.
     let prefix = student_number_prefix.unwrap_or("99");
     let now = Utc::now();
     let validity = DatePeriod {
@@ -830,7 +829,7 @@ async fn generate_roster(
                 student_number: student_number.clone(),
             },
         );
-        let enrolment_id = ids::enrolment_id(&student_number, realisation.kind);
+        let enrolment_id = ids::enrolment_id(&student_number, course_code, realisation.kind);
         enrolments.insert(
             enrolment_id.clone(),
             MockEnrolment {
@@ -1092,25 +1091,25 @@ async fn list_calls(store: &MockSuotarStore, generation: &str, filter: CallFilte
                 .as_ref()
                 .is_none_or(|id| call.faults.applied.contains(id))
         })
+        // One item must match every item-level key: a batch holding (A, X) and (B, Y) is no call
+        // for (A, Y).
         .filter(|call| {
-            filter.student_number.as_ref().is_none_or(|value| {
-                call.items
-                    .iter()
-                    .any(|item| item.student_number.as_ref() == Some(value))
-            })
-        })
-        .filter(|call| {
-            filter.course_code.as_ref().is_none_or(|value| {
-                call.items
-                    .iter()
-                    .any(|item| item.course_code.as_ref() == Some(value))
-            })
-        })
-        .filter(|call| {
-            filter
-                .request_item_id
-                .as_ref()
-                .is_none_or(|value| call.items.iter().any(|item| &item.request_item_id == value))
+            call.items.iter().any(|item| {
+                filter
+                    .student_number
+                    .as_ref()
+                    .is_none_or(|value| item.student_number.as_ref() == Some(value))
+                    && filter
+                        .course_code
+                        .as_ref()
+                        .is_none_or(|value| item.course_code.as_ref() == Some(value))
+                    && filter
+                        .request_item_id
+                        .as_ref()
+                        .is_none_or(|value| &item.request_item_id == value)
+            }) || (filter.student_number.is_none()
+                && filter.course_code.is_none()
+                && filter.request_item_id.is_none())
         })
         .collect();
     Ok(json!({ "calls": matching, "scanned": calls.len() }))
@@ -1239,9 +1238,9 @@ fn course_unit_from(upsert: CourseUnitUpsert) -> MockCourseUnit {
 
 fn enrolment_from(upsert: EnrolmentUpsert) -> MockEnrolment {
     MockEnrolment {
-        id: upsert
-            .id
-            .unwrap_or_else(|| ids::enrolment_id(&upsert.student_number, upsert.kind)),
+        id: upsert.id.unwrap_or_else(|| {
+            ids::enrolment_id(&upsert.student_number, &upsert.course_code, upsert.kind)
+        }),
         realisation_id: upsert
             .realisation_id
             .unwrap_or_else(|| ids::realisation_id(&upsert.course_code, upsert.kind)),

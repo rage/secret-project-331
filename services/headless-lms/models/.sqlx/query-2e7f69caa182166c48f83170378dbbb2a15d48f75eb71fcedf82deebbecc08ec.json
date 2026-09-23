@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO verified_student_numbers (user_id, student_number, verified_via)\nSELECT DISTINCT ON (reported.student_number) reported.user_id,\n  reported.student_number,\n  'study_registry'\nFROM study_registry_reported_student_numbers reported\nWHERE reported.user_id = ANY($1::uuid [])\n  AND reported.student_number ~ '^[0-9]{6,12}$'\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = reported.user_id\n      AND vsn.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.student_number = reported.student_number\n      AND vsn.deleted_at IS NULL\n  )\nORDER BY reported.student_number,\n  reported.user_id\nON CONFLICT DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2e7f69caa182166c48f83170378dbbb2a15d48f75eb71fcedf82deebbecc08ec"
+}

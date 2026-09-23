@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.state = 'checking_enrolment'\n    AND cr.next_attempt_at <= now()\n    AND ($2::uuid IS NULL OR cr.course_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n    AND (\n      $5::boolean\n      OR NOT EXISTS (\n        SELECT 1\n        FROM credit_registration_test_exclusive_holds h\n        WHERE h.user_id = cr.user_id\n          AND (\n            h.course_id IS NULL\n            OR h.course_id = cr.course_id\n          )\n          AND h.held_until > now()\n      )\n    )\n    AND NOT EXISTS (\n      SELECT 1\n      FROM credit_registrations twin\n      WHERE twin.student_number = cr.student_number\n        AND twin.uh_course_code = cr.uh_course_code\n        AND twin.id <> cr.id\n        AND twin.deleted_at IS NULL\n        AND twin.state IN (\n          'submitting',\n          'submission_uncertain',\n          'awaiting_verification'\n        )\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $1\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
+  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id\n    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.\n    AND (\n      cmc.register_credits_via_suotar\n      OR cr.submitted_at IS NOT NULL\n    )\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n    AND (\n      $6::boolean\n      OR NOT EXISTS (\n        SELECT 1\n        FROM credit_registration_test_exclusive_holds h\n        WHERE h.user_id = cr.user_id\n          AND (\n            h.course_id IS NULL\n            OR h.course_id = cr.course_id\n          )\n          AND h.held_until > now()\n      )\n    )\n  ORDER BY cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
   "describe": {
     "columns": [
       {
@@ -600,6 +600,38 @@
     ],
     "parameters": {
       "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
         "Int8",
         "Uuid",
         "Uuid",
@@ -659,5 +691,5 @@
       true
     ]
   },
-  "hash": "9993815a20e873f317019fb43cbdb82b8e4147edc00a5a70e976189a8dae6af9"
+  "hash": "c22becab2689b83066885ff31e07f81706b3dfe412e613be190aaa082565bd0c"
 }

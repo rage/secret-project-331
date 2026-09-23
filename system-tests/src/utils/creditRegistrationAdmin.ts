@@ -328,8 +328,7 @@ export interface AdminResolvedStudentNumber {
 
 /**
  * Who the registry says a number belongs to, and every linking mail we have claimed for them. The
- * only read that answers "was this person mailed a link", which is what the fast-track specs assert
- * the absence of.
+ * only read that answers "was this person mailed a link".
  */
 export const adminResolveStudentNumber = async (
   request: APIRequestContext,

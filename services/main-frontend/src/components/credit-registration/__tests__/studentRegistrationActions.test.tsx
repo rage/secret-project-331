@@ -32,15 +32,11 @@ const registration = (
     ...overrides,
   }) as MyCreditRegistration
 
-const actionsFor = (
-  reg: MyCreditRegistration,
-  options: { canConfirmEmail?: boolean; linkToStatusPage?: boolean } = {},
-) =>
+const actionsFor = (reg: MyCreditRegistration, options: { linkToStatusPage?: boolean } = {}) =>
   renderHook(
     () =>
       useStudentRegistrationActions({
         registration: reg,
-        canConfirmEmail: options.canConfirmEmail ?? false,
         linkToStatusPage: options.linkToStatusPage ?? false,
       }),
     { wrapper },
@@ -89,14 +85,8 @@ describe("useStudentRegistrationActions", () => {
     expect(primaryAction?.href).toBe("/user-settings/student-number")
   })
 
-  test("offers the email fast track while the emailed link is out of reach", () => {
-    const withFastTrack = actionsFor(registration("needs_student_number"), {
-      canConfirmEmail: true,
-    })
-    const withoutFastTrack = actionsFor(registration("needs_student_number"))
-
-    expect(withFastTrack.primaryAction?.label).toBe("button-confirm-your-email-address")
-    expect(withoutFastTrack.primaryAction).toBeNull()
+  test("offers nothing while the student number is still to be linked", () => {
+    expect(actionsFor(registration("needs_student_number")).primaryAction).toBeNull()
   })
 
   test("offers nothing under a registration that worked", () => {

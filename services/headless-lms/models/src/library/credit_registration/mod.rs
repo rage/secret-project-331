@@ -7,7 +7,6 @@ pub mod backoff;
 pub mod classification;
 pub mod config_validation;
 pub mod enrolment_selection;
-pub mod fast_track;
 pub mod grade_mapping;
 pub mod legacy_mirror;
 pub mod materialize;

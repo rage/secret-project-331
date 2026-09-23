@@ -657,6 +657,12 @@ pub async fn resend_course_credit_registration_linking_email(
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
+    if !app_conf.suotar_configuration.account_linking_enabled {
+        return Err(controller_err!(
+            BadRequest,
+            "Account linking is switched off.".to_string()
+        ));
+    }
 
     let enabled_module_ids =
         models::course_modules::get_credit_registration_enabled_ids_for_course(
@@ -888,7 +894,10 @@ async fn linking_email_statuses(
         verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
             .await?
             .into_iter()
-            .map(|link| (link.user_id, link.sisu_person_id.expose_secret().to_owned()))
+            .filter_map(|link| {
+                let person_id = link.sisu_person_id?.expose_secret().to_owned();
+                Some((link.user_id, person_id))
+            })
             .collect()
     };
     let per_row: Vec<(Uuid, String)> = waiting

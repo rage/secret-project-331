@@ -21,13 +21,6 @@ export type AccountLinkingFailureDomain = {
  */
 export type AccountLinkingFunnel = {
   already_linked_last_run: number
-  /**
-   * The branch that skips the mail entirely: discovered persons linked straight away because the
-   * study registry holds a verified account address for them. A terminal branch off `discovered`,
-   * not a stage every person passes through.
-   */
-  fast_tracked_in_window: number
-  fast_tracked_last_run: number
   mails_claimed_in_window: number
   mails_sent_in_window: number
   /**
@@ -48,20 +41,6 @@ export type AccountLinkingModuleCounters = {
   course_module_id: string
   course_module_name?: string | null
   course_name: string
-  fast_track_skipped_account_has_number_count?: number | null
-  /**
-   * A rise here is the only early warning of a university address reissued to a different person.
-   */
-  fast_track_skipped_name_mismatch_count?: number | null
-  fast_track_skipped_no_account_count?: number | null
-  fast_track_skipped_stale_verification_count?: number | null
-  fast_track_skipped_unlinked_before_count?: number | null
-  /**
-   * Matched an account that has never proved the address. The population an email-verification
-   * campaign would convert.
-   */
-  fast_track_skipped_unverified_count?: number | null
-  fast_tracked_count?: number | null
   /**
    * When the counters below were collected. Not the last attempt: a failing listing keeps the
    * last roster that arrived.
@@ -113,6 +92,10 @@ export type AccountLinkingStaleAddress = {
 }
 
 export type AccountLinkingStats = {
+  /**
+   * When false, no linking mails are sent and resends are refused.
+   */
+  account_linking_enabled: boolean
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
@@ -122,6 +105,10 @@ export type AccountLinkingStats = {
   quiet_period_secs: number
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
+  /**
+   * Newest first, capped.
+   */
+  study_registry_conflicts: Array<StudyRegistryStudentNumberConflict>
   /**
    * Accounts with an eligible completion still waiting for a student number.
    */
@@ -488,7 +475,10 @@ export type AdminVerifiedStudentNumberRow = {
   link_reason?: string | null
   linked_by_user_id?: string | null
   live_registration_count: number
-  sisu_person_id: string
+  /**
+   * `None` for a link the study registry reported, which names no person.
+   */
+  sisu_person_id?: string | null
   student_number: string
   /**
    * In full.
@@ -1591,7 +1581,7 @@ export type CourseModuleCompletion = {
   passed: boolean
   prerequisite_modules_completed: boolean
   /**
-   * Whether the push path owns this completion. See the column comment; decided at insert.
+   * Whether the push path owns this completion. See the column comment.
    */
   register_credits_via_suotar: boolean
   updated_at: string
@@ -1945,8 +1935,8 @@ export type CreditRegistrationAlertId =
   | "pipeline_idle"
   | "completions_never_entered"
   | "confirmation_latency_regressed"
-  | "fast_track_name_mismatch"
   | "pipeline_paused_globally"
+  | "study_registry_student_number_conflicts"
 
 export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
 
@@ -2088,10 +2078,6 @@ export type CreditRegistrationCourseStats = {
   last_listed_at?: string | null
   last_registered_at?: string | null
   needs_admin_attention_count: number
-  /**
-   * The old pull path is on as well, which would register the same completion twice.
-   */
-  old_flow_also_enabled: boolean
   pause_reason?: string | null
   paused_at?: string | null
   registration_count: number
@@ -2417,6 +2403,17 @@ export type CreditRegistrationReconciliation = {
    */
   several_submitted_attainments: Array<ReconciliationRegistration>
   several_submitted_attainments_count: number
+}
+
+/**
+ * Deployment-wide switches the credit registration views adapt to.
+ */
+export type CreditRegistrationSettings = {
+  /**
+   * Whether linking mails are sent and can be resent. When off, students get a number only from
+   * the study registry or an admin.
+   */
+  account_linking_enabled: boolean
 }
 
 /**
@@ -3458,6 +3455,10 @@ export type MyStudiesCourseModule = {
    * manually or sets no point threshold.
    */
   score_required?: number | null
+  /**
+   * Whether this student's credits for the module go through credit registration via Suotar: the
+   * shown completion's own flag, or, before one exists, whether a new one would get it.
+   */
   supports_credit_registration: boolean
   /**
    * Exercises the module offers. `None` when it has none.
@@ -3485,15 +3486,8 @@ export type MyStudiesTotals = {
  * The account's linked student number, unmasked: it is the holder's own.
  */
 export type MyVerifiedStudentNumber = {
-  auto_link_notice_dismissed: boolean
   first_names?: string | null
   last_name?: string | null
-  /**
-   * Whether the pipeline linked this without asking, because the study registry holds this
-   * account's verified address for the student number. True until the student puts the notice
-   * away, and the notice is what makes a wrong automatic link noticeable.
-   */
-  linked_automatically: boolean
   student_number: string
   verified_at: string
   verified_via: StudentNumberVerificationMethod
@@ -3941,7 +3935,10 @@ export type PageAdminVerifiedStudentNumberRow = {
     link_reason?: string | null
     linked_by_user_id?: string | null
     live_registration_count: number
-    sisu_person_id: string
+    /**
+     * `None` for a link the study registry reported, which names no person.
+     */
+    sisu_person_id?: string | null
     student_number: string
     /**
      * In full.
@@ -4538,10 +4535,7 @@ export type StudentFacingCreditRegistrationStatus =
 /**
  * How a student number was proven to belong to an account.
  */
-export type StudentNumberVerificationMethod =
-  | "emailed_link"
-  | "email_match_fast_track"
-  | "admin_manual"
+export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | "study_registry"
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
@@ -4587,6 +4581,33 @@ export type StudentsByCountryTotalsResult = {
 export type StudentsListPage = {
   data: Array<CourseStudentListRow>
   total_pages: number
+}
+
+/**
+ * A student number the study registry reported for an account that another live link kept us from
+ * linking. The existing link stays until someone acts.
+ */
+export type StudyRegistryStudentNumberConflict = {
+  conflicting_link_student_number: string
+  conflicting_link_user_email?: string | null
+  /**
+   * The link in the way: the same account's link to another number, or another account's link to
+   * the reported one.
+   */
+  conflicting_link_user_id: string
+  conflicting_link_verified_via: StudentNumberVerificationMethod
+  /**
+   * The course whose registration reported the number.
+   */
+  course_id: string
+  course_name: string
+  created_at: string
+  first_name?: string | null
+  id: string
+  last_name?: string | null
+  reported_student_number: string
+  user_email?: string | null
+  user_id: string
 }
 
 export type SuotarApiCallDetails = {
@@ -4925,8 +4946,8 @@ export type UserCompletionInformation = {
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   /**
-   * Whether this completion in particular goes through the push path. Both this and the module
-   * flag above must hold; the module's is permission, this is the per-student switch.
+   * Whether this completion in particular goes through the push path. Decides which flow the
+   * page shows: the module flag above only says the module takes part.
    */
   register_credits_via_suotar: boolean
   /**
@@ -10436,20 +10457,6 @@ export type GetMyVerifiedStudentNumberResponses = {
 export type GetMyVerifiedStudentNumberResponse =
   GetMyVerifiedStudentNumberResponses[keyof GetMyVerifiedStudentNumberResponses]
 
-export type DismissMyAutoLinkNoticeData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice"
-}
-
-export type DismissMyAutoLinkNoticeResponses = {
-  /**
-   * The notice is dismissed
-   */
-  200: unknown
-}
-
 export type DismissCreditRegistrationEnrolmentBannerData = {
   body?: never
   path: {
@@ -10508,6 +10515,23 @@ export type RequestCreditRegistrationEnrolmentRecheckResponses = {
 
 export type RequestCreditRegistrationEnrolmentRecheckResponse =
   RequestCreditRegistrationEnrolmentRecheckResponses[keyof RequestCreditRegistrationEnrolmentRecheckResponses]
+
+export type GetCreditRegistrationSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/settings"
+}
+
+export type GetCreditRegistrationSettingsResponses = {
+  /**
+   * The switches
+   */
+  200: CreditRegistrationSettings
+}
+
+export type GetCreditRegistrationSettingsResponse =
+  GetCreditRegistrationSettingsResponses[keyof GetCreditRegistrationSettingsResponses]
 
 export type PreviewStudentNumberVerificationTokenData = {
   body?: never

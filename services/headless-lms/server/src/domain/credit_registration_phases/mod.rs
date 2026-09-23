@@ -11,6 +11,7 @@ mod ledger_snapshot;
 mod link_emails;
 pub mod linking_mail_resend;
 mod resolve_enrolments;
+mod resolve_person_ids;
 mod retention_sweep;
 mod student_notifications;
 mod verify;
@@ -167,7 +168,11 @@ impl CreditRegistrationPhase {
     /// The study registry endpoints one iteration calls, one after the other.
     pub fn study_registry_endpoints(self) -> &'static [SuotarEndpoint] {
         match self {
-            Self::ResolveEnrolments => &[SuotarEndpoint::ResolveEnrolments],
+            // The person lookup for links that lack one, then the enrolment lookup.
+            Self::ResolveEnrolments => &[
+                SuotarEndpoint::ResolvePersons,
+                SuotarEndpoint::ResolveEnrolments,
+            ],
             Self::Import => &[SuotarEndpoint::ImportAttainments],
             // The poll, then the recovery lookup for rows with nothing to poll by.
             Self::Verify => &[
@@ -192,6 +197,11 @@ impl CreditRegistrationPhase {
             .iter()
             .map(|endpoint| endpoint.request_timeout())
             .sum()
+    }
+
+    /// Whether the phase is part of account linking, which the deployment can switch off.
+    pub fn is_account_linking(self) -> bool {
+        matches!(self, Self::EnrolmentDiscovery | Self::LinkEmails)
     }
 
     /// The ledger states this phase is the one to move a row out of.
@@ -300,6 +310,7 @@ pub enum PhaseTick {
 pub enum PhaseSkipReason {
     Paused,
     CircuitBreakerOpen,
+    AccountLinkingDisabled,
 }
 
 /// Everything a phase iteration needs from its caller: the worker loop or the test tick endpoint.
@@ -312,8 +323,7 @@ pub struct PhaseContext<'a> {
     pub caller: &'a str,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
-    /// Read by `enrolment-discovery` for the email-match fast track, whose enabled flag doubles as
-    /// its kill switch.
+    /// Holds the account-linking switch that gates the discovery and linking-mail phases.
     pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
 }
 
@@ -404,6 +414,10 @@ pub async fn run_phase_once(
     // skipping the heartbeat through it would raise a critical alert within a tick or two.
     if bookkeeping {
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
+    }
+    // After the heartbeat, like the breaker below: a switched-off phase is idle, not dead.
+    if phase.is_account_linking() && !ctx.suotar_conf.account_linking_enabled {
+        return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
     let breaker_key = breaker::ScopeKey::of(scope);
     let is_paused_by_breaker =

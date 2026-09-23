@@ -5,6 +5,7 @@ import {
   courseFrontPageUrl,
   OLD_FLOW_COURSE_SLUG,
   seededStudentStorageState,
+  STUDENT_7,
 } from "@/utils/creditRegistration"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
@@ -12,12 +13,12 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
  * The detour between "I am not a University of Helsinki student" and the Open University
  * instructions, which only appears on a module whose certificate the student could take instead.
  *
- * Owns no student numbers: this path never reaches Suotar. The fixture course is seeded by
- * `seed_certificate_detour_course`, and `credit-registration-old-flow` stands in for the modules
- * that must keep showing the plain page.
+ * This path never reaches Suotar. The fixture course is seeded by `seed_certificate_detour_course`,
+ * and `credit-registration-old-flow` stands in for the modules that must keep showing the plain page.
+ * `student7` has a completion on both.
  */
-const DETOUR_STUDENT_EMAIL = "credit-registration-certificate-detour@example.com"
-const OLD_FLOW_STUDENT_EMAIL = "credit-registration-old-flow-still-legacy@example.com"
+const DETOUR_STUDENT_EMAIL = STUDENT_7.email
+const OLD_FLOW_STUDENT_EMAIL = STUDENT_7.email
 
 const STUDENT_TYPE_QUESTION =
   "Are you a student or an exchange student at the University of Helsinki?"

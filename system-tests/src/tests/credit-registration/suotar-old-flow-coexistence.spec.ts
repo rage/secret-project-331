@@ -2,18 +2,20 @@ import {
   legacyPullStream,
   OLD_FLOW_COURSE_ID,
   OLD_FLOW_COURSE_SLUG,
+  STUDENT_7,
+  STUDENT_8,
 } from "@/utils/creditRegistration"
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runMaterializeTick } from "@/utils/suotarControl"
 
 /**
- * Owns student numbers `9000010xx` and the `credit-registration-old-flow` course. Must be green
+ * Owns the `credit-registration-old-flow` course, with `student7` and `student8` on it. Must be green
  * before the first real course is cut over.
  */
-const STILL_LEGACY_EMAIL = "credit-registration-old-flow-still-legacy@example.com"
+const STILL_LEGACY_EMAIL = STUDENT_7.email
 /** On the course's other module, which the seed treats as already cut over to Suotar. */
-const ALREADY_CUT_OVER_EMAIL = "credit-registration-old-flow-already-cut-over@example.com"
+const ALREADY_CUT_OVER_EMAIL = STUDENT_8.email
 
 test("A course left on the old flow keeps registering through the legacy pull API", async ({
   page,

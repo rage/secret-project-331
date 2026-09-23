@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_modules\nSET register_eligible_new_completions_via_suotar = $2\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "400f72418c4b828d44d37bb37834bdbb39150358180daeebce5526d356a8d26f"
+}

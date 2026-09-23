@@ -8,19 +8,20 @@ import {
   PROFILE_CREDIT_REGISTRATION_URL,
   PROFILE_STUDIES_URL,
   seededStudentStorageState,
+  STUDENT_6,
+  SUOTAR_COURSE_SLUG,
 } from "@/utils/creditRegistration"
 import { ADMIN_REGISTRATIONS_URL } from "@/utils/creditRegistrationAdmin"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
- * Owns student numbers `9000016xx` and reads two fixtures the seed writes rather than drives: the
- * already-linked student and the replaced attempt pair. Ticks nothing; every other file that touches
- * those rows only reads them too.
+ * Reads what the seed writes rather than drives: `student6`'s linked number and its replaced attempt
+ * pair on `credit-registration-via-suotar`, and `student5`, which has nothing linked. Ticks nothing.
  */
-const LINKED_EMAIL = "credit-registration-linked-student@example.com"
-const LINKED_STUDENT_NUMBER = "900000101"
-const SUPERSEDED_EMAIL = "credit-registration-superseded@example.com"
-const EMPTY_EMAIL = "credit-registration-profile-empty@example.com"
+const LINKED_EMAIL = STUDENT_6.email
+const LINKED_STUDENT_NUMBER = STUDENT_6.studentNumber
+const SUPERSEDED_EMAIL = STUDENT_6.email
+const EMPTY_STORAGE_STATE = "src/states/student5@example.com.json"
 
 test.describe("A student whose grade was registered twice", () => {
   test.use({ storageState: seededStudentStorageState(SUPERSEDED_EMAIL) })
@@ -38,7 +39,9 @@ test.describe("A student whose grade was registered twice", () => {
       page.getByRole("heading", { name: "Credits that did not go through" }),
     ).toHaveCount(0)
 
-    const [firstLive] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
+    const [firstLive] = (await myCreditRegistrations(page.request)).filter(
+      (row) => row.course_slug === SUOTAR_COURSE_SLUG && !row.superseded,
+    )
     const live = assertNotNullOrUndefined(firstLive)
     // The seed's realisation name has Finnish and English; Finnish wins.
     expect(live.enrolment_realisation_name).toBe("Rekisteröinnin testitoteutus")
@@ -57,7 +60,7 @@ test.describe("A student whose grade was registered twice", () => {
 })
 
 test.describe("A student on a Suotar course and nothing else", () => {
-  test.use({ storageState: seededStudentStorageState(EMPTY_EMAIL) })
+  test.use({ storageState: EMPTY_STORAGE_STATE })
 
   test("A student with nothing linked sees explanatory copy, not empty cards", async ({ page }) => {
     await page.goto(PROFILE_STUDIES_URL)

@@ -64,8 +64,8 @@ const ALERT_ROUTES = {
   pipeline_idle: creditRegistrationSystemRoute(),
   completions_never_entered: creditRegistrationOverviewRoute(),
   confirmation_latency_regressed: creditRegistrationSystemRoute(),
-  fast_track_name_mismatch: creditRegistrationLinkingRoute(),
   pipeline_paused_globally: creditRegistrationSystemRoute(),
+  study_registry_student_number_conflicts: creditRegistrationLinkingRoute(),
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const bannerCss = css`

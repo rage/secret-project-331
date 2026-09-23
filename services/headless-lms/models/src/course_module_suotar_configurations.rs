@@ -31,13 +31,6 @@ pub struct CourseModuleSuotarConfiguration {
     pub last_suppressed_by_dedup_count: Option<i32>,
     pub last_suppressed_by_rate_cap_count: Option<i32>,
     pub last_no_address_count: Option<i32>,
-    pub last_fast_tracked_count: Option<i32>,
-    pub last_fast_track_skipped_no_account_count: Option<i32>,
-    pub last_fast_track_skipped_unverified_count: Option<i32>,
-    pub last_fast_track_skipped_stale_verification_count: Option<i32>,
-    pub last_fast_track_skipped_name_mismatch_count: Option<i32>,
-    pub last_fast_track_skipped_account_has_number_count: Option<i32>,
-    pub last_fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
 /// Whether the module already has a live configuration row. Lets a caller tell "nothing to store"
@@ -86,8 +79,6 @@ pub struct SuotarModuleConfigFacts {
     pub course_id: Uuid,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    /// The old pull path is on as well, which would register the same completion twice.
-    pub old_flow_also_enabled: bool,
     /// The module has a completion registration link override, the enrolment link students without
     /// a usable enrolment are sent to.
     pub has_enrolment_link: bool,
@@ -111,7 +102,6 @@ SELECT cm.id AS "course_module_id!",
   cm.course_id AS "course_id!",
   cm.uh_course_code,
   cm.ects_credits,
-  cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
   COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "has_enrolment_link!",
   CASE
     WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed
@@ -150,7 +140,6 @@ pub struct SuotarModuleOverview {
     pub ects_credits: Option<f32>,
     /// Where a student with no usable enrolment is sent to enrol.
     pub enrolment_link: Option<String>,
-    pub old_flow_also_enabled: bool,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
     pub config_checked_at: Option<DateTime<Utc>>,
@@ -177,7 +166,6 @@ SELECT cm.id AS "course_module_id!",
   cm.uh_course_code,
   cm.ects_credits,
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
-  cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
   conf.paused_at AS "paused_at?",
   conf.pause_reason AS "pause_reason?",
   conf.config_checked_at AS "config_checked_at?",
@@ -333,13 +321,6 @@ pub struct ModuleListingOutcome {
     pub suppressed_by_dedup_count: i32,
     pub suppressed_by_rate_cap_count: i32,
     pub no_address_count: i32,
-    pub fast_tracked_count: i32,
-    pub fast_track_skipped_no_account_count: i32,
-    pub fast_track_skipped_unverified_count: i32,
-    pub fast_track_skipped_stale_verification_count: i32,
-    pub fast_track_skipped_name_mismatch_count: i32,
-    pub fast_track_skipped_account_has_number_count: i32,
-    pub fast_track_skipped_unlinked_before_count: i32,
 }
 
 /// An active module and the facts a `list-by-course` request for it needs.
@@ -462,13 +443,6 @@ pub struct ModuleDiscoveryReport {
     pub last_suppressed_by_dedup_count: Option<i32>,
     pub last_suppressed_by_rate_cap_count: Option<i32>,
     pub last_no_address_count: Option<i32>,
-    pub last_fast_tracked_count: Option<i32>,
-    pub last_fast_track_skipped_no_account_count: Option<i32>,
-    pub last_fast_track_skipped_unverified_count: Option<i32>,
-    pub last_fast_track_skipped_stale_verification_count: Option<i32>,
-    pub last_fast_track_skipped_name_mismatch_count: Option<i32>,
-    pub last_fast_track_skipped_account_has_number_count: Option<i32>,
-    pub last_fast_track_skipped_unlinked_before_count: Option<i32>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
     pub consecutive_listing_failures: i32,
@@ -493,13 +467,6 @@ SELECT cm.course_id,
   conf.last_suppressed_by_dedup_count,
   conf.last_suppressed_by_rate_cap_count,
   conf.last_no_address_count,
-  conf.last_fast_tracked_count,
-  conf.last_fast_track_skipped_no_account_count,
-  conf.last_fast_track_skipped_unverified_count,
-  conf.last_fast_track_skipped_stale_verification_count,
-  conf.last_fast_track_skipped_name_mismatch_count,
-  conf.last_fast_track_skipped_account_has_number_count,
-  conf.last_fast_track_skipped_unlinked_before_count,
   conf.last_listing_attempted_at,
   conf.last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
   conf.consecutive_listing_failures
@@ -562,14 +529,7 @@ SET last_listed_at = now(),
   last_mailed_count = $4,
   last_suppressed_by_dedup_count = $5,
   last_suppressed_by_rate_cap_count = $6,
-  last_no_address_count = $7,
-  last_fast_tracked_count = $8,
-  last_fast_track_skipped_no_account_count = $9,
-  last_fast_track_skipped_unverified_count = $10,
-  last_fast_track_skipped_stale_verification_count = $11,
-  last_fast_track_skipped_name_mismatch_count = $12,
-  last_fast_track_skipped_account_has_number_count = $13,
-  last_fast_track_skipped_unlinked_before_count = $14
+  last_no_address_count = $7
 WHERE course_module_id = $1
   AND deleted_at IS NULL
         "#,
@@ -580,35 +540,8 @@ WHERE course_module_id = $1
         outcome.suppressed_by_dedup_count,
         outcome.suppressed_by_rate_cap_count,
         outcome.no_address_count,
-        outcome.fast_tracked_count,
-        outcome.fast_track_skipped_no_account_count,
-        outcome.fast_track_skipped_unverified_count,
-        outcome.fast_track_skipped_stale_verification_count,
-        outcome.fast_track_skipped_name_mismatch_count,
-        outcome.fast_track_skipped_account_has_number_count,
-        outcome.fast_track_skipped_unlinked_before_count,
     )
     .execute(conn)
     .await?;
     Ok(())
-}
-
-/// How many persons the last discovery run refused to fast-track because the registry's name did
-/// not look like the matched account's, summed over the active modules. A last-run value, not a
-/// window.
-pub async fn sum_last_fast_track_name_mismatches(conn: &mut PgConnection) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COALESCE(
-    SUM(conf.last_fast_track_skipped_name_mismatch_count),
-    0
-  ) AS "count!"
-FROM course_module_suotar_configurations conf
-  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id
-WHERE conf.deleted_at IS NULL
-        "#,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
 }

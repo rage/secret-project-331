@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.course_id,\n  c.name AS course_name,\n  conf.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  conf.last_listed_at,\n  conf.last_listed_person_count,\n  conf.last_already_linked_count,\n  conf.last_mailed_count,\n  conf.last_suppressed_by_dedup_count,\n  conf.last_suppressed_by_rate_cap_count,\n  conf.last_no_address_count,\n  conf.last_fast_tracked_count,\n  conf.last_fast_track_skipped_no_account_count,\n  conf.last_fast_track_skipped_unverified_count,\n  conf.last_fast_track_skipped_stale_verification_count,\n  conf.last_fast_track_skipped_name_mismatch_count,\n  conf.last_fast_track_skipped_account_has_number_count,\n  conf.last_fast_track_skipped_unlinked_before_count,\n  conf.last_listing_attempted_at,\n  conf.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  conf.consecutive_listing_failures\nFROM course_module_suotar_configurations conf\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id\n  JOIN course_modules cm ON cm.id = conf.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE conf.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.course_id,\n  c.name AS course_name,\n  conf.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  conf.last_listed_at,\n  conf.last_listed_person_count,\n  conf.last_already_linked_count,\n  conf.last_mailed_count,\n  conf.last_suppressed_by_dedup_count,\n  conf.last_suppressed_by_rate_cap_count,\n  conf.last_no_address_count,\n  conf.last_listing_attempted_at,\n  conf.last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  conf.consecutive_listing_failures\nFROM course_module_suotar_configurations conf\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id\n  JOIN course_modules cm ON cm.id = conf.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE conf.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -137,83 +137,6 @@
       },
       {
         "ordinal": 12,
-        "name": "last_fast_tracked_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_tracked_count"
-          }
-        }
-      },
-      {
-        "ordinal": 13,
-        "name": "last_fast_track_skipped_no_account_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_no_account_count"
-          }
-        }
-      },
-      {
-        "ordinal": 14,
-        "name": "last_fast_track_skipped_unverified_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_unverified_count"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
-        "name": "last_fast_track_skipped_stale_verification_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_stale_verification_count"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
-        "name": "last_fast_track_skipped_name_mismatch_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_name_mismatch_count"
-          }
-        }
-      },
-      {
-        "ordinal": 17,
-        "name": "last_fast_track_skipped_account_has_number_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_account_has_number_count"
-          }
-        }
-      },
-      {
-        "ordinal": 18,
-        "name": "last_fast_track_skipped_unlinked_before_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "last_fast_track_skipped_unlinked_before_count"
-          }
-        }
-      },
-      {
-        "ordinal": 19,
         "name": "last_listing_attempted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -224,7 +147,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 13,
         "name": "last_listing_error?: CreditRegistrationErrorCode",
         "type_info": {
           "Custom": {
@@ -266,7 +189,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 14,
         "name": "consecutive_listing_failures",
         "type_info": "Int4",
         "origin": {
@@ -295,15 +218,8 @@
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false
     ]
   },
-  "hash": "6536e98047e04d955fe5e924794c274b5326f3f5a5b78725f2b38a13380e2ed8"
+  "hash": "474326682de753592350d6d4830d68f332c94db623db0f2f5d1fb835516dc034"
 }

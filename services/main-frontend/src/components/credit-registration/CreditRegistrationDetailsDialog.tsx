@@ -55,6 +55,7 @@ import {
   notificationEmailSentence,
   studentNumberVerificationLabel,
 } from "./teacherCreditRegistrations"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 interface Props {
   registration: CourseCreditRegistration
@@ -87,6 +88,7 @@ const supportReferenceValueCss = css`
 
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },
@@ -165,9 +167,10 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
           <p className={proseCss}>{leadSentence}</p>
         </div>
         <DescriptionList items={items} layout={STACKED} />
-        {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
-          <ResendLinkingEmailBlock registration={registration} />
-        )}
+        {isAccountLinkingEnabled &&
+          registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
+            <ResendLinkingEmailBlock registration={registration} />
+          )}
         <RetryCreditRegistrationBlock registration={registration} />
         <QueryResult query={detailsQuery}>
           {(details) => (

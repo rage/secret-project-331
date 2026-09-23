@@ -1,3 +1,73 @@
+COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar; never recomputed, so a module switched on or off mid-course leaves completions already made where they were. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
+
+DROP TABLE study_registry_student_number_conflicts;
+DROP VIEW study_registry_reported_student_numbers;
+DROP INDEX idx_cmc_registered_to_study_registries_registrar_user;
+
+-- The old schema can hold neither the method nor a link without a person id.
+DELETE FROM verified_student_numbers
+WHERE verified_via = 'study_registry';
+
+CREATE TYPE student_number_verification_method_old AS ENUM (
+  'emailed_link',
+  'email_match_fast_track',
+  'admin_manual'
+);
+ALTER TABLE verified_student_numbers DROP CONSTRAINT verified_student_numbers_proof_address,
+  DROP CONSTRAINT verified_student_numbers_admin_linker,
+  DROP CONSTRAINT verified_student_numbers_link_reason,
+  DROP CONSTRAINT verified_student_numbers_person_id,
+  ADD COLUMN verified_via_email_match_field VARCHAR(16),
+  ADD COLUMN account_email_verified_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN auto_link_notice_dismissed_at TIMESTAMP WITH TIME ZONE,
+  ALTER COLUMN verified_via DROP DEFAULT;
+ALTER TABLE verified_student_numbers
+ALTER COLUMN verified_via TYPE student_number_verification_method_old USING verified_via::text::student_number_verification_method_old;
+DROP TYPE student_number_verification_method;
+ALTER TYPE student_number_verification_method_old
+RENAME TO student_number_verification_method;
+ALTER TABLE verified_student_numbers
+ALTER COLUMN verified_via
+SET DEFAULT 'emailed_link',
+  ALTER COLUMN sisu_person_id
+SET NOT NULL,
+  ADD CONSTRAINT verified_student_numbers_proof_address CHECK (
+    (verified_via = 'admin_manual') = (verified_via_email IS NULL)
+  ),
+  ADD CONSTRAINT verified_student_numbers_match_field_method CHECK (
+    verified_via = 'email_match_fast_track'
+    OR verified_via_email_match_field IS NULL
+  ),
+  ADD CONSTRAINT verified_student_numbers_admin_linker CHECK (
+    (verified_via = 'admin_manual') = (linked_by_user_id IS NOT NULL)
+  ),
+  ADD CONSTRAINT verified_student_numbers_link_reason CHECK (
+    verified_via = 'admin_manual'
+    OR link_reason IS NULL
+  );
+COMMENT ON TYPE student_number_verification_method IS 'How a student number was proven to belong to an account. A discriminator, not a flag: reads that care about strength of proof must match exhaustively.';
+COMMENT ON COLUMN verified_student_numbers.verified_via_email IS 'The Sisu-held address the proof rests on: the address the link was mailed to, or the matched address for the fast track. NULL exactly for admin_manual rows.';
+COMMENT ON COLUMN verified_student_numbers.sisu_person_id IS 'Sisu person id reported alongside the student number. Stable across student number changes, live-unique, and the identity the double-registration guards key on.';
+COMMENT ON COLUMN verified_student_numbers.verified_via_email_match_field IS 'Which Sisu address field matched for email_match_fast_track rows: primary (secondary is reserved and not currently accepted). NULL for other methods.';
+COMMENT ON COLUMN verified_student_numbers.account_email_verified_at IS 'The account email verification timestamp as it stood at link time, frozen here on purpose: user_details.email_verified_at is cleared on the next address change, and an audit years later must still be able to answer how old the proof was.';
+COMMENT ON COLUMN verified_student_numbers.auto_link_notice_dismissed_at IS 'When the student dismissed the notice telling them this link was made automatically. Only ever set for verified_via = email_match_fast_track; the notice and its one-click unlink are the compensating control for linking without asking.';
+
+ALTER TABLE course_modules DROP CONSTRAINT course_modules_register_new_completions_requires_suotar,
+  DROP COLUMN register_eligible_new_completions_via_suotar;
+-- The old schema keeps the two paths exclusive; the open university one is what most students use.
+UPDATE course_modules
+SET enable_credit_registration_via_suotar = FALSE
+WHERE enable_credit_registration_via_suotar
+  AND enable_registering_completion_to_uh_open_university;
+ALTER TABLE course_modules
+ADD CONSTRAINT course_modules_one_credit_registration_path CHECK (
+    NOT (
+      enable_credit_registration_via_suotar
+      AND enable_registering_completion_to_uh_open_university
+    )
+  ) NOT VALID;
+COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. The course_modules_one_credit_registration_path constraint keeps it mutually exclusive with enable_registering_completion_to_uh_open_university, because both paths would register the same attainment in Sisu; while it is on, the legacy pull API must not see this modules completions.';
+
 ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempted_at,
   DROP COLUMN last_listed_at,
   DROP COLUMN last_listing_error,
@@ -7,14 +77,7 @@ ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempt
   DROP COLUMN last_mailed_count,
   DROP COLUMN last_suppressed_by_dedup_count,
   DROP COLUMN last_suppressed_by_rate_cap_count,
-  DROP COLUMN last_no_address_count,
-  DROP COLUMN last_fast_tracked_count,
-  DROP COLUMN last_fast_track_skipped_no_account_count,
-  DROP COLUMN last_fast_track_skipped_unverified_count,
-  DROP COLUMN last_fast_track_skipped_stale_verification_count,
-  DROP COLUMN last_fast_track_skipped_name_mismatch_count,
-  DROP COLUMN last_fast_track_skipped_account_has_number_count,
-  DROP COLUMN last_fast_track_skipped_unlinked_before_count;
+  DROP COLUMN last_no_address_count;
 
 ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_count_nonnegative,
   DROP COLUMN partially_registered_at,

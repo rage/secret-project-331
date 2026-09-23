@@ -61,8 +61,12 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, or its circuit breaker is open. Nothing ran this tick. */
-  | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
+  /** The phase is paused, its circuit breaker is open, or account linking is off. Nothing ran. */
+  | {
+      status: "skipped"
+      phase: CreditRegistrationPhase
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled"
+    }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
@@ -162,10 +166,6 @@ export const runEnrolmentDiscoveryTick = (
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope)
 
-/**
- * Separate from enrolment discovery because the fast-track specs assert that **no** linking
- * mail was queued, which needs the mailing phase run on its own.
- */
 export const runLinkEmailsTick = (
   request: APIRequestContext,
   scope?: TickScope,

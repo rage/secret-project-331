@@ -8686,18 +8686,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice": {
-      "post": {
-        "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts\naway the notice saying the pipeline linked this student number without asking.\n\nDismissing only hides the notice; the number stays linked and the unlink endpoint stays available.",
-        "operationId": "dismissMyAutoLinkNotice",
-        "responses": {
-          "200": {
-            "description": "The notice is dismissed"
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner": {
       "post": {
         "tags": ["credit-registrations"],
@@ -8758,6 +8746,25 @@
           },
           "403": {
             "description": "Not the caller's registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/settings": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration\nswitches.",
+        "operationId": "getCreditRegistrationSettings",
+        "responses": {
+          "200": {
+            "description": "The switches",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditRegistrationSettings"
+                }
+              }
+            }
           }
         }
       }
@@ -13969,21 +13976,10 @@
           "manual_links_in_window",
           "suppressed_by_dedup_last_run",
           "suppressed_by_rate_cap_last_run",
-          "no_address_in_study_registry_last_run",
-          "fast_tracked_in_window",
-          "fast_tracked_last_run"
+          "no_address_in_study_registry_last_run"
         ],
         "properties": {
           "already_linked_last_run": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "fast_tracked_in_window": {
-            "type": "integer",
-            "format": "int64",
-            "description": "The branch that skips the mail entirely: discovered persons linked straight away because the\nstudy registry holds a verified account address for them. A terminal branch off `discovered`,\nnot a stage every person passes through."
-          },
-          "fast_tracked_last_run": {
             "type": "integer",
             "format": "int64"
           },
@@ -14052,36 +14048,6 @@
           },
           "course_name": {
             "type": "string"
-          },
-          "fast_track_skipped_account_has_number_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "fast_track_skipped_name_mismatch_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "A rise here is the only early warning of a university address reissued to a different person."
-          },
-          "fast_track_skipped_no_account_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "fast_track_skipped_stale_verification_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "fast_track_skipped_unlinked_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "fast_track_skipped_unverified_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "Matched an account that has never proved the address. The population an email-verification\ncampaign would convert."
-          },
-          "fast_tracked_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
           },
           "last_listed_at": {
             "type": ["string", "null"],
@@ -14215,6 +14181,7 @@
       "AccountLinkingStats": {
         "type": "object",
         "required": [
+          "account_linking_enabled",
           "window_secs",
           "funnel",
           "send_status_totals",
@@ -14225,9 +14192,14 @@
           "links_in_window_by_method",
           "waiting_for_student_number_count",
           "max_mails_per_person_and_course",
-          "quiet_period_secs"
+          "quiet_period_secs",
+          "study_registry_conflicts"
         ],
         "properties": {
+          "account_linking_enabled": {
+            "type": "boolean",
+            "description": "When false, no linking mails are sent and resends are refused."
+          },
           "funnel": {
             "$ref": "#/components/schemas/AccountLinkingFunnel"
           },
@@ -14271,6 +14243,13 @@
             "items": {
               "$ref": "#/components/schemas/AccountLinkingStaleAddress"
             }
+          },
+          "study_registry_conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudyRegistryStudentNumberConflict"
+            },
+            "description": "Newest first, capped."
           },
           "waiting_for_student_number_count": {
             "type": "integer",
@@ -15201,7 +15180,6 @@
           "id",
           "user_id",
           "student_number",
-          "sisu_person_id",
           "verified_at",
           "verified_via",
           "live_registration_count"
@@ -15229,7 +15207,8 @@
             "format": "int64"
           },
           "sisu_person_id": {
-            "type": "string"
+            "type": ["string", "null"],
+            "description": "`None` for a link the study registry reported, which names no person."
           },
           "student_number": {
             "type": "string"
@@ -18614,7 +18593,7 @@
           },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether the push path owns this completion. See the column comment; decided at insert."
+            "description": "Whether the push path owns this completion. See the column comment."
           },
           "updated_at": {
             "type": "string",
@@ -19328,8 +19307,8 @@
           "pipeline_idle",
           "completions_never_entered",
           "confirmation_latency_regressed",
-          "fast_track_name_mismatch",
-          "pipeline_paused_globally"
+          "pipeline_paused_globally",
+          "study_registry_student_number_conflicts"
         ]
       },
       "CreditRegistrationAlertSeverity": {
@@ -19538,7 +19517,6 @@
           "course_id",
           "course_name",
           "course_module_id",
-          "old_flow_also_enabled",
           "check",
           "eligible_completion_count",
           "registration_count",
@@ -19603,10 +19581,6 @@
           "needs_admin_attention_count": {
             "type": "integer",
             "format": "int64"
-          },
-          "old_flow_also_enabled": {
-            "type": "boolean",
-            "description": "The old pull path is on as well, which would register the same completion twice."
           },
           "pause_reason": {
             "type": ["string", "null"]
@@ -20292,6 +20266,17 @@
           "several_submitted_attainments_count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "CreditRegistrationSettings": {
+        "type": "object",
+        "description": "Deployment-wide switches the credit registration views adapt to.",
+        "required": ["account_linking_enabled"],
+        "properties": {
+          "account_linking_enabled": {
+            "type": "boolean",
+            "description": "Whether linking mails are sent and can be resent. When off, students get a number only from\nthe study registry or an admin."
           }
         }
       },
@@ -23150,7 +23135,8 @@
             "description": "Exercise points an automatic completion requires. `None` when the module is completed\nmanually or sets no point threshold."
           },
           "supports_credit_registration": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether this student's credits for the module go through credit registration via Suotar: the\nshown completion's own flag, or, before one exists, whether a new one would get it."
           },
           "total_exercises": {
             "type": ["integer", "null"],
@@ -23187,26 +23173,13 @@
       "MyVerifiedStudentNumber": {
         "type": "object",
         "description": "The account's linked student number, unmasked: it is the holder's own.",
-        "required": [
-          "student_number",
-          "verified_at",
-          "verified_via",
-          "linked_automatically",
-          "auto_link_notice_dismissed"
-        ],
+        "required": ["student_number", "verified_at", "verified_via"],
         "properties": {
-          "auto_link_notice_dismissed": {
-            "type": "boolean"
-          },
           "first_names": {
             "type": ["string", "null"]
           },
           "last_name": {
             "type": ["string", "null"]
-          },
-          "linked_automatically": {
-            "type": "boolean",
-            "description": "Whether the pipeline linked this without asking, because the study registry holds this\naccount's verified address for the student number. True until the student puts the notice\naway, and the notice is what makes a wrong automatic link noticeable."
           },
           "student_number": {
             "type": "string"
@@ -24584,7 +24557,6 @@
                 "id",
                 "user_id",
                 "student_number",
-                "sisu_person_id",
                 "verified_at",
                 "verified_via",
                 "live_registration_count"
@@ -24612,7 +24584,8 @@
                   "format": "int64"
                 },
                 "sisu_person_id": {
-                  "type": "string"
+                  "type": ["string", "null"],
+                  "description": "`None` for a link the study registry reported, which names no person."
                 },
                 "student_number": {
                   "type": "string"
@@ -26223,7 +26196,7 @@
       "StudentNumberVerificationMethod": {
         "type": "string",
         "description": "How a student number was proven to belong to an account.",
-        "enum": ["emailed_link", "email_match_fast_track", "admin_manual"]
+        "enum": ["emailed_link", "admin_manual", "study_registry"]
       },
       "StudentNumberVerificationTokenPreview": {
         "type": "object",
@@ -26314,6 +26287,69 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          }
+        }
+      },
+      "StudyRegistryStudentNumberConflict": {
+        "type": "object",
+        "description": "A student number the study registry reported for an account that another live link kept us from\nlinking. The existing link stays until someone acts.",
+        "required": [
+          "id",
+          "created_at",
+          "user_id",
+          "reported_student_number",
+          "course_id",
+          "course_name",
+          "conflicting_link_user_id",
+          "conflicting_link_student_number",
+          "conflicting_link_verified_via"
+        ],
+        "properties": {
+          "conflicting_link_student_number": {
+            "type": "string"
+          },
+          "conflicting_link_user_email": {
+            "type": ["string", "null"]
+          },
+          "conflicting_link_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The link in the way: the same account's link to another number, or another account's link to\nthe reported one."
+          },
+          "conflicting_link_verified_via": {
+            "$ref": "#/components/schemas/StudentNumberVerificationMethod"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course whose registration reported the number."
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "reported_student_number": {
+            "type": "string"
+          },
+          "user_email": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -27161,7 +27197,7 @@
           },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether this completion in particular goes through the push path. Both this and the module\nflag above must hold; the module's is permission, this is the per-student switch."
+            "description": "Whether this completion in particular goes through the push path. Decides which flow the\npage shows: the module flag above only says the module takes part."
           },
           "uh_course_code": {
             "type": ["string", "null"],

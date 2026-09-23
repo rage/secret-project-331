@@ -100,8 +100,8 @@
             "kind": {
               "Enum": [
                 "emailed_link",
-                "email_match_fast_track",
-                "admin_manual"
+                "admin_manual",
+                "study_registry"
               ]
             }
           }
@@ -178,8 +178,8 @@
             "kind": {
               "Enum": [
                 "emailed_link",
-                "email_match_fast_track",
-                "admin_manual"
+                "admin_manual",
+                "study_registry"
               ]
             }
           }
@@ -196,7 +196,7 @@
       true,
       true,
       false,
-      false,
+      true,
       false,
       false,
       true,

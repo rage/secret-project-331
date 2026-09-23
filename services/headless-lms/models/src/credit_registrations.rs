@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
+use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
@@ -1043,8 +1044,14 @@ WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
     JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
+    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.
+    AND (
+      cmc.register_credits_via_suotar
+      OR cr.submitted_at IS NOT NULL
+    )
     AND cr.state = ANY($1::credit_registration_state [])
     AND cr.next_attempt_at <= now()
     AND ($3::uuid IS NULL OR cr.course_id = $3)
@@ -1104,8 +1111,14 @@ WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
     JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
+    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.
+    AND (
+      cmc.register_credits_via_suotar
+      OR cr.submitted_at IS NOT NULL
+    )
     AND cr.state = 'checking_enrolment'
     AND cr.next_attempt_at <= now()
     AND ($2::uuid IS NULL OR cr.course_id = $2)
@@ -1393,7 +1406,7 @@ ORDER BY cmc.completion_date DESC,
 #[derive(Debug, Clone)]
 pub struct PayloadSnapshot {
     pub student_number: DbSecret,
-    pub sisu_person_id: DbSecret,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: String,
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
@@ -1432,7 +1445,7 @@ WHERE id = $1
         "#,
         id,
         snapshot.student_number.expose_secret(),
-        snapshot.sisu_person_id.expose_secret(),
+        expose_option(&snapshot.sisu_person_id),
         snapshot.uh_course_code,
         snapshot.selected_enrolment_id,
         snapshot.selected_enrolment_kind,

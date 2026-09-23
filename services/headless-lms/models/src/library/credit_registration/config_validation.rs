@@ -15,7 +15,6 @@ const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
 const COURSE_CODE_NOT_ALLOWED: &str = "Suotar does not accept this uh_course_code:";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
 const NO_ENROLMENT_LINK: &str = "No completion registration link override, so a student without a usable Sisu enrolment gets no enrolment link.";
-const OLD_FLOW_ALSO_ENABLED: &str = "enable_registering_completion_to_uh_open_university is on as well, which would register the same completion twice.";
 
 /// What Suotar's `course-codes/validate` said about a course code.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -80,9 +79,6 @@ pub fn check_module_config(
 
     if !facts.has_enrolment_link {
         problems.push(NO_ENROLMENT_LINK.into());
-    }
-    if facts.old_flow_also_enabled {
-        problems.push(OLD_FLOW_ALSO_ENABLED.into());
     }
 
     SuotarConfigCheck {

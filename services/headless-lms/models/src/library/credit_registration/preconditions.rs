@@ -379,8 +379,6 @@ mod tests {
                 last_name: None,
                 verified_via: StudentNumberVerificationMethod::EmailedLink,
                 verified_via_email: Some(DbSecret::new("student@helsinki.example")),
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
                 linked_by_user_id: None,
                 link_reason: None,
                 verified_from_course_id: None,

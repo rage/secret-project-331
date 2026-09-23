@@ -4,6 +4,8 @@
 //! The workers tick every phase unscoped every few seconds in the test deployment, so a fixture row
 //! nothing may move has to sit on a paused module — that is what the states course is for.
 
+use std::collections::HashMap;
+
 use anyhow::Result;
 use chrono::{Duration, Utc};
 use headless_lms_base::config::{
@@ -27,7 +29,7 @@ use headless_lms_models::{
     secret::DbSecret,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
-    user_details::{self, EmailVerificationMethod},
+    user_details,
     user_passwords::{hash_password, upsert_user_password},
     users,
     verified_student_numbers::{self, NewVerifiedStudentNumber, StudentNumberVerificationMethod},
@@ -57,8 +59,6 @@ pub const CERTIFICATE_DETOUR_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0010_4a5e_9e6e_c0de00000010);
 pub const CERTIFICATE_DETOUR_COURSE_SLUG: &str = "credit-registration-certificate-detour";
 pub const CRS_DETOUR_101: &str = "CRS-DETOUR-101";
-pub const CERTIFICATE_DETOUR_STUDENT_EMAIL: &str =
-    "credit-registration-certificate-detour@example.com";
 
 /// A study registry registrar whose key a spec can present, so the legacy pull stream is readable
 /// from a test. Every other registrar's key is random by design.
@@ -100,10 +100,33 @@ pub const LINKING_TOKEN_CONFLICT: &str = concat!(
     "44444444-4444-4444-4444-444444444444",
 );
 
+/// Enrolled on the general Suotar course and nothing else, for the studies page's empty state.
+const PROFILE_EMPTY_EMAIL: &str = "student5@example.com";
+
 /// A seeded student, with the deterministic id a spec navigates by.
 struct SeededStudent {
     user_id: Uuid,
     email: String,
+}
+
+/// The accounts holding a linked number, by the fixture they were built from.
+struct LinkedStudents {
+    by_student_number: HashMap<&'static str, SeededStudent>,
+}
+
+impl LinkedStudents {
+    fn get(&self, fixture: &MockPersonFixture) -> Result<&SeededStudent> {
+        self.by_student_number
+            .get(fixture.student_number)
+            .ok_or_else(|| anyhow::anyhow!("{} was never seeded", fixture.student_number))
+    }
+}
+
+/// A course with an instance, for enrolling students after the course itself exists.
+#[derive(Clone, Copy)]
+struct SeededCourse {
+    course_id: Uuid,
+    course_instance_id: Uuid,
 }
 
 pub async fn seed_credit_registration(
@@ -125,96 +148,92 @@ pub async fn seed_credit_registration(
         base_course_ns: SUOTAR_COURSE_ID,
     };
 
-    info!("inserting credit registration courses");
-
-    let suotar_instance_id = cx.v5(b"instance:suotar");
-    let (suotar_course, suotar_instance, _) =
-        CourseBuilder::new("Credit registration via Suotar", SUOTAR_COURSE_SLUG)
-            .desc("Fixture course for the credit registration system tests.")
-            .course_id(SUOTAR_COURSE_ID)
-            .role(teacher_user_id, UserRole::Teacher)
-            .instance(instance_config(suotar_instance_id))
-            .module(
-                ModuleBuilder::new()
-                    .order(0)
-                    .ects(5.0)
-                    .uh_course_code(CRS_101.to_string())
-                    .credit_registration(credit_registration_config(CRS_101))
-                    // suotar-in-course-banner.spec.ts needs a chapter page it can actually read.
-                    .chapter(
-                        ChapterBuilder::new(1, "Registering credits")
-                            .opens(Utc::now())
-                            .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:front-page"))
-                            .page(
-                                PageBuilder::new("/chapter-1/page-1", "How registration works")
-                                    .block(paragraph(
-                                        "Completing this module registers credits into Sisu.",
-                                        cx.v5(b"page:1:1:block"),
-                                    )),
-                            ),
-                    ),
-            )
-            .module(
-                ModuleBuilder::new()
-                    .order(1)
-                    .name("Second module")
-                    .ects(3.0)
-                    .uh_course_code(CRS_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_102)),
-            )
-            .seed(&mut conn, app_config, &cx)
-            .await?;
-
-    seed_old_flow_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_certificate_detour_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_import_outcomes_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_states_course(&mut conn, app_config, org, teacher_user_id).await?;
-    seed_retry_course(&mut conn, app_config, org, teacher_user_id).await?;
-
+    // Linked before any completion exists: a completion's registration path is decided at insert.
     info!("inserting credit registration students");
+    let students = seed_linked_students(&mut conn, &cx).await?;
 
-    let linked_student = insert_student(
+    info!("inserting credit registration courses");
+    let suotar = seed_general_course(
         &mut conn,
-        cx.v5(b"user:linked-student"),
-        "credit-registration-linked-student@example.com",
-        "Zzyzx",
-        "Numberlinked",
+        app_config,
+        &cx,
+        GeneralCourse {
+            name: "Credit registration via Suotar",
+            slug: SUOTAR_COURSE_SLUG,
+            course_id: SUOTAR_COURSE_ID,
+            course_code: CRS_101,
+            // suotar-in-course-banner.spec.ts needs a chapter page it can actually read.
+            has_chapter: true,
+        },
     )
     .await?;
-    let unlinked_student = insert_student(
+    let suotar_b = seed_general_course(
         &mut conn,
-        cx.v5(b"user:unlinked-student"),
-        "credit-registration-unlinked-student@example.com",
-        "Zzyzx",
-        "Linkpending",
+        app_config,
+        &cx,
+        GeneralCourse {
+            name: "Credit registration via Suotar B",
+            slug: SUOTAR_B_COURSE_SLUG,
+            course_id: SUOTAR_B_COURSE_ID,
+            course_code: CRS_B_101,
+            has_chapter: false,
+        },
     )
     .await?;
-    let verified_email = insert_student(
+    let lanes = HashMap::from([(CRS_101, suotar), (CRS_B_101, suotar_b)]);
+
+    seed_old_flow_course(&mut conn, app_config, org, teacher_user_id, &students).await?;
+    seed_certificate_detour_course(
         &mut conn,
-        cx.v5(b"user:verified-email"),
-        "credit-registration-verified-email@example.com",
-        "Zzyzx",
-        "Fasttrack",
+        app_config,
+        org,
+        teacher_user_id,
+        students.get(&STUDENT_7)?,
     )
     .await?;
-    let unverified_twin = insert_student(
+    seed_import_outcomes_course(
         &mut conn,
-        cx.v5(b"user:unverified-twin"),
-        "credit-registration-unverified-twin@example.com",
-        "Zzyzx",
-        "Nearmiss",
+        app_config,
+        org,
+        teacher_user_id,
+        students.get(&STUDENT_8)?,
     )
     .await?;
-    let superseded_student = insert_student(
+    seed_grade_improvement_course(
         &mut conn,
-        cx.v5(b"user:superseded-attempts"),
-        "credit-registration-superseded@example.com",
-        "Zzyzx",
-        "Regraded",
+        app_config,
+        org,
+        teacher_user_id,
+        students.get(&CREDIT_REGISTRATION_STUDENT_2)?,
     )
     .await?;
+    seed_admin_course(
+        &mut conn,
+        app_config,
+        org,
+        teacher_user_id,
+        students.get(&CREDIT_REGISTRATION_STUDENT_1)?,
+    )
+    .await?;
+    seed_states_course(&mut conn, app_config, org, teacher_user_id, &students).await?;
+    seed_retry_course(&mut conn, app_config, org, teacher_user_id, &students).await?;
+
+    info!("inserting credit registration completions");
+    for lane in &LANE_COMPLETIONS {
+        let course = lanes
+            .get(lane.course_code)
+            .ok_or_else(|| anyhow::anyhow!("no general course has code {}", lane.course_code))?;
+        let student = students.get(lane.student)?;
+        course_instance_enrollments::insert(
+            &mut conn,
+            student.user_id,
+            course.course_id,
+            course.course_instance_id,
+        )
+        .await?;
+        let module_id = default_module_id(&mut conn, course.course_id).await?;
+        seed_eligible_completion(&mut conn, student, module_id, course.course_id, None).await?;
+    }
 
     let link_claimer = insert_student(
         &mut conn,
@@ -224,127 +243,35 @@ pub async fn seed_credit_registration(
         "Claimer",
     )
     .await?;
-    let profile_empty = insert_student(
-        &mut conn,
-        cx.v5(b"user:profile-empty"),
-        PROFILE_EMPTY_EMAIL,
-        "Zzyzx",
-        "Emptyprofile",
-    )
-    .await?;
-
-    for student in [
-        &linked_student,
-        &unlinked_student,
-        &verified_email,
-        &unverified_twin,
-        &superseded_student,
-        &link_claimer,
-        &profile_empty,
+    let profile_empty_user_id = users::get_by_email(&mut conn, PROFILE_EMPTY_EMAIL)
+        .await?
+        .id;
+    let replaced_attempts_holder = students.get(&STUDENT_6)?;
+    for user_id in [
+        link_claimer.user_id,
+        profile_empty_user_id,
+        replaced_attempts_holder.user_id,
     ] {
         course_instance_enrollments::insert(
             &mut conn,
-            student.user_id,
-            suotar_course.id,
-            suotar_instance.id,
+            user_id,
+            suotar.course_id,
+            suotar.course_instance_id,
         )
         .await?;
     }
-
-    // Linked and completed; the mock's enrolments decide which of them gets stuck where.
-    for fixture in [
-        &IMPORT_TIMEOUT,
-        &IMPORT_UNANSWERED,
-        &IMPORT_MALFORMED,
-        &IMPORT_BESIDE_MALFORMED,
-        &SISU_OUTAGE,
-        &NO_ENROLMENT,
-        &TWO_ENROLMENTS,
-        &VERIFY_POLLING,
-        &VERIFY_MISREGISTERED,
-        &VERIFY_NOT_REGISTERED,
-        &EMAILS_REGISTERED,
-        &EMAILS_NO_ENROLMENT,
-        &BANNER_STUCK,
-        &BANNER_REENROLS,
-    ] {
-        let student = seed_spec_student(
-            &mut conn,
-            &cx,
-            fixture,
-            suotar_course.id,
-            suotar_instance.id,
-        )
-        .await?;
-        seed_eligible_completion(&mut conn, &student, suotar_course.id, None).await?;
-    }
-
-    verified_student_numbers::insert(
-        &mut conn,
-        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:linked-student")),
-        &NewVerifiedStudentNumber {
-            user_id: linked_student.user_id,
-            student_number: DbSecret::new(LINKED_STUDENT.student_number),
-            sisu_person_id: DbSecret::new(LINKED_STUDENT.sisu_person_id()),
-            first_names: Some(DbSecret::new(LINKED_STUDENT.first_names)),
-            last_name: Some(DbSecret::new(LINKED_STUDENT.last_name)),
-            verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(DbSecret::new(LINKED_STUDENT.sisu_email)),
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: None,
-            link_reason: None,
-            verified_from_course_id: Some(suotar_course.id),
-        },
-    )
-    .await?;
-    verified_student_numbers::insert(
-        &mut conn,
-        PKeyPolicy::Fixed(cx.v5(b"verified-student-number:superseded")),
-        &NewVerifiedStudentNumber {
-            user_id: superseded_student.user_id,
-            student_number: DbSecret::new(SUPERSEDED.student_number),
-            sisu_person_id: DbSecret::new(SUPERSEDED.sisu_person_id()),
-            first_names: Some(DbSecret::new(SUPERSEDED.first_names)),
-            last_name: Some(DbSecret::new(SUPERSEDED.last_name)),
-            verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(DbSecret::new(SUPERSEDED.sisu_email)),
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: None,
-            link_reason: None,
-            verified_from_course_id: Some(suotar_course.id),
-        },
-    )
-    .await?;
-
-    // `verified_email` and `unverified_twin` differ only in this flag, and the mock Suotar person
-    // for each must hold that account's own address as its primary email for the match to fire.
-    // Without a verified address, an email match is an impersonation primitive.
-    user_details::set_email_verified(
-        &mut conn,
-        verified_email.user_id,
-        EmailVerificationMethod::EmailedCode,
-        Utc::now() - Duration::days(30),
-    )
-    .await?;
-
-    seed_eligible_completion(&mut conn, &verified_email, suotar_course.id, None).await?;
-
-    info!("inserting credit registration fast track near misses");
-    seed_fast_track_near_misses(&mut conn, &cx).await?;
 
     info!("inserting credit registration linking tokens");
-    seed_linking_tokens(&mut conn, &cx, suotar_course.id, unverified_twin.user_id).await?;
-
-    info!("inserting credit registration ledger history");
-    seed_superseded_attempt_pair(
+    seed_linking_tokens(
         &mut conn,
-        &superseded_student,
-        suotar_course.id,
-        suotar_instance.id,
+        &cx,
+        suotar.course_id,
+        replaced_attempts_holder.user_id,
     )
     .await?;
+
+    info!("inserting credit registration ledger history");
+    seed_superseded_attempt_pair(&mut conn, replaced_attempts_holder, suotar).await?;
 
     study_registry_registrars::insert(
         &mut conn,
@@ -355,75 +282,122 @@ pub async fn seed_credit_registration(
     .await?;
 
     info!("inserting credit registration admin actions");
-    seed_admin_actions(&mut conn, &cx, suotar_course.id, teacher_user_id).await?;
+    seed_admin_actions(&mut conn, &cx, suotar.course_id, teacher_user_id).await?;
 
     push_mock_suotar_world(&base_url).await?;
 
     Ok(SUOTAR_COURSE_ID)
 }
 
-/// The accounts that make the fast track *not* fire, one per reason it may refuse. Each holds a
-/// confirmed address, so what separates them is only the thing under test; the twin above is the
-/// unconfirmed case. None of them is given a completion: being on the registry's roster is all it
-/// takes to be offered to the fast track.
-async fn seed_fast_track_near_misses(conn: &mut PgConnection, cx: &SeedContext) -> Result<()> {
-    let now = Utc::now();
-    for (fixture, verified_at) in [
-        (&FAST_TRACK_STALE, now - Duration::days(400)),
-        (&FAST_TRACK_NAME_MISMATCH, now - Duration::days(30)),
-        (&FAST_TRACK_HAS_NUMBER, now - Duration::days(30)),
-        (&FAST_TRACK_SECONDARY_ONLY, now - Duration::days(30)),
-        (&FAST_TRACK_NO_MATCH, now - Duration::days(30)),
+/// Creates the credit-registration accounts and links every seeded student to its fixture's number.
+/// `student6`–`student8` already exist: the general user seed creates them.
+async fn seed_linked_students(conn: &mut PgConnection, cx: &SeedContext) -> Result<LinkedStudents> {
+    let mut by_student_number = HashMap::new();
+    for fixture in [&STUDENT_6, &STUDENT_7, &STUDENT_8] {
+        let email = account_email(fixture)?;
+        let user_id = users::get_by_email(conn, email).await?.id;
+        link_student_number(
+            conn,
+            cx,
+            fixture,
+            user_id,
+            StudentNumberVerificationMethod::EmailedLink,
+        )
+        .await?;
+        by_student_number.insert(
+            fixture.student_number,
+            SeededStudent {
+                user_id,
+                email: email.to_string(),
+            },
+        );
+    }
+    for fixture in [
+        &CREDIT_REGISTRATION_STUDENT_1,
+        &CREDIT_REGISTRATION_STUDENT_2,
+        &CREDIT_REGISTRATION_STUDENT_3,
+        &CREDIT_REGISTRATION_STUDENT_4,
+        &CREDIT_REGISTRATION_STUDENT_5,
     ] {
-        let account_email = fixture
-            .account_email
-            .ok_or_else(|| anyhow::anyhow!("a fast track near miss needs an account"))?;
-        // Unlike its neighbours the mismatch account is a different person from the one the registry
-        // names, which is the whole fixture.
-        let (first_name, last_name) =
-            if fixture.student_number == FAST_TRACK_NAME_MISMATCH.student_number {
-                ("Qqoqq", "Accountname")
-            } else {
-                (fixture.first_names, fixture.last_name)
-            };
+        let email = account_email(fixture)?;
         let student = insert_student(
             conn,
-            cx.v5(account_email.as_bytes()),
-            account_email,
-            first_name,
-            last_name,
+            cx.v5(email.as_bytes()),
+            email,
+            fixture.first_names,
+            fixture.last_name,
         )
         .await?;
-        user_details::set_email_verified(
-            conn,
-            student.user_id,
-            EmailVerificationMethod::EmailedCode,
-            verified_at,
-        )
-        .await?;
-        if fixture.student_number == FAST_TRACK_HAS_NUMBER.student_number {
-            verified_student_numbers::insert(
-                conn,
-                PKeyPolicy::Fixed(cx.v5(b"verified-student-number:fast-track-has-number")),
-                &NewVerifiedStudentNumber {
-                    user_id: student.user_id,
-                    student_number: DbSecret::new(FAST_TRACK_OTHER_NUMBER),
-                    sisu_person_id: DbSecret::new(format!("hy-hlo-{FAST_TRACK_OTHER_NUMBER}")),
-                    first_names: Some(DbSecret::new(fixture.first_names)),
-                    last_name: Some(DbSecret::new(fixture.last_name)),
-                    verified_via: StudentNumberVerificationMethod::EmailedLink,
-                    verified_via_email: Some(DbSecret::new(account_email)),
-                    verified_via_email_match_field: None,
-                    account_email_verified_at: None,
-                    linked_by_user_id: None,
-                    link_reason: None,
-                    verified_from_course_id: None,
-                },
-            )
-            .await?;
-        }
+        let verified_via = if fixture.student_number == CREDIT_REGISTRATION_STUDENT_2.student_number
+        {
+            StudentNumberVerificationMethod::AdminManual
+        } else {
+            StudentNumberVerificationMethod::EmailedLink
+        };
+        link_student_number(conn, cx, fixture, student.user_id, verified_via).await?;
+        by_student_number.insert(fixture.student_number, student);
     }
-    Ok(())
+    Ok(LinkedStudents { by_student_number })
+}
+
+fn account_email(fixture: &MockPersonFixture) -> Result<&'static str> {
+    fixture
+        .account_email
+        .ok_or_else(|| anyhow::anyhow!("{} has no account", fixture.student_number))
+}
+
+struct GeneralCourse {
+    name: &'static str,
+    slug: &'static str,
+    course_id: Uuid,
+    course_code: &'static str,
+    has_chapter: bool,
+}
+
+/// One of the courses [`LANE_COMPLETIONS`] allocates: a single working Suotar module.
+async fn seed_general_course(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    cx: &SeedContext,
+    general: GeneralCourse,
+) -> Result<SeededCourse> {
+    let cx = SeedContext {
+        teacher: cx.teacher,
+        org: cx.org,
+        base_course_ns: general.course_id,
+    };
+    let mut module = ModuleBuilder::new()
+        .order(0)
+        .ects(5.0)
+        .uh_course_code(general.course_code.to_string())
+        .credit_registration(credit_registration_config(general.course_code));
+    if general.has_chapter {
+        module = module.chapter(
+            ChapterBuilder::new(1, "Registering credits")
+                .opens(Utc::now())
+                .fixed_ids(cx.v5(b"chapter:1"), cx.v5(b"chapter:1:front-page"))
+                .page(
+                    PageBuilder::new("/chapter-1/page-1", "How registration works").block(
+                        paragraph(
+                            "Completing this module registers credits into Sisu.",
+                            cx.v5(b"page:1:1:block"),
+                        ),
+                    ),
+                ),
+        );
+    }
+    let (course, instance, _) = CourseBuilder::new(general.name, general.slug)
+        .desc("Fixture course for the credit registration system tests.")
+        .course_id(general.course_id)
+        .role(cx.teacher, UserRole::Teacher)
+        .instance(instance_config(cx.v5(b"instance:suotar")))
+        .module(module)
+        .seed(conn, app_config, &cx)
+        .await?;
+    Ok(SeededCourse {
+        course_id: course.id,
+        course_instance_id: instance.id,
+    })
 }
 
 /// Aligns the mock Suotar's world with the rows just written. Nothing is cleared first: the mock
@@ -458,14 +432,15 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Turns the module on with an enrolment link unique to its course code; without one the config
-/// check flags the module.
+/// Turns the module on with an enrolment link unique to its course code, without which the config
+/// check flags the module, and opts its linked students' completions in.
 fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
         enrolment_link: Some(format!(
             "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}"
         )),
         paused_reason: None,
+        register_eligible_new_completions: true,
     }
 }
 
@@ -482,17 +457,19 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
     }
 }
 
-/// Owned by `suotar-old-flow-coexistence.spec.ts`: student numbers `9000010xx`.
+/// Owned by `suotar-old-flow-coexistence.spec.ts`.
 ///
 /// Module 0 stays on the legacy pull path outright. Module 1 stands in for a module the moment after
 /// a real cutover: Suotar is on, but its one completion predates the cutover and was already
 /// registered through the legacy pull path, which must keep it out of both the pull stream and a
-/// second, Suotar-side registration.
+/// second, Suotar-side registration. The two completions belong to different students because the
+/// spec tells them apart in the pull stream by address.
 async fn seed_old_flow_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    students: &LinkedStudents,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
@@ -500,23 +477,8 @@ async fn seed_old_flow_course(
         base_course_ns: OLD_FLOW_COURSE_ID,
     };
     let registrar_id = get_or_create_default_registrar(conn).await?;
-
-    let still_legacy = insert_student(
-        conn,
-        cx.v5(b"user:still-legacy"),
-        "credit-registration-old-flow-still-legacy@example.com",
-        "Zzyzx",
-        "Stilllegacy",
-    )
-    .await?;
-    let already_cut_over = insert_student(
-        conn,
-        cx.v5(b"user:already-cut-over"),
-        "credit-registration-old-flow-already-cut-over@example.com",
-        "Zzyzx",
-        "Alreadycutover",
-    )
-    .await?;
+    let still_legacy = students.get(&STUDENT_7)?;
+    let already_cut_over = students.get(&STUDENT_8)?;
 
     let (course, instance, _) =
         CourseBuilder::new("Credit registration old flow", OLD_FLOW_COURSE_SLUG)
@@ -543,7 +505,10 @@ async fn seed_old_flow_course(
                     .name("Cut over to Suotar")
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_OLD_102))
+                    .credit_registration(CreditRegistrationSeed {
+                        register_eligible_new_completions: false,
+                        ..credit_registration_config(CRS_OLD_102)
+                    })
                     .default_registrar(registrar_id)
                     .completion(
                         CompletionBuilder::new(already_cut_over.user_id)
@@ -552,20 +517,21 @@ async fn seed_old_flow_course(
                             .passed(true)
                             .prerequisite_modules_completed(true)
                             .registered(
-                                CompletionRegisteredBuilder::new().real_student_number("900001002"),
+                                CompletionRegisteredBuilder::new()
+                                    .real_student_number(STUDENT_8.student_number),
                             ),
                     ),
             )
             .seed(conn, app_config, &cx)
             .await?;
 
-    for student in [&still_legacy, &already_cut_over] {
+    for student in [still_legacy, already_cut_over] {
         course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
     }
     Ok(())
 }
 
-/// Owned by `completion-registration-certificate-detour.spec.ts`: student numbers `9000017xx`.
+/// Owned by `completion-registration-certificate-detour.spec.ts`.
 ///
 /// The one combination that draws the certificate detour on the old registration page: open
 /// university registration and a certificate the student can generate instead. No sample course has
@@ -575,21 +541,13 @@ async fn seed_certificate_detour_course(
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    student: &SeededStudent,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: CERTIFICATE_DETOUR_COURSE_ID,
     };
-
-    let student = insert_student(
-        conn,
-        cx.v5(b"user:certificate-detour"),
-        CERTIFICATE_DETOUR_STUDENT_EMAIL,
-        "Zzyzx",
-        "Certificatedetour",
-    )
-    .await?;
 
     let (course, instance, module) = CourseBuilder::new(
         "Credit registration certificate detour",
@@ -623,7 +581,8 @@ async fn seed_certificate_detour_course(
     Ok(())
 }
 
-/// The account-linking fixtures, on a course of their own.
+/// The account-linking fixtures, on a course of their own, and one linked student a tick can
+/// register.
 ///
 /// The stale-address list only renders a (person, course) mailed to the cap and never claimed, which
 /// takes three mails at three addresses because the dedup key is the address.
@@ -632,31 +591,31 @@ async fn seed_admin_course(
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    linked: &SeededStudent,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: ADMIN_COURSE_ID,
     };
-    let (course, instance, _) = CourseBuilder::new("Credit registration admin", ADMIN_COURSE_SLUG)
-        .desc("Fixture course for the admin dashboard's account linking views.")
-        .course_id(ADMIN_COURSE_ID)
-        .role(teacher_user_id, UserRole::Teacher)
-        .instance(instance_config(cx.v5(b"instance:admin")))
-        .module(
-            ModuleBuilder::new()
-                .order(0)
-                .ects(5.0)
-                .uh_course_code(CRS_ADMIN_101.to_string())
-                .credit_registration(credit_registration_config(CRS_ADMIN_101)),
-        )
-        .seed(conn, app_config, &cx)
-        .await?;
+    let (course, instance, module) =
+        CourseBuilder::new("Credit registration admin", ADMIN_COURSE_SLUG)
+            .desc("Fixture course for the admin dashboard's account linking views.")
+            .course_id(ADMIN_COURSE_ID)
+            .role(teacher_user_id, UserRole::Teacher)
+            .instance(instance_config(cx.v5(b"instance:admin")))
+            .module(
+                ModuleBuilder::new()
+                    .order(0)
+                    .ects(5.0)
+                    .uh_course_code(CRS_ADMIN_101.to_string())
+                    .credit_registration(credit_registration_config(CRS_ADMIN_101)),
+            )
+            .seed(conn, app_config, &cx)
+            .await?;
 
-    let unlinked = seed_spec_account(conn, &cx, &ADMIN_UNLINKED, course.id, instance.id).await?;
-    seed_eligible_completion(conn, &unlinked, course.id, None).await?;
-    let linked = seed_spec_student(conn, &cx, &ADMIN_LINKED, course.id, instance.id).await?;
-    seed_eligible_completion(conn, &linked, course.id, None).await?;
+    course_instance_enrollments::insert(conn, linked.user_id, course.id, instance.id).await?;
+    seed_eligible_completion(conn, linked, module.id, course.id, None).await?;
 
     for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
         for suffix in MAILED_ADDRESS_SUFFIXES {
@@ -684,74 +643,99 @@ async fn seed_admin_course(
 
 /// Every registration state, and every error code, as a frozen row.
 ///
-/// The module is paused because every phase's claim query skips paused modules; otherwise the
-/// workers in the test deployment would walk these onwards seconds after the seed finished.
+/// An account holds one completion per module, so the rows are spread over a grid of holders and
+/// modules. The modules are paused because every phase's claim query skips paused modules;
+/// otherwise the workers in the test deployment would walk these onwards seconds after the seed
+/// finished.
 async fn seed_states_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    students: &LinkedStudents,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: STATES_COURSE_ID,
     };
-    let (course, instance, _) = CourseBuilder::new(
-        "Credit registration states",
-        STATES_COURSE_SLUG,
-    )
-    .desc("Fixture course holding one frozen registration per state and per error code.")
-    .course_id(STATES_COURSE_ID)
-    .role(teacher_user_id, UserRole::Teacher)
-    .instance(instance_config(cx.v5(b"instance:states")))
-    .module(
-        ModuleBuilder::new()
-            .order(0)
+    let mut course = CourseBuilder::new("Credit registration states", STATES_COURSE_SLUG)
+        .desc("Fixture course holding one frozen registration per state and per error code.")
+        .course_id(STATES_COURSE_ID)
+        .role(teacher_user_id, UserRole::Teacher)
+        .instance(instance_config(cx.v5(b"instance:states")));
+    for (order, course_code) in STATES_COURSE_CODES.iter().enumerate() {
+        let mut module = ModuleBuilder::new()
+            .order(order as i32)
             .ects(5.0)
-            .uh_course_code(CRS_STATES_101.to_string())
+            .uh_course_code(course_code.to_string())
             .credit_registration(CreditRegistrationSeed {
                 paused_reason: Some(
                     "Seeded fixture: these rows are read by the teacher and admin views and must not move."
                         .to_string(),
                 ),
-                ..credit_registration_config(CRS_STATES_101)
-            }),
-    )
-    .seed(conn, app_config, &cx)
-    .await?;
-
-    for (index, state) in CreditRegistrationState::ALL.iter().enumerate() {
-        seed_frozen_registration(
-            conn,
-            &cx,
-            course.id,
-            instance.id,
-            index + 1,
-            &format!("State{:02}", index + 1),
-            *state,
-            None,
-        )
-        .await?;
+                ..credit_registration_config(course_code)
+            });
+        if order > 0 {
+            module = module.name(format!("Module {course_code}"));
+        }
+        course = course.module(module);
     }
+    let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
+    let seeded = SeededCourse {
+        course_id: course.id,
+        course_instance_id: instance.id,
+    };
+
+    let holders = [
+        students.get(&STUDENT_7)?,
+        students.get(&STUDENT_8)?,
+        students.get(&CREDIT_REGISTRATION_STUDENT_1)?,
+        students.get(&CREDIT_REGISTRATION_STUDENT_2)?,
+        students.get(&CREDIT_REGISTRATION_STUDENT_3)?,
+        students.get(&CREDIT_REGISTRATION_STUDENT_4)?,
+        students.get(&CREDIT_REGISTRATION_STUDENT_5)?,
+    ];
+    for holder in holders {
+        course_instance_enrollments::insert(conn, holder.user_id, course.id, instance.id).await?;
+    }
+    let module_ids = module_ids_by_course_code(conn, course.id).await?;
+
     // Every code on the same state, so the explorer's error-code filter can be exercised alone.
-    for (index, error_code) in CreditRegistrationErrorCode::ALL.iter().enumerate() {
-        seed_frozen_registration(
-            conn,
-            &cx,
-            course.id,
-            instance.id,
-            50 + index,
-            &format!("Error{:02}", index + 1),
-            CreditRegistrationState::FailedPermanent,
-            Some(*error_code),
-        )
-        .await?;
+    let rows = CreditRegistrationState::ALL
+        .iter()
+        .map(|state| (*state, None))
+        .chain(
+            CreditRegistrationErrorCode::ALL
+                .iter()
+                .map(|code| (CreditRegistrationState::FailedPermanent, Some(*code))),
+        );
+    for (index, (state, error_code)) in rows.enumerate() {
+        let holder = holders[index % holders.len()];
+        let course_code = STATES_COURSE_CODES
+            .get(index / holders.len())
+            .ok_or_else(|| anyhow::anyhow!("the states grid has too few modules"))?;
+        let module_id = *module_ids
+            .get(*course_code)
+            .ok_or_else(|| anyhow::anyhow!("no states module has code {course_code}"))?;
+        seed_frozen_registration(conn, &cx, seeded, module_id, holder, state, error_code).await?;
     }
     Ok(())
 }
 
-/// Rows a teacher may put back on the queue and rows they may not.
+async fn module_ids_by_course_code(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<HashMap<String, Uuid>> {
+    Ok(course_modules::get_by_course_id(conn, course_id)
+        .await?
+        .into_iter()
+        .filter_map(|module| module.uh_course_code.map(|code| (code, module.id)))
+        .collect())
+}
+
+/// Rows a teacher may put back on the queue and rows they may not, one per holder so a spec finds
+/// each by the holder's last name.
 ///
 /// Its own course rather than more rows on the states course, because a bulk retry sweeps a whole
 /// course and would leave the states fixture with no `failed_permanent` row and no error codes.
@@ -762,137 +746,90 @@ async fn seed_retry_course(
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    students: &LinkedStudents,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: RETRY_COURSE_ID,
     };
-    let (course, instance, _) = CourseBuilder::new("Credit registration retry", RETRY_COURSE_SLUG)
-        .desc("Fixture course holding the registrations a teacher retries, and the ones they cannot.")
-        .course_id(RETRY_COURSE_ID)
-        .role(teacher_user_id, UserRole::Teacher)
-        .instance(instance_config(cx.v5(b"instance:retry")))
-        .module(
-            ModuleBuilder::new()
-                .order(0)
-                .ects(5.0)
-                .uh_course_code(CRS_RETRY_101.to_string())
-                .credit_registration(CreditRegistrationSeed {
-                    paused_reason: Some(
-                        "Seeded fixture: the retry specs read these rows and the workers must not move them."
-                            .to_string(),
-                    ),
-                    ..credit_registration_config(CRS_RETRY_101)
-                }),
-        )
-        .seed(conn, app_config, &cx)
-        .await?;
+    let (course, instance, module) =
+        CourseBuilder::new("Credit registration retry", RETRY_COURSE_SLUG)
+            .desc("Fixture course holding the registrations a teacher retries, and the ones they cannot.")
+            .course_id(RETRY_COURSE_ID)
+            .role(teacher_user_id, UserRole::Teacher)
+            .instance(instance_config(cx.v5(b"instance:retry")))
+            .module(
+                ModuleBuilder::new()
+                    .order(0)
+                    .ects(5.0)
+                    .uh_course_code(CRS_RETRY_101.to_string())
+                    .credit_registration(CreditRegistrationSeed {
+                        paused_reason: Some(
+                            "Seeded fixture: the retry specs read these rows and the workers must not move them."
+                                .to_string(),
+                        ),
+                        ..credit_registration_config(CRS_RETRY_101)
+                    }),
+            )
+            .seed(conn, app_config, &cx)
+            .await?;
+    let seeded = SeededCourse {
+        course_id: course.id,
+        course_instance_id: instance.id,
+    };
 
-    // `Retry04` is not a failure, so no retry of any shape moves it: `suotar-teacher-views.spec.ts`
-    // reads it both as the refusal and as the row whose state it asserts is unchanged.
-    for (person, last_name, state) in [
-        (80, "Retry01", CreditRegistrationState::FailedPermanent),
-        (81, "Retry02", CreditRegistrationState::FailedPermanent),
-        (82, "Retry03", CreditRegistrationState::SubmissionUncertain),
-        (83, "Retry04", CreditRegistrationState::Cancelled),
+    // The cancelled row is not a failure, so no retry of any shape moves it:
+    // `suotar-teacher-views.spec.ts` reads it both as the refusal and as the row whose state it
+    // asserts is unchanged.
+    for (fixture, state) in [
+        (
+            &CREDIT_REGISTRATION_STUDENT_1,
+            CreditRegistrationState::FailedPermanent,
+        ),
+        (
+            &CREDIT_REGISTRATION_STUDENT_2,
+            CreditRegistrationState::FailedPermanent,
+        ),
+        (
+            &CREDIT_REGISTRATION_STUDENT_3,
+            CreditRegistrationState::SubmissionUncertain,
+        ),
+        (
+            &CREDIT_REGISTRATION_STUDENT_4,
+            CreditRegistrationState::Cancelled,
+        ),
     ] {
-        seed_frozen_registration(
-            conn,
-            &cx,
-            course.id,
-            instance.id,
-            person,
-            last_name,
-            state,
-            None,
-        )
-        .await?;
+        let holder = students.get(fixture)?;
+        course_instance_enrollments::insert(conn, holder.user_id, course.id, instance.id).await?;
+        seed_frozen_registration(conn, &cx, seeded, module.id, holder, state, None).await?;
     }
     Ok(())
 }
 
-/// One student, one completion and one ledger row parked in `state`.
-///
-/// `person` is the `PP` half of the student number, in the teacher-views block. The first two get a
-/// student number too, one link-verified and one manual, because the teacher view renders them
-/// differently.
-#[allow(clippy::too_many_arguments)]
+/// One completion and one ledger row parked in `state`, for `student` on `course_module_id`.
 async fn seed_frozen_registration(
     conn: &mut PgConnection,
     cx: &SeedContext,
-    course_id: Uuid,
-    course_instance_id: Uuid,
-    person: usize,
-    last_name: &str,
+    course: SeededCourse,
+    course_module_id: Uuid,
+    student: &SeededStudent,
     state: CreditRegistrationState,
     error_code: Option<CreditRegistrationErrorCode>,
 ) -> Result<()> {
-    let student_number = format!("9000008{person:02}");
-    let account_email = format!(
-        "credit-registration-{}@example.com",
-        last_name.to_lowercase()
-    );
-    let student = insert_student(
-        conn,
-        cx.v5(account_email.as_bytes()),
-        &account_email,
-        "Zzyzx",
-        last_name,
-    )
-    .await?;
-    course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
-        .await?;
-    let verified_via = match person {
-        1 => Some(StudentNumberVerificationMethod::EmailedLink),
-        2 => Some(StudentNumberVerificationMethod::AdminManual),
-        _ => None,
-    };
-    if let Some(verified_via) = verified_via {
-        verified_student_numbers::insert(
-            conn,
-            PKeyPolicy::Fixed(cx.v5(format!("verified:{student_number}").as_bytes())),
-            &NewVerifiedStudentNumber {
-                user_id: student.user_id,
-                student_number: DbSecret::new(student_number.clone()),
-                sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
-                first_names: Some(DbSecret::new("Zzyzx".to_string())),
-                last_name: Some(DbSecret::new(last_name)),
-                verified_via,
-                verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
-                    .then(|| {
-                        DbSecret::new(format!(
-                            "zzyzx.{}@helsinki.example",
-                            last_name.to_lowercase()
-                        ))
-                    }),
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
-                linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
-                    .then_some(cx.teacher),
-                link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual).then(
-                    || "Seeded fixture: the address Sisu holds rejects our mail.".to_string(),
-                ),
-                verified_from_course_id: Some(course_id),
-            },
-        )
-        .await?;
-    }
-
-    let completion_id = seed_eligible_completion(conn, &student, course_id, None).await?;
-    let course_module_id =
-        headless_lms_models::course_modules::get_default_by_course_id(conn, course_id)
-            .await?
-            .id;
+    let completion_id =
+        seed_eligible_completion(conn, student, course_module_id, course.course_id, None).await?;
     let id = credit_registrations::insert(
         conn,
-        PKeyPolicy::Fixed(cx.v5(format!("credit-registration:{account_email}").as_bytes())),
+        PKeyPolicy::Fixed(
+            cx.v5(format!("credit-registration:{}:{course_module_id}", student.email).as_bytes()),
+        ),
         &NewCreditRegistration {
             course_module_completion_id: completion_id,
             user_id: student.user_id,
-            course_id,
+            course_id: course.course_id,
             course_module_id,
-            course_instance_id,
+            course_instance_id: course.course_instance_id,
             attempt_number: 1,
         },
         Some("Seeded fixture"),
@@ -918,6 +855,7 @@ async fn seed_import_outcomes_course(
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    student: &SeededStudent,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
@@ -943,25 +881,9 @@ async fn seed_import_outcomes_course(
         course = course.module(module);
     }
     let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
-    let student = seed_spec_student(conn, &cx, &IMPORT_OUTCOMES, course.id, instance.id).await?;
-    for module in headless_lms_models::course_modules::get_by_course_id(conn, course.id).await? {
-        course_module_completions::insert_seed_row(
-            conn,
-            &NewCourseModuleCompletionSeed {
-                course_id: course.id,
-                course_module_id: module.id,
-                user_id: student.user_id,
-                completion_date: Some(Utc::now() - Duration::days(1)),
-                completion_language: Some("en-US".to_string()),
-                eligible_for_ects: Some(true),
-                email: Some(student.email.clone()),
-                grade: None,
-                passed: Some(true),
-                prerequisite_modules_completed: Some(true),
-                needs_to_be_reviewed: Some(false),
-            },
-        )
-        .await?;
+    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    for module in course_modules::get_by_course_id(conn, course.id).await? {
+        seed_eligible_completion(conn, student, module.id, course.id, None).await?;
     }
     Ok(())
 }
@@ -971,13 +893,14 @@ async fn seed_grade_improvement_course(
     app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
+    student: &SeededStudent,
 ) -> Result<()> {
     let cx = SeedContext {
         teacher: teacher_user_id,
         org,
         base_course_ns: GRADE_IMPROVEMENT_COURSE_ID,
     };
-    let (course, instance, _) = CourseBuilder::new(
+    let (course, instance, module) = CourseBuilder::new(
         "Credit registration grade improvement",
         GRADE_IMPROVEMENT_COURSE_SLUG,
     )
@@ -993,54 +916,9 @@ async fn seed_grade_improvement_course(
     )
     .seed(conn, app_config, &cx)
     .await?;
-    let student = seed_spec_student(conn, &cx, &GRADE_IMPROVEMENT, course.id, instance.id).await?;
-    seed_eligible_completion(conn, &student, course.id, Some(3)).await?;
+    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    seed_eligible_completion(conn, student, module.id, course.id, Some(3)).await?;
     Ok(())
-}
-
-/// A user, an enrolment and a verified student number for one spec's actor.
-async fn seed_spec_student(
-    conn: &mut PgConnection,
-    cx: &SeedContext,
-    fixture: &MockPersonFixture,
-    course_id: Uuid,
-    course_instance_id: Uuid,
-) -> Result<SeededStudent> {
-    let student = seed_spec_account(conn, cx, fixture, course_id, course_instance_id).await?;
-    link_student_number(
-        conn,
-        cx,
-        fixture,
-        student.user_id,
-        course_id,
-        StudentNumberVerificationMethod::EmailedLink,
-    )
-    .await?;
-    Ok(student)
-}
-
-/// The same, without a student number: whoever is meant to be discovered and mailed.
-async fn seed_spec_account(
-    conn: &mut PgConnection,
-    cx: &SeedContext,
-    fixture: &MockPersonFixture,
-    course_id: Uuid,
-    course_instance_id: Uuid,
-) -> Result<SeededStudent> {
-    let account_email = fixture
-        .account_email
-        .ok_or_else(|| anyhow::anyhow!("a driven spec actor needs an account"))?;
-    let student = insert_student(
-        conn,
-        cx.v5(account_email.as_bytes()),
-        account_email,
-        fixture.first_names,
-        fixture.last_name,
-    )
-    .await?;
-    course_instance_enrollments::insert(conn, student.user_id, course_id, course_instance_id)
-        .await?;
-    Ok(student)
 }
 
 async fn link_student_number(
@@ -1048,9 +926,9 @@ async fn link_student_number(
     cx: &SeedContext,
     fixture: &MockPersonFixture,
     user_id: Uuid,
-    course_id: Uuid,
     verified_via: StudentNumberVerificationMethod,
 ) -> Result<()> {
+    let is_admin_manual = verified_via == StudentNumberVerificationMethod::AdminManual;
     verified_student_numbers::insert(
         conn,
         PKeyPolicy::Fixed(cx.v5(format!("verified:{}", fixture.student_number).as_bytes())),
@@ -1061,19 +939,21 @@ async fn link_student_number(
             first_names: Some(DbSecret::new(fixture.first_names)),
             last_name: Some(DbSecret::new(fixture.last_name)),
             verified_via,
-            verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
-                .then(|| DbSecret::new(fixture.sisu_email)),
-            verified_via_email_match_field: None,
-            account_email_verified_at: None,
-            linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
-                .then_some(cx.teacher),
-            link_reason: (verified_via == StudentNumberVerificationMethod::AdminManual)
+            verified_via_email: (!is_admin_manual).then(|| DbSecret::new(fixture.sisu_email)),
+            linked_by_user_id: is_admin_manual.then_some(cx.teacher),
+            link_reason: is_admin_manual
                 .then(|| "Seeded fixture: the address Sisu holds rejects our mail.".to_string()),
-            verified_from_course_id: Some(course_id),
+            verified_from_course_id: None,
         },
     )
     .await?;
     Ok(())
+}
+
+async fn default_module_id(conn: &mut PgConnection, course_id: Uuid) -> Result<Uuid> {
+    Ok(course_modules::get_default_by_course_id(conn, course_id)
+        .await?
+        .id)
 }
 
 /// A completion the pipeline will pick up. `prerequisite_modules_completed` is the trap: the builder
@@ -1081,13 +961,10 @@ async fn link_student_number(
 async fn seed_eligible_completion(
     conn: &mut PgConnection,
     student: &SeededStudent,
+    course_module_id: Uuid,
     course_id: Uuid,
     grade: Option<i32>,
 ) -> Result<Uuid> {
-    let course_module_id =
-        headless_lms_models::course_modules::get_default_by_course_id(conn, course_id)
-            .await?
-            .id;
     let completion_id = course_module_completions::insert_seed_row(
         conn,
         &NewCourseModuleCompletionSeed {
@@ -1204,11 +1081,11 @@ async fn seed_linking_tokens(
         PKeyPolicy::Fixed(cx.v5(b"linking-token:conflict")),
         &SeedStudentNumberVerificationToken {
             token: LINKING_TOKEN_CONFLICT.to_string(),
-            student_number: LINKED_STUDENT.student_number.to_string(),
-            sisu_person_id: LINKED_STUDENT.sisu_person_id(),
-            first_names: Some(LINKED_STUDENT.first_names.to_string()),
-            last_name: Some(LINKED_STUDENT.last_name.to_string()),
-            emailed_to: LINKED_STUDENT.sisu_email.to_string(),
+            student_number: STUDENT_6.student_number.to_string(),
+            sisu_person_id: STUDENT_6.sisu_person_id(),
+            first_names: Some(STUDENT_6.first_names.to_string()),
+            last_name: Some(STUDENT_6.last_name.to_string()),
+            emailed_to: STUDENT_6.sisu_email.to_string(),
             course_id: Some(course_id),
             expires_at: now + Duration::days(14),
             used_at: None,
@@ -1219,22 +1096,18 @@ async fn seed_linking_tokens(
     Ok(())
 }
 
-/// A registered grade-3 attempt superseded by a grade-4 one, so the admin-detail and
-/// grade-improvement specs get an attempt chain without driving a regrade first.
+/// A registered grade-3 attempt superseded by a grade-4 one, so the admin-detail and profile specs
+/// get an attempt chain without driving a regrade first.
 async fn seed_superseded_attempt_pair(
     conn: &mut PgConnection,
     student: &SeededStudent,
-    course_id: Uuid,
-    course_instance_id: Uuid,
+    course: SeededCourse,
 ) -> Result<()> {
-    let course_module_id =
-        headless_lms_models::course_modules::get_default_by_course_id(conn, course_id)
-            .await?
-            .id;
+    let course_module_id = default_module_id(conn, course.course_id).await?;
     let completion_id = course_module_completions::insert_seed_row(
         conn,
         &NewCourseModuleCompletionSeed {
-            course_id,
+            course_id: course.course_id,
             course_module_id,
             user_id: student.user_id,
             completion_date: Some(Utc::now() - Duration::days(20)),
@@ -1257,9 +1130,8 @@ async fn seed_superseded_attempt_pair(
         SUPERSEDED_ATTEMPT_1_ID,
         completion_id,
         student.user_id,
-        course_id,
+        course,
         course_module_id,
-        course_instance_id,
         1,
         "3",
     )
@@ -1270,9 +1142,8 @@ async fn seed_superseded_attempt_pair(
         SUPERSEDED_ATTEMPT_2_ID,
         completion_id,
         student.user_id,
-        course_id,
+        course,
         course_module_id,
-        course_instance_id,
         2,
         "4",
     )
@@ -1287,9 +1158,8 @@ async fn insert_registered_attempt(
     id: Uuid,
     course_module_completion_id: Uuid,
     user_id: Uuid,
-    course_id: Uuid,
+    course: SeededCourse,
     course_module_id: Uuid,
-    course_instance_id: Uuid,
     attempt_number: i32,
     grade_id: &str,
 ) -> Result<Uuid> {
@@ -1299,9 +1169,9 @@ async fn insert_registered_attempt(
         &NewCreditRegistration {
             course_module_completion_id,
             user_id,
-            course_id,
+            course_id: course.course_id,
             course_module_id,
-            course_instance_id,
+            course_instance_id: course.course_instance_id,
             attempt_number,
         },
         Some("Seeded fixture"),
@@ -1311,10 +1181,10 @@ async fn insert_registered_attempt(
         conn,
         id,
         &PayloadSnapshot {
-            student_number: DbSecret::new(SUPERSEDED.student_number),
-            sisu_person_id: DbSecret::new(SUPERSEDED.sisu_person_id()),
+            student_number: DbSecret::new(STUDENT_6.student_number),
+            sisu_person_id: Some(DbSecret::new(STUDENT_6.sisu_person_id())),
             uh_course_code: CRS_101.to_string(),
-            selected_enrolment_id: Some(format!("otm-{}-degree", SUPERSEDED.student_number)),
+            selected_enrolment_id: Some(format!("otm-{}-degree", STUDENT_6.student_number)),
             selected_enrolment_kind: Some("degree".to_string()),
             selected_enrolment_realisation_id: Some("hy-opt-cur-900000901".to_string()),
             selected_enrolment_realisation_name: Some(serde_json::json!({

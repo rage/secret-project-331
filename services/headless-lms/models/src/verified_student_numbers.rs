@@ -15,8 +15,10 @@ use crate::prelude::*;
 #[serde(rename_all = "snake_case")]
 pub enum StudentNumberVerificationMethod {
     EmailedLink,
-    EmailMatchFastTrack,
     AdminManual,
+    /// A registrar reported registering one of the account's completions under the number. Such a
+    /// link carries no Sisu person id.
+    StudyRegistry,
 }
 
 #[derive(Debug, Clone)]
@@ -27,20 +29,16 @@ pub struct VerifiedStudentNumber {
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
     pub student_number: DbSecret,
-    pub sisu_person_id: DbSecret,
+    /// `None` only for [`StudentNumberVerificationMethod::StudyRegistry`] links.
+    pub sisu_person_id: Option<DbSecret>,
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
     pub verified_via_email: Option<DbSecret>,
-    pub verified_via_email_match_field: Option<String>,
-    pub account_email_verified_at: Option<DateTime<Utc>>,
     pub linked_by_user_id: Option<Uuid>,
     pub link_reason: Option<String>,
     pub verified_from_course_id: Option<Uuid>,
-    /// Only ever set for [`StudentNumberVerificationMethod::EmailMatchFastTrack`]: the other methods
-    /// have no notice to dismiss, because the student did the linking themselves.
-    pub auto_link_notice_dismissed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
@@ -53,8 +51,6 @@ pub struct NewVerifiedStudentNumber {
     pub verified_via: StudentNumberVerificationMethod,
     /// The Sisu-held address the proof rests on. Must be `None` exactly for `AdminManual`.
     pub verified_via_email: Option<DbSecret>,
-    pub verified_via_email_match_field: Option<String>,
-    pub account_email_verified_at: Option<DateTime<Utc>>,
     pub linked_by_user_id: Option<Uuid>,
     pub link_reason: Option<String>,
     pub verified_from_course_id: Option<Uuid>,
@@ -76,27 +72,11 @@ INSERT INTO verified_student_numbers (
     last_name,
     verified_via,
     verified_via_email,
-    verified_via_email_match_field,
-    account_email_verified_at,
     linked_by_user_id,
     link_reason,
     verified_from_course_id
   )
-VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    $7,
-    $8,
-    $9,
-    $10,
-    $11,
-    $12,
-    $13
-  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id
         "#,
         pkey_policy.into_uuid(),
@@ -107,8 +87,6 @@ RETURNING id
         expose_option(&new.last_name),
         new.verified_via as StudentNumberVerificationMethod,
         expose_option(&new.verified_via_email),
-        new.verified_via_email_match_field,
-        new.account_email_verified_at,
         new.linked_by_user_id,
         new.link_reason,
         new.verified_from_course_id,
@@ -304,7 +282,7 @@ pub struct AdminVerifiedStudentNumber {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub student_number: DbSecret,
-    pub sisu_person_id: DbSecret,
+    pub sisu_person_id: Option<DbSecret>,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
     /// The Sisu-held address the proof rests on, in full. `None` for an admin-established link.
@@ -323,7 +301,7 @@ struct AdminPageRow {
     first_name: Option<String>,
     last_name: Option<String>,
     student_number: DbSecret,
-    sisu_person_id: DbSecret,
+    sisu_person_id: Option<DbSecret>,
     verified_at: DateTime<Utc>,
     verified_via: StudentNumberVerificationMethod,
     verified_via_email: Option<DbSecret>,
@@ -465,26 +443,47 @@ GROUP BY verified_via
         .collect())
 }
 
-/// Puts away the "we linked this for you" notice for one account's live link. Idempotent; a link the
-/// account does not own is left alone, so the caller's ownership check is the only one needed.
+/// Gives a live link that has no Sisu person id yet the one the registry resolved its number to,
+/// along with the registry's names where the link has none.
 ///
-/// Restricted to `email_match_fast_track`, the only method whose links show the notice at all, so the
-/// timestamp cannot end up on a link the student made themselves.
-pub async fn dismiss_auto_link_notice(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
-    sqlx::query!(
+/// Returns `false`, writing nothing, when another live link already holds `sisu_person_id` or the
+/// link was retired or holds a different person meanwhile.
+pub async fn fill_sisu_person_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    sisu_person_id: &DbSecret,
+    first_names: Option<&DbSecret>,
+    last_name: Option<&DbSecret>,
+) -> ModelResult<bool> {
+    let filled = sqlx::query_scalar!(
         r#"
 UPDATE verified_student_numbers
-SET auto_link_notice_dismissed_at = now()
-WHERE user_id = $1
+SET sisu_person_id = $2,
+  first_names = COALESCE(first_names, $3),
+  last_name = COALESCE(last_name, $4)
+WHERE id = $1
   AND deleted_at IS NULL
-  AND auto_link_notice_dismissed_at IS NULL
-  AND verified_via = 'email_match_fast_track'
+  AND (
+    sisu_person_id IS NULL
+    OR sisu_person_id = $2
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM verified_student_numbers other
+    WHERE other.sisu_person_id = $2
+      AND other.deleted_at IS NULL
+      AND other.id <> $1
+  )
+RETURNING id
         "#,
-        user_id
+        id,
+        sisu_person_id.expose_secret(),
+        first_names.map(ExposeSecret::expose_secret),
+        last_name.map(ExposeSecret::expose_secret),
     )
-    .execute(conn)
+    .fetch_optional(conn)
     .await?;
-    Ok(())
+    Ok(filled.is_some())
 }
 
 /// Unlinks by soft-delete; relinking inserts a new row, keeping the old number for audit.
@@ -556,4 +555,83 @@ WHERE vsn.id IS NULL
     .fetch_one(conn)
     .await?;
     Ok(count)
+}
+
+/// Links each of `user_ids` to the student number a registrar last reported for them, as a
+/// [`StudentNumberVerificationMethod::StudyRegistry`] link, and records a conflict wherever a live
+/// link already stands in the way. The existing link always wins; an account whose link was retired
+/// is linked again. Returns how many links were made.
+pub async fn link_numbers_reported_by_study_registry(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+) -> ModelResult<u64> {
+    let linked = sqlx::query!(
+        r#"
+INSERT INTO verified_student_numbers (user_id, student_number, verified_via)
+SELECT DISTINCT ON (reported.student_number) reported.user_id,
+  reported.student_number,
+  'study_registry'
+FROM study_registry_reported_student_numbers reported
+WHERE reported.user_id = ANY($1::uuid [])
+  AND reported.student_number ~ '^[0-9]{6,12}$'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM verified_student_numbers vsn
+    WHERE vsn.user_id = reported.user_id
+      AND vsn.deleted_at IS NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM verified_student_numbers vsn
+    WHERE vsn.student_number = reported.student_number
+      AND vsn.deleted_at IS NULL
+  )
+ORDER BY reported.student_number,
+  reported.user_id
+ON CONFLICT DO NOTHING
+        "#,
+        user_ids,
+    )
+    .execute(&mut *conn)
+    .await?
+    .rows_affected();
+    sqlx::query!(
+        r#"
+INSERT INTO study_registry_student_number_conflicts (
+    user_id,
+    student_number,
+    registered_completion_id,
+    conflicting_verified_student_number_id
+  )
+SELECT reported.user_id,
+  reported.student_number,
+  reported.registered_completion_id,
+  blocker.id
+FROM study_registry_reported_student_numbers reported
+  JOIN LATERAL (
+    SELECT vsn.id
+    FROM verified_student_numbers vsn
+    WHERE vsn.deleted_at IS NULL
+      AND (
+        (
+          vsn.user_id = reported.user_id
+          AND vsn.student_number <> reported.student_number
+        )
+        OR (
+          vsn.user_id <> reported.user_id
+          AND vsn.student_number = reported.student_number
+        )
+      )
+    ORDER BY vsn.user_id = reported.user_id DESC
+    LIMIT 1
+  ) blocker ON TRUE
+WHERE reported.user_id = ANY($1::uuid [])
+  AND reported.student_number ~ '^[0-9]{6,12}$'
+ON CONFLICT DO NOTHING
+        "#,
+        user_ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(linked)
 }

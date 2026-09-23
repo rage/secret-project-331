@@ -16,6 +16,7 @@ use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD_SECS, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
 };
+use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
     self, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
@@ -37,6 +38,7 @@ use super::{
 };
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
+const STUDY_REGISTRY_CONFLICT_LIMIT: i64 = 200;
 
 /// Marks a manual action's study registry call in the call log as something a person set off.
 const RESEND_CALLER: &str = "admin-resend";
@@ -69,11 +71,6 @@ pub struct AccountLinkingFunnel {
     pub suppressed_by_dedup_last_run: i64,
     pub suppressed_by_rate_cap_last_run: i64,
     pub no_address_in_study_registry_last_run: i64,
-    /// The branch that skips the mail entirely: discovered persons linked straight away because the
-    /// study registry holds a verified account address for them. A terminal branch off `discovered`,
-    /// not a stage every person passes through.
-    pub fast_tracked_in_window: i64,
-    pub fast_tracked_last_run: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -114,16 +111,6 @@ pub struct AccountLinkingModuleCounters {
     pub suppressed_by_rate_cap_count: Option<i32>,
     /// Persons the registry holds no address for: the one population no remedy here can reach.
     pub no_address_count: Option<i32>,
-    pub fast_tracked_count: Option<i32>,
-    pub fast_track_skipped_no_account_count: Option<i32>,
-    /// Matched an account that has never proved the address. The population an email-verification
-    /// campaign would convert.
-    pub fast_track_skipped_unverified_count: Option<i32>,
-    pub fast_track_skipped_stale_verification_count: Option<i32>,
-    /// A rise here is the only early warning of a university address reissued to a different person.
-    pub fast_track_skipped_name_mismatch_count: Option<i32>,
-    pub fast_track_skipped_account_has_number_count: Option<i32>,
-    pub fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
 /// One mail attempt: the address it went to and what we can say about its delivery.
@@ -147,6 +134,28 @@ pub struct AccountLinkingStaleAddress {
     pub sends: Vec<AccountLinkingSendOutcome>,
 }
 
+/// A student number the study registry reported for an account that another live link kept us from
+/// linking. The existing link stays until someone acts.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct StudyRegistryStudentNumberConflict {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub user_email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub reported_student_number: String,
+    /// The course whose registration reported the number.
+    pub course_id: Uuid,
+    pub course_name: String,
+    /// The link in the way: the same account's link to another number, or another account's link to
+    /// the reported one.
+    pub conflicting_link_user_id: Uuid,
+    pub conflicting_link_user_email: Option<String>,
+    pub conflicting_link_student_number: String,
+    pub conflicting_link_verified_via: StudentNumberVerificationMethod,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct VerifiedStudentNumberMethodTotal {
     pub verified_via: StudentNumberVerificationMethod,
@@ -155,6 +164,8 @@ pub struct VerifiedStudentNumberMethodTotal {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingStats {
+    /// When false, no linking mails are sent and resends are refused.
+    pub account_linking_enabled: bool,
     pub window_secs: i64,
     pub funnel: AccountLinkingFunnel,
     pub send_status_totals: AccountLinkingSendStatusTotals,
@@ -167,6 +178,8 @@ pub struct AccountLinkingStats {
     pub waiting_for_student_number_count: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
+    /// Newest first, capped.
+    pub study_registry_conflicts: Vec<StudyRegistryStudentNumberConflict>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -261,7 +274,7 @@ pub struct AdminManuallyLinkStudentNumberResult {
 GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
 per-module counters, the send-status totals and the stale-address list.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/account-linking",
@@ -276,6 +289,7 @@ pub async fn get_account_linking_stats(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<AccountLinkingStatsQuery>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<AccountLinkingStats>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
@@ -303,16 +317,6 @@ pub async fn get_account_linking_stats(
             suppressed_by_dedup_count: row.last_suppressed_by_dedup_count,
             suppressed_by_rate_cap_count: row.last_suppressed_by_rate_cap_count,
             no_address_count: row.last_no_address_count,
-            fast_tracked_count: row.last_fast_tracked_count,
-            fast_track_skipped_no_account_count: row.last_fast_track_skipped_no_account_count,
-            fast_track_skipped_unverified_count: row.last_fast_track_skipped_unverified_count,
-            fast_track_skipped_stale_verification_count: row
-                .last_fast_track_skipped_stale_verification_count,
-            fast_track_skipped_name_mismatch_count: row.last_fast_track_skipped_name_mismatch_count,
-            fast_track_skipped_account_has_number_count: row
-                .last_fast_track_skipped_account_has_number_count,
-            fast_track_skipped_unlinked_before_count: row
-                .last_fast_track_skipped_unlinked_before_count,
         })
         .collect::<Vec<_>>();
     let sum = |pick: fn(&AccountLinkingModuleCounters) -> Option<i32>| -> i64 {
@@ -391,11 +395,36 @@ pub async fn get_account_linking_stats(
         suppressed_by_dedup_last_run: sum(|row| row.suppressed_by_dedup_count),
         suppressed_by_rate_cap_last_run: sum(|row| row.suppressed_by_rate_cap_count),
         no_address_in_study_registry_last_run: sum(|row| row.no_address_count),
-        fast_tracked_in_window: in_window(StudentNumberVerificationMethod::EmailMatchFastTrack),
-        fast_tracked_last_run: sum(|row| row.fast_tracked_count),
     };
 
+    let study_registry_conflicts = study_registry_student_number_conflicts::get_unresolved(
+        &mut conn,
+        STUDY_REGISTRY_CONFLICT_LIMIT,
+    )
+    .await?
+    .into_iter()
+    .map(|row| StudyRegistryStudentNumberConflict {
+        id: row.id,
+        created_at: row.created_at,
+        user_id: row.user_id,
+        user_email: row.user_email,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        reported_student_number: row.reported_student_number.expose_secret().to_owned(),
+        course_id: row.course_id,
+        course_name: row.course_name,
+        conflicting_link_user_id: row.conflicting_link_user_id,
+        conflicting_link_user_email: row.conflicting_link_user_email,
+        conflicting_link_student_number: row
+            .conflicting_link_student_number
+            .expose_secret()
+            .to_owned(),
+        conflicting_link_verified_via: row.conflicting_link_verified_via,
+    })
+    .collect();
+
     token.authorized_ok(web::Json(AccountLinkingStats {
+        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
         window_secs,
         funnel,
         send_status_totals,
@@ -407,6 +436,7 @@ pub async fn get_account_linking_stats(
         waiting_for_student_number_count,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
         quiet_period_secs: LINKING_MAIL_QUIET_PERIOD_SECS,
+        study_registry_conflicts,
     }))
 }
 
@@ -439,6 +469,12 @@ pub async fn admin_resend_account_linking_email(
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    if !app_conf.suotar_configuration.account_linking_enabled {
+        return Err(controller_err!(
+            BadRequest,
+            "Account linking is switched off.".to_string()
+        ));
+    }
 
     let enabled_module_ids =
         models::course_modules::get_credit_registration_enabled_ids_for_course(
@@ -758,8 +794,6 @@ pub async fn admin_manually_link_student_number(
                 verified_via: StudentNumberVerificationMethod::AdminManual,
                 // No mailbox was proved, so there is no address the proof could rest on.
                 verified_via_email: None,
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
                 linked_by_user_id: Some(user.id),
                 link_reason: Some(reason.clone()),
                 verified_from_course_id: None,

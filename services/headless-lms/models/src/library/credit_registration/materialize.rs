@@ -1,7 +1,7 @@
 //! Creating ledger rows for completions that are allowed to be registered. It catches up as well as
 //! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
-//! at `pending`, because historical completions belong to students nobody ever asked. Flipping a
-//! module on reaches none made before it — `register_credits_via_suotar` is frozen at creation.
+//! at `pending`, because historical completions belong to students nobody ever asked. Turning a
+//! module on reaches none made before it: `register_credits_via_suotar` is set at creation or by hand.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
@@ -309,6 +309,13 @@ mod tests {
         )
         .await
         .unwrap();
+        crate::course_modules::set_register_eligible_new_completions_via_suotar(
+            conn,
+            course_module.id,
+            true,
+        )
+        .await
+        .unwrap();
     }
 
     async fn add_completion(
@@ -323,6 +330,33 @@ mod tests {
         crate::course_instance_enrollments::insert(conn, user, course, course_instance)
             .await
             .unwrap();
+        // Eligibility for the push path at creation.
+        if crate::verified_student_numbers::get_by_user_id(conn, user)
+            .await
+            .unwrap()
+            .is_none()
+        {
+            let student_number = format!("{:09}", user.as_u128() % 1_000_000_000);
+            crate::verified_student_numbers::insert(
+                conn,
+                PKeyPolicy::Generate,
+                &crate::verified_student_numbers::NewVerifiedStudentNumber {
+                    user_id: user,
+                    sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
+                    student_number: DbSecret::new(student_number),
+                    first_names: None,
+                    last_name: None,
+                    verified_via:
+                        crate::verified_student_numbers::StudentNumberVerificationMethod::EmailedLink,
+                    verified_via_email: Some(DbSecret::new("student@example.com")),
+                    linked_by_user_id: None,
+                    link_reason: None,
+                    verified_from_course_id: None,
+                },
+            )
+            .await
+            .unwrap();
+        }
         crate::course_module_completions::insert(
             conn,
             PKeyPolicy::Generate,

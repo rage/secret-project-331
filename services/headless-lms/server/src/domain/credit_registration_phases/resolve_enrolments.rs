@@ -7,6 +7,9 @@
 //! `import`'s claim query reads the latter, and the row's own claim lock is gone as soon as the
 //! preflight transaction below commits. Landing in a state `import` does not claim keeps a second
 //! tick of `import` from sending a request before the enrolment this one resolves is known.
+//!
+//! Each iteration first looks up the Sisu person for links that lack one; see
+//! [`super::resolve_person_ids`].
 
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, suotar_exchange_details,
@@ -41,6 +44,7 @@ use headless_lms_utils::services::suotar::{
 };
 use sqlx::PgConnection;
 
+use super::resolve_person_ids::ResolvePersonIds;
 use super::{
     OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase, apply_outcome,
     apply_request_level_outcome, counts_as_failed, outcome_transition, row_facts,
@@ -48,7 +52,19 @@ use super::{
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    run_suotar_batch_phase(&mut ResolveEnrolments, ctx, scope).await
+    let persons = run_suotar_batch_phase(&mut ResolvePersonIds, ctx, scope).await?;
+    let enrolments = run_suotar_batch_phase(&mut ResolveEnrolments, ctx, scope).await?;
+    // The first error stands for the iteration.
+    let (first, second) = if persons.error.is_some() {
+        (persons, enrolments)
+    } else {
+        (enrolments, persons)
+    };
+    Ok(PhaseRunOutcome {
+        items_processed: first.items_processed + second.items_processed,
+        items_failed: first.items_failed + second.items_failed,
+        ..first
+    })
 }
 
 struct ResolveEnrolments;
@@ -104,6 +120,10 @@ impl SuotarBatchPhase for ResolveEnrolments {
                 prepared.failed += 1;
                 continue;
             };
+            // Left for the next iteration's person lookup rather than frozen without the person.
+            if context.student_number.is_some() && context.sisu_person_id.is_none() {
+                continue;
+            }
             match preflight(&context) {
                 Ok(item) => {
                     // Moved out of the state this phase reads, so a second tick cannot pick it up
@@ -351,7 +371,7 @@ async fn choose(
         &context.completion,
         PayloadSources {
             student_number: context.student_number.as_ref().unwrap_or(&absent),
-            sisu_person_id: context.sisu_person_id.as_ref().unwrap_or(&absent),
+            sisu_person_id: context.sisu_person_id.as_ref(),
             uh_course_code: context.uh_course_code.as_deref(),
             ects_credits: context.ects_credits,
             enrolment: Some(chosen),

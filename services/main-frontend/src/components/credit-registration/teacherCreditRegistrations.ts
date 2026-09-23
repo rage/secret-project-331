@@ -255,8 +255,8 @@ const indexLiveRegistrations = (rows: CourseCreditRegistration[]): CreditRegistr
 
 const VERIFICATION_METHOD_KEYS = {
   emailed_link: "credit-registration-student-number-via-emailed-link",
-  email_match_fast_track: "credit-registration-student-number-via-email-match",
   admin_manual: "credit-registration-student-number-via-admin-manual",
+  study_registry: "credit-registration-student-number-via-study-registry",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
 export const studentNumberVerificationLabel = (

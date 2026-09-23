@@ -1428,6 +1428,7 @@ export const zUserModuleCompletionStatus = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   passed: z.boolean().nullish(),
   prerequisite_modules_completed: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
 })
 
 export const zUserPointsUpdateStrategy = z.enum([

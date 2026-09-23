@@ -89,7 +89,6 @@ import {
   deviceAuthorizationOauth,
   dismissCourseSuspectedCheater,
   dismissCreditRegistrationEnrolmentBanner,
-  dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
   downloadExerciseAnswerFiles,
   duplicateExam,
@@ -204,6 +203,7 @@ import {
   getCreditRegistrationOverview,
   getCreditRegistrationPipelineHistory,
   getCreditRegistrationReconciliation,
+  getCreditRegistrationSettings,
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
@@ -528,7 +528,6 @@ import type {
   DeviceAuthorizationOauthResponse,
   DismissCourseSuspectedCheaterData,
   DismissCreditRegistrationEnrolmentBannerData,
-  DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
   DownloadExerciseAnswerFilesData,
@@ -748,6 +747,8 @@ import type {
   GetCreditRegistrationPipelineHistoryResponse,
   GetCreditRegistrationReconciliationData,
   GetCreditRegistrationReconciliationResponse,
+  GetCreditRegistrationSettingsData,
+  GetCreditRegistrationSettingsResponse,
   GetCreditRegistrationStatsByCourseData,
   GetCreditRegistrationStatsByCourseResponse,
   GetCreditRegistrationThresholdsData,
@@ -7516,31 +7517,6 @@ export const getMyVerifiedStudentNumberOptions = (
 
 /**
  *
- * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
- * away the notice saying the pipeline linked this student number without asking.
- *
- * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
- */
-export const dismissMyAutoLinkNoticeMutation = (
-  options?: Partial<Options<DismissMyAutoLinkNoticeData>>,
-): UseMutationOptions<unknown, DefaultError, Options<DismissMyAutoLinkNoticeData>> => {
-  const mutationOptions: UseMutationOptions<
-    unknown,
-    DefaultError,
-    Options<DismissMyAutoLinkNoticeData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await dismissMyAutoLinkNotice({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -7594,6 +7570,34 @@ export const requestCreditRegistrationEnrolmentRecheckMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationSettingsQueryKey = (
+  options?: Options<GetCreditRegistrationSettingsData>,
+) => createQueryKey("getCreditRegistrationSettings", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+ * switches.
+ */
+export const getCreditRegistrationSettingsOptions = (
+  options?: Options<GetCreditRegistrationSettingsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationSettingsResponse,
+    DefaultError,
+    GetCreditRegistrationSettingsResponse,
+    ReturnType<typeof getCreditRegistrationSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationSettingsQueryKey(options),
+  })
 
 export const previewStudentNumberVerificationTokenQueryKey = (
   options: Options<PreviewStudentNumberVerificationTokenData>,

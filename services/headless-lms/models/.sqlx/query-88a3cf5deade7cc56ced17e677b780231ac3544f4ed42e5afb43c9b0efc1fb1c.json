@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  cm.enable_registering_completion_to_uh_open_university AS \"old_flow_also_enabled!\",\n  conf.paused_at AS \"paused_at?\",\n  conf.pause_reason AS \"pause_reason?\",\n  conf.config_checked_at AS \"config_checked_at?\",\n  conf.course_code_allowed AS \"course_code_allowed?\",\n  conf.config_check_message AS \"config_check_message?\",\n  conf.last_listed_at AS \"last_listed_at?\",\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.deleted_at IS NULL\n      AND cmc.passed\n      AND cmc.eligible_for_ects\n  ) AS \"eligible_completion_count!\"\nFROM course_modules cm\n  JOIN courses c ON c.id = cm.course_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id\n  AND conf.deleted_at IS NULL\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\nLIMIT $1\n        ",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  c.name AS \"course_name!\",\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  conf.paused_at AS \"paused_at?\",\n  conf.pause_reason AS \"pause_reason?\",\n  conf.config_checked_at AS \"config_checked_at?\",\n  conf.course_code_allowed AS \"course_code_allowed?\",\n  conf.config_check_message AS \"config_check_message?\",\n  conf.last_listed_at AS \"last_listed_at?\",\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.deleted_at IS NULL\n      AND cmc.passed\n      AND cmc.eligible_for_ects\n  ) AS \"eligible_completion_count!\"\nFROM course_modules cm\n  JOIN courses c ON c.id = cm.course_id\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id\n  AND conf.deleted_at IS NULL\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -77,17 +77,6 @@
       },
       {
         "ordinal": 7,
-        "name": "old_flow_also_enabled!",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_registering_completion_to_uh_open_university"
-          }
-        }
-      },
-      {
-        "ordinal": 8,
         "name": "paused_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -98,7 +87,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "pause_reason?",
         "type_info": "Text",
         "origin": {
@@ -109,7 +98,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "config_checked_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -120,7 +109,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "course_code_allowed?",
         "type_info": "Bool",
         "origin": {
@@ -131,7 +120,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 11,
         "name": "config_check_message?",
         "type_info": "Text",
         "origin": {
@@ -142,7 +131,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 12,
         "name": "last_listed_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -153,7 +142,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 13,
         "name": "eligible_completion_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -172,7 +161,6 @@
       true,
       true,
       null,
-      false,
       true,
       true,
       true,
@@ -182,5 +170,5 @@
       null
     ]
   },
-  "hash": "fdb3599e7eab0c5631aa0f5cb149bf45f9b3c3ec19fd6e93ec04f19c7aa3612b"
+  "hash": "88a3cf5deade7cc56ced17e677b780231ac3544f4ed42e5afb43c9b0efc1fb1c"
 }

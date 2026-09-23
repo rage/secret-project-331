@@ -25,7 +25,7 @@ pub struct CourseModuleCompletion {
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
     pub needs_to_be_reviewed: bool,
-    /// Whether the push path owns this completion. See the column comment; decided at insert.
+    /// Whether the push path owns this completion. See the column comment.
     pub register_credits_via_suotar: bool,
 }
 
@@ -98,10 +98,15 @@ VALUES (
     $12,
     -- Decided here rather than by the caller: the flag is what keeps the two registration paths
     -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
-    -- The module alone decides it: a student with no linked number yet is what the registration
-    -- page's first step and the pipeline's student_number precondition are for.
     (
       SELECT cm.enable_credit_registration_via_suotar
+        AND cm.register_eligible_new_completions_via_suotar
+        AND EXISTS (
+          SELECT 1
+          FROM verified_student_numbers vsn
+          WHERE vsn.user_id = $4
+            AND vsn.deleted_at IS NULL
+        )
       FROM course_modules cm
       WHERE cm.id = $3
     )
@@ -165,6 +170,13 @@ pub async fn insert_seed_row(
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
             (
               SELECT cm.enable_credit_registration_via_suotar
+                AND cm.register_eligible_new_completions_via_suotar
+                AND EXISTS (
+                  SELECT 1
+                  FROM verified_student_numbers vsn
+                  WHERE vsn.user_id = $3
+                    AND vsn.deleted_at IS NULL
+                )
               FROM course_modules cm
               WHERE cm.id = $2
             )

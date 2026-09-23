@@ -451,7 +451,7 @@ pub async fn get_credit_registration_for_admin(
             registration.user_id,
         )
         .await?
-        .map(|link| link.sisu_person_id),
+        .and_then(|link| link.sisu_person_id),
     };
     let linking_emails = match sisu_person_id {
         Some(person_id) => {

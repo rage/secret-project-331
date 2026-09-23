@@ -1,10 +1,4 @@
-import {
-  ArrowDownChartDecrease,
-  Layers,
-  Question,
-  Warning,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
+import { ArrowDownChartDecrease, Question, Warning, XmarkCircle } from "@vectopus/atlas-icons-react"
 import type React from "react"
 
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
@@ -13,13 +7,7 @@ import type { BadgeTone } from "@/shared-module/components"
 import { TONE } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 
-export type CourseModuleStatus =
-  | "broken_config"
-  | "config_warning"
-  | "double_registering"
-  | "failing"
-  | "unchecked"
-  | "ok"
+export type CourseModuleStatus = "broken_config" | "config_warning" | "failing" | "unchecked" | "ok"
 
 // A reading aid rather than an alerting rule, so it keeps its own cutoffs rather than reaching for
 // the backend's thresholds. Below the minimum a single failure would read as a course on fire.
@@ -48,9 +36,6 @@ export const courseModuleStatus = (module: CreditRegistrationCourseStats): Cours
     // is a configuration to fix rather than a course whose students are getting nothing.
     return module.success_count === 0 ? "broken_config" : "config_warning"
   }
-  if (module.old_flow_also_enabled) {
-    return "double_registering"
-  }
   if ((failureRatePercent(module) ?? 0) > HIGH_FAILURE_RATE_PERCENT) {
     return "failing"
   }
@@ -63,7 +48,6 @@ export const courseModuleStatus = (module: CreditRegistrationCourseStats): Cours
 const STATUS_KEYS = {
   broken_config: "credit-registration-admin-status-cannot-register",
   config_warning: "credit-registration-admin-status-config-check-failed",
-  double_registering: "credit-registration-admin-old-flow-also-enabled",
   failing: "credit-registration-admin-status-failing",
   unchecked: "credit-registration-admin-status-unchecked",
   ok: "credit-registration-admin-status-ok",
@@ -72,7 +56,6 @@ const STATUS_KEYS = {
 const STATUS_TONES = {
   broken_config: TONE.DANGER,
   config_warning: TONE.WARNING,
-  double_registering: TONE.DANGER,
   failing: TONE.DANGER,
   unchecked: TONE.NEUTRAL,
   ok: TONE.SUCCESS,
@@ -93,7 +76,6 @@ type StatusIcon = React.ComponentType<{ size?: number; className?: string }>
 const STATUS_ICONS = {
   broken_config: XmarkCircle,
   config_warning: Warning,
-  double_registering: Layers,
   failing: ArrowDownChartDecrease,
   unchecked: Question,
   ok: null,

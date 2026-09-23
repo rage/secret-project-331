@@ -74,7 +74,7 @@ export interface ChatbotStateAndData {
 }
 
 type UnwantedKeysForTests = "setIsOpen" | "isOpen" | "convId" | "setConvId"
-export type ChatbotStateAndDataForTests = Omit<ChatbotStateAndData, UnwantedKeysForTests>
+export type ChatbotStateAndDataUnitTests = Omit<ChatbotStateAndData, UnwantedKeysForTests>
 
 /**
  * Queries, state and data for one mounted chatbot.

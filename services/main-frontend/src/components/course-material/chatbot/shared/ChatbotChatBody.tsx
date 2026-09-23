@@ -27,7 +27,6 @@ import ChatbotStatusRow from "./ChatbotStatusRow"
 import type { ClosedClientToolAnswer } from "./clientToolRegistry"
 import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
-import type { ChatbotStateAndDataForTests } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
 import type { MessageClassification } from "./messageClassification"
 import {
@@ -503,27 +502,24 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   )
 }
 
-const ChatbotChatBody: React.FC<Partial<ChatbotStateAndDataForTests>> = (props) => {
+const ChatbotChatBody: React.FC = () => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const { t } = useTranslation()
 
-  const chatbotContext = useChatbotContext()
-
-  const currentConversationInfo =
-    props.currentConversationInfo ?? chatbotContext.currentConversationInfo
-  const newConversationMutation =
-    props.newConversationMutation ?? chatbotContext.newConversationMutation
-  const messageState = props.messageState ?? chatbotContext.messageState
-  const toolResponseMutation = props.toolResponseMutation ?? chatbotContext.toolResponseMutation
-  const newMessage = props.newMessage ?? chatbotContext.newMessage
-  const newMessageMutation = props.newMessageMutation ?? chatbotContext.newMessageMutation
-  const isTurnInFlight = props.isTurnInFlight ?? chatbotContext.isTurnInFlight
-  const error = props.error ?? chatbotContext.error
-  const setNewMessage = props.setNewMessage ?? chatbotContext.setNewMessage
-  const stopTurn = props.stopTurn ?? chatbotContext.stopTurn
-  const chatbotMessageAnnouncement =
-    props.chatbotMessageAnnouncement ?? chatbotContext.chatbotMessageAnnouncement
+  const {
+    currentConversationInfo,
+    newConversationMutation,
+    messageState,
+    toolResponseMutation,
+    newMessage,
+    newMessageMutation,
+    isTurnInFlight,
+    error,
+    setNewMessage,
+    stopTurn,
+    chatbotMessageAnnouncement,
+  } = useChatbotContext()
 
   const citations = useMemo(() => {
     const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()

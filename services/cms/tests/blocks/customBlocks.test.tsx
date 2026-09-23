@@ -17,7 +17,7 @@ const CLIENT_ID = "test-client-id"
 const BLOCK_ID = `block-${CLIENT_ID}`
 const BLOCK_LIST_CLASS = "block-editor-block-list__block"
 
-/** Elements the mocked `useBlockProps` ref was attached to during the current render. */
+/** Elements the mocked `useBlockProps` ref was attached to while rendering the current block. */
 const refTargets: Element[] = []
 
 const stub = (tag: string) => {
@@ -70,11 +70,13 @@ await jest.unstable_mockModule("@wordpress/components", () => ({
   Dropdown: stub("div"),
   MenuGroup: stub("div"),
   MenuItem: stub("div"),
+  Modal: stub("div"),
   Notice: stub("div"),
   PanelBody: stub("div"),
   Path: stub("path"),
   Placeholder: stub("div"),
   Popover: stub("div"),
+  ResizableBox: stub("div"),
   SVG: stub("svg"),
   SelectControl: stub("div"),
   SlotFillProvider: stub("div"),
@@ -82,6 +84,33 @@ await jest.unstable_mockModule("@wordpress/components", () => ({
   ToolbarButton: stub("button"),
   ToolbarDropdownMenu: stub("div"),
   ToolbarGroup: stub("div"),
+}))
+
+// Only the store hooks are stubbed, since no registry is set up here; the rest of the module is left
+// intact for the other @wordpress packages that build on it. `wasBlockJustInserted` is false to keep
+// freshly rendered blocks in their placeholder state rather than auto-opening an editor modal.
+const actualWordPressData = await import("@wordpress/data")
+await jest.unstable_mockModule("@wordpress/data", () => ({
+  ...actualWordPressData,
+  useDispatch: () => ({ toggleSelection: () => undefined }),
+  useSelect: (selector: (select: (store: string) => unknown) => unknown) =>
+    selector(() => ({ wasBlockJustInserted: () => false })),
+}))
+
+// The Vega stack needs `structuredClone` and canvas text measurement, neither of which jsdom has.
+await jest.unstable_mockModule("react-vega", () => ({
+  Vega: stub("div"),
+  VegaLite: stub("div"),
+}))
+
+await jest.unstable_mockModule("vega", () => ({
+  logger: () => ({}),
+  None: 0,
+  parse: () => ({}),
+}))
+
+await jest.unstable_mockModule("vega-lite", () => ({
+  compile: () => ({ spec: {} }),
 }))
 
 // Unlike the other blocks' queries (all gated on a courseId from context, which stays unset here),
@@ -270,8 +299,10 @@ describe("custom block edit components", () => {
   it.each(blockNames)("%s passes the block wrapper ref through", async (name) => {
     await renderBlockEdit(name)
 
-    expect(refTargets).toHaveLength(1)
-    expect(refTargets[0]?.getAttribute("data-block")).toBe(CLIENT_ID)
+    // Distinct elements, not attachments: a block that re-renders on mount re-attaches the ref.
+    const [target, ...rest] = new Set(refTargets)
+    expect(rest).toHaveLength(0)
+    expect(target?.getAttribute("data-block")).toBe(CLIENT_ID)
   })
 })
 

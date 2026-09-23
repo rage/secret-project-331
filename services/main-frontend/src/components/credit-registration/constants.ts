@@ -91,6 +91,14 @@ export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
 /** Where a student can check that credits actually arrived. */
 export const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
 
+/** What Suomi.fi says about identifying with a token issued by another European country. */
+export const SUOMI_FI_EIDAS_URL =
+  "https://www.suomi.fi/instructions-and-support/identification/information-on-identification-tokens-used-in-suomi-fi-e-identification/using-the-identification-tokens-of-other-european-countries-in-finland"
+
+/** What Suomi.fi says about the identification tokens it accepts, of which eIDAS is one. */
+export const SUOMI_FI_IDENTIFICATION_URL =
+  "https://www.suomi.fi/instructions-and-support/identification/information-on-identification-tokens-used-in-suomi-fi-e-identification"
+
 /** `RadioGroup.variant` for a short closed question whose answers read as a choice, not a list. */
 export const SEGMENTED = "segmented" as const
 

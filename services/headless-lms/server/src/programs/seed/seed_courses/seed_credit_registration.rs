@@ -12,6 +12,7 @@ use headless_lms_base::config::{
 use headless_lms_models::{
     PKeyPolicy, course_instance_enrollments,
     course_module_completions::{self, NewCourseModuleCompletionSeed},
+    course_modules,
     credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
     credit_registration_admin_actions::{
         self, COURSE_TEACHER_ROLE, CreditRegistrationAdminAction,
@@ -21,6 +22,7 @@ use headless_lms_models::{
         self, CreditRegistrationErrorCode, CreditRegistrationState, NewCreditRegistration,
         PayloadSnapshot, Transition,
     },
+    open_university_registration_links,
     roles::UserRole,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
@@ -49,6 +51,15 @@ use crate::programs::seed::builder::{
 };
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
+
+/// The certificate detour's own course. Not in `mock_suotar::fixtures` with the others: this one
+/// never reaches Suotar, so the mock registry knows nothing about it.
+pub const CERTIFICATE_DETOUR_COURSE_ID: Uuid =
+    Uuid::from_u128(0xc5ed17ea_0010_4a5e_9e6e_c0de00000010);
+pub const CERTIFICATE_DETOUR_COURSE_SLUG: &str = "credit-registration-certificate-detour";
+pub const CRS_DETOUR_101: &str = "CRS-DETOUR-101";
+pub const CERTIFICATE_DETOUR_STUDENT_EMAIL: &str =
+    "credit-registration-certificate-detour@example.com";
 
 /// A study registry registrar whose key a spec can present, so the legacy pull stream is readable
 /// from a test. Every other registrar's key is random by design.
@@ -156,6 +167,7 @@ pub async fn seed_credit_registration(
             .await?;
 
     seed_old_flow_course(&mut conn, app_config, org, teacher_user_id).await?;
+    seed_certificate_detour_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_import_outcomes_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_grade_improvement_course(&mut conn, app_config, org, teacher_user_id).await?;
     seed_admin_course(&mut conn, app_config, org, teacher_user_id).await?;
@@ -553,6 +565,64 @@ async fn seed_old_flow_course(
     for student in [&still_legacy, &already_cut_over] {
         course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
     }
+    Ok(())
+}
+
+/// Owned by `completion-registration-certificate-detour.spec.ts`: student numbers `9000017xx`.
+///
+/// The one combination that draws the certificate detour on the old registration page: open
+/// university registration and a certificate the student can generate instead. No sample course has
+/// both, and the courses that come closest must keep the plain page they already test.
+async fn seed_certificate_detour_course(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    org: Uuid,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cx = SeedContext {
+        teacher: teacher_user_id,
+        org,
+        base_course_ns: CERTIFICATE_DETOUR_COURSE_ID,
+    };
+
+    let student = insert_student(
+        conn,
+        cx.v5(b"user:certificate-detour"),
+        CERTIFICATE_DETOUR_STUDENT_EMAIL,
+        "Zzyzx",
+        "Certificatedetour",
+    )
+    .await?;
+
+    let (course, instance, module) = CourseBuilder::new(
+        "Credit registration certificate detour",
+        CERTIFICATE_DETOUR_COURSE_SLUG,
+    )
+    .desc("Fixture course whose open university module also offers a certificate.")
+    .course_id(CERTIFICATE_DETOUR_COURSE_ID)
+    .instance(instance_config(cx.v5(b"instance:certificate-detour")))
+    .module(
+        ModuleBuilder::new()
+            .order(0)
+            .ects(5.0)
+            .uh_course_code(CRS_DETOUR_101.to_string())
+            .register_to_open_university(true)
+            .completion(
+                CompletionBuilder::new(student.user_id)
+                    .email(student.email.clone())
+                    .grade(3)
+                    .passed(true)
+                    .prerequisite_modules_completed(true),
+            ),
+    )
+    .certificate_config("svgs/certificate-background.svg", None)
+    .seed(conn, app_config, &cx)
+    .await?;
+
+    course_modules::update_certification_enabled(conn, module.id, true).await?;
+    open_university_registration_links::upsert(conn, CRS_DETOUR_101, "https://www.example.com")
+        .await?;
+    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
     Ok(())
 }
 

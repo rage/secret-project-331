@@ -741,6 +741,8 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyCreditJustificationData,
+  SetMyCreditJustificationResponses,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
@@ -1115,6 +1117,7 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyCreditJustificationResponse,
   zSetMyEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
@@ -5601,6 +5604,29 @@ export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends bool
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
     ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
+ * - Records why the caller needs the credits in the study registry rather than a certificate.
+ *
+ * Advisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on
+ * to make. Asked on the old registration page, so unlike the enrolment answers it is stored for
+ * completions on either path.
+ */
+export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyCreditJustificationData, ThrowOnError>,
+): RequestResult<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyCreditJustificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

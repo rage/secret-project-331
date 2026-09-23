@@ -371,7 +371,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             >
               <Button
                 aria-label={t("button-text-save")}
-                onClick={onSubmit}
+                onClick={() => void onSubmit()}
                 variant={"icon"}
                 size={"small"}
               >

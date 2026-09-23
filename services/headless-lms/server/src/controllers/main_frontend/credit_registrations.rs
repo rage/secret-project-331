@@ -9,6 +9,8 @@ re-derived here.
 use std::collections::HashMap;
 
 use headless_lms_models::{
+    completion_registration_credit_justifications,
+    course_module_completions::CourseModuleCompletion,
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
     credit_registration_enrolment_routes::{
         self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
@@ -54,6 +56,7 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
     set_my_enrolment_route,
     confirm_my_enrolment,
     withdraw_my_enrolment_confirmation,
+    set_my_credit_justification,
     dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
@@ -1017,22 +1020,36 @@ pub struct SetEnrolmentRoutePayload {
     pub route: CreditRegistrationEnrolmentRoute,
 }
 
-/// The caller's completion for a module, which is also the ownership check: the lookup is scoped to
-/// their own user, so a module someone else completed is a not-found rather than a forbidden.
+/// The caller's completion for a module, whichever registration path it is on, which is also the
+/// ownership check: the lookup is scoped to their own user, so a module someone else completed is a
+/// not-found rather than a forbidden.
 ///
-/// A completion the old path owns is a not-found too: these answers only exist for the push path,
-/// and nothing should be stored against a completion that will never ask the question.
-async fn my_completion_for_module(
+/// The latest completion, the same one the registration page itself is drawn from.
+async fn my_latest_completion_for_module(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_module_id: Uuid,
-) -> Result<Uuid, ControllerError> {
+) -> Result<CourseModuleCompletion, ControllerError> {
     let completion = models::course_module_completions::get_latest_by_course_and_user_ids(
         conn,
         course_module_id,
         user_id,
     )
     .await?;
+    Ok(completion)
+}
+
+/// The caller's completion for a module, as [`my_latest_completion_for_module`], but only on the
+/// push path.
+///
+/// A completion the old path owns is a not-found: the enrolment answers only exist for the push
+/// path, and nothing should be stored against a completion that will never ask the question.
+async fn my_completion_for_module(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> Result<Uuid, ControllerError> {
+    let completion = my_latest_completion_for_module(conn, user_id, course_module_id).await?;
     if !completion.register_credits_via_suotar {
         return Err(controller_err!(NotFound, "Not found.".to_string()));
     }
@@ -1277,6 +1294,81 @@ pub async fn withdraw_my_enrolment_confirmation(
     )))
 }
 
+/// What the caller wrote about needing the credits rather than a certificate.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MyCreditJustification {
+    pub course_module_completion_id: Uuid,
+    pub justification: String,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct SetCreditJustificationPayload {
+    pub justification: String,
+}
+
+/// Long enough for the few sentences the question asks for; a bound at all so a scripted client
+/// cannot park a book in the column.
+const CREDIT_JUSTIFICATION_MAX_LENGTH: usize = 4000;
+
+/**
+PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
+- Records why the caller needs the credits in the study registry rather than a certificate.
+
+Advisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on
+to make. Asked on the old registration page, so unlike the enrolment answers it is stored for
+completions on either path.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/my/by-course-module/{course_module_id}/credit-justification",
+    operation_id = "setMyCreditJustification",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    request_body = SetCreditJustificationPayload,
+    responses(
+        (status = 200, description = "The stored answer", body = MyCreditJustification)
+    )
+)]
+pub async fn set_my_credit_justification(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+    payload: web::Json<SetCreditJustificationPayload>,
+) -> ControllerResult<web::Json<MyCreditJustification>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let justification = payload.justification.trim();
+    if justification.is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "Tell us why you need the credits.".to_string()
+        ));
+    }
+    if justification.chars().count() > CREDIT_JUSTIFICATION_MAX_LENGTH {
+        return Err(controller_err!(
+            BadRequest,
+            format!("Keep your answer under {CREDIT_JUSTIFICATION_MAX_LENGTH} characters.")
+        ));
+    }
+    let completion = my_latest_completion_for_module(&mut conn, user.id, *course_module_id).await?;
+    let stored = completion_registration_credit_justifications::upsert(
+        &mut conn,
+        completion.id,
+        user.id,
+        justification,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(MyCreditJustification {
+        course_module_completion_id: stored.course_module_completion_id,
+        justification: stored.justification,
+        updated_at: stored.updated_at,
+    }))
+}
+
 /// Makes the row due for its next enrolment check, unless we looked recently enough that asking
 /// again would tell the student nothing new.
 ///
@@ -1328,6 +1420,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::resource("/my/by-course-module/{course_module_id}/enrolment-route/confirm")
                 .route(web::post().to(confirm_my_enrolment))
                 .route(web::delete().to(withdraw_my_enrolment_confirmation)),
+        )
+        .service(
+            web::resource("/my/by-course-module/{course_module_id}/credit-justification")
+                .route(web::put().to(set_my_credit_justification)),
         )
         .route(
             "/my/enrolment-banners/by-course/{course_id}",

@@ -46,6 +46,11 @@ const segmentedContentCss = css`
   white-space: normal;
 `
 
+/** `RadioGroup`'s `fillWidth`: splits the row evenly instead of each option hugging its own text. */
+const segmentedFillWidthCss = css`
+  flex: 1 1 0;
+`
+
 /** The option's own description and error, which both variants hang under the label. */
 const RadioNotes: React.FC<{
   description: React.ReactNode
@@ -135,6 +140,7 @@ export function GroupedRadio({
             variant: isSelected ? "primary" : "secondary",
           }),
           segmentedOptionCss,
+          group.fillWidth && segmentedFillWidthCss,
           className,
         )}
         data-disabled={String(isRadioDisabled)}

@@ -66,6 +66,20 @@ const triggerPlainCss = css`
   padding: var(--space-2) 0;
 `
 
+/**
+ * Chevron and title as one flex item, so `triggerCss`'s wrap only ever drops `summary` to its own
+ * row. Without this, the pair's own hypothetical (unwrapped) width is what decides whether they fit
+ * next to each other — `min-width: 0` on the title only lets it shrink once it's already on a line,
+ * it can't stop the chevron from being wrapped away from a title too long to fit beside it unwrapped.
+ */
+const titleRowCss = css`
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-width: 0;
+`
+
 const chevronCss = css`
   display: inline-flex;
   flex: none;
@@ -84,6 +98,7 @@ const chevronCss = css`
 const titleWrapCss = css`
   flex: 1 1 auto;
   min-width: 0;
+  font-weight: 600;
 `
 
 const summaryCss = css`
@@ -149,10 +164,12 @@ export const Disclosure: React.FC<DisclosureProps> = ({
         aria-expanded={expanded}
         aria-controls={panelId}
       >
-        <span className={chevronCss} data-expanded={expanded}>
-          <ChevronIcon direction={CHEVRON_DIRECTION} />
+        <span className={titleRowCss}>
+          <span className={chevronCss} data-expanded={expanded}>
+            <ChevronIcon direction={CHEVRON_DIRECTION} />
+          </span>
+          <span className={titleWrapCss}>{title}</span>
         </span>
-        <span className={titleWrapCss}>{title}</span>
         {summary !== undefined ? <span className={summaryCss}>{summary}</span> : null}
       </button>
       <section

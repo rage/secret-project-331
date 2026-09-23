@@ -1,12 +1,14 @@
 import type { APIRequestContext } from "@playwright/test"
 
 import {
+  CRS_101,
   ORIGIN,
   seededStudentStorageState,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
 import { adminResolveStudentNumber } from "@/utils/creditRegistrationAdmin"
+import { activeStudyRightPeriod, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   queuedEmailsFor,
@@ -133,11 +135,23 @@ test("A person the fast track cannot help still gets the linking email", async (
   // The regression that matters most. This account's address is confirmed and recent; the registry
   // simply holds a different one for the person, which is the entire population the linking mail
   // exists for. A fast track that filtered instead of branching would strand them.
+  //
+  // Also enrolled on the open university realisation, so the listing names them twice.
+  await upsertMockSuotarEnrolments(page.request, [
+    {
+      studentNumber: NO_MATCH,
+      courseCode: CRS_101,
+      kind: "openUniversity",
+      state: "ENROLLED",
+      studyRightValidityPeriod: activeStudyRightPeriod(),
+    },
+  ])
   await runDiscoveryAndMailing(page.request)
 
   const resolved = await adminResolveStudentNumber(adminApi, NO_MATCH)
   expect(resolved.already_linked_to_user_id).toBeNull()
-  expect(resolved.linking_emails.length).toBeGreaterThan(0)
+  // One address, so one mail however many realisations list them.
+  expect(resolved.linking_emails).toHaveLength(1)
 })
 
 test("Every auto-link notifies the verified address and can be unlinked in one click", async ({

@@ -2,6 +2,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   myRegistrationOnCourse,
   seededStudentStorageState,
   SUOTAR_COURSE_SLUG,
@@ -18,7 +19,6 @@ import {
   runImportSubmissionTick,
   runMaterializeTick,
   runPreconditionsTick,
-  runProductTokenRefreshTick,
   runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
@@ -134,18 +134,15 @@ test.describe("A student the study registry has no enrolment for", () => {
       "no_usable_enrolment",
     ])
 
-    // Before the mail is composed: the enrolment link is built from the product access token, and a
-    // mail queued ahead of the first refresh would carry the degraded copy instead.
-    await runProductTokenRefreshTick(page.request, { courseSlug: SUOTAR_COURSE_SLUG })
     await runStudentNotificationsTick(page.request, scope)
     const queued = await adminRegistrationDetails(adminApi, parked.id)
     expect(mailsOfKind(queued.notification_emails, "action_needed")).toHaveLength(1)
     expect(mailsOfKind(queued.notification_emails, "registered")).toHaveLength(0)
 
-    // The mail's `ENROLMENT_LINK` placeholder is built by the same helper that fills this field, so
+    // The mail's `ENROLMENT_LINK` placeholder comes from the same module setting as this field, so
     // a link here is a link in the message; a bare "enrol in Sisu" would leave the student stuck.
     const mine = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
-    expect(mine.enrolment_link).not.toBeNull()
+    expect(mine.enrolment_link).toBe(CRS_101_ENROLMENT_LINK)
 
     await runStudentNotificationsTick(page.request, scope)
     const afterSecond = await adminRegistrationDetails(adminApi, parked.id)

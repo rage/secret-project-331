@@ -2,11 +2,7 @@ use std::collections::HashMap;
 
 use utoipa::ToSchema;
 
-use crate::{
-    chapters, course_module_suotar_configurations, course_module_suotar_realisations,
-    error::missing_model_error, library::credit_registration::grade_mapping::grade_scale_family,
-    prelude::*,
-};
+use crate::{chapters, error::missing_model_error, prelude::*};
 
 /// The subset of `course_modules` columns [`CourseModule`] is built from; the credit-registration
 /// ones are read through [`CourseModuleCreditRegistrationConfig`], hence no `SELECT *` here.
@@ -241,7 +237,6 @@ pub struct NewModule {
     completion_registration_link_override: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,
     enable_credit_registration_via_suotar: bool,
-    credit_registration: CourseModuleCreditRegistrationEdit,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -255,7 +250,6 @@ pub struct ModifiedModule {
     completion_registration_link_override: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,
     enable_credit_registration_via_suotar: bool,
-    credit_registration: CourseModuleCreditRegistrationEdit,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -267,38 +261,6 @@ pub struct CourseAuditingModuleUpdate {
     pub ects_credits: Option<f32>,
     pub completion_registration_link_override: Option<String>,
     pub enable_registering_completion_to_uh_open_university: bool,
-}
-
-/// The module editor's writable half of the Suotar configuration. The pause and the
-/// config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseModuleCreditRegistrationEdit {
-    pub open_university_product_id: Option<String>,
-    /// `None` means derive the grade scale from the completion.
-    pub grade_scale_id: Option<String>,
-    /// The full set for the module; anything missing from it is soft-deleted.
-    pub realisations: Vec<CourseModuleSuotarRealisationEdit>,
-}
-
-impl CourseModuleCreditRegistrationEdit {
-    /// Whether the editor sent nothing worth storing. Blank strings count as empty because that is
-    /// what the form submits for an untouched field.
-    pub fn is_empty(&self) -> bool {
-        self.open_university_product_id
-            .as_deref()
-            .and_then(non_empty)
-            .is_none()
-            && self.grade_scale_id.as_deref().and_then(non_empty).is_none()
-            && self.realisations.is_empty()
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseModuleSuotarRealisationEdit {
-    pub course_unit_realisation_id: String,
-    /// Rendered to students as the name of the realisation their credits go against.
-    pub label: Option<String>,
-    pub active: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -326,17 +288,16 @@ pub struct CourseModuleCreditRegistrationConfig {
     pub enable_credit_registration_via_suotar: bool,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
-    /// `None` means derive the grade scale from the completion.
-    pub credit_registration_grade_scale_id: Option<String>,
     pub credit_registration_paused_at: Option<DateTime<Utc>>,
     pub credit_registration_paused_by_user_id: Option<Uuid>,
     pub credit_registration_pause_reason: Option<String>,
     pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
     /// `None` means never checked, which is not the same as a failed check.
-    pub credit_registration_course_code_resolves: Option<bool>,
-    pub credit_registration_product_token_found: Option<bool>,
+    pub credit_registration_course_code_allowed: Option<bool>,
     pub credit_registration_config_check_message: Option<String>,
+    /// Whether `completion_registration_link_override` is set, which is also the enrolment link for
+    /// students without a usable enrolment.
+    pub credit_registration_has_enrolment_link: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1011,15 +972,13 @@ SELECT cm.id AS course_module_id,
   cm.enable_credit_registration_via_suotar,
   cm.uh_course_code,
   cm.ects_credits,
-  c.open_university_product_id AS "open_university_product_id?",
-  c.grade_scale_id AS "credit_registration_grade_scale_id?",
   c.paused_at AS "credit_registration_paused_at?",
   c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
   c.pause_reason AS "credit_registration_pause_reason?",
   c.config_checked_at AS "credit_registration_config_checked_at?",
-  c.course_code_resolves AS "credit_registration_course_code_resolves?",
-  c.product_token_found AS "credit_registration_product_token_found?",
-  c.config_check_message AS "credit_registration_config_check_message?"
+  c.course_code_allowed AS "credit_registration_course_code_allowed?",
+  c.config_check_message AS "credit_registration_config_check_message?",
+  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!"
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
@@ -1273,47 +1232,6 @@ WHERE id = $1
     Ok(())
 }
 
-/// Writes the module's Suotar configuration row and reconciles its realisations. An unknown grade
-/// scale is refused here because otherwise it surfaces as `no_grade_scale_mapping` on every
-/// completion of the module, long after the teacher left the editor.
-pub async fn set_credit_registration_config(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-    edit: &CourseModuleCreditRegistrationEdit,
-) -> ModelResult<()> {
-    let grade_scale_id = edit.grade_scale_id.as_deref().and_then(non_empty);
-    if let Some(scale) = grade_scale_id
-        && grade_scale_family(scale).is_none()
-    {
-        return Err(model_err!(
-            PreconditionFailed,
-            format!("The study registry does not know the grade scale {scale}.")
-        ));
-    }
-    course_module_suotar_configurations::upsert(
-        conn,
-        course_module_id,
-        edit.open_university_product_id
-            .as_deref()
-            .and_then(non_empty),
-        grade_scale_id,
-    )
-    .await?;
-    course_module_suotar_realisations::replace_for_course_module(
-        conn,
-        course_module_id,
-        &edit.realisations,
-    )
-    .await?;
-    Ok(())
-}
-
-/// A blanked text field means "not configured", not the empty string.
-fn non_empty(value: &str) -> Option<&str> {
-    let trimmed = value.trim();
-    (!trimmed.is_empty()).then_some(trimmed)
-}
-
 /// Whether applying `updates` would flip `enable_credit_registration_via_suotar` on any module.
 ///
 /// Only support may put a module on the live study registry path, but the module editor round-trips
@@ -1377,7 +1295,6 @@ pub async fn update_modules(
             completion_registration_link_override,
             enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar,
-            credit_registration,
         } = new;
         // insert with a random order number to avoid conflicts
         let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
@@ -1405,7 +1322,6 @@ pub async fn update_modules(
             enable_registering_completion_to_uh_open_university: module
                 .enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar,
-            credit_registration,
         })
     }
     // update modified and new modules
@@ -1421,7 +1337,6 @@ pub async fn update_modules(
             completion_registration_link_override,
             enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar,
-            credit_registration,
         } = module;
         update(
             &mut tx,
@@ -1437,17 +1352,6 @@ pub async fn update_modules(
                 .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar),
         )
         .await?;
-        // Skipped for a module that is neither enabled nor configured and has nothing stored, so
-        // editing an unrelated module cannot create a configuration row for it — nor undelete one,
-        // since the upsert clears `deleted_at` while keeping a stale `paused_at`. A module that
-        // does have a row still writes, or clearing every field would be discarded rather than
-        // applied: the form submits the same empty payload either way.
-        if enable_credit_registration_via_suotar
-            || !credit_registration.is_empty()
-            || course_module_suotar_configurations::exists(&mut tx, id).await?
-        {
-            set_credit_registration_config(&mut tx, id, &credit_registration).await?;
-        }
     }
     for (chapter, module) in updates.moved_chapters {
         chapters::set_module(&mut tx, chapter, module).await?;
@@ -1547,18 +1451,6 @@ mod tests {
         use crate::test_helper::*;
         use headless_lms_base::error::backend_error::BackendError;
 
-        fn edit() -> CourseModuleCreditRegistrationEdit {
-            CourseModuleCreditRegistrationEdit {
-                open_university_product_id: Some(" hy-opt-cur-1 ".to_string()),
-                grade_scale_id: Some("".to_string()),
-                realisations: vec![CourseModuleSuotarRealisationEdit {
-                    course_unit_realisation_id: "hy-CUR-1".to_string(),
-                    label: Some("Autumn 2026".to_string()),
-                    active: true,
-                }],
-            }
-        }
-
         #[tokio::test]
         async fn a_module_cannot_take_both_registration_paths() {
             insert_data!(:tx, :user, :org, :course);
@@ -1581,95 +1473,6 @@ mod tests {
                 .await
                 .unwrap_err();
             assert_eq!(*inserted.error_type(), ModelErrorType::PreconditionFailed);
-        }
-
-        /// Blanks must land as absences, not empty strings.
-        #[tokio::test]
-        async fn the_editor_fields_land_in_the_configuration_tables() {
-            insert_data!(:tx, :user, :org, :course);
-            let course_module = insert(
-                tx.as_mut(),
-                PKeyPolicy::Generate,
-                &NewCourseModule::new(course, Some("Module".to_string()), 1),
-            )
-            .await
-            .unwrap();
-            update(
-                tx.as_mut(),
-                course_module.id,
-                &NewCourseModule::new(course, course_module.name.clone(), 1)
-                    .set_enable_credit_registration_via_suotar(true),
-            )
-            .await
-            .unwrap();
-            set_credit_registration_config(tx.as_mut(), course_module.id, &edit())
-                .await
-                .unwrap();
-
-            let config = get_credit_registration_config(tx.as_mut(), course_module.id)
-                .await
-                .unwrap();
-            assert!(config.enable_credit_registration_via_suotar);
-            assert_eq!(
-                config.open_university_product_id.as_deref(),
-                Some("hy-opt-cur-1")
-            );
-            assert_eq!(config.credit_registration_grade_scale_id, None);
-            let realisations = course_module_suotar_realisations::get_by_course_module_id(
-                tx.as_mut(),
-                course_module.id,
-            )
-            .await
-            .unwrap();
-            assert_eq!(realisations.len(), 1);
-            assert_eq!(realisations[0].course_unit_realisation_id, "hy-CUR-1");
-            assert_eq!(realisations[0].label.as_deref(), Some("Autumn 2026"));
-        }
-
-        #[tokio::test]
-        async fn removing_a_realisation_deletes_it_and_an_unknown_scale_is_refused() {
-            insert_data!(:tx, :user, :org, :course);
-            let course_module = insert(
-                tx.as_mut(),
-                PKeyPolicy::Generate,
-                &NewCourseModule::new(course, Some("Module".to_string()), 1),
-            )
-            .await
-            .unwrap();
-            set_credit_registration_config(tx.as_mut(), course_module.id, &edit())
-                .await
-                .unwrap();
-            set_credit_registration_config(
-                tx.as_mut(),
-                course_module.id,
-                &CourseModuleCreditRegistrationEdit {
-                    realisations: Vec::new(),
-                    ..edit()
-                },
-            )
-            .await
-            .unwrap();
-            assert!(
-                course_module_suotar_realisations::get_by_course_module_id(
-                    tx.as_mut(),
-                    course_module.id
-                )
-                .await
-                .unwrap()
-                .is_empty()
-            );
-
-            let refused = set_credit_registration_config(
-                tx.as_mut(),
-                course_module.id,
-                &CourseModuleCreditRegistrationEdit {
-                    grade_scale_id: Some("sis-nonsense".to_string()),
-                    ..edit()
-                },
-            )
-            .await
-            .unwrap_err();
-            assert_eq!(*refused.error_type(), ModelErrorType::PreconditionFailed);
         }
     }
 }

@@ -14,6 +14,7 @@ use headless_lms_models::library::credit_registration::materialize::{
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
 
 use super::authorize_credit_registration_admin;
 
@@ -292,7 +293,7 @@ fn to_reconciliation_row(row: AdminCreditRegistration) -> ReconciliationRegistra
         first_name: row.first_name,
         last_name: row.last_name,
         email: row.email,
-        student_number: row.student_number,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
         course_id: row.course_id,
         course_name: row.course_name,
         course_module_id: row.course_module_id,

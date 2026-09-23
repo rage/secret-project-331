@@ -35,8 +35,9 @@ export interface AdminRegistrationRow {
   email: string | null
   state: string
   /** What a `pending` row waits on, derived per request; null in every other state. */
-  pending_reason: "completion" | "student_number" | null
+  pending_reason: "completion" | "student_number" | "course_code" | null
   error_code: string | null
+  needs_admin_attention: boolean
   submit_retry_count: number
   /** Frozen on the row before it was sent, so not always the number the account is linked to now. */
   student_number: string | null
@@ -68,6 +69,8 @@ export interface AdminNotificationEmail {
 export interface AdminRegistrationAttempt {
   id: string
   state: string
+  /** What a `pending` row waits on; `null` in every other state. */
+  pending_reason: "completion" | "student_number" | "course_code" | null
   attempt_number: number
   superseded: boolean
   terminal_at: string | null
@@ -75,13 +78,18 @@ export interface AdminRegistrationAttempt {
   /** Frozen before the attempt was sent, so it is the grade this attempt actually carried. */
   grade_id: string | null
   grade_scale_id: string | null
+  /** The `hy-kur-…` id import answered with, if it answered. */
+  submitted_attainment_id: string | null
+  next_attempt_at: string
+  /** Why the single-row hand transition would refuse to resubmit this row, or `null`. */
+  resubmission_refusal: string | null
 }
 
 export interface AdminRegistrationDetails {
   registration: AdminRegistrationAttempt
   /** Every attempt for the same completion, this one included. */
   attempts: AdminRegistrationAttempt[]
-  events: { details: unknown }[]
+  events: { kind: string; details: unknown; request_item_id: string | null }[]
   suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
   actions: AdminRegistrationAction[]
   notification_emails: AdminNotificationEmail[]
@@ -89,14 +97,14 @@ export interface AdminRegistrationDetails {
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
-export interface AccountLinkingRealisationCounters {
+export interface AccountLinkingModuleCounters {
   course_id: string
   last_listed_at: string | null
   listed_person_count: number | null
 }
 
 export interface AccountLinkingStats {
-  realisations: AccountLinkingRealisationCounters[]
+  modules: AccountLinkingModuleCounters[]
 }
 
 export interface AdminRegistrationFilter {
@@ -231,7 +239,7 @@ export interface AdminCourseModuleStats {
   eligible_completion_count: number
   registration_count: number
   config_checked_at: string | null
-  check: { course_code_resolves: boolean | null; product_token_found: boolean | null }
+  check: { course_code_allowed: boolean | null }
 }
 
 export interface AdminCourseStats {
@@ -279,7 +287,7 @@ export interface SuotarApiCallDetails {
   response_body_sample: unknown
   ledger_references: {
     credit_registration_id: string
-    request_item_id: string
+    request_item_id: string | null
     student_number: string | null
     first_name: string | null
     last_name: string | null
@@ -311,6 +319,8 @@ export const ADMIN_RESOLVE_PERSON_URL = `${CREDIT_REGISTRATION_ADMIN_API}/accoun
 /** The subset of `adminResolveStudentNumberForLinking` the linking specs read. */
 export interface AdminResolvedStudentNumber {
   found: boolean
+  /** Set when the registry answered with an error other than `personNotFound`. */
+  lookup_error_code: string | null
   already_linked_to_user_id: string | null
   already_linked_via: string | null
   linking_emails: { id: string; emailed_to: string }[]

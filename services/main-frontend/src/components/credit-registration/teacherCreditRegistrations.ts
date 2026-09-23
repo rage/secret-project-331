@@ -97,7 +97,7 @@ export const useCourseHasStudyRegistryModules = (courseId: string | null): boole
       build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
     }),
   )
-  return (query.data?.modules ?? []).some((module) => module.enable_credit_registration_via_suotar)
+  return (query.data ?? []).some((module) => module.enable_credit_registration_via_suotar)
 }
 
 /**

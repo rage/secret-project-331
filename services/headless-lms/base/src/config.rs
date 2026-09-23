@@ -191,9 +191,8 @@ impl ApplicationConfiguration {
     }
 }
 
-/// TODO: Suotar has not confirmed whether they want `Basic` or `Bearer`; `Basic` is what they
-/// already accept on the legacy study-registry path.
-pub const SUOTAR_AUTH_SCHEME: &str = "Basic";
+/// The scheme word Suotar requires before the API key.
+pub const SUOTAR_AUTH_SCHEME: &str = "Bearer";
 
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
@@ -206,6 +205,8 @@ const FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT: bool = false;
 /// deprovisioned university address can be reissued to somebody else.
 const FAST_TRACK_MAX_EMAIL_VERIFICATION_AGE_DAYS_DEFAULT: i64 = 365;
 
+/// Where and how to reach Suotar's moocfi API. In production the base url is
+/// `https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/`.
 #[derive(Clone)]
 pub struct SuotarConfiguration {
     /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
@@ -582,7 +583,7 @@ mod tests {
     #[test]
     fn suotar_configuration_normalises_the_join_base() {
         let conf = SuotarConfiguration::from_values(
-            Some("https://suotar.example.com/api".to_string()),
+            Some("https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi".to_string()),
             Some("token".to_string()),
             false,
             365,
@@ -590,14 +591,14 @@ mod tests {
         .expect("valid fixture values");
         assert_eq!(
             conf.api_base_url.as_str(),
-            "https://suotar.example.com/api/"
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/"
         );
         assert_eq!(
             conf.api_base_url
                 .join("persons/resolve-by-student-numbers")
                 .expect("a relative join on a base ending in a slash")
                 .as_str(),
-            "https://suotar.example.com/api/persons/resolve-by-student-numbers"
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/persons/resolve-by-student-numbers"
         );
     }
 

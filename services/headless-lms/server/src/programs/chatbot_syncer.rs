@@ -11,7 +11,9 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::config::program_config::ProgramConfig;
-use crate::programs::periodic_worker::{PeriodicWorkerConfig, run_periodic_worker};
+use crate::programs::periodic_worker::{
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
+};
 use crate::setup_tracing;
 
 use headless_lms_base::config::ApplicationConfiguration;
@@ -72,9 +74,11 @@ pub async fn main() -> anyhow::Result<()> {
     run_periodic_worker(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(SYNC_INTERVAL_SECS),
-            still_running_every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
-            still_running_message: "Still syncing for chatbot.",
-            initial_ticks: 0,
+            still_running: Some(StillRunningLog {
+                every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
+                message: "Still syncing for chatbot.",
+                initial_ticks: 0,
+            }),
             delay_missed_ticks: false,
         },
         async || {

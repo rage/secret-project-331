@@ -26,8 +26,8 @@
                 "resolve_enrolments",
                 "import_attainments",
                 "verify_attainments",
-                "product_access_tokens",
-                "list_by_course"
+                "list_by_course",
+                "validate_course_codes"
               ]
             }
           }
@@ -167,8 +167,8 @@
                 "resolve_enrolments",
                 "import_attainments",
                 "verify_attainments",
-                "product_access_tokens",
-                "list_by_course"
+                "list_by_course",
+                "validate_course_codes"
               ]
             }
           }

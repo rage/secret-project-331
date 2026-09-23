@@ -5,6 +5,7 @@ import {
   courseFrontPageUrl,
   CREDIT_REGISTRATIONS_API,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   getJson,
   type MyCreditRegistration,
   seededStudentStorageState,
@@ -17,7 +18,6 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runMaterializeTick,
   runPreconditionsTick,
-  runProductTokenRefreshTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -48,7 +48,6 @@ const parkOnMissingEnrolment = async (
   userEmail: string,
 ) => {
   const scope = { userEmail }
-  await runProductTokenRefreshTick(page.request, { courseSlug: SUOTAR_COURSE_SLUG })
   await runMaterializeTick(page.request, scope)
   await runPreconditionsTick(page.request, scope)
   await runResolveEnrolmentsTick(page.request, scope)
@@ -80,7 +79,7 @@ test.describe("A student the University has no enrolment for", () => {
     await expect(notice.getByText("Enrolment needed")).toBeVisible()
     await expect(
       notice.getByRole("link", { name: "Enrol at the Open University" }),
-    ).toHaveAttribute("href", /token/)
+    ).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
     await expect(notice.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
 
     await test.step("It is a banner, not a dialog", async () => {

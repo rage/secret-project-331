@@ -47,8 +47,7 @@ impl CreditRegistrationNotificationKind {
     }
 }
 
-/// One row owed a mail, with everything the message renders. `open_university_product_id` is the
-/// module's configured product, from which the action-needed mail's enrolment link is built.
+/// One row owed a mail, with everything the message renders.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StudentNotificationToQueue {
     pub credit_registration_id: Uuid,
@@ -60,7 +59,8 @@ pub struct StudentNotificationToQueue {
     pub course_module_name: Option<String>,
     pub first_name: Option<String>,
     pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
+    /// Where the action-needed mail sends the student to enrol.
+    pub enrolment_link: Option<String>,
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
@@ -82,13 +82,11 @@ SELECT cr.id AS "credit_registration_id!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
   cm.ects_credits AS "ects_credits?",
-  conf.open_university_product_id AS "open_university_product_id?"
+  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND (
     (
@@ -132,7 +130,7 @@ LIMIT $1
             course_module_name: row.course_module_name,
             first_name: row.first_name,
             ects_credits: row.ects_credits,
-            open_university_product_id: row.open_university_product_id,
+            enrolment_link: row.enrolment_link,
         })
         .collect())
 }

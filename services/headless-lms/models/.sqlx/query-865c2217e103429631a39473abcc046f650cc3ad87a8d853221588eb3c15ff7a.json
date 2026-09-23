@@ -134,14 +134,15 @@
                 "enrolment_not_found",
                 "enrolment_not_accepted",
                 "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
                 "course_not_allowed",
                 "invalid_credits",
                 "study_right_not_valid",
-                "acceptor_not_found",
                 "sisu_validation_failed",
                 "sisu_timeout",
-                "sisu_temporarily_unavailable",
+                "service_temporarily_unavailable",
                 "misregistered",
+                "not_registered",
                 "unauthorized",
                 "malformed_request",
                 "transport_error",
@@ -238,6 +239,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "request_item_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "request_item_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -274,6 +286,7 @@
       true,
       false,
       false,
+      true,
       true
     ]
   },

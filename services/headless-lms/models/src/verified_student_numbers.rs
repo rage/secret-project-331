@@ -1,3 +1,5 @@
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::CreditRegistrationEventKind;
@@ -17,20 +19,20 @@ pub enum StudentNumberVerificationMethod {
     AdminManual,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Clone)]
 pub struct VerifiedStudentNumber {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
-    pub student_number: String,
-    pub sisu_person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
-    pub verified_via_email: Option<String>,
+    pub verified_via_email: Option<DbSecret>,
     pub verified_via_email_match_field: Option<String>,
     pub account_email_verified_at: Option<DateTime<Utc>>,
     pub linked_by_user_id: Option<Uuid>,
@@ -41,16 +43,16 @@ pub struct VerifiedStudentNumber {
     pub auto_link_notice_dismissed_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct NewVerifiedStudentNumber {
     pub user_id: Uuid,
-    pub student_number: String,
-    pub sisu_person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
     pub verified_via: StudentNumberVerificationMethod,
     /// The Sisu-held address the proof rests on. Must be `None` exactly for `AdminManual`.
-    pub verified_via_email: Option<String>,
+    pub verified_via_email: Option<DbSecret>,
     pub verified_via_email_match_field: Option<String>,
     pub account_email_verified_at: Option<DateTime<Utc>>,
     pub linked_by_user_id: Option<Uuid>,
@@ -99,12 +101,12 @@ RETURNING id
         "#,
         pkey_policy.into_uuid(),
         new.user_id,
-        new.student_number,
-        new.sisu_person_id,
-        new.first_names,
-        new.last_name,
+        new.student_number.expose_secret(),
+        new.sisu_person_id.expose_secret(),
+        expose_option(&new.first_names),
+        expose_option(&new.last_name),
         new.verified_via as StudentNumberVerificationMethod,
-        new.verified_via_email,
+        expose_option(&new.verified_via_email),
         new.verified_via_email_match_field,
         new.account_email_verified_at,
         new.linked_by_user_id,
@@ -294,19 +296,19 @@ ORDER BY user_id, verified_at DESC
 }
 
 /// One link as an admin support view shows it, with the account it belongs to.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct AdminVerifiedStudentNumber {
     pub id: Uuid,
     pub user_id: Uuid,
     pub user_email: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
     /// The Sisu-held address the proof rests on, in full. `None` for an admin-established link.
-    pub verified_via_email: Option<String>,
+    pub verified_via_email: Option<DbSecret>,
     pub linked_by_user_id: Option<Uuid>,
     pub link_reason: Option<String>,
     pub verified_from_course_id: Option<Uuid>,
@@ -320,11 +322,11 @@ struct AdminPageRow {
     user_email: Option<String>,
     first_name: Option<String>,
     last_name: Option<String>,
-    student_number: String,
-    sisu_person_id: String,
+    student_number: DbSecret,
+    sisu_person_id: DbSecret,
     verified_at: DateTime<Utc>,
     verified_via: StudentNumberVerificationMethod,
-    verified_via_email: Option<String>,
+    verified_via_email: Option<DbSecret>,
     linked_by_user_id: Option<Uuid>,
     link_reason: Option<String>,
     verified_from_course_id: Option<Uuid>,
@@ -521,7 +523,7 @@ pub async fn replace_verified_student_number(
     let verified_student_number_id = insert(conn, PKeyPolicy::Generate, new).await?;
     crate::student_number_verification_tokens::soft_delete_unused_for_student_number(
         conn,
-        &new.student_number,
+        new.student_number.expose_secret(),
     )
     .await?;
     let affected_registration_count =

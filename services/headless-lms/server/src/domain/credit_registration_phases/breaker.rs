@@ -1,4 +1,6 @@
-//! The circuit breaker the study-registry phases share within one worker process.
+//! The circuit breakers the study-registry phases share within one worker process: one every such
+//! phase stops for, and one only the phase that submits to Sisu stops for, since Sisu timing out on
+//! submissions says nothing about the rest of Suotar.
 //!
 //! `BREAKERS` is a process-local static: `credit-registrar` and `suotar-syncer` are separate OS
 //! processes (see `programs/credit_registrar.rs` and `programs/suotar_syncer.rs`), each with its own
@@ -13,6 +15,7 @@ use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
 use super::PhaseScope;
@@ -49,9 +52,25 @@ impl ScopeKey {
     }
 }
 
+/// Which phases one breaker pauses.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum BreakerTarget {
+    /// Every phase that calls the study registry: Suotar itself failing.
+    StudyRegistry,
+    /// Only the phase that submits to Sisu: Suotar answering that Sisu timed out.
+    SisuSubmissions,
+}
+
 /// How long a run of failures that never tripped the breaker is remembered, so a scope never run
-/// again leaves the map. Much longer than a worker tick, so a real outage never loses its count.
-const FAILURE_RUN_MEMORY: Duration = Duration::from_secs(SUOTAR_COOLDOWN_SECS);
+/// again leaves the map. Failures an outage spreads between hour-long timed-out calls must still
+/// add up.
+const FAILURE_RUN_MEMORY: Duration = Duration::from_secs(2 * 60 * 60);
+const _: () = assert!(
+    FAILURE_RUN_MEMORY.as_secs()
+        >= 2 * SuotarEndpoint::ImportAttainments
+            .request_timeout()
+            .as_secs()
+);
 
 #[derive(Debug, Clone)]
 struct BreakerState {
@@ -68,7 +87,9 @@ impl BreakerState {
     }
 }
 
-static BREAKERS: LazyLock<Mutex<HashMap<ScopeKey, BreakerState>>> =
+type BreakerKey = (ScopeKey, BreakerTarget);
+
+static BREAKERS: LazyLock<Mutex<HashMap<BreakerKey, BreakerState>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 pub fn cooldown(test_mode: bool) -> Duration {
@@ -79,11 +100,12 @@ pub fn cooldown(test_mode: bool) -> Duration {
     })
 }
 
-/// Whether the phases that call the study registry should skip this iteration.
-pub fn is_open(key: &ScopeKey) -> bool {
+/// Whether the phases `target` covers should skip this iteration.
+pub fn is_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
+    let key = (scope.clone(), target);
     let now = Instant::now();
     let mut breakers = lock();
-    let Some(state) = breakers.get(key) else {
+    let Some(state) = breakers.get(&key) else {
         return false;
     };
     if state.open_until.is_some_and(|until| now < until) {
@@ -94,7 +116,7 @@ pub fn is_open(key: &ScopeKey) -> bool {
     }
     // Dropped rather than reset in place so an idle scope leaves the map; the fresh entry the next
     // failure creates is the state a reset would have left behind anyway.
-    breakers.remove(key);
+    breakers.remove(&key);
     false
 }
 
@@ -109,10 +131,10 @@ pub struct BreakerSnapshot {
 
 /// Reads a breaker without touching it, for the dashboard. Not [`is_open`], which clears an elapsed
 /// cooldown as a side effect.
-pub fn snapshot(key: &ScopeKey) -> BreakerSnapshot {
+pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
     let breakers = lock();
     let Some(state) = breakers
-        .get(key)
+        .get(&(scope.clone(), target))
         .filter(|state| state.is_live(Instant::now()))
     else {
         return BreakerSnapshot::default();
@@ -127,21 +149,23 @@ pub fn snapshot(key: &ScopeKey) -> BreakerSnapshot {
     }
 }
 
-pub fn record_success(key: &ScopeKey) {
+pub fn record_success(scope: &ScopeKey, target: BreakerTarget) {
     let mut breakers = lock();
-    breakers.remove(key);
+    breakers.remove(&(scope.clone(), target));
 }
 
 /// Returns whether this failure opened the breaker.
-pub fn record_failure(key: &ScopeKey, cooldown: Duration) -> bool {
+pub fn record_failure(scope: &ScopeKey, target: BreakerTarget, cooldown: Duration) -> bool {
     let now = Instant::now();
     let mut breakers = lock();
     breakers.retain(|_, state| state.is_live(now));
-    let state = breakers.entry(key.clone()).or_insert(BreakerState {
-        consecutive_failures: 0,
-        open_until: None,
-        last_failure_at: now,
-    });
+    let state = breakers
+        .entry((scope.clone(), target))
+        .or_insert(BreakerState {
+            consecutive_failures: 0,
+            open_until: None,
+            last_failure_at: now,
+        });
     state.last_failure_at = now;
     state.consecutive_failures = state.consecutive_failures.saturating_add(1);
     if state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES {
@@ -152,11 +176,12 @@ pub fn record_failure(key: &ScopeKey, cooldown: Duration) -> bool {
 }
 
 #[cfg(test)]
-pub fn reset(key: &ScopeKey) {
-    lock().remove(key);
+pub fn reset(scope: &ScopeKey) {
+    let mut breakers = lock();
+    breakers.retain(|(key_scope, _), _| key_scope != scope);
 }
 
-fn lock() -> std::sync::MutexGuard<'static, HashMap<ScopeKey, BreakerState>> {
+fn lock() -> std::sync::MutexGuard<'static, HashMap<BreakerKey, BreakerState>> {
     // The counters are advisory, so recovering a poisoned lock beats taking the worker down.
     BREAKERS
         .lock()
@@ -167,6 +192,8 @@ fn lock() -> std::sync::MutexGuard<'static, HashMap<ScopeKey, BreakerState>> {
 mod tests {
     use super::*;
 
+    const TARGET: BreakerTarget = BreakerTarget::StudyRegistry;
+
     fn key() -> ScopeKey {
         ScopeKey::Course(Uuid::new_v4())
     }
@@ -175,11 +202,11 @@ mod tests {
     fn the_breaker_opens_only_after_the_documented_run_of_failures() {
         let key = key();
         for _ in 1..MAX_CONSECUTIVE_SUOTAR_FAILURES {
-            assert!(!record_failure(&key, cooldown(false)));
-            assert!(!is_open(&key));
+            assert!(!record_failure(&key, TARGET, cooldown(false)));
+            assert!(!is_open(&key, TARGET));
         }
-        assert!(record_failure(&key, cooldown(false)));
-        assert!(is_open(&key));
+        assert!(record_failure(&key, TARGET, cooldown(false)));
+        assert!(is_open(&key, TARGET));
         reset(&key);
     }
 
@@ -187,11 +214,11 @@ mod tests {
     fn one_success_puts_the_run_of_failures_back_to_zero() {
         let key = key();
         for _ in 1..MAX_CONSECUTIVE_SUOTAR_FAILURES {
-            record_failure(&key, cooldown(false));
+            record_failure(&key, TARGET, cooldown(false));
         }
-        record_success(&key);
-        assert!(!record_failure(&key, cooldown(false)));
-        assert!(!is_open(&key));
+        record_success(&key, TARGET);
+        assert!(!record_failure(&key, TARGET, cooldown(false)));
+        assert!(!is_open(&key, TARGET));
         reset(&key);
     }
 
@@ -200,10 +227,10 @@ mod tests {
         let storm = key();
         let bystander = key();
         for _ in 0..MAX_CONSECUTIVE_SUOTAR_FAILURES {
-            record_failure(&storm, cooldown(false));
+            record_failure(&storm, TARGET, cooldown(false));
         }
-        assert!(is_open(&storm));
-        assert!(!is_open(&bystander));
+        assert!(is_open(&storm, TARGET));
+        assert!(!is_open(&bystander, TARGET));
         reset(&storm);
         reset(&bystander);
     }
@@ -245,9 +272,9 @@ mod tests {
     fn a_tripped_breaker_closes_once_its_cooldown_has_elapsed() {
         let key = key();
         for _ in 0..MAX_CONSECUTIVE_SUOTAR_FAILURES {
-            record_failure(&key, Duration::ZERO);
+            record_failure(&key, TARGET, Duration::ZERO);
         }
-        assert!(!is_open(&key));
+        assert!(!is_open(&key, TARGET));
         reset(&key);
     }
 }

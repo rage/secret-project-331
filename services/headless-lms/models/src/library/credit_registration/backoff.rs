@@ -2,6 +2,7 @@
 //! even retryable is [`super::classification`].
 
 use headless_lms_utils::backoff::{exponential_backoff_secs, window_expired};
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
 
@@ -23,14 +24,32 @@ pub const JITTER_MAX_SECS: i64 = 30;
 /// enrolment discovery can wake the row sooner.
 pub const NO_USABLE_ENROLMENT_RECHECK_SECS: i64 = 24 * 60 * 60;
 
-/// How long between the checks that look for an attainment we may or may not have created.
+/// The first wait before looking for an attainment we may or may not have created; it doubles
+/// after every fruitless look.
 pub const UNCERTAIN_RECHECK_SECS: i64 = 15 * 60;
-/// After this many fruitless checks a human is asked to look in Sisu. The row still never resubmits.
-pub const UNCERTAIN_MAX_CHECKS: i32 = 3;
+pub const UNCERTAIN_MAX_RECHECK_SECS: i64 = 6 * 60 * 60;
+/// How long after the submission a human is asked to look in Sisu, well past the hour an
+/// attainment may take to show up. The row still never resubmits.
+pub const UNCERTAIN_ADMIN_AFTER_SECS: i64 = 24 * 60 * 60;
 
-/// A row still `submitting` this long belongs to a worker that died mid-call. Must stay comfortably
-/// longer than the client's request timeout, so a live request is never condemned.
-pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = 120;
+/// How long verify may see only the assessment item attainment before a human looks.
+pub const PARTIAL_REGISTRATION_ADMIN_AFTER_SECS: i64 = 3 * 24 * 60 * 60;
+/// How many times Suotar may lose a submission (`notRegistered`) before a human looks. Each one
+/// still resubmits.
+pub const NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD: i32 = 3;
+
+/// A row still `submitting` this long belongs to a worker that died mid-call. Above the import
+/// timeout, so a live request is never condemned to `submission_uncertain`.
+pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ImportAttainments
+    .request_timeout()
+    .as_secs() as i64
+    + 15 * 60;
+/// A row still `resolving_enrolment` this long belongs to a worker that died mid-call, and goes back
+/// to `ready_to_submit`. Above the resolve timeout, so a live answer still lands.
+pub const RESOLVING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ResolveEnrolments
+    .request_timeout()
+    .as_secs() as i64
+    + 10 * 60;
 
 pub fn submit_backoff_secs(retry_count: i32) -> i64 {
     exponential_backoff_secs(
@@ -49,6 +68,15 @@ pub fn verify_backoff_secs(attempt_count: i32) -> i64 {
     )
 }
 
+/// `lookup_count` counts the look just made, so the wait after the first one is already doubled.
+pub fn uncertain_recheck_secs(lookup_count: i32) -> i64 {
+    exponential_backoff_secs(
+        UNCERTAIN_RECHECK_SECS,
+        UNCERTAIN_MAX_RECHECK_SECS,
+        lookup_count,
+    )
+}
+
 /// Spreads a batch that failed together, so it does not come back as one thundering herd.
 pub fn next_attempt_at(now: DateTime<Utc>, delay_secs: i64) -> DateTime<Utc> {
     headless_lms_utils::backoff::next_attempt_at(now, delay_secs, JITTER_MAX_SECS)
@@ -60,6 +88,10 @@ pub fn submit_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTi
 
 pub fn verify_window_expired(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
     window_expired(submitted_at, now, VERIFY_MAX_AGE_SECS)
+}
+
+pub fn uncertain_needs_admin(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
+    window_expired(submitted_at, now, UNCERTAIN_ADMIN_AFTER_SECS)
 }
 
 #[cfg(test)]

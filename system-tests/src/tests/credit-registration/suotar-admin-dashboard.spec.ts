@@ -8,6 +8,7 @@ import {
 import {
   accountLinkingStats,
   adminAuditLog,
+  adminResolveStudentNumber,
   adminRegistrationDetails,
   adminRegistrationUrl,
   creditRegistrationCourseStats,
@@ -23,7 +24,11 @@ import {
   runPhaseNow,
   suotarApiCall,
 } from "@/utils/creditRegistrationAdmin"
-import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  armMockSuotarFault,
+  disarmMockSuotarFault,
+  transitionMockSuotarSubmissionsFor,
+} from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   CREDIT_REGISTRATION_PHASES,
@@ -120,7 +125,7 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Linking" }).click()
   await expect(page.getByRole("heading", { name: "Recent links" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Per course module" })).toBeVisible()
 })
 
 // A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
@@ -206,7 +211,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
   const scope = { userEmail: ADMIN_LINKED_EMAIL }
   await runPhasesUpToSubmission(page.request, scope)
-  // The mock's default ripeness is `manual`: nothing registers a submission without this.
+  // Only a control transition registers a submission in the mock.
   await transitionMockSuotarSubmissionsFor(
     page.request,
     ADMIN_LINKED_STUDENT_NUMBER,
@@ -547,17 +552,38 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
   })
 })
 
-test("A discovery run writes the per-realisation counters", async ({ page }) => {
+test("A discovery run writes the per-module counters", async ({ page }) => {
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
 
   const counters = await pollUntil(
     async () => {
       const stats = await accountLinkingStats(page.request)
-      const mine = stats.realisations.find((row) => row.course_id === ADMIN_COURSE_ID)
+      const mine = stats.modules.find((row) => row.course_id === ADMIN_COURSE_ID)
       return mine?.last_listed_at ? mine : null
     },
-    { description: "the admin course's realisation to report a listing" },
+    { description: "the admin course's module to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
+})
+
+test("A lookup Suotar answers with an unexpected error reads as an error, not as not found", async ({
+  page,
+  adminApi,
+}) => {
+  const studentNumber = "900000950"
+  const faultId = "admin-dashboard-resolve-person-error"
+  await armMockSuotarFault(page.request, {
+    id: faultId,
+    when: [{ endpoint: "resolve_persons" }, { stage: "resolve" }, { studentNumber }],
+    // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
+    then: { kind: "itemLevel", code: "codeThisClientDoesNotKnow" },
+  })
+  try {
+    const resolved = await adminResolveStudentNumber(adminApi, studentNumber)
+    expect(resolved.found).toBe(false)
+    expect(resolved.lookup_error_code).toBe("codeThisClientDoesNotKnow")
+  } finally {
+    await disarmMockSuotarFault(page.request, faultId)
+  }
 })

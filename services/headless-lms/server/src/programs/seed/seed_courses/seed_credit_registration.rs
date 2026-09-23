@@ -24,6 +24,7 @@ use headless_lms_models::{
     },
     open_university_registration_links,
     roles::UserRole,
+    secret::DbSecret,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
     user_details::{self, EmailVerificationMethod},
@@ -38,8 +39,6 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::controllers::mock_suotar::fixtures::*;
-use crate::controllers::mock_suotar::ids as mock_ids;
-use crate::controllers::mock_suotar::world::RealisationKind;
 use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,
@@ -140,7 +139,7 @@ pub async fn seed_credit_registration(
                     .order(0)
                     .ects(5.0)
                     .uh_course_code(CRS_101.to_string())
-                    .credit_registration(credit_registration_config(CRS_101, true))
+                    .credit_registration(credit_registration_config(CRS_101))
                     // suotar-in-course-banner.spec.ts needs a chapter page it can actually read.
                     .chapter(
                         ChapterBuilder::new(1, "Registering credits")
@@ -161,7 +160,7 @@ pub async fn seed_credit_registration(
                     .name("Second module")
                     .ects(3.0)
                     .uh_course_code(CRS_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_102, false)),
+                    .credit_registration(credit_registration_config(CRS_102)),
             )
             .seed(&mut conn, app_config, &cx)
             .await?;
@@ -255,11 +254,15 @@ pub async fn seed_credit_registration(
     // Linked and completed; the mock's enrolments decide which of them gets stuck where.
     for fixture in [
         &IMPORT_TIMEOUT,
+        &IMPORT_UNANSWERED,
+        &IMPORT_MALFORMED,
+        &IMPORT_BESIDE_MALFORMED,
         &SISU_OUTAGE,
         &NO_ENROLMENT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
+        &VERIFY_NOT_REGISTERED,
         &EMAILS_REGISTERED,
         &EMAILS_NO_ENROLMENT,
         &BANNER_STUCK,
@@ -281,12 +284,12 @@ pub async fn seed_credit_registration(
         PKeyPolicy::Fixed(cx.v5(b"verified-student-number:linked-student")),
         &NewVerifiedStudentNumber {
             user_id: linked_student.user_id,
-            student_number: LINKED_STUDENT.student_number.to_string(),
-            sisu_person_id: LINKED_STUDENT.sisu_person_id(),
-            first_names: Some(LINKED_STUDENT.first_names.to_string()),
-            last_name: Some(LINKED_STUDENT.last_name.to_string()),
+            student_number: DbSecret::new(LINKED_STUDENT.student_number),
+            sisu_person_id: DbSecret::new(LINKED_STUDENT.sisu_person_id()),
+            first_names: Some(DbSecret::new(LINKED_STUDENT.first_names)),
+            last_name: Some(DbSecret::new(LINKED_STUDENT.last_name)),
             verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(LINKED_STUDENT.sisu_email.to_string()),
+            verified_via_email: Some(DbSecret::new(LINKED_STUDENT.sisu_email)),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: None,
@@ -300,12 +303,12 @@ pub async fn seed_credit_registration(
         PKeyPolicy::Fixed(cx.v5(b"verified-student-number:superseded")),
         &NewVerifiedStudentNumber {
             user_id: superseded_student.user_id,
-            student_number: SUPERSEDED.student_number.to_string(),
-            sisu_person_id: SUPERSEDED.sisu_person_id(),
-            first_names: Some(SUPERSEDED.first_names.to_string()),
-            last_name: Some(SUPERSEDED.last_name.to_string()),
+            student_number: DbSecret::new(SUPERSEDED.student_number),
+            sisu_person_id: DbSecret::new(SUPERSEDED.sisu_person_id()),
+            first_names: Some(DbSecret::new(SUPERSEDED.first_names)),
+            last_name: Some(DbSecret::new(SUPERSEDED.last_name)),
             verified_via: StudentNumberVerificationMethod::EmailedLink,
-            verified_via_email: Some(SUPERSEDED.sisu_email.to_string()),
+            verified_via_email: Some(DbSecret::new(SUPERSEDED.sisu_email)),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: None,
@@ -404,12 +407,12 @@ async fn seed_fast_track_near_misses(conn: &mut PgConnection, cx: &SeedContext) 
                 PKeyPolicy::Fixed(cx.v5(b"verified-student-number:fast-track-has-number")),
                 &NewVerifiedStudentNumber {
                     user_id: student.user_id,
-                    student_number: FAST_TRACK_OTHER_NUMBER.to_string(),
-                    sisu_person_id: format!("hy-hlo-{FAST_TRACK_OTHER_NUMBER}"),
-                    first_names: Some(fixture.first_names.to_string()),
-                    last_name: Some(fixture.last_name.to_string()),
+                    student_number: DbSecret::new(FAST_TRACK_OTHER_NUMBER),
+                    sisu_person_id: DbSecret::new(format!("hy-hlo-{FAST_TRACK_OTHER_NUMBER}")),
+                    first_names: Some(DbSecret::new(fixture.first_names)),
+                    last_name: Some(DbSecret::new(fixture.last_name)),
                     verified_via: StudentNumberVerificationMethod::EmailedLink,
-                    verified_via_email: Some(account_email.to_string()),
+                    verified_via_email: Some(DbSecret::new(account_email)),
                     verified_via_email_match_field: None,
                     account_email_verified_at: None,
                     linked_by_user_id: None,
@@ -455,19 +458,13 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Turns the module on and points it at the mock's realisation for the same course code.
-///
-/// `with_product` is per module because `open_university_product_access_tokens` is keyed on the
-/// product id globally: two modules sharing one would let a spec that breaks the token refresh break
-/// another spec's enrolment link.
-fn credit_registration_config(course_code: &str, with_product: bool) -> CreditRegistrationSeed {
+/// Turns the module on with an enrolment link unique to its course code; without one the config
+/// check flags the module.
+fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
-        open_university_product_id: with_product.then(|| product_id(course_code)),
-        grade_scale_id: None,
-        active_realisation_ids: vec![mock_ids::realisation_id(
-            course_code,
-            RealisationKind::Degree,
-        )],
+        enrolment_link: Some(format!(
+            "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}"
+        )),
         paused_reason: None,
     }
 }
@@ -546,7 +543,7 @@ async fn seed_old_flow_course(
                     .name("Cut over to Suotar")
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_OLD_102, false))
+                    .credit_registration(credit_registration_config(CRS_OLD_102))
                     .default_registrar(registrar_id)
                     .completion(
                         CompletionBuilder::new(already_cut_over.user_id)
@@ -651,7 +648,7 @@ async fn seed_admin_course(
                 .order(0)
                 .ects(5.0)
                 .uh_course_code(CRS_ADMIN_101.to_string())
-                .credit_registration(credit_registration_config(CRS_ADMIN_101, true)),
+                .credit_registration(credit_registration_config(CRS_ADMIN_101)),
         )
         .seed(conn, app_config, &cx)
         .await?;
@@ -667,10 +664,10 @@ async fn seed_admin_course(
             let claimed = credit_registration_account_linking_emails::claim_send_slot(
                 conn,
                 &NewAccountLinkingEmail {
-                    student_number: fixture.student_number.to_string(),
-                    sisu_person_id: fixture.sisu_person_id(),
+                    student_number: DbSecret::new(fixture.student_number),
+                    sisu_person_id: DbSecret::new(fixture.sisu_person_id()),
                     course_id: course.id,
-                    emailed_to: address.clone(),
+                    emailed_to: DbSecret::new(address.clone()),
                     student_number_verification_token_id: None,
                     email_delivery_id: None,
                 },
@@ -718,7 +715,7 @@ async fn seed_states_course(
                     "Seeded fixture: these rows are read by the teacher and admin views and must not move."
                         .to_string(),
                 ),
-                ..credit_registration_config(CRS_STATES_101, false)
+                ..credit_registration_config(CRS_STATES_101)
             }),
     )
     .seed(conn, app_config, &cx)
@@ -786,7 +783,7 @@ async fn seed_retry_course(
                         "Seeded fixture: the retry specs read these rows and the workers must not move them."
                             .to_string(),
                     ),
-                    ..credit_registration_config(CRS_RETRY_101, false)
+                    ..credit_registration_config(CRS_RETRY_101)
                 }),
         )
         .seed(conn, app_config, &cx)
@@ -857,13 +854,18 @@ async fn seed_frozen_registration(
             PKeyPolicy::Fixed(cx.v5(format!("verified:{student_number}").as_bytes())),
             &NewVerifiedStudentNumber {
                 user_id: student.user_id,
-                student_number: student_number.clone(),
-                sisu_person_id: format!("hy-hlo-{student_number}"),
-                first_names: Some("Zzyzx".to_string()),
-                last_name: Some(last_name.to_string()),
+                student_number: DbSecret::new(student_number.clone()),
+                sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
+                first_names: Some(DbSecret::new("Zzyzx".to_string())),
+                last_name: Some(DbSecret::new(last_name)),
                 verified_via,
                 verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
-                    .then(|| format!("zzyzx.{}@helsinki.example", last_name.to_lowercase())),
+                    .then(|| {
+                        DbSecret::new(format!(
+                            "zzyzx.{}@helsinki.example",
+                            last_name.to_lowercase()
+                        ))
+                    }),
                 verified_via_email_match_field: None,
                 account_email_verified_at: None,
                 linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
@@ -934,7 +936,7 @@ async fn seed_import_outcomes_course(
             .order(order as i32)
             .ects(5.0)
             .uh_course_code(course_code.to_string())
-            .credit_registration(credit_registration_config(course_code, false));
+            .credit_registration(credit_registration_config(course_code));
         if order > 0 {
             module = module.name(format!("Module {course_code}"));
         }
@@ -987,7 +989,7 @@ async fn seed_grade_improvement_course(
             .order(0)
             .ects(5.0)
             .uh_course_code(CRS_GRADED_101.to_string())
-            .credit_registration(credit_registration_config(CRS_GRADED_101, false)),
+            .credit_registration(credit_registration_config(CRS_GRADED_101)),
     )
     .seed(conn, app_config, &cx)
     .await?;
@@ -1054,13 +1056,13 @@ async fn link_student_number(
         PKeyPolicy::Fixed(cx.v5(format!("verified:{}", fixture.student_number).as_bytes())),
         &NewVerifiedStudentNumber {
             user_id,
-            student_number: fixture.student_number.to_string(),
-            sisu_person_id: fixture.sisu_person_id(),
-            first_names: Some(fixture.first_names.to_string()),
-            last_name: Some(fixture.last_name.to_string()),
+            student_number: DbSecret::new(fixture.student_number),
+            sisu_person_id: DbSecret::new(fixture.sisu_person_id()),
+            first_names: Some(DbSecret::new(fixture.first_names)),
+            last_name: Some(DbSecret::new(fixture.last_name)),
             verified_via,
             verified_via_email: (verified_via != StudentNumberVerificationMethod::AdminManual)
-                .then(|| fixture.sisu_email.to_string()),
+                .then(|| DbSecret::new(fixture.sisu_email)),
             verified_via_email_match_field: None,
             account_email_verified_at: None,
             linked_by_user_id: (verified_via == StudentNumberVerificationMethod::AdminManual)
@@ -1309,12 +1311,17 @@ async fn insert_registered_attempt(
         conn,
         id,
         &PayloadSnapshot {
-            student_number: SUPERSEDED.student_number.to_string(),
-            sisu_person_id: SUPERSEDED.sisu_person_id(),
+            student_number: DbSecret::new(SUPERSEDED.student_number),
+            sisu_person_id: DbSecret::new(SUPERSEDED.sisu_person_id()),
             uh_course_code: CRS_101.to_string(),
             selected_enrolment_id: Some(format!("otm-{}-degree", SUPERSEDED.student_number)),
             selected_enrolment_kind: Some("degree".to_string()),
             selected_enrolment_realisation_id: Some("hy-opt-cur-900000901".to_string()),
+            selected_enrolment_realisation_name: Some(serde_json::json!({
+                "fi": "Rekisteröinnin testitoteutus",
+                "en": "Registration test realisation",
+                "sv": null,
+            })),
             attainment_date: (Utc::now() - Duration::days(20)).date_naive(),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-0-5".to_string(),

@@ -87,6 +87,7 @@ pub async fn retry_credit_registration(
     let refusal = row.state.resubmission_refusal(
         row.superseded_by_id.is_some(),
         ResubmissionStrictness::OnlyFailedPermanent,
+        None,
     );
 
     let mut tx = conn.begin().await?;
@@ -191,6 +192,7 @@ pub async fn retry_failed_credit_registrations_for_course(
         let refusal = row.state.resubmission_refusal(
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::OnlyFailedPermanent,
+            None,
         );
         match refusal {
             Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,

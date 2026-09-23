@@ -15,6 +15,7 @@ use crate::domain::credit_registration::health::{
     CreditRegistrationAlertThresholds, stuck_thresholds, thresholds,
 };
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
 
 use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin};
 
@@ -313,7 +314,7 @@ fn to_attention_item(row: AttentionRegistration) -> CreditRegistrationAttentionI
         error_code: row.error_code,
         attempt_count: row.attempt_count,
         next_attempt_at: row.next_attempt_at,
-        student_number: row.student_number,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
         needs_admin_attention: row.needs_admin_attention,
     }
 }

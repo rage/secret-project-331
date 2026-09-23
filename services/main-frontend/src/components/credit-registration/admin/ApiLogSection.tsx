@@ -58,8 +58,8 @@ const SUOTAR_ENDPOINT_KEYS = {
   resolve_enrolments: true,
   import_attainments: true,
   verify_attainments: true,
-  product_access_tokens: true,
   list_by_course: true,
+  validate_course_codes: true,
 } satisfies Record<SuotarEndpoint, true>
 
 const ENDPOINTS = Object.keys(SUOTAR_ENDPOINT_KEYS) as SuotarEndpoint[]

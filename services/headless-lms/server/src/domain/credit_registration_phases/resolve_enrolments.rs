@@ -13,13 +13,12 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, RequestPurpose,
-    Transition, claim_due, increment_submit_retry_count, request_item_id, set_payload_snapshot,
-    transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
+    claim_due, increment_submit_retry_count, set_payload_snapshot, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
-    EnrolmentCriteria, any_attained_by_person, attainment_for_course_unit, select_enrolment,
+    EnrolmentCriteria, attained_candidates, select_enrolment,
 };
 use headless_lms_models::library::credit_registration::grade_mapping::{
     GradeComparison, GradeSource, compare_grades, map_grade,
@@ -33,10 +32,12 @@ use headless_lms_models::library::credit_registration::payload::{
 use headless_lms_models::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
+use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
-    EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext,
-    SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
+    SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    new_request_item_id,
 };
 use sqlx::PgConnection;
 
@@ -59,8 +60,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
     type Item = ResolveEnrolmentRequestItem;
     type Result = EnrolmentResolutionResult;
 
-    const ALL_TRANSIENT_ERROR: &'static str =
-        "Every item of the batch came back transiently unavailable.";
+    const ALL_UNAVAILABLE_ERROR: &'static str = "Every item of the batch came back unavailable.";
 
     async fn prepare(
         &mut self,
@@ -117,8 +117,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     )
                     .await?;
                     let request = ResolveEnrolmentRequestItem {
-                        request_item_id: request_item_id(&row, RequestPurpose::Submission),
-                        student_number: item.student_number,
+                        request_item_id: new_request_item_id(),
+                        student_number: item.student_number.into(),
                         course_code: item.course_code,
                     };
                     prepared.sendable.push(((row, context), request));
@@ -137,12 +137,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         row
     }
 
-    fn request_item_id((row, _): &Self::Row) -> String {
-        request_item_id(row, RequestPurpose::Submission)
-    }
-
-    fn sent_student_number((_, context): &Self::Row) -> Option<&str> {
-        context.student_number.as_deref()
+    fn sent_student_number((_, context): &Self::Row) -> Option<&DbSecret> {
+        context.student_number.as_ref()
     }
 
     async fn send(
@@ -177,6 +173,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         conn: &mut PgConnection,
         (row, _): &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
         apply_request_level_outcome(
@@ -184,6 +181,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
             SuotarEndpoint::ResolveEnrolments,
             row,
             request,
+            request_item_id,
             error,
             CreditRegistrationState::ResolvingEnrolment,
         )
@@ -258,36 +256,40 @@ async fn choose(
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let details = suotar_exchange_details(event.request, event.response);
-    // Before the enrolment is chosen: if the registry already holds the attainment the credit
+    let credits = context.ects_credits.unwrap_or_default();
+    let attainment_date =
+        headless_lms_utils::helsinki_time::helsinki_date(context.completion.completion_date);
+    let chosen = select_enrolment(
+        enrolments,
+        EnrolmentCriteria {
+            attainment_date,
+            credits,
+        },
+    );
+    // The scale the grade would go out on; all enrolments on one course code share it in practice.
+    let enrolment_grade_scale_id = chosen
+        .ok()
+        .and_then(|enrolment| enrolment.grade_scale_id.as_deref())
+        .or_else(|| {
+            enrolments
+                .iter()
+                .find_map(|enrolment| enrolment.grade_scale_id.as_deref())
+        });
+    // Before the enrolment problems below: if the registry already holds the attainment the credit
     // exists, so sending the student off to re-enrol would be wrong as well as unnecessary.
-    let already_attained = if enrolments.is_empty() {
-        // No enrolment to name the course unit by, but the response was scoped to this student and
-        // course code, so any attained entry of theirs is still a genuine duplicate.
-        any_attained_by_person(
-            existing,
-            context.sisu_person_id.as_deref().unwrap_or_default(),
-        )
-        .map(|attained| (attained, None))
-    } else {
-        enrolments.iter().find_map(|enrolment| {
-            attainment_for_course_unit(
-                existing,
-                &enrolment.course_unit_id,
-                &enrolment.assessment_item_id,
+    let candidates = attained_candidates(existing);
+    // The course unit attainment, when there is one: it is the one `sisu_attainment_id` holds.
+    let blocking_attainment = candidates
+        .iter()
+        .max_by_key(|attainment| {
+            (
+                attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT,
+                attainment.registration_date,
+                attainment.attainment_date,
             )
-            .map(|attained| (attained, Some(enrolment)))
         })
-    };
-    // A grade improvement is the one case where an attainment we already hold is not a reason to
-    // stop: only the registry can say whether the better grade replaces it.
-    let already_attained = already_attained.filter(|(attained, enrolment)| {
-        !improves_on(
-            attained,
-            context,
-            enrolment.map(|enrolment| enrolment.grade_scale_id.as_str()),
-        )
-    });
-    if let Some((attained, _)) = already_attained {
+        .filter(|_| !improves_on_all(&candidates, context, enrolment_grade_scale_id));
+    if let Some(attained) = blocking_attainment {
         headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
             conn,
             row.id,
@@ -301,11 +303,12 @@ async fn choose(
             &Transition {
                 event_kind: CreditRegistrationEventKind::SuotarResponse,
                 event_message: Some(
-                    "The study registry already holds an attainment for this course unit, so \
-                     nothing was submitted."
+                    "The study registry already holds an attainment at least as good for this \
+                     course, so nothing was submitted."
                         .to_string(),
                 ),
                 suotar_api_call_id: event.suotar_api_call_id,
+                request_item_id: event.request_item_id.map(str::to_string),
                 event_details: Some(details),
                 // The row spent the Suotar round trip unlocked, so an admin action may have already
                 // moved it out of `resolving_enrolment`.
@@ -317,18 +320,6 @@ async fn choose(
         return Ok(false);
     }
 
-    let credits = context.ects_credits.unwrap_or_default();
-    let attainment_date = headless_lms_models::library::credit_registration::payload::helsinki_date(
-        context.completion.completion_date,
-    );
-    let chosen = select_enrolment(
-        enrolments,
-        EnrolmentCriteria {
-            attainment_date,
-            credits,
-            configured_realisation_ids: &context.configured_realisation_ids,
-        },
-    );
     let chosen = match chosen {
         Ok(chosen) => chosen,
         Err(reason) => {
@@ -355,14 +346,14 @@ async fn choose(
         }
     };
 
+    let absent = DbSecret::new("");
     let built = build_payload_snapshot(
         &context.completion,
         PayloadSources {
-            student_number: context.student_number.as_deref().unwrap_or_default(),
-            sisu_person_id: context.sisu_person_id.as_deref().unwrap_or_default(),
+            student_number: context.student_number.as_ref().unwrap_or(&absent),
+            sisu_person_id: context.sisu_person_id.as_ref().unwrap_or(&absent),
             uh_course_code: context.uh_course_code.as_deref(),
             ects_credits: context.ects_credits,
-            configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
             enrolment: Some(chosen),
         },
     );
@@ -396,6 +387,7 @@ async fn choose(
             event_kind: CreditRegistrationEventKind::SuotarResponse,
             event_message: clamped,
             suotar_api_call_id: event.suotar_api_call_id,
+            request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(details),
             expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
             ..Transition::to(CreditRegistrationState::CheckingEnrolment)
@@ -405,30 +397,36 @@ async fn choose(
     Ok(false)
 }
 
-/// Whether the grade we would send beats the one the registry already holds for this course unit.
+/// Whether the grade we would send beats every attainment the registry already holds for the
+/// course, which is what Suotar requires of an improvement.
 ///
-/// Anything else — equal, worse, or a grade on a scale that does not rank against the held one —
-/// is false, so the duplicate guard stands and no second attainment can reach a transcript on a
-/// guess.
-fn improves_on(
-    attained: &headless_lms_utils::services::suotar::ExistingAttainment,
+/// Stricter than Suotar where the two differ: an equal grade never submits (Suotar would let a
+/// later date or more credits through), and neither does a grade on a scale that does not rank
+/// against a held one, or a held attainment missing its grade.
+fn improves_on_all(
+    candidates: &[&headless_lms_utils::services::suotar::ExistingAttainment],
     context: &SubmissionContext,
     enrolment_grade_scale_id: Option<&str>,
 ) -> bool {
     map_grade(GradeSource {
         passed: context.completion.passed,
         grade: context.completion.grade,
-        configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
         enrolment_grade_scale_id,
     })
     .is_ok_and(|mapped| {
-        compare_grades(&attained.grade_scale_id, &attained.grade_id, &mapped)
-            == GradeComparison::Better
+        candidates.iter().all(|attained| {
+            let (Some(grade_scale_id), Some(grade_id)) =
+                (&attained.grade_scale_id, &attained.grade_id)
+            else {
+                return false;
+            };
+            compare_grades(grade_scale_id, grade_id, &mapped) == GradeComparison::Better
+        })
     })
 }
 
 struct ResolveRequest {
-    student_number: String,
+    student_number: DbSecret,
     course_code: String,
 }
 
@@ -467,8 +465,10 @@ fn preflight(context: &SubmissionContext) -> Result<ResolveRequest, Preflight> {
         .ok_or(Preflight::NoStudentNumber)?;
     let course_code = context
         .uh_course_code
-        .clone()
-        .filter(|code| !code.trim().is_empty())
+        .as_deref()
+        .map(str::trim)
+        .filter(|code| !code.is_empty())
+        .map(str::to_string)
         .ok_or(Preflight::Config(
             CreditRegistrationErrorCode::MissingUhCourseCode,
         ))?;

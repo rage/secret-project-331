@@ -4,7 +4,7 @@
 
 use std::env;
 
-use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 
 use crate::config::program_config::ProgramConfig;
 use crate::domain::credit_registration_phases::worker_loop;
@@ -37,7 +37,11 @@ pub async fn run_credit_registration_worker(
     let db_url = ProgramConfig::database_url_with_default();
     // Fails at boot without credentials, so a misconfigured deploy is loud instead of silently idle.
     let app_configuration = ApplicationConfiguration::try_from_env()?;
-    let db_pool = PgPool::connect(&db_url).await?;
+    // Every phase loop and its heartbeat keeper may hold a connection at once.
+    let db_pool = PgPoolOptions::new()
+        .max_connections(20)
+        .connect(&db_url)
+        .await?;
 
     info!("{start_message}");
     worker_loop::run(

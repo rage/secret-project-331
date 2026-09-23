@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COALESCE(\n    SUM(conf.last_fast_track_skipped_name_mismatch_count),\n    0\n  ) AS \"count!\"\nFROM course_module_suotar_configurations conf\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id\nWHERE conf.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "0ca6af7e1d7240c679432e872fa2090e2ac226533307af3e26f6e373d85ef20c"
+}

@@ -4,28 +4,23 @@ import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
 import type { Path } from "react-hook-form"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
-  ABSENT,
   CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   TONE,
 } from "@/components/credit-registration/constants"
-import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
-import { labelFrom, translateKey } from "@/components/credit-registration/labelFrom"
+import { translateKey } from "@/components/credit-registration/labelFrom"
 import {
   cardCss,
-  dividedListCss,
   headingCss,
-  monospaceCss,
   noteCss,
   subheadingCss,
-  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -33,7 +28,6 @@ import {
   Badge,
   Button,
   Checkbox,
-  DescriptionList,
   NumberField,
   Radio,
   RadioGroup,
@@ -43,13 +37,7 @@ import {
 
 import type { ModuleView } from "./CourseModules"
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
-import {
-  DERIVED_GRADE_SCALE,
-  EMPTY_CREDIT_REGISTRATION_FIELDS,
-  EMPTY_REALISATION,
-  NUMERIC_GRADE_SCALE_ID,
-  PASS_FAIL_GRADE_SCALE_ID,
-} from "./creditRegistrationModuleFields"
+import { EMPTY_CREDIT_REGISTRATION_FIELDS } from "./creditRegistrationModuleFields"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -108,9 +96,8 @@ const NO_MINIMUM_LENGTH = 0
 
 const VALIDATE_ON_COMMIT = "validate" as const
 
-/** Realisation ids are validated as they are typed, so a bad one is caught before the save. */
+/** Flags what the Sisu path requires as the teacher edits, rather than only on save. */
 const VALIDATE_ON_CHANGE = "onChange" as const
-const REALISATIONS_FIELD = "credit_registration.realisations" as const
 
 interface CourseModuleFormState extends Omit<
   CourseModuleFormFields,
@@ -160,23 +147,8 @@ const fieldRowCss = css`
   }
 `
 
-const realisationRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: start;
-  gap: var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-clear-300);
-`
-
 const deleteButtonCss = css`
   color: var(--color-red-600);
-`
-
-const supportReferenceCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
 `
 
 const actionsCss = css`
@@ -215,24 +187,6 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   credit_registration: module.credit_registration,
 })
 
-const GRADE_SCALE_IDS = [DERIVED_GRADE_SCALE, PASS_FAIL_GRADE_SCALE_ID, NUMERIC_GRADE_SCALE_ID]
-
-const GRADE_SCALE_LABEL_KEYS = {
-  [DERIVED_GRADE_SCALE]: "grade-scale-derive-from-completion",
-  [PASS_FAIL_GRADE_SCALE_ID]: "grade-scale-pass-fail",
-  [NUMERIC_GRADE_SCALE_ID]: "grade-scale-numeric",
-} as const
-
-const gradeScaleLabel = (t: CreditRegistrationTFunction, gradeScaleId: string): string =>
-  labelFrom(t, GRADE_SCALE_LABEL_KEYS, gradeScaleId, GRADE_SCALE_LABEL_KEYS[DERIVED_GRADE_SCALE])
-
-/** The grade scale as a fact about the module rather than as the select's option label. */
-const GRADE_SCALE_SUMMARY_KEYS = {
-  [DERIVED_GRADE_SCALE]: "module-summary-grade-same-as-course",
-  [PASS_FAIL_GRADE_SCALE_ID]: "module-summary-grade-pass-fail",
-  [NUMERIC_GRADE_SCALE_ID]: "module-summary-grade-numeric",
-} as const
-
 const REGISTRATION_PATH_BADGE_KEYS = {
   [NO_REGISTRATION]: "badge-no-completion-registration",
   [OPEN_UNIVERSITY]: "badge-registers-to-open-university",
@@ -250,68 +204,13 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   if (module.ects_credits !== null) {
     parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
-  if (path === STUDY_REGISTRY) {
-    parts.push(
-      labelFrom(
-        t,
-        GRADE_SCALE_SUMMARY_KEYS,
-        module.credit_registration.grade_scale_id,
-        GRADE_SCALE_SUMMARY_KEYS[DERIVED_GRADE_SCALE],
-      ),
-      t("module-summary-sisu-course-instances", {
-        count: module.credit_registration.realisations.length,
-      }),
-    )
+  if (path === STUDY_REGISTRY && !module.completion_registration_link_override?.trim()) {
+    parts.push(t("module-summary-no-enrolment-link"))
   }
   if (parts.length === 0) {
     return null
   }
   return <p className={noteCss}>{parts.join(MIDDLE_DOT)}</p>
-}
-
-/** The saved Sisu configuration as a teacher reads it: quotable, not editable. */
-const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }> = ({
-  fields,
-}) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <div className={subsectionCss}>
-      <DescriptionList
-        items={[
-          {
-            label: t("label-credit-registration-grade-scale"),
-            value: gradeScaleLabel(t, fields.grade_scale_id),
-          },
-          {
-            label: t("label-credit-registration-support-reference-product"),
-            value: (
-              <span className={monospaceCss}>{fields.open_university_product_id || ABSENT}</span>
-            ),
-          },
-        ]}
-      />
-      <h2 className={subheadingCss}>{t("heading-credit-registration-sisu-course-instances")}</h2>
-      {fields.realisations.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-no-sisu-course-instances")}</p>
-      ) : (
-        <ul className={dividedListCss}>
-          {fields.realisations.map((realisation) => (
-            <li key={realisation.course_unit_realisation_id}>
-              <div>
-                {realisation.label || t("credit-registration-sisu-course-instance-unnamed")}
-                {!realisation.active &&
-                  `${MIDDLE_DOT}${t("credit-registration-realisation-inactive")}`}
-              </div>
-              <div className={cx(noteCss, supportReferenceCss)}>
-                <span>{t("label-credit-registration-support-reference-course-instance")}</span>
-                <span className={monospaceCss}>{realisation.course_unit_realisation_id}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
 }
 
 /**
@@ -349,11 +248,6 @@ const CourseModuleForm: React.FC<Props> = ({
   useEffect(() => {
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
-  const realisations = useFieldArray({
-    control,
-    name: REALISATIONS_FIELD,
-  })
-
   const registrationPath = watch("registration_path")
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
@@ -405,7 +299,7 @@ const CourseModuleForm: React.FC<Props> = ({
   const courseCodeFoundInSisu =
     showsStudyRegistryOption &&
     module.uh_course_code !== null &&
-    creditRegistrationConfig?.credit_registration_course_code_resolves === true
+    creditRegistrationConfig?.credit_registration_course_code_allowed === true
   const nameIsEditable = isCreate || module.name !== null
 
   const configCallout = (
@@ -613,78 +507,6 @@ const CourseModuleForm: React.FC<Props> = ({
               )}
             </RadioGroup>
 
-            {registrationPath === STUDY_REGISTRY &&
-              (canConfigureStudyRegistry ? (
-                <>
-                  <TextField
-                    name="credit_registration.open_university_product_id"
-                    control={control}
-                    label={t("label-open-university-product-id")}
-                    description={t("description-open-university-product-id")}
-                  />
-                  <Select
-                    name="credit_registration.grade_scale_id"
-                    control={control}
-                    label={t("label-credit-registration-grade-scale")}
-                    description={t("description-credit-registration-grade-scale")}
-                    options={GRADE_SCALE_IDS.map((value) => ({
-                      value,
-                      label: gradeScaleLabel(t, value),
-                    }))}
-                  />
-                  <fieldset className={groupCss}>
-                    <legend className={subheadingCss}>
-                      {t("heading-credit-registration-realisations")}
-                    </legend>
-                    <p className={noteCss}>{t("hint-credit-registration-realisations")}</p>
-                    {realisations.fields.length === 0 ? (
-                      <p className={noteCss}>{t("credit-registration-no-realisations")}</p>
-                    ) : (
-                      <div className={subsectionCss}>
-                        {realisations.fields.map((field, index) => (
-                          <div className={realisationRowCss} key={field.id}>
-                            <TextField
-                              name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
-                              control={control}
-                              label={t("label-course-unit-realisation-id")}
-                              rules={{ required: t("required-field") }}
-                            />
-                            <TextField
-                              name={`credit_registration.realisations.${index}.label`}
-                              control={control}
-                              label={t("label-realisation-name-shown-to-students")}
-                            />
-                            <Checkbox
-                              name={`credit_registration.realisations.${index}.active`}
-                              control={control}
-                              label={t("label-realisation-active")}
-                            />
-                            <Button
-                              variant="secondary"
-                              size="small"
-                              onPress={() => realisations.remove(index)}
-                            >
-                              {t("button-text-remove")}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onPress={() => realisations.append(EMPTY_REALISATION)}
-                      >
-                        {t("button-text-add-realisation")}
-                      </Button>
-                    </div>
-                  </fieldset>
-                </>
-              ) : (
-                <StudyRegistryReadOnly fields={module.credit_registration} />
-              ))}
-
             <Checkbox
               name="override_completion_link"
               control={control}
@@ -694,6 +516,11 @@ const CourseModuleForm: React.FC<Props> = ({
               name="completion_registration_link_override"
               control={control}
               label={t("completion-registration-link")}
+              description={
+                registersToStudyRegistry
+                  ? t("description-completion-registration-link-study-registry")
+                  : undefined
+              }
               isDisabled={!overrideLink}
               // The field stays mounted while the override is off, so its rule has to go with it —
               // spelled out as no minimum rather than left out, which would keep the rule it had.

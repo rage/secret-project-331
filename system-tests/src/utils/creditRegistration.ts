@@ -3,7 +3,7 @@
  *
  * `credit-registrar` and `suotar-syncer` tick every phase unscoped in the test deployment, so a row
  * moves without any spec asking: assert "reaches state X", never "is still in state Y" unless only
- * this spec can leave Y (nothing ripens a mock submission on its own).
+ * this spec can leave Y (only a control transition moves a mock submission).
  *
  * Isolation is data partitioning — one database, N workers, nothing resets between tests. Never
  * assert a global count. Reading another file's rows is fine; writing to a range you do not own
@@ -74,6 +74,11 @@ export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
 /** University course codes: what the mock Suotar keys its world on. */
 export const CRS_101 = "CRS-101"
 export const CRS_ADMIN_101 = "CRS-ADMIN-101"
+export const CRS_STATES_101 = "CRS-STATES-101"
+/** The completion registration link override the seed gives the module with this course code. */
+export const seededEnrolmentLink = (courseCode: string): string =>
+  `https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-${courseCode}`
+export const CRS_101_ENROLMENT_LINK = seededEnrolmentLink(CRS_101)
 /** The one seeded module on a graded scale rather than pass/fail. */
 export const CRS_GRADED_101 = "CRS-GRADED-101"
 
@@ -109,6 +114,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-grade-improvement@example.com",
   "credit-registration-import-outcomes@example.com",
   "credit-registration-import-timeout@example.com",
+  "credit-registration-import-unanswered@example.com",
   "credit-registration-link-claimer@example.com",
   "credit-registration-linked-student@example.com",
   "credit-registration-no-enrolment@example.com",
@@ -118,6 +124,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-two-enrolments@example.com",
   "credit-registration-verified-email@example.com",
   "credit-registration-verify-misregistered@example.com",
+  "credit-registration-verify-not-registered@example.com",
   "credit-registration-verify-polling@example.com",
 ] as const
 
@@ -150,6 +157,8 @@ export interface MyCreditRegistration {
   registered_at: string | null
   sisu_attainment_id: string | null
   enrolment_link: string | null
+  /** The chosen enrolment's realisation name in Finnish, else English, else Swedish. */
+  enrolment_realisation_name: string | null
 }
 
 export interface MyCreditRegistrationWithState extends MyCreditRegistration {

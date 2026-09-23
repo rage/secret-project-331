@@ -20,6 +20,8 @@ pub mod store;
 pub mod wire;
 pub mod world;
 
+use actix_web::{Resource, Scope};
+
 use crate::prelude::*;
 
 /// The route cannot be reached with the flags off, so tripping this means the gate itself broke.
@@ -27,30 +29,38 @@ pub fn assert_enabled(app_conf: &ApplicationConfiguration) {
     assert!(app_conf.test_mode && app_conf.test_suotar);
 }
 
-pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/persons/resolve-by-student-numbers",
-        web::post().to(api::resolve_persons),
-    )
-    .route(
-        "/enrolments/resolve",
-        web::post().to(api::resolve_enrolments),
-    )
-    .route(
-        "/enrolments/list-by-course",
-        web::post().to(api::list_by_course),
-    )
-    .route(
-        "/attainments/import",
-        web::post().to(api::import_attainments),
-    )
-    .route(
-        "/attainments/verify",
-        web::post().to(api::verify_attainments),
-    )
-    .route(
-        "/open-university-product-access-tokens/resolve",
-        web::post().to(api::resolve_product_access_tokens),
-    )
-    .service(web::scope("/control").configure(control::_add_routes));
+/// The mock's whole scope. Unmatched paths and methods fall through the way Suotar's router does,
+/// which is why the contract routes are resources with their own fallback.
+pub fn scope() -> Scope {
+    web::scope("/mock-suotar")
+        .service(
+            web::scope("/control")
+                .configure(control::_add_routes)
+                .default_service(web::to(HttpResponse::NotFound)),
+        )
+        .service(
+            contract_route("/persons/resolve-by-student-numbers")
+                .route(web::post().to(api::resolve_persons)),
+        )
+        .service(
+            contract_route("/enrolments/resolve").route(web::post().to(api::resolve_enrolments)),
+        )
+        .service(
+            contract_route("/enrolments/list-by-course").route(web::post().to(api::list_by_course)),
+        )
+        .service(
+            contract_route("/attainments/import").route(web::post().to(api::import_attainments)),
+        )
+        .service(
+            contract_route("/attainments/verify").route(web::post().to(api::verify_attainments)),
+        )
+        .service(
+            contract_route("/course-codes/validate")
+                .route(web::post().to(api::validate_course_codes)),
+        )
+        .default_service(web::to(api::fall_through))
+}
+
+fn contract_route(path: &str) -> Resource {
+    web::resource(path).default_service(web::to(api::fall_through))
 }

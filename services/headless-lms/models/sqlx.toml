@@ -62,9 +62,27 @@
 
 [macros.table-overrides.'student_number_verification_tokens']
 'token' = "crate::secret::DbSecret"
+'student_number' = "crate::secret::DbSecret"
+'sisu_person_id' = "crate::secret::DbSecret"
+'first_names' = "crate::secret::DbSecret"
+'last_name' = "crate::secret::DbSecret"
+'emailed_to' = "crate::secret::DbSecret"
 
-[macros.table-overrides.'open_university_product_access_tokens']
-'access_token' = "crate::secret::DbSecret"
+[macros.table-overrides.'verified_student_numbers']
+'student_number' = "crate::secret::DbSecret"
+'sisu_person_id' = "crate::secret::DbSecret"
+'first_names' = "crate::secret::DbSecret"
+'last_name' = "crate::secret::DbSecret"
+'verified_via_email' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'credit_registration_account_linking_emails']
+'student_number' = "crate::secret::DbSecret"
+'sisu_person_id' = "crate::secret::DbSecret"
+'emailed_to' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'credit_registrations']
+'student_number' = "crate::secret::DbSecret"
+'sisu_person_id' = "crate::secret::DbSecret"
 
 # Giveaway codes are intentionally returned to the recipient over the API, so they use
 # `OutboundSecret` (serializes on the wire, but redacted in Debug/logs and zeroized).

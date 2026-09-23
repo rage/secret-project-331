@@ -11,6 +11,7 @@ use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::email_deliveries::insert_email_delivery_to_address;
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::account_linking::link_student_number_url;
+use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use serde_json::json;
 use sqlx::PgConnection;
@@ -30,7 +31,6 @@ struct LinkEmailsPhase;
 
 impl MailQueuePhase for LinkEmailsPhase {
     type Item = LinkingMailToQueue;
-    type Cache = ();
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
         Ok(claim_unqueued(conn, QUEUE_LIMIT, scope.course_id).await?)
@@ -49,11 +49,10 @@ impl MailQueuePhase for LinkEmailsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-        _cache: &mut Self::Cache,
     ) -> anyhow::Result<()> {
         let delivery = insert_email_delivery_to_address(
             conn,
-            &item.emailed_to,
+            item.emailed_to.expose_secret(),
             template_id,
             &placeholders(ctx.base_url, item),
         )
@@ -76,8 +75,8 @@ impl MailQueuePhase for LinkEmailsPhase {
 fn placeholders(base_url: &str, mail: &LinkingMailToQueue) -> serde_json::Value {
     json!({
         "LINK": link_student_number_url(base_url, mail.token.expose_secret()),
-        "NAME": mail.first_names.clone().unwrap_or_default(),
-        "STUDENT_NUMBER": mail.student_number,
+        "NAME": expose_option(&mail.first_names).unwrap_or_default(),
+        "STUDENT_NUMBER": mail.student_number.expose_secret(),
         "COURSE_NAME": mail.course_name,
     })
 }

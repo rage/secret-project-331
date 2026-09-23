@@ -3,9 +3,9 @@
 //! Predicates are AND-ed and order-independent, so a miss can name the single predicate that failed.
 //! No HTTP and no Redis: matching is decided from the fault and the request's item addresses alone.
 
-use headless_lms_utils::services::suotar::SuotarEndpoint;
-
 use crate::prelude::*;
+
+use super::wire::Endpoint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -72,13 +72,12 @@ pub struct ResolvedOwner {
     pub course: Option<String>,
     pub student_numbers: Vec<String>,
     pub course_codes: Vec<String>,
-    pub product_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Predicate {
-    Endpoint(SuotarEndpoint),
+    Endpoint(Endpoint),
     Stage(Stage),
     StudentNumber(String),
     CourseCode(String),
@@ -108,32 +107,40 @@ impl Predicate {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum Effect {
-    #[serde(rename_all = "camelCase")]
+    /// `sisuTimeout` on an import item after the write carries the written submission's id and
+    /// leaves it unconfirmed, as a send that never answered does.
     ItemLevel {
         code: String,
         message: Option<String>,
-        #[serde(default)]
-        disclose_submitted_attainment_id: bool,
     },
     RequestLevel {
         status: u16,
         code: String,
         message: Option<String>,
     },
+    /// A non-envelope answer, such as the fall-through 401 or a proxy's HTML error page.
+    #[serde(rename_all = "camelCase")]
+    RawBody {
+        status: u16,
+        body: String,
+        content_type: Option<String>,
+    },
     ConnectionReset,
+    /// Leaves the matched item out of the response, whatever became of it.
+    DropItem,
 }
 
 impl Effect {
     /// Derived from the kind, never declared: a descriptor naming both `level: item` and
     /// `kind: connectionReset` is nonsense.
     pub fn is_request_shaped(&self) -> bool {
-        !matches!(self, Self::ItemLevel { .. })
+        !matches!(self, Self::ItemLevel { .. } | Self::DropItem)
     }
 
     pub fn code(&self) -> Option<&str> {
         match self {
             Self::ItemLevel { code, .. } | Self::RequestLevel { code, .. } => Some(code),
-            Self::ConnectionReset => None,
+            Self::RawBody { .. } | Self::ConnectionReset | Self::DropItem => None,
         }
     }
 
@@ -141,7 +148,9 @@ impl Effect {
         match self {
             Self::ItemLevel { .. } => "itemLevel",
             Self::RequestLevel { .. } => "requestLevel",
+            Self::RawBody { .. } => "rawBody",
             Self::ConnectionReset => "connectionReset",
+            Self::DropItem => "dropItem",
         }
     }
 }
@@ -162,7 +171,7 @@ impl Lifetime {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FlatWhen {
-    pub endpoint: Option<SuotarEndpoint>,
+    pub endpoint: Option<Endpoint>,
     pub stage: Option<Stage>,
     pub student_number: Option<String>,
     pub course_code: Option<String>,
@@ -235,7 +244,7 @@ pub struct Fault {
 }
 
 impl Fault {
-    pub fn endpoint(&self) -> Option<SuotarEndpoint> {
+    pub fn endpoint(&self) -> Option<Endpoint> {
         self.when.iter().find_map(|predicate| match predicate {
             Predicate::Endpoint(endpoint) => Some(*endpoint),
             _ => None,
@@ -261,7 +270,6 @@ pub struct ItemAddress {
     pub request_item_id: String,
     pub student_number: Option<String>,
     pub course_code: Option<String>,
-    pub product_id: Option<String>,
     pub submitted_attainment_id: Option<String>,
 }
 
@@ -274,7 +282,7 @@ pub enum FaultMatch {
 
 pub fn matches_item(
     fault: &Fault,
-    endpoint: SuotarEndpoint,
+    endpoint: Endpoint,
     stage: Stage,
     item: &ItemAddress,
 ) -> FaultMatch {
@@ -297,10 +305,12 @@ pub fn matches_item(
 }
 
 /// A request-shaped effect fires only when **every** item resolves to the fault's owner: on a mixed
-/// batch it would otherwise kill rows nobody armed anything for.
+/// batch it would otherwise kill rows nobody armed anything for. List-by-course and
+/// `malformedRequest` are the exceptions, because there Suotar itself fails the whole request for
+/// any one item: a code whose lookup fails, or an item it cannot validate.
 pub fn matches_request(
     fault: &Fault,
-    endpoint: SuotarEndpoint,
+    endpoint: Endpoint,
     stage: Stage,
     items: &[ItemAddress],
 ) -> FaultMatch {
@@ -310,9 +320,12 @@ pub fn matches_request(
     if items.is_empty() {
         return FaultMatch::Missed("owner");
     }
+    let any_item_suffices = endpoint == Endpoint::ListByCourse
+        || matches!(&fault.then, Effect::RequestLevel { code, .. } if code == "malformedRequest");
     let mut missed = None;
     for item in items {
         match matches_item(fault, endpoint, stage, item) {
+            FaultMatch::Fires if any_item_suffices => return FaultMatch::Fires,
             FaultMatch::Fires => {}
             FaultMatch::Missed(predicate) => missed = Some(predicate),
         }
@@ -335,19 +348,13 @@ fn owner_matches(owner: &ResolvedOwner, item: &ItemAddress) -> bool {
         }
         constrained = true;
     }
-    if owner.course.is_some() {
-        if let Some(course_code) = &item.course_code {
-            if !owner.course_codes.contains(course_code) {
-                return false;
-            }
-            constrained = true;
+    if owner.course.is_some()
+        && let Some(course_code) = &item.course_code
+    {
+        if !owner.course_codes.contains(course_code) {
+            return false;
         }
-        if let Some(product_id) = &item.product_id {
-            if !owner.product_ids.contains(product_id) {
-                return false;
-            }
-            constrained = true;
-        }
+        constrained = true;
     }
     constrained
 }
@@ -368,43 +375,26 @@ impl FaultProblem {
 
 /// What an endpoint can resolve, not what its body carries: verify's body holds only a submitted
 /// attainment id, and the working set reads the person behind it.
-fn resolvable_keys(endpoint: SuotarEndpoint) -> &'static [&'static str] {
+fn resolvable_keys(endpoint: Endpoint) -> &'static [&'static str] {
     match endpoint {
-        SuotarEndpoint::ResolvePersons => &["studentNumber", "owner"],
-        SuotarEndpoint::ResolveEnrolments
-        | SuotarEndpoint::ImportAttainments
-        | SuotarEndpoint::VerifyAttainments => &["studentNumber", "courseCode", "owner"],
-        SuotarEndpoint::ProductAccessTokens => &["owner"],
-        SuotarEndpoint::ListByCourse => &["courseCode", "owner"],
+        Endpoint::ResolvePersons => &["studentNumber", "owner"],
+        Endpoint::ResolveEnrolments | Endpoint::ImportAttainments | Endpoint::VerifyAttainments => {
+            &["studentNumber", "courseCode", "owner"]
+        }
+        Endpoint::ListByCourse | Endpoint::ValidateCourseCodes => &["courseCode", "owner"],
     }
 }
 
-/// Read from the state machine rather than restated, so this guard cannot drift from the class it
-/// guards.
-fn is_retryable_transient_code(code: &str) -> bool {
-    headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code(
-        code,
-    )
-}
-
-/// Whether the endpoint's contract lists a transient code among its per-item results;
-/// `resolve-enrolments` and `import` carry it only in the request-level form.
-fn carries_item_level_transient(endpoint: SuotarEndpoint) -> bool {
-    matches!(
-        endpoint,
-        SuotarEndpoint::ResolvePersons
-            | SuotarEndpoint::VerifyAttainments
-            | SuotarEndpoint::ProductAccessTokens
-            | SuotarEndpoint::ListByCourse
-    )
-}
+/// The one code that tells a client nothing was done and to retry. Suotar sends it only for a whole
+/// request.
+const TRANSIENT_CODE: &str = "serviceTemporarilyUnavailable";
 
 /// Rejects a fault that could never fire, and the one combination that would fire and be wrong.
 pub fn validate(
     predicates: &[Predicate],
     effect: &Effect,
     proves_double_submission: bool,
-) -> Result<(SuotarEndpoint, Stage), FaultProblem> {
+) -> Result<(Endpoint, Stage), FaultProblem> {
     let mut endpoint = None;
     let mut stage = None;
     let mut seen = Vec::new();
@@ -470,7 +460,7 @@ pub fn validate(
         ));
     }
 
-    if matches!(effect, Effect::ItemLevel { .. }) && stage.is_pre_load() {
+    if !effect.is_request_shaped() && stage.is_pre_load() {
         return Err(FaultProblem::new(
             "invalidFault",
             format!(
@@ -480,24 +470,27 @@ pub fn validate(
         ));
     }
 
+    if matches!(effect, Effect::DropItem) && stage != Stage::Respond {
+        return Err(FaultProblem::new(
+            "invalidFault",
+            "`dropItem` shapes the response, so it only fires at `respond`.".to_string(),
+        ));
+    }
+
     // Naming an unexpected code is allowed on purpose; only the transient class is refused, because
     // it is the one that would teach a client to retry a body Suotar could never have sent.
-    if matches!(effect, Effect::ItemLevel { .. })
-        && effect.code().is_some_and(is_retryable_transient_code)
-        && !carries_item_level_transient(endpoint)
-    {
+    if matches!(effect, Effect::ItemLevel { .. }) && effect.code() == Some(TRANSIENT_CODE) {
         return Err(FaultProblem::new(
             "invalidFault",
             format!(
-                "This endpoint carries no item-level `{}`; Suotar can only fail the whole request that way. Use a `requestLevel` effect.",
-                effect.code().unwrap_or_default()
+                "Suotar has no item-level `{TRANSIENT_CODE}`; it can only fail the whole request that way. Use a `requestLevel` effect."
             ),
         ));
     }
 
-    if endpoint == SuotarEndpoint::ImportAttainments
+    if endpoint == Endpoint::ImportAttainments
         && stage.is_post_commit()
-        && effect.code().is_some_and(is_retryable_transient_code)
+        && effect.code() == Some(TRANSIENT_CODE)
         && !proves_double_submission
     {
         return Err(FaultProblem::new(
@@ -518,7 +511,7 @@ mod tests {
 
     fn predicates(stage: Stage) -> Vec<Predicate> {
         vec![
-            Predicate::Endpoint(SuotarEndpoint::ImportAttainments),
+            Predicate::Endpoint(Endpoint::ImportAttainments),
             Predicate::Stage(stage),
         ]
     }
@@ -526,14 +519,13 @@ mod tests {
     fn transient(item_level: bool) -> Effect {
         if item_level {
             Effect::ItemLevel {
-                code: "sisuTemporarilyUnavailable".to_string(),
+                code: TRANSIENT_CODE.to_string(),
                 message: None,
-                disclose_submitted_attainment_id: false,
             }
         } else {
             Effect::RequestLevel {
                 status: 503,
-                code: "sisuTemporarilyUnavailable".to_string(),
+                code: TRANSIENT_CODE.to_string(),
                 message: None,
             }
         }
@@ -555,61 +547,44 @@ mod tests {
     /// The double-submission flag excuses a double submission, not a response shape Suotar cannot
     /// produce.
     #[test]
-    fn an_item_level_transient_is_refused_where_the_contract_carries_none() {
+    fn an_item_level_transient_is_refused_everywhere() {
         for endpoint in [
-            SuotarEndpoint::ImportAttainments,
-            SuotarEndpoint::ResolveEnrolments,
-        ] {
-            for stage in [Stage::Resolve, Stage::AfterWrite, Stage::Respond] {
-                let when = vec![Predicate::Endpoint(endpoint), Predicate::Stage(stage)];
-                let problem = validate(&when, &transient(true), true)
-                    .err()
-                    .unwrap_or_else(|| {
-                        panic!("{endpoint:?} at {stage:?} accepted an impossible item code")
-                    });
-                assert!(problem.message.contains("requestLevel"));
-                assert!(
-                    validate(&when, &transient(false), stage.is_post_commit()).is_ok(),
-                    "the request-level form is the way to drive it"
-                );
-            }
-        }
-        for endpoint in [
-            SuotarEndpoint::ResolvePersons,
-            SuotarEndpoint::VerifyAttainments,
-            SuotarEndpoint::ProductAccessTokens,
-            SuotarEndpoint::ListByCourse,
+            Endpoint::ImportAttainments,
+            Endpoint::ResolveEnrolments,
+            Endpoint::VerifyAttainments,
+            Endpoint::ListByCourse,
         ] {
             let when = vec![
                 Predicate::Endpoint(endpoint),
                 Predicate::Stage(Stage::Resolve),
             ];
-            assert!(
-                validate(&when, &transient(true), false).is_ok(),
-                "{endpoint:?} does carry the transient item code"
-            );
+            let problem = validate(&when, &transient(true), true)
+                .err()
+                .unwrap_or_else(|| panic!("{endpoint:?} accepted an impossible item code"));
+            assert!(problem.message.contains("requestLevel"));
+            assert!(validate(&when, &transient(false), false).is_ok());
         }
     }
 
     #[test]
     fn a_key_the_endpoint_cannot_resolve_is_refused_and_an_indirect_one_is_not() {
         let unresolvable = vec![
-            Predicate::Endpoint(SuotarEndpoint::ListByCourse),
+            Predicate::Endpoint(Endpoint::ListByCourse),
             Predicate::Stage(Stage::Resolve),
             Predicate::StudentNumber("900000101".to_string()),
         ];
-        let problem = validate(&unresolvable, &transient(true), false)
+        let problem = validate(&unresolvable, &transient(false), false)
             .expect_err("list-by-course carries no student number");
         assert!(problem.message.contains("courseCode"));
 
         let indirect = vec![
-            Predicate::Endpoint(SuotarEndpoint::VerifyAttainments),
+            Predicate::Endpoint(Endpoint::VerifyAttainments),
             Predicate::Stage(Stage::Resolve),
             Predicate::Owner(OwnerRef {
                 user: Some("someone@example.com".to_string()),
                 course: None,
             }),
         ];
-        assert!(validate(&indirect, &transient(true), false).is_ok());
+        assert!(validate(&indirect, &transient(false), false).is_ok());
     }
 }

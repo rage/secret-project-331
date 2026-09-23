@@ -16,14 +16,15 @@
                 "enrolment_not_found",
                 "enrolment_not_accepted",
                 "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
                 "course_not_allowed",
                 "invalid_credits",
                 "study_right_not_valid",
-                "acceptor_not_found",
                 "sisu_validation_failed",
                 "sisu_timeout",
-                "sisu_temporarily_unavailable",
+                "service_temporarily_unavailable",
                 "misregistered",
+                "not_registered",
                 "unauthorized",
                 "malformed_request",
                 "transport_error",
@@ -96,8 +97,8 @@
                       "resolve_enrolments",
                       "import_attainments",
                       "verify_attainments",
-                      "product_access_tokens",
-                      "list_by_course"
+                      "list_by_course",
+                      "validate_course_codes"
                     ]
                   }
                 }

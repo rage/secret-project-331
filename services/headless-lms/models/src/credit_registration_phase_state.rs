@@ -17,7 +17,6 @@ pub const PHASES: &[&str] = &[
     "student-notifications",
     "enrolment-discovery",
     "link-emails",
-    "product-token-refresh",
     "config-validation",
     "retention-sweep",
     "ledger-snapshot",

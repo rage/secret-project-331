@@ -8,9 +8,8 @@ use headless_lms_models::course_module_completion_registered_to_study_registries
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, RequestPurpose,
-    Transition, claim_due, request_item_id, set_sisu_attainment_if_unclaimed,
-    set_submitted_attainment, transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
+    claim_due, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
@@ -21,7 +20,7 @@ use headless_lms_models::library::credit_registration::outcomes::{
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
-    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use sqlx::PgConnection;
 
@@ -118,10 +117,6 @@ impl SuotarBatchPhase for Import {
         row
     }
 
-    fn request_item_id(row: &Self::Row) -> String {
-        request_item_id(row, RequestPurpose::Submission)
-    }
-
     fn sent_student_number(row: &Self::Row) -> Option<&str> {
         row.student_number.as_deref()
     }
@@ -156,6 +151,7 @@ impl SuotarBatchPhase for Import {
         conn: &mut PgConnection,
         row: &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
         apply_request_level_outcome(
@@ -163,6 +159,7 @@ impl SuotarBatchPhase for Import {
             SuotarEndpoint::ImportAttainments,
             row,
             request,
+            request_item_id,
             error,
             CreditRegistrationState::Submitting,
         )
@@ -201,122 +198,130 @@ async fn apply_answer(
             .await?;
             Ok(true)
         }
-        Some(item) if item.status == SuotarItemStatus::Error => {
-            let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
-                .unwrap_or(CreditRegistrationErrorCode::Unknown);
-            let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &facts);
-            if outcome.to_state == CreditRegistrationState::SubmissionUncertain
-                && let Some(disclosed) = item
-                    .error
-                    .as_ref()
-                    .and_then(|error| error.submitted_attainment_id.as_deref())
-            {
-                // A disclosed id turns the recovery into plain verification instead of a hunt
-                // through the student's existing attainments.
-                set_submitted_attainment(conn, row.id, disclosed, None).await?;
-            }
-            apply_outcome(
-                conn,
-                row,
-                &outcome,
-                OutcomeEvent {
-                    error_message: item.error.as_ref().map(|error| error.message.as_str()),
-                    ..event
-                },
-                Some(CreditRegistrationState::Submitting),
-            )
-            .await?;
-            Ok(true)
-        }
-        Some(item) => {
-            let result = item.result.as_ref();
-            match import_success_state(&item.code) {
-                // A success code we do not know cannot be read as "nothing was created".
-                None => {
-                    apply_outcome(
-                        conn,
-                        row,
-                        &submission_uncertain(),
-                        OutcomeEvent {
-                            message: Some(
-                                "The study registry answered with a success code we do not know, \
-                                 so whether the attainment was created is unknown.",
-                            ),
-                            ..event
-                        },
-                        Some(CreditRegistrationState::Submitting),
-                    )
-                    .await?;
-                    Ok(true)
-                }
-                Some(CreditRegistrationState::AwaitingVerification) => {
-                    let submitted = result.and_then(|result| {
-                        result
-                            .submitted_attainment_id
-                            .as_deref()
-                            .map(|id| (id, result.submitted_attainment_type.as_deref()))
-                    });
-                    match submitted {
-                        Some((id, attainment_type)) => {
-                            set_submitted_attainment(conn, row.id, id, attainment_type).await?;
-                            apply_outcome(
-                                conn,
-                                row,
-                                &import_success_outcome(
-                                    CreditRegistrationState::AwaitingVerification,
+        Some(item) => match import_success_state(&item.code) {
+            // `sent` or `duplicateRequestItem`: both name a submission to verify.
+            Some(CreditRegistrationState::AwaitingVerification) => {
+                let submitted = item.result.as_ref().and_then(|result| {
+                    result
+                        .submitted_attainment_id
+                        .as_deref()
+                        .map(|id| (id, result.submitted_attainment_type.as_deref()))
+                });
+                match submitted {
+                    Some((id, attainment_type)) => {
+                        set_submitted_attainment(conn, row.id, id, attainment_type).await?;
+                        apply_outcome(
+                            conn,
+                            row,
+                            &import_success_outcome(CreditRegistrationState::AwaitingVerification),
+                            event,
+                            Some(CreditRegistrationState::Submitting),
+                        )
+                        .await?;
+                        Ok(false)
+                    }
+                    // Accepted with nothing to verify by; recovery is a lookup among the student's
+                    // existing attainments, never a second import.
+                    None => {
+                        apply_outcome(
+                            conn,
+                            row,
+                            &submission_uncertain(),
+                            OutcomeEvent {
+                                message: Some(
+                                    "The submission was accepted without an id to verify it by.",
                                 ),
-                                event,
-                                Some(CreditRegistrationState::Submitting),
-                            )
-                            .await?;
-                            Ok(false)
-                        }
-                        // Accepted with nothing to verify by; recovery is a lookup among the
-                        // student's existing attainments, never a second import.
-                        None => {
-                            apply_outcome(
-                                conn,
-                                row,
-                                &submission_uncertain(),
-                                OutcomeEvent {
-                                    message: Some(
-                                        "The submission was accepted without an id to verify it \
-                                         by.",
-                                    ),
-                                    ..event
-                                },
-                                Some(CreditRegistrationState::Submitting),
-                            )
-                            .await?;
-                            Ok(true)
-                        }
+                                ..event
+                            },
+                            Some(CreditRegistrationState::Submitting),
+                        )
+                        .await?;
+                        Ok(true)
                     }
                 }
-                Some(state) => {
-                    let attainment = result.and_then(|result| {
-                        result
-                            .attainment
-                            .as_ref()
-                            .or(result.previous_attainment.as_ref())
-                    });
-                    record_attainment(conn, row, attainment).await?;
-                    let message = settled_message(state, attainment);
-                    apply_outcome(
-                        conn,
-                        row,
-                        &import_success_outcome(state),
-                        OutcomeEvent {
-                            message: message.as_deref(),
-                            ..event
-                        },
-                        Some(CreditRegistrationState::Submitting),
-                    )
-                    .await?;
-                    Ok(false)
-                }
             }
-        }
+            Some(state) => {
+                let attainment = item.result.as_ref().and_then(|result| {
+                    result
+                        .attainment
+                        .as_ref()
+                        .or(result.previous_attainment.as_ref())
+                });
+                record_attainment(conn, row, attainment).await?;
+                let message = settled_message(state, attainment);
+                apply_outcome(
+                    conn,
+                    row,
+                    &import_success_outcome(state),
+                    OutcomeEvent {
+                        message: message.as_deref(),
+                        ..event
+                    },
+                    Some(CreditRegistrationState::Submitting),
+                )
+                .await?;
+                Ok(false)
+            }
+            None if item.status == SuotarItemStatus::Error => {
+                apply_error_answer(conn, row, item, event).await
+            }
+            // A success code we do not know cannot be read as "nothing was created".
+            None => {
+                apply_outcome(
+                    conn,
+                    row,
+                    &submission_uncertain(),
+                    OutcomeEvent {
+                        message: Some(
+                            "The study registry answered with a success code we do not know, so \
+                             whether the attainment was created is unknown.",
+                        ),
+                        ..event
+                    },
+                    Some(CreditRegistrationState::Submitting),
+                )
+                .await?;
+                Ok(true)
+            }
+        },
     }
+}
+
+/// An error item. A `sisuTimeout` still names the submission it may have made, which turns its
+/// recovery into plain verification instead of a hunt through the student's existing attainments.
+async fn apply_error_answer(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    item: &SuotarResponseItem<ImportAttainmentResult>,
+    event: OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
+        .unwrap_or(CreditRegistrationErrorCode::Unknown);
+    let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &row_facts(row));
+    if outcome.to_state == CreditRegistrationState::SubmissionUncertain
+        && let Some(result) = item.result.as_ref()
+        && let Some(submitted) = result.submitted_attainment_id.as_deref()
+    {
+        set_submitted_attainment(
+            conn,
+            row.id,
+            submitted,
+            result.submitted_attainment_type.as_deref(),
+        )
+        .await?;
+    }
+    apply_outcome(
+        conn,
+        row,
+        &outcome,
+        OutcomeEvent {
+            error_message: item.error.as_ref().map(|error| error.message.as_str()),
+            ..event
+        },
+        Some(CreditRegistrationState::Submitting),
+    )
+    .await?;
+    Ok(true)
 }
 
 /// The timeline line for an answer that settled the row. `not_improved` names the grade the registry
@@ -367,8 +372,8 @@ async fn record_attainment(
     Ok(())
 }
 
-/// A frozen snapshot that cannot be sent; either would come back as a request-level rejection that
-/// takes the rest of the batch with it.
+/// A frozen snapshot that cannot be sent. An incomplete one would fail Suotar's validation, which
+/// rejects the whole batch with it.
 enum Unsendable {
     Incomplete,
     UnknownGrade,
@@ -421,13 +426,13 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     else {
         return Err(Unsendable::Incomplete);
     };
-    // The registry rejects an unknown scale or grade for the whole request, so this row leaves the
-    // batch rather than failing the rows around it.
+    // Suotar would refuse it as `invalidGradeForGradeScale`; refused here, the row fails on our
+    // mapping without a round trip.
     if !is_known_grade(grade_scale_id, grade_id) {
         return Err(Unsendable::UnknownGrade);
     }
     Ok(ImportAttainmentRequestItem {
-        request_item_id: request_item_id(row, RequestPurpose::Submission),
+        request_item_id: new_request_item_id(),
         student_number: student_number.to_string(),
         course_code: course_code.to_string(),
         enrolment_id: enrolment_id.to_string(),

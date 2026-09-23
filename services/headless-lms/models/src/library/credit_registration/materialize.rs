@@ -25,8 +25,6 @@ pub async fn ensure_registration_rows_for_eligible_completions(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
-    // directions: it is the only handle Suotar's log and ours share on one registration.
     let created = sqlx::query_scalar!(
         r#"
 WITH registrable_completion AS (
@@ -60,16 +58,14 @@ inserted AS (
       user_id,
       course_id,
       course_module_id,
-      course_instance_id,
-      request_item_id
+      course_instance_id
     )
   SELECT id,
     course_module_completion_id,
     user_id,
     course_id,
     course_module_id,
-    course_instance_id,
-    'cr-' || id
+    course_instance_id
   FROM registrable_completion ON CONFLICT DO NOTHING
   RETURNING id
 ),
@@ -298,7 +294,7 @@ mod tests {
     use crate::course_module_completions::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion,
     };
-    use crate::credit_registrations::{CreditRegistrationState, import_request_item_id};
+    use crate::credit_registrations::CreditRegistrationState;
     use crate::test_helper::*;
 
     async fn enable_suotar(
@@ -382,7 +378,6 @@ mod tests {
             .unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].state, CreditRegistrationState::Pending);
-        assert_eq!(rows[0].request_item_id, import_request_item_id(rows[0].id));
 
         let events =
             crate::credit_registration_events::get_by_registration_id(tx.as_mut(), rows[0].id)

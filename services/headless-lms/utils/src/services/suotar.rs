@@ -3,9 +3,6 @@
 //! Every endpoint is a batch. Per-item outcomes arrive as HTTP 200 and are read from each item's
 //! `status` and `code`; only request-level failures are 4xx/5xx and `Err`. Items are matched back
 //! by `requestItemId`, never by position.
-//!
-//! The mock study registry serializes these same types, so `skip_serializing_if` here is what keeps
-//! its bodies byte-identical to Suotar's.
 
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -24,17 +21,19 @@ use utoipa::ToSchema;
 use crate::{error::util_error::SuotarErrorVariant, prelude::*};
 
 /// Bounds one call so a Suotar that never answers cannot stall a worker tick.
-pub const SUOTAR_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
+const SUOTAR_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Carries `suotar_api_calls.id` so Suotar's log and ours join on one value.
 pub const CORRELATION_ID_HEADER: &str = "X-Correlation-Id";
 
-/// Matches the actix payload limit the mock Suotar runs behind, so an oversized batch is refused
-/// here rather than 413'd at the far end.
-pub const MAX_REQUEST_BODY_BYTES: usize = 2 * 1024 * 1024;
+/// Suotar's own body limit (Express `5mb`), so an oversized batch is refused here rather than 413'd
+/// at the far end.
+pub const MAX_REQUEST_BODY_BYTES: usize = 5 * 1024 * 1024;
 
-/// The only code the contract classifies as "transient, retry me".
-pub const TRANSIENT_ITEM_CODE: &str = "sisuTemporarilyUnavailable";
+/// The final attainment type in Sisu; verify's `registered` with any other type is partial evidence.
+pub const ATTAINMENT_TYPE_COURSE_UNIT: &str = "CourseUnitAttainment";
+/// What import mints (`hy-kur-…`), and what verify reports while only the partial attainment exists.
+pub const ATTAINMENT_TYPE_ASSESSMENT_ITEM: &str = "AssessmentItemAttainment";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
@@ -44,8 +43,8 @@ pub enum SuotarEndpoint {
     ResolveEnrolments,
     ImportAttainments,
     VerifyAttainments,
-    ProductAccessTokens,
     ListByCourse,
+    ValidateCourseCodes,
 }
 
 impl SuotarEndpoint {
@@ -56,20 +55,27 @@ impl SuotarEndpoint {
             Self::ResolveEnrolments => "enrolments/resolve",
             Self::ImportAttainments => "attainments/import",
             Self::VerifyAttainments => "attainments/verify",
-            Self::ProductAccessTokens => "open-university-product-access-tokens/resolve",
             Self::ListByCourse => "enrolments/list-by-course",
+            Self::ValidateCourseCodes => "course-codes/validate",
         }
     }
 
-    /// ListByCourse is smallest because each response item carries a full person per enrolment;
-    /// ImportAttainments is next because a request-level failure re-queues the whole batch.
+    /// Suotar's own per-endpoint limits; a larger batch is refused whole.
     pub fn max_batch_size(self) -> usize {
         match self {
-            Self::ResolvePersons | Self::ResolveEnrolments | Self::ProductAccessTokens => 50,
-            Self::ImportAttainments => 25,
-            Self::VerifyAttainments => 100,
-            Self::ListByCourse => 10,
+            Self::ResolvePersons
+            | Self::ResolveEnrolments
+            | Self::VerifyAttainments
+            | Self::ValidateCourseCodes => 1000,
+            Self::ImportAttainments => 100,
+            Self::ListByCourse => 50,
         }
+    }
+
+    /// How long one call may take before it is abandoned. On `import` an abandoned call leaves the
+    /// whole batch uncertain.
+    pub const fn request_timeout(self) -> Duration {
+        SUOTAR_REQUEST_TIMEOUT
     }
 
     /// An item this endpoint never answered is uncertain, not retryable: re-sending it can put a
@@ -77,21 +83,15 @@ impl SuotarEndpoint {
     pub fn creates_attainments(self) -> bool {
         matches!(self, Self::ImportAttainments)
     }
-
-    /// `resolve-enrolments` and `import` carry the transient failure only at the request level.
-    pub fn carries_item_level_transient(self) -> bool {
-        matches!(
-            self,
-            Self::ResolvePersons
-                | Self::VerifyAttainments
-                | Self::ProductAccessTokens
-                | Self::ListByCourse
-        )
-    }
 }
 
-/// Sent verbatim from `credit_registrations.request_item_id`; Suotar echoes it back, which is what
-/// makes a reordered or partial response safe to read.
+/// A fresh requestItemId for one item of one call.
+pub fn new_request_item_id() -> String {
+    Uuid::new_v4().to_string()
+}
+
+/// Suotar echoes the requestItemId back, which is what makes a reordered or partial response safe to
+/// read.
 pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
 }
@@ -146,30 +146,29 @@ pub struct VerifyAttainmentRequestItem {
 }
 request_item!(VerifyAttainmentRequestItem);
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProductAccessTokenRequestItem {
-    pub request_item_id: String,
-    pub open_university_product_id: String,
-}
-request_item!(ProductAccessTokenRequestItem);
-
+/// Lists every realisation of the code; Suotar refuses the whole request if an item names one.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListByCourseRequestItem {
     pub request_item_id: String,
     pub course_code: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub course_unit_realisation_id: Option<String>,
 }
 request_item!(ListByCourseRequestItem);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ValidateCourseCodeRequestItem {
+    pub request_item_id: String,
+    pub course_code: String,
+}
+request_item!(ValidateCourseCodeRequestItem);
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LocalizedName {
-    pub fi: String,
-    pub sv: String,
-    pub en: String,
+    pub fi: Option<String>,
+    pub sv: Option<String>,
+    pub en: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -197,8 +196,9 @@ pub struct CreditRange {
 pub struct PersonResult {
     pub student_number: String,
     pub person_id: String,
-    pub first_names: String,
-    pub last_name: String,
+    /// `None` when Sisu holds no name.
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -210,31 +210,36 @@ pub struct SuotarEnrolment {
     pub course_unit_id: String,
     pub assessment_item_id: String,
     pub course_unit_realisation_id: String,
-    pub course_unit_realisation_name: LocalizedName,
-    pub activity_period: DatePeriod,
-    pub grade_scale_id: String,
-    pub credits: CreditRange,
-    pub study_right_id: String,
-    pub study_right_validity_period: DatePeriod,
-    pub enrolment_date_time: DateTime<Utc>,
+    pub course_unit_realisation_name: Option<LocalizedName>,
+    pub activity_period: Option<DatePeriod>,
+    /// The assessment item's scale, else the course unit's.
+    pub grade_scale_id: Option<String>,
+    /// The course unit's range; `None` when Sisu gives none, which Suotar refuses to import against.
+    pub credits: Option<CreditRange>,
+    pub study_right_id: Option<String>,
+    /// `None` when the study right did not resolve.
+    pub study_right_validity_period: Option<DatePeriod>,
+    pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
+/// An attainment as Suotar passes it through from its importer, so every field but the id and type
+/// may be missing: a course unit attainment has no assessment item, for one.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExistingAttainment {
     pub id: String,
     #[serde(rename = "type")]
     pub attainment_type: String,
-    pub state: String,
-    pub person_id: String,
-    pub course_unit_id: String,
-    pub assessment_item_id: String,
-    pub course_unit_realisation_id: String,
-    pub attainment_date: NaiveDate,
-    pub registration_date: NaiveDate,
-    pub grade_scale_id: String,
-    pub grade_id: String,
-    pub passed: bool,
+    pub state: Option<String>,
+    pub person_id: Option<String>,
+    pub course_unit_id: Option<String>,
+    pub assessment_item_id: Option<String>,
+    pub course_unit_realisation_id: Option<String>,
+    pub attainment_date: Option<NaiveDate>,
+    pub registration_date: Option<NaiveDate>,
+    pub grade_scale_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub passed: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -245,8 +250,8 @@ pub struct EnrolmentResolutionResult {
     pub existing_attainments: Vec<ExistingAttainment>,
 }
 
-/// Covers both contract bodies: the bare `{id, type}` of a `registered` answer and the fuller one
-/// behind `duplicateAttainment` and `notImprovedAttainment`.
+/// Covers both contract bodies: the bare `{id, type}` of verify's `registered` and the fuller one
+/// behind import's `duplicateAttainment` and `notImprovedAttainment`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarAttainment {
@@ -265,8 +270,9 @@ pub struct SuotarAttainment {
     pub grade_id: Option<String>,
 }
 
-/// One shape for import's four success codes: `sent` fills the submitted pair, `registered` and
-/// `duplicateAttainment` fill `attainment`, `notImprovedAttainment` fills `previous_attainment`.
+/// One shape for every import result: `sent`, `sisuTimeout` and `duplicateRequestItem` fill the
+/// submitted pair, `duplicateAttainment` fills `attainment`, `notImprovedAttainment` fills
+/// `previous_attainment`.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ImportAttainmentResult {
@@ -280,19 +286,27 @@ pub struct ImportAttainmentResult {
     pub previous_attainment: Option<SuotarAttainment>,
 }
 
+/// `registered` fills `attainment`; `submissionPending` fills the submitted pair and `retry_after`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VerifyAttainmentResult {
-    pub attainment: SuotarAttainment,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub attainment: Option<SuotarAttainment>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submitted_attainment_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submitted_attainment_type: Option<String>,
+    /// Before this, a resubmission may still duplicate the pending attainment.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub retry_after: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ProductAccessTokenResult {
-    pub id: String,
-    pub access_token: String,
-    pub state: String,
-    pub document_state: String,
+pub struct ValidateCourseCodeResult {
+    pub course_code: String,
+    /// Suotar's own name for the course.
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -309,11 +323,9 @@ pub struct ListedEnrolment {
 pub struct ListedPerson {
     pub student_number: String,
     pub person_id: String,
-    pub first_names: String,
-    pub last_name: String,
-    pub primary_email: String,
-    /// Omitted rather than null when Sisu holds none.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    pub primary_email: Option<String>,
     pub secondary_email: Option<String>,
     pub enrolment: ListedEnrolment,
 }
@@ -335,9 +347,6 @@ pub enum SuotarItemStatus {
 #[serde(rename_all = "camelCase")]
 pub struct SuotarItemError {
     pub message: String,
-    /// Present only on a disclosed `sisuTimeout`: the id the client may verify instead of retrying.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub submitted_attainment_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -348,6 +357,8 @@ pub struct SuotarResponseItem<R> {
     /// A string, not an enum: Suotar may add codes, and a strict enum would take the pipeline down
     /// the day it does.
     pub code: String,
+    /// Also present on the error items that carry one: `sisuTimeout`, `duplicateRequestItem` and
+    /// `submissionPending`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<R>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -408,6 +419,7 @@ pub struct SuotarCallStarted {
     pub request_item_count: usize,
     pub worker_name: String,
     pub credit_registration_ids: Vec<Uuid>,
+    pub request_item_ids: Vec<String>,
     pub started_at: DateTime<Utc>,
     /// Unscrubbed; the implementation scrubs before it persists anything.
     pub request_body: serde_json::Value,
@@ -448,8 +460,7 @@ impl SuotarCallAudit for NoSuotarCallAudit {
     async fn finished(&self, _call_id: Uuid, _finished: SuotarCallFinished) {}
 }
 
-/// Suotar's legacy study-registry path takes the token verbatim after the scheme word, not base64
-/// of `user:password`.
+/// Suotar matches the `Bearer ` prefix exactly: case-sensitive, one space.
 fn authorization_header_value(token: &str) -> String {
     format!("{SUOTAR_AUTH_SCHEME} {token}")
 }
@@ -529,21 +540,21 @@ impl SuotarClient {
             .await
     }
 
-    pub async fn resolve_product_access_tokens(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ProductAccessTokenRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<ProductAccessTokenResult>> {
-        self.post_batch(SuotarEndpoint::ProductAccessTokens, context, items)
-            .await
-    }
-
     pub async fn list_enrolments_by_course(
         &self,
         context: SuotarCallContext,
         items: Vec<ListByCourseRequestItem>,
     ) -> UtilResult<SuotarBatchResponse<EnrolmentsListedResult>> {
         self.post_batch(SuotarEndpoint::ListByCourse, context, items)
+            .await
+    }
+
+    pub async fn validate_course_codes(
+        &self,
+        context: SuotarCallContext,
+        items: Vec<ValidateCourseCodeRequestItem>,
+    ) -> UtilResult<SuotarBatchResponse<ValidateCourseCodeResult>> {
+        self.post_batch(SuotarEndpoint::ValidateCourseCodes, context, items)
             .await
     }
 
@@ -567,6 +578,10 @@ impl SuotarClient {
                 request_item_count: items.len(),
                 worker_name: context.worker_name,
                 credit_registration_ids: context.credit_registration_ids,
+                request_item_ids: items
+                    .iter()
+                    .map(|item| item.request_item_id().to_string())
+                    .collect(),
                 started_at: Utc::now(),
                 request_body,
             })
@@ -603,7 +618,7 @@ impl SuotarClient {
         let clock = Instant::now();
         let mut request = REQWEST_CLIENT
             .post(url)
-            .timeout(SUOTAR_REQUEST_TIMEOUT)
+            .timeout(endpoint.request_timeout())
             .header(AUTHORIZATION, self.authorization.expose_secret())
             .header(CONTENT_TYPE, "application/json");
         if let Some(call_id) = call_id {
@@ -696,7 +711,10 @@ impl SuotarClient {
             let detail = serde_json::from_str::<RequestLevelErrorBody>(&text)
                 .ok()
                 .map(|parsed| parsed.error);
-            let code = detail.as_ref().map(|detail| detail.code.clone());
+            let code = detail
+                .as_ref()
+                .and_then(RequestLevelErrorDetail::code)
+                .map(str::to_string);
             let error = request_level_error(endpoint, http_status, detail.as_ref());
             return failed(
                 error,
@@ -851,8 +869,7 @@ fn check_batch<T: SuotarRequestItem>(
         .collect())
 }
 
-/// An empty array is a request-level error at the far end, so an empty batch is never sent and
-/// leaves no audit row.
+/// Nothing to ask, so an empty batch is never sent and leaves no audit row.
 fn empty_batch_response<R>(endpoint: SuotarEndpoint) -> SuotarBatchResponse<R> {
     SuotarBatchResponse {
         endpoint,
@@ -907,14 +924,6 @@ fn reconcile<R>(
             sent_ids.len()
         );
     }
-    for item in &items {
-        if item.code == TRANSIENT_ITEM_CODE && !endpoint.carries_item_level_transient() {
-            warn!(
-                "Suotar {} returned an item-level `{TRANSIENT_ITEM_CODE}`, which its contract does not list.",
-                endpoint.path()
-            );
-        }
-    }
 
     SuotarBatchResponse {
         endpoint,
@@ -933,10 +942,21 @@ struct RequestLevelErrorBody {
     error: RequestLevelErrorDetail,
 }
 
+/// The envelope's `{code, message}`, or the bare string Suotar's fall-through route answers with.
 #[derive(Debug, Deserialize)]
-struct RequestLevelErrorDetail {
-    code: String,
-    message: String,
+#[serde(untagged)]
+enum RequestLevelErrorDetail {
+    Coded { code: String, message: String },
+    Bare(String),
+}
+
+impl RequestLevelErrorDetail {
+    fn code(&self) -> Option<&str> {
+        match self {
+            Self::Coded { code, .. } => Some(code),
+            Self::Bare(_) => None,
+        }
+    }
 }
 
 fn request_level_error(
@@ -944,18 +964,35 @@ fn request_level_error(
     http_status: u16,
     detail: Option<&RequestLevelErrorDetail>,
 ) -> UtilError {
-    let variant = match (http_status, detail.map(|detail| detail.code.as_str())) {
-        (401 | 403, _) => SuotarErrorVariant::Unauthorized,
-        (_, Some("unauthorized")) => SuotarErrorVariant::Unauthorized,
-        (_, Some("malformedRequest")) => SuotarErrorVariant::MalformedRequest,
+    let path = endpoint.path();
+    // A path the moocfi router does not serve falls through to a route that refuses our key; the
+    // key is fine and the base url is wrong.
+    if let Some(RequestLevelErrorDetail::Bare(message)) = detail
+        && http_status == 401
+    {
+        return util_err!(
+            SuotarClientError(SuotarErrorVariant::RequestLevelError),
+            format!(
+                "Suotar answered {path} with 401 `{message}`, which means the moocfi API does not serve that path. Check SUOTAR_API_BASE_URL."
+            )
+        );
+    }
+    let variant = match (http_status, detail.and_then(RequestLevelErrorDetail::code)) {
+        (401 | 403, _) | (_, Some("unauthorized")) => SuotarErrorVariant::Unauthorized,
+        (413, _) | (_, Some("malformedRequest" | "requestTooLarge")) => {
+            SuotarErrorVariant::MalformedRequest
+        }
+        (503, Some("serviceTemporarilyUnavailable")) => {
+            SuotarErrorVariant::ServiceTemporarilyUnavailable
+        }
         (500..=599, _) => SuotarErrorVariant::ServerError,
         _ => SuotarErrorVariant::RequestLevelError,
     };
     let detail = match detail {
-        Some(detail) => format!("`{}`: {}", detail.code, detail.message),
+        Some(RequestLevelErrorDetail::Coded { code, message }) => format!("`{code}`: {message}"),
+        Some(RequestLevelErrorDetail::Bare(message)) => format!("`{message}`"),
         None => "no documented error body".to_string(),
     };
-    let path = endpoint.path();
     util_err!(
         SuotarClientError(variant),
         format!("Suotar {path} rejected the whole request with {http_status}, {detail}")
@@ -1041,8 +1078,8 @@ mod tests {
             SuotarEndpoint::ResolveEnrolments,
             SuotarEndpoint::ImportAttainments,
             SuotarEndpoint::VerifyAttainments,
-            SuotarEndpoint::ProductAccessTokens,
             SuotarEndpoint::ListByCourse,
+            SuotarEndpoint::ValidateCourseCodes,
         ]
         .iter()
         .map(|endpoint| {
@@ -1060,8 +1097,8 @@ mod tests {
                 "http://project-331.local/api/v0/mock-suotar/enrolments/resolve",
                 "http://project-331.local/api/v0/mock-suotar/attainments/import",
                 "http://project-331.local/api/v0/mock-suotar/attainments/verify",
-                "http://project-331.local/api/v0/mock-suotar/open-university-product-access-tokens/resolve",
                 "http://project-331.local/api/v0/mock-suotar/enrolments/list-by-course",
+                "http://project-331.local/api/v0/mock-suotar/course-codes/validate",
             ]
         );
     }
@@ -1096,19 +1133,6 @@ mod tests {
     }
 
     #[test]
-    fn list_by_course_omits_an_absent_realisation_id() {
-        let items = vec![ListByCourseRequestItem {
-            request_item_id: "people-1".to_string(),
-            course_code: "TKT10001".to_string(),
-            course_unit_realisation_id: None,
-        }];
-        assert_eq!(
-            serde_json::to_value(&items).expect("serializes"),
-            json!([{ "requestItemId": "people-1", "courseCode": "TKT10001" }])
-        );
-    }
-
-    #[test]
     fn an_error_item_deserializes_without_a_result() {
         let items: Vec<SuotarResponseItem<PersonResult>> = serde_json::from_value(json!([{
             "requestItemId": "b2",
@@ -1126,23 +1150,24 @@ mod tests {
     }
 
     #[test]
-    fn a_disclosed_sisu_timeout_carries_the_id_the_client_may_verify() {
+    fn a_sisu_timeout_carries_the_id_the_client_may_verify() {
         let items: Vec<SuotarResponseItem<ImportAttainmentResult>> =
             serde_json::from_value(json!([{
                 "requestItemId": "cr-1",
                 "status": "error",
                 "code": "sisuTimeout",
-                "error": {
-                    "message": "Sisu operation timed out; outcome is uncertain.",
-                    "submittedAttainmentId": "hy-kur-1"
+                "error": { "message": "Sisu operation timed out; outcome is uncertain." },
+                "result": {
+                    "submittedAttainmentId": "hy-kur-1",
+                    "submittedAttainmentType": "AssessmentItemAttainment"
                 }
             }]))
-            .expect("disclosed timeout");
+            .expect("timeout with an id");
         assert_eq!(
             items[0]
-                .error
+                .result
                 .as_ref()
-                .and_then(|error| error.submitted_attainment_id.as_deref()),
+                .and_then(|result| result.submitted_attainment_id.as_deref()),
             Some("hy-kur-1")
         );
     }
@@ -1159,12 +1184,6 @@ mod tests {
                         "submittedAttainmentId": "hy-kur-1",
                         "submittedAttainmentType": "AssessmentItemAttainment"
                     }
-                },
-                {
-                    "requestItemId": "cr-2",
-                    "status": "ok",
-                    "code": "registered",
-                    "result": { "attainment": { "id": "final-id", "type": "CourseUnitAttainment" } }
                 },
                 {
                     "requestItemId": "cr-3",
@@ -1199,15 +1218,7 @@ mod tests {
 
         let sent = items[0].result.as_ref().expect("sent result");
         assert_eq!(sent.submitted_attainment_id.as_deref(), Some("hy-kur-1"));
-        let registered = items[1].result.as_ref().expect("registered result");
-        assert_eq!(
-            registered
-                .attainment
-                .as_ref()
-                .map(|attainment| attainment.id.as_str()),
-            Some("final-id")
-        );
-        let duplicate = items[2].result.as_ref().expect("duplicate result");
+        let duplicate = items[1].result.as_ref().expect("duplicate result");
         assert_eq!(
             duplicate
                 .attainment
@@ -1215,7 +1226,7 @@ mod tests {
                 .and_then(|attainment| attainment.grade_id.as_deref()),
             Some("1")
         );
-        let not_improved = items[3].result.as_ref().expect("not improved result");
+        let not_improved = items[2].result.as_ref().expect("not improved result");
         assert_eq!(
             not_improved
                 .previous_attainment
@@ -1272,17 +1283,17 @@ mod tests {
 
     #[test]
     fn a_batch_over_the_endpoints_size_is_refused_before_the_request_is_built() {
-        let items: Vec<ResolvePersonRequestItem> = (0..101)
+        let items: Vec<ResolvePersonRequestItem> = (0..1001)
             .map(|index| ResolvePersonRequestItem {
                 request_item_id: format!("cr-{index}"),
                 student_number: "012345678".to_string(),
             })
             .collect();
         for (endpoint, size) in [
-            (SuotarEndpoint::ListByCourse, 10),
-            (SuotarEndpoint::ImportAttainments, 25),
-            (SuotarEndpoint::ResolvePersons, 50),
-            (SuotarEndpoint::VerifyAttainments, 100),
+            (SuotarEndpoint::ListByCourse, 50),
+            (SuotarEndpoint::ImportAttainments, 100),
+            (SuotarEndpoint::ResolvePersons, 1000),
+            (SuotarEndpoint::VerifyAttainments, 1000),
         ] {
             assert_eq!(endpoint.max_batch_size(), size, "{endpoint:?}");
             assert!(
@@ -1316,14 +1327,39 @@ mod tests {
             UtilErrorType::SuotarClientError(SuotarErrorVariant::MalformedRequest)
         ));
 
-        let server = classified(
-            503,
-            r#"{"error":{"code":"sisuTemporarilyUnavailable","message":"Sisu was temporarily unavailable."}}"#,
+        let too_large = classified(
+            413,
+            r#"{"error":{"code":"requestTooLarge","message":"Request body is too large."}}"#,
         );
         assert!(matches!(
-            server.error_type(),
+            too_large.error_type(),
+            UtilErrorType::SuotarClientError(SuotarErrorVariant::MalformedRequest)
+        ));
+
+        let unavailable = classified(
+            503,
+            r#"{"error":{"code":"serviceTemporarilyUnavailable","message":"Failed to fetch Sisu data."}}"#,
+        );
+        assert!(matches!(
+            unavailable.error_type(),
+            UtilErrorType::SuotarClientError(SuotarErrorVariant::ServiceTemporarilyUnavailable)
+        ));
+
+        let internal = classified(
+            500,
+            r#"{"error":{"code":"internalError","message":"Suotar failed to process the request."}}"#,
+        );
+        assert!(matches!(
+            internal.error_type(),
             UtilErrorType::SuotarClientError(SuotarErrorVariant::ServerError)
         ));
+
+        let unserved_path = classified(401, r#"{"error":"Unauthorized access"}"#);
+        assert!(matches!(
+            unserved_path.error_type(),
+            UtilErrorType::SuotarClientError(SuotarErrorVariant::RequestLevelError)
+        ));
+        assert!(unserved_path.message().contains("SUOTAR_API_BASE_URL"));
 
         let bodyless = classified(502, "<html>");
         assert!(matches!(
@@ -1338,6 +1374,7 @@ mod tests {
         assert!(!SuotarErrorVariant::Unauthorized.outcome_may_have_landed());
         assert!(!SuotarErrorVariant::MalformedRequest.outcome_may_have_landed());
         assert!(!SuotarErrorVariant::RequestLevelError.outcome_may_have_landed());
+        assert!(!SuotarErrorVariant::ServiceTemporarilyUnavailable.outcome_may_have_landed());
         assert!(SuotarErrorVariant::TransportUnknown.outcome_may_have_landed());
         assert!(SuotarErrorVariant::ServerError.outcome_may_have_landed());
         assert!(SuotarErrorVariant::Deserialization.outcome_may_have_landed());

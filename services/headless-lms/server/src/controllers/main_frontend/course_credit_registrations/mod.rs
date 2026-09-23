@@ -17,7 +17,6 @@ mod actions;
 mod export;
 mod retry;
 
-use headless_lms_models::course_module_suotar_realisations::CourseModuleSuotarRealisation;
 use headless_lms_models::course_modules::CourseModuleCreditRegistrationConfig;
 use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
@@ -106,8 +105,6 @@ pub(crate) struct MainFrontendCourseCreditRegistrationsApiDoc;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistrationModuleConfigs {
     pub modules: Vec<CourseModuleCreditRegistrationConfig>,
-    /// Every live realisation of every module of the course, to be grouped by `course_module_id`.
-    pub realisations: Vec<CourseModuleSuotarRealisation>,
 }
 
 /// What we can honestly say about a linking mail: our send status and the address's domain.
@@ -304,13 +301,7 @@ pub async fn get_course_credit_registration_module_configs(
     let modules =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
             .await?;
-    let realisations =
-        models::course_module_suotar_realisations::get_by_course_id(&mut conn, *course_id).await?;
-
-    token.authorized_ok(web::Json(CourseCreditRegistrationModuleConfigs {
-        modules,
-        realisations,
-    }))
+    token.authorized_ok(web::Json(CourseCreditRegistrationModuleConfigs { modules }))
 }
 
 /// One count group's stage, the same classification the group's own rows carry.

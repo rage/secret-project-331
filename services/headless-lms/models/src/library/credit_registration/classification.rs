@@ -1,6 +1,5 @@
 //! What a Suotar per-item `code` means: the one place the wire vocabulary is spelled out, and the
-//! one place retryability is decided. The mock Suotar's fault validator reads it too. Timing (how
-//! long to wait) is [`super::backoff`].
+//! one place retryability is decided. Timing (how long to wait) is [`super::backoff`].
 
 use utoipa::ToSchema;
 
@@ -25,7 +24,9 @@ pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
     use CreditRegistrationErrorCode as Code;
     use Retryability as Class;
     match code {
-        Code::SisuTemporarilyUnavailable | Code::TransportError => Class::RetryableTransient,
+        Code::ServiceTemporarilyUnavailable | Code::TransportError => Class::RetryableTransient,
+        // Suotar found no trace of the submission, so it goes back to import.
+        Code::NotRegistered => Class::RetryableTransient,
         // Our credentials or our request shape: re-queue the batch rather than blame its rows.
         Code::Unauthorized | Code::MalformedRequest => Class::RetryableTransient,
         // An answer we could not read says nothing about the row.
@@ -38,12 +39,12 @@ pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
         Code::CourseCodeNotFound
         | Code::CourseNotAllowed
         | Code::InvalidGradeForGradeScale
+        | Code::GradeScaleMismatch
         | Code::InvalidCredits
         | Code::NoGradeScaleMapping
         | Code::MissingUhCourseCode
         | Code::MissingEctsCredits => Class::PermanentNeedsConfig,
-        Code::AcceptorNotFound
-        | Code::SisuValidationFailed
+        Code::SisuValidationFailed
         | Code::Misregistered
         | Code::RetryWindowExpired
         | Code::Unknown => Class::PermanentNeedsAdmin,
@@ -55,8 +56,8 @@ pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
 pub enum WireOutcome {
     /// The answer settles the row, in this state.
     Settled(CreditRegistrationState),
-    /// A real answer that decides nothing: the lookup endpoints' success codes, and verify's
-    /// `notRegistered`, which only means Sisu has not finished yet.
+    /// A real answer that decides nothing by itself: the lookup endpoints' success codes, and
+    /// verify's `submissionPending`, which only means Sisu has not finished yet.
     Unsettled,
     Failure(CreditRegistrationErrorCode),
 }
@@ -69,30 +70,33 @@ fn wire_outcome(code: &str) -> WireOutcome {
     use CreditRegistrationErrorCode as Code;
     use CreditRegistrationState as State;
     match code {
-        // The four import answers that end a row, and verify's `registered`, which is the same
-        // answer arriving later.
         "sent" => WireOutcome::Settled(State::AwaitingVerification),
+        // An error on the wire, but it names the submission an earlier item of the batch made for
+        // the same completion, which is ours to verify.
+        "duplicateRequestItem" => WireOutcome::Settled(State::AwaitingVerification),
         "registered" => WireOutcome::Settled(State::Registered),
         "duplicateAttainment" => WireOutcome::Settled(State::Duplicate),
         "notImprovedAttainment" => WireOutcome::Settled(State::NotImproved),
-        "personFound" | "enrolmentFound" | "found" | "enrolmentsListed" | "notRegistered" => {
-            WireOutcome::Unsettled
-        }
+        "personFound" | "enrolmentFound" | "enrolmentsListed" | "courseAllowed"
+        | "submissionPending" => WireOutcome::Unsettled,
+        "notRegistered" => WireOutcome::Failure(Code::NotRegistered),
         "personNotFound" => WireOutcome::Failure(Code::PersonNotFound),
         "courseCodeNotFound" => WireOutcome::Failure(Code::CourseCodeNotFound),
         "enrolmentNotFound" => WireOutcome::Failure(Code::EnrolmentNotFound),
         "enrolmentNotAccepted" => WireOutcome::Failure(Code::EnrolmentNotAccepted),
         "invalidGradeForGradeScale" => WireOutcome::Failure(Code::InvalidGradeForGradeScale),
+        "gradeScaleMismatch" => WireOutcome::Failure(Code::GradeScaleMismatch),
         "courseNotAllowed" => WireOutcome::Failure(Code::CourseNotAllowed),
         "invalidCredits" => WireOutcome::Failure(Code::InvalidCredits),
         "studyRightNotValid" => WireOutcome::Failure(Code::StudyRightNotValid),
-        "acceptorNotFound" => WireOutcome::Failure(Code::AcceptorNotFound),
         "sisuValidationFailed" => WireOutcome::Failure(Code::SisuValidationFailed),
         "sisuTimeout" => WireOutcome::Failure(Code::SisuTimeout),
         "misregistered" => WireOutcome::Failure(Code::Misregistered),
         "unauthorized" => WireOutcome::Failure(Code::Unauthorized),
         "malformedRequest" => WireOutcome::Failure(Code::MalformedRequest),
-        "sisuTemporarilyUnavailable" => WireOutcome::Failure(Code::SisuTemporarilyUnavailable),
+        "serviceTemporarilyUnavailable" => {
+            WireOutcome::Failure(Code::ServiceTemporarilyUnavailable)
+        }
         _ => WireOutcome::Failure(Code::Unknown),
     }
 }
@@ -101,27 +105,28 @@ fn wire_outcome(code: &str) -> WireOutcome {
 /// endpoint to name goes through here.
 pub fn outcome_of(endpoint: SuotarEndpoint, code: &str) -> WireOutcome {
     let outcome = wire_outcome(code);
-    // Import's contract has no per-item transient, so one arriving there is no evidence that
-    // nothing was created; retrying it could put a second attainment on a transcript.
-    if endpoint == SuotarEndpoint::ImportAttainments
-        && outcome == WireOutcome::Failure(CreditRegistrationErrorCode::SisuTemporarilyUnavailable)
-    {
-        return WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout);
+    if endpoint != SuotarEndpoint::ImportAttainments {
+        return outcome;
     }
-    outcome
-}
-
-/// The class the contract gives a wire code, before any hardening of ours, which is what the mock's
-/// fault validator needs.
-pub fn wire_code_retryability(code: &str) -> Option<Retryability> {
-    match wire_outcome(code) {
-        WireOutcome::Failure(code) => Some(retryability(code)),
-        _ => None,
+    match outcome {
+        // Import's contract has no per-item transient, so one arriving there is no evidence that
+        // nothing was created; retrying it could put a second attainment on a transcript.
+        WireOutcome::Failure(CreditRegistrationErrorCode::ServiceTemporarilyUnavailable) => {
+            WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout)
+        }
+        // `registered` is not an import answer, so what the item created is unknown.
+        WireOutcome::Settled(CreditRegistrationState::Registered) => {
+            WireOutcome::Failure(CreditRegistrationErrorCode::Unknown)
+        }
+        outcome => outcome,
     }
 }
 
-pub fn is_retryable_transient_wire_code(code: &str) -> bool {
-    wire_code_retryability(code) == Some(Retryability::RetryableTransient)
+/// Whether an item says the registry could not be reached right now. The contract has this only at
+/// the request level, so an item carrying it is Suotar changing, and worth backing off from.
+pub fn is_service_unavailable_wire_code(code: &str) -> bool {
+    wire_outcome(code)
+        == WireOutcome::Failure(CreditRegistrationErrorCode::ServiceTemporarilyUnavailable)
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
@@ -152,7 +157,11 @@ mod tests {
     #[test]
     fn retryability_matches_the_documented_class_for_every_code() {
         let cases = [
-            (Code::SisuTemporarilyUnavailable, Class::RetryableTransient),
+            (
+                Code::ServiceTemporarilyUnavailable,
+                Class::RetryableTransient,
+            ),
+            (Code::NotRegistered, Class::RetryableTransient),
             (Code::TransportError, Class::RetryableTransient),
             (Code::Unauthorized, Class::RetryableTransient),
             (Code::MalformedRequest, Class::RetryableTransient),
@@ -165,11 +174,11 @@ mod tests {
             (Code::CourseCodeNotFound, Class::PermanentNeedsConfig),
             (Code::CourseNotAllowed, Class::PermanentNeedsConfig),
             (Code::InvalidGradeForGradeScale, Class::PermanentNeedsConfig),
+            (Code::GradeScaleMismatch, Class::PermanentNeedsConfig),
             (Code::InvalidCredits, Class::PermanentNeedsConfig),
             (Code::NoGradeScaleMapping, Class::PermanentNeedsConfig),
             (Code::MissingUhCourseCode, Class::PermanentNeedsConfig),
             (Code::MissingEctsCredits, Class::PermanentNeedsConfig),
-            (Code::AcceptorNotFound, Class::PermanentNeedsAdmin),
             (Code::SisuValidationFailed, Class::PermanentNeedsAdmin),
             (Code::Misregistered, Class::PermanentNeedsAdmin),
             (Code::RetryWindowExpired, Class::PermanentNeedsAdmin),
@@ -185,27 +194,13 @@ mod tests {
         }
     }
 
-    /// Import's hardening must not reach the wire class, or the mock's fault validator would stop
-    /// refusing the one combination it guards.
     #[test]
-    fn the_wire_class_of_the_transient_code_ignores_imports_hardening() {
-        assert!(is_retryable_transient_wire_code(
-            "sisuTemporarilyUnavailable"
+    fn only_the_unavailability_code_reads_as_the_registry_being_unreachable() {
+        assert!(is_service_unavailable_wire_code(
+            "serviceTemporarilyUnavailable"
         ));
-        assert_eq!(
-            map_code(
-                SuotarEndpoint::ImportAttainments,
-                "sisuTemporarilyUnavailable"
-            )
-            .map(retryability),
-            Some(Class::VerifyOnly)
-        );
-    }
-
-    #[test]
-    fn a_code_that_names_no_failure_has_no_wire_class() {
-        assert_eq!(wire_code_retryability("registered"), None);
-        assert_eq!(wire_code_retryability("notRegistered"), None);
+        assert!(!is_service_unavailable_wire_code("notRegistered"));
+        assert!(!is_service_unavailable_wire_code("sisuTimeout"));
     }
 
     #[test]
@@ -219,8 +214,8 @@ mod tests {
             ),
             (
                 SuotarEndpoint::ResolvePersons,
-                "sisuTemporarilyUnavailable",
-                Code::SisuTemporarilyUnavailable,
+                "serviceTemporarilyUnavailable",
+                Code::ServiceTemporarilyUnavailable,
             ),
             (
                 SuotarEndpoint::ResolveEnrolments,
@@ -264,8 +259,18 @@ mod tests {
             ),
             (
                 SuotarEndpoint::ImportAttainments,
-                "acceptorNotFound",
-                Code::AcceptorNotFound,
+                "gradeScaleMismatch",
+                Code::GradeScaleMismatch,
+            ),
+            (
+                SuotarEndpoint::ImportAttainments,
+                "registered",
+                Code::Unknown,
+            ),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "notRegistered",
+                Code::NotRegistered,
             ),
             (
                 SuotarEndpoint::ImportAttainments,
@@ -284,8 +289,8 @@ mod tests {
             ),
             (
                 SuotarEndpoint::VerifyAttainments,
-                "sisuTemporarilyUnavailable",
-                Code::SisuTemporarilyUnavailable,
+                "serviceTemporarilyUnavailable",
+                Code::ServiceTemporarilyUnavailable,
             ),
             (
                 SuotarEndpoint::ListByCourse,
@@ -318,13 +323,13 @@ mod tests {
             (SuotarEndpoint::ResolvePersons, "personFound"),
             (SuotarEndpoint::ResolveEnrolments, "enrolmentFound"),
             (SuotarEndpoint::ImportAttainments, "sent"),
-            (SuotarEndpoint::ImportAttainments, "registered"),
+            (SuotarEndpoint::ImportAttainments, "duplicateRequestItem"),
             (SuotarEndpoint::ImportAttainments, "duplicateAttainment"),
             (SuotarEndpoint::ImportAttainments, "notImprovedAttainment"),
             (SuotarEndpoint::VerifyAttainments, "registered"),
-            (SuotarEndpoint::ProductAccessTokens, "found"),
+            (SuotarEndpoint::VerifyAttainments, "submissionPending"),
             (SuotarEndpoint::ListByCourse, "enrolmentsListed"),
-            (SuotarEndpoint::VerifyAttainments, "notRegistered"),
+            (SuotarEndpoint::ValidateCourseCodes, "courseAllowed"),
         ] {
             assert_eq!(map_code(endpoint, code), None, "{code} on {endpoint:?}");
         }
@@ -335,7 +340,7 @@ mod tests {
         assert_eq!(
             map_code(
                 SuotarEndpoint::ImportAttainments,
-                "sisuTemporarilyUnavailable"
+                "serviceTemporarilyUnavailable"
             ),
             Some(CreditRegistrationErrorCode::SisuTimeout)
         );
@@ -348,7 +353,7 @@ mod tests {
         use CreditRegistrationState as State;
         for (code, expected) in [
             ("sent", State::AwaitingVerification),
-            ("registered", State::Registered),
+            ("duplicateRequestItem", State::AwaitingVerification),
             ("duplicateAttainment", State::Duplicate),
             ("notImprovedAttainment", State::NotImproved),
         ] {
@@ -362,7 +367,16 @@ mod tests {
             settled_state(SuotarEndpoint::VerifyAttainments, "registered"),
             Some(State::Registered)
         );
-        for code in ["notRegistered", "personFound", "sisuTimeout"] {
+        assert_eq!(
+            settled_state(SuotarEndpoint::ImportAttainments, "registered"),
+            None
+        );
+        for code in [
+            "notRegistered",
+            "submissionPending",
+            "personFound",
+            "sisuTimeout",
+        ] {
             assert_eq!(
                 settled_state(SuotarEndpoint::VerifyAttainments, code),
                 None,

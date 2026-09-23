@@ -47,6 +47,8 @@ pub struct SuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    /// Every requestItemId the call sent, in request order.
+    pub request_item_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,6 +70,7 @@ pub struct NewSuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    pub request_item_ids: Vec<String>,
 }
 
 pub async fn insert(conn: &mut PgConnection, new: &NewSuotarApiCall) -> ModelResult<Uuid> {
@@ -87,7 +90,8 @@ INSERT INTO suotar_api_calls (
     response_body_sample,
     credit_registration_ids,
     worker_name,
-    started_at
+    started_at,
+    request_item_ids
   )
 VALUES (
     $1,
@@ -103,7 +107,8 @@ VALUES (
     $11,
     $12,
     $13,
-    $14
+    $14,
+    $15
   )
 RETURNING id
         "#,
@@ -121,6 +126,7 @@ RETURNING id
         &new.credit_registration_ids,
         new.worker_name,
         new.started_at,
+        &new.request_item_ids,
     )
     .fetch_one(conn)
     .await?;
@@ -227,6 +233,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             credit_registration_ids: started.credit_registration_ids,
             worker_name: started.worker_name,
             started_at: started.started_at,
+            request_item_ids: started.request_item_ids,
         };
         let mut conn = match self.pool.acquire().await {
             Ok(conn) => conn,

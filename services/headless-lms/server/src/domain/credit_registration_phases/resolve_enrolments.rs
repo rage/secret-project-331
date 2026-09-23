@@ -13,9 +13,8 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, RequestPurpose,
-    Transition, claim_due, increment_submit_retry_count, request_item_id, set_payload_snapshot,
-    transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
+    claim_due, increment_submit_retry_count, set_payload_snapshot, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
@@ -36,7 +35,7 @@ use headless_lms_models::library::credit_registration::submission_context::{
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext,
-    SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use sqlx::PgConnection;
 
@@ -117,7 +116,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     )
                     .await?;
                     let request = ResolveEnrolmentRequestItem {
-                        request_item_id: request_item_id(&row, RequestPurpose::Submission),
+                        request_item_id: new_request_item_id(),
                         student_number: item.student_number,
                         course_code: item.course_code,
                     };
@@ -135,10 +134,6 @@ impl SuotarBatchPhase for ResolveEnrolments {
 
     fn registration((row, _): &Self::Row) -> &CreditRegistration {
         row
-    }
-
-    fn request_item_id((row, _): &Self::Row) -> String {
-        request_item_id(row, RequestPurpose::Submission)
     }
 
     fn sent_student_number((_, context): &Self::Row) -> Option<&str> {
@@ -177,6 +172,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         conn: &mut PgConnection,
         (row, _): &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
         apply_request_level_outcome(
@@ -184,6 +180,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
             SuotarEndpoint::ResolveEnrolments,
             row,
             request,
+            request_item_id,
             error,
             CreditRegistrationState::ResolvingEnrolment,
         )
@@ -284,7 +281,7 @@ async fn choose(
         !improves_on(
             attained,
             context,
-            enrolment.map(|enrolment| enrolment.grade_scale_id.as_str()),
+            enrolment.and_then(|enrolment| enrolment.grade_scale_id.as_deref()),
         )
     });
     if let Some((attained, _)) = already_attained {
@@ -306,6 +303,7 @@ async fn choose(
                         .to_string(),
                 ),
                 suotar_api_call_id: event.suotar_api_call_id,
+                request_item_id: event.request_item_id.map(str::to_string),
                 event_details: Some(details),
                 // The row spent the Suotar round trip unlocked, so an admin action may have already
                 // moved it out of `resolving_enrolment`.
@@ -326,7 +324,6 @@ async fn choose(
         EnrolmentCriteria {
             attainment_date,
             credits,
-            configured_realisation_ids: &context.configured_realisation_ids,
         },
     );
     let chosen = match chosen {
@@ -396,6 +393,7 @@ async fn choose(
             event_kind: CreditRegistrationEventKind::SuotarResponse,
             event_message: clamped,
             suotar_api_call_id: event.suotar_api_call_id,
+            request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(details),
             expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
             ..Transition::to(CreditRegistrationState::CheckingEnrolment)
@@ -422,8 +420,11 @@ fn improves_on(
         enrolment_grade_scale_id,
     })
     .is_ok_and(|mapped| {
-        compare_grades(&attained.grade_scale_id, &attained.grade_id, &mapped)
-            == GradeComparison::Better
+        let (Some(grade_scale_id), Some(grade_id)) = (&attained.grade_scale_id, &attained.grade_id)
+        else {
+            return false;
+        };
+        compare_grades(grade_scale_id, grade_id, &mapped) == GradeComparison::Better
     })
 }
 

@@ -17,8 +17,8 @@ export type MockSuotarEndpoint =
   | "resolve_enrolments"
   | "import_attainments"
   | "verify_attainments"
-  | "product_access_tokens"
   | "list_by_course"
+  | "validate_course_codes"
 
 /** Required on every fault. A post-commit stage means something different from a pre-write one. */
 export type MockSuotarStage =
@@ -58,8 +58,11 @@ export interface MockSuotarEnrolmentUpsert {
   realisationId?: string
   kind?: MockSuotarRealisationKind
   state: MockSuotarEnrolmentState
-  studyRightId?: string
-  studyRightValidityPeriod: MockSuotarDatePeriod
+  /** Omitted derives one from `kind`; `null` is an enrolment with no study right at all. */
+  studyRightId?: string | null
+  /** Omitted is a study right the registry did not return. */
+  studyRightValidityPeriod?: MockSuotarDatePeriod
+  studyRightGrantDate?: string
   enrolmentDateTime?: string
 }
 
@@ -71,14 +74,12 @@ export type MockSuotarPredicate =
   | { owner: MockSuotarOwnerRef }
 
 export type MockSuotarEffect =
-  | {
-      kind: "itemLevel"
-      code: string
-      message?: string
-      discloseSubmittedAttainmentId?: boolean
-    }
+  | { kind: "itemLevel"; code: string; message?: string }
   | { kind: "requestLevel"; status: number; code: string; message?: string }
+  | { kind: "rawBody"; status: number; body: string; contentType?: string }
   | { kind: "connectionReset" }
+  /** Only at `respond`: the item is left out of the response whatever became of it. */
+  | { kind: "dropItem" }
 
 /** Omitted means until disarmed. */
 export interface MockSuotarLifetime {
@@ -111,6 +112,7 @@ export interface MockSuotarCallFilter {
 
 export type MockSuotarSubmissionTarget =
   | "registered"
+  | "partiallyRegistered"
   | "misregistered"
   | "notRegistered"
   | "timedOutButLanded"
@@ -168,6 +170,8 @@ export interface MockSuotarAttainmentUpsert {
   gradeScaleId: string
   gradeId: string
   passed?: boolean
+  /** Omitted counts as equal to whatever is imported against it. */
+  credits?: number
 }
 
 /** An attainment the registry holds without our having submitted it. */
@@ -189,6 +193,22 @@ export const transitionMockSuotarSubmissionsFor = (
     courseCode,
     to,
   })
+
+/** Moves the student's submissions back in time, so a spec can cross the 24-hour pending window. */
+export const ageMockSuotarSubmissions = (
+  request: APIRequestContext,
+  studentNumber: string,
+  hours: number,
+  courseCode?: string,
+) => sendCommand(request, { command: "ageSubmissions", studentNumber, courseCode, hours })
+
+/** What Sisu refuses the student's attainments on the course with. An empty list clears them. */
+export const setMockSuotarSisuViolations = (
+  request: APIRequestContext,
+  studentNumber: string,
+  courseCode: string,
+  violations: string[],
+) => sendCommand(request, { command: "setSisuViolations", studentNumber, courseCode, violations })
 
 /**
  * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a

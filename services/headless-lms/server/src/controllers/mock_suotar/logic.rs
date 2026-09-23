@@ -2,114 +2,129 @@
 //!
 //! The caller resolves faults ahead of this, so per item the order is first matching fault, then here.
 
-use headless_lms_utils::services::suotar::SuotarEndpoint;
+use chrono::{Duration, Months, NaiveDate};
 
 use crate::prelude::*;
 
 use super::ids;
 use super::wire::{
-    self, ImportAttainmentResult, SuotarAttainment, SuotarResponseItem, error_item, ok_item,
+    self, AttainmentReference, AttainmentSummary, COURSE_NOT_CARRIED, CourseAllowedResult,
+    DuplicateAttainmentResult, Endpoint, EnrolmentResolutionResult, EnrolmentsListedResult,
+    ExistingAttainment, ListedEnrolment, ListedPerson, NotImprovedAttainmentResult,
+    RegisteredResult, ResponseItem, SubmissionPendingResult, SubmittedAttainment, iso_millis,
 };
 use super::world::{
-    AttainmentState, DuplicateDetection, EnrolmentState, MockAttainment, MockCourseUnit,
-    MockEnrolment, MockRealisation, MockSubmission, Ripeness, SubmissionLifecycle, WorkingSet,
-    WorldWrite, person_course_key,
+    AttainmentState, EnrolmentState, ImporterVisibility, MockAttainment, MockCourseUnit,
+    MockEnrolment, MockRealisation, MockStudyRight, MockSubmission, PENDING_WINDOW_HOURS,
+    SendState, UNSETTLED_COURSE_CODES, WorkingSet, WorldWrite, person_course_key,
 };
+
+/// Suotar's approver violation, as its translation table words it.
+const NO_ACCEPTORS_VIOLATION: &str = "Approver is required.";
 
 pub fn resolve_person_item(
     item: &wire::ResolvePersonRequestItem,
     working: &WorkingSet,
-) -> SuotarResponseItem<wire::PersonResult> {
-    let endpoint = SuotarEndpoint::ResolvePersons;
+) -> ResponseItem {
     match working.persons.get(&item.student_number) {
-        Some(person) => ok_item(
+        Some(person) => ResponseItem::ok(
             &item.request_item_id,
             "personFound",
             wire::PersonResult {
-                // Echoed verbatim rather than re-derived, so a client that mismatches numbers shows.
-                student_number: item.student_number.clone(),
+                student_number: person.student_number.clone(),
                 person_id: person.person_id.clone(),
                 first_names: person.first_names.clone(),
                 last_name: person.last_name.clone(),
             },
         ),
-        None => error_item(endpoint, &item.request_item_id, "personNotFound"),
+        None => ResponseItem::error(
+            Endpoint::ResolvePersons,
+            &item.request_item_id,
+            "personNotFound",
+        ),
     }
 }
 
 pub fn resolve_enrolments_item(
     item: &wire::ResolveEnrolmentRequestItem,
-    working: &mut WorkingSet,
-    now: DateTime<Utc>,
-) -> SuotarResponseItem<wire::EnrolmentResolutionResult> {
-    let endpoint = SuotarEndpoint::ResolveEnrolments;
+    working: &WorkingSet,
+) -> ResponseItem {
+    let endpoint = Endpoint::ResolveEnrolments;
     let id = &item.request_item_id;
     if !working.persons.contains_key(&item.student_number) {
-        return error_item(endpoint, id, "personNotFound");
+        return ResponseItem::error(endpoint, id, "personNotFound");
     }
-    let Some(course_unit) = working.course_units.get(&item.course_code).cloned() else {
-        return error_item(endpoint, id, "courseCodeNotFound");
+    let Some(course_unit) = working.course_units.get(&item.course_code) else {
+        return ResponseItem::error(endpoint, id, "courseCodeNotFound");
     };
-    // Ripening here as well as in verify keeps the two reads from contradicting each other.
-    ripen_person_course(working, &item.student_number, &item.course_code, now);
 
-    let matching: Vec<MockEnrolment> =
-        enrolments_for(working, &item.student_number, &item.course_code);
-    if matching.is_empty() {
-        return error_item(endpoint, id, "enrolmentNotFound");
+    // The importer hands over ENROLLED enrolments only, so `enrolmentNotAccepted` is unreachable.
+    let mut enrolled: Vec<&MockEnrolment> =
+        enrolments_for(working, &item.student_number, &item.course_code)
+            .into_iter()
+            .filter(|enrolment| enrolment.state == EnrolmentState::Enrolled)
+            .collect();
+    if enrolled.is_empty() {
+        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
     }
-    if !matching
-        .iter()
-        .any(|enrolment| enrolment.state == EnrolmentState::Enrolled)
-    {
-        return error_item(endpoint, id, "enrolmentNotAccepted");
-    }
+    enrolled.sort_by_key(|enrolment| enrolment.enrolment_date_time);
 
-    let mut listed: Vec<&MockEnrolment> = matching
-        .iter()
-        .filter(|enrolment| {
-            working.defaults.include_non_enrolled_in_result
-                || enrolment.state == EnrolmentState::Enrolled
-        })
-        .collect();
-    listed.sort_by_key(|enrolment| enrolment.enrolment_date_time);
-
-    let enrolments = listed
+    let enrolments = enrolled
         .into_iter()
         .filter_map(|enrolment| {
             course_unit
                 .realisation(&enrolment.realisation_id)
-                .map(|realisation| enrolment_dto(&course_unit, enrolment, realisation))
+                .map(|realisation| enrolment_dto(course_unit, enrolment, realisation))
         })
         .collect();
 
-    ok_item(
+    let mut existing: Vec<&MockAttainment> =
+        attainments_for(working, &item.student_number, &item.course_code);
+    existing.sort_by(|a, b| {
+        a.attainment_date
+            .cmp(&b.attainment_date)
+            .then_with(|| a.id.cmp(&b.id))
+    });
+
+    ResponseItem::ok(
         id,
         "enrolmentFound",
-        wire::EnrolmentResolutionResult {
+        EnrolmentResolutionResult {
             enrolments,
-            existing_attainments: existing_attainments(
-                working,
-                &item.student_number,
-                &item.course_code,
-            ),
+            existing_attainments: existing.into_iter().map(existing_attainment).collect(),
         },
     )
 }
 
-pub fn import_item(
+/// What resolving one import item comes to before anything is written.
+pub enum ImportResolution {
+    Answered(ResponseItem),
+    /// Survived every check; the entry to write, not yet sent.
+    Write(Box<MockSubmission>),
+}
+
+/// Suotar's checks in its own order, first failure wins.
+pub fn resolve_import_item(
     item: &wire::ImportAttainmentRequestItem,
-    working: &mut WorkingSet,
+    working: &WorkingSet,
     now: DateTime<Utc>,
-) -> SuotarResponseItem<ImportAttainmentResult> {
-    let endpoint = SuotarEndpoint::ImportAttainments;
+) -> ImportResolution {
+    let endpoint = Endpoint::ImportAttainments;
     let id = &item.request_item_id;
-    let Some(person) = working.persons.get(&item.student_number).cloned() else {
-        return error_item(endpoint, id, "personNotFound");
+    let answer = |code: &str| ImportResolution::Answered(ResponseItem::error(endpoint, id, code));
+    let reject = |code: &str, message: String| {
+        ImportResolution::Answered(ResponseItem::error_with_message(id, code, message))
     };
-    // Import's error list has no `courseCodeNotFound`, so an unknown course code degrades here.
-    let Some(course_unit) = working.course_units.get(&item.course_code).cloned() else {
-        return error_item(endpoint, id, "enrolmentNotFound");
+
+    let course_unit = working.course_units.get(&item.course_code);
+    if let Some(reason) = course_not_allowed_reason(&item.course_code, course_unit) {
+        return reject("courseNotAllowed", reason);
+    }
+    let Some(course_unit) = course_unit else {
+        return reject("courseNotAllowed", COURSE_NOT_CARRIED.to_string());
+    };
+    let Some(person) = working.persons.get(&item.student_number) else {
+        return answer("personNotFound");
     };
     let enrolment = working
         .enrolments
@@ -118,450 +133,539 @@ pub fn import_item(
             enrolment.student_number == item.student_number
                 && enrolment.course_code == item.course_code
                 && enrolment.state == EnrolmentState::Enrolled
-        })
-        .cloned();
-    let Some(enrolment) = enrolment else {
-        return error_item(endpoint, id, "enrolmentNotFound");
-    };
-    if !course_unit.behaviour.import_allowed {
-        return error_item(endpoint, id, "courseNotAllowed");
-    }
-    let Some(realisation) = course_unit.realisation(&enrolment.realisation_id).cloned() else {
-        return error_item(endpoint, id, "enrolmentNotFound");
+        });
+    let Some((enrolment, realisation)) = enrolment.and_then(|enrolment| {
+        course_unit
+            .realisation(&enrolment.realisation_id)
+            .map(|realisation| (enrolment, realisation))
+    }) else {
+        return answer("enrolmentNotFound");
     };
 
-    let scale = working.defaults.scale(&realisation.grade_scale_id);
-    let grade_matches_scale = working
-        .defaults
-        .scale(&item.grade_scale_id)
-        .zip(scale)
-        .is_some_and(|(requested, expected)| requested.id == expected.id);
-    let grade = scale.and_then(|scale| scale.grade(&item.grade_id));
-    if !grade_matches_scale || grade.is_none() {
-        return error_item(endpoint, id, "invalidGradeForGradeScale");
+    let Some(credits) = &course_unit.credits else {
+        return reject(
+            "invalidCredits",
+            format!(
+                "Sisu gives no credit range for course {}.",
+                item.course_code
+            ),
+        );
+    };
+    if item.credits < credits.min || item.credits > credits.max {
+        return reject(
+            "invalidCredits",
+            format!(
+                "Credits must be between {} and {} for course {}.",
+                credits.min, credits.max, item.course_code
+            ),
+        );
     }
-    if item.credits < realisation.credits.min || item.credits > realisation.credits.max {
-        return error_item(endpoint, id, "invalidCredits");
-    }
-    if !enrolment
-        .study_right_validity_period
-        .contains(item.attainment_date)
+
+    let grade_scale_id = course_unit.grade_scale_for(realisation);
+    if let Some(expected) = &grade_scale_id
+        && &item.grade_scale_id != expected
     {
-        return error_item(endpoint, id, "studyRightNotValid");
+        return reject(
+            "gradeScaleMismatch",
+            format!(
+                "Grade scale {} was sent, but the enrolment is graded on {expected}.",
+                item.grade_scale_id
+            ),
+        );
     }
-    if realisation.acceptor_person_id.is_none() {
-        return error_item(endpoint, id, "acceptorNotFound");
-    }
-    if !realisation.activity_period.contains(item.attainment_date) {
-        return error_item(endpoint, id, "sisuValidationFailed");
+    let is_known_grade = grade_scale_id
+        .as_deref()
+        .and_then(|scale_id| working.defaults.scale(scale_id))
+        .is_some_and(|scale| scale.grade(&item.grade_id).is_some());
+    if !is_known_grade {
+        return answer("invalidGradeForGradeScale");
     }
 
-    ripen_person_course(working, &item.student_number, &item.course_code, now);
-
-    if working.duplicate_detection_for(&item.student_number) == DuplicateDetection::Detect
-        && let Some(outcome) = duplicate_outcome(item, working, &realisation)
-    {
-        return outcome;
+    let incoming = IncomingGrade::of(&item.grade_scale_id, &item.grade_id);
+    let mut earlier: Vec<&MockAttainment> =
+        attainments_for(working, &item.student_number, &item.course_code)
+            .into_iter()
+            .filter(|attainment| attainment.state != AttainmentState::Misregistered)
+            .collect();
+    earlier.sort_by_key(|attainment| std::cmp::Reverse(attainment.attainment_date));
+    // Suotar reports the newest attainment on the course, not necessarily the one that decided.
+    if let Some(newest) = earlier.first() {
+        if earlier
+            .iter()
+            .any(|attainment| is_identical(attainment, incoming, item, working))
+        {
+            return ImportResolution::Answered(ResponseItem::ok(
+                id,
+                "duplicateAttainment",
+                DuplicateAttainmentResult {
+                    attainment: attainment_summary(newest),
+                },
+            ));
+        }
+        if !earlier
+            .iter()
+            .all(|attainment| beats(incoming, attainment, item, working))
+        {
+            return ImportResolution::Answered(ResponseItem::ok(
+                id,
+                "notImprovedAttainment",
+                NotImprovedAttainmentResult {
+                    previous_attainment: attainment_summary(newest),
+                },
+            ));
+        }
     }
 
-    let attempt = working
-        .submissions_by_person_course
-        .get(&person_course_key(&item.student_number, &item.course_code))
-        .map_or(0, |ids| ids.len()) as u32
-        + 1;
-    let submitted_attainment_id = ids::submitted_attainment_id(
-        &item.student_number,
-        &item.course_code,
-        &item.enrolment_id,
-        item.attainment_date,
-        &realisation.grade_scale_id,
-        &item.grade_id,
-        item.credits,
-        attempt,
-    );
-    let ripeness = working.ripeness_for(&item.student_number);
-    let submission = MockSubmission {
-        submitted_attainment_id: submitted_attainment_id.clone(),
-        submitted_attainment_type: "AssessmentItemAttainment".to_string(),
+    let adjusted_completion_date = match &enrolment.study_right {
+        Some(study_right) => clamp_into_study_right(item.attainment_date, study_right),
+        None if person.behaviour.study_right_unresolvable => return answer("studyRightNotValid"),
+        None => item.attainment_date,
+    };
+
+    ImportResolution::Write(Box::new(MockSubmission {
+        submitted_attainment_id: ids::submitted_attainment_id(),
+        request_item_id: id.clone(),
         student_number: item.student_number.clone(),
         course_code: item.course_code.clone(),
-        enrolment_id: item.enrolment_id.clone(),
+        enrolment_id: enrolment.id.clone(),
         realisation_id: realisation.id.clone(),
         person_id: person.person_id.clone(),
         course_unit_id: course_unit.course_unit_id.clone(),
         assessment_item_id: realisation.assessment_item_id.clone(),
         attainment_date: item.attainment_date,
+        adjusted_completion_date,
         attainment_language: item.attainment_language.clone(),
-        grade_scale_id: realisation.grade_scale_id.clone(),
+        grade_scale_id: item.grade_scale_id.clone(),
         grade_id: item.grade_id.clone(),
         credits: item.credits,
-        lifecycle: SubmissionLifecycle::Pending { ripeness },
-        verify_calls: 0,
-        id_disclosed_to_client: false,
+        send_state: SendState::NotSent,
+        violations: Vec::new(),
+        importer: ImporterVisibility::None,
         created_at: now,
-    };
-    record_submission(working, submission);
+    }))
+}
 
-    if ripen(working, &submitted_attainment_id, now)
-        && let Some(SubmissionLifecycle::Registered { attainment_id, .. }) = working
-            .submissions
-            .get(&submitted_attainment_id)
-            .map(|submission| submission.lifecycle.clone())
+/// Whether the batch's acceptor lookup would fail for any of these entries' course units.
+pub fn acceptor_lookup_fails(working: &WorkingSet, submissions: &[MockSubmission]) -> bool {
+    submissions.iter().any(|submission| {
+        working
+            .course_units
+            .get(&submission.course_code)
+            .is_some_and(|unit| unit.behaviour.acceptor_lookup_fails)
+    })
+}
+
+/// Writes the entry and sends it: refused by Sisu when the world holds violations for it, accepted
+/// otherwise.
+pub fn write_and_send(working: &mut WorkingSet, mut submission: MockSubmission) -> ResponseItem {
+    let mut violations = working
+        .sisu_violations
+        .get(&person_course_key(
+            &submission.student_number,
+            &submission.course_code,
+        ))
+        .cloned()
+        .unwrap_or_default();
+    if working
+        .course_units
+        .get(&submission.course_code)
+        .is_some_and(|unit| unit.behaviour.no_acceptors)
     {
-        return ok_item(
-            id,
-            "registered",
-            ImportAttainmentResult {
-                attainment: Some(attainment_reference(attainment_id)),
-                ..Default::default()
-            },
-        );
+        violations.push(NO_ACCEPTORS_VIOLATION.to_string());
     }
+    submission.send_state = if violations.is_empty() {
+        SendState::Accepted
+    } else {
+        SendState::Rejected
+    };
+    submission.violations = violations;
+    let outcome = import_outcome(&submission);
+    record_submission(working, submission);
+    outcome
+}
 
-    ok_item(
-        id,
-        "sent",
-        ImportAttainmentResult {
-            submitted_attainment_id: Some(submitted_attainment_id),
-            submitted_attainment_type: Some("AssessmentItemAttainment".to_string()),
-            ..Default::default()
-        },
-    )
+/// Read back from the entry, the way Suotar answers after its send.
+pub fn import_outcome(submission: &MockSubmission) -> ResponseItem {
+    let id = &submission.request_item_id;
+    match submission.send_state {
+        SendState::Rejected => {
+            let message = if submission.violations.is_empty() {
+                "Sisu rejected the attainment.".to_string()
+            } else {
+                format!(
+                    "Sisu rejected the attainment: {}",
+                    submission.violations.join("; ")
+                )
+            };
+            ResponseItem::error_with_message(id, "sisuValidationFailed", message)
+        }
+        SendState::Accepted => ResponseItem::ok(
+            id,
+            "sent",
+            SubmittedAttainment::new(&submission.submitted_attainment_id),
+        ),
+        SendState::Attempted | SendState::NotSent => {
+            ResponseItem::error(Endpoint::ImportAttainments, id, "sisuTimeout").with_result(
+                SubmittedAttainment::new(&submission.submitted_attainment_id),
+            )
+        }
+    }
 }
 
 pub fn verify_item(
     item: &wire::VerifyAttainmentRequestItem,
-    working: &mut WorkingSet,
+    working: &WorkingSet,
     now: DateTime<Utc>,
-) -> SuotarResponseItem<wire::VerifyAttainmentResult> {
-    let endpoint = SuotarEndpoint::VerifyAttainments;
+) -> ResponseItem {
+    let endpoint = Endpoint::VerifyAttainments;
     let id = &item.request_item_id;
-    // An unknown id is the "no registration evidence" case: anything else would let a client tell a
-    // typo from a not-yet, which real Sisu cannot.
-    let Some(submission) = working.submissions.get_mut(&item.submitted_attainment_id) else {
-        return error_item(endpoint, id, "notRegistered");
-    };
-    submission.verify_calls += 1;
-    working.writes.push(WorldWrite::UpsertSubmission(
-        item.submitted_attainment_id.clone(),
-    ));
-
-    ripen(working, &item.submitted_attainment_id, now);
-
-    let Some(submission) = working.submissions.get(&item.submitted_attainment_id) else {
-        return error_item(endpoint, id, "notRegistered");
-    };
-    match &submission.lifecycle {
-        SubmissionLifecycle::Registered { attainment_id, .. } => ok_item(
+    let registered = |attainment_id: &str, attainment_type: &str| {
+        ResponseItem::ok(
             id,
             "registered",
-            wire::VerifyAttainmentResult {
-                attainment: attainment_reference(attainment_id.clone()),
+            RegisteredResult {
+                attainment: AttainmentReference {
+                    id: attainment_id.to_string(),
+                    attainment_type: attainment_type.to_string(),
+                },
             },
-        ),
-        SubmissionLifecycle::Misregistered { .. } => error_item(endpoint, id, "misregistered"),
-        _ => error_item(endpoint, id, "notRegistered"),
-    }
-}
-
-pub fn product_access_token_item(
-    item: &wire::ProductAccessTokenRequestItem,
-    working: &WorkingSet,
-) -> SuotarResponseItem<wire::ProductAccessTokenResult> {
-    let endpoint = SuotarEndpoint::ProductAccessTokens;
-    match working.product_tokens.get(&item.open_university_product_id) {
-        // A disabled or draft token is still `found`: refusing to build an enrolment link from one
-        // is our side's job, not Suotar's.
-        Some(token) => ok_item(
-            &item.request_item_id,
-            "found",
-            wire::ProductAccessTokenResult {
-                id: token.id.clone(),
-                access_token: token.access_token.clone(),
-                state: serde_plain(&token.state),
-                document_state: serde_plain(&token.document_state),
-            },
-        ),
-        None => error_item(
-            endpoint,
-            &item.request_item_id,
-            "productAccessTokenNotFound",
-        ),
-    }
-}
-
-pub fn list_by_course_item(
-    item: &wire::ListByCourseRequestItem,
-    working: &WorkingSet,
-) -> SuotarResponseItem<wire::EnrolmentsListedResult> {
-    let endpoint = SuotarEndpoint::ListByCourse;
-    let id = &item.request_item_id;
-    let Some(course_unit) = working.course_units.get(&item.course_code) else {
-        return error_item(endpoint, id, "courseCodeNotFound");
+        )
     };
-    // There is no `realisationNotFound` code, so a realisation of another course folds into this one.
-    let realisation_ids: Vec<String> = match &item.course_unit_realisation_id {
-        Some(realisation_id) => {
-            if course_unit.realisation(realisation_id).is_none() {
-                return error_item(endpoint, id, "courseCodeNotFound");
+
+    if let Some(submission) = working.submissions.get(&item.submitted_attainment_id) {
+        return match &submission.importer {
+            ImporterVisibility::Misregistered { .. } => {
+                ResponseItem::error(endpoint, id, "misregistered")
             }
-            vec![realisation_id.clone()]
+            ImporterVisibility::Partial { attainment_id } => {
+                registered(attainment_id, wire::ASSESSMENT_ITEM_ATTAINMENT)
+            }
+            ImporterVisibility::Final { attainment_id } => {
+                registered(attainment_id, wire::COURSE_UNIT_ATTAINMENT)
+            }
+            ImporterVisibility::None if is_pending(submission, now) => {
+                ResponseItem::error(endpoint, id, "submissionPending").with_result(
+                    SubmissionPendingResult {
+                        submitted_attainment_id: submission.submitted_attainment_id.clone(),
+                        submitted_attainment_type: wire::ASSESSMENT_ITEM_ATTAINMENT.to_string(),
+                        retry_after: iso_millis(retry_after(submission, now)),
+                    },
+                )
+            }
+            ImporterVisibility::None => ResponseItem::error(endpoint, id, "notRegistered"),
+        };
+    }
+    match working.attainments.get(&item.submitted_attainment_id) {
+        Some(attainment) if attainment.state == AttainmentState::Misregistered => {
+            ResponseItem::error(endpoint, id, "misregistered")
         }
-        None => course_unit
-            .realisations
-            .iter()
-            .map(|realisation| realisation.id.clone())
-            .collect(),
-    };
+        Some(attainment) => registered(&attainment.id, &attainment.attainment_type),
+        None => ResponseItem::error(endpoint, id, "notRegistered"),
+    }
+}
 
-    let mut people: Vec<wire::ListedPerson> = realisation_ids
+/// An accepted send stays pending for good: Sisu took it, so `notRegistered` would invite a second.
+fn is_pending(submission: &MockSubmission, now: DateTime<Utc>) -> bool {
+    match submission.send_state {
+        SendState::Accepted => true,
+        SendState::Attempted => submission.created_at > now - Duration::hours(PENDING_WINDOW_HOURS),
+        SendState::NotSent | SendState::Rejected => false,
+    }
+}
+
+fn retry_after(submission: &MockSubmission, now: DateTime<Utc>) -> DateTime<Utc> {
+    let scheduled = submission.created_at + Duration::hours(PENDING_WINDOW_HOURS);
+    if scheduled > now {
+        scheduled
+    } else {
+        now + Duration::hours(PENDING_WINDOW_HOURS)
+    }
+}
+
+/// Only realisations that ended within the last two months are listed, and one with no end date
+/// never is.
+pub fn list_by_course_item(
+    item: &wire::CourseCodeRequestItem,
+    working: &WorkingSet,
+    now: DateTime<Utc>,
+) -> ResponseItem {
+    let id = &item.request_item_id;
+    let not_found = || ResponseItem::error(Endpoint::ListByCourse, id, "courseCodeNotFound");
+    let Some(course_unit) = working.course_units.get(&item.course_code) else {
+        return not_found();
+    };
+    let cutoff = (now - Months::new(2)).date_naive();
+    let current: Vec<&MockRealisation> = course_unit
+        .realisations
         .iter()
-        .filter_map(|realisation_id| working.enrolments_by_realisation.get(realisation_id))
-        .flatten()
-        .filter_map(|enrolment_id| working.enrolments.get(enrolment_id))
-        .filter(|enrolment| enrolment.state == EnrolmentState::Enrolled)
+        .filter(|realisation| {
+            realisation
+                .activity_period
+                .as_ref()
+                .is_some_and(|period| period.end_date > cutoff)
+        })
+        .collect();
+    if current.is_empty() {
+        return not_found();
+    }
+
+    let people = current
+        .into_iter()
+        .flat_map(|realisation| {
+            let mut enrolments: Vec<&MockEnrolment> = working
+                .enrolments_by_realisation
+                .get(&realisation.id)
+                .into_iter()
+                .flatten()
+                .filter_map(|enrolment_id| working.enrolments.get(enrolment_id))
+                .filter(|enrolment| enrolment.state == EnrolmentState::Enrolled)
+                .collect();
+            enrolments.sort_by(|a, b| a.student_number.cmp(&b.student_number));
+            enrolments
+        })
         .filter_map(|enrolment| {
             let person = working.persons.get(&enrolment.student_number)?;
-            Some(wire::ListedPerson {
+            Some(ListedPerson {
                 student_number: person.student_number.clone(),
                 person_id: person.person_id.clone(),
                 first_names: person.first_names.clone(),
                 last_name: person.last_name.clone(),
                 primary_email: person.primary_email.clone(),
                 secondary_email: person.secondary_email.clone(),
-                enrolment: wire::ListedEnrolment {
+                enrolment: ListedEnrolment {
                     id: enrolment.id.clone(),
                     course_unit_realisation_id: enrolment.realisation_id.clone(),
                     state: "ENROLLED".to_string(),
-                    enrolment_date_time: enrolment.enrolment_date_time,
+                    enrolment_date_time: iso_millis(enrolment.enrolment_date_time),
                 },
             })
         })
         .collect();
-    people.sort_by(|a, b| a.student_number.cmp(&b.student_number));
 
-    ok_item(
-        id,
-        "enrolmentsListed",
-        wire::EnrolmentsListedResult { people },
-    )
+    ResponseItem::ok(id, "enrolmentsListed", EnrolmentsListedResult { people })
 }
 
-/// Moves every ripe submission of this person and course. Persisted wherever it is evaluated, or the
-/// next read contradicts this one.
-pub fn ripen_person_course(
-    working: &mut WorkingSet,
-    student_number: &str,
+pub fn validate_course_code_item(
+    item: &wire::CourseCodeRequestItem,
+    working: &WorkingSet,
+) -> ResponseItem {
+    let course_unit = working.course_units.get(&item.course_code);
+    match (
+        course_not_allowed_reason(&item.course_code, course_unit),
+        course_unit.and_then(|unit| unit.suotar_course.as_ref()),
+    ) {
+        (None, Some(course)) => ResponseItem::ok(
+            &item.request_item_id,
+            "courseAllowed",
+            CourseAllowedResult {
+                course_code: item.course_code.clone(),
+                name: course.name.clone(),
+            },
+        ),
+        (reason, _) => ResponseItem::error_with_message(
+            &item.request_item_id,
+            "courseNotAllowed",
+            reason.unwrap_or_else(|| COURSE_NOT_CARRIED.to_string()),
+        ),
+    }
+}
+
+fn course_not_allowed_reason(
     course_code: &str,
-    now: DateTime<Utc>,
-) {
-    let ids = working
-        .submissions_by_person_course
-        .get(&person_course_key(student_number, course_code))
-        .cloned()
-        .unwrap_or_default();
-    for id in ids {
-        ripen(working, &id, now);
+    course_unit: Option<&MockCourseUnit>,
+) -> Option<String> {
+    if UNSETTLED_COURSE_CODES.contains(&course_code) {
+        return Some(format!(
+            "{course_code} cannot be registered through this API yet."
+        ));
     }
-}
-
-/// Returns whether the submission moved to `Registered` in this call.
-pub fn ripen(working: &mut WorkingSet, submitted_attainment_id: &str, now: DateTime<Utc>) -> bool {
-    let Some(submission) = working.submissions.get(submitted_attainment_id) else {
-        return false;
-    };
-    let ripeness = match &submission.lifecycle {
-        SubmissionLifecycle::Pending { ripeness }
-        | SubmissionLifecycle::TimedOutButLanded { ripeness } => *ripeness,
-        _ => return false,
-    };
-    let ripe = match ripeness {
-        Ripeness::AtImport => true,
-        Ripeness::Manual => false,
-        Ripeness::AutoAfterVerifyCalls { calls } => submission.verify_calls > calls,
-    };
-    if !ripe {
-        return false;
+    if course_unit
+        .and_then(|unit| unit.suotar_course.as_ref())
+        .is_none()
+    {
+        return Some(COURSE_NOT_CARRIED.to_string());
     }
-    register(working, submitted_attainment_id, now);
-    true
-}
-
-pub fn register(working: &mut WorkingSet, submitted_attainment_id: &str, now: DateTime<Utc>) {
-    let Some(submission) = working.submissions.get(submitted_attainment_id).cloned() else {
-        return;
-    };
-    let attainment_id = ids::final_attainment_id(submitted_attainment_id);
-    let attainment = MockAttainment::from_submission(
-        &submission,
-        &attainment_id,
-        AttainmentState::Attained,
-        &working.defaults,
-        now,
-    );
-    let key = person_course_key(&submission.student_number, &submission.course_code);
-    working
-        .attainments
-        .insert(attainment_id.clone(), attainment);
-    let index = working.attainments_by_person_course.entry(key).or_default();
-    if !index.contains(&attainment_id) {
-        index.push(attainment_id.clone());
-    }
-    if let Some(submission) = working.submissions.get_mut(submitted_attainment_id) {
-        submission.lifecycle = SubmissionLifecycle::Registered {
-            attainment_id: attainment_id.clone(),
-            registered_at: now,
-        };
-    }
-    working.writes.push(WorldWrite::UpsertSubmission(
-        submitted_attainment_id.to_string(),
-    ));
-    working
-        .writes
-        .push(WorldWrite::UpsertAttainment(attainment_id.clone()));
-    working.writes.push(WorldWrite::IndexAttainment {
-        student_number: submission.student_number.clone(),
-        course_code: submission.course_code.clone(),
-        id: attainment_id,
-    });
+    None
 }
 
 pub fn record_submission(working: &mut WorkingSet, submission: MockSubmission) {
     let id = submission.submitted_attainment_id.clone();
     let key = person_course_key(&submission.student_number, &submission.course_code);
-    let student_number = submission.student_number.clone();
-    let course_code = submission.course_code.clone();
+    let write = WorldWrite::IndexSubmission {
+        student_number: submission.student_number.clone(),
+        course_code: submission.course_code.clone(),
+    };
     working.submissions.insert(id.clone(), submission);
     let index = working.submissions_by_person_course.entry(key).or_default();
     if !index.contains(&id) {
         index.push(id.clone());
     }
-    working
-        .writes
-        .push(WorldWrite::UpsertSubmission(id.clone()));
-    working.writes.push(WorldWrite::IndexSubmission {
-        student_number,
-        course_code,
-        id,
-    });
+    working.writes.push(WorldWrite::UpsertSubmission(id));
+    working.writes.push(write);
 }
 
-fn duplicate_outcome(
-    item: &wire::ImportAttainmentRequestItem,
-    working: &WorkingSet,
-    realisation: &MockRealisation,
-) -> Option<SuotarResponseItem<ImportAttainmentResult>> {
-    let scale = working.defaults.scale(&realisation.grade_scale_id)?;
-    let incoming_rank = scale.grade(&item.grade_id)?.rank;
-    for attainment in attained(working, &item.student_number, &item.course_code) {
-        // Comparison stays within one scale; nothing says how two scales rank against each other.
-        if !scale.answers_to(&attainment.grade_scale_id) {
-            continue;
-        }
-        if attainment.grade_id == item.grade_id
-            && attainment.attainment_date == item.attainment_date
-        {
-            return Some(ok_item(
-                &item.request_item_id,
-                "duplicateAttainment",
-                ImportAttainmentResult {
-                    attainment: Some(attainment_summary(attainment)),
-                    ..Default::default()
-                },
-            ));
-        }
-        let existing_rank = scale
-            .grade(&attainment.grade_id)
-            .map_or(0, |grade| grade.rank);
-        if existing_rank >= incoming_rank {
-            return Some(ok_item(
-                &item.request_item_id,
-                "notImprovedAttainment",
-                ImportAttainmentResult {
-                    previous_attainment: Some(attainment_summary(attainment)),
-                    ..Default::default()
-                },
-            ));
+/// A date on or before the start moves to the start, one on or after the end to the day before it,
+/// and nothing may precede a grant date that falls inside the validity.
+fn clamp_into_study_right(date: NaiveDate, study_right: &MockStudyRight) -> NaiveDate {
+    let validity = &study_right.validity;
+    let mut adjusted = if date <= validity.start_date {
+        validity.start_date
+    } else if date >= validity.end_date {
+        validity.end_date - Duration::days(1)
+    } else {
+        date
+    };
+    if let Some(grant_date) = study_right.grant_date
+        && grant_date > validity.start_date
+        && grant_date < validity.end_date
+        && adjusted < grant_date
+    {
+        adjusted = grant_date;
+    }
+    adjusted
+}
+
+/// The Finnish grade string Suotar ranks by: 1–5, "Hyv." or a fail.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum IncomingGrade {
+    Numeric(i32),
+    Pass,
+    Fail,
+}
+
+impl IncomingGrade {
+    fn of(grade_scale_id: &str, grade_id: &str) -> Self {
+        match (grade_scale_id, grade_id.parse::<i32>().ok()) {
+            ("sis-0-5", Some(value @ 1..=5)) => Self::Numeric(value),
+            ("sis-hyl-hyv", Some(1)) => Self::Pass,
+            _ => Self::Fail,
         }
     }
-    None
 }
 
-fn attained<'a>(
+/// A pass/fail attainment has no numeric correspondence, which Suotar compares as zero.
+fn numeric_grade(attainment: &MockAttainment) -> i32 {
+    if attainment.grade_scale_id == "sis-0-5" {
+        attainment.grade_id.parse().unwrap_or(0)
+    } else {
+        0
+    }
+}
+
+fn is_passed(attainment: &MockAttainment, working: &WorkingSet) -> bool {
+    attainment.passed.unwrap_or_else(|| {
+        working
+            .defaults
+            .scale(&attainment.grade_scale_id)
+            .and_then(|scale| scale.grade(&attainment.grade_id))
+            .is_some_and(|grade| grade.passed)
+    })
+}
+
+fn credits_of(attainment: &MockAttainment, item: &wire::ImportAttainmentRequestItem) -> f64 {
+    attainment.credits.unwrap_or(item.credits)
+}
+
+fn is_identical(
+    attainment: &MockAttainment,
+    incoming: IncomingGrade,
+    item: &wire::ImportAttainmentRequestItem,
+    working: &WorkingSet,
+) -> bool {
+    let same_grade = match incoming {
+        IncomingGrade::Numeric(value) => {
+            attainment.grade_scale_id == "sis-0-5" && numeric_grade(attainment) == value
+        }
+        IncomingGrade::Pass => {
+            attainment.grade_scale_id == "sis-hyl-hyv" && attainment.grade_id == "1"
+        }
+        IncomingGrade::Fail => !is_passed(attainment, working),
+    };
+    same_grade
+        && attainment.attainment_date == item.attainment_date
+        && credits_of(attainment, item) == item.credits
+}
+
+/// Higher grade wins; with equal grades more credits win; with those equal too a later date wins,
+/// by more than a day on the 0–5 scale. A fail never beats a pass.
+fn beats(
+    incoming: IncomingGrade,
+    attainment: &MockAttainment,
+    item: &wire::ImportAttainmentRequestItem,
+    working: &WorkingSet,
+) -> bool {
+    let credits = credits_of(attainment, item);
+    let later_than =
+        |days: i64| item.attainment_date - Duration::days(days) > attainment.attainment_date;
+    let tie_break = |days: i64| {
+        if credits != item.credits {
+            credits < item.credits
+        } else {
+            later_than(days)
+        }
+    };
+    match incoming {
+        IncomingGrade::Numeric(value) => {
+            let existing = numeric_grade(attainment);
+            if existing != value {
+                existing < value
+            } else {
+                tie_break(1)
+            }
+        }
+        IncomingGrade::Pass => !is_passed(attainment, working) || tie_break(0),
+        IncomingGrade::Fail => !is_passed(attainment, working) && tie_break(0),
+    }
+}
+
+fn attainments_for<'a>(
     working: &'a WorkingSet,
     student_number: &str,
     course_code: &str,
 ) -> Vec<&'a MockAttainment> {
-    let mut found: Vec<&MockAttainment> = working
+    working
         .attainments_by_person_course
         .get(&person_course_key(student_number, course_code))
         .into_iter()
         .flatten()
         .filter_map(|id| working.attainments.get(id))
-        .filter(|attainment| attainment.state == AttainmentState::Attained)
-        .collect();
-    found.sort_by(|a, b| {
-        a.attainment_date
-            .cmp(&b.attainment_date)
-            .then_with(|| a.id.cmp(&b.id))
-    });
-    found
-}
-
-fn existing_attainments(
-    working: &WorkingSet,
-    student_number: &str,
-    course_code: &str,
-) -> Vec<wire::ExistingAttainment> {
-    attained(working, student_number, course_code)
-        .into_iter()
-        .map(|attainment| wire::ExistingAttainment {
-            id: attainment.id.clone(),
-            attainment_type: attainment.attainment_type.clone(),
-            state: "ATTAINED".to_string(),
-            person_id: attainment.person_id.clone(),
-            course_unit_id: attainment.course_unit_id.clone(),
-            assessment_item_id: attainment.assessment_item_id.clone(),
-            course_unit_realisation_id: attainment.course_unit_realisation_id.clone(),
-            attainment_date: attainment.attainment_date,
-            registration_date: attainment.registration_date,
-            grade_scale_id: attainment.grade_scale_id.clone(),
-            grade_id: attainment.grade_id.clone(),
-            passed: attainment.passed,
-        })
         .collect()
 }
 
-/// The bare `{id, type}` body that both `registered` answers carry.
-fn attainment_reference(id: String) -> SuotarAttainment {
-    SuotarAttainment {
-        id,
-        attainment_type: "CourseUnitAttainment".to_string(),
-        state: None,
-        attainment_date: None,
-        registration_date: None,
-        grade_scale_id: None,
-        grade_id: None,
-    }
-}
-
-fn attainment_summary(attainment: &MockAttainment) -> SuotarAttainment {
-    SuotarAttainment {
+fn existing_attainment(attainment: &MockAttainment) -> ExistingAttainment {
+    ExistingAttainment {
         id: attainment.id.clone(),
         attainment_type: attainment.attainment_type.clone(),
-        state: Some("ATTAINED".to_string()),
-        attainment_date: Some(attainment.attainment_date),
-        registration_date: Some(attainment.registration_date),
-        grade_scale_id: Some(attainment.grade_scale_id.clone()),
-        grade_id: Some(attainment.grade_id.clone()),
+        state: attainment.state.wire_state().to_string(),
+        person_id: attainment.person_id.clone(),
+        course_unit_id: attainment.course_unit_id.clone(),
+        assessment_item_id: attainment.assessment_item_id.clone(),
+        course_unit_realisation_id: attainment.course_unit_realisation_id.clone(),
+        attainment_date: attainment.attainment_date,
+        registration_date: attainment.registration_date,
+        grade_scale_id: attainment.grade_scale_id.clone(),
+        grade_id: attainment.grade_id.clone(),
+        passed: attainment.passed,
     }
 }
 
-fn enrolments_for(
-    working: &WorkingSet,
+fn attainment_summary(attainment: &MockAttainment) -> AttainmentSummary {
+    AttainmentSummary {
+        id: attainment.id.clone(),
+        attainment_type: attainment.attainment_type.clone(),
+        state: attainment.state.wire_state().to_string(),
+        attainment_date: attainment.attainment_date,
+        registration_date: attainment.registration_date,
+        grade_scale_id: attainment.grade_scale_id.clone(),
+        grade_id: attainment.grade_id.clone(),
+    }
+}
+
+fn enrolments_for<'a>(
+    working: &'a WorkingSet,
     student_number: &str,
     course_code: &str,
-) -> Vec<MockEnrolment> {
+) -> Vec<&'a MockEnrolment> {
     working
         .enrolments_by_person
         .get(student_number)
@@ -569,7 +673,6 @@ fn enrolments_for(
         .flatten()
         .filter_map(|id| working.enrolments.get(id))
         .filter(|enrolment| enrolment.course_code == course_code)
-        .cloned()
         .collect()
 }
 
@@ -577,66 +680,56 @@ fn enrolment_dto(
     course_unit: &MockCourseUnit,
     enrolment: &MockEnrolment,
     realisation: &MockRealisation,
-) -> wire::SuotarEnrolment {
-    wire::SuotarEnrolment {
+) -> wire::Enrolment {
+    wire::Enrolment {
         id: enrolment.id.clone(),
-        state: serde_plain(&enrolment.state),
-        kind: realisation.kind.as_str().to_string(),
+        state: "ENROLLED".to_string(),
+        kind: enrolment.kind().to_string(),
         course_unit_id: course_unit.course_unit_id.clone(),
         assessment_item_id: realisation.assessment_item_id.clone(),
         course_unit_realisation_id: realisation.id.clone(),
         course_unit_realisation_name: realisation.name.clone(),
         activity_period: realisation.activity_period.clone(),
-        grade_scale_id: realisation.grade_scale_id.clone(),
-        credits: realisation.credits.clone(),
+        grade_scale_id: course_unit.grade_scale_for(realisation),
+        credits: course_unit.credits.clone(),
         study_right_id: enrolment.study_right_id.clone(),
-        study_right_validity_period: enrolment.study_right_validity_period.clone(),
-        enrolment_date_time: enrolment.enrolment_date_time,
+        study_right_validity_period: enrolment
+            .study_right
+            .as_ref()
+            .map(|study_right| study_right.validity.clone()),
+        enrolment_date_time: iso_millis(enrolment.enrolment_date_time),
     }
-}
-
-/// Renders a wire-shaped enum through its serde spelling rather than duplicating the strings.
-fn serde_plain<T: Serialize>(value: &T) -> String {
-    serde_json::to_value(value)
-        .ok()
-        .and_then(|value| value.as_str().map(str::to_string))
-        .unwrap_or_default()
 }
 
 #[cfg(test)]
 mod tests {
-    use chrono::Duration;
-
-    use super::super::ids;
     use super::super::world::{
-        CreditRange, DatePeriod, LocalizedName, MockCourseUnit, MockPerson, MockRealisation,
-        PersonBehaviour, RealisationKind, WorldDefaults,
+        CourseBehaviour, CreditRange, DatePeriod, LocalizedName, MockPerson, PersonBehaviour,
+        RealisationKind, SuotarCourse,
     };
     use super::*;
 
     const STUDENT_NUMBER: &str = "900000101";
     const COURSE_CODE: &str = "CRS-101";
 
-    fn world(ripeness: Ripeness) -> WorkingSet {
+    fn world() -> WorkingSet {
         let now = Utc::now();
         let period = DatePeriod {
             start_date: (now - Duration::days(30)).date_naive(),
             end_date: (now + Duration::days(30)).date_naive(),
         };
+        let name = LocalizedName {
+            fi: COURSE_CODE.to_string(),
+            sv: COURSE_CODE.to_string(),
+            en: COURSE_CODE.to_string(),
+        };
         let realisation = MockRealisation {
             id: ids::realisation_id(COURSE_CODE, RealisationKind::Degree),
-            name: LocalizedName {
-                fi: COURSE_CODE.to_string(),
-                sv: COURSE_CODE.to_string(),
-                en: COURSE_CODE.to_string(),
-            },
+            name: Some(name.clone()),
             assessment_item_id: ids::assessment_item_id(COURSE_CODE, RealisationKind::Degree),
             kind: RealisationKind::Degree,
-            activity_period: period.clone(),
-            grade_scale_id: "sis-hyl-hyv".to_string(),
-            credits: CreditRange { min: 5.0, max: 5.0 },
-            acceptor_person_id: Some("hy-hlo-acceptor".to_string()),
-            open_university_product_id: None,
+            activity_period: Some(period.clone()),
+            grade_scale_id: None,
         };
         let enrolment = MockEnrolment {
             id: ids::enrolment_id(STUDENT_NUMBER, RealisationKind::Degree),
@@ -644,25 +737,24 @@ mod tests {
             course_code: COURSE_CODE.to_string(),
             realisation_id: realisation.id.clone(),
             state: EnrolmentState::Enrolled,
-            study_right_id: ids::study_right_id(STUDENT_NUMBER, RealisationKind::Degree),
-            study_right_validity_period: period.clone(),
+            study_right_id: Some(ids::study_right_id(STUDENT_NUMBER, RealisationKind::Degree)),
+            study_right: Some(MockStudyRight {
+                validity: period,
+                grant_date: None,
+            }),
             enrolment_date_time: now,
         };
         WorkingSet {
-            defaults: WorldDefaults::default(),
             persons: [(
                 STUDENT_NUMBER.to_string(),
                 MockPerson {
                     student_number: STUDENT_NUMBER.to_string(),
                     person_id: ids::person_id(STUDENT_NUMBER),
-                    first_names: "Zzyzx".to_string(),
-                    last_name: "Happypath".to_string(),
-                    primary_email: "zzyzx.happypath@helsinki.example".to_string(),
+                    first_names: Some("Zzyzx".to_string()),
+                    last_name: Some("Happypath".to_string()),
+                    primary_email: Some("zzyzx.happypath@helsinki.example".to_string()),
                     secondary_email: None,
-                    behaviour: PersonBehaviour {
-                        ripeness: Some(ripeness),
-                        duplicate_detection: None,
-                    },
+                    behaviour: PersonBehaviour::default(),
                     owner_user_email: None,
                 },
             )]
@@ -672,13 +764,14 @@ mod tests {
                 MockCourseUnit {
                     course_code: COURSE_CODE.to_string(),
                     course_unit_id: ids::course_unit_id(COURSE_CODE),
-                    name: LocalizedName {
-                        fi: COURSE_CODE.to_string(),
-                        sv: COURSE_CODE.to_string(),
-                        en: COURSE_CODE.to_string(),
-                    },
+                    name,
+                    credits: Some(CreditRange { min: 5.0, max: 5.0 }),
+                    grade_scale_id: Some("sis-hyl-hyv".to_string()),
                     realisations: vec![realisation],
-                    behaviour: Default::default(),
+                    suotar_course: Some(SuotarCourse {
+                        name: COURSE_CODE.to_string(),
+                    }),
+                    behaviour: CourseBehaviour::default(),
                     owner_course_slug: None,
                 },
             )]
@@ -688,7 +781,11 @@ mod tests {
         }
     }
 
-    fn import(working: &mut WorkingSet) -> SuotarResponseItem<ImportAttainmentResult> {
+    /// The write is queued before the response is shaped, which is what makes "timed out, but it
+    /// landed" different from "timed out, nothing landed".
+    #[test]
+    fn an_import_queues_its_submission_before_any_response_shaping() {
+        let mut working = world();
         let item = wire::ImportAttainmentRequestItem {
             request_item_id: "cr-1".to_string(),
             student_number: STUDENT_NUMBER.to_string(),
@@ -700,76 +797,18 @@ mod tests {
             grade_id: "1".to_string(),
             credits: 5.0,
         };
-        import_item(&item, working, Utc::now())
-    }
-
-    fn verify(
-        working: &mut WorkingSet,
-        submitted_attainment_id: &str,
-    ) -> SuotarResponseItem<wire::VerifyAttainmentResult> {
-        let item = wire::VerifyAttainmentRequestItem {
-            request_item_id: "vf-1".to_string(),
-            submitted_attainment_id: submitted_attainment_id.to_string(),
+        let ImportResolution::Write(submission) = resolve_import_item(&item, &working, Utc::now())
+        else {
+            panic!("a well-formed import resolves to a write");
         };
-        verify_item(&item, working, Utc::now())
-    }
-
-    fn submitted_id(item: &SuotarResponseItem<ImportAttainmentResult>) -> String {
-        item.result
-            .as_ref()
-            .and_then(|result| result.submitted_attainment_id.clone())
-            .expect("a sent import answers with the submitted attainment id")
-    }
-
-    /// The write is queued before the response is shaped, which is what makes "timed out, but it
-    /// landed" different from "timed out, nothing landed".
-    #[test]
-    fn an_import_queues_its_submission_before_any_response_shaping() {
-        let mut working = world(Ripeness::Manual);
-        let response = import(&mut working);
+        let id = submission.submitted_attainment_id.clone();
+        let response = write_and_send(&mut working, *submission);
         assert_eq!(response.code, "sent");
-        let id = submitted_id(&response);
         assert!(working.submissions.contains_key(&id));
         assert!(
             working
                 .writes
                 .contains(&WorldWrite::UpsertSubmission(id.clone()))
         );
-        assert!(working.writes.iter().any(|write| matches!(
-            write,
-            WorldWrite::IndexSubmission { id: indexed, .. } if indexed == &id
-        )));
-    }
-
-    /// The verify count is taken before ripeness is evaluated, so `calls: 1` answers the first poll
-    /// with `notRegistered` and the second with `registered`.
-    #[test]
-    fn auto_ripening_counts_the_call_it_is_answering() {
-        let mut working = world(Ripeness::AutoAfterVerifyCalls { calls: 1 });
-        let id = submitted_id(&import(&mut working));
-        assert_eq!(verify(&mut working, &id).code, "notRegistered");
-        let second = verify(&mut working, &id);
-        assert_eq!(second.code, "registered");
-        let third = verify(&mut working, &id);
-        assert_eq!(second.result, third.result);
-    }
-
-    /// Nothing moves without an explicit transition, whatever a concurrent spec's verify sweep does.
-    #[test]
-    fn a_manual_submission_never_ripens_on_its_own() {
-        let mut working = world(Ripeness::Manual);
-        let id = submitted_id(&import(&mut working));
-        for _ in 0..5 {
-            assert_eq!(verify(&mut working, &id).code, "notRegistered");
-        }
-        register(&mut working, &id, Utc::now());
-        assert_eq!(verify(&mut working, &id).code, "registered");
-    }
-
-    #[test]
-    fn an_at_import_submission_is_registered_by_the_import_that_created_it() {
-        let mut working = world(Ripeness::AtImport);
-        let response = import(&mut working);
-        assert_eq!(response.code, "registered");
     }
 }

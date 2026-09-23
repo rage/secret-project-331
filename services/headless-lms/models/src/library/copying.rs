@@ -1278,7 +1278,7 @@ WHERE course_module_id = $3
 
 /// Copies what a teacher typed, matching the `uh_course_code` and `ects_credits` that
 /// `copy_course_modules` already carries over. The pause record and the config-check verdict are
-/// dropped on purpose: they describe the source course. Realisations are per-term and not copied.
+/// dropped on purpose: they describe the source course, and so do the discovery counters.
 async fn copy_course_module_suotar_configurations(
     tx: &mut PgConnection,
     new_course_id: Uuid,
@@ -1289,22 +1289,17 @@ async fn copy_course_module_suotar_configurations(
 INSERT INTO course_module_suotar_configurations (
     id,
     course_module_id,
-    open_university_product_id,
     grade_scale_id
   )
 SELECT uuid_generate_v5($1, cmsc.id::text),
   uuid_generate_v5($1, cmsc.course_module_id::text),
-  cmsc.open_university_product_id,
   cmsc.grade_scale_id
 FROM course_module_suotar_configurations cmsc
   JOIN course_modules cm ON cm.id = cmsc.course_module_id
 WHERE cm.course_id = $2
   AND cmsc.deleted_at IS NULL
   AND cm.deleted_at IS NULL
-  AND (
-    cmsc.open_university_product_id IS NOT NULL
-    OR cmsc.grade_scale_id IS NOT NULL
-  );
+  AND cmsc.grade_scale_id IS NOT NULL;
         ",
         new_course_id,
         old_course_id

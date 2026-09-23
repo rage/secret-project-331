@@ -38,8 +38,6 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::controllers::mock_suotar::fixtures::*;
-use crate::controllers::mock_suotar::ids as mock_ids;
-use crate::controllers::mock_suotar::world::RealisationKind;
 use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,
@@ -455,19 +453,16 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Turns the module on and points it at the mock's realisation for the same course code.
-///
-/// `with_product` is per module because `open_university_product_access_tokens` is keyed on the
-/// product id globally: two modules sharing one would let a spec that breaks the token refresh break
-/// another spec's enrolment link.
-fn credit_registration_config(course_code: &str, with_product: bool) -> CreditRegistrationSeed {
+/// Turns the module on, optionally with an enrolment link unique to its course code.
+fn credit_registration_config(
+    course_code: &str,
+    with_enrolment_link: bool,
+) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
-        open_university_product_id: with_product.then(|| product_id(course_code)),
+        enrolment_link: with_enrolment_link.then(|| {
+            format!("https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}")
+        }),
         grade_scale_id: None,
-        active_realisation_ids: vec![mock_ids::realisation_id(
-            course_code,
-            RealisationKind::Degree,
-        )],
         paused_reason: None,
     }
 }

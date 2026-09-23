@@ -67,13 +67,15 @@ const FAILURE_REMEDIES = {
   course_code_not_found: "module_configuration",
   invalid_credits: "module_configuration",
   invalid_grade_for_grade_scale: "module_configuration",
+  grade_scale_mismatch: "module_configuration",
 
   person_not_found: "student_number",
   enrolment_not_found: "student_enrolment",
   enrolment_not_accepted: "student_enrolment",
   study_right_not_valid: "student_enrolment",
 
-  sisu_temporarily_unavailable: "retry",
+  service_temporarily_unavailable: "retry",
+  not_registered: "retry",
   transport_error: "retry",
   unexpected_response: "retry",
   retry_window_expired: "retry",
@@ -87,7 +89,6 @@ const FAILURE_REMEDIES = {
   malformed_request: "support",
 
   misregistered: "support",
-  acceptor_not_found: "support",
   course_not_allowed: "support",
   unknown: "support",
 } as const satisfies Record<CreditRegistrationErrorCode, FailureRemedy>

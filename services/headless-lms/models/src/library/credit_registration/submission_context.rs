@@ -1,5 +1,5 @@
 //! Everything a submission needs that does not live on the ledger row yet. One query rather than a
-//! lookup per row: the phases work in batches of up to a hundred.
+//! lookup per row: the phases work in batches of up to a thousand.
 
 use std::collections::HashMap;
 
@@ -17,8 +17,6 @@ pub struct SubmissionContext {
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub configured_grade_scale_id: Option<String>,
-    /// The active realisations a teacher configured, which the enrolment choice prefers.
-    pub configured_realisation_ids: Vec<String>,
     pub completion: CompletionFacts,
 }
 
@@ -37,12 +35,6 @@ SELECT cr.id,
   cm.uh_course_code,
   cm.ects_credits,
   conf.grade_scale_id AS "configured_grade_scale_id?",
-  COALESCE(
-    ARRAY_AGG(realisation.course_unit_realisation_id) FILTER (
-      WHERE realisation.id IS NOT NULL
-    ),
-    '{}'
-  ) AS "configured_realisation_ids!: Vec<String>",
   cmc.passed,
   cmc.grade,
   cmc.completion_date,
@@ -56,21 +48,8 @@ FROM credit_registrations cr
   AND vsn.deleted_at IS NULL
   LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
   AND conf.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_realisations realisation ON realisation.course_module_id = cr.course_module_id
-  AND realisation.active
-  AND realisation.deleted_at IS NULL
 WHERE cr.id = ANY($1::uuid [])
   AND cr.deleted_at IS NULL
-GROUP BY cr.id,
-  vsn.student_number,
-  vsn.sisu_person_id,
-  cm.uh_course_code,
-  cm.ects_credits,
-  conf.grade_scale_id,
-  cmc.passed,
-  cmc.grade,
-  cmc.completion_date,
-  cmc.completion_language
         "#,
         registration_ids,
     )
@@ -88,7 +67,6 @@ GROUP BY cr.id,
                     uh_course_code: row.uh_course_code,
                     ects_credits: row.ects_credits,
                     configured_grade_scale_id: row.configured_grade_scale_id,
-                    configured_realisation_ids: row.configured_realisation_ids,
                     completion: CompletionFacts {
                         passed: row.passed,
                         grade: row.grade,

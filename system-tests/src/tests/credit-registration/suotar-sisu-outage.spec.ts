@@ -42,8 +42,8 @@ const OUTAGE_FAULT_ID = "sisu-outage-spec"
 const OUTAGE_FIRST_NAMES = "Zzyzx"
 const OUTAGE_LAST_NAME = "Outaged"
 const OUTAGE_SISU_EMAIL = "zzyzx.outaged@helsinki.example"
-const UNAVAILABLE_WIRE_CODE = "sisuTemporarilyUnavailable"
-const UNAVAILABLE_LEDGER_CODE = "sisu_temporarily_unavailable"
+const UNAVAILABLE_WIRE_CODE = "serviceTemporarilyUnavailable"
+const UNAVAILABLE_LEDGER_CODE = "service_temporarily_unavailable"
 /** Renewed every retry pass, so this only has to cover the gap between two passes, not the whole spec. */
 const HOLD_SECS = 60
 /** Well under `breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES` (5), so the retries never trip it. */

@@ -10,9 +10,9 @@ use headless_lms_models::credit_registrations::{
 use headless_lms_models::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
-    course_module_suotar_configurations, course_module_suotar_realisations,
-    credit_registration_account_linking_emails, credit_registration_events,
-    credit_registration_phase_state, credit_registrations, suotar_api_calls,
+    course_module_suotar_configurations, credit_registration_account_linking_emails,
+    credit_registration_events, credit_registration_phase_state, credit_registrations,
+    suotar_api_calls,
 };
 use utoipa::ToSchema;
 
@@ -611,7 +611,7 @@ async fn fast_track_name_mismatch_alert(
     conn: &mut PgConnection,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let count =
-        course_module_suotar_realisations::sum_last_fast_track_name_mismatches(conn).await?;
+        course_module_suotar_configurations::sum_last_fast_track_name_mismatches(conn).await?;
     Ok(
         (count >= FAST_TRACK_NAME_MISMATCH_COUNT).then_some(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::FastTrackNameMismatch,

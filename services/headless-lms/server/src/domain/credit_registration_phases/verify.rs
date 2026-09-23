@@ -8,9 +8,9 @@ use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationState, RequestPurpose, Transition, claim_due,
-    increment_verify_attempt_counts, request_item_id, schedule_next_attempts,
-    set_sisu_attainment_if_unclaimed, transition,
+    CreditRegistration, CreditRegistrationState, Transition, claim_due,
+    increment_verify_attempt_counts, schedule_next_attempts, set_sisu_attainment_if_unclaimed,
+    transition,
 };
 use headless_lms_models::library::credit_registration::classification::{map_code, settled_state};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
@@ -24,7 +24,7 @@ use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext,
     SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, VerifyAttainmentRequestItem,
-    VerifyAttainmentResult,
+    VerifyAttainmentResult, new_request_item_id,
 };
 use sqlx::{Connection, PgConnection};
 
@@ -115,8 +115,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             run_suotar_batch_phase(&mut VerifyPoll { polls }, ctx, scope).await?,
         );
     }
-    // Recoveries go out on `resolve-enrolments`, whose batch limit is smaller than the one these
-    // rows were claimed at, so an oversized set would be refused whole before anything was sent.
+    // Recoveries go out on `resolve-enrolments`, whose batch limit need not match the one these rows
+    // were claimed at, and an oversized set would be refused whole before anything was sent.
     let batch_size = SuotarEndpoint::ResolveEnrolments.max_batch_size();
     while !recoveries.is_empty() {
         let rest = recoveries.split_off(batch_size.min(recoveries.len()));
@@ -163,7 +163,7 @@ impl SuotarBatchPhase for VerifyPoll {
                 .into_iter()
                 .map(|poll| {
                     let item = VerifyAttainmentRequestItem {
-                        request_item_id: Self::request_item_id(&poll),
+                        request_item_id: new_request_item_id(),
                         submitted_attainment_id: poll.submitted_attainment_id.clone(),
                     };
                     (poll, item)
@@ -175,10 +175,6 @@ impl SuotarBatchPhase for VerifyPoll {
 
     fn registration(poll: &Self::Row) -> &CreditRegistration {
         &poll.row
-    }
-
-    fn request_item_id(poll: &Self::Row) -> String {
-        request_item_id(&poll.row, RequestPurpose::VerifyPoll(poll.attempt))
     }
 
     async fn send(
@@ -214,6 +210,7 @@ impl SuotarBatchPhase for VerifyPoll {
         conn: &mut PgConnection,
         poll: &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
         apply_outcome(
@@ -223,6 +220,7 @@ impl SuotarBatchPhase for VerifyPoll {
             OutcomeEvent {
                 message: Some("Could not verify this submission this time."),
                 error_message: Some(error.message()),
+                request_item_id: Some(request_item_id),
                 request: Some(request),
                 ..OutcomeEvent::default()
             },
@@ -259,12 +257,15 @@ async fn apply_poll_answer(
                 == Some(CreditRegistrationState::Registered)
     });
     if registered {
-        if let Some(result) = item.and_then(|item| item.result.as_ref()) {
+        if let Some(attainment) = item
+            .and_then(|item| item.result.as_ref())
+            .and_then(|result| result.attainment.as_ref())
+        {
             set_sisu_attainment_if_unclaimed(
                 conn,
                 row.id,
-                &result.attainment.id,
-                Some(&result.attainment.attainment_type),
+                &attainment.id,
+                Some(&attainment.attainment_type),
             )
             .await?;
         }
@@ -354,7 +355,7 @@ impl SuotarBatchPhase for UncertainRecovery {
                 continue;
             };
             let item = ResolveEnrolmentRequestItem {
-                request_item_id: Self::request_item_id(&recovery),
+                request_item_id: new_request_item_id(),
                 student_number,
                 course_code,
             };
@@ -365,13 +366,6 @@ impl SuotarBatchPhase for UncertainRecovery {
 
     fn registration(recovery: &Self::Row) -> &CreditRegistration {
         &recovery.row
-    }
-
-    fn request_item_id(recovery: &Self::Row) -> String {
-        request_item_id(
-            &recovery.row,
-            RequestPurpose::UncertainRecovery(recovery.attempt),
-        )
     }
 
     async fn send(
@@ -406,6 +400,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         conn: &mut PgConnection,
         recovery: &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
         apply_outcome(
@@ -415,6 +410,7 @@ impl SuotarBatchPhase for UncertainRecovery {
             OutcomeEvent {
                 message: Some("Could not look for the attainment this time."),
                 error_message: Some(error.message()),
+                request_item_id: Some(request_item_id),
                 request: Some(request),
                 ..OutcomeEvent::default()
             },
@@ -494,6 +490,7 @@ async fn apply_recovery_answer(
             ),
             needs_admin_attention: Some(false),
             suotar_api_call_id: event.suotar_api_call_id,
+            request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(
                 headless_lms_models::credit_registration_events::suotar_exchange_details(
                     event.request,
@@ -510,10 +507,6 @@ async fn apply_recovery_answer(
 
 #[cfg(test)]
 mod tests {
-    use headless_lms_models::credit_registrations::{
-        recovery_request_item_id, verify_request_item_id,
-    };
-
     use super::*;
 
     /// Nothing this phase claims can lead back to a batch.
@@ -523,19 +516,5 @@ mod tests {
         assert!(CLAIMED_STATES.contains(&CreditRegistrationState::SubmissionUncertain));
         assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Submitting));
         assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Cancelled));
-    }
-
-    /// A registry log line has to name one call, not one row: two polls of a row, and a recovery
-    /// lookup against the row's own resolve call, are separate lines.
-    #[test]
-    fn two_calls_about_one_row_are_addressed_apart() {
-        let id = uuid::Uuid::new_v4();
-        assert_eq!(verify_request_item_id(id, 1), format!("vf-{id}-1"));
-        assert_ne!(verify_request_item_id(id, 1), verify_request_item_id(id, 2));
-        assert_ne!(
-            recovery_request_item_id(id, 1),
-            verify_request_item_id(id, 1)
-        );
-        assert_ne!(recovery_request_item_id(id, 1), format!("cr-{id}"));
     }
 }

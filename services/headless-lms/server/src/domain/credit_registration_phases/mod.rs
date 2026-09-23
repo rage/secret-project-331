@@ -1,4 +1,4 @@
-//! The thirteen credit-registration pipeline phases and the one-iteration dispatcher.
+//! The twelve credit-registration pipeline phases and the one-iteration dispatcher.
 //!
 //! Both the worker loops and the test tick endpoint go through [`run_phase_once`], so a phase cannot
 //! behave differently depending on who ran it.
@@ -10,7 +10,6 @@ mod import;
 mod ledger_snapshot;
 mod link_emails;
 pub mod linking_mail_resend;
-mod product_token_refresh;
 mod resolve_enrolments;
 mod retention_sweep;
 mod student_notifications;
@@ -28,7 +27,7 @@ use headless_lms_models::email_templates::{
     EmailTemplateType, get_generic_email_template_by_type_and_language,
 };
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
-use headless_lms_models::library::credit_registration::classification::is_retryable_transient_wire_code;
+use headless_lms_models::library::credit_registration::classification::is_service_unavailable_wire_code;
 use headless_lms_models::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
@@ -50,7 +49,7 @@ use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilE
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ListedPerson, SuotarBatchResponse, SuotarClient, SuotarEndpoint, SuotarItemStatus,
-    SuotarResponseItem,
+    SuotarRequestItem, SuotarResponseItem,
 };
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::{BTreeSet, HashMap};
@@ -75,7 +74,6 @@ pub enum CreditRegistrationPhase {
     StudentNotifications,
     EnrolmentDiscovery,
     LinkEmails,
-    ProductTokenRefresh,
     ConfigValidation,
     RetentionSweep,
     LedgerSnapshot,
@@ -83,7 +81,7 @@ pub enum CreditRegistrationPhase {
 
 impl CreditRegistrationPhase {
     /// Every phase, in pipeline order.
-    pub const ALL: [Self; 13] = [
+    pub const ALL: [Self; 12] = [
         Self::Materialize,
         Self::Preconditions,
         Self::ResolveEnrolments,
@@ -93,7 +91,6 @@ impl CreditRegistrationPhase {
         Self::StudentNotifications,
         Self::EnrolmentDiscovery,
         Self::LinkEmails,
-        Self::ProductTokenRefresh,
         Self::ConfigValidation,
         Self::RetentionSweep,
         Self::LedgerSnapshot,
@@ -120,7 +117,6 @@ impl CreditRegistrationPhase {
             Self::StudentNotifications => "student-notifications",
             Self::EnrolmentDiscovery => "enrolment-discovery",
             Self::LinkEmails => "link-emails",
-            Self::ProductTokenRefresh => "product-token-refresh",
             Self::ConfigValidation => "config-validation",
             Self::RetentionSweep => "retention-sweep",
             Self::LedgerSnapshot => "ledger-snapshot",
@@ -143,7 +139,6 @@ impl CreditRegistrationPhase {
             | Self::StudentNotifications => "credit-registrar",
             Self::EnrolmentDiscovery
             | Self::LinkEmails
-            | Self::ProductTokenRefresh
             | Self::ConfigValidation
             | Self::RetentionSweep
             | Self::LedgerSnapshot => "suotar-syncer",
@@ -156,11 +151,7 @@ impl CreditRegistrationPhase {
     pub fn calls_study_registry(self) -> bool {
         matches!(
             self,
-            Self::ResolveEnrolments
-                | Self::Import
-                | Self::Verify
-                | Self::EnrolmentDiscovery
-                | Self::ProductTokenRefresh
+            Self::ResolveEnrolments | Self::Import | Self::Verify | Self::EnrolmentDiscovery
         )
     }
 
@@ -210,12 +201,9 @@ impl CreditRegistrationPhase {
                 registration_ids: false,
             },
             // These reach their rows through the course module, which has no user dimension: a
-            // roster, a product token and a module configuration are facts about a course, not
-            // about one of our accounts.
-            Self::EnrolmentDiscovery
-            | Self::LinkEmails
-            | Self::ProductTokenRefresh
-            | Self::ConfigValidation => ScopeSupport {
+            // roster and a module configuration are facts about a course, not about one of our
+            // accounts.
+            Self::EnrolmentDiscovery | Self::LinkEmails | Self::ConfigValidation => ScopeSupport {
                 course: true,
                 user: false,
                 registration_ids: false,
@@ -399,9 +387,6 @@ pub async fn run_phase_once(
             Box::pin(enrolment_discovery::run(ctx, scope))
         }
         CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-        CreditRegistrationPhase::ProductTokenRefresh => {
-            Box::pin(product_token_refresh::run(ctx, scope))
-        }
         CreditRegistrationPhase::ConfigValidation => Box::pin(config_validation::run(ctx, scope)),
         CreditRegistrationPhase::RetentionSweep => Box::pin(retention_sweep::run(ctx, scope)),
         CreditRegistrationPhase::LedgerSnapshot => Box::pin(ledger_snapshot::run(ctx, scope)),
@@ -582,7 +567,7 @@ pub(crate) trait SuotarBatchPhase {
     /// A row to send for, with whatever its preflight read alongside it.
     type Row;
     /// The request item, which is also what the audit log records as sent.
-    type Item: serde::Serialize;
+    type Item: SuotarRequestItem;
     /// The endpoint's per-item result body.
     type Result;
 
@@ -599,9 +584,6 @@ pub(crate) trait SuotarBatchPhase {
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>>;
 
     fn registration(row: &Self::Row) -> &CreditRegistration;
-
-    /// What the row was addressed as, and so how its answer is found again.
-    fn request_item_id(row: &Self::Row) -> String;
 
     /// The student number this row's request carried, where it carried one: a number the registry
     /// rejects may only cost the link it was sent under.
@@ -632,6 +614,7 @@ pub(crate) trait SuotarBatchPhase {
         conn: &mut PgConnection,
         row: &Self::Row,
         request: &serde_json::Value,
+        request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool>;
 }
@@ -664,14 +647,22 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     }
     let (rows, items): (Vec<_>, Vec<_>) = prepared.sendable.into_iter().unzip();
     let requests = requests_json(&items);
+    let request_item_ids: Vec<String> = items
+        .iter()
+        .map(|item| item.request_item_id().to_string())
+        .collect();
 
     let response = match phase.send(ctx, &rows, items).await {
         Ok(response) => response,
         Err(error) => {
             let mut conn = ctx.pool.acquire().await?;
-            for (row, request) in rows.iter().zip(requests.iter()) {
+            for ((row, request), request_item_id) in rows
+                .iter()
+                .zip(requests.iter())
+                .zip(request_item_ids.iter())
+            {
                 let applied = phase
-                    .apply_request_rejection(&mut conn, row, request, &error)
+                    .apply_request_rejection(&mut conn, row, request, request_item_id, &error)
                     .await;
                 count_applied(
                     applied,
@@ -689,18 +680,22 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     };
 
     let mut conn = ctx.pool.acquire().await?;
-    for (row, request) in rows.iter().zip(requests.iter()) {
-        let request_item_id = P::request_item_id(row);
-        let response_json = response_item_json(&response.raw_response, &request_item_id);
+    for ((row, request), request_item_id) in rows
+        .iter()
+        .zip(requests.iter())
+        .zip(request_item_ids.iter())
+    {
+        let response_json = response_item_json(&response.raw_response, request_item_id);
         let event = OutcomeEvent {
             suotar_api_call_id: response.call_id,
+            request_item_id: Some(request_item_id),
             request: Some(request),
             response: response_json.as_ref(),
             sent_student_number: P::sent_student_number(row),
             ..OutcomeEvent::default()
         };
         let applied = phase
-            .apply(&mut conn, row, response.item(&request_item_id), event)
+            .apply(&mut conn, row, response.item(request_item_id), event)
             .await;
         count_applied(
             applied,
@@ -757,14 +752,11 @@ pub(crate) fn template_language(course_language_code: &str) -> String {
 /// Every address the study registry holds for a listed person, in the order it lists them; which
 /// one they read is not something we can know.
 pub(crate) fn listed_person_addresses(person: &ListedPerson) -> Vec<String> {
-    [
-        Some(person.primary_email.clone()),
-        person.secondary_email.clone(),
-    ]
-    .into_iter()
-    .flatten()
-    .filter(|address| !address.trim().is_empty())
-    .collect()
+    [person.primary_email.clone(), person.secondary_email.clone()]
+        .into_iter()
+        .flatten()
+        .filter(|address| !address.trim().is_empty())
+        .collect()
 }
 
 /// The request bodies as sent, kept alongside the typed items so a rejected batch can pair each row
@@ -823,6 +815,7 @@ pub(crate) async fn apply_outcome(
             event_message: event.message.map(str::to_string),
             suotar_api_call_id: event.suotar_api_call_id,
             event_details: Some(suotar_exchange_details(event.request, event.response)),
+            request_item_id: event.request_item_id.map(str::to_string),
             ..outcome_transition(outcome, expected_from_state)
         },
     )
@@ -886,7 +879,7 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
 pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>) -> bool {
     !response.items.is_empty()
         && response.items.iter().all(|item| {
-            item.status == SuotarItemStatus::Error && is_retryable_transient_wire_code(&item.code)
+            item.status == SuotarItemStatus::Error && is_service_unavailable_wire_code(&item.code)
         })
 }
 
@@ -900,6 +893,7 @@ pub(crate) async fn apply_request_level_outcome(
     endpoint: SuotarEndpoint,
     row: &CreditRegistration,
     request: &serde_json::Value,
+    request_item_id: &str,
     error: &UtilError,
     expected_from_state: CreditRegistrationState,
 ) -> anyhow::Result<bool> {
@@ -911,6 +905,7 @@ pub(crate) async fn apply_request_level_outcome(
         OutcomeEvent {
             message: Some("The study registry rejected the whole request."),
             error_message: Some(error.message()),
+            request_item_id: Some(request_item_id),
             request: Some(request),
             ..OutcomeEvent::default()
         },
@@ -939,6 +934,8 @@ pub(crate) struct OutcomeEvent<'a> {
     /// Persisted on the ledger row, so it is scrubbed before it is written.
     pub error_message: Option<&'a str>,
     pub suotar_api_call_id: Option<Uuid>,
+    /// The requestItemId the row went out under in that call.
+    pub request_item_id: Option<&'a str>,
     pub request: Option<&'a serde_json::Value>,
     pub response: Option<&'a serde_json::Value>,
 }
@@ -958,7 +955,7 @@ mod tests {
             .map(|phase| phase.as_str())
             .collect();
         assert_eq!(from_enum, PHASES);
-        assert_eq!(from_enum.len(), 13);
+        assert_eq!(from_enum.len(), 12);
     }
 
     /// A phase that cannot honour the narrowing it was handed has to say so, or a caller that

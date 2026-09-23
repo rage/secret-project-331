@@ -4,11 +4,10 @@ import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
 import type { Path } from "react-hook-form"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
-  ABSENT,
   CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   TONE,
@@ -20,9 +19,7 @@ import CreditRegistrationConfigCallout, {
 import { labelFrom, translateKey } from "@/components/credit-registration/labelFrom"
 import {
   cardCss,
-  dividedListCss,
   headingCss,
-  monospaceCss,
   noteCss,
   subheadingCss,
   subsectionCss,
@@ -46,7 +43,6 @@ import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleF
 import {
   DERIVED_GRADE_SCALE,
   EMPTY_CREDIT_REGISTRATION_FIELDS,
-  EMPTY_REALISATION,
   NUMERIC_GRADE_SCALE_ID,
   PASS_FAIL_GRADE_SCALE_ID,
 } from "./creditRegistrationModuleFields"
@@ -108,9 +104,7 @@ const NO_MINIMUM_LENGTH = 0
 
 const VALIDATE_ON_COMMIT = "validate" as const
 
-/** Realisation ids are validated as they are typed, so a bad one is caught before the save. */
 const VALIDATE_ON_CHANGE = "onChange" as const
-const REALISATIONS_FIELD = "credit_registration.realisations" as const
 
 interface CourseModuleFormState extends Omit<
   CourseModuleFormFields,
@@ -160,23 +154,8 @@ const fieldRowCss = css`
   }
 `
 
-const realisationRowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: start;
-  gap: var(--space-3);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-clear-300);
-`
-
 const deleteButtonCss = css`
   color: var(--color-red-600);
-`
-
-const supportReferenceCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
 `
 
 const actionsCss = css`
@@ -258,9 +237,6 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
         module.credit_registration.grade_scale_id,
         GRADE_SCALE_SUMMARY_KEYS[DERIVED_GRADE_SCALE],
       ),
-      t("module-summary-sisu-course-instances", {
-        count: module.credit_registration.realisations.length,
-      }),
     )
   }
   if (parts.length === 0) {
@@ -282,34 +258,8 @@ const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }
             label: t("label-credit-registration-grade-scale"),
             value: gradeScaleLabel(t, fields.grade_scale_id),
           },
-          {
-            label: t("label-credit-registration-support-reference-product"),
-            value: (
-              <span className={monospaceCss}>{fields.open_university_product_id || ABSENT}</span>
-            ),
-          },
         ]}
       />
-      <h2 className={subheadingCss}>{t("heading-credit-registration-sisu-course-instances")}</h2>
-      {fields.realisations.length === 0 ? (
-        <p className={noteCss}>{t("credit-registration-no-sisu-course-instances")}</p>
-      ) : (
-        <ul className={dividedListCss}>
-          {fields.realisations.map((realisation) => (
-            <li key={realisation.course_unit_realisation_id}>
-              <div>
-                {realisation.label || t("credit-registration-sisu-course-instance-unnamed")}
-                {!realisation.active &&
-                  `${MIDDLE_DOT}${t("credit-registration-realisation-inactive")}`}
-              </div>
-              <div className={cx(noteCss, supportReferenceCss)}>
-                <span>{t("label-credit-registration-support-reference-course-instance")}</span>
-                <span className={monospaceCss}>{realisation.course_unit_realisation_id}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   )
 }
@@ -349,11 +299,6 @@ const CourseModuleForm: React.FC<Props> = ({
   useEffect(() => {
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
-  const realisations = useFieldArray({
-    control,
-    name: REALISATIONS_FIELD,
-  })
-
   const registrationPath = watch("registration_path")
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
@@ -615,72 +560,16 @@ const CourseModuleForm: React.FC<Props> = ({
 
             {registrationPath === STUDY_REGISTRY &&
               (canConfigureStudyRegistry ? (
-                <>
-                  <TextField
-                    name="credit_registration.open_university_product_id"
-                    control={control}
-                    label={t("label-open-university-product-id")}
-                    description={t("description-open-university-product-id")}
-                  />
-                  <Select
-                    name="credit_registration.grade_scale_id"
-                    control={control}
-                    label={t("label-credit-registration-grade-scale")}
-                    description={t("description-credit-registration-grade-scale")}
-                    options={GRADE_SCALE_IDS.map((value) => ({
-                      value,
-                      label: gradeScaleLabel(t, value),
-                    }))}
-                  />
-                  <fieldset className={groupCss}>
-                    <legend className={subheadingCss}>
-                      {t("heading-credit-registration-realisations")}
-                    </legend>
-                    <p className={noteCss}>{t("hint-credit-registration-realisations")}</p>
-                    {realisations.fields.length === 0 ? (
-                      <p className={noteCss}>{t("credit-registration-no-realisations")}</p>
-                    ) : (
-                      <div className={subsectionCss}>
-                        {realisations.fields.map((field, index) => (
-                          <div className={realisationRowCss} key={field.id}>
-                            <TextField
-                              name={`credit_registration.realisations.${index}.course_unit_realisation_id`}
-                              control={control}
-                              label={t("label-course-unit-realisation-id")}
-                              rules={{ required: t("required-field") }}
-                            />
-                            <TextField
-                              name={`credit_registration.realisations.${index}.label`}
-                              control={control}
-                              label={t("label-realisation-name-shown-to-students")}
-                            />
-                            <Checkbox
-                              name={`credit_registration.realisations.${index}.active`}
-                              control={control}
-                              label={t("label-realisation-active")}
-                            />
-                            <Button
-                              variant="secondary"
-                              size="small"
-                              onPress={() => realisations.remove(index)}
-                            >
-                              {t("button-text-remove")}
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onPress={() => realisations.append(EMPTY_REALISATION)}
-                      >
-                        {t("button-text-add-realisation")}
-                      </Button>
-                    </div>
-                  </fieldset>
-                </>
+                <Select
+                  name="credit_registration.grade_scale_id"
+                  control={control}
+                  label={t("label-credit-registration-grade-scale")}
+                  description={t("description-credit-registration-grade-scale")}
+                  options={GRADE_SCALE_IDS.map((value) => ({
+                    value,
+                    label: gradeScaleLabel(t, value),
+                  }))}
+                />
               ) : (
                 <StudyRegistryReadOnly fields={module.credit_registration} />
               ))}

@@ -318,14 +318,15 @@ pub enum CreditRegistrationErrorCode {
     EnrolmentNotFound,
     EnrolmentNotAccepted,
     InvalidGradeForGradeScale,
+    GradeScaleMismatch,
     CourseNotAllowed,
     InvalidCredits,
     StudyRightNotValid,
-    AcceptorNotFound,
     SisuValidationFailed,
     SisuTimeout,
-    SisuTemporarilyUnavailable,
+    ServiceTemporarilyUnavailable,
     Misregistered,
+    NotRegistered,
     Unauthorized,
     MalformedRequest,
     TransportError,
@@ -339,20 +340,21 @@ pub enum CreditRegistrationErrorCode {
 
 impl CreditRegistrationErrorCode {
     /// Every code, so the retryability classification can be proven total at runtime too.
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 23] = [
         Self::PersonNotFound,
         Self::CourseCodeNotFound,
         Self::EnrolmentNotFound,
         Self::EnrolmentNotAccepted,
         Self::InvalidGradeForGradeScale,
+        Self::GradeScaleMismatch,
         Self::CourseNotAllowed,
         Self::InvalidCredits,
         Self::StudyRightNotValid,
-        Self::AcceptorNotFound,
         Self::SisuValidationFailed,
         Self::SisuTimeout,
-        Self::SisuTemporarilyUnavailable,
+        Self::ServiceTemporarilyUnavailable,
         Self::Misregistered,
+        Self::NotRegistered,
         Self::Unauthorized,
         Self::MalformedRequest,
         Self::TransportError,
@@ -393,7 +395,6 @@ pub struct CreditRegistration {
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub submitted_attainment_type: Option<String>,
     pub sisu_attainment_id: Option<String>,
@@ -417,6 +418,11 @@ pub struct CreditRegistration {
     /// The completion revision the grade-improvement scan last found no improvement against. See
     /// [`mark_improvement_checked`].
     pub improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
+    /// Set while verify sees only an assessment item attainment for the submission.
+    pub partially_registered_at: Option<DateTime<Utc>>,
+    pub not_registered_reimport_count: i32,
+    /// Localized `{fi, sv, en}` name of the chosen enrolment's realisation, as Suotar reported it.
+    pub selected_enrolment_realisation_name: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -429,48 +435,7 @@ pub struct NewCreditRegistration {
     pub attempt_number: i32,
 }
 
-/// The item id Suotar sees for the import and resolve calls. Deterministic, so a Suotar log line
-/// maps to one ledger row without an id allocation table.
-pub fn import_request_item_id(registration_id: Uuid) -> String {
-    format!("cr-{registration_id}")
-}
-
-/// The item id Suotar sees for one verify poll.
-pub fn verify_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
-    format!("vf-{registration_id}-{verify_attempt_count}")
-}
-
-/// The item id Suotar sees for one look through a student's attainments for a submission we lost
-/// track of.
-pub fn recovery_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
-    format!("rc-{registration_id}-{verify_attempt_count}")
-}
-
-/// Which call a request item id addresses a row for.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RequestPurpose {
-    /// Carrying the row's payload forward: `resolve-enrolments` and then `import`. The row's own
-    /// stored id, unchanged across retries, because it is the handle Suotar's log and ours share on
-    /// one registration.
-    Submission,
-    VerifyPoll(i32),
-    /// A recovery lookup, which goes to `resolve-enrolments` too: under the submission id it would
-    /// be indistinguishable from the row's own resolve call in the registry's log.
-    UncertainRecovery(i32),
-}
-
-/// What one registration is called in a request. The one place a sender picks an item id, so two
-/// calls about one row stay tellable apart in both logs.
-pub fn request_item_id(row: &CreditRegistration, purpose: RequestPurpose) -> String {
-    match purpose {
-        RequestPurpose::Submission => row.request_item_id.clone(),
-        RequestPurpose::VerifyPoll(attempt) => verify_request_item_id(row.id, attempt),
-        RequestPurpose::UncertainRecovery(attempt) => recovery_request_item_id(row.id, attempt),
-    }
-}
-
-/// Creates a ledger row at `pending` with a `created` event. The id is allocated here
-/// because `request_item_id` derives from it.
+/// Creates a ledger row at `pending` with a `created` event.
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -488,10 +453,9 @@ INSERT INTO credit_registrations (
     course_id,
     course_module_id,
     course_instance_id,
-    attempt_number,
-    request_item_id
+    attempt_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
         id,
         new.course_module_completion_id,
@@ -500,7 +464,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         new.course_module_id,
         new.course_instance_id,
         new.attempt_number,
-        import_request_item_id(id),
     )
     .execute(&mut *tx)
     .await?;
@@ -531,6 +494,8 @@ pub struct Transition {
     pub suotar_api_call_id: Option<Uuid>,
     /// Already scrubbed `{request, response}` payload for the event row.
     pub event_details: Option<serde_json::Value>,
+    /// The requestItemId the row went out under in the call behind this move.
+    pub request_item_id: Option<String>,
     /// Set by a caller that computed `to_state` from a row snapshot taken before an `await` (an
     /// external call, or a gap before its own transaction) during which some other writer could
     /// have moved the row on. `None` skips the check, for callers writing from a snapshot taken
@@ -579,6 +544,7 @@ impl Transition {
             actor_user_id: None,
             suotar_api_call_id: None,
             event_details: None,
+            request_item_id: None,
             expected_from_state: None,
             policy: TransitionPolicy::Pipeline,
             next_attempt_at: None,
@@ -719,6 +685,7 @@ RETURNING *
             suotar_api_call_id: transition.suotar_api_call_id,
             actor_user_id: transition.actor_user_id,
             details: transition.event_details.clone(),
+            request_item_id: transition.request_item_id.clone(),
         },
     )
     .await?;
@@ -807,6 +774,7 @@ UPDATE
             suotar_api_call_id: batch_move.transition.suotar_api_call_id,
             actor_user_id: batch_move.transition.actor_user_id,
             details: batch_move.transition.event_details.clone(),
+            request_item_id: batch_move.transition.request_item_id.clone(),
         });
     }
     if writes.is_empty() {
@@ -1207,14 +1175,14 @@ pub struct StudentCreditRegistration {
     pub superseded_by_id: Option<Uuid>,
     pub superseded_at: Option<DateTime<Utc>>,
     pub enrolment_checked_at: Option<DateTime<Utc>>,
-    /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where the
-    /// realisation has no teacher label yet, so the step list ticks from this rather than the name.
+    /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where
+    /// Suotar gave the realisation no name, so the step list ticks from this rather than the name.
     pub enrolment_resolved: bool,
-    /// The teacher's label for the realisation we submitted against, not a Sisu id.
+    /// The name of the realisation we submitted against, not a Sisu id.
     pub enrolment_realisation_name: Option<String>,
     pub submitted_at: Option<DateTime<Utc>>,
-    /// Needed to build the enrolment link a student with no usable enrolment is sent to.
-    pub open_university_product_id: Option<String>,
+    /// Where a student with no usable enrolment is sent to enrol.
+    pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
 }
@@ -1283,9 +1251,13 @@ SELECT cr.id,
   cr.superseded_at,
   cr.enrolment_checked_at,
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
-  r.label AS "enrolment_realisation_name?",
+  COALESCE(
+    cr.selected_enrolment_realisation_name->>'fi',
+    cr.selected_enrolment_realisation_name->>'en',
+    cr.selected_enrolment_realisation_name->>'sv'
+  ) AS "enrolment_realisation_name?",
   cr.submitted_at,
-  conf.open_university_product_id AS "open_university_product_id?",
+  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!"
 FROM credit_registrations cr
@@ -1293,11 +1265,6 @@ FROM credit_registrations cr
   JOIN course_modules cm ON cm.id = cr.course_module_id
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
-  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
-  AND r.deleted_at IS NULL
 WHERE cr.user_id = $1
   AND cr.deleted_at IS NULL
   AND ($2::uuid IS NULL OR cr.course_module_id = $2)
@@ -1982,7 +1949,11 @@ SELECT cr.id,
   vsn.verified_via AS "student_number_verified_via?",
   vsn.sisu_person_id AS "sisu_person_id?",
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
-  r.label AS "enrolment_realisation_name?",
+  COALESCE(
+    cr.selected_enrolment_realisation_name->>'fi',
+    cr.selected_enrolment_realisation_name->>'en',
+    cr.selected_enrolment_realisation_name->>'sv'
+  ) AS "enrolment_realisation_name?",
   p.completion_eligible AS "completion_eligible!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
@@ -1992,9 +1963,6 @@ FROM credit_registrations cr
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
-  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
-  AND r.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND ($1::uuid IS NULL OR cr.course_id = $1)
   AND ($2::uuid IS NULL OR cr.id = $2)
@@ -2158,7 +2126,6 @@ pub struct AdminCreditRegistration {
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub sisu_attainment_id: Option<String>,
     pub submit_retry_count: i32,
@@ -2285,7 +2252,6 @@ SELECT cr.id,
   cr.grade_scale_id,
   cr.grade_id,
   cr.credits,
-  cr.request_item_id,
   cr.submitted_attainment_id,
   cr.sisu_attainment_id,
   cr.submit_retry_count,

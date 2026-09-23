@@ -29,7 +29,6 @@ const COURSES_LIMIT: i64 = 2_000;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseConfigCheck {
     pub course_code_resolves: Option<bool>,
-    pub product_token_found: Option<bool>,
     /// Every problem found, in one line. `None` means the module is fine.
     pub message: Option<String>,
 }
@@ -42,14 +41,14 @@ pub struct CreditRegistrationCourseStats {
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
+    /// Where a student with no usable enrolment is sent to enrol.
+    pub enrolment_link: Option<String>,
     /// The module's override; `None` means the scale is derived from the completion.
     pub grade_scale_id: Option<String>,
     /// The old pull path is on as well, which would register the same completion twice.
     pub old_flow_also_enabled: bool,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
-    pub active_realisation_count: i64,
     pub last_listed_at: Option<DateTime<Utc>>,
     /// What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
     /// longer shows as broken.
@@ -123,7 +122,6 @@ pub async fn get_credit_registration_stats_by_course(
                     facts.course_module_id,
                     CreditRegistrationCourseConfigCheck {
                         course_code_resolves: check.course_code_resolves,
-                        product_token_found: check.product_token_found,
                         message: check.message,
                     },
                 )
@@ -145,7 +143,6 @@ pub async fn get_credit_registration_stats_by_course(
                     .remove(&module_id)
                     .unwrap_or(CreditRegistrationCourseConfigCheck {
                         course_code_resolves: None,
-                        product_token_found: None,
                         message: None,
                     }),
                 totals.remove(&module_id),
@@ -314,12 +311,11 @@ fn to_course_stats(
         course_module_name: overview.course_module_name,
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
-        open_university_product_id: overview.open_university_product_id,
+        enrolment_link: overview.enrolment_link,
         grade_scale_id: overview.grade_scale_id,
         old_flow_also_enabled: overview.old_flow_also_enabled,
         paused_at: overview.paused_at,
         pause_reason: overview.pause_reason,
-        active_realisation_count: overview.active_realisation_count,
         last_listed_at: overview.last_listed_at,
         check,
         config_checked_at: overview.config_checked_at,

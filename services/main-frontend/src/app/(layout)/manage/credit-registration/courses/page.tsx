@@ -153,11 +153,10 @@ const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({
 }
 
 const CONFIG_FAILURE_BANNER_KEYS = {
-  product_token: "credit-registration-admin-config-failure-banner-product-token",
   course_code: "credit-registration-admin-config-failure-banner-course-code",
 } as const
 
-/** Which of the four configuration checks passed, in a dialog so the row stays one line high. */
+/** Which of the configuration checks passed, in a dialog so the row stays one line high. */
 const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
@@ -166,15 +165,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
       label: t("credit-registration-admin-check-course-code"),
       value: module.check.course_code_resolves ?? null,
     },
-    {
-      label: t("credit-registration-admin-check-product-token"),
-      value: module.check.product_token_found ?? null,
-    },
     { label: t("credit-registration-admin-check-ects"), value: module.ects_credits !== null },
-    {
-      label: t("credit-registration-admin-check-realisation-pinned"),
-      value: module.active_realisation_count > 0,
-    },
   ]
   return (
     <>

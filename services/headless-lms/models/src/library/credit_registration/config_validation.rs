@@ -13,12 +13,7 @@ use super::grade_mapping::{GradeScaleFamily, grade_scale_family};
 /// this is operator diagnostics stored on the row, not student-facing copy.
 const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
 const COURSE_CODE_NOT_FOUND: &str = "The study registry does not know this uh_course_code.";
-const NO_REALISATION: &str = "No active course unit realisation, so the roster is never listed.";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
-const NO_PRODUCT_ID: &str =
-    "No open_university_product_id, so the re-enrol guidance has no working link.";
-const NO_PRODUCT_TOKEN: &str =
-    "No product access token has been resolved, so the re-enrol guidance has no working link.";
 const UNKNOWN_GRADE_SCALE: &str =
     "The grade scale override is not a scale the study registry accepts.";
 const NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS: &str =
@@ -47,21 +42,8 @@ pub fn check_module_config(facts: &SuotarModuleConfigFacts) -> SuotarConfigCheck
     } else {
         None
     };
-    if facts.active_realisation_count == 0 {
-        problems.push(NO_REALISATION);
-    }
     if facts.ects_credits.is_none() {
         problems.push(NO_ECTS);
-    }
-
-    let has_product_id = facts
-        .open_university_product_id
-        .as_deref()
-        .is_some_and(|id| !id.trim().is_empty());
-    if !has_product_id {
-        problems.push(NO_PRODUCT_ID);
-    } else if !facts.product_token_found {
-        problems.push(NO_PRODUCT_TOKEN);
     }
 
     match facts.grade_scale_id.as_deref().map(grade_scale_family) {
@@ -77,9 +59,6 @@ pub fn check_module_config(facts: &SuotarModuleConfigFacts) -> SuotarConfigCheck
 
     SuotarConfigCheck {
         course_code_resolves,
-        // Never left unknown, so `course_module_suotar_configurations_check_result` holds even
-        // when the course code could not be judged: no product configured is a definite "no token".
-        product_token_found: Some(has_product_id && facts.product_token_found),
         message: (!problems.is_empty()).then(|| problems.join(" ")),
     }
 }

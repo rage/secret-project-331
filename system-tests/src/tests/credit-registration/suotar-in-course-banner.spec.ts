@@ -17,7 +17,6 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runMaterializeTick,
   runPreconditionsTick,
-  runProductTokenRefreshTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -48,7 +47,6 @@ const parkOnMissingEnrolment = async (
   userEmail: string,
 ) => {
   const scope = { userEmail }
-  await runProductTokenRefreshTick(page.request, { courseSlug: SUOTAR_COURSE_SLUG })
   await runMaterializeTick(page.request, scope)
   await runPreconditionsTick(page.request, scope)
   await runResolveEnrolmentsTick(page.request, scope)

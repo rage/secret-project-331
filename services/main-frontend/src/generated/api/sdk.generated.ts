@@ -4838,7 +4838,7 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-realisation counters, the send-status totals and the stale-address list.
+ * per-module counters, the send-status totals and the stale-address list.
  */
 export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   options?: Options<GetAccountLinkingStatsData, ThrowOnError>,

@@ -390,7 +390,7 @@ mod tests {
     }
 
     async fn pause_module(conn: &mut PgConnection, course_module_id: Uuid, user_id: Uuid) {
-        crate::course_module_suotar_configurations::upsert(conn, course_module_id, None, None)
+        crate::course_module_suotar_configurations::upsert(conn, course_module_id, None)
             .await
             .unwrap();
         crate::course_module_suotar_configurations::set_paused(

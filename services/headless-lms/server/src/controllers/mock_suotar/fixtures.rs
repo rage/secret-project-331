@@ -25,13 +25,13 @@ use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
 use super::commands::{
-    CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, ProductAccessTokenUpsert, RealisationUpsert,
+    CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, RealisationUpsert, SisuViolationsUpsert,
     WorldPush,
 };
 use super::ids as mock_ids;
 use super::world::{
     CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, PersonBehaviour,
-    RealisationKind, Ripeness, WorldDefaults,
+    RealisationKind, SuotarCourse, WorldDefaults,
 };
 
 /// The course the Suotar specs live on.
@@ -375,10 +375,6 @@ pub fn mock_suotar_world() -> WorldPush {
         start_date: (now - Duration::days(730)).date_naive(),
         end_date: (now + Duration::days(730)).date_naive(),
     };
-    let past = DatePeriod {
-        start_date: (now - Duration::days(900)).date_naive(),
-        end_date: (now - Duration::days(800)).date_naive(),
-    };
 
     let on_crs_101 = [
         &LINKED_STUDENT,
@@ -417,7 +413,7 @@ pub fn mock_suotar_world() -> WorldPush {
         if f.student_number == ADMIN_STALE.student_number
             || f.student_number == TEACHER_RESEND_CAPPED.student_number
         {
-            upsert.primary_email = format!("current.{}", f.sisu_email);
+            upsert.primary_email = Some(format!("current.{}", f.sisu_email));
         }
         upsert
     }));
@@ -489,19 +485,17 @@ pub fn mock_suotar_world() -> WorldPush {
 
     let import_outcomes = [
         CourseUnitShape {
-            import_allowed: false,
+            carried_by_suotar: false,
             ..CourseUnitShape::new(CRS_IMPORT_101, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
         CourseUnitShape {
             credits: Some(CreditRange { min: 1.0, max: 1.0 }),
             ..CourseUnitShape::new(CRS_IMPORT_102, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
+        CourseUnitShape::new(CRS_IMPORT_103, IMPORT_OUTCOMES_COURSE_SLUG, 5.0),
+        // Graded on 0–5 in Sisu while the module registers pass/fail.
         CourseUnitShape {
-            activity_period: Some(past),
-            ..CourseUnitShape::new(CRS_IMPORT_103, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
-        },
-        CourseUnitShape {
-            acceptor: false,
+            grade_scale_id: "sis-0-5",
             ..CourseUnitShape::new(CRS_IMPORT_104, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
     ];
@@ -535,20 +529,19 @@ pub fn mock_suotar_world() -> WorldPush {
     course_units.extend(import_outcomes.into_iter().map(|shape| shape.build(&wide)));
 
     WorldPush {
-        defaults: Some(WorldDefaults {
-            ripeness: Ripeness::Manual,
-            ..WorldDefaults::default()
-        }),
+        defaults: Some(WorldDefaults::default()),
         persons,
         course_units,
         enrolments,
         attainments: Vec::new(),
         submissions: Vec::new(),
-        product_tokens: vec![
-            product_token(CRS_101),
-            product_token(CRS_OLD_101),
-            product_token(CRS_ADMIN_101),
-        ],
+        sisu_violations: vec![SisuViolationsUpsert {
+            student_number: IMPORT_OUTCOMES.student_number.to_string(),
+            course_code: CRS_IMPORT_103.to_string(),
+            violations: vec![
+                "Student must have an active study right on attainment date or on credit transfer date.".to_string(),
+            ],
+        }],
     }
 }
 
@@ -556,9 +549,9 @@ fn person(fixture: &MockPersonFixture) -> PersonUpsert {
     PersonUpsert {
         student_number: fixture.student_number.to_string(),
         person_id: Some(fixture.sisu_person_id()),
-        first_names: fixture.first_names.to_string(),
-        last_name: fixture.last_name.to_string(),
-        primary_email: fixture.sisu_email.to_string(),
+        first_names: Some(fixture.first_names.to_string()),
+        last_name: Some(fixture.last_name.to_string()),
+        primary_email: Some(fixture.sisu_email.to_string()),
         secondary_email: None,
         behaviour: PersonBehaviour::default(),
         owner_user_email: fixture.account_email.map(str::to_string),
@@ -580,12 +573,13 @@ fn enrolment(
         kind,
         state: EnrolmentState::Enrolled,
         study_right_id: None,
-        study_right_validity_period: validity,
+        study_right_validity_period: Some(validity),
+        study_right_grant_date: None,
         enrolment_date_time: Some(enrolled_at),
     }
 }
 
-/// What the mock's realisation for one module looks like. The defaults are the working shape; the
+/// What the mock's course unit for one module looks like. The defaults are the working shape; the
 /// import-outcomes modules each break exactly one of them.
 struct CourseUnitShape<'a> {
     course_code: &'a str,
@@ -594,9 +588,7 @@ struct CourseUnitShape<'a> {
     kinds: &'a [RealisationKind],
     grade_scale_id: &'a str,
     credits: Option<CreditRange>,
-    activity_period: Option<DatePeriod>,
-    acceptor: bool,
-    import_allowed: bool,
+    carried_by_suotar: bool,
 }
 
 impl<'a> CourseUnitShape<'a> {
@@ -608,9 +600,7 @@ impl<'a> CourseUnitShape<'a> {
             kinds: &[RealisationKind::Degree],
             grade_scale_id: "sis-hyl-hyv",
             credits: None,
-            activity_period: None,
-            acceptor: true,
-            import_allowed: true,
+            carried_by_suotar: true,
         }
     }
 
@@ -624,6 +614,11 @@ impl<'a> CourseUnitShape<'a> {
             course_code: self.course_code.to_string(),
             course_unit_id: None,
             name: Some(name),
+            credits: Some(self.credits.unwrap_or(CreditRange {
+                min: self.ects,
+                max: self.ects,
+            })),
+            grade_scale_id: Some(self.grade_scale_id.to_string()),
             realisations: self
                 .kinds
                 .iter()
@@ -632,42 +627,17 @@ impl<'a> CourseUnitShape<'a> {
                     name: None,
                     assessment_item_id: None,
                     kind: *kind,
-                    activity_period: self
-                        .activity_period
-                        .clone()
-                        .unwrap_or_else(|| activity_period.clone()),
-                    grade_scale_id: self.grade_scale_id.to_string(),
-                    credits: self.credits.clone().unwrap_or(CreditRange {
-                        min: self.ects,
-                        max: self.ects,
-                    }),
-                    acceptor_person_id: self.acceptor.then(|| "hy-hlo-acceptor".to_string()),
-                    open_university_product_id: match kind {
-                        RealisationKind::OpenUniversity => Some(product_id(self.course_code)),
-                        RealisationKind::Degree => None,
-                    },
+                    activity_period: Some(activity_period.clone()),
+                    grade_scale_id: None,
                 })
                 .collect(),
-            behaviour: CourseBehaviour {
-                import_allowed: self.import_allowed,
-            },
+            suotar_course: self.carried_by_suotar.then(|| SuotarCourse {
+                name: self.course_code.to_string(),
+            }),
+            behaviour: CourseBehaviour::default(),
             owner_course_slug: Some(self.course_slug.to_string()),
         }
     }
-}
-
-fn product_token(course_code: &str) -> ProductAccessTokenUpsert {
-    ProductAccessTokenUpsert {
-        open_university_product_id: product_id(course_code),
-        id: None,
-        access_token: None,
-        state: None,
-        document_state: None,
-    }
-}
-
-pub fn product_id(course_code: &str) -> String {
-    format!("otm-product-{}", course_code.to_lowercase())
 }
 
 #[cfg(test)]
@@ -683,29 +653,14 @@ mod tests {
             .as_ref()
             .map(|defaults| defaults.grade_scales.clone())
             .unwrap_or_default();
-        let product_ids: Vec<&String> = world
-            .product_tokens
-            .iter()
-            .map(|token| &token.open_university_product_id)
-            .collect();
 
         for unit in &world.course_units {
-            for realisation in &unit.realisations {
+            if let Some(scale_id) = &unit.grade_scale_id {
                 assert!(
-                    scales
-                        .iter()
-                        .any(|scale| scale.answers_to(&realisation.grade_scale_id)),
-                    "{} names an unknown grade scale {}",
-                    unit.course_code,
-                    realisation.grade_scale_id
+                    scales.iter().any(|scale| &scale.id == scale_id),
+                    "{} names an unknown grade scale {scale_id}",
+                    unit.course_code
                 );
-                if let Some(product_id) = &realisation.open_university_product_id {
-                    assert!(
-                        product_ids.contains(&product_id),
-                        "{} references a product token that was not pushed: {product_id}",
-                        unit.course_code
-                    );
-                }
             }
         }
 

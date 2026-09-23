@@ -9,7 +9,6 @@
 use std::collections::BTreeMap;
 
 use chrono::Duration;
-use headless_lms_utils::services::suotar::SuotarEndpoint;
 use serde_json::json;
 
 use crate::prelude::*;
@@ -18,12 +17,13 @@ use super::commands::{CommandError, arm_fault};
 use super::faults::{Effect, FaultSpec, Lifetime, OwnerRef, Predicate, Stage, WhenSpec};
 use super::ids;
 use super::store::{EntityHash, MockSuotarStore};
+use super::wire::Endpoint;
 use super::world::{
-    CreditRange, DatePeriod, EnrolmentState, LocalizedName, MockCourseUnit, MockEnrolment,
-    MockPerson, MockRealisation, PersonBehaviour, RealisationKind, Ripeness,
+    CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, MockCourseUnit,
+    MockEnrolment, MockPerson, MockRealisation, MockStudyRight, PersonBehaviour, RealisationKind,
+    SuotarCourse,
 };
 
-const ACCEPTOR_PERSON_ID: &str = "hy-hlo-acceptor";
 const PASS_FAIL_SCALE: &str = "sis-hyl-hyv";
 
 #[derive(Debug, Default, Deserialize)]
@@ -39,7 +39,7 @@ pub struct ScenarioArgs {
     pub last_name: Option<String>,
 }
 
-pub const SCENARIOS: [&str; 2] = ["happy-path", "timeout-but-landed"];
+pub const SCENARIOS: [&str; 3] = ["happy-path", "timeout-but-landed", "import-unanswered"];
 
 pub async fn apply(
     store: &MockSuotarStore,
@@ -54,8 +54,9 @@ pub async fn apply(
         ));
     }
     let mut result = match name {
-        "happy-path" => plain(store, generation, &args, Ripeness::Manual).await?,
+        "happy-path" => plain(store, generation, &args).await?,
         "timeout-but-landed" => timeout(store, generation, &args).await?,
+        "import-unanswered" => unanswered(store, generation, &args).await?,
         _ => unreachable!("checked against the catalogue above"),
     };
 
@@ -82,10 +83,9 @@ async fn plain(
     store: &MockSuotarStore,
     generation: &str,
     args: &ScenarioArgs,
-    ripeness: Ripeness,
 ) -> Result<serde_json::Value, CommandError> {
     let realisation = ensure_course(store, generation, args).await?;
-    let student_number = put_person(store, generation, args, Some(ripeness)).await?;
+    let student_number = put_person(store, generation, args).await?;
     let course_code = course_code(args)?;
     let enrolment_id = put_enrolment(
         store,
@@ -105,45 +105,77 @@ async fn plain(
     }))
 }
 
-/// `sisuTimeout` after the write leaves the world indistinguishable from a successful import, which
-/// is the case a client cannot resolve without verifying.
+/// `sisuTimeout` after the write, with the written entry's id in `result`: the case a client cannot
+/// resolve without verifying.
 async fn timeout(
     store: &MockSuotarStore,
     generation: &str,
     args: &ScenarioArgs,
 ) -> Result<serde_json::Value, CommandError> {
-    let mut base = plain(store, generation, args, Ripeness::Manual).await?;
+    arm_after_import(
+        store,
+        generation,
+        args,
+        "timeout",
+        Stage::AfterWrite,
+        Effect::ItemLevel {
+            code: "sisuTimeout".to_string(),
+            message: None,
+        },
+    )
+    .await
+}
+
+/// The import lands but its item is missing from the response, so the client learns no id at all.
+async fn unanswered(
+    store: &MockSuotarStore,
+    generation: &str,
+    args: &ScenarioArgs,
+) -> Result<serde_json::Value, CommandError> {
+    arm_after_import(
+        store,
+        generation,
+        args,
+        "unanswered",
+        Stage::Respond,
+        Effect::DropItem,
+    )
+    .await
+}
+
+async fn arm_after_import(
+    store: &MockSuotarStore,
+    generation: &str,
+    args: &ScenarioArgs,
+    fault_prefix: &str,
+    stage: Stage,
+    effect: Effect,
+) -> Result<serde_json::Value, CommandError> {
+    let mut base = plain(store, generation, args).await?;
     let student_number = string_field(&base, "studentNumber")?;
-    let fault_id = format!("timeout-{student_number}");
+    let fault_id = format!("{fault_prefix}-{student_number}");
     arm(
         store,
         generation,
         &fault_id,
         vec![
-            Predicate::Endpoint(SuotarEndpoint::ImportAttainments),
-            Predicate::Stage(Stage::AfterWrite),
+            Predicate::Endpoint(Endpoint::ImportAttainments),
+            Predicate::Stage(stage),
             Predicate::StudentNumber(student_number.clone()),
         ],
-        Effect::ItemLevel {
-            code: "sisuTimeout".to_string(),
-            message: None,
-            disclose_submitted_attainment_id: true,
-        },
+        effect,
         Lifetime {
             matching_items: Some(1),
             ..Default::default()
         },
     )
     .await?;
-    merge(
-        &mut base,
-        json!({ "faultId": fault_id, "discloseId": true }),
-    );
+    merge(&mut base, json!({ "faultId": fault_id }));
     Ok(base)
 }
 
-/// A five-credit pass/fail realisation with an acceptor: the scenarios differ in the fault they arm,
-/// not in their data.
+/// A five-credit pass/fail course Suotar carries: the scenarios differ in the fault they arm, not in
+/// their data.
 async fn ensure_course(
     store: &MockSuotarStore,
     generation: &str,
@@ -152,23 +184,21 @@ async fn ensure_course(
     let course_code = course_code(args)?;
     let kind = args.realisation_kind.unwrap_or(RealisationKind::Degree);
     let now = Utc::now();
+    let name = LocalizedName {
+        fi: course_code.clone(),
+        sv: course_code.clone(),
+        en: course_code.clone(),
+    };
     let realisation = MockRealisation {
         id: ids::realisation_id(&course_code, kind),
-        name: LocalizedName {
-            fi: course_code.clone(),
-            sv: course_code.clone(),
-            en: course_code.clone(),
-        },
+        name: Some(name.clone()),
         assessment_item_id: ids::assessment_item_id(&course_code, kind),
         kind,
-        activity_period: DatePeriod {
+        activity_period: Some(DatePeriod {
             start_date: (now - Duration::days(180)).date_naive(),
             end_date: (now + Duration::days(180)).date_naive(),
-        },
-        grade_scale_id: PASS_FAIL_SCALE.to_string(),
-        credits: CreditRange { min: 5.0, max: 5.0 },
-        acceptor_person_id: Some(ACCEPTOR_PERSON_ID.to_string()),
-        open_university_product_id: None,
+        }),
+        grade_scale_id: None,
     };
 
     let mut unit: MockCourseUnit = store
@@ -176,17 +206,21 @@ async fn ensure_course(
         .await?
         .unwrap_or_else(|| MockCourseUnit {
             course_unit_id: ids::course_unit_id(&course_code),
-            name: LocalizedName {
-                fi: course_code.clone(),
-                sv: course_code.clone(),
-                en: course_code.clone(),
-            },
+            name,
+            credits: None,
+            grade_scale_id: None,
             realisations: Vec::new(),
-            behaviour: Default::default(),
+            suotar_course: None,
+            behaviour: CourseBehaviour::default(),
             owner_course_slug: args.owner.as_ref().and_then(|owner| owner.course.clone()),
             course_code: course_code.clone(),
         });
-    unit.behaviour.import_allowed = true;
+    unit.credits = Some(CreditRange { min: 5.0, max: 5.0 });
+    unit.grade_scale_id = Some(PASS_FAIL_SCALE.to_string());
+    unit.suotar_course = Some(SuotarCourse {
+        name: course_code.clone(),
+    });
+    unit.behaviour = CourseBehaviour::default();
     unit.realisations
         .retain(|existing| existing.id != realisation.id);
     unit.realisations.push(realisation.clone());
@@ -205,7 +239,6 @@ async fn put_person(
     store: &MockSuotarStore,
     generation: &str,
     args: &ScenarioArgs,
-    ripeness: Option<Ripeness>,
 ) -> Result<String, CommandError> {
     let student_number = match &args.student_number {
         Some(student_number) => student_number.clone(),
@@ -216,23 +249,23 @@ async fn put_person(
     };
     let person = MockPerson {
         person_id: ids::person_id(&student_number),
-        first_names: args
-            .first_names
-            .clone()
-            .unwrap_or_else(|| "Zzyzx".to_string()),
-        last_name: args
-            .last_name
-            .clone()
-            .unwrap_or_else(|| "Scenario".to_string()),
-        primary_email: args
-            .primary_email
-            .clone()
-            .unwrap_or_else(|| format!("zzyzx.scenario.{student_number}@helsinki.example")),
+        first_names: Some(
+            args.first_names
+                .clone()
+                .unwrap_or_else(|| "Zzyzx".to_string()),
+        ),
+        last_name: Some(
+            args.last_name
+                .clone()
+                .unwrap_or_else(|| "Scenario".to_string()),
+        ),
+        primary_email: Some(
+            args.primary_email
+                .clone()
+                .unwrap_or_else(|| format!("zzyzx.scenario.{student_number}@helsinki.example")),
+        ),
         secondary_email: args.secondary_email.clone(),
-        behaviour: PersonBehaviour {
-            ripeness,
-            duplicate_detection: None,
-        },
+        behaviour: PersonBehaviour::default(),
         owner_user_email: args.owner.as_ref().and_then(|owner| owner.user.clone()),
         student_number: student_number.clone(),
     };
@@ -262,11 +295,14 @@ async fn put_enrolment(
         course_code: course_code.to_string(),
         realisation_id: realisation.id.clone(),
         state: EnrolmentState::Enrolled,
-        study_right_id: ids::study_right_id(student_number, realisation.kind),
-        study_right_validity_period: DatePeriod {
-            start_date: (now - Duration::days(365)).date_naive(),
-            end_date: (now + Duration::days(365)).date_naive(),
-        },
+        study_right_id: Some(ids::study_right_id(student_number, realisation.kind)),
+        study_right: Some(MockStudyRight {
+            validity: DatePeriod {
+                start_date: (now - Duration::days(365)).date_naive(),
+                end_date: (now + Duration::days(365)).date_naive(),
+            },
+            grant_date: None,
+        }),
         enrolment_date_time: now,
     };
     store

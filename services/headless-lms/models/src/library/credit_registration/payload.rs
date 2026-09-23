@@ -71,7 +71,7 @@ pub fn build_payload_snapshot(
         configured_grade_scale_id: sources.configured_grade_scale_id,
         enrolment_grade_scale_id: sources
             .enrolment
-            .map(|enrolment| enrolment.grade_scale_id.as_str()),
+            .and_then(|enrolment| enrolment.grade_scale_id.as_deref()),
     })?;
     let (credits, clamped_credits_from) = clamp_credits(ects_credits, sources.enrolment);
 
@@ -96,7 +96,7 @@ pub fn build_payload_snapshot(
 }
 
 fn clamp_credits(credits: f32, enrolment: Option<&SuotarEnrolment>) -> (f32, Option<f32>) {
-    let Some(range) = enrolment.map(|enrolment| &enrolment.credits) else {
+    let Some(range) = enrolment.and_then(|enrolment| enrolment.credits.as_ref()) else {
         return (credits, None);
     };
     // Not f64::clamp, which panics if min > max: select_enrolment refuses such a range, but a wire
@@ -173,23 +173,23 @@ mod tests {
             course_unit_id: "hy-CU-1".to_string(),
             assessment_item_id: "hy-AI-1".to_string(),
             course_unit_realisation_id: "hy-CUR-1".to_string(),
-            course_unit_realisation_name: LocalizedName {
-                fi: "kurssi".to_string(),
-                sv: "kurs".to_string(),
-                en: "course".to_string(),
-            },
-            activity_period: DatePeriod {
+            course_unit_realisation_name: Some(LocalizedName {
+                fi: Some("kurssi".to_string()),
+                sv: Some("kurs".to_string()),
+                en: Some("course".to_string()),
+            }),
+            activity_period: Some(DatePeriod {
                 start_date: NaiveDate::from_ymd_opt(2026, 1, 1).expect("valid date"),
                 end_date: NaiveDate::from_ymd_opt(2026, 12, 31).expect("valid date"),
-            },
-            grade_scale_id: PASS_FAIL_GRADE_SCALE_ID.to_string(),
-            credits: CreditRange { min, max },
-            study_right_id: "hy-SR-1".to_string(),
-            study_right_validity_period: DatePeriod {
+            }),
+            grade_scale_id: Some(PASS_FAIL_GRADE_SCALE_ID.to_string()),
+            credits: Some(CreditRange { min, max }),
+            study_right_id: Some("hy-SR-1".to_string()),
+            study_right_validity_period: Some(DatePeriod {
                 start_date: NaiveDate::from_ymd_opt(2020, 1, 1).expect("valid date"),
                 end_date: NaiveDate::from_ymd_opt(2030, 1, 1).expect("valid date"),
-            },
-            enrolment_date_time: Utc::now(),
+            }),
+            enrolment_date_time: Some(Utc::now()),
         }
     }
 

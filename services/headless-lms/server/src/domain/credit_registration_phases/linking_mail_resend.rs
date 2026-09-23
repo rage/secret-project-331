@@ -11,17 +11,16 @@ use std::pin::Pin;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-use headless_lms_models::course_module_suotar_realisations::{
-    get_active_for_course, listing_request_item_id,
-};
+use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
 };
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarEndpoint,
-    SuotarItemStatus,
+    SuotarItemStatus, new_request_item_id,
 };
+use std::collections::BTreeSet;
 use uuid::Uuid;
 
 use super::{CreditRegistrationPhase, PhaseContext, listed_person_addresses, worker_name};
@@ -36,7 +35,7 @@ pub enum LinkingMailResendOutcome {
     /// A cap refused it: either the quiet period or the per-course lifetime limit.
     RefusedByRateCap,
     NoAddressInStudyRegistry,
-    /// The study registry does not list them on any realisation of this course.
+    /// The study registry does not list them under any course code of this course.
     NotOnTheCourseRoster,
     /// We could not ask the study registry, so nothing was decided.
     StudyRegistryUnavailable,
@@ -48,26 +47,25 @@ pub async fn resend_linking_mail(
     course_id: Uuid,
     student_number: &str,
 ) -> anyhow::Result<LinkingMailResendOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let realisations = get_active_for_course(&mut conn, course_id).await?;
-
-    let mut items = Vec::new();
-    for realisation in &realisations {
-        let Some(course_code) = super::enrolment_discovery::listable_course_code(realisation)
-        else {
-            continue;
-        };
-        items.push(ListByCourseRequestItem {
-            request_item_id: listing_request_item_id(realisation.id),
+    let course_codes: BTreeSet<String> = {
+        let mut conn = ctx.pool.acquire().await?;
+        get_active_modules_for_course(&mut conn, course_id)
+            .await?
+            .into_iter()
+            .map(|module| module.uh_course_code)
+            .collect()
+    };
+    let items: Vec<ListByCourseRequestItem> = course_codes
+        .into_iter()
+        .map(|course_code| ListByCourseRequestItem {
+            request_item_id: new_request_item_id(),
             course_code,
-            course_unit_realisation_id: Some(realisation.course_unit_realisation_id.clone()),
-        });
-    }
+        })
+        .collect();
     if items.is_empty() {
         return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
     }
 
-    // A course can hold more realisations than one `list-by-course` request may carry.
     let mut person = None;
     for chunk in items.chunks(SuotarEndpoint::ListByCourse.max_batch_size()) {
         let response = ctx
@@ -102,8 +100,8 @@ pub async fn resend_linking_mail(
     let discovered = DiscoveredPerson {
         sisu_person_id: person.person_id.clone(),
         student_number: person.student_number.clone(),
-        first_names: Some(person.first_names.clone()),
-        last_name: Some(person.last_name.clone()),
+        first_names: person.first_names.clone(),
+        last_name: person.last_name.clone(),
         course_id,
         addresses: listed_person_addresses(&person),
     };
@@ -111,6 +109,7 @@ pub async fn resend_linking_mail(
         return Ok(LinkingMailResendOutcome::NoAddressInStudyRegistry);
     }
 
+    let mut conn = ctx.pool.acquire().await?;
     let ClaimedLinkingMails {
         claimed,
         suppressed_by_dedup,
@@ -222,8 +221,8 @@ pub async fn resend_linking_mail_for_target<'a>(
 
 pub struct ResolvedPerson {
     pub sisu_person_id: String,
-    pub first_names: String,
-    pub last_name: String,
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
     /// The registry's own per-item code, an identifier rather than prose.
     pub code: String,
 }
@@ -246,7 +245,7 @@ pub async fn resolve_person(
     ctx: &PhaseContext<'_>,
     student_number: &str,
 ) -> Result<Option<ResolvedPerson>, ResolvePersonError> {
-    let request_item_id = format!("admin-{student_number}");
+    let request_item_id = new_request_item_id();
     let response = ctx
         .suotar_client
         .resolve_persons(

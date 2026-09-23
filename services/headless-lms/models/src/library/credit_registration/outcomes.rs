@@ -199,9 +199,12 @@ fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErrorCod
     match variant {
         SuotarErrorVariant::Unauthorized => CreditRegistrationErrorCode::Unauthorized,
         SuotarErrorVariant::MalformedRequest => CreditRegistrationErrorCode::MalformedRequest,
-        SuotarErrorVariant::Deserialization => CreditRegistrationErrorCode::UnexpectedResponse,
-        SuotarErrorVariant::ServerError | SuotarErrorVariant::RequestLevelError => {
-            CreditRegistrationErrorCode::SisuTemporarilyUnavailable
+        SuotarErrorVariant::Deserialization | SuotarErrorVariant::RequestLevelError => {
+            CreditRegistrationErrorCode::UnexpectedResponse
+        }
+        // A bare 5xx may not be Suotar's unavailability, but a retry is all either one gets.
+        SuotarErrorVariant::ServiceTemporarilyUnavailable | SuotarErrorVariant::ServerError => {
+            CreditRegistrationErrorCode::ServiceTemporarilyUnavailable
         }
         SuotarErrorVariant::TransportNotDelivered | SuotarErrorVariant::TransportUnknown => {
             CreditRegistrationErrorCode::TransportError
@@ -309,7 +312,8 @@ mod tests {
     #[test]
     fn import_routes_every_code_to_its_documented_state() {
         let cases = [
-            (Code::SisuTemporarilyUnavailable, State::FailedRetryable),
+            (Code::ServiceTemporarilyUnavailable, State::FailedRetryable),
+            (Code::NotRegistered, State::FailedRetryable),
             (Code::TransportError, State::FailedRetryable),
             (Code::Unauthorized, State::FailedRetryable),
             (Code::MalformedRequest, State::FailedRetryable),
@@ -322,11 +326,11 @@ mod tests {
             (Code::CourseCodeNotFound, State::FailedPermanent),
             (Code::CourseNotAllowed, State::FailedPermanent),
             (Code::InvalidGradeForGradeScale, State::FailedPermanent),
+            (Code::GradeScaleMismatch, State::FailedPermanent),
             (Code::InvalidCredits, State::FailedPermanent),
             (Code::NoGradeScaleMapping, State::FailedPermanent),
             (Code::MissingUhCourseCode, State::FailedPermanent),
             (Code::MissingEctsCredits, State::FailedPermanent),
-            (Code::AcceptorNotFound, State::FailedPermanent),
             (Code::SisuValidationFailed, State::FailedPermanent),
             (Code::Misregistered, State::FailedPermanent),
             (Code::RetryWindowExpired, State::FailedPermanent),
@@ -353,7 +357,8 @@ mod tests {
         assert_eq!(
             resendable,
             vec![
-                Code::SisuTemporarilyUnavailable,
+                Code::ServiceTemporarilyUnavailable,
+                Code::NotRegistered,
                 Code::Unauthorized,
                 Code::MalformedRequest,
                 Code::TransportError,
@@ -363,7 +368,7 @@ mod tests {
         assert_eq!(
             super::super::classification::map_code(
                 SuotarEndpoint::ImportAttainments,
-                "sisuTemporarilyUnavailable"
+                "serviceTemporarilyUnavailable"
             ),
             Some(Code::SisuTimeout)
         );
@@ -404,7 +409,7 @@ mod tests {
             Some(true)
         );
         assert_eq!(
-            import(Code::SisuTemporarilyUnavailable).needs_admin_attention,
+            import(Code::ServiceTemporarilyUnavailable).needs_admin_attention,
             None
         );
     }
@@ -417,7 +422,7 @@ mod tests {
         };
         let outcome = submit_error_outcome(
             SuotarEndpoint::ResolveEnrolments,
-            Code::SisuTemporarilyUnavailable,
+            Code::ServiceTemporarilyUnavailable,
             &facts,
         );
         assert_eq!(outcome.to_state, State::FailedPermanent);
@@ -456,6 +461,7 @@ mod tests {
             SuotarErrorVariant::Unauthorized,
             SuotarErrorVariant::MalformedRequest,
             SuotarErrorVariant::RequestLevelError,
+            SuotarErrorVariant::ServiceTemporarilyUnavailable,
         ] {
             assert_eq!(
                 request_level_outcome(SuotarEndpoint::ImportAttainments, variant, &facts).to_state,

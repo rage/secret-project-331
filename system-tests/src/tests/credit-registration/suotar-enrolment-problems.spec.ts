@@ -13,7 +13,6 @@ import {
   runMaterializeTick,
   runPhasesUpToSubmission,
   runPreconditionsTick,
-  runProductTokenRefreshTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
 
@@ -36,7 +35,6 @@ test.describe("A student the University has no enrolment for", () => {
   }) => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL }
 
-    await runProductTokenRefreshTick(page.request, { courseSlug: SUOTAR_COURSE_SLUG })
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
@@ -52,9 +50,9 @@ test.describe("A student the University has no enrolment for", () => {
       await page.getByRole("radio", { name: "No", exact: true }).click()
       const enrol = page.getByRole("link", { name: "Enrol at the Open University" })
       await expect(enrol).toBeVisible()
-      // Built from the product access token the refresh phase fetched, so it lands the student
-      // somewhere that works rather than on a generic front page.
-      await expect(enrol).toHaveAttribute("href", /token/)
+      // The module's own link, so it lands the student somewhere that works rather than on a
+      // generic front page.
+      await expect(enrol).toHaveAttribute("href", /esittely\.aspx\?s=seed-/)
     })
 
     await test.step("Saying they have enrolled turns the page into a wait", async () => {

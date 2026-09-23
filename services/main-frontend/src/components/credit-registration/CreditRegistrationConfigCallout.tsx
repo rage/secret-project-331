@@ -53,9 +53,6 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) 
             {config.credit_registration_course_code_resolves === false && (
               <div>{t("credit-registration-config-course-code-unknown")}</div>
             )}
-            {config.credit_registration_product_token_found === false && (
-              <div>{t("credit-registration-config-no-product-token")}</div>
-            )}
             {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
             <Disclosure title={t("credit-registration-config-diagnostic-for-support")}>
               <div className={cx(noteCss, monospaceCss)}>

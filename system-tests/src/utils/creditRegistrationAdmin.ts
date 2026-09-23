@@ -89,14 +89,14 @@ export interface AdminRegistrationDetails {
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
-export interface AccountLinkingRealisationCounters {
+export interface AccountLinkingModuleCounters {
   course_id: string
   last_listed_at: string | null
   listed_person_count: number | null
 }
 
 export interface AccountLinkingStats {
-  realisations: AccountLinkingRealisationCounters[]
+  modules: AccountLinkingModuleCounters[]
 }
 
 export interface AdminRegistrationFilter {
@@ -231,7 +231,7 @@ export interface AdminCourseModuleStats {
   eligible_completion_count: number
   registration_count: number
   config_checked_at: string | null
-  check: { course_code_resolves: boolean | null; product_token_found: boolean | null }
+  check: { course_code_resolves: boolean | null }
 }
 
 export interface AdminCourseStats {
@@ -279,7 +279,7 @@ export interface SuotarApiCallDetails {
   response_body_sample: unknown
   ledger_references: {
     credit_registration_id: string
-    request_item_id: string
+    request_item_id: string | null
     student_number: string | null
     first_name: string | null
     last_name: string | null

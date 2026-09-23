@@ -1,8 +1,8 @@
 //! The `config-validation` phase: the daily pass over every Suotar-enabled module's configuration.
 //!
 //! Database-only. Everything Suotar could say about a configuration has already been recorded by
-//! the phases that call it — a listing answered `courseCodeNotFound`, a product token that never
-//! resolved — so this reads their traces rather than spending a call of its own.
+//! the phases that call it — a listing answered `courseCodeNotFound` — so this reads their traces
+//! rather than spending a call of its own.
 
 use headless_lms_models::course_module_suotar_configurations::{
     get_config_facts_for_enabled_modules, record_config_check,

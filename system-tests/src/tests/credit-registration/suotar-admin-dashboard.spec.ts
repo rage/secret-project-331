@@ -120,7 +120,7 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Linking" }).click()
   await expect(page.getByRole("heading", { name: "Recent links" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Per course module" })).toBeVisible()
 })
 
 // A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
@@ -206,7 +206,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
   const scope = { userEmail: ADMIN_LINKED_EMAIL }
   await runPhasesUpToSubmission(page.request, scope)
-  // The mock's default ripeness is `manual`: nothing registers a submission without this.
+  // Only a control transition registers a submission in the mock.
   await transitionMockSuotarSubmissionsFor(
     page.request,
     ADMIN_LINKED_STUDENT_NUMBER,
@@ -547,17 +547,17 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
   })
 })
 
-test("A discovery run writes the per-realisation counters", async ({ page }) => {
+test("A discovery run writes the per-module counters", async ({ page }) => {
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
 
   const counters = await pollUntil(
     async () => {
       const stats = await accountLinkingStats(page.request)
-      const mine = stats.realisations.find((row) => row.course_id === ADMIN_COURSE_ID)
+      const mine = stats.modules.find((row) => row.course_id === ADMIN_COURSE_ID)
       return mine?.last_listed_at ? mine : null
     },
-    { description: "the admin course's realisation to report a listing" },
+    { description: "the admin course's module to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
 })

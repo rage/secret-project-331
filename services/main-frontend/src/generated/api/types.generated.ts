@@ -41,14 +41,13 @@ export type AccountLinkingFunnel = {
   suppressed_by_rate_cap_last_run: number
 }
 
-export type AccountLinkingRealisationCounters = {
+export type AccountLinkingModuleCounters = {
   already_linked_count?: number | null
   consecutive_listing_failures: number
   course_id: string
   course_module_id: string
   course_module_name?: string | null
   course_name: string
-  course_unit_realisation_id: string
   fast_track_skipped_account_has_number_count?: number | null
   /**
    * A rise here is the only early warning of a university address reissued to a different person.
@@ -63,9 +62,8 @@ export type AccountLinkingRealisationCounters = {
    */
   fast_track_skipped_unverified_count?: number | null
   fast_tracked_count?: number | null
-  label?: string | null
   /**
-   * When the counters below were collected. Not the last attempt: a failing realisation keeps the
+   * When the counters below were collected. Not the last attempt: a failing listing keeps the
    * last roster that arrived.
    */
   last_listed_at?: string | null
@@ -120,8 +118,8 @@ export type AccountLinkingStats = {
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
   links_total_by_method: Array<VerifiedStudentNumberMethodTotal>
   max_mails_per_person_and_course: number
+  modules: Array<AccountLinkingModuleCounters>
   quiet_period_secs: number
-  realisations: Array<AccountLinkingRealisationCounters>
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
   /**
@@ -253,7 +251,6 @@ export type AdminCreditRegistrationRow = {
   next_attempt_at: string
   pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
-  request_item_id: string
   resubmission_refusal?: null | ResubmissionRefusal
   selected_enrolment_id?: string | null
   sisu_attainment_id?: string | null
@@ -1268,10 +1265,6 @@ export type CourseCreditRegistrationEvent = {
  */
 export type CourseCreditRegistrationModuleConfigs = {
   modules: Array<CourseModuleCreditRegistrationConfig>
-  /**
-   * Every live realisation of every module of the course, to be grouped by `course_module_id`.
-   */
-  realisations: Array<CourseModuleSuotarRealisation>
 }
 
 /**
@@ -1664,10 +1657,8 @@ export type CourseModuleCreditRegistrationConfig = {
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_paused_by_user_id?: string | null
-  credit_registration_product_token_found?: boolean | null
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
-  open_university_product_id?: string | null
   uh_course_code?: string | null
 }
 
@@ -1680,11 +1671,6 @@ export type CourseModuleCreditRegistrationEdit = {
    * `None` means derive the grade scale from the completion.
    */
   grade_scale_id?: string | null
-  open_university_product_id?: string | null
-  /**
-   * The full set for the module; anything missing from it is soft-deleted.
-   */
-  realisations: Array<CourseModuleSuotarRealisationEdit>
 }
 
 /**
@@ -1718,43 +1704,6 @@ export type CourseModuleInfo = {
    * The module's course code in the university's registry, e.g. `BSCS1001`.
    */
   uh_course_code?: string | null
-}
-
-export type CourseModuleSuotarRealisation = {
-  active: boolean
-  consecutive_listing_failures: number
-  course_module_id: string
-  course_unit_realisation_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  label?: string | null
-  last_already_linked_count?: number | null
-  last_fast_track_skipped_account_has_number_count?: number | null
-  last_fast_track_skipped_name_mismatch_count?: number | null
-  last_fast_track_skipped_no_account_count?: number | null
-  last_fast_track_skipped_stale_verification_count?: number | null
-  last_fast_track_skipped_unlinked_before_count?: number | null
-  last_fast_track_skipped_unverified_count?: number | null
-  last_fast_tracked_count?: number | null
-  last_listed_at?: string | null
-  last_listed_person_count?: number | null
-  last_listing_attempted_at?: string | null
-  last_listing_error?: null | CreditRegistrationErrorCode
-  last_mailed_count?: number | null
-  last_no_address_count?: number | null
-  last_suppressed_by_dedup_count?: number | null
-  last_suppressed_by_rate_cap_count?: number | null
-  updated_at: string
-}
-
-export type CourseModuleSuotarRealisationEdit = {
-  active: boolean
-  course_unit_realisation_id: string
-  /**
-   * Rendered to students as the name of the realisation their credits go against.
-   */
-  label?: string | null
 }
 
 /**
@@ -2112,11 +2061,9 @@ export type CreditRegistrationCourseConfigCheck = {
    * Every problem found, in one line. `None` means the module is fine.
    */
   message?: string | null
-  product_token_found?: boolean | null
 }
 
 export type CreditRegistrationCourseStats = {
-  active_realisation_count: number
   /**
    * What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
    * longer shows as broken.
@@ -2139,6 +2086,10 @@ export type CreditRegistrationCourseStats = {
    * completions that predate the opt-in.
    */
   eligible_completion_count: number
+  /**
+   * Where a student with no usable enrolment is sent to enrol.
+   */
+  enrolment_link?: string | null
   failed_count: number
   /**
    * The module's override; `None` means the scale is derived from the completion.
@@ -2152,7 +2103,6 @@ export type CreditRegistrationCourseStats = {
    * The old pull path is on as well, which would register the same completion twice.
    */
   old_flow_also_enabled: boolean
-  open_university_product_id?: string | null
   pause_reason?: string | null
   paused_at?: string | null
   registration_count: number
@@ -2191,14 +2141,15 @@ export type CreditRegistrationErrorCode =
   | "enrolment_not_found"
   | "enrolment_not_accepted"
   | "invalid_grade_for_grade_scale"
+  | "grade_scale_mismatch"
   | "course_not_allowed"
   | "invalid_credits"
   | "study_right_not_valid"
-  | "acceptor_not_found"
   | "sisu_validation_failed"
   | "sisu_timeout"
-  | "sisu_temporarily_unavailable"
+  | "service_temporarily_unavailable"
   | "misregistered"
+  | "not_registered"
   | "unauthorized"
   | "malformed_request"
   | "transport_error"
@@ -3965,7 +3916,6 @@ export type PageAdminCreditRegistrationRow = {
     next_attempt_at: string
     pending_reason?: null | CreditRegistrationPendingReason
     registered_at?: string | null
-    request_item_id: string
     resubmission_refusal?: null | ResubmissionRefusal
     selected_enrolment_id?: string | null
     sisu_attainment_id?: string | null
@@ -4696,9 +4646,10 @@ export type SuotarApiCallLedgerReference = {
   first_name?: string | null
   last_name?: string | null
   /**
-   * The id the registry saw for this row, so a line of the stored body maps to a student.
+   * The id the registry saw for this row, so a line of the stored body maps to a student. `None`
+   * when no event recorded it.
    */
-  request_item_id: string
+  request_item_id?: string | null
   state: CreditRegistrationState
   student_number?: string | null
   user_id: string
@@ -4738,8 +4689,8 @@ export type SuotarEndpoint =
   | "resolve_enrolments"
   | "import_attainments"
   | "verify_attainments"
-  | "product_access_tokens"
   | "list_by_course"
+  | "validate_course_codes"
 
 /**
  * Where one study registry endpoint stands, over all time.

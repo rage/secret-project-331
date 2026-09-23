@@ -1,13 +1,11 @@
-//! Our grade in the study registry's terms. A scale or grade the registry does not know is rejected
-//! at request level, taking the whole batch of twenty-five with it, so every pair that reaches a
-//! batch has been through [`map_grade`] or [`is_known_grade`].
+//! Our grade in the study registry's terms. Every pair that reaches a batch has been through
+//! [`map_grade`] or [`is_known_grade`].
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
-/// TODO: Suotar has not confirmed the spelling. Both are accepted on the way in; this is the one we
-/// send.
+/// The spelling Suotar accepts, and the one we send. Both are accepted on the way in.
 pub const PASS_FAIL_GRADE_SCALE_ID: &str = "sis-hyl-hyv";
-/// The other accepted spelling of the same scale, which our own legacy pull path sends.
+/// The other spelling of the same scale, which our own legacy pull path sends. Suotar refuses it.
 pub const PASS_FAIL_GRADE_SCALE_ID_ALT: &str = "sis-hyv-hyl";
 pub const NUMERIC_GRADE_SCALE_ID: &str = "sis-0-5";
 
@@ -92,8 +90,8 @@ pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrat
     })
 }
 
-/// Whether a frozen pair is one the registry will accept. Checked again before batching: an unknown
-/// pair is a request-level rejection, so one bad row would fail twenty-four good ones.
+/// Whether a frozen pair is one we can send. Checked again before batching, so a pair our mapping
+/// does not produce fails on our side rather than as Suotar's `invalidGradeForGradeScale`.
 pub fn is_known_grade(grade_scale_id: &str, grade_id: &str) -> bool {
     match grade_scale_family(grade_scale_id) {
         Some(GradeScaleFamily::PassFail) => grade_id == PASS_GRADE_ID || grade_id == FAIL_GRADE_ID,

@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::pin::Pin;
 
-use headless_lms_models::course_module_suotar_realisations;
+use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
 };
@@ -89,15 +89,13 @@ pub struct AccountLinkingFailureDomain {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingRealisationCounters {
+pub struct AccountLinkingModuleCounters {
     pub course_id: Uuid,
     pub course_name: String,
     pub course_module_id: Uuid,
     pub course_module_name: Option<String>,
-    pub course_unit_realisation_id: String,
-    pub label: Option<String>,
     pub uh_course_code: Option<String>,
-    /// When the counters below were collected. Not the last attempt: a failing realisation keeps the
+    /// When the counters below were collected. Not the last attempt: a failing listing keeps the
     /// last roster that arrived.
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
@@ -158,7 +156,7 @@ pub struct AccountLinkingStats {
     pub funnel: AccountLinkingFunnel,
     pub send_status_totals: AccountLinkingSendStatusTotals,
     pub hard_failure_domains: Vec<AccountLinkingFailureDomain>,
-    pub realisations: Vec<AccountLinkingRealisationCounters>,
+    pub modules: Vec<AccountLinkingModuleCounters>,
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
@@ -251,7 +249,7 @@ pub struct AdminManuallyLinkStudentNumberResult {
 
 /**
 GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
-per-realisation counters, the send-status totals and the stale-address list.
+per-module counters, the send-status totals and the stale-address list.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -276,16 +274,14 @@ pub async fn get_account_linking_stats(
     let window_secs = window_days * 24 * 60 * 60;
     let since = Utc::now() - chrono::Duration::days(window_days);
 
-    let realisations = course_module_suotar_realisations::get_active_discovery_reports(&mut conn)
+    let modules = course_module_suotar_configurations::get_active_discovery_reports(&mut conn)
         .await?
         .into_iter()
-        .map(|row| AccountLinkingRealisationCounters {
+        .map(|row| AccountLinkingModuleCounters {
             course_id: row.course_id,
             course_name: row.course_name,
             course_module_id: row.course_module_id,
             course_module_name: row.course_module_name,
-            course_unit_realisation_id: row.course_unit_realisation_id,
-            label: row.label,
             uh_course_code: row.uh_course_code,
             last_listed_at: row.last_listed_at,
             last_listing_attempted_at: row.last_listing_attempted_at,
@@ -309,12 +305,8 @@ pub async fn get_account_linking_stats(
                 .last_fast_track_skipped_unlinked_before_count,
         })
         .collect::<Vec<_>>();
-    let sum = |pick: fn(&AccountLinkingRealisationCounters) -> Option<i32>| -> i64 {
-        realisations
-            .iter()
-            .filter_map(pick)
-            .map(i64::from)
-            .sum::<i64>()
+    let sum = |pick: fn(&AccountLinkingModuleCounters) -> Option<i32>| -> i64 {
+        modules.iter().filter_map(pick).map(i64::from).sum::<i64>()
     };
 
     let now = Utc::now();
@@ -398,7 +390,7 @@ pub async fn get_account_linking_stats(
         funnel,
         send_status_totals,
         hard_failure_domains,
-        realisations,
+        modules,
         stale_addresses,
         links_total_by_method,
         links_in_window_by_method,
@@ -607,8 +599,8 @@ pub async fn admin_resolve_student_number_for_linking(
         Ok(Some(person)) => AdminResolveStudentNumberResult {
             found: true,
             sisu_person_id: Some(person.sisu_person_id),
-            first_names: Some(person.first_names),
-            last_name: Some(person.last_name),
+            first_names: person.first_names,
+            last_name: person.last_name,
             code: Some(person.code),
             ..shared
         },
@@ -727,8 +719,8 @@ pub async fn admin_manually_link_student_number(
                 user_id: payload.user_id,
                 student_number: student_number.to_string(),
                 sisu_person_id: person.sisu_person_id.clone(),
-                first_names: Some(person.first_names.clone()),
-                last_name: Some(person.last_name.clone()),
+                first_names: person.first_names.clone(),
+                last_name: person.last_name.clone(),
                 verified_via: StudentNumberVerificationMethod::AdminManual,
                 // No mailbox was proved, so there is no address the proof could rest on.
                 verified_via_email: None,

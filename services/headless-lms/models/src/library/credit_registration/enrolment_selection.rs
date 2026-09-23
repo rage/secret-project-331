@@ -52,17 +52,15 @@ impl NoUsableEnrolment {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct EnrolmentCriteria<'a> {
+pub struct EnrolmentCriteria {
     pub attainment_date: NaiveDate,
     pub credits: f32,
-    /// Being enrolled on one of these is the strongest signal we have of the right enrolment.
-    pub configured_realisation_ids: &'a [String],
 }
 
-pub fn select_enrolment<'a>(
-    enrolments: &'a [SuotarEnrolment],
-    criteria: EnrolmentCriteria<'_>,
-) -> Result<&'a SuotarEnrolment, NoUsableEnrolment> {
+pub fn select_enrolment(
+    enrolments: &[SuotarEnrolment],
+    criteria: EnrolmentCriteria,
+) -> Result<&SuotarEnrolment, NoUsableEnrolment> {
     if enrolments.is_empty() {
         return Err(NoUsableEnrolment::None);
     }
@@ -77,11 +75,10 @@ pub fn select_enrolment<'a>(
     let valid: Vec<&SuotarEnrolment> = accepted
         .into_iter()
         .filter(|enrolment| {
-            contains(
-                criteria.attainment_date,
-                enrolment.study_right_validity_period.start_date,
-                enrolment.study_right_validity_period.end_date,
-            )
+            enrolment
+                .study_right_validity_period
+                .as_ref()
+                .is_none_or(|period| period.contains(criteria.attainment_date))
         })
         .collect();
     if valid.is_empty() {
@@ -89,7 +86,7 @@ pub fn select_enrolment<'a>(
     }
     let usable: Vec<&SuotarEnrolment> = valid
         .into_iter()
-        .filter(|enrolment| credits_fit(&enrolment.credits, criteria.credits))
+        .filter(|enrolment| credits_fit(enrolment.credits.as_ref(), criteria.credits))
         .collect();
     if usable.is_empty() {
         return Err(NoUsableEnrolment::CreditsOutOfRange);
@@ -98,16 +95,11 @@ pub fn select_enrolment<'a>(
         .into_iter()
         .max_by_key(|enrolment| {
             (
-                criteria
-                    .configured_realisation_ids
-                    .iter()
-                    .any(|id| id == &enrolment.course_unit_realisation_id),
                 enrolment.kind == DEGREE_KIND,
-                contains(
-                    criteria.attainment_date,
-                    enrolment.activity_period.start_date,
-                    enrolment.activity_period.end_date,
-                ),
+                enrolment
+                    .activity_period
+                    .as_ref()
+                    .is_some_and(|period| period.contains(criteria.attainment_date)),
                 enrolment.enrolment_date_time,
             )
         })
@@ -117,12 +109,12 @@ pub fn select_enrolment<'a>(
 /// Slack for the f32-to-f64 widening. Real credit amounts are never finer than 0.1.
 const CREDITS_TOLERANCE: f64 = 1e-4;
 
-/// Whether an enrolment's registry-declared credit range can carry the module's credits. A range
-/// with `min > max` is the registry's own data at fault, so it is never usable.
-fn credits_fit(range: &CreditRange, credits: f32) -> bool {
-    if range.min > range.max {
+/// Whether an enrolment's registry-declared credit range can carry the module's credits. No range,
+/// or one with `min > max`, is the registry's own data at fault, so it is never usable.
+fn credits_fit(range: Option<&CreditRange>, credits: f32) -> bool {
+    let Some(range) = range.filter(|range| range.min <= range.max) else {
         return false;
-    }
+    };
     let credits = f64::from(credits);
     (range.min - CREDITS_TOLERANCE..=range.max + CREDITS_TOLERANCE).contains(&credits)
 }
@@ -134,15 +126,19 @@ pub fn attainment_for_course_unit<'a>(
     assessment_item_id: &str,
 ) -> Option<&'a ExistingAttainment> {
     existing.iter().find(|attainment| {
-        attainment.state == ATTAINED_STATE
-            && (same_id(&attainment.course_unit_id, course_unit_id)
-                || same_id(&attainment.assessment_item_id, assessment_item_id))
+        is_attained(attainment)
+            && (same_id(attainment.course_unit_id.as_deref(), course_unit_id)
+                || same_id(attainment.assessment_item_id.as_deref(), assessment_item_id))
     })
 }
 
 /// A blank never matches: a response that omits an id must not thereby match every attainment.
-fn same_id(left: &str, right: &str) -> bool {
-    !left.is_empty() && left == right
+fn same_id(left: Option<&str>, right: &str) -> bool {
+    left.is_some_and(|left| !left.is_empty() && left == right)
+}
+
+fn is_attained(attainment: &ExistingAttainment) -> bool {
+    attainment.state.as_deref() == Some(ATTAINED_STATE)
 }
 
 /// Any attainment the registry holds, for when no enrolment names the course unit. The response is
@@ -153,7 +149,7 @@ pub fn any_attained_by_person<'a>(
     sisu_person_id: &str,
 ) -> Option<&'a ExistingAttainment> {
     existing.iter().find(|attainment| {
-        attainment.state == ATTAINED_STATE && same_id(&attainment.person_id, sisu_person_id)
+        is_attained(attainment) && same_id(attainment.person_id.as_deref(), sisu_person_id)
     })
 }
 
@@ -165,15 +161,14 @@ pub fn attainment_matching_submission<'a>(
     grade_id: &str,
 ) -> Option<&'a ExistingAttainment> {
     existing.iter().find(|attainment| {
-        attainment.state == ATTAINED_STATE
-            && attainment.attainment_date == attainment_date
-            && attainment.grade_id == grade_id
-            && same_grade_scale(&attainment.grade_scale_id, grade_scale_id)
+        is_attained(attainment)
+            && attainment.attainment_date == Some(attainment_date)
+            && attainment.grade_id.as_deref() == Some(grade_id)
+            && attainment
+                .grade_scale_id
+                .as_deref()
+                .is_some_and(|scale| same_grade_scale(scale, grade_scale_id))
     })
-}
-
-fn contains(date: NaiveDate, start: NaiveDate, end: NaiveDate) -> bool {
-    date >= start && date <= end
 }
 
 #[cfg(test)]
@@ -202,25 +197,24 @@ mod tests {
             course_unit_id: "hy-CU-1".to_string(),
             assessment_item_id: "hy-AI-1".to_string(),
             course_unit_realisation_id: format!("hy-CUR-{id}"),
-            course_unit_realisation_name: LocalizedName {
-                fi: "kurssi".to_string(),
-                sv: "kurs".to_string(),
-                en: "course".to_string(),
-            },
-            activity_period: period(date(2026, 1, 1), date(2026, 12, 31)),
-            grade_scale_id: "sis-hyl-hyv".to_string(),
-            credits: CreditRange { min: 1.0, max: 5.0 },
-            study_right_id: "hy-SR-1".to_string(),
-            study_right_validity_period: period(date(2020, 1, 1), date(2030, 1, 1)),
-            enrolment_date_time: Utc::now(),
+            course_unit_realisation_name: Some(LocalizedName {
+                fi: Some("kurssi".to_string()),
+                sv: Some("kurs".to_string()),
+                en: Some("course".to_string()),
+            }),
+            activity_period: Some(period(date(2026, 1, 1), date(2026, 12, 31))),
+            grade_scale_id: Some("sis-hyl-hyv".to_string()),
+            credits: Some(CreditRange { min: 1.0, max: 5.0 }),
+            study_right_id: Some("hy-SR-1".to_string()),
+            study_right_validity_period: Some(period(date(2020, 1, 1), date(2030, 1, 1))),
+            enrolment_date_time: Some(Utc::now()),
         }
     }
 
-    fn criteria() -> EnrolmentCriteria<'static> {
+    fn criteria() -> EnrolmentCriteria {
         EnrolmentCriteria {
             attainment_date: date(2026, 5, 22),
             credits: 5.0,
-            configured_realisation_ids: &[],
         }
     }
 
@@ -246,7 +240,7 @@ mod tests {
     #[test]
     fn a_study_right_that_does_not_cover_the_completion_is_not_usable() {
         let mut expired = enrolment("a", DEGREE_KIND);
-        expired.study_right_validity_period = period(date(2020, 1, 1), date(2021, 1, 1));
+        expired.study_right_validity_period = Some(period(date(2020, 1, 1), date(2021, 1, 1)));
         let candidates = [expired];
         assert_eq!(
             select_enrolment(&candidates, criteria()),
@@ -257,7 +251,7 @@ mod tests {
     #[test]
     fn an_enrolment_too_small_for_the_credits_is_a_configuration_problem() {
         let mut small = enrolment("a", DEGREE_KIND);
-        small.credits = CreditRange { min: 1.0, max: 2.0 };
+        small.credits = Some(CreditRange { min: 1.0, max: 2.0 });
         let candidates = [small];
         assert_eq!(
             select_enrolment(&candidates, criteria()),
@@ -280,30 +274,12 @@ mod tests {
     }
 
     #[test]
-    fn a_configured_realisation_wins_over_the_kind() {
-        let candidates = [
-            enrolment("open", "openUniversity"),
-            enrolment("degree", DEGREE_KIND),
-        ];
-        let configured = [candidates[0].course_unit_realisation_id.clone()];
-        let chosen = select_enrolment(
-            &candidates,
-            EnrolmentCriteria {
-                configured_realisation_ids: &configured,
-                ..criteria()
-            },
-        )
-        .expect("a usable enrolment");
-        assert_eq!(chosen.id, "open");
-    }
-
-    #[test]
     fn a_realisation_running_when_the_work_was_done_wins_over_an_older_one() {
         let mut past = enrolment("past", DEGREE_KIND);
-        past.activity_period = period(date(2024, 1, 1), date(2024, 12, 31));
-        past.enrolment_date_time = Utc::now();
+        past.activity_period = Some(period(date(2024, 1, 1), date(2024, 12, 31)));
+        past.enrolment_date_time = Some(Utc::now());
         let mut current = enrolment("current", DEGREE_KIND);
-        current.enrolment_date_time = Utc::now() - chrono::Duration::days(365);
+        current.enrolment_date_time = Some(Utc::now() - chrono::Duration::days(365));
         let candidates = [past, current];
         let chosen = select_enrolment(&candidates, criteria()).expect("a usable enrolment");
         assert_eq!(chosen.id, "current");
@@ -312,7 +288,7 @@ mod tests {
     #[test]
     fn the_most_recent_enrolment_breaks_a_remaining_tie() {
         let mut older = enrolment("older", DEGREE_KIND);
-        older.enrolment_date_time = Utc::now() - chrono::Duration::days(30);
+        older.enrolment_date_time = Some(Utc::now() - chrono::Duration::days(30));
         let candidates = [older, enrolment("newer", DEGREE_KIND)];
         let chosen = select_enrolment(&candidates, criteria()).expect("a usable enrolment");
         assert_eq!(chosen.id, "newer");
@@ -322,16 +298,16 @@ mod tests {
         ExistingAttainment {
             id: format!("hy-att-{day}"),
             attainment_type: "CourseUnitAttainment".to_string(),
-            state: ATTAINED_STATE.to_string(),
-            person_id: "hy-hlo-1".to_string(),
-            course_unit_id: "hy-CU-1".to_string(),
-            assessment_item_id: "hy-AI-1".to_string(),
-            course_unit_realisation_id: "hy-CUR-a".to_string(),
-            attainment_date: date(2026, 5, day),
-            registration_date: date(2026, 5, day),
-            grade_scale_id: scale.to_string(),
-            grade_id: grade.to_string(),
-            passed: true,
+            state: Some(ATTAINED_STATE.to_string()),
+            person_id: Some("hy-hlo-1".to_string()),
+            course_unit_id: Some("hy-CU-1".to_string()),
+            assessment_item_id: Some("hy-AI-1".to_string()),
+            course_unit_realisation_id: Some("hy-CUR-a".to_string()),
+            attainment_date: Some(date(2026, 5, day)),
+            registration_date: Some(date(2026, 5, day)),
+            grade_scale_id: Some(scale.to_string()),
+            grade_id: Some(grade.to_string()),
+            passed: Some(true),
         }
     }
 
@@ -345,7 +321,7 @@ mod tests {
     #[test]
     fn a_reversed_attainment_does_not_count_as_one_the_registry_holds() {
         let mut reversed = attainment("sis-hyl-hyv", "1", 22);
-        reversed.state = "MISREGISTERED".to_string();
+        reversed.state = Some("MISREGISTERED".to_string());
         let existing = [reversed];
         assert!(attainment_for_course_unit(&existing, "hy-CU-1", "hy-AI-1").is_none());
     }

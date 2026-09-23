@@ -105,19 +105,16 @@ export const courseModuleStatusIcon = (status: CourseModuleStatus): StatusIcon |
 
 /**
  * Which of a module's structured configuration checks is failing. `check.message` covers more
- * ground than these two booleans, so a message with neither false is `"other"` — still shown, just
+ * ground than the course code check, so a message without it is `"other"` — still shown, just
  * without a specific human reason or a place in the grouping banner.
  */
-export type ConfigFailureReason = "product_token" | "course_code" | "other"
+export type ConfigFailureReason = "course_code" | "other"
 
 export const configFailureReason = (
   module: CreditRegistrationCourseStats,
 ): ConfigFailureReason | null => {
   if (!module.check.message) {
     return null
-  }
-  if (module.check.product_token_found === false) {
-    return "product_token"
   }
   if (module.check.course_code_resolves === false) {
     return "course_code"
@@ -126,7 +123,6 @@ export const configFailureReason = (
 }
 
 const CONFIG_FAILURE_REASON_KEYS = {
-  product_token: "credit-registration-admin-config-failure-product-token",
   course_code: "credit-registration-admin-config-failure-course-code",
   other: "credit-registration-admin-config-failure-other",
 } as const satisfies Record<ConfigFailureReason, string>
@@ -142,8 +138,10 @@ export const configFailureReasonOrOther = (
   module: CreditRegistrationCourseStats,
 ): ConfigFailureReason => configFailureReason(module) ?? "other"
 
+type GroupedConfigFailureReason = Exclude<ConfigFailureReason, "other">
+
 export interface DominantConfigFailure {
-  reason: "product_token" | "course_code"
+  reason: GroupedConfigFailureReason
   count: number
 }
 
@@ -151,7 +149,7 @@ export interface DominantConfigFailure {
 export const dominantConfigFailureReason = (
   modules: CreditRegistrationCourseStats[],
 ): DominantConfigFailure | null => {
-  const counts: Partial<Record<"product_token" | "course_code", number>> = {}
+  const counts: Partial<Record<GroupedConfigFailureReason, number>> = {}
   for (const courseModule of modules) {
     const reason = configFailureReason(courseModule)
     if (reason === null || reason === "other") {
@@ -159,7 +157,7 @@ export const dominantConfigFailureReason = (
     }
     counts[reason] = (counts[reason] ?? 0) + 1
   }
-  const ranked = (Object.entries(counts) as ["product_token" | "course_code", number][]).toSorted(
+  const ranked = (Object.entries(counts) as [GroupedConfigFailureReason, number][]).toSorted(
     (a, b) => b[1] - a[1],
   )
   const top = ranked[0]

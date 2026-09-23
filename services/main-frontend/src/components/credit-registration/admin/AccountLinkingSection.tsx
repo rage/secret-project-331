@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type {
-  AccountLinkingRealisationCounters,
+  AccountLinkingModuleCounters,
   AccountLinkingStaleAddress,
   AccountLinkingStats,
   EmailSendStatus,
@@ -313,8 +313,8 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
   )
 }
 
-/** Why listed people got no mail on this realisation's last run; a counter of zero says nothing. */
-const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }> = ({ row }) => {
+/** Why listed people got no mail on this module's last run; a counter of zero says nothing. */
+const ModuleBreakdown: React.FC<{ row: AccountLinkingModuleCounters }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const counters: { label: string; value: number | null | undefined }[] = [
     {
@@ -367,24 +367,24 @@ const RealisationBreakdown: React.FC<{ row: AccountLinkingRealisationCounters }>
   )
 }
 
-const RealisationBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
+const ModuleBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={subsectionCss}>
       <div className={sectionHeaderCss}>
-        <h3 className={subheadingCss}>{t("credit-registration-heading-realisations")}</h3>
+        <h3 className={subheadingCss}>{t("credit-registration-heading-modules")}</h3>
         <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-realisation-last-run-note")}
+          {t("credit-registration-admin-module-last-run-note")}
         </p>
       </div>
       <Table
-        caption={t("credit-registration-heading-realisations")}
+        caption={t("credit-registration-heading-modules")}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
-        rowKey={(row) => row.course_unit_realisation_id}
-        rows={stats.realisations}
-        emptyState={t("credit-registration-admin-no-realisations")}
-        expandableRow={(row) => <RealisationBreakdown row={row} />}
+        rowKey={(row) => row.course_module_id}
+        rows={stats.modules}
+        emptyState={t("credit-registration-admin-no-listed-modules")}
+        expandableRow={(row) => <ModuleBreakdown row={row} />}
         columns={[
           {
             header: t("label-course"),
@@ -713,7 +713,7 @@ const RecentClaimsBlock: React.FC = () => {
   )
 }
 
-/** What our sender did with the mails, the last discovery run, and per-realisation counters: diagnostics for the funnel above. */
+/** What our sender did with the mails, the last discovery run, and per-module counters: diagnostics for the funnel above. */
 const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
@@ -723,7 +723,7 @@ const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats
       </div>
       <SendStatusBlock stats={stats} />
       <DiscoveryRun stats={stats} />
-      <RealisationBlock stats={stats} />
+      <ModuleBlock stats={stats} />
     </section>
   )
 }

@@ -17,9 +17,8 @@ use crate::prelude::*;
 
 use super::faults::Fault;
 use super::world::{
-    CourseCode, MockAttainment, MockCourseUnit, MockEnrolment, MockPerson, MockProductAccessToken,
-    MockSubmission, RecordedCall, StudentNumber, WorkingSet, WorldDefaults, WorldWrite,
-    person_course_key,
+    CourseCode, MockAttainment, MockCourseUnit, MockEnrolment, MockPerson, MockSubmission,
+    RecordedCall, StudentNumber, WorkingSet, WorldDefaults, WorldWrite, person_course_key,
 };
 
 const GENERATION_KEY: &str = "ms:generation";
@@ -31,7 +30,7 @@ const COURSE_UNITS: &str = "courseUnits";
 const ENROLMENTS: &str = "enrolments";
 const ATTAINMENTS: &str = "attainments";
 const SUBMISSIONS: &str = "submissions";
-const PRODUCT_TOKENS: &str = "productTokens";
+const SISU_VIOLATIONS: &str = "sisuViolations";
 const IDX_ENROLMENTS_BY_PERSON: &str = "idx:enrolmentsByPerson";
 const IDX_ENROLMENTS_BY_REALISATION: &str = "idx:enrolmentsByRealisation";
 const IDX_ATTAINMENTS_BY_PERSON_COURSE: &str = "idx:attainmentsByPersonCourse";
@@ -53,7 +52,7 @@ const PREFIXED_KEYS: [&str; 18] = [
     ENROLMENTS,
     ATTAINMENTS,
     SUBMISSIONS,
-    PRODUCT_TOKENS,
+    SISU_VIOLATIONS,
     IDX_ENROLMENTS_BY_PERSON,
     IDX_ENROLMENTS_BY_REALISATION,
     IDX_ATTAINMENTS_BY_PERSON_COURSE,
@@ -80,7 +79,8 @@ pub struct World {
     pub enrolments: BTreeMap<String, MockEnrolment>,
     pub attainments: BTreeMap<String, MockAttainment>,
     pub submissions: BTreeMap<String, MockSubmission>,
-    pub product_tokens: BTreeMap<String, MockProductAccessToken>,
+    /// Per `{studentNumber}|{courseCode}`.
+    pub sisu_violations: BTreeMap<String, Vec<String>>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -88,7 +88,6 @@ pub struct World {
 pub struct OwnerKeys {
     pub student_numbers: Vec<String>,
     pub course_codes: Vec<String>,
-    pub product_ids: Vec<String>,
 }
 
 /// Everything a request needs before it may look at the body.
@@ -114,7 +113,7 @@ pub struct WorldCounts {
     pub enrolments: usize,
     pub attainments: usize,
     pub submissions: usize,
-    pub product_tokens: usize,
+    pub sisu_violations: usize,
     pub faults_armed: usize,
     pub faults_spent: usize,
     pub call_log_len: usize,
@@ -215,8 +214,8 @@ impl MockSuotarStore {
         write_entity_hash(
             &mut pipe,
             &generation,
-            PRODUCT_TOKENS,
-            &world.product_tokens,
+            SISU_VIOLATIONS,
+            &world.sisu_violations,
         )?;
         write_derived_indexes(&mut pipe, &generation, world)?;
         pipe.set(GENERATION_KEY, &generation).ignore();
@@ -309,13 +308,13 @@ impl MockSuotarStore {
         hmget_json(&mut conn, &key(generation, PERSONS), student_numbers).await
     }
 
-    pub async fn load_product_tokens(
+    pub async fn load_course_units(
         &self,
         generation: &str,
-        product_ids: &[String],
-    ) -> anyhow::Result<BTreeMap<String, MockProductAccessToken>> {
+        course_codes: &[String],
+    ) -> anyhow::Result<BTreeMap<String, MockCourseUnit>> {
         let mut conn = self.conn().await?;
-        hmget_json(&mut conn, &key(generation, PRODUCT_TOKENS), product_ids).await
+        hmget_json(&mut conn, &key(generation, COURSE_UNITS), course_codes).await
     }
 
     /// Two pipelined round trips whatever the batch size: the keyed hashes, then the entities they
@@ -354,13 +353,19 @@ impl MockSuotarStore {
             &key(generation, IDX_SUBMISSIONS_BY_PERSON_COURSE),
             &person_course_keys,
         );
-        let (persons, course_units, enrolments_by_person, attainment_ids, submission_ids): (
-            Fields,
-            Fields,
-            Fields,
-            Fields,
-            Fields,
-        ) = first.query_async(&mut conn).await?;
+        push_hmget(
+            &mut first,
+            &key(generation, SISU_VIOLATIONS),
+            &person_course_keys,
+        );
+        let (
+            persons,
+            course_units,
+            enrolments_by_person,
+            attainment_ids,
+            submission_ids,
+            sisu_violations,
+        ): (Fields, Fields, Fields, Fields, Fields, Fields) = first.query_async(&mut conn).await?;
 
         let mut working = WorkingSet {
             persons: zip_json(student_numbers, persons)?,
@@ -368,6 +373,7 @@ impl MockSuotarStore {
             enrolments_by_person: zip_json(student_numbers, enrolments_by_person)?,
             attainments_by_person_course: zip_json(&person_course_keys, attainment_ids)?,
             submissions_by_person_course: zip_json(&person_course_keys, submission_ids)?,
+            sisu_violations: zip_json(&person_course_keys, sisu_violations)?,
             ..Default::default()
         };
 
@@ -388,44 +394,28 @@ impl MockSuotarStore {
         Ok(working)
     }
 
-    /// Verify's body carries only submitted attainment ids, so the persons behind them come second.
+    /// A verified id is either one of Suotar's entries or an attainment the importer holds.
     pub async fn load_for_verify(
         &self,
         generation: &str,
         submitted_attainment_ids: &[String],
     ) -> anyhow::Result<WorkingSet> {
         let mut conn = self.conn().await?;
-        let submissions: BTreeMap<String, MockSubmission> = hmget_json(
-            &mut conn,
+        let mut pipe = redis::pipe();
+        push_hmget(
+            &mut pipe,
             &key(generation, SUBMISSIONS),
             submitted_attainment_ids,
-        )
-        .await?;
-        let student_numbers: Vec<String> = submissions
-            .values()
-            .map(|submission| submission.student_number.clone())
-            .unique()
-            .collect();
-        let person_course_keys: Vec<String> = submissions
-            .values()
-            .map(|submission| {
-                person_course_key(&submission.student_number, &submission.course_code)
-            })
-            .unique()
-            .collect();
-        let persons = hmget_json(&mut conn, &key(generation, PERSONS), &student_numbers).await?;
-        // `register` (reached via `ripen`) appends to this index and commits the field back whole,
-        // so leaving it unloaded here would wipe every attainment already indexed for the pair.
-        let attainments_by_person_course = hmget_json(
-            &mut conn,
-            &key(generation, IDX_ATTAINMENTS_BY_PERSON_COURSE),
-            &person_course_keys,
-        )
-        .await?;
+        );
+        push_hmget(
+            &mut pipe,
+            &key(generation, ATTAINMENTS),
+            submitted_attainment_ids,
+        );
+        let (submissions, attainments): (Fields, Fields) = pipe.query_async(&mut conn).await?;
         Ok(WorkingSet {
-            persons,
-            submissions,
-            attainments_by_person_course,
+            submissions: zip_json(submitted_attainment_ids, submissions)?,
+            attainments: zip_json(submitted_attainment_ids, attainments)?,
             ..Default::default()
         })
     }
@@ -492,22 +482,9 @@ impl MockSuotarStore {
                     )
                     .ignore();
                 }
-                WorldWrite::UpsertAttainment(id) => {
-                    let attainment = working
-                        .attainments
-                        .get(id)
-                        .ok_or_else(|| anyhow!("write names an attainment the working set lost"))?;
-                    pipe.hset(
-                        key(generation, ATTAINMENTS),
-                        id,
-                        serde_json::to_string(attainment)?,
-                    )
-                    .ignore();
-                }
                 WorldWrite::IndexSubmission {
                     student_number,
                     course_code,
-                    ..
                 } => {
                     let field = person_course_key(student_number, course_code);
                     let ids = working
@@ -517,24 +494,6 @@ impl MockSuotarStore {
                         .unwrap_or_default();
                     pipe.hset(
                         key(generation, IDX_SUBMISSIONS_BY_PERSON_COURSE),
-                        field,
-                        serde_json::to_string(&ids)?,
-                    )
-                    .ignore();
-                }
-                WorldWrite::IndexAttainment {
-                    student_number,
-                    course_code,
-                    ..
-                } => {
-                    let field = person_course_key(student_number, course_code);
-                    let ids = working
-                        .attainments_by_person_course
-                        .get(&field)
-                        .cloned()
-                        .unwrap_or_default();
-                    pipe.hset(
-                        key(generation, IDX_ATTAINMENTS_BY_PERSON_COURSE),
                         field,
                         serde_json::to_string(&ids)?,
                     )
@@ -739,7 +698,7 @@ impl MockSuotarStore {
             enrolments,
             attainments,
             submissions,
-            product_tokens,
+            sisu_violations,
             call_log_len,
         ): (usize, usize, usize, usize, usize, usize, usize) = redis::pipe()
             .hlen(key(generation, PERSONS))
@@ -747,7 +706,7 @@ impl MockSuotarStore {
             .hlen(key(generation, ENROLMENTS))
             .hlen(key(generation, ATTAINMENTS))
             .hlen(key(generation, SUBMISSIONS))
-            .hlen(key(generation, PRODUCT_TOKENS))
+            .hlen(key(generation, SISU_VIOLATIONS))
             .llen(key(generation, CALLS))
             .query_async(&mut conn)
             .await?;
@@ -766,7 +725,7 @@ impl MockSuotarStore {
             enrolments,
             attainments,
             submissions,
-            product_tokens,
+            sisu_violations,
             faults_armed: faults.len() - spent,
             faults_spent: spent,
             call_log_len,
@@ -814,7 +773,9 @@ impl MockSuotarStore {
             enrolments: self.all_json(generation, EntityHash::Enrolments).await?,
             attainments: self.all_json(generation, EntityHash::Attainments).await?,
             submissions: self.all_json(generation, EntityHash::Submissions).await?,
-            product_tokens: self.all_json(generation, EntityHash::ProductTokens).await?,
+            sisu_violations: self
+                .all_json(generation, EntityHash::SisuViolations)
+                .await?,
         };
 
         let mut conn = self.conn().await?;
@@ -843,7 +804,7 @@ pub enum EntityHash {
     Enrolments,
     Attainments,
     Submissions,
-    ProductTokens,
+    SisuViolations,
     Faults,
     OwnerKeys,
     Calls,
@@ -857,7 +818,7 @@ impl EntityHash {
             Self::Enrolments => ENROLMENTS,
             Self::Attainments => ATTAINMENTS,
             Self::Submissions => SUBMISSIONS,
-            Self::ProductTokens => PRODUCT_TOKENS,
+            Self::SisuViolations => SISU_VIOLATIONS,
             Self::Faults => FAULTS,
             Self::OwnerKeys => IDX_OWNER_KEYS,
             Self::Calls => CALLS,
@@ -938,13 +899,11 @@ fn write_derived_indexes(
     }
     for unit in world.course_units.values() {
         if let Some(slug) = &unit.owner_course_slug {
-            let entry = owner_keys.entry(format!("course:{slug}")).or_default();
-            entry.course_codes.push(unit.course_code.clone());
-            for realisation in &unit.realisations {
-                if let Some(product_id) = &realisation.open_university_product_id {
-                    entry.product_ids.push(product_id.clone());
-                }
-            }
+            owner_keys
+                .entry(format!("course:{slug}"))
+                .or_default()
+                .course_codes
+                .push(unit.course_code.clone());
         }
     }
 

@@ -31,7 +31,6 @@ export const CREDIT_REGISTRATION_PHASES = [
   "student-notifications",
   "enrolment-discovery",
   "link-emails",
-  "product-token-refresh",
   "config-validation",
   "retention-sweep",
   "ledger-snapshot",
@@ -171,11 +170,6 @@ export const runLinkEmailsTick = (
   request: APIRequestContext,
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "link-emails", scope)
-
-export const runProductTokenRefreshTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
 export const runConfigValidationTick = (
   request: APIRequestContext,

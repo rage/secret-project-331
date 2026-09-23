@@ -4,8 +4,6 @@
 //! `derived` never formats a student number into the id: these reach the audited call log and the
 //! event details, where the scrubber's free-text scan only redacts bare digit runs.
 
-use chrono::NaiveDate;
-
 use crate::prelude::*;
 
 use super::world::RealisationKind;
@@ -37,7 +35,7 @@ pub fn realisation_id(course_code: &str, kind: RealisationKind) -> String {
 
 pub fn enrolment_id(student_number: &str, kind: RealisationKind) -> String {
     derived(
-        "otm",
+        "otm-enrolment",
         &format!("enrolment|{student_number}|{}", kind.as_str()),
     )
 }
@@ -50,54 +48,38 @@ pub fn enrolment_id_for_course(
     kind: RealisationKind,
 ) -> String {
     derived(
-        "otm",
+        "otm-enrolment",
         &format!("enrolment|{student_number}|{course_code}|{}", kind.as_str()),
     )
 }
 
+/// Suotar reads an enrolment's kind off this id: `avoin` in it means open university.
 pub fn study_right_id(student_number: &str, kind: RealisationKind) -> String {
+    let prefix = match kind {
+        RealisationKind::Degree => "otm-degree-sr",
+        RealisationKind::OpenUniversity => "otm-avoin-sr",
+    };
     derived(
-        "otm",
+        prefix,
         &format!("study-right|{student_number}|{}", kind.as_str()),
     )
 }
 
-pub fn product_id(course_code: &str) -> String {
-    derived("otm", &format!("product|{course_code}"))
-}
-
-pub fn product_access_token(product_id: &str) -> String {
-    derived("token", &format!("access-token|{product_id}"))
-}
-
-/// `attempt` distinguishes a legitimate re-submission from a replay of the same attempt, which
-/// reproduces the id.
-#[allow(clippy::too_many_arguments)]
-pub fn submitted_attainment_id(
-    student_number: &str,
-    course_code: &str,
-    enrolment_id: &str,
-    attainment_date: NaiveDate,
-    grade_scale_id: &str,
-    grade_id: &str,
-    credits: f64,
-    attempt: u32,
-) -> String {
-    derived(
-        "hy-kur",
-        &format!(
-            "submission|{student_number}|{course_code}|{enrolment_id}|{attainment_date}|{grade_scale_id}|{grade_id}|{credits}|{attempt}"
-        ),
-    )
+/// Random like Suotar's own, so a resubmission of the same completion gets a new id.
+pub fn submitted_attainment_id() -> String {
+    format!("hy-kur-{}", Uuid::new_v4())
 }
 
 pub fn final_attainment_id(submitted_attainment_id: &str) -> String {
-    derived("otm", &format!("attainment|{submitted_attainment_id}"))
+    derived(
+        "otm-attainment",
+        &format!("attainment|{submitted_attainment_id}"),
+    )
 }
 
 pub fn pushed_attainment_id(student_number: &str, course_code: &str, grade_id: &str) -> String {
     derived(
-        "otm",
+        "otm-attainment",
         &format!("existing-attainment|{student_number}|{course_code}|{grade_id}"),
     )
 }

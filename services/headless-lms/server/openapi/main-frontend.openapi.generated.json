@@ -7088,7 +7088,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the\nper-realisation counters, the send-status totals and the stale-address list.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the\nper-module counters, the send-status totals and the stale-address list.",
         "operationId": "getAccountLinkingStats",
         "parameters": [
           {
@@ -14019,13 +14019,12 @@
           }
         }
       },
-      "AccountLinkingRealisationCounters": {
+      "AccountLinkingModuleCounters": {
         "type": "object",
         "required": [
           "course_id",
           "course_name",
           "course_module_id",
-          "course_unit_realisation_id",
           "consecutive_listing_failures"
         ],
         "properties": {
@@ -14049,9 +14048,6 @@
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
-          },
-          "course_unit_realisation_id": {
             "type": "string"
           },
           "fast_track_skipped_account_has_number_count": {
@@ -14084,13 +14080,10 @@
             "type": ["integer", "null"],
             "format": "int32"
           },
-          "label": {
-            "type": ["string", "null"]
-          },
           "last_listed_at": {
             "type": ["string", "null"],
             "format": "date-time",
-            "description": "When the counters below were collected. Not the last attempt: a failing realisation keeps the\nlast roster that arrived."
+            "description": "When the counters below were collected. Not the last attempt: a failing listing keeps the\nlast roster that arrived."
           },
           "last_listing_attempted_at": {
             "type": ["string", "null"],
@@ -14223,7 +14216,7 @@
           "funnel",
           "send_status_totals",
           "hard_failure_domains",
-          "realisations",
+          "modules",
           "stale_addresses",
           "links_total_by_method",
           "links_in_window_by_method",
@@ -14257,15 +14250,15 @@
             "type": "integer",
             "format": "int64"
           },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingModuleCounters"
+            }
+          },
           "quiet_period_secs": {
             "type": "integer",
             "format": "int64"
-          },
-          "realisations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AccountLinkingRealisationCounters"
-            }
           },
           "send_status_totals": {
             "$ref": "#/components/schemas/AccountLinkingSendStatusTotals"
@@ -14546,7 +14539,6 @@
           "state_entered_at",
           "needs_admin_attention",
           "next_attempt_at",
-          "request_item_id",
           "submit_retry_count",
           "verify_attempt_count",
           "attempt_number",
@@ -14646,9 +14638,6 @@
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
-          },
-          "request_item_id": {
-            "type": "string"
           },
           "resubmission_refusal": {
             "oneOf": [
@@ -17687,20 +17676,13 @@
       "CourseCreditRegistrationModuleConfigs": {
         "type": "object",
         "description": "Every module of the course with its Suotar configuration, for the module editor.",
-        "required": ["modules", "realisations"],
+        "required": ["modules"],
         "properties": {
           "modules": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CourseModuleCreditRegistrationConfig"
             }
-          },
-          "realisations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseModuleSuotarRealisation"
-            },
-            "description": "Every live realisation of every module of the course, to be grouped by `course_module_id`."
           }
         }
       },
@@ -18745,18 +18727,12 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "credit_registration_product_token_found": {
-            "type": ["boolean", "null"]
-          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
           },
           "enable_credit_registration_via_suotar": {
             "type": "boolean"
-          },
-          "open_university_product_id": {
-            "type": ["string", "null"]
           },
           "uh_course_code": {
             "type": ["string", "null"]
@@ -18766,21 +18742,10 @@
       "CourseModuleCreditRegistrationEdit": {
         "type": "object",
         "description": "The module editor's writable half of the Suotar configuration. The pause and the\nconfig-validation verdict are not here: their writers are the admin dashboard and the pipeline.",
-        "required": ["realisations"],
         "properties": {
           "grade_scale_id": {
             "type": ["string", "null"],
             "description": "`None` means derive the grade scale from the completion."
-          },
-          "open_university_product_id": {
-            "type": ["string", "null"]
-          },
-          "realisations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseModuleSuotarRealisationEdit"
-            },
-            "description": "The full set for the module; anything missing from it is soft-deleted."
           }
         }
       },
@@ -18834,139 +18799,6 @@
           "uh_course_code": {
             "type": ["string", "null"],
             "description": "The module's course code in the university's registry, e.g. `BSCS1001`."
-          }
-        }
-      },
-      "CourseModuleSuotarRealisation": {
-        "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_module_id",
-          "course_unit_realisation_id",
-          "active",
-          "consecutive_listing_failures"
-        ],
-        "properties": {
-          "active": {
-            "type": "boolean"
-          },
-          "consecutive_listing_failures": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "course_module_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_unit_realisation_id": {
-            "type": "string"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "label": {
-            "type": ["string", "null"]
-          },
-          "last_already_linked_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_account_has_number_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_name_mismatch_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_no_account_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_stale_verification_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_unlinked_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_track_skipped_unverified_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_fast_tracked_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_listed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "last_listed_person_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_listing_attempted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "last_listing_error": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
-              }
-            ]
-          },
-          "last_mailed_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_no_address_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_suppressed_by_dedup_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "last_suppressed_by_rate_cap_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "CourseModuleSuotarRealisationEdit": {
-        "type": "object",
-        "required": ["course_unit_realisation_id", "active"],
-        "properties": {
-          "active": {
-            "type": "boolean"
-          },
-          "course_unit_realisation_id": {
-            "type": "string"
-          },
-          "label": {
-            "type": ["string", "null"],
-            "description": "Rendered to students as the name of the realisation their credits go against."
           }
         }
       },
@@ -19704,9 +19536,6 @@
           "message": {
             "type": ["string", "null"],
             "description": "Every problem found, in one line. `None` means the module is fine."
-          },
-          "product_token_found": {
-            "type": ["boolean", "null"]
           }
         }
       },
@@ -19717,7 +19546,6 @@
           "course_name",
           "course_module_id",
           "old_flow_also_enabled",
-          "active_realisation_count",
           "check",
           "eligible_completion_count",
           "registration_count",
@@ -19727,10 +19555,6 @@
           "needs_admin_attention_count"
         ],
         "properties": {
-          "active_realisation_count": {
-            "type": "integer",
-            "format": "int64"
-          },
           "check": {
             "$ref": "#/components/schemas/CreditRegistrationCourseConfigCheck",
             "description": "What the current facts say. Recomputed on read, so a configuration fixed a minute ago no\nlonger shows as broken."
@@ -19763,6 +19587,10 @@
             "format": "int64",
             "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module opted in mid-course keeps a permanent gap against `registration_count` for the\ncompletions that predate the opt-in."
           },
+          "enrolment_link": {
+            "type": ["string", "null"],
+            "description": "Where a student with no usable enrolment is sent to enrol."
+          },
           "failed_count": {
             "type": "integer",
             "format": "int64"
@@ -19790,9 +19618,6 @@
           "old_flow_also_enabled": {
             "type": "boolean",
             "description": "The old pull path is on as well, which would register the same completion twice."
-          },
-          "open_university_product_id": {
-            "type": ["string", "null"]
           },
           "pause_reason": {
             "type": ["string", "null"]
@@ -19882,14 +19707,15 @@
           "enrolment_not_found",
           "enrolment_not_accepted",
           "invalid_grade_for_grade_scale",
+          "grade_scale_mismatch",
           "course_not_allowed",
           "invalid_credits",
           "study_right_not_valid",
-          "acceptor_not_found",
           "sisu_validation_failed",
           "sisu_timeout",
-          "sisu_temporarily_unavailable",
+          "service_temporarily_unavailable",
           "misregistered",
+          "not_registered",
           "unauthorized",
           "malformed_request",
           "transport_error",
@@ -24568,7 +24394,6 @@
                 "state_entered_at",
                 "needs_admin_attention",
                 "next_attempt_at",
-                "request_item_id",
                 "submit_retry_count",
                 "verify_attempt_count",
                 "attempt_number",
@@ -24668,9 +24493,6 @@
                 "registered_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
-                },
-                "request_item_id": {
-                  "type": "string"
                 },
                 "resubmission_refusal": {
                   "oneOf": [
@@ -26595,14 +26417,7 @@
       "SuotarApiCallLedgerReference": {
         "type": "object",
         "description": "One ledger row a call carried, resolved from `credit_registration_ids`. This is what stands in\nfor the redacted body: the identifiers are here, beside the item they belong to.",
-        "required": [
-          "credit_registration_id",
-          "request_item_id",
-          "user_id",
-          "course_id",
-          "course_name",
-          "state"
-        ],
+        "required": ["credit_registration_id", "user_id", "course_id", "course_name", "state"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -26635,8 +26450,8 @@
             "type": ["string", "null"]
           },
           "request_item_id": {
-            "type": "string",
-            "description": "The id the registry saw for this row, so a line of the stored body maps to a student."
+            "type": ["string", "null"],
+            "description": "The id the registry saw for this row, so a line of the stored body maps to a student. `None`\nwhen no event recorded it."
           },
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
@@ -26742,8 +26557,8 @@
           "resolve_enrolments",
           "import_attainments",
           "verify_attainments",
-          "product_access_tokens",
-          "list_by_course"
+          "list_by_course",
+          "validate_course_codes"
         ]
       },
       "SuotarEndpointStanding": {

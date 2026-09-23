@@ -194,7 +194,9 @@ test("The module editor configures a study registry module by its course code an
   await expect(form.getByText("no enrolment link")).toHaveCount(0)
   await form.getByRole("button", { name: "Edit" }).click()
 
-  await expect(form.getByRole("radio", { name: "In Sisu" })).toBeChecked()
+  await expect(
+    form.getByRole("checkbox", { name: "Register opted-in completions in Sisu" }),
+  ).toBeChecked()
   await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
     seededEnrolmentLink(CRS_STATES_101),
   )

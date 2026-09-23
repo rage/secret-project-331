@@ -56,9 +56,9 @@ test("Can manually reset exercises", async () => {
   // The three exercises on this page share an iframe title and a Submit label, and they mount in
   // whatever order their requests finish. A page-level nth match pairs one exercise's answer with
   // another's button, so scope each answer and the buttons that follow it to a single card.
-  const exerciseCards = student1Page.locator(
-    'section:has(iframe[title="Exercise 1\\, task 1 content"])',
-  )
+  const exerciseCards = student1Page
+    .getByRole("region")
+    .filter({ has: student1Page.locator('iframe[title="Exercise 1\\, task 1 content"]') })
   // Until every iframe has mounted, first() can resolve to a different card on each action.
   await expect(exerciseCards).toHaveCount(3)
   const firstExercise = exerciseCards.first()

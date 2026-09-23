@@ -12,7 +12,8 @@ use headless_lms_base::config::{
     ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
 };
 use headless_lms_models::{
-    PKeyPolicy, course_instance_enrollments,
+    PKeyPolicy,
+    course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_module_completions::{self, NewCourseModuleCompletionSeed},
     course_modules,
     credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
@@ -224,7 +225,7 @@ pub async fn seed_credit_registration(
             .get(lane.course_code)
             .ok_or_else(|| anyhow::anyhow!("no general course has code {}", lane.course_code))?;
         let student = students.get(lane.student)?;
-        course_instance_enrollments::insert(
+        enroll(
             &mut conn,
             student.user_id,
             course.course_id,
@@ -252,7 +253,7 @@ pub async fn seed_credit_registration(
         profile_empty_user_id,
         replaced_attempts_holder.user_id,
     ] {
-        course_instance_enrollments::insert(
+        enroll(
             &mut conn,
             user_id,
             suotar.course_id,
@@ -459,11 +460,10 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
 
 /// Owned by `suotar-old-flow-coexistence.spec.ts`.
 ///
-/// Module 0 stays on the legacy pull path outright. Module 1 stands in for a module the moment after
-/// a real cutover: Suotar is on, but its one completion predates the cutover and was already
-/// registered through the legacy pull path, which must keep it out of both the pull stream and a
-/// second, Suotar-side registration. The two completions belong to different students because the
-/// spec tells them apart in the pull stream by address.
+/// Module 0 stays on the legacy pull path outright. Module 1 is opted into Suotar, but its one
+/// completion predates the opt-in and was already registered through the legacy pull path, so it
+/// must stay there and never get a Suotar registration. The two completions belong to different
+/// students because the spec tells them apart in the pull stream by address.
 async fn seed_old_flow_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
@@ -478,7 +478,7 @@ async fn seed_old_flow_course(
     };
     let registrar_id = get_or_create_default_registrar(conn).await?;
     let still_legacy = students.get(&STUDENT_7)?;
-    let already_cut_over = students.get(&STUDENT_8)?;
+    let predates_opt_in = students.get(&STUDENT_8)?;
 
     let (course, instance, _) =
         CourseBuilder::new("Credit registration old flow", OLD_FLOW_COURSE_SLUG)
@@ -502,7 +502,7 @@ async fn seed_old_flow_course(
             .module(
                 ModuleBuilder::new()
                     .order(1)
-                    .name("Cut over to Suotar")
+                    .name("Opted into Suotar")
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_102.to_string())
                     .credit_registration(CreditRegistrationSeed {
@@ -511,8 +511,8 @@ async fn seed_old_flow_course(
                     })
                     .default_registrar(registrar_id)
                     .completion(
-                        CompletionBuilder::new(already_cut_over.user_id)
-                            .email(already_cut_over.email.clone())
+                        CompletionBuilder::new(predates_opt_in.user_id)
+                            .email(predates_opt_in.email.clone())
                             .grade(3)
                             .passed(true)
                             .prerequisite_modules_completed(true)
@@ -525,8 +525,8 @@ async fn seed_old_flow_course(
             .seed(conn, app_config, &cx)
             .await?;
 
-    for student in [still_legacy, already_cut_over] {
-        course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    for student in [still_legacy, predates_opt_in] {
+        enroll(conn, student.user_id, course.id, instance.id).await?;
     }
     Ok(())
 }
@@ -577,7 +577,7 @@ async fn seed_certificate_detour_course(
     course_modules::update_certification_enabled(conn, module.id, true).await?;
     open_university_registration_links::upsert(conn, CRS_DETOUR_101, "https://www.example.com")
         .await?;
-    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    enroll(conn, student.user_id, course.id, instance.id).await?;
     Ok(())
 }
 
@@ -614,7 +614,7 @@ async fn seed_admin_course(
             .seed(conn, app_config, &cx)
             .await?;
 
-    course_instance_enrollments::insert(conn, linked.user_id, course.id, instance.id).await?;
+    enroll(conn, linked.user_id, course.id, instance.id).await?;
     seed_eligible_completion(conn, linked, module.id, course.id, None).await?;
 
     for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
@@ -697,7 +697,7 @@ async fn seed_states_course(
         students.get(&CREDIT_REGISTRATION_STUDENT_5)?,
     ];
     for holder in holders {
-        course_instance_enrollments::insert(conn, holder.user_id, course.id, instance.id).await?;
+        enroll(conn, holder.user_id, course.id, instance.id).await?;
     }
     let module_ids = module_ids_by_course_code(conn, course.id).await?;
 
@@ -801,7 +801,7 @@ async fn seed_retry_course(
         ),
     ] {
         let holder = students.get(fixture)?;
-        course_instance_enrollments::insert(conn, holder.user_id, course.id, instance.id).await?;
+        enroll(conn, holder.user_id, course.id, instance.id).await?;
         seed_frozen_registration(conn, &cx, seeded, module.id, holder, state, None).await?;
     }
     Ok(())
@@ -881,7 +881,7 @@ async fn seed_import_outcomes_course(
         course = course.module(module);
     }
     let (course, instance, _) = course.seed(conn, app_config, &cx).await?;
-    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    enroll(conn, student.user_id, course.id, instance.id).await?;
     for module in course_modules::get_by_course_id(conn, course.id).await? {
         seed_eligible_completion(conn, student, module.id, course.id, None).await?;
     }
@@ -916,7 +916,7 @@ async fn seed_grade_improvement_course(
     )
     .seed(conn, app_config, &cx)
     .await?;
-    course_instance_enrollments::insert(conn, student.user_id, course.id, instance.id).await?;
+    enroll(conn, student.user_id, course.id, instance.id).await?;
     seed_eligible_completion(conn, student, module.id, course.id, Some(3)).await?;
     Ok(())
 }
@@ -944,6 +944,26 @@ async fn link_student_number(
             link_reason: is_admin_manual
                 .then(|| "Seeded fixture: the address Sisu holds rejects our mail.".to_string()),
             verified_from_course_id: None,
+        },
+    )
+    .await?;
+    Ok(())
+}
+
+/// Enrols the way the course settings dialog does; without `user_course_settings` the course pages
+/// open on that dialog.
+async fn enroll(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_instance_id: Uuid,
+) -> Result<()> {
+    course_instance_enrollments::insert_enrollment_and_set_as_current(
+        conn,
+        NewCourseInstanceEnrollment {
+            user_id,
+            course_id,
+            course_instance_id,
         },
     )
     .await?;

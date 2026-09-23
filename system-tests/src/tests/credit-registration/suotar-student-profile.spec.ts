@@ -62,10 +62,15 @@ test.describe("A student whose grade was registered twice", () => {
 test.describe("A student on a Suotar course and nothing else", () => {
   test.use({ storageState: EMPTY_STORAGE_STATE })
 
-  test("A student with nothing linked sees explanatory copy, not empty cards", async ({ page }) => {
+  test("A student with nothing linked is not told about credit registration", async ({ page }) => {
     await page.goto(PROFILE_STUDIES_URL)
 
-    await expect(page.getByText("No student number is linked yet.")).toBeVisible()
+    // Without a linked number no completion of theirs goes through Suotar, so a promise of a
+    // confirmation mail would be false.
+    await expect(
+      page.getByRole("heading", { name: "Credit registration via Suotar" }),
+    ).toBeVisible()
+    await expect(page.getByText("No student number is linked yet.")).toHaveCount(0)
     await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
     await expect(
       page.getByRole("heading", { name: "Credits that did not go through" }),

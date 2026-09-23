@@ -69,20 +69,6 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
     ])
   })
 
-  await test.step("The registry gains a grade it will not let 4 replace", async () => {
-    // Newer than the attempt-1 attainment, so enrolment resolution still matches that one and sees
-    // a grade worth beating; only the import call compares against every attainment the person has.
-    await upsertMockSuotarAttainments(page.request, [
-      {
-        studentNumber: STUDENT_NUMBER,
-        courseCode: CRS_GRADED_101,
-        attainmentDate: new Date().toISOString().slice(0, 10),
-        gradeScaleId: NUMERIC_SCALE,
-        gradeId: "5",
-      },
-    ])
-  })
-
   const second = await test.step("Regrading to 4 supersedes the registered attempt", async () => {
     await regradeCompletion(page.request, { creditRegistrationId: first.id, grade: 4 })
     await runMaterializeTick(page.request, scope)
@@ -120,6 +106,17 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
 
   await test.step("The new attempt is submitted under its own request item id", async () => {
     await runResolveEnrolmentsTick(page.request, scope)
+    // Only after enrolment resolution, which would otherwise settle the row as a duplicate: the
+    // import call is what has to catch a better grade that reached the registry in between.
+    await upsertMockSuotarAttainments(page.request, [
+      {
+        studentNumber: STUDENT_NUMBER,
+        courseCode: CRS_GRADED_101,
+        attainmentDate: new Date().toISOString().slice(0, 10),
+        gradeScaleId: NUMERIC_SCALE,
+        gradeId: "5",
+      },
+    ])
     await runImportSubmissionTick(page.request, scope)
 
     const details = await adminRegistrationDetails(adminApi, second.id)

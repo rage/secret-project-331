@@ -432,6 +432,7 @@ pub struct RecordedItem {
     pub course_code: Option<String>,
     pub submitted_attainment_id: Option<String>,
     /// `dropped` for an item a fault left out of the response; `code` is then what it would have said.
+    /// `unanswered`, with no `code`, when the whole request was refused before any item was answered.
     pub status: String,
     pub code: String,
 }

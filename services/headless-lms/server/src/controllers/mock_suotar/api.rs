@@ -401,6 +401,19 @@ async fn answer(
     let mut addresses = parsed.addresses();
     load(runner.store, runner.generation, &parsed, working).await?;
     parsed.enrich_addresses(&mut addresses, working);
+    // Overwritten once the items are answered; a request refused before that is otherwise a call no
+    // student or course code filter finds.
+    call.items = addresses
+        .iter()
+        .map(|address| RecordedItem {
+            request_item_id: address.request_item_id.clone(),
+            student_number: address.student_number.clone(),
+            course_code: address.course_code.clone(),
+            submitted_attainment_id: address.submitted_attainment_id.clone(),
+            status: "unanswered".to_string(),
+            code: String::new(),
+        })
+        .collect();
 
     // `auth`, `requestGate` and `parse` run before the body in a real Suotar and after it here,
     // because narrowing a fault to one spec's rows needs the parse. Nothing is written yet at any of

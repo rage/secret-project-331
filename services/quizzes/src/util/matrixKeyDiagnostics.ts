@@ -39,6 +39,7 @@ export interface MatrixKeyDiagnostics {
 
 export const matrixKeyDiagnostics = (
   optionCells: readonly (readonly string[])[] | null | undefined,
+  tolerance: number,
 ): MatrixKeyDiagnostics => {
   const shape = matrixShape(optionCells)
   const gaps: MatrixCellPosition[] = []
@@ -63,7 +64,7 @@ export const matrixKeyDiagnostics = (
       const value = parseCellNumber(cell)
       if (value !== null) {
         numericValues.push(value)
-        if (value === 0) {
+        if (Math.abs(value) <= tolerance) {
           zeroCells++
         }
       }
@@ -81,9 +82,9 @@ export const matrixKeyDiagnostics = (
 }
 
 /**
- * Half the smallest distance between any two distinct values in the key, and no larger than half
- * the smallest nonzero magnitude. Beyond this a tolerance starts accepting one correct answer in
- * place of another, or zero in place of a nonzero entry.
+ * Strictly below half the smallest distance between any two distinct values in the key, and below
+ * half the smallest nonzero magnitude. At exactly half, `cellsMatch`'s inclusive `<=` accepts both
+ * neighboring values (and zero in place of a nonzero entry), so the limit itself is not safe.
  */
 const largestSafeTolerance = (values: number[]): number | null => {
   if (values.length === 0) {
@@ -99,5 +100,9 @@ const largestSafeTolerance = (values: number[]): number | null => {
     Number.POSITIVE_INFINITY,
   )
   const limit = Math.min(smallestGap, smallestNonzeroMagnitude)
-  return Number.isFinite(limit) ? limit / 2 : null
+  if (!Number.isFinite(limit)) {
+    return null
+  }
+  const halfLimit = limit / 2
+  return halfLimit - Math.max(halfLimit * 1e-9, Number.EPSILON)
 }

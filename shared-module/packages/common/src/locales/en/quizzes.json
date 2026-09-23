@@ -125,6 +125,7 @@
   "matrix-warning-comma-as-thousands-separator": "{{cells}} will be read as a decimal number, not as a thousands separator.",
   "matrix-warning-key-has-gaps": "The correct answer has empty cells inside it at {{positions}}. Students cannot leave a cell empty, so nobody can answer this correctly.",
   "matrix-warning-malformed-number": "{{cells}} cannot be read as a number, so it will only match exactly the same text.",
+  "matrix-warning-tolerance-negative": "A negative tolerance is not a valid state. Set it to 0 or higher.",
   "matrix-warning-tolerance-too-large": "This tolerance is wide enough to accept a wrong entry. Keep it below {{limit}}.",
   "matrix-warning-zero-matrix-score": "A student answering with all zeros would score {{percentage}}% here. Consider all-or-nothing grading when most entries are zeros.",
   "matrix-your-answer": "Your answer",

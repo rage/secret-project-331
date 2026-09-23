@@ -2,6 +2,7 @@ import {
   blankCellsInsideShape,
   cellsMatch,
   isBlankCell,
+  MATRIX_GRID_SIZE,
   matrixShape,
   type MatrixShape,
 } from "@/util/matrix"
@@ -35,6 +36,16 @@ export const compareMatrices = (
   tolerance: number,
 ): MatrixDifference => {
   const keyShape = matrixShape(keyMatrix)
+
+  // The student answer is attacker-controlled and reaches this endpoint directly, not just
+  // through the 6x6 answer UI; without this, an oversized answer turns matrixShape's scan and the
+  // comparison loop below into an unbounded Cartesian product.
+  if (
+    (studentMatrix?.length ?? 0) > MATRIX_GRID_SIZE ||
+    studentMatrix?.some((row) => (row?.length ?? 0) > MATRIX_GRID_SIZE)
+  ) {
+    throw new Error(`Matrix answer exceeds the ${MATRIX_GRID_SIZE}x${MATRIX_GRID_SIZE} grid`)
+  }
   const studentShape = matrixShape(studentMatrix)
 
   const holes = blankCellsInsideShape(keyMatrix, keyShape)

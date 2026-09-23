@@ -37,12 +37,16 @@ const answer = (matrix: string[][]): UserAnswer => ({
   itemAnswers: [{ type: "matrix", valid: true, quizItemId: "matrix-item", matrix }],
 })
 
-const feedbackFor = (matrix: string[][], overrides: Partial<PrivateSpecQuizItemMatrix> = {}) =>
+const feedbackFor = (
+  matrix: string[][],
+  overrides: Partial<PrivateSpecQuizItemMatrix> = {},
+  correctnessCoefficient = 0.5,
+) =>
   submissionFeedback(
     answer(matrix),
     quiz(matrixItem(overrides)),
-    [{ quizItemId: "matrix-item", correctnessCoefficient: 0.5 }],
-    0.5,
+    [{ quizItemId: "matrix-item", correctnessCoefficient }],
+    correctnessCoefficient,
   )[0]
 
 describe("matrix feedback", () => {
@@ -100,5 +104,26 @@ describe("matrix feedback", () => {
     expect(feedback?.matrix_cell_feedbacks).toBeNull()
     expect(feedback?.matrix_score_breakdown).toBeNull()
     expect(feedback?.correctnessCoefficient).toBe(0.5)
+  })
+
+  test("collapses the exact fraction under fog of war too, so retries can't bisect the key", () => {
+    const matrix = [
+      ["1", "9"],
+      ["3", "4"],
+    ]
+    // Different fractions of correctness must not be distinguishable from one another; only
+    // whether the answer was wrong, partial, or fully correct survives.
+    expect(feedbackFor(matrix, { fogOfWar: true }, 0.25)?.correctnessCoefficient).toBe(0.5)
+    expect(feedbackFor(matrix, { fogOfWar: true }, 0.75)?.correctnessCoefficient).toBe(0.5)
+    expect(feedbackFor(matrix, { fogOfWar: true }, 0)?.correctnessCoefficient).toBe(0)
+    expect(feedbackFor(matrix, { fogOfWar: true }, 1)?.correctnessCoefficient).toBe(1)
+  })
+
+  test("reveals the exact fraction when fog of war is off", () => {
+    const matrix = [
+      ["1", "9"],
+      ["3", "4"],
+    ]
+    expect(feedbackFor(matrix, { fogOfWar: false }, 0.25)?.correctnessCoefficient).toBe(0.25)
   })
 })

@@ -1,4 +1,5 @@
 import { assessMatrixQuiz } from "../../src/grading/assessment/matrix"
+import { MATRIX_GRID_SIZE } from "../../src/util/matrix"
 import type { UserItemAnswerMatrix } from "../../types/quizTypes/answer"
 import type {
   MatrixGradingPolicy,
@@ -238,6 +239,13 @@ describe("matrix grading: keys and answers that should not exist", () => {
   test("an empty key defines no correct answer, so nothing matches it", () => {
     expect(score([["1"]], { optionCells: null })).toBe(0)
     expect(score([["1"]], { optionCells: [["", ""]], gradingPolicy: "per-cell" })).toBe(0)
+  })
+
+  test("an answer larger than the supported grid is refused before it can blow up grading", () => {
+    const oversizedRow = Array.from({ length: MATRIX_GRID_SIZE + 1 }, () => "1")
+    expect(() => score([oversizedRow])).toThrow(/exceeds/)
+    const oversizedAnswer = Array.from({ length: MATRIX_GRID_SIZE + 1 }, () => ["1"])
+    expect(() => score(oversizedAnswer)).toThrow(/exceeds/)
   })
 
   test("a gap punched into an answer by a non-UI client is a wrong entry, not a free pass", () => {

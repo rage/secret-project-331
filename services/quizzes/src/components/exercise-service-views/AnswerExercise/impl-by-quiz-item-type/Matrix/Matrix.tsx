@@ -48,9 +48,10 @@ const MatrixTableContainer = styled.table`
 
 /**
  * A submittable answer is a completely filled rectangle anchored at the top-left, because the shape
- * the student types is their claim about the shape of the answer. A cell nobody can grade — a
- * number with two separators, say `1,234,567` — blocks submission too, since it can only ever be
- * compared as text.
+ * the student types is their claim about the shape of the answer. A number nobody can parse, say
+ * `1,234,567`, is still submittable: the grader falls back to comparing it as exact text, and the
+ * key can legitimately contain the same unparseable text (blocking it here would make a published
+ * key using that exact text unanswerable).
  */
 const isSubmittable = (matrix: string[][]): boolean => {
   const shape = matrixShape(matrix)
@@ -64,7 +65,7 @@ const isSubmittable = (matrix: string[][]): boolean => {
       }
     }
   }
-  return !matrix.some((row) => row.some((cell) => isMalformedNumberCell(cell)))
+  return true
 }
 
 export interface LeftBorderedDivProps {

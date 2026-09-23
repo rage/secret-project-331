@@ -3,6 +3,7 @@ import type {
   PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
+import { matrixShape } from "./matrix"
 import { matrixKeyDiagnostics } from "./matrixKeyDiagnostics"
 
 /**
@@ -82,11 +83,19 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
 // A gap inside the key's own frame makes the item ungradeable (compareMatrices refuses to grade
 // against it), so it blocks saving the same way an unset closed-ended grading strategy does. A
 // tolerance outside [0, inf) is not a half-finished state either: it would make every numeric
-// comparison meaningless, and migration never produces one.
-const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
-  Number.isFinite(item.tolerance) &&
-  item.tolerance >= 0 &&
-  matrixKeyDiagnostics(item.optionCells).gaps.length === 0
+// comparison meaningless, and migration never produces one. An empty key defines no correct
+// answer at all (assessMatrixQuiz gives every answer zero), the same "accept anything" problem
+// a null closed-ended grading strategy has.
+const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean => {
+  const shape = matrixShape(item.optionCells)
+  return (
+    shape.rows > 0 &&
+    shape.columns > 0 &&
+    Number.isFinite(item.tolerance) &&
+    item.tolerance >= 0 &&
+    matrixKeyDiagnostics(item.optionCells, item.tolerance).gaps.length === 0
+  )
+}
 
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {

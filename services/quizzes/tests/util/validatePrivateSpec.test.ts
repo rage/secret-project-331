@@ -209,6 +209,22 @@ describe("validatePrivateSpec: matrix invariants", () => {
   test("a negative tolerance is invalid", () => {
     expect(validatePrivateSpec(baseQuiz([matrixItem({ tolerance: -1 })]))).toBe(false)
   })
+
+  test("a key with no cells at all is invalid, since it can never be answered correctly", () => {
+    expect(validatePrivateSpec(baseQuiz([matrixItem({ optionCells: null })]))).toBe(false)
+    expect(
+      validatePrivateSpec(
+        baseQuiz([
+          matrixItem({
+            optionCells: [
+              ["", ""],
+              ["", ""],
+            ],
+          }),
+        ]),
+      ),
+    ).toBe(false)
+  })
 })
 
 describe("validatePrivateSpec: feedback message invariants", () => {

@@ -65,6 +65,15 @@ describe("matrix cell comparison", () => {
     expect(cellsMatch("1/2", "1/2", 0)).toBe(true)
   })
 
+  test("two differently-malformed numbers never match, even if they'd collide once spaces are stripped", () => {
+    expect(cellsMatch("1 000", "1000", 0)).toBe(false)
+    expect(cellsMatch("1 5", "15", 0)).toBe(false)
+  })
+
+  test("the same malformed number still matches itself as exact text", () => {
+    expect(cellsMatch("1 000", "1 000", 0)).toBe(true)
+  })
+
   test("text ignores inner whitespace but not case, since x and X are different variables", () => {
     expect(cellsMatch("2 x", "2x", 0)).toBe(true)
     expect(cellsMatch("- x", "-x", 0)).toBe(true)
@@ -137,5 +146,10 @@ describe("matrix cell warnings", () => {
     expect(isMalformedNumberCell("1.2.3")).toBe(true)
     expect(isMalformedNumberCell("f(a,b,c)")).toBe(false)
     expect(isMalformedNumberCell("1,234")).toBe(false)
+  })
+
+  test("flags a number-like cell that fails to parse even with no more than one separator", () => {
+    expect(isMalformedNumberCell("1 000")).toBe(true)
+    expect(isMalformedNumberCell("1 5")).toBe(true)
   })
 })

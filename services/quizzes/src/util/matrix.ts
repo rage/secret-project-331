@@ -53,14 +53,13 @@ export const parseCellNumber = (raw: string): number | null => {
   return Number.isFinite(value) ? value : null
 }
 
-/** Whether the student wrote a number no rule can rescue, e.g. `1,234,567` or `1.2.3`. */
+/** Whether the student wrote a number no rule can rescue, e.g. `1,234,567` or `1 000`. */
 export const isMalformedNumberCell = (raw: string): boolean => {
   const normalized = normalizeCell(raw)
   if (normalized === "" || !NUMBER_LIKE.test(normalized)) {
     return false
   }
-  const separators = normalized.match(/[.,]/g)?.length ?? 0
-  return separators >= 2
+  return parseCellNumber(raw) === null
 }
 
 /** Whether to warn that a comma here will be read as a decimal point rather than a grouping mark. */
@@ -70,13 +69,18 @@ export const looksLikeThousandsSeparator = (raw: string): boolean =>
 /**
  * Whether two cells hold the same entry. Numeric cells compare by value within `tolerance`;
  * anything else compares as text with inner whitespace removed (`- 1` and `-1`, `2 x` and `2x`)
- * and case preserved, since `x` and `X` are different variables.
+ * and case preserved, since `x` and `X` are different variables. A cell that reads as a number
+ * never matches one that does not, so two differently-malformed numbers (`1 000` vs `1,5`) can
+ * only match by being identical text, not by both losing to text normalization.
  */
 export const cellsMatch = (a: string, b: string, tolerance: number): boolean => {
   const numberA = parseCellNumber(a)
   const numberB = parseCellNumber(b)
   if (numberA !== null && numberB !== null) {
     return Math.abs(numberA - numberB) <= tolerance
+  }
+  if ((numberA === null) !== (numberB === null)) {
+    return false
   }
   return normalizeCell(a).replaceAll(/\s+/g, "") === normalizeCell(b).replaceAll(/\s+/g, "")
 }

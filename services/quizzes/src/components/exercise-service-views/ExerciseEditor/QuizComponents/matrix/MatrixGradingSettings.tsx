@@ -40,8 +40,10 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
   }
 
   const gradesPerCell = selected.gradingPolicy === PER_CELL
-  const diagnostics = matrixKeyDiagnostics(selected.optionCells)
+  const diagnostics = matrixKeyDiagnostics(selected.optionCells, selected.tolerance)
+  const toleranceIsNegative = selected.tolerance < 0
   const toleranceTooLarge =
+    !toleranceIsNegative &&
     diagnostics.largestSafeTolerance !== null &&
     selected.tolerance > diagnostics.largestSafeTolerance
   const zeroMatrixScorePercentage =
@@ -142,6 +144,9 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
       >
         {t("matrix-tolerance-description")}
       </span>
+      {toleranceIsNegative && (
+        <WarningInfobox>{t("matrix-warning-tolerance-negative")}</WarningInfobox>
+      )}
       {toleranceTooLarge && (
         <WarningInfobox>
           {t("matrix-warning-tolerance-too-large", { limit: diagnostics.largestSafeTolerance })}

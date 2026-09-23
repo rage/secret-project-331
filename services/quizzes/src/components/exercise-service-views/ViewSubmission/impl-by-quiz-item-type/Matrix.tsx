@@ -1,7 +1,8 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { CheckCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, MinusCircle, PlusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
@@ -32,6 +33,19 @@ const VERDICT_BACKGROUNDS: Record<MatrixCellVerdict, string> = {
   incorrect: baseTheme.colors.red[100],
   missing: baseTheme.colors.gray[200],
   extra: baseTheme.colors.yellow[100],
+}
+
+// A shape per verdict, not just a background color, so the verdict survives for color-blind
+// students and doesn't depend on `title` (screen readers don't reliably announce it, touch
+// devices don't show it at all).
+const VERDICT_ICONS: Record<
+  MatrixCellVerdict,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  correct: CheckCircle,
+  incorrect: XmarkCircle,
+  missing: MinusCircle,
+  extra: PlusCircle,
 }
 
 interface RenderedCell {
@@ -181,6 +195,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
           <tr key={`row${row}`}>
             {Array.from({ length: columns }, (_unusedCell, column) => {
               const cell = cellAt(row, column)
+              const VerdictIcon = cell.verdict ? VERDICT_ICONS[cell.verdict] : null
               return (
                 // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
                 <td
@@ -194,6 +209,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                   <div
                     title={cell.verdict ? verdictLabels[cell.verdict] : undefined}
                     className={css`
+                      position: relative;
                       display: flex;
                       align-items: center;
                       justify-content: center;
@@ -209,6 +225,19 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                     `}
                   >
                     {cell.text}
+                    {cell.verdict && VerdictIcon && (
+                      <>
+                        <VerdictIcon
+                          className={css`
+                            position: absolute;
+                            top: 0.125rem;
+                            right: 0.125rem;
+                          `}
+                          size={14}
+                        />
+                        <VisuallyHidden>{verdictLabels[cell.verdict]}</VisuallyHidden>
+                      </>
+                    )}
                   </div>
                 </td>
               )

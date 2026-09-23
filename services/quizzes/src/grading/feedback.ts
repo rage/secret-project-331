@@ -20,6 +20,16 @@ import type {
 } from "../../types/quizTypes/privateSpec"
 import { compareMatrices } from "./utils/matrixDifference"
 
+const quantizeForFogOfWar = (correctnessCoefficient: number): number => {
+  if (correctnessCoefficient <= 0) {
+    return 0
+  }
+  if (correctnessCoefficient >= 1) {
+    return 1
+  }
+  return 0.5
+}
+
 const submissionFeedback = (
   submission: UserAnswer,
   quiz: PrivateSpecQuiz,
@@ -148,8 +158,17 @@ const submissionFeedback = (
           matrixQuizItem.tolerance,
         )
         // Fog of war withholds the per-cell verdicts, which would otherwise let a student with
-        // repeated attempts resolve the key one cell at a time. The score itself still goes out.
+        // repeated attempts resolve the key one cell at a time.
         const revealCells = !matrixQuizItem.fogOfWar
+        // The exact fraction is the same leak in a different shape: under per-cell grading it
+        // moves by 1/keyCells per cell, so a student could still bisect the key across retries by
+        // watching it change. Collapse it to the same three-way signal every other item type
+        // already exposes (wrong / partial / fully correct) so the actually-awarded points (which
+        // come from the separate, full-precision QuizItemAnswerGrading, not this feedback object)
+        // are unaffected.
+        const correctnessCoefficient = revealCells
+          ? itemGrading.correctnessCoefficient
+          : quantizeForFogOfWar(itemGrading.correctnessCoefficient)
 
         return {
           quiz_item_id: matrixQuizItem.id,
@@ -158,7 +177,7 @@ const submissionFeedback = (
           timeline_item_feedbacks: null,
           matrix_cell_feedbacks: revealCells ? difference.cellFeedbacks : null,
           matrix_score_breakdown: revealCells ? difference.breakdown : null,
-          correctnessCoefficient: itemGrading.correctnessCoefficient,
+          correctnessCoefficient,
         }
       }
 

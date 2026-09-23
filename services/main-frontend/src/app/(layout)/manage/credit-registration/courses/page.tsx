@@ -154,6 +154,7 @@ const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({
 
 const CONFIG_FAILURE_BANNER_KEYS = {
   course_code: "credit-registration-admin-config-failure-banner-course-code",
+  enrolment_link: "credit-registration-admin-config-failure-banner-enrolment-link",
 } as const
 
 /** Which of the configuration checks passed, in a dialog so the row stays one line high. */
@@ -163,9 +164,13 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
   const checks: { label: string; value: boolean | null }[] = [
     {
       label: t("credit-registration-admin-check-course-code"),
-      value: module.check.course_code_resolves ?? null,
+      value: module.check.course_code_allowed ?? null,
     },
     { label: t("credit-registration-admin-check-ects"), value: module.ects_credits !== null },
+    {
+      label: t("credit-registration-admin-check-enrolment-link"),
+      value: Boolean(module.enrolment_link),
+    },
   ]
   return (
     <>

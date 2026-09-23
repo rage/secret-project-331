@@ -126,10 +126,17 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
 
     const imports = await mockCallsForStudent(page.request, STUDENT_NUMBER, "import_attainments")
     expect(imports).toHaveLength(2)
-    const requestItemIds = imports.flatMap((call) => call.items.map((item) => item.requestItemId))
+    const sentItemIds = imports.flatMap((call) => call.items.map((item) => item.requestItemId))
     // What makes a line in the registry's log map to one attempt rather than to the completion.
-    expect(requestItemIds).toContain(`cr-${first.id}`)
-    expect(requestItemIds).toContain(`cr-${second.id}`)
+    const recordedItemIds = async (registrationId: string) =>
+      (await adminRegistrationDetails(adminApi, registrationId)).events
+        .map((event) => event.request_item_id)
+        .filter((id) => id !== null && sentItemIds.includes(id))
+    const firstItemIds = await recordedItemIds(first.id)
+    const secondItemIds = await recordedItemIds(second.id)
+    expect(firstItemIds.length).toBeGreaterThan(0)
+    expect(secondItemIds.length).toBeGreaterThan(0)
+    expect(firstItemIds.filter((id) => secondItemIds.includes(id))).toHaveLength(0)
   })
 
   await test.step("The registry declines it, and the verdict is its own outcome", async () => {

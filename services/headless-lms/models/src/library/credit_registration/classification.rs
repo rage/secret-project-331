@@ -109,9 +109,9 @@ pub fn outcome_of(endpoint: SuotarEndpoint, code: &str) -> WireOutcome {
         return outcome;
     }
     match outcome {
-        // Import's contract has no per-item transient, so one arriving there is no evidence that
+        // Suotar's import has no per-item transient, so one arriving there is no evidence that
         // nothing was created; retrying it could put a second attainment on a transcript.
-        WireOutcome::Failure(CreditRegistrationErrorCode::ServiceTemporarilyUnavailable) => {
+        WireOutcome::Failure(code) if retryability(code) == Retryability::RetryableTransient => {
             WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout)
         }
         // `registered` is not an import answer, so what the item created is unknown.
@@ -122,11 +122,18 @@ pub fn outcome_of(endpoint: SuotarEndpoint, code: &str) -> WireOutcome {
     }
 }
 
-/// Whether an item says the registry could not be reached right now. The contract has this only at
-/// the request level, so an item carrying it is Suotar changing, and worth backing off from.
-pub fn is_service_unavailable_wire_code(code: &str) -> bool {
-    wire_outcome(code)
-        == WireOutcome::Failure(CreditRegistrationErrorCode::ServiceTemporarilyUnavailable)
+/// Whether an item says the registry could not be reached right now. Suotar sends
+/// `serviceTemporarilyUnavailable` only for a whole request, so an item carrying it means its API
+/// changed, and is still worth backing off from. On import, `sisuTimeout` is what every item answers
+/// while Sisu is down.
+pub fn is_service_unavailable_code(endpoint: SuotarEndpoint, code: &str) -> bool {
+    match wire_outcome(code) {
+        WireOutcome::Failure(CreditRegistrationErrorCode::ServiceTemporarilyUnavailable) => true,
+        WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout) => {
+            endpoint == SuotarEndpoint::ImportAttainments
+        }
+        _ => false,
+    }
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
@@ -195,12 +202,23 @@ mod tests {
     }
 
     #[test]
-    fn only_the_unavailability_code_reads_as_the_registry_being_unreachable() {
-        assert!(is_service_unavailable_wire_code(
+    fn only_the_unavailability_codes_read_as_the_registry_being_unreachable() {
+        assert!(is_service_unavailable_code(
+            SuotarEndpoint::VerifyAttainments,
             "serviceTemporarilyUnavailable"
         ));
-        assert!(!is_service_unavailable_wire_code("notRegistered"));
-        assert!(!is_service_unavailable_wire_code("sisuTimeout"));
+        assert!(is_service_unavailable_code(
+            SuotarEndpoint::ImportAttainments,
+            "sisuTimeout"
+        ));
+        assert!(!is_service_unavailable_code(
+            SuotarEndpoint::VerifyAttainments,
+            "notRegistered"
+        ));
+        assert!(!is_service_unavailable_code(
+            SuotarEndpoint::VerifyAttainments,
+            "sisuTimeout"
+        ));
     }
 
     #[test]
@@ -337,13 +355,18 @@ mod tests {
 
     #[test]
     fn an_item_level_transient_on_import_is_uncertain_rather_than_retryable() {
-        assert_eq!(
-            map_code(
-                SuotarEndpoint::ImportAttainments,
-                "serviceTemporarilyUnavailable"
-            ),
-            Some(CreditRegistrationErrorCode::SisuTimeout)
-        );
+        for code in [
+            "serviceTemporarilyUnavailable",
+            "notRegistered",
+            "unauthorized",
+            "malformedRequest",
+        ] {
+            assert_eq!(
+                map_code(SuotarEndpoint::ImportAttainments, code),
+                Some(CreditRegistrationErrorCode::SisuTimeout),
+                "{code}"
+            );
+        }
     }
 
     /// The success half of the vocabulary, which decides where a row ends up rather than what went

@@ -1,9 +1,11 @@
 //! Deciding whether one module's credit-registration configuration is usable.
 //!
 //! Pure: the facts are gathered by
-//! [`crate::course_module_suotar_configurations::get_config_facts_for_enabled_modules`] and the
-//! verdict is stamped back by
+//! [`crate::course_module_suotar_configurations::get_config_facts_for_enabled_modules`], the course
+//! code verdict comes from Suotar's `course-codes/validate`, and the result is stamped back by
 //! [`crate::course_module_suotar_configurations::record_config_check`].
+
+use std::borrow::Cow;
 
 use crate::course_module_suotar_configurations::{SuotarConfigCheck, SuotarModuleConfigFacts};
 
@@ -12,53 +14,94 @@ use super::grade_mapping::{GradeScaleFamily, grade_scale_family};
 /// The problems the check reports, in the order they block a registration. English on purpose:
 /// this is operator diagnostics stored on the row, not student-facing copy.
 const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
-const COURSE_CODE_NOT_FOUND: &str = "The study registry does not know this uh_course_code.";
+const COURSE_CODE_NOT_ALLOWED: &str = "Suotar does not accept this uh_course_code:";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
 const UNKNOWN_GRADE_SCALE: &str =
     "The grade scale override is not a scale the study registry accepts.";
 const NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS: &str =
     "The grade scale override is numeric but the module has passed completions with no grade.";
+const NO_ENROLMENT_LINK: &str = "No completion registration link override, so a student without a usable Sisu enrolment gets no enrolment link.";
 const OLD_FLOW_ALSO_ENABLED: &str = "enable_registering_completion_to_uh_open_university is on as well, which would register the same completion twice.";
+
+/// What Suotar's `course-codes/validate` said about a course code.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CourseCodeVerdict {
+    Allowed,
+    /// Carries Suotar's own reason.
+    NotAllowed {
+        reason: String,
+    },
+}
+
+impl CourseCodeVerdict {
+    /// The verdict the last check stored for the module's current course code, for rechecking
+    /// without asking Suotar again.
+    pub fn stored(facts: &SuotarModuleConfigFacts) -> Option<Self> {
+        match facts.stored_course_code_allowed? {
+            true => Some(Self::Allowed),
+            false => Some(Self::NotAllowed {
+                reason: facts
+                    .stored_course_code_rejection
+                    .clone()
+                    .unwrap_or_default(),
+            }),
+        }
+    }
+}
 
 /// Checks one module's configuration.
 ///
-/// `course_code_resolves` is left `None` while no listing has been attempted: never checked is not
-/// the same as checked and failed, and the Courses tab renders the two differently.
-pub fn check_module_config(facts: &SuotarModuleConfigFacts) -> SuotarConfigCheck {
-    let mut problems: Vec<&str> = Vec::new();
+/// `verdict` is `None` when Suotar gave no answer for the code, which leaves `course_code_allowed`
+/// `None`: never checked is not the same as checked and failed, and the Courses tab renders the two
+/// differently.
+pub fn check_module_config(
+    facts: &SuotarModuleConfigFacts,
+    verdict: Option<&CourseCodeVerdict>,
+) -> SuotarConfigCheck {
+    let mut problems: Vec<Cow<'static, str>> = Vec::new();
 
-    let has_course_code = facts
+    let uh_course_code = facts
         .uh_course_code
         .as_deref()
-        .is_some_and(|code| !code.trim().is_empty());
-    let course_code_resolves = if !has_course_code {
-        problems.push(NO_COURSE_CODE);
-        Some(false)
-    } else if facts.course_code_not_found {
-        problems.push(COURSE_CODE_NOT_FOUND);
-        Some(false)
-    } else if facts.listed_successfully {
-        Some(true)
-    } else {
-        None
-    };
+        .map(str::trim)
+        .filter(|code| !code.is_empty());
+    let (course_code_allowed, checked_course_code, course_code_rejection) =
+        match (uh_course_code, verdict) {
+            (None, _) => {
+                problems.push(NO_COURSE_CODE.into());
+                (Some(false), None, None)
+            }
+            (Some(code), Some(CourseCodeVerdict::Allowed)) => {
+                (Some(true), Some(code.to_string()), None)
+            }
+            (Some(code), Some(CourseCodeVerdict::NotAllowed { reason })) => {
+                problems.push(format!("{COURSE_CODE_NOT_ALLOWED} {reason}").into());
+                (Some(false), Some(code.to_string()), Some(reason.clone()))
+            }
+            (Some(_), None) => (None, None, None),
+        };
     if facts.ects_credits.is_none() {
-        problems.push(NO_ECTS);
+        problems.push(NO_ECTS.into());
     }
 
     match facts.grade_scale_id.as_deref().map(grade_scale_family) {
-        Some(None) => problems.push(UNKNOWN_GRADE_SCALE),
+        Some(None) => problems.push(UNKNOWN_GRADE_SCALE.into()),
         Some(Some(GradeScaleFamily::Numeric)) if facts.has_passed_completions_without_a_grade => {
-            problems.push(NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS)
+            problems.push(NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS.into())
         }
         _ => {}
     }
+    if !facts.has_enrolment_link {
+        problems.push(NO_ENROLMENT_LINK.into());
+    }
     if facts.old_flow_also_enabled {
-        problems.push(OLD_FLOW_ALSO_ENABLED);
+        problems.push(OLD_FLOW_ALSO_ENABLED.into());
     }
 
     SuotarConfigCheck {
-        course_code_resolves,
+        course_code_allowed,
+        checked_course_code,
+        course_code_rejection,
         message: (!problems.is_empty()).then(|| problems.join(" ")),
     }
 }

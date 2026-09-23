@@ -1,4 +1,4 @@
-//! The mock's half of the contract endpoints: its own request and response shapes, deliberately not
+//! The mock's half of the moocfi endpoints: its own request and response shapes, deliberately not
 //! shared with the client so the two can disagree the way a real Suotar and our client can.
 //!
 //! Every endpoint takes a top-level JSON array and answers with one item per request item, in order.
@@ -10,7 +10,7 @@ use chrono::{NaiveDate, SecondsFormat};
 
 use crate::prelude::*;
 
-/// The contract endpoints, keyed the way the audited client names them plus the one it lacks.
+/// The moocfi endpoints, keyed the way the audited client names them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Endpoint {
@@ -94,14 +94,16 @@ pub struct LocalizedName {
 #[serde(rename_all = "camelCase")]
 pub struct DatePeriod {
     pub start_date: NaiveDate,
-    pub end_date: NaiveDate,
+    /// `null` for a realisation or study right with no end, which Sisu allows.
+    pub end_date: Option<NaiveDate>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditRange {
     pub min: f64,
-    pub max: f64,
+    /// `null` is an open range, which Suotar refuses to import against.
+    pub max: Option<f64>,
 }
 
 /// Exactly the four keys Suotar passes on from the importer's person row.
@@ -152,8 +154,9 @@ pub struct ExistingAttainment {
     pub assessment_item_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub course_unit_realisation_id: Option<String>,
-    pub attainment_date: NaiveDate,
-    pub registration_date: NaiveDate,
+    /// [`sisu_midnight`], as the importer hands dates through.
+    pub attainment_date: String,
+    pub registration_date: String,
     pub grade_scale_id: String,
     pub grade_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -175,8 +178,9 @@ pub struct AttainmentSummary {
     #[serde(rename = "type")]
     pub attainment_type: String,
     pub state: String,
-    pub attainment_date: NaiveDate,
-    pub registration_date: NaiveDate,
+    /// [`sisu_midnight`], as the importer hands dates through.
+    pub attainment_date: String,
+    pub registration_date: String,
     pub grade_scale_id: String,
     pub grade_id: String,
 }
@@ -299,13 +303,18 @@ impl ResponseItem {
             status: ItemStatus::Ok,
             code: code.to_string(),
             error: None,
-            result: Some(serde_json::to_value(result).unwrap_or(serde_json::Value::Null)),
+            result: None,
         }
+        .with_result(result)
     }
 
     /// With the code's canonical wording, which depends on the endpoint for `enrolmentNotFound`.
     pub fn error(endpoint: Endpoint, request_item_id: &str, code: &str) -> Self {
-        Self::error_with_message(request_item_id, code, canonical_message(endpoint, code))
+        Self::error_with_message(
+            request_item_id,
+            code,
+            canonical_message(Some(endpoint), code),
+        )
     }
 
     pub fn error_with_message(request_item_id: &str, code: &str, message: String) -> Self {
@@ -337,7 +346,7 @@ pub struct RequestLevelError {
 
 impl RequestLevelError {
     pub fn new(code: &str) -> Self {
-        Self::with_message(code, canonical_message(Endpoint::ResolvePersons, code))
+        Self::with_message(code, canonical_message(None, code))
     }
 
     pub fn with_message(code: &str, message: String) -> Self {
@@ -350,18 +359,19 @@ impl RequestLevelError {
     }
 }
 
-/// Suotar's fixed wording per code. Codes whose real message names the item fall back to a generic
-/// sentence here, for a fault that names the code without a message.
-pub fn canonical_message(endpoint: Endpoint, code: &str) -> String {
+/// Suotar's fixed wording per code, `endpoint` being `None` for a request-level one. Codes whose real
+/// message names the item fall back to a generic sentence here, for a fault that names the code
+/// without a message.
+fn canonical_message(endpoint: Option<Endpoint>, code: &str) -> String {
     match code {
         "requestTooLarge" => "Request body is too large.",
         "unauthorized" => "Missing or invalid credentials.",
         "internalError" => "Suotar failed to process the request.",
         "serviceTemporarilyUnavailable" => "Failed to fetch Sisu data.",
-        "malformedRequest" => "Request body must be a JSON array of request items.",
+        "malformedRequest" => NOT_AN_ARRAY,
         "personNotFound" => "No Sisu person was found for the supplied student number.",
         "courseCodeNotFound" => "Course code could not be resolved in Sisu.",
-        "enrolmentNotFound" if endpoint == Endpoint::ImportAttainments => {
+        "enrolmentNotFound" if endpoint == Some(Endpoint::ImportAttainments) => {
             "No ENROLLED Sisu enrolment was found for this student and course code."
         }
         "enrolmentNotFound" => "No Sisu enrolment was found for this person and course.",
@@ -392,9 +402,16 @@ pub fn canonical_message(endpoint: Endpoint, code: &str) -> String {
 
 pub const COURSE_NOT_CARRIED: &str = "Suotar does not carry this course code.";
 
+pub const NOT_AN_ARRAY: &str = "Request body must be a JSON array of request items.";
+
 /// JavaScript's `toISOString()`: UTC with exactly three fractional digits.
 pub fn iso_millis(time: DateTime<Utc>) -> String {
     time.to_rfc3339_opts(SecondsFormat::Millis, true)
+}
+
+/// A date the way the importer passes Sisu's through: an instant at UTC midnight.
+pub fn sisu_midnight(date: NaiveDate) -> String {
+    format!("{date}T00:00:00.000Z")
 }
 
 #[cfg(test)]

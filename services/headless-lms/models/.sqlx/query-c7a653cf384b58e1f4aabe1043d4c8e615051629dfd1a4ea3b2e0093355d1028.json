@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_suotar_configurations (course_module_id, grade_scale_id)\nVALUES ($1, $2) ON CONFLICT (course_module_id) DO\nUPDATE\nSET grade_scale_id = $2,\n  deleted_at = NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  grade_scale_id,\n  paused_at,\n  paused_by_user_id,\n  pause_reason,\n  config_checked_at,\n  course_code_resolves,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  consecutive_listing_failures,\n  last_listed_person_count,\n  last_already_linked_count,\n  last_mailed_count,\n  last_suppressed_by_dedup_count,\n  last_suppressed_by_rate_cap_count,\n  last_no_address_count,\n  last_fast_tracked_count,\n  last_fast_track_skipped_no_account_count,\n  last_fast_track_skipped_unverified_count,\n  last_fast_track_skipped_stale_verification_count,\n  last_fast_track_skipped_name_mismatch_count,\n  last_fast_track_skipped_account_has_number_count,\n  last_fast_track_skipped_unlinked_before_count\n        ",
+  "query": "\nINSERT INTO course_module_suotar_configurations (course_module_id, grade_scale_id)\nVALUES ($1, $2) ON CONFLICT (course_module_id) DO\nUPDATE\nSET grade_scale_id = $2,\n  deleted_at = NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_module_id,\n  grade_scale_id,\n  paused_at,\n  paused_by_user_id,\n  pause_reason,\n  config_checked_at,\n  course_code_allowed,\n  config_check_message,\n  checked_course_code,\n  course_code_rejection,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error?: CreditRegistrationErrorCode\",\n  consecutive_listing_failures,\n  last_listed_person_count,\n  last_already_linked_count,\n  last_mailed_count,\n  last_suppressed_by_dedup_count,\n  last_suppressed_by_rate_cap_count,\n  last_no_address_count,\n  last_fast_tracked_count,\n  last_fast_track_skipped_no_account_count,\n  last_fast_track_skipped_unverified_count,\n  last_fast_track_skipped_stale_verification_count,\n  last_fast_track_skipped_name_mismatch_count,\n  last_fast_track_skipped_account_has_number_count,\n  last_fast_track_skipped_unlinked_before_count\n        ",
   "describe": {
     "columns": [
       {
@@ -115,12 +115,12 @@
       },
       {
         "ordinal": 10,
-        "name": "course_code_resolves",
+        "name": "course_code_allowed",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "course_module_suotar_configurations",
-            "name": "course_code_resolves"
+            "name": "course_code_allowed"
           }
         }
       },
@@ -137,6 +137,28 @@
       },
       {
         "ordinal": 12,
+        "name": "checked_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "checked_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "course_code_rejection",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "course_code_rejection"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
         "name": "last_listing_attempted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -147,7 +169,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 15,
         "name": "last_listed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -158,7 +180,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 16,
         "name": "last_listing_error?: CreditRegistrationErrorCode",
         "type_info": {
           "Custom": {
@@ -200,7 +222,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 17,
         "name": "consecutive_listing_failures",
         "type_info": "Int4",
         "origin": {
@@ -211,7 +233,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 18,
         "name": "last_listed_person_count",
         "type_info": "Int4",
         "origin": {
@@ -222,7 +244,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 19,
         "name": "last_already_linked_count",
         "type_info": "Int4",
         "origin": {
@@ -233,7 +255,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 20,
         "name": "last_mailed_count",
         "type_info": "Int4",
         "origin": {
@@ -244,7 +266,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 21,
         "name": "last_suppressed_by_dedup_count",
         "type_info": "Int4",
         "origin": {
@@ -255,7 +277,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 22,
         "name": "last_suppressed_by_rate_cap_count",
         "type_info": "Int4",
         "origin": {
@@ -266,7 +288,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 23,
         "name": "last_no_address_count",
         "type_info": "Int4",
         "origin": {
@@ -277,7 +299,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 24,
         "name": "last_fast_tracked_count",
         "type_info": "Int4",
         "origin": {
@@ -288,7 +310,7 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 25,
         "name": "last_fast_track_skipped_no_account_count",
         "type_info": "Int4",
         "origin": {
@@ -299,7 +321,7 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 26,
         "name": "last_fast_track_skipped_unverified_count",
         "type_info": "Int4",
         "origin": {
@@ -310,7 +332,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 27,
         "name": "last_fast_track_skipped_stale_verification_count",
         "type_info": "Int4",
         "origin": {
@@ -321,7 +343,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 28,
         "name": "last_fast_track_skipped_name_mismatch_count",
         "type_info": "Int4",
         "origin": {
@@ -332,7 +354,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 29,
         "name": "last_fast_track_skipped_account_has_number_count",
         "type_info": "Int4",
         "origin": {
@@ -343,7 +365,7 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 30,
         "name": "last_fast_track_skipped_unlinked_before_count",
         "type_info": "Int4",
         "origin": {
@@ -376,6 +398,8 @@
       true,
       true,
       true,
+      true,
+      true,
       false,
       true,
       true,
@@ -392,5 +416,5 @@
       true
     ]
   },
-  "hash": "c364b7ee1826e633c6df8640427ae44a70842606e91e05187cd2780d0f874c30"
+  "hash": "c7a653cf384b58e1f4aabe1043d4c8e615051629dfd1a4ea3b2e0093355d1028"
 }

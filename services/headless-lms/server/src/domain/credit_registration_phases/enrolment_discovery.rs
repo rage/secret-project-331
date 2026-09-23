@@ -25,6 +25,7 @@ use headless_lms_models::library::credit_registration::fast_track::{
     FastTrackCandidate, FastTrackDecision, FastTrackLink, FastTrackLookup, RegistryName,
     decide_fast_track, find_fast_track_candidate, find_fast_track_candidates, link_by_email_match,
 };
+use headless_lms_models::library::credit_registration::outcomes::request_level_code;
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::BackendError;
@@ -35,11 +36,12 @@ use headless_lms_utils::services::suotar::{
 };
 use serde_json::json;
 use sqlx::{Connection, PgConnection};
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use super::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, TemplateCache,
-    every_item_failed_transiently, listed_person_addresses, template_language,
+    every_item_service_unavailable, listed_person_addresses, suotar_error_variant,
+    template_language,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -60,15 +62,28 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     // Held only for the claim; the Suotar call can pin it for the whole request timeout.
     drop(conn);
 
-    let listings: Vec<(ModuleToList, String)> = claimed
+    // One item per course code: modules sharing a code share its roster, but mails and links are
+    // per course, so each module still reconciles it on its own.
+    let mut modules_by_code: BTreeMap<String, Vec<ModuleToList>> = BTreeMap::new();
+    for module in claimed {
+        modules_by_code
+            .entry(module.uh_course_code.clone())
+            .or_default()
+            .push(module);
+    }
+    let listings: Vec<CourseCodeListing> = modules_by_code
         .into_iter()
-        .map(|module| (module, new_request_item_id()))
+        .map(|(course_code, modules)| CourseCodeListing {
+            course_code,
+            request_item_id: new_request_item_id(),
+            modules,
+        })
         .collect();
     let items = listings
         .iter()
-        .map(|(module, request_item_id)| ListByCourseRequestItem {
-            request_item_id: request_item_id.clone(),
-            course_code: module.uh_course_code.clone(),
+        .map(|listing| ListByCourseRequestItem {
+            request_item_id: listing.request_item_id.clone(),
+            course_code: listing.course_code.clone(),
         })
         .collect();
     let mut items_failed = 0;
@@ -81,14 +96,24 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         )
         .await;
     let response = match response {
-        // No ledger row to move: the modules keep their old `last_listed_at` and stay first in line
-        // for the next iteration.
-        Err(error) => return Ok(whole_request_failed(attempted, &error)),
+        Err(error) => {
+            let code = request_level_code(suotar_error_variant(&error));
+            let mut conn = ctx.pool.acquire().await?;
+            for module in listings.iter().flat_map(|listing| &listing.modules) {
+                mark_listing_failed(&mut conn, module.course_module_id, code).await?;
+            }
+            return Ok(whole_request_failed(attempted, &error));
+        }
         Ok(response) => response,
     };
 
     let mut conn = ctx.pool.acquire().await?;
-    for (module, request_item_id) in &listings {
+    for CourseCodeListing {
+        course_code,
+        request_item_id,
+        modules,
+    } in &listings
+    {
         let item = response.item(request_item_id);
         let listed = match item {
             Some(item) if item.status == SuotarItemStatus::Ok => Ok(item
@@ -98,38 +123,67 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 .unwrap_or_default()),
             Some(item) => {
                 warn!(
-                    "Listing course code {} failed with {}.",
-                    module.uh_course_code, item.code
+                    "Listing course code {course_code} failed with {}.",
+                    item.code
                 );
                 Err(map_code(endpoint, &item.code).unwrap_or(CreditRegistrationErrorCode::Unknown))
             }
             None => {
-                warn!(
-                    "The study registry did not answer for course code {}.",
-                    module.uh_course_code
-                );
+                warn!("The study registry did not answer for course code {course_code}.");
                 Err(CreditRegistrationErrorCode::UnexpectedResponse)
             }
         };
         let people = match listed {
-            Ok(people) => people,
+            Ok(people) => distinct_people(people),
             Err(error) => {
-                items_failed += 1;
-                mark_listing_failed(&mut conn, module.course_module_id, error).await?;
+                for module in modules {
+                    items_failed += 1;
+                    mark_listing_failed(&mut conn, module.course_module_id, error).await?;
+                }
                 continue;
             }
         };
-        let outcome = reconcile(ctx, &mut conn, module, people).await?;
-        record_listing_outcome(&mut conn, module.course_module_id, &outcome).await?;
+        for module in modules {
+            let outcome = reconcile(ctx, &mut conn, module, &people).await?;
+            record_listing_outcome(&mut conn, module.course_module_id, &outcome).await?;
+        }
     }
 
     Ok(PhaseRunOutcome {
         items_processed: attempted,
         items_failed,
-        error: every_item_failed_transiently(&response).then(|| {
-            "Every course code of the batch came back transiently unavailable.".to_string()
-        }),
+        error: every_item_service_unavailable(&response)
+            .then(|| "Every course code of the batch came back unavailable.".to_string()),
     })
+}
+
+/// One `list-by-course` item: modules sharing a code share its roster.
+struct CourseCodeListing {
+    course_code: String,
+    request_item_id: String,
+    modules: Vec<ModuleToList>,
+}
+
+/// A person enrolled on several realisations of the code is listed once per realisation; keeps the
+/// most recent enrolment of each.
+fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
+    let mut kept: Vec<&ListedPerson> = Vec::new();
+    let mut index_by_person: HashMap<&str, usize> = HashMap::new();
+    for person in people {
+        match index_by_person.get(person.person_id.as_str()) {
+            Some(&index) => {
+                if person.enrolment.enrolment_date_time > kept[index].enrolment.enrolment_date_time
+                {
+                    kept[index] = person;
+                }
+            }
+            None => {
+                index_by_person.insert(&person.person_id, kept.len());
+                kept.push(person);
+            }
+        }
+    }
+    kept
 }
 
 /// Applies one module's roster and returns the counters its configuration row carries.
@@ -137,7 +191,7 @@ async fn reconcile(
     ctx: &PhaseContext<'_>,
     conn: &mut PgConnection,
     module: &ModuleToList,
-    people: &[ListedPerson],
+    people: &[&ListedPerson],
 ) -> anyhow::Result<ModuleListingOutcome> {
     let mut outcome = ModuleListingOutcome {
         listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
@@ -159,11 +213,12 @@ async fn reconcile(
             conn,
             people
                 .iter()
+                .copied()
                 .filter(|person| !linked_person_ids.contains(person.person_id.as_str())),
         )
         .await?;
     let mut discovered = Vec::new();
-    for person in people {
+    for &person in people {
         if linked_person_ids.contains(person.person_id.as_str()) {
             outcome.already_linked_count += 1;
             continue;
@@ -276,9 +331,17 @@ impl<'a> FastTrackRun<'a> {
         person: &ListedPerson,
         outcome: &mut ModuleListingOutcome,
     ) -> anyhow::Result<bool> {
+        if !self.enabled {
+            return Ok(false);
+        }
         // The registry's secondary address is self-entered, so anyone could name someone else's
         // account address there and be handed their student number.
-        let Some(primary_email) = person.primary_email.as_deref().filter(|_| self.enabled) else {
+        let Some(primary_email) = person
+            .primary_email
+            .as_deref()
+            .map(str::trim)
+            .filter(|address| !address.is_empty())
+        else {
             return Ok(false);
         };
         let decision = self.decide(self.accounts.get(&person.person_id), person);

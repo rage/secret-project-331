@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_phase_state\nSET last_heartbeat_at = now()\nWHERE phase = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "42c789e8877957c20fb10e9603090640b54e08214284c67a65c5c67c73af22d8"
+}

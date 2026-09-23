@@ -132,6 +132,14 @@ pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.timedout@helsinki.example",
     account_email: Some("credit-registration-import-timeout@example.com"),
 };
+/// The import whose answer never names it. Seeded like `IMPORT_TIMEOUT`, and for the same reason.
+pub const IMPORT_UNANSWERED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000403",
+    first_names: "Zzyzx",
+    last_name: "Unanswered",
+    sisu_email: "zzyzx.unanswered@helsinki.example",
+    account_email: Some("credit-registration-import-unanswered@example.com"),
+};
 /// The outage spec's own person, so a fault keyed on this student number cannot reach another
 /// spec's row on the shared course. Enrolment left unseeded for `IMPORT_TIMEOUT`'s reason: its spec
 /// arms the outage before creating the enrolment, so no earlier unscoped sweep can import the row
@@ -176,6 +184,14 @@ pub const VERIFY_MISREGISTERED: MockPersonFixture = MockPersonFixture {
     last_name: "Reversed",
     sisu_email: "zzyzx.reversed@helsinki.example",
     account_email: Some("credit-registration-verify-misregistered@example.com"),
+};
+/// A submission Suotar loses (`notRegistered`), which is resent.
+pub const VERIFY_NOT_REGISTERED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000503",
+    first_names: "Zzyzx",
+    last_name: "Resent",
+    sisu_email: "zzyzx.resent@helsinki.example",
+    account_email: Some("credit-registration-verify-not-registered@example.com"),
 };
 pub const ADMIN_UNLINKED: MockPersonFixture = MockPersonFixture {
     student_number: "900000902",
@@ -373,7 +389,7 @@ pub fn mock_suotar_world() -> WorldPush {
     let now = Utc::now();
     let wide = DatePeriod {
         start_date: (now - Duration::days(730)).date_naive(),
-        end_date: (now + Duration::days(730)).date_naive(),
+        end_date: Some((now + Duration::days(730)).date_naive()),
     };
 
     let on_crs_101 = [
@@ -391,10 +407,12 @@ pub fn mock_suotar_world() -> WorldPush {
         &FAST_TRACK_SECONDARY_ONLY,
         &FAST_TRACK_NO_MATCH,
         &IMPORT_TIMEOUT,
+        &IMPORT_UNANSWERED,
         &SISU_OUTAGE,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
+        &VERIFY_NOT_REGISTERED,
         &EMAILS_REGISTERED,
     ];
     let on_crs_admin_101 = [
@@ -433,11 +451,15 @@ pub fn mock_suotar_world() -> WorldPush {
 
     let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
         .iter()
-        // Like `NO_ENROLMENT`, minus the person: these two specs create their own enrolment, so no
+        // Like `NO_ENROLMENT`, minus the person: these specs create their own enrolment, so no
         // earlier, unscoped resolve-enrolments sweep can resolve it before their fault is armed.
         .filter(|fixture| {
-            fixture.student_number != IMPORT_TIMEOUT.student_number
-                && fixture.student_number != SISU_OUTAGE.student_number
+            ![
+                IMPORT_TIMEOUT.student_number,
+                IMPORT_UNANSWERED.student_number,
+                SISU_OUTAGE.student_number,
+            ]
+            .contains(&fixture.student_number)
         })
         .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
         .collect();
@@ -489,10 +511,17 @@ pub fn mock_suotar_world() -> WorldPush {
             ..CourseUnitShape::new(CRS_IMPORT_101, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
         CourseUnitShape {
-            credits: Some(CreditRange { min: 1.0, max: 1.0 }),
+            credits: Some(CreditRange {
+                min: 5.0,
+                max: None,
+            }),
             ..CourseUnitShape::new(CRS_IMPORT_102, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
-        CourseUnitShape::new(CRS_IMPORT_103, IMPORT_OUTCOMES_COURSE_SLUG, 5.0),
+        // Sisu refuses the send; the realisation with no end date is a shape the client must read.
+        CourseUnitShape {
+            is_open_ended: true,
+            ..CourseUnitShape::new(CRS_IMPORT_103, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
+        },
         // Graded on 0–5 in Sisu while the module registers pass/fail.
         CourseUnitShape {
             grade_scale_id: "sis-0-5",
@@ -589,6 +618,8 @@ struct CourseUnitShape<'a> {
     grade_scale_id: &'a str,
     credits: Option<CreditRange>,
     carried_by_suotar: bool,
+    /// The realisations' activity periods have no end date.
+    is_open_ended: bool,
 }
 
 impl<'a> CourseUnitShape<'a> {
@@ -601,6 +632,7 @@ impl<'a> CourseUnitShape<'a> {
             grade_scale_id: "sis-hyl-hyv",
             credits: None,
             carried_by_suotar: true,
+            is_open_ended: false,
         }
     }
 
@@ -616,7 +648,7 @@ impl<'a> CourseUnitShape<'a> {
             name: Some(name),
             credits: Some(self.credits.unwrap_or(CreditRange {
                 min: self.ects,
-                max: self.ects,
+                max: Some(self.ects),
             })),
             grade_scale_id: Some(self.grade_scale_id.to_string()),
             realisations: self
@@ -627,7 +659,10 @@ impl<'a> CourseUnitShape<'a> {
                     name: None,
                     assessment_item_id: None,
                     kind: *kind,
-                    activity_period: Some(activity_period.clone()),
+                    activity_period: Some(DatePeriod {
+                        end_date: activity_period.end_date.filter(|_| !self.is_open_ended),
+                        ..activity_period.clone()
+                    }),
                     grade_scale_id: None,
                 })
                 .collect(),

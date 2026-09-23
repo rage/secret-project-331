@@ -105,7 +105,7 @@ async fn plain(
     }))
 }
 
-/// `sisuTimeout` after the write, with the written entry's id in `result`: the case a client cannot
+/// `sisuTimeout` after the write, with the written submission's id in `result`: the case a client cannot
 /// resolve without verifying.
 async fn timeout(
     store: &MockSuotarStore,
@@ -196,7 +196,7 @@ async fn ensure_course(
         kind,
         activity_period: Some(DatePeriod {
             start_date: (now - Duration::days(180)).date_naive(),
-            end_date: (now + Duration::days(180)).date_naive(),
+            end_date: Some((now + Duration::days(180)).date_naive()),
         }),
         grade_scale_id: None,
     };
@@ -215,7 +215,10 @@ async fn ensure_course(
             owner_course_slug: args.owner.as_ref().and_then(|owner| owner.course.clone()),
             course_code: course_code.clone(),
         });
-    unit.credits = Some(CreditRange { min: 5.0, max: 5.0 });
+    unit.credits = Some(CreditRange {
+        min: 5.0,
+        max: Some(5.0),
+    });
     unit.grade_scale_id = Some(PASS_FAIL_SCALE.to_string());
     unit.suotar_course = Some(SuotarCourse {
         name: course_code.clone(),
@@ -299,7 +302,7 @@ async fn put_enrolment(
         study_right: Some(MockStudyRight {
             validity: DatePeriod {
                 start_date: (now - Duration::days(365)).date_naive(),
-                end_date: (now + Duration::days(365)).date_naive(),
+                end_date: Some((now + Duration::days(365)).date_naive()),
             },
             grant_date: None,
         }),

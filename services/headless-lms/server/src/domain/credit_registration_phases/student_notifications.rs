@@ -26,7 +26,6 @@ struct StudentNotificationsPhase;
 
 impl MailQueuePhase for StudentNotificationsPhase {
     type Item = StudentNotificationToQueue;
-    type Cache = ();
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
         Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
@@ -45,7 +44,6 @@ impl MailQueuePhase for StudentNotificationsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-        _cache: &mut Self::Cache,
     ) -> anyhow::Result<()> {
         let placeholders = placeholders(ctx.base_url, item);
         let delivery =

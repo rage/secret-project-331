@@ -191,6 +191,7 @@ impl ApplicationConfiguration {
     }
 }
 
+/// The scheme word Suotar requires before the API key.
 pub const SUOTAR_AUTH_SCHEME: &str = "Bearer";
 
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.

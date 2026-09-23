@@ -231,6 +231,7 @@ mod tests {
                 selected_enrolment_id: Some("otm-900000101-degree".to_string()),
                 selected_enrolment_kind: Some("degree".to_string()),
                 selected_enrolment_realisation_id: Some("hy-opt-cur-1".to_string()),
+                selected_enrolment_realisation_name: None,
                 attainment_date: Utc::now().date_naive(),
                 attainment_language: "en".to_string(),
                 grade_scale_id: "sis-0-5".to_string(),

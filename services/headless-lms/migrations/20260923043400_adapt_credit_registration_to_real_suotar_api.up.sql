@@ -8,16 +8,25 @@ ALTER TABLE course_module_suotar_configurations
 DROP CONSTRAINT course_module_suotar_configurations_check_result,
   DROP COLUMN open_university_product_id,
   DROP COLUMN product_token_found;
+ALTER TABLE course_module_suotar_configurations
+  RENAME COLUMN course_code_resolves TO course_code_allowed;
 
 -- A checked row may still carry no verdict: the check can run without Suotar answering for the code.
 ALTER TABLE course_module_suotar_configurations
 ADD CONSTRAINT course_module_suotar_configurations_check_result CHECK (
     config_checked_at IS NOT NULL
-    OR course_code_resolves IS NULL
+    OR course_code_allowed IS NULL
   );
 
 COMMENT ON COLUMN course_module_suotar_configurations.config_checked_at IS 'When the config-validation phase last checked this module. NULL means never checked, so the admin view can show unknown instead of implying a passing check it never ran.';
-COMMENT ON COLUMN course_module_suotar_configurations.course_code_resolves IS 'Whether Suotar accepted the module''s course code at the last config check. NULL means not checked, or checked without Suotar giving a verdict.';
+COMMENT ON COLUMN course_module_suotar_configurations.course_code_allowed IS 'Whether Suotar accepted the module''s course code at the last config check. NULL means not checked, or checked without Suotar giving a verdict.';
+
+ALTER TABLE course_module_suotar_configurations
+ADD COLUMN checked_course_code VARCHAR(255),
+  ADD COLUMN course_code_rejection TEXT;
+
+COMMENT ON COLUMN course_module_suotar_configurations.checked_course_code IS 'The course code course_code_allowed is a verdict on. Once the module''s uh_course_code changes, the verdict no longer applies.';
+COMMENT ON COLUMN course_module_suotar_configurations.course_code_rejection IS 'Suotar''s own reason for not accepting checked_course_code, quoted to operators. NULL unless course_code_allowed is false.';
 
 ALTER TYPE credit_registration_error_code
 RENAME TO credit_registration_error_code_old;

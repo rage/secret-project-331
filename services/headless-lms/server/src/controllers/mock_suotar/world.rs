@@ -16,7 +16,7 @@ pub type StudentNumber = String;
 pub type CourseCode = String;
 
 /// Elements of AI and Building AI, which Suotar refuses whatever its course table says.
-pub const UNSETTLED_COURSE_CODES: [&str; 9] = [
+pub const REFUSED_COURSE_CODES: [&str; 9] = [
     "TKT21018",
     "AYTKT21018",
     "AYTKT21018fi",
@@ -227,6 +227,15 @@ impl MockEnrolment {
     }
 }
 
+/// Which of Sisu's two attainments a submission produces.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AttainmentLevel {
+    /// The assessment item attainment.
+    Partial,
+    /// The course unit attainment built from it.
+    Final,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MockAttainment {
@@ -258,19 +267,18 @@ impl MockAttainment {
     pub fn from_submission(
         submission: &MockSubmission,
         attainment_id: &str,
-        is_final: bool,
+        level: AttainmentLevel,
         state: AttainmentState,
         defaults: &WorldDefaults,
         now: DateTime<Utc>,
     ) -> Self {
-        let (attainment_type, assessment_item_id, course_unit_realisation_id) = if is_final {
-            (COURSE_UNIT_ATTAINMENT, None, None)
-        } else {
-            (
+        let (attainment_type, assessment_item_id, course_unit_realisation_id) = match level {
+            AttainmentLevel::Final => (COURSE_UNIT_ATTAINMENT, None, None),
+            AttainmentLevel::Partial => (
                 ASSESSMENT_ITEM_ATTAINMENT,
                 Some(submission.assessment_item_id.clone()),
                 Some(submission.realisation_id.clone()),
-            )
+            ),
         };
         Self {
             id: attainment_id.to_string(),
@@ -282,7 +290,7 @@ impl MockAttainment {
             course_unit_id: submission.course_unit_id.clone(),
             assessment_item_id,
             course_unit_realisation_id,
-            attainment_date: submission.adjusted_completion_date,
+            attainment_date: submission.adjusted_attainment_date,
             registration_date: now.date_naive(),
             grade_scale_id: submission.grade_scale_id.clone(),
             grade_id: submission.grade_id.clone(),
@@ -313,7 +321,7 @@ pub struct MockSubmission {
     pub assessment_item_id: String,
     pub attainment_date: NaiveDate,
     /// Clamped into the study right; never reported back to the client.
-    pub adjusted_completion_date: NaiveDate,
+    pub adjusted_attainment_date: NaiveDate,
     pub attainment_language: String,
     pub grade_scale_id: String,
     pub grade_id: String,

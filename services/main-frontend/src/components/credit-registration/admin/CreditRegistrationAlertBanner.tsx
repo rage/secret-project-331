@@ -52,7 +52,7 @@ const PERMANENT_ERROR_QUERY = "?reason=permanent_error"
 const ALERT_ROUTES = {
   credentials_rejected: creditRegistrationSystemRoute(),
   study_registry_unreachable: creditRegistrationSystemRoute(),
-  sisu_unavailable: creditRegistrationSystemRoute(),
+  service_unavailable: creditRegistrationSystemRoute(),
   stuck_registrations: `${creditRegistrationErrorsRoute()}${STUCK_QUERY}`,
   linking_mail_send_failed: creditRegistrationLinkingRoute(),
   linking_mail_rate_cap_exceeded: creditRegistrationLinkingRoute(),

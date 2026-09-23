@@ -19,6 +19,8 @@ const POLLING_EMAIL = "credit-registration-verify-polling@example.com"
 const POLLING_STUDENT_NUMBER = "900000501"
 const MISREGISTERED_EMAIL = "credit-registration-verify-misregistered@example.com"
 const MISREGISTERED_STUDENT_NUMBER = "900000502"
+const NOT_REGISTERED_EMAIL = "credit-registration-verify-not-registered@example.com"
+const NOT_REGISTERED_STUDENT_NUMBER = "900000503"
 
 test.describe("A submission the study registry has not answered yet", () => {
   test.use({ storageState: seededStudentStorageState(POLLING_EMAIL) })
@@ -37,10 +39,32 @@ test.describe("A submission the study registry has not answered yet", () => {
     await runVerifyPollTick(page.request, scope)
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
-    // Nothing ripens a mock submission on its own, so no worker or spec could have moved this.
+    // Only a control transition moves a mock submission, so no worker or spec could have moved this.
     expect((await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)).state).toBe(
       "awaiting_verification",
     )
+
+    await test.step("Only the assessment item attainment is not yet a registration", async () => {
+      await transitionMockSuotarSubmissionsFor(
+        page.request,
+        POLLING_STUDENT_NUMBER,
+        "partiallyRegistered",
+        CRS_101,
+      )
+      const pollsBefore = await countMockCallsForStudent(
+        page.request,
+        POLLING_STUDENT_NUMBER,
+        "verify_attainments",
+      )
+      await makeRegistrationDueNow(adminApi, submitted.id)
+      await runVerifyPollTick(page.request, scope)
+      expect(
+        await countMockCallsForStudent(page.request, POLLING_STUDENT_NUMBER, "verify_attainments"),
+      ).toBeGreaterThan(pollsBefore)
+      expect((await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)).state).toBe(
+        "awaiting_verification",
+      )
+    })
 
     await transitionMockSuotarSubmissionsFor(
       page.request,
@@ -103,6 +127,53 @@ test.describe("A submission the study registry reversed after accepting it", () 
           "verify_attainments",
         ),
       ).toBe(before)
+    })
+  })
+})
+
+test.describe("A submission the study registry lost", () => {
+  test.use({ storageState: seededStudentStorageState(NOT_REGISTERED_EMAIL) })
+
+  test("A lost submission is retried and sent a second time", async ({ page, adminApi }) => {
+    const scope = { userEmail: NOT_REGISTERED_EMAIL }
+    await runPhasesUpToSubmission(page.request, scope)
+    const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "awaiting_verification",
+    ])
+    expect(
+      await countMockCallsForStudent(
+        page.request,
+        NOT_REGISTERED_STUDENT_NUMBER,
+        "import_attainments",
+      ),
+    ).toBe(1)
+
+    await transitionMockSuotarSubmissionsFor(
+      page.request,
+      NOT_REGISTERED_STUDENT_NUMBER,
+      "notRegistered",
+      CRS_101,
+    )
+    await makeRegistrationDueNow(adminApi, submitted.id)
+    await runVerifyPollTick(page.request, scope)
+    const lost = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      "failed_retryable",
+    ])
+    expect(lost.error_code).toBe("not_registered")
+
+    await test.step("The next pass imports it again", async () => {
+      await makeRegistrationDueNow(adminApi, lost.id)
+      await runPhasesUpToSubmission(page.request, scope)
+      await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+        "awaiting_verification",
+      ])
+      expect(
+        await countMockCallsForStudent(
+          page.request,
+          NOT_REGISTERED_STUDENT_NUMBER,
+          "import_attainments",
+        ),
+      ).toBe(2)
     })
   })
 })

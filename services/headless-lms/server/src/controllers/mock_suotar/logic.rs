@@ -12,11 +12,12 @@ use super::wire::{
     DuplicateAttainmentResult, Endpoint, EnrolmentResolutionResult, EnrolmentsListedResult,
     ExistingAttainment, ListedEnrolment, ListedPerson, NotImprovedAttainmentResult,
     RegisteredResult, ResponseItem, SubmissionPendingResult, SubmittedAttainment, iso_millis,
+    sisu_midnight,
 };
 use super::world::{
     AttainmentState, EnrolmentState, ImporterVisibility, MockAttainment, MockCourseUnit,
     MockEnrolment, MockRealisation, MockStudyRight, MockSubmission, PENDING_WINDOW_HOURS,
-    SendState, UNSETTLED_COURSE_CODES, WorkingSet, WorldWrite, person_course_key,
+    REFUSED_COURSE_CODES, SendState, WorkingSet, WorldWrite, person_course_key,
 };
 
 /// Suotar's approver violation, as its translation table words it.
@@ -64,12 +65,8 @@ pub fn resolve_enrolments_item(
             .into_iter()
             .filter(|enrolment| enrolment.state == EnrolmentState::Enrolled)
             .collect();
-    if enrolled.is_empty() {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
-    }
     enrolled.sort_by_key(|enrolment| enrolment.enrolment_date_time);
-
-    let enrolments = enrolled
+    let enrolments: Vec<wire::Enrolment> = enrolled
         .into_iter()
         .filter_map(|enrolment| {
             course_unit
@@ -77,6 +74,9 @@ pub fn resolve_enrolments_item(
                 .map(|realisation| enrolment_dto(course_unit, enrolment, realisation))
         })
         .collect();
+    if enrolments.is_empty() {
+        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+    }
 
     let mut existing: Vec<&MockAttainment> =
         attainments_for(working, &item.student_number, &item.course_code);
@@ -99,7 +99,7 @@ pub fn resolve_enrolments_item(
 /// What resolving one import item comes to before anything is written.
 pub enum ImportResolution {
     Answered(ResponseItem),
-    /// Survived every check; the entry to write, not yet sent.
+    /// Survived every check; the submission to write, not yet sent.
     Write(Box<MockSubmission>),
 }
 
@@ -111,20 +111,20 @@ pub fn resolve_import_item(
 ) -> ImportResolution {
     let endpoint = Endpoint::ImportAttainments;
     let id = &item.request_item_id;
-    let answer = |code: &str| ImportResolution::Answered(ResponseItem::error(endpoint, id, code));
-    let reject = |code: &str, message: String| {
+    let error = |code: &str| ImportResolution::Answered(ResponseItem::error(endpoint, id, code));
+    let error_with_message = |code: &str, message: String| {
         ImportResolution::Answered(ResponseItem::error_with_message(id, code, message))
     };
 
     let course_unit = working.course_units.get(&item.course_code);
     if let Some(reason) = course_not_allowed_reason(&item.course_code, course_unit) {
-        return reject("courseNotAllowed", reason);
+        return error_with_message("courseNotAllowed", reason);
     }
     let Some(course_unit) = course_unit else {
-        return reject("courseNotAllowed", COURSE_NOT_CARRIED.to_string());
+        return error_with_message("courseNotAllowed", COURSE_NOT_CARRIED.to_string());
     };
     let Some(person) = working.persons.get(&item.student_number) else {
-        return answer("personNotFound");
+        return error("personNotFound");
     };
     let enrolment = working
         .enrolments
@@ -139,11 +139,11 @@ pub fn resolve_import_item(
             .realisation(&enrolment.realisation_id)
             .map(|realisation| (enrolment, realisation))
     }) else {
-        return answer("enrolmentNotFound");
+        return error("enrolmentNotFound");
     };
 
     let Some(credits) = &course_unit.credits else {
-        return reject(
+        return error_with_message(
             "invalidCredits",
             format!(
                 "Sisu gives no credit range for course {}.",
@@ -151,12 +151,17 @@ pub fn resolve_import_item(
             ),
         );
     };
-    if item.credits < credits.min || item.credits > credits.max {
-        return reject(
+    // An open maximum refuses every positive amount, as JavaScript's `credits <= null` does.
+    if item.credits < credits.min || credits.max.is_none_or(|max| item.credits > max) {
+        return error_with_message(
             "invalidCredits",
             format!(
                 "Credits must be between {} and {} for course {}.",
-                credits.min, credits.max, item.course_code
+                credits.min,
+                credits
+                    .max
+                    .map_or_else(|| "null".to_string(), |max| max.to_string()),
+                item.course_code
             ),
         );
     }
@@ -165,7 +170,7 @@ pub fn resolve_import_item(
     if let Some(expected) = &grade_scale_id
         && &item.grade_scale_id != expected
     {
-        return reject(
+        return error_with_message(
             "gradeScaleMismatch",
             format!(
                 "Grade scale {} was sent, but the enrolment is graded on {expected}.",
@@ -178,7 +183,7 @@ pub fn resolve_import_item(
         .and_then(|scale_id| working.defaults.scale(scale_id))
         .is_some_and(|scale| scale.grade(&item.grade_id).is_some());
     if !is_known_grade {
-        return answer("invalidGradeForGradeScale");
+        return error("invalidGradeForGradeScale");
     }
 
     let incoming = IncomingGrade::of(&item.grade_scale_id, &item.grade_id);
@@ -216,9 +221,9 @@ pub fn resolve_import_item(
         }
     }
 
-    let adjusted_completion_date = match &enrolment.study_right {
+    let adjusted_attainment_date = match &enrolment.study_right {
         Some(study_right) => clamp_into_study_right(item.attainment_date, study_right),
-        None if person.behaviour.study_right_unresolvable => return answer("studyRightNotValid"),
+        None if person.behaviour.study_right_unresolvable => return error("studyRightNotValid"),
         None => item.attainment_date,
     };
 
@@ -233,7 +238,7 @@ pub fn resolve_import_item(
         course_unit_id: course_unit.course_unit_id.clone(),
         assessment_item_id: realisation.assessment_item_id.clone(),
         attainment_date: item.attainment_date,
-        adjusted_completion_date,
+        adjusted_attainment_date,
         attainment_language: item.attainment_language.clone(),
         grade_scale_id: item.grade_scale_id.clone(),
         grade_id: item.grade_id.clone(),
@@ -245,7 +250,7 @@ pub fn resolve_import_item(
     }))
 }
 
-/// Whether the batch's acceptor lookup would fail for any of these entries' course units.
+/// Whether the batch's acceptor lookup would fail for any of these submissions' course units.
 pub fn acceptor_lookup_fails(working: &WorkingSet, submissions: &[MockSubmission]) -> bool {
     submissions.iter().any(|submission| {
         working
@@ -255,7 +260,7 @@ pub fn acceptor_lookup_fails(working: &WorkingSet, submissions: &[MockSubmission
     })
 }
 
-/// Writes the entry and sends it: refused by Sisu when the world holds violations for it, accepted
+/// Writes the submission and sends it: refused by Sisu when the world holds violations for it, accepted
 /// otherwise.
 pub fn write_and_send(working: &mut WorkingSet, mut submission: MockSubmission) -> ResponseItem {
     let mut violations = working
@@ -284,7 +289,7 @@ pub fn write_and_send(working: &mut WorkingSet, mut submission: MockSubmission) 
     outcome
 }
 
-/// Read back from the entry, the way Suotar answers after its send.
+/// Read back from the submission, the way Suotar answers after its send.
 pub fn import_outcome(submission: &MockSubmission) -> ResponseItem {
     let id = &submission.request_item_id;
     match submission.send_state {
@@ -382,8 +387,8 @@ fn retry_after(submission: &MockSubmission, now: DateTime<Utc>) -> DateTime<Utc>
     }
 }
 
-/// Only realisations that ended within the last two months are listed, and one with no end date
-/// never is.
+/// Only realisations whose activity period ends after two months ago are listed; one with no end
+/// date never is.
 pub fn list_by_course_item(
     item: &wire::CourseCodeRequestItem,
     working: &WorkingSet,
@@ -402,7 +407,7 @@ pub fn list_by_course_item(
             realisation
                 .activity_period
                 .as_ref()
-                .is_some_and(|period| period.end_date > cutoff)
+                .is_some_and(|period| period.end_date.is_some_and(|end| end > cutoff))
         })
         .collect();
     if current.is_empty() {
@@ -474,7 +479,7 @@ fn course_not_allowed_reason(
     course_code: &str,
     course_unit: Option<&MockCourseUnit>,
 ) -> Option<String> {
-    if UNSETTLED_COURSE_CODES.contains(&course_code) {
+    if REFUSED_COURSE_CODES.contains(&course_code) {
         return Some(format!(
             "{course_code} cannot be registered through this API yet."
         ));
@@ -508,16 +513,16 @@ pub fn record_submission(working: &mut WorkingSet, submission: MockSubmission) {
 /// and nothing may precede a grant date that falls inside the validity.
 fn clamp_into_study_right(date: NaiveDate, study_right: &MockStudyRight) -> NaiveDate {
     let validity = &study_right.validity;
-    let mut adjusted = if date <= validity.start_date {
-        validity.start_date
-    } else if date >= validity.end_date {
-        validity.end_date - Duration::days(1)
-    } else {
-        date
+    let mut adjusted = match validity.end_date {
+        _ if date <= validity.start_date => validity.start_date,
+        Some(end_date) if date >= end_date => end_date - Duration::days(1),
+        _ => date,
     };
     if let Some(grant_date) = study_right.grant_date
         && grant_date > validity.start_date
-        && grant_date < validity.end_date
+        && validity
+            .end_date
+            .is_none_or(|end_date| grant_date < end_date)
         && adjusted < grant_date
     {
         adjusted = grant_date;
@@ -641,8 +646,8 @@ fn existing_attainment(attainment: &MockAttainment) -> ExistingAttainment {
         course_unit_id: attainment.course_unit_id.clone(),
         assessment_item_id: attainment.assessment_item_id.clone(),
         course_unit_realisation_id: attainment.course_unit_realisation_id.clone(),
-        attainment_date: attainment.attainment_date,
-        registration_date: attainment.registration_date,
+        attainment_date: sisu_midnight(attainment.attainment_date),
+        registration_date: sisu_midnight(attainment.registration_date),
         grade_scale_id: attainment.grade_scale_id.clone(),
         grade_id: attainment.grade_id.clone(),
         passed: attainment.passed,
@@ -654,8 +659,8 @@ fn attainment_summary(attainment: &MockAttainment) -> AttainmentSummary {
         id: attainment.id.clone(),
         attainment_type: attainment.attainment_type.clone(),
         state: attainment.state.wire_state().to_string(),
-        attainment_date: attainment.attainment_date,
-        registration_date: attainment.registration_date,
+        attainment_date: sisu_midnight(attainment.attainment_date),
+        registration_date: sisu_midnight(attainment.registration_date),
         grade_scale_id: attainment.grade_scale_id.clone(),
         grade_id: attainment.grade_id.clone(),
     }
@@ -716,7 +721,7 @@ mod tests {
         let now = Utc::now();
         let period = DatePeriod {
             start_date: (now - Duration::days(30)).date_naive(),
-            end_date: (now + Duration::days(30)).date_naive(),
+            end_date: Some((now + Duration::days(30)).date_naive()),
         };
         let name = LocalizedName {
             fi: COURSE_CODE.to_string(),
@@ -765,7 +770,10 @@ mod tests {
                     course_code: COURSE_CODE.to_string(),
                     course_unit_id: ids::course_unit_id(COURSE_CODE),
                     name,
-                    credits: Some(CreditRange { min: 5.0, max: 5.0 }),
+                    credits: Some(CreditRange {
+                        min: 5.0,
+                        max: Some(5.0),
+                    }),
                     grade_scale_id: Some("sis-hyl-hyv".to_string()),
                     realisations: vec![realisation],
                     suotar_course: Some(SuotarCourse {
@@ -787,7 +795,7 @@ mod tests {
     fn an_import_queues_its_submission_before_any_response_shaping() {
         let mut working = world();
         let item = wire::ImportAttainmentRequestItem {
-            request_item_id: "cr-1".to_string(),
+            request_item_id: "item-1".to_string(),
             student_number: STUDENT_NUMBER.to_string(),
             course_code: COURSE_CODE.to_string(),
             enrolment_id: ids::enrolment_id(STUDENT_NUMBER, RealisationKind::Degree),

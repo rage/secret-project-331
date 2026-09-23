@@ -2,6 +2,7 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   myRegistrationOnCourse,
   seededStudentStorageState,
   SUOTAR_COURSE_SLUG,
@@ -141,7 +142,7 @@ test.describe("A student the study registry has no enrolment for", () => {
     // The mail's `ENROLMENT_LINK` placeholder comes from the same module setting as this field, so
     // a link here is a link in the message; a bare "enrol in Sisu" would leave the student stuck.
     const mine = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
-    expect(mine.enrolment_link).not.toBeNull()
+    expect(mine.enrolment_link).toBe(CRS_101_ENROLMENT_LINK)
 
     await runStudentNotificationsTick(page.request, scope)
     const afterSecond = await adminRegistrationDetails(adminApi, parked.id)

@@ -1203,21 +1203,15 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   course_module_id: z.uuid(),
   credit_registration_config_check_message: z.string().nullish(),
   credit_registration_config_checked_at: z.iso.datetime().nullish(),
-  credit_registration_course_code_resolves: z.boolean().nullish(),
+  credit_registration_course_code_allowed: z.boolean().nullish(),
   credit_registration_grade_scale_id: z.string().nullish(),
+  credit_registration_has_enrolment_link: z.boolean(),
   credit_registration_pause_reason: z.string().nullish(),
   credit_registration_paused_at: z.iso.datetime().nullish(),
   credit_registration_paused_by_user_id: z.uuid().nullish(),
   ects_credits: z.number().nullish(),
   enable_credit_registration_via_suotar: z.boolean(),
   uh_course_code: z.string().nullish(),
-})
-
-/**
- * Every module of the course with its Suotar configuration, for the module editor.
- */
-export const zCourseCreditRegistrationModuleConfigs = z.object({
-  modules: z.array(zCourseModuleCreditRegistrationConfig),
 })
 
 /**
@@ -1348,7 +1342,7 @@ export const zCreditRegistrationAdminActionTarget = z.enum([
 export const zCreditRegistrationAlertId = z.enum([
   "credentials_rejected",
   "study_registry_unreachable",
-  "sisu_unavailable",
+  "service_unavailable",
   "stuck_registrations",
   "linking_mail_send_failed",
   "linking_mail_rate_cap_exceeded",
@@ -1462,13 +1456,14 @@ export const zCreditRegistrationCircuitBreakerState = z.object({
 
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
- * the same rule the `config-validation` phase uses.
+ * the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+ * phase.
  *
- * `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
- * same as checked and failed, and the two must not render alike.
+ * `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+ * never checked is not the same as checked and failed, and the two must not render alike.
  */
 export const zCreditRegistrationCourseConfigCheck = z.object({
-  course_code_resolves: z.boolean().nullish(),
+  course_code_allowed: z.boolean().nullish(),
   message: z.string().nullish(),
 })
 
@@ -1772,6 +1767,7 @@ export const zAdminCreditRegistrationEvent = z.object({
   id: z.uuid(),
   kind: zCreditRegistrationEventKind,
   message: z.string().nullish(),
+  request_item_id: z.string().nullish(),
   suotar_api_call_id: z.uuid().nullish(),
   to_state: zCreditRegistrationState.nullish(),
 })
@@ -6373,10 +6369,11 @@ export const zGetCourseCreditRegistrationModuleConfigsPath = z.object({
 })
 
 /**
- * The course's per-module configuration
+ * Every module of the course with its Suotar configuration
  */
-export const zGetCourseCreditRegistrationModuleConfigsResponse =
-  zCourseCreditRegistrationModuleConfigs
+export const zGetCourseCreditRegistrationModuleConfigsResponse = z.array(
+  zCourseModuleCreditRegistrationConfig,
+)
 
 export const zResendCourseCreditRegistrationLinkingEmailBody = zResendLinkingEmailPayload
 

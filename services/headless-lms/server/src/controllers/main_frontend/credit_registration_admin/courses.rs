@@ -10,7 +10,9 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
-use headless_lms_models::library::credit_registration::config_validation::check_module_config;
+use headless_lms_models::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -22,13 +24,14 @@ use super::{authorize_credit_registration_admin, required_reason};
 const COURSES_LIMIT: i64 = 2_000;
 
 /// What the configuration check concluded about one module, freshly derived from the same facts and
-/// the same rule the `config-validation` phase uses.
+/// the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+/// phase.
 ///
-/// `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
-/// same as checked and failed, and the two must not render alike.
+/// `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+/// never checked is not the same as checked and failed, and the two must not render alike.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseConfigCheck {
-    pub course_code_resolves: Option<bool>,
+    pub course_code_allowed: Option<bool>,
     /// Every problem found, in one line. `None` means the module is fine.
     pub message: Option<String>,
 }
@@ -117,11 +120,11 @@ pub async fn get_credit_registration_stats_by_course(
             .await?
             .into_iter()
             .map(|facts| {
-                let check = check_module_config(&facts);
+                let check = check_module_config(&facts, CourseCodeVerdict::stored(&facts).as_ref());
                 (
                     facts.course_module_id,
                     CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: check.course_code_resolves,
+                        course_code_allowed: check.course_code_allowed,
                         message: check.message,
                     },
                 )
@@ -142,7 +145,7 @@ pub async fn get_credit_registration_stats_by_course(
                 checks
                     .remove(&module_id)
                     .unwrap_or(CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: None,
+                        course_code_allowed: None,
                         message: None,
                     }),
                 totals.remove(&module_id),

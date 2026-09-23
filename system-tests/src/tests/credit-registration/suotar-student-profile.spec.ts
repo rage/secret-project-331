@@ -40,6 +40,8 @@ test.describe("A student whose grade was registered twice", () => {
 
     const [firstLive] = (await myCreditRegistrations(page.request)).filter((row) => !row.superseded)
     const live = assertNotNullOrUndefined(firstLive)
+    // The seed's realisation name has Finnish and English; Finnish wins.
+    expect(live.enrolment_realisation_name).toBe("Rekisteröinnin testitoteutus")
     await page.goto(completionRegistrationUrl(live.course_module_id))
     // A student who saw grade 3 registered should not find that it never happened.
     await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()

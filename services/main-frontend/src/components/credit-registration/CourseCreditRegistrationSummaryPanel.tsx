@@ -377,7 +377,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
           return null
         }
         const configOf = (id: string) =>
-          configsQuery.data?.modules.find((config) => config.course_module_id === id)
+          configsQuery.data?.find((config) => config.course_module_id === id)
         const nameOf = (module: CourseCreditRegistrationModuleSummary) =>
           module.course_module_name ?? t("default-module")
         const isAnyModulePaused = shownModules.some((module) => module.paused)

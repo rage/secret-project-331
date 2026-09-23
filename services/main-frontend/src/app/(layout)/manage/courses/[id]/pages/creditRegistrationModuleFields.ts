@@ -1,9 +1,9 @@
 import type {
-  CourseCreditRegistrationModuleConfigs,
+  CourseModuleCreditRegistrationConfig,
   CourseModuleCreditRegistrationEdit,
 } from "@/generated/api/types.generated"
 
-/** Strings rather than nullable strings, since a text input has no null. */
+/** Strings rather than nullable strings, since a form field has no null. */
 export interface CreditRegistrationModuleFields {
   enabled: boolean
   grade_scale_id: string
@@ -22,10 +22,10 @@ export const EMPTY_CREDIT_REGISTRATION_FIELDS: CreditRegistrationModuleFields = 
 }
 
 export const creditRegistrationFieldsOf = (
-  configs: CourseCreditRegistrationModuleConfigs | undefined,
+  configs: CourseModuleCreditRegistrationConfig[] | undefined,
   moduleId: string,
 ): CreditRegistrationModuleFields => {
-  const config = configs?.modules.find((m) => m.course_module_id === moduleId)
+  const config = configs?.find((m) => m.course_module_id === moduleId)
   if (!config) {
     return EMPTY_CREDIT_REGISTRATION_FIELDS
   }

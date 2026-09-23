@@ -54,7 +54,11 @@ import {
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import { sendStatusLabel, verificationMethodLabel } from "./adminCreditRegistrationCopy"
+import {
+  listingErrorLabel,
+  sendStatusLabel,
+  verificationMethodLabel,
+} from "./adminCreditRegistrationCopy"
 import {
   LINKING_STATS_WINDOW_DAYS,
   useAccountLinkingStats,
@@ -409,7 +413,7 @@ const ModuleBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
                       count: row.consecutive_listing_failures,
                     })}
                   </Badge>
-                  <span className={noteCss}>{row.last_listing_error}</span>
+                  <span className={noteCss}>{listingErrorLabel(t, row.last_listing_error)}</span>
                 </span>
               ) : null,
           },

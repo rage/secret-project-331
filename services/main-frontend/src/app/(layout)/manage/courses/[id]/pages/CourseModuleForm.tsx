@@ -104,6 +104,7 @@ const NO_MINIMUM_LENGTH = 0
 
 const VALIDATE_ON_COMMIT = "validate" as const
 
+/** Flags what the Sisu path requires as the teacher edits, rather than only on save. */
 const VALIDATE_ON_CHANGE = "onChange" as const
 
 interface CourseModuleFormState extends Omit<
@@ -238,6 +239,9 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
         GRADE_SCALE_SUMMARY_KEYS[DERIVED_GRADE_SCALE],
       ),
     )
+    if (!module.completion_registration_link_override?.trim()) {
+      parts.push(t("module-summary-no-enrolment-link"))
+    }
   }
   if (parts.length === 0) {
     return null
@@ -350,7 +354,7 @@ const CourseModuleForm: React.FC<Props> = ({
   const courseCodeFoundInSisu =
     showsStudyRegistryOption &&
     module.uh_course_code !== null &&
-    creditRegistrationConfig?.credit_registration_course_code_resolves === true
+    creditRegistrationConfig?.credit_registration_course_code_allowed === true
   const nameIsEditable = isCreate || module.name !== null
 
   const configCallout = (
@@ -583,6 +587,11 @@ const CourseModuleForm: React.FC<Props> = ({
               name="completion_registration_link_override"
               control={control}
               label={t("completion-registration-link")}
+              description={
+                registersToStudyRegistry
+                  ? t("description-completion-registration-link-study-registry")
+                  : undefined
+              }
               isDisabled={!overrideLink}
               // The field stays mounted while the override is off, so its rule has to go with it —
               // spelled out as no minimum rather than left out, which would keep the rule it had.

@@ -316,8 +316,11 @@ pub struct CourseModuleCreditRegistrationConfig {
     pub credit_registration_pause_reason: Option<String>,
     pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
     /// `None` means never checked, which is not the same as a failed check.
-    pub credit_registration_course_code_resolves: Option<bool>,
+    pub credit_registration_course_code_allowed: Option<bool>,
     pub credit_registration_config_check_message: Option<String>,
+    /// Whether `completion_registration_link_override` is set, which is also the enrolment link for
+    /// students without a usable enrolment.
+    pub credit_registration_has_enrolment_link: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -997,8 +1000,9 @@ SELECT cm.id AS course_module_id,
   c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
   c.pause_reason AS "credit_registration_pause_reason?",
   c.config_checked_at AS "credit_registration_config_checked_at?",
-  c.course_code_resolves AS "credit_registration_course_code_resolves?",
-  c.config_check_message AS "credit_registration_config_check_message?"
+  c.course_code_allowed AS "credit_registration_course_code_allowed?",
+  c.config_check_message AS "credit_registration_config_check_message?",
+  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!"
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
@@ -1252,9 +1256,9 @@ WHERE id = $1
     Ok(())
 }
 
-/// Writes the module's Suotar configuration row. An unknown grade
-/// scale is refused here because otherwise it surfaces as `no_grade_scale_mapping` on every
-/// completion of the module, long after the teacher left the editor.
+/// Writes the module's Suotar configuration row. An unknown grade scale is refused here because
+/// otherwise it surfaces as `no_grade_scale_mapping` on every completion of the module, long after
+/// the teacher left the editor.
 pub async fn set_credit_registration_config(
     conn: &mut PgConnection,
     course_module_id: Uuid,

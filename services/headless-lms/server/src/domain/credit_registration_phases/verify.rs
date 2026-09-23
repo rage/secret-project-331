@@ -1,30 +1,31 @@
 //! The `verify` phase: asking the study registry what became of a submission.
 //!
-//! The only way out of `submission_uncertain`, and never a way back to `import`. Nothing here ever
-//! fails a row: the attainment may exist, and a failed row is one an admin retries, which for an
-//! uncertain submission would mean sending it twice.
+//! The only way out of `submission_uncertain`. Nothing here fails a row: the attainment may exist,
+//! and a failed row is one an admin retries, which for an uncertain submission would mean sending
+//! it twice. The one way back to `import` is Suotar itself answering `notRegistered`.
 
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationState, Transition, claim_due,
-    increment_verify_attempt_counts, schedule_next_attempts, set_sisu_attainment_if_unclaimed,
-    transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
+    claim_due, increment_verify_attempt_counts, mark_partially_registered, reset_for_resubmission,
+    schedule_next_attempts, set_sisu_attainment_if_unclaimed, transition,
 };
-use headless_lms_models::library::credit_registration::classification::{map_code, settled_state};
+use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
-    verify_not_registered_outcome, verify_poll_lease_until,
+    verify_inconclusive_outcome, verify_not_registered_outcome, verify_partial_outcome,
+    verify_pending_outcome, verify_poll_lease_until,
 };
 use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
-    EnrolmentResolutionResult, ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext,
-    SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, VerifyAttainmentRequestItem,
-    VerifyAttainmentResult, new_request_item_id,
+    ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
+    SuotarAttainment, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
+    SuotarResponseItem, VerifyAttainmentRequestItem, VerifyAttainmentResult, new_request_item_id,
 };
 use sqlx::{Connection, PgConnection};
 
@@ -41,7 +42,7 @@ const CLAIMED_STATES: [CreditRegistrationState; 2] = [
 ];
 
 /// One claimed row and the poll it was claimed for. The attempt count travels with it because it
-/// names the request item and sets the backoff the answer is scheduled by.
+/// sets the backoff the answer is scheduled by.
 struct Poll {
     row: CreditRegistration,
     attempt: i32,
@@ -65,8 +66,6 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         SuotarEndpoint::VerifyAttainments.max_batch_size() as i64,
     )
     .await?;
-    // Counted before the call: the count is part of the request item id, so two polls of one row
-    // are distinguishable in the registry's log.
     let attempts = increment_verify_attempt_counts(
         &mut tx,
         &claimed.iter().map(|row| row.id).collect::<Vec<_>>(),
@@ -147,8 +146,7 @@ impl SuotarBatchPhase for VerifyPoll {
     type Item = VerifyAttainmentRequestItem;
     type Result = VerifyAttainmentResult;
 
-    const ALL_TRANSIENT_ERROR: &'static str =
-        "Every verify poll came back transiently unavailable.";
+    const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
 
     /// The rows are claimed by the phase itself, which splits them between this flow and the
     /// recovery one, so there is nothing left to decide here.
@@ -216,7 +214,7 @@ impl SuotarBatchPhase for VerifyPoll {
         apply_outcome(
             conn,
             &poll.row,
-            &verify_not_registered_outcome(poll.row.state, &poll.facts()),
+            &verify_inconclusive_outcome(poll.row.state, &poll.facts()),
             OutcomeEvent {
                 message: Some("Could not verify this submission this time."),
                 error_message: Some(error.message()),
@@ -242,8 +240,8 @@ impl Poll {
     }
 }
 
-/// Applies one poll's answer. Everything but `registered` keeps the row where it is: `notRegistered`
-/// is a normal polling answer, and any other answer is one we will not act on blindly.
+/// Applies one poll's answer. Only a course unit attainment registers the row, and only
+/// `notRegistered` sends it back towards import; anything else keeps it polling.
 async fn apply_poll_answer(
     conn: &mut PgConnection,
     poll: &Poll,
@@ -251,57 +249,122 @@ async fn apply_poll_answer(
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let row = &poll.row;
-    let registered = item.is_some_and(|item| {
-        item.status == SuotarItemStatus::Ok
-            && settled_state(SuotarEndpoint::VerifyAttainments, &item.code)
-                == Some(CreditRegistrationState::Registered)
-    });
-    if registered {
-        if let Some(attainment) = item
-            .and_then(|item| item.result.as_ref())
-            .and_then(|result| result.attainment.as_ref())
-        {
-            set_sisu_attainment_if_unclaimed(
-                conn,
-                row.id,
-                &attainment.id,
-                Some(&attainment.attainment_type),
-            )
-            .await?;
-        }
-        apply_outcome(
+    let facts = poll.facts();
+    let Some(item) = item else {
+        return apply_poll_outcome(
             conn,
             row,
-            &Outcome {
-                // Confirmed, so whatever an operator was asked to look at is settled.
-                needs_admin_attention: Some(false),
-                ..Outcome::to(CreditRegistrationState::Registered)
-            },
+            &verify_inconclusive_outcome(row.state, &facts),
             event,
-            Some(row.state),
         )
-        .await?;
-        return Ok(false);
+        .await;
+    };
+    let event = OutcomeEvent {
+        error_message: item.error.as_ref().map(|error| error.message.as_str()),
+        ..event
+    };
+    let result = item.result.as_ref();
+    match outcome_of(SuotarEndpoint::VerifyAttainments, &item.code) {
+        WireOutcome::Settled(CreditRegistrationState::Registered)
+            if item.status == SuotarItemStatus::Ok =>
+        {
+            match result.and_then(|result| result.attainment.as_ref()) {
+                Some(attainment) if attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT => {
+                    apply_registered(conn, row, attainment, event).await
+                }
+                // The assessment item attainment's id can equal the submitted one, and the sisu
+                // attainment column holds only the final course unit attainment.
+                _ => {
+                    let partially_registered_at = mark_partially_registered(conn, row.id).await?;
+                    apply_poll_outcome(
+                        conn,
+                        row,
+                        &verify_partial_outcome(&facts, partially_registered_at),
+                        event,
+                    )
+                    .await
+                }
+            }
+        }
+        WireOutcome::Unsettled => {
+            let retry_after = result.and_then(|result| result.retry_after);
+            apply_poll_outcome(
+                conn,
+                row,
+                &verify_pending_outcome(row.state, &facts, retry_after),
+                event,
+            )
+            .await
+        }
+        WireOutcome::Failure(CreditRegistrationErrorCode::NotRegistered) => {
+            let mut tx = conn.begin().await?;
+            let reimport_count = reset_for_resubmission(&mut tx, row.id).await?;
+            let outcome = verify_not_registered_outcome(&facts, reimport_count);
+            let event = OutcomeEvent {
+                message: Some("Suotar has no trace of the submission, so it will be sent again."),
+                ..event
+            };
+            apply_outcome(&mut tx, row, &outcome, event, Some(row.state)).await?;
+            tx.commit().await?;
+            Ok(counts_as_failed(&outcome))
+        }
+        WireOutcome::Failure(code) => {
+            apply_poll_outcome(
+                conn,
+                row,
+                &verify_error_outcome(row.state, code, &facts),
+                event,
+            )
+            .await
+        }
+        WireOutcome::Settled(_) => {
+            apply_poll_outcome(
+                conn,
+                row,
+                &verify_inconclusive_outcome(row.state, &facts),
+                event,
+            )
+            .await
+        }
     }
-    let facts = poll.facts();
-    let outcome = item
-        .and_then(|item| map_code(SuotarEndpoint::VerifyAttainments, &item.code))
-        .map(|code| verify_error_outcome(row.state, code, &facts))
-        .unwrap_or_else(|| verify_not_registered_outcome(row.state, &facts));
+}
+
+async fn apply_registered(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    attainment: &SuotarAttainment,
+    event: OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    set_sisu_attainment_if_unclaimed(
+        conn,
+        row.id,
+        &attainment.id,
+        Some(&attainment.attainment_type),
+    )
+    .await?;
     apply_outcome(
         conn,
         row,
-        &outcome,
-        OutcomeEvent {
-            error_message: item
-                .and_then(|item| item.error.as_ref())
-                .map(|error| error.message.as_str()),
-            ..event
+        &Outcome {
+            // Confirmed, so whatever an operator was asked to look at is settled.
+            needs_admin_attention: Some(false),
+            ..Outcome::to(CreditRegistrationState::Registered)
         },
+        event,
         Some(row.state),
     )
     .await?;
-    Ok(counts_as_failed(&outcome))
+    Ok(false)
+}
+
+async fn apply_poll_outcome(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    outcome: &Outcome,
+    event: OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    apply_outcome(conn, row, outcome, event, Some(row.state)).await?;
+    Ok(counts_as_failed(outcome))
 }
 
 /// Looks for the attainment a submission we lost track of would have produced. The row stays
@@ -315,8 +378,7 @@ impl SuotarBatchPhase for UncertainRecovery {
     type Item = ResolveEnrolmentRequestItem;
     type Result = EnrolmentResolutionResult;
 
-    const ALL_TRANSIENT_ERROR: &'static str =
-        "Every recovery lookup came back transiently unavailable.";
+    const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
 
     /// A row with nothing to ask about is left where it is: it is uncertain, which no answer of
     /// ours may turn into a failure, and it is already scheduled for the next check.
@@ -447,6 +509,7 @@ async fn apply_recovery_answer(
                 attainment_matching_submission(
                     &result.existing_attainments,
                     attainment_date,
+                    row.submitted_at,
                     row.grade_scale_id.as_deref().unwrap_or_default(),
                     row.grade_id.as_deref().unwrap_or_default(),
                 )
@@ -509,7 +572,7 @@ async fn apply_recovery_answer(
 mod tests {
     use super::*;
 
-    /// Nothing this phase claims can lead back to a batch.
+    /// The poller claims only the states a submission may still be in, never one import sends from.
     #[test]
     fn the_poller_owns_exactly_the_two_states_a_submission_can_still_be_in() {
         assert!(CLAIMED_STATES.contains(&CreditRegistrationState::AwaitingVerification));

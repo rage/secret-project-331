@@ -98,6 +98,8 @@ pub struct AdminCreditRegistrationEvent {
     /// The `{request, response}` pair, scrubbed at write time: names, student numbers and email
     /// addresses read `[redacted]` while their keys survive. The values we sent are on the row.
     pub details: Option<serde_json::Value>,
+    /// The requestItemId the row went out under in the call behind this event.
+    pub request_item_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -416,6 +418,7 @@ pub async fn get_credit_registration_for_admin(
                 actor_user_id: event.actor_user_id,
                 suotar_api_call_id: event.suotar_api_call_id,
                 details: event.details,
+                request_item_id: event.request_item_id,
             })
             .collect();
     let suotar_api_calls =

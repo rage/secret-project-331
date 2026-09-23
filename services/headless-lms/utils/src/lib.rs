@@ -10,6 +10,7 @@ pub mod error_identifier;
 pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;
+pub mod helsinki_time;
 pub mod http;
 pub mod icu4x;
 pub mod ip_to_country;

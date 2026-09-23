@@ -18,10 +18,11 @@ use super::scenarios;
 use super::store::{EntityHash, MockSuotarStore, OwnerKeys, World};
 use super::wire::Endpoint;
 use super::world::{
-    AttainmentState, CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, GradeScale,
-    ImporterVisibility, LocalizedName, MockAttainment, MockCourseUnit, MockEnrolment, MockPerson,
-    MockRealisation, MockStudyRight, MockSubmission, PENDING_WINDOW_HOURS, PersonBehaviour,
-    RealisationKind, RecordedCall, SendState, SuotarCourse, WorldDefaults, person_course_key,
+    AttainmentLevel, AttainmentState, CourseBehaviour, CreditRange, DatePeriod, EnrolmentState,
+    GradeScale, ImporterVisibility, LocalizedName, MockAttainment, MockCourseUnit, MockEnrolment,
+    MockPerson, MockRealisation, MockStudyRight, MockSubmission, PENDING_WINDOW_HOURS,
+    PersonBehaviour, RealisationKind, RecordedCall, SendState, SuotarCourse, WorldDefaults,
+    person_course_key,
 };
 
 const DEFAULT_CALL_LIMIT: usize = 200;
@@ -81,14 +82,6 @@ pub enum MockSuotarCommand {
         course_code: Option<String>,
         to: SubmissionTarget,
     },
-    #[serde(rename_all = "camelCase")]
-    AgeSubmissions {
-        student_number: String,
-        course_code: Option<String>,
-        hours: i64,
-    },
-    /// An empty list clears them.
-    SetSisuViolations(SisuViolationsUpsert),
     ListSubmissions(SubmissionFilter),
     ArmFault(super::faults::FaultSpec),
     DisarmFault {
@@ -364,8 +357,6 @@ impl MockSuotarCommand {
             Self::SetCourseBehaviour { .. } => "setCourseBehaviour",
             Self::TransitionSubmission { .. } => "transitionSubmission",
             Self::TransitionSubmissionsFor { .. } => "transitionSubmissionsFor",
-            Self::AgeSubmissions { .. } => "ageSubmissions",
-            Self::SetSisuViolations(_) => "setSisuViolations",
             Self::ListSubmissions(_) => "listSubmissions",
             Self::ArmFault(_) => "armFault",
             Self::DisarmFault { .. } => "disarmFault",
@@ -562,50 +553,6 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
                 submission_ids_for(store, &generation, &student_number, course_code.as_deref())
                     .await?;
             transition(store, &generation, &ids, to).await
-        }
-        MockSuotarCommand::AgeSubmissions {
-            student_number,
-            course_code,
-            hours,
-        } => {
-            let ids =
-                submission_ids_for(store, &generation, &student_number, course_code.as_deref())
-                    .await?;
-            let mut aged: BTreeMap<String, MockSubmission> = BTreeMap::new();
-            for id in &ids {
-                if let Some(mut submission) = store
-                    .get_json::<MockSubmission>(&generation, EntityHash::Submissions, id)
-                    .await?
-                {
-                    submission.created_at -= chrono::Duration::hours(hours);
-                    aged.insert(id.clone(), submission);
-                }
-            }
-            store
-                .upsert_json(&generation, EntityHash::Submissions, &aged)
-                .await?;
-            Ok(json!({ "submittedAttainmentIds": ids }))
-        }
-        MockSuotarCommand::SetSisuViolations(upsert) => {
-            let key = person_course_key(&upsert.student_number, &upsert.course_code);
-            if upsert.violations.is_empty() {
-                store
-                    .delete_fields(
-                        &generation,
-                        EntityHash::SisuViolations,
-                        std::slice::from_ref(&key),
-                    )
-                    .await?;
-            } else {
-                store
-                    .upsert_json(
-                        &generation,
-                        EntityHash::SisuViolations,
-                        &BTreeMap::from([(key.clone(), upsert.violations)]),
-                    )
-                    .await?;
-            }
-            Ok(json!({ "key": key }))
         }
         MockSuotarCommand::ListSubmissions(filter) => {
             let submissions: BTreeMap<String, MockSubmission> =
@@ -854,7 +801,7 @@ async fn generate_roster(
     let now = Utc::now();
     let validity = DatePeriod {
         start_date: (now - chrono::Duration::days(365)).date_naive(),
-        end_date: (now + chrono::Duration::days(365)).date_naive(),
+        end_date: Some((now + chrono::Duration::days(365)).date_naive()),
     };
 
     let mut persons = BTreeMap::new();
@@ -952,11 +899,11 @@ async fn transition(
         };
         let final_id = ids::final_attainment_id(id);
         retired.extend([id.clone(), final_id.clone()]);
-        let mut mint = |attainment_id: &str, is_final: bool, state: AttainmentState| {
+        let mut mint = |attainment_id: &str, level: AttainmentLevel, state: AttainmentState| {
             let attainment = MockAttainment::from_submission(
                 &submission,
                 attainment_id,
-                is_final,
+                level,
                 state,
                 &defaults,
                 now,
@@ -965,19 +912,23 @@ async fn transition(
         };
         let importer = match to {
             SubmissionTarget::Registered | SubmissionTarget::TimedOutButLanded => {
-                mint(&final_id, true, AttainmentState::Attained);
+                mint(&final_id, AttainmentLevel::Final, AttainmentState::Attained);
                 ImporterVisibility::Final {
                     attainment_id: final_id,
                 }
             }
             SubmissionTarget::PartiallyRegistered => {
-                mint(id, false, AttainmentState::Attained);
+                mint(id, AttainmentLevel::Partial, AttainmentState::Attained);
                 ImporterVisibility::Partial {
                     attainment_id: id.clone(),
                 }
             }
             SubmissionTarget::Misregistered => {
-                mint(&final_id, true, AttainmentState::Misregistered);
+                mint(
+                    &final_id,
+                    AttainmentLevel::Final,
+                    AttainmentState::Misregistered,
+                );
                 ImporterVisibility::Misregistered {
                     attainment_id: final_id,
                 }

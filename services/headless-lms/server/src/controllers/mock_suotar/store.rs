@@ -394,7 +394,7 @@ impl MockSuotarStore {
         Ok(working)
     }
 
-    /// A verified id is either one of Suotar's entries or an attainment the importer holds.
+    /// A verified id is either a submission or an attainment the importer holds.
     pub async fn load_for_verify(
         &self,
         generation: &str,

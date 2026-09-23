@@ -74,7 +74,8 @@ pub async fn resend_linking_mail(
                 SuotarCallContext::new(worker_name(
                     ctx.caller,
                     CreditRegistrationPhase::EnrolmentDiscovery,
-                )),
+                ))
+                .interactive(),
                 chunk.to_vec(),
             )
             .await;
@@ -249,7 +250,7 @@ pub async fn resolve_person(
     let response = ctx
         .suotar_client
         .resolve_persons(
-            SuotarCallContext::new(ctx.caller),
+            SuotarCallContext::new(ctx.caller).interactive(),
             vec![ResolvePersonRequestItem {
                 request_item_id: request_item_id.clone(),
                 student_number: student_number.to_string(),

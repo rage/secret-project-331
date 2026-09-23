@@ -1,23 +1,86 @@
 //! The `config-validation` phase: the daily pass over every Suotar-enabled module's configuration.
 //!
-//! Database-only. Everything Suotar could say about a configuration has already been recorded by
-//! the phases that call it — a listing answered `courseCodeNotFound` — so this reads their traces
-//! rather than spending a call of its own.
+//! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
+//! reads the database.
+
+use std::collections::HashMap;
 
 use headless_lms_models::course_module_suotar_configurations::{
     get_config_facts_for_enabled_modules, record_config_check,
 };
+use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
-use headless_lms_models::library::credit_registration::config_validation::check_module_config;
+use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
+use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
+use headless_lms_models::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
+use headless_lms_utils::prelude::BackendError;
+use headless_lms_utils::services::suotar::{
+    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    ValidateCourseCodeRequestItem, ValidateCourseCodeResult, new_request_item_id,
+};
+use itertools::Itertools;
 
-use super::{PhaseContext, PhaseScope};
+use super::{CreditRegistrationPhase, PhaseContext, PhaseScope};
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+    let modules = {
+        let mut conn = ctx.pool.acquire().await?;
+        get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?
+    };
+    let course_codes: Vec<String> = modules
+        .iter()
+        .filter_map(|module| module.uh_course_code.as_deref())
+        .map(str::trim)
+        .filter(|code| !code.is_empty())
+        .map(str::to_string)
+        .sorted()
+        .dedup()
+        .collect();
+
+    let mut verdicts: HashMap<String, CourseCodeVerdict> = HashMap::new();
+    for chunk in course_codes.chunks(SuotarEndpoint::ValidateCourseCodes.max_batch_size()) {
+        let items: Vec<ValidateCourseCodeRequestItem> = chunk
+            .iter()
+            .map(|course_code| ValidateCourseCodeRequestItem {
+                request_item_id: new_request_item_id(),
+                course_code: course_code.clone(),
+            })
+            .collect();
+        let response = ctx
+            .suotar_client
+            .validate_course_codes(
+                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ConfigValidation)),
+                items.clone(),
+            )
+            .await;
+        // Nothing is recorded, so the previous verdicts stand until a check gets through.
+        let response = match response {
+            Ok(response) => response,
+            Err(error) => {
+                return Ok(PhaseRunOutcome {
+                    items_processed: 0,
+                    items_failed: 0,
+                    error: Some(scrub_text(error.message())),
+                });
+            }
+        };
+        for item in &items {
+            if let Some(verdict) = response.item(&item.request_item_id).and_then(verdict_of) {
+                verdicts.insert(item.course_code.clone(), verdict);
+            }
+        }
+    }
+
     let mut conn = ctx.pool.acquire().await?;
-    let modules = get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?;
     let mut with_problems = 0;
     for module in &modules {
-        let check = check_module_config(module);
+        let verdict = module
+            .uh_course_code
+            .as_deref()
+            .and_then(|code| verdicts.get(code.trim()));
+        let check = check_module_config(module, verdict);
         if check.message.is_some() {
             with_problems += 1;
         }
@@ -33,4 +96,24 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         items_failed: 0,
         error: None,
     })
+}
+
+/// `None` for any answer that is neither verdict, which leaves the module unchecked rather than
+/// failed.
+fn verdict_of(item: &SuotarResponseItem<ValidateCourseCodeResult>) -> Option<CourseCodeVerdict> {
+    match outcome_of(SuotarEndpoint::ValidateCourseCodes, &item.code) {
+        WireOutcome::Unsettled if item.status == SuotarItemStatus::Ok => {
+            Some(CourseCodeVerdict::Allowed)
+        }
+        WireOutcome::Failure(CreditRegistrationErrorCode::CourseNotAllowed) => {
+            Some(CourseCodeVerdict::NotAllowed {
+                reason: item
+                    .error
+                    .as_ref()
+                    .map(|error| error.message.clone())
+                    .unwrap_or_default(),
+            })
+        }
+        _ => None,
+    }
 }

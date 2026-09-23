@@ -185,7 +185,7 @@ export const actorRoleLabel = (t: CreditRegistrationTFunction, actorRole: string
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",
   study_registry_unreachable: "credit-registration-alert-study-registry-unreachable",
-  sisu_unavailable: "credit-registration-alert-sisu-unavailable",
+  service_unavailable: "credit-registration-alert-service-unavailable",
   stuck_registrations: "credit-registration-alert-stuck-registrations",
   linking_mail_send_failed: "credit-registration-alert-linking-mail-send-failed",
   linking_mail_rate_cap_exceeded: "credit-registration-alert-linking-mail-rate-cap-exceeded",
@@ -267,6 +267,18 @@ export const registrationErrorNote = (
   }
   return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
 }
+
+/**
+ * Why a course code's roster listing fails. On the listing, `course_code_not_found` means only that
+ * no realisation of the code is current, not that the code is wrong.
+ */
+export const listingErrorLabel = (
+  t: CreditRegistrationTFunction,
+  errorCode: CreditRegistrationErrorCode,
+): string =>
+  errorCode === "course_code_not_found"
+    ? t("credit-registration-admin-listing-no-current-realisations")
+    : (registrationErrorShortLabel(t, errorCode) ?? errorCode)
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",

@@ -105,10 +105,10 @@ export const courseModuleStatusIcon = (status: CourseModuleStatus): StatusIcon |
 
 /**
  * Which of a module's structured configuration checks is failing. `check.message` covers more
- * ground than the course code check, so a message without it is `"other"` — still shown, just
- * without a specific human reason or a place in the grouping banner.
+ * ground than these, so a message without either is `"other"` — still shown, just without a
+ * specific human reason or a place in the grouping banner.
  */
-export type ConfigFailureReason = "course_code" | "other"
+export type ConfigFailureReason = "course_code" | "enrolment_link" | "other"
 
 export const configFailureReason = (
   module: CreditRegistrationCourseStats,
@@ -116,14 +116,18 @@ export const configFailureReason = (
   if (!module.check.message) {
     return null
   }
-  if (module.check.course_code_resolves === false) {
+  if (module.check.course_code_allowed === false) {
     return "course_code"
+  }
+  if (!module.enrolment_link) {
+    return "enrolment_link"
   }
   return "other"
 }
 
 const CONFIG_FAILURE_REASON_KEYS = {
   course_code: "credit-registration-admin-config-failure-course-code",
+  enrolment_link: "credit-registration-admin-config-failure-enrolment-link",
   other: "credit-registration-admin-config-failure-other",
 } as const satisfies Record<ConfigFailureReason, string>
 

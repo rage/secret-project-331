@@ -1,6 +1,7 @@
 //! What one Suotar answer does to one ledger row, decided apart from the phases that apply it.
 //! No outcome here may return a state that leads back to `import`: a row whose import may have
-//! landed must never be sent again.
+//! landed must never be sent again. The one exception is verify's `notRegistered`, which is Suotar
+//! itself saying the submission did not land.
 
 use headless_lms_utils::error::util_error::SuotarErrorVariant;
 
@@ -9,7 +10,8 @@ use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
 use super::backoff::{
-    NO_USABLE_ENROLMENT_RECHECK_SECS, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
+    NO_USABLE_ENROLMENT_RECHECK_SECS, NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD,
+    PARTIAL_REGISTRATION_ADMIN_AFTER_SECS, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
     VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at, submit_backoff_secs,
     submit_window_expired, verify_backoff_secs, verify_window_expired,
 };
@@ -121,7 +123,8 @@ pub fn submit_error_outcome(
 }
 
 /// A per-item error while polling `verify`. Never a failure: the attainment may exist, and a row
-/// marked failed invites a second submission later.
+/// marked failed invites a second submission later. `notRegistered` is not an error here; see
+/// [`verify_not_registered_outcome`].
 pub fn verify_error_outcome(
     state: CreditRegistrationState,
     code: CreditRegistrationErrorCode,
@@ -132,11 +135,11 @@ pub fn verify_error_outcome(
             .with_code(code)
             .needing_admin();
     }
-    verify_not_registered_outcome(state, facts)
+    verify_inconclusive_outcome(state, facts)
 }
 
-/// A `verify` poll that Sisu has nothing to say about yet.
-pub fn verify_not_registered_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
+/// A `verify` poll with no usable answer: nothing came back, or nothing we act on.
+pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
     let expired = verify_window_expired(facts.submitted_at, facts.now);
     let outcome = Outcome::to(state).after(if expired {
         VERIFY_GIVE_UP_POLL_SECS
@@ -144,6 +147,51 @@ pub fn verify_not_registered_outcome(state: CreditRegistrationState, facts: &Row
         verify_backoff_secs(facts.verify_attempt_count)
     });
     if expired {
+        outcome.needing_admin()
+    } else {
+        outcome
+    }
+}
+
+/// A `verify` poll that found only the assessment item attainment. The submission landed, so an
+/// uncertain row stops being uncertain, but the row is not registered until the course unit
+/// attainment appears. `partially_registered_at` is when a poll first saw this.
+pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
+    let outcome = Outcome::to(CreditRegistrationState::AwaitingVerification)
+        .after(verify_backoff_secs(facts.verify_attempt_count));
+    if (facts.now - partially_registered_at).num_seconds() >= PARTIAL_REGISTRATION_ADMIN_AFTER_SECS
+    {
+        outcome.needing_admin()
+    } else {
+        outcome
+    }
+}
+
+/// A `verify` poll answered `submissionPending`: Suotar holds the submission but has not seen it in
+/// Sisu yet, and says when asking again is worth it.
+pub fn verify_pending_outcome(
+    state: CreditRegistrationState,
+    facts: &RowFacts,
+    retry_after: Option<DateTime<Utc>>,
+) -> Outcome {
+    let outcome = verify_inconclusive_outcome(state, facts);
+    match retry_after {
+        Some(retry_after) => outcome.after((retry_after - facts.now).num_seconds().max(0)),
+        None => outcome,
+    }
+}
+
+/// A `verify` poll answered `notRegistered`: Suotar has no trace of the submission, so the row is
+/// new work again and goes back through resolve-enrolments and import. `reimport_count` counts
+/// this resend too.
+pub fn verify_not_registered_outcome(facts: &RowFacts, reimport_count: i32) -> Outcome {
+    let outcome = Outcome {
+        increment_submit_retry_count: true,
+        ..Outcome::to(CreditRegistrationState::FailedRetryable)
+            .with_code(CreditRegistrationErrorCode::NotRegistered)
+            .after(submit_backoff_secs(facts.submit_retry_count))
+    };
+    if reimport_count >= NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD {
         outcome.needing_admin()
     } else {
         outcome
@@ -186,7 +234,7 @@ pub fn unanswered_item_outcome(
         return submission_uncertain();
     }
     if endpoint == SuotarEndpoint::VerifyAttainments {
-        return verify_not_registered_outcome(state, facts);
+        return verify_inconclusive_outcome(state, facts);
     }
     retry_or_expire(
         CreditRegistrationErrorCode::UnexpectedResponse,
@@ -195,7 +243,8 @@ pub fn unanswered_item_outcome(
     )
 }
 
-fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErrorCode {
+/// The ledger error code for a request the study registry rejected, or never answered, as a whole.
+pub fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErrorCode {
     match variant {
         SuotarErrorVariant::Unauthorized => CreditRegistrationErrorCode::Unauthorized,
         SuotarErrorVariant::MalformedRequest => CreditRegistrationErrorCode::MalformedRequest,
@@ -264,9 +313,14 @@ pub fn missing_context_outcome(facts: &RowFacts) -> Outcome {
 }
 
 /// How long a verify poll pushes the row out of reach while its request is out, so a concurrent
-/// iteration cannot poll it twice. The poll's own outcome overwrites this.
+/// iteration cannot poll it twice. The poll's own outcome overwrites this. Covers both calls of one
+/// verify iteration, the poll and the recovery lookup after it.
 pub fn verify_poll_lease_until(now: DateTime<Utc>, attempt: i32) -> DateTime<Utc> {
-    next_attempt_at(now, verify_backoff_secs(attempt))
+    let calls_secs = (SuotarEndpoint::VerifyAttainments.request_timeout()
+        + SuotarEndpoint::ResolveEnrolments.request_timeout())
+    .as_secs() as i64
+        + 5 * 60;
+    next_attempt_at(now, verify_backoff_secs(attempt).max(calls_secs))
 }
 
 #[cfg(test)]
@@ -544,7 +598,7 @@ mod tests {
             verify_attempt_count: 40,
             ..facts()
         };
-        let outcome = verify_not_registered_outcome(State::AwaitingVerification, &facts);
+        let outcome = verify_inconclusive_outcome(State::AwaitingVerification, &facts);
         assert_eq!(outcome.to_state, State::AwaitingVerification);
         assert_eq!(outcome.needs_admin_attention, Some(true));
         assert_eq!(outcome.delay_secs, Some(VERIFY_GIVE_UP_POLL_SECS));

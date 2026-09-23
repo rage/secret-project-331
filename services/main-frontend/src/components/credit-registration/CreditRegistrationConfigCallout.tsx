@@ -50,8 +50,11 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) 
                 ? t("heading-credit-registration-config-problem-in-module", { module: moduleName })
                 : t("heading-credit-registration-config-problem")}
             </div>
-            {config.credit_registration_course_code_resolves === false && (
-              <div>{t("credit-registration-config-course-code-unknown")}</div>
+            {config.credit_registration_course_code_allowed === false && (
+              <div>{t("credit-registration-config-course-code-not-accepted")}</div>
+            )}
+            {!config.credit_registration_has_enrolment_link && (
+              <div>{t("credit-registration-config-enrolment-link-missing")}</div>
             )}
             {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
             <Disclosure title={t("credit-registration-config-diagnostic-for-support")}>

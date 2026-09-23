@@ -107,8 +107,8 @@ impl Predicate {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum Effect {
-    /// `sisuTimeout` on an import item after the write carries the written entry's id and leaves the
-    /// entry unconfirmed, as a send that never answered does.
+    /// `sisuTimeout` on an import item after the write carries the written submission's id and
+    /// leaves it unconfirmed, as a send that never answered does.
     ItemLevel {
         code: String,
         message: Option<String>,

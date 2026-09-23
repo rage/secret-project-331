@@ -75,13 +75,15 @@ export interface AdminRegistrationAttempt {
   /** Frozen before the attempt was sent, so it is the grade this attempt actually carried. */
   grade_id: string | null
   grade_scale_id: string | null
+  /** The `hy-kur-…` id import answered with, if it answered. */
+  submitted_attainment_id: string | null
 }
 
 export interface AdminRegistrationDetails {
   registration: AdminRegistrationAttempt
   /** Every attempt for the same completion, this one included. */
   attempts: AdminRegistrationAttempt[]
-  events: { details: unknown }[]
+  events: { kind: string; details: unknown; request_item_id: string | null }[]
   suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
   actions: AdminRegistrationAction[]
   notification_emails: AdminNotificationEmail[]
@@ -231,7 +233,7 @@ export interface AdminCourseModuleStats {
   eligible_completion_count: number
   registration_count: number
   config_checked_at: string | null
-  check: { course_code_resolves: boolean | null }
+  check: { course_code_allowed: boolean | null }
 }
 
 export interface AdminCourseStats {

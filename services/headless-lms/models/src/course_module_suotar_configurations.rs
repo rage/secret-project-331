@@ -17,8 +17,12 @@ pub struct CourseModuleSuotarConfiguration {
     pub pause_reason: Option<String>,
     pub config_checked_at: Option<DateTime<Utc>>,
     /// `None` means never checked, which is not the same as a failed check.
-    pub course_code_resolves: Option<bool>,
+    pub course_code_allowed: Option<bool>,
     pub config_check_message: Option<String>,
+    /// The course code `course_code_allowed` is a verdict on.
+    pub checked_course_code: Option<String>,
+    /// Suotar's reason for not accepting `checked_course_code`.
+    pub course_code_rejection: Option<String>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
@@ -85,8 +89,10 @@ RETURNING id,
   paused_by_user_id,
   pause_reason,
   config_checked_at,
-  course_code_resolves,
+  course_code_allowed,
   config_check_message,
+  checked_course_code,
+  course_code_rejection,
   last_listing_attempted_at,
   last_listed_at,
   last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
@@ -124,9 +130,13 @@ pub struct SuotarModuleConfigFacts {
     pub grade_scale_id: Option<String>,
     /// The old pull path is on as well, which would register the same completion twice.
     pub old_flow_also_enabled: bool,
-    /// The course code has been listed successfully, which proves it.
-    pub listed_successfully: bool,
-    pub course_code_not_found: bool,
+    /// The module has a completion registration link override, the enrolment link students without
+    /// a usable enrolment are sent to.
+    pub has_enrolment_link: bool,
+    /// Suotar's verdict on the current course code from the last check; `None` if there is none or
+    /// the code has changed since.
+    pub stored_course_code_allowed: Option<bool>,
+    pub stored_course_code_rejection: Option<String>,
     /// A numeric grade scale override cannot map these, so the override and the module disagree.
     pub has_passed_completions_without_a_grade: bool,
 }
@@ -147,8 +157,13 @@ SELECT cm.id AS "course_module_id!",
   cm.ects_credits,
   c.grade_scale_id AS "grade_scale_id?",
   cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
-  COALESCE(c.last_listed_at IS NOT NULL, FALSE) AS "listed_successfully!",
-  COALESCE(c.last_listing_error = $2, FALSE) AS "course_code_not_found!",
+  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "has_enrolment_link!",
+  CASE
+    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed
+  END AS "stored_course_code_allowed?",
+  CASE
+    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection
+  END AS "stored_course_code_rejection?",
   EXISTS (
     SELECT 1
     FROM course_module_completions cmc
@@ -167,7 +182,6 @@ ORDER BY cm.course_id,
   cm.order_number
         "#,
         course_id,
-        CreditRegistrationErrorCode::CourseCodeNotFound as CreditRegistrationErrorCode,
     )
     .fetch_all(conn)
     .await?;
@@ -194,7 +208,7 @@ pub struct SuotarModuleOverview {
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
     pub config_checked_at: Option<DateTime<Utc>>,
-    pub course_code_resolves: Option<bool>,
+    pub course_code_allowed: Option<bool>,
     pub config_check_message: Option<String>,
     pub last_listed_at: Option<DateTime<Utc>>,
     /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
@@ -222,7 +236,7 @@ SELECT cm.id AS "course_module_id!",
   conf.paused_at AS "paused_at?",
   conf.pause_reason AS "pause_reason?",
   conf.config_checked_at AS "config_checked_at?",
-  conf.course_code_resolves AS "course_code_resolves?",
+  conf.course_code_allowed AS "course_code_allowed?",
   conf.config_check_message AS "config_check_message?",
   conf.last_listed_at AS "last_listed_at?",
   (
@@ -255,7 +269,8 @@ LIMIT $1
 ///
 /// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
 /// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
-/// also reports missing credits, an unusable grade scale and a double-enabled registration path.
+/// also reports missing credits, an unusable grade scale, a missing enrolment link and a
+/// double-enabled registration path.
 ///
 /// [`check_module_config`]: crate::library::credit_registration::config_validation::check_module_config
 pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
@@ -280,7 +295,10 @@ WHERE cm.enable_credit_registration_via_suotar
 /// the dashboard renders as "unknown" rather than as a failure.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct SuotarConfigCheck {
-    pub course_code_resolves: Option<bool>,
+    pub course_code_allowed: Option<bool>,
+    /// The course code `course_code_allowed` is about; `None` along with it.
+    pub checked_course_code: Option<String>,
+    pub course_code_rejection: Option<String>,
     /// Every problem found, in one line for the Courses tab. `None` means the module is fine.
     pub message: Option<String>,
 }
@@ -300,19 +318,25 @@ pub async fn record_config_check(
 INSERT INTO course_module_suotar_configurations (
     course_module_id,
     config_checked_at,
-    course_code_resolves,
-    config_check_message
+    course_code_allowed,
+    config_check_message,
+    checked_course_code,
+    course_code_rejection
   )
-VALUES ($1, now(), $2, $3) ON CONFLICT (course_module_id) DO
+VALUES ($1, now(), $2, $3, $4, $5) ON CONFLICT (course_module_id) DO
 UPDATE
 SET config_checked_at = now(),
-  course_code_resolves = $2,
+  course_code_allowed = $2,
   config_check_message = $3,
+  checked_course_code = $4,
+  course_code_rejection = $5,
   deleted_at = NULL
         "#,
         course_module_id,
-        check.course_code_resolves,
+        check.course_code_allowed,
         check.message,
+        check.checked_course_code,
+        check.course_code_rejection,
     )
     .execute(conn)
     .await?;
@@ -384,16 +408,10 @@ pub struct ModuleToList {
     pub course_language_code: String,
 }
 
-/// Claims the modules one discovery iteration lists, stalest attempt first. Only modules with a
-/// course code are listable.
-///
-/// Locks the configuration rows `FOR UPDATE SKIP LOCKED` and stamps `last_listing_attempted_at` in
-/// the same transaction the caller commits before dropping the connection: the stamp is what keeps a
-/// second concurrent run from reselecting the same modules once the lock is released ahead of the
-/// (potentially slow) Suotar call.
-///
-/// Attempts order the queue rather than successes, so a module that keeps failing cannot starve the
-/// rest.
+/// Claims the modules one discovery iteration lists, stalest attempt first, and stamps
+/// `last_listing_attempted_at` on them. The caller must commit before its Suotar call: once the
+/// `SKIP LOCKED` lock is released, the stamp is what keeps a concurrent run off these modules.
+/// Ordered by attempt rather than success, so a module that keeps failing cannot starve the rest.
 pub async fn claim_stalest_modules_for_listing(
     conn: &mut PgConnection,
     limit: i64,
@@ -512,6 +530,7 @@ pub struct ModuleDiscoveryReport {
     pub consecutive_listing_failures: i32,
 }
 
+/// Every active module's last discovery counters, for the account-linking dashboard.
 pub async fn get_active_discovery_reports(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ModuleDiscoveryReport>> {
@@ -580,6 +599,8 @@ WHERE course_module_id = $1
     Ok(())
 }
 
+/// Records a listing whose roster arrived: overwrites every counter and clears the failure streak.
+/// Sibling of [`mark_listing_failed`].
 pub async fn record_listing_outcome(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -629,9 +650,8 @@ WHERE course_module_id = $1
 }
 
 /// How many persons the last discovery run refused to fast-track because the registry's name did
-/// not look like the matched account's, summed over the active modules.
-///
-/// A last-run value, not a window: the counters are overwritten whole on every run.
+/// not look like the matched account's, summed over the active modules. A last-run value, not a
+/// window.
 pub async fn sum_last_fast_track_name_mismatches(conn: &mut PgConnection) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"

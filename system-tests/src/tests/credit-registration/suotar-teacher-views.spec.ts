@@ -4,9 +4,11 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
   COURSE_CREDIT_REGISTRATIONS_API,
+  CRS_STATES_101,
   getJson,
   ORIGIN,
   RETRY_COURSE_ID,
+  seededEnrolmentLink,
   STATES_COURSE_ID,
 } from "@/utils/creditRegistration"
 import {
@@ -168,6 +170,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
 
   const first = await resend()
   await expect(first).toBeOK()
+  // Only a person the course's codes list gets as far as the cap.
   expect(await first.json()).toMatchObject({ outcome: "refused_by_rate_cap" })
 
   await test.step("The teacher UI offers no override anywhere", async () => {
@@ -177,6 +180,24 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
       page.getByRole("button", { name: "Send the confirmation link again" }),
     ).toHaveCount(0)
   })
+})
+
+test("The module editor configures a study registry module by its course code and link", async ({
+  page,
+}) => {
+  await page.goto(`${ORIGIN}/manage/courses/${STATES_COURSE_ID}/modules`)
+  const form = page.locator('form:has-text("Default module")')
+  await expect(form.getByText("no enrolment link")).toHaveCount(0)
+  await form.getByRole("button", { name: "Edit" }).click()
+
+  await expect(form.getByRole("radio", { name: "In Sisu" })).toBeChecked()
+  await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
+    seededEnrolmentLink(CRS_STATES_101),
+  )
+  await expect(
+    form.getByText("Also the enrolment link for students without a usable Sisu enrolment."),
+  ).toBeVisible()
+  await expect(form.getByText(/product|realisation/i)).toHaveCount(0)
 })
 
 test("A teacher of another course cannot read this course's registration", async ({

@@ -1,8 +1,8 @@
 //! The `import` phase: the one call that creates something in the study registry.
 //!
-//! A row is committed as `submitting` before the request leaves, and no path leads from that state
-//! or `submission_uncertain` back into a batch: a second import for one row would put a second
-//! attainment on a real transcript, and we could neither see it nor undo it.
+//! A row is committed as `submitting` before the request leaves. Only Suotar's own `notRegistered`
+//! leads from that state or `submission_uncertain` back into a batch: a second import on a guess
+//! would put a second attainment on a real transcript, and we could neither see it nor undo it.
 
 use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
@@ -45,8 +45,8 @@ impl SuotarBatchPhase for Import {
     type Item = ImportAttainmentRequestItem;
     type Result = ImportAttainmentResult;
 
-    const ALL_TRANSIENT_ERROR: &'static str =
-        "Every item of the batch came back transiently unavailable.";
+    const ALL_UNAVAILABLE_ERROR: &'static str =
+        "Every item of the batch timed out in Sisu or came back unavailable.";
 
     async fn prepare(
         &mut self,
@@ -372,11 +372,13 @@ async fn record_attainment(
     Ok(())
 }
 
-/// A frozen snapshot that cannot be sent. An incomplete one would fail Suotar's validation, which
-/// rejects the whole batch with it.
+/// A frozen snapshot that cannot be sent. Suotar validates every item before acting on any, so one
+/// it would refuse takes the rest of the batch down with it.
 enum Unsendable {
     Incomplete,
     UnknownGrade,
+    /// A field Suotar requires to be non-empty, or `credits`, which it requires to be finite.
+    Invalid(&'static str),
 }
 
 impl Unsendable {
@@ -396,6 +398,15 @@ impl Unsendable {
                 event_message: Some(
                     "The frozen grade is not one the study registry accepts.".to_string(),
                 ),
+                ..Transition::to(CreditRegistrationState::FailedPermanent)
+            },
+            Self::Invalid(field) => Transition {
+                error_code: Some(CreditRegistrationErrorCode::Unknown),
+                needs_admin_attention: Some(true),
+                event_message: Some(format!(
+                    "The frozen payload's {field} is one the study registry refuses, so it was not \
+                     sent."
+                )),
                 ..Transition::to(CreditRegistrationState::FailedPermanent)
             },
         }
@@ -426,6 +437,28 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     else {
         return Err(Unsendable::Incomplete);
     };
+    let required = [
+        ("studentNumber", student_number.trim()),
+        ("courseCode", course_code.trim()),
+        ("enrolmentId", enrolment_id.trim()),
+        ("attainmentLanguage", attainment_language.trim()),
+        ("gradeScaleId", grade_scale_id.trim()),
+        ("gradeId", grade_id.trim()),
+    ];
+    if let Some((field, _)) = required.iter().find(|(_, value)| value.is_empty()) {
+        return Err(Unsendable::Invalid(field));
+    }
+    if !credits.is_finite() {
+        return Err(Unsendable::Invalid("credits"));
+    }
+    let [
+        student_number,
+        course_code,
+        enrolment_id,
+        attainment_language,
+        grade_scale_id,
+        grade_id,
+    ] = required.map(|(_, value)| value);
     // Suotar would refuse it as `invalidGradeForGradeScale`; refused here, the row fails on our
     // mapping without a round trip.
     if !is_known_grade(grade_scale_id, grade_id) {

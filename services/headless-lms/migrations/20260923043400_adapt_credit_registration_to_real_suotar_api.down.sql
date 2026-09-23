@@ -21,6 +21,18 @@ ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_c
   DROP COLUMN not_registered_reimport_count,
   DROP COLUMN selected_enrolment_realisation_name;
 
+-- A duplicateRequestItem twin shares its earlier item's id; the oldest row keeps it.
+UPDATE credit_registrations twin
+SET submitted_attainment_id = NULL
+WHERE twin.submitted_attainment_id IS NOT NULL
+  AND twin.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM credit_registrations earlier
+    WHERE earlier.submitted_attainment_id = twin.submitted_attainment_id
+      AND earlier.deleted_at IS NULL
+      AND (earlier.created_at, earlier.id) < (twin.created_at, twin.id)
+  );
 CREATE UNIQUE INDEX uq_credit_registrations_submitted_attainment ON credit_registrations (submitted_attainment_id)
 WHERE submitted_attainment_id IS NOT NULL
   AND deleted_at IS NULL;
@@ -103,16 +115,25 @@ ALTER COLUMN error_code TYPE credit_registration_error_code USING (
   )::credit_registration_error_code;
 DROP TYPE credit_registration_error_code_new;
 
+ALTER TABLE course_module_suotar_configurations DROP COLUMN checked_course_code,
+  DROP COLUMN course_code_rejection;
+
+ALTER TABLE course_module_suotar_configurations
+  RENAME COLUMN course_code_allowed TO course_code_resolves;
 ALTER TABLE course_module_suotar_configurations DROP CONSTRAINT course_module_suotar_configurations_check_result,
   ADD COLUMN open_university_product_id VARCHAR(255),
   ADD COLUMN product_token_found BOOLEAN;
+-- A check that got no verdict has no representation in the old schema, so it reads as never run.
+UPDATE course_module_suotar_configurations
+SET config_checked_at = NULL
+WHERE course_code_resolves IS NULL;
 ALTER TABLE course_module_suotar_configurations
 ADD CONSTRAINT course_module_suotar_configurations_check_result CHECK (
     (config_checked_at IS NULL) = (
       course_code_resolves IS NULL
       AND product_token_found IS NULL
     )
-  ) NOT VALID;
+  );
 
 INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
 VALUES ('product-token-refresh', 'suotar-syncer', 21600);

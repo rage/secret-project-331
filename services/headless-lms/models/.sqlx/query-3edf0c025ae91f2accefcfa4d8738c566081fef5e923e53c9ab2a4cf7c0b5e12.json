@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET submitted_attainment_id = NULL,\n  submitted_attainment_type = NULL,\n  partially_registered_at = NULL,\n  selected_enrolment_id = NULL,\n  grade_id = NULL,\n  first_failed_at = NULL,\n  verify_attempt_count = 0,\n  not_registered_reimport_count = not_registered_reimport_count + 1\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING not_registered_reimport_count\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "not_registered_reimport_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "not_registered_reimport_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3edf0c025ae91f2accefcfa4d8738c566081fef5e923e53c9ab2a4cf7c0b5e12"
+}

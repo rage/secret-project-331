@@ -1,6 +1,7 @@
 import {
   completionRegistrationUrl,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   seededStudentStorageState,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
@@ -50,9 +51,10 @@ test.describe("A student the University has no enrolment for", () => {
       await page.getByRole("radio", { name: "No", exact: true }).click()
       const enrol = page.getByRole("link", { name: "Enrol at the Open University" })
       await expect(enrol).toBeVisible()
-      // The module's own link, so it lands the student somewhere that works rather than on a
-      // generic front page.
-      await expect(enrol).toHaveAttribute("href", /esittely\.aspx\?s=seed-/)
+      // The module's completion registration link override, so it lands the student somewhere
+      // that works rather than on a generic front page.
+      await expect(enrol).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
+      expect(stuck.enrolment_link).toBe(CRS_101_ENROLMENT_LINK)
     })
 
     await test.step("Saying they have enrolled turns the page into a wait", async () => {
@@ -112,14 +114,17 @@ test.describe("A student enrolled both as a degree student and through the Open 
     const world = (await getMockSuotarWorld(page.request)) as {
       enrolments: Record<
         string,
-        { id: string; studentNumber: string; courseCode: string; realisationId: string }
+        { id: string; studentNumber: string; courseCode: string; studyRightId: string | null }
       >
     }
+    // Suotar derives an enrolment's kind from its study right, as the mock does: an open university
+    // study right is the one whose id names it.
     const degreeEnrolment = Object.values(world.enrolments).find(
       (enrolment) =>
         enrolment.studentNumber === TWO_ENROLMENTS_STUDENT_NUMBER &&
         enrolment.courseCode === CRS_101 &&
-        enrolment.realisationId.endsWith("-degree"),
+        enrolment.studyRightId !== null &&
+        !enrolment.studyRightId.includes("avoin"),
     )
     expect(degreeEnrolment, "the degree enrolment is missing from the mock's world").toBeDefined()
 

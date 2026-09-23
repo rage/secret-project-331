@@ -123,10 +123,12 @@ impl CreditRegistrationState {
                 S::Blocked,
                 S::Cancelled,
             ],
-            // No `ready_to_submit`: a resolve call is out, and only that phase's own commit may
-            // move the row, or import could claim it before the enrolment is resolved.
+            // `ready_to_submit` only once the recovery grace has passed: while a resolve call is
+            // out, only that phase's own commit may move the row, or import could claim it before
+            // the enrolment is resolved.
             S::ResolvingEnrolment => &[
                 S::Pending,
+                S::ReadyToSubmit,
                 S::CheckingEnrolment,
                 S::NoUsableEnrolment,
                 S::Duplicate,
@@ -159,11 +161,22 @@ impl CreditRegistrationState {
                 S::FailedRetryable,
                 S::FailedPermanent,
             ],
-            // Both poller states: verify is the only path to `registered`, and neither may reach a
-            // state that leads back to import.
-            S::AwaitingVerification | S::SubmissionUncertain => {
-                &[S::Registered, S::Duplicate, S::Misregistered]
-            }
+            // Both poller states: verify is the only path to `registered`. `failed_retryable` leads
+            // back to import, and only Suotar's own `notRegistered` may take it.
+            S::AwaitingVerification => &[
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::FailedRetryable,
+            ],
+            // `awaiting_verification` once verify finds evidence that the submission landed.
+            S::SubmissionUncertain => &[
+                S::AwaitingVerification,
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::FailedRetryable,
+            ],
             // The backoff elapsing resumes the row at whichever state matches how far it had got.
             S::FailedRetryable => &[
                 S::Pending,
@@ -575,10 +588,11 @@ impl Transition {
 /// Deliberately not `PreconditionFailed`, which the phases read as "another writer got here first"
 /// and skip over.
 ///
-/// Owns the lifecycle stamps, so callers must not touch them: `state_entered_at`, `terminal_at`,
-/// `first_failed_at`, `registered_at`, `submitted_at`, `enrolment_checked_at`,
-/// `enrolment_banner_dismissed_at`, which entering `no_usable_enrolment` clears, and
-/// `next_attempt_at`, which takes the target state's default cadence unless the caller names a time.
+/// Owns the lifecycle stamps, so callers must not touch them (bar [`reset_for_resubmission`]
+/// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at`,
+/// `registered_at`, `submitted_at`, `enrolment_checked_at`, `enrolment_banner_dismissed_at`, which
+/// entering `no_usable_enrolment` clears, and `next_attempt_at`, which takes the target state's
+/// default cadence unless the caller names a time.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -1299,6 +1313,8 @@ pub struct PayloadSnapshot {
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
     pub selected_enrolment_realisation_id: Option<String>,
+    /// Localized `{fi, sv, en}` realisation name, as Suotar reported it.
+    pub selected_enrolment_realisation_name: Option<serde_json::Value>,
     pub attainment_date: NaiveDate,
     pub attainment_language: String,
     pub grade_scale_id: String,
@@ -1324,7 +1340,8 @@ SET student_number = $2,
   attainment_language = $9,
   grade_scale_id = $10,
   grade_id = $11,
-  credits = $12
+  credits = $12,
+  selected_enrolment_realisation_name = $13
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -1340,6 +1357,7 @@ WHERE id = $1
         snapshot.grade_scale_id,
         snapshot.grade_id,
         snapshot.credits,
+        snapshot.selected_enrolment_realisation_name,
     )
     .execute(conn)
     .await?;
@@ -1367,6 +1385,55 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Notes that verify saw only the assessment item attainment, keeping the first sighting, and
+/// returns when that was.
+pub async fn mark_partially_registered(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<DateTime<Utc>> {
+    let partially_registered_at = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registrations
+SET partially_registered_at = COALESCE(partially_registered_at, now())
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING partially_registered_at AS "partially_registered_at!"
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(partially_registered_at)
+}
+
+/// Forgets a submission Suotar says never landed, so the row resolves its enrolment and imports
+/// again from scratch, and returns how many times that has now happened.
+///
+/// Also restarts the retry window and the verify count: the resend is new work, and the old
+/// submission's history would expire it or flag it at once.
+pub async fn reset_for_resubmission(conn: &mut PgConnection, id: Uuid) -> ModelResult<i32> {
+    let reimport_count = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registrations
+SET submitted_attainment_id = NULL,
+  submitted_attainment_type = NULL,
+  partially_registered_at = NULL,
+  selected_enrolment_id = NULL,
+  grade_id = NULL,
+  first_failed_at = NULL,
+  verify_attempt_count = 0,
+  not_registered_reimport_count = not_registered_reimport_count + 1
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING not_registered_reimport_count
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(reimport_count)
 }
 
 /// Records the attainment the study registry holds, unless another live row already claims it.
@@ -1509,8 +1576,8 @@ RETURNING submit_retry_count
     Ok(res.submit_retry_count)
 }
 
-/// Counts one verify poll for every row of a batch and returns each row's new count. The count is
-/// part of the poll's request item id, so it has to be taken before the request goes out.
+/// Counts one verify poll for every row of a batch and returns each row's new count, which sets the
+/// backoff the poll's answer is scheduled by.
 pub async fn increment_verify_attempt_counts(
     conn: &mut PgConnection,
     ids: &[Uuid],

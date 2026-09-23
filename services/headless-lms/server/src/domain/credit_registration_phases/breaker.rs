@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
 use super::PhaseScope;
@@ -50,8 +51,15 @@ impl ScopeKey {
 }
 
 /// How long a run of failures that never tripped the breaker is remembered, so a scope never run
-/// again leaves the map. Much longer than a worker tick, so a real outage never loses its count.
-const FAILURE_RUN_MEMORY: Duration = Duration::from_secs(SUOTAR_COOLDOWN_SECS);
+/// again leaves the map. Failures an outage spreads between hour-long timed-out calls must still
+/// add up.
+const FAILURE_RUN_MEMORY: Duration = Duration::from_secs(2 * 60 * 60);
+const _: () = assert!(
+    FAILURE_RUN_MEMORY.as_secs()
+        >= 2 * SuotarEndpoint::ImportAttainments
+            .request_timeout()
+            .as_secs()
+);
 
 #[derive(Debug, Clone)]
 struct BreakerState {

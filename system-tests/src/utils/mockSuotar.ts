@@ -194,22 +194,6 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
-/** Moves the student's submissions back in time, so a spec can cross the 24-hour pending window. */
-export const ageMockSuotarSubmissions = (
-  request: APIRequestContext,
-  studentNumber: string,
-  hours: number,
-  courseCode?: string,
-) => sendCommand(request, { command: "ageSubmissions", studentNumber, courseCode, hours })
-
-/** What Sisu refuses the student's attainments on the course with. An empty list clears them. */
-export const setMockSuotarSisuViolations = (
-  request: APIRequestContext,
-  studentNumber: string,
-  courseCode: string,
-  violations: string[],
-) => sendCommand(request, { command: "setSisuViolations", studentNumber, courseCode, violations })
-
 /**
  * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
  * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student

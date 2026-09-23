@@ -5,6 +5,7 @@ import {
   courseFrontPageUrl,
   CREDIT_REGISTRATIONS_API,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   getJson,
   type MyCreditRegistration,
   seededStudentStorageState,
@@ -78,7 +79,7 @@ test.describe("A student the University has no enrolment for", () => {
     await expect(notice.getByText("Enrolment needed")).toBeVisible()
     await expect(
       notice.getByRole("link", { name: "Enrol at the Open University" }),
-    ).toHaveAttribute("href", /token/)
+    ).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
     await expect(notice.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
 
     await test.step("It is a banner, not a dialog", async () => {

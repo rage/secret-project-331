@@ -2,6 +2,7 @@
 //! even retryable is [`super::classification`].
 
 use headless_lms_utils::backoff::{exponential_backoff_secs, window_expired};
+use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
 
@@ -28,9 +29,24 @@ pub const UNCERTAIN_RECHECK_SECS: i64 = 15 * 60;
 /// After this many fruitless checks a human is asked to look in Sisu. The row still never resubmits.
 pub const UNCERTAIN_MAX_CHECKS: i32 = 3;
 
-/// A row still `submitting` this long belongs to a worker that died mid-call. Must stay comfortably
-/// longer than the client's request timeout, so a live request is never condemned.
-pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = 120;
+/// How long verify may see only the assessment item attainment before a human looks.
+pub const PARTIAL_REGISTRATION_ADMIN_AFTER_SECS: i64 = 3 * 24 * 60 * 60;
+/// How many times Suotar may lose a submission (`notRegistered`) before a human looks. Each one
+/// still resubmits.
+pub const NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD: i32 = 3;
+
+/// A row still `submitting` this long belongs to a worker that died mid-call. Above the import
+/// timeout, so a live request is never condemned to `submission_uncertain`.
+pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ImportAttainments
+    .request_timeout()
+    .as_secs() as i64
+    + 15 * 60;
+/// A row still `resolving_enrolment` this long belongs to a worker that died mid-call, and goes back
+/// to `ready_to_submit`. Above the resolve timeout, so a live answer still lands.
+pub const RESOLVING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ResolveEnrolments
+    .request_timeout()
+    .as_secs() as i64
+    + 10 * 60;
 
 pub fn submit_backoff_secs(retry_count: i32) -> i64 {
     exponential_backoff_secs(

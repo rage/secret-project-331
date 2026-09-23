@@ -3,7 +3,7 @@
 //! The processes differ only in which phases they own and how often they look, so the scheduling
 //! lives here instead of in each of them.
 
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
@@ -14,22 +14,25 @@ use headless_lms_models::credit_registration_phase_state::{
 };
 use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::services::suotar::SuotarClient;
+use tokio_util::sync::CancellationToken;
 
 use crate::programs::periodic_worker::{
-    PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
+    PeriodicWorkerConfig, StillRunningLog, is_db_disconnect, run_periodic_worker_until,
 };
 
 use super::{CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseTick, run_phase_once};
 
-/// How often the loop looks for a due phase; each phase's own interval lives in
+/// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.
 const TICK_INTERVAL_SECS: u64 = 10;
 
 /// Ten minutes of ticks. The per-phase heartbeat in the database is the machine-readable half.
 const STILL_RUNNING_MESSAGE_TICKS: u32 = 60;
 
-/// Runs the phases this process owns until it is stopped, matching `process_name` against
-/// [`CreditRegistrationPhase::process_name`].
+/// Runs the phases this process owns until SIGTERM or Ctrl-C, matching `process_name` against
+/// [`CreditRegistrationPhase::process_name`]. Each phase loops on its own, so an hour-long call in
+/// one does not hold up the others. On shutdown no phase starts another iteration, and the function
+/// returns once the iterations already running have finished.
 pub async fn run(
     process_name: &'static str,
     db_pool: PgPool,
@@ -40,55 +43,61 @@ pub async fn run(
         &app_configuration.suotar_configuration,
         Arc::new(PgSuotarCallAudit::new(db_pool.clone())),
     );
-    let phases: Vec<CreditRegistrationPhase> = CreditRegistrationPhase::ALL
-        .into_iter()
-        .filter(|phase| phase.process_name() == process_name)
-        .collect();
+    let ctx = PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name);
+    let shutdown = CancellationToken::new();
+    tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
 
-    run_periodic_worker(
+    let still_running = run_periodic_worker_until(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
-            still_running_every: STILL_RUNNING_MESSAGE_TICKS,
-            still_running_message,
-            initial_ticks: 0,
+            still_running: Some(StillRunningLog {
+                every: STILL_RUNNING_MESSAGE_TICKS,
+                message: still_running_message,
+                initial_ticks: 0,
+            }),
+            delay_missed_ticks: true,
+        },
+        &shutdown,
+        async || Ok(()),
+    );
+    // Futures of one task rather than spawned tasks: the phase bodies are not `Send`. They only
+    // need to wait on the study registry side by side, not to run in parallel.
+    let phase_loops = CreditRegistrationPhase::ALL
+        .into_iter()
+        .filter(|phase| phase.process_name() == process_name)
+        .map(|phase| run_phase_loop(&ctx, phase, &shutdown));
+    let (still_running, phase_loops) =
+        tokio::join!(still_running, futures::future::join_all(phase_loops));
+    still_running?;
+    phase_loops.into_iter().collect::<anyhow::Result<()>>()?;
+    info!("{process_name} stopped.");
+    Ok(())
+}
+
+async fn run_phase_loop(
+    ctx: &PhaseContext<'_>,
+    phase: CreditRegistrationPhase,
+    shutdown: &CancellationToken,
+) -> anyhow::Result<()> {
+    run_periodic_worker_until(
+        PeriodicWorkerConfig {
+            tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
+            // `run` logs one message for the whole process.
+            still_running: None,
             // A slow iteration should push later ticks out, not fire them back to back (tokio's
             // default).
             delay_missed_ticks: true,
         },
+        shutdown,
         async || {
-            let ctx =
-                PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name);
-            let states = match phase_states(&db_pool).await {
-                Ok(states) => states,
-                Err(error) => {
-                    log_failure(
-                        process_name,
-                        "Reading the credit registration phase states",
-                        &error,
-                    );
-                    return Ok(());
-                }
-            };
-            for phase in &phases {
-                let Some(state) = states.get(phase.as_str()) else {
-                    error!(
-                        "Credit registration phase {} has no phase-state row.",
-                        phase.as_str()
-                    );
-                    continue;
-                };
-                if !is_due(state, Utc::now()) {
-                    continue;
-                }
-                // Logged and swallowed: one phase failing must not stop the others, and the phase-state
-                // row already carries the failure for the dashboard.
-                if let Err(error) = run_due_phase(&ctx, *phase, state).await {
-                    log_failure(
-                        process_name,
-                        &format!("Credit registration phase {}", phase.as_str()),
-                        &error,
-                    );
-                }
+            // Logged and swallowed: the phase-state row already carries the failure for the
+            // dashboard, and the loop must keep going.
+            if let Err(error) = run_if_due(ctx, phase).await {
+                log_failure(
+                    ctx.caller,
+                    &format!("Credit registration phase {}", phase.as_str()),
+                    &error,
+                );
             }
             Ok(())
         },
@@ -96,16 +105,35 @@ pub async fn run(
     .await
 }
 
-/// Every phase's state in one read, so a tick costs one query rather than one per owned phase.
-async fn phase_states(
-    pool: &PgPool,
-) -> anyhow::Result<HashMap<String, CreditRegistrationPhaseState>> {
-    let mut conn = pool.acquire().await?;
-    Ok(credit_registration_phase_state::get_all(&mut conn)
-        .await?
-        .into_iter()
-        .map(|state| (state.phase.clone(), state))
-        .collect())
+/// Kubernetes sends SIGTERM and waits `terminationGracePeriodSeconds` before killing the pod.
+async fn cancel_on_termination_signal(shutdown: CancellationToken) {
+    let terminate = async {
+        match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+            Ok(mut signal) => {
+                signal.recv().await;
+            }
+            Err(error) => {
+                error!("Could not listen for SIGTERM: {error}");
+                std::future::pending::<()>().await;
+            }
+        }
+    };
+    tokio::select! {
+        _ = terminate => info!("Received SIGTERM; finishing the phase iterations already running."),
+        _ = tokio::signal::ctrl_c() => info!("Received Ctrl-C; finishing the phase iterations already running."),
+    }
+    shutdown.cancel();
+}
+
+async fn run_if_due(ctx: &PhaseContext<'_>, phase: CreditRegistrationPhase) -> anyhow::Result<()> {
+    let state = {
+        let mut conn = ctx.pool.acquire().await?;
+        credit_registration_phase_state::get_by_phase(&mut conn, phase.as_str()).await?
+    };
+    if !is_due(&state, Utc::now()) {
+        return Ok(());
+    }
+    run_due_phase(ctx, phase, &state).await
 }
 
 fn log_failure(process_name: &str, subject: &str, error: &anyhow::Error) {

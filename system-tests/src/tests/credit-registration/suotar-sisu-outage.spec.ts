@@ -39,6 +39,7 @@ test.use({ storageState: ADMIN_STORAGE_STATE })
 const OUTAGE_STUDENT_NUMBER = "900000601"
 const OUTAGE_EMAIL = "credit-registration-sisu-outage@example.com"
 const OUTAGE_FAULT_ID = "sisu-outage-spec"
+const IMPORT_OUTAGE_FAULT_ID = "sisu-outage-spec-import"
 const OUTAGE_FIRST_NAMES = "Zzyzx"
 const OUTAGE_LAST_NAME = "Outaged"
 const OUTAGE_SISU_EMAIL = "zzyzx.outaged@helsinki.example"
@@ -59,6 +60,7 @@ const outageRow = async (adminApi: Parameters<typeof listAdminRegistrations>[0])
 // re-run. Disarming is idempotent, and the last step disarms on its own as part of what it asserts.
 test.afterEach(async ({ page }) => {
   await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
+  await disarmMockSuotarFault(page.request, IMPORT_OUTAGE_FAULT_ID)
 })
 
 test("An outage backs off, surfaces on the errors tab, and recovers", async ({
@@ -67,12 +69,6 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
 }) => {
   const scope = { userEmail: OUTAGE_EMAIL }
 
-  // `import` hardens a request-level failure to `submission_uncertain` rather than
-  // `failed_retryable`, since a request Suotar never answered may still have landed and a retry
-  // would double-submit. `resolve-enrolments` carries no such risk — nothing is created there — so
-  // its outcome for the same wire code is the one this spec needs: `failed_retryable`, retried
-  // rather than given up on.
-  //
   // Armed before the enrolment exists, so no unscoped worker sweep can resolve this row while the
   // study registry is still answering normally. `resolve` is pre-write: nothing lands in the
   // registry, which is what makes the code honestly transient.
@@ -145,14 +141,44 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     expect(unavailable?.retryability).toBe("retryable_transient")
   })
 
-  await test.step("The row registers once the study registry answers again", async () => {
+  await test.step("A 503 on import is retried rather than left uncertain", async () => {
+    // Suotar answers 503 before it sends anything, so unlike a timeout nothing can have landed.
+    await armMockSuotarFault(page.request, {
+      id: IMPORT_OUTAGE_FAULT_ID,
+      when: [
+        { endpoint: "import_attainments" },
+        { stage: "resolve" },
+        { studentNumber: OUTAGE_STUDENT_NUMBER },
+      ],
+      // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
+      then: { kind: "requestLevel", status: 503, code: UNAVAILABLE_WIRE_CODE },
+    })
     await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
     await makeRegistrationDueNow(adminApi, failing.id)
-    // Resumes through `preconditions` to `ready_to_submit`, then `resolve-enrolments` succeeds now
-    // that the outage is lifted and freezes the payload, before `import` can submit it. Well under
-    // the circuit breaker's failure limit, so this runs cleanly on the first attempt.
+    await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS)
+    // Resumes through `preconditions` to `ready_to_submit`, and `resolve-enrolments` now succeeds
+    // and freezes the payload.
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
+    await runTickUnchecked(page.request, "import", scope)
+
+    const retrying = await pollUntil(
+      async () => {
+        const row = await outageRow(adminApi)
+        return row?.state === "failed_retryable" && row.selected_enrolment_id !== null ? row : null
+      },
+      { description: "the outage row to wait for another import" },
+    )
+    expect(retrying.error_code).toBe(UNAVAILABLE_LEDGER_CODE)
+  })
+
+  await test.step("The row registers once the study registry answers again", async () => {
+    await disarmMockSuotarFault(page.request, IMPORT_OUTAGE_FAULT_ID)
+    await makeRegistrationDueNow(adminApi, failing.id)
+    // The payload is frozen, so `preconditions` resumes the row at `checking_enrolment` and
+    // `import` sends it. Well under the circuit breaker's failure limit, so this runs cleanly on
+    // the first attempt.
+    await runPreconditionsTick(page.request, scope)
     await runImportSubmissionTick(page.request, scope)
 
     const submitted = await pollUntil(

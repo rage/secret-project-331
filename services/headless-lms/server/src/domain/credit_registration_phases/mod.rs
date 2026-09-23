@@ -27,7 +27,7 @@ use headless_lms_models::email_templates::{
     EmailTemplateType, get_generic_email_template_by_type_and_language,
 };
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
-use headless_lms_models::library::credit_registration::classification::is_service_unavailable_wire_code;
+use headless_lms_models::library::credit_registration::classification::is_service_unavailable_code;
 use headless_lms_models::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
@@ -51,10 +51,12 @@ use headless_lms_utils::services::suotar::{
     ListedPerson, SuotarBatchResponse, SuotarClient, SuotarEndpoint, SuotarItemStatus,
     SuotarRequestItem, SuotarResponseItem,
 };
+use itertools::izip;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::{BTreeSet, HashMap};
 use std::future::Future;
 use std::pin::Pin;
+use std::time::Duration;
 use uuid::Uuid;
 
 /// Which rows one iteration may touch.
@@ -149,10 +151,37 @@ impl CreditRegistrationPhase {
     /// other such phases of its own worker process (`breaker::BREAKERS` is process-local, not
     /// shared between `credit-registrar` and `suotar-syncer`).
     pub fn calls_study_registry(self) -> bool {
-        matches!(
-            self,
-            Self::ResolveEnrolments | Self::Import | Self::Verify | Self::EnrolmentDiscovery
-        )
+        !self.study_registry_endpoints().is_empty()
+    }
+
+    /// The study registry endpoints one iteration calls, one after the other.
+    pub fn study_registry_endpoints(self) -> &'static [SuotarEndpoint] {
+        match self {
+            Self::ResolveEnrolments => &[SuotarEndpoint::ResolveEnrolments],
+            Self::Import => &[SuotarEndpoint::ImportAttainments],
+            // The poll, then the recovery lookup for rows with nothing to poll by.
+            Self::Verify => &[
+                SuotarEndpoint::VerifyAttainments,
+                SuotarEndpoint::ResolveEnrolments,
+            ],
+            Self::EnrolmentDiscovery => &[SuotarEndpoint::ListByCourse],
+            Self::ConfigValidation => &[SuotarEndpoint::ValidateCourseCodes],
+            Self::Materialize
+            | Self::Preconditions
+            | Self::LegacyMirror
+            | Self::StudentNotifications
+            | Self::LinkEmails
+            | Self::RetentionSweep
+            | Self::LedgerSnapshot => &[],
+        }
+    }
+
+    /// The longest one iteration may wait on the study registry before its calls time out.
+    pub fn max_study_registry_wait(self) -> Duration {
+        self.study_registry_endpoints()
+            .iter()
+            .map(|endpoint| endpoint.request_timeout())
+            .sum()
     }
 
     /// The ledger states this phase is the one to move a row out of.
@@ -373,6 +402,13 @@ pub async fn run_phase_once(
     }
     drop(conn);
 
+    // The phase loops run side by side, so a shared count would credit this iteration with another
+    // phase's requests.
+    let suotar_client = ctx.suotar_client.with_own_exchange_count();
+    let ctx = &PhaseContext {
+        suotar_client: &suotar_client,
+        ..*ctx
+    };
     let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> = match phase {
         CreditRegistrationPhase::Materialize => Box::pin(run_materialize(ctx, scope)),
         CreditRegistrationPhase::Preconditions => Box::pin(run_preconditions(ctx, scope)),
@@ -392,7 +428,7 @@ pub async fn run_phase_once(
         CreditRegistrationPhase::LedgerSnapshot => Box::pin(ledger_snapshot::run(ctx, scope)),
     };
 
-    let exchanges_before = ctx.suotar_client.exchange_count();
+    let keep_alive = bookkeeping.then(|| KeepAlive::spawn(ctx.pool, phase));
     let outcome = match body.await {
         Ok(outcome) => outcome,
         Err(error) => PhaseRunOutcome {
@@ -401,6 +437,7 @@ pub async fn run_phase_once(
             error: Some(scrub_text(&format!("{error:#}"))),
         },
     };
+    drop(keep_alive);
     if let Some(error) = &outcome.error {
         error!(
             "Credit registration phase {} failed: {error}",
@@ -411,7 +448,7 @@ pub async fn run_phase_once(
     // so it must neither count against the breaker nor clear a run of failures. Phases share one
     // breaker, and an empty queue is the common case: without this, a phase with nothing to do
     // resets the counter every tick and the breaker never opens during an outage.
-    let reached_study_registry = ctx.suotar_client.exchange_count() > exchanges_before;
+    let reached_study_registry = suotar_client.exchange_count() > 0;
     if phase.calls_study_registry() && reached_study_registry {
         if outcome.error.is_some() {
             if breaker::record_failure(&breaker_key, breaker::cooldown(ctx.test_mode)) {
@@ -430,6 +467,47 @@ pub async fn run_phase_once(
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
     }
     Ok(PhaseTick::Ran(outcome))
+}
+
+/// How often a running iteration refreshes its heartbeat. Under half the shortest phase interval,
+/// so even the 10-second phases never read as stale mid-call.
+const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(5);
+
+/// Refreshes one phase's heartbeat until dropped, so a long study registry call does not raise the
+/// stale-worker alert.
+struct KeepAlive(tokio::task::JoinHandle<()>);
+
+impl KeepAlive {
+    fn spawn(pool: &PgPool, phase: CreditRegistrationPhase) -> Self {
+        let pool = pool.clone();
+        Self(tokio::spawn(async move {
+            let mut ticks = tokio::time::interval(KEEP_ALIVE_INTERVAL);
+            ticks.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+            // The first tick is immediate, and the iteration has just heartbeated.
+            ticks.tick().await;
+            loop {
+                ticks.tick().await;
+                let refreshed = async {
+                    let mut conn = pool.acquire().await?;
+                    credit_registration_phase_state::keep_alive(&mut conn, phase.as_str()).await?;
+                    anyhow::Ok(())
+                }
+                .await;
+                if let Err(error) = refreshed {
+                    warn!(
+                        "Refreshing the heartbeat of credit registration phase {} failed: {error:#}",
+                        phase.as_str()
+                    );
+                }
+            }
+        }))
+    }
+}
+
+impl Drop for KeepAlive {
+    fn drop(&mut self) {
+        self.0.abort();
+    }
 }
 
 /// One template lookup per type and language per iteration rather than per mail. `None` means no
@@ -473,9 +551,6 @@ impl TemplateCache {
 /// shapes; [`run_mail_queue_phase`] is the loop they share.
 pub(crate) trait MailQueuePhase {
     type Item;
-    /// Per-run state [`queue`](Self::queue) may want across items, the way [`TemplateCache`] is
-    /// kept across items already. `()` for a phase that needs none.
-    type Cache: Default;
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>>;
 
@@ -489,7 +564,6 @@ pub(crate) trait MailQueuePhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-        cache: &mut Self::Cache,
     ) -> anyhow::Result<()>;
 
     /// One entry of the missing-templates report, e.g. the language alone or a type-and-language
@@ -511,7 +585,6 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     let mut tx = conn.begin().await?;
     let claimed = P::claim(&mut tx, scope).await?;
     let mut templates = TemplateCache::default();
-    let mut cache = P::Cache::default();
     let mut missing_templates: BTreeSet<String> = BTreeSet::new();
     let mut skipped = 0;
     for item in &claimed {
@@ -522,7 +595,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
             skipped += 1;
             continue;
         };
-        P::queue(ctx, &mut tx, item, template_id, &mut cache).await?;
+        P::queue(ctx, &mut tx, item, template_id).await?;
     }
     tx.commit().await?;
 
@@ -571,8 +644,8 @@ pub(crate) trait SuotarBatchPhase {
     /// The endpoint's per-item result body.
     type Result;
 
-    /// The iteration's error when every item came back transiently unavailable.
-    const ALL_TRANSIENT_ERROR: &'static str;
+    /// The iteration's error when every item came back unavailable.
+    const ALL_UNAVAILABLE_ERROR: &'static str;
 
     /// Claims rows and decides what may be asked about them. Whatever has to be true before the
     /// request leaves is written here, in the caller's transaction.
@@ -656,11 +729,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
         Ok(response) => response,
         Err(error) => {
             let mut conn = ctx.pool.acquire().await?;
-            for ((row, request), request_item_id) in rows
-                .iter()
-                .zip(requests.iter())
-                .zip(request_item_ids.iter())
-            {
+            for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
                 let applied = phase
                     .apply_request_rejection(&mut conn, row, request, request_item_id, &error)
                     .await;
@@ -680,11 +749,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     };
 
     let mut conn = ctx.pool.acquire().await?;
-    for ((row, request), request_item_id) in rows
-        .iter()
-        .zip(requests.iter())
-        .zip(request_item_ids.iter())
-    {
+    for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
         let response_json = response_item_json(&response.raw_response, request_item_id);
         let event = OutcomeEvent {
             suotar_api_call_id: response.call_id,
@@ -708,7 +773,8 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     Ok(PhaseRunOutcome {
         items_processed: processed,
         items_failed,
-        error: every_item_failed_transiently(&response).then(|| P::ALL_TRANSIENT_ERROR.to_string()),
+        error: every_item_service_unavailable(&response)
+            .then(|| P::ALL_UNAVAILABLE_ERROR.to_string()),
     })
 }
 
@@ -858,7 +924,7 @@ pub(crate) fn row_moved_on(error: &anyhow::Error) -> bool {
 }
 
 /// Whether an outcome counts against the iteration's `items_failed`: an error code is a failed
-/// item, so a verify poll answered `notRegistered` is not one.
+/// item, so a verify poll that is still waiting is not one.
 pub(crate) fn counts_as_failed(outcome: &Outcome) -> bool {
     outcome.error_code.is_some()
 }
@@ -874,12 +940,13 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
     }
 }
 
-/// Whether the whole batch came back saying "not now", so the worker stops burning calls. A batch
-/// with one good item is a success: something moved.
-pub(crate) fn every_item_failed_transiently<R>(response: &SuotarBatchResponse<R>) -> bool {
+/// Whether the whole batch came back saying "not now". Failing the iteration on it is what opens the
+/// circuit breaker; a batch with one good item is a success, because something moved.
+pub(crate) fn every_item_service_unavailable<R>(response: &SuotarBatchResponse<R>) -> bool {
     !response.items.is_empty()
         && response.items.iter().all(|item| {
-            item.status == SuotarItemStatus::Error && is_service_unavailable_wire_code(&item.code)
+            item.status == SuotarItemStatus::Error
+                && is_service_unavailable_code(response.endpoint, &item.code)
         })
 }
 
@@ -917,7 +984,7 @@ pub(crate) async fn apply_request_level_outcome(
 
 /// A failure that never reached the study registry is safe to send again; everything else may have
 /// been acted on. Anything that is not a client error was raised before the request was built.
-fn suotar_error_variant(error: &UtilError) -> SuotarErrorVariant {
+pub(crate) fn suotar_error_variant(error: &UtilError) -> SuotarErrorVariant {
     match error.error_type() {
         UtilErrorType::SuotarClientError(variant) => *variant,
         _ => SuotarErrorVariant::TransportNotDelivered,
@@ -1001,15 +1068,15 @@ mod tests {
     #[test]
     fn a_response_item_is_found_by_its_request_item_id() {
         let raw = serde_json::json!([
-            { "requestItemId": "cr-1", "status": "ok", "code": "sent" },
-            { "requestItemId": "cr-2", "status": "error", "code": "sisuTimeout" },
+            { "requestItemId": "item-1", "status": "ok", "code": "sent" },
+            { "requestItemId": "item-2", "status": "error", "code": "sisuTimeout" },
         ]);
         assert_eq!(
-            response_item_json(&raw, "cr-2").and_then(|item| item
+            response_item_json(&raw, "item-2").and_then(|item| item
                 .get("code")
                 .and_then(|code| code.as_str().map(str::to_string))),
             Some("sisuTimeout".to_string())
         );
-        assert_eq!(response_item_json(&raw, "cr-9"), None);
+        assert_eq!(response_item_json(&raw, "item-9"), None);
     }
 }

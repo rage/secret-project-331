@@ -1,7 +1,7 @@
 //! The frozen copy of what we submit: written once before the row leaves enrolment resolution and
 //! never rewritten, so a later regrade cannot silently change something already sent.
 
-use chrono::{Datelike, NaiveDate, Weekday};
+use headless_lms_utils::helsinki_time::helsinki_date;
 use headless_lms_utils::services::suotar::SuotarEnrolment;
 
 use crate::course_module_completions::CourseModuleCompletion;
@@ -60,7 +60,8 @@ pub fn build_payload_snapshot(
     }
     let uh_course_code = sources
         .uh_course_code
-        .filter(|code| !code.trim().is_empty())
+        .map(str::trim)
+        .filter(|code| !code.is_empty())
         .ok_or(CreditRegistrationErrorCode::MissingUhCourseCode)?;
     let ects_credits = sources
         .ects_credits
@@ -85,6 +86,10 @@ pub fn build_payload_snapshot(
             selected_enrolment_realisation_id: sources
                 .enrolment
                 .map(|enrolment| enrolment.course_unit_realisation_id.clone()),
+            selected_enrolment_realisation_name: sources
+                .enrolment
+                .and_then(|enrolment| enrolment.course_unit_realisation_name.as_ref())
+                .and_then(|name| serde_json::to_value(name).ok()),
             attainment_date: helsinki_date(completion.completion_date),
             attainment_language: attainment_language(&completion.completion_language),
             grade_scale_id: grade.grade_scale_id,
@@ -96,12 +101,15 @@ pub fn build_payload_snapshot(
 }
 
 fn clamp_credits(credits: f32, enrolment: Option<&SuotarEnrolment>) -> (f32, Option<f32>) {
-    let Some(range) = enrolment.and_then(|enrolment| enrolment.credits.as_ref()) else {
+    let Some((min, max)) = enrolment
+        .and_then(|enrolment| enrolment.credits.as_ref())
+        .and_then(|range| range.min.zip(range.max))
+    else {
         return (credits, None);
     };
     // Not f64::clamp, which panics if min > max: select_enrolment refuses such a range, but a wire
     // value must not be able to crash the worker whatever upstream guarantees.
-    let clamped = f64::from(credits).max(range.min).min(range.max) as f32;
+    let clamped = f64::from(credits).max(min).min(max) as f32;
     if clamped == credits {
         (credits, None)
     } else {
@@ -119,38 +127,9 @@ fn attainment_language(completion_language: &str) -> String {
         .to_lowercase()
 }
 
-/// The attainment date as the university reckons it, which is the date an official transcript gets:
-/// a completion at 23:30 UTC on the 31st is the 1st in Helsinki. The EU summer-time rule is written
-/// out rather than read from a timezone database, which this crate does not carry.
-pub fn helsinki_date(instant: DateTime<Utc>) -> NaiveDate {
-    let offset = chrono::Duration::hours(if in_eu_summer_time(instant) { 3 } else { 2 });
-    (instant + offset).date_naive()
-}
-
-fn in_eu_summer_time(instant: DateTime<Utc>) -> bool {
-    let year = instant.year();
-    let Some(starts) = last_sunday(year, 3).and_then(|day| day.and_hms_opt(1, 0, 0)) else {
-        return false;
-    };
-    let Some(ends) = last_sunday(year, 10).and_then(|day| day.and_hms_opt(1, 0, 0)) else {
-        return false;
-    };
-    let naive = instant.naive_utc();
-    naive >= starts && naive < ends
-}
-
-fn last_sunday(year: i32, month: u32) -> Option<NaiveDate> {
-    let first_of_next = if month == 12 {
-        NaiveDate::from_ymd_opt(year + 1, 1, 1)
-    } else {
-        NaiveDate::from_ymd_opt(year, month + 1, 1)
-    }?;
-    let last = first_of_next.pred_opt()?;
-    Some(last - chrono::Duration::days(i64::from(last.weekday().days_since(Weekday::Sun))))
-}
-
 #[cfg(test)]
 mod tests {
+    use chrono::NaiveDate;
     use headless_lms_utils::services::suotar::{CreditRange, DatePeriod, LocalizedName};
 
     use super::super::grade_mapping::{NUMERIC_GRADE_SCALE_ID, PASS_FAIL_GRADE_SCALE_ID};
@@ -170,8 +149,6 @@ mod tests {
             id: "otm-enrolment".to_string(),
             state: "ENROLLED".to_string(),
             kind: "degree".to_string(),
-            course_unit_id: "hy-CU-1".to_string(),
-            assessment_item_id: "hy-AI-1".to_string(),
             course_unit_realisation_id: "hy-CUR-1".to_string(),
             course_unit_realisation_name: Some(LocalizedName {
                 fi: Some("kurssi".to_string()),
@@ -179,15 +156,13 @@ mod tests {
                 en: Some("course".to_string()),
             }),
             activity_period: Some(DatePeriod {
-                start_date: NaiveDate::from_ymd_opt(2026, 1, 1).expect("valid date"),
-                end_date: NaiveDate::from_ymd_opt(2026, 12, 31).expect("valid date"),
+                start_date: NaiveDate::from_ymd_opt(2026, 1, 1),
+                end_date: NaiveDate::from_ymd_opt(2026, 12, 31),
             }),
             grade_scale_id: Some(PASS_FAIL_GRADE_SCALE_ID.to_string()),
-            credits: Some(CreditRange { min, max }),
-            study_right_id: Some("hy-SR-1".to_string()),
-            study_right_validity_period: Some(DatePeriod {
-                start_date: NaiveDate::from_ymd_opt(2020, 1, 1).expect("valid date"),
-                end_date: NaiveDate::from_ymd_opt(2030, 1, 1).expect("valid date"),
+            credits: Some(CreditRange {
+                min: Some(min),
+                max: Some(max),
             }),
             enrolment_date_time: Some(Utc::now()),
         }
@@ -285,38 +260,5 @@ mod tests {
         )
         .unwrap();
         assert_eq!(built.snapshot.grade_id, "4");
-    }
-
-    #[test]
-    fn the_attainment_date_is_the_helsinki_date() {
-        let winter_evening: DateTime<Utc> = "2026-01-31T23:30:00Z".parse().expect("valid instant");
-        assert_eq!(
-            helsinki_date(winter_evening),
-            NaiveDate::from_ymd_opt(2026, 2, 1).expect("valid date")
-        );
-        let summer_evening: DateTime<Utc> = "2026-07-31T21:30:00Z".parse().expect("valid instant");
-        assert_eq!(
-            helsinki_date(summer_evening),
-            NaiveDate::from_ymd_opt(2026, 8, 1).expect("valid date")
-        );
-        let summer_afternoon: DateTime<Utc> =
-            "2026-07-31T12:00:00Z".parse().expect("valid instant");
-        assert_eq!(
-            helsinki_date(summer_afternoon),
-            NaiveDate::from_ymd_opt(2026, 7, 31).expect("valid date")
-        );
-    }
-
-    #[test]
-    fn summer_time_starts_and_ends_on_the_documented_sundays() {
-        let before_spring: DateTime<Utc> = "2026-03-29T00:59:00Z".parse().expect("valid instant");
-        let after_spring: DateTime<Utc> = "2026-03-29T01:00:00Z".parse().expect("valid instant");
-        assert!(!in_eu_summer_time(before_spring));
-        assert!(in_eu_summer_time(after_spring));
-
-        let before_autumn: DateTime<Utc> = "2026-10-25T00:59:00Z".parse().expect("valid instant");
-        let after_autumn: DateTime<Utc> = "2026-10-25T01:00:00Z".parse().expect("valid instant");
-        assert!(in_eu_summer_time(before_autumn));
-        assert!(!in_eu_summer_time(after_autumn));
     }
 }

@@ -7,7 +7,9 @@ use crate::credit_registrations::{
 };
 use crate::prelude::*;
 
-use super::backoff::{SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS};
+use super::backoff::{
+    RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
+};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
@@ -29,9 +31,10 @@ struct PendingMove {
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
 /// Never `submitting`: only the import phase writes that, in the transaction before it sends.
 ///
-/// `frozen_identity_stale` demotes a frozen payload to no payload at all. Nothing ever clears
-/// `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a relink still looks
-/// frozen; without this it would resume at `checking_enrolment` and import the previous number.
+/// `frozen_identity_stale` demotes a frozen payload to no payload at all. Only a `notRegistered`
+/// resend clears `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a
+/// relink still looks frozen; without this it would resume at `checking_enrolment` and import the
+/// previous number.
 fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
@@ -227,6 +230,9 @@ targets AS (
       -- Already queued for import with its payload frozen; sending it back would resolve again
       -- forever.
       WHEN facts.state = 'checking_enrolment' THEN facts.state
+      -- Past the grace the worker that claimed it is gone, and asking again is harmless.
+      WHEN facts.state = 'resolving_enrolment'
+      AND facts.state_entered_at < now() - ($7::bigint * INTERVAL '1 second') THEN 'ready_to_submit'
       -- A resolve-enrolments call for this row is in flight; only that phase's own commit may
       -- move it, or import could claim it before the enrolment is actually resolved.
       WHEN facts.state = 'resolving_enrolment' THEN facts.state
@@ -254,6 +260,7 @@ LIMIT $1
         &scope.credit_registration_ids,
         SUBMITTING_RECOVERY_GRACE_SECS,
         SUBMIT_MAX_RETRY_AGE_SECS,
+        RESOLVING_RECOVERY_GRACE_SECS,
     )
     .fetch_all(conn)
     .await?;
@@ -373,7 +380,7 @@ mod tests {
         crate::credit_registrations::set_state_entered_at_for_testing(
             conn,
             id,
-            Utc::now() - chrono::Duration::hours(1),
+            Utc::now() - chrono::Duration::seconds(SUBMITTING_RECOVERY_GRACE_SECS + 60),
         )
         .await
         .unwrap();

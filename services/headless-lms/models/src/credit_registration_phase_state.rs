@@ -117,6 +117,23 @@ WHERE phase = $1
     Ok(())
 }
 
+/// Keeps a long iteration from reading as a dead worker; unlike [`heartbeat`], leaves
+/// `last_run_started_at` at the iteration's start.
+pub async fn keep_alive(conn: &mut PgConnection, phase: &str) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_phase_state
+SET last_heartbeat_at = now()
+WHERE phase = $1
+  AND deleted_at IS NULL
+        "#,
+        phase
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Closes out an iteration. Only a success moves `last_success_at`, so a wedged phase stays
 /// distinguishable from a quiet one.
 pub async fn record_run(

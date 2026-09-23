@@ -491,9 +491,10 @@ fn string_field(value: &Value, key: &str) -> Option<String> {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct SuotarItemOutcomeTotals {
     pub item_count: i64,
-    /// Items blamed on Sisu being down or slow, which is the only proxy we have for its uptime.
-    pub sisu_unavailable_count: i64,
-    pub last_sisu_unavailable_at: Option<DateTime<Utc>>,
+    /// Items that failed on Suotar or Sisu being down or slow, the only proxy we have for Sisu's
+    /// uptime.
+    pub service_unavailable_count: i64,
+    pub last_service_unavailable_at: Option<DateTime<Utc>>,
 }
 
 /// Per-item outcomes in `[since, now)`, counted over events rather than rows: an item that failed
@@ -508,10 +509,10 @@ pub async fn count_item_outcomes_since(
 SELECT COUNT(*) AS "item_count!",
   COUNT(*) FILTER (
     WHERE error_code IN ('service_temporarily_unavailable', 'sisu_timeout')
-  ) AS "sisu_unavailable_count!",
+  ) AS "service_unavailable_count!",
   MAX(created_at) FILTER (
     WHERE error_code IN ('service_temporarily_unavailable', 'sisu_timeout')
-  ) AS "last_sisu_unavailable_at"
+  ) AS "last_service_unavailable_at"
 FROM credit_registration_events
 WHERE kind = 'suotar_response'
   AND created_at >= $1
@@ -667,7 +668,7 @@ mod tests {
     fn keeps_the_fields_debugging_needs() {
         // These ids carry student-number-shaped digit runs the value scan must not touch.
         let body = json!({
-            "requestItemId": "cr-2a4b0d6e-0000-4000-8000-000000000001",
+            "requestItemId": "2a4b0d6e-0000-4000-8000-000000000001",
             "code": "sent",
             "status": "ok",
             "courseCode": "AYTKT21018",

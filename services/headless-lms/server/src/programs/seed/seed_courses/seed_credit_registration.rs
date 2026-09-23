@@ -138,7 +138,7 @@ pub async fn seed_credit_registration(
                     .order(0)
                     .ects(5.0)
                     .uh_course_code(CRS_101.to_string())
-                    .credit_registration(credit_registration_config(CRS_101, true))
+                    .credit_registration(credit_registration_config(CRS_101))
                     // suotar-in-course-banner.spec.ts needs a chapter page it can actually read.
                     .chapter(
                         ChapterBuilder::new(1, "Registering credits")
@@ -159,7 +159,7 @@ pub async fn seed_credit_registration(
                     .name("Second module")
                     .ects(3.0)
                     .uh_course_code(CRS_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_102, false)),
+                    .credit_registration(credit_registration_config(CRS_102)),
             )
             .seed(&mut conn, app_config, &cx)
             .await?;
@@ -253,11 +253,13 @@ pub async fn seed_credit_registration(
     // Linked and completed; the mock's enrolments decide which of them gets stuck where.
     for fixture in [
         &IMPORT_TIMEOUT,
+        &IMPORT_UNANSWERED,
         &SISU_OUTAGE,
         &NO_ENROLMENT,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
         &VERIFY_MISREGISTERED,
+        &VERIFY_NOT_REGISTERED,
         &EMAILS_REGISTERED,
         &EMAILS_NO_ENROLMENT,
         &BANNER_STUCK,
@@ -453,15 +455,13 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Turns the module on, optionally with an enrolment link unique to its course code.
-fn credit_registration_config(
-    course_code: &str,
-    with_enrolment_link: bool,
-) -> CreditRegistrationSeed {
+/// Turns the module on with an enrolment link unique to its course code; without one the config
+/// check flags the module.
+fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
-        enrolment_link: with_enrolment_link.then(|| {
-            format!("https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}")
-        }),
+        enrolment_link: Some(format!(
+            "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}"
+        )),
         grade_scale_id: None,
         paused_reason: None,
     }
@@ -541,7 +541,7 @@ async fn seed_old_flow_course(
                     .name("Cut over to Suotar")
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_102.to_string())
-                    .credit_registration(credit_registration_config(CRS_OLD_102, false))
+                    .credit_registration(credit_registration_config(CRS_OLD_102))
                     .default_registrar(registrar_id)
                     .completion(
                         CompletionBuilder::new(already_cut_over.user_id)
@@ -646,7 +646,7 @@ async fn seed_admin_course(
                 .order(0)
                 .ects(5.0)
                 .uh_course_code(CRS_ADMIN_101.to_string())
-                .credit_registration(credit_registration_config(CRS_ADMIN_101, true)),
+                .credit_registration(credit_registration_config(CRS_ADMIN_101)),
         )
         .seed(conn, app_config, &cx)
         .await?;
@@ -713,7 +713,7 @@ async fn seed_states_course(
                     "Seeded fixture: these rows are read by the teacher and admin views and must not move."
                         .to_string(),
                 ),
-                ..credit_registration_config(CRS_STATES_101, false)
+                ..credit_registration_config(CRS_STATES_101)
             }),
     )
     .seed(conn, app_config, &cx)
@@ -781,7 +781,7 @@ async fn seed_retry_course(
                         "Seeded fixture: the retry specs read these rows and the workers must not move them."
                             .to_string(),
                     ),
-                    ..credit_registration_config(CRS_RETRY_101, false)
+                    ..credit_registration_config(CRS_RETRY_101)
                 }),
         )
         .seed(conn, app_config, &cx)
@@ -929,7 +929,11 @@ async fn seed_import_outcomes_course(
             .order(order as i32)
             .ects(5.0)
             .uh_course_code(course_code.to_string())
-            .credit_registration(credit_registration_config(course_code, false));
+            .credit_registration(CreditRegistrationSeed {
+                // Pass/fail against a course unit Sisu grades 0–5, for `gradeScaleMismatch`.
+                grade_scale_id: (*course_code == CRS_IMPORT_104).then(|| "sis-hyl-hyv".to_string()),
+                ..credit_registration_config(course_code)
+            });
         if order > 0 {
             module = module.name(format!("Module {course_code}"));
         }
@@ -982,7 +986,7 @@ async fn seed_grade_improvement_course(
             .order(0)
             .ects(5.0)
             .uh_course_code(CRS_GRADED_101.to_string())
-            .credit_registration(credit_registration_config(CRS_GRADED_101, false)),
+            .credit_registration(credit_registration_config(CRS_GRADED_101)),
     )
     .seed(conn, app_config, &cx)
     .await?;
@@ -1310,6 +1314,11 @@ async fn insert_registered_attempt(
             selected_enrolment_id: Some(format!("otm-{}-degree", SUPERSEDED.student_number)),
             selected_enrolment_kind: Some("degree".to_string()),
             selected_enrolment_realisation_id: Some("hy-opt-cur-900000901".to_string()),
+            selected_enrolment_realisation_name: Some(serde_json::json!({
+                "fi": "Rekisteröinnin testitoteutus",
+                "en": "Registration test realisation",
+                "sv": null,
+            })),
             attainment_date: (Utc::now() - Duration::days(20)).date_naive(),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-0-5".to_string(),

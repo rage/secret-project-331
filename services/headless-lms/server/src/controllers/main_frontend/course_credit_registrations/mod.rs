@@ -101,12 +101,6 @@ const MAX_ROWS_PER_REQUEST: i64 = 2_000;
 ))]
 pub(crate) struct MainFrontendCourseCreditRegistrationsApiDoc;
 
-/// Every module of the course with its Suotar configuration, for the module editor.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CourseCreditRegistrationModuleConfigs {
-    pub modules: Vec<CourseModuleCreditRegistrationConfig>,
-}
-
 /// What we can honestly say about a linking mail: our send status and the address's domain.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct TeacherLinkingEmailStatus {
@@ -281,14 +275,14 @@ course's per-module credit registration configuration.
     tag = "course-credit-registrations",
     params(("course_id" = Uuid, Path, description = "Course id")),
     responses(
-        (status = 200, description = "The course's per-module configuration", body = CourseCreditRegistrationModuleConfigs)
+        (status = 200, description = "Every module of the course with its Suotar configuration", body = Vec<CourseModuleCreditRegistrationConfig>)
     )
 )]
 pub async fn get_course_credit_registration_module_configs(
     user: AuthUser,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-) -> ControllerResult<web::Json<CourseCreditRegistrationModuleConfigs>> {
+) -> ControllerResult<web::Json<Vec<CourseModuleCreditRegistrationConfig>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -301,7 +295,7 @@ pub async fn get_course_credit_registration_module_configs(
     let modules =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
             .await?;
-    token.authorized_ok(web::Json(CourseCreditRegistrationModuleConfigs { modules }))
+    token.authorized_ok(web::Json(modules))
 }
 
 /// One count group's stage, the same classification the group's own rows carry.

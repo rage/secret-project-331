@@ -12,16 +12,26 @@ use std::time::{Duration, Instant};
 use async_trait::async_trait;
 use chrono::NaiveDate;
 use headless_lms_base::config::{MOCK_SUOTAR_TOKEN, SUOTAR_AUTH_SCHEME, SuotarConfiguration};
+use once_cell::sync::Lazy;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
-use serde::Deserialize;
 use serde::de::DeserializeOwned;
+use serde::{Deserialize, Deserializer};
 use utoipa::ToSchema;
 
-use crate::{error::util_error::SuotarErrorVariant, prelude::*};
+use crate::{error::util_error::SuotarErrorVariant, helsinki_time::helsinki_date, prelude::*};
 
-/// Bounds one call so a Suotar that never answers cannot stall a worker tick.
-const SUOTAR_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
+/// Under the ingress's 60 s, so an admin waiting on a call gets our answer rather than a 504.
+pub const INTERACTIVE_REQUEST_TIMEOUT: Duration = Duration::from_secs(50);
+
+/// Separate from `REQWEST_CLIENT` for the keepalive: an import can sit silent on its socket for up
+/// to an hour, which NAT and proxies otherwise drop without telling either end.
+static SUOTAR_HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+    crate::http::base_client_builder()
+        .tcp_keepalive(Duration::from_secs(30))
+        .build()
+        .expect("Failed to build the Suotar client")
+});
 
 /// Carries `suotar_api_calls.id` so Suotar's log and ours join on one value.
 pub const CORRELATION_ID_HEADER: &str = "X-Correlation-Id";
@@ -32,8 +42,6 @@ pub const MAX_REQUEST_BODY_BYTES: usize = 5 * 1024 * 1024;
 
 /// The final attainment type in Sisu; verify's `registered` with any other type is partial evidence.
 pub const ATTAINMENT_TYPE_COURSE_UNIT: &str = "CourseUnitAttainment";
-/// What import mints (`hy-kur-…`), and what verify reports while only the partial attainment exists.
-pub const ATTAINMENT_TYPE_ASSESSMENT_ITEM: &str = "AssessmentItemAttainment";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
@@ -72,10 +80,17 @@ impl SuotarEndpoint {
         }
     }
 
-    /// How long one call may take before it is abandoned. On `import` an abandoned call leaves the
-    /// whole batch uncertain.
+    /// How long one worker call may take before it is abandoned. On `import` an abandoned call
+    /// leaves the whole batch uncertain, so it is sized above Suotar's worst case for a full batch;
+    /// the read-only endpoints sit below theirs, as a timeout there costs only a retry.
     pub const fn request_timeout(self) -> Duration {
-        SUOTAR_REQUEST_TIMEOUT
+        let minutes = match self {
+            Self::ImportAttainments => 60,
+            Self::VerifyAttainments => 25,
+            Self::ResolveEnrolments | Self::ListByCourse => 20,
+            Self::ResolvePersons | Self::ValidateCourseCodes => 10,
+        };
+        Duration::from_secs(minutes * 60)
     }
 
     /// An item this endpoint never answered is uncertain, not retryable: re-sending it can put a
@@ -171,24 +186,32 @@ pub struct LocalizedName {
     pub en: Option<String>,
 }
 
+/// Sisu's date range, either end of which may be open.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DatePeriod {
-    pub start_date: NaiveDate,
-    pub end_date: NaiveDate,
+    #[serde(default, deserialize_with = "lenient_date")]
+    pub start_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with = "lenient_date")]
+    pub end_date: Option<NaiveDate>,
 }
 
 impl DatePeriod {
+    /// An open end contains every date on that side.
     pub fn contains(&self, date: NaiveDate) -> bool {
-        self.start_date <= date && date <= self.end_date
+        self.start_date.is_none_or(|start| start <= date)
+            && self.end_date.is_none_or(|end| date <= end)
     }
 }
 
+/// Sisu's credit range. Suotar refuses an import against one missing either bound.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditRange {
-    pub min: f64,
-    pub max: f64,
+    #[serde(default, deserialize_with = "lenient_number")]
+    pub min: Option<f64>,
+    #[serde(default, deserialize_with = "lenient_number")]
+    pub max: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -207,8 +230,6 @@ pub struct SuotarEnrolment {
     pub id: String,
     pub state: String,
     pub kind: String,
-    pub course_unit_id: String,
-    pub assessment_item_id: String,
     pub course_unit_realisation_id: String,
     pub course_unit_realisation_name: Option<LocalizedName>,
     pub activity_period: Option<DatePeriod>,
@@ -216,14 +237,11 @@ pub struct SuotarEnrolment {
     pub grade_scale_id: Option<String>,
     /// The course unit's range; `None` when Sisu gives none, which Suotar refuses to import against.
     pub credits: Option<CreditRange>,
-    pub study_right_id: Option<String>,
-    /// `None` when the study right did not resolve.
-    pub study_right_validity_period: Option<DatePeriod>,
     pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
 /// An attainment as Suotar passes it through from its importer, so every field but the id and type
-/// may be missing: a course unit attainment has no assessment item, for one.
+/// may be missing.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExistingAttainment {
@@ -231,22 +249,21 @@ pub struct ExistingAttainment {
     #[serde(rename = "type")]
     pub attainment_type: String,
     pub state: Option<String>,
-    pub person_id: Option<String>,
-    pub course_unit_id: Option<String>,
-    pub assessment_item_id: Option<String>,
-    pub course_unit_realisation_id: Option<String>,
+    #[serde(default, deserialize_with = "lenient_date")]
     pub attainment_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with = "lenient_date")]
     pub registration_date: Option<NaiveDate>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
-    pub passed: Option<bool>,
 }
 
+/// An enrolment or attainment that cannot be read drops out alone rather than taking the item with it.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentResolutionResult {
+    #[serde(deserialize_with = "readable_elements")]
     pub enrolments: Vec<SuotarEnrolment>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "readable_elements")]
     pub existing_attainments: Vec<ExistingAttainment>,
 }
 
@@ -260,9 +277,17 @@ pub struct SuotarAttainment {
     pub attainment_type: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "lenient_date",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub attainment_date: Option<NaiveDate>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "lenient_date",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub registration_date: Option<NaiveDate>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub grade_scale_id: Option<String>,
@@ -333,7 +358,54 @@ pub struct ListedPerson {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentsListedResult {
+    /// A person the importer handed over without a student number or person id drops out alone.
+    #[serde(deserialize_with = "readable_elements")]
     pub people: Vec<ListedPerson>,
+}
+
+/// Importer dates arrive as `YYYY-MM-DD` or as an instant (Sisu's UTC midnight), and an instant
+/// means its Helsinki date, the zone Suotar compares days in. Anything else reads as absent.
+fn lenient_date<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<NaiveDate>, D::Error> {
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(value
+        .as_ref()
+        .and_then(serde_json::Value::as_str)
+        .and_then(|text| {
+            NaiveDate::parse_from_str(text, "%Y-%m-%d")
+                .ok()
+                .or_else(|| {
+                    DateTime::parse_from_rfc3339(text)
+                        .ok()
+                        .map(|instant| helsinki_date(instant.with_timezone(&Utc)))
+                })
+        }))
+}
+
+/// A `null`, missing or non-numeric value reads as absent.
+fn lenient_number<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<f64>, D::Error> {
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(value.as_ref().and_then(serde_json::Value::as_f64))
+}
+
+/// Keeps the elements that parse and logs how many did not.
+fn readable_elements<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: DeserializeOwned,
+{
+    let values = Vec::<serde_json::Value>::deserialize(deserializer)?;
+    let total = values.len();
+    let readable: Vec<T> = values
+        .into_iter()
+        .filter_map(|value| serde_json::from_value(value).ok())
+        .collect();
+    if readable.len() < total {
+        warn!(
+            "Suotar answered with {} of {total} list elements that could not be read; skipping them.",
+            total - readable.len()
+        );
+    }
+    Ok(readable)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -397,6 +469,8 @@ impl<R> SuotarBatchResponse<R> {
 pub struct SuotarCallContext {
     pub worker_name: String,
     pub credit_registration_ids: Vec<Uuid>,
+    /// Replaces [`SuotarEndpoint::request_timeout`] when set.
+    pub request_timeout: Option<Duration>,
 }
 
 impl SuotarCallContext {
@@ -404,7 +478,14 @@ impl SuotarCallContext {
         Self {
             worker_name: worker_name.into(),
             credit_registration_ids: Vec::new(),
+            request_timeout: None,
         }
+    }
+
+    /// For a call someone is waiting on in the browser.
+    pub fn interactive(mut self) -> Self {
+        self.request_timeout = Some(INTERACTIVE_REQUEST_TIMEOUT);
+        self
     }
 
     pub fn for_registrations(mut self, ids: Vec<Uuid>) -> Self {
@@ -470,9 +551,9 @@ pub struct SuotarClient {
     api_base_url: Url,
     authorization: SecretString,
     audit: Arc<dyn SuotarCallAudit>,
-    /// Requests that actually left for the study registry, shared by every clone of the client.
-    /// The circuit breaker reads it to tell an iteration that heard from the registry from one that
-    /// found nothing to ask about; a pre-flight refusal is not counted because it never reached it.
+    /// Requests that actually left for the study registry, shared by every clone of the client
+    /// except those made by [`SuotarClient::with_own_exchange_count`]. A pre-flight refusal is not
+    /// counted because it never reached the registry.
     exchanges: Arc<AtomicU64>,
 }
 
@@ -498,8 +579,16 @@ impl SuotarClient {
         }
     }
 
-    /// How many requests this client has sent, monotonic for the life of the process. Compare two
-    /// readings to learn whether the work between them reached the study registry at all.
+    /// A clone whose [`SuotarClient::exchange_count`] starts from zero and counts only its own
+    /// requests, so work running beside it cannot pass for its own.
+    pub fn with_own_exchange_count(&self) -> Self {
+        Self {
+            exchanges: Arc::new(AtomicU64::new(0)),
+            ..self.clone()
+        }
+    }
+
+    /// How many requests this client and the clones sharing its count have sent.
     pub fn exchange_count(&self) -> u64 {
         self.exchanges.load(Ordering::Relaxed)
     }
@@ -616,9 +705,13 @@ impl SuotarClient {
 
         let url = self.api_base_url.join(endpoint.path())?;
         let clock = Instant::now();
-        let mut request = REQWEST_CLIENT
+        let mut request = SUOTAR_HTTP_CLIENT
             .post(url)
-            .timeout(endpoint.request_timeout())
+            .timeout(
+                context
+                    .request_timeout
+                    .unwrap_or_else(|| endpoint.request_timeout()),
+            )
             .header(AUTHORIZATION, self.authorization.expose_secret())
             .header(CONTENT_TYPE, "application/json");
         if let Some(call_id) = call_id {
@@ -1106,7 +1199,7 @@ mod tests {
     #[test]
     fn a_request_batch_serializes_to_the_documented_shape() {
         let items = vec![ImportAttainmentRequestItem {
-            request_item_id: "cr-11111111-1111-1111-1111-111111111111".to_string(),
+            request_item_id: "11111111-1111-1111-1111-111111111111".to_string(),
             student_number: "012345678".to_string(),
             course_code: "TKT10001".to_string(),
             enrolment_id: "selected-enrolment-id".to_string(),
@@ -1119,7 +1212,7 @@ mod tests {
         assert_eq!(
             serde_json::to_value(&items).expect("serializes"),
             json!([{
-                "requestItemId": "cr-11111111-1111-1111-1111-111111111111",
+                "requestItemId": "11111111-1111-1111-1111-111111111111",
                 "studentNumber": "012345678",
                 "courseCode": "TKT10001",
                 "enrolmentId": "selected-enrolment-id",
@@ -1153,7 +1246,7 @@ mod tests {
     fn a_sisu_timeout_carries_the_id_the_client_may_verify() {
         let items: Vec<SuotarResponseItem<ImportAttainmentResult>> =
             serde_json::from_value(json!([{
-                "requestItemId": "cr-1",
+                "requestItemId": "item-1",
                 "status": "error",
                 "code": "sisuTimeout",
                 "error": { "message": "Sisu operation timed out; outcome is uncertain." },
@@ -1177,7 +1270,7 @@ mod tests {
         let items: Vec<SuotarResponseItem<ImportAttainmentResult>> =
             serde_json::from_value(json!([
                 {
-                    "requestItemId": "cr-1",
+                    "requestItemId": "item-1",
                     "status": "ok",
                     "code": "sent",
                     "result": {
@@ -1186,21 +1279,21 @@ mod tests {
                     }
                 },
                 {
-                    "requestItemId": "cr-3",
+                    "requestItemId": "item-3",
                     "status": "ok",
                     "code": "duplicateAttainment",
                     "result": { "attainment": {
                         "id": "existing-id",
                         "type": "CourseUnitAttainment",
                         "state": "ATTAINED",
-                        "attainmentDate": "2026-05-22",
-                        "registrationDate": "2026-05-22",
+                        "attainmentDate": "2026-05-22T00:00:00.000Z",
+                        "registrationDate": "2026-05-22T00:00:00.000Z",
                         "gradeScaleId": "sis-hyl-hyv",
                         "gradeId": "1"
                     } }
                 },
                 {
-                    "requestItemId": "cr-4",
+                    "requestItemId": "item-4",
                     "status": "ok",
                     "code": "notImprovedAttainment",
                     "result": { "previousAttainment": {
@@ -1225,6 +1318,13 @@ mod tests {
                 .as_ref()
                 .and_then(|attainment| attainment.grade_id.as_deref()),
             Some("1")
+        );
+        assert_eq!(
+            duplicate
+                .attainment
+                .as_ref()
+                .and_then(|attainment| attainment.attainment_date),
+            NaiveDate::from_ymd_opt(2026, 5, 22)
         );
         let not_improved = items[2].result.as_ref().expect("not improved result");
         assert_eq!(
@@ -1285,7 +1385,7 @@ mod tests {
     fn a_batch_over_the_endpoints_size_is_refused_before_the_request_is_built() {
         let items: Vec<ResolvePersonRequestItem> = (0..1001)
             .map(|index| ResolvePersonRequestItem {
-                request_item_id: format!("cr-{index}"),
+                request_item_id: format!("item-{index}"),
                 student_number: "012345678".to_string(),
             })
             .collect();

@@ -221,6 +221,10 @@ export type AdminCreditRegistrationEvent = {
    * Our own wording, written by the pipeline or by whoever acted.
    */
   message?: string | null
+  /**
+   * The requestItemId the row went out under in the call behind this event.
+   */
+  request_item_id?: string | null
   suotar_api_call_id?: string | null
   to_state?: null | CreditRegistrationState
 }
@@ -1261,13 +1265,6 @@ export type CourseCreditRegistrationEvent = {
 }
 
 /**
- * Every module of the course with its Suotar configuration, for the module editor.
- */
-export type CourseCreditRegistrationModuleConfigs = {
-  modules: Array<CourseModuleCreditRegistrationConfig>
-}
-
-/**
  * One module's live registrations, split so a teacher can add the columns up.
  *
  * `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
@@ -1649,11 +1646,16 @@ export type CourseModuleCreditRegistrationConfig = {
   /**
    * `None` means never checked, which is not the same as a failed check.
    */
-  credit_registration_course_code_resolves?: boolean | null
+  credit_registration_course_code_allowed?: boolean | null
   /**
    * `None` means derive the grade scale from the completion.
    */
   credit_registration_grade_scale_id?: string | null
+  /**
+   * Whether `completion_registration_link_override` is set, which is also the enrolment link for
+   * students without a usable enrolment.
+   */
+  credit_registration_has_enrolment_link: boolean
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_paused_by_user_id?: string | null
@@ -1941,7 +1943,7 @@ export type CreditRegistrationAlert = {
 export type CreditRegistrationAlertId =
   | "credentials_rejected"
   | "study_registry_unreachable"
-  | "sisu_unavailable"
+  | "service_unavailable"
   | "stuck_registrations"
   | "linking_mail_send_failed"
   | "linking_mail_rate_cap_exceeded"
@@ -2050,13 +2052,14 @@ export type CreditRegistrationCircuitBreakerState = {
 
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
- * the same rule the `config-validation` phase uses.
+ * the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+ * phase.
  *
- * `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
- * same as checked and failed, and the two must not render alike.
+ * `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+ * never checked is not the same as checked and failed, and the two must not render alike.
  */
 export type CreditRegistrationCourseConfigCheck = {
-  course_code_resolves?: boolean | null
+  course_code_allowed?: boolean | null
   /**
    * Every problem found, in one line. `None` means the module is fine.
    */
@@ -5871,9 +5874,9 @@ export type GetCourseCreditRegistrationModuleConfigsData = {
 
 export type GetCourseCreditRegistrationModuleConfigsResponses = {
   /**
-   * The course's per-module configuration
+   * Every module of the course with its Suotar configuration
    */
-  200: CourseCreditRegistrationModuleConfigs
+  200: Array<CourseModuleCreditRegistrationConfig>
 }
 
 export type GetCourseCreditRegistrationModuleConfigsResponse =

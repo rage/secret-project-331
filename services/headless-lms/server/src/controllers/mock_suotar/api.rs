@@ -1,4 +1,4 @@
-//! The contract endpoints, one stage boundary at a time.
+//! The moocfi endpoints, one stage boundary at a time.
 //!
 //! Order per request, as Suotar's middleware runs it: the JSON body parse (size, then syntax), the
 //! credential, the envelope and item validation, the item-keyed load, the `auth`/`requestGate`/
@@ -20,7 +20,7 @@ use super::faults::{Effect, Fault, FaultMatch, ItemAddress, Stage, matches_item,
 use super::logic::{self, ImportResolution};
 use super::store::{MockSuotarStore, Preamble};
 use super::wire::{
-    self, Endpoint, ItemStatus, RequestLevelError, ResponseItem, SubmittedAttainment,
+    self, Endpoint, ItemStatus, NOT_AN_ARRAY, RequestLevelError, ResponseItem, SubmittedAttainment,
 };
 use super::world::{
     MissedFault, MockSubmission, RecordedCall, RecordedFaults, RecordedItem, SendState, WorkingSet,
@@ -31,8 +31,6 @@ const RAW_BODY_LIMIT: usize = 8 * 1024;
 
 /// Express's `5mb`.
 const MAX_BODY_BYTES: usize = 5 * 1024 * 1024;
-
-const NOT_AN_ARRAY: &str = "Request body must be a JSON array of request items.";
 
 const IMPORT_STRING_FIELDS: [&str; 7] = [
     "studentNumber",
@@ -238,45 +236,58 @@ fn pre_route_rejection(
     }
 }
 
-/// What a request-shaped effect answers with instead of the per-item array.
-struct Terminal {
+/// What a request is answered with, and what its call-log entry records about the answer.
+struct Answer {
     delivery: Delivery,
     status: u16,
     request_level_code: Option<String>,
-    effect: String,
+    /// The fault effect that shaped the whole answer, if one did.
+    effect: Option<String>,
+}
+
+impl Answer {
+    fn json<T: Serialize>(status: u16, body: &T) -> Self {
+        Self {
+            delivery: Delivery::json(status, body),
+            status,
+            request_level_code: None,
+            effect: None,
+        }
+    }
+
+    fn request_level(status: u16, error: &RequestLevelError) -> Self {
+        Self {
+            request_level_code: Some(error.error.code.clone()),
+            ..Self::json(status, error)
+        }
+    }
 }
 
 /// `None` for an item-shaped effect, which shapes one item rather than the whole answer.
-fn terminal(effect: &Effect) -> Option<Terminal> {
-    let kind = effect.kind().to_string();
-    match effect {
-        Effect::ConnectionReset => Some(Terminal {
+fn terminal(effect: &Effect) -> Option<Answer> {
+    let answer = match effect {
+        Effect::ConnectionReset => Answer {
             delivery: Delivery::ConnectionReset,
             status: 200,
             request_level_code: None,
-            effect: kind,
-        }),
+            effect: None,
+        },
         Effect::RequestLevel {
             status,
             code,
             message,
-        } => {
-            let error = match message {
+        } => Answer::request_level(
+            *status,
+            &match message {
                 Some(message) => RequestLevelError::with_message(code, message.clone()),
                 None => RequestLevelError::new(code),
-            };
-            Some(Terminal {
-                delivery: Delivery::json(*status, &error),
-                status: *status,
-                request_level_code: Some(code.clone()),
-                effect: kind,
-            })
-        }
+            },
+        ),
         Effect::RawBody {
             status,
             body,
             content_type,
-        } => Some(Terminal {
+        } => Answer {
             delivery: Delivery::Raw {
                 status: *status,
                 body: body.clone(),
@@ -286,10 +297,14 @@ fn terminal(effect: &Effect) -> Option<Terminal> {
             },
             status: *status,
             request_level_code: None,
-            effect: kind,
-        }),
-        Effect::ItemLevel { .. } | Effect::DropItem => None,
-    }
+            effect: None,
+        },
+        Effect::ItemLevel { .. } | Effect::DropItem => return None,
+    };
+    Some(Answer {
+        effect: Some(effect.kind().to_string()),
+        ..answer
+    })
 }
 
 async fn run(
@@ -301,7 +316,6 @@ async fn run(
 ) -> anyhow::Result<Delivery> {
     let now = Utc::now();
     let (generation, preamble) = resolve_world(store, pool).await?;
-    let is_authorized = authorized(req, &preamble);
     let mut runner = FaultRunner {
         store,
         generation: &generation,
@@ -318,7 +332,7 @@ async fn run(
             .get("X-Correlation-Id")
             .and_then(|value| value.to_str().ok())
             .map(str::to_string),
-        authorized: is_authorized,
+        authorized: authorized(req, &preamble),
         http_status: 200,
         request_level_code: None,
         effect: None,
@@ -335,21 +349,38 @@ async fn run(
         ..Default::default()
     };
 
+    let answer = answer(
+        endpoint,
+        req,
+        body,
+        now,
+        &mut runner,
+        &mut call,
+        &mut working,
+    )
+    .await?;
+    call.faults = runner.log;
+    call.effect = answer.effect;
+    call.http_status = answer.status;
+    call.request_level_code = answer.request_level_code;
+    let capacity = working.defaults.call_log_capacity.max(1);
+    store.commit(&generation, &working, &call, capacity).await?;
+    Ok(answer.delivery)
+}
+
+/// Resolves one request against the working set, which the caller then commits along with `call`.
+async fn answer(
+    endpoint: Endpoint,
+    req: &HttpRequest,
+    body: &Body,
+    now: DateTime<Utc>,
+    runner: &mut FaultRunner<'_>,
+    call: &mut RecordedCall,
+    working: &mut WorkingSet,
+) -> anyhow::Result<Answer> {
     let parsed_body = parse_body(req, body);
-    if let Some((status, error)) = pre_route_rejection(&parsed_body, is_authorized) {
-        let code = error.error.code.clone();
-        return finish(
-            store,
-            &generation,
-            &working,
-            call,
-            runner.log,
-            Delivery::json(status, &error),
-            status,
-            Some(code),
-            None,
-        )
-        .await;
+    if let Some((status, error)) = pre_route_rejection(&parsed_body, call.authorized) {
+        return Ok(Answer::request_level(status, &error));
     }
     let json = match parsed_body {
         ParsedBody::Json(value) => Some(value),
@@ -358,45 +389,22 @@ async fn run(
 
     let parsed = match parse_envelope(endpoint, json) {
         Ok(Some(parsed)) => parsed,
-        Ok(None) => {
-            return finish(
-                store,
-                &generation,
-                &working,
-                call,
-                runner.log,
-                Delivery::json(200, &Vec::<ResponseItem>::new()),
-                200,
-                None,
-                None,
-            )
-            .await;
-        }
+        Ok(None) => return Ok(Answer::json(200, &Vec::<ResponseItem>::new())),
         Err(message) => {
-            return finish(
-                store,
-                &generation,
-                &working,
-                call,
-                runner.log,
-                Delivery::json(
-                    400,
-                    &RequestLevelError::with_message("malformedRequest", message),
-                ),
+            return Ok(Answer::request_level(
                 400,
-                Some("malformedRequest".to_string()),
-                None,
-            )
-            .await;
+                &RequestLevelError::with_message("malformedRequest", message),
+            ));
         }
     };
 
     let mut addresses = parsed.addresses();
-    load(store, &generation, &parsed, &mut working).await?;
-    parsed.enrich_addresses(&mut addresses, &working);
+    load(runner.store, runner.generation, &parsed, working).await?;
+    parsed.enrich_addresses(&mut addresses, working);
 
-    // A real Suotar decides these before reading the body; evaluated after it here because narrowing
-    // a fault to the rows one spec owns costs the parse. Nothing is written yet either way.
+    // `auth`, `requestGate` and `parse` run before the body in a real Suotar and after it here,
+    // because narrowing a fault to one spec's rows needs the parse. Nothing is written yet at any of
+    // these stages.
     for stage in [
         Stage::Auth,
         Stage::RequestGate,
@@ -407,93 +415,33 @@ async fn run(
             && let Some(terminal) = terminal(&effect)
         {
             call.authorized = stage != Stage::Auth;
-            return finish(
-                store,
-                &generation,
-                &working,
-                call,
-                runner.log,
-                terminal.delivery,
-                terminal.status,
-                terminal.request_level_code,
-                Some(terminal.effect),
-            )
-            .await;
+            return Ok(terminal);
         }
     }
 
-    // The entry each import item wrote, which a post-commit `sisuTimeout` hands back.
-    let mut written: Vec<Option<String>> = vec![None; addresses.len()];
-    let mut items = Vec::with_capacity(addresses.len());
-    if let ParsedRequest::Import(requests) = &parsed {
-        let mut slots: Vec<Option<ResponseItem>> = vec![None; addresses.len()];
-        let mut to_write: Vec<(usize, MockSubmission)> = Vec::new();
-        // Completion key to the entry written for it; a repeat of an item answered outright is
-        // resolved on its own and reaches the same answer.
-        let mut written_in_batch: HashMap<String, String> = HashMap::new();
-        for (index, (address, request)) in addresses.iter().zip(requests).enumerate() {
-            if let Some(effect) = runner.item_stage(endpoint, Stage::Resolve, address).await? {
-                slots[index] = Some(item_effect_response(endpoint, address, &effect));
-                continue;
-            }
-            let completion = completion_key(request);
-            if let Some(first) = written_in_batch.get(&completion) {
-                slots[index] = Some(
-                    ResponseItem::error(endpoint, &request.request_item_id, "duplicateRequestItem")
-                        .with_result(SubmittedAttainment::new(first)),
-                );
-                continue;
-            }
-            match logic::resolve_import_item(request, &working, now) {
-                ImportResolution::Answered(item) => slots[index] = Some(item),
-                ImportResolution::Write(submission) => {
-                    written_in_batch.insert(completion, submission.submitted_attainment_id.clone());
-                    to_write.push((index, *submission));
-                }
+    let (mut items, written) = match &parsed {
+        ParsedRequest::Import(requests) => {
+            match resolve_import_batch(requests, &addresses, now, runner, working).await? {
+                Ok(resolved) => resolved,
+                Err(rejection) => return Ok(rejection),
             }
         }
-        let submissions: Vec<MockSubmission> = to_write.iter().map(|(_, s)| s.clone()).collect();
-        if logic::acceptor_lookup_fails(&working, &submissions) {
-            let error = RequestLevelError::new("serviceTemporarilyUnavailable");
-            return finish(
-                store,
-                &generation,
-                &working,
-                call,
-                runner.log,
-                Delivery::json(503, &error),
-                503,
-                Some(error.error.code),
-                None,
-            )
-            .await;
+        _ => {
+            let mut items = Vec::with_capacity(addresses.len());
+            for (index, address) in addresses.iter().enumerate() {
+                let fault = runner.item_stage(endpoint, Stage::Resolve, address).await?;
+                items.push(match fault {
+                    Some(effect) => item_effect_response(endpoint, address, &effect),
+                    None => parsed.resolve(index, working, now),
+                });
+            }
+            (items, vec![None; addresses.len()])
         }
-        for (index, submission) in to_write {
-            written[index] = Some(submission.submitted_attainment_id.clone());
-            slots[index] = Some(logic::write_and_send(&mut working, submission));
-        }
-        items = addresses
-            .iter()
-            .zip(slots)
-            .map(|(address, slot)| {
-                slot.unwrap_or_else(|| {
-                    ResponseItem::error(endpoint, &address.request_item_id, "internalError")
-                })
-            })
-            .collect();
-    } else {
-        for (index, address) in addresses.iter().enumerate() {
-            let fault = runner.item_stage(endpoint, Stage::Resolve, address).await?;
-            items.push(match fault {
-                Some(effect) => item_effect_response(endpoint, address, &effect),
-                None => parsed.resolve(index, &working, now),
-            });
-        }
-    }
+    };
 
     // A request-shaped effect here replaces the answer the items formed; the log keeps the items
     // either way, which is what makes a landed-but-unanswered import visible.
-    let mut answered_by_fault: Option<Terminal> = None;
+    let mut answered_by_fault: Option<Answer> = None;
     let mut dropped = vec![false; addresses.len()];
     for stage in [Stage::AfterWrite, Stage::Respond] {
         if let Some(effect) = runner.request_stage(endpoint, stage, &addresses).await? {
@@ -510,22 +458,13 @@ async fn run(
             let Some(item) = items.get_mut(index) else {
                 continue;
             };
+            let response = item_effect_response(endpoint, address, &effect);
             *item = match (&effect, &written[index]) {
-                (Effect::ItemLevel { code, message }, Some(submission_id))
-                    if code == "sisuTimeout" =>
-                {
-                    leave_unconfirmed(&mut working, submission_id);
-                    let response = match message {
-                        Some(message) => ResponseItem::error_with_message(
-                            &address.request_item_id,
-                            code,
-                            message.clone(),
-                        ),
-                        None => ResponseItem::error(endpoint, &address.request_item_id, code),
-                    };
+                (Effect::ItemLevel { code, .. }, Some(submission_id)) if code == "sisuTimeout" => {
+                    leave_unconfirmed(working, submission_id);
                     response.with_result(SubmittedAttainment::new(submission_id))
                 }
-                _ => item_effect_response(endpoint, address, &effect),
+                _ => response,
             };
         }
     }
@@ -548,38 +487,78 @@ async fn run(
         })
         .collect();
 
-    let (delivery, status, code, effect) = match answered_by_fault {
-        Some(terminal) => (
-            terminal.delivery,
-            terminal.status,
-            terminal.request_level_code,
-            Some(terminal.effect),
-        ),
-        None => {
-            let answered: Vec<&ResponseItem> = items
-                .iter()
-                .zip(&dropped)
-                .filter(|(_, is_dropped)| !**is_dropped)
-                .map(|(item, _)| item)
-                .collect();
-            (Delivery::json(200, &answered), 200, None, None)
-        }
-    };
-    finish(
-        store,
-        &generation,
-        &working,
-        call,
-        runner.log,
-        delivery,
-        status,
-        code,
-        effect,
-    )
-    .await
+    Ok(answered_by_fault.unwrap_or_else(|| {
+        let answered: Vec<&ResponseItem> = items
+            .iter()
+            .zip(&dropped)
+            .filter(|(_, is_dropped)| !**is_dropped)
+            .map(|(item, _)| item)
+            .collect();
+        Answer::json(200, &answered)
+    }))
 }
 
-/// A send that never answered: the entry exists but Sisu's acceptance was never recorded.
+/// Resolves an import batch and writes what survived its checks, returning each item's answer and
+/// the submission it wrote. `Err` is the request-level answer that replaces the whole batch.
+async fn resolve_import_batch(
+    requests: &[wire::ImportAttainmentRequestItem],
+    addresses: &[ItemAddress],
+    now: DateTime<Utc>,
+    runner: &mut FaultRunner<'_>,
+    working: &mut WorkingSet,
+) -> anyhow::Result<Result<(Vec<ResponseItem>, Vec<Option<String>>), Answer>> {
+    let endpoint = Endpoint::ImportAttainments;
+    let mut slots: Vec<Option<ResponseItem>> = vec![None; addresses.len()];
+    let mut to_write: Vec<(usize, MockSubmission)> = Vec::new();
+    // Completion key to the submission written for it; a repeat of an item answered outright is
+    // resolved on its own and reaches the same answer.
+    let mut written_in_batch: HashMap<String, String> = HashMap::new();
+    for (index, (address, request)) in addresses.iter().zip(requests).enumerate() {
+        if let Some(effect) = runner.item_stage(endpoint, Stage::Resolve, address).await? {
+            slots[index] = Some(item_effect_response(endpoint, address, &effect));
+            continue;
+        }
+        let completion = completion_key(request);
+        if let Some(first) = written_in_batch.get(&completion) {
+            slots[index] = Some(
+                ResponseItem::error(endpoint, &request.request_item_id, "duplicateRequestItem")
+                    .with_result(SubmittedAttainment::new(first)),
+            );
+            continue;
+        }
+        match logic::resolve_import_item(request, working, now) {
+            ImportResolution::Answered(item) => slots[index] = Some(item),
+            ImportResolution::Write(submission) => {
+                written_in_batch.insert(completion, submission.submitted_attainment_id.clone());
+                to_write.push((index, *submission));
+            }
+        }
+    }
+    let submissions: Vec<MockSubmission> = to_write.iter().map(|(_, s)| s.clone()).collect();
+    if logic::acceptor_lookup_fails(working, &submissions) {
+        return Ok(Err(Answer::request_level(
+            503,
+            &RequestLevelError::new("serviceTemporarilyUnavailable"),
+        )));
+    }
+    let mut written: Vec<Option<String>> = vec![None; addresses.len()];
+    for (index, submission) in to_write {
+        written[index] = Some(submission.submitted_attainment_id.clone());
+        slots[index] = Some(logic::write_and_send(working, submission));
+    }
+    let items = addresses
+        .iter()
+        .zip(slots)
+        .map(|(address, slot)| {
+            slot.unwrap_or_else(|| {
+                ResponseItem::error(endpoint, &address.request_item_id, "internalError")
+            })
+        })
+        .collect();
+    Ok(Ok((items, written)))
+}
+
+/// A send that never answered: the submission exists but Sisu's acceptance was never recorded.
 fn leave_unconfirmed(working: &mut WorkingSet, submission_id: &str) {
     if let Some(submission) = working.submissions.get_mut(submission_id) {
         submission.send_state = SendState::Attempted;
@@ -600,28 +579,6 @@ fn completion_key(item: &wire::ImportAttainmentRequestItem) -> String {
         item.credits,
         item.attainment_date
     )
-}
-
-/// Commits, then hands back what to send.
-#[allow(clippy::too_many_arguments)]
-async fn finish(
-    store: &MockSuotarStore,
-    generation: &str,
-    working: &WorkingSet,
-    mut call: RecordedCall,
-    log: RecordedFaults,
-    delivery: Delivery,
-    status: u16,
-    request_level_code: Option<String>,
-    effect: Option<String>,
-) -> anyhow::Result<Delivery> {
-    call.faults = log;
-    call.effect = effect;
-    call.http_status = status;
-    call.request_level_code = request_level_code;
-    let capacity = working.defaults.call_log_capacity.max(1);
-    store.commit(generation, working, &call, capacity).await?;
-    Ok(delivery)
 }
 
 async fn resolve_world(
@@ -897,11 +854,7 @@ impl ParsedRequest {
             Self::ValidateCourseCodes(items) => {
                 logic::validate_course_code_item(&items[index], working)
             }
-            Self::Import(items) => ResponseItem::error(
-                Endpoint::ImportAttainments,
-                &items[index].request_item_id,
-                "internalError",
-            ),
+            Self::Import(_) => unreachable!("import resolves as a batch"),
         }
     }
 }

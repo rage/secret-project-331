@@ -470,11 +470,14 @@ pub async fn admin_resend_account_linking_email(
     }
 
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
-    // Boxed so both the no-op and the override branch, which reaches for `conn`, type-check as the
-    // same value; it only runs once the shared helper has confirmed the number is not already linked.
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    // Boxed so both the no-op and the override branch type-check as the same value; it only runs
+    // once the shared helper has confirmed the number is not already linked.
     let before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + '_>> =
         match &override_reason {
             Some(reason) => Box::pin(async {
+                let mut conn = pool.acquire().await?;
                 Ok(retire_capped_mails(
                     &mut conn,
                     user.id,
@@ -490,6 +493,7 @@ pub async fn admin_resend_account_linking_email(
     let attempt =
         resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
             .await?;
+    let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.decision);
 
     finish_resend(
@@ -549,7 +553,10 @@ pub async fn admin_resolve_student_number_for_linking(
     }
 
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
     let resolved = resolve_person(&ctx, student_number).await;
+    let mut conn = pool.acquire().await?;
     let existing = verified_student_numbers::get_by_student_number(&mut conn, student_number)
         .await?
         .or(match &resolved {
@@ -664,6 +671,8 @@ pub async fn admin_manually_link_student_number(
         affected_registration_count: 0,
     };
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
     let person: ResolvedPerson = match resolve_person(&ctx, student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {
@@ -680,6 +689,7 @@ pub async fn admin_manually_link_student_number(
     if person.sisu_person_id != previewed_person_id {
         return token.authorized_ok(web::Json(refused(AdminManualLinkOutcome::PreviewMismatch)));
     }
+    let mut conn = pool.acquire().await?;
 
     let holder = verified_student_numbers::get_by_student_number(&mut conn, student_number).await?;
     if let Some(holder) = &holder {

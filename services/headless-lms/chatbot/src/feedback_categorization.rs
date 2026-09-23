@@ -61,7 +61,7 @@ fn format_feedback(feedback: &NewFeedback) -> String {
     let start = "\n\nThe feedback to format: \n<START FEEDBACK>\nFeedback: ".to_string();
     let end = "\n<END FEEDBACK>";
     let f = feedback.selected_text.as_ref().map_or("".to_string(), |s| {
-        format!("Associated course material text: {s}\n")
+        format!("\n\nAssociated course material text: {s}\n")
     });
 
     start + &feedback.feedback_given + &f + end
@@ -135,4 +135,21 @@ pub async fn categorize_feedback(
     .await?;
 
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
+    #[test]
+    fn the_response_format_is_named_after_this_feature() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized["name"],
+            serde_json::json!("FeedbackCategorisationResponse")
+        );
+    }
 }

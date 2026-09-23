@@ -12,6 +12,7 @@ import { matrixShape } from "@/util/matrix"
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import type { MatrixCellVerdict } from "../../../../../types/quizTypes/grading"
+import type { ModelSolutionQuizItemMatrix } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
 const MatrixTableContainer = styled.table`
@@ -42,7 +43,7 @@ const MatrixSubmission: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_answer_feedback }) => {
   const { t } = useTranslation()
-  const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMatrix | null
   const studentAnswer = user_quiz_item_answer.matrix
 
   if (!studentAnswer) {
@@ -124,13 +125,22 @@ const MatrixSubmission: React.FC<
             text-align: center;
           `}
         >
-          {t("matrix-score-breakdown", {
-            correct: breakdown.correctCells,
-            incorrect: breakdown.incorrectCells,
-            missing: breakdown.missingCells,
-            extra: breakdown.extraCells,
-            keyCells: breakdown.keyCells,
-          })}
+          <span>
+            {t("matrix-score-breakdown", {
+              correct: breakdown.correctCells,
+              incorrect: breakdown.incorrectCells,
+              missing: breakdown.missingCells,
+              extra: breakdown.extraCells,
+            })}
+          </span>{" "}
+          {modelSolution?.gradingPolicy === "per-cell" && (
+            <span>
+              {t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })}
+            </span>
+          )}
+          {modelSolution?.gradingPolicy === "whole-matrix" && (
+            <span>{t("matrix-score-breakdown-whole-matrix-note")}</span>
+          )}
         </p>
       )}
     </div>

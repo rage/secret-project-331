@@ -3,6 +3,7 @@ import type {
   PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
+import { matrixKeyDiagnostics } from "./matrixKeyDiagnostics"
 
 /**
  * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
@@ -78,11 +79,14 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
   }
 }
 
-// A key the teacher can still fix is reported in the editor rather than blocked here, so an
-// unfinished matrix stays saveable. A tolerance outside [0, inf) is not a half-finished state: it
-// would make every numeric comparison meaningless, and migration never produces one.
+// A gap inside the key's own frame makes the item ungradeable (compareMatrices refuses to grade
+// against it), so it blocks saving the same way an unset closed-ended grading strategy does. A
+// tolerance outside [0, inf) is not a half-finished state either: it would make every numeric
+// comparison meaningless, and migration never produces one.
 const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
-  Number.isFinite(item.tolerance) && item.tolerance >= 0
+  Number.isFinite(item.tolerance) &&
+  item.tolerance >= 0 &&
+  matrixKeyDiagnostics(item.optionCells).gaps.length === 0
 
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {

@@ -420,3 +420,41 @@ SET deleted_at = now()
 FROM opted_out
 WHERE cr.course_module_completion_id = opted_out.id
   AND cr.deleted_at IS NULL;';
+
+-- Soft-deleted rather than relabelled: email_deliveries reference them. deleted_at differs per row
+-- because unique_email_templates_type_language_general keys on it NULLS NOT DISTINCT.
+UPDATE email_templates t
+SET email_template_type = 'generic',
+  deleted_at = now() - (r.n * INTERVAL '1 microsecond')
+FROM (
+    SELECT id,
+      row_number() OVER (
+        ORDER BY id
+      ) AS n
+    FROM email_templates
+    WHERE email_template_type = 'credit_registration_student_number_linked'
+  ) r
+WHERE t.id = r.id;
+
+ALTER TYPE email_template_type
+RENAME TO email_template_type_old;
+
+CREATE TYPE email_template_type AS ENUM (
+  'reset_password_email',
+  'delete_user_email',
+  'generic',
+  'confirm_email_code',
+  'credit_registration_account_linking',
+  'verify_email_address',
+  'credit_registration_action_needed',
+  'credit_registration_registered'
+);
+
+ALTER TABLE email_templates
+ALTER COLUMN email_template_type TYPE email_template_type USING (
+    email_template_type::text::email_template_type
+  );
+
+DROP TYPE email_template_type_old;
+
+COMMENT ON TYPE email_template_type IS 'Type of email template: generic templates do not support automated placeholder replacements, others do.';

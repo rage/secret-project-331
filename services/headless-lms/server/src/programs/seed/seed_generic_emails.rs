@@ -204,7 +204,6 @@ pub async fn seed_generic_emails(
     seed_email_ownership_verification_templates(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
     seed_student_notification_templates(&mut conn).await?;
-    seed_student_number_linked_templates(&mut conn).await?;
 
     Ok(())
 }
@@ -381,89 +380,6 @@ async fn seed_student_notification_templates(conn: &mut sqlx::PgConnection) -> a
         None,
         EmailTemplateNew {
             template_type: EmailTemplateType::CreditRegistrationRegistered,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
-
-    Ok(())
-}
-
-/// Told to a student whose student number we linked from a matching verified email address, without
-/// them clicking anything. A compensating control for that automatic link: it is how someone finds
-/// out a number was attached to their account and can detach it.
-async fn seed_student_number_linked_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
-    info!("inserting credit registration student number linked emails");
-
-    let english_subject = Some("Your student number was linked to your account");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, we linked student number {{STUDENT_NUMBER}} to your courses.mooc.fi account, because the University of Helsinki study registry holds this same confirmed email address for that student number.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Your credits will be registered under this student number. If it is not yours, remove it here: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Opiskelijanumerosi liitettiin tiliisi");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, liitimme opiskelijanumeron {{STUDENT_NUMBER}} courses.mooc.fi-tiliisi, koska Helsingin yliopiston opintorekisterissä on samalle opiskelijanumerolle tämä sama vahvistettu sähköpostiosoite.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Opintopisteesi kirjataan tälle opiskelijanumerolle. Jos se ei ole sinun, poista se täältä: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
             language: Some("fi".to_string()),
             content: Some(finnish_body),
             subject: finnish_subject.map(|s| s.to_string()),

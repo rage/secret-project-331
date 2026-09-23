@@ -2704,7 +2704,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "credit_registration_student_number_linked"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we

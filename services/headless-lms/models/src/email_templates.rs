@@ -13,7 +13,6 @@ pub enum EmailTemplateType {
     VerifyEmailAddress,
     CreditRegistrationActionNeeded,
     CreditRegistrationRegistered,
-    CreditRegistrationStudentNumberLinked,
 }
 
 impl EmailTemplateType {
@@ -25,7 +24,6 @@ impl EmailTemplateType {
             Self::CreditRegistrationAccountLinking
                 | Self::CreditRegistrationActionNeeded
                 | Self::CreditRegistrationRegistered
-                | Self::CreditRegistrationStudentNumberLinked
         )
     }
 }

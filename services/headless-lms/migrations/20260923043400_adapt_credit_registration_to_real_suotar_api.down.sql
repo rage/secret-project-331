@@ -1,3 +1,6 @@
+ALTER TYPE email_template_type
+ADD VALUE 'credit_registration_student_number_linked';
+
 COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar; never recomputed, so a module switched on or off mid-course leaves completions already made where they were. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
 
 DROP TABLE study_registry_student_number_conflicts;

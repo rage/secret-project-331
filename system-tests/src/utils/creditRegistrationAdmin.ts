@@ -73,6 +73,8 @@ export interface AdminRegistrationAttempt {
   pending_reason: "completion" | "student_number" | "course_code" | null
   attempt_number: number
   superseded: boolean
+  superseded_by_id: string | null
+  course_module_id: string
   terminal_at: string | null
   needs_admin_attention: boolean
   /** Frozen before the attempt was sent, so it is the grade this attempt actually carried. */
@@ -112,6 +114,7 @@ export interface AdminRegistrationFilter {
   course_id?: string
   state?: string
   needs_admin_attention?: boolean
+  include_superseded?: boolean
   limit?: number
 }
 
@@ -328,8 +331,7 @@ export interface AdminResolvedStudentNumber {
 
 /**
  * Who the registry says a number belongs to, and every linking mail we have claimed for them. The
- * only read that answers "was this person mailed a link", which is what the fast-track specs assert
- * the absence of.
+ * only read that answers "was this person mailed a link".
  */
 export const adminResolveStudentNumber = async (
   request: APIRequestContext,

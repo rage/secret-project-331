@@ -1,7 +1,7 @@
 //! Creating ledger rows for completions that are allowed to be registered. It catches up as well as
 //! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
-//! at `pending`, because historical completions belong to students nobody ever asked. Flipping a
-//! module on reaches none made before it — `register_credits_via_suotar` is frozen at creation.
+//! at `pending`, because historical completions belong to students nobody ever asked. Turning a
+//! module on reaches none made before it: `register_credits_via_suotar` is set at creation or by hand.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
@@ -165,6 +165,10 @@ LIMIT $2
 /// cross-scale change both do nothing at all. Rows in `submission_uncertain` are deliberately not
 /// candidates: whether their import landed is unknown, and a successor would risk a second
 /// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
+///
+/// A better grade that arrives as a new completion is not this: resolve-enrolments weighs it against
+/// [`crate::credit_registrations::lock_live_successes_for_same_module`], and the rows it replaces
+/// are left alone here until it is registered or gives up.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -193,6 +197,7 @@ FROM credit_registrations cr
   AND e.fully_eligible
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
+  AND cr.pending_superseded_by_id IS NULL
   -- The success set only: a row whose outcome we do not know must not gain a successor.
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
@@ -309,6 +314,13 @@ mod tests {
         )
         .await
         .unwrap();
+        crate::course_modules::set_register_eligible_new_completions_via_suotar(
+            conn,
+            course_module.id,
+            true,
+        )
+        .await
+        .unwrap();
     }
 
     async fn add_completion(
@@ -323,6 +335,33 @@ mod tests {
         crate::course_instance_enrollments::insert(conn, user, course, course_instance)
             .await
             .unwrap();
+        // Eligibility for the push path at creation.
+        if crate::verified_student_numbers::get_by_user_id(conn, user)
+            .await
+            .unwrap()
+            .is_none()
+        {
+            let student_number = format!("{:09}", user.as_u128() % 1_000_000_000);
+            crate::verified_student_numbers::insert(
+                conn,
+                PKeyPolicy::Generate,
+                &crate::verified_student_numbers::NewVerifiedStudentNumber {
+                    user_id: user,
+                    sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
+                    student_number: DbSecret::new(student_number),
+                    first_names: None,
+                    last_name: None,
+                    verified_via:
+                        crate::verified_student_numbers::StudentNumberVerificationMethod::EmailedLink,
+                    verified_via_email: Some(DbSecret::new("student@example.com")),
+                    linked_by_user_id: None,
+                    link_reason: None,
+                    verified_from_course_id: None,
+                },
+            )
+            .await
+            .unwrap();
+        }
         crate::course_module_completions::insert(
             conn,
             PKeyPolicy::Generate,

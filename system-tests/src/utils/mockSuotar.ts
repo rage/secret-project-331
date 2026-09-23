@@ -195,6 +195,18 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
+/** One submission only, where a student's other submissions on the course must stay as they are. */
+export const transitionMockSuotarSubmission = (
+  request: APIRequestContext,
+  submittedAttainmentId: string,
+  to: MockSuotarSubmissionTarget,
+) =>
+  sendCommand(request, {
+    command: "transitionSubmission",
+    submittedAttainmentId,
+    to,
+  })
+
 /**
  * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
  * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student
@@ -228,3 +240,30 @@ export const listMockSuotarCalls = (
 ) => sendCommand(request, { command: "listCalls", ...filter })
 
 export const getMockSuotarWorld = (request: APIRequestContext) => get(request, "world")
+
+/** The subset of a mock submission (one row Suotar wrote for an import) these specs assert on. */
+export interface MockSuotarSubmission {
+  submittedAttainmentId: string
+  studentNumber: string
+  courseCode: string
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+}
+
+/** Every submission the mock holds for one student on one course code, oldest first. */
+export const mockSuotarSubmissionsFor = async (
+  request: APIRequestContext,
+  studentNumber: string,
+  courseCode: string,
+): Promise<MockSuotarSubmission[]> => {
+  const world = (await getMockSuotarWorld(request)) as {
+    submissions?: Record<string, MockSuotarSubmission & { createdAt: string }>
+  }
+  return Object.values(world.submissions ?? {})
+    .filter(
+      (submission) =>
+        submission.studentNumber === studentNumber && submission.courseCode === courseCode,
+    )
+    .toSorted((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+}

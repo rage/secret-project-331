@@ -596,6 +596,17 @@
             "name": "resubmit_not_before"
           }
         }
+      },
+      {
+        "ordinal": 49,
+        "name": "pending_superseded_by_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "pending_superseded_by_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -714,6 +725,7 @@
       true,
       true,
       false,
+      true,
       true,
       true
     ]

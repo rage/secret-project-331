@@ -74,6 +74,7 @@ impl PhaseTickResult {
                 reason: match reason {
                     PhaseSkipReason::Paused => "paused".to_string(),
                     PhaseSkipReason::CircuitBreakerOpen => "circuitBreakerOpen".to_string(),
+                    PhaseSkipReason::AccountLinkingDisabled => "accountLinkingDisabled".to_string(),
                 },
             },
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {

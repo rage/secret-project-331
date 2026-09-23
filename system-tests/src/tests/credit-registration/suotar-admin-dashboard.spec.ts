@@ -2,8 +2,11 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
   ADMIN_COURSE_SLUG,
+  CREDIT_REGISTRATION_STUDENT_1,
   CRS_ADMIN_101,
   ORIGIN,
+  STUDENT_6,
+  SUOTAR_COURSE_ID,
 } from "@/utils/creditRegistration"
 import {
   accountLinkingStats,
@@ -42,9 +45,10 @@ import {
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns student numbers `9000009xx` and the `credit-registration-admin` course, the only course this
- * file ticks: discovery and the linking mails scope by course alone, so ticking them anywhere else
- * would sweep another spec's students.
+ * Owns the `credit-registration-admin` course, with `credit-registration-student-1` on it, and the
+ * stale-address fixture `900000903`. The admin course is the only course this file ticks: discovery
+ * and the linking mails scope by course alone, so ticking them anywhere else would sweep another
+ * spec's students.
  *
  * Aggregate tiles are global and run-order dependent, so nothing here asserts a dashboard total.
  */
@@ -73,7 +77,7 @@ const TAB_NAMES = [
 const SUPERSEDED_ATTEMPT_1_ID = "c5ed17ea-0901-4a5e-9e6e-c0de00000901"
 const SUPERSEDED_ATTEMPT_2_ID = "c5ed17ea-0902-4a5e-9e6e-c0de00000902"
 
-const SUPERSEDED_STUDENT_NUMBER = "900000901"
+const SUPERSEDED_STUDENT_NUMBER = STUDENT_6.studentNumber
 
 const STALE_STUDENT_NUMBER = "900000903"
 const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example"
@@ -83,11 +87,14 @@ const STALE_ADDRESS_EXACT = new RegExp(
   `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
 )
 
-/** Linked from seed time, so it is the one row on this course a tick can register. */
-const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
-const ADMIN_LINKED_STUDENT_NUMBER = "900000904"
-const ADMIN_LINKED_LAST_NAME = "Alreadylinked"
-const ADMIN_LINKED_SISU_EMAIL = "zzyzx.alreadylinked@helsinki.example"
+/**
+ * Linked from seed time, so it is the one row on this course a tick can register. No spec applies a
+ * scenario to this account, which would rewrite the registry's name and address for it.
+ */
+const ADMIN_LINKED_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
+const ADMIN_LINKED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
+const ADMIN_LINKED_LAST_NAME = CREDIT_REGISTRATION_STUDENT_1.lastName
+const ADMIN_LINKED_SISU_EMAIL = "zzyzx.crsone@helsinki.example"
 
 test("Every tab renders, and the phases report heartbeats", async ({ page }) => {
   await page.goto(OVERVIEW_URL)
@@ -186,7 +193,9 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
 test("The explorer filters, and the attempt chain hides the replaced attempt by default", async ({
   page,
 }) => {
-  await page.goto(`${REGISTRATIONS_URL}?student_number=${SUPERSEDED_STUDENT_NUMBER}`)
+  await page.goto(
+    `${REGISTRATIONS_URL}?student_number=${SUPERSEDED_STUDENT_NUMBER}&course_id=${SUOTAR_COURSE_ID}`,
+  )
   const table = page.getByRole("table", { name: "Registrations" })
   await expect(table.getByRole("row")).toHaveCount(2)
 
@@ -209,7 +218,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 })
 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
-  const scope = { userEmail: ADMIN_LINKED_EMAIL }
+  const scope = { userEmail: ADMIN_LINKED_EMAIL, courseSlug: ADMIN_COURSE_SLUG }
   await runPhasesUpToSubmission(page.request, scope)
   // Only a control transition registers a submission in the mock.
   await transitionMockSuotarSubmissionsFor(
@@ -222,6 +231,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     async () => {
       const listed = await listAdminRegistrations(page.request, {
         student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        course_id: ADMIN_COURSE_ID,
         state: "awaiting_verification",
       })
       return listed.data[0] ?? null
@@ -235,6 +245,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     async () => {
       const listed = await listAdminRegistrations(page.request, {
         student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        course_id: ADMIN_COURSE_ID,
         state: "registered",
       })
       return listed.data[0] ?? null

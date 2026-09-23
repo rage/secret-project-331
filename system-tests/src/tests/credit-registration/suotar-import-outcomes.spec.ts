@@ -1,10 +1,17 @@
 import {
   countMockCallsForStudent,
+  CREDIT_REGISTRATION_STUDENT_3,
+  CREDIT_REGISTRATION_STUDENT_4,
+  CREDIT_REGISTRATION_STUDENT_5,
   CRS_101,
+  CRS_B_101,
   IMPORT_OUTCOMES_COURSE_SLUG,
   myCreditRegistrations,
   myRegistrationOnCourse,
   seededStudentStorageState,
+  STUDENT_8,
+  SUOTAR_B_COURSE_SLUG,
+  SUOTAR_COURSE_ID,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -33,16 +40,23 @@ import {
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
-/** Owns student numbers `9000004xx`. */
-const TIMEOUT_EMAIL = "credit-registration-import-timeout@example.com"
-const TIMEOUT_STUDENT_NUMBER = "900000402"
-const UNANSWERED_EMAIL = "credit-registration-import-unanswered@example.com"
-const UNANSWERED_STUDENT_NUMBER = "900000403"
-const OUTCOMES_EMAIL = "credit-registration-import-outcomes@example.com"
-const MALFORMED_EMAIL = "credit-registration-import-malformed@example.com"
-const MALFORMED_STUDENT_NUMBER = "900000404"
-const BESIDE_MALFORMED_EMAIL = "credit-registration-import-beside-malformed@example.com"
-const BESIDE_MALFORMED_STUDENT_NUMBER = "900000405"
+/**
+ * Owns `credit-registration-student-3` on both general courses, `credit-registration-student-4` and
+ * `-5` on `via-suotar`, and `student8` on the import-outcomes course.
+ *
+ * The first two tests and the malformed batch make an iteration fail on purpose, so once their row
+ * exists they tick it by id: a course scope would share the circuit breaker with the other specs on
+ * that course.
+ */
+const TIMEOUT_EMAIL = CREDIT_REGISTRATION_STUDENT_3.email
+const TIMEOUT_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_3.studentNumber
+const UNANSWERED_EMAIL = CREDIT_REGISTRATION_STUDENT_3.email
+const UNANSWERED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_3.studentNumber
+const OUTCOMES_EMAIL = STUDENT_8.email
+const MALFORMED_EMAIL = CREDIT_REGISTRATION_STUDENT_4.email
+const MALFORMED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_4.studentNumber
+const BESIDE_MALFORMED_EMAIL = CREDIT_REGISTRATION_STUDENT_5.email
+const BESIDE_MALFORMED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_5.studentNumber
 const MALFORMED_FAULT_ID = "import-outcomes-malformed"
 
 test.describe("An import the study registry never answered", () => {
@@ -52,7 +66,7 @@ test.describe("An import the study registry never answered", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: TIMEOUT_EMAIL }
+    const scope = { userEmail: TIMEOUT_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
 
     // The scenario arms the timeout after the mock has already written the submission: the study
     // registry holds the attainment and we have no answer saying so.
@@ -69,11 +83,12 @@ test.describe("An import the study registry never answered", () => {
     // now is a no-op for a fresh row and the only way to unstick a backfilled one.
     const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
     await makeRegistrationDueNow(adminApi, materialized.id)
-    await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
+    const rowScope = { creditRegistrationIds: [materialized.id] }
+    await runPreconditionsTick(page.request, rowScope)
+    await runResolveEnrolmentsTick(page.request, rowScope)
     // A batch answered with nothing but `sisuTimeout` is what a Sisu outage looks like, so the
     // iteration fails, which counts it against the breaker that pauses import alone.
-    const importTick = await runTickUnchecked(page.request, "import", scope)
+    const importTick = await runTickUnchecked(page.request, "import", rowScope)
     expect(importTick.status === "ran" ? importTick.error : null).not.toBeNull()
 
     const uncertain = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
@@ -83,29 +98,40 @@ test.describe("An import the study registry never answered", () => {
     const details = await adminRegistrationDetails(adminApi, uncertain.id)
     expect(details.registration.submitted_attainment_id).not.toBeNull()
     expect(
-      await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+      await countMockCallsForStudent(
+        page.request,
+        TIMEOUT_STUDENT_NUMBER,
+        CRS_101,
+        "import_attainments",
+      ),
     ).toBe(1)
 
     await test.step("Further import passes send nothing", async () => {
-      await runImportSubmissionTick(page.request, scope)
-      await runImportSubmissionTick(page.request, scope)
+      await runImportSubmissionTick(page.request, rowScope)
+      await runImportSubmissionTick(page.request, rowScope)
       // Import never claims a `submission_uncertain` row, however many workers tick in between: a
       // second import would add a second attainment to a real transcript.
       const row = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
       expect(row.state).toBe("submission_uncertain")
       expect(
-        await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+        await countMockCallsForStudent(
+          page.request,
+          TIMEOUT_STUDENT_NUMBER,
+          CRS_101,
+          "import_attainments",
+        ),
       ).toBe(1)
     })
 
     await test.step("A pending submission keeps the row uncertain", async () => {
       await makeRegistrationDueNow(adminApi, uncertain.id)
-      await runVerifyPollTick(page.request, scope)
+      await runVerifyPollTick(page.request, rowScope)
       await pollUntil(
         async () =>
           (await countMockCallsForStudent(
             page.request,
             TIMEOUT_STUDENT_NUMBER,
+            CRS_101,
             "verify_attainments",
           )) > 0 || null,
         { description: "the uncertain row to be verified" },
@@ -122,7 +148,7 @@ test.describe("An import the study registry never answered", () => {
         CRS_101,
       )
       await makeRegistrationDueNow(adminApi, uncertain.id)
-      await runVerifyPollTick(page.request, scope)
+      await runVerifyPollTick(page.request, rowScope)
       const registered = await waitForRegistrationState(
         page.request,
         adminApi,
@@ -131,7 +157,12 @@ test.describe("An import the study registry never answered", () => {
       )
       expect(registered.sisu_attainment_id).not.toBeNull()
       expect(
-        await countMockCallsForStudent(page.request, TIMEOUT_STUDENT_NUMBER, "import_attainments"),
+        await countMockCallsForStudent(
+          page.request,
+          TIMEOUT_STUDENT_NUMBER,
+          CRS_101,
+          "import_attainments",
+        ),
       ).toBe(1)
     })
   })
@@ -144,24 +175,25 @@ test.describe("An import whose answer left the item out", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: UNANSWERED_EMAIL }
+    const scope = { userEmail: UNANSWERED_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
     // The mock writes the submission and then drops the item from the response.
     await applyMockSuotarScenario(page.request, "import-unanswered", {
       studentNumber: UNANSWERED_STUDENT_NUMBER,
-      courseCode: CRS_101,
-      owner: { user: UNANSWERED_EMAIL, course: SUOTAR_COURSE_SLUG },
+      courseCode: CRS_B_101,
+      owner: { user: UNANSWERED_EMAIL, course: SUOTAR_B_COURSE_SLUG },
     })
 
     await runMaterializeTick(page.request, scope)
     // See the timeout spec above: a worker may have parked the row before the enrolment existed.
-    const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
+    const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_B_COURSE_SLUG)
     await makeRegistrationDueNow(adminApi, materialized.id)
-    await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
-    await runTickUnchecked(page.request, "import", scope)
+    const rowScope = { creditRegistrationIds: [materialized.id] }
+    await runPreconditionsTick(page.request, rowScope)
+    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runTickUnchecked(page.request, "import", rowScope)
 
-    const uncertain = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+    const uncertain = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
       "submission_uncertain",
     ])
     const details = await adminRegistrationDetails(adminApi, uncertain.id)
@@ -171,17 +203,18 @@ test.describe("An import whose answer left the item out", () => {
       const resolveCallsBefore = await countMockCallsForStudent(
         page.request,
         UNANSWERED_STUDENT_NUMBER,
+        CRS_B_101,
         "resolve_enrolments",
       )
       await transitionMockSuotarSubmissionsFor(
         page.request,
         UNANSWERED_STUDENT_NUMBER,
         "registered",
-        CRS_101,
+        CRS_B_101,
       )
       await makeRegistrationDueNow(adminApi, uncertain.id)
-      await runVerifyPollTick(page.request, scope)
-      const found = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      await runVerifyPollTick(page.request, rowScope)
+      const found = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
         "duplicate",
       ])
       expect(found.sisu_attainment_id).not.toBeNull()
@@ -189,6 +222,7 @@ test.describe("An import whose answer left the item out", () => {
         await countMockCallsForStudent(
           page.request,
           UNANSWERED_STUDENT_NUMBER,
+          CRS_B_101,
           "resolve_enrolments",
         ),
       ).toBeGreaterThan(resolveCallsBefore)
@@ -196,6 +230,7 @@ test.describe("An import whose answer left the item out", () => {
         await countMockCallsForStudent(
           page.request,
           UNANSWERED_STUDENT_NUMBER,
+          CRS_B_101,
           "import_attainments",
         ),
       ).toBe(1)
@@ -203,6 +238,7 @@ test.describe("An import whose answer left the item out", () => {
         await countMockCallsForStudent(
           page.request,
           UNANSWERED_STUDENT_NUMBER,
+          CRS_B_101,
           "verify_attainments",
         ),
       ).toBe(0)
@@ -217,7 +253,7 @@ test.describe("A student whose modules are each broken in their own way", () => 
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: OUTCOMES_EMAIL }
+    const scope = { userEmail: OUTCOMES_EMAIL, courseSlug: IMPORT_OUTCOMES_COURSE_SLUG }
 
     // Stamps Suotar's verdict on every module's course code, which is what holds a refused one back.
     await runConfigValidationTick(page.request, { courseSlug: IMPORT_OUTCOMES_COURSE_SLUG })
@@ -281,36 +317,42 @@ test.describe("A batch Suotar refuses as malformed because of one row", () => {
         { endpoint: "import_attainments" },
         { stage: "resolve" },
         { studentNumber: MALFORMED_STUDENT_NUMBER },
+        { courseCode: CRS_101 },
       ],
       // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
       then: { kind: "requestLevel", status: 400, code: "malformedRequest" },
     })
 
+    const stateOf = async (studentNumber: string) =>
+      (
+        await listAdminRegistrations(adminApi, {
+          student_number: studentNumber,
+          course_id: SUOTAR_COURSE_ID,
+        })
+      ).data[0]
     const rowIds: string[] = []
     for (const student of students) {
-      const scope = { userEmail: student.email }
       await applyMockSuotarScenario(page.request, "happy-path", {
         studentNumber: student.studentNumber,
         courseCode: CRS_101,
         owner: { user: student.email, course: SUOTAR_COURSE_SLUG },
       })
       // See the outage spec: the hold keeps the background worker from batching these rows itself.
-      await setTestExclusiveHold(page.request, student.email, 60)
-      await runMaterializeTick(page.request, scope)
-      const row = (
-        await listAdminRegistrations(adminApi, { student_number: student.studentNumber })
-      ).data[0]
+      await setTestExclusiveHold(page.request, student.email, 60, SUOTAR_COURSE_ID)
+      await runMaterializeTick(page.request, {
+        userEmail: student.email,
+        courseSlug: SUOTAR_COURSE_SLUG,
+      })
+      const row = await stateOf(student.studentNumber)
       expect(row).toBeDefined()
       await makeRegistrationDueNow(adminApi, row!.id)
-      await runPreconditionsTick(page.request, scope)
-      await runResolveEnrolmentsTick(page.request, scope)
+      const rowScope = { creditRegistrationIds: [row!.id] }
+      await runPreconditionsTick(page.request, rowScope)
+      await runResolveEnrolmentsTick(page.request, rowScope)
       rowIds.push(row!.id)
     }
 
     await runTickUnchecked(page.request, "import", { creditRegistrationIds: rowIds })
-
-    const stateOf = async (studentNumber: string) =>
-      (await listAdminRegistrations(adminApi, { student_number: studentNumber })).data[0]
     const malformed = await pollUntil(
       async () => {
         const row = await stateOf(MALFORMED_STUDENT_NUMBER)
@@ -323,12 +365,18 @@ test.describe("A batch Suotar refuses as malformed because of one row", () => {
     expect((await stateOf(BESIDE_MALFORMED_STUDENT_NUMBER))?.state).toBe("awaiting_verification")
     // The shared batch, then each half on its own.
     expect(
-      await countMockCallsForStudent(page.request, MALFORMED_STUDENT_NUMBER, "import_attainments"),
+      await countMockCallsForStudent(
+        page.request,
+        MALFORMED_STUDENT_NUMBER,
+        CRS_101,
+        "import_attainments",
+      ),
     ).toBe(2)
     expect(
       await countMockCallsForStudent(
         page.request,
         BESIDE_MALFORMED_STUDENT_NUMBER,
+        CRS_101,
         "import_attainments",
       ),
     ).toBe(2)

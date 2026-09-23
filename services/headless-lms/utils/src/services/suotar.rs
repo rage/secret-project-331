@@ -198,7 +198,7 @@ pub struct LocalizedName {
     pub en: Option<String>,
 }
 
-/// Sisu's date range, either end of which may be open.
+/// Sisu's `LocalDateRange`: start inclusive, end exclusive, either end possibly open.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DatePeriod {
@@ -209,10 +209,11 @@ pub struct DatePeriod {
 }
 
 impl DatePeriod {
-    /// An open end contains every date on that side.
+    /// Whether `date` falls in the range; the end date itself is already outside it, and an open
+    /// end contains every date on that side.
     pub fn contains(&self, date: NaiveDate) -> bool {
         self.start_date.is_none_or(|start| start <= date)
-            && self.end_date.is_none_or(|end| date <= end)
+            && self.end_date.is_none_or(|end| date < end)
     }
 }
 
@@ -220,9 +221,9 @@ impl DatePeriod {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditRange {
-    #[serde(default, deserialize_with = "lenient_number")]
+    #[serde(default, deserialize_with = "lenient")]
     pub min: Option<f64>,
-    #[serde(default, deserialize_with = "lenient_number")]
+    #[serde(default, deserialize_with = "lenient")]
     pub max: Option<f64>,
 }
 
@@ -253,7 +254,7 @@ pub struct SuotarEnrolment {
     #[serde(default, deserialize_with = "lenient")]
     pub activity_period: Option<DatePeriod>,
     /// The assessment item's scale, else the course unit's.
-    #[serde(default, deserialize_with = "lenient")]
+    #[serde(default, deserialize_with = "lenient_id")]
     pub grade_scale_id: Option<String>,
     /// The course unit's range; `None` when Sisu gives none, which Suotar refuses to import against.
     #[serde(default, deserialize_with = "lenient")]
@@ -278,7 +279,9 @@ pub struct ExistingAttainment {
     pub attainment_date: Option<NaiveDate>,
     #[serde(default, deserialize_with = "lenient_date")]
     pub registration_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with = "lenient_id")]
     pub grade_scale_id: Option<String>,
+    #[serde(default, deserialize_with = "lenient_id")]
     pub grade_id: Option<String>,
 }
 
@@ -314,9 +317,17 @@ pub struct SuotarAttainment {
         skip_serializing_if = "Option::is_none"
     )]
     pub registration_date: Option<NaiveDate>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "lenient_id",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub grade_scale_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        deserialize_with = "lenient_id",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub grade_id: Option<String>,
 }
 
@@ -420,6 +431,19 @@ fn lenient<'de, D: Deserializer<'de>, T: DeserializeOwned>(
     Ok(value.and_then(|value| serde_json::from_value(value).ok()))
 }
 
+/// A Sisu id that should be a string but, for at least `gradeId`, has arrived as a bare JSON number.
+/// A strict `String` field would fail to parse and drop the whole record in [`readable_elements`],
+/// silencing whatever check depends on it. Coerces either shape into a `String`; anything else reads
+/// as absent.
+fn lenient_id<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<String>, D::Error> {
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(value.and_then(|value| match value {
+        serde_json::Value::String(text) => Some(text),
+        serde_json::Value::Number(number) => Some(number.to_string()),
+        _ => None,
+    }))
+}
+
 /// An RFC 3339 instant, or Sisu's zoneless local date-time read as UTC, which is close enough to
 /// order enrolments by. Anything else reads as absent.
 fn lenient_instant<'de, D: Deserializer<'de>>(
@@ -439,12 +463,6 @@ fn lenient_instant<'de, D: Deserializer<'de>>(
                         .map(|local| local.and_utc())
                 })
         }))
-}
-
-/// A `null`, missing or non-numeric value reads as absent.
-fn lenient_number<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<f64>, D::Error> {
-    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
-    Ok(value.as_ref().and_then(serde_json::Value::as_f64))
 }
 
 /// Keeps the elements that parse and logs how many did not.

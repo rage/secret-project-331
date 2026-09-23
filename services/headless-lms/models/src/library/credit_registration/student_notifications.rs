@@ -65,7 +65,8 @@ pub struct StudentNotificationToQueue {
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
 /// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
-/// nothing.
+/// nothing. Nor a `duplicate` or `not_improved` row whose student already has, or is owed, the
+/// registered mail for another row of the module.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -96,6 +97,22 @@ WHERE cr.deleted_at IS NULL
     OR (
       cr.state = ANY($5::credit_registration_state [])
       AND cr.registered_email_delivery_id IS NULL
+      -- A credit found already recorded is no news to a student told of one for the module.
+      AND NOT (
+        cr.state = ANY($6::credit_registration_state [])
+        AND EXISTS (
+          SELECT 1
+          FROM credit_registrations told
+          WHERE told.user_id = cr.user_id
+            AND told.course_module_id = cr.course_module_id
+            AND told.id <> cr.id
+            AND told.deleted_at IS NULL
+            AND (
+              told.registered_email_delivery_id IS NOT NULL
+              OR told.state = 'registered'
+            )
+        )
+      )
     )
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
@@ -113,6 +130,7 @@ LIMIT $1
         scope.user_id,
         &scope.credit_registration_ids,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;

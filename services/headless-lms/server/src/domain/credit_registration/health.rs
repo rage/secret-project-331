@@ -12,7 +12,7 @@ use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     course_module_suotar_configurations, credit_registration_account_linking_emails,
     credit_registration_events, credit_registration_phase_state, credit_registrations,
-    suotar_api_calls,
+    study_registry_student_number_conflicts, suotar_api_calls,
 };
 use utoipa::ToSchema;
 
@@ -81,9 +81,6 @@ const LATENCY_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
 /// Under this the registry is quick enough that a doubling says nothing.
 const LATENCY_REGRESSION_FLOOR_SECS: i64 = 6 * 60 * 60;
 const LATENCY_REGRESSION_FACTOR: i64 = 2;
-/// One person the registry names differently from the account whose address matched is worth a
-/// look: it is the only signal we get that a university address was reissued.
-const FAST_TRACK_NAME_MISMATCH_COUNT: i64 = 1;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
@@ -102,8 +99,8 @@ pub enum CreditRegistrationAlertId {
     PipelineIdle,
     CompletionsNeverEntered,
     ConfirmationLatencyRegressed,
-    FastTrackNameMismatch,
     PipelinePausedGlobally,
+    StudyRegistryStudentNumberConflicts,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, ToSchema)]
@@ -242,7 +239,7 @@ pub async fn evaluate(
     if let Some(alert) = latency_regression_alert(conn, now).await? {
         alerts.push(alert);
     }
-    if let Some(alert) = fast_track_name_mismatch_alert(conn).await? {
+    if let Some(alert) = study_registry_conflict_alert(conn).await? {
         alerts.push(alert);
     }
 
@@ -623,25 +620,20 @@ async fn latency_regression_alert(
     }))
 }
 
-/// Persons whose university address matched a verified account under a different name. The
-/// observable signature of an address reissued to somebody else, and the only warning we get before
-/// a link is made to the wrong account.
-async fn fast_track_name_mismatch_alert(
+/// Accounts the study registry reported a number for that another live link kept us from linking.
+async fn study_registry_conflict_alert(
     conn: &mut PgConnection,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let count =
-        course_module_suotar_configurations::sum_last_fast_track_name_mismatches(conn).await?;
-    Ok(
-        (count >= FAST_TRACK_NAME_MISMATCH_COUNT).then_some(CreditRegistrationAlert {
-            id: CreditRegistrationAlertId::FastTrackNameMismatch,
-            window_secs: None,
-            severity: CreditRegistrationAlertSeverity::Warning,
-            count,
-            total: None,
-            at: None,
-            subject: None,
-        }),
-    )
+    let count = study_registry_student_number_conflicts::count_unresolved(conn).await?;
+    Ok((count > 0).then_some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::StudyRegistryStudentNumberConflicts,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count,
+        total: None,
+        at: None,
+        subject: None,
+    }))
 }
 
 fn depth_of(depths: &[(CreditRegistrationState, i64)], state: CreditRegistrationState) -> i64 {

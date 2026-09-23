@@ -40,6 +40,7 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
+use headless_lms_base::config::ApplicationConfiguration;
 
 /// How long after the last enrolment check the student may ask us to look again. The pipeline's own
 /// recheck is daily, so this only bounds the button.
@@ -53,12 +54,12 @@ const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
     request_credit_registration_enrolment_recheck,
     dismiss_credit_registration_enrolment_banner,
     get_my_verified_student_number,
+    get_credit_registration_settings,
     get_my_enrolment_route,
     set_my_enrolment_route,
     confirm_my_enrolment,
     withdraw_my_enrolment_confirmation,
     set_my_credit_justification,
-    dismiss_my_auto_link_notice,
     unlink_my_student_number,
     preview_student_number_verification_token,
     claim_student_number_verification_token
@@ -181,11 +182,6 @@ pub struct MyVerifiedStudentNumber {
     pub verified_via_email_masked: Option<String>,
     pub first_names: Option<String>,
     pub last_name: Option<String>,
-    /// Whether the pipeline linked this without asking, because the study registry holds this
-    /// account's verified address for the student number. True until the student puts the notice
-    /// away, and the notice is what makes a wrong automatic link noticeable.
-    pub linked_automatically: bool,
-    pub auto_link_notice_dismissed: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -504,6 +500,38 @@ pub async fn request_credit_registration_enrolment_recheck(
     }))
 }
 
+/// Deployment-wide switches the credit registration views adapt to.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationSettings {
+    /// Whether linking mails are sent and can be resent. When off, students get a number only from
+    /// the study registry or an admin.
+    pub account_linking_enabled: bool,
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+switches.
+*/
+#[instrument(skip(app_conf))]
+#[utoipa::path(
+    get,
+    path = "/settings",
+    operation_id = "getCreditRegistrationSettings",
+    tag = "credit-registrations",
+    responses(
+        (status = 200, description = "The switches", body = CreditRegistrationSettings)
+    )
+)]
+pub async fn get_credit_registration_settings(
+    _user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<CreditRegistrationSettings>> {
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(CreditRegistrationSettings {
+        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+    }))
+}
+
 /**
 GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
 signed-in account, or null.
@@ -530,34 +558,6 @@ pub async fn get_my_verified_student_number(
         .map(to_my_verified_student_number);
 
     token.authorized_ok(web::Json(res))
-}
-
-/**
-POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
-away the notice saying the pipeline linked this student number without asking.
-
-Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
-*/
-#[instrument(skip(pool))]
-#[utoipa::path(
-    post,
-    path = "/my/student-number/dismiss-auto-link-notice",
-    operation_id = "dismissMyAutoLinkNotice",
-    tag = "credit-registrations",
-    responses(
-        (status = 200, description = "The notice is dismissed")
-    )
-)]
-pub async fn dismiss_my_auto_link_notice(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<()>> {
-    let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
-
-    verified_student_numbers::dismiss_auto_link_notice(&mut conn, user.id).await?;
-
-    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -751,8 +751,6 @@ pub async fn claim_student_number_verification_token(
                 last_name: verification_token.last_name.clone(),
                 verified_via: StudentNumberVerificationMethod::EmailedLink,
                 verified_via_email: Some(verification_token.emailed_to.clone()),
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
                 linked_by_user_id: None,
                 link_reason: None,
                 verified_from_course_id: verification_token.course_id,
@@ -882,11 +880,12 @@ async fn resolve_linking_email(
         let mails =
             match verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
                 .await?
+                .and_then(|link| link.sisu_person_id)
             {
-                Some(link) => {
+                Some(person_id) => {
                     credit_registration_account_linking_emails::get_by_sisu_person_id(
                         conn,
-                        link.sisu_person_id.expose_secret(),
+                        person_id.expose_secret(),
                     )
                     .await?
                 }
@@ -928,9 +927,6 @@ fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStude
         verified_via_email_masked: expose_option(&link.verified_via_email).map(mask_email),
         first_names: expose_option(&link.first_names).map(str::to_owned),
         last_name: expose_option(&link.last_name).map(str::to_owned),
-        linked_automatically: link.verified_via
-            == StudentNumberVerificationMethod::EmailMatchFastTrack,
-        auto_link_notice_dismissed: link.auto_link_notice_dismissed_at.is_some(),
     }
 }
 
@@ -1378,6 +1374,7 @@ async fn bring_enrolment_check_forward(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/my", web::get().to(get_my_credit_registrations))
+        .route("/settings", web::get().to(get_credit_registration_settings))
         .route(
             "/my/student-number",
             web::get().to(get_my_verified_student_number),
@@ -1385,10 +1382,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/my/student-number",
             web::delete().to(unlink_my_student_number),
-        )
-        .route(
-            "/my/student-number/dismiss-auto-link-notice",
-            web::post().to(dismiss_my_auto_link_notice),
         )
         .route(
             "/my/by-course-module/{course_module_id}",

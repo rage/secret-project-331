@@ -129,6 +129,7 @@ pub mod secret;
 pub mod student_countries;
 pub mod student_number_verification_tokens;
 pub mod study_registry_registrars;
+pub mod study_registry_student_number_conflicts;
 pub mod suotar_api_calls;
 pub mod suspected_cheaters;
 pub mod teacher_grading_decisions;

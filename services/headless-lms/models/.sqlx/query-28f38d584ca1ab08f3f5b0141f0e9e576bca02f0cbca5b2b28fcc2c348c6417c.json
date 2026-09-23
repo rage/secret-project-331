@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  cm.enable_registering_completion_to_uh_open_university AS \"old_flow_also_enabled!\",\n  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS \"has_enrolment_link!\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed\n  END AS \"stored_course_code_allowed?\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection\n  END AS \"stored_course_code_rejection?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cm.course_id = $1)\nORDER BY cm.course_id,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS \"has_enrolment_link!\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed\n  END AS \"stored_course_code_allowed?\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection\n  END AS \"stored_course_code_rejection?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.enable_credit_registration_via_suotar\n  AND cm.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cm.course_id = $1)\nORDER BY cm.course_id,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -49,29 +49,18 @@
       },
       {
         "ordinal": 4,
-        "name": "old_flow_also_enabled!",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_registering_completion_to_uh_open_university"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "has_enrolment_link!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "stored_course_code_allowed?",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "stored_course_code_rejection?",
         "type_info": "Text",
         "origin": "Expression"
@@ -87,11 +76,10 @@
       false,
       true,
       true,
-      false,
       null,
       null,
       null
     ]
   },
-  "hash": "a56ad655f2717fad79e835c1a3d6703cdbecdd7ec7a37495608cb8b1a605b1fa"
+  "hash": "28f38d584ca1ab08f3f5b0141f0e9e576bca02f0cbca5b2b28fcc2c348c6417c"
 }

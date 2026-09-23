@@ -184,8 +184,6 @@ import type {
   DismissCreditRegistrationEnrolmentBannerData,
   DismissCreditRegistrationEnrolmentBannerErrors,
   DismissCreditRegistrationEnrolmentBannerResponses,
-  DismissMyAutoLinkNoticeData,
-  DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
   DownloadExerciseAnswerFilesData,
@@ -418,6 +416,8 @@ import type {
   GetCreditRegistrationPipelineHistoryResponses,
   GetCreditRegistrationReconciliationData,
   GetCreditRegistrationReconciliationResponses,
+  GetCreditRegistrationSettingsData,
+  GetCreditRegistrationSettingsResponses,
   GetCreditRegistrationStatsByCourseData,
   GetCreditRegistrationStatsByCourseResponses,
   GetCreditRegistrationThresholdsData,
@@ -976,6 +976,7 @@ import {
   zGetCreditRegistrationOverviewResponse,
   zGetCreditRegistrationPipelineHistoryResponse,
   zGetCreditRegistrationReconciliationResponse,
+  zGetCreditRegistrationSettingsResponse,
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
@@ -5768,24 +5769,6 @@ export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
- * away the notice saying the pipeline linked this student number without asking.
- *
- * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
- */
-export const dismissMyAutoLinkNotice = <ThrowOnError extends boolean = true>(
-  options?: Options<DismissMyAutoLinkNoticeData, ThrowOnError>,
-): RequestResult<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).post<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data">(
-    {
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice",
-      ...options,
-    },
-  )
-
-/**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -5833,6 +5816,27 @@ export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends b
       await zRequestCreditRegistrationEnrolmentRecheckResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+ * switches.
+ */
+export const getCreditRegistrationSettings = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationSettingsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationSettingsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/settings",
     ...options,
   })
 

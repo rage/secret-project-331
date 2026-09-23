@@ -46,8 +46,6 @@ pub struct CreditRegistrationCourseStats {
     pub ects_credits: Option<f32>,
     /// Where a student with no usable enrolment is sent to enrol.
     pub enrolment_link: Option<String>,
-    /// The old pull path is on as well, which would register the same completion twice.
-    pub old_flow_also_enabled: bool,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
     pub last_listed_at: Option<DateTime<Utc>>,
@@ -313,7 +311,6 @@ fn to_course_stats(
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
         enrolment_link: overview.enrolment_link,
-        old_flow_also_enabled: overview.old_flow_also_enabled,
         paused_at: overview.paused_at,
         pause_reason: overview.pause_reason,
         last_listed_at: overview.last_listed_at,

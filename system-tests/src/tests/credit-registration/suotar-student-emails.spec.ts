@@ -1,10 +1,13 @@
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
+  CREDIT_REGISTRATION_STUDENT_2,
   CRS_101,
-  CRS_101_ENROLMENT_LINK,
+  CRS_B_101_ENROLMENT_LINK,
   myRegistrationOnCourse,
   seededStudentStorageState,
+  STUDENT_8,
+  SUOTAR_B_COURSE_SLUG,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -26,15 +29,16 @@ import {
 
 /**
  * The only two emails a student ever gets about credit registration: no usable enrolment was found,
- * and the registration succeeded. Owns student numbers `9000013xx`.
+ * and the registration succeeded. Owns `credit-registration-student-2` on `via-suotar` and `student8`
+ * on `via-suotar-b`.
  *
  * The workers tick every phase unscoped in the test deployment, so a mail can already be queued
  * before this file asks for one. Every assertion is therefore "exactly one of this kind exists",
  * which is what idempotency by `{action_needed,registered}_email_delivery_id` actually promises.
  */
-const REGISTERED_EMAIL = "credit-registration-emails-registered@example.com"
-const REGISTERED_STUDENT_NUMBER = "900001301"
-const NO_ENROLMENT_EMAIL = "credit-registration-emails-no-enrolment@example.com"
+const REGISTERED_EMAIL = CREDIT_REGISTRATION_STUDENT_2.email
+const REGISTERED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
+const NO_ENROLMENT_EMAIL = STUDENT_8.email
 
 /**
  * Every value `email_send_status` may take. We can see our own queue, not the recipient's inbox, so
@@ -64,7 +68,7 @@ test.describe("A student whose credits reach the study registry", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: REGISTERED_EMAIL }
+    const scope = { userEmail: REGISTERED_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
 
     const registration = await test.step("Drive the completion to registered", async () => {
       await runMaterializeTick(page.request, scope)
@@ -125,12 +129,12 @@ test.describe("A student the study registry has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: NO_ENROLMENT_EMAIL }
+    const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
-    const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+    const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
       "no_usable_enrolment",
     ])
 
@@ -141,8 +145,8 @@ test.describe("A student the study registry has no enrolment for", () => {
 
     // The mail's `ENROLMENT_LINK` placeholder comes from the same module setting as this field, so
     // a link here is a link in the message; a bare "enrol in Sisu" would leave the student stuck.
-    const mine = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
-    expect(mine.enrolment_link).toBe(CRS_101_ENROLMENT_LINK)
+    const mine = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_B_COURSE_SLUG)
+    expect(mine.enrolment_link).toBe(CRS_B_101_ENROLMENT_LINK)
 
     await runStudentNotificationsTick(page.request, scope)
     const afterSecond = await adminRegistrationDetails(adminApi, parked.id)

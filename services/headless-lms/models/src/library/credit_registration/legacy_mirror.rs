@@ -29,9 +29,16 @@ WITH unmirrored AS (
   WHERE cr.deleted_at IS NULL
     AND cr.state = ANY($5::credit_registration_state [])
     AND cr.student_number IS NOT NULL
-    -- A regrade keeps the superseded attempt's success state; only the live attempt may still mirror,
-    -- or a completion with both gets two ledger rows and the teacher's completions list shows it twice.
-    AND cr.superseded_by_id IS NULL
+    -- A regrade keeps the superseded attempt's success state; only the completion's latest attempt
+    -- may still mirror, or a completion with both gets two ledger rows and the teacher's completions
+    -- list shows it twice. One superseded by another completion's attempt is still its completion's.
+    AND NOT EXISTS (
+      SELECT 1
+      FROM credit_registrations later
+      WHERE later.course_module_completion_id = cr.course_module_completion_id
+        AND later.attempt_number > cr.attempt_number
+        AND later.deleted_at IS NULL
+    )
     AND NOT EXISTS (
       SELECT 1
       FROM course_module_completion_registered_to_study_registries r
@@ -226,7 +233,7 @@ mod tests {
             id,
             &PayloadSnapshot {
                 student_number: DbSecret::new(student_number),
-                sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
+                sisu_person_id: Some(DbSecret::new(format!("hy-hlo-{student_number}"))),
                 uh_course_code: "CRS-101".to_string(),
                 selected_enrolment_id: Some("otm-900000101-degree".to_string()),
                 selected_enrolment_kind: Some("degree".to_string()),

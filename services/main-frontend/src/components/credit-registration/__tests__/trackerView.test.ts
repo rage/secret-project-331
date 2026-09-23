@@ -189,8 +189,6 @@ describe("what the linking band says", () => {
     student_number: "014567890",
     verified_at: "2026-08-21T07:00:00Z",
     verified_via: "emailed_link",
-    linked_automatically: false,
-    auto_link_notice_dismissed: true,
   } as const
 
   test("promises the number while the credits are still on their way", () => {

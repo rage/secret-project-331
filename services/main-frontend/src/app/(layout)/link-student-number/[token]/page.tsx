@@ -16,7 +16,6 @@ import {
   sectionsCss,
   studentNumberCss,
 } from "@/components/credit-registration/styles"
-import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
@@ -36,7 +35,6 @@ import {
   loginRoute,
   profileStudiesRoute,
   signUpRoute,
-  userSettingsRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -69,47 +67,33 @@ const outcomeCss = css`
   gap: var(--space-4);
 `
 
-/**
- * Every way this page can end without a linked number, shared by the preview and the claim.
- *
- * `offersEmailFastTrack` offers the "confirm your email" shortcut only for endings a confirmed
- * address would actually resolve.
- */
+/** Every way this page can end without a linked number, shared by the preview and the claim. */
 const DEAD_ENDS = {
   not_found: {
     tone: TONE.WARNING,
     messageKey: "link-student-number-not-found",
-    offersEmailFastTrack: true,
   },
   expired: {
     tone: TONE.INFO,
     messageKey: "link-student-number-expired",
-    offersEmailFastTrack: true,
   },
   already_used: {
     tone: TONE.INFO,
     messageKey: "link-student-number-already-used",
-    offersEmailFastTrack: false,
   },
   already_used_by_this_account: {
     tone: TONE.INFO,
     messageKey: "link-student-number-already-used-by-this-account",
-    offersEmailFastTrack: false,
   },
   conflict: {
     tone: TONE.WARNING,
     messageKey: "link-student-number-conflict",
-    offersEmailFastTrack: false,
   },
   unusable: {
     tone: TONE.INFO,
     messageKey: "link-student-number-unusable",
-    offersEmailFastTrack: true,
   },
-} as const satisfies Record<
-  string,
-  { tone: InfoboxTone; messageKey: string; offersEmailFastTrack: boolean }
->
+} as const satisfies Record<string, { tone: InfoboxTone; messageKey: string }>
 
 type DeadEndReason = (typeof DEAD_ENDS)[keyof typeof DEAD_ENDS]
 
@@ -172,23 +156,14 @@ const SignedIn: React.FC<{ token: string }> = ({ token }) => {
   )
 }
 
-/**
- * A link that cannot be used again, with the two ways out of it: confirming the account's own
- * address, which links the number with no new link at all, and the page where its state lives.
- */
+/** A link that cannot be used again, with a way to the page where the number's state lives. */
 const DeadEnd: React.FC<{ reason: DeadEndReason }> = ({ reason }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const canConfirmEmail = useCanConfirmEmailAddress()
 
   return (
     <>
       <Infobox tone={reason.tone}>{t(reason.messageKey)}</Infobox>
       <div className={rowCss}>
-        {canConfirmEmail && reason.offersEmailFastTrack ? (
-          <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
-            {t("button-confirm-your-email-address")}
-          </Link>
-        ) : null}
         <Link
           href={userSettingsStudentNumberRoute()}
           styledAsButton

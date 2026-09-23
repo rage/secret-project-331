@@ -367,32 +367,11 @@ impl CompletionPolicy {
     }
 }
 
-/// Both paths would put the same attainment in Sisu. `course_modules_one_credit_registration_path`
-/// enforces this too; here it becomes an error the module editor can render.
-fn validate_one_credit_registration_path(
-    enable_credit_registration_via_suotar: bool,
-    enable_registering_completion_to_uh_open_university: bool,
-) -> ModelResult<()> {
-    if enable_credit_registration_via_suotar && enable_registering_completion_to_uh_open_university
-    {
-        return Err(model_err!(
-            PreconditionFailed,
-            "A course module cannot register completions both via Suotar and via the open university."
-                .to_string()
-        ));
-    }
-    Ok(())
-}
-
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
     new_course_module: &NewCourseModule,
 ) -> ModelResult<CourseModule> {
-    validate_one_credit_registration_path(
-        new_course_module.enable_credit_registration_via_suotar,
-        new_course_module.enable_registering_completion_to_uh_open_university,
-    )?;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         new_course_module.completion_policy.to_database_fields();
     let res = sqlx::query_as!(
@@ -410,9 +389,10 @@ INSERT INTO course_modules (
     ects_credits,
     enable_registering_completion_to_uh_open_university,
     uh_course_code,
-    enable_credit_registration_via_suotar
+    enable_credit_registration_via_suotar,
+    completion_registration_link_override
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING id,
   created_at,
   updated_at,
@@ -443,7 +423,8 @@ RETURNING id,
         new_course_module.ects_credits,
         new_course_module.enable_registering_completion_to_uh_open_university,
         new_course_module.uh_course_code,
-        new_course_module.enable_credit_registration_via_suotar
+        new_course_module.enable_credit_registration_via_suotar,
+        new_course_module.completion_registration_link_override,
     )
     .fetch_one(conn)
     .await?;
@@ -911,6 +892,28 @@ ORDER BY order_number
     Ok(res)
 }
 
+/// Ids of the courses' modules whose new completions go through credit registration via Suotar when
+/// the student holds a linked student number.
+pub async fn get_ids_registering_eligible_new_completions_via_suotar(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT id
+FROM course_modules
+WHERE course_id = ANY($1)
+  AND enable_credit_registration_via_suotar
+  AND register_eligible_new_completions_via_suotar
+  AND deleted_at IS NULL
+        ",
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// The gate for admin actions that are not tied to one course (e.g. resolving or manually
 /// linking a student number), where `get_credit_registration_enabled_ids_for_course` has no
 /// course to check against.
@@ -1192,10 +1195,6 @@ pub async fn update(
         enable_registering_completion_to_uh_open_university,
         enable_credit_registration_via_suotar,
     } = updated_course_module;
-    validate_one_credit_registration_path(
-        *enable_credit_registration_via_suotar,
-        *enable_registering_completion_to_uh_open_university,
-    )?;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
     sqlx::query!(
@@ -1211,7 +1210,9 @@ SET name = COALESCE($2, name),
   automatic_completion_requires_exam = $9,
   completion_registration_link_override = $10,
   enable_registering_completion_to_uh_open_university = $11,
-  enable_credit_registration_via_suotar = $12
+  enable_credit_registration_via_suotar = $12,
+  register_eligible_new_completions_via_suotar = register_eligible_new_completions_via_suotar
+  AND $12
 WHERE id = $1
         ",
         id,
@@ -1226,6 +1227,27 @@ WHERE id = $1
         completion_registration_link_override.as_ref(),
         enable_registering_completion_to_uh_open_university,
         enable_credit_registration_via_suotar
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Sets `register_eligible_new_completions_via_suotar`, which production sets by hand only. Errors
+/// if the module is not opted in to credit registration via Suotar.
+pub async fn set_register_eligible_new_completions_via_suotar(
+    conn: &mut PgConnection,
+    id: Uuid,
+    value: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET register_eligible_new_completions_via_suotar = $2
+WHERE id = $1
+        ",
+        id,
+        value,
     )
     .execute(conn)
     .await?;
@@ -1443,36 +1465,6 @@ mod tests {
 
             assert!(requirements5.passes_exercise_tresholds(0, 10));
             assert!(!requirements5.passes_exercise_tresholds(10, 0));
-        }
-    }
-
-    mod credit_registration_config {
-        use super::super::*;
-        use crate::test_helper::*;
-        use headless_lms_base::error::backend_error::BackendError;
-
-        #[tokio::test]
-        async fn a_module_cannot_take_both_registration_paths() {
-            insert_data!(:tx, :user, :org, :course);
-            let course_module = insert(
-                tx.as_mut(),
-                PKeyPolicy::Generate,
-                &NewCourseModule::new(course, Some("Module".to_string()), 1),
-            )
-            .await
-            .unwrap();
-            let both = NewCourseModule::new(course, Some("Both".to_string()), 1)
-                .set_enable_registering_completion_to_uh_open_university(true)
-                .set_enable_credit_registration_via_suotar(true);
-
-            let updated = update(tx.as_mut(), course_module.id, &both)
-                .await
-                .unwrap_err();
-            assert_eq!(*updated.error_type(), ModelErrorType::PreconditionFailed);
-            let inserted = insert(tx.as_mut(), PKeyPolicy::Generate, &both)
-                .await
-                .unwrap_err();
-            assert_eq!(*inserted.error_type(), ModelErrorType::PreconditionFailed);
         }
     }
 }

@@ -192,6 +192,9 @@ pub struct CreditRegistrationSeed {
     /// Pauses the module, which every phase's claim query skips: without it the workers running in
     /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
+    /// Sets `register_eligible_new_completions_via_suotar`, so completions seeded for linked
+    /// students go through Suotar.
+    pub register_eligible_new_completions: bool,
 }
 
 /// Builder for course modules that group chapters with ECTS credits and Open University registration.
@@ -339,6 +342,13 @@ impl ModuleBuilder {
             course_module_suotar_configurations::ensure_exists(conn, module.id)
                 .await
                 .context("writing the module's credit registration configuration")?;
+            if credit_registration.register_eligible_new_completions {
+                course_modules::set_register_eligible_new_completions_via_suotar(
+                    conn, module.id, true,
+                )
+                .await
+                .context("opting the module's new completions into Suotar")?;
+            }
             if let Some(reason) = &credit_registration.paused_reason {
                 course_module_suotar_configurations::set_paused(
                     conn,

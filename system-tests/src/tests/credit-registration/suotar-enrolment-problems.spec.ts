@@ -1,8 +1,14 @@
 import {
   completionRegistrationUrl,
+  CREDIT_REGISTRATION_STUDENT_1,
   CRS_101,
-  CRS_101_ENROLMENT_LINK,
+  CRS_B_101,
+  CRS_B_101_ENROLMENT_LINK,
   seededStudentStorageState,
+  STUDENT_7,
+  SUOTAR_B_COURSE_ID,
+  SUOTAR_B_COURSE_SLUG,
+  SUOTAR_COURSE_ID,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -18,13 +24,13 @@ import {
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
-/** Owns student numbers `9000003xx`. */
-const NO_ENROLMENT_EMAIL = "credit-registration-no-enrolment@example.com"
-const NO_ENROLMENT_STUDENT_NUMBER = "900000301"
-const EXPIRED_DEGREE_ENROLMENT_ID = "hy-enr-900000301-expired-degree"
-const OPEN_UNIVERSITY_ENROLMENT_ID = "hy-enr-900000301-open-university"
-const TWO_ENROLMENTS_EMAIL = "credit-registration-two-enrolments@example.com"
-const TWO_ENROLMENTS_STUDENT_NUMBER = "900000302"
+/** Owns `student7` on `via-suotar-b` and `credit-registration-student-1` on `via-suotar`. */
+const NO_ENROLMENT_EMAIL = STUDENT_7.email
+const NO_ENROLMENT_STUDENT_NUMBER = STUDENT_7.studentNumber
+const EXPIRED_DEGREE_ENROLMENT_ID = `hy-enr-${NO_ENROLMENT_STUDENT_NUMBER}-${CRS_B_101}-expired-degree`
+const OPEN_UNIVERSITY_ENROLMENT_ID = `hy-enr-${NO_ENROLMENT_STUDENT_NUMBER}-${CRS_B_101}-open-university`
+const TWO_ENROLMENTS_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
+const TWO_ENROLMENTS_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
 
 const YEAR = 365 * 24 * 60 * 60 * 1000
 const isoDate = (offsetMs: number) =>
@@ -37,13 +43,13 @@ test.describe("A student the University has no enrolment for", () => {
     adminApi,
     page,
   }) => {
-    const scope = { userEmail: NO_ENROLMENT_EMAIL }
+    const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
     await runResolveEnrolmentsTick(page.request, scope)
 
-    const stuck = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+    const stuck = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
       "no_usable_enrolment",
     ])
     expect(stuck.student_facing_status).toBe("needs_enrolment")
@@ -56,8 +62,8 @@ test.describe("A student the University has no enrolment for", () => {
       await expect(enrol).toBeVisible()
       // The module's completion registration link override, so it lands the student somewhere
       // that works rather than on a generic front page.
-      await expect(enrol).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
-      expect(stuck.enrolment_link).toBe(CRS_101_ENROLMENT_LINK)
+      await expect(enrol).toHaveAttribute("href", CRS_B_101_ENROLMENT_LINK)
+      expect(stuck.enrolment_link).toBe(CRS_B_101_ENROLMENT_LINK)
     })
 
     await test.step("Saying they have enrolled turns the page into a wait", async () => {
@@ -77,7 +83,7 @@ test.describe("A student the University has no enrolment for", () => {
         {
           id: EXPIRED_DEGREE_ENROLMENT_ID,
           studentNumber: NO_ENROLMENT_STUDENT_NUMBER,
-          courseCode: CRS_101,
+          courseCode: CRS_B_101,
           kind: "degree",
           state: "ENROLLED",
           studyRightValidityPeriod: { startDate: isoDate(-3 * YEAR), endDate: isoDate(-YEAR) },
@@ -85,7 +91,7 @@ test.describe("A student the University has no enrolment for", () => {
         {
           id: OPEN_UNIVERSITY_ENROLMENT_ID,
           studentNumber: NO_ENROLMENT_STUDENT_NUMBER,
-          courseCode: CRS_101,
+          courseCode: CRS_B_101,
           kind: "openUniversity",
           state: "ENROLLED",
           studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
@@ -97,7 +103,7 @@ test.describe("A student the University has no enrolment for", () => {
       // lever, which only ever renders on a row still parked on a missing enrolment.
       await runResolveEnrolmentsTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
-      await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+      await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
         "ready_to_submit",
         "submitting",
         "awaiting_verification",
@@ -108,8 +114,12 @@ test.describe("A student the University has no enrolment for", () => {
       await runResolveEnrolmentsTick(page.request, scope)
       const selected = await pollUntil(
         async () =>
-          (await listAdminRegistrations(adminApi, { student_number: NO_ENROLMENT_STUDENT_NUMBER }))
-            .data[0]?.selected_enrolment_id ?? null,
+          (
+            await listAdminRegistrations(adminApi, {
+              student_number: NO_ENROLMENT_STUDENT_NUMBER,
+              course_id: SUOTAR_B_COURSE_ID,
+            })
+          ).data[0]?.selected_enrolment_id ?? null,
         { description: "an enrolment to be chosen" },
       )
       expect(selected).toBe(OPEN_UNIVERSITY_ENROLMENT_ID)
@@ -124,7 +134,7 @@ test.describe("A student enrolled both as a degree student and through the Open 
     adminApi,
     page,
   }) => {
-    const scope = { userEmail: TWO_ENROLMENTS_EMAIL }
+    const scope = { userEmail: TWO_ENROLMENTS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
 
     await runPhasesUpToSubmission(page.request, scope)
     await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
@@ -155,6 +165,7 @@ test.describe("A student enrolled both as a degree student and through the Open 
 
     const listed = await listAdminRegistrations(adminApi, {
       student_number: TWO_ENROLMENTS_STUDENT_NUMBER,
+      course_id: SUOTAR_COURSE_ID,
     })
     expect(listed.data).toHaveLength(1)
     expect(listed.data[0]?.selected_enrolment_id).toBe(degreeEnrolment?.id)

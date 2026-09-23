@@ -19,9 +19,8 @@ use super::ids;
 use super::store::{EntityHash, MockSuotarStore};
 use super::wire::Endpoint;
 use super::world::{
-    CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, MockCourseUnit,
-    MockEnrolment, MockPerson, MockRealisation, MockStudyRight, PersonBehaviour, RealisationKind,
-    SuotarCourse,
+    CourseBehaviour, CreditRange, DatePeriod, LocalizedName, MockCourseUnit, MockEnrolment,
+    MockPerson, MockRealisation, PersonBehaviour, RealisationKind, SuotarCourse,
 };
 
 const PASS_FAIL_SCALE: &str = "sis-hyl-hyv";
@@ -153,7 +152,8 @@ async fn arm_after_import(
 ) -> Result<serde_json::Value, CommandError> {
     let mut base = plain(store, generation, args).await?;
     let student_number = string_field(&base, "studentNumber")?;
-    let fault_id = format!("{fault_prefix}-{student_number}");
+    let course_code = string_field(&base, "courseCode")?;
+    let fault_id = format!("{fault_prefix}-{student_number}-{course_code}");
     arm(
         store,
         generation,
@@ -162,6 +162,7 @@ async fn arm_after_import(
             Predicate::Endpoint(Endpoint::ImportAttainments),
             Predicate::Stage(stage),
             Predicate::StudentNumber(student_number.clone()),
+            Predicate::CourseCode(course_code),
         ],
         effect,
         Lifetime {
@@ -290,24 +291,9 @@ async fn put_enrolment(
     course_code: &str,
     realisation: &MockRealisation,
 ) -> Result<String, CommandError> {
-    let now = Utc::now();
-    let enrolment_id = ids::enrolment_id(student_number, realisation.kind);
-    let enrolment = MockEnrolment {
-        id: enrolment_id.clone(),
-        student_number: student_number.to_string(),
-        course_code: course_code.to_string(),
-        realisation_id: realisation.id.clone(),
-        state: EnrolmentState::Enrolled,
-        study_right_id: Some(ids::study_right_id(student_number, realisation.kind)),
-        study_right: Some(MockStudyRight {
-            validity: DatePeriod {
-                start_date: (now - Duration::days(365)).date_naive(),
-                end_date: Some((now + Duration::days(365)).date_naive()),
-            },
-            grant_date: None,
-        }),
-        enrolment_date_time: Some(now),
-    };
+    let enrolment =
+        MockEnrolment::enrolled_now(student_number, course_code, realisation, Utc::now());
+    let enrolment_id = enrolment.id.clone();
     store
         .upsert_json(
             generation,

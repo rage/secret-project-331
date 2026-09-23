@@ -577,7 +577,7 @@ export type CourseModuleCompletion = {
   passed: boolean
   prerequisite_modules_completed: boolean
   /**
-   * Whether the push path owns this completion. See the column comment; decided at insert.
+   * Whether the push path owns this completion. See the column comment.
    */
   register_credits_via_suotar: boolean
   updated_at: string
@@ -1362,6 +1362,10 @@ export type UserModuleCompletionStatus = {
   order_number: number
   passed?: boolean | null
   prerequisite_modules_completed: boolean
+  /**
+   * Whether the shown completion goes through the push path. False without one.
+   */
+  register_credits_via_suotar: boolean
 }
 
 export type UserPointsUpdateStrategy =

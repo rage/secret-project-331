@@ -29,14 +29,11 @@ export {
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
 
-/**
- * How much the link is worth as proof. The automatic match is the weakest: nobody confirmed
- * anything, an address just lined up — which is what the name-mismatch alert is about.
- */
+/** How much the link is worth as proof. */
 const VERIFICATION_METHOD_TONES = {
   emailed_link: TONE.SUCCESS,
-  email_match_fast_track: TONE.INFO,
   admin_manual: TONE.NEUTRAL,
+  study_registry: TONE.NEUTRAL,
 } as const satisfies Record<StudentNumberVerificationMethod, BadgeTone>
 
 export const verificationMethodTone = (
@@ -201,8 +198,9 @@ const ALERT_KEYS = {
   pipeline_idle: "credit-registration-alert-pipeline-idle",
   completions_never_entered: "credit-registration-alert-completions-never-entered",
   confirmation_latency_regressed: "credit-registration-alert-confirmation-latency-regressed",
-  fast_track_name_mismatch: "credit-registration-alert-fast-track-name-mismatch",
   pipeline_paused_globally: "credit-registration-alert-pipeline-paused-globally",
+  study_registry_student_number_conflicts:
+    "credit-registration-alert-study-registry-student-number-conflicts",
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"

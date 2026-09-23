@@ -26,7 +26,6 @@ import {
 } from "@/components/credit-registration/RegistrationStatusCard"
 import { StudentNumberLinkStep } from "@/components/credit-registration/StudentNumberLinkStep"
 import {
-  CONFIRM_EMAIL_ACTION_KEY,
   RECHECK_ENROLMENT_ACTION_KEY,
   useStudentRegistrationActions,
 } from "@/components/credit-registration/studentRegistrationActions"
@@ -47,7 +46,6 @@ import {
   saysWhatIsHappening,
   showsRegistrationFacts,
 } from "@/components/credit-registration/trackerView"
-import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import {
   getMyCreditRegistrationForCourseModuleOptions,
   getMyEnrolmentRouteOptions,
@@ -193,10 +191,8 @@ const Tracker: React.FC<TrackerProps> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const statusLabel = registrationStatusLabel(t, status)
-  const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
-    canConfirmEmail,
     linkToStatusPage: false,
   })
 
@@ -210,8 +206,10 @@ const Tracker: React.FC<TrackerProps> = ({
   }, [status, statusLabel, t])
 
   const view = { registration, enrolmentRoute }
-  const leverByKey = (key: string): RegistrationCardAction | null =>
-    [primaryAction, ...secondaryActions].find((action) => action?.key === key) ?? null
+  const recheckAction =
+    [primaryAction, ...secondaryActions].find(
+      (action) => action?.key === RECHECK_ENROLMENT_ACTION_KEY,
+    ) ?? null
 
   return (
     <>
@@ -226,11 +224,7 @@ const Tracker: React.FC<TrackerProps> = ({
           ) : null}
         </header>
 
-        <StudentNumberLinkStep
-          registration={registration}
-          verifiedNumber={verifiedNumber}
-          confirmEmailAction={leverByKey(CONFIRM_EMAIL_ACTION_KEY)}
-        />
+        <StudentNumberLinkStep registration={registration} verifiedNumber={verifiedNumber} />
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
@@ -246,7 +240,7 @@ const Tracker: React.FC<TrackerProps> = ({
             registration={registration}
             // Only this lever: the plan's other one sends the student off to the open university,
             // under a band where half of them have just said they enrolled through Sisu.
-            recheckAction={leverByKey(RECHECK_ENROLMENT_ACTION_KEY)}
+            recheckAction={recheckAction}
           />
         ) : null}
 
@@ -279,14 +273,23 @@ const Tracker: React.FC<TrackerProps> = ({
       {earlierAttempts.length > 0 ? (
         <section className={bandCss}>
           <h2 className={subheadingCss}>{t("heading-earlier-attempts")}</h2>
-          {earlierAttempts.map((attempt) => (
-            <p key={attempt.id} className={noteCss}>
-              {t("credit-registration-earlier-attempt-summary", {
-                attempt: attempt.attempt_number,
-                grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
-              })}
-            </p>
-          ))}
+          {earlierAttempts.map((attempt) => {
+            const summary = {
+              attempt: attempt.attempt_number,
+              grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
+            }
+            return (
+              <p key={attempt.id} className={noteCss}>
+                {/* A replaced attempt keeps the state it reached, which reads as still held. */}
+                {attempt.superseded
+                  ? t("credit-registration-earlier-attempt-summary", summary)
+                  : t("credit-registration-earlier-attempt-summary-with-status", {
+                      ...summary,
+                      status: registrationStatusLabel(t, attempt.student_facing_status),
+                    })}
+              </p>
+            )
+          })}
         </section>
       ) : null}
     </>

@@ -26,7 +26,8 @@ pub struct AdminVerifiedStudentNumberRow {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub student_number: String,
-    pub sisu_person_id: String,
+    /// `None` for a link the study registry reported, which names no person.
+    pub sisu_person_id: Option<String>,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
     /// The registry-held address the proof rests on, in full. `None` for an admin-established link.
@@ -178,7 +179,7 @@ fn to_admin_student_number(row: AdminVerifiedStudentNumber) -> AdminVerifiedStud
         first_name: row.first_name,
         last_name: row.last_name,
         student_number: row.student_number.expose_secret().to_owned(),
-        sisu_person_id: row.sisu_person_id.expose_secret().to_owned(),
+        sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         verified_at: row.verified_at,
         verified_via: row.verified_via,
         verified_via_email: expose_option(&row.verified_via_email).map(str::to_owned),

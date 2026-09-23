@@ -7,19 +7,12 @@ import type { MyCreditRegistration, MyVerifiedStudentNumber } from "@/generated/
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
-import { RegistrationActions, type RegistrationCardAction } from "./RegistrationStatusCard"
 import { bandCss, noteCss, stepsCss, subheadingCss } from "./styles"
 import { studentNumberLinkBand } from "./trackerView"
 
 export interface StudentNumberLinkStepProps {
   registration: MyCreditRegistration
   verifiedNumber: MyVerifiedStudentNumber | null
-  /**
-   * The fast track out of the whole mail step: an address this account has proved it controls can
-   * match the one the registry holds. Only offered before a mail has gone out, by which point it
-   * has already missed.
-   */
-  confirmEmailAction: RegistrationCardAction | null
 }
 
 /**
@@ -33,7 +26,6 @@ export interface StudentNumberLinkStepProps {
 export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   registration,
   verifiedNumber,
-  confirmEmailAction,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const band = studentNumberLinkBand(registration, verifiedNumber)
@@ -102,12 +94,6 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
         <li>{t("credit-registration-link-step-open")}</li>
       </ol>
       <p className={noteCss}>{t("credit-registration-link-only-once")}</p>
-      {confirmEmailAction ? (
-        <>
-          <p>{t("credit-registration-link-fast-track-offer")}</p>
-          <RegistrationActions primaryAction={confirmEmailAction} />
-        </>
-      ) : null}
     </section>
   )
 }

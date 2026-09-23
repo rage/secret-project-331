@@ -12,7 +12,7 @@ import {
   getMyVerifiedStudentNumberOptions,
   getMyVerifiedStudentNumberQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { dismissMyAutoLinkNotice, unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
+import { unlinkMyStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   LinkingEmailStatus,
   MyVerifiedStudentNumber,
@@ -21,7 +21,6 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   profileStudiesRoute,
-  userSettingsRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
@@ -31,7 +30,6 @@ import {
   Button,
   ConfirmDialog,
   DescriptionList,
-  Infobox,
   Link,
   QueryResult,
 } from "@/shared-module/components"
@@ -42,20 +40,18 @@ import {
   headingCss,
   monospaceCss,
   noteCss,
-  rowCss,
   sectionCss,
   sectionHeaderCss,
   stepsCss,
   studentNumberCss,
   subheadingCss,
 } from "./styles"
-import { useCanConfirmEmailAddress } from "./useCanConfirmEmailAddress"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_VALUE_KEYS = {
   emailed_link: "student-number-confirmed-by-emailed-link",
-  email_match_fast_track: "student-number-confirmed-by-email-match",
   admin_manual: "student-number-confirmed-by-admin-manual",
+  study_registry: "student-number-confirmed-by-study-registry",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
 /** Separates the destructive action from the provenance above it by weight, not just position. */
@@ -157,9 +153,6 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
         <p>{t("student-number-no-registering-courses")}</p>
       )}
       <p>{t("student-number-check-the-name-is-yours")}</p>
-      {link.linked_automatically && !link.auto_link_notice_dismissed && (
-        <AutoLinkNotice link={link} onUnlink={() => setIsRemoveDialogOpen(true)} />
-      )}
       <div className={dangerZoneCss}>
         <h3 className={subheadingCss}>{t("heading-wrong-number")}</h3>
         <div>
@@ -189,64 +182,9 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
   )
 }
 
-/**
- * The only way a student finds out we linked a number without asking them. It sits below the
- * provenance it asks them to judge, and its unlink button is the whole point, so dismissing must
- * not be the easier of the two to hit.
- */
-const AutoLinkNotice: React.FC<{
-  link: MyVerifiedStudentNumber
-  onUnlink: () => void
-}> = ({ link, onUnlink }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const queryClient = useQueryClient()
-
-  const dismiss = useToastMutation<void, unknown, void>(
-    async () => {
-      await dismissMyAutoLinkNotice()
-    },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() })
-      },
-    },
-  )
-
-  return (
-    <div data-testid="auto-link-notice">
-      <Infobox tone={TONE.INFO}>
-        <p>
-          {t("student-number-linked-automatically-notice", {
-            number: link.student_number,
-            email: link.verified_via_email_masked ?? "",
-          })}
-        </p>
-        <div className={rowCss}>
-          <Button variant="secondary" size="medium" onClick={onUnlink}>
-            {t("button-not-my-student-number-unlink")}
-          </Button>
-          <Button
-            variant={BUTTON_TERTIARY}
-            size="medium"
-            isLoading={dismiss.isPending}
-            onClick={() => dismiss.mutate()}
-          >
-            {t("button-dismiss-notice")}
-          </Button>
-        </div>
-      </Infobox>
-    </div>
-  )
-}
-
-/**
- * No number linked: the steps that link one automatically, and the one shortcut around them —
- * confirming the account's own address, which links the number without waiting for that mail.
- */
+/** No number linked: the steps that link one. */
 const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ linkingEmail }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
-  const canConfirmEmail = useCanConfirmEmailAddress()
   const sent = sentLinkingEmail(linkingEmail)
 
   return (
@@ -267,16 +205,6 @@ const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ link
         <li>{t("credit-registration-student-number-step-stay-logged-in")}</li>
       </ol>
       {sent ? null : <LinkingEmailLine linkingEmail={linkingEmail} />}
-      {canConfirmEmail ? (
-        <>
-          <p>{t("student-number-confirming-your-address-can-link-it")}</p>
-          <div>
-            <Link href={userSettingsRoute()} styledAsButton variant="primary" size="medium">
-              {t("button-confirm-your-email-address")}
-            </Link>
-          </div>
-        </>
-      ) : null}
     </>
   )
 }

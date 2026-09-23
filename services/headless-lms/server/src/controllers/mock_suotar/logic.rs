@@ -737,7 +737,7 @@ mod tests {
             grade_scale_id: None,
         };
         let enrolment = MockEnrolment {
-            id: ids::enrolment_id(STUDENT_NUMBER, RealisationKind::Degree),
+            id: ids::enrolment_id(STUDENT_NUMBER, COURSE_CODE, RealisationKind::Degree),
             student_number: STUDENT_NUMBER.to_string(),
             course_code: COURSE_CODE.to_string(),
             realisation_id: realisation.id.clone(),
@@ -798,7 +798,7 @@ mod tests {
             request_item_id: "item-1".to_string(),
             student_number: STUDENT_NUMBER.to_string(),
             course_code: COURSE_CODE.to_string(),
-            enrolment_id: ids::enrolment_id(STUDENT_NUMBER, RealisationKind::Degree),
+            enrolment_id: ids::enrolment_id(STUDENT_NUMBER, COURSE_CODE, RealisationKind::Degree),
             attainment_date: Utc::now().date_naive(),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-hyl-hyv".to_string(),

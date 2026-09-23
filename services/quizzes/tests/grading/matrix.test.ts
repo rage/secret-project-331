@@ -204,6 +204,21 @@ describe("matrix grading: per-cell with credit for a wrong size", () => {
       ),
     ).toBe(0)
   })
+
+  test("a stray cell far from the answer does not charge the blanks it widens the box over", () => {
+    const key = [
+      ["1", "2"],
+      ["3", "4"],
+    ]
+    // Correct 2x2 answer, plus one stray cell far outside the key's frame; everything between
+    // stays blank. Only the stray cell should count against the score.
+    const matrix = [
+      ["1", "2", "", "", "", ""],
+      ["3", "4", "", "", "", ""],
+      ["", "", "", "", "", "9"],
+    ]
+    expect(score(matrix, { optionCells: key, ...perCell(true) })).toBeCloseTo(3 / 4)
+  })
 })
 
 describe("matrix grading: tolerance", () => {
@@ -236,9 +251,11 @@ describe("matrix grading: keys and answers that should not exist", () => {
     ).toThrow(/blank cells inside the correct answer/)
   })
 
-  test("an empty key defines no correct answer, so nothing matches it", () => {
-    expect(score([["1"]], { optionCells: null })).toBe(0)
-    expect(score([["1"]], { optionCells: [["", ""]], gradingPolicy: "per-cell" })).toBe(0)
+  test("an empty key defines no correct answer, so grading refuses to score it", () => {
+    expect(() => score([["1"]], { optionCells: null })).toThrow(/no correct answer/)
+    expect(() => score([["1"]], { optionCells: [["", ""]], gradingPolicy: "per-cell" })).toThrow(
+      /no correct answer/,
+    )
   })
 
   test("an answer larger than the supported grid is refused before it can blow up grading", () => {
@@ -246,6 +263,11 @@ describe("matrix grading: keys and answers that should not exist", () => {
     expect(() => score([oversizedRow])).toThrow(/exceeds/)
     const oversizedAnswer = Array.from({ length: MATRIX_GRID_SIZE + 1 }, () => ["1"])
     expect(() => score(oversizedAnswer)).toThrow(/exceeds/)
+  })
+
+  test("a key larger than the supported grid is refused the same way an oversized answer is", () => {
+    const oversizedKey = Array.from({ length: MATRIX_GRID_SIZE + 1 }, () => ["1"])
+    expect(() => score([["1"]], { optionCells: oversizedKey })).toThrow(/exceeds/)
   })
 
   test("a gap punched into an answer by a non-UI client is a wrong entry, not a free pass", () => {

@@ -1,5 +1,5 @@
 import type { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
-import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type { MatrixDifference, QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
 import type { PrivateSpecQuizItemMatrix } from "../../../types/quizTypes/privateSpec"
 import { clamp01 } from "../utils/math"
 import { compareMatrices } from "../utils/matrixDifference"
@@ -17,30 +17,33 @@ const assessMatrixQuiz = (
     quizItem.optionCells,
     quizItem.tolerance,
   )
-  const { keyCells } = difference.breakdown
 
   return {
     quizItemId: quizItem.id,
-    correctnessCoefficient: correctnessCoefficient(quizItem, difference, keyCells),
+    correctnessCoefficient: matrixCorrectnessCoefficient(quizItem, difference),
+    matrixDifference: difference,
   }
 }
 
-const correctnessCoefficient = (
+const matrixCorrectnessCoefficient = (
   quizItem: PrivateSpecQuizItemMatrix,
-  difference: { differingCells: number; shapesMatch: boolean },
-  keyCells: number,
+  difference: MatrixDifference,
 ): number => {
-  // An empty key defines no correct answer, so nothing can match it.
+  const { incorrectCells, missingCells, extraCells, keyCells } = difference.breakdown
+  // An empty key defines no correct answer, which the editor blocks saving; a key that reaches
+  // grading in this state is a data bug worth surfacing rather than silently scoring everyone 0.
   if (keyCells === 0) {
-    return 0
+    throw new Error("Matrix item has no correct answer configured")
   }
+  const differingCells = incorrectCells + missingCells + extraCells
   if (quizItem.gradingPolicy === "whole-matrix") {
-    return difference.differingCells === 0 ? 1 : 0
+    return differingCells === 0 ? 1 : 0
   }
-  if (!difference.shapesMatch && !quizItem.partialCreditForWrongShape) {
+  const shapesMatch = missingCells === 0 && extraCells === 0
+  if (!shapesMatch && !quizItem.partialCreditForWrongShape) {
     return 0
   }
-  return clamp01(1 - difference.differingCells / keyCells)
+  return clamp01(1 - differingCells / keyCells)
 }
 
 export { assessMatrixQuiz }

@@ -45,7 +45,6 @@ const modelSolution = (
   ],
   messagesOnModelSolution: [],
   gradingPolicy: "per-cell",
-  tolerance: 0,
   ...overrides,
 })
 

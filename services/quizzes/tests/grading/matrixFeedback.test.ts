@@ -1,4 +1,5 @@
 import { submissionFeedback } from "../../src/grading/feedback"
+import { compareMatrices } from "../../src/grading/utils/matrixDifference"
 import type { UserAnswer } from "../../types/quizTypes/answer"
 import type { PrivateSpecQuiz, PrivateSpecQuizItemMatrix } from "../../types/quizTypes/privateSpec"
 
@@ -41,13 +42,17 @@ const feedbackFor = (
   matrix: string[][],
   overrides: Partial<PrivateSpecQuizItemMatrix> = {},
   correctnessCoefficient = 0.5,
-) =>
-  submissionFeedback(
+) => {
+  const item = matrixItem(overrides)
+  // submissionFeedback reuses the comparison assessMatrixQuiz already made; build it the same way here.
+  const matrixDifference = compareMatrices(matrix, item.optionCells, item.tolerance)
+  return submissionFeedback(
     answer(matrix),
-    quiz(matrixItem(overrides)),
-    [{ quizItemId: "matrix-item", correctnessCoefficient }],
+    quiz(item),
+    [{ quizItemId: "matrix-item", correctnessCoefficient, matrixDifference }],
     correctnessCoefficient,
   )[0]
+}
 
 describe("matrix feedback", () => {
   test("marks each cell the student can check against their own grid", () => {

@@ -77,7 +77,9 @@ export const cellsMatch = (a: string, b: string, tolerance: number): boolean => 
   const numberA = parseCellNumber(a)
   const numberB = parseCellNumber(b)
   if (numberA !== null && numberB !== null) {
-    return Math.abs(numberA - numberB) <= tolerance
+    // A negative tolerance would reject even an exact match; clamp so it can only ever widen
+    // what counts as equal, never narrow it below exact equality.
+    return Math.abs(numberA - numberB) <= Math.max(tolerance, 0)
   }
   if ((numberA === null) !== (numberB === null)) {
     return false

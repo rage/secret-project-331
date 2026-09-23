@@ -93,6 +93,12 @@ describe("matrix key diagnostics", () => {
     expect(matrixKeyDiagnostics([["x", "y"]], 0).largestSafeTolerance).toBeNull()
   })
 
+  test("never goes negative, even for magnitudes far smaller than the epsilon floor", () => {
+    const limit = matrixKeyDiagnostics([["0.0000000000000001", "0"]], 0).largestSafeTolerance
+    expect(limit).not.toBeNull()
+    expect(limit).toBeGreaterThanOrEqual(0)
+  })
+
   test("points at cells whose comma will be read as a decimal point", () => {
     expect(matrixKeyDiagnostics([["1,234", "0,333"]], 0).commaAsThousandsSeparator).toEqual([
       { row: 0, column: 0 },

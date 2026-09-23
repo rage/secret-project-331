@@ -125,7 +125,6 @@ export interface ModelSolutionQuizItemMatrix {
   messagesOnModelSolution: string[]
   /** Carried so the submission view can phrase the score the same way the grader computed it. */
   gradingPolicy: MatrixGradingPolicy
-  tolerance: number
 }
 
 export interface ModelSolutionQuizItemTimelineItem {

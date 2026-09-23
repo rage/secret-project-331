@@ -125,6 +125,7 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
       <NumericField
         value={selected.tolerance}
         label={t("numeric-tolerance")}
+        min={0}
         onCommit={(tolerance) => {
           updateState((draft) => {
             if (!draft) {

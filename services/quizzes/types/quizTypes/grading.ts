@@ -39,6 +39,12 @@ export interface MatrixScoreBreakdown {
   keyCells: number
 }
 
+/** The result of comparing a student's matrix with the key, cell by cell. */
+export interface MatrixDifference {
+  cellFeedbacks: MatrixCellFeedback[]
+  breakdown: MatrixScoreBreakdown
+}
+
 export interface ItemAnswerFeedback {
   quiz_item_id: string | null
   /** Custom feedback message to be shown under the quiz item. */
@@ -76,4 +82,6 @@ export interface QuizItemAnswerGrading {
    */
   correctnessCoefficient: number
   quizItemId: string
+  /** Set only for matrix items; lets feedback rendering reuse the grader's comparison instead of redoing it. */
+  matrixDifference?: MatrixDifference
 }

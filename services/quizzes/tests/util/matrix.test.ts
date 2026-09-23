@@ -60,6 +60,10 @@ describe("matrix cell comparison", () => {
     expect(cellsMatch("0.5", "0.51", 0)).toBe(false)
   })
 
+  test("a negative tolerance is clamped to zero, not treated as narrower than exact", () => {
+    expect(cellsMatch("0.5", "0.5", -1)).toBe(true)
+  })
+
   test("a fraction is text, so tolerance cannot rescue it", () => {
     expect(cellsMatch("1/2", "0.5", 0.5)).toBe(false)
     expect(cellsMatch("1/2", "1/2", 0)).toBe(true)

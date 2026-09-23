@@ -227,14 +227,16 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                     {cell.text}
                     {cell.verdict && VerdictIcon && (
                       <>
-                        <VerdictIcon
-                          className={css`
-                            position: absolute;
-                            top: 0.125rem;
-                            right: 0.125rem;
-                          `}
-                          size={14}
-                        />
+                        <span aria-hidden="true">
+                          <VerdictIcon
+                            className={css`
+                              position: absolute;
+                              top: 0.125rem;
+                              right: 0.125rem;
+                            `}
+                            size={14}
+                          />
+                        </span>
                         <VisuallyHidden>{verdictLabels[cell.verdict]}</VisuallyHidden>
                       </>
                     )}

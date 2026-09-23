@@ -3,8 +3,7 @@ import type {
   PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
-import { matrixShape } from "./matrix"
-import { matrixKeyDiagnostics } from "./matrixKeyDiagnostics"
+import { blankCellsInsideShape, matrixShape } from "./matrix"
 
 /**
  * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
@@ -93,7 +92,7 @@ const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean => {
     shape.columns > 0 &&
     Number.isFinite(item.tolerance) &&
     item.tolerance >= 0 &&
-    matrixKeyDiagnostics(item.optionCells, item.tolerance).gaps.length === 0
+    blankCellsInsideShape(item.optionCells, shape).length === 0
   )
 }
 

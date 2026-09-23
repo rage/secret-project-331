@@ -38,9 +38,11 @@ const migrateOptionCells = (optionCells: string[][] | null): string[][] => {
     return emptyMatrixGrid()
   }
   const rows = Math.max(MATRIX_GRID_SIZE, normalized.length)
+  // One column count for the whole grid, or a legacy matrix whose rows had different lengths
+  // would migrate into a result that is still ragged.
+  const columns = Math.max(MATRIX_GRID_SIZE, ...normalized.map((row) => row.length))
   return Array.from({ length: rows }, (_unusedRow, rowIndex) => {
     const row = normalized[rowIndex] ?? []
-    const columns = Math.max(MATRIX_GRID_SIZE, row.length)
     return Array.from({ length: columns }, (_unusedCell, columnIndex) => row[columnIndex] ?? "")
   })
 }
@@ -67,7 +69,6 @@ const migrateModelSolutionItem = (item: ModelSolutionQuizItemV4): ModelSolutionQ
     ...item,
     optionCells: migrateOptionCells(item.optionCells),
     gradingPolicy: "whole-matrix",
-    tolerance: 0,
   }
 }
 

@@ -4,20 +4,13 @@ import {
   isBlankCell,
   MATRIX_GRID_SIZE,
   matrixShape,
-  type MatrixShape,
 } from "@/util/matrix"
 
-import type { MatrixCellFeedback, MatrixScoreBreakdown } from "../../../types/quizTypes/grading"
+import type { MatrixCellFeedback, MatrixDifference } from "../../../types/quizTypes/grading"
 
-export interface MatrixDifference {
-  cellFeedbacks: MatrixCellFeedback[]
-  breakdown: MatrixScoreBreakdown
-  /** Cells that must change to turn the answer into the key: incorrect + missing + extra. */
-  differingCells: number
-  shapesMatch: boolean
-  studentShape: MatrixShape
-  keyShape: MatrixShape
-}
+const isOversized = (matrix: readonly (readonly string[])[] | null | undefined): boolean =>
+  (matrix?.length ?? 0) > MATRIX_GRID_SIZE ||
+  (matrix?.some((row) => (row?.length ?? 0) > MATRIX_GRID_SIZE) ?? false)
 
 /**
  * Compare a student's matrix with the key, cell by cell, over the positions either of them covers.
@@ -35,17 +28,18 @@ export const compareMatrices = (
   keyMatrix: readonly (readonly string[])[] | null | undefined,
   tolerance: number,
 ): MatrixDifference => {
-  const keyShape = matrixShape(keyMatrix)
-
-  // The student answer is attacker-controlled and reaches this endpoint directly, not just
-  // through the 6x6 answer UI; without this, an oversized answer turns matrixShape's scan and the
-  // comparison loop below into an unbounded Cartesian product.
-  if (
-    (studentMatrix?.length ?? 0) > MATRIX_GRID_SIZE ||
-    studentMatrix?.some((row) => (row?.length ?? 0) > MATRIX_GRID_SIZE)
-  ) {
+  // The student answer is attacker-controlled and reaches this endpoint directly, not just through
+  // the 6x6 answer UI. The key is admin-controlled but nothing upstream bounds it either (migration
+  // only pads a key up to size, never shrinks one down). Without this, either side can turn
+  // matrixShape's scan and the comparison loop below into an unbounded Cartesian product.
+  if (isOversized(studentMatrix)) {
     throw new Error(`Matrix answer exceeds the ${MATRIX_GRID_SIZE}x${MATRIX_GRID_SIZE} grid`)
   }
+  if (isOversized(keyMatrix)) {
+    throw new Error(`Matrix key exceeds the ${MATRIX_GRID_SIZE}x${MATRIX_GRID_SIZE} grid`)
+  }
+
+  const keyShape = matrixShape(keyMatrix)
   const studentShape = matrixShape(studentMatrix)
 
   const holes = blankCellsInsideShape(keyMatrix, keyShape)
@@ -78,6 +72,12 @@ export const compareMatrices = (
         continue
       }
       if (!inKey && inStudentAnswer) {
+        // studentShape is the bounding box of the student's non-blank cells, not a filled
+        // rectangle: a position inside it can still be blank (e.g. a stray cell far from the
+        // rest of the answer widens the box without filling it), and a blank cell is not "extra".
+        if (isBlankCell(studentMatrix?.[row]?.[column])) {
+          continue
+        }
         extraCells++
         cellFeedbacks.push({ row, column, verdict: "extra" })
         continue
@@ -105,9 +105,5 @@ export const compareMatrices = (
       extraCells,
       keyCells: keyShape.rows * keyShape.columns,
     },
-    differingCells: incorrectCells + missingCells + extraCells,
-    shapesMatch: keyShape.rows === studentShape.rows && keyShape.columns === studentShape.columns,
-    studentShape,
-    keyShape,
   }
 }

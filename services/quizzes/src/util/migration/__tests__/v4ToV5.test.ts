@@ -77,6 +77,16 @@ describe("v4 -> v5 matrix migration", () => {
   test("leaves the teacher's own text alone", () => {
     expect(migrateMatrixItem().optionCells?.[0]?.[0]).toBe("1")
   })
+
+  test("pads every row to the same column count, so a ragged legacy matrix migrates to a rectangle", () => {
+    const migrated = migrateMatrixItem({
+      optionCells: [["1", "2", "3", "4", "5", "6", "7", "8"], ["9"]],
+    })
+    const columnCounts = new Set(migrated.optionCells?.map((row) => row.length))
+    expect(columnCounts.size).toBe(1)
+    expect(migrated.optionCells?.[0]).toHaveLength(8)
+    expect(migrated.optionCells?.[1]).toHaveLength(8)
+  })
 })
 
 describe("v4 -> v5 migration never lowers a score", () => {

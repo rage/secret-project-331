@@ -2,7 +2,6 @@ import { applicableItemFeedbackMessages, joinFeedbackMessages } from "@/util/fee
 
 import type {
   UserAnswer,
-  UserItemAnswerMatrix,
   UserItemAnswerMultiplechoice,
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
@@ -18,7 +17,6 @@ import type {
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
-import { compareMatrices } from "./utils/matrixDifference"
 
 const quantizeForFogOfWar = (correctnessCoefficient: number): number => {
   if (correctnessCoefficient <= 0) {
@@ -79,6 +77,12 @@ const submissionFeedback = (
         }
 
         const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+        // Same leak the matrix branch below guards against: the raw coefficient moves by
+        // 1/optionCount per selection under partial-credit policies, so leaving it unquantized
+        // would let a student bisect the answer key across retries even with fog of war on.
+        const correctnessCoefficient = fogOfWar
+          ? quantizeForFogOfWar(itemGrading.correctnessCoefficient)
+          : itemGrading.correctnessCoefficient
 
         return {
           timeline_item_feedbacks: null,
@@ -86,7 +90,7 @@ const submissionFeedback = (
           matrix_score_breakdown: null,
           quiz_item_id: multipleChoiceQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          correctnessCoefficient: itemGrading.correctnessCoefficient,
+          correctnessCoefficient,
           quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
             (optionId): OptionAnswerFeedback => {
               const option =
@@ -151,12 +155,9 @@ const submissionFeedback = (
 
       if (item.type === "matrix") {
         const matrixQuizItem = item as PrivateSpecQuizItemMatrix
-        const matrixUserAnswer = itemAnswer as UserItemAnswerMatrix
-        const difference = compareMatrices(
-          matrixUserAnswer.matrix,
-          matrixQuizItem.optionCells,
-          matrixQuizItem.tolerance,
-        )
+        // Reuses the comparison assessMatrixQuiz already made for the same item in the same
+        // request, rather than redoing it here; null only if that grading call itself failed.
+        const difference = itemGrading.matrixDifference ?? null
         // Fog of war withholds the per-cell verdicts, which would otherwise let a student with
         // repeated attempts resolve the key one cell at a time.
         const revealCells = !matrixQuizItem.fogOfWar
@@ -175,8 +176,8 @@ const submissionFeedback = (
           quiz_item_feedback: quizItemFeedback,
           quiz_item_option_feedbacks: null,
           timeline_item_feedbacks: null,
-          matrix_cell_feedbacks: revealCells ? difference.cellFeedbacks : null,
-          matrix_score_breakdown: revealCells ? difference.breakdown : null,
+          matrix_cell_feedbacks: revealCells ? (difference?.cellFeedbacks ?? null) : null,
+          matrix_score_breakdown: revealCells ? (difference?.breakdown ?? null) : null,
           correctnessCoefficient,
         }
       }

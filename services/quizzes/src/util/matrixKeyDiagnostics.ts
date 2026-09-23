@@ -104,5 +104,7 @@ const largestSafeTolerance = (values: number[]): number | null => {
     return null
   }
   const halfLimit = limit / 2
-  return halfLimit - Math.max(halfLimit * 1e-9, Number.EPSILON)
+  // The epsilon floor must itself stay below halfLimit, or subtracting it would push the result
+  // negative for a key holding extremely small magnitudes (e.g. ~1e-16).
+  return halfLimit - Math.min(Math.max(halfLimit * 1e-9, Number.EPSILON), halfLimit)
 }

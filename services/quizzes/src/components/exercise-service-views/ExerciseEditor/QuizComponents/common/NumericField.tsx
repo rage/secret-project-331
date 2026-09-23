@@ -6,6 +6,8 @@ interface NumericFieldProps {
   value: number
   label: string
   onCommit: (value: number) => void
+  /** Values below this are clamped up before reaching the spec, e.g. a tolerance that must stay >= 0. */
+  min?: number
 }
 
 /**
@@ -13,7 +15,7 @@ interface NumericFieldProps {
  * by a String()/Number() round-trip mid-keystroke. Only parseable values reach the spec, and the
  * field normalizes back to the committed value on blur.
  */
-const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit }) => {
+const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min }) => {
   const [text, setText] = useState(String(value))
   return (
     <TextField
@@ -24,7 +26,7 @@ const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit }) =
         setText(next)
         const parsed = Number(next.trim().replace(",", "."))
         if (next.trim() !== "" && Number.isFinite(parsed)) {
-          onCommit(parsed)
+          onCommit(min === undefined ? parsed : Math.max(min, parsed))
         }
       }}
       onBlur={() => setText(String(value))}

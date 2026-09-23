@@ -146,8 +146,11 @@ const Matrix: React.FunctionComponent<
     return matrixVariable[row]?.[column] ?? ""
   }
 
-  const malformedCells = matrixVariable.flat().filter((cell) => isMalformedNumberCell(cell))
-  const commaCells = matrixVariable.flat().filter((cell) => looksLikeThousandsSeparator(cell))
+  const cellsWithPosition = matrixVariable.flatMap((row, rowIndex) =>
+    row.map((cell, columnIndex) => ({ cell, rowIndex, columnIndex })),
+  )
+  const malformedCells = cellsWithPosition.filter(({ cell }) => isMalformedNumberCell(cell))
+  const commaCells = cellsWithPosition.filter(({ cell }) => looksLikeThousandsSeparator(cell))
 
   const tempArray = Array.from({ length: MATRIX_GRID_SIZE }, (_unused, index) => index)
   return (
@@ -180,6 +183,9 @@ const Matrix: React.FunctionComponent<
       </MatrixTableContainer>
       {(malformedCells.length > 0 || commaCells.length > 0) && (
         <ul
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics
+          role="status"
+          aria-live="polite"
           className={css`
             list-style: none;
             margin: 0.5rem auto 0;
@@ -190,11 +196,11 @@ const Matrix: React.FunctionComponent<
             text-align: center;
           `}
         >
-          {malformedCells.map((cell) => (
-            <li key={`malformed-${cell}`}>{t("matrix-cell-invalid-number")}</li>
+          {malformedCells.map(({ rowIndex, columnIndex }) => (
+            <li key={`malformed-${rowIndex}-${columnIndex}`}>{t("matrix-cell-invalid-number")}</li>
           ))}
-          {commaCells.map((cell) => (
-            <li key={`comma-${cell}`}>
+          {commaCells.map(({ cell, rowIndex, columnIndex }) => (
+            <li key={`comma-${rowIndex}-${columnIndex}`}>
               {t("matrix-cell-comma-warning", { value: parseCellNumber(cell) ?? cell })}
             </li>
           ))}

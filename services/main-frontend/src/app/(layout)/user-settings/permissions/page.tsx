@@ -477,7 +477,7 @@ const PermissionsSettingsPage: React.FC = () => {
               {t("user-settings-delete-account")}
             </h2>
           </div>
-          <DeleteUserAccountForm email={getUserDetails.data.email} />
+          <DeleteUserAccountForm />
         </div>
       )}
     </div>

@@ -15,8 +15,9 @@ test.describe("Manage course students tab", () => {
     await expect(page).toHaveURL(/\/students\/users/)
     await expect(page.getByText("user_1@example.com")).toBeVisible()
 
-    // A functional course-instance filter lives next to the search box.
-    await expect(page.getByRole("combobox", { name: "Course instance" })).toBeVisible()
+    // A functional course-instance filter lives next to the search box. The design-system Select
+    // is a listbox behind a button trigger, not a native combobox.
+    await expect(page.getByRole("button", { name: "Course instance" })).toBeVisible()
 
     // The shared search box filters rows server-side across every subtab.
     const search = page.getByPlaceholder("Search students...")

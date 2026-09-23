@@ -9,6 +9,7 @@ import {
   Button,
   ComboBox,
   nullIfEmpty,
+  NumberField,
   Select,
   TextArea,
   TextField,
@@ -24,7 +25,6 @@ import {
   FIELD_CREDITS,
   FIELD_LANGUAGE,
   formRootStyles,
-  INPUT_MODE_DECIMAL,
   LANGUAGE_OPTIONS,
   linkifyResourceLine,
   modeAndPeriodsRowStyles,
@@ -134,15 +134,13 @@ export default function AnalysisWorkspaceForm(props: {
               description={t("course-plans-analysis-description-course-title")}
             />
             <div className={twoColGridStyles}>
-              <TextField
+              <NumberField
                 name={FIELD_CREDITS}
                 control={control}
                 rules={creditsFieldRules}
-                type="number"
                 label={t("course-plans-analysis-field-credits")}
                 description={t("course-plans-analysis-description-credits")}
-                inputMode={INPUT_MODE_DECIMAL}
-                autoComplete="off"
+                minValue={0}
               />
               <ComboBox
                 name={FIELD_LANGUAGE}

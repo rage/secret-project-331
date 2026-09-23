@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_enrolment_routes (\n    course_module_completion_id,\n    user_id,\n    route\n  )\nVALUES ($1, $2, $3)\nON CONFLICT (course_module_completion_id, deleted_at) DO\nUPDATE\nSET route = EXCLUDED.route,\n  enrolment_confirmed_at = CASE\n    WHEN credit_registration_enrolment_routes.route = EXCLUDED.route THEN credit_registration_enrolment_routes.enrolment_confirmed_at\n    ELSE NULL\n  END\nRETURNING course_module_completion_id,\n  route AS \"route: _\",\n  enrolment_confirmed_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "route: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "enrolment_confirmed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "dcb612340c6908d3b0fd9651fc5fd39c5c1b9195f0970feee3bdde52e1a97826"
+}

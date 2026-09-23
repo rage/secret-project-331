@@ -8,7 +8,6 @@ import {
 import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   runImportSubmissionTick,
   runMaterializeTick,
@@ -50,12 +49,24 @@ test.describe("A student the University has no enrolment for", () => {
     await test.step("The guidance is a working link, not an instruction to go looking", async () => {
       expect(stuck.enrolment_link).not.toBeNull()
       await page.goto(completionRegistrationUrl(stuck.course_module_id))
+      await page.getByRole("radio", { name: "No", exact: true }).click()
       const enrol = page.getByRole("link", { name: "Enrol at the Open University" })
       await expect(enrol).toBeVisible()
       // Built from the product access token the refresh phase fetched, so it lands the student
       // somewhere that works rather than on a generic front page.
       await expect(enrol).toHaveAttribute("href", /token/)
-      await expect(page.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
+    })
+
+    await test.step("Saying they have enrolled turns the page into a wait", async () => {
+      await page.getByRole("button", { name: "I have enrolled" }).click()
+      await expect(
+        page.getByRole("heading", {
+          name: "Waiting for your enrolment to reach the University's records",
+        }),
+      ).toBeVisible()
+      await expect(page.getByText("You told us you enrolled at the Open University")).toBeVisible()
+      // The one lever left: sending them off to enrol again would contradict what they just said.
+      await expect(page.getByRole("link", { name: "Enrol at the Open University" })).toBeHidden()
     })
 
     await test.step("It heals itself once the enrolment appears", async () => {
@@ -68,15 +79,8 @@ test.describe("A student the University has no enrolment for", () => {
           studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
         },
       ])
-      // The daily backoff otherwise leaves the row not due yet: this is what the "check again"
-      // button is for.
-      await waitForSuccessNotification(
-        page,
-        async () => {
-          await page.getByRole("button", { name: "I have enrolled, check again" }).click()
-        },
-        "Success",
-      )
+      // Answering the question already re-opens the look, so the row is due without the manual
+      // lever, which only ever renders on a row still parked on a missing enrolment.
       await runResolveEnrolmentsTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
       await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [

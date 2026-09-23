@@ -118,12 +118,18 @@ export function StudentsTable<T extends object>({
   const scrollMarginRef = useRef(0)
   const [, forceRemeasure] = useState(0)
 
+  /** Returns whether the margin moved, so callers can re-render only when it did. */
   const measureScrollMargin = useCallback(() => {
     const wrapper = tableWrapperRef.current
     // Document-absolute top (getBoundingClientRect + scrollY), not offsetTop: the window virtualizer
     // measures from the document top, but offsetTop is relative to the nearest positioned ancestor
     // (layout.tsx's position: relative BreakFromCentered), which would place virtualized rows too high.
-    scrollMarginRef.current = wrapper ? wrapper.getBoundingClientRect().top + window.scrollY : 0
+    const measured = wrapper ? wrapper.getBoundingClientRect().top + window.scrollY : 0
+    if (measured === scrollMarginRef.current) {
+      return false
+    }
+    scrollMarginRef.current = measured
+    return true
   }, [])
 
   useLayoutEffect(() => {
@@ -151,13 +157,11 @@ export function StudentsTable<T extends object>({
     ? rowVirtualizer.getTotalSize() + scrollMargin - lastVirtualItem.end
     : 0
 
-  // Floating header: a second copy of the <thead>, rendered from the same react-table state so
-  // sort/ARIA state can never drift out of sync, shown as position: fixed once the real header
-  // scrolls above the viewport. Needed because tableSection (layout.tsx) keeps overflow-x: auto
-  // for wide-table horizontal scroll on narrow viewports, and CSS auto-promotes overflow-y to
-  // auto whenever overflow-x isn't visible -- which would silently break a plain CSS
-  // `position: sticky` header's ability to track the *window's* scroll instead of that
-  // ancestor's (permanently-zero) scroll offset.
+  // Floating header: a second copy of the <thead>, from the same react-table state so sort and
+  // ARIA cannot drift, fixed to the viewport once the real header scrolls off. A plain sticky
+  // header will not do: StaleTableWrapper keeps overflow-x: auto for narrow viewports, CSS then
+  // promotes overflow-y to auto, and sticky tracks that ancestor's always-zero scroll offset
+  // rather than the window's.
   const realTableRef = useRef<HTMLTableElement | null>(null)
   const theadRef = useRef<HTMLTableSectionElement | null>(null)
   const floatingInnerRef = useRef<HTMLDivElement | null>(null)
@@ -259,19 +263,21 @@ export function StudentsTable<T extends object>({
     }
     window.addEventListener("scroll", onWindowScroll, { passive: true })
 
-    const onWindowResize = () => {
+    const remeasure = () => {
       measureFloatingRect()
-      measureScrollMargin()
+      if (measureScrollMargin()) {
+        forceRemeasure((n) => n + 1)
+      }
     }
-    window.addEventListener("resize", onWindowResize)
+    window.addEventListener("resize", remeasure)
 
-    const ro = new ResizeObserver(() => {
-      measureFloatingRect()
-      measureScrollMargin()
-    })
+    const ro = new ResizeObserver(remeasure)
     if (wrapper) {
       ro.observe(wrapper)
     }
+    // The document too: anything above the table growing (an async panel, a summary line) moves the
+    // table down without resizing it, and a stale scrollMargin virtualizes the wrong rows.
+    ro.observe(document.documentElement)
     // The table too: whether it overflows the scroller decides which box the header is sized from,
     // and the wrapper's own size never reflects that.
     if (realTableRef.current) {
@@ -293,7 +299,7 @@ export function StudentsTable<T extends object>({
 
     return () => {
       window.removeEventListener("scroll", onWindowScroll)
-      window.removeEventListener("resize", onWindowResize)
+      window.removeEventListener("resize", remeasure)
       ro.disconnect()
       horizontalScrollEl?.removeEventListener("scroll", onHorizontalScroll)
       if (horizontalRafRef.current !== null) {

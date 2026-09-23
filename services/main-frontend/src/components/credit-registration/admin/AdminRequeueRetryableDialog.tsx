@@ -8,8 +8,7 @@ import type { AdminRequeueRetryableResult } from "@/generated/api/types.generate
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Infobox, Select } from "@/shared-module/components"
 
-import { MIDDLE_DOT, TONE } from "../constants"
-import { noteCss } from "../styles"
+import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { AdminActionDialog } from "./AdminActionDialog"
 import {
   useCreditRegistrationCourseStats,
@@ -22,12 +21,11 @@ interface Fields {
   reason: string
 }
 
-// oxlint-disable-next-line i18next/no-literal-string
 const EVERY_MODULE = ""
 
 /** Clears the backoff on every retryable row, which is the button to press once an outage is over. */
 const AdminRequeueRetryableDialog: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const courseStatsQuery = useCreditRegistrationCourseStats()
   const invalidateAttentionItems = useInvalidateAttentionItems()
 
@@ -35,6 +33,8 @@ const AdminRequeueRetryableDialog: React.FC = () => {
     <AdminActionDialog<Fields, AdminRequeueRetryableResult>
       triggerLabel={t("button-text-credit-registration-requeue-retryable")}
       dialogTitle={t("button-text-credit-registration-requeue-retryable")}
+      description={t("credit-registration-admin-requeue-note")}
+      confirmLabel={t("button-text-credit-registration-requeue-retryable")}
       defaultValues={{ course_module_id: EVERY_MODULE, reason: "" }}
       mutationFn={(fields) =>
         adminRequeueRetryableCreditRegistrations({
@@ -49,7 +49,6 @@ const AdminRequeueRetryableDialog: React.FC = () => {
       onSuccess={() => void invalidateAttentionItems()}
       renderFields={(control) => (
         <>
-          <p className={noteCss}>{t("credit-registration-admin-requeue-note")}</p>
           <Select
             name="course_module_id"
             control={control}

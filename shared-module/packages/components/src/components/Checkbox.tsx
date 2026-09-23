@@ -15,6 +15,7 @@ import {
   checkableInputCss,
   checkableLabelCss,
   checkableRootCss,
+  checkableRootInlineCss,
   checkableRowCss,
   checkboxMarkCss,
   choiceMarkCss,
@@ -52,6 +53,11 @@ export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   isReadOnly?: boolean
   isRequired?: boolean
   isIndeterminate?: boolean
+  /**
+   * Lays the control out at its own width rather than filling the line, so it can sit in a flex
+   * toolbar beside the other controls instead of taking a row of its own.
+   */
+  isInline?: boolean
   id?: string
   /** Optional `value` attribute on the native checkbox (not the form field value). */
   checkboxValue?: string | number | readonly string[]
@@ -77,6 +83,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isReadOnly = false,
     isRequired = false,
     isIndeterminate = false,
+    isInline = false,
     className,
     checkboxValue,
     onKeyDown,
@@ -159,7 +166,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={cx(checkableRootCss, className)}
+      className={cx(checkableRootCss, isInline && checkableRootInlineCss, className)}
       description={description}
       {...includeIf(description, { descriptionId })}
       errorMessage={resolvedError}

@@ -347,10 +347,6 @@ export function linkStudentNumberRoute(token: string) {
   return `/link-student-number/${token}`
 }
 
-export function creditRegistrationRoute() {
-  return "/manage/credit-registration"
-}
-
 export function creditRegistrationOverviewRoute() {
   return "/manage/credit-registration/overview"
 }
@@ -359,32 +355,20 @@ export function creditRegistrationRegistrationsRoute() {
   return "/manage/credit-registration/registrations"
 }
 
-export function creditRegistrationPipelineRoute() {
-  return "/manage/credit-registration/pipeline"
-}
-
 export function creditRegistrationErrorsRoute() {
   return "/manage/credit-registration/errors"
-}
-
-export function creditRegistrationLinkingRoute() {
-  return "/manage/credit-registration/linking"
 }
 
 export function creditRegistrationCoursesRoute() {
   return "/manage/credit-registration/courses"
 }
 
-export function creditRegistrationApiLogRoute() {
-  return "/manage/credit-registration/api-log"
+export function creditRegistrationLinkingRoute() {
+  return "/manage/credit-registration/linking"
 }
 
-export function creditRegistrationWorkersRoute() {
-  return "/manage/credit-registration/workers"
-}
-
-export function creditRegistrationReconciliationRoute() {
-  return "/manage/credit-registration/reconciliation"
+export function creditRegistrationSystemRoute() {
+  return "/manage/credit-registration/system"
 }
 
 export function creditRegistrationAuditRoute() {

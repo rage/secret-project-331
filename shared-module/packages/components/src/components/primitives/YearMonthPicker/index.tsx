@@ -4,8 +4,8 @@ import { cx } from "@emotion/css"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLocale } from "react-aria"
 
+import { ChevronIcon } from "../ChevronIcon"
 import { CalendarNavButton } from "../DatePickerCalendar/CalendarNavButton"
-import { ChevronIcon } from "../DatePickerCalendar/ChevronIcon"
 import { ChooserGridSection } from "../DatePickerCalendar/ChooserGridSection"
 import {
   leftDirection,
@@ -16,6 +16,7 @@ import {
 import { useDatePickerCalendarLabels } from "../DatePickerCalendar/datePickerCalendarLabels"
 import {
   calendarNavButtonCss,
+  calendarNavIconCss,
   chooserPagerCss,
   chooserPanelCss,
   chooserTitleCss,
@@ -180,7 +181,7 @@ export function YearMonthPicker({
               setView(monthView)
             }}
           >
-            <ChevronIcon direction={leftDirection} />
+            <ChevronIcon className={calendarNavIconCss} direction={leftDirection} />
           </button>
           <div className={chooserTitleCss}>{labels.chooseYear}</div>
           <div className={chooserPagerCss}>

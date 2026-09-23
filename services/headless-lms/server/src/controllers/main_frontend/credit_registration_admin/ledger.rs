@@ -27,8 +27,7 @@ use utoipa::ToSchema;
 use crate::prelude::*;
 
 use super::{
-    AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, one_or_many,
-    required_reason,
+    AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -265,9 +264,7 @@ pub struct AdminRequeueRetryableResult {
 pub struct ListCreditRegistrationsQuery {
     page: Option<u32>,
     limit: Option<u32>,
-    #[serde(default, deserialize_with = "one_or_many")]
     state: Option<Vec<CreditRegistrationState>>,
-    #[serde(default, deserialize_with = "one_or_many")]
     error_code: Option<Vec<CreditRegistrationErrorCode>>,
     course_id: Option<Uuid>,
     course_module_id: Option<Uuid>,
@@ -314,7 +311,7 @@ and sorted.
 pub async fn list_credit_registrations_for_admin(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    query: web::Query<ListCreditRegistrationsQuery>,
+    query: MultiQuery<ListCreditRegistrationsQuery>,
 ) -> ControllerResult<web::Json<Page<AdminCreditRegistrationRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;

@@ -2,6 +2,7 @@
 use crate::prelude::*;
 
 use headless_lms_models::chapter_lock_action_logs;
+use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use headless_lms_models::library::students_view::{
     CertificateGridRow, CompletionGridRow, CourseStudentsProgressStructure,
     CourseStudentsProgressUsers, GRADE_FILTER_FAILED, GRADE_FILTER_NOT_COMPLETED,
@@ -54,6 +55,9 @@ struct GetStudentsQuery {
     /// A numeric grade (the sis-0-5 scale, `"0"`..`"5"`), or `"passed"`/`"failed"` (the sis-hyv-hyl
     /// scale), or `"not_completed"`. Requires `module_id`.
     grade: Option<String>,
+    /// Credit registration stages to narrow the roster to. Repeatable, so a filter naming several
+    /// stages ("needs attention") sends each of them rather than a name only the server understands.
+    registration_status: Option<Vec<StudentFacingCreditRegistrationStatus>>,
 }
 
 const VALID_GRADE_FILTERS: [&str; 3] = [
@@ -207,7 +211,8 @@ async fn get_user_chapter_locking_statuses(
         ("sort_direction" = Option<String>, Query, description = "asc | desc"),
         ("course_instance_id" = Option<Uuid>, Query, description = "Filter to a single course instance"),
         ("module_id" = Option<Uuid>, Query, description = "Scopes `grade` to this module's completions"),
-        ("grade" = Option<String>, Query, description = "A sis-0-5 grade (\"0\"..\"5\"), \"passed\"/\"failed\", or \"not_completed\"; requires module_id")
+        ("grade" = Option<String>, Query, description = "A sis-0-5 grade (\"0\"..\"5\"), \"passed\"/\"failed\", or \"not_completed\"; requires module_id"),
+        ("registration_status" = Option<Vec<StudentFacingCreditRegistrationStatus>>, Query, description = "Only students holding a live credit registration at one of these stages; repeat the parameter for several")
     ),
     responses(
         (status = 200, description = "A page of enrolled students", body = StudentsListPage)
@@ -216,7 +221,7 @@ async fn get_user_chapter_locking_statuses(
 #[instrument(skip(pool))]
 async fn get_course_users(
     course_id: web::Path<Uuid>,
-    query: web::Query<GetStudentsQuery>,
+    query: MultiQuery<GetStudentsQuery>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<StudentsListPage>> {
@@ -257,6 +262,7 @@ async fn get_course_users(
         query.course_instance_id,
         query.module_id,
         query.grade.as_deref(),
+        query.registration_status.as_deref().unwrap_or_default(),
     )
     .await?;
 

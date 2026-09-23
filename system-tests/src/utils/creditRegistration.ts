@@ -43,6 +43,7 @@
  * | `9000014xx`     | suotar-fast-track-linking   | via-suotar                  |
  * | `9000015xx`     | suotar-in-course-banner     | via-suotar                  |
  * | `9000016xx`     | suotar-student-profile      | none (reads seeded rows)    |
+ * | none            | completion-registration-certificate-detour | certificate-detour |
  */
 
 import type { APIRequestContext } from "@playwright/test"
@@ -60,13 +61,12 @@ export const COURSE_CREDIT_REGISTRATIONS_API = `${MAIN_FRONTEND_API}/course-cred
 export const SUOTAR_COURSE_SLUG = "credit-registration-via-suotar"
 export const ADMIN_COURSE_SLUG = "credit-registration-admin"
 export const IMPORT_OUTCOMES_COURSE_SLUG = "credit-registration-import-outcomes"
-export const BACKFILL_COURSE_SLUG = "credit-registration-backfill"
 export const OLD_FLOW_COURSE_SLUG = "credit-registration-old-flow"
 export const GRADE_IMPROVEMENT_COURSE_SLUG = "credit-registration-grade-improvement"
+export const CERTIFICATE_DETOUR_COURSE_SLUG = "credit-registration-certificate-detour"
 
 /** Must match the `*_COURSE_ID` constants in `seed_credit_registration.rs`. */
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
-export const BACKFILL_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
 export const RETRY_COURSE_ID = "c5ed17ea-0009-4a5e-9e6e-c0de00000009"
 export const OLD_FLOW_COURSE_ID = "c5ed17ea-0002-4a5e-9e6e-c0de00000002"
@@ -88,6 +88,8 @@ export const courseFrontPageUrl = (courseSlug: string): string =>
 export const completionRegistrationUrl = (courseModuleId: string): string =>
   `${ORIGIN}/completion-registration/${courseModuleId}`
 
+export const PROFILE_STUDIES_URL = `${ORIGIN}/profile/studies`
+
 export const PROFILE_CREDIT_REGISTRATION_URL = `${ORIGIN}/profile/credit-registration`
 
 export const linkStudentNumberUrl = (token: string): string =>
@@ -101,6 +103,7 @@ export const linkStudentNumberUrl = (token: string): string =>
 export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-banner-reenrols@example.com",
   "credit-registration-banner-stuck@example.com",
+  "credit-registration-certificate-detour@example.com",
   "credit-registration-emails-no-enrolment@example.com",
   "credit-registration-emails-registered@example.com",
   "credit-registration-grade-improvement@example.com",
@@ -109,6 +112,7 @@ export const CREDIT_REGISTRATION_STUDENT_EMAILS = [
   "credit-registration-link-claimer@example.com",
   "credit-registration-linked-student@example.com",
   "credit-registration-no-enrolment@example.com",
+  "credit-registration-old-flow-still-legacy@example.com",
   "credit-registration-profile-empty@example.com",
   "credit-registration-superseded@example.com",
   "credit-registration-two-enrolments@example.com",

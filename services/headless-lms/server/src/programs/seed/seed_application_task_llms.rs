@@ -77,6 +77,17 @@ pub async fn seed_application_task_llms(
         &mut conn,
         ApplicationTaskDefaultLanguageModel {
             model_id: llm.id,
+            task: ApplicationTask::ChartSpecGeneration,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
             task: ApplicationTask::PromptCreation,
             context_utilization: 0.75,
             ..Default::default()

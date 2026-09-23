@@ -79,6 +79,8 @@ import type {
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
   ConfirmCourseSuspectedCheaterResponses,
+  ConfirmMyEnrolmentData,
+  ConfirmMyEnrolmentResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -481,6 +483,8 @@ import type {
   GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
+  GetMyEnrolmentRouteData,
+  GetMyEnrolmentRouteResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -737,6 +741,10 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyCreditJustificationData,
+  SetMyCreditJustificationResponses,
+  SetMyEnrolmentRouteData,
+  SetMyEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -807,6 +815,8 @@ import type {
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipErrors,
   VerifyEmailOwnershipResponses,
+  WithdrawMyEnrolmentConfirmationData,
+  WithdrawMyEnrolmentConfirmationResponses,
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
@@ -829,6 +839,7 @@ import {
   zChangeUserPasswordResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
+  zConfirmMyEnrolmentResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -997,6 +1008,7 @@ import {
   zGetMyCreditRegistrationForCourseModuleResponse,
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
+  zGetMyEnrolmentRouteResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -1105,6 +1117,8 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyCreditJustificationResponse,
+  zSetMyEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -1128,6 +1142,7 @@ import {
   zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
   zVerifyEmailOwnershipResponse,
+  zWithdrawMyEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
 export type Options<
@@ -1920,6 +1935,9 @@ export const retryFailedCreditRegistrationsForCourse = <ThrowOnError extends boo
  *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
  */
 export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
@@ -4935,10 +4953,12 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The rows at least one detector
- * wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
+ * detector wants a human to look at, with the detectors that picked each.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
+ * `needs_admin_attention_count` is the same number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5583,6 +5603,102 @@ export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends bool
       await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
+ * - Records why the caller needs the credits in the study registry rather than a certificate.
+ *
+ * Advisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on
+ * to make. Asked on the old registration page, so unlike the enrolment answers it is stored for
+ * completions on either path.
+ */
+export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyCreditJustificationData, ThrowOnError>,
+): RequestResult<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyCreditJustificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - What the caller said about where they enrol this module.
+ */
+export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - Records which university relationship the caller has, which decides where they are told to enrol.
+ */
+export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller takes back saying they had enrolled.
+ */
+export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyEnrolmentConfirmationData, ThrowOnError>,
+): RequestResult<WithdrawMyEnrolmentConfirmationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    WithdrawMyEnrolmentConfirmationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyEnrolmentConfirmationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller says they have enrolled.
+ *
+ * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
+ * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ */
+export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmMyEnrolmentData, ThrowOnError>,
+): RequestResult<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zConfirmMyEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
     ...options,
   })
 

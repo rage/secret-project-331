@@ -91,4 +91,35 @@ describe("RadioGroup", () => {
 
     expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("type", "radio")
   })
+  test("segmented options stay radios, so a choice is still announced as one", () => {
+    const { getValues } = renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Are you a student?" variant="segmented">
+          <Radio label="Yes" value="yes" />
+          <Radio label="No" value="no" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getAllByRole("radio")).toHaveLength(2)
+    fireEvent.click(screen.getByRole("radio", { name: "No" }))
+    expect(screen.getByRole("radio", { name: "No" })).toBeChecked()
+    expect(getValues().r).toBe("no")
+  })
+
+  test("a segmented option keeps a description it is given rather than dropping it", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Are you a student?" variant="segmented">
+          <Radio label="Yes" value="yes" description="With a study right" />
+          <Radio label="No" value="no" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByText("With a study right")).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: /With a study right/ })).toBeInTheDocument()
+  })
 })

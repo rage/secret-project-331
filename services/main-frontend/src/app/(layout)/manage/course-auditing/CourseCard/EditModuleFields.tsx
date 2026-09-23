@@ -5,7 +5,13 @@ import React from "react"
 import { useWatch, type Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Checkbox, nullIfEmpty, stringToNumberOrNull, TextField } from "@/shared-module/components"
+import {
+  Checkbox,
+  nullIfEmpty,
+  NumberField,
+  stringToNumberOrNull,
+  TextField,
+} from "@/shared-module/components"
 
 import { contentRowStyles, FieldSet, Legend } from "../page"
 import type { EditCourseAuditingData, EditModuleData } from "./CourseCard"
@@ -61,17 +67,13 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
             flex: auto;
           `}
         >
-          <TextField
+          <NumberField
             control={control}
             label={t("ects-credits")}
             name={`modules.${idx}.ects_credits` as const}
-            // oxlint-disable-next-line i18next/no-literal-string
-            inputMode="decimal"
-            type="number"
-            min={0}
+            minValue={0}
             rules={{
               ...stringToNumberOrNull,
-              valueAsNumber: true,
               validate: (v) => {
                 return (
                   v === null ||

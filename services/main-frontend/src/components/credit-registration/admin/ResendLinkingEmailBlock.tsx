@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -13,7 +12,9 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextField } from "@/shared-module/components"
 
+import { CREDIT_REGISTRATION_NS } from "../constants"
 import { RESEND_QUEUED, resendOutcomeLabel } from "../resendOutcome"
+import { controlCss, controlsCss, dialogFormCss } from "../styles"
 import { linkingEmailSentence } from "../teacherCreditRegistrations"
 
 interface Props {
@@ -24,27 +25,12 @@ interface Fields {
   student_number: string
 }
 
-const rootCss = css`
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-`
-
-const rowCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: end;
-`
-
-// oxlint-disable-next-line i18next/no-literal-string
 const QUEUED_TONE = "info" as const
-// oxlint-disable-next-line i18next/no-literal-string
 const REFUSED_TONE = "warning" as const
 
 /** The per-person caps are not overridable here, so a refusal is reported as it came back. */
 const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
-  const { t, i18n } = useTranslation()
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const [result, setResult] = useState<ResendLinkingEmailResult | null>(null)
   const { control, handleSubmit } = useForm<Fields>({
     defaultValues: { student_number: registration.student_number ?? "" },
@@ -64,12 +50,13 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
   )
 
   return (
-    <form className={rootCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+    <form className={dialogFormCss} onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
       <Infobox>{t("credit-registration-resend-address-they-can-read-hint")}</Infobox>
-      <div className={rowCss}>
+      <div className={controlsCss}>
         <TextField
           name="student_number"
           control={control}
+          className={controlCss}
           label={t("label-student-number")}
           description={t("description-resend-linking-email-student-number")}
         />

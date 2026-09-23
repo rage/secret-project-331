@@ -1,6 +1,6 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import NextLink from "next/link"
 import React from "react"
 import { mergeProps, useLink, useObjectRef, VisuallyHidden } from "react-aria"
@@ -21,6 +21,53 @@ import {
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
 
+/**
+ * How a plain (non-button) link is drawn.
+ *
+ * - `text` (the default) is the body-copy link: the site's link colour, underlined.
+ * - `quiet` keeps the colour but underlines only on hover and focus, for a link that is the whole
+ *   content of a table cell or a list row, where fifty underlines are the loudest thing on screen.
+ * - `inherit` draws no colour or underline of its own: for a link wrapping a badge, a card or a
+ *   row, or one on a surface that sets its own text colour.
+ */
+export type LinkAppearance = "text" | "quiet" | "inherit"
+
+const plainLinkBaseCss = css`
+  color: var(--link-fg);
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    color: var(--link-fg-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--space-1);
+  }
+`
+
+const plainLinkCss: Record<LinkAppearance, string | undefined> = {
+  text: cx(
+    plainLinkBaseCss,
+    css`
+      text-decoration: underline;
+    `,
+  ),
+  quiet: cx(
+    plainLinkBaseCss,
+    css`
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
+    `,
+  ),
+  inherit: undefined,
+}
+
 type CommonLinkExtras = PressHandlers & {
   isDisabled?: boolean
   isLoading?: boolean
@@ -36,9 +83,16 @@ interface ButtonLikeStyling {
 
 type NextProps = React.ComponentProps<typeof NextLink>
 
-type LinkPlainProps = NextProps &
+// `Trans` clones the element it is given in `components` and injects the sentence's parsed inner
+// content as children, so a plain (non-button) `Link` written as `<Link href="…" />` never actually
+// renders without children — but next/link's own type requires them. Widen just this variant so
+// that call site type-checks.
+type NextPropsOptionalChildren = Omit<NextProps, "children"> & { children?: React.ReactNode }
+
+type LinkPlainProps = NextPropsOptionalChildren &
   CommonLinkExtras & {
     styledAsButton?: false | undefined
+    appearance?: LinkAppearance
   }
 
 type LinkButtonProps = NextProps &
@@ -49,10 +103,16 @@ type LinkButtonProps = NextProps &
 
 export type LinkProps = LinkPlainProps | LinkButtonProps
 
+const DEFAULT_APPEARANCE: LinkAppearance = "text"
+
+/** `VisuallyHidden.elementType`: a `<div>`, its own default, cannot sit inside an `<a>` in a `<p>`. */
+const VISUALLY_HIDDEN_INLINE = "span" as const
+
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
   function Link(props, forwardedRef) {
     const {
       styledAsButton,
+      appearance,
       variant,
       size,
       icon,
@@ -80,7 +140,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       children,
       tabIndex,
       ...rest
-    } = props as LinkProps & ButtonLikeStyling
+    } = props as LinkProps & ButtonLikeStyling & { appearance?: LinkAppearance }
 
     const styledAsButtonResolved = styledAsButton === true
 
@@ -93,12 +153,26 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const loadingLabel = loadingLabelProp ?? t("link.loading")
     const loadingDescId = React.useId()
     const labelId = React.useId()
+    const opensInNewTabId = React.useId()
+
+    // A link leaving the page is an unremarkable, expected context change; one that leaves it in a
+    // tab the user didn't ask for is not, and nothing about the link's own text says so.
+    const opensInNewTab = rest.target === "_blank"
+    const opensInNewTabLabel = t("link.opensInNewTab")
+
+    // An explicit `aria-labelledby` replaces the link's own content in the accessible-name
+    // computation, so the hidden suffix rendered inside the link would otherwise go unannounced.
+    // `aria-label` already carries it (appended below); this covers the case that can't.
+    const announcesNewTabViaDescription =
+      opensInNewTab && Boolean(ariaLabelledByProp) && !ariaLabelProp
 
     const describedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
       isLoading && styledAsButtonResolved ? loadingDescId : undefined,
+      announcesNewTabViaDescription ? opensInNewTabId : undefined,
     )
-    const userAriaLabel = ariaLabelProp
+    const userAriaLabel =
+      opensInNewTab && ariaLabelProp ? `${ariaLabelProp} ${opensInNewTabLabel}` : ariaLabelProp
     const userLabelledBy = ariaLabelledByProp
     const labelledBy = userAriaLabel
       ? undefined
@@ -139,7 +213,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
               size: (styledAsButtonResolved ? size : undefined) ?? "medium",
               variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
             })
-          : undefined,
+          : plainLinkCss[appearance ?? DEFAULT_APPEARANCE],
         className,
       ) || undefined
 
@@ -180,7 +254,15 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
               {resolvedIcon && resolvedIconPosition === "start" ? (
                 <span className={iconSlotCss}>{resolvedIcon}</span>
               ) : null}
-              <span id={labelledBy === labelId ? labelId : undefined}>{children}</span>
+              <span id={labelledBy === labelId ? labelId : undefined}>
+                {children}
+                {opensInNewTab && !ariaLabelProp ? (
+                  <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
+                    {" "}
+                    {opensInNewTabLabel}
+                  </VisuallyHidden>
+                ) : null}
+              </span>
               {resolvedIcon && resolvedIconPosition === "end" ? (
                 <span className={iconSlotCss}>{resolvedIcon}</span>
               ) : null}
@@ -196,9 +278,24 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
             ) : null}
           </>
         ) : (
-          children
+          <>
+            {children}
+            {opensInNewTab && !ariaLabelProp ? (
+              <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
+                {" "}
+                {opensInNewTabLabel}
+              </VisuallyHidden>
+            ) : null}
+          </>
         )}
       </NextLink>
     )
   },
 )
+
+/**
+ * `Link`, named for use as a `<Trans>` substitution component:
+ * `<Trans components={{ a: <TransLink href="…" /> }}>...</Trans>`. `Trans` clones the element and
+ * supplies the sentence's own text as children, which is why none are passed here.
+ */
+export const TransLink = Link

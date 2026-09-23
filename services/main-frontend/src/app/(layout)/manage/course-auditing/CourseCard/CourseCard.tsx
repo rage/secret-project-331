@@ -4,8 +4,15 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { FloppyDiskSave, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
-import { useRef, useState } from "react"
-import { FormProvider, useFieldArray, useForm, useFormState } from "react-hook-form"
+import React, { useRef, useState } from "react"
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useFormState,
+  useWatch,
+  type Control,
+} from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -24,13 +31,13 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { nullIfFalsy, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import { Button, Link, nullIfEmpty, TextArea, TextField } from "@/shared-module/components"
 
-import { contentRowStyles, FieldSet, Legend } from "../page"
+import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
 import ClosedSectionFields from "./EditClosedFields"
@@ -44,6 +51,7 @@ const linkStyles = css`
 interface CourseCardProps {
   id: string
   courseAuditingData: CourseAuditingData
+  courseDataFilterControl: Control<CourseDataFilter>
 }
 
 export interface EditModuleData extends CourseAuditingModuleUpdate {
@@ -57,11 +65,13 @@ export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
 
 export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingData => {
   return {
-    ...omitUndefined({ description: data.description }),
+    ...omitUndefined({
+      description: data.description,
+      closed_at: data.closed_at && (formatDateForDateTimeLocalInputs(data.closed_at) ?? null),
+      closed_additional_message: data.closed_additional_message,
+      closed_course_successor_id: data.closed_course_successor_id,
+    }),
     set_course_closed_at: Boolean(data.closed_at),
-    closed_at: data.closed_at ? (formatDateForDateTimeLocalInputs(data.closed_at) ?? null) : null,
-    ...omitUndefined({ closed_additional_message: data.closed_additional_message }),
-    ...omitUndefined({ closed_course_successor_id: data.closed_course_successor_id }),
     prerequisites: data.prerequisites,
     audiences: data.audiences,
     modules: data.modules.map((module) => ({
@@ -71,7 +81,11 @@ export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingDat
   }
 }
 
-const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
+const CourseCard: React.FC<CourseCardProps> = ({
+  id,
+  courseAuditingData,
+  courseDataFilterControl,
+}) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
 
@@ -82,6 +96,41 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
     defaultValues: buildFormValues(courseAuditingData),
   })
 
+  const [
+    showDescription,
+    showPrerequisites,
+    showAudiences,
+    showSuggestMetadata,
+    showClosedAt,
+    showClosedCourseSuccessorId,
+    showAdditionalMessage,
+    showCompletionRegistrationLink,
+    showEnableRegisterinCompletionToUhOpenUniversity,
+    showUhCourseCode,
+    showEctsCredits,
+  ] = useWatch({
+    control: courseDataFilterControl,
+    name: [
+      "show_description",
+      "show_prerequisites",
+      "show_audiences",
+      "show_suggest_metadata",
+      "show_closed_at",
+      "show_closed_course_successor_id",
+      "show_additional_message",
+      "show_completion_registration_link",
+      "show_enable_registering_completion_to_uh_open_university",
+      "show_uh_course_code",
+      "show_ects_credits",
+    ],
+  })
+
+  const showModules =
+    showCompletionRegistrationLink ||
+    showEnableRegisterinCompletionToUhOpenUniversity ||
+    showUhCourseCode ||
+    showEctsCredits
+
   const defaultModuleUhCourseCode = courseAuditingData.modules.find(
     (module) => module.order_number === 0,
   )?.uh_course_code
@@ -89,22 +138,18 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
   const { control, handleSubmit, reset, getValues } = methods
   const { isDirty } = useFormState({ control })
 
-  // oxlint-disable-next-line i18next/no-literal-string
   const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
 
   const {
     fields: prereqFields,
     append: appendPrereq,
     remove: removePrereq,
-
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "prerequisites" })
 
   const {
     fields: audienceFields,
     append: appendAudience,
     remove: removeAudience,
-    // oxlint-disable-next-line i18next/no-literal-string
   } = useFieldArray({ control, name: "audiences" })
 
   const toggleEdit = () => {
@@ -135,11 +180,10 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
     await updateMutation.mutateAsync({
       body: {
         description: nullIfEmptyString(data.description),
-        closed_at: data.set_course_closed_at
-          ? data.closed_at
+        closed_at:
+          data.set_course_closed_at && data.closed_at
             ? parseISO(data.closed_at).toISOString()
-            : null
-          : null,
+            : null,
         closed_additional_message: nullIfEmptyString(data.closed_additional_message),
         closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
         prerequisites: data.prerequisites,
@@ -147,9 +191,10 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
         modules: data.modules.map((module) => ({
           ...module,
           uh_course_code: nullIfEmptyString(module.uh_course_code),
-          completion_registration_link_override: module.override_completion_link
-            ? nullIfEmptyString(module.completion_registration_link_override)
-            : null,
+          completion_registration_link_override: nullIfFalsy(
+            module.override_completion_link,
+            nullIfEmptyString(module.completion_registration_link_override),
+          ),
         })),
       },
       path: {
@@ -271,7 +316,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
             >
               <Button
                 aria-label={t("button-text-save")}
-                onClick={onSubmit}
+                onClick={() => void onSubmit()}
                 variant={"icon"}
                 size={"small"}
               >
@@ -464,13 +509,14 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
             <ContentDisplayBox
               label={t("text-field-label-description")}
               content={courseAuditingData.description}
+              isVisible={showDescription}
             />
 
             <div className={contentRowStyles}>
               <ContentDisplayBox
                 label={t("prerequisites-fieldset-title")}
-                content={
-                  courseAuditingData.prerequisites.length > 0 &&
+                content={nullIfFalsy(
+                  courseAuditingData.prerequisites.length > 0,
                   courseAuditingData.prerequisites.map((prerequisite) => (
                     <ul
                       key={prerequisite.id}
@@ -499,13 +545,14 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
                         {prerequisite.prerequisite}
                       </li>
                     </ul>
-                  ))
-                }
+                  )),
+                )}
+                isVisible={showPrerequisites}
               />
               <ContentDisplayBox
                 label={t("audiences-fieldset-title")}
-                content={
-                  courseAuditingData.audiences.length > 0 &&
+                content={nullIfFalsy(
+                  courseAuditingData.audiences.length > 0,
                   courseAuditingData.audiences.map((audience) => (
                     <ul
                       key={audience.id}
@@ -534,76 +581,99 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
                         {audience.audience}
                       </li>
                     </ul>
-                  ))
-                }
+                  )),
+                )}
+                isVisible={showAudiences}
               />
             </div>
-            <CourseMetadata
-              courseId={courseAuditingData.id}
-              defaultModuleUhCourseCode={defaultModuleUhCourseCode}
-              reset={reset}
-              courseAuditingData={courseAuditingData}
-              queryClient={queryClient}
-            />
-            {courseAuditingData.closed_at ? (
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 1rem;
-                `}
-              >
-                <div className={contentRowStyles}>
-                  <ContentDisplayBox
-                    label={t("closed-at")}
-                    content={<TimeComponent date={parseISO(courseAuditingData.closed_at)} />}
-                  />
-                  <ContentDisplayBox
-                    label={t("closed-course-successor-id")}
-                    content={courseAuditingData.closed_course_successor_id}
-                  />
-                </div>
-                <ContentDisplayBox
-                  label={t("closed-additional-message")}
-                  content={courseAuditingData.closed_additional_message}
-                />
-              </div>
-            ) : (
-              <ContentDisplayBox label={t("closed-at")} />
+
+            {showSuggestMetadata && (
+              <CourseMetadata
+                courseId={courseAuditingData.id}
+                defaultModuleUhCourseCode={defaultModuleUhCourseCode}
+                reset={reset}
+                courseAuditingData={courseAuditingData}
+                queryClient={queryClient}
+              />
             )}
+
             <div
               className={css`
-                font-size: 1.15rem;
-                font-weight: 600;
-                color: ${baseTheme.colors.gray[900]};
-                margin: 0.5rem 0rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
               `}
             >
-              {t("modules")}
-            </div>
-            {courseAuditingData.modules.map((module) => (
-              <FieldSet key={module.id} data-testid="module-display-field-set">
-                <Legend>
-                  {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
-                </Legend>
+              <div className={contentRowStyles}>
                 <ContentDisplayBox
-                  label={t("completion-registration-link")}
-                  content={module.completion_registration_link_override}
+                  label={t("closed-at")}
+                  content={
+                    courseAuditingData.closed_at && (
+                      <TimeComponent date={parseISO(courseAuditingData.closed_at)} />
+                    )
+                  }
+                  isVisible={showClosedAt}
                 />
-                <div className={contentRowStyles}>
-                  <ContentDisplayBox
-                    label={t("label-enable-registering-completion-to-uh-open-university")}
-                    content={
-                      module.enable_registering_completion_to_uh_open_university
-                        ? t("label-true")
-                        : t("label-false")
-                    }
-                  />
-                  <ContentDisplayBox label={t("uh-course-code")} content={module.uh_course_code} />
-                  <ContentDisplayBox label={t("ects-credits")} content={module.ects_credits} />
+                <ContentDisplayBox
+                  label={t("closed-course-successor-id")}
+                  content={courseAuditingData.closed_course_successor_id}
+                  isVisible={Boolean(courseAuditingData.closed_at) && showClosedCourseSuccessorId}
+                />
+              </div>
+              <ContentDisplayBox
+                label={t("closed-additional-message")}
+                content={courseAuditingData.closed_additional_message}
+                isVisible={Boolean(courseAuditingData.closed_at) && showAdditionalMessage}
+              />
+            </div>
+
+            {showModules && (
+              <>
+                <div
+                  className={css`
+                    font-size: 1.15rem;
+                    font-weight: 600;
+                    color: ${baseTheme.colors.gray[900]};
+                    margin: 0.5rem 0rem;
+                  `}
+                >
+                  {t("modules")}
                 </div>
-              </FieldSet>
-            ))}
+                {courseAuditingData.modules.map((module) => (
+                  <FieldSet key={module.id}>
+                    <Legend>
+                      {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
+                    </Legend>
+                    <ContentDisplayBox
+                      label={t("completion-registration-link")}
+                      content={module.completion_registration_link_override}
+                      isVisible={showCompletionRegistrationLink}
+                    />
+                    <div className={contentRowStyles}>
+                      <ContentDisplayBox
+                        label={t("label-enable-registering-completion-to-uh-open-university")}
+                        content={
+                          module.enable_registering_completion_to_uh_open_university
+                            ? t("label-true")
+                            : t("label-false")
+                        }
+                        isVisible={showEnableRegisterinCompletionToUhOpenUniversity}
+                      />
+                      <ContentDisplayBox
+                        label={t("uh-course-code")}
+                        content={module.uh_course_code}
+                        isVisible={showUhCourseCode}
+                      />
+                      <ContentDisplayBox
+                        label={t("ects-credits")}
+                        content={module.ects_credits}
+                        isVisible={showEctsCredits}
+                      />
+                    </div>
+                  </FieldSet>
+                ))}
+              </>
+            )}
           </div>
         )}
         <div
@@ -646,4 +716,4 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, courseAuditingData }) => {
   )
 }
 
-export default CourseCard
+export default React.memo(CourseCard)

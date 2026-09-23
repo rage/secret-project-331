@@ -1485,11 +1485,15 @@ describe("MessageChannelIFrame", () => {
             target: this.target,
           })
         })
+      // startFileDownload's blob path is covered in parentLinkActions.test.ts; here a rejected fetch
+      // keeps these wiring tests on the same fallback path they asserted before that path existed.
+      jest.stubGlobal("fetch", jest.fn().mockRejectedValue(new Error("network error")))
     })
 
     afterEach(() => {
       openSpy.mockRestore()
       clickSpy.mockRestore()
+      jest.unstubAllGlobals()
     })
 
     it("opens a link only after the user confirms it", async () => {

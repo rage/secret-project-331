@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -14,7 +15,15 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
+import {
+  Button,
+  nullIfEmpty,
+  QueryResult,
+  Switch,
+  TextField,
+  GroupedToggleButton,
+  ToggleButtonGroup,
+} from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
 import CourseDataFilterForm from "./CourseDataFilterForm"
@@ -26,6 +35,10 @@ export interface CourseFilter {
   short_description: boolean
   no_prerequisites: boolean
   no_audiences: boolean
+  is_draft: Set<"off" | "include" | "exclude">
+  is_unlisted: Set<"off" | "include" | "exclude">
+  is_test_mode: Set<"off" | "include" | "exclude">
+  is_joinable_by_code_only: Set<"off" | "include" | "exclude">
 }
 
 export interface CourseDataFilter {
@@ -86,6 +99,10 @@ const CourseAuditing = () => {
       short_description: false,
       no_prerequisites: false,
       no_audiences: false,
+      is_draft: new Set(["off"]),
+      is_unlisted: new Set(["off"]),
+      is_test_mode: new Set(["off"]),
+      is_joinable_by_code_only: new Set(["off"]),
     },
   })
 
@@ -114,6 +131,10 @@ const CourseAuditing = () => {
     shortDescription,
     noPrerequisites,
     noAudiences,
+    isDraft,
+    isUnlisted,
+    isTestMode,
+    isJoinableByCodeOnly,
   ] = watch([
     "search_course",
     "no_default_uh_course_code",
@@ -121,7 +142,13 @@ const CourseAuditing = () => {
     "short_description",
     "no_prerequisites",
     "no_audiences",
+    "is_draft",
+    "is_unlisted",
+    "is_test_mode",
+    "is_joinable_by_code_only",
   ])
+
+  console.log(isUnlisted)
 
   const deferredSearchCourse = useDeferredValue(searchCourse)
 
@@ -168,6 +195,30 @@ const CourseAuditing = () => {
         if (noAudiences && course.audiences.length > 0) {
           return false
         }
+        if (
+          (isDraft.has("include") && !course.is_draft) ||
+          (isDraft.has("exclude") && course.is_draft)
+        ) {
+          return false
+        }
+        if (
+          (isUnlisted.has("include") && !course.is_unlisted) ||
+          (isUnlisted.has("exclude") && course.is_unlisted)
+        ) {
+          return false
+        }
+        if (
+          (isTestMode.has("include") && !course.is_test_mode) ||
+          (isTestMode.has("exclude") && course.is_test_mode)
+        ) {
+          return false
+        }
+        if (
+          (isJoinableByCodeOnly.has("include") && !course.is_joinable_by_code_only) ||
+          (isJoinableByCodeOnly.has("exclude") && course.is_joinable_by_code_only)
+        ) {
+          return false
+        }
         return true
       }),
     [
@@ -177,6 +228,10 @@ const CourseAuditing = () => {
       noDefaultUhCourseCode,
       noPrerequisites,
       noAudiences,
+      isDraft,
+      isUnlisted,
+      isTestMode,
+      isJoinableByCodeOnly,
       deferredSearchCourse,
     ],
   )
@@ -242,6 +297,46 @@ const CourseAuditing = () => {
             control={control}
             label={t("course-auditing-filter-audiences-not-set")}
           />
+          <ToggleButtonGroup
+            name="is_draft"
+            control={control}
+            label={t("draft")}
+            defaultSelectedKeys={new Set(["off"])}
+          >
+            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
+            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
+          </ToggleButtonGroup>
+          <ToggleButtonGroup
+            name="is_unlisted"
+            control={control}
+            label={t("unlisted")}
+            defaultSelectedKeys={new Set(["off"])}
+          >
+            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
+            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
+          </ToggleButtonGroup>
+          <ToggleButtonGroup
+            name="is_test_mode"
+            control={control}
+            label={t("test-course")}
+            defaultSelectedKeys={new Set(["off"])}
+          >
+            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
+            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
+          </ToggleButtonGroup>
+          <ToggleButtonGroup
+            name="is_joinable_by_code_only"
+            control={control}
+            label={t("joinable-by-code-only")}
+            defaultSelectedKeys={new Set(["off"])}
+          >
+            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
+            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
+          </ToggleButtonGroup>
         </div>
       </FieldSet>
 

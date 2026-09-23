@@ -300,10 +300,11 @@ const LEDGER_STATE_KEYS = {
 
 const LEDGER_STATE_UNKNOWN_KEY = "credit-registration-ledger-state-unknown"
 
-/** `pending` alone does not say what the row is waiting for, and the two waits are unrelated. */
+/** `pending` alone does not say what the row is waiting for, and the waits are unrelated. */
 const PENDING_REASON_STATE_KEYS = {
   completion: "credit-registration-ledger-state-pending-completion",
   student_number: "credit-registration-ledger-state-pending-student-number",
+  course_code: "credit-registration-ledger-state-pending-course-code",
 } as const satisfies Record<CreditRegistrationPendingReason, string>
 
 const LEDGER_STATES = Object.keys(LEDGER_STATE_KEYS) as CreditRegistrationState[]

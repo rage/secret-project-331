@@ -12,14 +12,15 @@ use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+use futures::future::join_all;
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
 };
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
-    ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarEndpoint,
-    SuotarItemStatus, new_request_item_id,
+    ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarItemStatus,
+    new_request_item_id,
 };
 use std::collections::BTreeSet;
 use uuid::Uuid;
@@ -56,49 +57,53 @@ pub async fn resend_linking_mail(
             .map(|module| module.uh_course_code)
             .collect()
     };
-    let items: Vec<ListByCourseRequestItem> = course_codes
-        .into_iter()
-        .map(|course_code| ListByCourseRequestItem {
-            request_item_id: new_request_item_id(),
-            course_code,
-        })
-        .collect();
-    if items.is_empty() {
+    if course_codes.is_empty() {
         return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
     }
 
+    // One code per call, all at once: Suotar looks the codes of one call up one after another, and
+    // the caller is waiting in the browser, so only a single code has a chance of answering within
+    // the interactive timeout.
+    let responses = join_all(course_codes.into_iter().map(|course_code| {
+        ctx.suotar_client.list_enrolments_by_course(
+            SuotarCallContext::new(worker_name(
+                ctx.caller,
+                CreditRegistrationPhase::EnrolmentDiscovery,
+            ))
+            .interactive(),
+            vec![ListByCourseRequestItem {
+                request_item_id: new_request_item_id(),
+                course_code,
+            }],
+        )
+    }))
+    .await;
+    let mut has_unanswered_code = false;
     let mut person = None;
-    for chunk in items.chunks(SuotarEndpoint::ListByCourse.max_batch_size()) {
-        let response = ctx
-            .suotar_client
-            .list_enrolments_by_course(
-                SuotarCallContext::new(worker_name(
-                    ctx.caller,
-                    CreditRegistrationPhase::EnrolmentDiscovery,
-                ))
-                .interactive(),
-                chunk.to_vec(),
-            )
-            .await;
+    for response in responses {
         let Ok(response) = response else {
-            return Ok(LinkingMailResendOutcome::StudyRegistryUnavailable);
+            has_unanswered_code = true;
+            continue;
         };
-        person = response
-            .items
-            .iter()
-            .filter(|item| item.status == SuotarItemStatus::Ok)
-            .filter_map(|item| item.result.as_ref())
-            .flat_map(|result| result.people.iter())
-            .find(|candidate| {
-                candidate.student_number.expose_secret() == student_number.expose_secret()
-            })
-            .cloned();
-        if person.is_some() {
-            break;
-        }
+        person = person.or_else(|| {
+            response
+                .items
+                .iter()
+                .filter(|item| item.status == SuotarItemStatus::Ok)
+                .filter_map(|item| item.result.as_ref())
+                .flat_map(|result| result.people.iter())
+                .find(|candidate| {
+                    candidate.student_number.expose_secret() == student_number.expose_secret()
+                })
+                .cloned()
+        });
     }
     let Some(person) = person else {
-        return Ok(LinkingMailResendOutcome::NotOnTheCourseRoster);
+        return Ok(if has_unanswered_code {
+            LinkingMailResendOutcome::StudyRegistryUnavailable
+        } else {
+            LinkingMailResendOutcome::NotOnTheCourseRoster
+        });
     };
 
     let discovered = DiscoveredPerson {
@@ -223,6 +228,8 @@ pub async fn resend_linking_mail_for_target<'a>(
     })
 }
 
+const PERSON_NOT_FOUND_CODE: &str = "personNotFound";
+
 pub struct ResolvedPerson {
     pub sisu_person_id: SecretString,
     pub first_names: Option<SecretString>,
@@ -231,20 +238,22 @@ pub struct ResolvedPerson {
     pub code: String,
 }
 
-/// Why [`resolve_person`] could not say whether the number exists. Both cases read the same to a
-/// caller: the registry could not be asked.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Why [`resolve_person`] could not say whether the number exists.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvePersonError {
     /// The request itself failed: network, auth, or a request-level error from the registry.
     StudyRegistryUnavailable,
     /// The registry answered but its response did not include this item.
     ItemMissingFromResponse,
+    /// The registry answered for this item with something other than a person or
+    /// `personNotFound`: its own code, an identifier rather than prose.
+    UnexpectedAnswer { code: String },
 }
 
 /// Looks one student number up in the study registry without changing anything: no ledger row, no
 /// claimed mail slot, just the call log row every study registry call writes.
 ///
-/// `Ok(None)` means the registry answered and does not know the number; `Err` means we could not ask.
+/// `Ok(None)` means the registry answered `personNotFound`; `Err` means it gave no usable answer.
 pub async fn resolve_person(
     ctx: &PhaseContext<'_>,
     student_number: &SecretString,
@@ -264,8 +273,17 @@ pub async fn resolve_person(
     let Some(item) = response.item(&request_item_id) else {
         return Err(ResolvePersonError::ItemMissingFromResponse);
     };
-    let Some(result) = item.result.as_ref() else {
+    if item.code == PERSON_NOT_FOUND_CODE {
         return Ok(None);
+    }
+    let Some(result) = item
+        .result
+        .as_ref()
+        .filter(|_| item.status == SuotarItemStatus::Ok)
+    else {
+        return Err(ResolvePersonError::UnexpectedAnswer {
+            code: item.code.clone(),
+        });
     };
     Ok(Some(ResolvedPerson {
         sisu_person_id: result.person_id.clone(),

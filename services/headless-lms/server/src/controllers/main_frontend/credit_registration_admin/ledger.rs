@@ -497,7 +497,8 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 - Moves one row by hand.
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
-re-importing could put a second attainment on a real transcript.
+re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+while Suotar still holds its earlier submission open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -539,6 +540,7 @@ pub async fn admin_transition_credit_registration(
             state_move.to_state(),
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
+            row.resubmit_not_before,
         ) {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::Refused,
@@ -591,7 +593,7 @@ Resubmitting refuses every row in `submission_uncertain`, whatever the selection
 those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
 looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
 attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
-time.
+time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -647,6 +649,7 @@ pub async fn admin_bulk_transition_credit_registrations(
                 state_move.to_state(),
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
+                row.resubmit_not_before,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
             None if row.superseded_by_id.is_some() => Some(ResubmissionRefusal::Superseded),
@@ -883,6 +886,7 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
             CreditRegistrationState::ReadyToSubmit,
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
+            row.resubmit_not_before,
         ),
         id: row.id,
         created_at: row.created_at,

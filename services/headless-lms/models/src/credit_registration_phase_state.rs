@@ -51,6 +51,9 @@ pub struct PhaseRunOutcome {
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,
+    /// The error is Sisu timing out on every submission while Suotar itself answered, which pauses
+    /// only the phase that submits, not every phase that talks to Suotar.
+    pub is_sisu_outage: bool,
 }
 
 impl PhaseRunOutcome {
@@ -61,6 +64,7 @@ impl PhaseRunOutcome {
             items_processed: count.try_into().unwrap_or(i32::MAX),
             items_failed: 0,
             error: None,
+            is_sisu_outage: false,
         }
     }
 }

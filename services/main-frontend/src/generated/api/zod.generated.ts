@@ -1204,7 +1204,6 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   credit_registration_config_check_message: z.string().nullish(),
   credit_registration_config_checked_at: z.iso.datetime().nullish(),
   credit_registration_course_code_allowed: z.boolean().nullish(),
-  credit_registration_grade_scale_id: z.string().nullish(),
   credit_registration_has_enrolment_link: z.boolean(),
   credit_registration_pause_reason: z.string().nullish(),
   credit_registration_paused_at: z.iso.datetime().nullish(),
@@ -1212,14 +1211,6 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   ects_credits: z.number().nullish(),
   enable_credit_registration_via_suotar: z.boolean(),
   uh_course_code: z.string().nullish(),
-})
-
-/**
- * The module editor's writable half of the Suotar configuration. The pause and the
- * config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
- */
-export const zCourseModuleCreditRegistrationEdit = z.object({
-  grade_scale_id: z.string().nullish(),
 })
 
 /**
@@ -1609,7 +1600,6 @@ export const zCreditRegistrationCourseStats = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  grade_scale_id: z.string().nullish(),
   in_flight_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -1690,7 +1680,11 @@ export const zCreditRegistrationNotificationKind = z.enum(["action_needed", "reg
 /**
  * What a `pending` row is waiting for.
  */
-export const zCreditRegistrationPendingReason = z.enum(["completion", "student_number"])
+export const zCreditRegistrationPendingReason = z.enum([
+  "completion",
+  "student_number",
+  "course_code",
+])
 
 /**
  * One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
@@ -3187,7 +3181,6 @@ export const zChatbotConfigurationModel = z.object({
 export const zModifiedModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
-  credit_registration: zCourseModuleCreditRegistrationEdit,
   ects_credits: z.number().nullish(),
   enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
@@ -3431,7 +3424,6 @@ export const zNewModule = z.object({
   chapters: z.array(z.uuid()),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
-  credit_registration: zCourseModuleCreditRegistrationEdit,
   ects_credits: z.number().nullish(),
   enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
@@ -4355,6 +4347,7 @@ export const zResubmissionRefusal = z.enum([
   "already_succeeded",
   "submission_uncertain",
   "not_failed_permanent",
+  "submission_pending",
 ])
 
 export const zAdminBulkTransitionSkipCount = z.object({
@@ -4723,6 +4716,7 @@ export const zAdminResolveStudentNumberResult = z.object({
   found: z.boolean(),
   last_name: z.string().nullish(),
   linking_emails: z.array(zAdminLinkingEmail),
+  lookup_error_code: z.string().nullish(),
   sisu_person_id: z.string().nullish(),
   student_number: z.string(),
   study_registry_unavailable: z.boolean(),

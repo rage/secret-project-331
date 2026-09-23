@@ -16,10 +16,13 @@ import {
   runPreconditionsTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
+import { pollUntil } from "@/utils/waitingUtils"
 
 /** Owns student numbers `9000003xx`. */
 const NO_ENROLMENT_EMAIL = "credit-registration-no-enrolment@example.com"
 const NO_ENROLMENT_STUDENT_NUMBER = "900000301"
+const EXPIRED_DEGREE_ENROLMENT_ID = "hy-enr-900000301-expired-degree"
+const OPEN_UNIVERSITY_ENROLMENT_ID = "hy-enr-900000301-open-university"
 const TWO_ENROLMENTS_EMAIL = "credit-registration-two-enrolments@example.com"
 const TWO_ENROLMENTS_STUDENT_NUMBER = "900000302"
 
@@ -72,11 +75,22 @@ test.describe("A student the University has no enrolment for", () => {
     await test.step("It heals itself once the enrolment appears", async () => {
       await upsertMockSuotarEnrolments(page.request, [
         {
+          id: EXPIRED_DEGREE_ENROLMENT_ID,
           studentNumber: NO_ENROLMENT_STUDENT_NUMBER,
           courseCode: CRS_101,
           kind: "degree",
           state: "ENROLLED",
+          studyRightValidityPeriod: { startDate: isoDate(-3 * YEAR), endDate: isoDate(-YEAR) },
+        },
+        {
+          id: OPEN_UNIVERSITY_ENROLMENT_ID,
+          studentNumber: NO_ENROLMENT_STUDENT_NUMBER,
+          courseCode: CRS_101,
+          kind: "openUniversity",
+          state: "ENROLLED",
           studyRightValidityPeriod: { startDate: isoDate(-YEAR), endDate: isoDate(YEAR) },
+          // Suotar passes importer fields through, so one may be missing; the enrolment still counts.
+          enrolmentDateTime: null,
         },
       ])
       // Answering the question already re-opens the look, so the row is due without the manual
@@ -88,6 +102,17 @@ test.describe("A student the University has no enrolment for", () => {
         "submitting",
         "awaiting_verification",
       ])
+    })
+
+    await test.step("The enrolment whose study right covers the completion wins over the degree one", async () => {
+      await runResolveEnrolmentsTick(page.request, scope)
+      const selected = await pollUntil(
+        async () =>
+          (await listAdminRegistrations(adminApi, { student_number: NO_ENROLMENT_STUDENT_NUMBER }))
+            .data[0]?.selected_enrolment_id ?? null,
+        { description: "an enrolment to be chosen" },
+      )
+      expect(selected).toBe(OPEN_UNIVERSITY_ENROLMENT_ID)
     })
   })
 })

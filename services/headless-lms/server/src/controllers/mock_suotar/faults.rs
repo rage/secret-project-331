@@ -305,8 +305,9 @@ pub fn matches_item(
 }
 
 /// A request-shaped effect fires only when **every** item resolves to the fault's owner: on a mixed
-/// batch it would otherwise kill rows nobody armed anything for. List-by-course is the exception,
-/// because there Suotar itself fails the whole request when any one code's lookup fails.
+/// batch it would otherwise kill rows nobody armed anything for. List-by-course and
+/// `malformedRequest` are the exceptions, because there Suotar itself fails the whole request for
+/// any one item: a code whose lookup fails, or an item it cannot validate.
 pub fn matches_request(
     fault: &Fault,
     endpoint: Endpoint,
@@ -319,7 +320,8 @@ pub fn matches_request(
     if items.is_empty() {
         return FaultMatch::Missed("owner");
     }
-    let any_item_suffices = endpoint == Endpoint::ListByCourse;
+    let any_item_suffices = endpoint == Endpoint::ListByCourse
+        || matches!(&fault.then, Effect::RequestLevel { code, .. } if code == "malformedRequest");
     let mut missed = None;
     for item in items {
         match matches_item(fault, endpoint, stage, item) {

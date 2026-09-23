@@ -8,6 +8,7 @@ const REFUSAL_KEYS = {
   already_succeeded: "credit-registration-refusal-already-succeeded",
   submission_uncertain: "credit-registration-refusal-submission-uncertain",
   not_failed_permanent: "credit-registration-refusal-not-failed-permanent",
+  submission_pending: "credit-registration-refusal-submission-pending",
 } as const satisfies Record<ResubmissionRefusal, string>
 
 const REFUSAL_UNKNOWN_KEY = "credit-registration-refusal-unknown"

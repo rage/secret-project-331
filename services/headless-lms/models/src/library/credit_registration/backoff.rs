@@ -24,10 +24,13 @@ pub const JITTER_MAX_SECS: i64 = 30;
 /// enrolment discovery can wake the row sooner.
 pub const NO_USABLE_ENROLMENT_RECHECK_SECS: i64 = 24 * 60 * 60;
 
-/// How long between the checks that look for an attainment we may or may not have created.
+/// The first wait before looking for an attainment we may or may not have created; it doubles
+/// after every fruitless look.
 pub const UNCERTAIN_RECHECK_SECS: i64 = 15 * 60;
-/// After this many fruitless checks a human is asked to look in Sisu. The row still never resubmits.
-pub const UNCERTAIN_MAX_CHECKS: i32 = 3;
+pub const UNCERTAIN_MAX_RECHECK_SECS: i64 = 6 * 60 * 60;
+/// How long after the submission a human is asked to look in Sisu, well past the hour an
+/// attainment may take to show up. The row still never resubmits.
+pub const UNCERTAIN_ADMIN_AFTER_SECS: i64 = 24 * 60 * 60;
 
 /// How long verify may see only the assessment item attainment before a human looks.
 pub const PARTIAL_REGISTRATION_ADMIN_AFTER_SECS: i64 = 3 * 24 * 60 * 60;
@@ -65,6 +68,15 @@ pub fn verify_backoff_secs(attempt_count: i32) -> i64 {
     )
 }
 
+/// `lookup_count` counts the look just made, so the wait after the first one is already doubled.
+pub fn uncertain_recheck_secs(lookup_count: i32) -> i64 {
+    exponential_backoff_secs(
+        UNCERTAIN_RECHECK_SECS,
+        UNCERTAIN_MAX_RECHECK_SECS,
+        lookup_count,
+    )
+}
+
 /// Spreads a batch that failed together, so it does not come back as one thundering herd.
 pub fn next_attempt_at(now: DateTime<Utc>, delay_secs: i64) -> DateTime<Utc> {
     headless_lms_utils::backoff::next_attempt_at(now, delay_secs, JITTER_MAX_SECS)
@@ -76,6 +88,10 @@ pub fn submit_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTi
 
 pub fn verify_window_expired(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
     window_expired(submitted_at, now, VERIFY_MAX_AGE_SECS)
+}
+
+pub fn uncertain_needs_admin(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
+    window_expired(submitted_at, now, UNCERTAIN_ADMIN_AFTER_SECS)
 }
 
 #[cfg(test)]

@@ -19,7 +19,8 @@ ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempt
 ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_count_nonnegative,
   DROP COLUMN partially_registered_at,
   DROP COLUMN not_registered_reimport_count,
-  DROP COLUMN selected_enrolment_realisation_name;
+  DROP COLUMN selected_enrolment_realisation_name,
+  DROP COLUMN resubmit_not_before;
 
 -- A duplicateRequestItem twin shares its earlier item's id; the oldest row keeps it.
 UPDATE credit_registrations twin
@@ -115,6 +116,28 @@ ALTER COLUMN error_code TYPE credit_registration_error_code USING (
   )::credit_registration_error_code;
 DROP TYPE credit_registration_error_code_new;
 
+DROP VIEW credit_registration_preconditions;
+CREATE VIEW credit_registration_preconditions AS
+SELECT cr.id AS credit_registration_id,
+  cmc.deleted_at IS NOT NULL AS completion_deleted,
+  cmc.deleted_at IS NULL
+  AND cmc.passed
+  AND cmc.eligible_for_ects
+  AND cmc.prerequisite_modules_completed
+  AND NOT cmc.needs_to_be_reviewed AS completion_eligible,
+  vsn.id IS NOT NULL AS has_verified_student_number,
+  cr.student_number IS NOT NULL
+  AND (
+    vsn.student_number IS DISTINCT FROM cr.student_number
+    OR vsn.sisu_person_id IS DISTINCT FROM cr.sisu_person_id
+  ) AS frozen_identity_stale
+FROM credit_registrations cr
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL;
+COMMENT ON VIEW credit_registration_preconditions IS 'The things one ledger row waits on, as they stand right now. The ledger records only that a row is pending, so this is where every surface that names the blocker, and the precondition recompute that acts on it, read the same answer.';
+COMMENT ON COLUMN credit_registration_preconditions.frozen_identity_stale IS 'The account has relinked to a different verified student number since this row froze its payload for import. A relink soft-deletes and re-inserts in one transaction, so has_verified_student_number stays true throughout and catches none of it.';
+
 ALTER TABLE course_module_suotar_configurations DROP COLUMN checked_course_code,
   DROP COLUMN course_code_rejection;
 
@@ -122,7 +145,9 @@ ALTER TABLE course_module_suotar_configurations
   RENAME COLUMN course_code_allowed TO course_code_resolves;
 ALTER TABLE course_module_suotar_configurations DROP CONSTRAINT course_module_suotar_configurations_check_result,
   ADD COLUMN open_university_product_id VARCHAR(255),
-  ADD COLUMN product_token_found BOOLEAN;
+  ADD COLUMN product_token_found BOOLEAN,
+  ADD COLUMN grade_scale_id VARCHAR(64);
+COMMENT ON COLUMN course_module_suotar_configurations.grade_scale_id IS 'Per-module override of the Sisu grade scale id. NULL means derive it from the completion.';
 -- A check that got no verdict has no representation in the old schema, so it reads as never run.
 UPDATE course_module_suotar_configurations
 SET config_checked_at = NULL

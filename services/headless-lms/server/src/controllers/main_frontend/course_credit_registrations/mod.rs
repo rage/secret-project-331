@@ -308,6 +308,7 @@ fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationSt
         PendingPreconditions {
             completion_eligible: group.completion_eligible,
             has_verified_student_number: group.has_verified_student_number,
+            course_code_allowed: true,
         },
         group.enrolment_resolved,
     )
@@ -965,6 +966,7 @@ pub(crate) async fn build_teacher_registrations(
             let resubmission_refusal = row.state.resubmission_refusal(
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::OnlyFailedPermanent,
+                None,
             );
             let state = row.state;
             let base = CourseCreditRegistration::from(row);

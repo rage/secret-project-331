@@ -63,7 +63,8 @@ export interface MockSuotarEnrolmentUpsert {
   /** Omitted is a study right the registry did not return. */
   studyRightValidityPeriod?: MockSuotarDatePeriod
   studyRightGrantDate?: string
-  enrolmentDateTime?: string
+  /** Omitted is now; `null` is an enrolment the registry hands over no time for. */
+  enrolmentDateTime?: string | null
 }
 
 export type MockSuotarPredicate =

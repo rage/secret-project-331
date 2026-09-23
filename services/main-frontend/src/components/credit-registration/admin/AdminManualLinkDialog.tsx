@@ -265,6 +265,10 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
           <Infobox tone={preview.found ? TONE.INFO : TONE.WARNING}>
             {preview.study_registry_unavailable ? (
               t("credit-registration-admin-manual-link-registry-unavailable")
+            ) : preview.lookup_error_code ? (
+              t("credit-registration-admin-manual-link-lookup-error", {
+                code: preview.lookup_error_code,
+              })
             ) : preview.found ? (
               <div className={dialogFormCss}>
                 <div className={identityMatchCss}>

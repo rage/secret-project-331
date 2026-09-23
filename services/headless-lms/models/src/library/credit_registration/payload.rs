@@ -37,7 +37,6 @@ pub struct PayloadSources<'a> {
     pub sisu_person_id: &'a DbSecret,
     pub uh_course_code: Option<&'a str>,
     pub ects_credits: Option<f32>,
-    pub configured_grade_scale_id: Option<&'a str>,
     pub enrolment: Option<&'a SuotarEnrolment>,
 }
 
@@ -69,7 +68,6 @@ pub fn build_payload_snapshot(
     let grade = map_grade(GradeSource {
         passed: completion.passed,
         grade: completion.grade,
-        configured_grade_scale_id: sources.configured_grade_scale_id,
         enrolment_grade_scale_id: sources
             .enrolment
             .and_then(|enrolment| enrolment.grade_scale_id.as_deref()),
@@ -82,10 +80,12 @@ pub fn build_payload_snapshot(
             sisu_person_id: sources.sisu_person_id.clone(),
             uh_course_code: uh_course_code.to_string(),
             selected_enrolment_id: sources.enrolment.map(|enrolment| enrolment.id.clone()),
-            selected_enrolment_kind: sources.enrolment.map(|enrolment| enrolment.kind.clone()),
+            selected_enrolment_kind: sources
+                .enrolment
+                .and_then(|enrolment| enrolment.kind.clone()),
             selected_enrolment_realisation_id: sources
                 .enrolment
-                .map(|enrolment| enrolment.course_unit_realisation_id.clone()),
+                .and_then(|enrolment| enrolment.course_unit_realisation_id.clone()),
             selected_enrolment_realisation_name: sources
                 .enrolment
                 .and_then(|enrolment| enrolment.course_unit_realisation_name.as_ref())
@@ -149,9 +149,9 @@ mod tests {
     fn enrolment(min: f64, max: f64) -> SuotarEnrolment {
         SuotarEnrolment {
             id: "otm-enrolment".to_string(),
-            state: "ENROLLED".to_string(),
-            kind: "degree".to_string(),
-            course_unit_realisation_id: "hy-CUR-1".to_string(),
+            state: Some("ENROLLED".to_string()),
+            kind: Some("degree".to_string()),
+            course_unit_realisation_id: Some("hy-CUR-1".to_string()),
             course_unit_realisation_name: Some(LocalizedName {
                 fi: Some("kurssi".to_string()),
                 sv: Some("kurs".to_string()),
@@ -166,6 +166,7 @@ mod tests {
                 min: Some(min),
                 max: Some(max),
             }),
+            study_right_validity_period: None,
             enrolment_date_time: Some(Utc::now()),
         }
     }
@@ -179,7 +180,6 @@ mod tests {
             sisu_person_id: &SISU_PERSON_ID,
             uh_course_code: Some("TKT10001"),
             ects_credits: Some(5.0),
-            configured_grade_scale_id: None,
             enrolment,
         }
     }
@@ -259,14 +259,8 @@ mod tests {
 
     #[test]
     fn a_graded_completion_keeps_its_number() {
-        let built = build_payload_snapshot(
-            &completion(true, Some(4)),
-            PayloadSources {
-                configured_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
-                ..sources(None)
-            },
-        )
-        .unwrap();
+        let built = build_payload_snapshot(&completion(true, Some(4)), sources(None)).unwrap();
+        assert_eq!(built.snapshot.grade_scale_id, NUMERIC_GRADE_SCALE_ID);
         assert_eq!(built.snapshot.grade_id, "4");
     }
 }

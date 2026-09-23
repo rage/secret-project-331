@@ -46,6 +46,9 @@ impl StudentFacingCreditRegistrationStatus {
             State::Pending => match preconditions.reason() {
                 Some(Reason::Completion) => Self::WaitingForCompletion,
                 Some(Reason::StudentNumber) => Self::NeedsStudentNumber,
+                // Nothing the student can do: support is fixing the course code, and the row moves
+                // on by itself once Suotar accepts it.
+                Some(Reason::CourseCode) => Self::LookingForEnrolment,
                 // Nothing is outstanding, so the next precondition tick moves the row on.
                 None => Self::LookingForEnrolment,
             },
@@ -106,6 +109,7 @@ impl StageMatch {
                         let preconditions = PendingPreconditions {
                             completion_eligible,
                             has_verified_student_number,
+                            course_code_allowed: true,
                         };
                         if stages.contains(&StudentFacingCreditRegistrationStatus::of(
                             state,

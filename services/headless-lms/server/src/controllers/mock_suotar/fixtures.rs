@@ -140,6 +140,23 @@ pub const IMPORT_UNANSWERED: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.unanswered@helsinki.example",
     account_email: Some("credit-registration-import-unanswered@example.com"),
 };
+/// The row whose import Suotar refuses as malformed, sent in one batch with
+/// `IMPORT_BESIDE_MALFORMED`. Seeded like `IMPORT_TIMEOUT`, and for the same reason.
+pub const IMPORT_MALFORMED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000404",
+    first_names: "Zzyzx",
+    last_name: "Malformed",
+    sisu_email: "zzyzx.malformed@helsinki.example",
+    account_email: Some("credit-registration-import-malformed@example.com"),
+};
+/// The healthy row a malformed one shares its first batch with.
+pub const IMPORT_BESIDE_MALFORMED: MockPersonFixture = MockPersonFixture {
+    student_number: "900000405",
+    first_names: "Zzyzx",
+    last_name: "Bystander",
+    sisu_email: "zzyzx.bystander@helsinki.example",
+    account_email: Some("credit-registration-import-beside-malformed@example.com"),
+};
 /// The outage spec's own person, so a fault keyed on this student number cannot reach another
 /// spec's row on the shared course. Enrolment left unseeded for `IMPORT_TIMEOUT`'s reason: its spec
 /// arms the outage before creating the enrolment, so no earlier unscoped sweep can import the row
@@ -408,6 +425,8 @@ pub fn mock_suotar_world() -> WorldPush {
         &FAST_TRACK_NO_MATCH,
         &IMPORT_TIMEOUT,
         &IMPORT_UNANSWERED,
+        &IMPORT_MALFORMED,
+        &IMPORT_BESIDE_MALFORMED,
         &SISU_OUTAGE,
         &TWO_ENROLMENTS,
         &VERIFY_POLLING,
@@ -457,6 +476,8 @@ pub fn mock_suotar_world() -> WorldPush {
             ![
                 IMPORT_TIMEOUT.student_number,
                 IMPORT_UNANSWERED.student_number,
+                IMPORT_MALFORMED.student_number,
+                IMPORT_BESIDE_MALFORMED.student_number,
                 SISU_OUTAGE.student_number,
             ]
             .contains(&fixture.student_number)
@@ -604,7 +625,7 @@ fn enrolment(
         study_right_id: None,
         study_right_validity_period: Some(validity),
         study_right_grant_date: None,
-        enrolment_date_time: Some(enrolled_at),
+        enrolment_date_time: Some(Some(enrolled_at)),
     }
 }
 

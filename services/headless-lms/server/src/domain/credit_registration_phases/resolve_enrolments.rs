@@ -354,7 +354,6 @@ async fn choose(
             sisu_person_id: context.sisu_person_id.as_ref().unwrap_or(&absent),
             uh_course_code: context.uh_course_code.as_deref(),
             ects_credits: context.ects_credits,
-            configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
             enrolment: Some(chosen),
         },
     );
@@ -412,7 +411,6 @@ fn improves_on_all(
     map_grade(GradeSource {
         passed: context.completion.passed,
         grade: context.completion.grade,
-        configured_grade_scale_id: context.configured_grade_scale_id.as_deref(),
         enrolment_grade_scale_id,
     })
     .is_ok_and(|mapped| {

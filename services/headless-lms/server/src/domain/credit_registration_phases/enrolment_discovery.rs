@@ -157,6 +157,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         items_failed,
         error: every_item_service_unavailable(&response)
             .then(|| "Every course code of the batch came back unavailable.".to_string()),
+        is_sisu_outage: false,
     })
 }
 
@@ -168,15 +169,20 @@ struct CourseCodeListing {
 }
 
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the
-/// most recent enrolment of each.
+/// most recent enrolment of each, one with no enrolment time counting as the oldest.
 fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
+    let enrolled_at = |person: &ListedPerson| {
+        person
+            .enrolment
+            .as_ref()
+            .and_then(|enrolment| enrolment.enrolment_date_time)
+    };
     let mut kept: Vec<&ListedPerson> = Vec::new();
     let mut index_by_person: HashMap<&str, usize> = HashMap::new();
     for person in people {
         match index_by_person.get(person.person_id.expose_secret()) {
             Some(&index) => {
-                if person.enrolment.enrolment_date_time > kept[index].enrolment.enrolment_date_time
-                {
+                if enrolled_at(person) > enrolled_at(kept[index]) {
                     kept[index] = person;
                 }
             }
@@ -453,5 +459,6 @@ fn whole_request_failed(attempted: i32, error: &UtilError) -> PhaseRunOutcome {
         items_processed: attempted,
         items_failed: attempted,
         error: Some(scrub_text(error.message())),
+        is_sisu_outage: false,
     }
 }

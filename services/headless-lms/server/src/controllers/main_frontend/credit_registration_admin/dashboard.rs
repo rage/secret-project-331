@@ -23,7 +23,7 @@ use crate::domain::credit_registration::health::{
 };
 use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::domain::credit_registration_phases::breaker::{
-    MAX_CONSECUTIVE_SUOTAR_FAILURES, ScopeKey, snapshot,
+    BreakerTarget, MAX_CONSECUTIVE_SUOTAR_FAILURES, ScopeKey, snapshot,
 };
 use crate::prelude::*;
 
@@ -497,7 +497,7 @@ fn to_phase_status(
 }
 
 fn circuit_breaker_state() -> CreditRegistrationCircuitBreakerState {
-    let state = snapshot(&ScopeKey::Global);
+    let state = snapshot(&ScopeKey::Global, BreakerTarget::StudyRegistry);
     CreditRegistrationCircuitBreakerState {
         open: state.open,
         consecutive_failures: i64::from(state.consecutive_failures),

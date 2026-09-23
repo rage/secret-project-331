@@ -2,8 +2,7 @@ use anyhow::{Context, Result};
 
 use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
-    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule,
-    CourseModuleCreditRegistrationEdit, NewCourseModule,
+    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
 };
 use sqlx::PgConnection;
 
@@ -190,8 +189,6 @@ impl CompletionBuilder {
 pub struct CreditRegistrationSeed {
     /// Stored as the module's `completion_registration_link_override`.
     pub enrolment_link: Option<String>,
-    /// `None` derives the scale from the completion.
-    pub grade_scale_id: Option<String>,
     /// Pauses the module, which every phase's claim query skips: without it the workers running in
     /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
@@ -339,15 +336,9 @@ impl ModuleBuilder {
         }
 
         if let Some(credit_registration) = &self.credit_registration {
-            course_modules::set_credit_registration_config(
-                conn,
-                module.id,
-                &CourseModuleCreditRegistrationEdit {
-                    grade_scale_id: credit_registration.grade_scale_id.clone(),
-                },
-            )
-            .await
-            .context("writing the module's credit registration configuration")?;
+            course_module_suotar_configurations::ensure_exists(conn, module.id)
+                .await
+                .context("writing the module's credit registration configuration")?;
             if let Some(reason) = &credit_registration.paused_reason {
                 course_module_suotar_configurations::set_paused(
                     conn,

@@ -452,10 +452,10 @@ pub async fn get_send_status_totals_since(
 SELECT
   e.sent_at AS "sent_at!",
   e.email_delivery_id,
-  ed.sent AS delivery_sent,
-  ed.retryable,
-  ed.first_failed_at,
-  ed.retry_count
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.retry_count AS "retry_count?"
 FROM credit_registration_account_linking_emails e
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
 WHERE e.sent_at >= $1

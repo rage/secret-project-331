@@ -8,6 +8,7 @@ import {
 import {
   accountLinkingStats,
   adminAuditLog,
+  adminResolveStudentNumber,
   adminRegistrationDetails,
   adminRegistrationUrl,
   creditRegistrationCourseStats,
@@ -23,7 +24,11 @@ import {
   runPhaseNow,
   suotarApiCall,
 } from "@/utils/creditRegistrationAdmin"
-import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  armMockSuotarFault,
+  disarmMockSuotarFault,
+  transitionMockSuotarSubmissionsFor,
+} from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   CREDIT_REGISTRATION_PHASES,
@@ -560,4 +565,25 @@ test("A discovery run writes the per-module counters", async ({ page }) => {
     { description: "the admin course's module to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
+})
+
+test("A lookup Suotar answers with an unexpected error reads as an error, not as not found", async ({
+  page,
+  adminApi,
+}) => {
+  const studentNumber = "900000950"
+  const faultId = "admin-dashboard-resolve-person-error"
+  await armMockSuotarFault(page.request, {
+    id: faultId,
+    when: [{ endpoint: "resolve_persons" }, { stage: "resolve" }, { studentNumber }],
+    // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
+    then: { kind: "itemLevel", code: "codeThisClientDoesNotKnow" },
+  })
+  try {
+    const resolved = await adminResolveStudentNumber(adminApi, studentNumber)
+    expect(resolved.found).toBe(false)
+    expect(resolved.lookup_error_code).toBe("codeThisClientDoesNotKnow")
+  } finally {
+    await disarmMockSuotarFault(page.request, faultId)
+  }
 })

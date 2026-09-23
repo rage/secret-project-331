@@ -441,7 +441,7 @@ pub fn list_by_course_item(
                     id: enrolment.id.clone(),
                     course_unit_realisation_id: enrolment.realisation_id.clone(),
                     state: "ENROLLED".to_string(),
-                    enrolment_date_time: iso_millis(enrolment.enrolment_date_time),
+                    enrolment_date_time: enrolment.enrolment_date_time.map(iso_millis),
                 },
             })
         })
@@ -702,7 +702,7 @@ fn enrolment_dto(
             .study_right
             .as_ref()
             .map(|study_right| study_right.validity.clone()),
-        enrolment_date_time: iso_millis(enrolment.enrolment_date_time),
+        enrolment_date_time: enrolment.enrolment_date_time.map(iso_millis),
     }
 }
 
@@ -747,7 +747,7 @@ mod tests {
                 validity: period,
                 grant_date: None,
             }),
-            enrolment_date_time: now,
+            enrolment_date_time: Some(now),
         };
         WorkingSet {
             persons: [(

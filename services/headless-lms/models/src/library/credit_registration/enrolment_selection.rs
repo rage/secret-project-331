@@ -1,10 +1,11 @@
-//! Which of a student's enrolments the attainment is registered against. Degree before open
+//! Which of a student's enrolments the attainment is registered against. A study right that covers
+//! the attainment date first, since Sisu refuses one that does not; then degree before open
 //! university: a degree student who also holds an open-university study right wants the credit
 //! inside their degree.
 
 use chrono::{DateTime, NaiveDate, Utc};
 use headless_lms_utils::services::suotar::{
-    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, ExistingAttainment, SuotarEnrolment,
+    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, ExistingAttainment, SuotarEnrolment,
 };
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
@@ -68,7 +69,7 @@ pub fn select_enrolment(
     }
     let accepted: Vec<&SuotarEnrolment> = enrolments
         .iter()
-        .filter(|enrolment| enrolment.state == ENROLLED_STATE)
+        .filter(|enrolment| enrolment.state.as_deref() == Some(ENROLLED_STATE))
         .collect();
     if accepted.is_empty() {
         return Err(NoUsableEnrolment::NotAccepted);
@@ -89,12 +90,14 @@ pub fn select_enrolment(
     usable
         .into_iter()
         .max_by_key(|enrolment| {
+            let covers_attainment_date = |period: Option<&DatePeriod>| {
+                period.is_some_and(|period| period.contains(criteria.attainment_date))
+            };
             (
-                enrolment.kind == DEGREE_KIND,
-                enrolment
-                    .activity_period
-                    .as_ref()
-                    .is_some_and(|period| period.contains(criteria.attainment_date)),
+                // Only a preference: an unresolved study right is not proof of an invalid one.
+                covers_attainment_date(enrolment.study_right_validity_period.as_ref()),
+                enrolment.kind.as_deref() == Some(DEGREE_KIND),
+                covers_attainment_date(enrolment.activity_period.as_ref()),
                 enrolment.enrolment_date_time,
             )
         })
@@ -190,9 +193,9 @@ mod tests {
     fn enrolment(id: &str, kind: &str) -> SuotarEnrolment {
         SuotarEnrolment {
             id: id.to_string(),
-            state: ENROLLED_STATE.to_string(),
-            kind: kind.to_string(),
-            course_unit_realisation_id: format!("hy-CUR-{id}"),
+            state: Some(ENROLLED_STATE.to_string()),
+            kind: Some(kind.to_string()),
+            course_unit_realisation_id: Some(format!("hy-CUR-{id}")),
             course_unit_realisation_name: Some(LocalizedName {
                 fi: Some("kurssi".to_string()),
                 sv: Some("kurs".to_string()),
@@ -204,6 +207,7 @@ mod tests {
                 min: Some(1.0),
                 max: Some(5.0),
             }),
+            study_right_validity_period: None,
             enrolment_date_time: Some(Utc::now()),
         }
     }
@@ -226,7 +230,7 @@ mod tests {
     #[test]
     fn an_enrolment_that_was_never_accepted_is_not_usable() {
         let mut pending = enrolment("a", DEGREE_KIND);
-        pending.state = "NOT_ENROLLED".to_string();
+        pending.state = Some("NOT_ENROLLED".to_string());
         let candidates = [pending];
         assert_eq!(
             select_enrolment(&candidates, criteria()),
@@ -260,6 +264,25 @@ mod tests {
         ];
         let chosen = select_enrolment(&candidates, criteria()).expect("a usable enrolment");
         assert_eq!(chosen.id, "degree");
+    }
+
+    #[test]
+    fn a_study_right_covering_the_attainment_date_wins_over_the_degree_preference() {
+        let mut expired_degree = enrolment("degree", DEGREE_KIND);
+        expired_degree.study_right_validity_period =
+            Some(period(date(2020, 1, 1), date(2025, 12, 31)));
+        let mut open = enrolment("open", "openUniversity");
+        open.study_right_validity_period = Some(period(date(2026, 1, 1), date(2026, 12, 31)));
+        let candidates = [expired_degree, open];
+        let chosen = select_enrolment(&candidates, criteria()).expect("a usable enrolment");
+        assert_eq!(chosen.id, "open");
+    }
+
+    #[test]
+    fn an_unresolved_study_right_is_still_usable() {
+        let candidates = [enrolment("unresolved", DEGREE_KIND)];
+        let chosen = select_enrolment(&candidates, criteria()).expect("a usable enrolment");
+        assert_eq!(chosen.id, "unresolved");
     }
 
     #[test]

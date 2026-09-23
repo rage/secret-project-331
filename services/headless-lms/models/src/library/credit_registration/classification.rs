@@ -136,6 +136,12 @@ pub fn is_service_unavailable_code(endpoint: SuotarEndpoint, code: &str) -> bool
     }
 }
 
+/// Whether an import item says Sisu timed out: an answer from Suotar, not a failure of it.
+pub fn is_sisu_timeout_code(endpoint: SuotarEndpoint, code: &str) -> bool {
+    endpoint == SuotarEndpoint::ImportAttainments
+        && wire_outcome(code) == WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout)
+}
+
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
 /// `None` where the code names no failure to record.
 pub fn map_code(endpoint: SuotarEndpoint, code: &str) -> Option<CreditRegistrationErrorCode> {

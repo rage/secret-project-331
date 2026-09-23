@@ -10,8 +10,6 @@ pub struct CourseModuleSuotarConfiguration {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_module_id: Uuid,
-    /// `None` means derive the grade scale from the completion.
-    pub grade_scale_id: Option<String>,
     pub paused_at: Option<DateTime<Utc>>,
     pub paused_by_user_id: Option<Uuid>,
     pub pause_reason: Option<String>,
@@ -61,62 +59,23 @@ SELECT EXISTS (
     Ok(res)
 }
 
-/// Writes the module's Suotar configuration, creating the row if the module has none. The pause and
-/// config-check columns are left alone; their writers are separate.
+/// Gives the module a live configuration row, which the pause and config-check writers update.
 ///
 /// Resurrects a soft-deleted row rather than inserting beside it: `ON CONFLICT` can only infer
 /// against `uq_course_module_suotar_configurations`, which is keyed on `course_module_id` alone.
-pub async fn upsert(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-    grade_scale_id: Option<&str>,
-) -> ModelResult<CourseModuleSuotarConfiguration> {
-    let res = sqlx::query_as!(
-        CourseModuleSuotarConfiguration,
+pub async fn ensure_exists(conn: &mut PgConnection, course_module_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
         r#"
-INSERT INTO course_module_suotar_configurations (course_module_id, grade_scale_id)
-VALUES ($1, $2) ON CONFLICT (course_module_id) DO
+INSERT INTO course_module_suotar_configurations (course_module_id)
+VALUES ($1) ON CONFLICT (course_module_id) DO
 UPDATE
-SET grade_scale_id = $2,
-  deleted_at = NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_module_id,
-  grade_scale_id,
-  paused_at,
-  paused_by_user_id,
-  pause_reason,
-  config_checked_at,
-  course_code_allowed,
-  config_check_message,
-  checked_course_code,
-  course_code_rejection,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
-  consecutive_listing_failures,
-  last_listed_person_count,
-  last_already_linked_count,
-  last_mailed_count,
-  last_suppressed_by_dedup_count,
-  last_suppressed_by_rate_cap_count,
-  last_no_address_count,
-  last_fast_tracked_count,
-  last_fast_track_skipped_no_account_count,
-  last_fast_track_skipped_unverified_count,
-  last_fast_track_skipped_stale_verification_count,
-  last_fast_track_skipped_name_mismatch_count,
-  last_fast_track_skipped_account_has_number_count,
-  last_fast_track_skipped_unlinked_before_count
+SET deleted_at = NULL
         "#,
         course_module_id,
-        grade_scale_id,
     )
-    .fetch_one(conn)
+    .execute(conn)
     .await?;
-    Ok(res)
+    Ok(())
 }
 
 /// Everything the per-module configuration check reads, gathered in one query so validating every
@@ -127,7 +86,6 @@ pub struct SuotarModuleConfigFacts {
     pub course_id: Uuid,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub grade_scale_id: Option<String>,
     /// The old pull path is on as well, which would register the same completion twice.
     pub old_flow_also_enabled: bool,
     /// The module has a completion registration link override, the enrolment link students without
@@ -137,8 +95,6 @@ pub struct SuotarModuleConfigFacts {
     /// the code has changed since.
     pub stored_course_code_allowed: Option<bool>,
     pub stored_course_code_rejection: Option<String>,
-    /// A numeric grade scale override cannot map these, so the override and the module disagree.
-    pub has_passed_completions_without_a_grade: bool,
 }
 
 /// Every Suotar-enabled module's configuration facts, optionally narrowed to one course. Paused
@@ -155,7 +111,6 @@ SELECT cm.id AS "course_module_id!",
   cm.course_id AS "course_id!",
   cm.uh_course_code,
   cm.ects_credits,
-  c.grade_scale_id AS "grade_scale_id?",
   cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
   COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "has_enrolment_link!",
   CASE
@@ -163,15 +118,7 @@ SELECT cm.id AS "course_module_id!",
   END AS "stored_course_code_allowed?",
   CASE
     WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection
-  END AS "stored_course_code_rejection?",
-  EXISTS (
-    SELECT 1
-    FROM course_module_completions cmc
-    WHERE cmc.course_module_id = cm.id
-      AND cmc.passed
-      AND cmc.grade IS NULL
-      AND cmc.deleted_at IS NULL
-  ) AS "has_passed_completions_without_a_grade!"
+  END AS "stored_course_code_rejection?"
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
@@ -203,7 +150,6 @@ pub struct SuotarModuleOverview {
     pub ects_credits: Option<f32>,
     /// Where a student with no usable enrolment is sent to enrol.
     pub enrolment_link: Option<String>,
-    pub grade_scale_id: Option<String>,
     pub old_flow_also_enabled: bool,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
@@ -231,7 +177,6 @@ SELECT cm.id AS "course_module_id!",
   cm.uh_course_code,
   cm.ects_credits,
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
-  conf.grade_scale_id AS "grade_scale_id?",
   cm.enable_registering_completion_to_uh_open_university AS "old_flow_also_enabled!",
   conf.paused_at AS "paused_at?",
   conf.pause_reason AS "pause_reason?",
@@ -269,8 +214,7 @@ LIMIT $1
 ///
 /// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
 /// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
-/// also reports missing credits, an unusable grade scale, a missing enrolment link and a
-/// double-enabled registration path.
+/// also reports missing credits, a missing enrolment link and a double-enabled registration path.
 ///
 /// [`check_module_config`]: crate::library::credit_registration::config_validation::check_module_config
 pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
@@ -306,7 +250,7 @@ pub struct SuotarConfigCheck {
 /// Stamps the check result on the module, creating the configuration row for a module that has
 /// none: an enabled module with no configuration is itself one of the problems being reported.
 ///
-/// Resurrects a soft-deleted row for the same reason [`upsert`] does: `ON CONFLICT` can only infer
+/// Resurrects a soft-deleted row for the same reason [`ensure_exists`] does: `ON CONFLICT` can only infer
 /// against `uq_course_module_suotar_configurations`, so an insert beside one is impossible.
 pub async fn record_config_check(
     conn: &mut PgConnection,

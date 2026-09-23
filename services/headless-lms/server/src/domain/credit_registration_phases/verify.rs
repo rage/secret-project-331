@@ -10,14 +10,14 @@ use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due, increment_verify_attempt_counts, mark_partially_registered, reset_for_resubmission,
-    schedule_next_attempts, set_sisu_attainment_if_unclaimed, transition,
+    schedule_next_attempts, set_resubmit_not_before, set_sisu_attainment_if_unclaimed, transition,
 };
 use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
     verify_inconclusive_outcome, verify_not_registered_outcome, verify_partial_outcome,
-    verify_pending_outcome, verify_poll_lease_until,
+    verify_poll_lease_until,
 };
 use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
 use headless_lms_utils::error::util_error::UtilError;
@@ -286,12 +286,16 @@ async fn apply_poll_answer(
                 }
             }
         }
+        // `submissionPending`: polled on as usual, since the attainment usually shows up long
+        // before `retryAfter`, which only bounds when a resubmission becomes safe.
         WireOutcome::Unsettled => {
-            let retry_after = result.and_then(|result| result.retry_after);
+            if let Some(retry_after) = result.and_then(|result| result.retry_after) {
+                set_resubmit_not_before(conn, row.id, retry_after).await?;
+            }
             apply_poll_outcome(
                 conn,
                 row,
-                &verify_pending_outcome(row.state, &facts, retry_after),
+                &verify_inconclusive_outcome(row.state, &facts),
                 event,
             )
             .await
@@ -531,7 +535,7 @@ async fn apply_recovery_answer(
         )
         .await?;
         // A row still waiting to be resolved is not a failed item; the recheck raises the admin
-        // flag after enough tries instead.
+        // flag once it has waited long enough instead.
         return Ok(false);
     };
     set_sisu_attainment_if_unclaimed(

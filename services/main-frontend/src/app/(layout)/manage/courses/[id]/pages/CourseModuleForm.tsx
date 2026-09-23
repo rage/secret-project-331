@@ -12,17 +12,15 @@ import {
   MIDDLE_DOT,
   TONE,
 } from "@/components/credit-registration/constants"
-import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
-import { labelFrom, translateKey } from "@/components/credit-registration/labelFrom"
+import { translateKey } from "@/components/credit-registration/labelFrom"
 import {
   cardCss,
   headingCss,
   noteCss,
   subheadingCss,
-  subsectionCss,
 } from "@/components/credit-registration/styles"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -30,7 +28,6 @@ import {
   Badge,
   Button,
   Checkbox,
-  DescriptionList,
   NumberField,
   Radio,
   RadioGroup,
@@ -40,12 +37,7 @@ import {
 
 import type { ModuleView } from "./CourseModules"
 import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
-import {
-  DERIVED_GRADE_SCALE,
-  EMPTY_CREDIT_REGISTRATION_FIELDS,
-  NUMERIC_GRADE_SCALE_ID,
-  PASS_FAIL_GRADE_SCALE_ID,
-} from "./creditRegistrationModuleFields"
+import { EMPTY_CREDIT_REGISTRATION_FIELDS } from "./creditRegistrationModuleFields"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -195,24 +187,6 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   credit_registration: module.credit_registration,
 })
 
-const GRADE_SCALE_IDS = [DERIVED_GRADE_SCALE, PASS_FAIL_GRADE_SCALE_ID, NUMERIC_GRADE_SCALE_ID]
-
-const GRADE_SCALE_LABEL_KEYS = {
-  [DERIVED_GRADE_SCALE]: "grade-scale-derive-from-completion",
-  [PASS_FAIL_GRADE_SCALE_ID]: "grade-scale-pass-fail",
-  [NUMERIC_GRADE_SCALE_ID]: "grade-scale-numeric",
-} as const
-
-const gradeScaleLabel = (t: CreditRegistrationTFunction, gradeScaleId: string): string =>
-  labelFrom(t, GRADE_SCALE_LABEL_KEYS, gradeScaleId, GRADE_SCALE_LABEL_KEYS[DERIVED_GRADE_SCALE])
-
-/** The grade scale as a fact about the module rather than as the select's option label. */
-const GRADE_SCALE_SUMMARY_KEYS = {
-  [DERIVED_GRADE_SCALE]: "module-summary-grade-same-as-course",
-  [PASS_FAIL_GRADE_SCALE_ID]: "module-summary-grade-pass-fail",
-  [NUMERIC_GRADE_SCALE_ID]: "module-summary-grade-numeric",
-} as const
-
 const REGISTRATION_PATH_BADGE_KEYS = {
   [NO_REGISTRATION]: "badge-no-completion-registration",
   [OPEN_UNIVERSITY]: "badge-registers-to-open-university",
@@ -230,42 +204,13 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   if (module.ects_credits !== null) {
     parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
-  if (path === STUDY_REGISTRY) {
-    parts.push(
-      labelFrom(
-        t,
-        GRADE_SCALE_SUMMARY_KEYS,
-        module.credit_registration.grade_scale_id,
-        GRADE_SCALE_SUMMARY_KEYS[DERIVED_GRADE_SCALE],
-      ),
-    )
-    if (!module.completion_registration_link_override?.trim()) {
-      parts.push(t("module-summary-no-enrolment-link"))
-    }
+  if (path === STUDY_REGISTRY && !module.completion_registration_link_override?.trim()) {
+    parts.push(t("module-summary-no-enrolment-link"))
   }
   if (parts.length === 0) {
     return null
   }
   return <p className={noteCss}>{parts.join(MIDDLE_DOT)}</p>
-}
-
-/** The saved Sisu configuration as a teacher reads it: quotable, not editable. */
-const StudyRegistryReadOnly: React.FC<{ fields: CreditRegistrationModuleFields }> = ({
-  fields,
-}) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <div className={subsectionCss}>
-      <DescriptionList
-        items={[
-          {
-            label: t("label-credit-registration-grade-scale"),
-            value: gradeScaleLabel(t, fields.grade_scale_id),
-          },
-        ]}
-      />
-    </div>
-  )
 }
 
 /**
@@ -561,22 +506,6 @@ const CourseModuleForm: React.FC<Props> = ({
                 />
               )}
             </RadioGroup>
-
-            {registrationPath === STUDY_REGISTRY &&
-              (canConfigureStudyRegistry ? (
-                <Select
-                  name="credit_registration.grade_scale_id"
-                  control={control}
-                  label={t("label-credit-registration-grade-scale")}
-                  description={t("description-credit-registration-grade-scale")}
-                  options={GRADE_SCALE_IDS.map((value) => ({
-                    value,
-                    label: gradeScaleLabel(t, value),
-                  }))}
-                />
-              ) : (
-                <StudyRegistryReadOnly fields={module.credit_registration} />
-              ))}
 
             <Checkbox
               name="override_completion_link"

@@ -7,7 +7,8 @@ WHERE phase = 'product-token-refresh';
 ALTER TABLE course_module_suotar_configurations
 DROP CONSTRAINT course_module_suotar_configurations_check_result,
   DROP COLUMN open_university_product_id,
-  DROP COLUMN product_token_found;
+  DROP COLUMN product_token_found,
+  DROP COLUMN grade_scale_id;
 ALTER TABLE course_module_suotar_configurations
   RENAME COLUMN course_code_resolves TO course_code_allowed;
 
@@ -27,6 +28,36 @@ ADD COLUMN checked_course_code VARCHAR(255),
 
 COMMENT ON COLUMN course_module_suotar_configurations.checked_course_code IS 'The course code course_code_allowed is a verdict on. Once the module''s uh_course_code changes, the verdict no longer applies.';
 COMMENT ON COLUMN course_module_suotar_configurations.course_code_rejection IS 'Suotar''s own reason for not accepting checked_course_code, quoted to operators. NULL unless course_code_allowed is false.';
+
+CREATE OR REPLACE VIEW credit_registration_preconditions AS
+SELECT cr.id AS credit_registration_id,
+  cmc.deleted_at IS NOT NULL AS completion_deleted,
+  cmc.deleted_at IS NULL
+  AND cmc.passed
+  AND cmc.eligible_for_ects
+  AND cmc.prerequisite_modules_completed
+  AND NOT cmc.needs_to_be_reviewed AS completion_eligible,
+  vsn.id IS NOT NULL AS has_verified_student_number,
+  cr.student_number IS NOT NULL
+  AND (
+    vsn.student_number IS DISTINCT FROM cr.student_number
+    OR vsn.sisu_person_id IS DISTINCT FROM cr.sisu_person_id
+  ) AS frozen_identity_stale,
+  NOT EXISTS (
+    SELECT 1
+    FROM course_module_suotar_configurations conf
+    WHERE conf.course_module_id = cr.course_module_id
+      AND conf.deleted_at IS NULL
+      AND NOT conf.course_code_allowed
+      AND conf.checked_course_code = TRIM(cm.uh_course_code)
+  ) AS course_code_allowed
+FROM credit_registrations cr
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+  AND vsn.deleted_at IS NULL;
+
+COMMENT ON COLUMN credit_registration_preconditions.course_code_allowed IS 'False while Suotar''s last verdict on the module''s current course code says it does not accept it; true once it does, or when there is no verdict. Rows wait in pending while false, since every import would come back courseNotAllowed.';
 
 ALTER TYPE credit_registration_error_code
 RENAME TO credit_registration_error_code_old;
@@ -129,11 +160,13 @@ ALTER TABLE credit_registrations
 ADD COLUMN partially_registered_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN not_registered_reimport_count INT NOT NULL DEFAULT 0,
   ADD COLUMN selected_enrolment_realisation_name JSONB,
+  ADD COLUMN resubmit_not_before TIMESTAMP WITH TIME ZONE,
   ADD CONSTRAINT credit_registrations_reimport_count_nonnegative CHECK (not_registered_reimport_count >= 0);
 
 COMMENT ON COLUMN credit_registrations.partially_registered_at IS 'When verify first saw only an assessment item attainment for the submission, with the course unit attainment still missing. Cleared on resubmission.';
 COMMENT ON COLUMN credit_registrations.not_registered_reimport_count IS 'How many times Suotar answered notRegistered for a submission of this row and it was sent back to import.';
 COMMENT ON COLUMN credit_registrations.selected_enrolment_realisation_name IS 'Localized name ({fi, sv, en}, each optional) of the course unit realisation the chosen enrolment belongs to, as Suotar reported it.';
+COMMENT ON COLUMN credit_registrations.resubmit_not_before IS 'The retryAfter of Suotar''s last submissionPending answer: until then Suotar may still turn the pending submission into an attainment, so a second import could register the credits twice. Cleared when Suotar answers notRegistered.';
 
 ALTER TABLE course_module_suotar_configurations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,

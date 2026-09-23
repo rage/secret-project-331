@@ -63,6 +63,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                     items_processed: 0,
                     items_failed: 0,
                     error: Some(scrub_text(error.message())),
+                    is_sisu_outage: false,
                 });
             }
         };
@@ -95,6 +96,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         // A misconfigured module is a finding, not a failed iteration: the phase did its job.
         items_failed: 0,
         error: None,
+        is_sisu_outage: false,
     })
 }
 

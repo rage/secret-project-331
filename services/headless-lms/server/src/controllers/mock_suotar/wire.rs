@@ -135,8 +135,9 @@ pub struct Enrolment {
     pub study_right_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub study_right_validity_period: Option<DatePeriod>,
-    /// ISO with milliseconds, as the importer hands it through.
-    pub enrolment_date_time: String,
+    /// ISO with milliseconds, as the importer hands it through; left out when it has none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enrolment_date_time: Option<String>,
 }
 
 /// The importer's attainment passed through: a course-unit attainment has no assessment item or
@@ -241,7 +242,8 @@ pub struct ListedEnrolment {
     pub id: String,
     pub course_unit_realisation_id: String,
     pub state: String,
-    pub enrolment_date_time: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enrolment_date_time: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]

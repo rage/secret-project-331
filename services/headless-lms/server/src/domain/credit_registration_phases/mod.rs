@@ -27,7 +27,9 @@ use headless_lms_models::email_templates::{
     EmailTemplateType, get_generic_email_template_by_type_and_language,
 };
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
-use headless_lms_models::library::credit_registration::classification::is_service_unavailable_code;
+use headless_lms_models::library::credit_registration::classification::{
+    is_service_unavailable_code, is_sisu_timeout_code,
+};
 use headless_lms_models::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
@@ -149,11 +151,17 @@ impl CreditRegistrationPhase {
         }
     }
 
-    /// Whether the phase talks to the study registry, and so shares the circuit breaker with the
-    /// other such phases of its own worker process (`breaker::BREAKERS` is process-local, not
-    /// shared between `credit-registrar` and `suotar-syncer`).
+    /// Whether the phase talks to the study registry, and so shares the study registry circuit
+    /// breaker with the other such phases of its own worker process (`breaker::BREAKERS` is
+    /// process-local, not shared between `credit-registrar` and `suotar-syncer`).
     pub fn calls_study_registry(self) -> bool {
         !self.study_registry_endpoints().is_empty()
+    }
+
+    /// Whether the phase is the one that sends attainments on to Sisu, and so the one a Sisu outage
+    /// pauses while Suotar itself keeps answering.
+    pub fn submits_to_sisu(self) -> bool {
+        self == Self::Import
     }
 
     /// The study registry endpoints one iteration calls, one after the other.
@@ -398,7 +406,11 @@ pub async fn run_phase_once(
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
     let breaker_key = breaker::ScopeKey::of(scope);
-    if phase.calls_study_registry() && breaker::is_open(&breaker_key) {
+    let is_paused_by_breaker =
+        breaker::is_open(&breaker_key, breaker::BreakerTarget::StudyRegistry)
+            || (phase.submits_to_sisu()
+                && breaker::is_open(&breaker_key, breaker::BreakerTarget::SisuSubmissions));
+    if phase.calls_study_registry() && is_paused_by_breaker {
         // Only these stop: an outage must not stall the database-only phases.
         return Ok(PhaseTick::Skipped(PhaseSkipReason::CircuitBreakerOpen));
     }
@@ -437,6 +449,7 @@ pub async fn run_phase_once(
             items_processed: 0,
             items_failed: 0,
             error: Some(scrub_text(&format!("{error:#}"))),
+            is_sisu_outage: false,
         },
     };
     drop(keep_alive);
@@ -452,23 +465,52 @@ pub async fn run_phase_once(
     // resets the counter every tick and the breaker never opens during an outage.
     let reached_study_registry = suotar_client.exchange_count() > 0;
     if phase.calls_study_registry() && reached_study_registry {
-        if outcome.error.is_some() {
-            if breaker::record_failure(&breaker_key, breaker::cooldown(ctx.test_mode)) {
-                warn!(
-                    "Pausing the study registry phases for {:?} after {} consecutive failures.",
-                    breaker::cooldown(ctx.test_mode),
-                    breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
-                );
-            }
-        } else {
-            breaker::record_success(&breaker_key);
-        }
+        record_breaker_outcome(&breaker_key, phase, &outcome, ctx.test_mode);
     }
     if bookkeeping {
         let mut conn = ctx.pool.acquire().await?;
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
     }
     Ok(PhaseTick::Ran(outcome))
+}
+
+/// Counts one iteration that reached the study registry against the breakers. Sisu timing out on
+/// every submission is Suotar answering, so it counts against the submitting phase's own breaker
+/// and as a success for the one every study registry phase shares.
+fn record_breaker_outcome(
+    key: &breaker::ScopeKey,
+    phase: CreditRegistrationPhase,
+    outcome: &PhaseRunOutcome,
+    test_mode: bool,
+) {
+    use breaker::BreakerTarget;
+    let cooldown = breaker::cooldown(test_mode);
+    match (&outcome.error, outcome.is_sisu_outage) {
+        (Some(_), true) => {
+            breaker::record_success(key, BreakerTarget::StudyRegistry);
+            if breaker::record_failure(key, BreakerTarget::SisuSubmissions, cooldown) {
+                warn!(
+                    "Pausing {} for {cooldown:?} after {} consecutive iterations Sisu timed out on.",
+                    phase.as_str(),
+                    breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
+                );
+            }
+        }
+        (Some(_), false) => {
+            if breaker::record_failure(key, BreakerTarget::StudyRegistry, cooldown) {
+                warn!(
+                    "Pausing the study registry phases for {cooldown:?} after {} consecutive failures.",
+                    breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
+                );
+            }
+        }
+        (None, _) => {
+            breaker::record_success(key, BreakerTarget::StudyRegistry);
+            if phase.submits_to_sisu() {
+                breaker::record_success(key, BreakerTarget::SisuSubmissions);
+            }
+        }
+    }
 }
 
 /// How often a running iteration refreshes its heartbeat. Under half the shortest phase interval,
@@ -611,6 +653,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
                 missing_templates.into_iter().collect::<Vec<_>>().join(", ")
             )
         }),
+        is_sisu_outage: false,
     })
 }
 
@@ -642,7 +685,7 @@ pub(crate) trait SuotarBatchPhase {
     /// A row to send for, with whatever its preflight read alongside it.
     type Row;
     /// The request item, which is also what the audit log records as sent.
-    type Item: SuotarRequestItem;
+    type Item: SuotarRequestItem + Clone;
     /// The endpoint's per-item result body.
     type Result;
 
@@ -692,6 +735,37 @@ pub(crate) trait SuotarBatchPhase {
         request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool>;
+
+    /// Whether a whole-request refusal is one that some rows of the batch alone may have caused, and
+    /// that proves nothing was acted on: the batch is then split in halves, each sent again, until
+    /// the rows it keeps refusing are alone in their batch.
+    fn isolates_request_rejection(_error: &UtilError) -> bool {
+        false
+    }
+
+    /// Called before each send after a split, with every row the split still holds, so the ones
+    /// waiting their turn are not taken for a worker that died mid-call.
+    async fn keep_in_flight(
+        &self,
+        _conn: &mut PgConnection,
+        _rows: &[&Self::Row],
+    ) -> anyhow::Result<()> {
+        Ok(())
+    }
+
+    /// What a row gets when [`Self::isolates_request_rejection`] still refuses it in a batch of its
+    /// own.
+    async fn apply_isolated_rejection(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        request: &serde_json::Value,
+        request_item_id: &str,
+        error: &UtilError,
+    ) -> anyhow::Result<bool> {
+        self.apply_request_rejection(conn, row, request, request_item_id, error)
+            .await
+    }
 }
 
 /// Runs one iteration of a [`SuotarBatchPhase`].
@@ -713,70 +787,127 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
 
     let mut processed = prepared.decided;
     let mut items_failed = prepared.failed;
-    if prepared.sendable.is_empty() {
-        return Ok(PhaseRunOutcome {
-            items_processed: processed,
-            items_failed,
-            error: None,
-        });
-    }
-    let (rows, items): (Vec<_>, Vec<_>) = prepared.sendable.into_iter().unzip();
-    let requests = requests_json(&items);
-    let request_item_ids: Vec<String> = items
-        .iter()
-        .map(|item| item.request_item_id().to_string())
-        .collect();
-
-    let response = match phase.send(ctx, &rows, items).await {
-        Ok(response) => response,
-        Err(error) => {
-            let mut conn = ctx.pool.acquire().await?;
-            for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
-                let applied = phase
-                    .apply_request_rejection(&mut conn, row, request, request_item_id, &error)
-                    .await;
-                count_applied(
-                    applied,
-                    P::registration(row),
-                    &mut processed,
-                    &mut items_failed,
-                )?;
-            }
-            return Ok(PhaseRunOutcome {
-                items_processed: processed,
-                items_failed,
-                error: Some(scrub_text(error.message())),
-            });
+    let mut error = None;
+    let mut has_suotar_failure = false;
+    // The halves a split holds back wait in whatever state the preflight left them, which for
+    // import is `submitting`: no phase claims that, so none of them can be sent twice meanwhile.
+    // Each answered half is written before the next one is sent.
+    let mut batches = vec![prepared.sendable];
+    let mut has_split = false;
+    while let Some(batch) = batches.pop() {
+        if batch.is_empty() {
+            continue;
         }
-    };
+        if has_split {
+            let held: Vec<&P::Row> = batch
+                .iter()
+                .chain(batches.iter().flatten())
+                .map(|(row, _)| row)
+                .collect();
+            let mut conn = ctx.pool.acquire().await?;
+            phase.keep_in_flight(&mut conn, &held).await?;
+        }
+        let (rows, items): (Vec<_>, Vec<_>) = batch.into_iter().unzip();
+        let requests = requests_json(&items);
+        let request_item_ids: Vec<String> = items
+            .iter()
+            .map(|item| item.request_item_id().to_string())
+            .collect();
 
-    let mut conn = ctx.pool.acquire().await?;
-    for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
-        let response_json = response_item_json(&response.raw_response, request_item_id);
-        let event = OutcomeEvent {
-            suotar_api_call_id: response.call_id,
-            request_item_id: Some(request_item_id),
-            request: Some(request),
-            response: response_json.as_ref(),
-            sent_student_number: P::sent_student_number(row),
-            ..OutcomeEvent::default()
+        let response = match phase.send(ctx, &rows, items.clone()).await {
+            Ok(response) => response,
+            Err(send_error) if P::isolates_request_rejection(&send_error) && rows.len() > 1 => {
+                warn!(
+                    "The study registry refused a batch of {} as a whole; splitting it to find the rows it refuses. {}",
+                    rows.len(),
+                    send_error.message()
+                );
+                let mut halves: Vec<(P::Row, P::Item)> = rows
+                    .into_iter()
+                    .zip(items.into_iter().map(|mut item| {
+                        item.renew_request_item_id();
+                        item
+                    }))
+                    .collect();
+                let second = halves.split_off(halves.len() / 2);
+                batches.push(second);
+                batches.push(halves);
+                has_split = true;
+                continue;
+            }
+            Err(send_error) => {
+                let isolated = P::isolates_request_rejection(&send_error);
+                let mut conn = ctx.pool.acquire().await?;
+                for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
+                    let applied = if isolated {
+                        phase
+                            .apply_isolated_rejection(
+                                &mut conn,
+                                row,
+                                request,
+                                request_item_id,
+                                &send_error,
+                            )
+                            .await
+                    } else {
+                        phase
+                            .apply_request_rejection(
+                                &mut conn,
+                                row,
+                                request,
+                                request_item_id,
+                                &send_error,
+                            )
+                            .await
+                    };
+                    count_applied(
+                        applied,
+                        P::registration(row),
+                        &mut processed,
+                        &mut items_failed,
+                    )?;
+                }
+                error = Some(scrub_text(send_error.message()));
+                has_suotar_failure = true;
+                continue;
+            }
         };
-        let applied = phase
-            .apply(&mut conn, row, response.item(request_item_id), event)
-            .await;
-        count_applied(
-            applied,
-            P::registration(row),
-            &mut processed,
-            &mut items_failed,
-        )?;
+
+        let mut conn = ctx.pool.acquire().await?;
+        for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
+            let response_json = response_item_json(&response.raw_response, request_item_id);
+            let event = OutcomeEvent {
+                suotar_api_call_id: response.call_id,
+                request_item_id: Some(request_item_id),
+                request: Some(request),
+                response: response_json.as_ref(),
+                sent_student_number: P::sent_student_number(row),
+                ..OutcomeEvent::default()
+            };
+            let applied = phase
+                .apply(&mut conn, row, response.item(request_item_id), event)
+                .await;
+            count_applied(
+                applied,
+                P::registration(row),
+                &mut processed,
+                &mut items_failed,
+            )?;
+        }
+        if every_item_service_unavailable(&response) {
+            error = Some(P::ALL_UNAVAILABLE_ERROR.to_string());
+            has_suotar_failure |= !response
+                .items
+                .iter()
+                .all(|item| is_sisu_timeout_code(response.endpoint, &item.code));
+        }
     }
 
     Ok(PhaseRunOutcome {
         items_processed: processed,
         items_failed,
-        error: every_item_service_unavailable(&response)
-            .then(|| P::ALL_UNAVAILABLE_ERROR.to_string()),
+        is_sisu_outage: error.is_some() && !has_suotar_failure,
+        error,
     })
 }
 

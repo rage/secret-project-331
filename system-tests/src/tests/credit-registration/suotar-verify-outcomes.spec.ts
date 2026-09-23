@@ -6,7 +6,7 @@ import {
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
-import { makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import { adminRegistrationDetails, makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runPhasesUpToSubmission, runVerifyPollTick } from "@/utils/suotarControl"
@@ -37,6 +37,16 @@ test.describe("A submission the study registry has not answered yet", () => {
 
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
+
+    await test.step("A pending submission is polled again soon but not resubmitted", async () => {
+      const { registration } = await adminRegistrationDetails(adminApi, submitted.id)
+      // The mock answers `submissionPending` with a `retryAfter` a day out, like Suotar does.
+      const hoursUntilNextPoll =
+        (new Date(registration.next_attempt_at).getTime() - Date.now()) / 3_600_000
+      expect(hoursUntilNextPoll).toBeLessThan(1)
+      expect(registration.resubmission_refusal).toBe("submission_pending")
+    })
+
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
     // Only a control transition moves a mock submission, so no worker or spec could have moved this.

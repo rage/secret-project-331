@@ -306,7 +306,7 @@ async fn put_enrolment(
             },
             grant_date: None,
         }),
-        enrolment_date_time: now,
+        enrolment_date_time: Some(now),
     };
     store
         .upsert_json(

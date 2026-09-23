@@ -26,7 +26,8 @@ use utoipa::ToSchema;
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::domain::credit_registration_phases::PhaseContext;
 use crate::domain::credit_registration_phases::linking_mail_resend::{
-    ResendOutcome, ResolvedPerson, resend_linking_mail_for_target, resolve_person,
+    ResendOutcome, ResolvePersonError, ResolvedPerson, resend_linking_mail_for_target,
+    resolve_person,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -213,6 +214,9 @@ pub struct AdminResolveStudentNumberResult {
     /// The registry's own per-item code, an identifier rather than prose.
     pub code: Option<String>,
     pub study_registry_unavailable: bool,
+    /// The registry's per-item code when it answered with an error other than `personNotFound`,
+    /// which leaves it unknown whether the number exists.
+    pub lookup_error_code: Option<String>,
     pub already_linked_to_user_id: Option<Uuid>,
     pub already_linked_to_user_email: Option<String>,
     pub already_linked_via: Option<StudentNumberVerificationMethod>,
@@ -604,6 +608,7 @@ pub async fn admin_resolve_student_number_for_linking(
         last_name: None,
         code: None,
         study_registry_unavailable: false,
+        lookup_error_code: None,
         already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
         already_linked_to_user_email,
         already_linked_via: existing.as_ref().map(|link| link.verified_via),
@@ -619,7 +624,14 @@ pub async fn admin_resolve_student_number_for_linking(
             ..shared
         },
         Ok(None) => AdminResolveStudentNumberResult { ..shared },
-        Err(_) => AdminResolveStudentNumberResult {
+        Err(ResolvePersonError::UnexpectedAnswer { code }) => AdminResolveStudentNumberResult {
+            lookup_error_code: Some(code),
+            ..shared
+        },
+        Err(
+            ResolvePersonError::StudyRegistryUnavailable
+            | ResolvePersonError::ItemMissingFromResponse,
+        ) => AdminResolveStudentNumberResult {
             study_registry_unavailable: true,
             ..shared
         },

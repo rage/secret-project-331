@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n-- Nullability is stated for the outer-joined columns rather than inferred: sqlx-cli 0.9.0 derives\n-- them the wrong way round, and an offline build of this query then fails to compile.\nSELECT cr.id,\n  vsn.student_number AS \"student_number?\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  conf.grade_scale_id AS \"configured_grade_scale_id?\",\n  cmc.passed,\n  cmc.grade,\n  cmc.completion_date,\n  cmc.completion_language\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  AND cmc.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  AND cm.deleted_at IS NULL\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE cr.id = ANY($1::uuid [])\n  AND cr.deleted_at IS NULL\n        ",
+  "query": "\n-- Nullability is stated for the outer-joined columns rather than inferred: sqlx-cli 0.9.0 derives\n-- them the wrong way round, and an offline build of this query then fails to compile.\nSELECT cr.id,\n  vsn.student_number AS \"student_number?\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  cmc.passed,\n  cmc.grade,\n  cmc.completion_date,\n  cmc.completion_language\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  AND cmc.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  AND cm.deleted_at IS NULL\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.id = ANY($1::uuid [])\n  AND cr.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -60,17 +60,6 @@
       },
       {
         "ordinal": 5,
-        "name": "configured_grade_scale_id?",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "course_module_suotar_configurations",
-            "name": "grade_scale_id"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
         "name": "passed",
         "type_info": "Bool",
         "origin": {
@@ -81,7 +70,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "grade",
         "type_info": "Int4",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "completion_date",
         "type_info": "Timestamptz",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "completion_language",
         "type_info": "Varchar",
         "origin": {
@@ -125,12 +114,11 @@
       true,
       true,
       true,
-      true,
       false,
       true,
       false,
       false
     ]
   },
-  "hash": "f5eaf5af25debbfc8233d1bff4354b41d2e3254829aba145934fa37a1b120724"
+  "hash": "965f1f8110b1377d427910e43b31104eabec2465eb48803794fb3e6a5a79f991"
 }

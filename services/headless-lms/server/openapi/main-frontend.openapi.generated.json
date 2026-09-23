@@ -7956,7 +7956,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a\nselection of rows by hand, one transaction for the lot.\n\nResubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of\nthose back to `ready_to_submit` is a decision about one student's transcript, made after somebody has\nlooked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second\nattainment on every one of them. Those rows are reported back untouched, to be dealt with one at a\ntime.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a\nselection of rows by hand, one transaction for the lot.\n\nResubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of\nthose back to `ready_to_submit` is a decision about one student's transcript, made after somebody has\nlooked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second\nattainment on every one of them. Those rows are reported back untouched, to be dealt with one at a\ntime, as is a row whose earlier submission Suotar still holds open (`submission_pending`).",
         "operationId": "adminBulkTransitionCreditRegistrations",
         "requestBody": {
           "content": {
@@ -8054,7 +8054,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted\nwhile Suotar still holds its earlier submission open (`submission_pending`).",
         "operationId": "adminTransitionCreditRegistration",
         "parameters": [
           {
@@ -15042,6 +15042,10 @@
               "$ref": "#/components/schemas/AdminLinkingEmail"
             }
           },
+          "lookup_error_code": {
+            "type": ["string", "null"],
+            "description": "The registry's per-item code when it answered with an error other than `personNotFound`,\nwhich leaves it unknown whether the number exists."
+          },
           "sisu_person_id": {
             "type": ["string", "null"],
             "description": "Echoed back to the manual-link endpoint, which refuses without it."
@@ -18711,10 +18715,6 @@
             "type": ["boolean", "null"],
             "description": "`None` means never checked, which is not the same as a failed check."
           },
-          "credit_registration_grade_scale_id": {
-            "type": ["string", "null"],
-            "description": "`None` means derive the grade scale from the completion."
-          },
           "credit_registration_has_enrolment_link": {
             "type": "boolean",
             "description": "Whether `completion_registration_link_override` is set, which is also the enrolment link for\nstudents without a usable enrolment."
@@ -18739,16 +18739,6 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
-          }
-        }
-      },
-      "CourseModuleCreditRegistrationEdit": {
-        "type": "object",
-        "description": "The module editor's writable half of the Suotar configuration. The pause and the\nconfig-validation verdict are not here: their writers are the admin dashboard and the pipeline.",
-        "properties": {
-          "grade_scale_id": {
-            "type": ["string", "null"],
-            "description": "`None` means derive the grade scale from the completion."
           }
         }
       },
@@ -19598,10 +19588,6 @@
             "type": "integer",
             "format": "int64"
           },
-          "grade_scale_id": {
-            "type": ["string", "null"],
-            "description": "The module's override; `None` means the scale is derived from the completion."
-          },
           "in_flight_count": {
             "type": "integer",
             "format": "int64"
@@ -20020,7 +20006,7 @@
       "CreditRegistrationPendingReason": {
         "type": "string",
         "description": "What a `pending` row is waiting for.",
-        "enum": ["completion", "student_number"]
+        "enum": ["completion", "student_number", "course_code"]
       },
       "CreditRegistrationPhaseList": {
         "type": "object",
@@ -22643,8 +22629,7 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
-          "credit_registration"
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "completion_policy": {
@@ -22652,9 +22637,6 @@
           },
           "completion_registration_link_override": {
             "type": ["string", "null"]
-          },
-          "credit_registration": {
-            "$ref": "#/components/schemas/CourseModuleCreditRegistrationEdit"
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -23635,8 +23617,7 @@
           "chapters",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
-          "credit_registration"
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "chapters": {
@@ -23651,9 +23632,6 @@
           },
           "completion_registration_link_override": {
             "type": ["string", "null"]
-          },
-          "credit_registration": {
-            "$ref": "#/components/schemas/CourseModuleCreditRegistrationEdit"
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -25849,7 +25827,13 @@
       "ResubmissionRefusal": {
         "type": "string",
         "description": "Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
-        "enum": ["superseded", "already_succeeded", "submission_uncertain", "not_failed_permanent"]
+        "enum": [
+          "superseded",
+          "already_succeeded",
+          "submission_uncertain",
+          "not_failed_permanent",
+          "submission_pending"
+        ]
       },
       "RetryCreditRegistrationPayload": {
         "type": "object",

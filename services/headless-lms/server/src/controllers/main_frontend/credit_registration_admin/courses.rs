@@ -46,8 +46,6 @@ pub struct CreditRegistrationCourseStats {
     pub ects_credits: Option<f32>,
     /// Where a student with no usable enrolment is sent to enrol.
     pub enrolment_link: Option<String>,
-    /// The module's override; `None` means the scale is derived from the completion.
-    pub grade_scale_id: Option<String>,
     /// The old pull path is on as well, which would register the same completion twice.
     pub old_flow_also_enabled: bool,
     pub paused_at: Option<DateTime<Utc>>,
@@ -315,7 +313,6 @@ fn to_course_stats(
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
         enrolment_link: overview.enrolment_link,
-        grade_scale_id: overview.grade_scale_id,
         old_flow_also_enabled: overview.old_flow_also_enabled,
         paused_at: overview.paused_at,
         pause_reason: overview.pause_reason,

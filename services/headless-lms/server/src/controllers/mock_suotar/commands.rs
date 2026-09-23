@@ -210,7 +210,13 @@ pub struct EnrolmentUpsert {
     /// Absent is a study right the importer did not return.
     pub study_right_validity_period: Option<DatePeriod>,
     pub study_right_grant_date: Option<NaiveDate>,
-    pub enrolment_date_time: Option<DateTime<Utc>>,
+    /// Absent is now; an explicit `null` is an enrolment the importer hands over no time for.
+    #[serde(
+        default,
+        deserialize_with = "explicit_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub enrolment_date_time: Option<Option<DateTime<Utc>>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -838,7 +844,7 @@ async fn generate_roster(
                     validity: validity.clone(),
                     grant_date: None,
                 }),
-                enrolment_date_time: now,
+                enrolment_date_time: Some(now),
             },
         );
     }
@@ -1248,7 +1254,9 @@ fn enrolment_from(upsert: EnrolmentUpsert) -> MockEnrolment {
                 validity,
                 grant_date: upsert.study_right_grant_date,
             }),
-        enrolment_date_time: upsert.enrolment_date_time.unwrap_or_else(Utc::now),
+        enrolment_date_time: upsert
+            .enrolment_date_time
+            .unwrap_or_else(|| Some(Utc::now())),
         student_number: upsert.student_number,
         course_code: upsert.course_code,
         state: upsert.state,

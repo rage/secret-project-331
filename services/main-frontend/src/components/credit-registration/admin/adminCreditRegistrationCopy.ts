@@ -63,10 +63,14 @@ const STATE_TONES = {
   cancelled: "upcoming",
 } as const satisfies Record<CreditRegistrationState, RegistrationStatusState>
 
-/** A `pending` row waiting on the student is the admin's problem; one waiting on a completion is not. */
+/**
+ * A `pending` row waiting on the student or on the course code is the admin's problem; one waiting on
+ * a completion is not.
+ */
 const PENDING_REASON_TONES = {
   completion: "upcoming",
   student_number: "action-needed",
+  course_code: "action-needed",
 } as const satisfies Record<CreditRegistrationPendingReason, RegistrationStatusState>
 
 export const stateTone = (

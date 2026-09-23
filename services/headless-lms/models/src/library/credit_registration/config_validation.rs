@@ -9,17 +9,11 @@ use std::borrow::Cow;
 
 use crate::course_module_suotar_configurations::{SuotarConfigCheck, SuotarModuleConfigFacts};
 
-use super::grade_mapping::{GradeScaleFamily, grade_scale_family};
-
 /// The problems the check reports, in the order they block a registration. English on purpose:
 /// this is operator diagnostics stored on the row, not student-facing copy.
 const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
 const COURSE_CODE_NOT_ALLOWED: &str = "Suotar does not accept this uh_course_code:";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
-const UNKNOWN_GRADE_SCALE: &str =
-    "The grade scale override is not a scale the study registry accepts.";
-const NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS: &str =
-    "The grade scale override is numeric but the module has passed completions with no grade.";
 const NO_ENROLMENT_LINK: &str = "No completion registration link override, so a student without a usable Sisu enrolment gets no enrolment link.";
 const OLD_FLOW_ALSO_ENABLED: &str = "enable_registering_completion_to_uh_open_university is on as well, which would register the same completion twice.";
 
@@ -84,13 +78,6 @@ pub fn check_module_config(
         problems.push(NO_ECTS.into());
     }
 
-    match facts.grade_scale_id.as_deref().map(grade_scale_family) {
-        Some(None) => problems.push(UNKNOWN_GRADE_SCALE.into()),
-        Some(Some(GradeScaleFamily::Numeric)) if facts.has_passed_completions_without_a_grade => {
-            problems.push(NUMERIC_SCALE_ON_UNGRADED_COMPLETIONS.into())
-        }
-        _ => {}
-    }
     if !facts.has_enrolment_link {
         problems.push(NO_ENROLMENT_LINK.into());
     }

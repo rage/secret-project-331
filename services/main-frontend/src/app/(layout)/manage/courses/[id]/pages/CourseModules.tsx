@@ -36,7 +36,6 @@ import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleF
 import {
   creditRegistrationFieldsOf,
   EMPTY_CREDIT_REGISTRATION_FIELDS,
-  toCreditRegistrationEdit,
 } from "./creditRegistrationModuleFields"
 import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
 
@@ -365,7 +364,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
-            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         } else if (
           initialModule !== undefined &&
@@ -399,7 +397,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
-            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         }
       }

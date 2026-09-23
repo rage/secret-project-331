@@ -59,6 +59,8 @@ test("Can manually reset exercises", async () => {
   const exerciseCards = student1Page.locator(
     'section:has(iframe[title="Exercise 1\\, task 1 content"])',
   )
+  // Until every iframe has mounted, first() can resolve to a different card on each action.
+  await expect(exerciseCards).toHaveCount(3)
   const firstExercise = exerciseCards.first()
   const secondExercise = exerciseCards.nth(1)
 

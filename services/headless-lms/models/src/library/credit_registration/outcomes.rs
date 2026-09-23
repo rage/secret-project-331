@@ -11,9 +11,9 @@ use crate::suotar_api_calls::SuotarEndpoint;
 
 use super::backoff::{
     NO_USABLE_ENROLMENT_RECHECK_SECS, NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD,
-    PARTIAL_REGISTRATION_ADMIN_AFTER_SECS, UNCERTAIN_MAX_CHECKS, UNCERTAIN_RECHECK_SECS,
-    VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at, submit_backoff_secs,
-    submit_window_expired, verify_backoff_secs, verify_window_expired,
+    PARTIAL_REGISTRATION_ADMIN_AFTER_SECS, UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
+    VERIFY_GIVE_UP_POLL_SECS, next_attempt_at, submit_backoff_secs, submit_window_expired,
+    uncertain_needs_admin, uncertain_recheck_secs, verify_backoff_secs, verify_window_expired,
 };
 use super::classification::{Retryability, retryability, settled_state};
 
@@ -167,20 +167,6 @@ pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTim
     }
 }
 
-/// A `verify` poll answered `submissionPending`: Suotar holds the submission but has not seen it in
-/// Sisu yet, and says when asking again is worth it.
-pub fn verify_pending_outcome(
-    state: CreditRegistrationState,
-    facts: &RowFacts,
-    retry_after: Option<DateTime<Utc>>,
-) -> Outcome {
-    let outcome = verify_inconclusive_outcome(state, facts);
-    match retry_after {
-        Some(retry_after) => outcome.after((retry_after - facts.now).num_seconds().max(0)),
-        None => outcome,
-    }
-}
-
 /// A `verify` poll answered `notRegistered`: Suotar has no trace of the submission, so the row is
 /// new work again and goes back through resolve-enrolments and import. `reimport_count` counts
 /// this resend too.
@@ -198,12 +184,12 @@ pub fn verify_not_registered_outcome(facts: &RowFacts, reimport_count: i32) -> O
     }
 }
 
-/// A fruitless look through `existingAttainments` for an attainment we may have created. After
-/// enough of them a human checks Sisu by hand; the row still never resubmits.
+/// A fruitless look through `existingAttainments` for an attainment we may have created. Once the
+/// attainment has had a day to show up a human checks Sisu by hand; the row still never resubmits.
 pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
-    let outcome =
-        Outcome::to(CreditRegistrationState::SubmissionUncertain).after(UNCERTAIN_RECHECK_SECS);
-    if facts.verify_attempt_count >= UNCERTAIN_MAX_CHECKS {
+    let outcome = Outcome::to(CreditRegistrationState::SubmissionUncertain)
+        .after(uncertain_recheck_secs(facts.verify_attempt_count));
+    if uncertain_needs_admin(facts.submitted_at, facts.now) {
         outcome.needing_admin()
     } else {
         outcome
@@ -221,6 +207,14 @@ pub fn request_level_outcome(
         return submission_uncertain();
     }
     retry_or_expire(request_level_code(variant), endpoint, facts)
+}
+
+/// A row Suotar refused as a malformed request even in a batch of its own: resending the same
+/// payload is refused the same way, so it needs a human.
+pub fn isolated_malformed_request_outcome() -> Outcome {
+    Outcome::to(CreditRegistrationState::FailedPermanent)
+        .with_code(CreditRegistrationErrorCode::MalformedRequest)
+        .needing_admin()
 }
 
 /// An item we sent and Suotar did not answer. On `import` that leaves us where a timeout does;
@@ -325,6 +319,7 @@ pub fn verify_poll_lease_until(now: DateTime<Utc>, attempt: i32) -> DateTime<Utc
 
 #[cfg(test)]
 mod tests {
+    use super::super::backoff::UNCERTAIN_MAX_RECHECK_SECS;
     use super::*;
     use CreditRegistrationErrorCode as Code;
     use CreditRegistrationState as State;
@@ -621,19 +616,22 @@ mod tests {
     }
 
     #[test]
-    fn an_uncertain_row_asks_for_a_human_only_after_the_documented_checks() {
-        let before = uncertain_recheck_outcome(&RowFacts {
-            verify_attempt_count: UNCERTAIN_MAX_CHECKS - 1,
+    fn an_uncertain_row_backs_off_and_asks_for_a_human_only_after_a_day() {
+        let first = uncertain_recheck_outcome(&RowFacts {
+            verify_attempt_count: 1,
+            submitted_at: Some(Utc::now() - chrono::Duration::hours(1)),
             ..facts()
         });
-        assert_eq!(before.needs_admin_attention, None);
-        assert_eq!(before.to_state, State::SubmissionUncertain);
+        assert_eq!(first.needs_admin_attention, None);
+        assert_eq!(first.to_state, State::SubmissionUncertain);
+        assert_eq!(first.delay_secs, Some(UNCERTAIN_RECHECK_SECS * 2));
 
-        let after = uncertain_recheck_outcome(&RowFacts {
-            verify_attempt_count: UNCERTAIN_MAX_CHECKS,
+        let late = uncertain_recheck_outcome(&RowFacts {
+            verify_attempt_count: 30,
+            submitted_at: Some(Utc::now() - chrono::Duration::hours(25)),
             ..facts()
         });
-        assert_eq!(after.needs_admin_attention, Some(true));
-        assert_eq!(after.to_state, State::SubmissionUncertain);
+        assert_eq!(late.needs_admin_attention, Some(true));
+        assert_eq!(late.delay_secs, Some(UNCERTAIN_MAX_RECHECK_SECS));
     }
 }

@@ -420,6 +420,11 @@ export type AdminResolveStudentNumberResult = {
   last_name?: string | null
   linking_emails: Array<AdminLinkingEmail>
   /**
+   * The registry's per-item code when it answered with an error other than `personNotFound`,
+   * which leaves it unknown whether the number exists.
+   */
+  lookup_error_code?: string | null
+  /**
    * Echoed back to the manual-link endpoint, which refuses without it.
    */
   sisu_person_id?: string | null
@@ -1648,10 +1653,6 @@ export type CourseModuleCreditRegistrationConfig = {
    */
   credit_registration_course_code_allowed?: boolean | null
   /**
-   * `None` means derive the grade scale from the completion.
-   */
-  credit_registration_grade_scale_id?: string | null
-  /**
    * Whether `completion_registration_link_override` is set, which is also the enrolment link for
    * students without a usable enrolment.
    */
@@ -1662,17 +1663,6 @@ export type CourseModuleCreditRegistrationConfig = {
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   uh_course_code?: string | null
-}
-
-/**
- * The module editor's writable half of the Suotar configuration. The pause and the
- * config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
- */
-export type CourseModuleCreditRegistrationEdit = {
-  /**
-   * `None` means derive the grade scale from the completion.
-   */
-  grade_scale_id?: string | null
 }
 
 /**
@@ -2094,10 +2084,6 @@ export type CreditRegistrationCourseStats = {
    */
   enrolment_link?: string | null
   failed_count: number
-  /**
-   * The module's override; `None` means the scale is derived from the completion.
-   */
-  grade_scale_id?: string | null
   in_flight_count: number
   last_listed_at?: string | null
   last_registered_at?: string | null
@@ -2295,7 +2281,7 @@ export type CreditRegistrationOverview = {
 /**
  * What a `pending` row is waiting for.
  */
-export type CreditRegistrationPendingReason = "completion" | "student_number"
+export type CreditRegistrationPendingReason = "completion" | "student_number" | "course_code"
 
 export type CreditRegistrationPhaseList = {
   consecutive_failure_limit: number
@@ -3245,7 +3231,6 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  credit_registration: CourseModuleCreditRegistrationEdit
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
@@ -3648,7 +3633,6 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  credit_registration: CourseModuleCreditRegistrationEdit
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
@@ -4381,6 +4365,7 @@ export type ResubmissionRefusal =
   | "already_succeeded"
   | "submission_uncertain"
   | "not_failed_permanent"
+  | "submission_pending"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null

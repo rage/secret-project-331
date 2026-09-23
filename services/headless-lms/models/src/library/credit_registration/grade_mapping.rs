@@ -42,23 +42,20 @@ pub struct MappedGrade {
     pub grade_id: String,
 }
 
-/// What the completion says and what the module and the chosen enrolment say the scale should be.
+/// What the completion says and what the chosen enrolment says the scale should be.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct GradeSource<'a> {
     pub passed: bool,
     /// `None` for a pass/fail completion.
     pub grade: Option<i32>,
-    /// The module's override, which is how one course is unblocked without a deploy.
-    pub configured_grade_scale_id: Option<&'a str>,
-    /// The scale the chosen enrolment says the registry expects.
+    /// The scale the chosen enrolment says the registry expects, which Suotar requires verbatim.
     pub enrolment_grade_scale_id: Option<&'a str>,
 }
 
 /// Maps a completion into the scale the registry expects, preferring what it told us to a guess.
 pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrationErrorCode> {
     let scale_id = source
-        .configured_grade_scale_id
-        .or(source.enrolment_grade_scale_id)
+        .enrolment_grade_scale_id
         .unwrap_or(if source.grade.is_some() {
             NUMERIC_GRADE_SCALE_ID
         } else {
@@ -162,7 +159,6 @@ mod tests {
         GradeSource {
             passed,
             grade,
-            configured_grade_scale_id: None,
             enrolment_grade_scale_id: None,
         }
     }
@@ -190,7 +186,7 @@ mod tests {
     }
 
     #[test]
-    fn the_module_override_wins_over_the_enrolment_and_the_enrolment_over_the_guess() {
+    fn the_enrolment_scale_wins_over_the_guess_and_is_sent_verbatim() {
         let with_enrolment = GradeSource {
             enrolment_grade_scale_id: Some(PASS_FAIL_GRADE_SCALE_ID_ALT),
             ..source(true, Some(4))
@@ -200,22 +196,12 @@ mod tests {
             PASS_FAIL_GRADE_SCALE_ID_ALT
         );
         assert_eq!(map_grade(with_enrolment).unwrap().grade_id, PASS_GRADE_ID);
-
-        let overridden = GradeSource {
-            configured_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
-            ..with_enrolment
-        };
-        assert_eq!(
-            map_grade(overridden).unwrap().grade_scale_id,
-            NUMERIC_GRADE_SCALE_ID
-        );
-        assert_eq!(map_grade(overridden).unwrap().grade_id, "4");
     }
 
     #[test]
     fn an_unrecognised_scale_fails_before_anything_is_sent() {
         let source = GradeSource {
-            configured_grade_scale_id: Some("sis-something-else"),
+            enrolment_grade_scale_id: Some("sis-something-else"),
             ..source(true, Some(4))
         };
         assert_eq!(
@@ -227,7 +213,7 @@ mod tests {
     #[test]
     fn a_pass_fail_completion_cannot_be_pushed_into_a_numeric_scale() {
         let source = GradeSource {
-            configured_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
+            enrolment_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
             ..source(true, None)
         };
         assert_eq!(

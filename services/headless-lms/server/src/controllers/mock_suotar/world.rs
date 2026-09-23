@@ -209,7 +209,8 @@ pub struct MockEnrolment {
     pub study_right_id: Option<String>,
     /// Absent when the study right did not come back from the importer.
     pub study_right: Option<MockStudyRight>,
-    pub enrolment_date_time: DateTime<Utc>,
+    /// Absent when the importer hands over no enrolment time.
+    pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
 impl MockEnrolment {

@@ -184,16 +184,13 @@ SELECT cr.id,
   cr.grade_id AS "registered_grade_id!",
   cmc.passed,
   cmc.grade,
-  cmc.updated_at AS completion_updated_at,
-  conf.grade_scale_id AS "configured_grade_scale_id?"
+  cmc.updated_at AS completion_updated_at
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   -- Membership is the whole eligibility check: the view is the module opt-in and the completion
   -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.
   JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id
   AND e.fully_eligible
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
   -- The success set only: a row whose outcome we do not know must not gain a successor.
@@ -233,9 +230,8 @@ LIMIT $1
         let Ok(mapped) = map_grade(GradeSource {
             passed: candidate.passed,
             grade: candidate.grade,
-            configured_grade_scale_id: candidate.configured_grade_scale_id.as_deref(),
-            // No enrolment has been resolved for the next attempt yet, so the scale is the module's
-            // override or the one the completion itself implies.
+            // No enrolment has been resolved for the next attempt yet, so the scale is the one the
+            // completion itself implies.
             enrolment_grade_scale_id: None,
         }) else {
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;

@@ -207,11 +207,13 @@ impl CreditRegistrationState {
     /// copies. `strictness` is the one real difference between the callers: how far outside a
     /// failure a row may still be moved from. Superseded is checked first regardless, since acting
     /// on a replaced attempt is never right, and an outcome the registry already holds next, since
-    /// no strictness may resubmit over one.
+    /// no strictness may resubmit over one. A future `resubmit_not_before` refuses whatever the
+    /// strictness.
     pub fn resubmission_refusal(
         self,
         superseded: bool,
         strictness: ResubmissionStrictness,
+        resubmit_not_before: Option<DateTime<Utc>>,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
             return Some(ResubmissionRefusal::Superseded);
@@ -226,6 +228,9 @@ impl CreditRegistrationState {
             && self != Self::FailedPermanent
         {
             return Some(ResubmissionRefusal::NotFailedPermanent);
+        }
+        if resubmit_not_before.is_some_and(|not_before| Utc::now() < not_before) {
+            return Some(ResubmissionRefusal::SubmissionPending);
         }
         None
     }
@@ -242,6 +247,7 @@ impl CreditRegistrationState {
         target: Self,
         superseded: bool,
         strictness: ResubmissionStrictness,
+        resubmit_not_before: Option<DateTime<Utc>>,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
             return Some(ResubmissionRefusal::Superseded);
@@ -252,7 +258,7 @@ impl CreditRegistrationState {
         if target != Self::ReadyToSubmit {
             return None;
         }
-        self.resubmission_refusal(false, strictness)
+        self.resubmission_refusal(false, strictness, resubmit_not_before)
     }
 
     /// How long a row entering this state waits before the pipeline may claim it again, when the
@@ -317,6 +323,8 @@ pub enum ResubmissionRefusal {
     SubmissionUncertain,
     /// Not a failure at all: [`ResubmissionStrictness::OnlyFailedPermanent`] only.
     NotFailedPermanent,
+    /// Suotar still holds the earlier submission open, and may yet turn it into an attainment.
+    SubmissionPending,
 }
 
 /// Why a ledger row is where it is; `state` says what happens to it next.
@@ -437,6 +445,8 @@ pub struct CreditRegistration {
     pub not_registered_reimport_count: i32,
     /// Localized `{fi, sv, en}` name of the chosen enrolment's realisation, as Suotar reported it.
     pub selected_enrolment_realisation_name: Option<serde_json::Value>,
+    /// Suotar's `retryAfter` for a pending submission; resubmitting earlier may duplicate it.
+    pub resubmit_not_before: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1078,6 +1088,79 @@ RETURNING cr.*
     Ok(res)
 }
 
+/// [`claim_due`] for import: `checking_enrolment` rows, minus any whose student and course code
+/// already have a submission in flight, which Suotar's hour-old copy of Sisu would not stop from
+/// registering twice. Two such rows claimed together must still go in separate batches.
+pub async fn claim_due_for_import(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    let is_scoped_call = !scope.is_unscoped();
+    let res = sqlx::query_as!(
+        CreditRegistration,
+        r#"
+WITH due AS (
+  SELECT cr.id
+  FROM credit_registrations cr
+    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+  WHERE cr.deleted_at IS NULL
+    AND cr.superseded_by_id IS NULL
+    AND cr.state = 'checking_enrolment'
+    AND cr.next_attempt_at <= now()
+    AND ($2::uuid IS NULL OR cr.course_id = $2)
+    AND ($3::uuid IS NULL OR cr.user_id = $3)
+    AND (
+      cardinality($4::uuid []) = 0
+      OR cr.id = ANY($4::uuid [])
+    )
+    AND (
+      $5::boolean
+      OR NOT EXISTS (
+        SELECT 1
+        FROM credit_registration_test_exclusive_holds h
+        WHERE h.user_id = cr.user_id
+          AND (
+            h.course_id IS NULL
+            OR h.course_id = cr.course_id
+          )
+          AND h.held_until > now()
+      )
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM credit_registrations twin
+      WHERE twin.student_number = cr.student_number
+        AND twin.uh_course_code = cr.uh_course_code
+        AND twin.id <> cr.id
+        AND twin.deleted_at IS NULL
+        AND twin.state IN (
+          'submitting',
+          'submission_uncertain',
+          'awaiting_verification'
+        )
+    )
+  ORDER BY cr.next_attempt_at
+  FOR UPDATE OF cr SKIP LOCKED
+  LIMIT $1
+)
+UPDATE credit_registrations cr
+SET last_attempt_at = now()
+FROM due
+WHERE cr.id = due.id
+RETURNING cr.*
+        "#,
+        limit,
+        scope.course_id,
+        scope.user_id,
+        &scope.credit_registration_ids,
+        is_scoped_call,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CreditRegistration> {
     let res = sqlx::query_as!(
         CreditRegistration,
@@ -1208,6 +1291,7 @@ impl StudentCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.has_verified_student_number,
+            course_code_allowed: true,
         }
     }
 
@@ -1409,6 +1493,47 @@ RETURNING partially_registered_at AS "partially_registered_at!"
     Ok(partially_registered_at)
 }
 
+/// Restamps `submitted_at` on rows still `submitting`, for an import that sends them again after
+/// splitting a refused batch: the precondition sweep times a lost submission from this stamp, and
+/// must not condemn a row still waiting its turn in the same iteration.
+pub async fn restamp_submitting(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET submitted_at = now()
+WHERE id = ANY($1)
+  AND state = 'submitting'
+  AND deleted_at IS NULL
+        "#,
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Records Suotar's `retryAfter` for the pending submission, before which a resubmission may
+/// register the credits twice. See [`CreditRegistrationState::resubmission_refusal`].
+pub async fn set_resubmit_not_before(
+    conn: &mut PgConnection,
+    id: Uuid,
+    resubmit_not_before: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET resubmit_not_before = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        resubmit_not_before,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Forgets a submission Suotar says never landed, so the row resolves its enrolment and imports
 /// again from scratch, and returns how many times that has now happened.
 ///
@@ -1421,6 +1546,7 @@ UPDATE credit_registrations
 SET submitted_attainment_id = NULL,
   submitted_attainment_type = NULL,
   partially_registered_at = NULL,
+  resubmit_not_before = NULL,
   selected_enrolment_id = NULL,
   grade_id = NULL,
   first_failed_at = NULL,
@@ -1955,6 +2081,7 @@ impl TeacherCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.student_number.is_some(),
+            course_code_allowed: true,
         }
     }
 }
@@ -2204,8 +2331,10 @@ pub struct AdminCreditRegistration {
     pub verified_student_number: Option<DbSecret>,
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
+    pub resubmit_not_before: Option<DateTime<Utc>>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
 }
@@ -2219,6 +2348,7 @@ impl AdminCreditRegistration {
                 PendingPreconditions {
                     completion_eligible: self.completion_eligible,
                     has_verified_student_number: self.has_verified_student_number,
+                    course_code_allowed: self.course_code_allowed,
                 }
                 .reason()
             })
@@ -2329,8 +2459,10 @@ SELECT cr.id,
   vsn.student_number AS "verified_student_number?",
   vsn.verified_at AS "verified_student_number_at?",
   vsn.verified_via AS "verified_student_number_via?",
+  cr.resubmit_not_before,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id

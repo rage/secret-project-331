@@ -4,43 +4,46 @@
 //! leads from that state or `submission_uncertain` back into a batch: a second import on a guess
 //! would put a second attainment on a real transcript, and we could neither see it nor undo it.
 
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
+    claim_due_for_import, restamp_submitting, set_sisu_attainment_if_unclaimed,
+    set_submitted_attainment, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
 use headless_lms_models::library::credit_registration::outcomes::{
-    import_success_outcome, import_success_state, submission_uncertain, submit_error_outcome,
-    unanswered_item_outcome,
+    import_success_outcome, import_success_state, isolated_malformed_request_outcome,
+    submission_uncertain, submit_error_outcome, unanswered_item_outcome,
 };
 use headless_lms_models::secret::DbSecret;
-use headless_lms_utils::error::util_error::UtilError;
+use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError};
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
     SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
+use std::collections::HashSet;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
     apply_outcome, apply_request_level_outcome, row_facts, run_suotar_batch_phase,
+    suotar_error_variant,
 };
-
-/// The only state this phase claims; the absence of `submitting`, `submission_uncertain` and
-/// `resolving_enrolment` is what makes a second import for one row, or an import before its
-/// enrolment is resolved, unreachable.
-const CLAIMED_STATES: [CreditRegistrationState; 1] = [CreditRegistrationState::CheckingEnrolment];
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     run_suotar_batch_phase(&mut Import, ctx, scope).await
 }
 
 struct Import;
+
+/// Suotar's answer for a later item of a batch that repeats an earlier one; it names the earlier
+/// item's submission.
+const DUPLICATE_REQUEST_ITEM_CODE: &str = "duplicateRequestItem";
 
 impl SuotarBatchPhase for Import {
     type Row = CreditRegistration;
@@ -56,9 +59,8 @@ impl SuotarBatchPhase for Import {
         conn: &mut PgConnection,
         scope: &PhaseScope,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let claimed = claim_due(
+        let claimed = claim_due_for_import(
             conn,
-            &CLAIMED_STATES,
             scope,
             SuotarEndpoint::ImportAttainments.max_batch_size() as i64,
         )
@@ -75,7 +77,19 @@ impl SuotarBatchPhase for Import {
         .await?;
 
         let mut prepared = Prepared::default();
+        let mut batched_student_courses = HashSet::new();
         for row in claimed {
+            // Left claimable where it is: once its twin is in flight the claim holds it back until
+            // that one settles.
+            let student_course = (
+                row.student_number
+                    .as_ref()
+                    .map(|number| number.expose_secret().to_string()),
+                row.uh_course_code.clone(),
+            );
+            if !batched_student_courses.insert(student_course) {
+                continue;
+            }
             if already_registered.contains(&row.course_module_completion_id) {
                 transition(
                     conn,
@@ -167,6 +181,49 @@ impl SuotarBatchPhase for Import {
         )
         .await
     }
+
+    /// Suotar validates every item before acting on any, so a malformed-request refusal proves
+    /// nothing was written, and one bad row takes its whole batch down with it.
+    fn isolates_request_rejection(error: &UtilError) -> bool {
+        suotar_error_variant(error) == SuotarErrorVariant::MalformedRequest
+    }
+
+    async fn keep_in_flight(
+        &self,
+        conn: &mut PgConnection,
+        rows: &[&Self::Row],
+    ) -> anyhow::Result<()> {
+        restamp_submitting(conn, &rows.iter().map(|row| row.id).collect::<Vec<_>>()).await?;
+        Ok(())
+    }
+
+    async fn apply_isolated_rejection(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        request: &serde_json::Value,
+        request_item_id: &str,
+        error: &UtilError,
+    ) -> anyhow::Result<bool> {
+        apply_outcome(
+            conn,
+            row,
+            &isolated_malformed_request_outcome(),
+            OutcomeEvent {
+                message: Some(
+                    "The study registry refused this row as a malformed request even when sent \
+                     alone.",
+                ),
+                error_message: Some(error.message()),
+                request_item_id: Some(request_item_id),
+                request: Some(request),
+                ..OutcomeEvent::default()
+            },
+            Some(CreditRegistrationState::Submitting),
+        )
+        .await?;
+        Ok(true)
+    }
 }
 
 /// Applies the study registry's answer for one submitted row. Returns whether the row ended up in a
@@ -212,10 +269,25 @@ async fn apply_answer(
                 match submitted {
                     Some((id, attainment_type)) => {
                         set_submitted_attainment(conn, row.id, id, attainment_type).await?;
+                        let mut outcome =
+                            import_success_outcome(CreditRegistrationState::AwaitingVerification);
+                        let mut event = event;
+                        if item.code == DUPLICATE_REQUEST_ITEM_CODE {
+                            error!(
+                                "Suotar answered duplicateRequestItem for credit registration {}: \
+                                 a batch carried the same completion twice.",
+                                row.id
+                            );
+                            outcome.needs_admin_attention = Some(true);
+                            event.message = Some(
+                                "Suotar found this completion twice in one batch and submitted \
+                                 only the first; the batch should never have held both.",
+                            );
+                        }
                         apply_outcome(
                             conn,
                             row,
-                            &import_success_outcome(CreditRegistrationState::AwaitingVerification),
+                            &outcome,
                             event,
                             Some(CreditRegistrationState::Submitting),
                         )
@@ -483,23 +555,4 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
 /// never finer than a hundredth, and 2.7f32 would otherwise be sent as 2.700000047683716.
 fn round_credits(credits: f32) -> f64 {
     (f64::from(credits) * 1000.0).round() / 1000.0
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn the_claim_states_cannot_reach_a_row_that_may_already_have_been_sent() {
-        for state in [
-            CreditRegistrationState::Submitting,
-            CreditRegistrationState::SubmissionUncertain,
-            CreditRegistrationState::AwaitingVerification,
-            CreditRegistrationState::Registered,
-            CreditRegistrationState::Cancelled,
-            CreditRegistrationState::ResolvingEnrolment,
-        ] {
-            assert!(!CLAIMED_STATES.contains(&state), "{state:?}");
-        }
-    }
 }

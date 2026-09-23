@@ -112,6 +112,8 @@ pub fn new_request_item_id() -> String {
 /// read.
 pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
+    /// Gives the item a fresh requestItemId, for sending it again in another call.
+    fn renew_request_item_id(&mut self);
 }
 
 macro_rules! request_item {
@@ -119,6 +121,10 @@ macro_rules! request_item {
         impl SuotarRequestItem for $name {
             fn request_item_id(&self) -> &str {
                 &self.request_item_id
+            }
+
+            fn renew_request_item_id(&mut self) {
+                self.request_item_id = new_request_item_id();
             }
         }
     };
@@ -230,19 +236,32 @@ pub struct PersonResult {
     pub last_name: Option<SecretString>,
 }
 
+/// An enrolment as Suotar passes it through from its importer. Only the id is required: a field
+/// that is missing or unreadable reads as absent rather than dropping the enrolment.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarEnrolment {
     pub id: String,
-    pub state: String,
-    pub kind: String,
-    pub course_unit_realisation_id: String,
+    #[serde(default, deserialize_with = "lenient")]
+    pub state: Option<String>,
+    #[serde(default, deserialize_with = "lenient")]
+    pub kind: Option<String>,
+    #[serde(default, deserialize_with = "lenient")]
+    pub course_unit_realisation_id: Option<String>,
+    #[serde(default, deserialize_with = "lenient")]
     pub course_unit_realisation_name: Option<LocalizedName>,
+    #[serde(default, deserialize_with = "lenient")]
     pub activity_period: Option<DatePeriod>,
     /// The assessment item's scale, else the course unit's.
+    #[serde(default, deserialize_with = "lenient")]
     pub grade_scale_id: Option<String>,
     /// The course unit's range; `None` when Sisu gives none, which Suotar refuses to import against.
+    #[serde(default, deserialize_with = "lenient")]
     pub credits: Option<CreditRange>,
+    /// `None` when Suotar could not resolve the study right, which is no proof it is invalid.
+    #[serde(default, deserialize_with = "lenient")]
+    pub study_right_validity_period: Option<DatePeriod>,
+    #[serde(default, deserialize_with = "lenient_instant")]
     pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
@@ -340,13 +359,18 @@ pub struct ValidateCourseCodeResult {
     pub name: Option<String>,
 }
 
+/// Passed through from Suotar's importer like [`SuotarEnrolment`], so every field may be absent.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListedEnrolment {
-    pub id: String,
-    pub course_unit_realisation_id: String,
-    pub state: String,
-    pub enrolment_date_time: DateTime<Utc>,
+    #[serde(default, deserialize_with = "lenient")]
+    pub id: Option<String>,
+    #[serde(default, deserialize_with = "lenient")]
+    pub course_unit_realisation_id: Option<String>,
+    #[serde(default, deserialize_with = "lenient")]
+    pub state: Option<String>,
+    #[serde(default, deserialize_with = "lenient_instant")]
+    pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -358,7 +382,8 @@ pub struct ListedPerson {
     pub last_name: Option<SecretString>,
     pub primary_email: Option<SecretString>,
     pub secondary_email: Option<SecretString>,
-    pub enrolment: ListedEnrolment,
+    #[serde(default, deserialize_with = "lenient")]
+    pub enrolment: Option<ListedEnrolment>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -383,6 +408,35 @@ fn lenient_date<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<Nai
                     DateTime::parse_from_rfc3339(text)
                         .ok()
                         .map(|instant| helsinki_date(instant.with_timezone(&Utc)))
+                })
+        }))
+}
+
+/// A value that does not read as `T` reads as absent.
+fn lenient<'de, D: Deserializer<'de>, T: DeserializeOwned>(
+    deserializer: D,
+) -> Result<Option<T>, D::Error> {
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(value.and_then(|value| serde_json::from_value(value).ok()))
+}
+
+/// An RFC 3339 instant, or Sisu's zoneless local date-time read as UTC, which is close enough to
+/// order enrolments by. Anything else reads as absent.
+fn lenient_instant<'de, D: Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<DateTime<Utc>>, D::Error> {
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(value
+        .as_ref()
+        .and_then(serde_json::Value::as_str)
+        .and_then(|text| {
+            DateTime::parse_from_rfc3339(text)
+                .map(|instant| instant.with_timezone(&Utc))
+                .ok()
+                .or_else(|| {
+                    chrono::NaiveDateTime::parse_from_str(text, "%Y-%m-%dT%H:%M:%S%.f")
+                        .ok()
+                        .map(|local| local.and_utc())
                 })
         }))
 }

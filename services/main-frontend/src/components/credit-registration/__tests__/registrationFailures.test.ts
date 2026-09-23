@@ -38,12 +38,9 @@ describe("failure ownership", () => {
     const courseSetup = ALL_ERROR_CODES.filter((code) => failureOwner(code) === "course_setup")
     expect(courseSetup.toSorted()).toEqual([
       "course_code_not_found",
-      "grade_scale_mismatch",
       "invalid_credits",
-      "invalid_grade_for_grade_scale",
       "missing_ects_credits",
       "missing_uh_course_code",
-      "no_grade_scale_mapping",
     ])
   })
 

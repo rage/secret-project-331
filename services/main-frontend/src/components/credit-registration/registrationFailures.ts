@@ -63,11 +63,8 @@ export interface FailureActionPlan {
 const FAILURE_REMEDIES = {
   missing_uh_course_code: "module_configuration",
   missing_ects_credits: "module_configuration",
-  no_grade_scale_mapping: "module_configuration",
   course_code_not_found: "module_configuration",
   invalid_credits: "module_configuration",
-  invalid_grade_for_grade_scale: "module_configuration",
-  grade_scale_mismatch: "module_configuration",
 
   person_not_found: "student_number",
   enrolment_not_found: "student_enrolment",
@@ -90,6 +87,10 @@ const FAILURE_REMEDIES = {
 
   misregistered: "support",
   course_not_allowed: "support",
+  // The grade scale is always the enrolment's, so nothing in the module settings changes it.
+  no_grade_scale_mapping: "support",
+  invalid_grade_for_grade_scale: "support",
+  grade_scale_mismatch: "support",
   unknown: "support",
 } as const satisfies Record<CreditRegistrationErrorCode, FailureRemedy>
 

@@ -6849,7 +6849,7 @@ export const listCreditRegistrationsForAdminInfiniteOptions = (
  * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
  * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
  * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
- * time.
+ * time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
  */
 export const adminBulkTransitionCreditRegistrationsMutation = (
   options?: Partial<Options<AdminBulkTransitionCreditRegistrationsData>>,
@@ -6938,7 +6938,8 @@ export const getCreditRegistrationForAdminOptions = (
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript.
+ * re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+ * while Suotar still holds its earlier submission open (`submission_pending`).
  */
 export const adminTransitionCreditRegistrationMutation = (
   options?: Partial<Options<AdminTransitionCreditRegistrationData>>,

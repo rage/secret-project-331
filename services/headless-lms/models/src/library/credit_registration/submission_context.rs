@@ -7,7 +7,7 @@ use crate::prelude::*;
 
 use super::payload::CompletionFacts;
 
-/// The module configuration, the linked student number and the completion, for one ledger row.
+/// The module's fields, the linked student number and the completion, for one ledger row.
 #[derive(Debug, Clone)]
 pub struct SubmissionContext {
     pub registration_id: Uuid,
@@ -16,7 +16,6 @@ pub struct SubmissionContext {
     pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub configured_grade_scale_id: Option<String>,
     pub completion: CompletionFacts,
 }
 
@@ -34,7 +33,6 @@ SELECT cr.id,
   vsn.sisu_person_id AS "sisu_person_id?",
   cm.uh_course_code,
   cm.ects_credits,
-  conf.grade_scale_id AS "configured_grade_scale_id?",
   cmc.passed,
   cmc.grade,
   cmc.completion_date,
@@ -46,8 +44,6 @@ FROM credit_registrations cr
   AND cm.deleted_at IS NULL
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
 WHERE cr.id = ANY($1::uuid [])
   AND cr.deleted_at IS NULL
         "#,
@@ -66,7 +62,6 @@ WHERE cr.id = ANY($1::uuid [])
                     sisu_person_id: row.sisu_person_id,
                     uh_course_code: row.uh_course_code,
                     ects_credits: row.ects_credits,
-                    configured_grade_scale_id: row.configured_grade_scale_id,
                     completion: CompletionFacts {
                         passed: row.passed,
                         grade: row.grade,

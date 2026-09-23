@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS delivery_sent,\n  ed.retryable,\n  ed.first_failed_at,\n  ed.retry_count\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "delivery_sent",
+        "name": "delivery_sent?",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "retryable",
+        "name": "retryable?",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -49,7 +49,7 @@
       },
       {
         "ordinal": 4,
-        "name": "first_failed_at",
+        "name": "first_failed_at?",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "retry_count",
+        "name": "retry_count?",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -84,5 +84,5 @@
       true
     ]
   },
-  "hash": "dd2ef27c3e57470d0d082bd6104bf1152b2abf3121e9bea48739fde32e9a6107"
+  "hash": "520c08bd5f4477f1a2423d92804f9f0498d5a0f1db79dafe4980d2e394623312"
 }

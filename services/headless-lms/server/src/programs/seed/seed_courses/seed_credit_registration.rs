@@ -255,6 +255,8 @@ pub async fn seed_credit_registration(
     for fixture in [
         &IMPORT_TIMEOUT,
         &IMPORT_UNANSWERED,
+        &IMPORT_MALFORMED,
+        &IMPORT_BESIDE_MALFORMED,
         &SISU_OUTAGE,
         &NO_ENROLMENT,
         &TWO_ENROLMENTS,
@@ -463,7 +465,6 @@ fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
         enrolment_link: Some(format!(
             "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}"
         )),
-        grade_scale_id: None,
         paused_reason: None,
     }
 }
@@ -935,11 +936,7 @@ async fn seed_import_outcomes_course(
             .order(order as i32)
             .ects(5.0)
             .uh_course_code(course_code.to_string())
-            .credit_registration(CreditRegistrationSeed {
-                // Pass/fail against a course unit Sisu grades 0–5, for `gradeScaleMismatch`.
-                grade_scale_id: (*course_code == CRS_IMPORT_104).then(|| "sis-hyl-hyv".to_string()),
-                ..credit_registration_config(course_code)
-            });
+            .credit_registration(credit_registration_config(course_code));
         if order > 0 {
             module = module.name(format!("Module {course_code}"));
         }

@@ -808,9 +808,9 @@ pub async fn feedback(
     )
     .await
     .ok();
-    let mut tx = conn.begin().await?;
-    let feedback_categories = models::feedback_categories::get_all(&mut tx, *course_id).await?;
+    let feedback_categories = models::feedback_categories::get_all(&mut conn, *course_id).await?;
     let mut ids = vec![];
+    let mut new = vec![];
     for f in fs {
         let new_feedback = if let Some(llm) = &task_llm {
             match categorize_feedback(&app_conf, llm, &f, &feedback_categories).await {
@@ -822,20 +822,25 @@ pub async fn feedback(
                 },
                 Err(e) => {
                     error!("Failed to categorise feedback: {e}");
-                    f
+                    // remove the category if there happened to be one in the payload.
+                    // only accept categories assinged by the LLM
+                    NewFeedback {
+                        category: None,
+                        ..f
+                    }
                 }
             }
         } else {
-            f
+            NewFeedback {
+                category: None,
+                ..f
+            }
         };
-        let id = feedback::insert(
-            &mut tx,
-            PKeyPolicy::Generate,
-            user_id,
-            *course_id,
-            new_feedback,
-        )
-        .await?;
+        new.push(new_feedback)
+    }
+    let mut tx = conn.begin().await?;
+    for f in new {
+        let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }
     tx.commit().await?;

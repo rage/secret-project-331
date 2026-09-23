@@ -47,7 +47,12 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
     let category_id = if let Some(category) = new_feedback.category {
-        Some(feedback_categories::insert(&mut tx, category).await?)
+        // if inserting the category fails for some reason, let's still try to insert
+        // the feedback.
+        feedback_categories::insert(&mut tx, category)
+            .await
+            .inspect_err(|e| error!("Error while inserting new feedback cateogry: {e}"))
+            .ok()
     } else {
         None
     };
@@ -217,6 +222,7 @@ FROM (
   ) fb
   JOIN pages ON pages.id = fb.page_id
   LEFT JOIN feedback_categories AS fbc ON fb.category_id = fbc.id
+  WHERE fbc.deleted_at IS NULL
   ORDER BY fb."created_at!" DESC,
       fb."id!"
         "#,

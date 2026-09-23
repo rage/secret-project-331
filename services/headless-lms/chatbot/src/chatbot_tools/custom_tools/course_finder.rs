@@ -11,7 +11,10 @@ use crate::{
     prelude::*,
     user_context::ChatbotTurnContext,
 };
-use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_models::{
+    chatbot_configurations::ToolCategory,
+    organizations::{self, DatabaseOrganization},
+};
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
@@ -20,6 +23,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
+    course_url::build_course_url,
     json_schema_types::{Schema, string_array_property},
 };
 
@@ -42,6 +46,7 @@ pub struct CourseFinderArguments {
 pub struct CourseOccurrences {
     course: Course,
     occurrences: usize,
+    course_url: String,
 }
 
 pub type CourseFinderTool = ToolProperties<CourseFinderState>;
@@ -118,11 +123,34 @@ impl ChatbotTool for CourseFinderTool {
 
         let courses = courses::get_by_ids(conn, &course_ids).await?;
 
+        let organization_ids: Vec<Uuid> = courses
+            .iter()
+            .map(|course| course.organization_id)
+            .collect();
+
+        let organizations = organizations::get_by_ids(conn, &organization_ids).await?;
+
+        let organization_by_id: HashMap<Uuid, &DatabaseOrganization> = organizations
+            .iter()
+            .map(|organization| (organization.id, organization))
+            .collect();
+
         let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
-            .map(|course| CourseOccurrences {
-                occurrences: counts[&course.id],
-                course,
+            .map(|course| {
+                let organization = organization_by_id
+                    .get(&course.organization_id)
+                    .expect("course organization should exist");
+
+                CourseOccurrences {
+                    occurrences: counts[&course.id],
+                    course_url: build_course_url(
+                        &app_config.base_url,
+                        &organization.slug,
+                        &course.slug,
+                    ),
+                    course,
+                }
             })
             .collect();
 

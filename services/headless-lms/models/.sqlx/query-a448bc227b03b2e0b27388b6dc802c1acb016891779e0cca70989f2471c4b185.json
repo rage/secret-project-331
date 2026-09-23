@@ -47,7 +47,7 @@
       {
         "ordinal": 6,
         "name": "description",
-        "type_info": "Varchar",
+        "type_info": "Text",
         "origin": "Expression"
       },
       {

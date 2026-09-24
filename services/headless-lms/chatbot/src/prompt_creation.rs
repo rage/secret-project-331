@@ -32,9 +32,8 @@ pub const RESPONSE_FORMAT_NAME: &str = "PromptCreationResponse";
 /// The structured output format the description LLM is asked to answer in. Must stay in
 /// sync with [PromptCreationResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
-        name: "PromptCreationResponse".to_string(),
+    LLMRequestResponseFormatParam::JsonSchema {
+        name: RESPONSE_FORMAT_NAME.to_string(),
         schema: Schema::strict_object(
             IndexMap::from([
                 (

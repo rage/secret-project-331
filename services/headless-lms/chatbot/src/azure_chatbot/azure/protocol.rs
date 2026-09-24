@@ -3,7 +3,7 @@
 
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
-use headless_lms_utils::json_schema_types::{JSONType, Schema};
+use headless_lms_utils::json_schema_types::Schema;
 use serde::{Deserialize, Deserializer, Serialize};
 use url::Url;
 
@@ -341,13 +341,21 @@ pub enum LLMRequestParams {
     Mistral(MistralParams),
 }
 
+/// How the model is asked to shape its answer.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct LLMRequestResponseFormatParam {
-    #[serde(rename = "type")]
-    pub format_type: JSONType, //should be JsonSchema
-    pub name: String,
-    pub schema: Schema,
-    pub strict: bool, // should be true
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum LLMRequestResponseFormatParam {
+    /// An object matching `schema` exactly. Azure only accepts a restricted subset of JSON Schema
+    /// here, so a feature whose answer cannot be described in it wants `JsonObject` instead.
+    JsonSchema {
+        /// What Azure, and the test-mode mock Azure API, identify the format by.
+        name: String,
+        schema: Schema,
+        /// Should always be true: without it Azure treats the schema as a hint.
+        strict: bool,
+    },
+    /// Any valid JSON object, for an answer whose shape Azure cannot be told.
+    JsonObject,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { createCourseLanguageVersion } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -20,7 +21,7 @@ test("Creating a new language version works", async ({ page, headless }, testInf
 
   await page.locator("[aria-label=\"Manage course 'Introduction to localizing'\"] svg").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565",
+    "http://project-331.local/manage/courses/639f4d25-9376-49b5-bcca-7cba18c38565/overview",
   )
 
   await page.getByRole("tab", { name: "Language versions" }).click()
@@ -75,7 +76,7 @@ test("creator of the language version has permissions to the new version", async
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
-
+  await waitForSpinnersToDisappear(page)
   await page.locator("[aria-label=\"Manage course 'Johdatus lokalisointiin'\"] svg").click()
   await page.getByRole("tab", { name: "Permissions" }).click()
   await page.getByText("language.teacher@example.com").waitFor()

@@ -731,6 +731,7 @@ fn recover_or_terminate(
 fn tool_failure_output_for_llm(error: &ChatbotError) -> String {
     let message = match error.error_type() {
         ChatbotErrorType::FailedAzureResponse => "Azure response failed",
+        ChatbotErrorType::AzureAISearchFilterError => "Couldn't create search filter for AI search",
         _ => error.message(),
     };
     format!(

@@ -216,12 +216,11 @@ FROM (
       ) AS "block_order_numbers: Vec<Option<i32>>"
     FROM feedback
       LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
-      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id
+      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id AND feedback_categories.deleted_at IS NULL
     WHERE course_id = $1
       AND feedback.marked_as_read = $2
       AND feedback.deleted_at IS NULL
       AND block_feedback.deleted_at IS NULL
-      AND feedback_categories.deleted_at IS NULL
       AND COALESCE(feedback_categories.name, '') LIKE '%' || $5 || ''
     GROUP BY feedback.id,
       feedback.user_id,

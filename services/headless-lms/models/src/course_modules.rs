@@ -1254,13 +1254,16 @@ WHERE id = $1
     Ok(())
 }
 
-/// Whether applying `updates` would flip `enable_credit_registration_via_suotar` on any module.
+/// Whether applying `updates` to `course_id` would flip `enable_credit_registration_via_suotar` on
+/// any module.
 ///
 /// Only support may put a module on the live study registry path, but the module editor round-trips
 /// the flag on every save, so gate on an actual change rather than on the field being sent. A module
-/// the update creates, and one whose id does not resolve, count as currently off.
+/// the update creates, and one not in the course, count as currently off; [`update_modules`] rejects
+/// the latter.
 pub async fn would_change_credit_registration_via_suotar(
     conn: &mut PgConnection,
+    course_id: Uuid,
     updates: &ModuleUpdates,
 ) -> ModelResult<bool> {
     if updates
@@ -1270,12 +1273,7 @@ pub async fn would_change_credit_registration_via_suotar(
     {
         return Ok(true);
     }
-    let ids: Vec<Uuid> = updates
-        .modified_modules
-        .iter()
-        .map(|module| module.id)
-        .collect();
-    let stored: HashMap<Uuid, bool> = get_by_ids(conn, &ids)
+    let stored: HashMap<Uuid, bool> = get_by_course_id(conn, course_id)
         .await?
         .into_iter()
         .map(|module| (module.id, module.enable_credit_registration_via_suotar))
@@ -1286,12 +1284,107 @@ pub async fn would_change_credit_registration_via_suotar(
     }))
 }
 
+/// Errors with `InvalidRequest` unless `link` is empty or an absolute `https://` URL. Students get
+/// the link as an `href`, so no other scheme may be stored.
+pub fn validate_completion_registration_link(link: Option<&str>) -> ModelResult<()> {
+    let Some(link) = link.map(str::trim).filter(|link| !link.is_empty()) else {
+        return Ok(());
+    };
+    match Url::parse(link) {
+        Ok(url) if url.scheme() == "https" && url.host().is_some() => Ok(()),
+        _ => Err(model_err!(
+            InvalidRequest,
+            "The completion registration link must be an absolute https:// URL.".to_string()
+        )),
+    }
+}
+
+/// Errors with `InvalidRequest` unless every module and chapter id is a live row of `course_id`.
+async fn ensure_belong_to_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    module_ids: &[Uuid],
+    chapter_ids: &[Uuid],
+) -> ModelResult<()> {
+    let res = sqlx::query!(
+        r#"
+SELECT NOT EXISTS (
+    SELECT 1
+    FROM UNNEST($2::uuid []) AS ids(id)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM course_modules cm
+        WHERE cm.id = ids.id
+          AND cm.course_id = $1
+          AND cm.deleted_at IS NULL
+      )
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM UNNEST($3::uuid []) AS ids(id)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM chapters c
+        WHERE c.id = ids.id
+          AND c.course_id = $1
+          AND c.deleted_at IS NULL
+      )
+  ) AS "all_belong!"
+"#,
+        course_id,
+        module_ids,
+        chapter_ids,
+    )
+    .fetch_one(conn)
+    .await?;
+    if !res.all_belong {
+        return Err(model_err!(
+            InvalidRequest,
+            "Every module and chapter in the update must belong to the course.".to_string()
+        ));
+    }
+    Ok(())
+}
+
+/// Applies the module editor's changes to `course_id` in one transaction.
+///
+/// Rejects the whole update if any referenced module or chapter is not in the course, or if a
+/// completion registration link fails [`validate_completion_registration_link`].
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,
     updates: ModuleUpdates,
 ) -> ModelResult<()> {
+    for link in updates
+        .new_modules
+        .iter()
+        .map(|m| &m.completion_registration_link_override)
+        .chain(
+            updates
+                .modified_modules
+                .iter()
+                .map(|m| &m.completion_registration_link_override),
+        )
+    {
+        validate_completion_registration_link(link.as_deref())?;
+    }
+
     let mut tx = conn.begin().await?;
+
+    let module_ids: Vec<Uuid> = updates
+        .modified_modules
+        .iter()
+        .map(|m| m.id)
+        .chain(updates.deleted_modules.iter().copied())
+        .chain(updates.moved_chapters.iter().map(|(_, module)| *module))
+        .collect();
+    let chapter_ids: Vec<Uuid> = updates
+        .new_modules
+        .iter()
+        .flat_map(|m| m.chapters.iter().copied())
+        .chain(updates.moved_chapters.iter().map(|(chapter, _)| *chapter))
+        .collect();
+    ensure_belong_to_course(&mut tx, course_id, &module_ids, &chapter_ids).await?;
 
     // scramble order of modified and deleted modules
     for module_id in updates

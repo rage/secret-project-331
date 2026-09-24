@@ -74,14 +74,29 @@ fn placeholders(base_url: &str, notification: &StudentNotificationToQueue) -> se
         }
         CreditRegistrationNotificationKind::Registered => String::new(),
     };
+    let language = template_language(&notification.course_language_code);
     json!({
         "NAME": notification.first_name.clone().unwrap_or_default(),
         "COURSE_NAME": notification.course_name,
         "MODULE_NAME": notification.course_module_name.clone().unwrap_or_default(),
-        "CREDITS": notification.ects_credits.map(|credits| credits.to_string()).unwrap_or_default(),
+        "CREDITS": notification
+            .credits
+            .map(|credits| format_credits(credits, &language))
+            .unwrap_or_default(),
         "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
         "ENROLMENT_LINK": enrolment_link,
     })
+}
+
+/// `credits` as the mail's language writes a number: at most two decimals, none when whole, and a
+/// decimal comma in Finnish and Swedish.
+fn format_credits(credits: f32, language: &str) -> String {
+    let formatted = format!("{credits:.2}");
+    let formatted = formatted.trim_end_matches('0').trim_end_matches('.');
+    match language {
+        "fi" | "sv" => formatted.replace('.', ","),
+        _ => formatted.to_string(),
+    }
 }
 
 /// The page the mail sends the student to, which is where every next step already lives.

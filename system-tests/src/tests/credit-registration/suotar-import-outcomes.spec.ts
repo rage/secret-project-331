@@ -285,6 +285,8 @@ test.describe("A student whose modules are each broken in their own way", () => 
       const { registration } = await adminRegistrationDetails(adminApi, parked!.id)
       expect(registration.state).toBe("pending")
       expect(registration.pending_reason).toBe("course_code")
+      // Not a few minutes' look for an enrolment: nothing moves until staff fix the course code.
+      expect(parked!.student_facing_status).toBe("waiting_for_course_setup")
     })
 
     // The student's own payload carries a code, never the study registry's wording, so there is

@@ -17,15 +17,16 @@ use headless_lms_models::credit_registration_events::{
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
-    Transition, claim_due_for_resolve, increment_submit_retry_count,
-    lock_live_successes_for_same_module, mark_pending_superseded, set_payload_snapshot, transition,
+    RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
+    increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
+    prepare_unsent_duplicate, set_payload_snapshot, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, attained_candidates, select_enrolment,
 };
 use headless_lms_models::library::credit_registration::grade_mapping::{
-    GradeComparison, GradeSource, compare_grades, map_grade,
+    GradeComparison, GradeSource, MappedGrade, compare_grades, map_grade,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
     missing_context_outcome, submit_error_outcome, unanswered_item_outcome,
@@ -246,6 +247,11 @@ async fn apply_answer(
         Some(item) if item.status == SuotarItemStatus::Error => {
             let code = map_code(SuotarEndpoint::ResolveEnrolments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown);
+            if is_enrolment_error(code)
+                && settle_against_recorded_credits(conn, row, context, None, &event).await?
+            {
+                return Ok(false);
+            }
             let outcome = submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &facts);
             apply_outcome(
                 conn,
@@ -328,6 +334,8 @@ async fn choose(
             )
         });
     if let Some(attained) = blocking_attainment {
+        // Outside the transaction: a lost race for the attainment surfaces as a unique violation,
+        // which would abort it.
         headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
             conn,
             row.id,
@@ -335,31 +343,23 @@ async fn choose(
             Some(&attained.attainment_type),
         )
         .await?;
-        transition(
-            conn,
-            row.id,
-            &Transition {
-                event_kind: CreditRegistrationEventKind::SuotarResponse,
-                event_message: Some(
-                    "The study registry already holds an attainment at least as good for this \
-                     course, so nothing was submitted."
-                        .to_string(),
-                ),
-                suotar_api_call_id: event.suotar_api_call_id,
-                request_item_id: event.request_item_id.map(str::to_string),
-                event_details: Some(details),
-                // The row spent the Suotar round trip unlocked, so an admin action may have already
-                // moved it out of `resolving_enrolment`.
-                expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
-                ..Transition::to(CreditRegistrationState::Duplicate)
-            },
+        let mut tx = conn.begin().await?;
+        settle_unsent_duplicate(
+            &mut tx,
+            row,
+            context,
+            enrolment_grade_scale_id,
+            "The study registry already holds an attainment at least as good for this course, so \
+             nothing was submitted.",
+            &event,
         )
         .await?;
+        tx.commit().await?;
         return Ok(false);
     }
 
-    // Suotar's copy of Sisu may predate what we registered for another completion, so that is
-    // weighed too, and marked below for this one to replace if it goes out instead.
+    // Suotar's copy of Sisu may predate what we registered from another attempt, so that is weighed
+    // too, and marked below for this one to replace if it goes out instead.
     let mut tx = conn.begin().await?;
     let registered = lock_live_successes_for_same_module(&mut tx, row.id).await?;
     let registered_grades: Vec<_> = registered
@@ -368,32 +368,19 @@ async fn choose(
         .collect();
     if !registered.is_empty()
         && !improves_on_all(
-            registered_grades.iter().map(|grade| {
-                (
-                    grade.as_ref().map(|grade| grade.grade_scale_id.as_str()),
-                    grade.as_ref().map(|grade| grade.grade_id.as_str()),
-                )
-            }),
+            pairs_of(&registered_grades),
             context,
             enrolment_grade_scale_id,
         )
     {
-        transition(
+        settle_unsent_duplicate(
             &mut tx,
-            row.id,
-            &Transition {
-                event_kind: CreditRegistrationEventKind::SuotarResponse,
-                event_message: Some(
-                    "A grade at least as good is already registered for this module from another \
-                     completion, so nothing was submitted."
-                        .to_string(),
-                ),
-                suotar_api_call_id: event.suotar_api_call_id,
-                request_item_id: event.request_item_id.map(str::to_string),
-                event_details: Some(details),
-                expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
-                ..Transition::to(CreditRegistrationState::Duplicate)
-            },
+            row,
+            context,
+            enrolment_grade_scale_id,
+            "A grade at least as good is already registered for this module from another attempt, \
+             so nothing was submitted.",
+            &event,
         )
         .await?;
         tx.commit().await?;
@@ -403,6 +390,19 @@ async fn choose(
     let chosen = match chosen {
         Ok(chosen) => chosen,
         Err(reason) => {
+            if is_enrolment_error(reason.error_code())
+                && settle_against_recorded_credits(
+                    &mut tx,
+                    row,
+                    context,
+                    enrolment_grade_scale_id,
+                    &event,
+                )
+                .await?
+            {
+                tx.commit().await?;
+                return Ok(false);
+            }
             let outcome = headless_lms_models::library::credit_registration::outcomes::Outcome {
                 error_code: Some(reason.error_code()),
                 ..submit_error_outcome(
@@ -459,8 +459,8 @@ async fn choose(
     set_payload_snapshot(&mut tx, row.id, &built.snapshot).await?;
     let superseded_message = (!registered.is_empty()).then(|| {
         format!(
-            "This completion's grade {} beats the one registered from another completion, which \
-             this one supersedes once it is registered.",
+            "This attempt's grade {} beats the one registered from another attempt, which this \
+             one supersedes once it is registered.",
             built.snapshot.grade_id
         )
     });
@@ -492,6 +492,95 @@ async fn choose(
     .await?;
     tx.commit().await?;
     Ok(false)
+}
+
+/// The answers that would send the student off to enrol.
+fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
+    matches!(
+        code,
+        CreditRegistrationErrorCode::EnrolmentNotFound
+            | CreditRegistrationErrorCode::EnrolmentNotAccepted
+    )
+}
+
+/// Settles the row as `duplicate` when our own records hold a credit for the module that the grade
+/// we would send does not beat. Returns whether it did.
+///
+/// For an enrolment error: Suotar lists no existing attainments with one, and its copy of Sisu may
+/// predate a pull-path registration anyway, so a student who holds the credit would be told to enrol
+/// again. A better grade still gets the error, since an improvement needs an enrolment too.
+async fn settle_against_recorded_credits(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    context: &SubmissionContext,
+    enrolment_grade_scale_id: Option<&str>,
+    event: &OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    let recorded = get_recorded_credits_for_same_module(conn, row.id).await?;
+    if recorded.is_empty() {
+        return Ok(false);
+    }
+    let held_grades: Vec<_> = recorded.iter().map(RecordedCredit::held_grade).collect();
+    if improves_on_all(pairs_of(&held_grades), context, enrolment_grade_scale_id) {
+        return Ok(false);
+    }
+    let mut tx = conn.begin().await?;
+    settle_unsent_duplicate(
+        &mut tx,
+        row,
+        context,
+        enrolment_grade_scale_id,
+        "The study registry has no usable enrolment, but our records already hold a credit at least \
+         as good for this module, so nothing was submitted.",
+        event,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(true)
+}
+
+/// Moves a row that is not sent, because the registry already holds the credit, to `duplicate`.
+async fn settle_unsent_duplicate(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    context: &SubmissionContext,
+    enrolment_grade_scale_id: Option<&str>,
+    message: &str,
+    event: &OutcomeEvent<'_>,
+) -> anyhow::Result<()> {
+    let weighed_grade = map_grade(GradeSource {
+        passed: context.completion.passed,
+        grade: context.completion.grade,
+        enrolment_grade_scale_id,
+    })
+    .ok();
+    prepare_unsent_duplicate(conn, row.id, weighed_grade.as_ref()).await?;
+    transition(
+        conn,
+        row.id,
+        &Transition {
+            event_kind: CreditRegistrationEventKind::SuotarResponse,
+            event_message: Some(message.to_string()),
+            suotar_api_call_id: event.suotar_api_call_id,
+            request_item_id: event.request_item_id.map(str::to_string),
+            event_details: Some(suotar_exchange_details(event.request, event.response)),
+            // The row spent the Suotar round trip unlocked, so an admin action may have already
+            // moved it out of `resolving_enrolment`.
+            expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
+            ..Transition::to(CreditRegistrationState::Duplicate)
+        },
+    )
+    .await?;
+    Ok(())
+}
+
+fn pairs_of(grades: &[Option<MappedGrade>]) -> impl Iterator<Item = (Option<&str>, Option<&str>)> {
+    grades.iter().map(|grade| {
+        (
+            grade.as_ref().map(|grade| grade.grade_scale_id.as_str()),
+            grade.as_ref().map(|grade| grade.grade_id.as_str()),
+        )
+    })
 }
 
 /// Whether the grade we would send beats every grade in `held`, as `(grade_scale_id, grade_id)`

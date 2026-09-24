@@ -9,7 +9,11 @@ import {
   SUOTAR_B_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
-import { adminRegistrationDetails, makeRegistrationDueNow } from "@/utils/creditRegistrationAdmin"
+import {
+  adminRegistrationDetails,
+  adminRegistrationTransitionUrl,
+  makeRegistrationDueNow,
+} from "@/utils/creditRegistrationAdmin"
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runPhasesUpToSubmission, runVerifyPollTick } from "@/utils/suotarControl"
@@ -47,7 +51,7 @@ test.describe("A submission the study registry has not answered yet", () => {
       const hoursUntilNextPoll =
         (new Date(registration.next_attempt_at).getTime() - Date.now()) / 3_600_000
       expect(hoursUntilNextPoll).toBeLessThan(1)
-      expect(registration.resubmission_refusal).toBe("submission_pending")
+      expect(registration.resubmission_refusal).toBe("already_submitted")
     })
 
     await makeRegistrationDueNow(adminApi, submitted.id)
@@ -151,6 +155,24 @@ test.describe("A submission the study registry reversed after accepting it", () 
           "verify_attainments",
         ),
       ).toBe(before)
+    })
+
+    await test.step("Cancelling a sent row does not open a way to send it again", async () => {
+      const move = async (toState: "cancelled" | "ready_to_submit") => {
+        const response = await adminApi.post(adminRegistrationTransitionUrl(submitted.id), {
+          data: {
+            action: { kind: "state_move", to_state: toState },
+            reason: "System test: resend a row by way of cancelled.",
+          },
+        })
+        await expect(response).toBeOK()
+        return response.json()
+      }
+      expect(await move("cancelled")).toMatchObject({ refusal: null, state: "cancelled" })
+      expect(await move("ready_to_submit")).toMatchObject({
+        refusal: "already_submitted",
+        state: "cancelled",
+      })
     })
   })
 })

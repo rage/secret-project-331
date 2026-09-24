@@ -1,5 +1,8 @@
+-- Every lock is held until commit; fail fast rather than queue every reader of a hot table behind us.
+-- Statements that lock course_modules, course_module_completions, users or email_templates are last.
+SET LOCAL lock_timeout = '5s';
+
 DROP TABLE open_university_product_access_tokens;
-DROP TABLE course_module_suotar_realisations;
 
 DELETE FROM credit_registration_phase_state
 WHERE phase = 'product-token-refresh';
@@ -59,6 +62,7 @@ FROM credit_registrations cr
 
 COMMENT ON COLUMN credit_registration_preconditions.course_code_allowed IS 'False while Suotar''s last verdict on the module''s current course code says it does not accept it; true once it does, or when there is no verdict. Rows wait in pending while false, since every import would come back courseNotAllowed.';
 
+-- The old type is dropped only after course_module_suotar_realisations, which still uses it.
 ALTER TYPE credit_registration_error_code
 RENAME TO credit_registration_error_code_old;
 
@@ -89,31 +93,12 @@ CREATE TYPE credit_registration_error_code AS ENUM (
 );
 
 ALTER TABLE credit_registrations
-ALTER COLUMN error_code TYPE credit_registration_error_code USING (
-    CASE
-      error_code::text
-      WHEN 'sisu_temporarily_unavailable' THEN 'service_temporarily_unavailable'
-      WHEN 'acceptor_not_found' THEN 'unknown'
-      ELSE error_code::text
-    END
-  )::credit_registration_error_code;
+ALTER COLUMN error_code TYPE credit_registration_error_code USING error_code::text::credit_registration_error_code;
 
 ALTER TABLE credit_registration_events
-ALTER COLUMN error_code TYPE credit_registration_error_code USING (
-    CASE
-      error_code::text
-      WHEN 'sisu_temporarily_unavailable' THEN 'service_temporarily_unavailable'
-      WHEN 'acceptor_not_found' THEN 'unknown'
-      ELSE error_code::text
-    END
-  )::credit_registration_error_code;
-
-DROP TYPE credit_registration_error_code_old;
+ALTER COLUMN error_code TYPE credit_registration_error_code USING error_code::text::credit_registration_error_code;
 
 COMMENT ON TYPE credit_registration_error_code IS 'Why a credit registration is where it is. The values up to not_registered are Suotar moocfi per-item codes in snake_case; the rest are ours. service_temporarily_unavailable, not_registered and transport_error normally sit on failed_retryable, everything else on failed_permanent.';
-
-DELETE FROM suotar_api_calls
-WHERE endpoint = 'product_access_tokens';
 
 ALTER TYPE suotar_endpoint
 RENAME TO suotar_endpoint_old;
@@ -176,6 +161,13 @@ ADD COLUMN pending_superseded_by_id UUID REFERENCES credit_registrations(id),
     OR pending_superseded_by_id IS NULL
   );
 
+-- A regrade leaves the registered row live beside it until the registry holds the new grade.
+DROP INDEX uq_credit_registrations_completion;
+CREATE UNIQUE INDEX uq_credit_registrations_completion ON credit_registrations (course_module_completion_id)
+WHERE deleted_at IS NULL
+  AND superseded_by_id IS NULL
+  AND state NOT IN ('registered', 'duplicate', 'not_improved');
+
 DROP INDEX uq_credit_registrations_person_module;
 CREATE UNIQUE INDEX uq_credit_registrations_person_module ON credit_registrations (sisu_person_id, course_module_id)
 WHERE sisu_person_id IS NOT NULL
@@ -193,8 +185,8 @@ WHERE sisu_person_id IS NOT NULL
 CREATE INDEX idx_credit_registrations_pending_superseded_by ON credit_registrations (pending_superseded_by_id)
 WHERE pending_superseded_by_id IS NOT NULL;
 
-COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The newer attempt that replaced this row: a regrade of the same completion, set when that attempt is created, or another completion''s better grade, set once the study registry holds it (see pending_superseded_by_id). The old row keeps its state and terminal_at, because it really was registered.';
-COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'Another completion''s attempt with a better grade that is being sent to replace this registered row, and holds its place in uq_credit_registrations_person_module meanwhile. Becomes superseded_by_id when that attempt reaches registered or duplicate, and is cleared when it fails, is reversed, stops before sending or is cancelled. Until then this row is still the credit the study registry holds.';
+COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The later attempt that replaced this row. A registered row is superseded only once the study registry holds its replacement (see pending_superseded_by_id), and keeps its state and terminal_at, because it really was registered.';
+COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'A later attempt, a regrade of the same completion or another of the student''s completions for the module, that is being sent to replace this registered row. Until the study registry holds it, this row stays the live credit and keeps its place in uq_credit_registrations_person_module. Becomes superseded_by_id when that attempt reaches registered or duplicate, and is cleared if it stops short.';
 
 ALTER TABLE course_module_suotar_configurations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,
@@ -219,34 +211,11 @@ COMMENT ON COLUMN course_module_suotar_configurations.last_suppressed_by_dedup_c
 COMMENT ON COLUMN course_module_suotar_configurations.last_suppressed_by_rate_cap_count IS 'Of the last listing, how many mails were suppressed by a per-person rate cap.';
 COMMENT ON COLUMN course_module_suotar_configurations.last_no_address_count IS 'Of the last listing, how many persons had no usable address to mail.';
 
-ALTER TABLE course_modules DROP CONSTRAINT course_modules_one_credit_registration_path;
-
-COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'Whether the module takes part in credit registration via Suotar: the pipeline runs for it and its configuration is checked. It does not move completions onto that path by itself; only completions with register_credits_via_suotar set go there, and the rest stay with enable_registering_completion_to_uh_open_university, which may be on at the same time.';
-
-ALTER TABLE course_modules
-ADD COLUMN register_eligible_new_completions_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
-  ADD CONSTRAINT course_modules_register_new_completions_requires_suotar CHECK (
-    NOT register_eligible_new_completions_via_suotar
-    OR enable_credit_registration_via_suotar
-  );
-
-COMMENT ON COLUMN course_modules.register_eligible_new_completions_via_suotar IS 'While on, a completion created for this module gets register_credits_via_suotar set if its student then holds a live verified_student_numbers row. Checked once at creation: completions made before it was turned on are not swept in, and a student linked later is not re-checked. Set by hand only:
-UPDATE course_modules
-SET register_eligible_new_completions_via_suotar = TRUE
-WHERE id = :course_module_id
-  AND enable_credit_registration_via_suotar
-  AND deleted_at IS NULL;
-Turning it off again affects only completions created afterwards.';
-
 CREATE TYPE student_number_verification_method_new AS ENUM (
   'emailed_link',
   'admin_manual',
   'study_registry'
 );
-
--- The new type cannot say how these were proven; their students relink through the mailed link.
-DELETE FROM verified_student_numbers
-WHERE verified_via = 'email_match_fast_track';
 
 ALTER TABLE verified_student_numbers DROP CONSTRAINT verified_student_numbers_proof_address,
   DROP CONSTRAINT verified_student_numbers_match_field_method,
@@ -297,20 +266,25 @@ SELECT DISTINCT ON (r.user_id) r.id AS registered_completion_id,
   r.user_id,
   REGEXP_REPLACE(r.real_student_number, '\s', '', 'g') AS student_number
 FROM course_module_completion_registered_to_study_registries r
+  JOIN users u ON u.id = r.user_id
+  JOIN course_module_completions cmc ON cmc.id = r.course_module_completion_id
 WHERE r.deleted_at IS NULL
   AND r.study_registry_registrar_id IS NOT NULL
+  AND u.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL
 ORDER BY r.user_id,
   r.created_at DESC,
   r.id DESC;
 
-COMMENT ON VIEW study_registry_reported_student_numbers IS 'Per account, the student number a third-party registrar most recently reported registering one of its completions under, whitespace stripped. Our own mirrored rows are left out: their number came from verified_student_numbers in the first place.';
+COMMENT ON VIEW study_registry_reported_student_numbers IS 'Per live account, the student number a third-party registrar most recently reported registering one of its live completions under, whitespace stripped. Our own mirrored rows are left out: their number came from verified_student_numbers in the first place.';
 
+-- The users foreign key is added at the end, with the other locks on hot tables.
 CREATE TABLE study_registry_student_number_conflicts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  user_id UUID NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL,
   student_number VARCHAR(32) NOT NULL,
   registered_completion_id UUID NOT NULL REFERENCES course_module_completion_registered_to_study_registries(id),
   conflicting_verified_student_number_id UUID NOT NULL REFERENCES verified_student_numbers(id)
@@ -383,13 +357,14 @@ FROM study_registry_reported_student_numbers reported
   ) blocker ON TRUE
 WHERE reported.student_number ~ '^[0-9]{6,12}$';
 
-COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Set at creation only when the module has register_eligible_new_completions_via_suotar on and the student holds a live verified_student_numbers row; otherwise changed by hand only. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end. Changing it by hand is safe only while no other registrar holds or may still send the completion.';
-
 -- Soft-deleted rather than relabelled: email_deliveries reference them. deleted_at differs per row
 -- because unique_email_templates_type_language_general keys on it NULLS NOT DISTINCT.
 UPDATE email_templates t
 SET email_template_type = 'generic',
-  deleted_at = now() - (r.n * INTERVAL '1 microsecond')
+  deleted_at = COALESCE(
+    t.deleted_at,
+    now() - (r.n * INTERVAL '1 microsecond')
+  )
 FROM (
     SELECT id,
       row_number() OVER (
@@ -422,3 +397,79 @@ ALTER COLUMN email_template_type TYPE email_template_type USING (
 DROP TYPE email_template_type_old;
 
 COMMENT ON TYPE email_template_type IS 'Type of email template: generic templates do not support automated placeholder replacements, others do.';
+
+-- {{ENROLMENT_LINK}} is empty when the module has no link, so its sentence must read without it.
+INSERT INTO email_templates (email_template_type, language, subject, content)
+SELECT seed.email_template_type,
+  seed.language,
+  seed.subject,
+  seed.content
+FROM (
+    VALUES (
+        'credit_registration_action_needed'::email_template_type,
+        'en',
+        'We could not register your credits yet',
+        '[
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, we could not yet register your completion of {{COURSE_NAME}} ({{CREDITS}} cr) in the University of Helsinki study registry, because the registry has no suitable enrolment for you on the course.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000002", "attributes": {"content": "If you have not enrolled on the course yet, please enrol. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000003", "attributes": {"content": "We check your enrolment again every day and register the credits automatically once it is in order.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000004", "attributes": {"content": "You can see the details and what to do next here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+        ]'::jsonb
+      ),
+      (
+        'credit_registration_action_needed'::email_template_type,
+        'fi',
+        'Opintopisteitäsi ei voitu vielä kirjata',
+        '[
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, kurssin {{COURSE_NAME}} suoritustasi ({{CREDITS}} op) ei voitu vielä kirjata Helsingin yliopiston opintorekisteriin, koska rekisterissä ei ole sinulle kurssille sopivaa ilmoittautumista.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos et ole vielä ilmoittautunut kurssille, ilmoittauduthan. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000003", "attributes": {"content": "Tarkistamme ilmoittautumisesi päivittäin ja kirjaamme opintopisteet automaattisesti, kun ilmoittautuminen on kunnossa.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000004", "attributes": {"content": "Näet tarkemmat tiedot ja jatko-ohjeet täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+        ]'::jsonb
+      ),
+      (
+        'credit_registration_registered'::email_template_type,
+        'en',
+        'Your credits have been registered',
+        '[
+          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, your completion of {{COURSE_NAME}} ({{CREDITS}} cr) is now recorded in the University of Helsinki study registry.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000002", "attributes": {"content": "If it was already recorded there, this message simply confirms it. You can see the details here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+        ]'::jsonb
+      ),
+      (
+        'credit_registration_registered'::email_template_type,
+        'fi',
+        'Opintopisteesi on kirjattu',
+        '[
+          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, kurssin {{COURSE_NAME}} suorituksesi ({{CREDITS}} op) on nyt kirjattu Helsingin yliopiston opintorekisteriin.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos suoritus oli jo kirjattu sinne aiemmin, tämä viesti vain vahvistaa asian. Näet tiedot täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+        ]'::jsonb
+      )
+  ) AS seed(email_template_type, language, subject, content)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM email_templates existing
+    WHERE existing.email_template_type = seed.email_template_type
+      AND existing.language = seed.language
+      AND existing.course_id IS NULL
+      AND existing.deleted_at IS NULL
+  );
+
+DROP TABLE course_module_suotar_realisations;
+
+DROP TYPE credit_registration_error_code_old;
+
+ALTER TABLE study_registry_student_number_conflicts
+ADD FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE course_modules DROP CONSTRAINT course_modules_one_credit_registration_path,
+  ADD COLUMN register_eligible_new_completions_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD CONSTRAINT course_modules_register_new_completions_requires_suotar CHECK (
+    NOT register_eligible_new_completions_via_suotar
+    OR enable_credit_registration_via_suotar
+  );
+
+COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'Whether the module takes part in credit registration via Suotar: the pipeline runs for it and its configuration is checked. It does not move completions onto that path by itself; only completions with register_credits_via_suotar set go there, and the rest stay with enable_registering_completion_to_uh_open_university, which may be on at the same time.';
+COMMENT ON COLUMN course_modules.register_eligible_new_completions_via_suotar IS 'While on, a completion created for this module gets register_credits_via_suotar set if its student then holds a live verified_student_numbers row. Checked once at creation: completions made before it was turned on are not swept in, a student linked later is not re-checked, and turning it off affects only completions created afterwards. Set by hand only.';
+
+COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Set at creation only when the module has register_eligible_new_completions_via_suotar on and the student holds a live verified_student_numbers row; otherwise changed by hand only. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end. Changing it by hand is safe only while no other registrar holds or may still send the completion.';

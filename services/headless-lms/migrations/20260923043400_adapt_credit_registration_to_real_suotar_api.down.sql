@@ -1,11 +1,15 @@
+-- Every lock is held until commit; fail fast rather than queue every reader of a hot table behind us.
+-- Statements that lock course_modules, course_module_completions, users or the legacy registration
+-- table are last.
+SET LOCAL lock_timeout = '5s';
+
 ALTER TYPE email_template_type
 ADD VALUE 'credit_registration_student_number_linked';
 
-COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar; never recomputed, so a module switched on or off mid-course leaves completions already made where they were. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
+-- Frees the study_registry links deleted below; the table itself is dropped at the end.
+DELETE FROM study_registry_student_number_conflicts;
 
-DROP TABLE study_registry_student_number_conflicts;
 DROP VIEW study_registry_reported_student_numbers;
-DROP INDEX idx_cmc_registered_to_study_registries_registrar_user;
 
 -- The old schema can hold neither the method nor a link without a person id.
 DELETE FROM verified_student_numbers
@@ -55,22 +59,6 @@ COMMENT ON COLUMN verified_student_numbers.verified_via_email_match_field IS 'Wh
 COMMENT ON COLUMN verified_student_numbers.account_email_verified_at IS 'The account email verification timestamp as it stood at link time, frozen here on purpose: user_details.email_verified_at is cleared on the next address change, and an audit years later must still be able to answer how old the proof was.';
 COMMENT ON COLUMN verified_student_numbers.auto_link_notice_dismissed_at IS 'When the student dismissed the notice telling them this link was made automatically. Only ever set for verified_via = email_match_fast_track; the notice and its one-click unlink are the compensating control for linking without asking.';
 
-ALTER TABLE course_modules DROP CONSTRAINT course_modules_register_new_completions_requires_suotar,
-  DROP COLUMN register_eligible_new_completions_via_suotar;
--- The old schema keeps the two paths exclusive; the open university one is what most students use.
-UPDATE course_modules
-SET enable_credit_registration_via_suotar = FALSE
-WHERE enable_credit_registration_via_suotar
-  AND enable_registering_completion_to_uh_open_university;
-ALTER TABLE course_modules
-ADD CONSTRAINT course_modules_one_credit_registration_path CHECK (
-    NOT (
-      enable_credit_registration_via_suotar
-      AND enable_registering_completion_to_uh_open_university
-    )
-  ) NOT VALID;
-COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. The course_modules_one_credit_registration_path constraint keeps it mutually exclusive with enable_registering_completion_to_uh_open_university, because both paths would register the same attainment in Sisu; while it is on, the legacy pull API must not see this modules completions.';
-
 ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempted_at,
   DROP COLUMN last_listed_at,
   DROP COLUMN last_listing_error,
@@ -82,11 +70,10 @@ ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempt
   DROP COLUMN last_suppressed_by_rate_cap_count,
   DROP COLUMN last_no_address_count;
 
-UPDATE credit_registrations
-SET superseded_by_id = pending_superseded_by_id,
-  superseded_at = now(),
-  pending_superseded_by_id = NULL
-WHERE pending_superseded_by_id IS NOT NULL;
+DROP INDEX uq_credit_registrations_completion;
+CREATE UNIQUE INDEX uq_credit_registrations_completion ON credit_registrations (course_module_completion_id)
+WHERE deleted_at IS NULL
+  AND superseded_by_id IS NULL;
 
 ALTER TABLE credit_registrations DROP COLUMN pending_superseded_by_id;
 
@@ -111,18 +98,6 @@ ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_c
   DROP COLUMN selected_enrolment_realisation_name,
   DROP COLUMN resubmit_not_before;
 
--- A duplicateRequestItem twin shares its earlier item's id; the oldest row keeps it.
-UPDATE credit_registrations twin
-SET submitted_attainment_id = NULL
-WHERE twin.submitted_attainment_id IS NOT NULL
-  AND twin.deleted_at IS NULL
-  AND EXISTS (
-    SELECT 1
-    FROM credit_registrations earlier
-    WHERE earlier.submitted_attainment_id = twin.submitted_attainment_id
-      AND earlier.deleted_at IS NULL
-      AND (earlier.created_at, earlier.id) < (twin.created_at, twin.id)
-  );
 CREATE UNIQUE INDEX uq_credit_registrations_submitted_attainment ON credit_registrations (submitted_attainment_id)
 WHERE submitted_attainment_id IS NOT NULL
   AND deleted_at IS NULL;
@@ -132,6 +107,7 @@ ALTER TABLE suotar_api_calls DROP COLUMN request_item_ids;
 DROP INDEX idx_credit_registration_events_request_item_id;
 ALTER TABLE credit_registration_events DROP COLUMN request_item_id;
 
+-- NOT NULL because the code this reverts to reads it as a String.
 ALTER TABLE credit_registrations
 ADD COLUMN request_item_id VARCHAR(128);
 UPDATE credit_registrations
@@ -141,8 +117,6 @@ ALTER COLUMN request_item_id
 SET NOT NULL;
 CREATE UNIQUE INDEX uq_credit_registrations_request_item_id ON credit_registrations (request_item_id);
 
-DELETE FROM suotar_api_calls
-WHERE endpoint = 'validate_course_codes';
 ALTER TYPE suotar_endpoint
 RENAME TO suotar_endpoint_new;
 CREATE TYPE suotar_endpoint AS ENUM (
@@ -184,25 +158,9 @@ CREATE TYPE credit_registration_error_code AS ENUM (
   'unknown'
 );
 ALTER TABLE credit_registrations
-ALTER COLUMN error_code TYPE credit_registration_error_code USING (
-    CASE
-      error_code::text
-      WHEN 'service_temporarily_unavailable' THEN 'sisu_temporarily_unavailable'
-      WHEN 'grade_scale_mismatch' THEN 'unknown'
-      WHEN 'not_registered' THEN 'unknown'
-      ELSE error_code::text
-    END
-  )::credit_registration_error_code;
+ALTER COLUMN error_code TYPE credit_registration_error_code USING error_code::text::credit_registration_error_code;
 ALTER TABLE credit_registration_events
-ALTER COLUMN error_code TYPE credit_registration_error_code USING (
-    CASE
-      error_code::text
-      WHEN 'service_temporarily_unavailable' THEN 'sisu_temporarily_unavailable'
-      WHEN 'grade_scale_mismatch' THEN 'unknown'
-      WHEN 'not_registered' THEN 'unknown'
-      ELSE error_code::text
-    END
-  )::credit_registration_error_code;
+ALTER COLUMN error_code TYPE credit_registration_error_code USING error_code::text::credit_registration_error_code;
 DROP TYPE credit_registration_error_code_new;
 
 DROP VIEW credit_registration_preconditions;
@@ -237,10 +195,6 @@ ALTER TABLE course_module_suotar_configurations DROP CONSTRAINT course_module_su
   ADD COLUMN product_token_found BOOLEAN,
   ADD COLUMN grade_scale_id VARCHAR(64);
 COMMENT ON COLUMN course_module_suotar_configurations.grade_scale_id IS 'Per-module override of the Sisu grade scale id. NULL means derive it from the completion.';
--- A check that got no verdict has no representation in the old schema, so it reads as never run.
-UPDATE course_module_suotar_configurations
-SET config_checked_at = NULL
-WHERE course_code_resolves IS NULL;
 ALTER TABLE course_module_suotar_configurations
 ADD CONSTRAINT course_module_suotar_configurations_check_result CHECK (
     (config_checked_at IS NULL) = (
@@ -251,6 +205,46 @@ ADD CONSTRAINT course_module_suotar_configurations_check_result CHECK (
 
 INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
 VALUES ('product-token-refresh', 'suotar-syncer', 21600);
+
+CREATE TABLE open_university_product_access_tokens (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  open_university_product_id VARCHAR(255) NOT NULL,
+  access_token VARCHAR(255),
+  state VARCHAR(64),
+  document_state VARCHAR(64),
+  suotar_token_id VARCHAR(255),
+  last_refreshed_at TIMESTAMP WITH TIME ZONE,
+  last_refresh_failed_at TIMESTAMP WITH TIME ZONE,
+  last_refresh_error TEXT,
+  consecutive_failures INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE
+);
+CREATE UNIQUE INDEX uq_ou_product_access_tokens_product ON open_university_product_access_tokens (open_university_product_id, deleted_at) NULLS NOT DISTINCT;
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON open_university_product_access_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+DROP TABLE study_registry_student_number_conflicts;
+DROP INDEX idx_cmc_registered_to_study_registries_registrar_user;
+
+ALTER TABLE course_modules DROP CONSTRAINT course_modules_register_new_completions_requires_suotar,
+  DROP COLUMN register_eligible_new_completions_via_suotar;
+-- The old schema keeps the two paths exclusive; the open university one is what most students use.
+UPDATE course_modules
+SET enable_credit_registration_via_suotar = FALSE
+WHERE enable_credit_registration_via_suotar
+  AND enable_registering_completion_to_uh_open_university;
+ALTER TABLE course_modules
+ADD CONSTRAINT course_modules_one_credit_registration_path CHECK (
+    NOT (
+      enable_credit_registration_via_suotar
+      AND enable_registering_completion_to_uh_open_university
+    )
+  ) NOT VALID;
+COMMENT ON COLUMN course_modules.enable_credit_registration_via_suotar IS 'The per-module opt-in for credit registration via Suotar, and the rollout switch. The course_modules_one_credit_registration_path constraint keeps it mutually exclusive with enable_registering_completion_to_uh_open_university, because both paths would register the same attainment in Sisu; while it is on, the legacy pull API must not see this modules completions.';
+
+COMMENT ON COLUMN course_module_completions.register_credits_via_suotar IS 'Whether this completion goes through the push path rather than being registered the old way. Decided once, when the completion is created, from the module''s enable_credit_registration_via_suotar; never recomputed, so a module switched on or off mid-course leaves completions already made where they were. Load-bearing in three places that must agree: credit_registration_eligible_completions admits only rows with this set, the pull path skips exactly those rows, and the student is shown the new registration page for them. A row with this false is registered the old way end to end.';
 
 CREATE TABLE course_module_suotar_realisations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -286,22 +280,3 @@ CREATE UNIQUE INDEX uq_course_module_suotar_realisations ON course_module_suotar
 ) NULLS NOT DISTINCT;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_module_suotar_realisations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-
-CREATE TABLE open_university_product_access_tokens (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  open_university_product_id VARCHAR(255) NOT NULL,
-  access_token VARCHAR(255),
-  state VARCHAR(64),
-  document_state VARCHAR(64),
-  suotar_token_id VARCHAR(255),
-  last_refreshed_at TIMESTAMP WITH TIME ZONE,
-  last_refresh_failed_at TIMESTAMP WITH TIME ZONE,
-  last_refresh_error TEXT,
-  consecutive_failures INT NOT NULL DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMP WITH TIME ZONE
-);
-CREATE UNIQUE INDEX uq_ou_product_access_tokens_product ON open_university_product_access_tokens (open_university_product_id, deleted_at) NULLS NOT DISTINCT;
-CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON open_university_product_access_tokens FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

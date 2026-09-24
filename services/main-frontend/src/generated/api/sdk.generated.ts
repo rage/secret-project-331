@@ -775,6 +775,7 @@ import type {
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponses,
   UpdateCourseModulesData,
+  UpdateCourseModulesErrors,
   UpdateCourseModulesResponses,
   UpdateCoursePageOrderingData,
   UpdateCoursePageOrderingResponses,
@@ -2891,8 +2892,13 @@ export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean =
 
 export const updateCourseModules = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCourseModulesData, ThrowOnError>,
-): RequestResult<UpdateCourseModulesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<UpdateCourseModulesResponses, unknown, ThrowOnError, "data">({
+): RequestResult<UpdateCourseModulesResponses, UpdateCourseModulesErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UpdateCourseModulesResponses,
+    UpdateCourseModulesErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/course-modules",
     ...options,

@@ -4545,6 +4545,7 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
   "needs_student_number",
   "looking_for_enrolment",
   "needs_enrolment",
+  "waiting_for_course_setup",
   "sending",
   "waiting_for_sisu",
   "registered",
@@ -4702,11 +4703,10 @@ export const zAdminVerifiedStudentNumberRow = z.object({
 })
 
 /**
- * The account's linked student number, unmasked: it is the holder's own.
+ * The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
+ * Sisu-held names.
  */
 export const zMyVerifiedStudentNumber = z.object({
-  first_names: z.string().nullish(),
-  last_name: z.string().nullish(),
   student_number: z.string(),
   verified_at: z.iso.datetime(),
   verified_via: zStudentNumberVerificationMethod,
@@ -4824,7 +4824,7 @@ export const zPageAdminVerifiedStudentNumberRow = z.object({
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token.
+ * able to spend the token. Deliberately carries no Sisu-held names.
  */
 export const zStudentNumberVerificationTokenPreview = z.object({
   already_used: z.boolean(),
@@ -4836,8 +4836,6 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   emailed_to_masked: z.string(),
   expired: z.boolean(),
   expires_at: z.iso.datetime(),
-  first_names: z.string().nullish(),
-  last_name: z.string().nullish(),
   student_number: z.string(),
   target_account_email: z.string(),
 })

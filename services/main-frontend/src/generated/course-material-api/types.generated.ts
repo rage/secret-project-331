@@ -1363,7 +1363,9 @@ export type UserModuleCompletionStatus = {
   passed?: boolean | null
   prerequisite_modules_completed: boolean
   /**
-   * Whether the shown completion goes through the push path. False without one.
+   * Whether the module's registration flow is the push path, decided by
+   * [`course_module_completions::select_registration_completion`] rather than by the shown
+   * completion. False when no completion is shown.
    */
   register_credits_via_suotar: boolean
 }

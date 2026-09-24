@@ -3249,6 +3249,9 @@
         "responses": {
           "200": {
             "description": "Course modules updated"
+          },
+          "400": {
+            "description": "A module or chapter is not in the course, or a completion registration link is not https"
           }
         }
       }
@@ -17706,7 +17709,7 @@
           "not_registering_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Blocked or cancelled: nothing is happening and nothing will."
+            "description": "Blocked, cancelled or held until the course's settings are fixed: nothing is moving."
           },
           "paused": {
             "type": "boolean"
@@ -23135,7 +23138,7 @@
           },
           "supports_credit_registration": {
             "type": "boolean",
-            "description": "Whether this student's credits for the module go through credit registration via Suotar: the\nshown completion's own flag, or, before one exists, whether a new one would get it."
+            "description": "Whether this student's credits for the module go through credit registration via Suotar: the\nflag of the completion [`models::course_module_completions::select_registration_completion`]\npicks, or, before a completion is shown, whether a new one would get it."
           },
           "total_exercises": {
             "type": ["integer", "null"],
@@ -23171,15 +23174,9 @@
       },
       "MyVerifiedStudentNumber": {
         "type": "object",
-        "description": "The account's linked student number, unmasked: it is the holder's own.",
+        "description": "The account's linked student number, unmasked: it is the holder's own. Deliberately carries no\nSisu-held names.",
         "required": ["student_number", "verified_at", "verified_via"],
         "properties": {
-          "first_names": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
-          },
           "student_number": {
             "type": "string"
           },
@@ -26186,6 +26183,7 @@
           "needs_student_number",
           "looking_for_enrolment",
           "needs_enrolment",
+          "waiting_for_course_setup",
           "sending",
           "waiting_for_sisu",
           "registered",
@@ -26200,7 +26198,7 @@
       },
       "StudentNumberVerificationTokenPreview": {
         "type": "object",
-        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token.",
+        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token. Deliberately carries no Sisu-held names.",
         "required": [
           "student_number",
           "emailed_to_masked",
@@ -26243,12 +26241,6 @@
           "expires_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "first_names": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
           },
           "student_number": {
             "type": "string"
@@ -27164,7 +27156,7 @@
           "certificate_configuration_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "`Some` only when the student can generate a certificate for this module right now, which is\nalso the id `/generate-certificate` wants.\n\nRead off the same completion as the rest of this object, the latest one. The course page's\ncongratulations card reads off the best one instead, so a student whose newest completion is\nnot their best can see a certificate there and none here."
+            "description": "`Some` only when the student can generate a certificate for this module right now, which is\nalso the id `/generate-certificate` wants.\n\nRead off the same completion as the rest of this object, the one\n[`course_module_completions::select_registration_completion`] picks. The course page's\ncongratulations card reads off the best one instead, so a student whose registration\ncompletion is not their best can see a certificate there and none here."
           },
           "course_module_completion_id": {
             "type": "string",

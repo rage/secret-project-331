@@ -767,9 +767,10 @@ pub struct UserCompletionInformation {
     /// `Some` only when the student can generate a certificate for this module right now, which is
     /// also the id `/generate-certificate` wants.
     ///
-    /// Read off the same completion as the rest of this object, the latest one. The course page's
-    /// congratulations card reads off the best one instead, so a student whose newest completion is
-    /// not their best can see a certificate there and none here.
+    /// Read off the same completion as the rest of this object, the one
+    /// [`course_module_completions::select_registration_completion`] picks. The course page's
+    /// congratulations card reads off the best one instead, so a student whose registration
+    /// completion is not their best can see a certificate there and none here.
     pub certificate_configuration_id: Option<Uuid>,
     /// Why the student said they need the credits rather than a certificate, if they have been
     /// asked and answered. Advisory; it seeds the field when they come back to the page.
@@ -804,12 +805,13 @@ pub async fn get_user_completion_information(
 ) -> ModelResult<UserCompletionInformation> {
     let user = users::get_by_id(conn, user_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
-    let course_module_completion = course_module_completions::get_latest_by_course_and_user_ids(
-        conn,
-        course_module.id,
-        user.id,
-    )
-    .await?;
+    let course_module_completion =
+        course_module_completions::get_registration_completion_by_user_and_course_module_id(
+            conn,
+            user.id,
+            course_module.id,
+        )
+        .await?;
     let credit_registration_config =
         course_modules::get_credit_registration_config(conn, course_module.id).await?;
     // The push path explains a missing course code on its own status page, so failing here would
@@ -883,7 +885,9 @@ pub struct UserModuleCompletionStatus {
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub enable_credit_registration_via_suotar: bool,
-    /// Whether the shown completion goes through the push path. False without one.
+    /// Whether the module's registration flow is the push path, decided by
+    /// [`course_module_completions::select_registration_completion`] rather than by the shown
+    /// completion. False when no completion is shown.
     pub register_credits_via_suotar: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
@@ -902,17 +906,33 @@ pub async fn get_user_module_completion_statuses_for_course(
         course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
             .await?;
 
-    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+    let completions_by_module: HashMap<Uuid, Vec<CourseModuleCompletion>> =
         course_module_completions_raw
             .into_iter()
-            .sorted_by_key(|c| c.course_module_id)
-            .chunk_by(|c| c.course_module_id)
-            .into_iter()
-            .filter_map(|(module_id, group)| {
-                crate::course_module_completions::select_best_completion(group.collect())
-                    .map(|best| (module_id, best))
-            })
-            .collect();
+            .into_group_map_by(|c| c.course_module_id);
+    // A completion that still needs review (e.g. because the student was auto-flagged as a
+    // suspected cheater) is hidden from the student, as if it did not exist yet, so a flagged
+    // student cannot infer from the API that they are under suspicion.
+    let best_visible_completions: HashMap<Uuid, CourseModuleCompletion> = completions_by_module
+        .iter()
+        .filter_map(|(module_id, completions)| {
+            let visible = completions
+                .iter()
+                .filter(|c| !c.needs_to_be_reviewed)
+                .cloned()
+                .collect();
+            course_module_completions::select_best_completion(visible)
+                .map(|best| (*module_id, best))
+        })
+        .collect();
+    let registers_via_suotar_module_ids: HashSet<Uuid> = completions_by_module
+        .into_iter()
+        .filter_map(|(module_id, completions)| {
+            course_module_completions::select_registration_completion(completions)
+                .filter(|c| c.register_credits_via_suotar)
+                .map(|_| module_id)
+        })
+        .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
 
@@ -925,13 +945,7 @@ pub async fn get_user_module_completion_statuses_for_course(
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
-            // A completion that still needs review (e.g. because the student was auto-flagged
-            // as a suspected cheater) is hidden from the student: the module is reported as if
-            // it simply has not been completed yet. This way a flagged student cannot infer
-            // from the API that they are under suspicion.
-            let completion = course_module_completions
-                .get(&module.id)
-                .filter(|c| !c.needs_to_be_reviewed);
+            let completion = best_visible_completions.get(&module.id);
             let passed = completion.map(|x| x.passed);
             let certificate_configuration_id =
                 if module.certification_enabled && passed == Some(true) {
@@ -956,8 +970,8 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .enable_registering_completion_to_uh_open_university,
                 enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
                     .contains(&module.id),
-                register_credits_via_suotar: completion
-                    .is_some_and(|x| x.register_credits_via_suotar),
+                register_credits_via_suotar: completion.is_some()
+                    && registers_via_suotar_module_ids.contains(&module.id),
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
             }
@@ -986,22 +1000,35 @@ pub async fn get_completion_registration_link_and_save_attempt(
     }
     let user = users::get_by_id(conn, user_id).await?;
 
-    let course_module_completion = course_module_completions::get_latest_by_course_and_user_ids(
-        conn,
-        course_module.id,
-        user.id,
-    )
-    .await?;
+    let course_module_completion =
+        course_module_completions::get_registration_completion_by_user_and_course_module_id(
+            conn,
+            user.id,
+            course_module.id,
+        )
+        .await?;
+    // Same condition as the registration page's choice of flow.
+    if course_module.enable_credit_registration_via_suotar
+        && course_module_completion.register_credits_via_suotar
+    {
+        return Err(model_err!(
+            InvalidRequest,
+            "This completion is registered through the study registry.".to_string()
+        ));
+    }
     course_module_completions::update_completion_registration_attempt_date(
         conn,
         course_module_completion.id,
         Utc::now(),
     )
     .await?;
-    let registration_link = if let Some(link_override) =
-        course_module.completion_registration_link_override.as_ref()
+    let registration_link = if let Some(link_override) = course_module
+        .completion_registration_link_override
+        .as_deref()
+        .map(str::trim)
+        .filter(|link| !link.is_empty())
     {
-        link_override.clone()
+        link_override.to_owned()
     } else {
         let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
             ModelError::new(

@@ -40,7 +40,7 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   // The token carries no account, so this display is all that stands between a forwarded email and
   // the wrong account.
   await expect(page.getByText("900000201")).toBeVisible()
-  await expect(page.getByText("Zzyzx Linkvalid")).toBeVisible()
+  await expect(page.getByText("Zzyzx Linkvalid")).toHaveCount(0)
   await expect(page.getByText(CLAIMER_EMAIL)).toBeVisible()
   await accessibilityCheck(page, "Student number linking confirmation")
 
@@ -53,10 +53,13 @@ test("A preview consumes nothing, and confirming links the number to the logged-
 
   const response = await page.request.get(`${CREDIT_REGISTRATIONS_API}/my/student-number`)
   await expect(response).toBeOK()
-  expect(await response.json()).toMatchObject({
+  const link = await response.json()
+  expect(link).toMatchObject({
     student_number: "900000201",
     verified_via: "emailed_link",
   })
+  expect(link).not.toHaveProperty("first_names")
+  expect(link).not.toHaveProperty("last_name")
 })
 
 test("An expired link and an already-used link say different things", async ({ page }) => {

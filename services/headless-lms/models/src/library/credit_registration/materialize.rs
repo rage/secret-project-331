@@ -5,7 +5,7 @@
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, mark_superseded, transition_batch,
+    mark_improvement_checked, transition_batch,
 };
 use crate::prelude::*;
 
@@ -158,17 +158,18 @@ LIMIT $2
     Ok(res)
 }
 
-/// Supersedes accepted attempts whose completion has since been graded higher, and starts the next
-/// attempt at `ready_to_submit`; returns how many were started.
+/// Starts a new attempt at `ready_to_submit` for every accepted attempt whose completion has since
+/// been graded higher; returns how many were started.
 ///
 /// Only a strictly better grade on the same scale qualifies, so a downward correction and a
 /// cross-scale change both do nothing at all. Rows in `submission_uncertain` are deliberately not
 /// candidates: whether their import landed is unknown, and a successor would risk a second
-/// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
+/// attainment.
 ///
-/// A better grade that arrives as a new completion is not this: resolve-enrolments weighs it against
-/// [`crate::credit_registrations::lock_live_successes_for_same_module`], and the rows it replaces
-/// are left alone here until it is registered or gives up.
+/// The accepted attempt stays the live credit: resolve-enrolments weighs the new one against it
+/// through [`crate::credit_registrations::lock_live_successes_for_same_module`], exactly as it does a
+/// better grade that arrives as a new completion, and marks it for replacement only if the new one
+/// goes out.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -202,6 +203,15 @@ WHERE cr.deleted_at IS NULL
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
   AND cr.grade_id IS NOT NULL
+  -- Only the latest attempt: a newer one, even one that stopped short, reads the completion's grade
+  -- afresh whenever it resolves again.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations later
+    WHERE later.course_module_completion_id = cr.course_module_completion_id
+      AND later.attempt_number > cr.attempt_number
+      AND later.deleted_at IS NULL
+  )
   -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot
   -- have been regraded after that attempt froze its grade; but one touched for any other reason
   -- passes that test forever, and only the grade comparison below can tell the two apart, which is
@@ -251,15 +261,9 @@ LIMIT $1
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
-        // `uq_credit_registrations_completion` allows one live attempt per completion, so the old
-        // one has to point away before the successor is inserted. The successor's id is allocated
-        // here rather than by the database because of that order; the deferred foreign key is what
-        // lets the pointer name a row this transaction has not written yet.
-        let next = Uuid::new_v4();
-        mark_superseded(&mut tx, candidate.id, next).await?;
-        crate::credit_registrations::insert(
+        let next = crate::credit_registrations::insert(
             &mut tx,
-            PKeyPolicy::Fixed(next),
+            PKeyPolicy::Generate,
             &NewCreditRegistration {
                 course_module_completion_id: candidate.course_module_completion_id,
                 user_id: candidate.user_id,
@@ -269,8 +273,8 @@ LIMIT $1
                 attempt_number: candidate.attempt_number + 1,
             },
             Some(&format!(
-                "The completion's grade rose from {} to {}, so the registered attempt was \
-                 superseded.",
+                "The completion's grade rose from {} to {}. The registered attempt stays the credit \
+                 until this one is registered in its place.",
                 candidate.registered_grade_id, mapped.grade_id
             )),
         )

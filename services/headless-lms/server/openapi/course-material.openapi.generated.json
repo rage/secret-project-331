@@ -7083,7 +7083,7 @@
           },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether the shown completion goes through the push path. False without one."
+            "description": "Whether the module's registration flow is the push path, decided by\n[`course_module_completions::select_registration_completion`] rather than by the shown\ncompletion. False when no completion is shown."
           }
         }
       },

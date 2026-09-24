@@ -205,10 +205,9 @@ impl CreditRegistrationState {
     /// Whether a row in `self` may move back to `ready_to_submit`, and why not if it may not.
     ///
     /// One precedence shared by the teacher-facing retry and the admin ledger's hand transitions;
-    /// `strictness` is how far outside a failure a caller may move a row from. A row `submitting` or
-    /// `awaiting_verification` is refused at every strictness, and bulk also refuses any row that ever
-    /// reached Suotar, so `submission_uncertain` -> `cancelled` -> `ready_to_submit` cannot bypass the
-    /// uncertain check.
+    /// `strictness` is how far outside a failure a caller may move a row from. A row that has been
+    /// sent is refused at every strictness unless its state says the submission cannot count twice,
+    /// so `awaiting_verification` -> `cancelled` -> `ready_to_submit` cannot launder a resend.
     pub fn resubmission_refusal(
         self,
         superseded: bool,
@@ -228,20 +227,46 @@ impl CreditRegistrationState {
         if strictness != ResubmissionStrictness::Any && self == Self::SubmissionUncertain {
             return Some(ResubmissionRefusal::SubmissionUncertain);
         }
+        if submitted_at.is_some() && !self.may_resend_after_sending(strictness) {
+            return Some(ResubmissionRefusal::AlreadySubmitted);
+        }
         if strictness == ResubmissionStrictness::OnlyFailedPermanent
             && self != Self::FailedPermanent
         {
             return Some(ResubmissionRefusal::NotFailedPermanent);
         }
-        if strictness == ResubmissionStrictness::AnyExceptSubmissionUncertain
-            && submitted_at.is_some()
-        {
-            return Some(ResubmissionRefusal::AlreadySubmitted);
-        }
         if resubmit_not_before.is_some_and(|not_before| Utc::now() < not_before) {
             return Some(ResubmissionRefusal::SubmissionPending);
         }
         None
+    }
+
+    /// Whether a row that has been sent may be sent again from this state. The outcomes lead a
+    /// possibly landed import back towards `import` only on Suotar's `notRegistered`, so the pipeline
+    /// states here mean nothing landed.
+    fn may_resend_after_sending(self, strictness: ResubmissionStrictness) -> bool {
+        match self {
+            Self::Pending
+            | Self::ReadyToSubmit
+            | Self::ResolvingEnrolment
+            | Self::CheckingEnrolment
+            | Self::NoUsableEnrolment
+            | Self::FailedRetryable
+            | Self::FailedPermanent
+            | Self::Blocked => true,
+            // Whether the attainment landed, or Sisu voided it, is for someone looking at this one
+            // row to have checked.
+            Self::SubmissionUncertain | Self::Misregistered => {
+                strictness == ResubmissionStrictness::Any
+            }
+            // `cancelled` may be a hand cancellation of a row still awaiting verification.
+            Self::Submitting
+            | Self::AwaitingVerification
+            | Self::Registered
+            | Self::Duplicate
+            | Self::NotImproved
+            | Self::Cancelled => false,
+        }
     }
 
     /// Why a hand transition of this row to `target` is refused, or `None` if it may go ahead.
@@ -348,7 +373,7 @@ pub enum ResubmissionStrictness {
     /// The automatic teacher retry: only a row that failed for good may go back on the pipeline,
     /// because a row this always refuses would otherwise occupy a slot of the bulk cap forever.
     OnlyFailedPermanent,
-    /// An admin's bulk hand transition: any state may move, except `submission_uncertain`, which
+    /// An admin's bulk hand transition: [`Self::Any`] minus `submission_uncertain`, which
     /// re-importing could put a second attainment on a real transcript over, so it needs a human
     /// looking at that one row rather than a checkbox in a list.
     AnyExceptSubmissionUncertain,
@@ -500,8 +525,8 @@ pub struct CreditRegistration {
     pub selected_enrolment_realisation_name: Option<serde_json::Value>,
     /// Suotar's `retryAfter` for a pending submission; resubmitting earlier may duplicate it.
     pub resubmit_not_before: Option<DateTime<Utc>>,
-    /// Another completion's attempt on its way to replace this registered row; see
-    /// [`mark_pending_superseded`]. Until it lands this row is still the credit Sisu holds.
+    /// A later attempt on its way to replace this registered row; see [`mark_pending_superseded`].
+    /// Until it lands this row is still the credit Sisu holds.
     pub pending_superseded_by_id: Option<Uuid>,
 }
 
@@ -1442,6 +1467,7 @@ pub struct StudentCreditRegistration {
     pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
 }
 
 impl StudentCreditRegistration {
@@ -1450,7 +1476,7 @@ impl StudentCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.has_verified_student_number,
-            course_code_allowed: true,
+            course_code_allowed: self.course_code_allowed,
         }
     }
 
@@ -1517,7 +1543,8 @@ SELECT cr.id,
   cr.submitted_at,
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
-  p.has_verified_student_number AS "has_verified_student_number!"
+  p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -1954,12 +1981,11 @@ WHERE id = $1
 /// Points an old attempt at the newer one that replaced it. The old row keeps its state and
 /// `terminal_at`: it really was registered.
 ///
-/// For a regrade of the same completion. Another completion's better grade goes through
-/// [`mark_pending_superseded`] instead.
+/// For fixtures planting a finished replacement. The pipeline goes through
+/// [`mark_pending_superseded`], which supersedes the row only once the new attempt is registered.
 ///
 /// `superseded_by_id` may name a row that does not exist yet, as long as it is inserted before the
-/// caller's transaction commits: the foreign key is deferred, which is what lets the successor take
-/// the completion's one live slot without the old attempt ever pointing at itself.
+/// caller's transaction commits: the foreign key is deferred.
 pub async fn mark_superseded(
     conn: &mut PgConnection,
     id: Uuid,
@@ -1981,8 +2007,9 @@ WHERE id = $1
     Ok(())
 }
 
-/// Marks a registered row as being replaced by `superseded_by_id`, another completion's attempt with
-/// a better grade, which takes over the row's slot in `uq_credit_registrations_person_module`.
+/// Marks a registered row as being replaced by `superseded_by_id`, a later attempt with a better
+/// grade, of the same completion or another, which takes over the row's slot in
+/// `uq_credit_registrations_person_module`.
 ///
 /// Not [`mark_superseded`]: the row stays the live credit until the new attempt is registered,
 /// since Sisu may accept the better grade without ever making it the course unit's attainment.
@@ -2007,7 +2034,7 @@ WHERE id = $1
     Ok(())
 }
 
-/// Another completion's live attempt, for the same student and module, that the study registry
+/// Another live attempt, of any completion of the same student and module, that the study registry
 /// already holds.
 #[derive(Debug, Clone)]
 pub struct LiveSuccessForModule {
@@ -2022,25 +2049,139 @@ impl LiveSuccessForModule {
     /// The grade the registry holds for this attempt: the frozen one, or for a row settled before
     /// anything was frozen, its completion's, which the registry held at least as well.
     pub fn held_grade(&self) -> Option<MappedGrade> {
-        match (&self.grade_scale_id, &self.grade_id) {
-            (Some(grade_scale_id), Some(grade_id)) => Some(MappedGrade {
-                grade_scale_id: grade_scale_id.clone(),
-                grade_id: grade_id.clone(),
-            }),
-            _ => map_grade(GradeSource {
-                passed: self.completion_passed,
-                grade: self.completion_grade,
-                enrolment_grade_scale_id: None,
-            })
-            .ok(),
-        }
+        held_grade(
+            self.grade_scale_id.as_deref(),
+            self.grade_id.as_deref(),
+            self.completion_passed,
+            self.completion_grade,
+        )
     }
+}
+
+fn held_grade(
+    grade_scale_id: Option<&str>,
+    grade_id: Option<&str>,
+    completion_passed: bool,
+    completion_grade: Option<i32>,
+) -> Option<MappedGrade> {
+    match (grade_scale_id, grade_id) {
+        (Some(grade_scale_id), Some(grade_id)) => Some(MappedGrade {
+            grade_scale_id: grade_scale_id.to_string(),
+            grade_id: grade_id.to_string(),
+        }),
+        _ => map_grade(GradeSource {
+            passed: completion_passed,
+            grade: completion_grade,
+            enrolment_grade_scale_id: None,
+        })
+        .ok(),
+    }
+}
+
+/// A credit for the student and module that our own records say the study registry holds.
+#[derive(Debug, Clone)]
+pub struct RecordedCredit {
+    /// `None` for a credit the pull path registered, which freezes nothing.
+    pub grade_scale_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub completion_passed: bool,
+    pub completion_grade: Option<i32>,
+}
+
+impl RecordedCredit {
+    /// See [`LiveSuccessForModule::held_grade`]; a pull-path credit is read off its completion.
+    pub fn held_grade(&self) -> Option<MappedGrade> {
+        held_grade(
+            self.grade_scale_id.as_deref(),
+            self.grade_id.as_deref(),
+            self.completion_passed,
+            self.completion_grade,
+        )
+    }
+}
+
+/// Every credit for the row's student and module that our records say the registry holds: another
+/// of our live attempts in a success state, or a registrar's pull-path registration.
+///
+/// For an answer that lists no existing attainments. Not [`lock_live_successes_for_same_module`],
+/// which locks, and leaves out the pull path because nothing there can be marked for replacement.
+pub async fn get_recorded_credits_for_same_module(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<Vec<RecordedCredit>> {
+    let res = sqlx::query_as!(
+        RecordedCredit,
+        r#"
+SELECT other.grade_scale_id::text AS "grade_scale_id?",
+  other.grade_id::text AS "grade_id?",
+  cmc.passed AS "completion_passed!",
+  cmc.grade AS "completion_grade?"
+FROM credit_registrations cr
+  JOIN credit_registrations other ON other.user_id = cr.user_id
+  AND other.course_module_id = cr.course_module_id
+  AND other.id <> cr.id
+  JOIN course_module_completions cmc ON cmc.id = other.course_module_completion_id
+WHERE cr.id = $1
+  AND other.deleted_at IS NULL
+  AND other.superseded_by_id IS NULL
+  AND other.state = ANY($2::credit_registration_state [])
+UNION ALL
+SELECT NULL::text,
+  NULL::text,
+  cmc.passed,
+  cmc.grade
+FROM credit_registrations cr
+  JOIN course_module_completion_registered_to_study_registries r ON r.user_id = cr.user_id
+  AND r.course_module_id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = r.course_module_completion_id
+WHERE cr.id = $1
+  -- A null registrar is our own mirror of a row the first half already reads.
+  AND r.study_registry_registrar_id IS NOT NULL
+  AND r.deleted_at IS NULL
+        "#,
+        id,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Readies a row that resolve-enrolments settles as `duplicate` without sending it, in the caller's
+/// transaction and before the transition.
+///
+/// Drops the row's claim on `uq_credit_registrations_person_module`, left from an earlier freeze,
+/// since the slot belongs to the credit the registry holds, and the frozen credits, which nothing
+/// registered. Keeps `weighed_grade`, the grade we would have sent, as the grade a later regrade of
+/// the completion has to beat.
+pub async fn prepare_unsent_duplicate(
+    conn: &mut PgConnection,
+    id: Uuid,
+    weighed_grade: Option<&MappedGrade>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET sisu_person_id = NULL,
+  grade_scale_id = $2,
+  grade_id = $3,
+  credits = NULL
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        weighed_grade.map(|grade| grade.grade_scale_id.as_str()),
+        weighed_grade.map(|grade| grade.grade_id.as_str()),
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// The student's other live attempts for the row's module that the registry already holds, locked
 /// until the caller's transaction ends.
 ///
-/// What another completion has to beat to be sent, and what it replaces when it does, through
+/// What another attempt has to beat to be sent, and what it replaces when it does, through
 /// [`mark_pending_superseded`]. Includes rows already waiting on an earlier replacement, which a
 /// better one takes over.
 pub async fn lock_live_successes_for_same_module(
@@ -2127,8 +2268,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// The course's live rows a bulk retry can actually move: failed for good. Oldest first, capped by
-/// `limit`.
+/// The course's live rows a bulk retry can actually move: failed for good, and not held open by
+/// Suotar. Oldest first, capped by `limit`.
 ///
 /// Deliberately only these. A row a retry always refuses keeps matching for as long as it exists, so
 /// letting one into the batch would spend a slot of the cap on it forever: a course holding `limit`
@@ -2145,6 +2286,10 @@ SELECT id
 FROM credit_registrations cr
 WHERE cr.course_id = $1
   AND cr.state = 'failed_permanent'
+  AND (
+    cr.resubmit_not_before IS NULL
+    OR cr.resubmit_not_before <= now()
+  )
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
 ORDER BY cr.state_entered_at
@@ -2244,6 +2389,7 @@ pub struct CourseModuleStateCount {
     pub state: CreditRegistrationState,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
     pub enrolment_resolved: bool,
     pub count: i64,
     /// Of `count`, how many carry the pipeline's flag.
@@ -2263,6 +2409,7 @@ SELECT cr.course_module_id,
   cr.state,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!",
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COUNT(*) AS "count!",
   COUNT(*) FILTER (
@@ -2281,6 +2428,7 @@ GROUP BY cr.course_module_id,
   cr.state,
   p.completion_eligible,
   p.has_verified_student_number,
+  p.course_code_allowed,
   (cr.selected_enrolment_id IS NOT NULL)
         "#,
         course_id,
@@ -2318,6 +2466,7 @@ pub struct TeacherCreditRegistration {
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
     pub submitted_at: Option<DateTime<Utc>>,
+    pub resubmit_not_before: Option<DateTime<Utc>>,
     /// Live only: a soft-deleted link is no longer a number we hold for this student.
     pub student_number: Option<DbSecret>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
@@ -2327,6 +2476,7 @@ pub struct TeacherCreditRegistration {
     pub enrolment_resolved: bool,
     pub enrolment_realisation_name: Option<String>,
     pub completion_eligible: bool,
+    pub course_code_allowed: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
 }
@@ -2338,7 +2488,7 @@ impl TeacherCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.student_number.is_some(),
-            course_code_allowed: true,
+            course_code_allowed: self.course_code_allowed,
         }
     }
 }
@@ -2397,6 +2547,7 @@ SELECT cr.id,
   cr.attempt_number,
   cr.superseded_by_id,
   cr.submitted_at,
+  cr.resubmit_not_before,
   vsn.student_number AS "student_number?",
   vsn.verified_at AS "student_number_verified_at?",
   vsn.verified_via AS "student_number_verified_via?",
@@ -2408,6 +2559,7 @@ SELECT cr.id,
     cr.selected_enrolment_realisation_name->>'sv'
   ) AS "enrolment_realisation_name?",
   p.completion_eligible AS "completion_eligible!",
+  p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -2440,16 +2592,19 @@ WHERE cr.deleted_at IS NULL
           $10::credit_registration_state [],
           $11::boolean [],
           $12::boolean [],
-          $13::boolean []
+          $13::boolean [],
+          $14::boolean []
         ) AS stage(
           state,
           completion_eligible,
           has_verified_student_number,
+          course_code_allowed,
           enrolment_resolved
         )
       WHERE stage.state = cr.state
         AND stage.completion_eligible = p.completion_eligible
         AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)
+        AND stage.course_code_allowed = p.course_code_allowed
         AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
     )
   )
@@ -2470,6 +2625,7 @@ LIMIT $8 OFFSET $9
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(conn)

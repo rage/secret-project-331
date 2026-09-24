@@ -178,7 +178,7 @@ pub struct CourseCreditRegistrationModuleSummary {
     /// Waiting for the student: their completion, their student number or their enrolment.
     pub waiting_on_student_count: i64,
     pub failed_count: i64,
-    /// Blocked or cancelled: nothing is happening and nothing will.
+    /// Blocked, cancelled or held until the course's settings are fixed: nothing is moving.
     pub not_registering_count: i64,
     /// Rows the pipeline handed to support. Nothing for a teacher to do; shown so a module's
     /// failures do not read as unattended.
@@ -308,7 +308,7 @@ fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationSt
         PendingPreconditions {
             completion_eligible: group.completion_eligible,
             has_verified_student_number: group.has_verified_student_number,
-            course_code_allowed: true,
+            course_code_allowed: group.course_code_allowed,
         },
         group.enrolment_resolved,
     )
@@ -398,7 +398,8 @@ pub async fn get_course_credit_registration_summary(
                     + in_stage(Stage::NeedsStudentNumber)
                     + in_stage(Stage::NeedsEnrolment),
                 failed_count: in_stage(Stage::Failed),
-                not_registering_count: in_stage(Stage::NotRegistering),
+                not_registering_count: in_stage(Stage::NotRegistering)
+                    + in_stage(Stage::WaitingForCourseSetup),
                 needs_admin_attention_count: groups
                     .iter()
                     .map(|group| group.needs_admin_attention_count)
@@ -975,7 +976,7 @@ pub(crate) async fn build_teacher_registrations(
             let resubmission_refusal = row.state.resubmission_refusal(
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::OnlyFailedPermanent,
-                None,
+                row.resubmit_not_before,
                 row.submitted_at,
             );
             let state = row.state;

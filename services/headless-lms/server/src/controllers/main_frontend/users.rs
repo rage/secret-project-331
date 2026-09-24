@@ -345,7 +345,8 @@ pub struct MyStudiesCourseModule {
     pub ects_credits: Option<f32>,
     pub uh_course_code: Option<String>,
     /// Whether this student's credits for the module go through credit registration via Suotar: the
-    /// shown completion's own flag, or, before one exists, whether a new one would get it.
+    /// flag of the completion [`models::course_module_completions::select_registration_completion`]
+    /// picks, or, before a completion is shown, whether a new one would get it.
     pub supports_credit_registration: bool,
     /// Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
     pub score_given: f32,
@@ -492,17 +493,26 @@ async fn get_my_studies(
         let mut best_completion_by_module: HashMap<Uuid, MyStudiesCompletion> = HashMap::new();
         let mut registers_via_suotar_by_module: HashMap<Uuid, bool> = HashMap::new();
         for course_module in &enrollment.course_modules {
-            let visible_completions: Vec<_> = enrollment
+            let module_completions: Vec<_> = enrollment
                 .course_module_completions
                 .iter()
-                .filter(|c| c.course_module_id == course_module.id && !c.needs_to_be_reviewed)
+                .filter(|c| c.course_module_id == course_module.id)
+                .cloned()
+                .collect();
+            let visible_completions: Vec<_> = module_completions
+                .iter()
+                .filter(|c| !c.needs_to_be_reviewed)
                 .cloned()
                 .collect();
             if let Some(best) =
                 models::course_module_completions::select_best_completion(visible_completions)
             {
-                registers_via_suotar_by_module
-                    .insert(course_module.id, best.register_credits_via_suotar);
+                let registers_via_suotar =
+                    models::course_module_completions::select_registration_completion(
+                        module_completions,
+                    )
+                    .is_some_and(|c| c.register_credits_via_suotar);
+                registers_via_suotar_by_module.insert(course_module.id, registers_via_suotar);
                 // Failed completions are kept for the course's own table; only the totals omit them.
                 best_completion_by_module.insert(
                     course_module.id,

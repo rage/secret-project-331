@@ -172,7 +172,8 @@ pub struct RequestCreditRegistrationEnrolmentRecheckResult {
     pub next_recheck_allowed_at: Option<DateTime<Utc>>,
 }
 
-/// The account's linked student number, unmasked: it is the holder's own.
+/// The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
+/// Sisu-held names.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyVerifiedStudentNumber {
     pub student_number: String,
@@ -180,8 +181,6 @@ pub struct MyVerifiedStudentNumber {
     pub verified_via: StudentNumberVerificationMethod,
     /// The Sisu-held address the proof rests on, masked; `None` when support linked it by hand.
     pub verified_via_email_masked: Option<String>,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -191,12 +190,10 @@ pub struct UnlinkMyStudentNumberResult {
 }
 
 /// What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
-/// able to spend the token.
+/// able to spend the token. Deliberately carries no Sisu-held names.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct StudentNumberVerificationTokenPreview {
     pub student_number: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
     pub course_name: Option<String>,
     pub emailed_to_masked: String,
     pub expires_at: DateTime<Utc>,
@@ -644,8 +641,6 @@ pub async fn preview_student_number_verification_token(
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
         student_number: verification_token.student_number.expose_secret().to_owned(),
-        first_names: expose_option(&verification_token.first_names).map(str::to_owned),
-        last_name: expose_option(&verification_token.last_name).map(str::to_owned),
         course_name,
         emailed_to_masked: mask_email(verification_token.emailed_to.expose_secret()),
         expires_at: verification_token.expires_at,
@@ -925,8 +920,6 @@ fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStude
         verified_at: link.verified_at,
         verified_via: link.verified_via,
         verified_via_email_masked: expose_option(&link.verified_via_email).map(mask_email),
-        first_names: expose_option(&link.first_names).map(str::to_owned),
-        last_name: expose_option(&link.last_name).map(str::to_owned),
     }
 }
 
@@ -1003,23 +996,25 @@ pub struct SetEnrolmentRoutePayload {
 /// ownership check: the lookup is scoped to their own user, so a module someone else completed is a
 /// not-found rather than a forbidden.
 ///
-/// The latest completion, the same one the registration page itself is drawn from.
-async fn my_latest_completion_for_module(
+/// The one [`models::course_module_completions::select_registration_completion`] picks, the same
+/// one the registration page itself is drawn from.
+async fn my_registration_completion_for_module(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_module_id: Uuid,
 ) -> Result<CourseModuleCompletion, ControllerError> {
-    let completion = models::course_module_completions::get_latest_by_course_and_user_ids(
-        conn,
-        course_module_id,
-        user_id,
-    )
-    .await?;
+    let completion =
+        models::course_module_completions::get_registration_completion_by_user_and_course_module_id(
+            conn,
+            user_id,
+            course_module_id,
+        )
+        .await?;
     Ok(completion)
 }
 
-/// The caller's completion for a module, as [`my_latest_completion_for_module`], but only on the
-/// push path.
+/// The caller's completion for a module, as [`my_registration_completion_for_module`], but only on
+/// the push path.
 ///
 /// A completion the old path owns is a not-found: the enrolment answers only exist for the push
 /// path, and nothing should be stored against a completion that will never ask the question.
@@ -1028,7 +1023,7 @@ async fn my_completion_for_module(
     user_id: Uuid,
     course_module_id: Uuid,
 ) -> Result<Uuid, ControllerError> {
-    let completion = my_latest_completion_for_module(conn, user_id, course_module_id).await?;
+    let completion = my_registration_completion_for_module(conn, user_id, course_module_id).await?;
     if !completion.register_credits_via_suotar {
         return Err(controller_err!(NotFound, "Not found.".to_string()));
     }
@@ -1332,7 +1327,8 @@ pub async fn set_my_credit_justification(
             format!("Keep your answer under {CREDIT_JUSTIFICATION_MAX_LENGTH} characters.")
         ));
     }
-    let completion = my_latest_completion_for_module(&mut conn, user.id, *course_module_id).await?;
+    let completion =
+        my_registration_completion_for_module(&mut conn, user.id, *course_module_id).await?;
     let stored = completion_registration_credit_justifications::upsert(
         &mut conn,
         completion.id,

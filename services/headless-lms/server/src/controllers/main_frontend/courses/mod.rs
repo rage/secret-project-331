@@ -1579,7 +1579,8 @@ async fn delete_material_reference_by_id(
     ),
     request_body = ModuleUpdates,
     responses(
-        (status = 200, description = "Course modules updated")
+        (status = 200, description = "Course modules updated"),
+        (status = 400, description = "A module or chapter is not in the course, or a completion registration link is not https")
     )
 )]
 #[instrument(skip(pool))]
@@ -1593,8 +1594,10 @@ pub async fn update_modules(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     let updates = payload.into_inner();
-    if models::course_modules::would_change_credit_registration_via_suotar(&mut conn, &updates)
-        .await?
+    if models::course_modules::would_change_credit_registration_via_suotar(
+        &mut conn, *course_id, &updates,
+    )
+    .await?
     {
         // Editing a course is not enough to put a module on the live study registry path.
         authorize(

@@ -7455,6 +7455,10 @@ export type GetCourseFeedbackData = {
      * Page size
      */
     limit?: number
+    /**
+     * Selected category
+     */
+    category_filter?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/feedback"
 }

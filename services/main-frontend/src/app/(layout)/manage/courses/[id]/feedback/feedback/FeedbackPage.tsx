@@ -11,6 +11,7 @@ import {
   getCourseFeedbackOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { QueryResult, ToggleGroup } from "@/shared-module/components"
 
 import FeedbackView from "./FeedbackView"
@@ -48,12 +49,12 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
       path: {
         course_id: courseId,
       },
-      query: {
+      query: omitUndefined({
         read,
         page,
         limit,
-        category: state.selectedKeys[0],
-      },
+        category_filter: state.selectedKeys.keys().next().value?.toString(),
+      }),
     }),
   })
   const getFeedbackCategories = useQuery({
@@ -85,25 +86,18 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
       <QueryResult query={getFeedbackList} emptyFallback={<ul className={listCss} />}>
         {(data) => (
           <ul className={listCss}>
-            {data
-              .filter((f) => {
-                // oxlint-disable-next-line i18next/no-literal-string
-                return state.selectedKeys.has(t("all"))
-                  ? true
-                  : state.selectedKeys.has(f.feedback_category_name ?? "") // todo nulls
-              })
-              .map((f) => (
-                <li key={f.id}>
-                  <FeedbackView
-                    courseId={courseId}
-                    feedback={f}
-                    setRead={async () => {
-                      await getFeedbackList.refetch()
-                      await onChange()
-                    }}
-                  />
-                </li>
-              ))}
+            {data.map((f) => (
+              <li key={f.id}>
+                <FeedbackView
+                  courseId={courseId}
+                  feedback={f}
+                  setRead={async () => {
+                    await getFeedbackList.refetch()
+                    await onChange()
+                  }}
+                />
+              </li>
+            ))}
           </ul>
         )}
       </QueryResult>

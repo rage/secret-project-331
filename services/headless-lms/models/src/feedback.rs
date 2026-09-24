@@ -222,7 +222,7 @@ FROM (
       AND feedback.deleted_at IS NULL
       AND block_feedback.deleted_at IS NULL
       AND feedback_categories.deleted_at IS NULL
-      AND (feedback_categories.name IS NULL OR feedback_categories.name LIKE '%' || $5 || '')
+      AND COALESCE(feedback_categories.name, '') LIKE '%' || $5 || ''
     GROUP BY feedback.id,
       feedback.user_id,
       feedback.course_id,

@@ -1157,6 +1157,7 @@ pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
     pagination: Pagination,
+    category_filter: Option<String>,
 }
 
 /**
@@ -1183,7 +1184,6 @@ pub async fn get_feedback(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     read: web::Query<GetFeedbackQuery>,
-    category_filter: Option<String>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Feedback>>> {
     let mut conn = pool.acquire().await?;
@@ -1197,7 +1197,7 @@ pub async fn get_feedback(
     let feedback = feedback::get_feedback_for_course(
         &mut conn,
         *course_id,
-        category_filter,
+        read.category_filter.clone(),
         read.read,
         read.pagination,
     )

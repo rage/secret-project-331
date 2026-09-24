@@ -3718,6 +3718,15 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "category_filter",
+            "in": "query",
+            "description": "Selected category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

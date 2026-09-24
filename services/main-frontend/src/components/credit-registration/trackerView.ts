@@ -26,6 +26,8 @@ const wasListedByTheRegistry = (registration: MyCreditRegistration): boolean =>
  * instructions to show, and by then those instructions have plainly been followed. The same is true
  * of every terminal state, where there is nothing left to enrol for, and of a student the registry
  * has already listed — telling them to go and enrol could cost them a second Open University fee.
+ * `waiting_for_course_setup` is not terminal, but it is parked on a course-side problem the pipeline
+ * has not gotten past to start looking for an enrolment, so asking would be premature, not helpful.
  */
 const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolean => {
   if (registration.enrolment_found) {
@@ -34,7 +36,9 @@ const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolea
   if (wasListedByTheRegistry(registration)) {
     return false
   }
-  return !["registered", "failed", "not_registering"].includes(registration.student_facing_status)
+  return !["registered", "failed", "not_registering", "waiting_for_course_setup"].includes(
+    registration.student_facing_status,
+  )
 }
 
 /**
@@ -101,6 +105,7 @@ export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
   | { kind: "linked"; studentNumber: string }
   | { kind: "awaiting-enrolment" }
+  | { kind: "staff-links" }
   | { kind: "mailing" }
   | { kind: "mailed"; emailMasked: string; sentAt: string }
   | { kind: "send-failed" }
@@ -108,6 +113,7 @@ export type StudentNumberLinkBand =
 export const studentNumberLinkBand = (
   registration: MyCreditRegistration,
   verifiedStudentNumber: MyVerifiedStudentNumber | null,
+  { isAccountLinkingEnabled }: { isAccountLinkingEnabled: boolean },
 ): StudentNumberLinkBand | null => {
   const status = registration.student_facing_status
   if (status === "not_registering") {
@@ -130,6 +136,10 @@ export const studentNumberLinkBand = (
   }
   if (mail?.email_send_status === "sent" && mail.sent_at) {
     return { kind: "mailed", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
+  }
+  // With linking off a queued mail is never sent, so neither band below can promise one.
+  if (!isAccountLinkingEnabled) {
+    return { kind: "staff-links" }
   }
   // A mail still in the queue already proves the registry listed them, so the band cannot go on
   // telling them to enrol first.

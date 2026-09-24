@@ -253,11 +253,7 @@ const Tracker: React.FC<TrackerProps> = ({
               secondaryActions={secondaryActions}
             />
             {showsRegistrationFacts(registration) ? (
-              <RegistrationFacts
-                registration={registration}
-                verifiedNumber={verifiedNumber}
-                moduleEctsCredits={ectsCredits}
-              />
+              <RegistrationFacts registration={registration} moduleEctsCredits={ectsCredits} />
             ) : null}
             {registration.status_is_moving && checkedAt ? (
               <p className={noteCss}>
@@ -323,20 +319,13 @@ const WaitingForEnrolment: React.FC<{
   )
 }
 
-/** The transcript facts: what was registered, under which number, and to whom. */
+/** The transcript facts: what was registered, and under which number. */
 const RegistrationFacts: React.FC<{
   registration: MyCreditRegistration
-  verifiedNumber: MyVerifiedStudentNumber | null
   moduleEctsCredits: number | null | undefined
-}> = ({ registration, verifiedNumber, moduleEctsCredits }) => {
+}> = ({ registration, moduleEctsCredits }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const credits = registration.credits ?? moduleEctsCredits
-  // The number frozen on the row is not always the account's link now, so the name only belongs
-  // beside a number the link still covers.
-  const nameInRegistry =
-    verifiedNumber && verifiedNumber.student_number === registration.student_number
-      ? [verifiedNumber.first_names, verifiedNumber.last_name].filter(Boolean).join(" ")
-      : ""
 
   if (!registration.registered_at) {
     return null
@@ -355,9 +344,6 @@ const RegistrationFacts: React.FC<{
       : []),
     ...(registration.student_number
       ? [{ label: t("label-student-number"), value: registration.student_number }]
-      : []),
-    ...(nameInRegistry
-      ? [{ label: t("label-name-in-university-records"), value: nameInRegistry }]
       : []),
   ]
 

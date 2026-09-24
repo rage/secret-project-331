@@ -8,6 +8,7 @@ import {
   completionRegistrationRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { registrationStatusState } from "./creditRegistrationCopy"
@@ -55,13 +56,10 @@ export const useStudentRegistrationActions = ({
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
 
+  const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
   const enrolAction = (): RegistrationCardAction | null =>
-    registration.enrolment_link
-      ? {
-          key: ACTION_KEY.enrol,
-          label: t("credit-registration-action-enrol"),
-          href: registration.enrolment_link,
-        }
+    enrolmentLink
+      ? { key: ACTION_KEY.enrol, label: t("credit-registration-action-enrol"), href: enrolmentLink }
       : null
 
   const recheckEnrolmentAction = (): RegistrationCardAction => ({

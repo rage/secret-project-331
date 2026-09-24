@@ -18,6 +18,7 @@ import type {
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import {
   BUTTON_PRIMARY,
@@ -66,6 +67,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
     defaultValues: { [ROUTE_FIELD]: enrolmentRoute.route ?? "" },
   })
   const picked = watch(ROUTE_FIELD)
+  const enrolmentLink = httpsUrlOrNull(openUniversityEnrolmentLink)
 
   const invalidate = async () => {
     await queryClient.invalidateQueries({
@@ -223,9 +225,9 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
             />
           </p>
           <div className={rowCss}>
-            {openUniversityEnrolmentLink ? (
+            {enrolmentLink ? (
               <Link
-                href={openUniversityEnrolmentLink}
+                href={enrolmentLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 styledAsButton

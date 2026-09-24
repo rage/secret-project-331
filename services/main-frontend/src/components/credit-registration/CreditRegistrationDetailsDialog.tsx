@@ -101,7 +101,9 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   // Why this row is where it is: the failure when there is one, otherwise what the stage means.
   const leadSentence =
     registrationErrorTeacherHelp(t, registration.error_code) ??
-    registrationTeacherExplanation(t, registration.student_facing_status)
+    (registration.student_facing_status === "needs_student_number" && !isAccountLinkingEnabled
+      ? t("credit-registration-teacher-explanation-needs-student-number-linking-off")
+      : registrationTeacherExplanation(t, registration.student_facing_status))
   const verificationLabel = studentNumberVerificationLabel(
     t,
     registration.student_number_verified_via,

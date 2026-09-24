@@ -12,6 +12,7 @@ import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Infobox, QueryResult } from "@/shared-module/components"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 const NOT_FOUND = 404
 
@@ -27,12 +28,13 @@ const CompletionRedirectPage: React.FC = () => {
     }),
   )
 
+  const registrationUrl = httpsUrlOrNull(userCompletionInformation.data?.url)
+
   useEffect(() => {
-    if (!userCompletionInformation.data) {
-      return
+    if (registrationUrl) {
+      window.location.replace(registrationUrl)
     }
-    window.location.replace(userCompletionInformation.data.url)
-  }, [userCompletionInformation.data])
+  }, [registrationUrl])
 
   return (
     <div className={narrowPageCss}>
@@ -47,18 +49,22 @@ const CompletionRedirectPage: React.FC = () => {
           </Infobox>
         )}
       >
-        {(data) => (
-          <p>
-            <Trans
-              t={t}
-              i18nKey="you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here"
-              components={{
-                // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
-                redirectLink: <a href={data.url} />,
-              }}
-            />
-          </p>
-        )}
+        {() =>
+          registrationUrl ? (
+            <p>
+              <Trans
+                t={t}
+                i18nKey="you-are-being-redirected-to-completion-registration-page-if-nothing-happens-click-here"
+                components={{
+                  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
+                  redirectLink: <a href={registrationUrl} />,
+                }}
+              />
+            </p>
+          ) : (
+            <Infobox tone={TONE.WARNING}>{t("could-not-open-the-registration-form")}</Infobox>
+          )
+        }
       </QueryResult>
     </div>
   )

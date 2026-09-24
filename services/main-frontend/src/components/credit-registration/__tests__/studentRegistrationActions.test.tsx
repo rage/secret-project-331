@@ -54,6 +54,17 @@ describe("useStudentRegistrationActions", () => {
     )
   })
 
+  test("never offers an enrolment link that is not https", () => {
+    for (const enrolmentLink of ["javascript:alert(1)", "http://example.com/enrol", "enrol"]) {
+      const { primaryAction } = actionsFor(
+        registration("needs_enrolment", { enrolment_link: enrolmentLink }),
+      )
+
+      expect(primaryAction?.href).toBeUndefined()
+      expect(primaryAction?.label).toBe("credit-registration-action-look-again")
+    }
+  })
+
   test("says why a recheck is unavailable rather than only greying it out", () => {
     const { secondaryActions } = actionsFor(
       registration("needs_enrolment", {
@@ -87,6 +98,13 @@ describe("useStudentRegistrationActions", () => {
 
   test("offers nothing while the student number is still to be linked", () => {
     expect(actionsFor(registration("needs_student_number")).primaryAction).toBeNull()
+  })
+
+  test("offers nothing while a course-setup problem holds the row up", () => {
+    const { primaryAction, secondaryActions } = actionsFor(registration("waiting_for_course_setup"))
+
+    expect(primaryAction).toBeNull()
+    expect(secondaryActions).toHaveLength(0)
   })
 
   test("offers nothing under a registration that worked", () => {

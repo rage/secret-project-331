@@ -64,6 +64,7 @@ import {
 } from "./styles"
 import type { CreditRegistrationFailureReason } from "./teacherCreditRegistrations"
 import { useCourseFailureReasons } from "./teacherCreditRegistrations"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 /** Puts the roster under one of the named views. Without it the counts are plain numbers. */
 export type SelectRegistrationStatusView = (view: RegistrationStatusView) => void
@@ -349,6 +350,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
   onSelectView,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const summaryQuery = useQuery(
     getCourseCreditRegistrationSummaryOptions({
       path: { course_id: courseId },
@@ -479,7 +481,9 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
               />
             </div>
 
-            {summary.unlinked_enrolled_student_count > 0 && (
+            {/* With linking off only hand-picked students use this flow and the rest register
+                through the old one, so a missing number blocks nothing for most of them. */}
+            {isAccountLinkingEnabled && summary.unlinked_enrolled_student_count > 0 && (
               <div className={subsectionCss}>
                 <p className={proseCss}>
                   {t("credit-registration-unlinked-enrolled-explanation", {

@@ -16,6 +16,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Infobox, Link } from "@/shared-module/components"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 const BANNER_TEST_ID = "credit-registration-enrolment-banner"
 
@@ -73,6 +74,7 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
   const { t } = useTranslation()
   const recheck = useRequestEnrolmentRecheck()
   const dismiss = useDismissEnrolmentBanner()
+  const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
 
   return (
     <div data-testid={BANNER_TEST_ID}>
@@ -91,13 +93,8 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
             <p>{t("credits-n-ects", { n: registration.ects_credits })}</p>
           ) : null}
           <div className={actionsCss}>
-            {registration.enrolment_link ? (
-              <Link
-                href={registration.enrolment_link}
-                styledAsButton
-                variant="primary"
-                size="small"
-              >
+            {enrolmentLink ? (
+              <Link href={enrolmentLink} styledAsButton variant="primary" size="small">
                 {t("credit-registration-action-enrol")}
               </Link>
             ) : null}

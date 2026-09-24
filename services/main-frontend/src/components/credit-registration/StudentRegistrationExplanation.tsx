@@ -7,6 +7,7 @@ import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { userSettingsStudentNumberRoute } from "@/shared-module/common/utils/routes"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { TransLink } from "@/shared-module/components"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS, SISU_URL } from "./constants"
 import {
@@ -17,6 +18,7 @@ import {
 import { LinkingEmailLine, NotificationEmailLine, sentLinkingEmail } from "./EmailStatusLine"
 import { failureActions } from "./registrationFailures"
 import { monospaceCss, stepsCss, subsectionCss } from "./styles"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 const sisuLink = <TransLink href={SISU_URL} target="_blank" rel="noopener noreferrer" />
 const studentNumberSettingsLink = <TransLink href={userSettingsStudentNumberRoute()} />
@@ -30,6 +32,7 @@ const MISREGISTERED = "misregistered"
 /** The sentence, or the steps, that the state itself wants said. */
 const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const status = registration.student_facing_status
 
   if (status === "needs_student_number") {
@@ -37,7 +40,11 @@ const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ reg
     if (!sent) {
       return (
         <>
-          <p>{registrationExplanation(t, status)}</p>
+          <p>
+            {isAccountLinkingEnabled
+              ? registrationExplanation(t, status)
+              : t("credit-registration-explanation-needs-student-number-staff-links-it")}
+          </p>
           <LinkingEmailLine linkingEmail={registration.linking_email} />
         </>
       )
@@ -122,7 +129,7 @@ export const StudentRegistrationExplanation: React.FC<StudentRegistrationExplana
         <p>{t("credit-registration-explanation-not-improved")}</p>
       ) : null}
       {isNobodyElsesToFix ? <p>{t("credit-registration-failed-not-yours-to-fix")}</p> : null}
-      {status === "needs_enrolment" && !registration.enrolment_link ? (
+      {status === "needs_enrolment" && !httpsUrlOrNull(registration.enrolment_link) ? (
         <p>{t("credit-registration-no-enrolment-link-available")}</p>
       ) : null}
       <NotificationEmailLine notificationEmail={registration.notification_email} />

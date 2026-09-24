@@ -16,6 +16,7 @@ import {
   sectionsCss,
   studentNumberCss,
 } from "@/components/credit-registration/styles"
+import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
@@ -185,6 +186,7 @@ const Confirmation: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { logout } = useLogout()
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
 
   const claim = useToastMutation<ClaimStudentNumberVerificationTokenResult, unknown, void>(
     async () => await claimStudentNumberVerificationToken({ path: { token } }),
@@ -204,11 +206,7 @@ const Confirmation: React.FC<{
     return <DeadEnd reason={unusableLinkReason(preview)} />
   }
 
-  const sisuName = [preview.first_names, preview.last_name].filter(Boolean).join(" ")
-  const items = [
-    ...(sisuName ? [{ label: t("label-name-in-university-records"), value: sisuName }] : []),
-    { label: t("label-mooc-fi-account"), value: preview.target_account_email },
-  ]
+  const items = [{ label: t("label-mooc-fi-account"), value: preview.target_account_email }]
   // Opening the mail while logged in to the wrong account is the common mistake.
   const logoutLink = (
     // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
@@ -226,7 +224,11 @@ const Confirmation: React.FC<{
         <p>{t("link-student-number-why-you-got-this", { course: preview.course_name })}</p>
       ) : null}
       {/* The one moment of consent in the flow, so it says what the number will be used for. */}
-      <p>{t("link-student-number-what-linking-means")}</p>
+      <p>
+        {isAccountLinkingEnabled
+          ? t("link-student-number-what-linking-means")
+          : t("link-student-number-what-linking-means-ask-staff-to-remove")}
+      </p>
       <div className={cardCss}>
         <div>
           <p className={noteCss}>{t("label-student-number")}</p>

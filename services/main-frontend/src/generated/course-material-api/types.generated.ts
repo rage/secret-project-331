@@ -1583,28 +1583,6 @@ export type GetConversationInfoResponses = {
 export type GetConversationInfoResponse =
   GetConversationInfoResponses[keyof GetConversationInfoResponses]
 
-export type GetChatbotCurrentConversationInfoData = {
-  body?: never
-  path: {
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current"
-}
-
-export type GetChatbotCurrentConversationInfoResponses = {
-  /**
-   * Current chatbot conversation info
-   */
-  200: ChatbotConversationInfo
-}
-
-export type GetChatbotCurrentConversationInfoResponse =
-  GetChatbotCurrentConversationInfoResponses[keyof GetChatbotCurrentConversationInfoResponses]
-
 export type GetCurrentConversationIdData = {
   body?: never
   path: {

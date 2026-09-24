@@ -18,24 +18,6 @@ interface ConversationHistoryProps {
   setConfigurationId: React.Dispatch<string>
 }
 
-const buttonCss = css`
-  width: calc(100%);
-  justify-content: flex-start;
-  border-bottom: 1px solid ${baseTheme.colors.gray[75]};
-  padding: 2rem 1rem;
-  transition: background-color 0.2s;
-
-  border-radius: 0;
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--color-green-75);
-    color: var(--btn-icon-fg-hover);
-    border-color: var(--color-green-300);
-    box-shadow: var(--btn-icon-shadow-hover);
-    border-radius: 6px;
-  }
-  color: var(--field-fg);
-`
-
 const chatbotLabelCss = css`
   padding: 5px 8px;
   font-size: 10px;
@@ -56,7 +38,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   setConfigurationId,
 }) => {
   const { t } = useTranslation()
-  const { setConvId } = useChatbotContext()
+  const { setConvId, convId } = useChatbotContext()
   return (
     <div>
       {conversations.length === 0 ? (
@@ -73,13 +55,28 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             size="medium"
             variant="icon"
             onClick={() => {
+              console.log(conversation.chatbot_configuration_id)
+
               setConfigurationId(conversation.chatbot_configuration_id)
               setConvId(conversation.id)
               if (menuState) {
                 menuState.close()
               }
             }}
-            className={buttonCss}
+            className={css`
+              width: calc(100%);
+              justify-content: flex-start;
+              border-bottom: 1px solid ${baseTheme.colors.gray[75]};
+              padding: 2rem 1rem;
+              transition: background-color 0.2s;
+
+              border-radius: 0;
+              &:hover:not(:disabled):not([aria-disabled="true"]) {
+                background: var(--color-green-75);
+              }
+              color: var(--field-fg);
+              background-color: ${conversation.id === convId ? "var(--color-green-75); border-color: var(--color-green-300) !important; box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
+            `}
             key={conversation.id}
             aria-label={t("conversation-title", {
               title: conversation.conversation_title ?? t("untitled-conversation"),

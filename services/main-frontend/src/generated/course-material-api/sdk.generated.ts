@@ -30,8 +30,6 @@ import type {
   FetchPeerReviewDataReceivedByExerciseIdResponses,
   GetAiUsageNoticeAcknowledgementData,
   GetAiUsageNoticeAcknowledgementResponses,
-  GetChatbotCurrentConversationInfoData,
-  GetChatbotCurrentConversationInfoResponses,
   GetCodeGiveawayStatusData,
   GetCodeGiveawayStatusResponses,
   GetConversationInfoData,
@@ -187,7 +185,6 @@ import {
   zFetchPeerOrSelfReviewDataByExerciseIdResponse,
   zFetchPeerReviewDataReceivedByExerciseIdResponse,
   zGetAiUsageNoticeAcknowledgementResponse,
-  zGetChatbotCurrentConversationInfoResponse,
   zGetCodeGiveawayStatusResponse,
   zGetConversationInfoResponse,
   zGetCourseMaterialAuthenticatedUserDetailsResponse,
@@ -474,7 +471,7 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
  *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
- * Returns specific chatbot conversation for the user.
+ * Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
  */
 export const getConversationInfo = <ThrowOnError extends boolean = true>(
   options: Options<GetConversationInfoData, ThrowOnError>,
@@ -483,28 +480,6 @@ export const getConversationInfo = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetConversationInfoResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations",
-    ...options,
-  })
-
-/**
- *
- * POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
- *
- * Returns the current conversation for the user.
- */
-export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean = true>(
-  options: Options<GetChatbotCurrentConversationInfoData, ThrowOnError>,
-): RequestResult<GetChatbotCurrentConversationInfoResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
-    GetChatbotCurrentConversationInfoResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetChatbotCurrentConversationInfoResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current",
     ...options,
   })
 

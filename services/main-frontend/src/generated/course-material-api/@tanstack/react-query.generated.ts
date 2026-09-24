@@ -19,7 +19,6 @@ import {
   fetchPeerOrSelfReviewDataByExerciseId,
   fetchPeerReviewDataReceivedByExerciseId,
   getAiUsageNoticeAcknowledgement,
-  getChatbotCurrentConversationInfo,
   getCodeGiveawayStatus,
   getConversationInfo,
   getCourseMaterialAuthenticatedUserDetails,
@@ -116,8 +115,6 @@ import type {
   FetchPeerReviewDataReceivedByExerciseIdResponse,
   GetAiUsageNoticeAcknowledgementData,
   GetAiUsageNoticeAcknowledgementResponse,
-  GetChatbotCurrentConversationInfoData,
-  GetChatbotCurrentConversationInfoResponse,
   GetCodeGiveawayStatusData,
   GetCodeGiveawayStatusResponse,
   GetConversationInfoData,
@@ -544,7 +541,7 @@ export const getConversationInfoQueryKey = (options: Options<GetConversationInfo
  *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
- * Returns specific chatbot conversation for the user.
+ * Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
  */
 export const getConversationInfoOptions = (options: Options<GetConversationInfoData>) =>
   queryOptions<
@@ -561,35 +558,6 @@ export const getConversationInfoOptions = (options: Options<GetConversationInfoD
         throwOnError: true,
       }),
     queryKey: getConversationInfoQueryKey(options),
-  })
-
-export const getChatbotCurrentConversationInfoQueryKey = (
-  options: Options<GetChatbotCurrentConversationInfoData>,
-) => createQueryKey("getChatbotCurrentConversationInfo", options)
-
-/**
- *
- * POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
- *
- * Returns the current conversation for the user.
- */
-export const getChatbotCurrentConversationInfoOptions = (
-  options: Options<GetChatbotCurrentConversationInfoData>,
-) =>
-  queryOptions<
-    GetChatbotCurrentConversationInfoResponse,
-    DefaultError,
-    GetChatbotCurrentConversationInfoResponse,
-    ReturnType<typeof getChatbotCurrentConversationInfoQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getChatbotCurrentConversationInfo({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getChatbotCurrentConversationInfoQueryKey(options),
   })
 
 export const getCurrentConversationIdQueryKey = (options: Options<GetCurrentConversationIdData>) =>

@@ -31,7 +31,6 @@ use rand::distr::{Alphanumeric, SampleString};
     send_message,
     tool_response,
     new_conversation,
-    current_conversation_info,
     conversation_info,
     current_conversation_id,
     all_user_conversations,
@@ -379,127 +378,6 @@ async fn new_conversation(
 }
 
 /**
-POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
-
-Returns the current conversation for the user.
-*/
-#[utoipa::path(
-    get,
-    path = "/{chatbot_configuration_id}/conversations/current",
-    operation_id = "getChatbotCurrentConversationInfo",
-    tag = "course-material-chatbot",
-    params(
-        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
-    ),
-    responses(
-        (
-            status = 200,
-            description = "Current chatbot conversation info",
-            body = ChatbotConversationInfo
-        )
-    )
-)]
-#[instrument(skip(pool, app_conf, req))]
-async fn current_conversation_info(
-    pool: web::Data<PgPool>,
-    user: Option<AuthUser>,
-    app_conf: web::Data<ApplicationConfiguration>,
-    params: web::Path<Uuid>,
-    req: HttpRequest,
-) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
-    let mut conn = pool.acquire().await?;
-    let chatbot_configuration =
-        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
-
-    let token =
-        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
-
-    let anonymous_token = handle_anonymous_token(&req, user);
-
-    let res = chatbot_conversations::get_conversation_info(
-        &mut conn,
-        user.map(|u| u.id),
-        anonymous_token.as_ref().map(|a| a.to_owned()),
-        chatbot_configuration.id,
-        None,
-    )
-    .await?;
-
-    // A None means no suggestion belongs here at all, which includes a turn suspended on a question
-    // to the learner, so the generation below is skipped for those without a check of its own.
-    if chatbot_configuration.suggest_next_messages
-        && let Some(suggested_messages) = &res.suggested_messages
-        && suggested_messages.is_empty()
-        && let Some(current_conversation_messages) = &res.current_conversation_messages
-        && let Some(last_message) = current_conversation_messages.last()
-        && let Some(course_name) = &res.course_name
-    {
-        let initial_suggested_messages = if last_message.order_number == 1 {
-            // for the first message, get initial_suggested_messages
-            let initial_suggested_messages = chatbot_configuration
-                .initial_suggested_messages
-                .unwrap_or(vec![]);
-            // take 3 random elements
-            if initial_suggested_messages.len() > 3 {
-                let mut rng = rand::rng();
-                initial_suggested_messages
-                    .sample(&mut rng, 3)
-                    .cloned()
-                    .collect()
-            } else {
-                initial_suggested_messages
-            }
-        } else {
-            // for other messages, generate suggested messages
-            let course_description = if let Some(course_id) = chatbot_configuration.course_id {
-                models::courses::get_course(&mut conn, course_id)
-                    .await?
-                    .description
-            } else {
-                None
-            };
-            let message_suggest_llm =
-                models::application_task_default_language_models::get_for_task(
-                    &mut conn,
-                    ApplicationTask::MessageSuggestion,
-                )
-                .await?;
-
-            headless_lms_chatbot::message_suggestion::generate_suggested_messages(
-                &app_conf,
-                message_suggest_llm,
-                current_conversation_messages,
-                chatbot_configuration.initial_suggested_messages,
-                Some(course_name.to_owned()),
-                course_description,
-            )
-            .await?
-        };
-
-        if !initial_suggested_messages.is_empty() {
-            headless_lms_models::chatbot_conversation_suggested_messages::insert_batch(
-                &mut conn,
-                &last_message.id,
-                initial_suggested_messages,
-            )
-            .await?;
-        }
-
-        let res = chatbot_conversations::get_conversation_info(
-            &mut conn,
-            user.map(|u| u.id),
-            anonymous_token,
-            chatbot_configuration.id,
-            None,
-        )
-        .await?;
-        return token.authorized_ok(web::Json(res));
-    }
-
-    token.authorized_ok(web::Json(res))
-}
-
-/**
 GET `/api/v0/course-material/chatbot/conversations/all`
 
 Returns all conversations that a user has.
@@ -528,7 +406,7 @@ async fn all_user_conversations(
 /**
 GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
 
-Returns specific chatbot conversation for the user.
+Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
 */
 #[utoipa::path(
     get,
@@ -567,25 +445,14 @@ async fn conversation_info(
 
     let anonymous_token = handle_anonymous_token(&req, user);
 
-    let res = if let Some(conversation_id) = conversation_id {
-        chatbot_conversations::get_conversation_info(
-            &mut conn,
-            user.map(|u| u.id),
-            anonymous_token.as_ref().map(|a| a.to_owned()),
-            chatbot_configuration.id,
-            Some(conversation_id),
-        )
-        .await?
-    } else {
-        chatbot_conversations::get_conversation_info(
-            &mut conn,
-            user.map(|u| u.id),
-            anonymous_token.as_ref().map(|a| a.to_owned()),
-            chatbot_configuration.id,
-            None,
-        )
-        .await?
-    };
+    let res = chatbot_conversations::get_conversation_info(
+        &mut conn,
+        user.map(|u| u.id),
+        anonymous_token.clone(),
+        chatbot_configuration.id,
+        conversation_id,
+    )
+    .await?;
 
     if chatbot_configuration.suggest_next_messages
         // suggested_messages is None if suggest_next_messages=false
@@ -645,26 +512,14 @@ async fn conversation_info(
             )
             .await?;
         }
-
-        let res = if let Some(conversation_id) = conversation_id {
-            chatbot_conversations::get_conversation_info(
-                &mut conn,
-                user.map(|u| u.id),
-                anonymous_token.as_ref().map(|a| a.to_owned()),
-                chatbot_configuration.id,
-                Some(conversation_id),
-            )
-            .await?
-        } else {
-            chatbot_conversations::get_conversation_info(
-                &mut conn,
-                user.map(|u| u.id),
-                anonymous_token.as_ref().map(|a| a.to_owned()),
-                chatbot_configuration.id,
-                None,
-            )
-            .await?
-        };
+        let res = chatbot_conversations::get_conversation_info(
+            &mut conn,
+            user.map(|u| u.id),
+            anonymous_token.clone(),
+            chatbot_configuration.id,
+            conversation_id,
+        )
+        .await?;
         return token.authorized_ok(web::Json(res));
     }
 
@@ -732,10 +587,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response",
         web::post().to(tool_response),
-    )
-    .route(
-        "/{chatbot_configuration_id}/conversations/current",
-        web::get().to(current_conversation_info),
     )
     .route(
         "/{chatbot_configuration_id}/conversations/new",

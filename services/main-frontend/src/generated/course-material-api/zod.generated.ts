@@ -1559,15 +1559,6 @@ export const zGetConversationInfoQuery = z.object({
  */
 export const zGetConversationInfoResponse = zChatbotConversationInfo
 
-export const zGetChatbotCurrentConversationInfoPath = z.object({
-  chatbot_configuration_id: z.uuid(),
-})
-
-/**
- * Current chatbot conversation info
- */
-export const zGetChatbotCurrentConversationInfoResponse = zChatbotConversationInfo
-
 export const zGetCurrentConversationIdPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })

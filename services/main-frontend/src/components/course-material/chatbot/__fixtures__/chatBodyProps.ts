@@ -9,7 +9,7 @@ import type {
 
 import type { ChatbotConversationMessageWithStatus } from "../shared/ChatbotChatBody"
 import type {
-  ChatbotStateAndDataUnitTests,
+  ChatbotStateAndData,
   ClientToolResponse,
 } from "../shared/hooks/useChatbotStateAndData"
 
@@ -65,7 +65,7 @@ interface ChatBodyOverrides {
 }
 
 interface ChatBodyFixture {
-  props: ChatbotStateAndDataUnitTests
+  props: ChatbotStateAndData
   sendMessage: jest.Mock
   answer: jest.Mock
   stopTurn: jest.Mock
@@ -119,7 +119,7 @@ export const makeChatBodyProps = ({
     isPending: false,
   } as unknown as UseMutationResult<void, unknown, ClientToolResponse, unknown>
 
-  const props: ChatbotStateAndDataUnitTests = {
+  const props: ChatbotStateAndData = {
     currentConversationInfo,
     newConversationMutation,
     newMessage,
@@ -132,6 +132,10 @@ export const makeChatBodyProps = ({
     toolResponseMutation,
     isTurnInFlight,
     stopTurn,
+    setIsOpen: jest.fn(),
+    isOpen: true,
+    convId: null,
+    setConvId: jest.fn(),
   }
 
   return { props, sendMessage, answer, stopTurn }

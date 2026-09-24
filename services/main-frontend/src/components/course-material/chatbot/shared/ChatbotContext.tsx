@@ -2,16 +2,11 @@
 
 import { createContext, useContext } from "react"
 
-import type {
-  ChatbotStateAndData,
-  ChatbotStateAndDataUnitTests,
-} from "./hooks/useChatbotStateAndData"
+import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
-const ChatbotContext = createContext<ChatbotStateAndData | ChatbotStateAndDataUnitTests | null>(
-  null,
-)
+const ChatbotContext = createContext<ChatbotStateAndData | null>(null)
 
-export const useChatbotContext = (): ChatbotStateAndData | ChatbotStateAndDataUnitTests => {
+export const useChatbotContext = (): ChatbotStateAndData => {
   const chatbotContext = useContext(ChatbotContext)
 
   if (!chatbotContext) {

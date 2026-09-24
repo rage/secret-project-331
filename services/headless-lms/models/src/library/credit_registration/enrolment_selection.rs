@@ -274,7 +274,7 @@ mod tests {
     fn a_study_right_covering_the_attainment_date_wins_over_the_degree_preference() {
         let mut expired_degree = enrolment("degree", DEGREE_KIND);
         expired_degree.study_right_validity_period =
-            Some(period(date(2020, 1, 1), date(2025, 12, 31)));
+            Some(period(date(2020, 1, 1), criteria().attainment_date));
         let mut open = enrolment("open", "openUniversity");
         open.study_right_validity_period = Some(period(date(2026, 1, 1), date(2026, 12, 31)));
         let candidates = [expired_degree, open];

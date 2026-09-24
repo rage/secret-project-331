@@ -662,6 +662,7 @@
   "credit-registration-counts-scoped-to-instance": "Taulukko koskee vain tätä kurssitoteutusta. Sen alla olevat opiskelija- ja sähköpostiluvut koskevat koko kurssia.",
   "credit-registration-course-credits-differ-from-current": "Tämä kurssi on nyt {{current}} opintopisteen arvoinen. Opintopisteesi kirjattiin sen suuruisina kuin ne olivat suorituksesi aikaan.",
   "credit-registration-earlier-attempt-summary": "Yritys {{attempt}}, arvosana {{grade}}",
+  "credit-registration-earlier-attempt-summary-with-status": "Yritys {{attempt}}, arvosana {{grade}}: {{status}}",
   "credit-registration-failed-check-back": "Katso tilanne täältä uudelleen muutaman päivän kuluttua.",
   "credit-registration-failures-by-reason_one": "{{count}} epäonnistuminen:",
   "credit-registration-failures-by-reason_other": "{{count}} epäonnistumista:",

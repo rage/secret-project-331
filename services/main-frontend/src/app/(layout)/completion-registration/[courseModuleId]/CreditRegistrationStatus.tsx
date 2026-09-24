@@ -273,14 +273,23 @@ const Tracker: React.FC<TrackerProps> = ({
       {earlierAttempts.length > 0 ? (
         <section className={bandCss}>
           <h2 className={subheadingCss}>{t("heading-earlier-attempts")}</h2>
-          {earlierAttempts.map((attempt) => (
-            <p key={attempt.id} className={noteCss}>
-              {t("credit-registration-earlier-attempt-summary", {
-                attempt: attempt.attempt_number,
-                grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
-              })}
-            </p>
-          ))}
+          {earlierAttempts.map((attempt) => {
+            const summary = {
+              attempt: attempt.attempt_number,
+              grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
+            }
+            return (
+              <p key={attempt.id} className={noteCss}>
+                {/* A replaced attempt keeps the state it reached, which reads as still held. */}
+                {attempt.superseded
+                  ? t("credit-registration-earlier-attempt-summary", summary)
+                  : t("credit-registration-earlier-attempt-summary-with-status", {
+                      ...summary,
+                      status: registrationStatusLabel(t, attempt.student_facing_status),
+                    })}
+              </p>
+            )
+          })}
         </section>
       ) : null}
     </>

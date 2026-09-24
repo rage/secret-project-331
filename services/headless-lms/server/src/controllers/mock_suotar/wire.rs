@@ -94,7 +94,7 @@ pub struct LocalizedName {
 #[serde(rename_all = "camelCase")]
 pub struct DatePeriod {
     pub start_date: NaiveDate,
-    /// `null` for a realisation or study right with no end, which Sisu allows.
+    /// Exclusive, as in Sisu; `null` for a realisation or study right with no end.
     pub end_date: Option<NaiveDate>,
 }
 

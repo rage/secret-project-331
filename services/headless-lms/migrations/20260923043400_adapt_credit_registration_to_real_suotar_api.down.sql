@@ -82,6 +82,29 @@ ALTER TABLE course_module_suotar_configurations DROP COLUMN last_listing_attempt
   DROP COLUMN last_suppressed_by_rate_cap_count,
   DROP COLUMN last_no_address_count;
 
+UPDATE credit_registrations
+SET superseded_by_id = pending_superseded_by_id,
+  superseded_at = now(),
+  pending_superseded_by_id = NULL
+WHERE pending_superseded_by_id IS NOT NULL;
+
+ALTER TABLE credit_registrations DROP COLUMN pending_superseded_by_id;
+
+CREATE UNIQUE INDEX uq_credit_registrations_person_module ON credit_registrations (sisu_person_id, course_module_id)
+WHERE sisu_person_id IS NOT NULL
+  AND deleted_at IS NULL
+  AND superseded_by_id IS NULL
+  AND state IN (
+    'submitting',
+    'submission_uncertain',
+    'awaiting_verification',
+    'registered',
+    'duplicate',
+    'not_improved'
+  );
+
+COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The newer attempt that replaced this row. Set when a strictly better grade is resubmitted; the old row keeps its state and terminal_at, because it really was registered.';
+
 ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_count_nonnegative,
   DROP COLUMN partially_registered_at,
   DROP COLUMN not_registered_reimport_count,

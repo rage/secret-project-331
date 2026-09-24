@@ -26,6 +26,7 @@ import {
 import {
   activeStudyRightPeriod,
   mockSuotarSubmissionsFor,
+  transitionMockSuotarSubmission,
   transitionMockSuotarSubmissionsFor,
   upsertMockSuotarAttainments,
   upsertMockSuotarEnrolments,
@@ -45,8 +46,8 @@ import { pollUntil } from "@/utils/waitingUtils"
 /**
  * Owns the grade-improvement course outright, with `credit-registration-student-2` and
  * `credit-registration-student-3` on it: it is the only seeded module on a graded scale. The first two
- * tests regrade student 2's one completion in place; the last two give student 3 new completions
- * through the teacher's manual completion endpoint. Each pair continues from the one before it, so
+ * tests regrade student 2's one completion in place; the rest give student 3 new completions
+ * through the teacher's manual completion endpoint. Each test continues from the one before it, so
  * they run in order and nothing else may write to that course.
  * `retries: 0` follows: a retry replays the group from its first test, which by then would run against
  * the grade the last one left behind, so retrying only turns one failure into three.
@@ -296,9 +297,48 @@ const submittedGrades = async (page: Page) =>
   )
 
 let registeredId = ""
+let reversedId = ""
 let betterId = ""
 
-test("A better grade given as a new completion supersedes the registered one and is sent", async ({
+const submittedAttainmentIdOf = async (adminApi: APIRequestContext, id: string) => {
+  const submitted = (await adminRegistrationDetails(adminApi, id)).registration
+    .submitted_attainment_id
+  if (!submitted) {
+    throw new Error(`registration ${id} has no submitted attainment id`)
+  }
+  return submitted
+}
+
+const myModuleView = (studentApi: APIRequestContext, courseModuleId: string) =>
+  getJson<{
+    registration: MyCreditRegistration
+    earlier_attempts: MyCreditRegistration[]
+  }>(studentApi, `${CREDIT_REGISTRATIONS_API}/my/by-course-module/${courseModuleId}`)
+
+/** The grade-3 row is still the credit Sisu holds: live, registered and replaced by nothing. */
+const expectRegisteredGradeHeld = async (adminApi: APIRequestContext) => {
+  const { registration } = await adminRegistrationDetails(adminApi, registeredId)
+  expect(registration.state).toBe("registered")
+  expect(registration.superseded).toBe(false)
+  expect(registration.superseded_by_id).toBeNull()
+  expect((await laterStudentRows(adminApi, false)).map((row) => row.id)).toContain(registeredId)
+}
+
+const expectStudentSeesRegisteredGrade = async (
+  studentApi: APIRequestContext,
+  courseModuleId: string,
+  liveId: string,
+) => {
+  const mine = await myModuleView(studentApi, courseModuleId)
+  expect(mine.registration.id).toBe(liveId)
+  expect(mine.earlier_attempts.find((attempt) => attempt.id === registeredId)).toMatchObject({
+    superseded: false,
+    student_facing_status: "registered",
+  })
+  return mine
+}
+
+test("A better grade given as a new completion is sent, and the registered one stays held meanwhile", async ({
   page,
   adminApi,
   playwright,
@@ -329,48 +369,104 @@ test("A better grade given as a new completion supersedes the registered one and
     await waitForRowState(adminApi, registeredId, ["registered"])
   })
 
-  await test.step("The teacher's grade-5 completion takes over the registration", async () => {
-    betterId = await addLaterCompletion(page, adminApi, 5)
+  await test.step("The teacher's grade-5 completion is resolved without replacing it", async () => {
+    reversedId = await addLaterCompletion(page, adminApi, 5)
     await runPreconditionsTick(page.request, laterScope)
     await runResolveEnrolmentsTick(page.request, laterScope)
-    const better = await waitForRowState(adminApi, betterId, [
+    const improving = await waitForRowState(adminApi, reversedId, [
       "checking_enrolment",
       "submitting",
       "awaiting_verification",
     ])
-    expect(better.registration.grade_id).toBe("5")
-
-    const earlier = await adminRegistrationDetails(adminApi, registeredId)
-    expect(earlier.registration.superseded_by_id).toBe(betterId)
-    // Kept as history: the registry really does hold that attainment.
-    expect(earlier.registration.state).toBe("registered")
-    expect((await laterStudentRows(adminApi, false)).map((row) => row.id)).toStrictEqual([betterId])
+    expect(improving.registration.grade_id).toBe("5")
+    await expectRegisteredGradeHeld(adminApi)
+    expect((await laterStudentRows(adminApi, false)).map((row) => row.id).toSorted()).toStrictEqual(
+      [registeredId, reversedId].toSorted(),
+    )
   })
 
   await test.step("The better grade is submitted beside the earlier one", async () => {
     await runImportSubmissionTick(page.request, laterScope)
-    await waitForRowState(adminApi, betterId, ["awaiting_verification"])
+    await waitForRowState(adminApi, reversedId, ["awaiting_verification"])
     expect(await importCount(page)).toBe(2)
     expect(await submittedGrades(page)).toStrictEqual(["3", "5"])
   })
 
-  await test.step("The student sees the new attempt with the earlier one beneath it", async () => {
-    const { registration } = await adminRegistrationDetails(adminApi, betterId)
+  await test.step("An assessment item attainment alone replaces nothing", async () => {
+    await transitionMockSuotarSubmission(
+      page.request,
+      await submittedAttainmentIdOf(adminApi, reversedId),
+      "partiallyRegistered",
+    )
+    const pollsBefore = await countMockCallsForStudent(
+      page.request,
+      LATER_STUDENT_NUMBER,
+      CRS_GRADED_101,
+      "verify_attainments",
+    )
+    await makeRegistrationDueNow(adminApi, reversedId)
+    await runVerifyPollTick(page.request, laterScope)
+    expect(
+      await countMockCallsForStudent(
+        page.request,
+        LATER_STUDENT_NUMBER,
+        CRS_GRADED_101,
+        "verify_attainments",
+      ),
+    ).toBeGreaterThan(pollsBefore)
+    expect((await adminRegistrationDetails(adminApi, reversedId)).registration.state).toBe(
+      "awaiting_verification",
+    )
+    await expectRegisteredGradeHeld(adminApi)
+  })
+
+  await test.step("The student sees the new attempt waiting and the registered grade beneath it", async () => {
+    const { registration } = await adminRegistrationDetails(adminApi, reversedId)
     const studentApi = await playwright.request.newContext({
       storageState: seededStudentStorageState(LATER_STUDENT_EMAIL),
     })
-    const mine = await getJson<{
-      registration: MyCreditRegistration
-      earlier_attempts: MyCreditRegistration[]
-    }>(
+    const mine = await expectStudentSeesRegisteredGrade(
       studentApi,
-      `${CREDIT_REGISTRATIONS_API}/my/by-course-module/${registration.course_module_id}`,
+      registration.course_module_id,
+      reversedId,
     )
     await studentApi.dispose()
-    expect(mine.registration.id).toBe(betterId)
-    expect(mine.earlier_attempts.map((attempt) => [attempt.id, attempt.superseded])).toContainEqual(
-      [registeredId, true],
+    expect(mine.registration.student_facing_status).toBe("waiting_for_sisu")
+  })
+})
+
+test("An improvement Sisu reverses leaves the registered grade as the credit, with nothing resent", async ({
+  page,
+  adminApi,
+  playwright,
+}) => {
+  expect(reversedId, "this test continues from the previous one").not.toBe("")
+
+  await test.step("Sisu reverses the grade-5 attainment", async () => {
+    await transitionMockSuotarSubmission(
+      page.request,
+      await submittedAttainmentIdOf(adminApi, reversedId),
+      "misregistered",
     )
+    await makeRegistrationDueNow(adminApi, reversedId)
+    await runVerifyPollTick(page.request, laterScope)
+    await waitForRowState(adminApi, reversedId, ["misregistered"])
+  })
+
+  await test.step("The registered grade is the live credit, and neither grade is sent again", async () => {
+    await expectRegisteredGradeHeld(adminApi)
+    await runMaterializeTick(page.request, laterScope)
+    await runResolveEnrolmentsTick(page.request, laterScope)
+    await runImportSubmissionTick(page.request, laterScope)
+    expect(await importCount(page)).toBe(2)
+    expect(await submittedGrades(page)).toStrictEqual(["3", "5"])
+
+    const { registration } = await adminRegistrationDetails(adminApi, reversedId)
+    const studentApi = await playwright.request.newContext({
+      storageState: seededStudentStorageState(LATER_STUDENT_EMAIL),
+    })
+    await expectStudentSeesRegisteredGrade(studentApi, registration.course_module_id, reversedId)
+    await studentApi.dispose()
   })
 })
 
@@ -378,7 +474,18 @@ test("A later completion that is not better waits for the one in flight and is n
   page,
   adminApi,
 }) => {
-  expect(betterId, "this test continues from the previous one").not.toBe("")
+  expect(reversedId, "this test continues from the previous one").not.toBe("")
+
+  await test.step("Another grade-5 completion goes out while grade 3 stays held", async () => {
+    betterId = await addLaterCompletion(page, adminApi, 5)
+    await runPreconditionsTick(page.request, laterScope)
+    await runResolveEnrolmentsTick(page.request, laterScope)
+    await runImportSubmissionTick(page.request, laterScope)
+    await waitForRowState(adminApi, betterId, ["awaiting_verification"])
+    expect(await submittedGrades(page)).toStrictEqual(["3", "5", "5"])
+    await expectRegisteredGradeHeld(adminApi)
+  })
+
   const resolvesBefore = await countMockCallsForStudent(
     page.request,
     LATER_STUDENT_NUMBER,
@@ -407,27 +514,31 @@ test("A later completion that is not better waits for the one in flight and is n
       return id
     })
 
-  await test.step("Once grade 5 registers, grade 4 settles without a submission", async () => {
-    await transitionMockSuotarSubmissionsFor(
+  await test.step("Once grade 5 registers it replaces grade 3, and grade 4 settles unsent", async () => {
+    await transitionMockSuotarSubmission(
       page.request,
-      LATER_STUDENT_NUMBER,
+      await submittedAttainmentIdOf(adminApi, betterId),
       "registered",
-      CRS_GRADED_101,
     )
     await makeRegistrationDueNow(adminApi, betterId)
     await runVerifyPollTick(page.request, laterScope)
     await waitForRowState(adminApi, betterId, ["registered"])
 
+    const earlier = await adminRegistrationDetails(adminApi, registeredId)
+    expect(earlier.registration.superseded_by_id).toBe(betterId)
+    // Kept as history: the registry really does hold that attainment.
+    expect(earlier.registration.state).toBe("registered")
+
     await runResolveEnrolmentsTick(page.request, laterScope)
     await waitForRowState(adminApi, worseId, ["duplicate"])
-    expect(await importCount(page)).toBe(2)
-    expect(await submittedGrades(page)).toStrictEqual(["3", "5"])
+    expect(await importCount(page)).toBe(3)
+    expect(await submittedGrades(page)).toStrictEqual(["3", "5", "5"])
 
     const better = await adminRegistrationDetails(adminApi, betterId)
     expect(better.registration.state).toBe("registered")
     expect(better.registration.superseded).toBe(false)
     expect((await laterStudentRows(adminApi, false)).map((row) => row.id).toSorted()).toStrictEqual(
-      [betterId, worseId].toSorted(),
+      [reversedId, betterId, worseId].toSorted(),
     )
   })
 

@@ -195,6 +195,18 @@ export const transitionMockSuotarSubmissionsFor = (
     to,
   })
 
+/** One submission only, where a student's other submissions on the course must stay as they are. */
+export const transitionMockSuotarSubmission = (
+  request: APIRequestContext,
+  submittedAttainmentId: string,
+  to: MockSuotarSubmissionTarget,
+) =>
+  sendCommand(request, {
+    command: "transitionSubmission",
+    submittedAttainmentId,
+    to,
+  })
+
 /**
  * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
  * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student

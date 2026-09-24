@@ -18,7 +18,7 @@ use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
     Transition, claim_due_for_resolve, increment_submit_retry_count,
-    lock_live_successes_for_same_module, mark_superseded, set_payload_snapshot, transition,
+    lock_live_successes_for_same_module, mark_pending_superseded, set_payload_snapshot, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
@@ -359,7 +359,7 @@ async fn choose(
     }
 
     // Suotar's copy of Sisu may predate what we registered for another completion, so that is
-    // weighed too, and superseded below if this one goes out instead.
+    // weighed too, and marked below for this one to replace if it goes out instead.
     let mut tx = conn.begin().await?;
     let registered = lock_live_successes_for_same_module(&mut tx, row.id).await?;
     let registered_grades: Vec<_> = registered
@@ -453,14 +453,14 @@ async fn choose(
             return Ok(true);
         }
     };
-    for superseded in &registered {
-        mark_superseded(&mut tx, superseded.id, row.id).await?;
+    for replaced in &registered {
+        mark_pending_superseded(&mut tx, replaced.id, row.id).await?;
     }
     set_payload_snapshot(&mut tx, row.id, &built.snapshot).await?;
     let superseded_message = (!registered.is_empty()).then(|| {
         format!(
-            "This completion's grade {} beats the one registered from another completion, so \
-             that registration was superseded.",
+            "This completion's grade {} beats the one registered from another completion, which \
+             this one supersedes once it is registered.",
             built.snapshot.grade_id
         )
     });

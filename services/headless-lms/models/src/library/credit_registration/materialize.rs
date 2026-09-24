@@ -167,7 +167,8 @@ LIMIT $2
 /// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
 ///
 /// A better grade that arrives as a new completion is not this: resolve-enrolments weighs it against
-/// [`crate::credit_registrations::lock_live_successes_for_same_module`] and supersedes from there.
+/// [`crate::credit_registrations::lock_live_successes_for_same_module`], and the rows it replaces
+/// are left alone here until it is registered or gives up.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -196,6 +197,7 @@ FROM credit_registrations cr
   AND e.fully_eligible
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
+  AND cr.pending_superseded_by_id IS NULL
   -- The success set only: a row whose outcome we do not know must not gain a successor.
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL

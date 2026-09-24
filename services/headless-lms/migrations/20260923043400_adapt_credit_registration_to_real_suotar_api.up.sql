@@ -168,6 +168,34 @@ COMMENT ON COLUMN credit_registrations.not_registered_reimport_count IS 'How man
 COMMENT ON COLUMN credit_registrations.selected_enrolment_realisation_name IS 'Localized name ({fi, sv, en}, each optional) of the course unit realisation the chosen enrolment belongs to, as Suotar reported it.';
 COMMENT ON COLUMN credit_registrations.resubmit_not_before IS 'The retryAfter of Suotar''s last submissionPending answer: until then Suotar may still turn the pending submission into an attainment, so a second import could register the credits twice. Cleared when Suotar answers notRegistered.';
 
+ALTER TABLE credit_registrations
+ADD COLUMN pending_superseded_by_id UUID REFERENCES credit_registrations(id),
+  ADD CONSTRAINT credit_registrations_pending_superseded_by_not_self CHECK (pending_superseded_by_id <> id),
+  ADD CONSTRAINT credit_registrations_superseded_or_pending CHECK (
+    superseded_by_id IS NULL
+    OR pending_superseded_by_id IS NULL
+  );
+
+DROP INDEX uq_credit_registrations_person_module;
+CREATE UNIQUE INDEX uq_credit_registrations_person_module ON credit_registrations (sisu_person_id, course_module_id)
+WHERE sisu_person_id IS NOT NULL
+  AND deleted_at IS NULL
+  AND superseded_by_id IS NULL
+  AND pending_superseded_by_id IS NULL
+  AND state IN (
+    'submitting',
+    'submission_uncertain',
+    'awaiting_verification',
+    'registered',
+    'duplicate',
+    'not_improved'
+  );
+CREATE INDEX idx_credit_registrations_pending_superseded_by ON credit_registrations (pending_superseded_by_id)
+WHERE pending_superseded_by_id IS NOT NULL;
+
+COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The newer attempt that replaced this row: a regrade of the same completion, set when that attempt is created, or another completion''s better grade, set once the study registry holds it (see pending_superseded_by_id). The old row keeps its state and terminal_at, because it really was registered.';
+COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'Another completion''s attempt with a better grade that is being sent to replace this registered row, and holds its place in uq_credit_registrations_person_module meanwhile. Becomes superseded_by_id when that attempt reaches registered or duplicate, and is cleared when it fails, is reversed, stops before sending or is cancelled. Until then this row is still the credit the study registry holds.';
+
 ALTER TABLE course_module_suotar_configurations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN last_listed_at TIMESTAMP WITH TIME ZONE,

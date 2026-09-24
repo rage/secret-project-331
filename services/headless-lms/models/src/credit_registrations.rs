@@ -275,6 +275,33 @@ impl CreditRegistrationState {
         self.resubmission_refusal(false, strictness, resubmit_not_before, submitted_at)
     }
 
+    /// What an attempt entering `self` does to the rows it was sent to replace; see
+    /// [`mark_pending_superseded`].
+    fn pending_supersession_effect(self) -> PendingSupersessionEffect {
+        use PendingSupersessionEffect as Effect;
+        match self {
+            Self::Registered | Self::Duplicate => Effect::Complete,
+            // Frozen and still headed for Sisu, or already in the person-module slot. A
+            // `not_improved` row keeps the slot, so the row it was meant to replace stays out of it.
+            Self::CheckingEnrolment
+            | Self::Submitting
+            | Self::SubmissionUncertain
+            | Self::AwaitingVerification
+            | Self::FailedRetryable
+            | Self::NotImproved => Effect::Keep,
+            // Nothing of this attempt is in Sisu, and it goes through resolve-enrolments again,
+            // which weighs it afresh, before anything more is sent.
+            Self::Pending
+            | Self::ReadyToSubmit
+            | Self::ResolvingEnrolment
+            | Self::NoUsableEnrolment
+            | Self::Misregistered
+            | Self::FailedPermanent
+            | Self::Blocked
+            | Self::Cancelled => Effect::Abandon,
+        }
+    }
+
     /// How long a row entering this state waits before the pipeline may claim it again, when the
     /// caller of [`transition`] names no time of its own. Zero leaves it claimable at once.
     ///
@@ -294,6 +321,15 @@ impl CreditRegistrationState {
             _ => 0,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PendingSupersessionEffect {
+    Keep,
+    /// The replaced rows become superseded by this one.
+    Complete,
+    /// The replaced rows are the live credit again.
+    Abandon,
 }
 
 /// The edges only a hand transition may take, from any state [`admin_transition_refusal`] does not
@@ -464,6 +500,9 @@ pub struct CreditRegistration {
     pub selected_enrolment_realisation_name: Option<serde_json::Value>,
     /// Suotar's `retryAfter` for a pending submission; resubmitting earlier may duplicate it.
     pub resubmit_not_before: Option<DateTime<Utc>>,
+    /// Another completion's attempt on its way to replace this registered row; see
+    /// [`mark_pending_superseded`]. Until it lands this row is still the credit Sisu holds.
+    pub pending_superseded_by_id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -715,6 +754,8 @@ RETURNING *
     .fetch_one(&mut *tx)
     .await?;
 
+    settle_pending_supersessions(&mut tx, &[(id, to_state)]).await?;
+
     crate::credit_registration_events::insert(
         &mut tx,
         &NewCreditRegistrationEvent {
@@ -734,6 +775,50 @@ RETURNING *
 
     tx.commit().await?;
     Ok(after)
+}
+
+/// Completes or abandons the pending supersessions of rows that were waiting on these attempts, as
+/// each attempt's new state decides.
+async fn settle_pending_supersessions(
+    conn: &mut PgConnection,
+    moves: &[(Uuid, CreditRegistrationState)],
+) -> ModelResult<()> {
+    let mut completed = Vec::new();
+    let mut abandoned = Vec::new();
+    for &(id, to_state) in moves {
+        match to_state.pending_supersession_effect() {
+            PendingSupersessionEffect::Keep => {}
+            PendingSupersessionEffect::Complete => completed.push(id),
+            PendingSupersessionEffect::Abandon => abandoned.push(id),
+        }
+    }
+    if completed.is_empty() && abandoned.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET superseded_by_id = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN pending_superseded_by_id
+    ELSE superseded_by_id
+  END,
+  superseded_at = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN now()
+    ELSE superseded_at
+  END,
+  pending_superseded_by_id = NULL
+WHERE (
+    pending_superseded_by_id = ANY($1::uuid [])
+    OR pending_superseded_by_id = ANY($2::uuid [])
+  )
+  AND deleted_at IS NULL
+        "#,
+        &completed,
+        &abandoned,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// Refuses an edge outside the policy. The one place (from → to) legality is decided, for the
@@ -927,6 +1012,9 @@ WHERE cr.id = move.id
     )
     .execute(&mut *tx)
     .await?;
+
+    let settled: Vec<_> = ids.iter().copied().zip(to_states.iter().copied()).collect();
+    settle_pending_supersessions(&mut tx, &settled).await?;
 
     crate::credit_registration_events::insert_batch(&mut tx, &events).await?;
     tx.commit().await?;
@@ -1175,6 +1263,7 @@ WITH due AS (
             AND holder.id <> cr.id
             AND holder.deleted_at IS NULL
             AND holder.superseded_by_id IS NULL
+            AND holder.pending_superseded_by_id IS NULL
             AND holder.state IN (
               'submitting',
               'submission_uncertain',
@@ -1865,6 +1954,9 @@ WHERE id = $1
 /// Points an old attempt at the newer one that replaced it. The old row keeps its state and
 /// `terminal_at`: it really was registered.
 ///
+/// For a regrade of the same completion. Another completion's better grade goes through
+/// [`mark_pending_superseded`] instead.
+///
 /// `superseded_by_id` may name a row that does not exist yet, as long as it is inserted before the
 /// caller's transaction commits: the foreign key is deferred, which is what lets the successor take
 /// the completion's one live slot without the old attempt ever pointing at itself.
@@ -1878,6 +1970,32 @@ pub async fn mark_superseded(
 UPDATE credit_registrations
 SET superseded_by_id = $2,
   superseded_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        superseded_by_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Marks a registered row as being replaced by `superseded_by_id`, another completion's attempt with
+/// a better grade, which takes over the row's slot in `uq_credit_registrations_person_module`.
+///
+/// Not [`mark_superseded`]: the row stays the live credit until the new attempt is registered,
+/// since Sisu may accept the better grade without ever making it the course unit's attainment.
+/// [`transition`] then supersedes the row, or clears the mark if the new attempt stops short.
+pub async fn mark_pending_superseded(
+    conn: &mut PgConnection,
+    id: Uuid,
+    superseded_by_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET pending_superseded_by_id = $2
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -1922,8 +2040,9 @@ impl LiveSuccessForModule {
 /// The student's other live attempts for the row's module that the registry already holds, locked
 /// until the caller's transaction ends.
 ///
-/// What another completion has to beat to be sent, and what it supersedes when it does: only one
-/// live row per person and module may hold `uq_credit_registrations_person_module`.
+/// What another completion has to beat to be sent, and what it replaces when it does, through
+/// [`mark_pending_superseded`]. Includes rows already waiting on an earlier replacement, which a
+/// better one takes over.
 pub async fn lock_live_successes_for_same_module(
     conn: &mut PgConnection,
     id: Uuid,

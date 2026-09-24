@@ -787,6 +787,7 @@
   "credit-registration-counts-scoped-to-instance": "The table counts this instance only. The student and email totals below it are course-wide.",
   "credit-registration-course-credits-differ-from-current": "This course is now worth {{current}} ECTS. Your credits were registered at the amount that applied when you completed it.",
   "credit-registration-earlier-attempt-summary": "Attempt {{attempt}}, grade {{grade}}",
+  "credit-registration-earlier-attempt-summary-with-status": "Attempt {{attempt}}, grade {{grade}}: {{status}}",
   "credit-registration-failed-check-back": "Check back here in a few days.",
   "credit-registration-failures-by-reason_one": "{{count}} failure:",
   "credit-registration-failures-by-reason_other": "{{count}} failures:",

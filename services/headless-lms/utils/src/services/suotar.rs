@@ -198,7 +198,7 @@ pub struct LocalizedName {
     pub en: Option<String>,
 }
 
-/// Sisu's date range, either end of which may be open.
+/// Sisu's `LocalDateRange`: start inclusive, end exclusive, either end possibly open.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DatePeriod {
@@ -209,10 +209,11 @@ pub struct DatePeriod {
 }
 
 impl DatePeriod {
-    /// An open end contains every date on that side.
+    /// Whether `date` falls in the range; the end date itself is already outside it, and an open
+    /// end contains every date on that side.
     pub fn contains(&self, date: NaiveDate) -> bool {
         self.start_date.is_none_or(|start| start <= date)
-            && self.end_date.is_none_or(|end| date <= end)
+            && self.end_date.is_none_or(|end| date < end)
     }
 }
 

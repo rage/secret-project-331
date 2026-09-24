@@ -26,6 +26,7 @@ struct PendingMove {
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
+    payload_unweighed_against_held_credit: bool,
 }
 
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
@@ -35,12 +36,20 @@ struct PendingMove {
 /// resend clears `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a
 /// relink still looks frozen; without this it would resume at `checking_enrolment` and import the
 /// previous number.
+///
+/// `payload_unweighed_against_held_credit` also resolves again: another row of the module holds a
+/// credit this row is not marked to replace, and only resolve-enrolments may weigh the two and hand
+/// this row that row's slot in `uq_credit_registrations_person_module`. Import would otherwise hold
+/// the row back for good.
 fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
+    payload_unweighed_against_held_credit: bool,
 ) -> CreditRegistrationState {
-    if has_submitted_attainment_id {
+    if payload_unweighed_against_held_credit {
+        CreditRegistrationState::ReadyToSubmit
+    } else if has_submitted_attainment_id {
         CreditRegistrationState::AwaitingVerification
     } else if has_payload_snapshot && !frozen_identity_stale {
         CreditRegistrationState::CheckingEnrolment
@@ -68,6 +77,7 @@ pub async fn recompute_preconditions(
                     pending.has_submitted_attainment,
                     pending.has_payload_snapshot,
                     pending.frozen_identity_stale,
+                    pending.payload_unweighed_against_held_credit,
                 )
             });
             (target != pending.state).then(|| BatchMove {
@@ -177,7 +187,18 @@ WITH facts AS (
     p.completion_eligible AS eligible,
     p.has_verified_student_number AS has_student_number,
     p.course_code_allowed,
-    p.frozen_identity_stale
+    p.frozen_identity_stale,
+    EXISTS (
+      SELECT 1
+      FROM credit_registrations held
+      WHERE held.user_id = cr.user_id
+        AND held.course_module_id = cr.course_module_id
+        AND held.id <> cr.id
+        AND held.deleted_at IS NULL
+        AND held.superseded_by_id IS NULL
+        AND held.pending_superseded_by_id IS DISTINCT FROM cr.id
+        AND held.state IN ('registered', 'duplicate', 'not_improved')
+    ) AS payload_unweighed_against_held_credit
   FROM credit_registrations cr
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
@@ -260,7 +281,8 @@ SELECT id,
   course_code_allowed AS "course_code_allowed!",
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
-  frozen_identity_stale AS "frozen_identity_stale!"
+  frozen_identity_stale AS "frozen_identity_stale!",
+  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!"
 FROM targets
 WHERE target IS NULL
   OR target <> state
@@ -291,6 +313,7 @@ LIMIT $1
             has_submitted_attainment: row.has_submitted_attainment,
             has_payload_snapshot: row.has_payload_snapshot,
             frozen_identity_stale: row.frozen_identity_stale,
+            payload_unweighed_against_held_credit: row.payload_unweighed_against_held_credit,
         })
         .collect())
 }
@@ -767,15 +790,15 @@ mod tests {
     #[test]
     fn a_retry_resumes_where_the_row_had_got_to() {
         assert_eq!(
-            resume_state(false, false, false),
+            resume_state(false, false, false, false),
             CreditRegistrationState::ReadyToSubmit
         );
         assert_eq!(
-            resume_state(false, true, false),
+            resume_state(false, true, false, false),
             CreditRegistrationState::CheckingEnrolment
         );
         assert_eq!(
-            resume_state(true, true, false),
+            resume_state(true, true, false, false),
             CreditRegistrationState::AwaitingVerification
         );
     }
@@ -784,7 +807,7 @@ mod tests {
     #[test]
     fn a_retry_whose_frozen_identity_went_stale_resolves_the_enrolment_again() {
         assert_eq!(
-            resume_state(false, true, true),
+            resume_state(false, true, true, false),
             CreditRegistrationState::ReadyToSubmit
         );
     }

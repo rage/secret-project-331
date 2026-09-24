@@ -494,6 +494,50 @@
         }
       }
     },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`\n\nUpdates the title of a chatbot conversation.",
+        "operationId": "updateTitle",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Conversation id"
+          }
+        }
+      }
+    },
     "/api/v0/course-material/code-giveaways/{id}/claim": {
       "post": {
         "tags": ["course-material-code-giveaways"],

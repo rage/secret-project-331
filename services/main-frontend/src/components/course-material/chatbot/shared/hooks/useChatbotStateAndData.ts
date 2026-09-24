@@ -159,6 +159,8 @@ const useChatbotStateAndData = (
     setChatbotMessageAnnouncement(
       waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
+    // Call new endpoint here that updates the conversation_title
+    // Somehow needs to check if the message is first message sent by user
     if (currentConversationInfo.data?.current_conversation_messages?.length === 1) {
       queryClient.refetchQueries({
         queryKey: allUserConversationsQueryKey(),
@@ -288,6 +290,8 @@ const useChatbotStateAndData = (
           signal,
         )
       }),
+    // Call new endpoint here that updates the conversation_title
+    // Somehow needs to check if the message is first message sent by user
     { notify: false },
     {
       onSuccess: settleFinishedTurn,

@@ -174,6 +174,8 @@ import type {
   UpdateMarketingConsentResponses,
   UpdateShowExerciseAnswersData,
   UpdateShowExerciseAnswersResponses,
+  UpdateTitleData,
+  UpdateTitleResponses,
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
@@ -553,6 +555,26 @@ export const sendChatbotToolResponse = <ThrowOnError extends boolean = true>(
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
+ *
+ * Updates the title of a chatbot conversation.
+ */
+export const updateTitle = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateTitleData, ThrowOnError>,
+): RequestResult<UpdateTitleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<UpdateTitleResponses, unknown, ThrowOnError, "data">({
+    bodySerializer: null,
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
+    ...options,
+    headers: {
+      "Content-Type": "text/plain",
       ...options.headers,
     },
   })

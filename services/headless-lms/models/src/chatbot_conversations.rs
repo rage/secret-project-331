@@ -240,6 +240,26 @@ ORDER BY chatbot_conversations.created_at DESC;
     Ok(res)
 }
 
+pub async fn update_conversation_title(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    conversation_title: String,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET conversation_title = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        "#,
+        conversation_title,
+        conversation_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Gets specific conversation or latest conversation for the user, if any. If conversation_id is not provided then latest conversation is given. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
 pub async fn get_conversation_info(
     tx: &mut PgConnection,

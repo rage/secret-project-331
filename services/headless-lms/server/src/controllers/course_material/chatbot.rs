@@ -34,6 +34,7 @@ use rand::distr::{Alphanumeric, SampleString};
     conversation_info,
     current_conversation_id,
     all_user_conversations,
+    update_title,
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
 
@@ -573,6 +574,57 @@ async fn current_conversation_id(
 }
 
 /**
+PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
+
+Updates the title of a chatbot conversation.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
+    operation_id = "updateTitle",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Uuid, Path, description = "Conversation id")
+    ),
+    request_body = String,
+    responses(
+        (status = 200, description = "Conversation id")
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_title(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    payload: web::Json<String>,
+    params: web::Path<(Uuid, Uuid)>,
+    req: HttpRequest,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let chatbot_configuration_id = params.0;
+    let conversation_id = params.1;
+
+    let (token, _chatbot_user) = authorize_access_to_conversation(
+        &mut conn,
+        chatbot_configuration_id,
+        conversation_id,
+        user,
+        req,
+    )
+    .await?;
+
+    chatbot_conversations::update_conversation_title(
+        &mut conn,
+        conversation_id,
+        payload.into_inner(),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -604,5 +656,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/{chatbot_configuration_id}/conversations/current/id",
         web::get().to(current_conversation_id),
     )
-    .route("/conversations/all", web::get().to(all_user_conversations));
+    .route("/conversations/all", web::get().to(all_user_conversations))
+    .route(
+        "/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
+        web::put().to(update_title),
+    );
 }

@@ -92,6 +92,7 @@ import {
   updateCourseMaterialUserInfo,
   updateMarketingConsent,
   updateShowExerciseAnswers,
+  updateTitle,
 } from "../sdk.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
@@ -255,6 +256,7 @@ import type {
   UpdateMarketingConsentData,
   UpdateMarketingConsentResponse,
   UpdateShowExerciseAnswersData,
+  UpdateTitleData,
 } from "../types.generated"
 
 export const deleteCourseMaterialGlossaryTermMutation = (
@@ -671,6 +673,27 @@ export const sendChatbotToolResponseMutation = (
   }
   return mutationOptions
 }
+
+export const updateTitleQueryKey = (options: Options<UpdateTitleData>) =>
+  createQueryKey("updateTitle", options)
+
+/**
+ *
+ * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
+ *
+ * Updates the title of a chatbot conversation.
+ */
+export const updateTitleOptions = (options: Options<UpdateTitleData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof updateTitleQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await updateTitle({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: updateTitleQueryKey(options),
+  })
 
 /**
  *

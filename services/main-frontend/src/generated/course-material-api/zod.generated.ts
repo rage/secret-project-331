@@ -1601,6 +1601,13 @@ export const zSendChatbotToolResponsePath = z.object({
  */
 export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
 
+export const zUpdateTitleBody = z.string()
+
+export const zUpdateTitlePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),
 })

@@ -1679,6 +1679,29 @@ export type SendChatbotToolResponseResponses = {
 export type SendChatbotToolResponseResponse =
   SendChatbotToolResponseResponses[keyof SendChatbotToolResponseResponses]
 
+export type UpdateTitleData = {
+  body: string
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title"
+}
+
+export type UpdateTitleResponses = {
+  /**
+   * Conversation id
+   */
+  200: unknown
+}
+
 export type ClaimCodeFromCodeGiveawayData = {
   body?: never
   path: {

@@ -175,16 +175,25 @@ pub struct Feedback {
 pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
+    category_filter: Option<String>,
     read: bool,
     pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
+    let fc = if let Some(cf) = category_filter {
+        feedback_categories::get_by_name(conn, &cf)
+            .await?
+            .map(|x| x.name)
+    } else {
+        None
+    };
+    // empty string if None
+    let name = fc.as_slice().join("");
+
     let res = sqlx::query!(
         r#"
 SELECT fb.*,
   pages.title AS "page_title",
-  pages.url_path AS "page_url_path",
-  fbc.name AS "feedback_category_name",
-  fbc.id AS "feedback_category_id"
+  pages.url_path AS "page_url_path"
 FROM (
     SELECT feedback.id AS "id!",
       feedback.user_id,
@@ -195,6 +204,7 @@ FROM (
       feedback.marked_as_read AS "marked_as_read!",
       feedback.created_at AS "created_at!",
       feedback.category_id,
+      feedback_categories.name AS "feedback_category_name: Option<String>",
       array_agg(block_feedback.block_id) filter (
         WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_ids: Vec<Uuid>",
@@ -206,23 +216,25 @@ FROM (
       ) AS "block_order_numbers: Vec<Option<i32>>"
     FROM feedback
       LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
+      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id
     WHERE course_id = $1
       AND feedback.marked_as_read = $2
       AND feedback.deleted_at IS NULL
       AND block_feedback.deleted_at IS NULL
+      AND feedback_categories.deleted_at IS NULL
+      AND (feedback_categories.name IS NULL OR feedback_categories.name LIKE '%' || $5 || '')
     GROUP BY feedback.id,
       feedback.user_id,
       feedback.course_id,
       feedback.feedback_given,
       feedback.marked_as_read,
-      feedback.created_at
+      feedback.created_at,
+      feedback_categories.name
     ORDER BY feedback.created_at DESC,
       feedback.id
     LIMIT $3 OFFSET $4
   ) fb
   JOIN pages ON pages.id = fb.page_id
-  LEFT JOIN feedback_categories AS fbc ON fb.category_id = fbc.id
-  WHERE fbc.deleted_at IS NULL
   ORDER BY fb."created_at!" DESC,
       fb."id!"
         "#,
@@ -230,6 +242,7 @@ FROM (
         read,
         pagination.limit(),
         pagination.offset(),
+        name
     )
     .map(|r| Feedback {
         id: r.id,
@@ -255,7 +268,7 @@ FROM (
         page_title: r.page_title,
         page_url_path: r.page_url_path,
         feedback_category_name: r.feedback_category_name,
-        feedback_category_id: r.feedback_category_id,
+        feedback_category_id: r.category_id,
     })
     .fetch_all(conn)
     .await?;

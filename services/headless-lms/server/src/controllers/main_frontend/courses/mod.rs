@@ -1171,7 +1171,8 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
         ("course_id" = String, Path, description = "Course id"),
         ("read" = bool, Query, description = "Whether to fetch read feedback"),
         ("page" = Option<i64>, Query, description = "Page number"),
-        ("limit" = Option<i64>, Query, description = "Page size")
+        ("limit" = Option<i64>, Query, description = "Page size"),
+        ("category_filter" = Option<String>, Query, description = "Selected category")
     ),
     responses(
         (status = 200, description = "Feedback for the course", body = [Feedback])
@@ -1182,6 +1183,7 @@ pub async fn get_feedback(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     read: web::Query<GetFeedbackQuery>,
+    category_filter: Option<String>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<Feedback>>> {
     let mut conn = pool.acquire().await?;
@@ -1192,9 +1194,14 @@ pub async fn get_feedback(
         Res::Course(*course_id),
     )
     .await?;
-    let feedback =
-        feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
-            .await?;
+    let feedback = feedback::get_feedback_for_course(
+        &mut conn,
+        *course_id,
+        category_filter,
+        read.read,
+        read.pagination,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(feedback))
 }

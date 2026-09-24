@@ -52,6 +52,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
         read,
         page,
         limit,
+        category: state.selectedKeys[0],
       },
     }),
   })

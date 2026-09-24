@@ -143,7 +143,7 @@ impl ChatbotTool for CourseFinderTool {
                         .get(&course.organization_id)
                         .ok_or_else(|| {
                             chatbot_err!(
-                                Other,
+                                ToolUseError,
                                 format!(
                                     "Organization {} not found for course {}",
                                     course.organization_id, course.id

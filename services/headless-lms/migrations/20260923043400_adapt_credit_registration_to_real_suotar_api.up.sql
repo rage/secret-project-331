@@ -188,6 +188,14 @@ WHERE pending_superseded_by_id IS NOT NULL;
 COMMENT ON COLUMN credit_registrations.superseded_by_id IS 'The later attempt that replaced this row. A registered row is superseded only once the study registry holds its replacement (see pending_superseded_by_id), and keeps its state and terminal_at, because it really was registered.';
 COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'A later attempt, a regrade of the same completion or another of the student''s completions for the module, that is being sent to replace this registered row. Until the study registry holds it, this row stays the live credit and keeps its place in uq_credit_registrations_person_module. Becomes superseded_by_id when that attempt reaches registered or duplicate, and is cleared if it stops short.';
 
+ALTER TABLE credit_registrations
+ADD COLUMN no_usable_enrolment_since TIMESTAMP WITH TIME ZONE;
+COMMENT ON COLUMN credit_registrations.no_usable_enrolment_since IS 'When the pipeline first found no usable enrolment for this row, kept while its rechecks keep finding none; the recheck interval grows with how long ago this was. Cleared once the row leaves that loop, for example when an enrolment is found.';
+
+UPDATE credit_registrations
+SET no_usable_enrolment_since = state_entered_at
+WHERE state = 'no_usable_enrolment';
+
 ALTER TABLE course_module_suotar_configurations
 ADD COLUMN last_listing_attempted_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN last_listed_at TIMESTAMP WITH TIME ZONE,

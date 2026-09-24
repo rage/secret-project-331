@@ -20,9 +20,18 @@ pub const VERIFY_MAX_AGE_SECS: i64 = 14 * 24 * 60 * 60;
 pub const VERIFY_GIVE_UP_POLL_SECS: i64 = 24 * 60 * 60;
 pub const JITTER_MAX_SECS: i64 = 30;
 
-/// How long before the pipeline looks for an enrolment again on its own; a student recheck or
-/// enrolment discovery can wake the row sooner.
-pub const NO_USABLE_ENROLMENT_RECHECK_SECS: i64 = 24 * 60 * 60;
+/// The waits between the pipeline's own looks for an enrolment, from the first time it found none;
+/// after the last one it looks daily. A manual recheck or enrolment discovery can wake the row
+/// sooner without restarting this, since it is timed from `no_usable_enrolment_since`.
+pub const NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS: [i64; 3] = [60 * 60, 4 * 60 * 60, 12 * 60 * 60];
+pub const NO_USABLE_ENROLMENT_DAILY_RECHECK_SECS: i64 = 24 * 60 * 60;
+/// A row parked this long is unlikely ever to enrol, so its looks drop to weekly.
+pub const NO_USABLE_ENROLMENT_WEEKLY_AFTER_SECS: i64 = 30 * 24 * 60 * 60;
+pub const NO_USABLE_ENROLMENT_WEEKLY_RECHECK_SECS: i64 = 7 * 24 * 60 * 60;
+/// How soon after the last enrolment check a person may ask for another. The student's and the
+/// teacher's buttons share it, and enrolment discovery waits it out for a roster entry that carries
+/// no enrolment time.
+pub const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
 
 /// The first wait before looking for an attainment we may or may not have created; it doubles
 /// after every fruitless look.
@@ -75,6 +84,23 @@ pub fn uncertain_recheck_secs(lookup_count: i32) -> i64 {
         UNCERTAIN_MAX_RECHECK_SECS,
         lookup_count,
     )
+}
+
+/// The wait before the next look for an enrolment, for a row that has been without a usable one for
+/// `parked_for_secs`: each step of [`NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS`] applies until the
+/// time it ends at has passed.
+pub fn no_usable_enrolment_recheck_secs(parked_for_secs: i64) -> i64 {
+    if parked_for_secs >= NO_USABLE_ENROLMENT_WEEKLY_AFTER_SECS {
+        return NO_USABLE_ENROLMENT_WEEKLY_RECHECK_SECS;
+    }
+    let mut step_ends_at_secs = 0;
+    for delay_secs in NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS {
+        step_ends_at_secs += delay_secs;
+        if parked_for_secs < step_ends_at_secs {
+            return delay_secs;
+        }
+    }
+    NO_USABLE_ENROLMENT_DAILY_RECHECK_SECS
 }
 
 /// Spreads a batch that failed together, so it does not come back as one thundering herd.
@@ -140,6 +166,28 @@ mod tests {
             Some(now - chrono::Duration::days(15)),
             now
         ));
+    }
+
+    #[test]
+    fn enrolment_rechecks_thin_out_the_longer_a_row_waits() {
+        const HOUR: i64 = 60 * 60;
+        let schedule: Vec<i64> = [0, HOUR, 5 * HOUR, 17 * HOUR, 41 * HOUR, 31 * 24 * HOUR]
+            .into_iter()
+            .map(no_usable_enrolment_recheck_secs)
+            .collect();
+        assert_eq!(
+            schedule,
+            [
+                HOUR,
+                4 * HOUR,
+                12 * HOUR,
+                24 * HOUR,
+                24 * HOUR,
+                7 * 24 * HOUR
+            ]
+        );
+        // A manual recheck in between does not restart the schedule.
+        assert_eq!(no_usable_enrolment_recheck_secs(2 * HOUR), 4 * HOUR);
     }
 
     #[test]

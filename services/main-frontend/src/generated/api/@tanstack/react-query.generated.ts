@@ -334,6 +334,7 @@ import {
   previewStudentNumberVerificationToken,
   processEditProposal,
   receivePlaygroundGrading,
+  recheckCreditRegistrationEnrolment,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
@@ -997,6 +998,8 @@ import type {
   PreviewStudentNumberVerificationTokenResponse,
   ProcessEditProposalData,
   ReceivePlaygroundGradingData,
+  RecheckCreditRegistrationEnrolmentData,
+  RecheckCreditRegistrationEnrolmentResponse,
   ReleaseExamGradesData,
   RemoveCoursePlanMemberData,
   RemoveCoursePlanMemberResponse,
@@ -2292,6 +2295,38 @@ export const getCreditRegistrationDetailsOptions = (
       }),
     queryKey: getCreditRegistrationDetailsQueryKey(options),
   })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
+ * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
+ * none.
+ *
+ * Shares the student's button's allowance, so between them they cannot ask the registry more than once
+ * an hour. Authorized on the row's own course, like the retry.
+ */
+export const recheckCreditRegistrationEnrolmentMutation = (
+  options?: Partial<Options<RecheckCreditRegistrationEnrolmentData>>,
+): UseMutationOptions<
+  RecheckCreditRegistrationEnrolmentResponse,
+  DefaultError,
+  Options<RecheckCreditRegistrationEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RecheckCreditRegistrationEnrolmentResponse,
+    DefaultError,
+    Options<RecheckCreditRegistrationEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await recheckCreditRegistrationEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

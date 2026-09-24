@@ -14,6 +14,7 @@ Every mutating handler writes exactly one `credit_registration_admin_actions` ro
 */
 
 mod actions;
+mod enrolment_recheck;
 mod export;
 mod retry;
 
@@ -54,7 +55,10 @@ use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::services::suotar::SuotarClient;
 
-use super::credit_registrations::{NotificationEmailStatus, mask_email};
+use super::credit_registrations::{
+    NotificationEmailStatus, can_request_enrolment_recheck, mask_email,
+    next_enrolment_recheck_allowed_at,
+};
 
 /// Every handler here that names a student gates on this; see the module doc for why
 /// `ViewAndManageCreditRegistrations` and not a broader course permission.
@@ -98,6 +102,7 @@ const MAX_ROWS_PER_REQUEST: i64 = 2_000;
     resend_course_credit_registration_linking_email,
     retry::retry_credit_registration,
     retry::retry_failed_credit_registrations_for_course,
+    enrolment_recheck::recheck_credit_registration_enrolment,
     actions::get_course_credit_registration_actions,
     export::export_course_credit_registrations
 ))]
@@ -143,6 +148,12 @@ pub struct CourseCreditRegistration {
     /// Why a teacher's retry would refuse this row, or `null` if it would put it back on the
     /// pipeline: what the row's retry control renders from.
     pub resubmission_refusal: Option<ResubmissionRefusal>,
+    /// Whether the row's "check enrolment again" action is available now; it shares the student's
+    /// button's allowance.
+    pub can_request_enrolment_recheck: bool,
+    /// While a row waiting for an enrolment was checked too recently to check again, when that
+    /// becomes possible.
+    pub next_enrolment_recheck_allowed_at: Option<DateTime<Utc>>,
     /// In full: a masked number cannot be checked against a student card.
     pub student_number: Option<String>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
@@ -995,7 +1006,16 @@ pub(crate) async fn build_teacher_registrations(
 
 impl From<TeacherCreditRegistration> for CourseCreditRegistration {
     fn from(row: TeacherCreditRegistration) -> Self {
+        let can_request_enrolment_recheck =
+            can_request_enrolment_recheck(row.state, row.enrolment_checked_at);
+        let next_enrolment_recheck_allowed_at = (row.state
+            == CreditRegistrationState::NoUsableEnrolment
+            && !can_request_enrolment_recheck)
+            .then(|| next_enrolment_recheck_allowed_at(row.enrolment_checked_at))
+            .flatten();
         Self {
+            can_request_enrolment_recheck,
+            next_enrolment_recheck_allowed_at,
             student_facing_status: StudentFacingCreditRegistrationStatus::of(
                 row.state,
                 row.preconditions(),
@@ -1075,6 +1095,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_credit_registration_details),
     );
     retry::_add_routes(cfg);
+    enrolment_recheck::_add_routes(cfg);
     actions::_add_routes(cfg);
     export::_add_routes(cfg);
 }

@@ -10,9 +10,9 @@ use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
 use super::backoff::{
-    NO_USABLE_ENROLMENT_RECHECK_SECS, NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD,
-    PARTIAL_REGISTRATION_ADMIN_AFTER_SECS, UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
-    VERIFY_GIVE_UP_POLL_SECS, next_attempt_at, submit_backoff_secs, submit_window_expired,
+    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER_SECS,
+    UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at,
+    no_usable_enrolment_recheck_secs, submit_backoff_secs, submit_window_expired,
     uncertain_needs_admin, uncertain_recheck_secs, verify_backoff_secs, verify_window_expired,
 };
 use super::classification::{Retryability, retryability, settled_state};
@@ -25,6 +25,17 @@ pub struct RowFacts {
     pub submit_retry_count: i32,
     pub verify_attempt_count: i32,
     pub submitted_at: Option<DateTime<Utc>>,
+    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
+}
+
+impl RowFacts {
+    /// The wait before the next look for an enrolment, were the row to park without one now.
+    fn no_usable_enrolment_recheck_secs(&self) -> i64 {
+        let parked_for_secs = self
+            .no_usable_enrolment_since
+            .map_or(0, |since| (self.now - since).num_seconds());
+        no_usable_enrolment_recheck_secs(parked_for_secs)
+    }
 }
 
 /// What the phase writes for this row.
@@ -112,7 +123,7 @@ pub fn submit_error_outcome(
             },
             _ => Outcome::to(CreditRegistrationState::NoUsableEnrolment)
                 .with_code(code)
-                .after(NO_USABLE_ENROLMENT_RECHECK_SECS),
+                .after(facts.no_usable_enrolment_recheck_secs()),
         },
         Retryability::PermanentNeedsConfig | Retryability::PermanentNeedsAdmin => {
             Outcome::to(CreditRegistrationState::FailedPermanent)
@@ -331,6 +342,7 @@ mod tests {
             submit_retry_count: 0,
             verify_attempt_count: 0,
             submitted_at: None,
+            no_usable_enrolment_since: None,
         }
     }
 

@@ -1180,6 +1180,11 @@ export type CourseCount = {
 
 export type CourseCreditRegistration = {
   attempt_number: number
+  /**
+   * Whether the row's "check enrolment again" action is available now; it shares the student's
+   * button's allowance.
+   */
+  can_request_enrolment_recheck: boolean
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -1197,6 +1202,11 @@ export type CourseCreditRegistration = {
   linking_email?: null | TeacherLinkingEmailStatus
   needs_admin_attention: boolean
   next_attempt_at: string
+  /**
+   * While a row waiting for an enrolment was checked too recently to check again, when that
+   * becomes possible.
+   */
+  next_enrolment_recheck_allowed_at?: string | null
   notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
   resubmission_refusal?: null | ResubmissionRefusal
@@ -5994,6 +6004,39 @@ export type GetCreditRegistrationDetailsResponses = {
 
 export type GetCreditRegistrationDetailsResponse =
   GetCreditRegistrationDetailsResponses[keyof GetCreditRegistrationDetailsResponses]
+
+export type RecheckCreditRegistrationEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment"
+}
+
+export type RecheckCreditRegistrationEnrolmentErrors = {
+  /**
+   * The registration is not waiting for an enrolment
+   */
+  400: unknown
+  /**
+   * No such registration
+   */
+  404: unknown
+}
+
+export type RecheckCreditRegistrationEnrolmentResponses = {
+  /**
+   * Whether a recheck was started
+   */
+  200: RequestCreditRegistrationEnrolmentRecheckResult
+}
+
+export type RecheckCreditRegistrationEnrolmentResponse =
+  RecheckCreditRegistrationEnrolmentResponses[keyof RecheckCreditRegistrationEnrolmentResponses]
 
 export type RetryCreditRegistrationData = {
   body: RetryCreditRegistrationPayload

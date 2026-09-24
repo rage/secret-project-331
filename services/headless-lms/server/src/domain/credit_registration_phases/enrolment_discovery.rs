@@ -1,16 +1,17 @@
 //! The `enrolment-discovery` phase: who the study registry says is on the course.
 //!
-//! One listing unparks the registrations of people we already have a link for and claims an
-//! account-linking mail for everybody else.
+//! One listing unparks the registrations of people we already have a link for and, while account
+//! linking is switched on, claims an account-linking mail for everybody else. With linking off it
+//! lists only the modules that have a registration waiting for an enrolment.
 
 use headless_lms_models::course_module_suotar_configurations::{
     ModuleListingOutcome, ModuleToList, claim_stalest_modules_for_listing, mark_listing_failed,
-    record_listing_outcome,
+    mark_listing_succeeded_without_linking, record_listing_outcome,
 };
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, recheck_no_usable_enrolment_now,
+    CreditRegistrationErrorCode, RosterEnrolee, recheck_no_usable_enrolment_now,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, claim_linking_mails_batch,
@@ -36,12 +37,14 @@ use super::{
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     let endpoint = SuotarEndpoint::ListByCourse;
+    let is_account_linking_enabled = ctx.suotar_conf.account_linking_enabled;
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let claimed = claim_stalest_modules_for_listing(
         &mut tx,
         endpoint.max_batch_size() as i64,
         scope.course_id,
+        !is_account_linking_enabled,
     )
     .await?;
     tx.commit().await?;
@@ -134,9 +137,18 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             }
         };
         let linked = linked_accounts(&mut conn, &people).await?;
+        let enrolees = roster_enrolees(&people, &linked);
         for module in modules {
-            let outcome = reconcile(&mut conn, module, &people, &linked).await?;
-            record_listing_outcome(&mut conn, module.course_module_id, &outcome).await?;
+            if !enrolees.is_empty() {
+                recheck_no_usable_enrolment_now(&mut conn, module.course_module_id, &enrolees)
+                    .await?;
+            }
+            if is_account_linking_enabled {
+                let outcome = claim_linking_mails(&mut conn, module, &people, &linked).await?;
+                record_listing_outcome(&mut conn, module.course_module_id, &outcome).await?;
+            } else {
+                mark_listing_succeeded_without_linking(&mut conn, module.course_module_id).await?;
+            }
         }
     }
 
@@ -208,8 +220,42 @@ async fn linked_accounts(
     Ok(linked)
 }
 
-/// Applies one module's roster and returns the counters its configuration row carries.
-async fn reconcile(
+/// The linked accounts on the roster, each with the enrolment the registry lists for them.
+fn roster_enrolees(
+    people: &[&ListedPerson],
+    linked: &[VerifiedStudentNumber],
+) -> Vec<RosterEnrolee> {
+    let enrolled_at = |person: &ListedPerson| {
+        person
+            .enrolment
+            .as_ref()
+            .and_then(|enrolment| enrolment.enrolment_date_time)
+    };
+    let by_person_id: HashMap<&str, &ListedPerson> = people
+        .iter()
+        .map(|&person| (person.person_id.expose_secret(), person))
+        .collect();
+    let by_student_number: HashMap<&str, &ListedPerson> = people
+        .iter()
+        .map(|&person| (person.student_number.expose_secret(), person))
+        .collect();
+    linked
+        .iter()
+        .filter_map(|row| {
+            let person = expose_option(&row.sisu_person_id)
+                .and_then(|person_id| by_person_id.get(person_id))
+                .or_else(|| by_student_number.get(row.student_number.expose_secret()))?;
+            Some(RosterEnrolee {
+                user_id: row.user_id,
+                enrolled_at: enrolled_at(person),
+            })
+        })
+        .collect()
+}
+
+/// Claims a linking mail for everyone on one module's roster we hold no link for, and returns the
+/// counters its configuration row carries.
+async fn claim_linking_mails(
     conn: &mut PgConnection,
     module: &ModuleToList,
     people: &[&ListedPerson],
@@ -257,13 +303,6 @@ async fn reconcile(
             outcome.suppressed_by_dedup_count += claimed.suppressed_by_dedup;
             outcome.suppressed_by_rate_cap_count += claimed.suppressed_by_rate_cap;
         }
-    }
-
-    // The fast way back for a row parked without an enrolment, which would otherwise wait out its
-    // own daily recheck.
-    let linked_user_ids: Vec<_> = linked.iter().map(|row| row.user_id).collect();
-    if !linked_user_ids.is_empty() {
-        recheck_no_usable_enrolment_now(conn, module.course_id, &linked_user_ids).await?;
     }
     Ok(outcome)
 }

@@ -185,7 +185,7 @@ pub struct LaneCompletion {
 const NOT_ENROLLED: &[RealisationKind] = &[];
 const DEGREE: &[RealisationKind] = &[RealisationKind::Degree];
 
-pub const LANE_COMPLETIONS: [LaneCompletion; 16] = [
+pub const LANE_COMPLETIONS: [LaneCompletion; 17] = [
     // suotar-in-course-banner
     LaneCompletion {
         student: &STUDENT_7,
@@ -270,6 +270,12 @@ pub const LANE_COMPLETIONS: [LaneCompletion; 16] = [
     // suotar-sisu-outage
     LaneCompletion {
         student: &CREDIT_REGISTRATION_STUDENT_4,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-enrolment-recheck
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_6,
         course_code: CRS_B_101,
         enrolments: NOT_ENROLLED,
     },

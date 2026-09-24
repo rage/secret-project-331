@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE credit_registrations\nSET state = $2::credit_registration_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = $3,\n  error_message = $4,\n  needs_admin_attention = COALESCE($5, needs_admin_attention),\n  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.\n  terminal_at = CASE\n    WHEN $6 THEN COALESCE(terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN $7 THEN COALESCE(first_failed_at, now())\n    ELSE first_failed_at\n  END,\n  registered_at = CASE\n    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())\n    ELSE registered_at\n  END,\n  submitted_at = CASE\n    WHEN $2::credit_registration_state = 'submitting' THEN now()\n    ELSE submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN state = 'checking_enrolment'\n    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()\n    ELSE enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL\n    ELSE enrolment_banner_dismissed_at\n  END,\n  next_attempt_at = COALESCE(\n    $8::timestamptz,\n    now() + ($9::bigint * INTERVAL '1 second')\n  )\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nUPDATE credit_registrations\nSET state = $2::credit_registration_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = $3,\n  error_message = $4,\n  needs_admin_attention = COALESCE($5, needs_admin_attention),\n  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.\n  terminal_at = CASE\n    WHEN $6 THEN COALESCE(terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN $7 THEN COALESCE(first_failed_at, now())\n    ELSE first_failed_at\n  END,\n  registered_at = CASE\n    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())\n    ELSE registered_at\n  END,\n  submitted_at = CASE\n    WHEN $2::credit_registration_state = 'submitting' THEN now()\n    ELSE submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN state = 'resolving_enrolment'\n    AND $2::credit_registration_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()\n    WHEN state = 'checking_enrolment'\n    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()\n    ELSE enrolment_checked_at\n  END,\n  enrolment_banner_dismissed_at = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL\n    ELSE enrolment_banner_dismissed_at\n  END,\n  -- The recheck loop passes through these on its way back to no_usable_enrolment.\n  no_usable_enrolment_since = CASE\n    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN COALESCE(no_usable_enrolment_since, now())\n    WHEN $2::credit_registration_state IN (\n      'ready_to_submit',\n      'resolving_enrolment',\n      'failed_retryable'\n    ) THEN no_usable_enrolment_since\n    ELSE NULL\n  END,\n  next_attempt_at = COALESCE(\n    $8::timestamptz,\n    now() + ($9::bigint * INTERVAL '1 second')\n  )\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -607,6 +607,17 @@
             "name": "pending_superseded_by_id"
           }
         }
+      },
+      {
+        "ordinal": 50,
+        "name": "no_usable_enrolment_since",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "no_usable_enrolment_since"
+          }
+        }
       }
     ],
     "parameters": {
@@ -727,8 +738,9 @@
       false,
       true,
       true,
+      true,
       true
     ]
   },
-  "hash": "0b354f7957f7f51225addc75ff2aeade87d097d56d9c013d256d4c5f668ed362"
+  "hash": "f6f8ad84b0955eaf4a50ca7e0357bf9f2d6373205583d478a9eb7f147f0f3b74"
 }

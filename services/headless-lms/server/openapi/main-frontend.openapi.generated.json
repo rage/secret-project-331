@@ -1476,6 +1476,43 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`\n- Asks the pipeline to look for an enrolment again, for a row parked because the study registry had\nnone.\n\nShares the student's button's allowance, so between them they cannot ask the registry more than once\nan hour. Authorized on the row's own course, like the retry.",
+        "operationId": "recheckCreditRegistrationEnrolment",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether a recheck was started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestCreditRegistrationEnrolmentRecheckResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The registration is not waiting for an enrolment"
+          },
+          "404": {
+            "description": "No such registration"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry": {
       "post": {
         "tags": ["course-credit-registrations"],
@@ -17395,12 +17432,17 @@
           "needs_admin_attention",
           "next_attempt_at",
           "attempt_number",
-          "superseded"
+          "superseded",
+          "can_request_enrolment_recheck"
         ],
         "properties": {
           "attempt_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "can_request_enrolment_recheck": {
+            "type": "boolean",
+            "description": "Whether the row's \"check enrolment again\" action is available now; it shares the student's\nbutton's allowance."
           },
           "completion_date": {
             "type": "string",
@@ -17475,6 +17517,11 @@
           "next_attempt_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "next_enrolment_recheck_allowed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "While a row waiting for an enrolment was checked too recently to check again, when that\nbecomes possible."
           },
           "notification_email": {
             "oneOf": [

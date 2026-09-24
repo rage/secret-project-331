@@ -200,9 +200,11 @@ impl CreditRegistrationPhase {
             .sum()
     }
 
-    /// Whether the phase is part of account linking, which the deployment can switch off.
-    pub fn is_account_linking(self) -> bool {
-        matches!(self, Self::EnrolmentDiscovery | Self::LinkEmails)
+    /// Whether the phase does nothing but account linking, and so is skipped while the deployment
+    /// has linking switched off. `enrolment-discovery` is not one: with linking off it still wakes
+    /// linked students' registrations and only leaves out the mails.
+    pub fn is_account_linking_only(self) -> bool {
+        self == Self::LinkEmails
     }
 
     /// The ledger states this phase is the one to move a row out of.
@@ -324,7 +326,7 @@ pub struct PhaseContext<'a> {
     pub caller: &'a str,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
-    /// Holds the account-linking switch that gates the discovery and linking-mail phases.
+    /// Holds the account-linking switch that gates the linking mails.
     pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
     /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
     pub shutdown: Option<&'a CancellationToken>,
@@ -424,7 +426,7 @@ pub async fn run_phase_once(
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
     // After the heartbeat, like the breaker below: a switched-off phase is idle, not dead.
-    if phase.is_account_linking() && !ctx.suotar_conf.account_linking_enabled {
+    if phase.is_account_linking_only() && !ctx.suotar_conf.account_linking_enabled {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
     let breaker_key = breaker::ScopeKey::of(scope);
@@ -1124,6 +1126,7 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
         submit_retry_count: row.submit_retry_count,
         verify_attempt_count: row.verify_attempt_count,
         submitted_at: row.submitted_at,
+        no_usable_enrolment_since: row.no_usable_enrolment_since,
     }
 }
 

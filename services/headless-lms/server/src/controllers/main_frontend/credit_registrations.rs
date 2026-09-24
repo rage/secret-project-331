@@ -31,6 +31,7 @@ use headless_lms_models::{
     },
 };
 use headless_lms_utils::secret_string::expose_option;
+use models::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
 use models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
@@ -41,10 +42,6 @@ use utoipa::{OpenApi, ToSchema};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-
-/// How long after the last enrolment check the student may ask us to look again. The pipeline's own
-/// recheck is daily, so this only bounds the button.
-const ENROLMENT_RECHECK_MIN_INTERVAL_SECS: i64 = 60 * 60;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -385,40 +382,47 @@ pub async fn dismiss_credit_registration_enrolment_banner(
 }
 
 /// When the study registry may next be asked about this row, or `None` before it has been asked at
-/// all. The response tells the student when the button comes back.
-fn next_enrolment_recheck_allowed_at(
+/// all. The response tells the student or teacher when the button comes back.
+pub(crate) fn next_enrolment_recheck_allowed_at(
     enrolment_checked_at: Option<DateTime<Utc>>,
 ) -> Option<DateTime<Utc>> {
     enrolment_checked_at
         .map(|checked| checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS))
 }
 
-/// Whether we looked recently enough that looking again would tell the student nothing new.
+/// Whether we looked recently enough that looking again would tell nobody anything new.
 fn looked_for_enrolment_recently(enrolment_checked_at: Option<DateTime<Utc>>) -> bool {
     next_enrolment_recheck_allowed_at(enrolment_checked_at)
         .is_some_and(|allowed| allowed > Utc::now())
 }
 
-/// Records the student action and makes the row due for its next enrolment check.
+/// Whether a row may be sent to look for an enrolment again right now, by its student or a teacher.
+pub(crate) fn can_request_enrolment_recheck(
+    state: CreditRegistrationState,
+    enrolment_checked_at: Option<DateTime<Utc>>,
+) -> bool {
+    state == CreditRegistrationState::NoUsableEnrolment
+        && !looked_for_enrolment_recently(enrolment_checked_at)
+}
+
+/// Records who asked and makes the row due for its next enrolment check.
 ///
-/// Shared by the recheck button and by pressing Done, which differ only in what the event says and
-/// in how they decide the allowance is free.
-async fn start_enrolment_recheck(
+/// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ
+/// only in the event and in how they decide the allowance is free.
+pub(crate) async fn start_enrolment_recheck(
     conn: &mut PgConnection,
-    user_id: Uuid,
+    actor_user_id: Uuid,
     registration_id: Uuid,
+    event_kind: CreditRegistrationEventKind,
     message: &str,
 ) -> Result<(), ControllerError> {
     let mut tx = conn.begin().await?;
     models::credit_registration_events::insert(
         &mut tx,
         &NewCreditRegistrationEvent {
-            actor_user_id: Some(user_id),
+            actor_user_id: Some(actor_user_id),
             message: Some(message.to_string()),
-            ..NewCreditRegistrationEvent::new(
-                registration_id,
-                CreditRegistrationEventKind::StudentAction,
-            )
+            ..NewCreditRegistrationEvent::new(registration_id, event_kind)
         },
     )
     .await?;
@@ -487,6 +491,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         &mut conn,
         user.id,
         registration.id,
+        CreditRegistrationEventKind::StudentAction,
         "The student asked us to look for an enrolment again.",
     )
     .await?;
@@ -818,10 +823,8 @@ fn to_my_credit_registration(
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
     let enrolment_found = row.has_usable_enrolment();
-    let can_request_enrolment_recheck = row.state == CreditRegistrationState::NoUsableEnrolment
-        && row.enrolment_checked_at.is_none_or(|checked| {
-            checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS) <= Utc::now()
-        });
+    let can_request_enrolment_recheck =
+        can_request_enrolment_recheck(row.state, row.enrolment_checked_at);
     MyCreditRegistration {
         id: row.id,
         course_id: row.course_id,
@@ -1347,7 +1350,7 @@ pub async fn set_my_credit_justification(
 /// Makes the row due for its next enrolment check, unless we looked recently enough that asking
 /// again would tell the student nothing new.
 ///
-/// Shares [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`] with the manual button rather than getting an
+/// Shares [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`] with the manual buttons rather than getting an
 /// allowance of its own, so pressing Done cannot be used to poll the study registry.
 async fn bring_enrolment_check_forward(
     conn: &mut PgConnection,
@@ -1363,6 +1366,7 @@ async fn bring_enrolment_check_forward(
         conn,
         user_id,
         registration.id,
+        CreditRegistrationEventKind::StudentAction,
         "The student said they had enrolled.",
     )
     .await

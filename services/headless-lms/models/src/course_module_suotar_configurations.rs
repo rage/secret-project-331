@@ -337,10 +337,13 @@ pub struct ModuleToList {
 /// `last_listing_attempted_at` on them. The caller must commit before its Suotar call: once the
 /// `SKIP LOCKED` lock is released, the stamp is what keeps a concurrent run off these modules.
 /// Ordered by attempt rather than success, so a module that keeps failing cannot starve the rest.
+/// `only_with_parked_rows` skips the modules with no live registration parked on a missing
+/// enrolment, the only ones a listing can help while no linking mails go out.
 pub async fn claim_stalest_modules_for_listing(
     conn: &mut PgConnection,
     limit: i64,
     course_id: Option<Uuid>,
+    only_with_parked_rows: bool,
 ) -> ModelResult<Vec<ModuleToList>> {
     // The stamp and the lock need a row to live on.
     sqlx::query!(
@@ -370,6 +373,17 @@ FROM credit_registration_active_course_modules acm
   AND conf.deleted_at IS NULL
 WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
   AND ($2::uuid IS NULL OR acm.course_id = $2)
+  AND (
+    NOT $3::boolean
+    OR EXISTS (
+      SELECT 1
+      FROM credit_registrations cr
+      WHERE cr.course_module_id = acm.course_module_id
+        AND cr.state = 'no_usable_enrolment'
+        AND cr.superseded_by_id IS NULL
+        AND cr.deleted_at IS NULL
+    )
+  )
 ORDER BY COALESCE(conf.last_listing_attempted_at, conf.last_listed_at) ASC NULLS FIRST,
   conf.id
 LIMIT $1
@@ -377,6 +391,7 @@ FOR UPDATE OF conf SKIP LOCKED
         "#,
         limit,
         course_id,
+        only_with_parked_rows,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -504,6 +519,29 @@ WHERE course_module_id = $1
         "#,
         course_module_id,
         error as CreditRegistrationErrorCode,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Records a listing whose roster arrived while account linking is switched off: clears the failure
+/// streak, but leaves `last_listed_at` and the counters describing the last run that fed linking.
+/// Sibling of [`record_listing_outcome`].
+pub async fn mark_listing_succeeded_without_linking(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE course_module_suotar_configurations
+SET last_listing_attempted_at = now(),
+  last_listing_error = NULL,
+  consecutive_listing_failures = 0
+WHERE course_module_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course_module_id,
     )
     .execute(conn)
     .await?;

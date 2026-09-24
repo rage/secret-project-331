@@ -87,7 +87,7 @@ test.describe("An import the study registry never answered", () => {
     await runMaterializeTick(page.request, scope)
     // The live credit-registrar worker keeps ticking this seeded-as-completed row regardless of
     // this spec: if it reached resolve-enrolments before the scenario above created the mock
-    // enrolment, the row is now parked in `no_usable_enrolment` with a 24h backoff. Forcing it due
+    // enrolment, the row is now parked in `no_usable_enrolment` for an hour or more. Forcing it due
     // now is a no-op for a fresh row and the only way to unstick a backfilled one.
     const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
     await makeRegistrationDueNow(adminApi, materialized.id)

@@ -96,7 +96,8 @@ ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_reimport_c
   DROP COLUMN partially_registered_at,
   DROP COLUMN not_registered_reimport_count,
   DROP COLUMN selected_enrolment_realisation_name,
-  DROP COLUMN resubmit_not_before;
+  DROP COLUMN resubmit_not_before,
+  DROP COLUMN no_usable_enrolment_since;
 
 CREATE UNIQUE INDEX uq_credit_registrations_submitted_attainment ON credit_registrations (submitted_attainment_id)
 WHERE submitted_attainment_id IS NOT NULL

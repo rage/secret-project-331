@@ -18,6 +18,7 @@ import { activeStudyRightPeriod, upsertMockSuotarEnrolments } from "@/utils/mock
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
+  expireEnrolmentRecheckAllowance,
   runMaterializeTick,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
@@ -113,6 +114,7 @@ test.describe("A student the University has no enrolment for", () => {
     })
 
     await test.step("A new run of the same problem brings it back", async () => {
+      await expireEnrolmentRecheckAllowance(page.request, parked.id)
       const recheck = await page.request.post(
         `${CREDIT_REGISTRATIONS_API}/my/${parked.id}/recheck-enrolment`,
       )
@@ -138,7 +140,9 @@ test.describe("A student who enrols after being told to", () => {
     adminApi,
   }) => {
     const scope = { userEmail: REENROLS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
-    await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    const parked = await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    // The park itself was a look, so the button would otherwise wait out the hour.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)

@@ -18,6 +18,7 @@ import { adminRegistrationDetails, listAdminRegistrations } from "@/utils/credit
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
+  expireEnrolmentRecheckAllowance,
   runImportSubmissionTick,
   runMaterializeTick,
   runPhasesUpToSubmission,
@@ -62,6 +63,8 @@ test.describe("A student the University has no enrolment for", () => {
       "no_usable_enrolment",
     ])
     expect(stuck.student_facing_status).toBe("needs_enrolment")
+    // Parking was a look, so saying they have enrolled would otherwise wait out the hour.
+    await expireEnrolmentRecheckAllowance(page.request, stuck.id)
 
     await test.step("The guidance is a working link, not an instruction to go looking", async () => {
       expect(stuck.enrolment_link).not.toBeNull()

@@ -683,6 +683,9 @@ import type {
   ProcessEditProposalResponses,
   ReceivePlaygroundGradingData,
   ReceivePlaygroundGradingResponses,
+  RecheckCreditRegistrationEnrolmentData,
+  RecheckCreditRegistrationEnrolmentErrors,
+  RecheckCreditRegistrationEnrolmentResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -1097,6 +1100,7 @@ import {
   zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
+  zRecheckCreditRegistrationEnrolmentResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
   zRequestCreditRegistrationEnrolmentRecheckResponse,
@@ -1982,6 +1986,37 @@ export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zGetCreditRegistrationDetailsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
+ * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
+ * none.
+ *
+ * Shares the student's button's allowance, so between them they cannot ask the registry more than once
+ * an hour. Authorized on the row's own course, like the retry.
+ */
+export const recheckCreditRegistrationEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<RecheckCreditRegistrationEnrolmentData, ThrowOnError>,
+): RequestResult<
+  RecheckCreditRegistrationEnrolmentResponses,
+  RecheckCreditRegistrationEnrolmentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecheckCreditRegistrationEnrolmentResponses,
+    RecheckCreditRegistrationEnrolmentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRecheckCreditRegistrationEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment",
     ...options,
   })
 

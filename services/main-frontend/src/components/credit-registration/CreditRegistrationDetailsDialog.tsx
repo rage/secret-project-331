@@ -38,6 +38,7 @@ import {
   registrationStatusTeacherLabel,
   registrationTeacherExplanation,
 } from "./creditRegistrationCopy"
+import EnrolmentRecheckBlock from "./EnrolmentRecheckBlock"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
   monospaceCss,
@@ -174,6 +175,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
             <ResendLinkingEmailBlock registration={registration} />
           )}
         <RetryCreditRegistrationBlock registration={registration} />
+        <EnrolmentRecheckBlock registration={registration} />
         <QueryResult query={detailsQuery}>
           {(details) => (
             <>

@@ -5322,6 +5322,7 @@ export const zCourseCreditRegistration = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  can_request_enrolment_recheck: z.boolean(),
   completion_date: z.iso.datetime(),
   course_id: z.uuid(),
   course_instance_id: z.uuid(),
@@ -5339,6 +5340,7 @@ export const zCourseCreditRegistration = z.object({
   linking_email: zTeacherLinkingEmailStatus.nullish(),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
+  next_enrolment_recheck_allowed_at: z.iso.datetime().nullish(),
   notification_email: zNotificationEmailStatus.nullish(),
   registered_at: z.iso.datetime().nullish(),
   resubmission_refusal: zResubmissionRefusal.nullish(),
@@ -6386,6 +6388,16 @@ export const zGetCreditRegistrationDetailsPath = z.object({
  * The registration with its timeline
  */
 export const zGetCreditRegistrationDetailsResponse = zCreditRegistrationDetails
+
+export const zRecheckCreditRegistrationEnrolmentPath = z.object({
+  credit_registration_id: z.uuid(),
+})
+
+/**
+ * Whether a recheck was started
+ */
+export const zRecheckCreditRegistrationEnrolmentResponse =
+  zRequestCreditRegistrationEnrolmentRecheckResult
 
 export const zRetryCreditRegistrationBody = zRetryCreditRegistrationPayload
 

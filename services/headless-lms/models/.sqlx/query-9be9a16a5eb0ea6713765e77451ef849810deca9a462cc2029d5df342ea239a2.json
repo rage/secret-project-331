@@ -607,6 +607,17 @@
             "name": "pending_superseded_by_id"
           }
         }
+      },
+      {
+        "ordinal": 50,
+        "name": "no_usable_enrolment_since",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "no_usable_enrolment_since"
+          }
+        }
       }
     ],
     "parameters": {
@@ -662,6 +673,7 @@
       true,
       true,
       false,
+      true,
       true,
       true,
       true

@@ -3343,6 +3343,15 @@ export const zMyCourse = zCourse.and(
 )
 
 /**
+ * What the caller wrote about needing the credits rather than a certificate.
+ */
+export const zMyCreditJustification = z.object({
+  course_module_completion_id: z.uuid(),
+  justification: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+/**
  * The caller's answer about where they enrol one module, and whether it can still be changed.
  */
 export const zMyEnrolmentRoute = z.object({
@@ -4638,6 +4647,10 @@ export const zServiceInfo = z.object({
   ports: z.array(zServicePortInfo),
 })
 
+export const zSetCreditJustificationPayload = z.object({
+  justification: z.string(),
+})
+
 export const zSetEnrolmentRoutePayload = z.object({
   route: zCreditRegistrationEnrolmentRoute,
 })
@@ -5681,9 +5694,11 @@ export const zCourseStudentsProgressUsers = z.object({
 })
 
 export const zUserCompletionInformation = z.object({
+  certificate_configuration_id: z.uuid().nullish(),
   course_module_completion_id: z.uuid(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  credit_justification: z.string().nullish(),
   ects_credits: z.number().nullish(),
   email: z.string(),
   enable_credit_registration_via_suotar: z.boolean(),
@@ -8322,6 +8337,17 @@ export const zGetMyCreditRegistrationForCourseModulePath = z.object({
  */
 export const zGetMyCreditRegistrationForCourseModuleResponse =
   zMyCreditRegistrationForCourseModule.nullable()
+
+export const zSetMyCreditJustificationBody = zSetCreditJustificationPayload
+
+export const zSetMyCreditJustificationPath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zSetMyCreditJustificationResponse = zMyCreditJustification
 
 export const zGetMyEnrolmentRoutePath = z.object({
   course_module_id: z.uuid(),

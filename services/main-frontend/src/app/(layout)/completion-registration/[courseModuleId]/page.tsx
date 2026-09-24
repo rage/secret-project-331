@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { TONE } from "@/components/credit-registration/constants"
+import { QUIET_REFRESH, TONE } from "@/components/credit-registration/constants"
 import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -43,8 +43,10 @@ const CompletionPage: React.FC = () => {
       : t("heading-credit-registration"),
   )
 
+  // Quiet refresh: saving an answer refetches this, and blanking the card under the student's
+  // hands would throw away where they had got to.
   return (
-    <QueryResult query={userCompletionInformation}>
+    <QueryResult query={userCompletionInformation} refreshIndicator={QUIET_REFRESH}>
       {(data) => {
         // Both flags: the module's is permission to use the push path, the completion's own is
         // whether this student's completion was put on it. Without both, this shows the old page.
@@ -67,10 +69,13 @@ const CompletionPage: React.FC = () => {
         }
         return (
           <RegisterCompletion
+            courseModuleId={courseModuleId}
             email={data.email}
             courseName={data.course_name}
             ectsCredits={data.ects_credits}
             registrationFormUrl={`${pathname}/${REDIRECT}`}
+            certificateConfigurationId={data.certificate_configuration_id}
+            creditJustification={data.credit_justification}
           />
         )
       }}

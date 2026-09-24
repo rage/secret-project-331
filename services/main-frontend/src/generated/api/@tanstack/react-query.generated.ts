@@ -361,6 +361,7 @@ import {
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
+  setMyCreditJustification,
   setMyEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
@@ -1044,6 +1045,8 @@ import type {
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
+  SetMyCreditJustificationData,
+  SetMyCreditJustificationResponse,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
@@ -7308,6 +7311,37 @@ export const getMyCreditRegistrationForCourseModuleOptions = (
       }),
     queryKey: getMyCreditRegistrationForCourseModuleQueryKey(options),
   })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
+ * - Records why the caller needs the credits in the study registry rather than a certificate.
+ *
+ * Advisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on
+ * to make. Asked on the old registration page, so unlike the enrolment answers it is stored for
+ * completions on either path.
+ */
+export const setMyCreditJustificationMutation = (
+  options?: Partial<Options<SetMyCreditJustificationData>>,
+): UseMutationOptions<
+  SetMyCreditJustificationResponse,
+  DefaultError,
+  Options<SetMyCreditJustificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyCreditJustificationResponse,
+    DefaultError,
+    Options<SetMyCreditJustificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyCreditJustification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getMyEnrolmentRouteQueryKey = (options: Options<GetMyEnrolmentRouteData>) =>
   createQueryKey("getMyEnrolmentRoute", options)

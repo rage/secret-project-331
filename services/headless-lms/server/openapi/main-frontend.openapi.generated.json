@@ -8478,6 +8478,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification": {
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`\n- Records why the caller needs the credits in the study registry rather than a certificate.\n\nAdvisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on\nto make. Asked on the old registration page, so unlike the enrolment answers it is stored for\ncompletions on either path.",
+        "operationId": "setMyCreditJustification",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCreditJustificationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCreditJustification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route": {
       "get": {
         "tags": ["credit-registrations"],
@@ -22955,6 +22996,24 @@
           }
         ]
       },
+      "MyCreditJustification": {
+        "type": "object",
+        "description": "What the caller wrote about needing the credits rather than a certificate.",
+        "required": ["course_module_completion_id", "justification", "updated_at"],
+        "properties": {
+          "course_module_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "justification": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "MyCreditRegistration": {
         "type": "object",
         "required": [
@@ -26320,6 +26379,15 @@
           }
         }
       },
+      "SetCreditJustificationPayload": {
+        "type": "object",
+        "required": ["justification"],
+        "properties": {
+          "justification": {
+            "type": "string"
+          }
+        }
+      },
       "SetEnrolmentRoutePayload": {
         "type": "object",
         "required": ["route"],
@@ -27305,6 +27373,11 @@
           "register_credits_via_suotar"
         ],
         "properties": {
+          "certificate_configuration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`Some` only when the student can generate a certificate for this module right now, which is\nalso the id `/generate-certificate` wants.\n\nRead off the same completion as the rest of this object, the latest one. The course page's\ncongratulations card reads off the best one instead, so a student whose newest completion is\nnot their best can see a certificate there and none here."
+          },
           "course_module_completion_id": {
             "type": "string",
             "format": "uuid"
@@ -27316,6 +27389,10 @@
           "course_name": {
             "type": "string",
             "description": "The course's own name, never the module's; the module is named by `course_module_name`."
+          },
+          "credit_justification": {
+            "type": ["string", "null"],
+            "description": "Why the student said they need the credits rather than a certificate, if they have been\nasked and answered. Advisory; it seeds the field when they come back to the page."
           },
           "ects_credits": {
             "type": ["number", "null"],

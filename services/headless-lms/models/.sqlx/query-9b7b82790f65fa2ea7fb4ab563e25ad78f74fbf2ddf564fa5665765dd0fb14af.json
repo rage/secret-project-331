@@ -1,0 +1,57 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT  t.id AS \"id!\",\n    t.name AS \"name!\",\n    t.description,\n    t.url AS \"url!\"\nFROM (\n    SELECT\n        ec.*,\n        LEAST(MIN(name_embedding <#> v.embedding),\n              MIN(description_embedding <#> v.embedding)) AS distance\n    FROM external_courses ec\n    CROSS JOIN unnest($1::vector[]) AS v(embedding)\n    WHERE deleted_at IS NULL\n    GROUP BY id\n    ORDER BY distance ASC\n    LIMIT 5\n) t\nUNION\nSELECT ec.id,\n       ec.name,\n       ec.description,\n       ec.url\nFROM external_courses ec\nCROSS JOIN unnest($2::text[]) AS k(keyword)\nWHERE deleted_at IS NULL\nAND to_tsvector(\n    'english',\n    ec.name || ' ' || coalesce(ec.description, '')\n) @@ websearch_to_tsquery('english', k.keyword)\n\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "name!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "url!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "vector[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "vector",
+                  "kind": "Simple"
+                }
+              }
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "9b7b82790f65fa2ea7fb4ab563e25ad78f74fbf2ddf564fa5665765dd0fb14af"
+}

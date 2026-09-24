@@ -31,7 +31,7 @@ use std::collections::HashSet;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, apply_request_level_outcome, row_facts, run_suotar_batch_phase,
+    apply_outcome, apply_request_level_outcome, row_facts, row_moved_on, run_suotar_batch_phase,
     suotar_error_variant,
 };
 
@@ -194,6 +194,35 @@ impl SuotarBatchPhase for Import {
         rows: &[&Self::Row],
     ) -> anyhow::Result<()> {
         restamp_submitting(conn, &rows.iter().map(|row| row.id).collect::<Vec<_>>()).await?;
+        Ok(())
+    }
+
+    async fn release_unsent(
+        &self,
+        conn: &mut PgConnection,
+        rows: &[&Self::Row],
+    ) -> anyhow::Result<()> {
+        for row in rows {
+            let released = transition(
+                conn,
+                row.id,
+                &Transition {
+                    event_message: Some(
+                        "The worker shut down before this row's part of a split batch was sent, so \
+                         nothing was submitted."
+                            .to_string(),
+                    ),
+                    expected_from_state: Some(CreditRegistrationState::Submitting),
+                    ..Transition::to(CreditRegistrationState::Pending)
+                },
+            )
+            .await;
+            if let Err(error) = released.map_err(anyhow::Error::from)
+                && !row_moved_on(&error)
+            {
+                return Err(error);
+            }
+        }
         Ok(())
     }
 
@@ -487,6 +516,15 @@ impl Unsendable {
     }
 }
 
+fn required_field<'a>(field: &'static str, value: &'a str) -> Result<&'a str, Unsendable> {
+    let value = value.trim();
+    if value.is_empty() {
+        Err(Unsendable::Invalid(field))
+    } else {
+        Ok(value)
+    }
+}
+
 /// Builds the request item from the frozen snapshot, or says why the row cannot go into a batch.
 fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem, Unsendable> {
     let (
@@ -511,28 +549,15 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
     else {
         return Err(Unsendable::Incomplete);
     };
-    let required = [
-        ("studentNumber", student_number.trim()),
-        ("courseCode", course_code.trim()),
-        ("enrolmentId", enrolment_id.trim()),
-        ("attainmentLanguage", attainment_language.trim()),
-        ("gradeScaleId", grade_scale_id.trim()),
-        ("gradeId", grade_id.trim()),
-    ];
-    if let Some((field, _)) = required.iter().find(|(_, value)| value.is_empty()) {
-        return Err(Unsendable::Invalid(field));
-    }
+    let student_number = required_field("studentNumber", student_number)?;
+    let course_code = required_field("courseCode", course_code)?;
+    let enrolment_id = required_field("enrolmentId", enrolment_id)?;
+    let attainment_language = required_field("attainmentLanguage", attainment_language)?;
+    let grade_scale_id = required_field("gradeScaleId", grade_scale_id)?;
+    let grade_id = required_field("gradeId", grade_id)?;
     if !credits.is_finite() {
         return Err(Unsendable::Invalid("credits"));
     }
-    let [
-        student_number,
-        course_code,
-        enrolment_id,
-        attainment_language,
-        grade_scale_id,
-        grade_id,
-    ] = required.map(|(_, value)| value);
     // Suotar would refuse it as `invalidGradeForGradeScale`; refused here, the row fails on our
     // mapping without a round trip.
     if !is_known_grade(grade_scale_id, grade_id) {

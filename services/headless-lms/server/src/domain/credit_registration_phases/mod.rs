@@ -62,6 +62,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::future::Future;
 use std::pin::Pin;
 use std::time::Duration;
+use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
 /// Which rows one iteration may touch.
@@ -325,6 +326,8 @@ pub struct PhaseContext<'a> {
     pub base_url: &'a str,
     /// Holds the account-linking switch that gates the discovery and linking-mail phases.
     pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
+    /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
+    pub shutdown: Option<&'a CancellationToken>,
 }
 
 impl<'a> PhaseContext<'a> {
@@ -347,7 +350,12 @@ impl<'a> PhaseContext<'a> {
             caller,
             base_url: &app_conf.base_url,
             suotar_conf: &app_conf.suotar_configuration,
+            shutdown: None,
         }
+    }
+
+    fn is_shutting_down(&self) -> bool {
+        self.shutdown.is_some_and(CancellationToken::is_cancelled)
     }
 }
 
@@ -767,6 +775,16 @@ pub(crate) trait SuotarBatchPhase {
         Ok(())
     }
 
+    /// Called on shutdown with every row a split still holds unsent, which would otherwise be
+    /// condemned as a lost submission.
+    async fn release_unsent(
+        &self,
+        _conn: &mut PgConnection,
+        _rows: &[&Self::Row],
+    ) -> anyhow::Result<()> {
+        Ok(())
+    }
+
     /// What a row gets when [`Self::isolates_request_rejection`] still refuses it in a batch of its
     /// own.
     async fn apply_isolated_rejection(
@@ -803,6 +821,10 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     let mut items_failed = prepared.failed;
     let mut error = None;
     let mut has_suotar_failure = false;
+    // A row refused even alone is its own data fault, and counts against the breaker only when no
+    // batch of the iteration got an answer.
+    let mut isolated_rejection = None;
+    let mut has_answer = false;
     // The halves a split holds back wait in whatever state the preflight left them, which for
     // import is `submitting`: no phase claims that, so none of them can be sent twice meanwhile.
     // Each answered half is written before the next one is sent.
@@ -819,6 +841,12 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                 .map(|(row, _)| row)
                 .collect();
             let mut conn = ctx.pool.acquire().await?;
+            // Each half can take the whole request timeout, so sending the rest would outlast the
+            // termination grace period.
+            if ctx.is_shutting_down() {
+                phase.release_unsent(&mut conn, &held).await?;
+                break;
+            }
             phase.keep_in_flight(&mut conn, &held).await?;
         }
         let (rows, items): (Vec<_>, Vec<_>) = batch.into_iter().unzip();
@@ -881,11 +909,16 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                         &mut items_failed,
                     )?;
                 }
-                error = Some(scrub_text(send_error.message()));
-                has_suotar_failure = true;
+                if isolated {
+                    isolated_rejection = Some(scrub_text(send_error.message()));
+                } else {
+                    error = Some(scrub_text(send_error.message()));
+                    has_suotar_failure = true;
+                }
                 continue;
             }
         };
+        has_answer = true;
 
         let mut conn = ctx.pool.acquire().await?;
         for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
@@ -915,6 +948,11 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                 .iter()
                 .all(|item| is_sisu_timeout_code(response.endpoint, &item.code));
         }
+    }
+
+    if error.is_none() && !has_answer && isolated_rejection.is_some() {
+        error = isolated_rejection;
+        has_suotar_failure = true;
     }
 
     Ok(PhaseRunOutcome {

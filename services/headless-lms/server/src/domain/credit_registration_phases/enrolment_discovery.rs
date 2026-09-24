@@ -17,7 +17,7 @@ use headless_lms_models::library::credit_registration::account_linking::{
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
-use headless_lms_models::verified_student_numbers;
+use headless_lms_models::verified_student_numbers::{self, VerifiedStudentNumber};
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::BackendError;
 use headless_lms_utils::secret_string::expose_option;
@@ -133,8 +133,9 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 continue;
             }
         };
+        let linked = linked_accounts(&mut conn, &people).await?;
         for module in modules {
-            let outcome = reconcile(&mut conn, module, &people).await?;
+            let outcome = reconcile(&mut conn, module, &people, &linked).await?;
             record_listing_outcome(&mut conn, module.course_module_id, &outcome).await?;
         }
     }
@@ -182,16 +183,11 @@ fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
     kept
 }
 
-/// Applies one module's roster and returns the counters its configuration row carries.
-async fn reconcile(
+/// The accounts already linked to someone on the roster, by Sisu person id or student number.
+async fn linked_accounts(
     conn: &mut PgConnection,
-    module: &ModuleToList,
     people: &[&ListedPerson],
-) -> anyhow::Result<ModuleListingOutcome> {
-    let mut outcome = ModuleListingOutcome {
-        listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
-        ..ModuleListingOutcome::default()
-    };
+) -> anyhow::Result<Vec<VerifiedStudentNumber>> {
     let person_ids: Vec<String> = people
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
@@ -209,6 +205,20 @@ async fn reconcile(
         .filter(|row| !linked_ids.contains(&row.id))
         .collect::<Vec<_>>();
     linked.extend(linked_by_number);
+    Ok(linked)
+}
+
+/// Applies one module's roster and returns the counters its configuration row carries.
+async fn reconcile(
+    conn: &mut PgConnection,
+    module: &ModuleToList,
+    people: &[&ListedPerson],
+    linked: &[VerifiedStudentNumber],
+) -> anyhow::Result<ModuleListingOutcome> {
+    let mut outcome = ModuleListingOutcome {
+        listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
+        ..ModuleListingOutcome::default()
+    };
     let linked_person_ids: HashSet<&str> = linked
         .iter()
         .filter_map(|row| expose_option(&row.sisu_person_id))

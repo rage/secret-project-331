@@ -9,6 +9,7 @@ use chrono::NaiveDate;
 
 use crate::prelude::*;
 
+use super::ids;
 use super::wire::{ASSESSMENT_ITEM_ATTAINMENT, COURSE_UNIT_ATTAINMENT, Endpoint};
 pub use super::wire::{CreditRange, DatePeriod, LocalizedName};
 
@@ -214,6 +215,31 @@ pub struct MockEnrolment {
 }
 
 impl MockEnrolment {
+    /// An enrolment made at `now` on a study right valid for a year either side of it.
+    pub fn enrolled_now(
+        student_number: &str,
+        course_code: &str,
+        realisation: &MockRealisation,
+        now: DateTime<Utc>,
+    ) -> Self {
+        Self {
+            id: ids::enrolment_id(student_number, course_code, realisation.kind),
+            student_number: student_number.to_string(),
+            course_code: course_code.to_string(),
+            realisation_id: realisation.id.clone(),
+            state: EnrolmentState::Enrolled,
+            study_right_id: Some(ids::study_right_id(student_number, realisation.kind)),
+            study_right: Some(MockStudyRight {
+                validity: DatePeriod {
+                    start_date: (now - chrono::Duration::days(365)).date_naive(),
+                    end_date: Some((now + chrono::Duration::days(365)).date_naive()),
+                },
+                grant_date: None,
+            }),
+            enrolment_date_time: Some(now),
+        }
+    }
+
     /// Sisu has no field for it; Suotar reads it off the study right id.
     pub fn kind(&self) -> &'static str {
         if self

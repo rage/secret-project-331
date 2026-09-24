@@ -559,8 +559,9 @@ WHERE vsn.id IS NULL
 
 /// Links each of `user_ids` to the student number a registrar last reported for them, as a
 /// [`StudentNumberVerificationMethod::StudyRegistry`] link, and records a conflict wherever a live
-/// link already stands in the way. The existing link always wins; an account whose link was retired
-/// is linked again. Returns how many links were made.
+/// link already stands in the way. The existing link always wins. A retired link does not block:
+/// the registrar's report is authoritative, so a number the student or an admin unlinked, or one
+/// resolve-person-ids dropped over a conflict, is linked again. Returns how many links were made.
 pub async fn link_numbers_reported_by_study_registry(
     conn: &mut PgConnection,
     user_ids: &[Uuid],

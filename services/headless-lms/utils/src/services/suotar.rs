@@ -220,9 +220,9 @@ impl DatePeriod {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreditRange {
-    #[serde(default, deserialize_with = "lenient_number")]
+    #[serde(default, deserialize_with = "lenient")]
     pub min: Option<f64>,
-    #[serde(default, deserialize_with = "lenient_number")]
+    #[serde(default, deserialize_with = "lenient")]
     pub max: Option<f64>,
 }
 
@@ -439,12 +439,6 @@ fn lenient_instant<'de, D: Deserializer<'de>>(
                         .map(|local| local.and_utc())
                 })
         }))
-}
-
-/// A `null`, missing or non-numeric value reads as absent.
-fn lenient_number<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<f64>, D::Error> {
-    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
-    Ok(value.as_ref().and_then(serde_json::Value::as_f64))
 }
 
 /// Keeps the elements that parse and logs how many did not.

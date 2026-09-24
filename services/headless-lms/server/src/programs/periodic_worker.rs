@@ -26,8 +26,7 @@ pub struct StillRunningLog<'a> {
 }
 
 /// Runs `body` on `config.tick_interval` forever, logging the still-running line if there is one. A
-/// `body` that returns `Err` stops the loop and becomes this function's return value, the same as an
-/// unhandled error used to exit the worker's `main`.
+/// `body` that returns `Err` stops the loop and becomes this function's return value.
 pub async fn run_periodic_worker(
     config: PeriodicWorkerConfig<'_>,
     body: impl AsyncFnMut() -> anyhow::Result<()>,

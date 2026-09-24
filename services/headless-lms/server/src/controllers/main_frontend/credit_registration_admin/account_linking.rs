@@ -489,13 +489,7 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
-    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
-    if student_number.expose_secret().is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
+    let student_number = required_student_number(&payload.student_number)?;
     let override_reason = if payload.override_rate_caps {
         Some(required_reason(payload.reason.as_deref().unwrap_or(""))?.to_string())
     } else {
@@ -590,13 +584,7 @@ pub async fn admin_resolve_student_number_for_linking(
         ));
     }
 
-    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
-    if student_number.expose_secret().is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
+    let student_number = required_student_number(&payload.student_number)?;
 
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
@@ -847,13 +835,7 @@ fn manual_link_request(
     payload: &AdminManuallyLinkStudentNumberPayload,
 ) -> Result<ManualLinkRequest<'_>, ControllerError> {
     let reason = required_reason(&payload.reason)?;
-    let student_number = SecretString::from(payload.student_number.expose_secret().trim());
-    if student_number.expose_secret().is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
+    let student_number = required_student_number(&payload.student_number)?;
     let previewed_person_id = SecretString::from(payload.sisu_person_id.expose_secret().trim());
     if previewed_person_id.expose_secret().is_empty() {
         return Err(controller_err!(
@@ -866,6 +848,17 @@ fn manual_link_request(
         student_number,
         previewed_person_id,
     })
+}
+
+fn required_student_number(raw: &SecretString) -> Result<SecretString, ControllerError> {
+    let student_number = SecretString::from(raw.expose_secret().trim());
+    if student_number.expose_secret().is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "Name a student number.".to_string()
+        ));
+    }
+    Ok(student_number)
 }
 
 /// Audits the resend whatever it did, and reports where this person's mails now stand.

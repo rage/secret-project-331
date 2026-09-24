@@ -804,10 +804,6 @@ async fn generate_roster(
     // The allocator range, clear of every seeded fixture's `900…` number.
     let prefix = student_number_prefix.unwrap_or("99");
     let now = Utc::now();
-    let validity = DatePeriod {
-        start_date: (now - chrono::Duration::days(365)).date_naive(),
-        end_date: Some((now + chrono::Duration::days(365)).date_naive()),
-    };
 
     let mut persons = BTreeMap::new();
     let mut enrolments = BTreeMap::new();
@@ -829,23 +825,9 @@ async fn generate_roster(
                 student_number: student_number.clone(),
             },
         );
-        let enrolment_id = ids::enrolment_id(&student_number, course_code, realisation.kind);
-        enrolments.insert(
-            enrolment_id.clone(),
-            MockEnrolment {
-                id: enrolment_id,
-                student_number: student_number.clone(),
-                course_code: course_code.to_string(),
-                realisation_id: realisation.id.clone(),
-                state: EnrolmentState::Enrolled,
-                study_right_id: Some(ids::study_right_id(&student_number, realisation.kind)),
-                study_right: Some(MockStudyRight {
-                    validity: validity.clone(),
-                    grant_date: None,
-                }),
-                enrolment_date_time: Some(now),
-            },
-        );
+        let enrolment =
+            MockEnrolment::enrolled_now(&student_number, course_code, &realisation, now);
+        enrolments.insert(enrolment.id.clone(), enrolment);
     }
     store
         .upsert_json(generation, EntityHash::Persons, &persons)

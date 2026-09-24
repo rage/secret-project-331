@@ -43,9 +43,12 @@ pub async fn run(
         &app_configuration.suotar_configuration,
         Arc::new(PgSuotarCallAudit::new(db_pool.clone())),
     );
-    let ctx = PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name);
     let shutdown = CancellationToken::new();
     tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
+    let ctx = PhaseContext {
+        shutdown: Some(&shutdown),
+        ..PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name)
+    };
 
     let still_running = run_periodic_worker_until(
         PeriodicWorkerConfig {

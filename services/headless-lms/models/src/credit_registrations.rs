@@ -1036,6 +1036,34 @@ pub async fn claim_due(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
+    claim(conn, states, scope, limit, false).await
+}
+
+/// [`claim_due`] for import: `checking_enrolment` rows, minus any whose student and course code
+/// already have a submission in flight, which Suotar's hour-old copy of Sisu would not stop from
+/// registering twice. Two such rows claimed together must still go in separate batches.
+pub async fn claim_due_for_import(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(
+        conn,
+        &[CreditRegistrationState::CheckingEnrolment],
+        scope,
+        limit,
+        true,
+    )
+    .await
+}
+
+async fn claim(
+    conn: &mut PgConnection,
+    states: &[CreditRegistrationState],
+    scope: &RegistrationScope,
+    limit: i64,
+    excludes_in_flight_twins: bool,
+) -> ModelResult<Vec<CreditRegistration>> {
     let is_scoped_call = !scope.is_unscoped();
     let res = sqlx::query_as!(
         CreditRegistration,
@@ -1073,6 +1101,22 @@ WITH due AS (
           AND h.held_until > now()
       )
     )
+    AND (
+      NOT $7::boolean
+      OR NOT EXISTS (
+        SELECT 1
+        FROM credit_registrations twin
+        WHERE twin.student_number = cr.student_number
+          AND twin.uh_course_code = cr.uh_course_code
+          AND twin.id <> cr.id
+          AND twin.deleted_at IS NULL
+          AND twin.state IN (
+            'submitting',
+            'submission_uncertain',
+            'awaiting_verification'
+          )
+      )
+    )
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
@@ -1089,85 +1133,7 @@ RETURNING cr.*
         scope.user_id,
         &scope.credit_registration_ids,
         is_scoped_call,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// [`claim_due`] for import: `checking_enrolment` rows, minus any whose student and course code
-/// already have a submission in flight, which Suotar's hour-old copy of Sisu would not stop from
-/// registering twice. Two such rows claimed together must still go in separate batches.
-pub async fn claim_due_for_import(
-    conn: &mut PgConnection,
-    scope: &RegistrationScope,
-    limit: i64,
-) -> ModelResult<Vec<CreditRegistration>> {
-    let is_scoped_call = !scope.is_unscoped();
-    let res = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-WITH due AS (
-  SELECT cr.id
-  FROM credit_registrations cr
-    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
-    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  WHERE cr.deleted_at IS NULL
-    AND cr.superseded_by_id IS NULL
-    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.
-    AND (
-      cmc.register_credits_via_suotar
-      OR cr.submitted_at IS NOT NULL
-    )
-    AND cr.state = 'checking_enrolment'
-    AND cr.next_attempt_at <= now()
-    AND ($2::uuid IS NULL OR cr.course_id = $2)
-    AND ($3::uuid IS NULL OR cr.user_id = $3)
-    AND (
-      cardinality($4::uuid []) = 0
-      OR cr.id = ANY($4::uuid [])
-    )
-    AND (
-      $5::boolean
-      OR NOT EXISTS (
-        SELECT 1
-        FROM credit_registration_test_exclusive_holds h
-        WHERE h.user_id = cr.user_id
-          AND (
-            h.course_id IS NULL
-            OR h.course_id = cr.course_id
-          )
-          AND h.held_until > now()
-      )
-    )
-    AND NOT EXISTS (
-      SELECT 1
-      FROM credit_registrations twin
-      WHERE twin.student_number = cr.student_number
-        AND twin.uh_course_code = cr.uh_course_code
-        AND twin.id <> cr.id
-        AND twin.deleted_at IS NULL
-        AND twin.state IN (
-          'submitting',
-          'submission_uncertain',
-          'awaiting_verification'
-        )
-    )
-  ORDER BY cr.next_attempt_at
-  FOR UPDATE OF cr SKIP LOCKED
-  LIMIT $1
-)
-UPDATE credit_registrations cr
-SET last_attempt_at = now()
-FROM due
-WHERE cr.id = due.id
-RETURNING cr.*
-        "#,
-        limit,
-        scope.course_id,
-        scope.user_id,
-        &scope.credit_registration_ids,
-        is_scoped_call,
+        excludes_in_flight_twins,
     )
     .fetch_all(conn)
     .await?;

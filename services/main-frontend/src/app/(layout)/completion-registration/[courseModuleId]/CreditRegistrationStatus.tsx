@@ -206,8 +206,10 @@ const Tracker: React.FC<TrackerProps> = ({
   }, [status, statusLabel, t])
 
   const view = { registration, enrolmentRoute }
-  const leverByKey = (key: string): RegistrationCardAction | null =>
-    [primaryAction, ...secondaryActions].find((action) => action?.key === key) ?? null
+  const recheckAction =
+    [primaryAction, ...secondaryActions].find(
+      (action) => action?.key === RECHECK_ENROLMENT_ACTION_KEY,
+    ) ?? null
 
   return (
     <>
@@ -238,7 +240,7 @@ const Tracker: React.FC<TrackerProps> = ({
             registration={registration}
             // Only this lever: the plan's other one sends the student off to the open university,
             // under a band where half of them have just said they enrolled through Sisu.
-            recheckAction={leverByKey(RECHECK_ENROLMENT_ACTION_KEY)}
+            recheckAction={recheckAction}
           />
         ) : null}
 

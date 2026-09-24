@@ -19,7 +19,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
     RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
     increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
-    prepare_unsent_duplicate, set_payload_snapshot, transition,
+    prepare_unsent_duplicate, set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
@@ -40,9 +40,9 @@ use headless_lms_models::library::credit_registration::submission_context::{
 use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
-    ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
-    SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
-    new_request_item_id,
+    ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ExistingAttainment,
+    ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
+    SuotarEnrolment, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
@@ -247,10 +247,30 @@ async fn apply_answer(
         Some(item) if item.status == SuotarItemStatus::Error => {
             let code = map_code(SuotarEndpoint::ResolveEnrolments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown);
-            if is_enrolment_error(code)
-                && settle_against_recorded_credits(conn, row, context, None, &event).await?
-            {
-                return Ok(false);
+            if is_enrolment_error(code) {
+                let existing = item
+                    .result
+                    .as_ref()
+                    .map(|result| result.existing_attainments.as_slice())
+                    .unwrap_or_default();
+                // With no enrolment to say which scale the grade would go out on, the held
+                // attainment's own scale is the best evidence of it.
+                let grade_scale_id = preferred_attainment(&attained_candidates(existing))
+                    .and_then(|attained| attained.grade_scale_id.as_deref());
+                if settle_against_existing_attainments(
+                    conn,
+                    row,
+                    context,
+                    existing,
+                    grade_scale_id,
+                    &event,
+                )
+                .await?
+                    || settle_against_recorded_credits(conn, row, context, grade_scale_id, &event)
+                        .await?
+                {
+                    return Ok(false);
+                }
             }
             let outcome = submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &facts);
             apply_outcome(
@@ -284,8 +304,8 @@ async fn choose(
     conn: &mut PgConnection,
     row: &CreditRegistration,
     context: &SubmissionContext,
-    enrolments: &[headless_lms_utils::services::suotar::SuotarEnrolment],
-    existing: &[headless_lms_utils::services::suotar::ExistingAttainment],
+    enrolments: &[SuotarEnrolment],
+    existing: &[ExistingAttainment],
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let details = suotar_exchange_details(event.request, event.response);
@@ -310,51 +330,16 @@ async fn choose(
         });
     // Before the enrolment problems below: if the registry already holds the attainment the credit
     // exists, so sending the student off to re-enrol would be wrong as well as unnecessary.
-    let candidates = attained_candidates(existing);
-    // The course unit attainment, when there is one: it is the one `sisu_attainment_id` holds.
-    let blocking_attainment = candidates
-        .iter()
-        .max_by_key(|attainment| {
-            (
-                attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT,
-                attainment.registration_date,
-                attainment.attainment_date,
-            )
-        })
-        .filter(|_| {
-            !improves_on_all(
-                candidates.iter().map(|attained| {
-                    (
-                        attained.grade_scale_id.as_deref(),
-                        attained.grade_id.as_deref(),
-                    )
-                }),
-                context,
-                enrolment_grade_scale_id,
-            )
-        });
-    if let Some(attained) = blocking_attainment {
-        // Outside the transaction: a lost race for the attainment surfaces as a unique violation,
-        // which would abort it.
-        headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
-            conn,
-            row.id,
-            &attained.id,
-            Some(&attained.attainment_type),
-        )
-        .await?;
-        let mut tx = conn.begin().await?;
-        settle_unsent_duplicate(
-            &mut tx,
-            row,
-            context,
-            enrolment_grade_scale_id,
-            "The study registry already holds an attainment at least as good for this course, so \
-             nothing was submitted.",
-            &event,
-        )
-        .await?;
-        tx.commit().await?;
+    if settle_against_existing_attainments(
+        conn,
+        row,
+        context,
+        existing,
+        enrolment_grade_scale_id,
+        &event,
+    )
+    .await?
+    {
         return Ok(false);
     }
 
@@ -494,6 +479,67 @@ async fn choose(
     Ok(false)
 }
 
+/// Settles the row as `duplicate` when the registry already holds an attainment for the course that
+/// the grade we would send does not beat. Returns whether it did.
+///
+/// `grade_scale_id` is the scale our grade would go out on; `None` guesses it from the completion.
+async fn settle_against_existing_attainments(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    context: &SubmissionContext,
+    existing: &[ExistingAttainment],
+    grade_scale_id: Option<&str>,
+    event: &OutcomeEvent<'_>,
+) -> anyhow::Result<bool> {
+    let candidates = attained_candidates(existing);
+    let Some(attained) = preferred_attainment(&candidates) else {
+        return Ok(false);
+    };
+    if improves_on_all(
+        candidates.iter().map(|attained| {
+            (
+                attained.grade_scale_id.as_deref(),
+                attained.grade_id.as_deref(),
+            )
+        }),
+        context,
+        grade_scale_id,
+    ) {
+        return Ok(false);
+    }
+    // Outside the transaction: a lost race for the attainment surfaces as a unique violation, which
+    // would abort it.
+    set_sisu_attainment_if_unclaimed(conn, row.id, &attained.id, Some(&attained.attainment_type))
+        .await?;
+    let mut tx = conn.begin().await?;
+    settle_unsent_duplicate(
+        &mut tx,
+        row,
+        context,
+        grade_scale_id,
+        "The study registry already holds an attainment at least as good for this course, so \
+         nothing was submitted.",
+        event,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(true)
+}
+
+/// The attainment `sisu_attainment_id` records: the course unit one when there is one, else the
+/// latest.
+fn preferred_attainment<'a>(
+    candidates: &[&'a ExistingAttainment],
+) -> Option<&'a ExistingAttainment> {
+    candidates.iter().copied().max_by_key(|attainment| {
+        (
+            attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT,
+            attainment.registration_date,
+            attainment.attainment_date,
+        )
+    })
+}
+
 /// The answers that would send the student off to enrol.
 fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
     matches!(
@@ -506,9 +552,9 @@ fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
 /// Settles the row as `duplicate` when our own records hold a credit for the module that the grade
 /// we would send does not beat. Returns whether it did.
 ///
-/// For an enrolment error: Suotar lists no existing attainments with one, and its copy of Sisu may
-/// predate a pull-path registration anyway, so a student who holds the credit would be told to enrol
-/// again. A better grade still gets the error, since an improvement needs an enrolment too.
+/// For an enrolment error, after [`settle_against_existing_attainments`]: Suotar's copy of Sisu may
+/// predate a pull-path registration, so a student who holds the credit would be told to enrol again.
+/// A better grade still gets the error, since an improvement needs an enrolment too.
 async fn settle_against_recorded_credits(
     conn: &mut PgConnection,
     row: &CreditRegistration,

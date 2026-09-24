@@ -159,6 +159,8 @@ pub struct ExistingAttainment {
     pub attainment_date: String,
     pub registration_date: String,
     pub grade_scale_id: String,
+    /// A bare number when it reads as one, as Sisu's own data has it.
+    #[serde(serialize_with = "number_when_numeric")]
     pub grade_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub passed: Option<bool>,
@@ -168,6 +170,13 @@ pub struct ExistingAttainment {
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentResolutionResult {
     pub enrolments: Vec<Enrolment>,
+    pub existing_attainments: Vec<ExistingAttainment>,
+}
+
+/// What `enrolmentNotFound` and `enrolmentNotAccepted` still hand back.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExistingAttainmentsResult {
     pub existing_attainments: Vec<ExistingAttainment>,
 }
 
@@ -182,6 +191,20 @@ pub struct AttainmentSummary {
     /// [`sisu_midnight`], as the importer hands dates through.
     pub attainment_date: String,
     pub registration_date: String,
+    pub grade_scale_id: String,
+    pub grade_id: String,
+}
+
+/// The five fields of the `duplicateAttainment` Suotar answers from its own recent sends, which
+/// names the submission rather than anything the importer has seen.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecentlySentAttainment {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub attainment_type: String,
+    /// `YYYY-MM-DD`, unlike the importer's dates.
+    pub attainment_date: NaiveDate,
     pub grade_scale_id: String,
     pub grade_id: String,
 }
@@ -206,6 +229,12 @@ impl SubmittedAttainment {
 #[serde(rename_all = "camelCase")]
 pub struct DuplicateAttainmentResult {
     pub attainment: AttainmentSummary,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RecentlySentDuplicateResult {
+    pub attainment: RecentlySentAttainment,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -293,7 +322,8 @@ pub struct ResponseItem {
     pub code: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<ItemError>,
-    /// On an error item only for the codes that hand back the submission they concern.
+    /// On an error item only for the codes that hand back the submission they concern, and for the
+    /// enrolment errors, which hand back the existing attainments.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<serde_json::Value>,
 }
@@ -405,6 +435,16 @@ fn canonical_message(endpoint: Option<Endpoint>, code: &str) -> String {
 pub const COURSE_NOT_CARRIED: &str = "Suotar does not carry this course code.";
 
 pub const NOT_AN_ARRAY: &str = "Request body must be a JSON array of request items.";
+
+fn number_when_numeric<S: serde::Serializer>(
+    value: &str,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    match value.parse::<i64>() {
+        Ok(number) => serializer.serialize_i64(number),
+        Err(_) => serializer.serialize_str(value),
+    }
+}
 
 /// JavaScript's `toISOString()`: UTC with exactly three fractional digits.
 pub fn iso_millis(time: DateTime<Utc>) -> String {

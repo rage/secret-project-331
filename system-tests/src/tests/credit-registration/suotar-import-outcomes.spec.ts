@@ -3,9 +3,11 @@ import {
   CREDIT_REGISTRATION_STUDENT_3,
   CREDIT_REGISTRATION_STUDENT_4,
   CREDIT_REGISTRATION_STUDENT_5,
+  CREDIT_REGISTRATION_STUDENT_6,
   CRS_101,
   CRS_B_101,
   IMPORT_OUTCOMES_COURSE_SLUG,
+  mockCallsForStudent,
   myCreditRegistrations,
   myRegistrationOnCourse,
   seededStudentStorageState,
@@ -21,10 +23,13 @@ import {
   makeRegistrationDueNow,
 } from "@/utils/creditRegistrationAdmin"
 import {
+  activeStudyRightPeriod,
   applyMockSuotarScenario,
   armMockSuotarFault,
   disarmMockSuotarFault,
+  mockSuotarSubmissionsFor,
   transitionMockSuotarSubmissionsFor,
+  upsertMockSuotarEnrolments,
 } from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
@@ -41,8 +46,8 @@ import {
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns `credit-registration-student-3` on both general courses, `credit-registration-student-4` and
- * `-5` on `via-suotar`, and `student8` on the import-outcomes course.
+ * Owns `credit-registration-student-3` on both general courses, `credit-registration-student-4`,
+ * `-5` and `-6` on `via-suotar`, and `student8` on the import-outcomes course.
  *
  * The first two tests and the malformed batch make an iteration fail on purpose, so once their row
  * exists they tick it by id: a course scope would share the circuit breaker with the other specs on
@@ -58,6 +63,9 @@ const MALFORMED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_4.studentNumber
 const BESIDE_MALFORMED_EMAIL = CREDIT_REGISTRATION_STUDENT_5.email
 const BESIDE_MALFORMED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_5.studentNumber
 const MALFORMED_FAULT_ID = "import-outcomes-malformed"
+const RESENT_EMAIL = CREDIT_REGISTRATION_STUDENT_6.email
+const RESENT_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_6.studentNumber
+const LOST_BY_VERIFY_FAULT_ID = "import-outcomes-lost-by-verify"
 
 test.describe("An import the study registry never answered", () => {
   test.use({ storageState: seededStudentStorageState(TIMEOUT_EMAIL) })
@@ -382,5 +390,101 @@ test.describe("A batch Suotar refuses as malformed because of one row", () => {
         "import_attainments",
       ),
     ).toBe(2)
+  })
+})
+
+test.describe("A resend of a completion Sisu accepted from Suotar moments ago", () => {
+  test.use({ storageState: ADMIN_STORAGE_STATE })
+
+  test.afterEach(async ({ page }) => {
+    await disarmMockSuotarFault(page.request, LOST_BY_VERIFY_FAULT_ID)
+  })
+
+  test("Suotar's record of its own send settles the resend as a duplicate", async ({
+    page,
+    adminApi,
+  }) => {
+    // Verify losing the submission sends the row back to import while the importer's copy of Sisu
+    // still has no trace of it, which leaves only Suotar's own send log to catch the repeat.
+    await armMockSuotarFault(page.request, {
+      id: LOST_BY_VERIFY_FAULT_ID,
+      when: [
+        { endpoint: "verify_attainments" },
+        { stage: "resolve" },
+        { studentNumber: RESENT_STUDENT_NUMBER },
+        { courseCode: CRS_101 },
+      ],
+      // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
+      then: { kind: "itemLevel", code: "notRegistered" },
+      lifetime: { matchingItems: 1 },
+    })
+    await setTestExclusiveHold(page.request, RESENT_EMAIL, 90, SUOTAR_COURSE_ID)
+    await upsertMockSuotarEnrolments(page.request, [
+      {
+        studentNumber: RESENT_STUDENT_NUMBER,
+        courseCode: CRS_101,
+        kind: "degree",
+        state: "ENROLLED",
+        studyRightValidityPeriod: activeStudyRightPeriod(),
+      },
+    ])
+
+    await runMaterializeTick(page.request, {
+      userEmail: RESENT_EMAIL,
+      courseSlug: SUOTAR_COURSE_SLUG,
+    })
+    const stateOf = async () =>
+      (
+        await listAdminRegistrations(adminApi, {
+          student_number: RESENT_STUDENT_NUMBER,
+          course_id: SUOTAR_COURSE_ID,
+        })
+      ).data[0]
+    const materialized = await stateOf()
+    expect(materialized).toBeDefined()
+    const rowId = materialized!.id
+    const rowScope = { creditRegistrationIds: [rowId] }
+    const waitForState = (state: string) =>
+      pollUntil(
+        async () => {
+          const row = await stateOf()
+          return row?.state === state ? row : null
+        },
+        { description: `the resent row to reach ${state}` },
+      )
+
+    // A worker may have parked the row on the missing enrolment before the upsert above.
+    await makeRegistrationDueNow(adminApi, rowId)
+    await runPreconditionsTick(page.request, rowScope)
+    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runImportSubmissionTick(page.request, rowScope)
+    await waitForState("awaiting_verification")
+    const [sent] = await mockSuotarSubmissionsFor(page.request, RESENT_STUDENT_NUMBER, CRS_101)
+    expect(sent).toBeDefined()
+
+    await makeRegistrationDueNow(adminApi, rowId)
+    await runVerifyPollTick(page.request, rowScope)
+    const lost = await waitForState("failed_retryable")
+    expect(lost.error_code).toBe("not_registered")
+
+    await makeRegistrationDueNow(adminApi, rowId)
+    await runPreconditionsTick(page.request, rowScope)
+    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runImportSubmissionTick(page.request, rowScope)
+    await waitForState("duplicate")
+
+    const { registration } = await adminRegistrationDetails(adminApi, rowId)
+    expect(registration.sisu_attainment_id).toBe(sent!.submittedAttainmentId)
+    expect(
+      await mockSuotarSubmissionsFor(page.request, RESENT_STUDENT_NUMBER, CRS_101),
+    ).toHaveLength(1)
+    const importCodes = (
+      await mockCallsForStudent(page.request, RESENT_STUDENT_NUMBER, CRS_101, "import_attainments")
+    ).flatMap((call) =>
+      call.items
+        .filter((item) => item.studentNumber === RESENT_STUDENT_NUMBER)
+        .map((item) => item.code),
+    )
+    expect(importCodes.toSorted()).toStrictEqual(["duplicateAttainment", "sent"])
   })
 })

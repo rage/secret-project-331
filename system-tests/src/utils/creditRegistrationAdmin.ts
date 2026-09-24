@@ -82,6 +82,9 @@ export interface AdminRegistrationAttempt {
   grade_scale_id: string | null
   /** The `hy-kur-…` id import answered with, if it answered. */
   submitted_attainment_id: string | null
+  /** The attainment the study registry holds for this row, which may not be one we submitted. */
+  sisu_attainment_id: string | null
+  sisu_person_id: string | null
   next_attempt_at: string
   /** Why the single-row hand transition would refuse to resubmit this row, or `null`. */
   resubmission_refusal: string | null

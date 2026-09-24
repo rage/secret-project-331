@@ -17,8 +17,8 @@ use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
 use super::commands::{
-    CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, RealisationUpsert, SisuViolationsUpsert,
-    WorldPush,
+    AttainmentUpsert, CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, RealisationUpsert,
+    SisuViolationsUpsert, WorldPush,
 };
 use super::world::{
     CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, PersonBehaviour,
@@ -165,6 +165,13 @@ pub const CREDIT_REGISTRATION_STUDENT_5: MockPersonFixture = MockPersonFixture {
     sisu_email: "zzyzx.crsfive@helsinki.example.com",
     account_email: Some("credit-registration-student-5@example.com"),
 };
+pub const CREDIT_REGISTRATION_STUDENT_6: MockPersonFixture = MockPersonFixture {
+    student_number: "900000016",
+    first_names: "Zzyzx",
+    last_name: "Crssix",
+    sisu_email: "zzyzx.crssix@helsinki.example.com",
+    account_email: Some("credit-registration-student-6@example.com"),
+};
 
 /// A seeded completion on one of the two general Suotar courses, and the enrolments the registry
 /// holds for it. Without one the row parks at `no_usable_enrolment`, or waits for its spec to create
@@ -178,7 +185,7 @@ pub struct LaneCompletion {
 const NOT_ENROLLED: &[RealisationKind] = &[];
 const DEGREE: &[RealisationKind] = &[RealisationKind::Degree];
 
-pub const LANE_COMPLETIONS: [LaneCompletion; 14] = [
+pub const LANE_COMPLETIONS: [LaneCompletion; 16] = [
     // suotar-in-course-banner
     LaneCompletion {
         student: &STUDENT_7,
@@ -231,6 +238,17 @@ pub const LANE_COMPLETIONS: [LaneCompletion; 14] = [
     LaneCompletion {
         student: &CREDIT_REGISTRATION_STUDENT_5,
         course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_6,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-enrolment-problems; the registry already holds this credit
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_5,
+        course_code: CRS_B_101,
         enrolments: NOT_ENROLLED,
     },
     // suotar-verify-outcomes
@@ -333,6 +351,7 @@ pub fn mock_suotar_world() -> WorldPush {
         &CREDIT_REGISTRATION_STUDENT_3,
         &CREDIT_REGISTRATION_STUDENT_4,
         &CREDIT_REGISTRATION_STUDENT_5,
+        &CREDIT_REGISTRATION_STUDENT_6,
     ];
     let link_token_people = [&LINK_VALID, &LINK_EXPIRED, &LINK_USED];
     let admin_roster = [
@@ -439,7 +458,22 @@ pub fn mock_suotar_world() -> WorldPush {
         persons,
         course_units,
         enrolments,
-        attainments: Vec::new(),
+        // In the world from the start, so no sweep sees the student without it and mails them.
+        attainments: vec![AttainmentUpsert {
+            id: None,
+            student_number: CREDIT_REGISTRATION_STUDENT_5.student_number.to_string(),
+            course_code: CRS_B_101.to_string(),
+            person_id: None,
+            kind: RealisationKind::Degree,
+            attainment_type: None,
+            state: None,
+            attainment_date: (now - Duration::days(400)).date_naive(),
+            registration_date: None,
+            grade_scale_id: "sis-hyl-hyv".to_string(),
+            grade_id: "1".to_string(),
+            passed: Some(true),
+            credits: None,
+        }],
         submissions: Vec::new(),
         sisu_violations: vec![SisuViolationsUpsert {
             student_number: STUDENT_8.student_number.to_string(),

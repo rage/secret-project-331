@@ -36,10 +36,12 @@
  * | --------------------------- | ------------------------------- | -------------- |
  * | suotar-enrolment-problems   | credit-registration-student-1   | via-suotar     |
  * |                             | student7                        | via-suotar-b   |
+ * |                             | credit-registration-student-5   | via-suotar-b   |
  * | suotar-import-outcomes      | credit-registration-student-3   | via-suotar     |
  * |                             | credit-registration-student-3   | via-suotar-b   |
  * |                             | credit-registration-student-4   | via-suotar     |
  * |                             | credit-registration-student-5   | via-suotar     |
+ * |                             | credit-registration-student-6   | via-suotar     |
  * |                             | student8                        | import-outcomes|
  * | suotar-verify-outcomes      | student6                        | via-suotar-b   |
  * |                             | credit-registration-student-1   | via-suotar-b   |
@@ -151,6 +153,11 @@ export const CREDIT_REGISTRATION_STUDENT_5 = {
   email: "credit-registration-student-5@example.com",
   studentNumber: "900000015",
   lastName: "Crsfive",
+} as const
+export const CREDIT_REGISTRATION_STUDENT_6 = {
+  email: "credit-registration-student-6@example.com",
+  studentNumber: "900000016",
+  lastName: "Crssix",
 } as const
 
 export const CREDIT_REGISTRATION_ORGANIZATION_SLUG = "credit-registration"

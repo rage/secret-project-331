@@ -10,7 +10,8 @@ use super::ids;
 use super::wire::{
     self, AttainmentReference, AttainmentSummary, COURSE_NOT_CARRIED, CourseAllowedResult,
     DuplicateAttainmentResult, Endpoint, EnrolmentResolutionResult, EnrolmentsListedResult,
-    ExistingAttainment, ListedEnrolment, ListedPerson, NotImprovedAttainmentResult,
+    ExistingAttainment, ExistingAttainmentsResult, ListedEnrolment, ListedPerson,
+    NotImprovedAttainmentResult, RecentlySentAttainment, RecentlySentDuplicateResult,
     RegisteredResult, ResponseItem, SubmissionPendingResult, SubmittedAttainment, iso_millis,
     sisu_midnight,
 };
@@ -59,6 +60,16 @@ pub fn resolve_enrolments_item(
         return ResponseItem::error(endpoint, id, "courseCodeNotFound");
     };
 
+    let mut existing: Vec<&MockAttainment> =
+        attainments_for(working, &item.student_number, &item.course_code);
+    existing.sort_by(|a, b| {
+        a.attainment_date
+            .cmp(&b.attainment_date)
+            .then_with(|| a.id.cmp(&b.id))
+    });
+    let existing_attainments: Vec<ExistingAttainment> =
+        existing.into_iter().map(existing_attainment).collect();
+
     // The importer hands over ENROLLED enrolments only, so `enrolmentNotAccepted` is unreachable.
     let mut enrolled: Vec<&MockEnrolment> =
         enrolments_for(working, &item.student_number, &item.course_code)
@@ -75,23 +86,19 @@ pub fn resolve_enrolments_item(
         })
         .collect();
     if enrolments.is_empty() {
-        return ResponseItem::error(endpoint, id, "enrolmentNotFound");
+        return ResponseItem::error(endpoint, id, "enrolmentNotFound").with_result(
+            ExistingAttainmentsResult {
+                existing_attainments,
+            },
+        );
     }
-
-    let mut existing: Vec<&MockAttainment> =
-        attainments_for(working, &item.student_number, &item.course_code);
-    existing.sort_by(|a, b| {
-        a.attainment_date
-            .cmp(&b.attainment_date)
-            .then_with(|| a.id.cmp(&b.id))
-    });
 
     ResponseItem::ok(
         id,
         "enrolmentFound",
         EnrolmentResolutionResult {
             enrolments,
-            existing_attainments: existing.into_iter().map(existing_attainment).collect(),
+            existing_attainments,
         },
     )
 }
@@ -194,31 +201,46 @@ pub fn resolve_import_item(
             .collect();
     earlier.sort_by_key(|attainment| std::cmp::Reverse(attainment.attainment_date));
     // Suotar reports the newest attainment on the course, not necessarily the one that decided.
-    if let Some(newest) = earlier.first() {
-        if earlier
+    if let Some(newest) = earlier.first()
+        && earlier
             .iter()
             .any(|attainment| is_identical(attainment, incoming, item, working))
-        {
-            return ImportResolution::Answered(ResponseItem::ok(
-                id,
-                "duplicateAttainment",
-                DuplicateAttainmentResult {
-                    attainment: attainment_summary(newest),
+    {
+        return ImportResolution::Answered(ResponseItem::ok(
+            id,
+            "duplicateAttainment",
+            DuplicateAttainmentResult {
+                attainment: attainment_summary(newest),
+            },
+        ));
+    }
+    if let Some(recent) = recently_accepted(working, item, now) {
+        return ImportResolution::Answered(ResponseItem::ok(
+            id,
+            "duplicateAttainment",
+            RecentlySentDuplicateResult {
+                attainment: RecentlySentAttainment {
+                    id: recent.submitted_attainment_id.clone(),
+                    attainment_type: wire::ASSESSMENT_ITEM_ATTAINMENT.to_string(),
+                    attainment_date: recent.adjusted_attainment_date,
+                    grade_scale_id: recent.grade_scale_id.clone(),
+                    grade_id: recent.grade_id.clone(),
                 },
-            ));
-        }
-        if !earlier
+            },
+        ));
+    }
+    if let Some(newest) = earlier.first()
+        && !earlier
             .iter()
             .all(|attainment| beats(incoming, attainment, item, working))
-        {
-            return ImportResolution::Answered(ResponseItem::ok(
-                id,
-                "notImprovedAttainment",
-                NotImprovedAttainmentResult {
-                    previous_attainment: attainment_summary(newest),
-                },
-            ));
-        }
+    {
+        return ImportResolution::Answered(ResponseItem::ok(
+            id,
+            "notImprovedAttainment",
+            NotImprovedAttainmentResult {
+                previous_attainment: attainment_summary(newest),
+            },
+        ));
     }
 
     let adjusted_attainment_date = match &enrolment.study_right {
@@ -248,6 +270,32 @@ pub fn resolve_import_item(
         importer: ImporterVisibility::None,
         created_at: now,
     }))
+}
+
+/// How far back Suotar checks its own accepted sends, which the importer's copy of Sisu may not show
+/// yet.
+const RECENTLY_ACCEPTED_HOURS: i64 = 24;
+
+/// A send Sisu accepted within [`RECENTLY_ACCEPTED_HOURS`] of the same completion. Not matched on the
+/// date, which Suotar's cron runs vary for one completion.
+fn recently_accepted<'a>(
+    working: &'a WorkingSet,
+    item: &wire::ImportAttainmentRequestItem,
+    now: DateTime<Utc>,
+) -> Option<&'a MockSubmission> {
+    working
+        .submissions_by_person_course
+        .get(&person_course_key(&item.student_number, &item.course_code))
+        .into_iter()
+        .flatten()
+        .filter_map(|id| working.submissions.get(id))
+        .find(|submission| {
+            submission.send_state == SendState::Accepted
+                && submission.created_at >= now - Duration::hours(RECENTLY_ACCEPTED_HOURS)
+                && submission.credits == item.credits
+                && submission.grade_scale_id == item.grade_scale_id
+                && submission.grade_id == item.grade_id
+        })
 }
 
 /// Whether the batch's acceptor lookup would fail for any of these submissions' course units.

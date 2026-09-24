@@ -286,17 +286,21 @@ pub struct ExistingAttainment {
 }
 
 /// An enrolment or attainment that cannot be read drops out alone rather than taking the item with it.
+///
+/// `enrolmentNotFound` and `enrolmentNotAccepted` carry this too, with `existing_attainments` only.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentResolutionResult {
-    #[serde(deserialize_with = "readable_elements")]
+    #[serde(default, deserialize_with = "readable_elements")]
     pub enrolments: Vec<SuotarEnrolment>,
     #[serde(default, deserialize_with = "readable_elements")]
     pub existing_attainments: Vec<ExistingAttainment>,
 }
 
-/// Covers both contract bodies: the bare `{id, type}` of verify's `registered` and the fuller one
-/// behind import's `duplicateAttainment` and `notImprovedAttainment`.
+/// Covers the contract bodies: the bare `{id, type}` of verify's `registered` and the fuller one
+/// behind import's `duplicateAttainment` and `notImprovedAttainment`. A `duplicateAttainment` Suotar
+/// answers from its own recent sends names the `AssessmentItemAttainment` it submitted, and has no
+/// `state` or `registrationDate`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarAttainment {
@@ -499,7 +503,7 @@ pub struct SuotarItemError {
     pub message: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SuotarResponseItem<R> {
     pub request_item_id: String,
@@ -507,12 +511,57 @@ pub struct SuotarResponseItem<R> {
     /// A string, not an enum: Suotar may add codes, and a strict enum would take the pipeline down
     /// the day it does.
     pub code: String,
-    /// Also present on the error items that carry one: `sisuTimeout`, `duplicateRequestItem` and
-    /// `submissionPending`.
+    /// Also present on the error items that carry one: `sisuTimeout`, `duplicateRequestItem`,
+    /// `submissionPending`, `enrolmentNotFound` and `enrolmentNotAccepted`. An error item's result
+    /// that cannot be read reads as `None`; an ok item's makes the whole item unreadable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<R>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<SuotarItemError>,
+}
+
+impl<'de, R: DeserializeOwned> Deserialize<'de> for SuotarResponseItem<R> {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Wire {
+            request_item_id: String,
+            status: SuotarItemStatus,
+            code: String,
+            #[serde(default)]
+            result: Option<serde_json::Value>,
+            #[serde(default)]
+            error: Option<SuotarItemError>,
+        }
+
+        let wire = Wire::deserialize(deserializer)?;
+        let result = match wire.result.map(serde_json::from_value::<R>) {
+            None => None,
+            Some(Ok(result)) => Some(result),
+            // The code is the answer on an error item, and the result only adds to it.
+            Some(Err(_)) if wire.status == SuotarItemStatus::Error => {
+                warn!(
+                    "Suotar answered `{}` with a result that could not be read; ignoring the result.",
+                    wire.code
+                );
+                None
+            }
+            // Not the serde message: it quotes the offending value, which may be personal data.
+            Some(Err(_)) => {
+                return Err(serde::de::Error::custom(format!(
+                    "the result of a `{}` item could not be read",
+                    wire.code
+                )));
+            }
+        };
+        Ok(Self {
+            request_item_id: wire.request_item_id,
+            status: wire.status,
+            code: wire.code,
+            result,
+            error: wire.error,
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -1345,6 +1394,33 @@ mod tests {
     }
 
     #[test]
+    fn an_enrolment_error_carries_the_existing_attainments() {
+        let items: Vec<SuotarResponseItem<EnrolmentResolutionResult>> =
+            serde_json::from_value(json!([{
+                "requestItemId": "item-1",
+                "status": "error",
+                "code": "enrolmentNotFound",
+                "error": { "message": "No Sisu enrolment was found for this person and course." },
+                "result": { "existingAttainments": [{
+                    "id": "existing-attainment-id",
+                    "type": "AssessmentItemAttainment",
+                    "state": "ATTAINED",
+                    "attainmentDate": "2026-03-01",
+                    "registrationDate": "2026-03-05",
+                    "gradeScaleId": "sis-0-5",
+                    "gradeId": 3
+                }] }
+            }]))
+            .expect("enrolment error with attainments");
+        let result = items[0].result.as_ref().expect("result");
+        assert!(result.enrolments.is_empty());
+        assert_eq!(
+            result.existing_attainments[0].grade_id.as_deref(),
+            Some("3")
+        );
+    }
+
+    #[test]
     fn one_deserializer_covers_every_import_success_body() {
         let items: Vec<SuotarResponseItem<ImportAttainmentResult>> =
             serde_json::from_value(json!([
@@ -1367,6 +1443,18 @@ mod tests {
                         "state": "ATTAINED",
                         "attainmentDate": "2026-05-22T00:00:00.000Z",
                         "registrationDate": "2026-05-22T00:00:00.000Z",
+                        "gradeScaleId": "sis-hyl-hyv",
+                        "gradeId": "1"
+                    } }
+                },
+                {
+                    "requestItemId": "item-5",
+                    "status": "ok",
+                    "code": "duplicateAttainment",
+                    "result": { "attainment": {
+                        "id": "hy-kur-1",
+                        "type": "AssessmentItemAttainment",
+                        "attainmentDate": "2026-05-22",
                         "gradeScaleId": "sis-hyl-hyv",
                         "gradeId": "1"
                     } }
@@ -1405,7 +1493,15 @@ mod tests {
                 .and_then(|attainment| attainment.attainment_date),
             NaiveDate::from_ymd_opt(2026, 5, 22)
         );
-        let not_improved = items[2].result.as_ref().expect("not improved result");
+        let recently_sent = items[2]
+            .result
+            .as_ref()
+            .and_then(|result| result.attainment.as_ref())
+            .expect("recently sent duplicate");
+        assert_eq!(recently_sent.id, "hy-kur-1");
+        assert_eq!(recently_sent.state, None);
+        assert_eq!(recently_sent.registration_date, None);
+        let not_improved = items[3].result.as_ref().expect("not improved result");
         assert_eq!(
             not_improved
                 .previous_attainment

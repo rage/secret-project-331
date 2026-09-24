@@ -1,6 +1,8 @@
 import {
   completionRegistrationUrl,
+  countMockCallsForStudent,
   CREDIT_REGISTRATION_STUDENT_1,
+  CREDIT_REGISTRATION_STUDENT_5,
   CRS_101,
   CRS_B_101,
   CRS_B_101_ENROLMENT_LINK,
@@ -12,25 +14,32 @@ import {
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
-import { listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
+import { adminRegistrationDetails, listAdminRegistrations } from "@/utils/creditRegistrationAdmin"
 import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuotar"
-import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
+import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runImportSubmissionTick,
   runMaterializeTick,
   runPhasesUpToSubmission,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
+  runStudentNotificationsTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
-/** Owns `student7` on `via-suotar-b` and `credit-registration-student-1` on `via-suotar`. */
+/**
+ * Owns `student7` and `credit-registration-student-5` on `via-suotar-b` and
+ * `credit-registration-student-1` on `via-suotar`.
+ */
 const NO_ENROLMENT_EMAIL = STUDENT_7.email
 const NO_ENROLMENT_STUDENT_NUMBER = STUDENT_7.studentNumber
 const EXPIRED_DEGREE_ENROLMENT_ID = `hy-enr-${NO_ENROLMENT_STUDENT_NUMBER}-${CRS_B_101}-expired-degree`
 const OPEN_UNIVERSITY_ENROLMENT_ID = `hy-enr-${NO_ENROLMENT_STUDENT_NUMBER}-${CRS_B_101}-open-university`
 const TWO_ENROLMENTS_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
 const TWO_ENROLMENTS_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
+/** The mock's seeded world gives this student a passed attainment on the course and no enrolment. */
+const PRIOR_CREDIT_EMAIL = CREDIT_REGISTRATION_STUDENT_5.email
+const PRIOR_CREDIT_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_5.studentNumber
 
 const YEAR = 365 * 24 * 60 * 60 * 1000
 const isoDate = (offsetMs: number) =>
@@ -169,5 +178,51 @@ test.describe("A student enrolled both as a degree student and through the Open 
     })
     expect(listed.data).toHaveLength(1)
     expect(listed.data[0]?.selected_enrolment_id).toBe(degreeEnrolment?.id)
+  })
+})
+
+test.describe("A student the study registry already credited, with no enrolment", () => {
+  test.use({ storageState: ADMIN_STORAGE_STATE })
+
+  test("The credit Sisu already holds settles the row without asking the student to enrol", async ({
+    page,
+    adminApi,
+  }) => {
+    const scope = { userEmail: PRIOR_CREDIT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
+
+    await runMaterializeTick(page.request, scope)
+    await runPreconditionsTick(page.request, scope)
+    await runResolveEnrolmentsTick(page.request, scope)
+
+    const settled = await pollUntil(
+      async () => {
+        const [row] = (
+          await listAdminRegistrations(adminApi, {
+            student_number: PRIOR_CREDIT_STUDENT_NUMBER,
+            course_id: SUOTAR_B_COURSE_ID,
+          })
+        ).data
+        return row?.state === "duplicate" ? row : null
+      },
+      { description: "the already credited row to settle as a duplicate" },
+    )
+    expect(settled.error_code).toBeNull()
+
+    const { registration } = await adminRegistrationDetails(adminApi, settled.id)
+    expect(registration.sisu_attainment_id).not.toBeNull()
+    // Nothing was sent, so no Sisu person may stay frozen on the row.
+    expect(registration.sisu_person_id).toBeNull()
+
+    await runStudentNotificationsTick(page.request, scope)
+    const { notification_emails } = await adminRegistrationDetails(adminApi, settled.id)
+    expect(notification_emails.filter((mail) => mail.kind === "action_needed")).toHaveLength(0)
+    expect(
+      await countMockCallsForStudent(
+        page.request,
+        PRIOR_CREDIT_STUDENT_NUMBER,
+        CRS_B_101,
+        "import_attainments",
+      ),
+    ).toBe(0)
   })
 })

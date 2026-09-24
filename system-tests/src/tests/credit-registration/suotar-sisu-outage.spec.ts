@@ -48,7 +48,7 @@ const OUTAGE_FAULT_ID = "sisu-outage-spec"
 const IMPORT_OUTAGE_FAULT_ID = "sisu-outage-spec-import"
 const OUTAGE_FIRST_NAMES = "Zzyzx"
 const OUTAGE_LAST_NAME = CREDIT_REGISTRATION_STUDENT_4.lastName
-const OUTAGE_SISU_EMAIL = "zzyzx.crsfour@helsinki.example"
+const OUTAGE_SISU_EMAIL = "zzyzx.crsfour@helsinki.example.com"
 const UNAVAILABLE_WIRE_CODE = "serviceTemporarilyUnavailable"
 const UNAVAILABLE_LEDGER_CODE = "service_temporarily_unavailable"
 /** Renewed every retry pass, so this only has to cover the gap between two passes, not the whole spec. */

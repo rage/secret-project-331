@@ -345,7 +345,7 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
         let claimed = claim_linking_mails(
             tx.as_mut(),
-            &person(course, &["aada@helsinki.fi", "aada@example.com"]),
+            &person(course, &["aada.uni@example.com", "aada@example.com"]),
         )
         .await
         .unwrap();
@@ -366,7 +366,10 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
         let claimed = claim_linking_mails(
             tx.as_mut(),
-            &person(course, &["Aada@Helsinki.fi", "aada@helsinki.fi", "  "]),
+            &person(
+                course,
+                &["Aada.Uni@Example.com", "aada.uni@example.com", "  "],
+            ),
         )
         .await
         .unwrap();
@@ -377,7 +380,7 @@ mod tests {
     #[tokio::test]
     async fn mailing_the_same_address_twice_is_refused_as_a_duplicate() {
         insert_data!(:tx, :user, :org, :course);
-        let discovered = person(course, &["aada@helsinki.fi"]);
+        let discovered = person(course, &["aada.uni@example.com"]);
         assert_eq!(
             claim_linking_mails(tx.as_mut(), &discovered).await.unwrap(),
             ClaimedLinkingMails {
@@ -404,7 +407,7 @@ mod tests {
     #[tokio::test]
     async fn a_person_mailed_today_is_left_alone_even_at_another_address() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mails(tx.as_mut(), &person(course, &["aada.uni@example.com"]))
             .await
             .unwrap();
         let claimed = claim_linking_mails(tx.as_mut(), &person(course, &["aada@example.com"]))
@@ -445,7 +448,7 @@ mod tests {
     #[tokio::test]
     async fn the_token_is_created_unbound_and_can_be_claimed_only_once() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mails(tx.as_mut(), &person(course, &["aada.uni@example.com"]))
             .await
             .unwrap();
         let slot = get_by_sisu_person_id(tx.as_mut(), "hy-hlo-1")
@@ -479,7 +482,7 @@ mod tests {
                 first_names: Some("Aada Maria".to_string().into()),
                 last_name: Some("Virtanen".to_string().into()),
                 course_id: course,
-                addresses: vec![DbSecret::new("aada@helsinki.fi")],
+                addresses: vec![DbSecret::new("aada.uni@example.com")],
             },
         )
         .await

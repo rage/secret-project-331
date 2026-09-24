@@ -80,7 +80,7 @@ const SUPERSEDED_ATTEMPT_2_ID = "c5ed17ea-0902-4a5e-9e6e-c0de00000902"
 const SUPERSEDED_STUDENT_NUMBER = STUDENT_6.studentNumber
 
 const STALE_STUDENT_NUMBER = "900000903"
-const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example"
+const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example.com"
 // Anchored: "old." and "older." variants of the same address also carry STALE_ADDRESS as a
 // substring, so a plain text match resolves to all three list items instead of just this one.
 const STALE_ADDRESS_EXACT = new RegExp(
@@ -94,7 +94,7 @@ const STALE_ADDRESS_EXACT = new RegExp(
 const ADMIN_LINKED_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
 const ADMIN_LINKED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
 const ADMIN_LINKED_LAST_NAME = CREDIT_REGISTRATION_STUDENT_1.lastName
-const ADMIN_LINKED_SISU_EMAIL = "zzyzx.crsone@helsinki.example"
+const ADMIN_LINKED_SISU_EMAIL = "zzyzx.crsone@helsinki.example.com"
 
 test("Every tab renders, and the phases report heartbeats", async ({ page }) => {
   await page.goto(OVERVIEW_URL)

@@ -109,21 +109,21 @@ pub const STUDENT_6: MockPersonFixture = MockPersonFixture {
     student_number: "900000006",
     first_names: "Zzyzx",
     last_name: "Studentsix",
-    sisu_email: "zzyzx.studentsix@helsinki.example",
+    sisu_email: "zzyzx.studentsix@helsinki.example.com",
     account_email: Some("student6@example.com"),
 };
 pub const STUDENT_7: MockPersonFixture = MockPersonFixture {
     student_number: "900000007",
     first_names: "Zzyzx",
     last_name: "Studentseven",
-    sisu_email: "zzyzx.studentseven@helsinki.example",
+    sisu_email: "zzyzx.studentseven@helsinki.example.com",
     account_email: Some("student7@example.com"),
 };
 pub const STUDENT_8: MockPersonFixture = MockPersonFixture {
     student_number: "900000008",
     first_names: "Zzyzx",
     last_name: "Studenteight",
-    sisu_email: "zzyzx.studenteight@helsinki.example",
+    sisu_email: "zzyzx.studenteight@helsinki.example.com",
     account_email: Some("student8@example.com"),
 };
 
@@ -132,7 +132,7 @@ pub const CREDIT_REGISTRATION_STUDENT_1: MockPersonFixture = MockPersonFixture {
     student_number: "900000011",
     first_names: "Zzyzx",
     last_name: "Crsone",
-    sisu_email: "zzyzx.crsone@helsinki.example",
+    sisu_email: "zzyzx.crsone@helsinki.example.com",
     account_email: Some("credit-registration-student-1@example.com"),
 };
 /// Linked by support by hand rather than by the mailed link, which the teacher view renders
@@ -141,28 +141,28 @@ pub const CREDIT_REGISTRATION_STUDENT_2: MockPersonFixture = MockPersonFixture {
     student_number: "900000012",
     first_names: "Zzyzx",
     last_name: "Crstwo",
-    sisu_email: "zzyzx.crstwo@helsinki.example",
+    sisu_email: "zzyzx.crstwo@helsinki.example.com",
     account_email: Some("credit-registration-student-2@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_3: MockPersonFixture = MockPersonFixture {
     student_number: "900000013",
     first_names: "Zzyzx",
     last_name: "Crsthree",
-    sisu_email: "zzyzx.crsthree@helsinki.example",
+    sisu_email: "zzyzx.crsthree@helsinki.example.com",
     account_email: Some("credit-registration-student-3@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_4: MockPersonFixture = MockPersonFixture {
     student_number: "900000014",
     first_names: "Zzyzx",
     last_name: "Crsfour",
-    sisu_email: "zzyzx.crsfour@helsinki.example",
+    sisu_email: "zzyzx.crsfour@helsinki.example.com",
     account_email: Some("credit-registration-student-4@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_5: MockPersonFixture = MockPersonFixture {
     student_number: "900000015",
     first_names: "Zzyzx",
     last_name: "Crsfive",
-    sisu_email: "zzyzx.crsfive@helsinki.example",
+    sisu_email: "zzyzx.crsfive@helsinki.example.com",
     account_email: Some("credit-registration-student-5@example.com"),
 };
 
@@ -263,7 +263,7 @@ pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
     student_number: "900000903",
     first_names: "Zzyzx",
     last_name: "Deadaddress",
-    sisu_email: "zzyzx.deadaddress@helsinki.example",
+    sisu_email: "zzyzx.deadaddress@helsinki.example.com",
     account_email: None,
 };
 /// A second capped person on `ADMIN_STALE`'s course, owned by the teacher specs so a cap-refused
@@ -272,7 +272,7 @@ pub const TEACHER_RESEND_CAPPED: MockPersonFixture = MockPersonFixture {
     student_number: "900000804",
     first_names: "Zzyzx",
     last_name: "Cappedmail",
-    sisu_email: "zzyzx.cappedmail@helsinki.example",
+    sisu_email: "zzyzx.cappedmail@helsinki.example.com",
     account_email: None,
 };
 
@@ -287,21 +287,21 @@ pub const LINK_VALID: MockPersonFixture = MockPersonFixture {
     student_number: "900000201",
     first_names: "Zzyzx",
     last_name: "Linkvalid",
-    sisu_email: "zzyzx.linkvalid@helsinki.example",
+    sisu_email: "zzyzx.linkvalid@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_EXPIRED: MockPersonFixture = MockPersonFixture {
     student_number: "900000202",
     first_names: "Zzyzx",
     last_name: "Linkexpired",
-    sisu_email: "zzyzx.linkexpired@helsinki.example",
+    sisu_email: "zzyzx.linkexpired@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_USED: MockPersonFixture = MockPersonFixture {
     student_number: "900000203",
     first_names: "Zzyzx",
     last_name: "Linkused",
-    sisu_email: "zzyzx.linkused@helsinki.example",
+    sisu_email: "zzyzx.linkused@helsinki.example.com",
     account_email: None,
 };
 /// The world the mock Suotar serves, built from the same fixtures the database rows are.

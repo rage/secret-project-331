@@ -697,7 +697,7 @@ mod tests {
                 first_names: Some("Aada".to_string().into()),
                 last_name: Some("Virtanen".to_string().into()),
                 course_id,
-                addresses: vec![DbSecret::new("aada@helsinki.fi")],
+                addresses: vec![DbSecret::new("aada@example.com")],
             },
         )
         .await
@@ -738,7 +738,7 @@ mod tests {
         let claimed = claim_unqueued(tx.as_mut(), 10, None).await.unwrap();
         assert_eq!(claimed.len(), 1);
         assert_eq!(claimed[0].id, slot);
-        assert_eq!(claimed[0].emailed_to.expose_secret(), "aada@helsinki.fi");
+        assert_eq!(claimed[0].emailed_to.expose_secret(), "aada@example.com");
 
         let delivery = insert_email_delivery_to_address(
             tx.as_mut(),

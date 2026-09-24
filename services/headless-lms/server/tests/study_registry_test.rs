@@ -171,7 +171,7 @@ async fn insert_data(
                 organization_id: org,
                 language_code: "en".to_string(),
                 teacher_in_charge_name: "Teacher".to_string(),
-                teacher_in_charge_email: "teacher@email.com".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
                 description: "".to_string(),
                 is_draft: false,
                 is_test_mode: false,

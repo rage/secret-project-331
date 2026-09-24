@@ -98,7 +98,7 @@ describe("whether the student is still asked where they enrol", () => {
           linking_email: {
             email_send_status: "sent",
             sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@helsinki.fi",
+            emailed_to_masked: "...@example.com",
           },
         }),
         enrolmentRoute: route(),
@@ -242,7 +242,7 @@ describe("what the linking band says", () => {
     expect(
       studentNumberLinkBand(
         registration({
-          linking_email: { email_send_status: "queued", emailed_to_masked: "...@helsinki.fi" },
+          linking_email: { email_send_status: "queued", emailed_to_masked: "...@example.com" },
         }),
         null,
       ),
@@ -256,19 +256,19 @@ describe("what the linking band says", () => {
           linking_email: {
             email_send_status: "sent",
             sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@helsinki.fi",
+            emailed_to_masked: "...@example.com",
           },
         }),
         null,
       ),
-    ).toEqual({ kind: "mailed", emailMasked: "...@helsinki.fi", sentAt: "2026-08-20T10:00:00Z" })
+    ).toEqual({ kind: "mailed", emailMasked: "...@example.com", sentAt: "2026-08-20T10:00:00Z" })
   })
 
   test("says the mail failed rather than telling them to look for it", () => {
     expect(
       studentNumberLinkBand(
         registration({
-          linking_email: { email_send_status: "send_failed", emailed_to_masked: "...@helsinki.fi" },
+          linking_email: { email_send_status: "send_failed", emailed_to_masked: "...@example.com" },
         }),
         null,
       ),

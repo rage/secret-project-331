@@ -753,19 +753,19 @@ async fn allocate_person(
 ) -> Outcome {
     let sequence = store.next_person_seq(generation).await?;
     let student_number = format!("99{sequence:07}");
-    let person = MockPerson {
-        person_id: ids::person_id(&student_number),
-        first_names: Some(args.first_names.unwrap_or_else(|| "Zzyzx".to_string())),
-        last_name: Some(args.last_name.unwrap_or_else(|| "Allocated".to_string())),
-        primary_email: Some(
-            args.primary_email
-                .unwrap_or_else(|| format!("zzyzx.allocated.{student_number}@helsinki.example")),
-        ),
-        secondary_email: args.secondary_email,
-        behaviour: PersonBehaviour::default(),
-        owner_user_email: args.owner_user_email,
-        student_number: student_number.clone(),
-    };
+    let person =
+        MockPerson {
+            person_id: ids::person_id(&student_number),
+            first_names: Some(args.first_names.unwrap_or_else(|| "Zzyzx".to_string())),
+            last_name: Some(args.last_name.unwrap_or_else(|| "Allocated".to_string())),
+            primary_email: Some(args.primary_email.unwrap_or_else(|| {
+                format!("zzyzx.allocated.{student_number}@helsinki.example.com")
+            })),
+            secondary_email: args.secondary_email,
+            behaviour: PersonBehaviour::default(),
+            owner_user_email: args.owner_user_email,
+            student_number: student_number.clone(),
+        };
     let result = json!({ "studentNumber": student_number, "personId": person.person_id });
     store
         .upsert_json(
@@ -818,7 +818,9 @@ async fn generate_roster(
                 person_id: ids::person_id(&student_number),
                 first_names: Some("Zzyzx".to_string()),
                 last_name: Some(format!("Roster{sequence}")),
-                primary_email: Some(format!("zzyzx.roster.{student_number}@helsinki.example")),
+                primary_email: Some(format!(
+                    "zzyzx.roster.{student_number}@helsinki.example.com"
+                )),
                 secondary_email: None,
                 behaviour: PersonBehaviour::default(),
                 owner_user_email: None,
@@ -1444,7 +1446,7 @@ mod tests {
                 "studentNumber": "900000101",
                 "firstNames": "Zzyzx",
                 "lastName": "Happypath",
-                "primaryEmail": "zzyzx.happypath@helsinki.example",
+                "primaryEmail": "zzyzx.happypath@helsinki.example.com",
                 "behaviour": { "studyRightUnresolvable": true }
             }],
             "courseUnits": [{

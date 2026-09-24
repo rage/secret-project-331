@@ -647,7 +647,7 @@ mod tests {
             "studentNumber": "012345678",
             "firstNames": "Aada Maria",
             "lastName": "Virtanen",
-            "primaryEmail": "aada@helsinki.fi",
+            "primaryEmail": "aada@example.com",
             "accessToken": "abc123",
             "personId": "hy-hlo-1",
         }));
@@ -707,7 +707,7 @@ mod tests {
         let scrubbed = scrub_suotar_body(&json!({
             "STUDENT_NUMBER": "012345678",
             "Student-Number": "012345678",
-            "emailedTo": "aada@helsinki.fi",
+            "emailedTo": "aada@example.com",
         }));
         assert_eq!(
             scrubbed,
@@ -723,7 +723,7 @@ mod tests {
     fn value_scan_catches_identifiers_quoted_in_free_text() {
         // Suotar error messages quote the input, so key-based redaction alone would leak here.
         let scrubbed = scrub_suotar_body(&json!({
-            "message": "Person 012345678 (aada@helsinki.fi) has no accepted enrolment",
+            "message": "Person 012345678 (aada@example.com) has no accepted enrolment",
         }));
         assert_eq!(
             scrubbed,
@@ -773,7 +773,7 @@ mod tests {
             "items": [{
                 "status": {
                     "code": "personNotFound",
-                    "message": "Person 012345678 (aada@helsinki.fi) not found",
+                    "message": "Person 012345678 (aada@example.com) not found",
                 },
             }],
         }));

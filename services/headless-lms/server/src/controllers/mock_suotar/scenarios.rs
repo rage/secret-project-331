@@ -251,28 +251,27 @@ async fn put_person(
             format!("99{sequence:07}")
         }
     };
-    let person = MockPerson {
-        person_id: ids::person_id(&student_number),
-        first_names: Some(
-            args.first_names
-                .clone()
-                .unwrap_or_else(|| "Zzyzx".to_string()),
-        ),
-        last_name: Some(
-            args.last_name
-                .clone()
-                .unwrap_or_else(|| "Scenario".to_string()),
-        ),
-        primary_email: Some(
-            args.primary_email
-                .clone()
-                .unwrap_or_else(|| format!("zzyzx.scenario.{student_number}@helsinki.example")),
-        ),
-        secondary_email: args.secondary_email.clone(),
-        behaviour: PersonBehaviour::default(),
-        owner_user_email: args.owner.as_ref().and_then(|owner| owner.user.clone()),
-        student_number: student_number.clone(),
-    };
+    let person =
+        MockPerson {
+            person_id: ids::person_id(&student_number),
+            first_names: Some(
+                args.first_names
+                    .clone()
+                    .unwrap_or_else(|| "Zzyzx".to_string()),
+            ),
+            last_name: Some(
+                args.last_name
+                    .clone()
+                    .unwrap_or_else(|| "Scenario".to_string()),
+            ),
+            primary_email: Some(args.primary_email.clone().unwrap_or_else(|| {
+                format!("zzyzx.scenario.{student_number}@helsinki.example.com")
+            })),
+            secondary_email: args.secondary_email.clone(),
+            behaviour: PersonBehaviour::default(),
+            owner_user_email: args.owner.as_ref().and_then(|owner| owner.user.clone()),
+            student_number: student_number.clone(),
+        };
     store
         .upsert_json(
             generation,

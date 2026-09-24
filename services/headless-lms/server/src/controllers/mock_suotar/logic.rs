@@ -757,7 +757,7 @@ mod tests {
                     person_id: ids::person_id(STUDENT_NUMBER),
                     first_names: Some("Zzyzx".to_string()),
                     last_name: Some("Happypath".to_string()),
-                    primary_email: Some("zzyzx.happypath@helsinki.example".to_string()),
+                    primary_email: Some("zzyzx.happypath@helsinki.example.com".to_string()),
                     secondary_email: None,
                     behaviour: PersonBehaviour::default(),
                     owner_user_email: None,

@@ -31,8 +31,7 @@ pub const RESPONSE_FORMAT_NAME: &str = "FeedbackCategorisationResponse";
 /// The structured output format the suggestion LLM is asked to answer in. Must stay in
 /// sync with [FeedbackCategorisationResponse].
 fn response_format() -> LLMRequestResponseFormatParam {
-    LLMRequestResponseFormatParam {
-        format_type: JSONType::JsonSchema,
+    LLMRequestResponseFormatParam::JsonSchema {
         name: "FeedbackCategorisationResponse".to_string(),
         schema: Schema::strict_object(
             IndexMap::from([(

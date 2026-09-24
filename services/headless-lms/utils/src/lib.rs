@@ -3,6 +3,7 @@
 pub mod azure_embedding;
 pub mod backoff;
 pub mod cache;
+pub mod course_url;
 pub mod document_schema_processor;
 pub mod email_processor;
 pub mod error;

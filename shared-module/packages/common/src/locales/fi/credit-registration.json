@@ -699,6 +699,7 @@
   "credit-registration-reason-unexpected-response": "Odottamaton vastaus",
   "credit-registration-reason-unknown": "Tuntematon syy",
   "credit-registration-recent-actions-hint": "Näyttää, mitä kollegat ja tuki ovat jo tehneet, jottei kukaan lähetä samoja rivejä uudelleen.",
+  "credit-registration-refusal-already-submitted": "Tämä yritys on jo lähetetty Suotarille, eikä Sisun lopullinen vastaus ole vielä tiedossa. Uudelleenlähetys voisi kirjata opintopisteet kahdesti.",
   "credit-registration-refusal-already-succeeded": "Opintopisteet ovat jo Sisussa, joten lähetettävää ei ole.",
   "credit-registration-refusal-not-failed-permanent": "Täältä voi lähettää uudelleen vain epäonnistuneen kirjauksen. Tämä on yhä kesken, jo valmis tai odottaa tukea.",
   "credit-registration-refusal-submission-pending": "Suotar pitää aiemman lähetyksen yhä avoimena, ja Sisu voi vielä kirjata sen. Uudelleenlähetys nyt voisi kirjata opintopisteet kahdesti, joten anna tarkistuksen ensin valmistua.",

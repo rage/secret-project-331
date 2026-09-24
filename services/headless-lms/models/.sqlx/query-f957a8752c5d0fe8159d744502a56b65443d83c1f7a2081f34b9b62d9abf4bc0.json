@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id AS \"credit_registration_id!\",\n  cr.state AS \"state!: CreditRegistrationState\",\n  cr.user_id AS \"user_id!\",\n  cr.course_module_id AS \"course_module_id!\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\",\n  cm.name AS \"course_module_name?\",\n  ud.first_name AS \"first_name?\",\n  cm.ects_credits AS \"ects_credits?\",\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\nWHERE cr.deleted_at IS NULL\n  AND (\n    (\n      cr.state = 'no_usable_enrolment'\n      AND cr.action_needed_email_delivery_id IS NULL\n    )\n    OR (\n      cr.state = ANY($5::credit_registration_state [])\n      AND cr.registered_email_delivery_id IS NULL\n    )\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY cr.state_entered_at\nFOR UPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "query": "\nSELECT cr.id AS \"credit_registration_id!\",\n  cr.state AS \"state!: CreditRegistrationState\",\n  cr.user_id AS \"user_id!\",\n  cr.course_module_id AS \"course_module_id!\",\n  c.name AS \"course_name!\",\n  c.language_code AS \"course_language_code!\",\n  cm.name AS \"course_module_name?\",\n  ud.first_name AS \"first_name?\",\n  cm.ects_credits AS \"ects_credits?\",\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\nWHERE cr.deleted_at IS NULL\n  AND (\n    (\n      cr.state = 'no_usable_enrolment'\n      AND cr.action_needed_email_delivery_id IS NULL\n    )\n    OR (\n      cr.state = ANY($5::credit_registration_state [])\n      AND cr.registered_email_delivery_id IS NULL\n      -- A credit found already recorded is no news to a student told of one for the module.\n      AND NOT (\n        cr.state = ANY($6::credit_registration_state [])\n        AND EXISTS (\n          SELECT 1\n          FROM credit_registrations told\n          WHERE told.user_id = cr.user_id\n            AND told.course_module_id = cr.course_module_id\n            AND told.id <> cr.id\n            AND told.deleted_at IS NULL\n            AND (\n              told.registered_email_delivery_id IS NOT NULL\n              OR told.state = 'registered'\n            )\n        )\n      )\n    )\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY cr.state_entered_at\nFOR UPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -170,6 +170,38 @@
               }
             }
           }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -186,5 +218,5 @@
       null
     ]
   },
-  "hash": "271fff1e159faf6f475684414437aa4901fbc4ffd04106f4b99d0789915371f8"
+  "hash": "f957a8752c5d0fe8159d744502a56b65443d83c1f7a2081f34b9b62d9abf4bc0"
 }

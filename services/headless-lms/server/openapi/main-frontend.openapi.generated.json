@@ -25804,7 +25804,8 @@
           "already_succeeded",
           "submission_uncertain",
           "not_failed_permanent",
-          "submission_pending"
+          "submission_pending",
+          "already_submitted"
         ]
       },
       "RetryCreditRegistrationPayload": {

@@ -50,6 +50,7 @@
  * | suotar-in-course-banner     | student7                        | via-suotar     |
  * |                             | student8                        | via-suotar     |
  * | suotar-grade-improvement    | credit-registration-student-2   | grade-improvement |
+ * |                             | credit-registration-student-3   | grade-improvement |
  * | suotar-admin-dashboard      | credit-registration-student-1   | admin          |
  * | suotar-student-profile      | student6 (read only)            | via-suotar     |
  * |                             | student5 (nothing linked)       | via-suotar     |
@@ -139,6 +140,8 @@ export const CREDIT_REGISTRATION_STUDENT_3 = {
   studentNumber: "900000013",
   lastName: "Crsthree",
 } as const
+/** Derived by the seed from the address, so stable across reseeds. */
+export const CREDIT_REGISTRATION_STUDENT_3_USER_ID = "02df8948-d804-5e37-af84-1776c1050516"
 export const CREDIT_REGISTRATION_STUDENT_4 = {
   email: "credit-registration-student-4@example.com",
   studentNumber: "900000014",
@@ -357,4 +360,38 @@ export const legacyPullStream = async (
     throw new Error(`GET ${url} answered ${response.status()}: ${await response.text()}`)
   }
   return await response.text()
+}
+
+/**
+ * Gives `userId` a completion on the course's default module the way a teacher does from the
+ * students page, which is how a later grade arrives in production: as a new completion row, never
+ * as an edit of the old one. Posted as the admin, into the course's first instance.
+ */
+export const addManualCompletion = async (
+  adminApi: APIRequestContext,
+  params: { courseId: string; userId: string; grade: number },
+): Promise<void> => {
+  const [instance] = await getJson<{ id: string }[]>(
+    adminApi,
+    `${MAIN_FRONTEND_API}/courses/${params.courseId}/course-instances`,
+  )
+  const structure = await getJson<{ modules: { id: string; order_number: number }[] }>(
+    adminApi,
+    `${MAIN_FRONTEND_API}/courses/${params.courseId}/structure`,
+  )
+  const defaultModule = structure.modules.find((module) => module.order_number === 0)
+  if (instance === undefined || defaultModule === undefined) {
+    throw new Error(`Course ${params.courseId} has no instance or no default module.`)
+  }
+  const url = `${MAIN_FRONTEND_API}/course-instances/${instance.id}/completions`
+  const response = await adminApi.post(url, {
+    data: {
+      course_module_id: defaultModule.id,
+      new_completions: [{ user_id: params.userId, grade: params.grade, passed: true }],
+      skip_duplicate_completions: false,
+    },
+  })
+  if (!response.ok()) {
+    throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)
+  }
 }

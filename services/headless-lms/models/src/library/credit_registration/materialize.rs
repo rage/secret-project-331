@@ -165,6 +165,9 @@ LIMIT $2
 /// cross-scale change both do nothing at all. Rows in `submission_uncertain` are deliberately not
 /// candidates: whether their import landed is unknown, and a successor would risk a second
 /// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
+///
+/// A better grade that arrives as a new completion is not this: resolve-enrolments weighs it against
+/// [`crate::credit_registrations::lock_live_successes_for_same_module`] and supersedes from there.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,

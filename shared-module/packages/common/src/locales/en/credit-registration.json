@@ -699,6 +699,7 @@
   "credit-registration-reason-unexpected-response": "Unexpected answer",
   "credit-registration-reason-unknown": "Unknown reason",
   "credit-registration-recent-actions-hint": "Shows what colleagues and support have already done, so nobody sends the same rows again.",
+  "credit-registration-refusal-already-submitted": "This attempt has already been sent to Suotar and we do not yet know Sisu's final answer. Sending it again risks registering the credits twice.",
   "credit-registration-refusal-already-succeeded": "The credits are already in Sisu, so there is nothing to send again.",
   "credit-registration-refusal-not-failed-permanent": "Only a failed registration can be sent again here. This one is still in progress, already finished, or waiting on support.",
   "credit-registration-refusal-submission-pending": "Suotar is still holding the earlier submission open, and Sisu may yet record it. Sending it again now could register the credits twice, so let verification finish first.",

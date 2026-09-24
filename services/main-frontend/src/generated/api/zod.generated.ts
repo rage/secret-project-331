@@ -4302,6 +4302,7 @@ export const zResubmissionRefusal = z.enum([
   "submission_uncertain",
   "not_failed_permanent",
   "submission_pending",
+  "already_submitted",
 ])
 
 export const zAdminBulkTransitionSkipCount = z.object({

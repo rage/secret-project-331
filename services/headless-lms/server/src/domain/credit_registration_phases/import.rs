@@ -6,13 +6,16 @@
 
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
-use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
+use headless_lms_models::credit_registration_events::{
+    self, CreditRegistrationEventKind, NewCreditRegistrationEvent, scrub_text,
+};
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due_for_import, restamp_submitting, set_sisu_attainment_if_unclaimed,
-    set_submitted_attainment, transition,
+    claim_due_for_import, restamp_submitting, schedule_next_attempt, set_needs_admin_attention,
+    set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
 };
+use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF_SECS;
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
 use headless_lms_models::library::credit_registration::outcomes::{
@@ -20,14 +23,17 @@ use headless_lms_models::library::credit_registration::outcomes::{
     submission_uncertain, submit_error_outcome, unanswered_item_outcome,
 };
 use headless_lms_models::secret::DbSecret;
+use headless_lms_models::{ModelError, ModelResult};
 use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError};
+use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
     SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use secrecy::ExposeSecret;
-use sqlx::PgConnection;
+use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
+use uuid::Uuid;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
@@ -90,37 +96,22 @@ impl SuotarBatchPhase for Import {
             if !batched_student_courses.insert(student_course) {
                 continue;
             }
-            if already_registered.contains(&row.course_module_completion_id) {
-                transition(
-                    conn,
-                    row.id,
-                    &Transition {
-                        event_message: Some(
-                            "Another registrar had already registered this completion, so nothing \
-                             was submitted."
-                                .to_string(),
-                        ),
-                        ..Transition::to(CreditRegistrationState::Duplicate)
-                    },
-                )
-                .await?;
-                prepared.decided += 1;
-                continue;
-            }
-            match request_item(&row) {
-                Ok(item) => {
-                    // Committed before the request leaves: a row found in `submitting` after a
-                    // restart has an unknown outcome and is never sent again.
-                    transition(
-                        conn,
-                        row.id,
-                        &Transition::to(CreditRegistrationState::Submitting),
-                    )
-                    .await?;
+            // One row's database error must not roll back the whole claim, which would leave the
+            // same row at the head of the next one.
+            let mut savepoint = conn.begin().await?;
+            match preflight(&mut savepoint, &row, &already_registered).await {
+                Ok(Preflight::Send(item)) => {
+                    savepoint.commit().await?;
                     prepared.sendable.push((row, item));
                 }
-                Err(problem) => {
-                    transition(conn, row.id, &problem.transition()).await?;
+                Ok(Preflight::Decided { failed }) => {
+                    savepoint.commit().await?;
+                    prepared.decided += 1;
+                    prepared.failed += i32::from(failed);
+                }
+                Err(error) => {
+                    savepoint.rollback().await?;
+                    hold_back(conn, &row, &error).await?;
                     prepared.decided += 1;
                     prepared.failed += 1;
                 }
@@ -253,6 +244,86 @@ impl SuotarBatchPhase for Import {
         .await?;
         Ok(true)
     }
+}
+
+/// What the preflight made of one claimed row.
+enum Preflight {
+    /// Committed as `submitting`; the item goes in the batch.
+    Send(ImportAttainmentRequestItem),
+    /// Moved somewhere without a request; `failed` if it now carries an error code.
+    Decided { failed: bool },
+}
+
+async fn preflight(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    already_registered: &[Uuid],
+) -> ModelResult<Preflight> {
+    if already_registered.contains(&row.course_module_completion_id) {
+        transition(
+            conn,
+            row.id,
+            &Transition {
+                event_message: Some(
+                    "Another registrar had already registered this completion, so nothing was \
+                     submitted."
+                        .to_string(),
+                ),
+                ..Transition::to(CreditRegistrationState::Duplicate)
+            },
+        )
+        .await?;
+        return Ok(Preflight::Decided { failed: false });
+    }
+    match request_item(row) {
+        Ok(item) => {
+            // Committed before the request leaves: a row found in `submitting` after a restart has
+            // an unknown outcome and is never sent again.
+            transition(
+                conn,
+                row.id,
+                &Transition::to(CreditRegistrationState::Submitting),
+            )
+            .await?;
+            Ok(Preflight::Send(item))
+        }
+        Err(problem) => {
+            transition(conn, row.id, &problem.transition()).await?;
+            Ok(Preflight::Decided { failed: true })
+        }
+    }
+}
+
+/// Parks a row the preflight could not write, flagged for an admin, so the rest of the claim still
+/// goes out.
+async fn hold_back(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    error: &ModelError,
+) -> anyhow::Result<()> {
+    error!(
+        "Credit registration {} could not be prepared for import, holding it back: {error:#}",
+        row.id
+    );
+    set_needs_admin_attention(conn, row.id, true).await?;
+    schedule_next_attempt(
+        conn,
+        row.id,
+        Utc::now() + chrono::Duration::seconds(SUBMIT_MAX_BACKOFF_SECS),
+    )
+    .await?;
+    credit_registration_events::insert(
+        conn,
+        &NewCreditRegistrationEvent {
+            message: Some(format!(
+                "Import could not prepare this row, so it was held back: {}",
+                scrub_text(&error.to_string())
+            )),
+            ..NewCreditRegistrationEvent::new(row.id, CreditRegistrationEventKind::RetryScheduled)
+        },
+    )
+    .await?;
+    Ok(())
 }
 
 /// Applies the study registry's answer for one submitted row. Returns whether the row ended up in a

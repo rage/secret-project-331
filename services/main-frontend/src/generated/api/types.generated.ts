@@ -4362,6 +4362,7 @@ export type ResubmissionRefusal =
   | "submission_uncertain"
   | "not_failed_permanent"
   | "submission_pending"
+  | "already_submitted"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null

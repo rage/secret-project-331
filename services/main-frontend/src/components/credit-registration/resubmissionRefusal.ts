@@ -9,6 +9,7 @@ const REFUSAL_KEYS = {
   submission_uncertain: "credit-registration-refusal-submission-uncertain",
   not_failed_permanent: "credit-registration-refusal-not-failed-permanent",
   submission_pending: "credit-registration-refusal-submission-pending",
+  already_submitted: "credit-registration-refusal-already-submitted",
 } as const satisfies Record<ResubmissionRefusal, string>
 
 const REFUSAL_UNKNOWN_KEY = "credit-registration-refusal-unknown"
@@ -25,4 +26,6 @@ export const refusalSentence = (
 
 /** Refusals that report no failure at all, which is nothing for a teacher to be told about. */
 export const isUneventfulRefusal = (refusal: ResubmissionRefusal): boolean =>
-  refusal === "not_failed_permanent" || refusal === "already_succeeded"
+  refusal === "not_failed_permanent" ||
+  refusal === "already_succeeded" ||
+  refusal === "already_submitted"

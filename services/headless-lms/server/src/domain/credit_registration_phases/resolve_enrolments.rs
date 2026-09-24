@@ -16,8 +16,9 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, increment_submit_retry_count, set_payload_snapshot, transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
+    Transition, claim_due_for_resolve, increment_submit_retry_count,
+    lock_live_successes_for_same_module, mark_superseded, set_payload_snapshot, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
@@ -42,7 +43,8 @@ use headless_lms_utils::services::suotar::{
     SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
     new_request_item_id,
 };
-use sqlx::PgConnection;
+use sqlx::{Connection, PgConnection};
+use std::collections::HashSet;
 
 use super::resolve_person_ids::ResolvePersonIds;
 use super::{
@@ -84,9 +86,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         conn: &mut PgConnection,
         scope: &PhaseScope,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let claimed = claim_due(
+        let claimed = claim_due_for_resolve(
             conn,
-            &[CreditRegistrationState::ReadyToSubmit],
             scope,
             SuotarEndpoint::ResolveEnrolments.max_batch_size() as i64,
         )
@@ -95,7 +96,13 @@ impl SuotarBatchPhase for ResolveEnrolments {
         let mut contexts = get_submission_contexts(conn, &ids).await?;
 
         let mut prepared = Prepared::default();
+        let mut batched_student_modules = HashSet::new();
         for row in claimed {
+            // Left claimable where it is: once this batch's row for the module is resolving, the
+            // claim holds this one back until that one settles.
+            if !batched_student_modules.insert((row.user_id, row.course_module_id)) {
+                continue;
+            }
             let Some(context) = contexts.remove(&row.id) else {
                 warn!(
                     "Credit registration {} has no completion or module to submit for.",
@@ -308,7 +315,18 @@ async fn choose(
                 attainment.attainment_date,
             )
         })
-        .filter(|_| !improves_on_all(&candidates, context, enrolment_grade_scale_id));
+        .filter(|_| {
+            !improves_on_all(
+                candidates.iter().map(|attained| {
+                    (
+                        attained.grade_scale_id.as_deref(),
+                        attained.grade_id.as_deref(),
+                    )
+                }),
+                context,
+                enrolment_grade_scale_id,
+            )
+        });
     if let Some(attained) = blocking_attainment {
         headless_lms_models::credit_registrations::set_sisu_attainment_if_unclaimed(
             conn,
@@ -340,6 +358,48 @@ async fn choose(
         return Ok(false);
     }
 
+    // Suotar's copy of Sisu may predate what we registered for another completion, so that is
+    // weighed too, and superseded below if this one goes out instead.
+    let mut tx = conn.begin().await?;
+    let registered = lock_live_successes_for_same_module(&mut tx, row.id).await?;
+    let registered_grades: Vec<_> = registered
+        .iter()
+        .map(LiveSuccessForModule::held_grade)
+        .collect();
+    if !registered.is_empty()
+        && !improves_on_all(
+            registered_grades.iter().map(|grade| {
+                (
+                    grade.as_ref().map(|grade| grade.grade_scale_id.as_str()),
+                    grade.as_ref().map(|grade| grade.grade_id.as_str()),
+                )
+            }),
+            context,
+            enrolment_grade_scale_id,
+        )
+    {
+        transition(
+            &mut tx,
+            row.id,
+            &Transition {
+                event_kind: CreditRegistrationEventKind::SuotarResponse,
+                event_message: Some(
+                    "A grade at least as good is already registered for this module from another \
+                     completion, so nothing was submitted."
+                        .to_string(),
+                ),
+                suotar_api_call_id: event.suotar_api_call_id,
+                request_item_id: event.request_item_id.map(str::to_string),
+                event_details: Some(details),
+                expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
+                ..Transition::to(CreditRegistrationState::Duplicate)
+            },
+        )
+        .await?;
+        tx.commit().await?;
+        return Ok(false);
+    }
+
     let chosen = match chosen {
         Ok(chosen) => chosen,
         Err(reason) => {
@@ -352,7 +412,7 @@ async fn choose(
                 )
             };
             apply_outcome(
-                conn,
+                &mut tx,
                 row,
                 &outcome,
                 OutcomeEvent {
@@ -362,6 +422,7 @@ async fn choose(
                 Some(CreditRegistrationState::ResolvingEnrolment),
             )
             .await?;
+            tx.commit().await?;
             return Ok(true);
         }
     };
@@ -381,31 +442,46 @@ async fn choose(
         Ok(built) => built,
         Err(code) => {
             apply_outcome(
-                conn,
+                &mut tx,
                 row,
                 &submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &row_facts(row)),
                 event,
                 Some(CreditRegistrationState::ResolvingEnrolment),
             )
             .await?;
+            tx.commit().await?;
             return Ok(true);
         }
     };
-    set_payload_snapshot(conn, row.id, &built.snapshot).await?;
-    let clamped = built.clamped_credits_from.map(|from| {
+    for superseded in &registered {
+        mark_superseded(&mut tx, superseded.id, row.id).await?;
+    }
+    set_payload_snapshot(&mut tx, row.id, &built.snapshot).await?;
+    let superseded_message = (!registered.is_empty()).then(|| {
+        format!(
+            "This completion's grade {} beats the one registered from another completion, so \
+             that registration was superseded.",
+            built.snapshot.grade_id
+        )
+    });
+    let clamped_message = built.clamped_credits_from.map(|from| {
         format!(
             "Credits adjusted from {from} to {} to fit the enrolment's range.",
             built.snapshot.credits
         )
     });
+    let event_message = [superseded_message, clamped_message]
+        .into_iter()
+        .flatten()
+        .reduce(|first, second| format!("{first} {second}"));
     // Only now does the row become claimable by `import`: the payload is frozen and the event
     // records when the enrolment was resolved.
     transition(
-        conn,
+        &mut tx,
         row.id,
         &Transition {
             event_kind: CreditRegistrationEventKind::SuotarResponse,
-            event_message: clamped,
+            event_message,
             suotar_api_call_id: event.suotar_api_call_id,
             request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(details),
@@ -414,17 +490,18 @@ async fn choose(
         },
     )
     .await?;
+    tx.commit().await?;
     Ok(false)
 }
 
-/// Whether the grade we would send beats every attainment the registry already holds for the
-/// course, which is what Suotar requires of an improvement.
+/// Whether the grade we would send beats every grade in `held`, as `(grade_scale_id, grade_id)`
+/// pairs, which is what Suotar requires of an improvement.
 ///
 /// Stricter than Suotar where the two differ: an equal grade never submits (Suotar would let a
 /// later date or more credits through), and neither does a grade on a scale that does not rank
-/// against a held one, or a held attainment missing its grade.
-fn improves_on_all(
-    candidates: &[&headless_lms_utils::services::suotar::ExistingAttainment],
+/// against a held one, or a held grade that is missing.
+fn improves_on_all<'a>(
+    held: impl IntoIterator<Item = (Option<&'a str>, Option<&'a str>)>,
     context: &SubmissionContext,
     enrolment_grade_scale_id: Option<&str>,
 ) -> bool {
@@ -434,10 +511,8 @@ fn improves_on_all(
         enrolment_grade_scale_id,
     })
     .is_ok_and(|mapped| {
-        candidates.iter().all(|attained| {
-            let (Some(grade_scale_id), Some(grade_id)) =
-                (&attained.grade_scale_id, &attained.grade_id)
-            else {
+        held.into_iter().all(|(grade_scale_id, grade_id)| {
+            let (Some(grade_scale_id), Some(grade_id)) = (grade_scale_id, grade_id) else {
                 return false;
             };
             compare_grades(grade_scale_id, grade_id, &mapped) == GradeComparison::Better

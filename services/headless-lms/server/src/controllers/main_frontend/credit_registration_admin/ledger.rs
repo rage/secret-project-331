@@ -541,6 +541,7 @@ pub async fn admin_transition_credit_registration(
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
             row.resubmit_not_before,
+            row.submitted_at,
         ) {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::Refused,
@@ -650,6 +651,7 @@ pub async fn admin_bulk_transition_credit_registrations(
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
                 row.resubmit_not_before,
+                row.submitted_at,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
             None if row.superseded_by_id.is_some() => Some(ResubmissionRefusal::Superseded),
@@ -887,6 +889,7 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
             row.resubmit_not_before,
+            row.submitted_at,
         ),
         id: row.id,
         created_at: row.created_at,

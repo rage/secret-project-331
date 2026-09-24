@@ -387,7 +387,7 @@ WHERE cmc.id = :completion_id
     WHERE cr.course_module_completion_id = cmc.id
       AND cr.deleted_at IS NULL
   );
-Opt out, only until anything was submitted to Suotar; retires the unsent ledger row so the pull path offers the completion again:
+Opt out, only until anything was submitted to Suotar; retires the unsent ledger row so the pull path offers the completion again. The final UPDATE repeats the submitted/state check per row, closing the window where import moves a row to submitting between the two statements:
 WITH opted_out AS (
   UPDATE course_module_completions cmc
   SET register_credits_via_suotar = FALSE
@@ -419,7 +419,19 @@ UPDATE credit_registrations cr
 SET deleted_at = now()
 FROM opted_out
 WHERE cr.course_module_completion_id = opted_out.id
-  AND cr.deleted_at IS NULL;';
+  AND cr.deleted_at IS NULL
+  AND cr.submitted_at IS NULL
+  AND cr.state IN (
+    ''pending'',
+    ''ready_to_submit'',
+    ''resolving_enrolment'',
+    ''checking_enrolment'',
+    ''no_usable_enrolment'',
+    ''failed_retryable'',
+    ''failed_permanent'',
+    ''blocked'',
+    ''cancelled''
+  );';
 
 -- Soft-deleted rather than relabelled: email_deliveries reference them. deleted_at differs per row
 -- because unique_email_templates_type_language_general keys on it NULLS NOT DISTINCT.

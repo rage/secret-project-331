@@ -1,0 +1,108 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT other.id,\n  other.grade_scale_id,\n  other.grade_id,\n  cmc.passed AS completion_passed,\n  cmc.grade AS completion_grade\nFROM credit_registrations cr\n  JOIN credit_registrations other ON other.user_id = cr.user_id\n  AND other.course_module_id = cr.course_module_id\n  AND other.id <> cr.id\n  JOIN course_module_completions cmc ON cmc.id = other.course_module_completion_id\nWHERE cr.id = $1\n  AND other.deleted_at IS NULL\n  AND other.superseded_by_id IS NULL\n  AND other.state = ANY($2::credit_registration_state [])\nORDER BY other.id FOR\nUPDATE OF other\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "grade_scale_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "grade_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "completion_passed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "passed"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "completion_grade",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "grade"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "78deca7927b7ad113799019fe169da6a89f475ba62fa8b5598b80f1820b1fcba"
+}

@@ -976,6 +976,7 @@ pub(crate) async fn build_teacher_registrations(
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::OnlyFailedPermanent,
                 None,
+                row.submitted_at,
             );
             let state = row.state;
             let base = CourseCreditRegistration::from(row);

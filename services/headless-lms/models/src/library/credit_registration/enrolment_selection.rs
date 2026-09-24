@@ -11,7 +11,7 @@ use headless_lms_utils::services::suotar::{
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
 pub const ENROLLED_STATE: &str = "ENROLLED";
-pub const ATTAINED_STATE: &str = "ATTAINED";
+pub const FAILED_STATE: &str = "FAILED";
 pub const DEGREE_KIND: &str = "degree";
 
 use super::grade_mapping::same_grade_scale;
@@ -123,17 +123,21 @@ fn credits_fit(range: Option<&CreditRange>, credits: f32) -> bool {
     (min - CREDITS_TOLERANCE..=max + CREDITS_TOLERANCE).contains(&credits)
 }
 
-/// The attainments a new one must improve on: every attained entry on the student and course code,
-/// which is the scope Suotar checks against. Reversed entries drop out on their state.
+/// The attainments a new one must improve on: every entry on the student and course code that is not
+/// `failed`, matching the scope Suotar's own import checks against.
+///
+/// Suotar excludes a misregistered entry by a flag this endpoint does not pass through to us, so an
+/// unrecognised `state` counts as a real attainment rather than being whitelisted away: undercounting
+/// here risks a duplicate Sisu registration, which is worse than the reverse.
 pub fn attained_candidates(existing: &[ExistingAttainment]) -> Vec<&ExistingAttainment> {
     existing
         .iter()
-        .filter(|attainment| is_attained(attainment))
+        .filter(|attainment| is_valid_attainment(attainment))
         .collect()
 }
 
-fn is_attained(attainment: &ExistingAttainment) -> bool {
-    attainment.state.as_deref() == Some(ATTAINED_STATE)
+fn is_valid_attainment(attainment: &ExistingAttainment) -> bool {
+    attainment.state.as_deref() != Some(FAILED_STATE)
 }
 
 /// How long after the submission its attainment may be registered and still count as its own.
@@ -155,7 +159,7 @@ pub fn attainment_matching_submission<'a>(
     existing
         .iter()
         .filter(|attainment| {
-            is_attained(attainment)
+            is_valid_attainment(attainment)
                 && (attainment.attainment_date == Some(attainment_date)
                     || attainment.registration_date.zip(submitted_on).is_some_and(
                         |(registered_on, submitted_on)| {
@@ -310,7 +314,7 @@ mod tests {
         ExistingAttainment {
             id: format!("hy-att-{day}"),
             attainment_type: "CourseUnitAttainment".to_string(),
-            state: Some(ATTAINED_STATE.to_string()),
+            state: Some("ATTAINED".to_string()),
             attainment_date: Some(date(2026, 5, day)),
             registration_date: Some(date(2026, 5, day)),
             grade_scale_id: Some(scale.to_string()),
@@ -319,10 +323,10 @@ mod tests {
     }
 
     #[test]
-    fn a_reversed_attainment_does_not_count_as_one_the_registry_holds() {
-        let mut reversed = attainment("sis-hyl-hyv", "1", 22);
-        reversed.state = Some("MISREGISTERED".to_string());
-        let existing = [reversed];
+    fn a_failed_attempt_does_not_count_as_one_the_registry_holds() {
+        let mut failed = attainment("sis-0-5", "0", 22);
+        failed.state = Some(FAILED_STATE.to_string());
+        let existing = [failed];
         assert!(attained_candidates(&existing).is_empty());
     }
 

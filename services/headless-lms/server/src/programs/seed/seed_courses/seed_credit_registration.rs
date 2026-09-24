@@ -320,6 +320,7 @@ async fn seed_linked_students(conn: &mut PgConnection, cx: &SeedContext) -> Resu
         &CREDIT_REGISTRATION_STUDENT_3,
         &CREDIT_REGISTRATION_STUDENT_4,
         &CREDIT_REGISTRATION_STUDENT_5,
+        &CREDIT_REGISTRATION_STUDENT_6,
     ] {
         let email = account_email(fixture)?;
         let student = insert_student(

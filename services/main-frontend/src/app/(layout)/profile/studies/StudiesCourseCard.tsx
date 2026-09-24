@@ -9,6 +9,7 @@ import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
   MIDDLE_DOT,
+  STATUS_BEFORE_REGISTRATION,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -327,6 +328,9 @@ const ModuleRow: React.FC<{
       ? t("ects-n", { n: module.ects_credits })
       : null
   const registersOnCompletion = !completion && module.supports_credit_registration
+  const registrationStatus =
+    registration?.student_facing_status ??
+    (completion && module.credit_registration_expected ? STATUS_BEFORE_REGISTRATION : null)
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
@@ -355,19 +359,17 @@ const ModuleRow: React.FC<{
             explainTeacherGrading={explainTeacherGrading}
             rowWouldBeBare={!factsLine && !hasProgressToShow(module)}
           />
-          {registration ? (
+          {registrationStatus ? (
             <Link
               href={completionRegistrationRoute(module.course_module_id)}
               className={statusTriggerCss}
               appearance={LINK_INHERIT}
               aria-label={t("credit-registration-status-link-label", {
-                status: registrationStatusLabel(t, registration.student_facing_status),
+                status: registrationStatusLabel(t, registrationStatus),
               })}
             >
-              <RegistrationStatusBadge
-                state={registrationStatusState(registration.student_facing_status)}
-              >
-                {registrationStatusLabel(t, registration.student_facing_status)}
+              <RegistrationStatusBadge state={registrationStatusState(registrationStatus)}>
+                {registrationStatusLabel(t, registrationStatus)}
               </RegistrationStatusBadge>
               {/* A pill does not read as a link, and on touch there is no hover to prove it. */}
               <span className={detailsLabelCss}>

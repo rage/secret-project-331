@@ -230,10 +230,7 @@ impl SuotarBatchPhase for Import {
             row,
             &isolated_malformed_request_outcome(),
             OutcomeEvent {
-                message: Some(
-                    "The study registry refused this row as a malformed request even when sent \
-                     alone.",
-                ),
+                message: Some("Sisu did not accept this row even when it was sent alone."),
                 error_message: Some(error.message()),
                 request_item_id: Some(request_item_id),
                 request: Some(request),
@@ -347,8 +344,8 @@ async fn apply_answer(
                 &unanswered_item_outcome(SuotarEndpoint::ImportAttainments, row.state, &facts),
                 OutcomeEvent {
                     message: Some(
-                        "The study registry did not answer for this item, so whether the \
-                         attainment was created is unknown.",
+                        "Sisu did not answer for this item, so we do not know yet whether \
+                         the credits were registered.",
                     ),
                     ..event
                 },
@@ -447,8 +444,8 @@ async fn apply_answer(
                     &submission_uncertain(),
                     OutcomeEvent {
                         message: Some(
-                            "The study registry answered with a success code we do not know, so \
-                             whether the attainment was created is unknown.",
+                            "Sisu answered with a success code we do not know, so we do not \
+                             know yet whether the credits were registered.",
                         ),
                         ..event
                     },
@@ -505,14 +502,10 @@ fn settled_message(
     attainment: Option<&SuotarAttainment>,
 ) -> Option<String> {
     match state {
-        CreditRegistrationState::Duplicate => {
-            Some("The study registry already held a matching attainment.".to_string())
-        }
+        CreditRegistrationState::Duplicate => Some("Sisu already had these credits.".to_string()),
         CreditRegistrationState::NotImproved => Some(match held_grade(attainment) {
-            Some(grade) => format!(
-                "The study registry already holds an equal or better attainment, graded {grade}."
-            ),
-            None => "The study registry already holds an equal or better attainment.".to_string(),
+            Some(grade) => format!("Sisu already has an equal or better grade: {grade}."),
+            None => "Sisu already has an equal or better grade.".to_string(),
         }),
         _ => None,
     }
@@ -569,16 +562,14 @@ impl Unsendable {
             Self::UnknownGrade => Transition {
                 error_code: Some(CreditRegistrationErrorCode::NoGradeScaleMapping),
                 needs_admin_attention: Some(true),
-                event_message: Some(
-                    "The frozen grade is not one the study registry accepts.".to_string(),
-                ),
+                event_message: Some("Sisu does not accept this grade.".to_string()),
                 ..Transition::to(CreditRegistrationState::FailedPermanent)
             },
             Self::Invalid(field) => Transition {
                 error_code: Some(CreditRegistrationErrorCode::Unknown),
                 needs_admin_attention: Some(true),
                 event_message: Some(format!(
-                    "The frozen payload's {field} is one the study registry refuses, so it was not \
+                    "Sisu does not accept the {field} we would send, so nothing was \
                      sent."
                 )),
                 ..Transition::to(CreditRegistrationState::FailedPermanent)

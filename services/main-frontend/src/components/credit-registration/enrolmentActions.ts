@@ -35,7 +35,7 @@ export const invalidateRegistrationViews = async (
   ])
 }
 
-/** The one "I have enrolled, check again" action, shared by the status page and the in-course banner. */
+/** The one enrolment recheck action, shared by the status page and the in-course banner. */
 export const useRequestEnrolmentRecheck = () => {
   const queryClient = useQueryClient()
   return useToastMutation<void, unknown, MyCreditRegistration>(

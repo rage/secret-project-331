@@ -156,6 +156,22 @@ const get = async (request: APIRequestContext, path: string): Promise<Record<str
   return (await response.json()) as Record<string, unknown>
 }
 
+export interface MockSuotarPersonUpsert {
+  studentNumber: string
+  /** Omitted derives one from the student number. */
+  personId?: string
+  firstNames?: string
+  lastName?: string
+  primaryEmail?: string
+  secondaryEmail?: string
+}
+
+/** A registry person with no account of ours, such as someone only a roster lists. */
+export const upsertMockSuotarPersons = (
+  request: APIRequestContext,
+  persons: MockSuotarPersonUpsert[],
+) => sendCommand(request, { command: "upsertPersons", persons })
+
 export const upsertMockSuotarEnrolments = (
   request: APIRequestContext,
   enrolments: MockSuotarEnrolmentUpsert[],

@@ -18,6 +18,7 @@ import { activeStudyRightPeriod, upsertMockSuotarEnrolments } from "@/utils/mock
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
+  expireEnrolmentRecheckAllowance,
   runMaterializeTick,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
@@ -71,7 +72,9 @@ test.describe("A student the University has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    // The park itself was a check, and the button stays hidden for an hour after one.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)
@@ -82,7 +85,7 @@ test.describe("A student the University has no enrolment for", () => {
     await expect(
       notice.getByRole("link", { name: "Enrol at the Open University" }),
     ).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
-    await expect(notice.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
+    await expect(notice.getByRole("button", { name: "I have enrolled" })).toBeVisible()
 
     await test.step("It is a banner, not a dialog", async () => {
       await expect(page.getByRole("dialog")).toHaveCount(0)
@@ -113,6 +116,7 @@ test.describe("A student the University has no enrolment for", () => {
     })
 
     await test.step("A new run of the same problem brings it back", async () => {
+      await expireEnrolmentRecheckAllowance(page.request, parked.id)
       const recheck = await page.request.post(
         `${CREDIT_REGISTRATIONS_API}/my/${parked.id}/recheck-enrolment`,
       )
@@ -138,7 +142,9 @@ test.describe("A student who enrols after being told to", () => {
     adminApi,
   }) => {
     const scope = { userEmail: REENROLS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
-    await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    const parked = await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    // The park itself was a look, so the button would otherwise wait out the hour.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)
@@ -164,7 +170,7 @@ test.describe("A student who enrols after being told to", () => {
       await waitForSuccessNotification(
         page,
         async () => {
-          await banner(page).getByRole("button", { name: "I have enrolled, check again" }).click()
+          await banner(page).getByRole("button", { name: "I have enrolled" }).click()
         },
         "Success",
       )

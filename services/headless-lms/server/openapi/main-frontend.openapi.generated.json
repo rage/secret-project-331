@@ -1476,6 +1476,43 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment": {
+      "post": {
+        "tags": ["course-credit-registrations"],
+        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`\n- Asks the pipeline to look for an enrolment again, for a row parked because the study registry had\nnone.\n\nShares the student's button's allowance, so between them they cannot ask the registry more than once\nan hour. Authorized on the row's own course, like the retry.",
+        "operationId": "recheckCreditRegistrationEnrolment",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether a recheck was started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestCreditRegistrationEnrolmentRecheckResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The registration is not waiting for an enrolment"
+          },
+          "404": {
+            "description": "No such registration"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry": {
       "post": {
         "tags": ["course-credit-registrations"],
@@ -3249,6 +3286,9 @@
         "responses": {
           "200": {
             "description": "Course modules updated"
+          },
+          "400": {
+            "description": "A module or chapter is not in the course, or a completion registration link is not https"
           }
         }
       }
@@ -17392,12 +17432,17 @@
           "needs_admin_attention",
           "next_attempt_at",
           "attempt_number",
-          "superseded"
+          "superseded",
+          "can_request_enrolment_recheck"
         ],
         "properties": {
           "attempt_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "can_request_enrolment_recheck": {
+            "type": "boolean",
+            "description": "Whether the row's \"check enrolment again\" action is available now; it shares the student's\nbutton's allowance."
           },
           "completion_date": {
             "type": "string",
@@ -17706,7 +17751,7 @@
           "not_registering_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Blocked or cancelled: nothing is happening and nothing will."
+            "description": "Blocked, cancelled or held until the course's settings are fixed: nothing is moving."
           },
           "paused": {
             "type": "boolean"
@@ -23066,6 +23111,7 @@
           "course_module_id",
           "order_number",
           "supports_credit_registration",
+          "credit_registration_expected",
           "score_given",
           "attempted_exercises",
           "automatic_completion",
@@ -23101,6 +23147,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "credit_registration_expected": {
+            "type": "boolean",
+            "description": "Whether a credit registration exists or is about to for this student's completion, so a\ncompletion without one yet is on its way rather than never coming."
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
@@ -23135,7 +23185,7 @@
           },
           "supports_credit_registration": {
             "type": "boolean",
-            "description": "Whether this student's credits for the module go through credit registration via Suotar: the\nshown completion's own flag, or, before one exists, whether a new one would get it."
+            "description": "Whether this student's credits for the module go through credit registration via Suotar: the\nflag of the completion [`models::course_module_completions::select_registration_completion`]\npicks, or, before a completion is shown, whether a new one would get it."
           },
           "total_exercises": {
             "type": ["integer", "null"],
@@ -23171,15 +23221,9 @@
       },
       "MyVerifiedStudentNumber": {
         "type": "object",
-        "description": "The account's linked student number, unmasked: it is the holder's own.",
+        "description": "The account's linked student number, unmasked: it is the holder's own. Deliberately carries no\nSisu-held names.",
         "required": ["student_number", "verified_at", "verified_via"],
         "properties": {
-          "first_names": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
-          },
           "student_number": {
             "type": "string"
           },
@@ -25613,10 +25657,6 @@
         "type": "object",
         "required": ["recheck_started"],
         "properties": {
-          "next_recheck_allowed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
           "recheck_started": {
             "type": "boolean",
             "description": "False when we looked so recently that asking again would tell the student nothing new."
@@ -26186,6 +26226,7 @@
           "needs_student_number",
           "looking_for_enrolment",
           "needs_enrolment",
+          "waiting_for_course_setup",
           "sending",
           "waiting_for_sisu",
           "registered",
@@ -26200,7 +26241,7 @@
       },
       "StudentNumberVerificationTokenPreview": {
         "type": "object",
-        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token.",
+        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token. Deliberately carries no Sisu-held names.",
         "required": [
           "student_number",
           "emailed_to_masked",
@@ -26243,12 +26284,6 @@
           "expires_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "first_names": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
           },
           "student_number": {
             "type": "string"
@@ -27158,13 +27193,14 @@
           "email",
           "enable_registering_completion_to_uh_open_university",
           "enable_credit_registration_via_suotar",
-          "register_credits_via_suotar"
+          "register_credits_via_suotar",
+          "credit_registration_expected"
         ],
         "properties": {
           "certificate_configuration_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "`Some` only when the student can generate a certificate for this module right now, which is\nalso the id `/generate-certificate` wants.\n\nRead off the same completion as the rest of this object, the latest one. The course page's\ncongratulations card reads off the best one instead, so a student whose newest completion is\nnot their best can see a certificate there and none here."
+            "description": "`Some` only when the student can generate a certificate for this module right now, which is\nalso the id `/generate-certificate` wants.\n\nRead off the same completion as the rest of this object, the one\n[`course_module_completions::select_registration_completion`] picks. The course page's\ncongratulations card reads off the best one instead, so a student whose registration\ncompletion is not their best can see a certificate there and none here."
           },
           "course_module_completion_id": {
             "type": "string",
@@ -27181,6 +27217,10 @@
           "credit_justification": {
             "type": ["string", "null"],
             "description": "Why the student said they need the credits rather than a certificate, if they have been\nasked and answered. Advisory; it seeds the field when they come back to the page."
+          },
+          "credit_registration_expected": {
+            "type": "boolean",
+            "description": "Whether the push path will register this completion. With `register_credits_via_suotar`\nset and this false, no credit registration is ever created for it."
           },
           "ects_credits": {
             "type": ["number", "null"],

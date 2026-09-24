@@ -138,7 +138,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         let (outcome, message) = match (item, found) {
             (None, _) => (
                 unanswered_item_outcome(ENDPOINT, registration.state, &facts),
-                Some("The study registry did not answer for this item."),
+                Some("Sisu did not answer for this item."),
             ),
             (Some(item), None) => {
                 let code = if item.status == SuotarItemStatus::Ok {

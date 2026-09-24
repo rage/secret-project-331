@@ -25,8 +25,6 @@ pub enum CreditRegistrationPendingReason {
 pub struct PendingPreconditions {
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
-    /// A student is shown a course-code wait as the pipeline working, so a caller classifying only
-    /// for [`super::StudentFacingCreditRegistrationStatus::of`] may pass `true`.
     pub course_code_allowed: bool,
 }
 

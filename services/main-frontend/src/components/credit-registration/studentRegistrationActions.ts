@@ -3,11 +3,11 @@
 import { useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   completionRegistrationRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { registrationStatusState } from "./creditRegistrationCopy"
@@ -55,25 +55,23 @@ export const useStudentRegistrationActions = ({
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
 
+  const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
   const enrolAction = (): RegistrationCardAction | null =>
-    registration.enrolment_link
-      ? {
-          key: ACTION_KEY.enrol,
-          label: t("credit-registration-action-enrol"),
-          href: registration.enrolment_link,
-        }
+    enrolmentLink
+      ? { key: ACTION_KEY.enrol, label: t("credit-registration-action-enrol"), href: enrolmentLink }
       : null
 
-  const recheckEnrolmentAction = (): RegistrationCardAction => ({
-    key: ACTION_KEY.recheckEnrolment,
-    label: t("credit-registration-action-look-again"),
-    onAct: () => recheckEnrolment.mutate(registration),
-    isDisabled: !registration.can_request_enrolment_recheck,
-    isLoading: recheckEnrolment.isPending,
-    ...includeIf(!registration.can_request_enrolment_recheck, {
-      disabledReason: t("credit-registration-enrolment-checked-recently"),
-    }),
-  })
+  // Hidden, not disabled, while a check is too recent: a greyed-out button would need its own
+  // explanation, and the page already says we keep checking.
+  const recheckEnrolmentAction = (): RegistrationCardAction | null =>
+    registration.can_request_enrolment_recheck
+      ? {
+          key: ACTION_KEY.recheckEnrolment,
+          label: failureActionLabel(t, "recheck_enrolment"),
+          onAct: () => recheckEnrolment.mutate(registration),
+          isLoading: recheckEnrolment.isPending,
+        }
+      : null
 
   const checkStudentNumberAction = (): RegistrationCardAction => ({
     key: ACTION_KEY.checkStudentNumber,
@@ -86,8 +84,7 @@ export const useStudentRegistrationActions = ({
       case "enrol":
         return enrolAction()
       case "recheck_enrolment":
-        // The endpoint only accepts a row parked on a missing enrolment. Anywhere else the button
-        // could only ever render greyed out, under a reason that is not the real one.
+        // The endpoint only accepts a row parked on a missing enrolment.
         return status === "needs_enrolment" ? recheckEnrolmentAction() : null
       case "check_own_student_number":
         return checkStudentNumberAction()
@@ -112,7 +109,10 @@ export const useStudentRegistrationActions = ({
     if (enrol) {
       levers.push(enrol)
     }
-    levers.push(recheckEnrolmentAction())
+    const recheck = recheckEnrolmentAction()
+    if (recheck) {
+      levers.push(recheck)
+    }
   }
 
   if (linkToStatusPage && (state === "failed" || state === "action-needed")) {

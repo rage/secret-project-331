@@ -9,6 +9,7 @@ import { humanReadableDate } from "@/shared-module/common/utils/time"
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { bandCss, noteCss, stepsCss, subheadingCss } from "./styles"
 import { studentNumberLinkBand } from "./trackerView"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 export interface StudentNumberLinkStepProps {
   registration: MyCreditRegistration
@@ -28,7 +29,8 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   verifiedNumber,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
-  const band = studentNumberLinkBand(registration, verifiedNumber)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const band = studentNumberLinkBand(registration, verifiedNumber, { isAccountLinkingEnabled })
   if (band === null) {
     return null
   }
@@ -59,6 +61,15 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
     )
   }
 
+  if (band.kind === "staff-links") {
+    return (
+      <section className={bandCss}>
+        <h2 className={subheadingCss}>{t("credit-registration-link-heading-not-connected")}</h2>
+        <p>{t("credit-registration-link-staff-links-body")}</p>
+      </section>
+    )
+  }
+
   if (band.kind === "mailing") {
     return (
       <section className={bandCss}>
@@ -79,7 +90,11 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
             date: humanReadableDate(band.sentAt, i18n.language),
           })}
         </p>
-        <p className={noteCss}>{t("credit-registration-link-mailed-note")}</p>
+        <p className={noteCss}>
+          {isAccountLinkingEnabled
+            ? t("credit-registration-link-mailed-note")
+            : t("credit-registration-link-mailed-note-no-resend")}
+        </p>
       </section>
     )
   }

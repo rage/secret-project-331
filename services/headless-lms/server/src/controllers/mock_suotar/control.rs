@@ -28,6 +28,9 @@ pub struct RunTickQuery {
     pub user_email: Option<String>,
     /// Comma-separated ledger row ids, for a spec that already knows them.
     pub credit_registration_ids: Option<String>,
+    /// Overrides the deployment's account-linking switch for this tick, so a spec can run a phase
+    /// the way a deployment with linking off would.
+    pub account_linking_enabled: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -124,7 +127,14 @@ async fn run_tick(
         }
     };
 
-    let ctx = tick_context(&app_conf, &pool, &suotar_client);
+    let mut suotar_conf = app_conf.suotar_configuration.clone();
+    if let Some(enabled) = query.account_linking_enabled {
+        suotar_conf.account_linking_enabled = enabled;
+    }
+    let ctx = PhaseContext {
+        suotar_conf: &suotar_conf,
+        ..tick_context(&app_conf, &pool, &suotar_client)
+    };
     let result = PhaseTickResult::of(phase, run_phase_once(&ctx, phase, &scope).await?);
     token.authorized_ok(match &result {
         PhaseTickResult::Ran { .. } | PhaseTickResult::Skipped { .. } => {
@@ -270,6 +280,30 @@ async fn set_test_exclusive_hold(
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ExpireEnrolmentRecheckAllowancePayload {
+    pub credit_registration_id: Uuid,
+}
+
+/// Lets a spec press a recheck button right after the pipeline looked, instead of waiting an hour.
+async fn expire_enrolment_recheck_allowance(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<ExpireEnrolmentRecheckAllowancePayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    models::credit_registrations::expire_enrolment_recheck_allowance_for_testing(
+        &mut conn,
+        payload.credit_registration_id,
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::Ok().json(()))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueuedEmailsQuery {
     pub user_email: String,
 }
@@ -408,6 +442,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/test-exclusive-hold",
             web::post().to(set_test_exclusive_hold),
+        )
+        .route(
+            "/expire-enrolment-recheck-allowance",
+            web::post().to(expire_enrolment_recheck_allowance),
         )
         .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);

@@ -1180,6 +1180,11 @@ export type CourseCount = {
 
 export type CourseCreditRegistration = {
   attempt_number: number
+  /**
+   * Whether the row's "check enrolment again" action is available now; it shares the student's
+   * button's allowance.
+   */
+  can_request_enrolment_recheck: boolean
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -1282,7 +1287,7 @@ export type CourseCreditRegistrationModuleSummary = {
    */
   needs_admin_attention_count: number
   /**
-   * Blocked or cancelled: nothing is happening and nothing will.
+   * Blocked, cancelled or held until the course's settings are fixed: nothing is moving.
    */
   not_registering_count: number
   paused: boolean
@@ -3431,6 +3436,11 @@ export type MyStudiesCourseModule = {
   automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
+  /**
+   * Whether a credit registration exists or is about to for this student's completion, so a
+   * completion without one yet is on its way rather than never coming.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   /**
    * `None` for the course's default module; the frontend labels those with the course name.
@@ -3456,7 +3466,8 @@ export type MyStudiesCourseModule = {
   score_required?: number | null
   /**
    * Whether this student's credits for the module go through credit registration via Suotar: the
-   * shown completion's own flag, or, before one exists, whether a new one would get it.
+   * flag of the completion [`models::course_module_completions::select_registration_completion`]
+   * picks, or, before a completion is shown, whether a new one would get it.
    */
   supports_credit_registration: boolean
   /**
@@ -3482,11 +3493,10 @@ export type MyStudiesTotals = {
 }
 
 /**
- * The account's linked student number, unmasked: it is the holder's own.
+ * The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
+ * Sisu-held names.
  */
 export type MyVerifiedStudentNumber = {
-  first_names?: string | null
-  last_name?: string | null
   student_number: string
   verified_at: string
   verified_via: StudentNumberVerificationMethod
@@ -4275,7 +4285,6 @@ export type RegradingSubmissionInfo = {
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
 export type RequestCreditRegistrationEnrolmentRecheckResult = {
-  next_recheck_allowed_at?: string | null
   /**
    * False when we looked so recently that asking again would tell the student nothing new.
    */
@@ -4526,6 +4535,7 @@ export type StudentFacingCreditRegistrationStatus =
   | "needs_student_number"
   | "looking_for_enrolment"
   | "needs_enrolment"
+  | "waiting_for_course_setup"
   | "sending"
   | "waiting_for_sisu"
   | "registered"
@@ -4539,7 +4549,7 @@ export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | 
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token.
+ * able to spend the token. Deliberately carries no Sisu-held names.
  */
 export type StudentNumberVerificationTokenPreview = {
   already_used: boolean
@@ -4561,8 +4571,6 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
-  first_names?: string | null
-  last_name?: string | null
   student_number: string
   /**
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.
@@ -4922,9 +4930,10 @@ export type UserCompletionInformation = {
    * `Some` only when the student can generate a certificate for this module right now, which is
    * also the id `/generate-certificate` wants.
    *
-   * Read off the same completion as the rest of this object, the latest one. The course page's
-   * congratulations card reads off the best one instead, so a student whose newest completion is
-   * not their best can see a certificate there and none here.
+   * Read off the same completion as the rest of this object, the one
+   * [`course_module_completions::select_registration_completion`] picks. The course page's
+   * congratulations card reads off the best one instead, so a student whose registration
+   * completion is not their best can see a certificate there and none here.
    */
   certificate_configuration_id?: string | null
   course_module_completion_id: string
@@ -4941,6 +4950,11 @@ export type UserCompletionInformation = {
    * asked and answered. Advisory; it seeds the field when they come back to the page.
    */
   credit_justification?: string | null
+  /**
+   * Whether the push path will register this completion. With `register_credits_via_suotar`
+   * set and this false, no credit registration is ever created for it.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean
@@ -5994,6 +6008,39 @@ export type GetCreditRegistrationDetailsResponses = {
 
 export type GetCreditRegistrationDetailsResponse =
   GetCreditRegistrationDetailsResponses[keyof GetCreditRegistrationDetailsResponses]
+
+export type RecheckCreditRegistrationEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment"
+}
+
+export type RecheckCreditRegistrationEnrolmentErrors = {
+  /**
+   * The registration is not waiting for an enrolment
+   */
+  400: unknown
+  /**
+   * No such registration
+   */
+  404: unknown
+}
+
+export type RecheckCreditRegistrationEnrolmentResponses = {
+  /**
+   * Whether a recheck was started
+   */
+  200: RequestCreditRegistrationEnrolmentRecheckResult
+}
+
+export type RecheckCreditRegistrationEnrolmentResponse =
+  RecheckCreditRegistrationEnrolmentResponses[keyof RecheckCreditRegistrationEnrolmentResponses]
 
 export type RetryCreditRegistrationData = {
   body: RetryCreditRegistrationPayload
@@ -7119,6 +7166,13 @@ export type UpdateCourseModulesData = {
   }
   query?: never
   url: "/api/v0/main-frontend/courses/{course_id}/course-modules"
+}
+
+export type UpdateCourseModulesErrors = {
+  /**
+   * A module or chapter is not in the course, or a completion registration link is not https
+   */
+  400: unknown
 }
 
 export type UpdateCourseModulesResponses = {

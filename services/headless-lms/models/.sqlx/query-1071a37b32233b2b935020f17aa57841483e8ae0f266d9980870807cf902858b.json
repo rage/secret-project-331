@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -361,6 +361,17 @@
             "name": "has_verified_student_number"
           }
         }
+      },
+      {
+        "ordinal": 29,
+        "name": "course_code_allowed!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "course_code_allowed"
+          }
+        }
       }
     ],
     "parameters": {
@@ -400,8 +411,9 @@
       true,
       null,
       true,
+      true,
       true
     ]
   },
-  "hash": "41b13f946124644d21f1688da5a435b9fd18942965e40f96c1a438629d6f4e41"
+  "hash": "1071a37b32233b2b935020f17aa57841483e8ae0f266d9980870807cf902858b"
 }

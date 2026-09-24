@@ -272,8 +272,8 @@ async fn apply_poll_answer(
                 Some(attainment) if attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT => {
                     apply_registered(conn, row, attainment, event).await
                 }
-                // The assessment item attainment's id can equal the submitted one, and the sisu
-                // attainment column holds only the final course unit attainment.
+                // The assessment item attainment's id can equal the submitted one, and verify
+                // records only the final course unit attainment.
                 _ => {
                     let partially_registered_at = mark_partially_registered(conn, row.id).await?;
                     apply_poll_outcome(
@@ -305,7 +305,7 @@ async fn apply_poll_answer(
             let reimport_count = reset_for_resubmission(&mut tx, row.id).await?;
             let outcome = verify_not_registered_outcome(&facts, reimport_count);
             let event = OutcomeEvent {
-                message: Some("Suotar has no trace of the submission, so it will be sent again."),
+                message: Some("Sisu has no trace of the submission, so it will be sent again."),
                 ..event
             };
             apply_outcome(&mut tx, row, &outcome, event, Some(row.state)).await?;
@@ -474,7 +474,7 @@ impl SuotarBatchPhase for UncertainRecovery {
             &recovery.row,
             &uncertain_recheck_outcome(&recovery.facts()),
             OutcomeEvent {
-                message: Some("Could not look for the attainment this time."),
+                message: Some("Could not check Sisu for the credits this time."),
                 error_message: Some(error.message()),
                 request_item_id: Some(request_item_id),
                 request: Some(request),
@@ -504,22 +504,19 @@ async fn apply_recovery_answer(
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let row = &recovery.row;
-    let found = match item {
-        Some(item) if item.status == SuotarItemStatus::Ok => item
-            .result
-            .as_ref()
-            .zip(row.attainment_date)
-            .and_then(|(result, attainment_date)| {
-                attainment_matching_submission(
-                    &result.existing_attainments,
-                    attainment_date,
-                    row.submitted_at,
-                    row.grade_scale_id.as_deref().unwrap_or_default(),
-                    row.grade_id.as_deref().unwrap_or_default(),
-                )
-            }),
-        _ => None,
-    };
+    // An enrolment error still lists the attainments, and the enrolment may be gone by now.
+    let found = item
+        .and_then(|item| item.result.as_ref())
+        .zip(row.attainment_date)
+        .and_then(|(result, attainment_date)| {
+            attainment_matching_submission(
+                &result.existing_attainments,
+                attainment_date,
+                row.submitted_at,
+                row.grade_scale_id.as_deref().unwrap_or_default(),
+                row.grade_id.as_deref().unwrap_or_default(),
+            )
+        });
     let Some(attainment) = found else {
         apply_outcome(
             conn,
@@ -551,8 +548,8 @@ async fn apply_recovery_answer(
         &Transition {
             event_kind: CreditRegistrationEventKind::SuotarResponse,
             event_message: Some(
-                "The attainment this submission would have created is in the study registry, so \
-                 it landed after all."
+                "The credits this submission would have created are in Sisu, so it was \
+                 registered after all."
                     .to_string(),
             ),
             needs_admin_attention: Some(false),

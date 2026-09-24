@@ -1,0 +1,61 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT acm.course_module_id AS \"course_module_id!\",\n  acm.course_id AS \"course_id!\",\n  TRIM(cm.uh_course_code) AS \"uh_course_code!\",\n  co.language_code AS \"course_language_code!\"\nFROM credit_registration_active_course_modules acm\n  JOIN course_modules cm ON cm.id = acm.course_module_id\n  JOIN courses co ON co.id = acm.course_id\n  JOIN course_module_suotar_configurations conf ON conf.course_module_id = acm.course_module_id\n  AND conf.deleted_at IS NULL\nWHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  AND ($2::uuid IS NULL OR acm.course_id = $2)\n  AND (\n    NOT $3::boolean\n    OR EXISTS (\n      SELECT 1\n      FROM credit_registrations cr\n      WHERE cr.course_module_id = acm.course_module_id\n        AND cr.state = 'no_usable_enrolment'\n        AND cr.superseded_by_id IS NULL\n        AND cr.deleted_at IS NULL\n    )\n  )\nORDER BY COALESCE(conf.last_listing_attempted_at, conf.last_listed_at) ASC NULLS FIRST,\n  conf.id\nLIMIT $1\nFOR UPDATE OF conf SKIP LOCKED\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_active_course_modules",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_active_course_modules",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "uh_course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_language_code!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      null,
+      false
+    ]
+  },
+  "hash": "5958572ccc0296a1bfd8b36381e379c26fb7effcc0c2341ff9a00e92e7d87804"
+}

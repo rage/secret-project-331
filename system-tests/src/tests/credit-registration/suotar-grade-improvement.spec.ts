@@ -13,8 +13,8 @@ import {
   GRADE_IMPROVEMENT_COURSE_ID,
   GRADE_IMPROVEMENT_COURSE_SLUG,
   mockCallsForStudent,
+  myCreditRegistrations,
   type MyCreditRegistration,
-  myRegistrationOnCourse,
   seededStudentStorageState,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -40,6 +40,7 @@ import {
   runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
+  setTestExclusiveHold,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
@@ -60,7 +61,39 @@ const scope = { userEmail: STUDENT_EMAIL, courseSlug: GRADE_IMPROVEMENT_COURSE_S
 test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
 test.describe.configure({ mode: "serial", retries: 0 })
 
-test("Raising a registered grade starts a new attempt and supersedes the old one", async ({
+// The live worker would otherwise claim rows between this spec's own ticks.
+test.beforeEach(async ({ page }) => {
+  for (const email of [STUDENT_EMAIL, CREDIT_REGISTRATION_STUDENT_3.email]) {
+    await setTestExclusiveHold(page.request, email, 120, GRADE_IMPROVEMENT_COURSE_ID)
+  }
+})
+
+/** The completion's newest attempt: after a regrade the registered one stays live beside it. */
+const latestAttempt = async (studentApi: APIRequestContext, adminApi: APIRequestContext) => {
+  const [latest] = (await myCreditRegistrations(studentApi))
+    .filter((row) => row.course_slug === GRADE_IMPROVEMENT_COURSE_SLUG && !row.superseded)
+    .toSorted((left, right) => right.attempt_number - left.attempt_number)
+  if (latest === undefined) {
+    throw new Error(`No live registration on ${GRADE_IMPROVEMENT_COURSE_SLUG}`)
+  }
+  const { registration } = await adminRegistrationDetails(adminApi, latest.id)
+  return { ...latest, state: registration.state }
+}
+
+const waitForLatestAttempt = (
+  studentApi: APIRequestContext,
+  adminApi: APIRequestContext,
+  states: readonly string[],
+) =>
+  pollUntil(
+    async () => {
+      const latest = await latestAttempt(studentApi, adminApi)
+      return states.includes(latest.state) ? latest : null
+    },
+    { description: `the newest attempt to reach one of ${states.join(", ")}` },
+  )
+
+test("Raising a registered grade starts a new attempt, and the registered one stays the credit", async ({
   page,
   adminApi,
 }) => {
@@ -88,39 +121,35 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
     ])
   })
 
-  const second = await test.step("Regrading to 4 supersedes the registered attempt", async () => {
+  const second = await test.step("Regrading to 4 starts a new attempt", async () => {
     await regradeCompletion(page.request, { creditRegistrationId: first.id, grade: 4 })
     await runMaterializeTick(page.request, scope)
 
-    const live = await waitForRegistrationState(
-      page.request,
-      adminApi,
-      GRADE_IMPROVEMENT_COURSE_SLUG,
-      [
-        "ready_to_submit",
-        "checking_enrolment",
-        "submitting",
-        "awaiting_verification",
-        "not_improved",
-      ],
-    )
+    const live = await waitForLatestAttempt(page.request, adminApi, [
+      "ready_to_submit",
+      "checking_enrolment",
+      "submitting",
+      "awaiting_verification",
+      "not_improved",
+    ])
     expect(live.attempt_number).toBe(2)
     expect(live.id).not.toBe(first.id)
-
-    const superseded = await adminRegistrationDetails(adminApi, first.id)
-    expect(superseded.registration.superseded).toBe(true)
-    // It really was registered; an implementation that rewrites the old row's state loses that.
-    expect(superseded.registration.state).toBe("registered")
-    expect(superseded.registration.terminal_at).not.toBeNull()
     return live
   })
 
-  await test.step("Exactly one live row remains for the completion", async () => {
+  await test.step("The registered attempt stays live until the new one replaces it", async () => {
+    // Sisu holds grade 3 until grade 4 is registered: a new attempt that fails must not leave the
+    // student looking at a failure for a credit they have.
+    const held = await adminRegistrationDetails(adminApi, first.id)
+    expect(held.registration.superseded).toBe(false)
+    expect(held.registration.state).toBe("registered")
+    expect(held.registration.terminal_at).not.toBeNull()
+
     const details = await adminRegistrationDetails(adminApi, second.id)
     expect(details.attempts.map((attempt) => attempt.attempt_number).toSorted()).toStrictEqual([
       1, 2,
     ])
-    expect(details.attempts.filter((attempt) => !attempt.superseded)).toHaveLength(1)
+    expect(details.attempts.filter((attempt) => !attempt.superseded)).toHaveLength(2)
   })
 
   await test.step("The new attempt is submitted under its own request item id", async () => {
@@ -163,13 +192,9 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
   })
 
   await test.step("The registry declines it, and the verdict is its own outcome", async () => {
-    const notImproved = await waitForRegistrationState(
-      page.request,
-      adminApi,
-      GRADE_IMPROVEMENT_COURSE_SLUG,
-      ["not_improved"],
-    )
+    const notImproved = await waitForLatestAttempt(page.request, adminApi, ["not_improved"])
     expect(notImproved.id).toBe(second.id)
+    expect((await adminRegistrationDetails(adminApi, first.id)).registration.superseded).toBe(false)
 
     const details = await adminRegistrationDetails(adminApi, second.id)
     expect(details.not_improved_attainment).toMatchObject({
@@ -204,11 +229,11 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
   })
 
   await test.step("The student is told the registry already has a better grade", async () => {
-    const live = await myRegistrationOnCourse(page.request, adminApi, GRADE_IMPROVEMENT_COURSE_SLUG)
+    const live = await latestAttempt(page.request, adminApi)
     await page.goto(completionRegistrationUrl(live.course_module_id))
     await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
     await expect(
-      page.getByText("Sisu already holds an equal or better grade for this course"),
+      page.getByText("Sisu already has the same or a better grade for this course"),
     ).toBeVisible()
     // Collapsed beneath the live one, never hidden: the registry may hold both attainments.
     await expect(page.getByRole("heading", { name: "Earlier attempts" })).toBeVisible()
@@ -217,7 +242,7 @@ test("Raising a registered grade starts a new attempt and supersedes the old one
 })
 
 test("A downward, equal or cross-scale regrade resubmits nothing", async ({ page, adminApi }) => {
-  const live = await myRegistrationOnCourse(page.request, adminApi, GRADE_IMPROVEMENT_COURSE_SLUG)
+  const live = await latestAttempt(page.request, adminApi)
   expect(live.attempt_number, "this test continues from the previous one").toBe(2)
   const importsBefore = await countMockCallsForStudent(
     page.request,
@@ -291,10 +316,11 @@ const addLaterCompletion = async (page: Page, adminApi: APIRequestContext, grade
 const importCount = (page: Page) =>
   countMockCallsForStudent(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101, "import_attainments")
 
+// Sorted: the mock ages a misregistered send, which reorders the list.
 const submittedGrades = async (page: Page) =>
-  (await mockSuotarSubmissionsFor(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101)).map(
-    (submission) => submission.gradeId,
-  )
+  (await mockSuotarSubmissionsFor(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101))
+    .map((submission) => submission.gradeId)
+    .toSorted()
 
 let registeredId = ""
 let reversedId = ""

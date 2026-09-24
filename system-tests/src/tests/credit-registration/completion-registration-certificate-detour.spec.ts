@@ -34,9 +34,9 @@ const IDENTIFICATION_QUESTION =
 const RECONSIDER_QUESTION = "Reconsider: which do you need?"
 
 const CERTIFICATE_OPTION = "A certificate of completion"
-const CREDITS_OPTION = "Credits in the UH study registry"
+const CREDITS_OPTION = "University of Helsinki credits"
 
-const OPEN_UNIVERSITY_INSTRUCTIONS = /Use this email address on the enrollment form/
+const OPEN_UNIVERSITY_INSTRUCTIONS = /Use this email address on the enrolment form/
 const JUSTIFICATION_ENDPOINT = "**/credit-justification"
 
 /** Opens the registration page the way a student does: from the completed module's own card. */
@@ -101,7 +101,7 @@ test.describe("A module whose certificate a student could take instead of the cr
 
     await expect(page.getByText(/Then select Identification methods for foreigners/)).toBeVisible()
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
-    await expect(page.getByRole("link", { name: "Go to enrollment form" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Go to the enrolment form" })).toBeVisible()
   })
 
   test("A student with another Suomi.fi method gets the other tip", async ({ page }) => {
@@ -202,7 +202,7 @@ test.describe("A failed save on the certificate detour module", () => {
     await page.getByRole("textbox", { name: "Your reason" }).fill("I need them in the registry.")
     await page.getByRole("button", { name: "Continue" }).click()
 
-    await expect(page.getByText("Saving your answer failed. Please try again.")).toBeVisible()
+    await expect(page.getByText("We could not save your answer. Please try again.")).toBeVisible()
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toHaveCount(0)
     await expect(page.getByRole("textbox", { name: "Your reason" })).toBeVisible()
   })

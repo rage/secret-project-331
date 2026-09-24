@@ -72,6 +72,17 @@ export type PhaseTickResult =
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
   | { status: "unresolvedScope"; half: string; value: string }
 
+/** How the tick runs, apart from which rows it may touch. */
+export interface TickOptions {
+  /** Overrides the deployment's account-linking switch for this one tick. */
+  accountLinkingEnabled?: boolean
+}
+
+const optionsQuery = (options?: TickOptions): string =>
+  options?.accountLinkingEnabled === undefined
+    ? ""
+    : `&accountLinkingEnabled=${options.accountLinkingEnabled}`
+
 const scopeQuery = (scope?: TickScope): string => {
   if (!scope) {
     return ""
@@ -95,9 +106,10 @@ export const runTickUnchecked = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
   scope?: TickScope,
+  options?: TickOptions,
 ): Promise<PhaseTickResult> => {
   const response = await request.post(
-    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}`,
+    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}${optionsQuery(options)}`,
   )
   // 501 is the "no implementation registered yet" answer and 400 covers the unknown phase and the two
   // scope refusals; anything else (notably 404) means the mock is not enabled and the spec is invalid.
@@ -118,8 +130,9 @@ export const runTick = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
   scope?: TickScope,
+  options?: TickOptions,
 ): Promise<RanPhaseTick> => {
-  const result = await runTickUnchecked(request, phase, scope)
+  const result = await runTickUnchecked(request, phase, scope, options)
   if (result.status !== "ran" || result.error !== null) {
     const scoped = scope ? ` scoped to ${JSON.stringify(scope)}` : " unscoped"
     throw new Error(`Ticking ${phase}${scoped} did not run cleanly: ${JSON.stringify(result)}`)
@@ -164,7 +177,8 @@ export const runStudentNotificationsTick = (
 export const runEnrolmentDiscoveryTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope)
+  options?: TickOptions,
+): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope, options)
 
 export const runLinkEmailsTick = (
   request: APIRequestContext,
@@ -181,6 +195,24 @@ export const runRetentionSweepTick = (request: APIRequestContext): Promise<RanPh
 
 export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
   runTick(request, "ledger-snapshot")
+
+/**
+ * Backdates a row's last enrolment check past the hour the recheck buttons wait out, so a spec can
+ * press one right after the pipeline looked.
+ */
+export const expireEnrolmentRecheckAllowance = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/expire-enrolment-recheck-allowance`, {
+    data: { creditRegistrationId },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `expire-enrolment-recheck-allowance failed with ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
 
 /** One mail sitting in our send queue for an account. */
 export interface QueuedEmail {

@@ -46,6 +46,7 @@ import {
   studentNumberCss,
   subheadingCss,
 } from "./styles"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_VALUE_KEYS = {
@@ -64,6 +65,7 @@ const dangerZoneCss = css`
 
 const StudentNumberCard: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const linkQuery = useQuery({ ...getMyVerifiedStudentNumberOptions() })
   const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
@@ -86,20 +88,32 @@ const StudentNumberCard: React.FC = () => {
         query={linkQuery}
         treatNullAsEmpty
         contentClassName={sectionCss}
-        emptyFallback={<NotLinked linkingEmail={linkingEmail} />}
+        emptyFallback={
+          <NotLinked
+            linkingEmail={linkingEmail}
+            isAccountLinkingEnabled={isAccountLinkingEnabled}
+          />
+        }
       >
         {(link) =>
-          link ? <Linked link={link} hasRegisteringCourse={hasRegisteringCourse} /> : null
+          link ? (
+            <Linked
+              link={link}
+              hasRegisteringCourse={hasRegisteringCourse}
+              isAccountLinkingEnabled={isAccountLinkingEnabled}
+            />
+          ) : null
         }
       </QueryResult>
     </section>
   )
 }
 
-const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: boolean }> = ({
-  link,
-  hasRegisteringCourse,
-}) => {
+const Linked: React.FC<{
+  link: MyVerifiedStudentNumber
+  hasRegisteringCourse: boolean
+  isAccountLinkingEnabled: boolean
+}> = ({ link, hasRegisteringCourse, isAccountLinkingEnabled }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
@@ -120,7 +134,6 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
     },
   )
 
-  const sisuName = [link.first_names, link.last_name].filter(Boolean).join(" ")
   const items = [
     {
       label: t("label-confirmed-on"),
@@ -135,12 +148,6 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
   return (
     <>
       <div className={sectionHeaderCss}>
-        {sisuName ? (
-          <>
-            <p className={noteCss}>{t("label-name-in-university-records")}</p>
-            <p className={subheadingCss}>{sisuName}</p>
-          </>
-        ) : null}
         <span className={studentNumberCss}>{link.student_number}</span>
       </div>
       <DescriptionList items={items} />
@@ -152,19 +159,23 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
       ) : (
         <p>{t("student-number-no-registering-courses")}</p>
       )}
-      <p>{t("student-number-check-the-name-is-yours")}</p>
       <div className={dangerZoneCss}>
         <h3 className={subheadingCss}>{t("heading-wrong-number")}</h3>
-        <div>
-          <Button
-            variant={BUTTON_TERTIARY}
-            size="small"
-            isLoading={unlink.isPending}
-            onClick={() => setIsRemoveDialogOpen(true)}
-          >
-            {t("button-remove-student-number")}
-          </Button>
-        </div>
+        {/* Without linking mails a removed number cannot come back unless staff link it again. */}
+        {isAccountLinkingEnabled ? (
+          <div>
+            <Button
+              variant={BUTTON_TERTIARY}
+              size="small"
+              isLoading={unlink.isPending}
+              onClick={() => setIsRemoveDialogOpen(true)}
+            >
+              {t("button-remove-student-number")}
+            </Button>
+          </div>
+        ) : (
+          <p>{t("student-number-wrong-number-ask-staff")}</p>
+        )}
       </div>
       <ConfirmDialog
         open={isRemoveDialogOpen}
@@ -183,9 +194,15 @@ const Linked: React.FC<{ link: MyVerifiedStudentNumber; hasRegisteringCourse: bo
 }
 
 /** No number linked: the steps that link one. */
-const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ linkingEmail }) => {
+const NotLinked: React.FC<{
+  linkingEmail: LinkingEmailStatus | null
+  isAccountLinkingEnabled: boolean
+}> = ({ linkingEmail, isAccountLinkingEnabled }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const sent = sentLinkingEmail(linkingEmail)
+
+  // A link already sent still works while linking is off; only new ones are not sent.
+  const staffLinksIt = !sent && !isAccountLinkingEnabled
 
   return (
     <>
@@ -193,17 +210,21 @@ const NotLinked: React.FC<{ linkingEmail: LinkingEmailStatus | null }> = ({ link
         <Badge tone={TONE.NEUTRAL}>{t("badge-student-number-not-linked")}</Badge>
       </div>
       <p>{t("student-number-not-linked")}</p>
-      <ol className={stepsCss}>
-        <li>
-          {sent
-            ? t("credit-registration-student-number-step-open-the-emailed-link", {
-                email: sent.emailMasked,
-                date: humanReadableDate(sent.sentAt, i18n.language),
-              })
-            : t("student-number-step-link-arrives-by-email")}
-        </li>
-        <li>{t("credit-registration-student-number-step-stay-logged-in")}</li>
-      </ol>
+      {staffLinksIt ? (
+        <p>{t("student-number-staff-links-it")}</p>
+      ) : (
+        <ol className={stepsCss}>
+          <li>
+            {sent
+              ? t("credit-registration-student-number-step-open-the-emailed-link", {
+                  email: sent.emailMasked,
+                  date: humanReadableDate(sent.sentAt, i18n.language),
+                })
+              : t("student-number-step-link-arrives-by-email")}
+          </li>
+          <li>{t("credit-registration-student-number-step-stay-logged-in")}</li>
+        </ol>
+      )}
       {sent ? null : <LinkingEmailLine linkingEmail={linkingEmail} />}
     </>
   )
@@ -258,9 +279,12 @@ const LinkedSummary: React.FC<{ studentNumber: string }> = ({ studentNumber }) =
 
 const NotLinkedSummary: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   return (
     <p className={noteCss}>
-      {t("student-number-summary-not-linked")}{" "}
+      {isAccountLinkingEnabled
+        ? t("student-number-summary-not-linked")
+        : t("student-number-summary-not-linked-staff-links-it")}{" "}
       <Link href={userSettingsStudentNumberRoute()}>
         {t("credit-registration-about-your-student-number")}
       </Link>

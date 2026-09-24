@@ -3210,6 +3210,7 @@ export const zMyStudiesCourseModule = z.object({
   automatic_completion: z.boolean(),
   completion: zMyStudiesCompletion.nullish(),
   course_module_id: z.uuid(),
+  credit_registration_expected: z.boolean(),
   ects_credits: z.number().nullish(),
   name: z.string().nullish(),
   order_number: z
@@ -4189,7 +4190,6 @@ export const zAnswersRequiringAttention = z.object({
 })
 
 export const zRequestCreditRegistrationEnrolmentRecheckResult = z.object({
-  next_recheck_allowed_at: z.iso.datetime().nullish(),
   recheck_started: z.boolean(),
 })
 
@@ -4545,6 +4545,7 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
   "needs_student_number",
   "looking_for_enrolment",
   "needs_enrolment",
+  "waiting_for_course_setup",
   "sending",
   "waiting_for_sisu",
   "registered",
@@ -4702,11 +4703,10 @@ export const zAdminVerifiedStudentNumberRow = z.object({
 })
 
 /**
- * The account's linked student number, unmasked: it is the holder's own.
+ * The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
+ * Sisu-held names.
  */
 export const zMyVerifiedStudentNumber = z.object({
-  first_names: z.string().nullish(),
-  last_name: z.string().nullish(),
   student_number: z.string(),
   verified_at: z.iso.datetime(),
   verified_via: zStudentNumberVerificationMethod,
@@ -4824,7 +4824,7 @@ export const zPageAdminVerifiedStudentNumberRow = z.object({
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token.
+ * able to spend the token. Deliberately carries no Sisu-held names.
  */
 export const zStudentNumberVerificationTokenPreview = z.object({
   already_used: z.boolean(),
@@ -4836,8 +4836,6 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   emailed_to_masked: z.string(),
   expired: z.boolean(),
   expires_at: z.iso.datetime(),
-  first_names: z.string().nullish(),
-  last_name: z.string().nullish(),
   student_number: z.string(),
   target_account_email: z.string(),
 })
@@ -5324,6 +5322,7 @@ export const zCourseCreditRegistration = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  can_request_enrolment_recheck: z.boolean(),
   completion_date: z.iso.datetime(),
   course_id: z.uuid(),
   course_instance_id: z.uuid(),
@@ -5545,6 +5544,7 @@ export const zUserCompletionInformation = z.object({
   course_module_name: z.string().nullish(),
   course_name: z.string(),
   credit_justification: z.string().nullish(),
+  credit_registration_expected: z.boolean(),
   ects_credits: z.number().nullish(),
   email: z.string(),
   enable_credit_registration_via_suotar: z.boolean(),
@@ -6388,6 +6388,16 @@ export const zGetCreditRegistrationDetailsPath = z.object({
  * The registration with its timeline
  */
 export const zGetCreditRegistrationDetailsResponse = zCreditRegistrationDetails
+
+export const zRecheckCreditRegistrationEnrolmentPath = z.object({
+  credit_registration_id: z.uuid(),
+})
+
+/**
+ * Whether a recheck was started
+ */
+export const zRecheckCreditRegistrationEnrolmentResponse =
+  zRequestCreditRegistrationEnrolmentRecheckResult
 
 export const zRetryCreditRegistrationBody = zRetryCreditRegistrationPayload
 

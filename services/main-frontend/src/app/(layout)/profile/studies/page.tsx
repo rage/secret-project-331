@@ -16,6 +16,7 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
+import { useIsInCreditRegistrationPipeline } from "@/components/credit-registration/useIsInCreditRegistrationPipeline"
 import {
   getMyCreditRegistrationsOptions,
   getMyStudiesOptions,
@@ -90,12 +91,8 @@ const StudiesPage: React.FC = () => {
   usePageTitle(t("heading-my-studies"))
 
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
-  const showCreditRegistration =
-    myStudiesQuery.data?.any_module_supports_credit_registration === true
-  const registrationsQuery = useQuery({
-    ...getMyCreditRegistrationsOptions(),
-    enabled: showCreditRegistration,
-  })
+  const showCreditRegistration = useIsInCreditRegistrationPipeline() === true
+  const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
   // Read directly rather than through QueryResult: the study record must render even when the
   // registration statuses cannot, and RegistrationsNeedingAttention reports that problem on its own.
   const registrations = registrationsQuery.data ?? []

@@ -101,12 +101,6 @@ const useChatbotStateAndData = (
   })
   const [convId, setConvId] = useState<null | string>(null)
 
-  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
-
-  const activeConversationId = currentConversationIdQuery.isLoading
-    ? null
-    : (convId ?? currentConversationIdQuery.data)
-
   const turnAbortControllerRef = useRef<AbortController | null>(null)
   // Kept in sync with the ref, at the two points the ref is armed and released.
   const [isTurnInFlight, setIsTurnInFlight] = useState(false)
@@ -133,6 +127,12 @@ const useChatbotStateAndData = (
     }
 
   const anonymousToken = getSavedChatbotAnonymousToken()
+
+  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
+
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (convId ?? currentConversationIdQuery.data)
 
   const currentConversationInfo = useConversationInfo(
     chatbotConfigurationId,

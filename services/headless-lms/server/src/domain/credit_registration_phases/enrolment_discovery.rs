@@ -196,15 +196,33 @@ async fn reconcile(
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
-    let linked = verified_student_numbers::get_by_sisu_person_ids(conn, &person_ids).await?;
+    let student_numbers: Vec<String> = people
+        .iter()
+        .map(|person| person.student_number.expose_secret().to_owned())
+        .collect();
+    let mut linked = verified_student_numbers::get_by_sisu_person_ids(conn, &person_ids).await?;
+    // A study_registry link has no person id until resolve-person-ids reaches it.
+    let linked_ids: HashSet<_> = linked.iter().map(|row| row.id).collect();
+    let linked_by_number = verified_student_numbers::get_by_student_numbers(conn, &student_numbers)
+        .await?
+        .into_iter()
+        .filter(|row| !linked_ids.contains(&row.id))
+        .collect::<Vec<_>>();
+    linked.extend(linked_by_number);
     let linked_person_ids: HashSet<&str> = linked
         .iter()
         .filter_map(|row| expose_option(&row.sisu_person_id))
         .collect();
+    let linked_student_numbers: HashSet<&str> = linked
+        .iter()
+        .map(|row| row.student_number.expose_secret())
+        .collect();
 
     let mut discovered = Vec::new();
     for &person in people {
-        if linked_person_ids.contains(person.person_id.expose_secret()) {
+        if linked_person_ids.contains(person.person_id.expose_secret())
+            || linked_student_numbers.contains(person.student_number.expose_secret())
+        {
             outcome.already_linked_count += 1;
             continue;
         }

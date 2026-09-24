@@ -552,7 +552,7 @@ fn request_item(row: &CreditRegistration) -> Result<ImportAttainmentRequestItem,
 }
 
 /// Rounds away the f32-to-f64 widening error before the value goes on the wire: ECTS credits are
-/// never finer than a hundredth, and 2.7f32 would otherwise be sent as 2.700000047683716.
+/// never finer than 0.1, and 2.7f32 would otherwise be sent as 2.700000047683716.
 fn round_credits(credits: f32) -> f64 {
-    (f64::from(credits) * 1000.0).round() / 1000.0
+    (f64::from(credits) * 10.0).round() / 10.0
 }

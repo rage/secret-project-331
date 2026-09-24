@@ -77,11 +77,14 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     let mut conn = ctx.pool.acquire().await?;
     let mut with_problems = 0;
     for module in &modules {
+        // A code Suotar gave no verdict for keeps its stored one: clearing it would read as allowed
+        // and release a blocked module's rows.
         let verdict = module
             .uh_course_code
             .as_deref()
-            .and_then(|code| verdicts.get(code.trim()));
-        let check = check_module_config(module, verdict);
+            .and_then(|code| verdicts.get(code.trim()).cloned())
+            .or_else(|| CourseCodeVerdict::stored(module));
+        let check = check_module_config(module, verdict.as_ref());
         if check.message.is_some() {
             with_problems += 1;
         }
@@ -100,8 +103,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     })
 }
 
-/// `None` for any answer that is neither verdict, which leaves the module unchecked rather than
-/// failed.
+/// `None` for any answer that is neither verdict.
 fn verdict_of(item: &SuotarResponseItem<ValidateCourseCodeResult>) -> Option<CourseCodeVerdict> {
     match outcome_of(SuotarEndpoint::ValidateCourseCodes, &item.code) {
         WireOutcome::Unsettled if item.status == SuotarItemStatus::Ok => {

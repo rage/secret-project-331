@@ -348,6 +348,9 @@ pub struct MyStudiesCourseModule {
     /// flag of the completion [`models::course_module_completions::select_registration_completion`]
     /// picks, or, before a completion is shown, whether a new one would get it.
     pub supports_credit_registration: bool,
+    /// Whether a credit registration exists or is about to for this student's completion, so a
+    /// completion without one yet is on its way rather than never coming.
+    pub credit_registration_expected: bool,
     /// Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
     pub score_given: f32,
     /// Exercise points the module offers. `None` when it has no exercises.
@@ -492,6 +495,7 @@ async fn get_my_studies(
         // `get_user_module_completion_statuses_for_course`.
         let mut best_completion_by_module: HashMap<Uuid, MyStudiesCompletion> = HashMap::new();
         let mut registers_via_suotar_by_module: HashMap<Uuid, bool> = HashMap::new();
+        let mut registration_expected_module_ids: HashSet<Uuid> = HashSet::new();
         for course_module in &enrollment.course_modules {
             let module_completions: Vec<_> = enrollment
                 .course_module_completions
@@ -507,12 +511,17 @@ async fn get_my_studies(
             if let Some(best) =
                 models::course_module_completions::select_best_completion(visible_completions)
             {
-                let registers_via_suotar =
+                let registration_completion =
                     models::course_module_completions::select_registration_completion(
                         module_completions,
-                    )
+                    );
+                let registers_via_suotar = registration_completion
+                    .as_ref()
                     .is_some_and(|c| c.register_credits_via_suotar);
                 registers_via_suotar_by_module.insert(course_module.id, registers_via_suotar);
+                if registration_completion.is_some_and(|c| c.is_credit_registration_expected()) {
+                    registration_expected_module_ids.insert(course_module.id);
+                }
                 // Failed completions are kept for the course's own table; only the totals omit them.
                 best_completion_by_module.insert(
                     course_module.id,
@@ -544,6 +553,8 @@ async fn get_my_studies(
                         .unwrap_or_else(|| {
                             registering_new_completion_module_ids.contains(&course_module.id)
                         }),
+                    credit_registration_expected: registration_expected_module_ids
+                        .contains(&course_module.id),
                     score_given: progress.map_or(0.0, |progress| progress.score_given),
                     score_maximum: progress.and_then(|progress| progress.score_maximum),
                     score_required: progress.and_then(|progress| progress.score_required),

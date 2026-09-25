@@ -362,7 +362,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
 
 test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   await page.goto(LINKING_URL)
-  const staleTable = page.getByRole("table", { name: /Mailed \d+ times, still unclaimed/ })
+  const staleTable = page.getByRole("table", { name: /Emailed \d+ times, still unclaimed/ })
   const staleRow = staleTable.getByRole("row").filter({ hasText: STALE_STUDENT_NUMBER })
   await expect(staleRow).toBeVisible()
 
@@ -387,8 +387,8 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
       .getByLabel("Reason")
       .fill("System test: proving the override retires the capped mails.")
     await dialog.getByRole("button", { name: "Confirm" }).click()
-    await expect(dialog.getByText("A mail is owed")).toBeVisible()
-    await expect(dialog.getByText("earlier mails were retired")).toBeVisible()
+    await expect(dialog.getByText("An email is queued")).toBeVisible()
+    await expect(dialog.getByText("earlier emails were retired")).toBeVisible()
   })
 })
 
@@ -441,7 +441,7 @@ test("The overview reads the daily snapshots", async ({ page }) => {
   await runLedgerSnapshotTick(page.request)
 
   await page.goto(OVERVIEW_URL)
-  await expect(page.getByRole("heading", { name: "Queue depth over time" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Queue size over time" })).toBeVisible()
 
   await test.step("The tick wrote the range its only snapshot", async () => {
     await expect(page.getByText("No snapshot has been written")).toHaveCount(0)

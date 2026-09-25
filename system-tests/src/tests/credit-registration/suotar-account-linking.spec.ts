@@ -26,7 +26,7 @@ const TOKEN_CONFLICT = repeated("44444444-4444-4444-4444-444444444444")
 
 const EXPIRED_COPY = "This link has expired."
 const ALREADY_USED_COPY = "This link has already been used."
-const CONFLICT_COPY = "This student number is already linked to a different account."
+const CONFLICT_COPY = "This student number is already linked to another account."
 
 test.describe.configure({ mode: "serial", retries: 0 })
 

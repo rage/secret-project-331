@@ -201,7 +201,7 @@ test("The module editor configures a study registry module by its course code an
     seededEnrolmentLink(CRS_STATES_101),
   )
   await expect(
-    form.getByText("Also the enrolment link for students without a usable Sisu enrolment."),
+    form.getByText("Also the enrolment link for students without a valid enrolment in Sisu."),
   ).toBeVisible()
   await expect(form.getByText(/product|realisation/i)).toHaveCount(0)
 })
@@ -277,7 +277,7 @@ test("A teacher retries a failed registration, and the course says who did it", 
   await test.step("The history is on the page, so a colleague sees it before clicking", async () => {
     await page.goto(RETRY_COMPLETIONS_URL)
     await expect(page.getByRole("heading", { name: "Recent actions on this course" })).toBeVisible()
-    await expect(page.getByText("Retried a registration").first()).toBeVisible()
+    await expect(page.getByText("Sent a registration again").first()).toBeVisible()
     await accessibilityCheck(page, "Teacher credit registration action history")
   })
 })

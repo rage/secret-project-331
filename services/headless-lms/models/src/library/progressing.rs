@@ -764,6 +764,9 @@ pub struct UserCompletionInformation {
     /// Whether this completion in particular goes through the push path. Decides which flow the
     /// page shows: the module flag above only says the module takes part.
     pub register_credits_via_suotar: bool,
+    /// Whether the push path will register this completion. With `register_credits_via_suotar`
+    /// set and this false, no credit registration is ever created for it.
+    pub credit_registration_expected: bool,
     /// `Some` only when the student can generate a certificate for this module right now, which is
     /// also the id `/generate-certificate` wants.
     ///
@@ -855,6 +858,7 @@ pub async fn get_user_completion_information(
         )
         .await?
         .map(|row| row.justification);
+    let credit_registration_expected = course_module_completion.is_credit_registration_expected();
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
         course_name: course.name.clone(),
@@ -867,6 +871,7 @@ pub async fn get_user_completion_information(
         enable_credit_registration_via_suotar: credit_registration_config
             .enable_credit_registration_via_suotar,
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
+        credit_registration_expected,
         certificate_configuration_id,
         credit_justification,
     })

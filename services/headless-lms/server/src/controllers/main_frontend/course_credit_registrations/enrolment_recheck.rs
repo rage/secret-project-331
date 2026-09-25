@@ -8,7 +8,7 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 
 use crate::controllers::main_frontend::credit_registrations::{
-    RequestCreditRegistrationEnrolmentRecheckResult, next_enrolment_recheck_allowed_at,
+    RequestCreditRegistrationEnrolmentRecheckResult, looked_for_enrolment_recently,
     start_enrolment_recheck,
 };
 use crate::prelude::*;
@@ -54,11 +54,9 @@ pub async fn recheck_credit_registration_enrolment(
             "This registration is not waiting for an enrolment.".to_string()
         ));
     }
-    let next_allowed = next_enrolment_recheck_allowed_at(row.enrolment_checked_at);
-    if next_allowed.is_some_and(|allowed| allowed > Utc::now()) {
+    if looked_for_enrolment_recently(row.enrolment_checked_at) {
         return token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
             recheck_started: false,
-            next_recheck_allowed_at: next_allowed,
         }));
     }
 
@@ -68,7 +66,7 @@ pub async fn recheck_credit_registration_enrolment(
         user.id,
         id,
         CreditRegistrationEventKind::AdminAction,
-        "A teacher of the course asked us to look for an enrolment again.",
+        "A teacher of the course asked us to check for an enrolment again.",
     )
     .await?;
     models::credit_registration_admin_actions::record(
@@ -91,7 +89,6 @@ pub async fn recheck_credit_registration_enrolment(
 
     token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
         recheck_started: true,
-        next_recheck_allowed_at: None,
     }))
 }
 

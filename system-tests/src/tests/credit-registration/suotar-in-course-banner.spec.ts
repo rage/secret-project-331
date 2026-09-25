@@ -72,7 +72,9 @@ test.describe("A student the University has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    // The park itself was a check, and the button stays hidden for an hour after one.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)
@@ -83,7 +85,7 @@ test.describe("A student the University has no enrolment for", () => {
     await expect(
       notice.getByRole("link", { name: "Enrol at the Open University" }),
     ).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
-    await expect(notice.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
+    await expect(notice.getByRole("button", { name: "I have enrolled" })).toBeVisible()
 
     await test.step("It is a banner, not a dialog", async () => {
       await expect(page.getByRole("dialog")).toHaveCount(0)
@@ -168,7 +170,7 @@ test.describe("A student who enrols after being told to", () => {
       await waitForSuccessNotification(
         page,
         async () => {
-          await banner(page).getByRole("button", { name: "I have enrolled, check again" }).click()
+          await banner(page).getByRole("button", { name: "I have enrolled" }).click()
         },
         "Success",
       )

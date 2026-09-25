@@ -17518,11 +17518,6 @@
             "type": "string",
             "format": "date-time"
           },
-          "next_enrolment_recheck_allowed_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "While a row waiting for an enrolment was checked too recently to check again, when that\nbecomes possible."
-          },
           "notification_email": {
             "oneOf": [
               {
@@ -23116,6 +23111,7 @@
           "course_module_id",
           "order_number",
           "supports_credit_registration",
+          "credit_registration_expected",
           "score_given",
           "attempted_exercises",
           "automatic_completion",
@@ -23150,6 +23146,10 @@
           "course_module_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "credit_registration_expected": {
+            "type": "boolean",
+            "description": "Whether a credit registration exists or is about to for this student's completion, so a\ncompletion without one yet is on its way rather than never coming."
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -25657,10 +25657,6 @@
         "type": "object",
         "required": ["recheck_started"],
         "properties": {
-          "next_recheck_allowed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
           "recheck_started": {
             "type": "boolean",
             "description": "False when we looked so recently that asking again would tell the student nothing new."
@@ -27197,7 +27193,8 @@
           "email",
           "enable_registering_completion_to_uh_open_university",
           "enable_credit_registration_via_suotar",
-          "register_credits_via_suotar"
+          "register_credits_via_suotar",
+          "credit_registration_expected"
         ],
         "properties": {
           "certificate_configuration_id": {
@@ -27220,6 +27217,10 @@
           "credit_justification": {
             "type": ["string", "null"],
             "description": "Why the student said they need the credits rather than a certificate, if they have been\nasked and answered. Advisory; it seeds the field when they come back to the page."
+          },
+          "credit_registration_expected": {
+            "type": "boolean",
+            "description": "Whether the push path will register this completion. With `register_credits_via_suotar`\nset and this false, no credit registration is ever created for it."
           },
           "ects_credits": {
             "type": ["number", "null"],

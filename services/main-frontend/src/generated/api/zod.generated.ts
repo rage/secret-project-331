@@ -3210,6 +3210,7 @@ export const zMyStudiesCourseModule = z.object({
   automatic_completion: z.boolean(),
   completion: zMyStudiesCompletion.nullish(),
   course_module_id: z.uuid(),
+  credit_registration_expected: z.boolean(),
   ects_credits: z.number().nullish(),
   name: z.string().nullish(),
   order_number: z
@@ -4189,7 +4190,6 @@ export const zAnswersRequiringAttention = z.object({
 })
 
 export const zRequestCreditRegistrationEnrolmentRecheckResult = z.object({
-  next_recheck_allowed_at: z.iso.datetime().nullish(),
   recheck_started: z.boolean(),
 })
 
@@ -5340,7 +5340,6 @@ export const zCourseCreditRegistration = z.object({
   linking_email: zTeacherLinkingEmailStatus.nullish(),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
-  next_enrolment_recheck_allowed_at: z.iso.datetime().nullish(),
   notification_email: zNotificationEmailStatus.nullish(),
   registered_at: z.iso.datetime().nullish(),
   resubmission_refusal: zResubmissionRefusal.nullish(),
@@ -5545,6 +5544,7 @@ export const zUserCompletionInformation = z.object({
   course_module_name: z.string().nullish(),
   course_name: z.string(),
   credit_justification: z.string().nullish(),
+  credit_registration_expected: z.boolean(),
   ects_credits: z.number().nullish(),
   email: z.string(),
   enable_credit_registration_via_suotar: z.boolean(),

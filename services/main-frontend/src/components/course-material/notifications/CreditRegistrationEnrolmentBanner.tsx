@@ -98,15 +98,16 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
                 {t("credit-registration-action-enrol")}
               </Link>
             ) : null}
-            <Button
-              variant="secondary"
-              size="small"
-              disabled={!registration.can_request_enrolment_recheck}
-              isLoading={recheck.isPending}
-              onClick={() => recheck.mutate(registration)}
-            >
-              {t("credit-registration-action-recheck-enrolment")}
-            </Button>
+            {registration.can_request_enrolment_recheck ? (
+              <Button
+                variant="secondary"
+                size="small"
+                isLoading={recheck.isPending}
+                onClick={() => recheck.mutate(registration)}
+              >
+                {t("button-i-have-enrolled")}
+              </Button>
+            ) : null}
             <Link href={completionRegistrationRoute(registration.course_module_id)}>
               {t("credit-registration-see-registration-status")}
             </Link>

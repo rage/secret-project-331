@@ -57,7 +57,6 @@ use headless_lms_utils::services::suotar::SuotarClient;
 
 use super::credit_registrations::{
     NotificationEmailStatus, can_request_enrolment_recheck, mask_email,
-    next_enrolment_recheck_allowed_at,
 };
 
 /// Every handler here that names a student gates on this; see the module doc for why
@@ -151,9 +150,6 @@ pub struct CourseCreditRegistration {
     /// Whether the row's "check enrolment again" action is available now; it shares the student's
     /// button's allowance.
     pub can_request_enrolment_recheck: bool,
-    /// While a row waiting for an enrolment was checked too recently to check again, when that
-    /// becomes possible.
-    pub next_enrolment_recheck_allowed_at: Option<DateTime<Utc>>,
     /// In full: a masked number cannot be checked against a student card.
     pub student_number: Option<String>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
@@ -698,7 +694,8 @@ pub async fn resend_course_credit_registration_linking_email(
     if recent >= MAX_TEACHER_RESENDS_PER_HOUR {
         return Err(controller_err!(
             BadRequest,
-            "You have set off too many linking emails in the last hour.".to_string()
+            "You have sent too many confirmation emails in the last hour. Try again later."
+                .to_string()
         ));
     }
 
@@ -1008,14 +1005,8 @@ impl From<TeacherCreditRegistration> for CourseCreditRegistration {
     fn from(row: TeacherCreditRegistration) -> Self {
         let can_request_enrolment_recheck =
             can_request_enrolment_recheck(row.state, row.enrolment_checked_at);
-        let next_enrolment_recheck_allowed_at = (row.state
-            == CreditRegistrationState::NoUsableEnrolment
-            && !can_request_enrolment_recheck)
-            .then(|| next_enrolment_recheck_allowed_at(row.enrolment_checked_at))
-            .flatten();
         Self {
             can_request_enrolment_recheck,
-            next_enrolment_recheck_allowed_at,
             student_facing_status: StudentFacingCreditRegistrationStatus::of(
                 row.state,
                 row.preconditions(),

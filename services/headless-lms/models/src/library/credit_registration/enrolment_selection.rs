@@ -44,7 +44,7 @@ impl NoUsableEnrolment {
     /// Recorded on the row so the student-facing copy can be specific about what to do.
     pub fn message(self) -> &'static str {
         match self {
-            Self::None => "The study registry holds no enrolment for this course.",
+            Self::None => "Sisu has no enrolment for this course.",
             Self::NotAccepted => "No enrolment for this course has been accepted.",
             Self::CreditsOutOfRange => {
                 "No enrolment can carry the credits configured for this module."

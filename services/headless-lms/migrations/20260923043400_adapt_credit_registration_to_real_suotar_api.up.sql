@@ -416,23 +416,23 @@ FROM (
     VALUES (
         'credit_registration_action_needed'::email_template_type,
         'en',
-        'We could not register your credits yet',
+        'Enrol on the course to get your credits registered',
         '[
-          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, we could not yet register your completion of {{COURSE_NAME}} ({{CREDITS}} cr) in the University of Helsinki study registry, because the registry has no suitable enrolment for you on the course.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000002", "attributes": {"content": "If you have not enrolled on the course yet, please enrol. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000003", "attributes": {"content": "We check your enrolment again every day and register the credits automatically once it is in order.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000004", "attributes": {"content": "You can see the details and what to do next here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, you have completed {{COURSE_NAME}} ({{CREDITS}} credits). To register your credits in Sisu, you need to be enrolled on the course. We cannot find an enrolment for you yet.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000002", "attributes": {"content": "If you have not enrolled yet, please enrol. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000003", "attributes": {"content": "We check regularly and register your credits automatically once we can see your enrolment. If you have enrolled, you do not need to do anything else.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d3000000-0000-0000-0000-000000000004", "attributes": {"content": "You can see the details and how to enrol here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
         ]'::jsonb
       ),
       (
         'credit_registration_action_needed'::email_template_type,
         'fi',
-        'Opintopisteitäsi ei voitu vielä kirjata',
+        'Ilmoittaudu kurssille, jotta voimme kirjata opintopisteesi',
         '[
-          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, kurssin {{COURSE_NAME}} suoritustasi ({{CREDITS}} op) ei voitu vielä kirjata Helsingin yliopiston opintorekisteriin, koska rekisterissä ei ole sinulle kurssille sopivaa ilmoittautumista.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos et ole vielä ilmoittautunut kurssille, ilmoittauduthan. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000003", "attributes": {"content": "Tarkistamme ilmoittautumisesi päivittäin ja kirjaamme opintopisteet automaattisesti, kun ilmoittautuminen on kunnossa.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000004", "attributes": {"content": "Näet tarkemmat tiedot ja jatko-ohjeet täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, olet suorittanut kurssin {{COURSE_NAME}} ({{CREDITS}} op). Jotta voimme kirjata opintopisteesi Sisuun, sinun pitää olla ilmoittautunut kurssille. Emme vielä löydä ilmoittautumistasi.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos et ole vielä ilmoittautunut, ilmoittaudu kurssille. {{ENROLMENT_LINK}}", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000003", "attributes": {"content": "Tarkistamme tilanteen säännöllisesti ja kirjaamme opintopisteesi automaattisesti, kun näemme ilmoittautumisesi. Jos olet jo ilmoittautunut, sinun ei tarvitse tehdä muuta.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d4000000-0000-0000-0000-000000000004", "attributes": {"content": "Näet tarkemmat tiedot ja ilmoittautumisohjeet täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
         ]'::jsonb
       ),
       (
@@ -440,8 +440,8 @@ FROM (
         'en',
         'Your credits have been registered',
         '[
-          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, your completion of {{COURSE_NAME}} ({{CREDITS}} cr) is now recorded in the University of Helsinki study registry.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000002", "attributes": {"content": "If it was already recorded there, this message simply confirms it. You can see the details here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000001", "attributes": {"content": "Hello, your credits for {{COURSE_NAME}} ({{CREDITS}} credits) are now registered in Sisu.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d5000000-0000-0000-0000-000000000002", "attributes": {"content": "If they were already registered, this email confirms it. You can see the details here: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
         ]'::jsonb
       ),
       (
@@ -449,8 +449,8 @@ FROM (
         'fi',
         'Opintopisteesi on kirjattu',
         '[
-          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, kurssin {{COURSE_NAME}} suorituksesi ({{CREDITS}} op) on nyt kirjattu Helsingin yliopiston opintorekisteriin.", "drop_cap": false}, "innerBlocks": []},
-          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos suoritus oli jo kirjattu sinne aiemmin, tämä viesti vain vahvistaa asian. Näet tiedot täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
+          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000001", "attributes": {"content": "Hei, kurssin {{COURSE_NAME}} opintopisteesi ({{CREDITS}} op) on nyt kirjattu Sisuun.", "drop_cap": false}, "innerBlocks": []},
+          {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos ne oli jo kirjattu, tämä viesti vahvistaa sen. Näet tiedot täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
         ]'::jsonb
       )
   ) AS seed(email_template_type, language, subject, content)

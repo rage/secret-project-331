@@ -54,7 +54,6 @@ interface TeacherRegistration {
   id: string
   state: string
   can_request_enrolment_recheck: boolean
-  next_enrolment_recheck_allowed_at: string | null
 }
 
 interface TeacherRegistrationDetails {
@@ -124,13 +123,11 @@ test("A teacher asks for the enrolment to be checked again, within the student's
 }) => {
   const parked = await parkOnMissingEnrolment(page, adminApi)
 
-  await test.step("Just after the pipeline looked, the action waits out the hour", async () => {
+  await test.step("Just after the pipeline checked, the action is hidden for the hour", async () => {
     const dialog = await openDetails(page)
-    await expect(recheckButton(dialog)).toBeDisabled()
-    await expect(dialog.getByText("Checked less than an hour ago.")).toBeVisible()
+    await expect(recheckButton(dialog)).toBeHidden()
     const row = (await teacherDetails(page.request, parked.id)).registration
     expect(row.can_request_enrolment_recheck).toBe(false)
-    expect(row.next_enrolment_recheck_allowed_at).not.toBeNull()
   })
 
   await test.step("Once the hour is up it starts a recheck and says who asked", async () => {
@@ -138,7 +135,7 @@ test("A teacher asks for the enrolment to be checked again, within the student's
     const dialog = await openDetails(page)
     await recheckButton(dialog).click()
     await expect(
-      dialog.getByText("The student's enrolment will be looked up again within a few minutes."),
+      dialog.getByText("We will check the student's enrolment again within a few minutes."),
     ).toBeVisible()
 
     const details = await teacherDetails(page.request, parked.id)
@@ -146,12 +143,12 @@ test("A teacher asks for the enrolment to be checked again, within the student's
     expect(details.events).toContainEqual(
       expect.objectContaining({
         kind: "admin_action",
-        message: "A teacher of the course asked us to look for an enrolment again.",
+        message: "A teacher of the course asked us to check for an enrolment again.",
       }),
     )
   })
 
-  await test.step("The look it started counts against the allowance again", async () => {
+  await test.step("The check it started counts against the allowance again", async () => {
     await setTestExclusiveHold(page.request, STUDENT.email, HOLD_SECS, SUOTAR_B_COURSE_ID)
     await runResolveEnrolmentsTick(page.request, { creditRegistrationIds: [parked.id] })
     await rowInState(adminApi, ["no_usable_enrolment"])

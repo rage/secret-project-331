@@ -236,7 +236,7 @@ async fn apply_answer(
                 row,
                 &outcome,
                 OutcomeEvent {
-                    message: Some("The study registry did not answer for this item."),
+                    message: Some("Sisu did not answer for this item."),
                     ..event
                 },
                 Some(CreditRegistrationState::ResolvingEnrolment),
@@ -517,8 +517,8 @@ async fn settle_against_existing_attainments(
         row,
         context,
         grade_scale_id,
-        "The study registry already holds an attainment at least as good for this course, so \
-         nothing was submitted.",
+        "Sisu already has an equal or better grade for this course, so nothing was \
+         submitted.",
         event,
     )
     .await?;

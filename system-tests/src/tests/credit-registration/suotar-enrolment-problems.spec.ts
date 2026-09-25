@@ -82,7 +82,7 @@ test.describe("A student the University has no enrolment for", () => {
       await page.getByRole("button", { name: "I have enrolled" }).click()
       await expect(
         page.getByRole("heading", {
-          name: "Waiting for your enrolment to reach the University's records",
+          name: "We are looking for your enrolment",
         }),
       ).toBeVisible()
       await expect(page.getByText("You told us you enrolled at the Open University")).toBeVisible()

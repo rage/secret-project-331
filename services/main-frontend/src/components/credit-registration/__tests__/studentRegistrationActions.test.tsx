@@ -50,7 +50,7 @@ describe("useStudentRegistrationActions", () => {
 
     expect(primaryAction?.href).toBe("https://example.com/enrol")
     expect(secondaryActions.map((action) => action.label)).toContain(
-      "credit-registration-action-look-again",
+      "credit-registration-action-check-again",
     )
   })
 
@@ -61,21 +61,20 @@ describe("useStudentRegistrationActions", () => {
       )
 
       expect(primaryAction?.href).toBeUndefined()
-      expect(primaryAction?.label).toBe("credit-registration-action-look-again")
+      expect(primaryAction?.label).toBe("credit-registration-action-check-again")
     }
   })
 
-  test("says why a recheck is unavailable rather than only greying it out", () => {
-    const { secondaryActions } = actionsFor(
+  test("hides the recheck while the last check is too recent", () => {
+    const { primaryAction, secondaryActions } = actionsFor(
       registration("needs_enrolment", {
         enrolment_link: "https://example.com/enrol",
         can_request_enrolment_recheck: false,
       }),
     )
-    const recheck = secondaryActions.at(0)
 
-    expect(recheck?.isDisabled).toBe(true)
-    expect(recheck?.disabledReason).toBe("credit-registration-enrolment-checked-recently")
+    expect(primaryAction?.href).toBe("https://example.com/enrol")
+    expect(secondaryActions).toHaveLength(0)
   })
 
   test("offers no action at all on a failure nobody but support can clear", () => {

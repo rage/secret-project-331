@@ -166,7 +166,6 @@ pub struct MyCreditRegistrationForCourseModule {
 pub struct RequestCreditRegistrationEnrolmentRecheckResult {
     /// False when we looked so recently that asking again would tell the student nothing new.
     pub recheck_started: bool,
-    pub next_recheck_allowed_at: Option<DateTime<Utc>>,
 }
 
 /// The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
@@ -382,8 +381,8 @@ pub async fn dismiss_credit_registration_enrolment_banner(
 }
 
 /// When the study registry may next be asked about this row, or `None` before it has been asked at
-/// all. The response tells the student or teacher when the button comes back.
-pub(crate) fn next_enrolment_recheck_allowed_at(
+/// all.
+fn next_enrolment_recheck_allowed_at(
     enrolment_checked_at: Option<DateTime<Utc>>,
 ) -> Option<DateTime<Utc>> {
     enrolment_checked_at
@@ -391,7 +390,7 @@ pub(crate) fn next_enrolment_recheck_allowed_at(
 }
 
 /// Whether we looked recently enough that looking again would tell nobody anything new.
-fn looked_for_enrolment_recently(enrolment_checked_at: Option<DateTime<Utc>>) -> bool {
+pub(crate) fn looked_for_enrolment_recently(enrolment_checked_at: Option<DateTime<Utc>>) -> bool {
     next_enrolment_recheck_allowed_at(enrolment_checked_at)
         .is_some_and(|allowed| allowed > Utc::now())
 }
@@ -479,11 +478,9 @@ pub async fn request_credit_registration_enrolment_recheck(
         ));
     }
 
-    let next_allowed = next_enrolment_recheck_allowed_at(registration.enrolment_checked_at);
-    if next_allowed.is_some_and(|allowed| allowed > Utc::now()) {
+    if looked_for_enrolment_recently(registration.enrolment_checked_at) {
         return token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
             recheck_started: false,
-            next_recheck_allowed_at: next_allowed,
         }));
     }
 
@@ -492,13 +489,12 @@ pub async fn request_credit_registration_enrolment_recheck(
         user.id,
         registration.id,
         CreditRegistrationEventKind::StudentAction,
-        "The student asked us to look for an enrolment again.",
+        "The student asked us to check for an enrolment again.",
     )
     .await?;
 
     token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
         recheck_started: true,
-        next_recheck_allowed_at: None,
     }))
 }
 
@@ -1145,7 +1141,7 @@ pub async fn set_my_enrolment_route(
     if !current.can_change {
         return Err(controller_err!(
             BadRequest,
-            "Your enrolment has already been found, so this answer no longer changes anything."
+            "We can already see your enrolment, so this answer no longer changes anything."
                 .to_string()
         ));
     }
@@ -1195,13 +1191,13 @@ pub async fn confirm_my_enrolment(
     if current.route.is_none() {
         return Err(controller_err!(
             BadRequest,
-            "Answer where you enrol before confirming that you have.".to_string()
+            "Tell us where you enrol first.".to_string()
         ));
     }
     if !current.can_change {
         return Err(controller_err!(
             BadRequest,
-            "Your enrolment has already been found.".to_string()
+            "We can already see your enrolment.".to_string()
         ));
     }
     let answer = credit_registration_enrolment_routes::set_enrolment_confirmed(
@@ -1248,7 +1244,7 @@ pub async fn withdraw_my_enrolment_confirmation(
     if !current.can_change {
         return Err(controller_err!(
             BadRequest,
-            "Your enrolment has already been found, so there is nothing to take back.".to_string()
+            "We can already see your enrolment, so there is nothing to undo.".to_string()
         ));
     }
     let answer = match current.route {

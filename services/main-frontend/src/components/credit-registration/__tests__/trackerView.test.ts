@@ -2,6 +2,7 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   asksWhereYouEnrolled,
+  explainsBesideTheQuestion,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -66,8 +67,14 @@ describe("whether the student is still asked where they enrol", () => {
     ).toBe(false)
   })
 
-  test("stops asking once the row is somewhere it cannot come back from", () => {
-    for (const status of ["registered", "failed", "not_registering"] as const) {
+  test("stops asking once the row is past needing an enrolment", () => {
+    for (const status of [
+      "registered",
+      "failed",
+      "not_registering",
+      "sending",
+      "waiting_for_sisu",
+    ] as const) {
       expect(
         asksWhereYouEnrolled({
           registration: registration({ student_facing_status: status }),
@@ -148,10 +155,19 @@ describe("waiting for the enrolment to turn up", () => {
 })
 
 describe("whether the state gets said in its own words", () => {
-  test("stays quiet while the question band already gives the enrolment instructions", () => {
-    expect(saysWhatIsHappening({ registration: registration(), enrolmentRoute: route() })).toBe(
-      false,
-    )
+  test("says where things stand under the question, without repeating its instructions", () => {
+    const view = { registration: registration(), enrolmentRoute: route() }
+    expect(saysWhatIsHappening(view)).toBe(true)
+    expect(explainsBesideTheQuestion(view)).toBe(true)
+  })
+
+  test("explains in full once the question is no longer asked", () => {
+    const view = {
+      registration: registration({ student_facing_status: "sending" }),
+      enrolmentRoute: route(),
+    }
+    expect(saysWhatIsHappening(view)).toBe(true)
+    expect(explainsBesideTheQuestion(view)).toBe(false)
   })
 
   test("stays quiet for the student number, which the linking band says in full", () => {
@@ -211,6 +227,16 @@ describe("what the linking band says", () => {
   test("drops the promise once the row has failed", () => {
     expect(
       studentNumberLinkBand(registration({ student_facing_status: "failed" }), linked, linkingOn),
+    ).toEqual({ kind: "linked", studentNumber: "014567890" })
+  })
+
+  test("drops the promise on a registered row that has no fact sheet to name the number", () => {
+    expect(
+      studentNumberLinkBand(
+        registration({ student_facing_status: "registered", registered_at: null }),
+        linked,
+        linkingOn,
+      ),
     ).toEqual({ kind: "linked", studentNumber: "014567890" })
   })
 

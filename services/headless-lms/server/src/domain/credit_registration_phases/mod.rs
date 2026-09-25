@@ -1160,7 +1160,7 @@ pub(crate) async fn apply_request_level_outcome(
         row,
         &outcome,
         OutcomeEvent {
-            message: Some("The study registry rejected the whole request."),
+            message: Some("Sisu did not accept the whole request."),
             error_message: Some(error.message()),
             request_item_id: Some(request_item_id),
             request: Some(request),

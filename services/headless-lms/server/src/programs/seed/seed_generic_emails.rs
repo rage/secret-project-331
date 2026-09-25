@@ -221,7 +221,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hello {{NAME}}, you completed {{COURSE_NAME}} on courses.mooc.fi and we can register the credits for you.",
+                "content": "Hello {{NAME}}, we can see your enrolment on {{COURSE_NAME}}. To register your credits in Sisu, we need to link your student number to your account on courses.mooc.fi.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -231,7 +231,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Open this link while logged in to confirm that student number {{STUDENT_NUMBER}} is yours: {{LINK}}",
+                "content": "Log in to courses.mooc.fi with the account you use for the course. Then open this confirmation link to link student number {{STUDENT_NUMBER}} to it: {{LINK}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -241,7 +241,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "The link is valid for 14 days and can be used once. You received this message because you are enrolled in {{COURSE_NAME}} at the University of Helsinki and completed it on courses.mooc.fi. If this was not you, please ignore this message.",
+                "content": "The link works for 14 days and only once. You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If this was not you, you can ignore this email.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -261,14 +261,14 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     )
     .await?;
 
-    let finnish_subject = Some("Yhdistä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
+    let finnish_subject = Some("Liitä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
     let finnish_body = json!([
         {
             "type": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hei {{NAME}}, olet suorittanut kurssin {{COURSE_NAME}} courses.mooc.fi-palvelussa ja voimme kirjata opintopisteet puolestasi.",
+                "content": "Hei {{NAME}}, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata opintopisteesi Sisuun, meidän pitää liittää opiskelijanumerosi courses.mooc.fi-tiliisi.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -278,7 +278,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Avaa tämä linkki kirjautuneena vahvistaaksesi, että opiskelijanumero {{STUDENT_NUMBER}} on sinun: {{LINK}}",
+                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Avaa sitten tämä vahvistuslinkki, niin opiskelijanumero {{STUDENT_NUMBER}} liitetään tiliisi: {{LINK}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -288,7 +288,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "Linkki on voimassa 14 päivää ja sen voi käyttää kertaalleen. Sait tämän viestin, koska olet ilmoittautunut kurssille {{COURSE_NAME}} Helsingin yliopistossa ja suorittanut sen courses.mooc.fi-palvelussa. Jos tämä ei ollut sinä, voit jättää viestin huomiotta.",
+                "content": "Linkki toimii 14 päivää ja vain kerran. Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos et ole ilmoittautunut, voit jättää viestin huomiotta.",
                 "drop_cap": false
             },
             "innerBlocks": []

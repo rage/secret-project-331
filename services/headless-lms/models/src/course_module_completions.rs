@@ -29,6 +29,18 @@ pub struct CourseModuleCompletion {
     pub register_credits_via_suotar: bool,
 }
 
+impl CourseModuleCompletion {
+    /// Whether the push path will create a credit registration for this completion, now or on its
+    /// next materialise tick. Must match the membership test of the
+    /// `credit_registration_eligible_completions` view.
+    pub fn is_credit_registration_expected(&self) -> bool {
+        self.register_credits_via_suotar
+            && self.deleted_at.is_none()
+            && self.passed
+            && self.eligible_for_ects
+    }
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,

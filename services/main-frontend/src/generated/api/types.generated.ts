@@ -1202,11 +1202,6 @@ export type CourseCreditRegistration = {
   linking_email?: null | TeacherLinkingEmailStatus
   needs_admin_attention: boolean
   next_attempt_at: string
-  /**
-   * While a row waiting for an enrolment was checked too recently to check again, when that
-   * becomes possible.
-   */
-  next_enrolment_recheck_allowed_at?: string | null
   notification_email?: null | NotificationEmailStatus
   registered_at?: string | null
   resubmission_refusal?: null | ResubmissionRefusal
@@ -3441,6 +3436,11 @@ export type MyStudiesCourseModule = {
   automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
+  /**
+   * Whether a credit registration exists or is about to for this student's completion, so a
+   * completion without one yet is on its way rather than never coming.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   /**
    * `None` for the course's default module; the frontend labels those with the course name.
@@ -4285,7 +4285,6 @@ export type RegradingSubmissionInfo = {
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
 export type RequestCreditRegistrationEnrolmentRecheckResult = {
-  next_recheck_allowed_at?: string | null
   /**
    * False when we looked so recently that asking again would tell the student nothing new.
    */
@@ -4951,6 +4950,11 @@ export type UserCompletionInformation = {
    * asked and answered. Advisory; it seeds the field when they come back to the page.
    */
   credit_justification?: string | null
+  /**
+   * Whether the push path will register this completion. With `register_credits_via_suotar`
+   * set and this false, no credit registration is ever created for it.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean

@@ -305,7 +305,7 @@ async fn apply_poll_answer(
             let reimport_count = reset_for_resubmission(&mut tx, row.id).await?;
             let outcome = verify_not_registered_outcome(&facts, reimport_count);
             let event = OutcomeEvent {
-                message: Some("Suotar has no trace of the submission, so it will be sent again."),
+                message: Some("Sisu has no trace of the submission, so it will be sent again."),
                 ..event
             };
             apply_outcome(&mut tx, row, &outcome, event, Some(row.state)).await?;
@@ -474,7 +474,7 @@ impl SuotarBatchPhase for UncertainRecovery {
             &recovery.row,
             &uncertain_recheck_outcome(&recovery.facts()),
             OutcomeEvent {
-                message: Some("Could not look for the attainment this time."),
+                message: Some("Could not check Sisu for the credits this time."),
                 error_message: Some(error.message()),
                 request_item_id: Some(request_item_id),
                 request: Some(request),
@@ -548,8 +548,8 @@ async fn apply_recovery_answer(
         &Transition {
             event_kind: CreditRegistrationEventKind::SuotarResponse,
             event_message: Some(
-                "The attainment this submission would have created is in the study registry, so \
-                 it landed after all."
+                "The credits this submission would have created are in Sisu, so it was \
+                 registered after all."
                     .to_string(),
             ),
             needs_admin_attention: Some(false),

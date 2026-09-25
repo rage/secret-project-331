@@ -243,7 +243,7 @@ const ACTION_LABEL_KEYS = {
   link_student_number_by_hand: "credit-registration-action-label-link-student-number-by-hand",
   check_own_student_number: "credit-registration-action-label-check-own-student-number",
   enrol: "credit-registration-action-enrol",
-  recheck_enrolment: "credit-registration-action-recheck-enrolment",
+  recheck_enrolment: "credit-registration-action-check-again",
   email_student: "credit-registration-action-label-email-student",
   contact_support: "credit-registration-action-label-contact-support",
 } as const satisfies Record<FailureAction, string>

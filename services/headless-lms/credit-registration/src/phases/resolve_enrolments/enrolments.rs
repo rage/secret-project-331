@@ -33,41 +33,48 @@ use headless_lms_models::library::credit_registration::submission_context::{
 use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ExistingAttainment,
-    ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
-    SuotarEnrolment, SuotarError, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
+    ResolveEnrolmentRequestItem, SuotarEndpoint, SuotarEnrolment, SuotarItemStatus,
+    SuotarResponseItem, endpoints, new_request_item_id,
 };
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::collections::HashSet;
 
 use super::{hold_for_lookup, lookup_state};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, outcome_transition, row_facts};
-use crate::batch_phase::{
-    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
-    is_malformed_request,
-};
+use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase};
 use crate::dispatch::PhaseContext;
 use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 pub(super) struct ResolveEnrolments;
 
+/// A claimed row and its frozen context: the answer is applied against what was asked, not against
+/// a second read of the database.
+pub(super) struct Resolvable {
+    registration: CreditRegistration,
+    context: SubmissionContext,
+}
+
+impl AsRef<CreditRegistration> for Resolvable {
+    fn as_ref(&self) -> &CreditRegistration {
+        &self.registration
+    }
+}
+
 impl SuotarBatchPhase for ResolveEnrolments {
-    /// The frozen context travels with the row: the answer is applied against what was asked, not
-    /// against a second read of the database.
-    type Row = (CreditRegistration, SubmissionContext);
-    type Item = ResolveEnrolmentRequestItem;
-    type Result = EnrolmentResolutionResult;
+    type Endpoint = endpoints::ResolveEnrolments;
+    type Row = Resolvable;
 
+    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::ResolveEnrolments;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every item of the batch came back unavailable.";
-    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolveEnrolments;
 
-    async fn prepare(
+    async fn claim(
         &mut self,
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
         let claimed = claim_due_for_resolve(conn, scope, limit as i64).await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
@@ -116,7 +123,11 @@ impl SuotarBatchPhase for ResolveEnrolments {
                         student_number: item.student_number.into(),
                         course_code: item.course_code,
                     };
-                    prepared.sendable.push(((row, context), request));
+                    let resolvable = Resolvable {
+                        registration: row,
+                        context,
+                    };
+                    prepared.sendable.push((resolvable, request));
                 }
                 Err(problem) => {
                     if let Preflight::Config(code) = &problem {
@@ -135,34 +146,14 @@ impl SuotarBatchPhase for ResolveEnrolments {
         Ok(prepared)
     }
 
-    fn registration((row, _): &Self::Row) -> &CreditRegistration {
-        row
-    }
-
-    fn sent_student_number((_, context): &Self::Row) -> Option<&DbSecret> {
-        context.student_number.as_ref()
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
-        ctx.suotar_client
-            .resolve_enrolments(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ResolveEnrolments))
-                    .for_registrations(rows.iter().map(|(row, _)| row.id).collect()),
-                items,
-            )
-            .await
-    }
-
     async fn apply(
         &self,
         conn: &mut PgConnection,
-        (row, context): &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        Resolvable {
+            registration: row,
+            context,
+        }: &Self::Row,
+        item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied> {
         let enrolments = item
@@ -192,47 +183,10 @@ impl SuotarBatchPhase for ResolveEnrolments {
         .await
     }
 
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        (row, _): &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_request_level_outcome(
-            conn,
-            SuotarEndpoint::ResolveEnrolments,
-            row,
-            request,
-            request_item_id,
-            error,
-            lookup_state(row),
-        )
-        .await
-    }
-
-    fn isolates_request_rejection(error: &SuotarError) -> bool {
-        is_malformed_request(error)
-    }
-
-    async fn apply_isolated_rejection(
-        &self,
-        conn: &mut PgConnection,
-        (row, _): &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_isolated_malformed_request(
-            conn,
-            row,
-            request,
-            request_item_id,
-            error,
-            lookup_state(row),
-        )
-        .await
+    fn on_refusal(&self, resolvable: &Self::Row) -> Refusal {
+        Refusal::RequestLevel {
+            in_flight: lookup_state(&resolvable.registration),
+        }
     }
 }
 

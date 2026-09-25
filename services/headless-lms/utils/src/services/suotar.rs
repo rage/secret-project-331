@@ -100,6 +100,58 @@ impl SuotarEndpoint {
     }
 }
 
+/// The item and result types of one endpoint, tied together so a caller cannot pair an import item
+/// with a verify result.
+pub trait BatchEndpoint {
+    type Item: SuotarRequestItem + Clone;
+    type Result: DeserializeOwned;
+    const ENDPOINT: SuotarEndpoint;
+}
+
+/// One marker type per [`SuotarEndpoint`], for [`SuotarClient::post`].
+pub mod endpoints {
+    use super::*;
+
+    macro_rules! batch_endpoint {
+        ($name:ident, $item:ty, $result:ty) => {
+            pub struct $name;
+
+            impl BatchEndpoint for $name {
+                type Item = $item;
+                type Result = $result;
+                const ENDPOINT: SuotarEndpoint = SuotarEndpoint::$name;
+            }
+        };
+    }
+
+    batch_endpoint!(ResolvePersons, ResolvePersonRequestItem, PersonResult);
+    batch_endpoint!(
+        ResolveEnrolments,
+        ResolveEnrolmentRequestItem,
+        EnrolmentResolutionResult
+    );
+    batch_endpoint!(
+        ImportAttainments,
+        ImportAttainmentRequestItem,
+        ImportAttainmentResult
+    );
+    batch_endpoint!(
+        VerifyAttainments,
+        VerifyAttainmentRequestItem,
+        VerifyAttainmentResult
+    );
+    batch_endpoint!(
+        ListByCourse,
+        ListByCourseRequestItem,
+        EnrolmentsListedResult
+    );
+    batch_endpoint!(
+        ValidateCourseCodes,
+        ValidateCourseCodeRequestItem,
+        ValidateCourseCodeResult
+    );
+}
+
 /// A fresh requestItemId for one item of one call.
 pub fn new_request_item_id() -> String {
     Uuid::new_v4().to_string()
@@ -111,10 +163,14 @@ pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
     /// Gives the item a fresh requestItemId, for sending it again in another call.
     fn renew_request_item_id(&mut self);
+    /// The student number the item asks about, for the items that carry one.
+    fn student_number(&self) -> Option<&SecretString> {
+        None
+    }
 }
 
 macro_rules! request_item {
-    ($name:ident) => {
+    ($name:ident $(, $student_number:ident)?) => {
         impl SuotarRequestItem for $name {
             fn request_item_id(&self) -> &str {
                 &self.request_item_id
@@ -123,6 +179,12 @@ macro_rules! request_item {
             fn renew_request_item_id(&mut self) {
                 self.request_item_id = new_request_item_id();
             }
+
+            $(
+                fn student_number(&self) -> Option<&SecretString> {
+                    Some(&self.$student_number)
+                }
+            )?
         }
     };
 }
@@ -134,7 +196,7 @@ pub struct ResolvePersonRequestItem {
     #[serde(serialize_with = "serialize_exposed")]
     pub student_number: SecretString,
 }
-request_item!(ResolvePersonRequestItem);
+request_item!(ResolvePersonRequestItem, student_number);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -144,7 +206,7 @@ pub struct ResolveEnrolmentRequestItem {
     pub student_number: SecretString,
     pub course_code: String,
 }
-request_item!(ResolveEnrolmentRequestItem);
+request_item!(ResolveEnrolmentRequestItem, student_number);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -160,7 +222,7 @@ pub struct ImportAttainmentRequestItem {
     pub grade_id: String,
     pub credits: f64,
 }
-request_item!(ImportAttainmentRequestItem);
+request_item!(ImportAttainmentRequestItem, student_number);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -818,58 +880,13 @@ impl SuotarClient {
         self.exchanges.load(Ordering::Relaxed)
     }
 
-    pub async fn resolve_persons(
+    /// Sends one batch to `E`'s endpoint. An empty batch is not sent.
+    pub async fn post<E: BatchEndpoint>(
         &self,
         context: SuotarCallContext,
-        items: Vec<ResolvePersonRequestItem>,
-    ) -> Result<SuotarBatchResponse<PersonResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::ResolvePersons, context, items)
-            .await
-    }
-
-    pub async fn resolve_enrolments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ResolveEnrolmentRequestItem>,
-    ) -> Result<SuotarBatchResponse<EnrolmentResolutionResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::ResolveEnrolments, context, items)
-            .await
-    }
-
-    pub async fn import_attainments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ImportAttainmentRequestItem>,
-    ) -> Result<SuotarBatchResponse<ImportAttainmentResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::ImportAttainments, context, items)
-            .await
-    }
-
-    pub async fn verify_attainments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<VerifyAttainmentRequestItem>,
-    ) -> Result<SuotarBatchResponse<VerifyAttainmentResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::VerifyAttainments, context, items)
-            .await
-    }
-
-    pub async fn list_enrolments_by_course(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ListByCourseRequestItem>,
-    ) -> Result<SuotarBatchResponse<EnrolmentsListedResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::ListByCourse, context, items)
-            .await
-    }
-
-    pub async fn validate_course_codes(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ValidateCourseCodeRequestItem>,
-    ) -> Result<SuotarBatchResponse<ValidateCourseCodeResult>, SuotarError> {
-        self.post_batch(SuotarEndpoint::ValidateCourseCodes, context, items)
-            .await
+        items: Vec<E::Item>,
+    ) -> Result<SuotarBatchResponse<E::Result>, SuotarError> {
+        self.post_batch(E::ENDPOINT, context, items).await
     }
 
     async fn post_batch<T: SuotarRequestItem, R: DeserializeOwned>(

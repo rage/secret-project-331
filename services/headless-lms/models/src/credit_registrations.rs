@@ -598,6 +598,13 @@ impl CreditRegistration {
     }
 }
 
+/// Lets code generic over rows that carry a registration take a bare one too.
+impl AsRef<CreditRegistration> for CreditRegistration {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
 /// Whether a row is waiting for an enrolment: parked without a usable one, check schedule started
 /// or not, or on its first check or a retry on its way there. Only such a row is moved by a visit or
 /// a check request, and kept waiting through a lookup that fails in transit.

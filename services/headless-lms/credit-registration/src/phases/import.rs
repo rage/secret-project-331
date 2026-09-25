@@ -22,13 +22,11 @@ use headless_lms_models::library::credit_registration::outcomes::{
     import_success_outcome, import_success_state, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
 };
-use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{ModelError, ModelResult};
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
-    ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
-    SuotarCallContext, SuotarEndpoint, SuotarError, SuotarItemStatus, SuotarResponseItem,
-    new_request_item_id,
+    ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarEndpoint,
+    SuotarItemStatus, SuotarResponseItem, endpoints, new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection};
@@ -36,10 +34,7 @@ use std::collections::HashSet;
 use uuid::Uuid;
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
-use crate::batch_phase::{
-    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
-    is_malformed_request, run_suotar_batch_phase,
-};
+use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
 use crate::dispatch::PhaseContext;
 use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
@@ -58,21 +53,20 @@ struct Import;
 const DUPLICATE_REQUEST_ITEM_CODE: &str = "duplicateRequestItem";
 
 impl SuotarBatchPhase for Import {
+    type Endpoint = endpoints::ImportAttainments;
     type Row = CreditRegistration;
-    type Item = ImportAttainmentRequestItem;
-    type Result = ImportAttainmentResult;
 
+    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Import;
     const ALL_UNAVAILABLE_ERROR: &'static str =
         "Every item of the batch timed out in Sisu or came back unavailable.";
-    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ImportAttainments;
 
-    async fn prepare(
+    async fn claim(
         &mut self,
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, ImportAttainmentRequestItem>> {
         let claimed = claim_due_for_import(conn, scope, limit as i64).await?;
         // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
         // submission for the same completion.
@@ -123,61 +117,20 @@ impl SuotarBatchPhase for Import {
         Ok(prepared)
     }
 
-    fn registration(row: &Self::Row) -> &CreditRegistration {
-        row
-    }
-
-    fn sent_student_number(row: &Self::Row) -> Option<&DbSecret> {
-        row.student_number.as_ref()
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
-        ctx.suotar_client
-            .import_attainments(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Import))
-                    .for_registrations(rows.iter().map(|row| row.id).collect()),
-                items,
-            )
-            .await
-    }
-
     async fn apply(
         &self,
         conn: &mut PgConnection,
         row: &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        item: Option<&SuotarResponseItem<ImportAttainmentResult>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied> {
         apply_answer(conn, row, item, event).await
     }
 
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_request_level_outcome(
-            conn,
-            SuotarEndpoint::ImportAttainments,
-            row,
-            request,
-            request_item_id,
-            error,
-            CreditRegistrationState::Submitting,
-        )
-        .await
-    }
-
-    fn isolates_request_rejection(error: &SuotarError) -> bool {
-        is_malformed_request(error)
+    fn on_refusal(&self, _row: &Self::Row) -> Refusal {
+        Refusal::RequestLevel {
+            in_flight: CreditRegistrationState::Submitting,
+        }
     }
 
     async fn keep_in_flight(
@@ -211,25 +164,6 @@ impl SuotarBatchPhase for Import {
             .await?;
         }
         Ok(())
-    }
-
-    async fn apply_isolated_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_isolated_malformed_request(
-            conn,
-            row,
-            request,
-            request_item_id,
-            error,
-            CreditRegistrationState::Submitting,
-        )
-        .await
     }
 }
 

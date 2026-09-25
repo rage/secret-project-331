@@ -23,17 +23,17 @@ use headless_lms_models::library::credit_registration::submission_context::get_s
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
-    SuotarAttainment, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarError,
-    SuotarItemStatus, SuotarResponseItem, VerifyAttainmentRequestItem, VerifyAttainmentResult,
-    new_request_item_id,
+    SuotarAttainment, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    VerifyAttainmentRequestItem, VerifyAttainmentResult, endpoints, new_request_item_id,
 };
 use sqlx::{Connection, PgConnection};
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
-use crate::batch_phase::{Prepared, SuotarBatchPhase, run_suotar_batch_phase};
-use crate::dispatch::PhaseContext;
+use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
+use crate::dispatch::{PhaseContext, claim_limit};
 use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::{breaker, rate_limit};
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
 /// without any query having to know about withdrawal.
@@ -61,55 +61,19 @@ pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
 ) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let mut tx = conn.begin().await?;
-    let claimed = claim_due(
-        &mut tx,
-        &CLAIMED_STATES,
+    let key = breaker::ScopeKey::of(scope);
+    let recovery_limit = if breaker::is_half_open(&key, breaker::BreakerTarget::StudyRegistry) {
+        1
+    } else {
+        rate_limit::available(&key, SuotarEndpoint::ResolveEnrolments)
+    };
+    let (polls, mut recoveries) = claim_polls(
+        ctx,
         scope,
-        SuotarEndpoint::VerifyAttainments.max_batch_size() as i64,
+        claim_limit(&key, SuotarEndpoint::VerifyAttainments),
+        recovery_limit,
     )
     .await?;
-    let attempts = increment_verify_attempt_counts(
-        &mut tx,
-        &claimed.iter().map(|row| row.id).collect::<Vec<_>>(),
-    )
-    .await?;
-    // Pushed out of reach before the request leaves, so a concurrent iteration cannot poll the same
-    // row. Each answer overwrites its own row's schedule.
-    let now = Utc::now();
-    let scheduled: Vec<_> = attempts
-        .iter()
-        .map(|(id, attempt)| (*id, verify_poll_lease_until(now, *attempt)))
-        .collect();
-    schedule_next_attempts(&mut tx, &scheduled).await?;
-
-    let mut polls = Vec::new();
-    let mut recoveries = Vec::new();
-    for row in claimed {
-        let Some(attempt) = attempts.get(&row.id).copied() else {
-            continue;
-        };
-        match row.submitted_attainment_id.clone() {
-            Some(submitted_attainment_id) => polls.push(Poll {
-                row,
-                attempt,
-                submitted_attainment_id,
-            }),
-            None if row.state == CreditRegistrationState::SubmissionUncertain => {
-                recoveries.push(Recovery { row, attempt })
-            }
-            None => {
-                error!(
-                    credit_registration_id = %row.id,
-                    "Credit registration is awaiting verification with no submitted attainment id; stuck"
-                );
-            }
-        }
-    }
-    tx.commit().await?;
-    // Held only for the claim; the two flows below re-acquire around their own Suotar calls.
-    drop(conn);
 
     let mut outcome = PhaseRunOutcome::default();
     if !polls.is_empty() {
@@ -133,6 +97,75 @@ pub(crate) async fn run(
     Ok(outcome)
 }
 
+/// Claims up to `poll_limit` due rows and splits them into polls and recoveries, keeping at most
+/// `recovery_limit` of the recoveries. Only the rows kept, and the stuck ones, count an attempt and
+/// are leased: the rest are left due, rather than counted as polled without having been asked.
+async fn claim_polls(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+    poll_limit: usize,
+    recovery_limit: usize,
+) -> CreditRegistrationResult<(Vec<Poll>, Vec<Recovery>)> {
+    if poll_limit == 0 {
+        return Ok((Vec::new(), Vec::new()));
+    }
+    let mut conn = ctx.pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    let claimed = claim_due(&mut tx, &CLAIMED_STATES, scope, poll_limit as i64).await?;
+    let mut recovery_count = 0;
+    let kept: Vec<CreditRegistration> = claimed
+        .into_iter()
+        .filter(|row| {
+            let is_recovery = row.submitted_attainment_id.is_none()
+                && row.state == CreditRegistrationState::SubmissionUncertain;
+            if !is_recovery {
+                return true;
+            }
+            recovery_count += 1;
+            recovery_count <= recovery_limit
+        })
+        .collect();
+    let attempts = increment_verify_attempt_counts(
+        &mut tx,
+        &kept.iter().map(|row| row.id).collect::<Vec<_>>(),
+    )
+    .await?;
+    // Pushed out of reach before the request leaves, so a concurrent iteration cannot poll the same
+    // row. Each answer overwrites its own row's schedule.
+    let now = Utc::now();
+    let scheduled: Vec<_> = attempts
+        .iter()
+        .map(|(id, attempt)| (*id, verify_poll_lease_until(now, *attempt)))
+        .collect();
+    schedule_next_attempts(&mut tx, &scheduled).await?;
+
+    let mut polls = Vec::new();
+    let mut recoveries = Vec::new();
+    for row in kept {
+        let Some(attempt) = attempts.get(&row.id).copied() else {
+            continue;
+        };
+        match row.submitted_attainment_id.clone() {
+            Some(submitted_attainment_id) => polls.push(Poll {
+                row,
+                attempt,
+                submitted_attainment_id,
+            }),
+            None if row.state == CreditRegistrationState::SubmissionUncertain => {
+                recoveries.push(Recovery { row, attempt })
+            }
+            None => {
+                error!(
+                    credit_registration_id = %row.id,
+                    "Credit registration is awaiting verification with no submitted attainment id; stuck"
+                );
+            }
+        }
+    }
+    tx.commit().await?;
+    Ok((polls, recoveries))
+}
+
 /// Sums what the two flows of one iteration did; the first error stands for the iteration.
 fn add(total: &mut PhaseRunOutcome, part: PhaseRunOutcome) {
     total.items_processed += part.items_processed;
@@ -149,22 +182,21 @@ struct VerifyPoll {
 }
 
 impl SuotarBatchPhase for VerifyPoll {
+    type Endpoint = endpoints::VerifyAttainments;
     type Row = Poll;
-    type Item = VerifyAttainmentRequestItem;
-    type Result = VerifyAttainmentResult;
 
+    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Verify;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
-    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::VerifyAttainments;
 
-    /// The rows are claimed by the phase itself, which splits them between this flow and the
-    /// recovery one, so there is nothing left to decide here, and `limit` is not applied.
-    async fn prepare(
+    /// The rows were claimed by [`claim_polls`], at this endpoint's limit, so there is nothing left
+    /// to decide here.
+    async fn claim(
         &mut self,
         _ctx: &PhaseContext<'_>,
         _conn: &mut PgConnection,
         _scope: &PhaseScope,
         _limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, VerifyAttainmentRequestItem>> {
         Ok(Prepared {
             sendable: std::mem::take(&mut self.polls)
                 .into_iter()
@@ -180,30 +212,11 @@ impl SuotarBatchPhase for VerifyPoll {
         })
     }
 
-    fn registration(poll: &Self::Row) -> &CreditRegistration {
-        &poll.row
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
-        ctx.suotar_client
-            .verify_attainments(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
-                    .for_registrations(rows.iter().map(|poll| poll.row.id).collect()),
-                items,
-            )
-            .await
-    }
-
     async fn apply(
         &self,
         conn: &mut PgConnection,
         poll: &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        item: Option<&SuotarResponseItem<VerifyAttainmentResult>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied> {
         apply_poll_answer(conn, poll, item, event).await
@@ -212,28 +225,17 @@ impl SuotarBatchPhase for VerifyPoll {
     /// Deliberately not the shared request-level outcome: a failure to ask proves nothing was or
     /// was not created, and moving the row towards `failed_retryable` would let an admin resubmit
     /// it. The iteration is still reported as failed, so the breaker sees it.
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        poll: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_outcome(
-            conn,
-            &poll.row,
-            &verify_inconclusive_outcome(poll.row.state, &poll.facts()),
-            OutcomeEvent {
-                message: Some("Could not verify this submission this time."),
-                error_message: Some(error.message()),
-                request_item_id: Some(request_item_id),
-                request: Some(request),
-                ..OutcomeEvent::default()
-            },
-            Some(poll.row.state),
-        )
-        .await
+    fn on_refusal(&self, poll: &Self::Row) -> Refusal {
+        Refusal::KeepWaiting {
+            outcome: verify_inconclusive_outcome(poll.row.state, &poll.facts()),
+            message: "Could not verify this submission this time.",
+        }
+    }
+}
+
+impl AsRef<CreditRegistration> for Poll {
+    fn as_ref(&self) -> &CreditRegistration {
+        &self.row
     }
 }
 
@@ -384,25 +386,23 @@ struct UncertainRecovery {
 }
 
 impl SuotarBatchPhase for UncertainRecovery {
+    type Endpoint = endpoints::ResolveEnrolments;
     type Row = Recovery;
-    type Item = ResolveEnrolmentRequestItem;
-    type Result = EnrolmentResolutionResult;
 
+    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Verify;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
-    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolveEnrolments;
 
-    /// A row with nothing to ask about is left where it is: it is uncertain, which no answer of
-    /// ours may turn into a failure, and it is already scheduled for the next check.
-    async fn prepare(
+    /// The rows were claimed by [`claim_polls`], already fit to this endpoint's limit. A row with
+    /// nothing to ask about is left where it is: it is uncertain, which no answer of ours may turn
+    /// into a failure, and it is already scheduled for the next check.
+    async fn claim(
         &mut self,
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         _scope: &PhaseScope,
-        limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
-        // Past the limit, a row waits out the lease its poll set.
-        let mut recoveries = std::mem::take(&mut self.recoveries);
-        recoveries.truncate(limit);
+        _limit: usize,
+    ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
+        let recoveries = std::mem::take(&mut self.recoveries);
         let contexts = get_submission_contexts(
             conn,
             &recoveries
@@ -440,30 +440,11 @@ impl SuotarBatchPhase for UncertainRecovery {
         Ok(prepared)
     }
 
-    fn registration(recovery: &Self::Row) -> &CreditRegistration {
-        &recovery.row
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
-        ctx.suotar_client
-            .resolve_enrolments(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
-                    .for_registrations(rows.iter().map(|recovery| recovery.row.id).collect()),
-                items,
-            )
-            .await
-    }
-
     async fn apply(
         &self,
         conn: &mut PgConnection,
         recovery: &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied> {
         apply_recovery_answer(conn, recovery, item, event).await
@@ -471,28 +452,17 @@ impl SuotarBatchPhase for UncertainRecovery {
 
     /// Not the shared request-level outcome either: these rows must stay uncertain whatever the
     /// call did.
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        recovery: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_outcome(
-            conn,
-            &recovery.row,
-            &uncertain_recheck_outcome(&recovery.facts()),
-            OutcomeEvent {
-                message: Some("Could not check Sisu for the credits this time."),
-                error_message: Some(error.message()),
-                request_item_id: Some(request_item_id),
-                request: Some(request),
-                ..OutcomeEvent::default()
-            },
-            Some(recovery.row.state),
-        )
-        .await
+    fn on_refusal(&self, recovery: &Self::Row) -> Refusal {
+        Refusal::KeepWaiting {
+            outcome: uncertain_recheck_outcome(&recovery.facts()),
+            message: "Could not check Sisu for the credits this time.",
+        }
+    }
+}
+
+impl AsRef<CreditRegistration> for Recovery {
+    fn as_ref(&self) -> &CreditRegistration {
+        &self.row
     }
 }
 

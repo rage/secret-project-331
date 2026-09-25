@@ -12,10 +12,9 @@ use headless_lms_models::library::credit_registration::enrolment_checks::{
     self, EnrolmentCheckAnswer, record_enrolment_check,
 };
 use headless_lms_models::library::credit_registration::outcomes::{Outcome, RowFacts};
-use headless_lms_models::secret::DbSecret;
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::prelude::Utc;
-use secrecy::ExposeSecret;
+use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Connection, PgConnection};
 use uuid::Uuid;
 
@@ -147,7 +146,7 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
 pub(crate) struct OutcomeEvent<'a> {
     /// The student number this row's request actually carried, which may no longer be the linked
     /// one by the time the answer is applied.
-    pub sent_student_number: Option<&'a DbSecret>,
+    pub sent_student_number: Option<&'a SecretString>,
     pub message: Option<&'a str>,
     /// Persisted on the ledger row, so it is scrubbed before it is written.
     pub error_message: Option<&'a str>,

@@ -20,7 +20,7 @@ use headless_lms_models::library::credit_registration::account_linking::{
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarItemStatus,
-    new_request_item_id,
+    endpoints, new_request_item_id,
 };
 use std::collections::BTreeSet;
 use uuid::Uuid;
@@ -67,7 +67,7 @@ pub async fn resend_linking_mail(
     // the caller is waiting in the browser, so only a single code has a chance of answering within
     // the interactive timeout.
     let responses = join_all(course_codes.into_iter().map(|course_code| {
-        ctx.suotar_client.list_enrolments_by_course(
+        ctx.suotar_client.post::<endpoints::ListByCourse>(
             SuotarCallContext::new(worker_name(
                 ctx.caller,
                 CreditRegistrationPhase::EnrolmentDiscovery,
@@ -270,7 +270,7 @@ pub async fn resolve_person(
     let request_item_id = new_request_item_id();
     let response = ctx
         .suotar_client
-        .resolve_persons(
+        .post::<endpoints::ResolvePersons>(
             SuotarCallContext::new(ctx.caller).interactive(),
             vec![ResolvePersonRequestItem {
                 request_item_id: request_item_id.clone(),

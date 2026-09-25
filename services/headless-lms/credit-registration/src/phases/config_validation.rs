@@ -17,7 +17,7 @@ use headless_lms_models::library::credit_registration::config_validation::{
 };
 use headless_lms_utils::services::suotar::{
     SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
-    ValidateCourseCodeRequestItem, ValidateCourseCodeResult, new_request_item_id,
+    ValidateCourseCodeRequestItem, ValidateCourseCodeResult, endpoints, new_request_item_id,
 };
 use itertools::Itertools;
 
@@ -54,7 +54,7 @@ pub(crate) async fn run(
             .collect();
         let response = ctx
             .suotar_client
-            .validate_course_codes(
+            .post::<endpoints::ValidateCourseCodes>(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ConfigValidation)),
                 items.clone(),
             )

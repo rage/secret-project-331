@@ -7,12 +7,11 @@ use headless_lms_models::library::credit_registration::classification::{
     is_service_unavailable_code, is_sisu_timeout_code,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
-    isolated_malformed_request_outcome, request_level_outcome,
+    Outcome, isolated_malformed_request_outcome, request_level_outcome,
 };
-use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::services::suotar::{
-    SuotarBatchResponse, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus,
-    SuotarRequestItem, SuotarResponseItem,
+    BatchEndpoint, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarError,
+    SuotarErrorVariant, SuotarItemStatus, SuotarRequestItem, SuotarResponseItem,
 };
 use itertools::izip;
 use sqlx::{Connection, PgConnection};
@@ -20,7 +19,7 @@ use sqlx::{Connection, PgConnection};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::dispatch::{PhaseContext, claim_limit};
 use crate::error::CreditRegistrationResult;
-use crate::phase::PhaseScope;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 use crate::{breaker, rate_limit};
 
 /// What one iteration of a [`SuotarBatchPhase`] settled before it sent anything.
@@ -43,74 +42,46 @@ impl<Row, Item> Default for Prepared<Row, Item> {
     }
 }
 
+/// The request item of a [`SuotarBatchPhase`].
+pub(crate) type ItemOf<P> = <<P as SuotarBatchPhase>::Endpoint as BatchEndpoint>::Item;
+/// The per-item result body of a [`SuotarBatchPhase`].
+pub(crate) type ResultOf<P> = <<P as SuotarBatchPhase>::Endpoint as BatchEndpoint>::Result;
+
 /// A phase whose iteration is "claim rows, decide in one transaction what may be asked, send one
 /// batch, write one answer per row". `import`, `resolve-enrolments`, and each of `verify`'s two
 /// flows; [`run_suotar_batch_phase`] is the loop they share, and the only place the transaction
-/// shape, the moved-on skipping and the counters are written down.
+/// shape, the sending, the refusals, the moved-on skipping and the counters are written down.
 pub(crate) trait SuotarBatchPhase {
+    type Endpoint: BatchEndpoint;
     /// A row to send for, with whatever its preflight read alongside it.
-    type Row;
-    /// The request item, which is also what the audit log records as sent.
-    type Item: SuotarRequestItem + Clone;
-    /// The endpoint's per-item result body.
-    type Result;
+    type Row: AsRef<CreditRegistration>;
 
+    /// The phase the audit log names as the caller.
+    const PHASE: CreditRegistrationPhase;
     /// The iteration's error when every item came back unavailable.
     const ALL_UNAVAILABLE_ERROR: &'static str;
-    /// The endpoint [`Self::send`] calls, whose limiter every send spends and a failed iteration
-    /// drops.
-    const ENDPOINT: SuotarEndpoint;
 
     /// Claims at most `limit` rows and decides what may be asked about them. Whatever has to be
     /// true before the request leaves is written here, in the caller's transaction.
-    async fn prepare(
+    async fn claim(
         &mut self,
         ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>>;
-
-    fn registration(row: &Self::Row) -> &CreditRegistration;
-
-    /// The student number this row's request carried, where it carried one: a number the registry
-    /// rejects may only cost the link it was sent under.
-    fn sent_student_number(_row: &Self::Row) -> Option<&DbSecret> {
-        None
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError>;
+    ) -> CreditRegistrationResult<Prepared<Self::Row, ItemOf<Self>>>;
 
     /// Applies one answer, or the absence of one, to its row.
     async fn apply(
         &self,
         conn: &mut PgConnection,
         row: &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        item: Option<&SuotarResponseItem<ResultOf<Self>>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied>;
 
-    /// What one row gets when the study registry rejected the whole request.
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied>;
-
-    /// Whether a whole-request refusal is one that some rows of the batch alone may have caused, and
-    /// that proves nothing was acted on: the batch is then split in halves, each sent again, until
-    /// the rows it keeps refusing are alone in their batch.
-    fn isolates_request_rejection(_error: &SuotarError) -> bool {
-        false
-    }
+    /// What one row gets when the study registry refused the whole request.
+    fn on_refusal(&self, row: &Self::Row) -> Refusal;
 
     /// Called before each send after a split, with every row the split still holds, so the ones
     /// waiting their turn are not taken for a worker that died mid-call.
@@ -131,20 +102,20 @@ pub(crate) trait SuotarBatchPhase {
     ) -> CreditRegistrationResult<()> {
         Ok(())
     }
+}
 
-    /// What a row gets when [`Self::isolates_request_rejection`] still refuses it in a batch of its
-    /// own.
-    async fn apply_isolated_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        self.apply_request_rejection(conn, row, request, request_item_id, error)
-            .await
-    }
+/// What a row of a refused request is written as.
+pub(crate) enum Refusal {
+    /// The shared request-level outcome, with the row expected to still wait in `in_flight`. A
+    /// malformed-request refusal proves nothing was acted on, and may be down to one row alone, so
+    /// the batch is split in halves until the rows it keeps refusing are alone in theirs.
+    RequestLevel { in_flight: CreditRegistrationState },
+    /// Whatever the refusal, the row keeps waiting where it is, as `outcome` says: a failure to ask
+    /// proves nothing about a submission that may have landed. Never split.
+    KeepWaiting {
+        outcome: Outcome,
+        message: &'static str,
+    },
 }
 
 /// Runs one iteration of a [`SuotarBatchPhase`].
@@ -158,13 +129,14 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     scope: &PhaseScope,
 ) -> CreditRegistrationResult<PhaseRunOutcome> {
     let limiter_key = breaker::ScopeKey::of(scope);
-    let limit = claim_limit(&limiter_key, P::ENDPOINT);
+    let endpoint = P::Endpoint::ENDPOINT;
+    let limit = claim_limit(&limiter_key, endpoint);
     if limit == 0 {
         return Ok(PhaseRunOutcome::default());
     }
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let prepared = phase.prepare(ctx, &mut tx, scope, limit).await?;
+    let prepared = phase.claim(ctx, &mut tx, scope, limit).await?;
     tx.commit().await?;
     // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
     drop(conn);
@@ -208,16 +180,22 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             .map(|item| item.request_item_id().to_string())
             .collect();
 
-        rate_limit::take(&limiter_key, P::ENDPOINT, rows.len());
-        let response = match phase.send(ctx, &rows, items.clone()).await {
+        rate_limit::take(&limiter_key, endpoint, rows.len());
+        let call = SuotarCallContext::new(ctx.worker_name(P::PHASE))
+            .for_registrations(rows.iter().map(|row| row.as_ref().id).collect());
+        let sent = ctx
+            .suotar_client
+            .post::<P::Endpoint>(call, items.clone())
+            .await;
+        let response = match sent {
             Ok(response) => response,
-            Err(send_error) if P::isolates_request_rejection(&send_error) && rows.len() > 1 => {
+            Err(send_error) if isolates(phase, &rows, &send_error) && rows.len() > 1 => {
                 warn!(
                     batch_size = rows.len(),
                     error = send_error.message(),
                     "The study registry refused a batch as a whole; splitting it to find the rows it refuses"
                 );
-                let mut halves: Vec<(P::Row, P::Item)> = rows
+                let mut halves: Vec<(P::Row, ItemOf<P>)> = rows
                     .into_iter()
                     .zip(items.into_iter().map(|mut item| {
                         item.renew_request_item_id();
@@ -231,36 +209,25 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                 continue;
             }
             Err(send_error) => {
-                let isolated = P::isolates_request_rejection(&send_error);
+                let isolated = isolates(phase, &rows, &send_error);
                 let mut conn = ctx.pool.acquire().await?;
                 for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
-                    let applied = if isolated {
-                        phase
-                            .apply_isolated_rejection(
-                                &mut conn,
-                                row,
-                                request,
-                                request_item_id,
-                                &send_error,
-                            )
-                            .await
-                    } else {
-                        phase
-                            .apply_request_rejection(
-                                &mut conn,
-                                row,
-                                request,
-                                request_item_id,
-                                &send_error,
-                            )
-                            .await
-                    };
-                    count_applied(
-                        applied?,
-                        P::registration(row),
-                        &mut processed,
-                        &mut items_failed,
-                    );
+                    let applied = apply_refusal(
+                        &mut conn,
+                        endpoint,
+                        row.as_ref(),
+                        phase.on_refusal(row),
+                        isolated,
+                        OutcomeEvent {
+                            error_message: Some(send_error.message()),
+                            request_item_id: Some(request_item_id),
+                            request: Some(request),
+                            ..OutcomeEvent::default()
+                        },
+                        &send_error,
+                    )
+                    .await?;
+                    count_applied(applied, row.as_ref(), &mut processed, &mut items_failed);
                 }
                 if isolated {
                     isolated_rejection = Some(scrub_text(send_error.message()));
@@ -274,25 +241,22 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
         has_answer = true;
 
         let mut conn = ctx.pool.acquire().await?;
-        for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
+        for (row, item, request, request_item_id) in
+            izip!(&rows, &items, &requests, &request_item_ids)
+        {
             let response_json = response_item_json(&response.raw_response, request_item_id);
             let event = OutcomeEvent {
                 suotar_api_call_id: response.call_id,
                 request_item_id: Some(request_item_id),
                 request: Some(request),
                 response: response_json.as_ref(),
-                sent_student_number: P::sent_student_number(row),
+                sent_student_number: item.student_number(),
                 ..OutcomeEvent::default()
             };
             let applied = phase
                 .apply(&mut conn, row, response.item(request_item_id), event)
-                .await;
-            count_applied(
-                applied?,
-                P::registration(row),
-                &mut processed,
-                &mut items_failed,
-            );
+                .await?;
+            count_applied(applied, row.as_ref(), &mut processed, &mut items_failed);
         }
         if every_item_service_unavailable(&response) {
             error = Some(P::ALL_UNAVAILABLE_ERROR.to_string());
@@ -304,7 +268,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     }
 
     if has_suotar_failure {
-        rate_limit::drop_to_floor(&limiter_key, &[P::ENDPOINT]);
+        rate_limit::drop_to_floor(&limiter_key, &[endpoint]);
     }
     if error.is_none() && !has_answer && isolated_rejection.is_some() {
         error = isolated_rejection;
@@ -377,61 +341,50 @@ pub(crate) fn every_item_service_unavailable<R>(response: &SuotarBatchResponse<R
         })
 }
 
-/// Applies one request-level outcome to one row of a batch the study registry rejected whole.
-///
-/// `expected_from_state` is the state the phase's own preflight put every row in, since the rows
-/// were read before that transition and are stale by the time this runs.
-pub(crate) async fn apply_request_level_outcome(
+/// Whether a refusal of this batch is one some of its rows alone may have caused, and that proves
+/// nothing was acted on: Suotar validates every item before acting on any, so one bad row takes
+/// its whole batch down with a malformed-request refusal.
+fn isolates<P: SuotarBatchPhase>(phase: &P, rows: &[P::Row], error: &SuotarError) -> bool {
+    error.variant == SuotarErrorVariant::MalformedRequest
+        && rows
+            .iter()
+            .all(|row| matches!(phase.on_refusal(row), Refusal::RequestLevel { .. }))
+}
+
+/// Writes what `refusal` says to one row of a refused request. `is_isolated` when a malformed
+/// request was refused even with the row alone in it, which resending cannot fix, so it needs a
+/// human.
+async fn apply_refusal(
     conn: &mut PgConnection,
     endpoint: SuotarEndpoint,
     row: &CreditRegistration,
-    request: &serde_json::Value,
-    request_item_id: &str,
+    refusal: Refusal,
+    is_isolated: bool,
+    event: OutcomeEvent<'_>,
     error: &SuotarError,
-    expected_from_state: CreditRegistrationState,
 ) -> CreditRegistrationResult<Applied> {
-    let outcome = request_level_outcome(endpoint, error.variant, &row_facts(row));
+    // `in_flight` is the state the phase's own claim put the row in: the row was read before that
+    // move, so its own state is stale by now.
+    let (outcome, message, expected_from_state) = match refusal {
+        Refusal::RequestLevel { in_flight } if is_isolated => (
+            isolated_malformed_request_outcome(),
+            "Sisu did not accept this row even when it was sent alone.",
+            in_flight,
+        ),
+        Refusal::RequestLevel { in_flight } => (
+            request_level_outcome(endpoint, error.variant, &row_facts(row)),
+            "Sisu did not accept the whole request.",
+            in_flight,
+        ),
+        Refusal::KeepWaiting { outcome, message } => (outcome, message, row.state),
+    };
     apply_outcome(
         conn,
         row,
         &outcome,
         OutcomeEvent {
-            message: Some("Sisu did not accept the whole request."),
-            error_message: Some(error.message()),
-            request_item_id: Some(request_item_id),
-            request: Some(request),
-            ..OutcomeEvent::default()
-        },
-        Some(expected_from_state),
-    )
-    .await
-}
-
-/// Suotar validates every item before acting on any, so a malformed-request refusal proves nothing
-/// was acted on, and one bad row takes its whole batch down with it.
-pub(crate) fn is_malformed_request(error: &SuotarError) -> bool {
-    error.variant == SuotarErrorVariant::MalformedRequest
-}
-
-/// Fails, for a human to look at, a row Suotar refused as malformed even in a batch of its own.
-pub(crate) async fn apply_isolated_malformed_request(
-    conn: &mut PgConnection,
-    row: &CreditRegistration,
-    request: &serde_json::Value,
-    request_item_id: &str,
-    error: &SuotarError,
-    expected_from_state: CreditRegistrationState,
-) -> CreditRegistrationResult<Applied> {
-    apply_outcome(
-        conn,
-        row,
-        &isolated_malformed_request_outcome(),
-        OutcomeEvent {
-            message: Some("Sisu did not accept this row even when it was sent alone."),
-            error_message: Some(error.message()),
-            request_item_id: Some(request_item_id),
-            request: Some(request),
-            ..OutcomeEvent::default()
+            message: Some(message),
+            ..event
         },
         Some(expected_from_state),
     )

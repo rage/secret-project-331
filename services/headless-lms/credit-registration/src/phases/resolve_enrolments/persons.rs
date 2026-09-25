@@ -19,8 +19,8 @@ use headless_lms_models::library::credit_registration::outcomes::{
 use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{study_registry_student_number_conflicts, verified_student_numbers};
 use headless_lms_utils::services::suotar::{
-    PersonResult, ResolvePersonRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
-    SuotarError, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
+    PersonResult, ResolvePersonRequestItem, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
+    endpoints, new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
@@ -28,10 +28,7 @@ use uuid::Uuid;
 
 use super::{hold_for_lookup, lookup_state};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
-use crate::batch_phase::{
-    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
-    is_malformed_request,
-};
+use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase};
 use crate::dispatch::PhaseContext;
 use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
@@ -44,26 +41,30 @@ pub(super) struct ResolvePersonIds;
 pub(super) struct AwaitingPersonId {
     registration: CreditRegistration,
     link_id: Uuid,
-    student_number: DbSecret,
+}
+
+impl AsRef<CreditRegistration> for AwaitingPersonId {
+    fn as_ref(&self) -> &CreditRegistration {
+        &self.registration
+    }
 }
 
 impl SuotarBatchPhase for ResolvePersonIds {
+    type Endpoint = endpoints::ResolvePersons;
     type Row = AwaitingPersonId;
-    type Item = ResolvePersonRequestItem;
-    type Result = PersonResult;
 
+    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::ResolveEnrolments;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every person lookup came back unavailable.";
-    const ENDPOINT: SuotarEndpoint = ENDPOINT;
 
     /// Claims the rows the enrolment lookup would and keeps only those whose link lacks a person
     /// id; the others are left for the enrolment lookup.
-    async fn prepare(
+    async fn claim(
         &mut self,
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, ResolvePersonRequestItem>> {
         let claimed = claim_due_for_person_lookup(conn, scope, limit as i64).await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
         let links: HashMap<Uuid, _> = verified_student_numbers::get_by_user_ids(conn, &user_ids)
@@ -86,41 +87,17 @@ impl SuotarBatchPhase for ResolvePersonIds {
             let awaiting = AwaitingPersonId {
                 registration: row,
                 link_id: link.id,
-                student_number: link.student_number.clone(),
             };
             prepared.sendable.push((awaiting, item));
         }
         Ok(prepared)
     }
 
-    fn registration(row: &Self::Row) -> &CreditRegistration {
-        &row.registration
-    }
-
-    fn sent_student_number(row: &Self::Row) -> Option<&DbSecret> {
-        Some(&row.student_number)
-    }
-
-    async fn send(
-        &self,
-        ctx: &PhaseContext<'_>,
-        rows: &[Self::Row],
-        items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
-        ctx.suotar_client
-            .resolve_persons(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ResolveEnrolments))
-                    .for_registrations(rows.iter().map(|row| row.registration.id).collect()),
-                items,
-            )
-            .await
-    }
-
     async fn apply(
         &self,
         conn: &mut PgConnection,
         row: &Self::Row,
-        item: Option<&SuotarResponseItem<Self::Result>>,
+        item: Option<&SuotarResponseItem<PersonResult>>,
         event: OutcomeEvent<'_>,
     ) -> CreditRegistrationResult<Applied> {
         let registration = &row.registration;
@@ -162,47 +139,10 @@ impl SuotarBatchPhase for ResolvePersonIds {
         .await
     }
 
-    async fn apply_request_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_request_level_outcome(
-            conn,
-            ENDPOINT,
-            &row.registration,
-            request,
-            request_item_id,
-            error,
-            lookup_state(&row.registration),
-        )
-        .await
-    }
-
-    fn isolates_request_rejection(error: &SuotarError) -> bool {
-        is_malformed_request(error)
-    }
-
-    async fn apply_isolated_rejection(
-        &self,
-        conn: &mut PgConnection,
-        row: &Self::Row,
-        request: &serde_json::Value,
-        request_item_id: &str,
-        error: &SuotarError,
-    ) -> CreditRegistrationResult<Applied> {
-        apply_isolated_malformed_request(
-            conn,
-            &row.registration,
-            request,
-            request_item_id,
-            error,
-            lookup_state(&row.registration),
-        )
-        .await
+    fn on_refusal(&self, row: &Self::Row) -> Refusal {
+        Refusal::RequestLevel {
+            in_flight: lookup_state(&row.registration),
+        }
     }
 }
 

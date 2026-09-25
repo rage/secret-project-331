@@ -34,7 +34,7 @@ use headless_lms_utils::secret_string::expose_option;
 use headless_lms_utils::services::suotar::{
     EnrolmentsListedResult, ListByCourseRequestItem, ListedPerson, SuotarBatchResponse,
     SuotarCallContext, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus,
-    new_request_item_id,
+    endpoints, new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
@@ -206,7 +206,7 @@ async fn list(
         .collect();
     let response = ctx
         .suotar_client
-        .list_enrolments_by_course(
+        .post::<endpoints::ListByCourse>(
             SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::EnrolmentDiscovery)),
             items,
         )

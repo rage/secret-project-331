@@ -266,13 +266,10 @@ async fn upsert_course_research_form(
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let new_research_form = payload;
-    if new_research_form.course_id != *course_id {
-        return Err(controller_err!(
-            BadRequest,
-            "Research form does not belong to the given course".to_string()
-        ));
-    }
+    let new_research_form = NewResearchForm {
+        course_id: *course_id,
+        ..payload.into_inner()
+    };
     let res = models::research_forms::upsert_research_form(
         &mut conn,
         PKeyPolicy::Generate,
@@ -342,21 +339,17 @@ async fn upsert_course_research_form_questions(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
-    if !payload.is_empty() {
+    let mut questions = payload.into_inner();
+    if !questions.is_empty() {
         let research_form =
             models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
-        if payload
-            .iter()
-            .any(|q| q.course_id != *course_id || q.research_consent_form_id != research_form.id)
-        {
-            return Err(controller_err!(
-                BadRequest,
-                "Research form question does not belong to the given course".to_string()
-            ));
+        for question in &mut questions {
+            question.course_id = *course_id;
+            question.research_consent_form_id = research_form.id;
         }
     }
 
-    let res = models::research_forms::upsert_research_form_questions(&mut conn, &payload).await?;
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &questions).await?;
 
     token.authorized_ok(web::Json(res))
 }

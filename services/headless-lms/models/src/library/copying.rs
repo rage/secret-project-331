@@ -580,24 +580,37 @@ async fn rewrite_page_contents(
     page_contents: HashMap<Uuid, Value>,
     content_rewrite: &ContentRewrite<'_>,
 ) -> ModelResult<()> {
-    for (page_id, content) in page_contents {
-        let rewritten = content_rewrite.rewrite_content(&content);
-        if rewritten == content {
-            continue;
-        }
+    let (ids, contents) = changed_rows(page_contents, |content| {
+        content_rewrite.rewrite_content(content)
+    });
+    if !ids.is_empty() {
         sqlx::query!(
             "
 UPDATE pages
-SET content = $1
-WHERE id = $2;
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE pages.id = rewritten.id;
             ",
-            rewritten,
-            page_id
+            &ids,
+            &contents
         )
         .execute(&mut *tx)
         .await?;
     }
     Ok(())
+}
+
+/// The ids and rewritten values of the rows whose value `rewrite` changes.
+fn changed_rows<T: PartialEq>(
+    rows: impl IntoIterator<Item = (Uuid, T)>,
+    rewrite: impl Fn(&T) -> T,
+) -> (Vec<Uuid>, Vec<T>) {
+    rows.into_iter()
+        .filter_map(|(id, value)| {
+            let rewritten = rewrite(&value);
+            (rewritten != value).then_some((id, rewritten))
+        })
+        .unzip()
 }
 
 /// Applies `content_rewrite` to the copied course's block content and links outside pages.
@@ -620,17 +633,25 @@ WHERE e.course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for task in assignments {
-        let rewritten = content_rewrite.rewrite_content(&task.assignment);
-        if rewritten != task.assignment {
-            sqlx::query!(
-                "UPDATE exercise_tasks SET assignment = $1 WHERE id = $2;",
-                rewritten,
-                task.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, assignments) = changed_rows(
+        assignments
+            .into_iter()
+            .map(|task| (task.id, task.assignment)),
+        |assignment| content_rewrite.rewrite_content(assignment),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE exercise_tasks
+SET assignment = rewritten.assignment
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, assignment)
+WHERE exercise_tasks.id = rewritten.id;
+            ",
+            &ids,
+            &assignments
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let review_instructions = sqlx::query!(
@@ -645,20 +666,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for config in review_instructions {
-        let Some(instructions) = config.review_instructions else {
-            continue;
-        };
-        let rewritten = content_rewrite.rewrite_content(&instructions);
-        if rewritten != instructions {
-            sqlx::query!(
-                "UPDATE peer_or_self_review_configs SET review_instructions = $1 WHERE id = $2;",
-                rewritten,
-                config.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, review_instructions) = changed_rows(
+        review_instructions
+            .into_iter()
+            .filter_map(|config| Some((config.id, config.review_instructions?))),
+        |instructions| content_rewrite.rewrite_content(instructions),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE peer_or_self_review_configs
+SET review_instructions = rewritten.review_instructions
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, review_instructions)
+WHERE peer_or_self_review_configs.id = rewritten.id;
+            ",
+            &ids,
+            &review_instructions
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let research_forms = sqlx::query!(
@@ -673,17 +699,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for form in research_forms {
-        let rewritten = content_rewrite.rewrite_content(&form.content);
-        if rewritten != form.content {
-            sqlx::query!(
-                "UPDATE course_specific_research_consent_forms SET content = $1 WHERE id = $2;",
-                rewritten,
-                form.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, contents) = changed_rows(
+        research_forms
+            .into_iter()
+            .map(|form| (form.id, form.content)),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE course_specific_research_consent_forms
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE course_specific_research_consent_forms.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let email_templates = sqlx::query!(
@@ -698,20 +732,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for template in email_templates {
-        let Some(content) = template.content else {
-            continue;
-        };
-        let rewritten = content_rewrite.rewrite_content(&content);
-        if rewritten != content {
-            sqlx::query!(
-                "UPDATE email_templates SET content = $1 WHERE id = $2;",
-                rewritten,
-                template.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, contents) = changed_rows(
+        email_templates
+            .into_iter()
+            .filter_map(|template| Some((template.id, template.content?))),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE email_templates
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE email_templates.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let partners_blocks = sqlx::query!(
@@ -726,20 +765,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for partners_block in partners_blocks {
-        let Some(content) = partners_block.content else {
-            continue;
-        };
-        let rewritten = content_rewrite.rewrite_content(&content);
-        if rewritten != content {
-            sqlx::query!(
-                "UPDATE partners_blocks SET content = $1 WHERE id = $2;",
-                rewritten,
-                partners_block.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, contents) = changed_rows(
+        partners_blocks
+            .into_iter()
+            .filter_map(|partners_block| Some((partners_block.id, partners_block.content?))),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE partners_blocks
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE partners_blocks.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let Some((source_slug, copy_slug)) = content_rewrite.course_slugs else {
@@ -758,17 +802,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for checkbox_text in checkbox_texts {
-        let rewritten = rewrite_html_hrefs(&checkbox_text.text_html, source_slug, copy_slug);
-        if rewritten != checkbox_text.text_html {
-            sqlx::query!(
-                "UPDATE course_custom_privacy_policy_checkbox_texts SET text_html = $1 WHERE id = $2;",
-                rewritten,
-                checkbox_text.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, texts) = changed_rows(
+        checkbox_texts
+            .into_iter()
+            .map(|checkbox_text| (checkbox_text.id, checkbox_text.text_html)),
+        |text_html| rewrite_html_hrefs(text_html, source_slug, copy_slug),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE course_custom_privacy_policy_checkbox_texts
+SET text_html = rewritten.text_html
+FROM UNNEST($1::uuid [], $2::text []) AS rewritten(id, text_html)
+WHERE course_custom_privacy_policy_checkbox_texts.id = rewritten.id;
+            ",
+            &ids,
+            &texts
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     let privacy_links = sqlx::query!(
@@ -783,17 +835,25 @@ WHERE course_id = $1
     )
     .fetch_all(&mut *tx)
     .await?;
-    for privacy_link in privacy_links {
-        let rewritten = rewrite_course_path(&privacy_link.url, source_slug, copy_slug);
-        if rewritten != privacy_link.url {
-            sqlx::query!(
-                "UPDATE privacy_links SET url = $1 WHERE id = $2;",
-                rewritten,
-                privacy_link.id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
+    let (ids, urls) = changed_rows(
+        privacy_links
+            .into_iter()
+            .map(|privacy_link| (privacy_link.id, privacy_link.url)),
+        |url| rewrite_course_path(url, source_slug, copy_slug),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE privacy_links
+SET url = rewritten.url
+FROM UNNEST($1::uuid [], $2::text []) AS rewritten(id, url)
+WHERE privacy_links.id = rewritten.id;
+            ",
+            &ids,
+            &urls
+        )
+        .execute(&mut *tx)
+        .await?;
     }
 
     Ok(())

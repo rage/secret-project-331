@@ -19,8 +19,9 @@ import {
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
+  runEnrolmentCheckNow,
+  runImportSubmissionTick,
   runMaterializeTick,
-  runPhasesUpToSubmission,
   runPreconditionsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
@@ -70,7 +71,13 @@ test.describe("A student whose credits reach the study registry", () => {
     const scope = { userEmail: REGISTERED_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
 
     const registration = await test.step("Drive the completion to registered", async () => {
-      await runPhasesUpToSubmission(page.request, scope)
+      await runMaterializeTick(page.request, scope)
+      await runPreconditionsTick(page.request, scope)
+      // Parked for its first enrolment check, which the student is mailed about at once. Ticked
+      // here so the mail exists whether or not the workers got to the row first.
+      await runStudentNotificationsTick(page.request, scope)
+      await runEnrolmentCheckNow(page.request, scope)
+      await runImportSubmissionTick(page.request, scope)
       const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
         "awaiting_verification",
       ])
@@ -91,10 +98,7 @@ test.describe("A student whose credits reach the study registry", () => {
       await runStudentNotificationsTick(page.request, scope)
       const details = await adminRegistrationDetails(adminApi, registration.id)
       expect(mailsOfKind(details.notification_emails, "registered")).toHaveLength(1)
-      // Its wait for the first check is mailed at most once, if the workers ran while it waited.
-      expect(mailsOfKind(details.notification_emails, "action_needed").length).toBeLessThanOrEqual(
-        1,
-      )
+      expect(mailsOfKind(details.notification_emails, "action_needed")).toHaveLength(1)
       return details.notification_emails
     })
 

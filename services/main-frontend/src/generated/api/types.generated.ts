@@ -2755,7 +2755,6 @@ export type EnrolmentCheckDashboard = {
    */
   rate_limits: Array<SuotarEndpointRateLimit>
   roster_codes: Array<EnrolmentCheckRosterCode>
-  since: string
   /**
    * Lateness past this counts as very late.
    */
@@ -2772,10 +2771,6 @@ export type EnrolmentCheckFindings = {
    * `None` for checks of rows whose schedule had run out.
    */
   enrolment_check_step?: number | null
-  /**
-   * Of the finds, how many a row whose schedule had run out made.
-   */
-  found_after_stop_count: number
   found_count: number
   /**
    * Time from the enrolment, as Sisu records it, to the check that found it; over the finds
@@ -2817,7 +2812,6 @@ export type EnrolmentCheckPopulation = {
    * `None` for rows whose schedule has run out.
    */
   enrolment_check_step?: number | null
-  is_stopped: boolean
   /**
    * Of those, how many have never been checked.
    */
@@ -3549,11 +3543,6 @@ export type MyStudiesCourseModule = {
   automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
-  /**
-   * Whether a credit registration exists or is about to for this student's completion, so a
-   * completion without one yet is on its way rather than never coming.
-   */
-  credit_registration_expected: boolean
   ects_credits?: number | null
   /**
    * `None` for the course's default module; the frontend labels those with the course name.
@@ -3577,6 +3566,7 @@ export type MyStudiesCourseModule = {
    * manually or sets no point threshold.
    */
   score_required?: number | null
+  status_before_registration?: null | StudentFacingCreditRegistrationStatus
   /**
    * Whether this student's credits for the module go through credit registration via Suotar: the
    * flag of the completion [`models::course_module_completions::select_registration_completion`]
@@ -4857,7 +4847,10 @@ export type SuotarEndpointRateLimit = {
    * The share of the full rate allowed, from 0.1 up to 1.
    */
   rate_share: number
-  recorded_at: string
+  /**
+   * When the worker last reported the state.
+   */
+  updated_at: string
 }
 
 /**
@@ -5101,11 +5094,6 @@ export type UserCompletionInformation = {
    * asked and answered. Advisory; it seeds the field when they come back to the page.
    */
   credit_justification?: string | null
-  /**
-   * Whether the push path will register this completion. With `register_credits_via_suotar`
-   * set and this false, no credit registration is ever created for it.
-   */
-  credit_registration_expected: boolean
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean
@@ -5115,6 +5103,11 @@ export type UserCompletionInformation = {
    * page shows: the module flag above only says the module takes part.
    */
   register_credits_via_suotar: boolean
+  /**
+   * What the student is told while the completion has no credit registration: `sending` when
+   * the push path will create one, `not_registering` when it never will.
+   */
+  status_before_registration: StudentFacingCreditRegistrationStatus
   /**
    * `None` only on a module registering through credit registration.
    */
@@ -9904,9 +9897,9 @@ export type GetCreditRegistrationEnrolmentChecksData = {
   path?: never
   query?: {
     /**
-     * How many days of checks and calls to read
+     * How far back to read checks and calls, in seconds
      */
-    days?: number
+    window_secs?: number
   }
   url: "/api/v0/main-frontend/credit-registration-admin/enrolment-checks"
 }

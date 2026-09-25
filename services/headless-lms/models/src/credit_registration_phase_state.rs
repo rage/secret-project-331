@@ -51,12 +51,22 @@ pub struct PhaseRunOutcome {
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,
-    /// The error is Sisu timing out on every submission while Suotar itself answered, which pauses
-    /// only the phase that submits, not every phase that talks to Suotar.
-    pub is_sisu_outage: bool,
-    /// The error is a course code already listed alone, after taking its batch down, failing again.
-    /// That says nothing about the study registry, so no breaker counts it.
-    pub is_isolated_failure: bool,
+    /// Which circuit breaker `error` counts against. Meaningless without an error.
+    pub error_kind: PhaseErrorKind,
+}
+
+/// What a failed iteration says about the study registry.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum PhaseErrorKind {
+    /// The study registry failed, or the phase failed before reaching it.
+    #[default]
+    StudyRegistry,
+    /// Sisu timed out on every submission while Suotar itself answered, which pauses only the
+    /// phase that submits.
+    SisuOutage,
+    /// Only rows or codes already sent on their own failed again. That is their own fault, so no
+    /// breaker counts it.
+    Isolated,
 }
 
 impl PhaseRunOutcome {
@@ -65,10 +75,7 @@ impl PhaseRunOutcome {
     pub fn processed(count: i64) -> Self {
         Self {
             items_processed: count.try_into().unwrap_or(i32::MAX),
-            items_failed: 0,
-            error: None,
-            is_sisu_outage: false,
-            is_isolated_failure: false,
+            ..Self::default()
         }
     }
 }

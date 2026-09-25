@@ -11,14 +11,13 @@
 //! silence the pipeline for every other test running at the same moment. Production only ever uses
 //! the global key.
 
-use std::collections::HashMap;
-use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
 use super::PhaseScope;
+use super::process_local::ProcessLocalMap;
 
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 /// The first cooldown; each trip without a success between adds another, up to
@@ -94,8 +93,7 @@ impl BreakerState {
 
 type BreakerKey = (ScopeKey, BreakerTarget);
 
-static BREAKERS: LazyLock<Mutex<HashMap<BreakerKey, BreakerState>>> =
-    LazyLock::new(|| Mutex::new(HashMap::new()));
+static BREAKERS: ProcessLocalMap<BreakerKey, BreakerState> = ProcessLocalMap::new();
 
 /// The first cooldown, which later trips multiply.
 pub fn cooldown(test_mode: bool) -> Duration {
@@ -110,7 +108,7 @@ pub fn cooldown(test_mode: bool) -> Duration {
 pub fn is_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
     let key = (scope.clone(), target);
     let now = Instant::now();
-    let mut breakers = lock();
+    let mut breakers = BREAKERS.lock();
     let Some(state) = breakers.get(&key) else {
         return false;
     };
@@ -130,11 +128,14 @@ pub fn is_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
 /// and sends one item only.
 pub fn is_half_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
     let now = Instant::now();
-    lock().get(&(scope.clone(), target)).is_some_and(|state| {
-        state.is_live(now)
-            && state.open_until.is_some_and(|until| now >= until)
-            && state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES
-    })
+    BREAKERS
+        .lock()
+        .get(&(scope.clone(), target))
+        .is_some_and(|state| {
+            state.is_live(now)
+                && state.open_until.is_some_and(|until| now >= until)
+                && state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES
+        })
 }
 
 /// What one breaker holds right now, in this process.
@@ -150,7 +151,7 @@ pub struct BreakerSnapshot {
 /// Reads a breaker without touching it, for the dashboard. Not [`is_open`], which clears an elapsed
 /// cooldown as a side effect.
 pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
-    let breakers = lock();
+    let breakers = BREAKERS.lock();
     let Some(state) = breakers
         .get(&(scope.clone(), target))
         .filter(|state| state.is_live(Instant::now()))
@@ -168,9 +169,12 @@ pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
     }
 }
 
-pub fn record_success(scope: &ScopeKey, target: BreakerTarget) {
-    let mut breakers = lock();
-    breakers.remove(&(scope.clone(), target));
+/// Returns whether this success closed a breaker that had tripped.
+pub fn record_success(scope: &ScopeKey, target: BreakerTarget) -> bool {
+    BREAKERS
+        .lock()
+        .remove(&(scope.clone(), target))
+        .is_some_and(|state| state.trip_count > 0)
 }
 
 /// Returns the cooldown this failure opened the breaker for, if it did. `base_cooldown` is the
@@ -181,7 +185,7 @@ pub fn record_failure(
     base_cooldown: Duration,
 ) -> Option<Duration> {
     let now = Instant::now();
-    let mut breakers = lock();
+    let mut breakers = BREAKERS.lock();
     breakers.retain(|_, state| state.is_live(now));
     let state = breakers
         .entry((scope.clone(), target))
@@ -204,15 +208,8 @@ pub fn record_failure(
 
 #[cfg(test)]
 pub fn reset(scope: &ScopeKey) {
-    let mut breakers = lock();
+    let mut breakers = BREAKERS.lock();
     breakers.retain(|(key_scope, _), _| key_scope != scope);
-}
-
-fn lock() -> std::sync::MutexGuard<'static, HashMap<BreakerKey, BreakerState>> {
-    // The counters are advisory, so recovering a poisoned lock beats taking the worker down.
-    BREAKERS
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
 #[cfg(test)]

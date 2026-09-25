@@ -7,12 +7,11 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 
-use headless_lms_models::credit_registration_enrolment_check_signals;
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::enrolment_checks::CheckRequestOutcome;
 
 use crate::controllers::main_frontend::credit_registrations::{
-    RequestCreditRegistrationEnrolmentRecheckResult, start_enrolment_recheck,
+    RecheckTarget, RequestCreditRegistrationEnrolmentRecheckResult, start_enrolment_recheck,
 };
 use crate::prelude::*;
 
@@ -61,7 +60,10 @@ pub async fn recheck_credit_registration_enrolment(
     let outcome = start_enrolment_recheck(
         &mut tx,
         user.id,
-        id,
+        RecheckTarget {
+            registration_id: id,
+            course_module_completion_id: row.course_module_completion_id,
+        },
         EnrolmentCheckSource::TeacherRequest,
         CreditRegistrationEventKind::AdminAction,
         "A teacher of the course asked us to check for an enrolment again.",
@@ -76,13 +78,6 @@ pub async fn recheck_credit_registration_enrolment(
             recheck_started: false,
         }));
     }
-    credit_registration_enrolment_check_signals::record_check_request(
-        &mut tx,
-        row.course_module_completion_id,
-        row.user_id,
-        EnrolmentCheckSource::TeacherRequest,
-    )
-    .await?;
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {

@@ -64,13 +64,9 @@ impl SuotarBatchPhase for Import {
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
+        limit: usize,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let claimed = claim_due_for_import(
-            conn,
-            scope,
-            SuotarEndpoint::ImportAttainments.max_batch_size() as i64,
-        )
-        .await?;
+        let claimed = claim_due_for_import(conn, scope, limit as i64).await?;
         // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
         // submission for the same completion.
         let already_registered = completion_ids_registered_by_a_registrar(

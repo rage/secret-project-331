@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT endpoint AS \"endpoint: SuotarEndpoint\",\n  rate_share,\n  full_rate_per_minute,\n  available,\n  is_breaker_open,\n  breaker_trip_count,\n  recorded_at\nFROM suotar_endpoint_rate_limits\nORDER BY endpoint\n        ",
+  "query": "\nSELECT endpoint AS \"endpoint: SuotarEndpoint\",\n  updated_at,\n  rate_share,\n  full_rate_per_minute,\n  available,\n  is_breaker_open,\n  breaker_trip_count\nFROM suotar_endpoint_rate_limits\nORDER BY endpoint\n        ",
   "describe": {
     "columns": [
       {
@@ -30,6 +30,17 @@
       },
       {
         "ordinal": 1,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "rate_share",
         "type_info": "Float4",
         "origin": {
@@ -40,7 +51,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "full_rate_per_minute",
         "type_info": "Int4",
         "origin": {
@@ -51,7 +62,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "available",
         "type_info": "Int4",
         "origin": {
@@ -62,7 +73,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "is_breaker_open",
         "type_info": "Bool",
         "origin": {
@@ -73,24 +84,13 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "breaker_trip_count",
         "type_info": "Int4",
         "origin": {
           "Table": {
             "table": "suotar_endpoint_rate_limits",
             "name": "breaker_trip_count"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
-        "name": "recorded_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "suotar_endpoint_rate_limits",
-            "name": "recorded_at"
           }
         }
       }
@@ -108,5 +108,5 @@
       false
     ]
   },
-  "hash": "4cec3575b8a0f318a02b7fe0fb4f845e0d9ff911021f728485b1e0d3791a0eda"
+  "hash": "6f148c220fd74768e9b358a6c1dea392b4187a4b41d1cbba7b10b17528709481"
 }

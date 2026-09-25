@@ -14,10 +14,10 @@ use headless_lms_models::course_module_suotar_configurations::{
     mark_listing_succeeded_without_linking, record_listing_outcome,
 };
 use headless_lms_models::credit_registration_events::scrub_text;
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
+use headless_lms_models::credit_registration_phase_state::{PhaseErrorKind, PhaseRunOutcome};
 use headless_lms_models::credit_registration_roster_schedules::{
-    RosterSchedule, ensure_rows, get_schedules_with_modules, mark_alone_failed, mark_attempted,
-    mark_batch_failed, mark_fetched, mark_window_closed,
+    RosterSchedule, ScheduleSelection, ensure_rows, get_modules_by_code, get_schedules,
+    mark_alone_failed, mark_attempted, mark_batch_failed, mark_fetched, mark_window_closed,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::account_linking::{
@@ -40,8 +40,8 @@ use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 
 use super::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, breaker, every_item_service_unavailable,
-    listed_person_addresses, rate_limit, suotar_error_variant,
+    CreditRegistrationPhase, PhaseContext, PhaseScope, breaker, claim_limit,
+    every_item_service_unavailable, listed_person_addresses, rate_limit, suotar_error_variant,
 };
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ListByCourse;
@@ -78,38 +78,51 @@ struct CodeListing {
 }
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    let is_scoped = !scope.is_unscoped();
-    let _guard = if is_scoped {
-        None
-    } else {
+    let _guard = if scope.is_unscoped() {
         let Some(guard) = ListingGuard::acquire() else {
             return Ok(PhaseRunOutcome::processed(0));
         };
         Some(guard)
+    } else {
+        None
     };
     let is_account_linking_enabled = ctx.suotar_conf.account_linking_enabled;
     let now = Utc::now();
-    let schedules = {
-        let mut conn = ctx.pool.acquire().await?;
-        ensure_rows(&mut conn, scope.course_id).await?;
-        get_schedules_with_modules(&mut conn, scope.course_id).await?
-    };
-    // A spec's scoped tick lists its own codes whenever it runs.
-    let mut due: Vec<(RosterSchedule, Vec<ModuleToList>)> = schedules
-        .into_iter()
-        .filter(|(schedule, _)| is_scoped || schedule.is_due(is_account_linking_enabled, now))
-        .collect();
-    due.sort_by_key(|(schedule, _)| {
+    let limiter_key = breaker::ScopeKey::of(scope);
+    // The limiter counts requests on this endpoint, so the limit is how many may go out.
+    let request_limit = claim_limit(&limiter_key, ENDPOINT);
+    if request_limit == 0 {
+        return Ok(PhaseRunOutcome::processed(0));
+    }
+    let mut conn = ctx.pool.acquire().await?;
+    ensure_rows(&mut conn, scope.course_id).await?;
+    let mut due: Vec<RosterSchedule> =
+        get_schedules(&mut conn, scope.course_id, ScheduleSelection::DueCandidates)
+            .await?
+            .into_iter()
+            .filter(|schedule| schedule.is_due(is_account_linking_enabled, now))
+            .collect();
+    due.sort_by_key(|schedule| {
         (
             !schedule.is_triggered_due(now),
             schedule.next_fetch_at(is_account_linking_enabled, now),
         )
     });
+    let mut requests = requests_for(due);
+    requests.truncate(request_limit);
+    let codes: Vec<String> = requests
+        .iter()
+        .flatten()
+        .map(|listing| listing.course_code.clone())
+        .collect();
+    let mut modules_by_code = get_modules_by_code(&mut conn, scope.course_id, &codes).await?;
+    drop(conn);
+    for listing in requests.iter_mut().flatten() {
+        listing.modules = modules_by_code
+            .remove(&listing.course_code)
+            .unwrap_or_default();
+    }
 
-    let limiter_key = breaker::ScopeKey::of(scope);
-    let requests = requests_for(due)
-        .into_iter()
-        .take(rate_limit::available(&limiter_key, ENDPOINT));
     let mut outcome = PhaseRunOutcome::processed(0);
     let mut isolated_error = None;
     let mut has_answer = false;
@@ -119,7 +132,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         outcome.items_processed += part.items_processed;
         outcome.items_failed += part.items_failed;
         match part.error {
-            Some(error) if part.is_isolated_failure => {
+            Some(error) if part.error_kind == PhaseErrorKind::Isolated => {
                 isolated_error = isolated_error.or(Some(error));
             }
             Some(error) => {
@@ -131,22 +144,22 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
     }
     if outcome.error.is_none() && !has_answer && isolated_error.is_some() {
         outcome.error = isolated_error;
-        outcome.is_isolated_failure = true;
+        outcome.error_kind = PhaseErrorKind::Isolated;
     }
     Ok(outcome)
 }
 
 /// Splits the due codes into requests: one per code that is listed on its own, and batches of up
 /// to the endpoint's size for the rest, in the order the codes are due.
-fn requests_for(due: Vec<(RosterSchedule, Vec<ModuleToList>)>) -> Vec<Vec<CodeListing>> {
+fn requests_for(due: Vec<RosterSchedule>) -> Vec<Vec<CodeListing>> {
     let batch_size = ENDPOINT.max_batch_size();
     let mut requests: Vec<Vec<CodeListing>> = Vec::new();
     let mut open_batch: Option<usize> = None;
-    for (schedule, modules) in due {
+    for schedule in due {
         let listing = CodeListing {
             course_code: schedule.course_code,
             request_item_id: new_request_item_id(),
-            modules,
+            modules: Vec::new(),
             is_fetched_alone: schedule.is_fetched_alone,
         };
         if schedule.is_fetched_alone {
@@ -205,8 +218,11 @@ async fn list(
                 items_processed: attempted,
                 items_failed: attempted,
                 error: Some(scrub_text(error.message())),
-                is_sisu_outage: false,
-                is_isolated_failure: is_known_bad_code,
+                error_kind: if is_known_bad_code {
+                    PhaseErrorKind::Isolated
+                } else {
+                    PhaseErrorKind::StudyRegistry
+                },
             });
         }
     };
@@ -238,8 +254,7 @@ async fn list(
         items_failed,
         error: every_item_service_unavailable(&response)
             .then(|| "Every course code of the batch came back unavailable.".to_string()),
-        is_sisu_outage: false,
-        is_isolated_failure: false,
+        ..PhaseRunOutcome::default()
     })
 }
 

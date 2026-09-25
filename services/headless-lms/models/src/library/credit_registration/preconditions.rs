@@ -261,11 +261,6 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             event_message: Some("Waiting for the first enrolment check.".to_string()),
             ..base
         },
-        // A routine recheck: its answer is the event.
-        State::ReadyToSubmit if pending.state == State::NoUsableEnrolment => Transition {
-            records_event: false,
-            ..base
-        },
         // Keys off `pending.state`, not just `target`: the message is about where the row came
         // from, unlike every arm above.
         State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {

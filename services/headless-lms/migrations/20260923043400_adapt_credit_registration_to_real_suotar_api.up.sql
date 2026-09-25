@@ -292,7 +292,6 @@ CREATE TABLE credit_registration_enrolment_check_signals (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_module_completion_id UUID NOT NULL,
-  user_id UUID NOT NULL,
   last_visited_at TIMESTAMP WITH TIME ZONE,
   last_check_requested_at TIMESTAMP WITH TIME ZONE,
   check_request_source enrolment_check_source,
@@ -316,7 +315,6 @@ COMMENT ON COLUMN credit_registration_enrolment_check_signals.created_at IS 'Tim
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.course_module_completion_id IS 'The completion the signals are about. Unique among live rows.';
-COMMENT ON COLUMN credit_registration_enrolment_check_signals.user_id IS 'The completion''s own user, stored so a signal can be scoped to a user without joining.';
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.last_visited_at IS 'When the student last opened the registration page after completing, while it showed the enrolment instructions.';
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.last_check_requested_at IS 'When a check was last asked for: by the student, by a teacher, or by linking a student number from a roster mail.';
 COMMENT ON COLUMN credit_registration_enrolment_check_signals.check_request_source IS 'Who asked for the check at last_check_requested_at.';
@@ -381,8 +379,7 @@ CREATE TABLE credit_registration_enrolment_check_outcomes (
   checked_at TIMESTAMP WITH TIME ZONE NOT NULL,
   previous_checked_at TIMESTAMP WITH TIME ZONE,
   is_enrolment_found BOOLEAN NOT NULL,
-  enrolled_at TIMESTAMP WITH TIME ZONE,
-  were_checks_stopped BOOLEAN NOT NULL
+  enrolled_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE INDEX idx_credit_registration_enrolment_check_outcomes_checked ON credit_registration_enrolment_check_outcomes (checked_at DESC);
@@ -401,7 +398,6 @@ COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.checked_at IS 'Wh
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.previous_checked_at IS 'When the row was last checked before this, NULL for its first check. With checked_at it brackets when an enrolment found here appeared.';
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.is_enrolment_found IS 'Whether the check found an enrolment the row can be registered against.';
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.enrolled_at IS 'When the enrolment found was made, as Sisu records it; NULL when none was found or Sisu gives no time.';
-COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.were_checks_stopped IS 'Whether the row''s schedule had already run out, so only a wake-up could have checked it.';
 
 CREATE TABLE suotar_endpoint_rate_limits (
   endpoint suotar_endpoint PRIMARY KEY,
@@ -411,8 +407,7 @@ CREATE TABLE suotar_endpoint_rate_limits (
   full_rate_per_minute INT NOT NULL,
   available INT NOT NULL,
   is_breaker_open BOOLEAN NOT NULL,
-  breaker_trip_count INT NOT NULL,
-  recorded_at TIMESTAMP WITH TIME ZONE NOT NULL
+  breaker_trip_count INT NOT NULL
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -421,13 +416,12 @@ UPDATE ON suotar_endpoint_rate_limits FOR EACH ROW EXECUTE PROCEDURE trigger_set
 COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter and circuit breaker reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.endpoint IS 'The limited endpoint.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN suotar_endpoint_rate_limits.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.updated_at IS 'Timestamp when the record was last updated, which is when the worker last reported this state. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.rate_share IS 'The share of the full rate currently allowed, 0.1 to 1: it drops to 0.1 after failures or a breaker cooldown and doubles every five healthy minutes.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.full_rate_per_minute IS 'The full rate, in items per minute, or requests per minute for list_by_course.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.available IS 'Items, or requests for list_by_course, that could be sent right now.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.is_breaker_open IS 'Whether the circuit breaker the endpoint''s phases share was open.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.breaker_trip_count IS 'How many times in a row the breaker has opened without a success between; the cooldown grows with it.';
-COMMENT ON COLUMN suotar_endpoint_rate_limits.recorded_at IS 'When the worker reported this state.';
 
 UPDATE credit_registration_phase_state
 SET expected_interval_secs = 60
@@ -688,8 +682,7 @@ ALTER TABLE credit_registration_enrolment_check_outcomes
 ADD FOREIGN KEY (course_module_id) REFERENCES course_modules(id);
 
 ALTER TABLE credit_registration_enrolment_check_signals
-ADD FOREIGN KEY (course_module_completion_id) REFERENCES course_module_completions(id),
-  ADD FOREIGN KEY (user_id) REFERENCES users(id);
+ADD FOREIGN KEY (course_module_completion_id) REFERENCES course_module_completions(id);
 
 ALTER TABLE course_modules DROP CONSTRAINT course_modules_one_credit_registration_path,
   ADD COLUMN register_eligible_new_completions_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,

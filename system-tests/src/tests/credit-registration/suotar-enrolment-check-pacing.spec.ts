@@ -33,6 +33,7 @@ import {
   expireEnrolmentRecheckAllowance,
   getEnrolmentCheckSchedule,
   makeEnrolmentChecksDue,
+  makeRosterListingsDue,
   runEnrolmentDiscoveryTick,
   runMaterializeTick,
   runPreconditionsTick,
@@ -248,6 +249,7 @@ test.afterEach(async ({ page }) => {
   }
   // A code that failed stays failing, and alerting every admin view, until it lists cleanly once.
   if (rosterCourseId !== null) {
+    await makeRosterListingsDue(page.request, { courseId: rosterCourseId })
     await runTickUnchecked(page.request, "enrolment-discovery", { courseId: rosterCourseId })
     rosterCourseId = null
   }
@@ -433,6 +435,7 @@ test("A roster listing the student wakes the waiting row once per enrolment", as
     expect(checked).toMatchObject({ state: "no_usable_enrolment", source: "schedule" })
     expect(Date.parse(checked.nextAttemptAt)).toBeGreaterThan(Date.now())
 
+    await makeRosterListingsDue(page.request, { courseId: course.courseId })
     await runEnrolmentDiscoveryTick(page.request, { courseId: course.courseId })
     expect(await getEnrolmentCheckSchedule(page.request, parked.id)).toMatchObject({
       source: "schedule",
@@ -480,6 +483,8 @@ test("A roster batch that fails as a whole is listed code by code, and the bad c
   ])
 
   await test.step("Listed alone, the good code wakes its row and the bad one fails", async () => {
+    // The failed batch dropped the listing rate to where only one request goes out at a time.
+    await makeRosterListingsDue(page.request, scope)
     await runTickUnchecked(page.request, "enrolment-discovery", scope)
     const goodAlone = await latestListingOf(page.request, good!)
     expect(goodAlone.httpStatus).toBe(200)

@@ -524,7 +524,7 @@ pub struct SuotarEndpointDailyCost {
     pub p95_duration_ms: Option<i32>,
 }
 
-/// Finished calls per endpoint per UTC day since `since`, oldest day first.
+/// Finished calls per endpoint per UTC day since `since`, latest day first.
 pub async fn get_daily_costs_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -552,8 +552,8 @@ WHERE started_at >= $1
   AND deleted_at IS NULL
 GROUP BY 1,
   2
-ORDER BY 1,
-  2
+ORDER BY 1 DESC,
+  endpoint::text
         "#,
         since,
     )

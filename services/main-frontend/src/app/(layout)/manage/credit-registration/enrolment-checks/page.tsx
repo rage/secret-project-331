@@ -8,9 +8,9 @@ import EnrolmentCheckLatenessSection from "@/components/credit-registration/admi
 import EnrolmentCheckOutcomesSection from "@/components/credit-registration/admin/EnrolmentCheckOutcomesSection"
 import EnrolmentCheckPopulationSection from "@/components/credit-registration/admin/EnrolmentCheckPopulationSection"
 import {
-  DaysWindowSelect,
-  useDaysParam,
-  WEEK_OPTION_DAYS,
+  useWindowSecsParam,
+  WEEK_SECS,
+  WindowSecsSelect,
 } from "@/components/credit-registration/admin/WindowSecsSelect"
 import { QUIET_REFRESH } from "@/components/credit-registration/constants"
 import { controlCss, controlsCss, sectionCardsCss } from "@/components/credit-registration/styles"
@@ -18,14 +18,14 @@ import { QueryResult } from "@/shared-module/components"
 
 /** Lateness, cost, population and findings of the enrolment check pacing, over one shared window. */
 const EnrolmentChecksPage: React.FC = () => {
-  const { control, days } = useDaysParam(WEEK_OPTION_DAYS)
-  const dashboardQuery = useCreditRegistrationEnrolmentChecks(days)
+  const { control, windowSecs } = useWindowSecsParam(WEEK_SECS)
+  const dashboardQuery = useCreditRegistrationEnrolmentChecks(windowSecs)
 
   return (
     <div className={sectionCardsCss}>
       <div className={controlsCss}>
         <div className={controlCss}>
-          <DaysWindowSelect control={control} />
+          <WindowSecsSelect control={control} includeMonth />
         </div>
       </div>
       <QueryResult

@@ -10,6 +10,7 @@ mod import;
 mod ledger_snapshot;
 mod link_emails;
 pub mod linking_mail_resend;
+mod process_local;
 pub mod rate_limit;
 mod resolve_enrolments;
 mod resolve_person_ids;
@@ -49,8 +50,8 @@ use headless_lms_models::library::credit_registration::preconditions::{
 use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{credit_registration_phase_state, credit_registrations};
 use headless_lms_models::{
-    credit_registration_phase_state::PhaseRunOutcome, suotar_endpoint_rate_limits,
-    verified_student_numbers,
+    credit_registration_phase_state::{PhaseErrorKind, PhaseRunOutcome},
+    suotar_endpoint_rate_limits, verified_student_numbers,
 };
 use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilErrorType};
 use headless_lms_utils::prelude::Utc;
@@ -441,11 +442,6 @@ pub async fn run_phase_once(
         // Only these stop: an outage must not stall the database-only phases.
         return Ok(PhaseTick::Skipped(PhaseSkipReason::CircuitBreakerOpen));
     }
-    // The ramp back starts from the probe, not from the failure that opened the breaker, or a long
-    // cooldown would spend it with nothing sent.
-    if breaker::is_half_open(&breaker_key, breaker::BreakerTarget::StudyRegistry) {
-        rate_limit::drop_to_floor(&breaker_key, &rate_limit::LIMITED_ENDPOINTS);
-    }
     drop(conn);
 
     // The phase loops run side by side, so a shared count would credit this iteration with another
@@ -478,11 +474,8 @@ pub async fn run_phase_once(
     let outcome = match body.await {
         Ok(outcome) => outcome,
         Err(error) => PhaseRunOutcome {
-            items_processed: 0,
-            items_failed: 0,
             error: Some(scrub_text(&format!("{error:#}"))),
-            is_sisu_outage: false,
-            is_isolated_failure: false,
+            ..PhaseRunOutcome::default()
         },
     };
     drop(keep_alive);
@@ -497,7 +490,7 @@ pub async fn run_phase_once(
     // breaker, and an empty queue is the common case: without this, a phase with nothing to do
     // resets the counter every tick and the breaker never opens during an outage.
     let reached_study_registry = suotar_client.exchange_count() > 0;
-    if phase.calls_study_registry() && reached_study_registry && !outcome.is_isolated_failure {
+    if phase.calls_study_registry() && reached_study_registry {
         record_breaker_outcome(&breaker_key, phase, &outcome, ctx.test_mode);
     }
     if bookkeeping {
@@ -524,14 +517,13 @@ async fn record_rate_limits(
         };
         suotar_endpoint_rate_limits::upsert(
             conn,
-            &suotar_endpoint_rate_limits::SuotarEndpointRateLimit {
+            &suotar_endpoint_rate_limits::SuotarEndpointRateLimitReport {
                 endpoint,
                 rate_share: limiter.share as f32,
                 full_rate_per_minute: limiter.rate.per_minute as i32,
                 available: i32::try_from(limiter.available).unwrap_or(i32::MAX),
                 is_breaker_open: breaker.open,
                 breaker_trip_count: i32::try_from(breaker.trip_count).unwrap_or(i32::MAX),
-                recorded_at: Utc::now(),
             },
         )
         .await?;
@@ -539,21 +531,23 @@ async fn record_rate_limits(
     Ok(())
 }
 
-/// How many rows one iteration may claim for `endpoint`: its batch size, cut to what the limiter
-/// allows, and to a single row for the probe after a breaker cooldown.
-pub(crate) fn claim_limit(scope: &PhaseScope, endpoint: SuotarEndpoint) -> usize {
-    let key = breaker::ScopeKey::of(scope);
-    if breaker::is_half_open(&key, breaker::BreakerTarget::StudyRegistry) {
+/// How many items one request to `endpoint` may carry: its batch size, cut to what the limiter
+/// allows, and to a single item for the probe after a breaker cooldown.
+pub(crate) fn claim_limit(key: &breaker::ScopeKey, endpoint: SuotarEndpoint) -> usize {
+    if breaker::is_half_open(key, breaker::BreakerTarget::StudyRegistry) {
         return 1;
     }
     endpoint
         .max_batch_size()
-        .min(rate_limit::available(&key, endpoint))
+        .min(rate_limit::available(key, endpoint))
 }
 
 /// Counts one iteration that reached the study registry against the breakers. Sisu timing out on
 /// every submission is Suotar answering, so it counts against the submitting phase's own breaker
 /// and as a success for the one every study registry phase shares.
+///
+/// The limiter drops to its floor whenever the shared breaker trips or closes again, so the ramp
+/// back starts from the probe that got through rather than from a failure a long cooldown ago.
 fn record_breaker_outcome(
     key: &breaker::ScopeKey,
     phase: CreditRegistrationPhase,
@@ -562,9 +556,17 @@ fn record_breaker_outcome(
 ) {
     use breaker::BreakerTarget;
     let base_cooldown = breaker::cooldown(test_mode);
-    match (&outcome.error, outcome.is_sisu_outage) {
-        (Some(_), true) => {
-            breaker::record_success(key, BreakerTarget::StudyRegistry);
+    if outcome.error.is_none() {
+        record_study_registry_success(key);
+        if phase.submits_to_sisu() {
+            breaker::record_success(key, BreakerTarget::SisuSubmissions);
+        }
+        return;
+    }
+    match outcome.error_kind {
+        PhaseErrorKind::Isolated => {}
+        PhaseErrorKind::SisuOutage => {
+            record_study_registry_success(key);
             if let Some(cooldown) =
                 breaker::record_failure(key, BreakerTarget::SisuSubmissions, base_cooldown)
             {
@@ -575,22 +577,23 @@ fn record_breaker_outcome(
                 );
             }
         }
-        (Some(_), false) => {
+        PhaseErrorKind::StudyRegistry => {
             if let Some(cooldown) =
                 breaker::record_failure(key, BreakerTarget::StudyRegistry, base_cooldown)
             {
+                rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
                 warn!(
                     "Pausing the study registry phases for {cooldown:?} after {} consecutive failures.",
                     breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
                 );
             }
         }
-        (None, _) => {
-            breaker::record_success(key, BreakerTarget::StudyRegistry);
-            if phase.submits_to_sisu() {
-                breaker::record_success(key, BreakerTarget::SisuSubmissions);
-            }
-        }
+    }
+}
+
+fn record_study_registry_success(key: &breaker::ScopeKey) {
+    if breaker::record_success(key, breaker::BreakerTarget::StudyRegistry) {
+        rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
     }
 }
 
@@ -734,8 +737,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
                 missing_templates.into_iter().collect::<Vec<_>>().join(", ")
             )
         }),
-        is_sisu_outage: false,
-        is_isolated_failure: false,
+        ..PhaseRunOutcome::default()
     })
 }
 
@@ -773,16 +775,18 @@ pub(crate) trait SuotarBatchPhase {
 
     /// The iteration's error when every item came back unavailable.
     const ALL_UNAVAILABLE_ERROR: &'static str;
-    /// The endpoint [`Self::send`] calls, whose limiter a failed iteration drops.
+    /// The endpoint [`Self::send`] calls, whose limiter every send spends and a failed iteration
+    /// drops.
     const ENDPOINT: SuotarEndpoint;
 
-    /// Claims rows and decides what may be asked about them. Whatever has to be true before the
-    /// request leaves is written here, in the caller's transaction.
+    /// Claims at most `limit` rows and decides what may be asked about them. Whatever has to be
+    /// true before the request leaves is written here, in the caller's transaction.
     async fn prepare(
         &mut self,
         ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
+        limit: usize,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>>;
 
     fn registration(row: &Self::Row) -> &CreditRegistration;
@@ -872,9 +876,14 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
 ) -> anyhow::Result<PhaseRunOutcome> {
+    let limiter_key = breaker::ScopeKey::of(scope);
+    let limit = claim_limit(&limiter_key, P::ENDPOINT);
+    if limit == 0 {
+        return Ok(PhaseRunOutcome::default());
+    }
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let prepared = phase.prepare(ctx, &mut tx, scope).await?;
+    let prepared = phase.prepare(ctx, &mut tx, scope, limit).await?;
     tx.commit().await?;
     // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
     drop(conn);
@@ -918,6 +927,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             .map(|item| item.request_item_id().to_string())
             .collect();
 
+        rate_limit::take(&limiter_key, P::ENDPOINT, rows.len());
         let response = match phase.send(ctx, &rows, items.clone()).await {
             Ok(response) => response,
             Err(send_error) if P::isolates_request_rejection(&send_error) && rows.len() > 1 => {
@@ -1013,7 +1023,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     }
 
     if has_suotar_failure {
-        rate_limit::drop_to_floor(&breaker::ScopeKey::of(scope), &[P::ENDPOINT]);
+        rate_limit::drop_to_floor(&limiter_key, &[P::ENDPOINT]);
     }
     if error.is_none() && !has_answer && isolated_rejection.is_some() {
         error = isolated_rejection;
@@ -1023,8 +1033,11 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     Ok(PhaseRunOutcome {
         items_processed: processed,
         items_failed,
-        is_sisu_outage: error.is_some() && !has_suotar_failure,
-        is_isolated_failure: false,
+        error_kind: if error.is_some() && !has_suotar_failure {
+            PhaseErrorKind::SisuOutage
+        } else {
+            PhaseErrorKind::StudyRegistry
+        },
         error,
     })
 }
@@ -1126,7 +1139,7 @@ pub(crate) async fn apply_outcome(
     if outcome.increment_submit_retry_count {
         credit_registrations::increment_submit_retry_count(&mut tx, registration.id).await?;
     }
-    credit_registrations::transition(
+    let after = credit_registrations::transition(
         &mut tx,
         registration.id,
         &Transition {
@@ -1143,6 +1156,7 @@ pub(crate) async fn apply_outcome(
     if outcome.schedules_next_enrolment_check {
         enrolment_checks::schedule_next_check(&mut tx, registration.id).await?;
     }
+    resolve_enrolments::record_enrolment_check(&mut tx, event.enrolment_check, &after).await?;
     tx.commit().await?;
     Ok(())
 }
@@ -1298,6 +1312,8 @@ pub(crate) struct OutcomeEvent<'a> {
     pub request_item_id: Option<&'a str>,
     pub request: Option<&'a serde_json::Value>,
     pub response: Option<&'a serde_json::Value>,
+    /// Set for a row on its enrolment check schedule, whose check is logged with the answer.
+    pub enrolment_check: Option<&'a resolve_enrolments::EnrolmentCheckAnswer<'a>>,
 }
 
 #[cfg(test)]

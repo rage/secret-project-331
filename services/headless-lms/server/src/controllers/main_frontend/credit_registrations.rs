@@ -400,27 +400,43 @@ pub(crate) fn can_request_enrolment_recheck(
         )
 }
 
+/// A row waiting for an enrolment to check, and the completion it registers.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RecheckTarget {
+    pub registration_id: Uuid,
+    pub course_module_completion_id: Uuid,
+}
+
 /// Asks for an enrolment check of a row waiting for one, records who asked, and moves the row on
 /// at once if the check is due now.
 ///
 /// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ in
 /// `source` and the event. Every kind shares one limit on asking; see
-/// [`enrolment_checks::request_check`].
+/// [`enrolment_checks::request_check`]. The completion's check signal is recorded unless the row
+/// turned out not to be waiting, even for a request refused as too soon.
 pub(crate) async fn start_enrolment_recheck(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
-    registration_id: Uuid,
+    target: RecheckTarget,
     source: EnrolmentCheckSource,
     event_kind: CreditRegistrationEventKind,
     message: &str,
 ) -> Result<CheckRequestOutcome, ControllerError> {
+    let registration_id = target.registration_id;
     let mut tx = conn.begin().await?;
     let outcome =
         enrolment_checks::request_check(&mut tx, registration_id, source, Utc::now()).await?;
-    if matches!(
-        outcome,
-        CheckRequestOutcome::TooSoon | CheckRequestOutcome::NotWaiting
-    ) {
+    if outcome == CheckRequestOutcome::NotWaiting {
+        tx.commit().await?;
+        return Ok(outcome);
+    }
+    credit_registration_enrolment_check_signals::record_check_request(
+        &mut tx,
+        target.course_module_completion_id,
+        source,
+    )
+    .await?;
+    if outcome == CheckRequestOutcome::TooSoon {
         tx.commit().await?;
         return Ok(outcome);
     }
@@ -485,17 +501,13 @@ pub async fn request_credit_registration_enrolment_recheck(
         ));
     }
 
-    credit_registration_enrolment_check_signals::record_check_request(
-        &mut conn,
-        registration.course_module_completion_id,
-        user.id,
-        EnrolmentCheckSource::StudentRequest,
-    )
-    .await?;
     let outcome = start_enrolment_recheck(
         &mut conn,
         user.id,
-        registration.id,
+        RecheckTarget {
+            registration_id: registration.id,
+            course_module_completion_id: registration.course_module_completion_id,
+        },
         EnrolmentCheckSource::StudentRequest,
         CreditRegistrationEventKind::StudentAction,
         "The student asked us to check for an enrolment again.",
@@ -1228,19 +1240,15 @@ pub async fn confirm_my_enrolment(
         true,
     )
     .await?;
-    credit_registration_enrolment_check_signals::record_check_request(
-        &mut conn,
-        current.course_module_completion_id,
-        user.id,
-        EnrolmentCheckSource::StudentRequest,
-    )
-    .await?;
     match registration {
         Some(registration) if registration.is_waiting_for_enrolment() => {
             start_enrolment_recheck(
                 &mut conn,
                 user.id,
-                registration.id,
+                RecheckTarget {
+                    registration_id: registration.id,
+                    course_module_completion_id: current.course_module_completion_id,
+                },
                 EnrolmentCheckSource::StudentRequest,
                 CreditRegistrationEventKind::StudentAction,
                 "The student said they had enrolled.",
@@ -1248,6 +1256,13 @@ pub async fn confirm_my_enrolment(
             .await?;
         }
         _ => {
+            // No row waits yet: a row that starts waiting takes its group from the signal.
+            credit_registration_enrolment_check_signals::record_check_request(
+                &mut conn,
+                current.course_module_completion_id,
+                EnrolmentCheckSource::StudentRequest,
+            )
+            .await?;
             book_roster_listing_for_unlinked_student(
                 &mut conn,
                 &app_conf,
@@ -1435,7 +1450,6 @@ pub async fn record_my_enrolment_page_visit(
     let previous_visit_at = credit_registration_enrolment_check_signals::record_visit(
         &mut conn,
         course_module_completion_id,
-        user.id,
     )
     .await?;
     match registration {

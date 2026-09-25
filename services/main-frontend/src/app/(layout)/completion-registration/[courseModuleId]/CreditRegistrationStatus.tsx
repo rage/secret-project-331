@@ -11,8 +11,6 @@ import {
   CREDIT_REGISTRATION_NS,
   MIDDLE_DOT,
   QUIET_REFRESH,
-  STATUS_BEFORE_REGISTRATION,
-  STATUS_NOT_REGISTERING,
   TIME_DATE,
   TIME_IN_TITLE,
 } from "@/components/credit-registration/constants"
@@ -45,7 +43,6 @@ import {
 } from "@/components/credit-registration/styles"
 import {
   asksWhereYouEnrolled,
-  explainsBesideTheQuestion,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -59,6 +56,7 @@ import type {
   MyCreditRegistration,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
+  StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
 import { DescriptionList, Link, QueryResults, RelativeTime } from "@/shared-module/components"
@@ -70,13 +68,15 @@ export interface CreditRegistrationStatusProps {
   moduleName: string | null | undefined
   /** What the module is configured to be worth now, which a past registration may not match. */
   ectsCredits: number | null | undefined
-  /** Whether the pipeline will register the completion, so a missing registration is still coming. */
-  creditRegistrationExpected: boolean
+  /** What the student is told while the completion has no registration yet. */
+  statusBeforeRegistration: StudentFacingCreditRegistrationStatus
 }
 
 const MOVING_REFETCH_INTERVAL_MS = 10_000
 /** Sisu answers on its own schedule, so polling it hard buys nothing. */
 const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
+/** A waiting row changes only once a check finds the enrolment; a minute is soon enough. */
+const WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS = 60_000
 
 const BACK_ARROW_SIZE = 16
 
@@ -91,19 +91,25 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   courseName,
   moduleName,
   ectsCredits,
-  creditRegistrationExpected,
+  statusBeforeRegistration,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isRegistrationComing = statusBeforeRegistration !== "not_registering"
   const query = useQuery({
     ...getMyCreditRegistrationForCourseModuleOptions({
       path: { course_module_id: courseModuleId },
     }),
+    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
+    refetchOnWindowFocus: true,
     refetchInterval: (latestQuery) => {
       const registration = latestQuery.state.data?.registration
       if (!registration) {
-        return creditRegistrationExpected && latestQuery.state.status === "success"
+        return isRegistrationComing && latestQuery.state.status === "success"
           ? MOVING_REFETCH_INTERVAL_MS
           : false
+      }
+      if (registration.student_facing_status === "needs_enrolment") {
+        return WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS
       }
       if (!registration.status_is_moving) {
         return false
@@ -113,10 +119,14 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
         : MOVING_REFETCH_INTERVAL_MS
     },
   })
-  const routeQuery = useQuery(
-    getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
-  )
-  const numberQuery = useQuery(getMyVerifiedStudentNumberOptions())
+  const routeQuery = useQuery({
+    ...getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
+    refetchOnWindowFocus: true,
+  })
+  const numberQuery = useQuery({
+    ...getMyVerifiedStudentNumberOptions(),
+    refetchOnWindowFocus: true,
+  })
 
   const data = query.data ?? null
   const enrolmentRoute = routeQuery.data ?? null
@@ -156,7 +166,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
         emptyFallback={
           <NoRegistrationYet
             heading={heading}
-            isExpected={creditRegistrationExpected}
+            status={statusBeforeRegistration}
             checkedAt={checkedAt}
           />
         }
@@ -199,31 +209,27 @@ const LastChecked: React.FC<{ checkedAt: string }> = ({ checkedAt }) => {
 }
 
 /**
- * The completion while it has no registration. An expected one gets it within a minute or two and
- * reads as already being registered, because to the student it is.
+ * The completion while it has no registration. One that is coming gets it within a minute or two
+ * and reads as already being registered, because to the student it is.
  */
 const NoRegistrationYet: React.FC<{
   heading: React.ReactNode
-  isExpected: boolean
+  status: StudentFacingCreditRegistrationStatus
   checkedAt: string | null
-}> = ({ heading, isExpected, checkedAt }) => {
+}> = ({ heading, status, checkedAt }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isComing = status !== "not_registering"
   return (
     <article className={bandedCardCss}>
       {heading}
       <section className={bandCss}>
-        <h2 className={subheadingCss}>
-          {registrationStatusLabel(
-            t,
-            isExpected ? STATUS_BEFORE_REGISTRATION : STATUS_NOT_REGISTERING,
-          )}
-        </h2>
+        <h2 className={subheadingCss}>{registrationStatusLabel(t, status)}</h2>
         <p>
-          {isExpected
+          {isComing
             ? t("credit-registration-explanation-starting")
-            : registrationExplanation(t, STATUS_NOT_REGISTERING)}
+            : registrationExplanation(t, status)}
         </p>
-        {isExpected && checkedAt ? <LastChecked checkedAt={checkedAt} /> : null}
+        {isComing && checkedAt ? <LastChecked checkedAt={checkedAt} /> : null}
       </section>
     </article>
   )
@@ -313,21 +319,11 @@ const Tracker: React.FC<TrackerProps> = ({
         {saysWhatIsHappening(view) ? (
           <section className={bandCss}>
             <h2 className={subheadingCss}>{statusLabel}</h2>
-            {explainsBesideTheQuestion(view) ? (
-              <p>
-                {status === "needs_enrolment"
-                  ? t("credit-registration-explanation-needs-enrolment-yet-to-enrol")
-                  : registrationExplanation(t, status)}
-              </p>
-            ) : (
-              <>
-                <StudentRegistrationExplanation registration={registration} />
-                <RegistrationActions
-                  primaryAction={primaryAction}
-                  secondaryActions={secondaryActions}
-                />
-              </>
-            )}
+            <StudentRegistrationExplanation registration={registration} />
+            <RegistrationActions
+              primaryAction={primaryAction}
+              secondaryActions={secondaryActions}
+            />
             {showsRegistrationFacts(registration) ? (
               <RegistrationFacts registration={registration} moduleEctsCredits={ectsCredits} />
             ) : null}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  state\nFROM credit_registrations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY id FOR\nUPDATE\n        ",
+  "query": "\nSELECT id,\n  state AS \"state: CreditRegistrationState\",\n  enrolment_check_anchor_at IS NOT NULL AS \"has_enrolment_check_anchor!\"\nFROM credit_registrations\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\nORDER BY id FOR\nUPDATE\n        ",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "state",
+        "name": "state: CreditRegistrationState",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -48,6 +48,12 @@
             "name": "state"
           }
         }
+      },
+      {
+        "ordinal": 2,
+        "name": "has_enrolment_check_anchor!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -57,8 +63,9 @@
     },
     "nullable": [
       false,
-      false
+      false,
+      null
     ]
   },
-  "hash": "e45c3534671587bd0c221d1fcaa79acc17a5de6eb5bb5e7864bf008af39f348b"
+  "hash": "13c12d21793017448a1726c7bbef014aa59690b313d41737833c4aad4aee4891"
 }

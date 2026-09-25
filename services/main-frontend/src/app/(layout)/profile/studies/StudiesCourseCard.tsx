@@ -9,7 +9,6 @@ import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
   MIDDLE_DOT,
-  STATUS_BEFORE_REGISTRATION,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -329,8 +328,7 @@ const ModuleRow: React.FC<{
       : null
   const registersOnCompletion = !completion && module.supports_credit_registration
   const registrationStatus =
-    registration?.student_facing_status ??
-    (completion && module.credit_registration_expected ? STATUS_BEFORE_REGISTRATION : null)
+    registration?.student_facing_status ?? module.status_before_registration ?? null
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}

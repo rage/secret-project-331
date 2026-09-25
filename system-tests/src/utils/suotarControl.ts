@@ -237,6 +237,26 @@ export const makeEnrolmentChecksDue = async (
   return ((await response.json()) as { madeDueCount: number }).madeDueCount
 }
 
+/**
+ * Makes the roster listings of the course `scope` names due now and refills its listing rate, so a
+ * spec can list its codes again without waiting out the tier interval, a failure backoff or the
+ * limiter. Returns how many codes it moved. Refuses a scope without a course.
+ */
+export const makeRosterListingsDue = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<number> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/make-roster-listings-due?${scopeQuery(scope).slice(1)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `make-roster-listings-due scoped to ${JSON.stringify(scope)} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return ((await response.json()) as { madeDueCount: number }).madeDueCount
+}
+
 /** Which ladder a row's enrolment checks follow. Rows only ever move to a later group. */
 export type EnrolmentCheckGroup = "completed" | "visited" | "check_requested"
 

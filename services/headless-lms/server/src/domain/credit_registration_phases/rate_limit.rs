@@ -1,19 +1,18 @@
 //! How much one worker process may ask of each rate-limited Suotar endpoint.
 //!
 //! One token bucket per endpoint, in memory like the circuit breaker: every endpoint is called from
-//! one process only. After its own failures, or once a breaker cooldown ends, an endpoint drops to a
-//! tenth of its rate and doubles back every five healthy minutes.
+//! one process only. After its own failures, or when the breaker trips or closes again, an endpoint
+//! drops to a tenth of its rate and doubles back every five healthy minutes.
 //!
-//! Only the unscoped runs of the live workers are limited. A test's scoped ticks are few, and must
-//! not wait out a limit another test's traffic spent.
+//! Keyed by scope like the breaker, so a test's scoped ticks never spend what the live workers or
+//! another test may send.
 
-use std::collections::HashMap;
-use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use super::breaker::ScopeKey;
+use super::process_local::ProcessLocalMap;
 
 /// What an endpoint may take at full rate.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -90,38 +89,40 @@ impl Bucket {
             (self.tokens + elapsed_minutes * rate.per_minute * share).min(burst_limit(rate, share));
         self.refilled_at = now;
     }
+
+    /// Whether the bucket is back where a new one starts, so dropping it changes nothing.
+    fn is_fresh(&mut self, rate: EndpointRate, now: Instant) -> bool {
+        self.refill(rate, now);
+        self.floor_started_at.is_none() && self.tokens >= rate.capacity
+    }
 }
 
-static BUCKETS: LazyLock<Mutex<HashMap<SuotarEndpoint, Bucket>>> =
-    LazyLock::new(|| Mutex::new(HashMap::new()));
-
-fn lock() -> std::sync::MutexGuard<'static, HashMap<SuotarEndpoint, Bucket>> {
-    // Advisory state, like the breaker's: a poisoned lock is recovered rather than fatal.
-    BUCKETS
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner())
-}
+static BUCKETS: ProcessLocalMap<(ScopeKey, SuotarEndpoint), Bucket> = ProcessLocalMap::new();
 
 fn with_bucket<T>(
     key: &ScopeKey,
     endpoint: SuotarEndpoint,
     use_bucket: impl FnOnce(&mut Bucket, EndpointRate) -> T,
 ) -> Option<T> {
-    if *key != ScopeKey::Global {
-        return None;
-    }
     let rate = endpoint_rate(endpoint)?;
     let now = Instant::now();
-    let mut buckets = lock();
+    let mut buckets = BUCKETS.lock();
+    let bucket_key = (key.clone(), endpoint);
+    if !buckets.contains_key(&bucket_key) {
+        // A scope never run again would otherwise stay in the map for the life of the process.
+        buckets.retain(|(_, endpoint), bucket| {
+            endpoint_rate(*endpoint).is_some_and(|rate| !bucket.is_fresh(rate, now))
+        });
+    }
     let bucket = buckets
-        .entry(endpoint)
+        .entry(bucket_key)
         .or_insert_with(|| Bucket::new(rate, now));
     bucket.refill(rate, now);
     Some(use_bucket(bucket, rate))
 }
 
-/// How many items, or requests, the endpoint may take right now. Unlimited endpoints and scoped runs
-/// answer `usize::MAX`.
+/// How many items, or requests, the endpoint may take right now. Unlimited endpoints answer
+/// `usize::MAX`.
 pub fn available(key: &ScopeKey, endpoint: SuotarEndpoint) -> usize {
     with_bucket(key, endpoint, |bucket, _| {
         bucket.tokens.floor().max(0.0) as usize
@@ -161,7 +162,12 @@ pub struct LimiterSnapshot {
     pub rate: EndpointRate,
 }
 
-/// `None` for an unlimited endpoint or a scoped run.
+/// Forgets every bucket of `scope`, so its endpoints are back at full rate with a full burst.
+pub fn reset(scope: &ScopeKey) {
+    BUCKETS.lock().retain(|(key, _), _| key != scope);
+}
+
+/// `None` for an unlimited endpoint.
 pub fn snapshot(key: &ScopeKey, endpoint: SuotarEndpoint) -> Option<LimiterSnapshot> {
     with_bucket(key, endpoint, |bucket, rate| LimiterSnapshot {
         share: bucket.share(Instant::now()),

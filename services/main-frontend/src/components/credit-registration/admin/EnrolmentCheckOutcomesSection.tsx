@@ -3,7 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { EnrolmentCheckFindings, EnrolmentCheckSource } from "@/generated/api/types.generated"
+import type { EnrolmentCheckFindings } from "@/generated/api/types.generated"
 import { Table } from "@/shared-module/components"
 
 import {
@@ -14,37 +14,16 @@ import {
   TABLE_STACK,
 } from "../constants"
 import { headingCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
-import { enrolmentCheckGroupLabel, enrolmentCheckSourceLabel } from "./adminCreditRegistrationCopy"
-import { ENROLMENT_CHECK_GROUP_ORDER, byGroupThenStep } from "./enrolmentCheckOrder"
+import {
+  enrolmentCheckGroupLabel,
+  enrolmentCheckSourceLabel,
+  enrolmentCheckStepLabel,
+} from "./adminCreditRegistrationCopy"
 import { formatIntervalSecs } from "./phaseStatus"
-
-const SOURCE_ORDER: readonly EnrolmentCheckSource[] = [
-  "schedule",
-  "student_request",
-  "teacher_request",
-  "admin_request",
-  "roster_listing",
-  "account_link",
-]
-
-const byGroupSourceThenStep = (a: EnrolmentCheckFindings, b: EnrolmentCheckFindings): number => {
-  const groupOrder =
-    ENROLMENT_CHECK_GROUP_ORDER.indexOf(a.enrolment_check_group) -
-    ENROLMENT_CHECK_GROUP_ORDER.indexOf(b.enrolment_check_group)
-  if (groupOrder !== 0) {
-    return groupOrder
-  }
-  const sourceOrder = SOURCE_ORDER.indexOf(a.source) - SOURCE_ORDER.indexOf(b.source)
-  if (sourceOrder !== 0) {
-    return sourceOrder
-  }
-  return byGroupThenStep<EnrolmentCheckFindings>((row) => row.enrolment_check_step)(a, b)
-}
 
 /** What the checks found, by group, step and what triggered them. */
 const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }> = ({ rows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const sorted = rows.toSorted(byGroupSourceThenStep)
 
   return (
     <section className={sectionCardCss}>
@@ -56,7 +35,7 @@ const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
         rowKey={(row) => `${row.enrolment_check_group}-${row.enrolment_check_step}-${row.source}`}
-        rows={sorted}
+        rows={rows}
         emptyState={t("credit-registration-admin-no-enrolment-check-findings")}
         columns={[
           {
@@ -69,7 +48,7 @@ const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }
             align: ALIGN_END,
             minWidth: "4rem",
             nowrap: true,
-            cell: (row) => row.enrolment_check_step ?? ABSENT,
+            cell: (row) => enrolmentCheckStepLabel(t, row.enrolment_check_step),
           },
           {
             header: t("credit-registration-admin-column-source"),
@@ -89,13 +68,6 @@ const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }
             minWidth: "5rem",
             nowrap: true,
             cell: (row) => row.found_count,
-          },
-          {
-            header: t("credit-registration-admin-column-found-after-stop"),
-            align: ALIGN_END,
-            minWidth: "7rem",
-            nowrap: true,
-            cell: (row) => row.found_after_stop_count,
           },
           {
             header: t("credit-registration-admin-column-p50-detection"),

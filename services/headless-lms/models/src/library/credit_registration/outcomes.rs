@@ -113,8 +113,7 @@ pub fn submit_error_outcome(
             submission_uncertain()
         }
         Retryability::VerifyOnly | Retryability::RetryableTransient => {
-            waiting_lookup_failed(endpoint, facts)
-                .unwrap_or_else(|| retry_or_expire(code, endpoint, facts))
+            retry_or_expire(code, endpoint, facts, Failure::Transient)
         }
         Retryability::PermanentNeedsStudent => match code {
             // Dropping the number puts the student back in the linking flow, the only thing that
@@ -222,11 +221,12 @@ pub fn request_level_outcome(
     if endpoint == SuotarEndpoint::ImportAttainments && variant.outcome_may_have_landed() {
         return submission_uncertain();
     }
-    variant
-        .is_transient()
-        .then(|| waiting_lookup_failed(endpoint, facts))
-        .flatten()
-        .unwrap_or_else(|| retry_or_expire(request_level_code(variant), endpoint, facts))
+    let failure = if variant.is_transient() {
+        Failure::Transient
+    } else {
+        Failure::Lasting
+    };
+    retry_or_expire(request_level_code(variant), endpoint, facts, failure)
 }
 
 /// A lookup for a row waiting for an enrolment that failed in transit: the row keeps waiting and
@@ -266,13 +266,12 @@ pub fn unanswered_item_outcome(
     if endpoint == SuotarEndpoint::VerifyAttainments {
         return verify_inconclusive_outcome(state, facts);
     }
-    waiting_lookup_failed(endpoint, facts).unwrap_or_else(|| {
-        retry_or_expire(
-            CreditRegistrationErrorCode::UnexpectedResponse,
-            endpoint,
-            facts,
-        )
-    })
+    retry_or_expire(
+        CreditRegistrationErrorCode::UnexpectedResponse,
+        endpoint,
+        facts,
+        Failure::Transient,
+    )
 }
 
 /// The ledger error code for a request the study registry rejected, or never answered, as a whole.
@@ -293,13 +292,28 @@ pub fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErro
     }
 }
 
+/// Whether a failure could go away on its own.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Failure {
+    Transient,
+    /// The same request would fail the same way on every retry.
+    Lasting,
+}
+
 /// Retryable until the row has been failing for a week, and then a support case rather than an
-/// endless one.
+/// endless one. A transient failure of a waiting row's lookup is not counted as one at all; see
+/// [`waiting_lookup_failed`].
 fn retry_or_expire(
     code: CreditRegistrationErrorCode,
     endpoint: SuotarEndpoint,
     facts: &RowFacts,
+    failure: Failure,
 ) -> Outcome {
+    if failure == Failure::Transient
+        && let Some(outcome) = waiting_lookup_failed(endpoint, facts)
+    {
+        return outcome;
+    }
     if submit_window_expired(facts.first_failed_at, facts.now) {
         return Outcome::to(CreditRegistrationState::FailedPermanent)
             .with_code(CreditRegistrationErrorCode::RetryWindowExpired)
@@ -341,6 +355,7 @@ pub fn missing_context_outcome(facts: &RowFacts) -> Outcome {
         CreditRegistrationErrorCode::Unknown,
         SuotarEndpoint::ResolveEnrolments,
         facts,
+        Failure::Lasting,
     )
 }
 

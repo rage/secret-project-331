@@ -8,7 +8,8 @@
 use chrono::Duration;
 
 use crate::domain::credit_registration_phases::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, run_phase_once,
+    CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, breaker,
+    rate_limit, run_phase_once,
 };
 use crate::prelude::*;
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
@@ -345,6 +346,44 @@ async fn make_enrolment_checks_due(
     token.authorized_ok(HttpResponse::Ok().json(MakeEnrolmentChecksDueResult { made_due_count }))
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MakeRosterListingsDueResult {
+    pub made_due_count: u64,
+}
+
+/// Makes the roster listings of the scope's course due now and refills the listing limiter of the
+/// scope, so a spec can list its codes again without waiting out the tier interval, a backoff or
+/// the rate. Takes the tick's scope, which must name a course; the phase is ignored.
+async fn make_roster_listings_due(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    query: web::Query<RunTickQuery>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let scope = match resolve_scope(&pool, &query).await? {
+        Ok(scope) => scope,
+        Err(unresolved) => {
+            return token.authorized_ok(HttpResponse::BadRequest().json(unresolved));
+        }
+    };
+    let Some(course_id) = scope.course_id else {
+        return token.authorized_ok(
+            HttpResponse::BadRequest().json("A course is required, or every test's codes move."),
+        );
+    };
+    let mut conn = pool.acquire().await?;
+    let made_due_count =
+        models::credit_registration_roster_schedules::make_listings_due_for_testing(
+            &mut conn, course_id,
+        )
+        .await?;
+    rate_limit::reset(&breaker::ScopeKey::of(&scope));
+    token.authorized_ok(HttpResponse::Ok().json(MakeRosterListingsDueResult { made_due_count }))
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnrolmentCheckScheduleQuery {
@@ -582,6 +621,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/make-enrolment-checks-due",
             web::post().to(make_enrolment_checks_due),
+        )
+        .route(
+            "/make-roster-listings-due",
+            web::post().to(make_roster_listings_due),
         )
         .route(
             "/register-new-completions-via-suotar",

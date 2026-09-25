@@ -32,13 +32,9 @@ import {
 import { listingErrorLabel, rosterTierLabel } from "./adminCreditRegistrationCopy"
 import { formatPercent } from "./percent"
 
-const byDayDescThenEndpoint = (a: SuotarEndpointDailyCost, b: SuotarEndpointDailyCost): number =>
-  b.day.localeCompare(a.day) || a.endpoint.localeCompare(b.endpoint)
-
 /** Suotar calls per endpoint per day: the pacing's own cost. */
 const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const sorted = rows.toSorted(byDayDescThenEndpoint)
 
   return (
     <div className={subsectionCss}>
@@ -50,7 +46,7 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
         rowKey={(row) => `${row.endpoint}-${row.day}`}
-        rows={sorted}
+        rows={rows}
         emptyState={t("credit-registration-admin-no-calls-in-window")}
         columns={[
           {
@@ -286,7 +282,7 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
             header: t("credit-registration-admin-column-recorded-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.recorded_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <RelativeTime at={row.updated_at} absoluteTime={TIME_COMPACT} />,
           },
         ]}
       />

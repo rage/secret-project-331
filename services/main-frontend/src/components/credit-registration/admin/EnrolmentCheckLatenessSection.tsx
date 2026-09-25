@@ -9,7 +9,6 @@ import { Table } from "@/shared-module/components"
 import { ALIGN_END, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
 import { headingCss, noteCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
 import { enrolmentCheckGroupLabel } from "./adminCreditRegistrationCopy"
-import { byGroupThenStep } from "./enrolmentCheckOrder"
 import { formatIntervalSecs } from "./phaseStatus"
 
 /** How late the schedule's own checks ran against their ladder time, by group and step. */
@@ -18,7 +17,6 @@ const EnrolmentCheckLatenessSection: React.FC<{
   veryLateAfterSecs: number
 }> = ({ rows, veryLateAfterSecs }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const sorted = rows.toSorted(byGroupThenStep((row) => row.enrolment_check_step))
 
   return (
     <section className={sectionCardCss}>
@@ -35,7 +33,7 @@ const EnrolmentCheckLatenessSection: React.FC<{
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
         rowKey={(row) => `${row.enrolment_check_group}-${row.enrolment_check_step}`}
-        rows={sorted}
+        rows={rows}
         emptyState={t("credit-registration-admin-no-enrolment-checks-in-window")}
         columns={[
           {

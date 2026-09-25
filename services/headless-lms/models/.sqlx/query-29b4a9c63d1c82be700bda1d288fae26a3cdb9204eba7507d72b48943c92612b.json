@@ -1,11 +1,10 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO credit_registration_enrolment_check_signals (\n    course_module_completion_id,\n    user_id,\n    last_check_requested_at,\n    check_request_source\n  )\nVALUES ($1, $2, now(), $3) ON CONFLICT (course_module_completion_id)\nWHERE deleted_at IS NULL DO\nUPDATE\nSET last_check_requested_at = now(),\n  check_request_source = EXCLUDED.check_request_source\n        ",
+  "query": "\nINSERT INTO credit_registration_enrolment_check_signals (\n    course_module_completion_id,\n    last_check_requested_at,\n    check_request_source\n  )\nVALUES ($1, now(), $2) ON CONFLICT (course_module_completion_id)\nWHERE deleted_at IS NULL DO\nUPDATE\nSET last_check_requested_at = now(),\n  check_request_source = EXCLUDED.check_request_source\n        ",
   "describe": {
     "columns": [],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid",
         {
           "Custom": {
@@ -26,5 +25,5 @@
     },
     "nullable": []
   },
-  "hash": "1e04227d11152161c1a0bfa298e4570f5c7320d1195df7da6325fb4dccfe76ef"
+  "hash": "29b4a9c63d1c82be700bda1d288fae26a3cdb9204eba7507d72b48943c92612b"
 }

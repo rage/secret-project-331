@@ -23,6 +23,7 @@ import {
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   expireEnrolmentRecheckAllowance,
+  makeRosterListingsDue,
   runEnrolmentCheckNow,
   runEnrolmentDiscoveryTick,
   runMaterializeTick,
@@ -200,6 +201,7 @@ test("With account linking off, discovery wakes a linked student and mails nobod
     (row) => row.course_id === SUOTAR_B_COURSE_ID,
   )?.last_listed_at
   await setTestExclusiveHold(page.request, STUDENT.email, HOLD_SECS, SUOTAR_B_COURSE_ID)
+  await makeRosterListingsDue(page.request, { courseSlug: SUOTAR_B_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(
     page.request,
     { courseSlug: SUOTAR_B_COURSE_SLUG },

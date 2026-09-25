@@ -437,6 +437,15 @@ export const enrolmentCheckSourceLabel = (
   source: EnrolmentCheckSource,
 ): string => labelFrom(t, ENROLMENT_CHECK_SOURCE_KEYS, source, ENROLMENT_CHECK_SOURCE_UNKNOWN_KEY)
 
+/** A ladder step, or that the ladder ran out when there is none. */
+export const enrolmentCheckStepLabel = (
+  t: CreditRegistrationTFunction,
+  step: number | null | undefined,
+): string =>
+  step === null || step === undefined
+    ? t("credit-registration-admin-enrolment-check-stopped")
+    : String(step)
+
 const ROSTER_TIER_KEYS = {
   active: "credit-registration-admin-roster-tier-active",
   idle: "credit-registration-admin-roster-tier-idle",

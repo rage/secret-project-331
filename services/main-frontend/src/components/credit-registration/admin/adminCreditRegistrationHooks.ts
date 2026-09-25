@@ -275,9 +275,9 @@ export const useInvalidateAfterMaterialize = () => {
 }
 
 /** The pacing dashboard: lateness, cost, population and findings for the chosen window. */
-export const useCreditRegistrationEnrolmentChecks = (days: number) =>
+export const useCreditRegistrationEnrolmentChecks = (windowSecs: number) =>
   useQuery({
-    ...getCreditRegistrationEnrolmentChecksOptions({ query: { days } }),
+    ...getCreditRegistrationEnrolmentChecksOptions({ query: { window_secs: windowSecs } }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 

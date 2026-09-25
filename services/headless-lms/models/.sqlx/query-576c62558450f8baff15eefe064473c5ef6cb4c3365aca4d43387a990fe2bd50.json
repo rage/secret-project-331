@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT acm.course_module_id AS \"course_module_id!\",\n  acm.course_id AS \"course_id!\",\n  TRIM(cm.uh_course_code) AS \"uh_course_code!\",\n  co.language_code AS \"course_language_code!\"\nFROM credit_registration_active_course_modules acm\n  JOIN course_modules cm ON cm.id = acm.course_module_id\n  JOIN courses co ON co.id = acm.course_id\nWHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  AND ($1::uuid IS NULL OR acm.course_id = $1)\nORDER BY cm.id\n        ",
+  "query": "\nSELECT acm.course_module_id AS \"course_module_id!\",\n  acm.course_id AS \"course_id!\",\n  TRIM(cm.uh_course_code) AS \"uh_course_code!\",\n  co.language_code AS \"course_language_code!\"\nFROM credit_registration_active_course_modules acm\n  JOIN course_modules cm ON cm.id = acm.course_module_id\n  JOIN courses co ON co.id = acm.course_id\nWHERE TRIM(cm.uh_course_code) = ANY($2::text [])\n  AND ($1::uuid IS NULL OR acm.course_id = $1)\nORDER BY cm.id\n        ",
   "describe": {
     "columns": [
       {
@@ -45,7 +45,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "TextArray"
       ]
     },
     "nullable": [
@@ -55,5 +56,5 @@
       false
     ]
   },
-  "hash": "50972a35197d8afbc8c638b98d9eb19d5757ee3a32ce75a3109c63af663b3d2f"
+  "hash": "576c62558450f8baff15eefe064473c5ef6cb4c3365aca4d43387a990fe2bd50"
 }

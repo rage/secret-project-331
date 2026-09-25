@@ -35,6 +35,7 @@ import {
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   CREDIT_REGISTRATION_PHASES,
+  makeRosterListingsDue,
   runEnrolmentDiscoveryTick,
   runLedgerSnapshotTick,
   runLinkEmailsTick,
@@ -564,6 +565,7 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
 })
 
 test("A discovery run writes the per-module counters", async ({ page }) => {
+  await makeRosterListingsDue(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
 

@@ -5788,8 +5788,10 @@ export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = t
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller says they have enrolled.
  *
- * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
- * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ * Counts as a check request: a waiting registration restarts its checks on the check-requested
+ * schedule, under the limit every check request shares. Recorded against the completion too, so a
+ * registration that starts waiting later starts on that schedule. With account linking on, a caller
+ * with no linked student number books a roster listing of the course code instead.
  */
 export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
   options: Options<ConfirmMyEnrolmentData, ThrowOnError>,

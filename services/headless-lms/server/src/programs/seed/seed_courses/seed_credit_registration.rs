@@ -244,7 +244,6 @@ pub async fn seed_credit_registration(
             credit_registration_enrolment_check_signals::record_check_request(
                 &mut conn,
                 completion_id,
-                student.user_id,
                 EnrolmentCheckSource::StudentRequest,
             )
             .await?;

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_code,\n  last_attempted_at,\n  last_fetched_at,\n  last_fetch_duration_ms,\n  last_listed_person_count,\n  triggered_fetch_at,\n  follow_up_fetch_at,\n  triggered_fetch_day,\n  triggered_fetch_count,\n  is_fetched_alone,\n  consecutive_failures,\n  retry_not_before,\n  last_error AS \"last_error: CreditRegistrationErrorCode\",\n  window_closed_at\nFROM credit_registration_roster_schedules\nWHERE course_code = ANY($1::text [])\nORDER BY course_code\n        ",
+  "query": "\nWITH modules AS (\n  SELECT acm.course_module_id,\n    TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n),\ncandidates AS (\n  SELECT s.*\n  FROM credit_registration_roster_schedules s\n  WHERE s.course_code IN (\n      SELECT course_code\n      FROM modules\n    )\n    AND (\n      NOT $2::boolean\n      OR (\n        (\n          s.retry_not_before IS NULL\n          OR s.retry_not_before <= now()\n        )\n        AND (\n          s.last_fetched_at IS NULL\n          OR s.last_fetched_at <= now() - ($3::bigint * INTERVAL '1 second')\n          OR LEAST(s.triggered_fetch_at, s.follow_up_fetch_at) <= now()\n        )\n      )\n    )\n)\nSELECT c.course_code,\n  c.last_fetched_at,\n  c.last_fetch_duration_ms,\n  c.last_listed_person_count,\n  c.triggered_fetch_at,\n  c.follow_up_fetch_at,\n  c.triggered_fetch_day,\n  c.triggered_fetch_count,\n  c.is_fetched_alone,\n  c.consecutive_failures,\n  c.retry_not_before,\n  c.last_error AS \"last_error: CreditRegistrationErrorCode\",\n  c.window_closed_at,\n  COUNT(*) AS \"module_count!\",\n  MAX(facts.last_completion_at) AS last_completion_at,\n  bool_or(facts.has_waiting_rows) AS \"has_waiting_rows!\"\nFROM candidates c\n  JOIN modules m ON m.course_code = c.course_code\n  CROSS JOIN LATERAL (\n    SELECT (\n        SELECT cr.created_at\n        FROM credit_registrations cr\n        WHERE cr.course_module_id = m.course_module_id\n          AND cr.deleted_at IS NULL\n        ORDER BY cr.created_at DESC\n        LIMIT 1\n      ) AS last_completion_at,\n      EXISTS (\n        SELECT 1\n        FROM credit_registrations cr\n        WHERE cr.course_module_id = m.course_module_id\n          AND cr.state = 'no_usable_enrolment'\n          AND cr.enrolment_checks_stopped_at IS NULL\n          AND cr.superseded_by_id IS NULL\n          AND cr.deleted_at IS NULL\n      ) AS has_waiting_rows\n  ) facts\nGROUP BY c.id,\n  c.course_code,\n  c.last_fetched_at,\n  c.last_fetch_duration_ms,\n  c.last_listed_person_count,\n  c.triggered_fetch_at,\n  c.follow_up_fetch_at,\n  c.triggered_fetch_day,\n  c.triggered_fetch_count,\n  c.is_fetched_alone,\n  c.consecutive_failures,\n  c.retry_not_before,\n  c.last_error,\n  c.window_closed_at\nORDER BY c.course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -16,17 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "last_attempted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "credit_registration_roster_schedules",
-            "name": "last_attempted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
         "name": "last_fetched_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -37,7 +26,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "last_fetch_duration_ms",
         "type_info": "Int4",
         "origin": {
@@ -48,7 +37,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "last_listed_person_count",
         "type_info": "Int4",
         "origin": {
@@ -59,7 +48,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "triggered_fetch_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -70,7 +59,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "follow_up_fetch_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -81,7 +70,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "triggered_fetch_day",
         "type_info": "Date",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "triggered_fetch_count",
         "type_info": "Int4",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "is_fetched_alone",
         "type_info": "Bool",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "consecutive_failures",
         "type_info": "Int4",
         "origin": {
@@ -125,7 +114,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "retry_not_before",
         "type_info": "Timestamptz",
         "origin": {
@@ -136,7 +125,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 11,
         "name": "last_error: CreditRegistrationErrorCode",
         "type_info": {
           "Custom": {
@@ -178,7 +167,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 12,
         "name": "window_closed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -187,11 +176,31 @@
             "name": "window_closed_at"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "module_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 14,
+        "name": "last_completion_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
+        "name": "has_waiting_rows!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
       "Left": [
-        "TextArray"
+        "Uuid",
+        "Bool",
+        "Int8"
       ]
     },
     "nullable": [
@@ -202,14 +211,16 @@
       true,
       true,
       true,
-      true,
       false,
       false,
       false,
       true,
       true,
-      true
+      true,
+      null,
+      null,
+      null
     ]
   },
-  "hash": "7e9e7b1678541acf9eb55150ce1a1fcec2f733c48514b282d983ce4f9bca21b9"
+  "hash": "de6d35235dc4479ef1f61560267491d2d2e21c5b02d736e4b27647cf43bb6844"
 }

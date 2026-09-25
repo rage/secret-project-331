@@ -19,7 +19,7 @@ const courseModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCours
   order_number: 0,
   ects_credits: 5,
   supports_credit_registration: false,
-  credit_registration_expected: false,
+  status_before_registration: null,
   score_given: 12,
   score_maximum: 20,
   score_required: 16,
@@ -184,7 +184,7 @@ describe("StudiesCourseCard", () => {
         course={course([
           courseModule({
             supports_credit_registration: true,
-            credit_registration_expected: true,
+            status_before_registration: "sending",
             completion: completion(true),
           }),
         ])}

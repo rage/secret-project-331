@@ -29,8 +29,8 @@ use uuid::Uuid;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, breaker,
-    claim_limit, counts_as_failed, is_malformed_request, rate_limit, row_facts,
+    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, counts_as_failed,
+    is_malformed_request, row_facts,
 };
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
@@ -59,11 +59,8 @@ impl SuotarBatchPhase for ResolvePersonIds {
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
+        limit: usize,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let limit = claim_limit(scope, ENDPOINT);
-        if limit == 0 {
-            return Ok(Prepared::default());
-        }
         let claimed = claim_due_for_person_lookup(conn, scope, limit as i64).await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
         let links: HashMap<Uuid, _> = verified_student_numbers::get_by_user_ids(conn, &user_ids)
@@ -81,10 +78,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
             transition(
                 conn,
                 row.id,
-                &Transition {
-                    records_event: row.enrolment_check_anchor_at.is_none(),
-                    ..Transition::to(CreditRegistrationState::ResolvingEnrolment)
-                },
+                &Transition::to(CreditRegistrationState::ResolvingEnrolment),
             )
             .await?;
             let item = ResolvePersonRequestItem {
@@ -98,11 +92,6 @@ impl SuotarBatchPhase for ResolvePersonIds {
             };
             prepared.sendable.push((awaiting, item));
         }
-        rate_limit::take(
-            &breaker::ScopeKey::of(scope),
-            ENDPOINT,
-            prepared.sendable.len(),
-        );
         Ok(prepared)
     }
 

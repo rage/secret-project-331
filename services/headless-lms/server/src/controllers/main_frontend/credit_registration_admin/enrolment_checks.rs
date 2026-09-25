@@ -8,7 +8,9 @@ use chrono::Duration;
 use headless_lms_models::credit_registration_enrolment_check_outcomes::{
     self, EnrolmentCheckFindings, EnrolmentCheckLateness, EnrolmentCheckPopulation, VERY_LATE_SECS,
 };
-use headless_lms_models::credit_registration_roster_schedules::{self, RosterTier, roster_tier};
+use headless_lms_models::credit_registration_roster_schedules::{
+    self, RosterTier, ScheduleSelection, roster_tier,
+};
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::suotar_api_calls::{self, SuotarEndpointDailyCost};
 use headless_lms_models::suotar_endpoint_rate_limits::{self, SuotarEndpointRateLimit};
@@ -18,8 +20,9 @@ use crate::prelude::*;
 
 use super::authorize_credit_registration_admin;
 
-const DEFAULT_DAYS: i64 = 7;
-const MAX_DAYS: i64 = 90;
+const DEFAULT_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
+const MIN_WINDOW_SECS: i64 = 60 * 60;
+const MAX_WINDOW_SECS: i64 = 90 * 24 * 60 * 60;
 
 /// One course code's roster schedule as it stands.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -41,7 +44,6 @@ pub struct EnrolmentCheckRosterCode {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct EnrolmentCheckDashboard {
-    pub since: DateTime<Utc>,
     /// Lateness past this counts as very late.
     pub very_late_after_secs: i64,
     pub lateness: Vec<EnrolmentCheckLateness>,
@@ -55,7 +57,7 @@ pub struct EnrolmentCheckDashboard {
 
 #[derive(Debug, Deserialize)]
 pub struct EnrolmentCheckDashboardQuery {
-    days: Option<i64>,
+    window_secs: Option<i64>,
 }
 
 /**
@@ -68,7 +70,7 @@ and findings of the enrolment checks, and the roster schedule per course code.
     path = "/enrolment-checks",
     operation_id = "getCreditRegistrationEnrolmentChecks",
     tag = "credit-registration-admin",
-    params(("days" = Option<i64>, Query, description = "How many days of checks and calls to read")),
+    params(("window_secs" = Option<i64>, Query, description = "How far back to read checks and calls, in seconds")),
     responses(
         (status = 200, description = "The enrolment check dashboard", body = EnrolmentCheckDashboard)
     )
@@ -83,8 +85,11 @@ pub async fn get_credit_registration_enrolment_checks(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let now = Utc::now();
-    let days = query.days.unwrap_or(DEFAULT_DAYS).clamp(1, MAX_DAYS);
-    let since = now - Duration::days(days);
+    let window_secs = query
+        .window_secs
+        .unwrap_or(DEFAULT_WINDOW_SECS)
+        .clamp(MIN_WINDOW_SECS, MAX_WINDOW_SECS);
+    let since = now - Duration::seconds(window_secs);
     let lateness =
         credit_registration_enrolment_check_outcomes::get_lateness_since(&mut conn, since).await?;
     let findings =
@@ -94,33 +99,35 @@ pub async fn get_credit_registration_enrolment_checks(
     let daily_costs = suotar_api_calls::get_daily_costs_since(&mut conn, since).await?;
     let is_account_linking_enabled = app_conf.suotar_configuration.account_linking_enabled;
     let today = now.date_naive();
-    let roster_codes =
-        credit_registration_roster_schedules::get_schedules_with_modules(&mut conn, None)
-            .await?
-            .into_iter()
-            .map(|(schedule, modules)| EnrolmentCheckRosterCode {
-                tier: roster_tier(&schedule.tier_facts, is_account_linking_enabled, now),
-                next_fetch_at: schedule.next_fetch_at(is_account_linking_enabled, now),
-                triggered_fetch_count_today: if schedule.triggered_fetch_day == Some(today) {
-                    schedule.triggered_fetch_count
-                } else {
-                    0
-                },
-                module_count: i32::try_from(modules.len()).unwrap_or(i32::MAX),
-                course_code: schedule.course_code,
-                last_fetched_at: schedule.last_fetched_at,
-                last_listed_person_count: schedule.last_listed_person_count,
-                last_fetch_duration_ms: schedule.last_fetch_duration_ms,
-                is_fetched_alone: schedule.is_fetched_alone,
-                consecutive_failures: schedule.consecutive_failures,
-                retry_not_before: schedule.retry_not_before,
-                last_error: schedule.last_error,
-            })
-            .collect();
+    let roster_codes = credit_registration_roster_schedules::get_schedules(
+        &mut conn,
+        None,
+        ScheduleSelection::Every,
+    )
+    .await?
+    .into_iter()
+    .map(|schedule| EnrolmentCheckRosterCode {
+        tier: roster_tier(&schedule.tier_facts, is_account_linking_enabled, now),
+        next_fetch_at: schedule.next_fetch_at(is_account_linking_enabled, now),
+        triggered_fetch_count_today: if schedule.triggered_fetch_day == Some(today) {
+            schedule.triggered_fetch_count
+        } else {
+            0
+        },
+        module_count: i32::try_from(schedule.module_count).unwrap_or(i32::MAX),
+        course_code: schedule.course_code,
+        last_fetched_at: schedule.last_fetched_at,
+        last_listed_person_count: schedule.last_listed_person_count,
+        last_fetch_duration_ms: schedule.last_fetch_duration_ms,
+        is_fetched_alone: schedule.is_fetched_alone,
+        consecutive_failures: schedule.consecutive_failures,
+        retry_not_before: schedule.retry_not_before,
+        last_error: schedule.last_error,
+    })
+    .collect();
     let rate_limits = suotar_endpoint_rate_limits::get_all(&mut conn).await?;
 
     token.authorized_ok(web::Json(EnrolmentCheckDashboard {
-        since,
         very_late_after_secs: VERY_LATE_SECS,
         lateness,
         findings,

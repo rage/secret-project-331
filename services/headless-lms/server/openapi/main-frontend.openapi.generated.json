@@ -7561,9 +7561,9 @@
         "operationId": "getCreditRegistrationEnrolmentChecks",
         "parameters": [
           {
-            "name": "days",
+            "name": "window_secs",
             "in": "query",
-            "description": "How many days of checks and calls to read",
+            "description": "How far back to read checks and calls, in seconds",
             "required": false,
             "schema": {
               "type": "integer",
@@ -8650,7 +8650,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nAdvisory: the pipeline was already looking. Beyond recording the click this only brings the next\nenrolment check forward, and only when the hourly allowance the manual button spends is free.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nCounts as a check request: a waiting registration restarts its checks on the check-requested\nschedule, under the limit every check request shares. Recorded against the completion too, so a\nregistration that starts waiting later starts on that schedule. With account linking on, a caller\nwith no linked student number books a roster listing of the course code instead.",
         "operationId": "confirmMyEnrolment",
         "parameters": [
           {
@@ -21116,7 +21116,6 @@
       "EnrolmentCheckDashboard": {
         "type": "object",
         "required": [
-          "since",
           "very_late_after_secs",
           "lateness",
           "findings",
@@ -21163,10 +21162,6 @@
               "$ref": "#/components/schemas/EnrolmentCheckRosterCode"
             }
           },
-          "since": {
-            "type": "string",
-            "format": "date-time"
-          },
           "very_late_after_secs": {
             "type": "integer",
             "format": "int64",
@@ -21177,13 +21172,7 @@
       "EnrolmentCheckFindings": {
         "type": "object",
         "description": "What the checks of one group, step and source found.",
-        "required": [
-          "enrolment_check_group",
-          "source",
-          "check_count",
-          "found_count",
-          "found_after_stop_count"
-        ],
+        "required": ["enrolment_check_group", "source", "check_count", "found_count"],
         "properties": {
           "check_count": {
             "type": "integer",
@@ -21196,11 +21185,6 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "`None` for checks of rows whose schedule had run out."
-          },
-          "found_after_stop_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Of the finds, how many a row whose schedule had run out made."
           },
           "found_count": {
             "type": "integer",
@@ -21271,7 +21255,7 @@
       "EnrolmentCheckPopulation": {
         "type": "object",
         "description": "How many rows wait for an enrolment in one group and step.",
-        "required": ["enrolment_check_group", "is_stopped", "row_count", "never_checked_count"],
+        "required": ["enrolment_check_group", "row_count", "never_checked_count"],
         "properties": {
           "enrolment_check_group": {
             "$ref": "#/components/schemas/EnrolmentCheckGroup"
@@ -21280,9 +21264,6 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "`None` for rows whose schedule has run out."
-          },
-          "is_stopped": {
-            "type": "boolean"
           },
           "never_checked_count": {
             "type": "integer",
@@ -23430,7 +23411,6 @@
           "course_module_id",
           "order_number",
           "supports_credit_registration",
-          "credit_registration_expected",
           "score_given",
           "attempted_exercises",
           "automatic_completion",
@@ -23466,10 +23446,6 @@
             "type": "string",
             "format": "uuid"
           },
-          "credit_registration_expected": {
-            "type": "boolean",
-            "description": "Whether a credit registration exists or is about to for this student's completion, so a\ncompletion without one yet is on its way rather than never coming."
-          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
@@ -23501,6 +23477,17 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "Exercise points an automatic completion requires. `None` when the module is completed\nmanually or sets no point threshold."
+          },
+          "status_before_registration": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
+                "description": "What the student is told while their completion has no credit registration: `sending` when\none is about to be created. `None` when none is coming, or there is no completion."
+              }
+            ]
           },
           "supports_credit_registration": {
             "type": "boolean",
@@ -26992,12 +26979,12 @@
         "type": "object",
         "required": [
           "endpoint",
+          "updated_at",
           "rate_share",
           "full_rate_per_minute",
           "available",
           "is_breaker_open",
-          "breaker_trip_count",
-          "recorded_at"
+          "breaker_trip_count"
         ],
         "properties": {
           "available": {
@@ -27025,9 +27012,10 @@
             "format": "float",
             "description": "The share of the full rate allowed, from 0.1 up to 1."
           },
-          "recorded_at": {
+          "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the worker last reported the state."
           }
         }
       },
@@ -27606,7 +27594,7 @@
           "enable_registering_completion_to_uh_open_university",
           "enable_credit_registration_via_suotar",
           "register_credits_via_suotar",
-          "credit_registration_expected"
+          "status_before_registration"
         ],
         "properties": {
           "certificate_configuration_id": {
@@ -27630,10 +27618,6 @@
             "type": ["string", "null"],
             "description": "Why the student said they need the credits rather than a certificate, if they have been\nasked and answered. Advisory; it seeds the field when they come back to the page."
           },
-          "credit_registration_expected": {
-            "type": "boolean",
-            "description": "Whether the push path will register this completion. With `register_credits_via_suotar`\nset and this false, no credit registration is ever created for it."
-          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
@@ -27650,6 +27634,10 @@
           "register_credits_via_suotar": {
             "type": "boolean",
             "description": "Whether this completion in particular goes through the push path. Decides which flow the\npage shows: the module flag above only says the module takes part."
+          },
+          "status_before_registration": {
+            "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
+            "description": "What the student is told while the completion has no credit registration: `sending` when\nthe push path will create one, `not_registering` when it never will."
           },
           "uh_course_code": {
             "type": ["string", "null"],

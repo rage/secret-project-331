@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT enrolment_check_group AS \"enrolment_check_group!: EnrolmentCheckGroup\",\n  enrolment_check_step,\n  source AS \"source!: EnrolmentCheckSource\",\n  COUNT(*) AS \"check_count!\",\n  COUNT(*) FILTER (\n    WHERE is_enrolment_found\n  ) AS \"found_count!\",\n  COUNT(*) FILTER (\n    WHERE is_enrolment_found\n      AND were_checks_stopped\n  ) AS \"found_after_stop_count!\",\n  PERCENTILE_CONT(0.5) WITHIN GROUP (\n    ORDER BY EXTRACT(EPOCH FROM checked_at - enrolled_at)::double precision\n  ) FILTER (\n    WHERE is_enrolment_found\n      AND enrolled_at IS NOT NULL\n  ) AS p50_detection_secs,\n  PERCENTILE_CONT(0.95) WITHIN GROUP (\n    ORDER BY EXTRACT(EPOCH FROM checked_at - enrolled_at)::double precision\n  ) FILTER (\n    WHERE is_enrolment_found\n      AND enrolled_at IS NOT NULL\n  ) AS p95_detection_secs\nFROM credit_registration_enrolment_check_outcomes\nWHERE checked_at >= $1\nGROUP BY enrolment_check_group,\n  enrolment_check_step,\n  source\nORDER BY enrolment_check_group,\n  enrolment_check_step NULLS LAST,\n  source\n        ",
+  "query": "\nSELECT enrolment_check_group AS \"enrolment_check_group!: EnrolmentCheckGroup\",\n  enrolment_check_step,\n  source AS \"source!: EnrolmentCheckSource\",\n  COUNT(*) AS \"check_count!\",\n  COUNT(*) FILTER (\n    WHERE is_enrolment_found\n  ) AS \"found_count!\",\n  PERCENTILE_CONT(0.5) WITHIN GROUP (\n    ORDER BY EXTRACT(EPOCH FROM checked_at - enrolled_at)::double precision\n  ) FILTER (\n    WHERE is_enrolment_found\n      AND enrolled_at IS NOT NULL\n  ) AS p50_detection_secs,\n  PERCENTILE_CONT(0.95) WITHIN GROUP (\n    ORDER BY EXTRACT(EPOCH FROM checked_at - enrolled_at)::double precision\n  ) FILTER (\n    WHERE is_enrolment_found\n      AND enrolled_at IS NOT NULL\n  ) AS p95_detection_secs\nFROM credit_registration_enrolment_check_outcomes\nWHERE checked_at >= $1\nGROUP BY enrolment_check_group,\n  enrolment_check_step,\n  source\nORDER BY enrolment_check_group,\n  source,\n  enrolment_check_step NULLS LAST\n        ",
   "describe": {
     "columns": [
       {
@@ -75,18 +75,12 @@
       },
       {
         "ordinal": 5,
-        "name": "found_after_stop_count!",
-        "type_info": "Int8",
-        "origin": "Expression"
-      },
-      {
-        "ordinal": 6,
         "name": "p50_detection_secs",
         "type_info": "Float8",
         "origin": "Expression"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "p95_detection_secs",
         "type_info": "Float8",
         "origin": "Expression"
@@ -104,9 +98,8 @@
       null,
       null,
       null,
-      null,
       null
     ]
   },
-  "hash": "a0977c7c102c2dd5e768ae96263c685673df84d001550992dc0482dbc3c02677"
+  "hash": "1588f9873046328abcd67d7c2d01596c105d8bd3031d02baf2e0b5237e205e65"
 }

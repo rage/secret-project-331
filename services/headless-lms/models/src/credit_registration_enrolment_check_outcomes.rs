@@ -27,7 +27,6 @@ pub struct NewEnrolmentCheckOutcome {
     pub previous_checked_at: Option<DateTime<Utc>>,
     pub is_enrolment_found: bool,
     pub enrolled_at: Option<DateTime<Utc>>,
-    pub were_checks_stopped: bool,
 }
 
 pub async fn insert(conn: &mut PgConnection, new: &NewEnrolmentCheckOutcome) -> ModelResult<Uuid> {
@@ -43,10 +42,9 @@ INSERT INTO credit_registration_enrolment_check_outcomes (
     checked_at,
     previous_checked_at,
     is_enrolment_found,
-    enrolled_at,
-    were_checks_stopped
+    enrolled_at
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id
         "#,
         new.credit_registration_id,
@@ -59,7 +57,6 @@ RETURNING id
         new.previous_checked_at,
         new.is_enrolment_found,
         new.enrolled_at,
-        new.were_checks_stopped,
     )
     .fetch_one(conn)
     .await?;
@@ -158,8 +155,6 @@ pub struct EnrolmentCheckFindings {
     pub source: EnrolmentCheckSource,
     pub check_count: i64,
     pub found_count: i64,
-    /// Of the finds, how many a row whose schedule had run out made.
-    pub found_after_stop_count: i64,
     /// Time from the enrolment, as Sisu records it, to the check that found it; over the finds
     /// that carry an enrolment time.
     pub p50_detection_secs: Option<f64>,
@@ -181,10 +176,6 @@ SELECT enrolment_check_group AS "enrolment_check_group!: EnrolmentCheckGroup",
   COUNT(*) FILTER (
     WHERE is_enrolment_found
   ) AS "found_count!",
-  COUNT(*) FILTER (
-    WHERE is_enrolment_found
-      AND were_checks_stopped
-  ) AS "found_after_stop_count!",
   PERCENTILE_CONT(0.5) WITHIN GROUP (
     ORDER BY EXTRACT(EPOCH FROM checked_at - enrolled_at)::double precision
   ) FILTER (
@@ -203,8 +194,8 @@ GROUP BY enrolment_check_group,
   enrolment_check_step,
   source
 ORDER BY enrolment_check_group,
-  enrolment_check_step NULLS LAST,
-  source
+  source,
+  enrolment_check_step NULLS LAST
         "#,
         since,
     )
@@ -219,20 +210,18 @@ pub struct EnrolmentCheckPopulation {
     pub enrolment_check_group: EnrolmentCheckGroup,
     /// `None` for rows whose schedule has run out.
     pub enrolment_check_step: Option<i32>,
-    pub is_stopped: bool,
     pub row_count: i64,
     /// Of those, how many have never been checked.
     pub never_checked_count: i64,
 }
 
-/// The live rows waiting for an enrolment right now, per group, step and stopped state.
+/// The live rows waiting for an enrolment right now, per group and step.
 pub async fn get_population(conn: &mut PgConnection) -> ModelResult<Vec<EnrolmentCheckPopulation>> {
     let res = sqlx::query_as!(
         EnrolmentCheckPopulation,
         r#"
 SELECT enrolment_check_group AS "enrolment_check_group!: EnrolmentCheckGroup",
   enrolment_check_step,
-  enrolment_checks_stopped_at IS NOT NULL AS "is_stopped!",
   COUNT(*) AS "row_count!",
   COUNT(*) FILTER (
     WHERE enrolment_checked_at IS NULL
@@ -248,8 +237,7 @@ WHERE state IN (
   AND superseded_by_id IS NULL
   AND deleted_at IS NULL
 GROUP BY enrolment_check_group,
-  enrolment_check_step,
-  enrolment_checks_stopped_at IS NOT NULL
+  enrolment_check_step
 ORDER BY enrolment_check_group,
   enrolment_check_step NULLS LAST
         "#,

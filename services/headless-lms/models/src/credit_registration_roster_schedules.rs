@@ -4,7 +4,7 @@
 //! to life is listed at its new rate at once. Only what cannot be derived lives in the table:
 //! triggered listings, the per-code failure backoff and the daily trigger count.
 
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 
 use chrono::NaiveDate;
 use utoipa::ToSchema;
@@ -100,7 +100,6 @@ pub fn roster_tier(
 #[derive(Debug, Clone, PartialEq)]
 pub struct RosterSchedule {
     pub course_code: String,
-    pub last_attempted_at: Option<DateTime<Utc>>,
     pub last_fetched_at: Option<DateTime<Utc>>,
     pub last_fetch_duration_ms: Option<i32>,
     pub last_listed_person_count: Option<i32>,
@@ -112,6 +111,8 @@ pub struct RosterSchedule {
     pub consecutive_failures: i32,
     pub retry_not_before: Option<DateTime<Utc>>,
     pub last_error: Option<CreditRegistrationErrorCode>,
+    /// The active modules on the code, which share its roster.
+    pub module_count: i64,
     pub tier_facts: RosterTierFacts,
 }
 
@@ -186,13 +187,145 @@ WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
     Ok(())
 }
 
-/// Every listable code that has a schedule row, with the active modules on each; see
-/// [`ensure_rows`]. `course_id` narrows both the codes and their modules to one course, for a
-/// scoped tick.
-pub async fn get_schedules_with_modules(
+/// Which codes [`get_schedules`] reads.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScheduleSelection {
+    Every,
+    /// Only the codes that may be due by now, a superset [`RosterSchedule::is_due`] narrows down:
+    /// the tier facts are then computed for those alone.
+    DueCandidates,
+}
+
+/// Every listable code that has a schedule row; see [`ensure_rows`]. `course_id` narrows the codes
+/// and the modules their facts come from to one course, for a scoped tick.
+pub async fn get_schedules(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
-) -> ModelResult<Vec<(RosterSchedule, Vec<ModuleToList>)>> {
+    selection: ScheduleSelection,
+) -> ModelResult<Vec<RosterSchedule>> {
+    let rows = sqlx::query!(
+        r#"
+WITH modules AS (
+  SELECT acm.course_module_id,
+    TRIM(cm.uh_course_code) AS course_code
+  FROM credit_registration_active_course_modules acm
+    JOIN course_modules cm ON cm.id = acm.course_module_id
+  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+    AND ($1::uuid IS NULL OR acm.course_id = $1)
+),
+candidates AS (
+  SELECT s.*
+  FROM credit_registration_roster_schedules s
+  WHERE s.course_code IN (
+      SELECT course_code
+      FROM modules
+    )
+    AND (
+      NOT $2::boolean
+      OR (
+        (
+          s.retry_not_before IS NULL
+          OR s.retry_not_before <= now()
+        )
+        AND (
+          s.last_fetched_at IS NULL
+          OR s.last_fetched_at <= now() - ($3::bigint * INTERVAL '1 second')
+          OR LEAST(s.triggered_fetch_at, s.follow_up_fetch_at) <= now()
+        )
+      )
+    )
+)
+SELECT c.course_code,
+  c.last_fetched_at,
+  c.last_fetch_duration_ms,
+  c.last_listed_person_count,
+  c.triggered_fetch_at,
+  c.follow_up_fetch_at,
+  c.triggered_fetch_day,
+  c.triggered_fetch_count,
+  c.is_fetched_alone,
+  c.consecutive_failures,
+  c.retry_not_before,
+  c.last_error AS "last_error: CreditRegistrationErrorCode",
+  c.window_closed_at,
+  COUNT(*) AS "module_count!",
+  MAX(facts.last_completion_at) AS last_completion_at,
+  bool_or(facts.has_waiting_rows) AS "has_waiting_rows!"
+FROM candidates c
+  JOIN modules m ON m.course_code = c.course_code
+  CROSS JOIN LATERAL (
+    SELECT (
+        SELECT cr.created_at
+        FROM credit_registrations cr
+        WHERE cr.course_module_id = m.course_module_id
+          AND cr.deleted_at IS NULL
+        ORDER BY cr.created_at DESC
+        LIMIT 1
+      ) AS last_completion_at,
+      EXISTS (
+        SELECT 1
+        FROM credit_registrations cr
+        WHERE cr.course_module_id = m.course_module_id
+          AND cr.state = 'no_usable_enrolment'
+          AND cr.enrolment_checks_stopped_at IS NULL
+          AND cr.superseded_by_id IS NULL
+          AND cr.deleted_at IS NULL
+      ) AS has_waiting_rows
+  ) facts
+GROUP BY c.id,
+  c.course_code,
+  c.last_fetched_at,
+  c.last_fetch_duration_ms,
+  c.last_listed_person_count,
+  c.triggered_fetch_at,
+  c.follow_up_fetch_at,
+  c.triggered_fetch_day,
+  c.triggered_fetch_count,
+  c.is_fetched_alone,
+  c.consecutive_failures,
+  c.retry_not_before,
+  c.last_error,
+  c.window_closed_at
+ORDER BY c.course_code
+        "#,
+        course_id,
+        selection == ScheduleSelection::DueCandidates,
+        ACTIVE_INTERVAL_SECS,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| RosterSchedule {
+            course_code: row.course_code,
+            last_fetched_at: row.last_fetched_at,
+            last_fetch_duration_ms: row.last_fetch_duration_ms,
+            last_listed_person_count: row.last_listed_person_count,
+            triggered_fetch_at: row.triggered_fetch_at,
+            follow_up_fetch_at: row.follow_up_fetch_at,
+            triggered_fetch_day: row.triggered_fetch_day,
+            triggered_fetch_count: row.triggered_fetch_count,
+            is_fetched_alone: row.is_fetched_alone,
+            consecutive_failures: row.consecutive_failures,
+            retry_not_before: row.retry_not_before,
+            last_error: row.last_error,
+            module_count: row.module_count,
+            tier_facts: RosterTierFacts {
+                last_completion_at: row.last_completion_at,
+                has_waiting_rows: row.has_waiting_rows,
+                window_closed_at: row.window_closed_at,
+            },
+        })
+        .collect())
+}
+
+/// The active modules on each of `course_codes`, which share its roster. `course_id` narrows them
+/// to one course, as it does for [`get_schedules`].
+pub async fn get_modules_by_code(
+    conn: &mut PgConnection,
+    course_id: Option<Uuid>,
+    course_codes: &[String],
+) -> ModelResult<HashMap<String, Vec<ModuleToList>>> {
     let modules = sqlx::query_as!(
         ModuleToList,
         r#"
@@ -203,126 +336,23 @@ SELECT acm.course_module_id AS "course_module_id!",
 FROM credit_registration_active_course_modules acm
   JOIN course_modules cm ON cm.id = acm.course_module_id
   JOIN courses co ON co.id = acm.course_id
-WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+WHERE TRIM(cm.uh_course_code) = ANY($2::text [])
   AND ($1::uuid IS NULL OR acm.course_id = $1)
 ORDER BY cm.id
         "#,
         course_id,
+        course_codes,
     )
-    .fetch_all(&mut *conn)
+    .fetch_all(conn)
     .await?;
-    let mut modules_by_code: BTreeMap<String, Vec<ModuleToList>> = BTreeMap::new();
+    let mut modules_by_code: HashMap<String, Vec<ModuleToList>> = HashMap::new();
     for module in modules {
         modules_by_code
             .entry(module.uh_course_code.clone())
             .or_default()
             .push(module);
     }
-    let codes: Vec<String> = modules_by_code.keys().cloned().collect();
-    let module_ids: Vec<Uuid> = modules_by_code
-        .values()
-        .flatten()
-        .map(|module| module.course_module_id)
-        .collect();
-    let module_facts = sqlx::query!(
-        r#"
-SELECT m.id AS "course_module_id!",
-  (
-    SELECT cr.created_at
-    FROM credit_registrations cr
-    WHERE cr.course_module_id = m.id
-      AND cr.deleted_at IS NULL
-    ORDER BY cr.created_at DESC
-    LIMIT 1
-  ) AS last_completion_at,
-  EXISTS (
-    SELECT 1
-    FROM credit_registrations cr
-    WHERE cr.course_module_id = m.id
-      AND cr.state = 'no_usable_enrolment'
-      AND cr.enrolment_checks_stopped_at IS NULL
-      AND cr.superseded_by_id IS NULL
-      AND cr.deleted_at IS NULL
-  ) AS "has_waiting_rows!"
-FROM UNNEST($1::uuid []) AS m(id)
-        "#,
-        &module_ids,
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    let facts_by_module: std::collections::HashMap<Uuid, (Option<DateTime<Utc>>, bool)> =
-        module_facts
-            .into_iter()
-            .map(|row| {
-                (
-                    row.course_module_id,
-                    (row.last_completion_at, row.has_waiting_rows),
-                )
-            })
-            .collect();
-    let rows = sqlx::query!(
-        r#"
-SELECT course_code,
-  last_attempted_at,
-  last_fetched_at,
-  last_fetch_duration_ms,
-  last_listed_person_count,
-  triggered_fetch_at,
-  follow_up_fetch_at,
-  triggered_fetch_day,
-  triggered_fetch_count,
-  is_fetched_alone,
-  consecutive_failures,
-  retry_not_before,
-  last_error AS "last_error: CreditRegistrationErrorCode",
-  window_closed_at
-FROM credit_registration_roster_schedules
-WHERE course_code = ANY($1::text [])
-ORDER BY course_code
-        "#,
-        &codes,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(rows
-        .into_iter()
-        .filter_map(|row| {
-            let modules = modules_by_code.remove(&row.course_code)?;
-            let module_facts: Vec<_> = modules
-                .iter()
-                .filter_map(|module| facts_by_module.get(&module.course_module_id))
-                .collect();
-            let tier_facts = RosterTierFacts {
-                last_completion_at: module_facts
-                    .iter()
-                    .filter_map(|(last_completion_at, _)| *last_completion_at)
-                    .max(),
-                has_waiting_rows: module_facts
-                    .iter()
-                    .any(|(_, has_waiting_rows)| *has_waiting_rows),
-                window_closed_at: row.window_closed_at,
-            };
-            Some((
-                RosterSchedule {
-                    course_code: row.course_code,
-                    last_attempted_at: row.last_attempted_at,
-                    last_fetched_at: row.last_fetched_at,
-                    last_fetch_duration_ms: row.last_fetch_duration_ms,
-                    last_listed_person_count: row.last_listed_person_count,
-                    triggered_fetch_at: row.triggered_fetch_at,
-                    follow_up_fetch_at: row.follow_up_fetch_at,
-                    triggered_fetch_day: row.triggered_fetch_day,
-                    triggered_fetch_count: row.triggered_fetch_count,
-                    is_fetched_alone: row.is_fetched_alone,
-                    consecutive_failures: row.consecutive_failures,
-                    retry_not_before: row.retry_not_before,
-                    last_error: row.last_error,
-                    tier_facts,
-                },
-                modules,
-            ))
-        })
-        .collect())
+    Ok(modules_by_code)
 }
 
 /// Stamps the codes a listing request is about to go out for.
@@ -511,8 +541,35 @@ WHERE course_code = $1
     Ok(booked.rows_affected() > 0)
 }
 
+/// Waits out the tier interval and the failure backoff of every code on the course's active
+/// modules, and returns how many codes it moved. A code its tier does not list stays unlisted.
+/// Exists only for test setup: specs cannot wait out a tier interval.
+pub async fn make_listings_due_for_testing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE credit_registration_roster_schedules
+SET last_fetched_at = last_fetched_at - ($2::bigint * INTERVAL '1 second'),
+  retry_not_before = NULL
+WHERE course_code IN (
+    SELECT TRIM(cm.uh_course_code)
+    FROM credit_registration_active_course_modules acm
+      JOIN course_modules cm ON cm.id = acm.course_module_id
+    WHERE acm.course_id = $1
+  )
+        "#,
+        course_id,
+        DORMANT_INTERVAL_SECS,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
+}
+
 /// Codes listed on their own that keep failing, for the admin alert.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct FailingRosterCode {
     pub course_code: String,
     pub consecutive_failures: i32,

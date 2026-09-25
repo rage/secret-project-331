@@ -12,7 +12,9 @@ use crate::{
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
-    courses, exams, open_university_registration_links,
+    courses, exams,
+    library::credit_registration::StudentFacingCreditRegistrationStatus,
+    open_university_registration_links,
     prelude::*,
     suspected_cheaters, user_course_settings,
     user_details::UserDetail,
@@ -764,9 +766,9 @@ pub struct UserCompletionInformation {
     /// Whether this completion in particular goes through the push path. Decides which flow the
     /// page shows: the module flag above only says the module takes part.
     pub register_credits_via_suotar: bool,
-    /// Whether the push path will register this completion. With `register_credits_via_suotar`
-    /// set and this false, no credit registration is ever created for it.
-    pub credit_registration_expected: bool,
+    /// What the student is told while the completion has no credit registration: `sending` when
+    /// the push path will create one, `not_registering` when it never will.
+    pub status_before_registration: StudentFacingCreditRegistrationStatus,
     /// `Some` only when the student can generate a certificate for this module right now, which is
     /// also the id `/generate-certificate` wants.
     ///
@@ -858,7 +860,18 @@ pub async fn get_user_completion_information(
         )
         .await?
         .map(|row| row.justification);
-    let credit_registration_expected = course_module_completion.is_credit_registration_expected();
+    let status_before_registration =
+        if course_module_completions::get_credit_registration_expected_ids(
+            conn,
+            &[course_module_completion.id],
+        )
+        .await?
+        .is_empty()
+        {
+            StudentFacingCreditRegistrationStatus::NotRegistering
+        } else {
+            StudentFacingCreditRegistrationStatus::Sending
+        };
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
         course_name: course.name.clone(),
@@ -871,7 +884,7 @@ pub async fn get_user_completion_information(
         enable_credit_registration_via_suotar: credit_registration_config
             .enable_credit_registration_via_suotar,
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
-        credit_registration_expected,
+        status_before_registration,
         certificate_configuration_id,
         credit_justification,
     })

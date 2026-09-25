@@ -576,6 +576,12 @@ pub struct CreditRegistration {
 }
 
 impl CreditRegistration {
+    /// Whether resolving this row is a check on its enrolment check schedule rather than a first
+    /// resolve.
+    pub fn is_enrolment_recheck(&self) -> bool {
+        self.enrolment_check_anchor_at.is_some()
+    }
+
     /// See [`is_waiting_for_enrolment`].
     pub fn is_waiting_for_enrolment(&self) -> bool {
         is_waiting_for_enrolment(
@@ -679,9 +685,6 @@ pub struct Transition {
     /// When the pipeline may claim the row next. `None` takes the target state's default cadence,
     /// which is what keeps a caller that forgets from leaving the row spinning.
     pub next_attempt_at: Option<DateTime<Utc>>,
-    /// False for the moves of a routine enrolment recheck on its way out, so each recheck leaves one
-    /// event (its answer) rather than three.
-    pub records_event: bool,
     /// Leaves `enrolment_checked_at` alone on a move that would stamp it: a check that failed in
     /// transit did not look.
     pub keeps_enrolment_checked_at: bool,
@@ -727,7 +730,6 @@ impl Transition {
             expected_from_state: None,
             policy: TransitionPolicy::Pipeline,
             next_attempt_at: None,
-            records_event: true,
             keeps_enrolment_checked_at: false,
         }
     }
@@ -763,27 +765,24 @@ impl Transition {
 /// for an enrolment clears, `no_usable_enrolment_since`, and `next_attempt_at`, which takes the
 /// target state's default cadence unless the caller names a time. Leaving the wait for an
 /// enrolment also clears the check schedule, but not `enrolment_check_group`.
+///
+/// The pipeline's moves of a routine enrolment recheck on its way out record no event, so each
+/// recheck leaves one (its answer) rather than three. Returns the row as written.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
     transition: &Transition,
 ) -> ModelResult<CreditRegistration> {
     let mut tx = conn.begin().await?;
-
-    let before = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-SELECT *
-FROM credit_registrations
-WHERE id = $1
-  AND deleted_at IS NULL
-FOR UPDATE
-        "#,
-        id
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-
+    let before = lock_for_moves(&mut tx, &[id])
+        .await?
+        .remove(&id)
+        .ok_or_else(|| {
+            model_err!(
+                RecordNotFound,
+                format!("Credit registration {id} does not exist.")
+            )
+        })?;
     if let Some(expected) = transition.expected_from_state
         && before.state != expected
     {
@@ -795,304 +794,130 @@ FOR UPDATE
             )
         ));
     }
-
-    let to_state = transition.to_state;
-    check_edge(id, before.state, to_state, transition.policy)?;
-
-    let after = sqlx::query_as!(
-        CreditRegistration,
-        r#"
-UPDATE credit_registrations
-SET state = $2::credit_registration_state,
-  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in
-  -- one transaction would share an instant and the timeline would lose their order.
-  state_entered_at = clock_timestamp(),
-  error_code = $3,
-  error_message = $4,
-  needs_admin_attention = COALESCE($5, needs_admin_attention),
-  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.
-  terminal_at = CASE
-    WHEN $6 THEN COALESCE(terminal_at, now())
-    ELSE NULL
-  END,
-  first_failed_at = CASE
-    WHEN $7 THEN COALESCE(first_failed_at, now())
-    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL
-    ELSE first_failed_at
-  END,
-  submit_retry_count = CASE
-    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN 0
-    ELSE submit_retry_count
-  END,
-  registered_at = CASE
-    WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())
-    ELSE registered_at
-  END,
-  submitted_at = CASE
-    WHEN $2::credit_registration_state = 'submitting' THEN now()
-    ELSE submitted_at
-  END,
-  enrolment_checked_at = CASE
-    WHEN $10 THEN enrolment_checked_at
-    WHEN state = 'resolving_enrolment'
-    AND $2::credit_registration_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()
-    WHEN state = 'checking_enrolment'
-    AND $2::credit_registration_state <> 'checking_enrolment' THEN now()
-    ELSE enrolment_checked_at
-  END,
-  -- Only on starting to wait: every recheck passes back through no_usable_enrolment.
-  enrolment_banner_dismissed_at = CASE
-    WHEN $2::credit_registration_state = 'no_usable_enrolment'
-    AND no_usable_enrolment_since IS NULL THEN NULL
-    ELSE enrolment_banner_dismissed_at
-  END,
-  -- The recheck loop passes through these on its way back to no_usable_enrolment.
-  no_usable_enrolment_since = CASE
-    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN COALESCE(no_usable_enrolment_since, now())
-    WHEN $2::credit_registration_state IN (
-      'ready_to_submit',
-      'resolving_enrolment',
-      'failed_retryable'
-    ) THEN no_usable_enrolment_since
-    ELSE NULL
-  END,
-  enrolment_check_anchor_at = CASE
-    WHEN $11 THEN enrolment_check_anchor_at
-  END,
-  enrolment_check_step = CASE
-    WHEN $11 THEN enrolment_check_step
-  END,
-  enrolment_check_due_at = CASE
-    WHEN $11 THEN enrolment_check_due_at
-  END,
-  is_enrolment_check_batched = $11
-  AND is_enrolment_check_batched,
-  enrolment_checks_stopped_at = CASE
-    WHEN $11 THEN enrolment_checks_stopped_at
-  END,
-  enrolment_check_source = CASE
-    WHEN $11 THEN enrolment_check_source
-    ELSE 'schedule'
-  END,
-  next_attempt_at = COALESCE(
-    $8::timestamptz,
-    now() + ($9::bigint * INTERVAL '1 second')
-  )
-WHERE id = $1
-  AND deleted_at IS NULL
-RETURNING *
-        "#,
-        id,
-        to_state as CreditRegistrationState,
-        transition.error_code as Option<CreditRegistrationErrorCode>,
-        transition.error_message,
-        transition.needs_admin_attention,
-        to_state.is_terminal(),
-        to_state.is_failure(),
-        transition.next_attempt_at,
-        to_state.default_attempt_delay_secs(),
-        transition.keeps_enrolment_checked_at,
-        to_state.keeps_enrolment_check_schedule(),
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-
-    settle_pending_supersessions(&mut tx, &[(id, to_state)]).await?;
-
-    if transition.records_event {
-        crate::credit_registration_events::insert(
-            &mut tx,
-            &NewCreditRegistrationEvent {
-                credit_registration_id: id,
-                kind: transition.event_kind,
-                from_state: Some(before.state),
-                to_state: Some(to_state),
-                error_code: transition.error_code,
-                message: transition.event_message.clone(),
-                suotar_api_call_id: transition.suotar_api_call_id,
-                actor_user_id: transition.actor_user_id,
-                details: transition.event_details.clone(),
-                request_item_id: transition.request_item_id.clone(),
-            },
-        )
-        .await?;
-    }
-
+    check_edge(id, before.state, transition.to_state, transition.policy)?;
+    let after = write_moves(&mut tx, &[(id, before, transition)])
+        .await?
+        .pop()
+        .ok_or_else(|| {
+            model_err!(
+                RecordNotFound,
+                format!("Credit registration {id} does not exist.")
+            )
+        })?;
     tx.commit().await?;
     Ok(after)
 }
 
-/// Completes or abandons the pending supersessions of rows that were waiting on these attempts, as
-/// each attempt's new state decides.
-async fn settle_pending_supersessions(
+/// What a move is decided from, read under the row lock.
+#[derive(Debug, Clone, Copy)]
+struct LockedRow {
+    state: CreditRegistrationState,
+    has_enrolment_check_anchor: bool,
+}
+
+async fn lock_for_moves(
     conn: &mut PgConnection,
-    moves: &[(Uuid, CreditRegistrationState)],
-) -> ModelResult<()> {
-    let mut completed = Vec::new();
-    let mut abandoned = Vec::new();
-    for &(id, to_state) in moves {
-        match to_state.pending_supersession_effect() {
-            PendingSupersessionEffect::Keep => {}
-            PendingSupersessionEffect::Complete => completed.push(id),
-            PendingSupersessionEffect::Abandon => abandoned.push(id),
-        }
-    }
-    if completed.is_empty() && abandoned.is_empty() {
-        return Ok(());
-    }
-    sqlx::query!(
-        r#"
-UPDATE credit_registrations
-SET superseded_by_id = CASE
-    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN pending_superseded_by_id
-    ELSE superseded_by_id
-  END,
-  superseded_at = CASE
-    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN now()
-    ELSE superseded_at
-  END,
-  pending_superseded_by_id = NULL
-WHERE (
-    pending_superseded_by_id = ANY($1::uuid [])
-    OR pending_superseded_by_id = ANY($2::uuid [])
-  )
-  AND deleted_at IS NULL
-        "#,
-        &completed,
-        &abandoned,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// Refuses an edge outside the policy. The one place (from → to) legality is decided, for the
-/// single-row [`transition`] and the batched [`transition_batch`] alike.
-fn check_edge(
-    id: Uuid,
-    from: CreditRegistrationState,
-    to: CreditRegistrationState,
-    policy: TransitionPolicy,
-) -> ModelResult<()> {
-    // Staying put is not a move: the verify poller rewrites its own state on every poll.
-    if from == to || policy.allows(from, to) {
-        return Ok(());
-    }
-    Err(model_err!(
-        InvalidRequest,
-        format!("Credit registration {id} may not move from {from:?} to {to:?} under {policy:?}.")
-    ))
-}
-
-/// One row's move in a [`transition_batch`].
-#[derive(Debug, Clone, PartialEq)]
-pub struct BatchMove {
-    pub id: Uuid,
-    pub transition: Transition,
-}
-
-/// [`transition`] for a whole batch: one lock, one update, one insert of events, whatever the size.
-///
-/// For the phases that decide many rows from one query and have no per-row exchange to record.
-/// Same edge table and policy as [`transition`], and the same event rows; the one difference is
-/// that a row whose state no longer matches `expected_from_state` is left alone rather than
-/// refused, since a batch has no single caller to hand the refusal to. Returns how many moved.
-pub async fn transition_batch(conn: &mut PgConnection, moves: &[BatchMove]) -> ModelResult<i64> {
-    if moves.is_empty() {
-        return Ok(0);
-    }
-    let mut tx = conn.begin().await?;
-    let ids: Vec<Uuid> = moves.iter().map(|batch_move| batch_move.id).collect();
+    ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, LockedRow>> {
     let locked = sqlx::query!(
         r#"
 SELECT id,
-  state
+  state AS "state: CreditRegistrationState",
+  enrolment_check_anchor_at IS NOT NULL AS "has_enrolment_check_anchor!"
 FROM credit_registrations
 WHERE id = ANY($1)
   AND deleted_at IS NULL
 ORDER BY id FOR
 UPDATE
         "#,
-        &ids
+        ids
     )
-    .fetch_all(&mut *tx)
+    .fetch_all(conn)
     .await?;
-    let states: HashMap<Uuid, CreditRegistrationState> =
-        locked.into_iter().map(|row| (row.id, row.state)).collect();
+    Ok(locked
+        .into_iter()
+        .map(|row| {
+            (
+                row.id,
+                LockedRow {
+                    state: row.state,
+                    has_enrolment_check_anchor: row.has_enrolment_check_anchor,
+                },
+            )
+        })
+        .collect())
+}
 
-    let mut writes = Vec::new();
-    let mut events = Vec::new();
-    for batch_move in moves {
-        let Some(&from) = states.get(&batch_move.id) else {
-            continue;
-        };
-        let to = batch_move.transition.to_state;
-        if batch_move
-            .transition
-            .expected_from_state
-            .is_some_and(|expected| expected != from)
-        {
-            continue;
-        }
-        check_edge(batch_move.id, from, to, batch_move.transition.policy)?;
-        writes.push(batch_move);
-        if !batch_move.transition.records_event {
-            continue;
-        }
-        events.push(NewCreditRegistrationEvent {
-            credit_registration_id: batch_move.id,
-            kind: batch_move.transition.event_kind,
-            from_state: Some(from),
-            to_state: Some(to),
-            error_code: batch_move.transition.error_code,
-            message: batch_move.transition.event_message.clone(),
-            suotar_api_call_id: batch_move.transition.suotar_api_call_id,
-            actor_user_id: batch_move.transition.actor_user_id,
-            details: batch_move.transition.event_details.clone(),
-            request_item_id: batch_move.transition.request_item_id.clone(),
-        });
-    }
-    if writes.is_empty() {
-        tx.commit().await?;
-        return Ok(0);
-    }
+/// A pipeline move a routine enrolment recheck makes on its way out to the study registry.
+fn is_routine_recheck_move(from: LockedRow, transition: &Transition) -> bool {
+    use CreditRegistrationState as State;
+    transition.policy == TransitionPolicy::Pipeline
+        && from.has_enrolment_check_anchor
+        && matches!(
+            (from.state, transition.to_state),
+            (State::NoUsableEnrolment, State::ReadyToSubmit)
+                | (State::ReadyToSubmit, State::ResolvingEnrolment)
+        )
+}
 
-    let ids: Vec<Uuid> = writes.iter().map(|write| write.id).collect();
-    let to_states: Vec<CreditRegistrationState> = writes
+/// Writes already checked moves of locked rows, with their events, and returns the rows as written.
+async fn write_moves(
+    conn: &mut PgConnection,
+    moves: &[(Uuid, LockedRow, &Transition)],
+) -> ModelResult<Vec<CreditRegistration>> {
+    let events: Vec<NewCreditRegistrationEvent> = moves
         .iter()
-        .map(|write| write.transition.to_state)
+        .filter(|(_, from, transition)| !is_routine_recheck_move(*from, transition))
+        .map(|(id, from, transition)| NewCreditRegistrationEvent {
+            credit_registration_id: *id,
+            kind: transition.event_kind,
+            from_state: Some(from.state),
+            to_state: Some(transition.to_state),
+            error_code: transition.error_code,
+            message: transition.event_message.clone(),
+            suotar_api_call_id: transition.suotar_api_call_id,
+            actor_user_id: transition.actor_user_id,
+            details: transition.event_details.clone(),
+            request_item_id: transition.request_item_id.clone(),
+        })
         .collect();
-    let error_codes: Vec<Option<CreditRegistrationErrorCode>> = writes
+    let ids: Vec<Uuid> = moves.iter().map(|(id, _, _)| *id).collect();
+    let to_states: Vec<CreditRegistrationState> = moves
         .iter()
-        .map(|write| write.transition.error_code)
+        .map(|(_, _, transition)| transition.to_state)
         .collect();
-    let error_messages: Vec<Option<String>> = writes
+    let error_codes: Vec<Option<CreditRegistrationErrorCode>> = moves
         .iter()
-        .map(|write| write.transition.error_message.clone())
+        .map(|(_, _, transition)| transition.error_code)
         .collect();
-    let needs_admin: Vec<Option<bool>> = writes
+    let error_messages: Vec<Option<String>> = moves
         .iter()
-        .map(|write| write.transition.needs_admin_attention)
+        .map(|(_, _, transition)| transition.error_message.clone())
+        .collect();
+    let needs_admin: Vec<Option<bool>> = moves
+        .iter()
+        .map(|(_, _, transition)| transition.needs_admin_attention)
         .collect();
     let terminal: Vec<bool> = to_states.iter().map(|state| state.is_terminal()).collect();
     let failure: Vec<bool> = to_states.iter().map(|state| state.is_failure()).collect();
-    let next_attempts: Vec<Option<DateTime<Utc>>> = writes
+    let next_attempts: Vec<Option<DateTime<Utc>>> = moves
         .iter()
-        .map(|write| write.transition.next_attempt_at)
+        .map(|(_, _, transition)| transition.next_attempt_at)
         .collect();
     let default_delays: Vec<i64> = to_states
         .iter()
         .map(|state| state.default_attempt_delay_secs())
         .collect();
-    let keeps_checked_at: Vec<bool> = writes
+    let keeps_checked_at: Vec<bool> = moves
         .iter()
-        .map(|write| write.transition.keeps_enrolment_checked_at)
+        .map(|(_, _, transition)| transition.keeps_enrolment_checked_at)
         .collect();
     let keeps_schedule: Vec<bool> = to_states
         .iter()
         .map(|state| state.keeps_enrolment_check_schedule())
         .collect();
-    sqlx::query!(
+    let written = sqlx::query_as!(
+        CreditRegistration,
         r#"
 UPDATE credit_registrations cr
 SET state = move.to_state,
@@ -1197,6 +1022,7 @@ FROM UNNEST(
   )
 WHERE cr.id = move.id
   AND cr.deleted_at IS NULL
+RETURNING cr.*
         "#,
         &ids,
         &to_states as &[CreditRegistrationState],
@@ -1210,13 +1036,120 @@ WHERE cr.id = move.id
         &keeps_checked_at,
         &keeps_schedule,
     )
-    .execute(&mut *tx)
+    .fetch_all(&mut *conn)
     .await?;
 
     let settled: Vec<_> = ids.iter().copied().zip(to_states.iter().copied()).collect();
-    settle_pending_supersessions(&mut tx, &settled).await?;
+    settle_pending_supersessions(&mut *conn, &settled).await?;
+    crate::credit_registration_events::insert_batch(conn, &events).await?;
+    Ok(written)
+}
 
-    crate::credit_registration_events::insert_batch(&mut tx, &events).await?;
+/// Completes or abandons the pending supersessions of rows that were waiting on these attempts, as
+/// each attempt's new state decides.
+async fn settle_pending_supersessions(
+    conn: &mut PgConnection,
+    moves: &[(Uuid, CreditRegistrationState)],
+) -> ModelResult<()> {
+    let mut completed = Vec::new();
+    let mut abandoned = Vec::new();
+    for &(id, to_state) in moves {
+        match to_state.pending_supersession_effect() {
+            PendingSupersessionEffect::Keep => {}
+            PendingSupersessionEffect::Complete => completed.push(id),
+            PendingSupersessionEffect::Abandon => abandoned.push(id),
+        }
+    }
+    if completed.is_empty() && abandoned.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET superseded_by_id = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN pending_superseded_by_id
+    ELSE superseded_by_id
+  END,
+  superseded_at = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN now()
+    ELSE superseded_at
+  END,
+  pending_superseded_by_id = NULL
+WHERE (
+    pending_superseded_by_id = ANY($1::uuid [])
+    OR pending_superseded_by_id = ANY($2::uuid [])
+  )
+  AND deleted_at IS NULL
+        "#,
+        &completed,
+        &abandoned,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Refuses an edge outside the policy. The one place (from → to) legality is decided, for the
+/// single-row [`transition`] and the batched [`transition_batch`] alike.
+fn check_edge(
+    id: Uuid,
+    from: CreditRegistrationState,
+    to: CreditRegistrationState,
+    policy: TransitionPolicy,
+) -> ModelResult<()> {
+    // Staying put is not a move: the verify poller rewrites its own state on every poll.
+    if from == to || policy.allows(from, to) {
+        return Ok(());
+    }
+    Err(model_err!(
+        InvalidRequest,
+        format!("Credit registration {id} may not move from {from:?} to {to:?} under {policy:?}.")
+    ))
+}
+
+/// One row's move in a [`transition_batch`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct BatchMove {
+    pub id: Uuid,
+    pub transition: Transition,
+}
+
+/// [`transition`] for a whole batch: one lock, one update, one insert of events, whatever the size.
+///
+/// For the phases that decide many rows from one query and have no per-row exchange to record.
+/// Same edge table and policy as [`transition`], and the same event rows; the one difference is
+/// that a row whose state no longer matches `expected_from_state` is left alone rather than
+/// refused, since a batch has no single caller to hand the refusal to. Returns how many moved.
+pub async fn transition_batch(conn: &mut PgConnection, moves: &[BatchMove]) -> ModelResult<i64> {
+    if moves.is_empty() {
+        return Ok(0);
+    }
+    let mut tx = conn.begin().await?;
+    let ids: Vec<Uuid> = moves.iter().map(|batch_move| batch_move.id).collect();
+    let locked = lock_for_moves(&mut tx, &ids).await?;
+    let mut writes = Vec::new();
+    for batch_move in moves {
+        let Some(&from) = locked.get(&batch_move.id) else {
+            continue;
+        };
+        if batch_move
+            .transition
+            .expected_from_state
+            .is_some_and(|expected| expected != from.state)
+        {
+            continue;
+        }
+        check_edge(
+            batch_move.id,
+            from.state,
+            batch_move.transition.to_state,
+            batch_move.transition.policy,
+        )?;
+        writes.push((batch_move.id, from, &batch_move.transition));
+    }
+    if !writes.is_empty() {
+        write_moves(&mut tx, &writes).await?;
+    }
     tx.commit().await?;
     Ok(i64::try_from(writes.len()).unwrap_or(i64::MAX))
 }
@@ -1399,7 +1332,7 @@ pub async fn claim_due(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
-    claim(conn, states, scope, limit, ClaimHold::None, false).await
+    claim(conn, states, scope, limit, ClaimKind::Plain).await
 }
 
 /// [`claim_due`] for the person lookup that precedes resolve-enrolments: `ready_to_submit` rows,
@@ -1414,8 +1347,7 @@ pub async fn claim_due_for_person_lookup(
         &[CreditRegistrationState::ReadyToSubmit],
         scope,
         limit,
-        ClaimHold::None,
-        true,
+        ClaimKind::PersonLookup,
     )
     .await
 }
@@ -1438,8 +1370,7 @@ pub async fn claim_due_for_resolve(
         &[CreditRegistrationState::ReadyToSubmit],
         scope,
         limit,
-        ClaimHold::BehindLiveRowAhead,
-        true,
+        ClaimKind::Resolve,
     )
     .await
 }
@@ -1458,20 +1389,22 @@ pub async fn claim_due_for_import(
         &[CreditRegistrationState::CheckingEnrolment],
         scope,
         limit,
-        ClaimHold::BehindSubmission,
-        false,
+        ClaimKind::Import,
     )
     .await
 }
 
-/// Which other rows of the same student hold a row back from a claim.
+/// Which caller a claim is for, which decides the rows that hold a row back and the order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ClaimHold {
-    None,
+enum ClaimKind {
+    /// See [`claim_due`].
+    Plain,
+    /// See [`claim_due_for_person_lookup`].
+    PersonLookup,
     /// See [`claim_due_for_resolve`].
-    BehindLiveRowAhead,
+    Resolve,
     /// See [`claim_due_for_import`].
-    BehindSubmission,
+    Import,
 }
 
 async fn claim(
@@ -1479,8 +1412,7 @@ async fn claim(
     states: &[CreditRegistrationState],
     scope: &RegistrationScope,
     limit: i64,
-    hold: ClaimHold,
-    is_enrolment_check_claim: bool,
+    kind: ClaimKind,
 ) -> ModelResult<Vec<CreditRegistration>> {
     let is_scoped_call = !scope.is_unscoped();
     let res = sqlx::query_as!(
@@ -1596,9 +1528,9 @@ RETURNING cr.*
         scope.user_id,
         &scope.credit_registration_ids,
         is_scoped_call,
-        hold == ClaimHold::BehindSubmission,
-        hold == ClaimHold::BehindLiveRowAhead,
-        is_enrolment_check_claim,
+        kind == ClaimKind::Import,
+        kind == ClaimKind::Resolve,
+        matches!(kind, ClaimKind::PersonLookup | ClaimKind::Resolve),
     )
     .fetch_all(conn)
     .await?;
@@ -2100,18 +2032,22 @@ WHERE id = $1
     Ok(())
 }
 
-/// Makes rows claimable again now, whatever backoff parked them. Only a human asks for this, so a
-/// row waiting for an enrolment check has its check marked as an admin's.
+/// Makes rows claimable again now, whatever backoff parked them. A row waiting for an enrolment
+/// check has its check marked as `enrolment_check_source`: who asked for it.
 ///
 /// Uses the database clock: an app-clock value sampled after `BEGIN` is still in the future when
 /// the same transaction compares it against `now()`.
-pub async fn make_due_now_batch(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+pub async fn make_due_now_batch(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    enrolment_check_source: EnrolmentCheckSource,
+) -> ModelResult<()> {
     sqlx::query!(
         r#"
 UPDATE credit_registrations
 SET next_attempt_at = now(),
   enrolment_check_source = CASE
-    WHEN state = 'no_usable_enrolment' THEN 'admin_request'
+    WHEN state = 'no_usable_enrolment' THEN $2
     ELSE enrolment_check_source
   END
 WHERE id = ANY($1)
@@ -2120,6 +2056,7 @@ WHERE id = ANY($1)
   AND deleted_at IS NULL
         "#,
         ids,
+        enrolment_check_source as EnrolmentCheckSource,
     )
     .execute(conn)
     .await?;

@@ -20,15 +20,14 @@ use headless_lms_models::credit_registration_events::{
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
-    RecordedCredit, Transition, claim_due_for_resolve, get_by_id,
-    get_recorded_credits_for_same_module, increment_submit_retry_count,
-    lock_live_successes_for_same_module, mark_pending_superseded, prepare_unsent_duplicate,
-    set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
+    RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
+    increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
+    prepare_unsent_duplicate, set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_checks::add_seen_enrolment_ids;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
-    EnrolmentCriteria, attained_candidates, select_enrolment,
+    EnrolmentCriteria, NoUsableEnrolment, attained_candidates, select_enrolment,
 };
 use headless_lms_models::library::credit_registration::grade_mapping::{
     GradeComparison, GradeSource, MappedGrade, compare_grades, map_grade,
@@ -56,9 +55,8 @@ use std::collections::HashSet;
 use super::resolve_person_ids::ResolvePersonIds;
 use super::{
     OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, breaker,
-    claim_limit, counts_as_failed, is_malformed_request, outcome_transition, rate_limit, row_facts,
-    run_suotar_batch_phase,
+    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, counts_as_failed,
+    is_malformed_request, outcome_transition, row_facts, run_suotar_batch_phase,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -94,11 +92,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
         scope: &PhaseScope,
+        limit: usize,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let limit = claim_limit(scope, SuotarEndpoint::ResolveEnrolments);
-        if limit == 0 {
-            return Ok(Prepared::default());
-        }
         let claimed = claim_due_for_resolve(conn, scope, limit as i64).await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
@@ -148,11 +143,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     transition(
                         conn,
                         row.id,
-                        &Transition {
-                            // A recheck's answer is its one event.
-                            records_event: row.enrolment_check_anchor_at.is_none(),
-                            ..Transition::to(CreditRegistrationState::ResolvingEnrolment)
-                        },
+                        &Transition::to(CreditRegistrationState::ResolvingEnrolment),
                     )
                     .await?;
                     let request = ResolveEnrolmentRequestItem {
@@ -169,11 +160,6 @@ impl SuotarBatchPhase for ResolveEnrolments {
                 }
             }
         }
-        rate_limit::take(
-            &breaker::ScopeKey::of(scope),
-            SuotarEndpoint::ResolveEnrolments,
-            prepared.sendable.len(),
-        );
         Ok(prepared)
     }
 
@@ -209,11 +195,28 @@ impl SuotarBatchPhase for ResolveEnrolments {
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
     ) -> anyhow::Result<bool> {
-        let failed = apply_answer(conn, row, context, item, event).await?;
-        if row.enrolment_check_anchor_at.is_some() {
-            record_check_outcome(conn, row, context, item).await?;
-        }
-        Ok(failed)
+        let enrolments = item
+            .and_then(|item| item.result.as_ref())
+            .map(|result| result.enrolments.as_slice())
+            .unwrap_or_default();
+        let chosen = select_enrolment(enrolments, enrolment_criteria(context));
+        let check = row.is_enrolment_recheck().then(|| EnrolmentCheckAnswer {
+            checked: row,
+            usable_enrolment: chosen.ok(),
+            listed_enrolments: enrolments,
+        });
+        apply_answer(
+            conn,
+            row,
+            context,
+            item,
+            chosen,
+            OutcomeEvent {
+                enrolment_check: check.as_ref(),
+                ..event
+            },
+        )
+        .await
     }
 
     async fn apply_request_rejection(
@@ -260,31 +263,35 @@ impl SuotarBatchPhase for ResolveEnrolments {
     }
 }
 
-/// Logs what a check of a row waiting for an enrolment found, and remembers the enrolments it saw
-/// for the roster wake-ups. A lookup that failed in transit was no check and leaves no trace.
-async fn record_check_outcome(
+/// An answered check of a row waiting for an enrolment, logged with the write its answer makes.
+#[derive(Clone, Copy)]
+pub(crate) struct EnrolmentCheckAnswer<'a> {
+    /// The row as it was claimed for the check.
+    pub checked: &'a CreditRegistration,
+    /// The enrolment the answer had to register against, however the row then settled.
+    pub usable_enrolment: Option<&'a SuotarEnrolment>,
+    pub listed_enrolments: &'a [SuotarEnrolment],
+}
+
+/// Logs what a check found and remembers the enrolments it saw for the roster wake-ups, given the
+/// row as the answer's write left it. A lookup that failed in transit was no check and leaves no
+/// trace.
+pub(crate) async fn record_enrolment_check(
     conn: &mut PgConnection,
-    row: &CreditRegistration,
-    context: &SubmissionContext,
-    item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
+    check: Option<&EnrolmentCheckAnswer<'_>>,
+    after: &CreditRegistration,
 ) -> anyhow::Result<()> {
-    let after = get_by_id(conn, row.id).await?;
+    let Some(check) = check else {
+        return Ok(());
+    };
+    let row = check.checked;
     let was_answered = after.state != CreditRegistrationState::NoUsableEnrolment
         || after.enrolment_checked_at != row.enrolment_checked_at;
     if !was_answered {
         return Ok(());
     }
-    let enrolments = item
-        .and_then(|item| item.result.as_ref())
-        .map(|result| result.enrolments.as_slice())
-        .unwrap_or_default();
-    // Whether the answer had an enrolment to register against, however the row then settled.
-    let usable = select_enrolment(enrolments, enrolment_criteria(context)).ok();
-    let is_enrolment_found = usable.is_some();
-    let enrolled_at = usable.and_then(|enrolment| enrolment.enrolment_date_time);
-    let mut tx = conn.begin().await?;
     credit_registration_enrolment_check_outcomes::insert(
-        &mut tx,
+        conn,
         &NewEnrolmentCheckOutcome {
             credit_registration_id: row.id,
             course_module_id: row.course_module_id,
@@ -294,18 +301,19 @@ async fn record_check_outcome(
             due_at: row.enrolment_check_due_at,
             checked_at: after.enrolment_checked_at.unwrap_or_else(Utc::now),
             previous_checked_at: row.enrolment_checked_at,
-            is_enrolment_found,
-            enrolled_at,
-            were_checks_stopped: row.enrolment_checks_stopped_at.is_some(),
+            is_enrolment_found: check.usable_enrolment.is_some(),
+            enrolled_at: check
+                .usable_enrolment
+                .and_then(|enrolment| enrolment.enrolment_date_time),
         },
     )
     .await?;
-    let seen: Vec<String> = enrolments
+    let seen: Vec<String> = check
+        .listed_enrolments
         .iter()
         .map(|enrolment| enrolment.id.clone())
         .collect();
-    add_seen_enrolment_ids(&mut tx, row.id, &seen).await?;
-    tx.commit().await?;
+    add_seen_enrolment_ids(conn, row.id, &seen).await?;
     Ok(())
 }
 
@@ -316,6 +324,7 @@ async fn apply_answer(
     row: &CreditRegistration,
     context: &SubmissionContext,
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
+    chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let facts = row_facts(row);
@@ -386,7 +395,7 @@ async fn apply_answer(
                 .as_ref()
                 .map(|result| (&result.enrolments, &result.existing_attainments))
                 .unwrap_or((&no_enrolments, &no_attainments));
-            choose(conn, row, context, enrolments, existing, event).await
+            choose(conn, row, context, enrolments, chosen, existing, event).await
         }
     }
 }
@@ -401,17 +410,18 @@ fn enrolment_criteria(context: &SubmissionContext) -> EnrolmentCriteria {
     }
 }
 
-/// Applies the choice for one answered row. Returns whether the row ended up in a failure state.
+/// Applies `chosen`, what [`select_enrolment`] made of `enrolments`, to one answered row. Returns
+/// whether the row ended up in a failure state.
 async fn choose(
     conn: &mut PgConnection,
     row: &CreditRegistration,
     context: &SubmissionContext,
     enrolments: &[SuotarEnrolment],
+    chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     existing: &[ExistingAttainment],
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let details = suotar_exchange_details(event.request, event.response);
-    let chosen = select_enrolment(enrolments, enrolment_criteria(context));
     // The scale the grade would go out on; all enrolments on one course code share it in practice.
     let enrolment_grade_scale_id = chosen
         .ok()
@@ -554,7 +564,7 @@ async fn choose(
         .reduce(|first, second| format!("{first} {second}"));
     // Only now does the row become claimable by `import`: the payload is frozen and the event
     // records when the enrolment was resolved.
-    transition(
+    let after = transition(
         &mut tx,
         row.id,
         &Transition {
@@ -568,6 +578,7 @@ async fn choose(
         },
     )
     .await?;
+    record_enrolment_check(&mut tx, event.enrolment_check, &after).await?;
     tx.commit().await?;
     Ok(false)
 }
@@ -694,7 +705,7 @@ async fn settle_unsent_duplicate(
     })
     .ok();
     prepare_unsent_duplicate(conn, row.id, weighed_grade.as_ref()).await?;
-    transition(
+    let after = transition(
         conn,
         row.id,
         &Transition {
@@ -710,6 +721,7 @@ async fn settle_unsent_duplicate(
         },
     )
     .await?;
+    record_enrolment_check(conn, event.enrolment_check, &after).await?;
     Ok(())
 }
 

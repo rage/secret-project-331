@@ -2586,7 +2586,6 @@ export const zEnrolmentCheckPopulation = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
-  is_stopped: z.boolean(),
   never_checked_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -2635,14 +2634,6 @@ export const zEnrolmentCheckFindings = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
-  found_after_stop_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   found_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -3312,66 +3303,6 @@ export const zMyStudiesCompletion = z.object({
 })
 
 /**
- * A course module as the student's own profile shows it, with their best visible completion.
- */
-export const zMyStudiesCourseModule = z.object({
-  attempted_exercises: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  attempted_exercises_required: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  automatic_completion: z.boolean(),
-  completion: zMyStudiesCompletion.nullish(),
-  course_module_id: z.uuid(),
-  credit_registration_expected: z.boolean(),
-  ects_credits: z.number().nullish(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  requires_exam: z.boolean(),
-  score_given: z.number(),
-  score_maximum: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  score_required: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  supports_credit_registration: z.boolean(),
-  total_exercises: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  uh_course_code: z.string().nullish(),
-})
-
-export const zMyStudiesCourse = z.object({
-  course_id: z.uuid(),
-  course_name: z.string(),
-  course_slug: z.string(),
-  current_course_instance_id: z.uuid().nullish(),
-  current_course_instance_name: z.string().nullish(),
-  exam_passed: z.boolean().nullish(),
-  first_enrolled_at: z.iso.datetime(),
-  hidden: z.boolean(),
-  is_current: z.boolean(),
-  language_code: z.string(),
-  modules: z.array(zMyStudiesCourseModule),
-  organization_slug: z.string(),
-  supports_credit_registration: z.boolean(),
-})
-
-/**
  * Summarises the courses the profile lists, i.e. the non-hidden ones.
  */
 export const zMyStudiesTotals = z.object({
@@ -3384,12 +3315,6 @@ export const zMyStudiesTotals = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   ects: z.number(),
-})
-
-export const zMyStudies = z.object({
-  any_module_supports_credit_registration: z.boolean(),
-  courses: z.array(zMyStudiesCourse),
-  totals: zMyStudiesTotals,
 })
 
 /**
@@ -4755,6 +4680,72 @@ export const zMyCreditRegistrationForCourseModule = z.object({
 })
 
 /**
+ * A course module as the student's own profile shows it, with their best visible completion.
+ */
+export const zMyStudiesCourseModule = z.object({
+  attempted_exercises: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  attempted_exercises_required: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  automatic_completion: z.boolean(),
+  completion: zMyStudiesCompletion.nullish(),
+  course_module_id: z.uuid(),
+  ects_credits: z.number().nullish(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  score_required: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  status_before_registration: zStudentFacingCreditRegistrationStatus.nullish(),
+  supports_credit_registration: z.boolean(),
+  total_exercises: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
+export const zMyStudiesCourse = z.object({
+  course_id: z.uuid(),
+  course_name: z.string(),
+  course_slug: z.string(),
+  current_course_instance_id: z.uuid().nullish(),
+  current_course_instance_name: z.string().nullish(),
+  exam_passed: z.boolean().nullish(),
+  first_enrolled_at: z.iso.datetime(),
+  hidden: z.boolean(),
+  is_current: z.boolean(),
+  language_code: z.string(),
+  modules: z.array(zMyStudiesCourseModule),
+  organization_slug: z.string(),
+  supports_credit_registration: z.boolean(),
+})
+
+export const zMyStudies = z.object({
+  any_module_supports_credit_registration: z.boolean(),
+  courses: z.array(zMyStudiesCourse),
+  totals: zMyStudiesTotals,
+})
+
+/**
  * How a student number was proven to belong to an account.
  */
 export const zStudentNumberVerificationMethod = z.enum([
@@ -5339,7 +5330,7 @@ export const zSuotarEndpointRateLimit = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   is_breaker_open: z.boolean(),
   rate_share: z.number(),
-  recorded_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zEnrolmentCheckDashboard = z.object({
@@ -5349,7 +5340,6 @@ export const zEnrolmentCheckDashboard = z.object({
   population: z.array(zEnrolmentCheckPopulation),
   rate_limits: z.array(zSuotarEndpointRateLimit),
   roster_codes: z.array(zEnrolmentCheckRosterCode),
-  since: z.iso.datetime(),
   very_late_after_secs: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -5784,12 +5774,12 @@ export const zUserCompletionInformation = z.object({
   course_module_name: z.string().nullish(),
   course_name: z.string(),
   credit_justification: z.string().nullish(),
-  credit_registration_expected: z.boolean(),
   ects_credits: z.number().nullish(),
   email: z.string(),
   enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   register_credits_via_suotar: z.boolean(),
+  status_before_registration: zStudentFacingCreditRegistrationStatus,
   uh_course_code: z.string().nullish(),
 })
 
@@ -8186,7 +8176,7 @@ export const zAdminResumeCourseModuleCreditRegistrationPath = z.object({
 })
 
 export const zGetCreditRegistrationEnrolmentChecksQuery = z.object({
-  days: z.coerce
+  window_secs: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
       error: "Invalid value: Expected int64 to be >= -9223372036854775808",

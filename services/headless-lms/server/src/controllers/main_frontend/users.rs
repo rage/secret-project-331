@@ -2,11 +2,14 @@ use crate::prelude::*;
 use anyhow::anyhow;
 use headless_lms_utils::services::tmc::TmcClient;
 use models::{
-    course_instance_enrollments::CourseEnrollmentsInfo, courses::Course,
+    course_instance_enrollments::CourseEnrollmentsInfo,
+    course_module_completions::CourseModuleCompletion, courses::Course,
     exercise_reset_logs::ExerciseResetLog, exercise_slide_submissions::UserCourseSubmissionTime,
-    generated_certificates::UserCertificate, research_forms::ResearchFormQuestionAnswer,
-    roles::Role, suspected_cheaters::UserSuspectedCheaterInfo,
-    user_research_consents::UserResearchConsent, users::User,
+    generated_certificates::UserCertificate,
+    library::credit_registration::StudentFacingCreditRegistrationStatus,
+    research_forms::ResearchFormQuestionAnswer, roles::Role,
+    suspected_cheaters::UserSuspectedCheaterInfo, user_research_consents::UserResearchConsent,
+    users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
 use std::collections::{HashMap, HashSet};
@@ -348,9 +351,9 @@ pub struct MyStudiesCourseModule {
     /// flag of the completion [`models::course_module_completions::select_registration_completion`]
     /// picks, or, before a completion is shown, whether a new one would get it.
     pub supports_credit_registration: bool,
-    /// Whether a credit registration exists or is about to for this student's completion, so a
-    /// completion without one yet is on its way rather than never coming.
-    pub credit_registration_expected: bool,
+    /// What the student is told while their completion has no credit registration: `sending` when
+    /// one is about to be created. `None` when none is coming, or there is no completion.
+    pub status_before_registration: Option<StudentFacingCreditRegistrationStatus>,
     /// Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
     pub score_given: f32,
     /// Exercise points the module offers. `None` when it has no exercises.
@@ -488,14 +491,27 @@ async fn get_my_studies(
             HashSet::new()
         };
 
+    let completion_ids: Vec<Uuid> = enrollments_info
+        .course_enrollments
+        .iter()
+        .flat_map(|enrollment| &enrollment.course_module_completions)
+        .map(|completion| completion.id)
+        .collect();
+    let credit_registration_expected_ids =
+        models::course_module_completions::get_credit_registration_expected_ids(
+            &mut conn,
+            &completion_ids,
+        )
+        .await?;
+
     let mut courses = Vec::with_capacity(enrollments_info.course_enrollments.len());
 
     for enrollment in enrollments_info.course_enrollments {
         // Best visible completion per module, matching the course material's
         // `get_user_module_completion_statuses_for_course`.
         let mut best_completion_by_module: HashMap<Uuid, MyStudiesCompletion> = HashMap::new();
-        let mut registers_via_suotar_by_module: HashMap<Uuid, bool> = HashMap::new();
-        let mut registration_expected_module_ids: HashSet<Uuid> = HashSet::new();
+        let mut registration_completion_by_module: HashMap<Uuid, CourseModuleCompletion> =
+            HashMap::new();
         for course_module in &enrollment.course_modules {
             let module_completions: Vec<_> = enrollment
                 .course_module_completions
@@ -511,16 +527,13 @@ async fn get_my_studies(
             if let Some(best) =
                 models::course_module_completions::select_best_completion(visible_completions)
             {
-                let registration_completion =
+                if let Some(registration_completion) =
                     models::course_module_completions::select_registration_completion(
                         module_completions,
-                    );
-                let registers_via_suotar = registration_completion
-                    .as_ref()
-                    .is_some_and(|c| c.register_credits_via_suotar);
-                registers_via_suotar_by_module.insert(course_module.id, registers_via_suotar);
-                if registration_completion.is_some_and(|c| c.is_credit_registration_expected()) {
-                    registration_expected_module_ids.insert(course_module.id);
+                    )
+                {
+                    registration_completion_by_module
+                        .insert(course_module.id, registration_completion);
                 }
                 // Failed completions are kept for the course's own table; only the totals omit them.
                 best_completion_by_module.insert(
@@ -541,20 +554,23 @@ async fn get_my_studies(
             .iter()
             .map(|course_module| {
                 let progress = progress_by_module.get(&course_module.id);
+                let registration_completion =
+                    registration_completion_by_module.get(&course_module.id);
                 MyStudiesCourseModule {
                     course_module_id: course_module.id,
                     name: course_module.name.clone(),
                     order_number: course_module.order_number,
                     ects_credits: course_module.ects_credits,
                     uh_course_code: course_module.uh_course_code.clone(),
-                    supports_credit_registration: registers_via_suotar_by_module
-                        .get(&course_module.id)
-                        .copied()
-                        .unwrap_or_else(|| {
-                            registering_new_completion_module_ids.contains(&course_module.id)
-                        }),
-                    credit_registration_expected: registration_expected_module_ids
-                        .contains(&course_module.id),
+                    supports_credit_registration: registration_completion.map_or_else(
+                        || registering_new_completion_module_ids.contains(&course_module.id),
+                        |completion| completion.register_credits_via_suotar,
+                    ),
+                    status_before_registration: registration_completion
+                        .filter(|completion| {
+                            credit_registration_expected_ids.contains(&completion.id)
+                        })
+                        .map(|_| StudentFacingCreditRegistrationStatus::Sending),
                     score_given: progress.map_or(0.0, |progress| progress.score_given),
                     score_maximum: progress.and_then(|progress| progress.score_maximum),
                     score_required: progress.and_then(|progress| progress.score_required),

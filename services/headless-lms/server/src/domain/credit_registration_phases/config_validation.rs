@@ -60,11 +60,8 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
             Ok(response) => response,
             Err(error) => {
                 return Ok(PhaseRunOutcome {
-                    items_processed: 0,
-                    items_failed: 0,
                     error: Some(scrub_text(error.message())),
-                    is_sisu_outage: false,
-                    is_isolated_failure: false,
+                    ..PhaseRunOutcome::default()
                 });
             }
         };
@@ -95,14 +92,10 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         info!("{with_problems} Suotar-enabled course modules have configuration problems.");
     }
 
-    Ok(PhaseRunOutcome {
-        items_processed: i32::try_from(modules.len()).unwrap_or(i32::MAX),
-        // A misconfigured module is a finding, not a failed iteration: the phase did its job.
-        items_failed: 0,
-        error: None,
-        is_sisu_outage: false,
-        is_isolated_failure: false,
-    })
+    // A misconfigured module is a finding, not a failed item: the phase did its job.
+    Ok(PhaseRunOutcome::processed(
+        i64::try_from(modules.len()).unwrap_or(i64::MAX),
+    ))
 }
 
 /// `None` for any answer that is neither verdict.

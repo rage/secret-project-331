@@ -26,10 +26,6 @@ pub enum EnrolmentCheckGroup {
     CheckRequested,
 }
 
-impl EnrolmentCheckGroup {
-    pub const ALL: [Self; 3] = [Self::Completed, Self::Visited, Self::CheckRequested];
-}
-
 /// What made an enrolment check run when it did.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
 #[sqlx(type_name = "enrolment_check_source", rename_all = "snake_case")]
@@ -44,17 +40,6 @@ pub enum EnrolmentCheckSource {
     RosterListing,
     /// The student linked their number from a mail sent off the roster, which proves an enrolment.
     AccountLink,
-}
-
-impl EnrolmentCheckSource {
-    pub const ALL: [Self; 6] = [
-        Self::Schedule,
-        Self::StudentRequest,
-        Self::TeacherRequest,
-        Self::AdminRequest,
-        Self::RosterListing,
-        Self::AccountLink,
-    ];
 }
 
 const MINUTE_SECS: i64 = 60;
@@ -211,6 +196,12 @@ pub fn next_check_after(
 mod tests {
     use super::*;
 
+    const ALL_GROUPS: [EnrolmentCheckGroup; 3] = [
+        EnrolmentCheckGroup::Completed,
+        EnrolmentCheckGroup::Visited,
+        EnrolmentCheckGroup::CheckRequested,
+    ];
+
     fn at(secs: i64) -> DateTime<Utc> {
         DateTime::from_timestamp(1_800_000_000 + secs, 0).unwrap()
     }
@@ -251,7 +242,7 @@ mod tests {
             ]
         );
         assert!(requested.last().unwrap() <= &(180.0 * 24.0));
-        for group in EnrolmentCheckGroup::ALL {
+        for group in ALL_GROUPS {
             assert!(
                 ladder_offsets_secs(group)
                     .windows(2)

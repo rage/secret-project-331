@@ -6,9 +6,10 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
-    RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
-    increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
-    prepare_unsent_duplicate, set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
+    RecordedCredit, Transition, Transitioned, claim_due_for_resolve,
+    get_recorded_credits_for_same_module, increment_submit_retry_count,
+    lock_live_successes_for_same_module, mark_pending_superseded, prepare_unsent_duplicate,
+    set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition, transition_unless_moved_on,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_checks::{
@@ -30,17 +31,16 @@ use headless_lms_models::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
 use headless_lms_models::secret::DbSecret;
-use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ExistingAttainment,
     ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
-    SuotarEnrolment, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
+    SuotarEnrolment, SuotarError, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
-use sqlx::{Connection, PgConnection};
+use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::collections::HashSet;
 
 use super::{hold_for_lookup, lookup_state};
-use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, outcome_transition, row_facts};
+use crate::apply::{Applied, OutcomeEvent, apply_outcome, outcome_transition, row_facts};
 use crate::batch_phase::{
     Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
     is_malformed_request,
@@ -147,7 +147,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
         ctx.suotar_client
             .resolve_enrolments(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ResolveEnrolments))
@@ -163,7 +163,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         (row, context): &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool> {
+    ) -> anyhow::Result<Applied> {
         let enrolments = item
             .and_then(|item| item.result.as_ref())
             .map(|result| result.enrolments.as_slice())
@@ -197,8 +197,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         (row, _): &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_request_level_outcome(
             conn,
             SuotarEndpoint::ResolveEnrolments,
@@ -211,7 +211,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         .await
     }
 
-    fn isolates_request_rejection(error: &UtilError) -> bool {
+    fn isolates_request_rejection(error: &SuotarError) -> bool {
         is_malformed_request(error)
     }
 
@@ -221,8 +221,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
         (row, _): &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_isolated_malformed_request(
             conn,
             row,
@@ -235,8 +235,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
     }
 }
 
-/// Applies the study registry's answer for one row. Returns whether the row ended up in a failure
-/// state; errors with `PreconditionFailed` if the row left its [`lookup_state`] meanwhile.
+/// Applies the study registry's answer for one row.
 async fn apply_answer(
     conn: &mut PgConnection,
     row: &CreditRegistration,
@@ -244,7 +243,7 @@ async fn apply_answer(
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
     chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let facts = row_facts(row);
     match item {
         None => {
@@ -260,8 +259,7 @@ async fn apply_answer(
                 },
                 Some(lookup_state(row)),
             )
-            .await?;
-            Ok(counts_as_failed(&outcome))
+            .await
         }
         Some(item) if item.status == SuotarItemStatus::Error => {
             let code = map_code(SuotarEndpoint::ResolveEnrolments, &item.code)
@@ -276,7 +274,7 @@ async fn apply_answer(
                 // attainment's own scale is the best evidence of it.
                 let grade_scale_id = preferred_attainment(&attained_candidates(existing))
                     .and_then(|attained| attained.grade_scale_id.as_deref());
-                if settle_against_existing_attainments(
+                if let Some(settled) = settle_against_existing_attainments(
                     conn,
                     row,
                     context,
@@ -285,10 +283,15 @@ async fn apply_answer(
                     &event,
                 )
                 .await?
-                    || settle_against_recorded_credits(conn, row, context, grade_scale_id, &event)
+                {
+                    return Ok(settled);
+                }
+                let mut tx = conn.begin().await?;
+                if let Some(settled) =
+                    settle_against_recorded_credits(&mut tx, row, context, grade_scale_id, &event)
                         .await?
                 {
-                    return Ok(false);
+                    return commit_if_written(tx, settled).await;
                 }
             }
             let outcome = submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &facts);
@@ -302,8 +305,7 @@ async fn apply_answer(
                 },
                 Some(lookup_state(row)),
             )
-            .await?;
-            Ok(counts_as_failed(&outcome))
+            .await
         }
         Some(item) => {
             let no_enrolments = Vec::new();
@@ -328,8 +330,7 @@ fn enrolment_criteria(context: &SubmissionContext) -> EnrolmentCriteria {
     }
 }
 
-/// Applies `chosen`, what [`select_enrolment`] made of `enrolments`, to one answered row. Returns
-/// whether the row ended up in a failure state.
+/// Applies `chosen`, what [`select_enrolment`] made of `enrolments`, to one answered row.
 async fn choose(
     conn: &mut PgConnection,
     row: &CreditRegistration,
@@ -338,7 +339,7 @@ async fn choose(
     chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     existing: &[ExistingAttainment],
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let details = suotar_exchange_details(event.request, event.response);
     // The scale the grade would go out on; all enrolments on one course code share it in practice.
     let enrolment_grade_scale_id = chosen
@@ -351,7 +352,7 @@ async fn choose(
         });
     // Before the enrolment problems below: if the registry already holds the attainment the credit
     // exists, so sending the student off to re-enrol would be wrong as well as unnecessary.
-    if settle_against_existing_attainments(
+    if let Some(settled) = settle_against_existing_attainments(
         conn,
         row,
         context,
@@ -361,7 +362,7 @@ async fn choose(
     )
     .await?
     {
-        return Ok(false);
+        return Ok(settled);
     }
 
     // Suotar's copy of Sisu may predate what we registered from another attempt, so that is weighed
@@ -379,7 +380,7 @@ async fn choose(
             enrolment_grade_scale_id,
         )
     {
-        settle_unsent_duplicate(
+        let settled = settle_unsent_duplicate(
             &mut tx,
             row,
             context,
@@ -389,15 +390,14 @@ async fn choose(
             &event,
         )
         .await?;
-        tx.commit().await?;
-        return Ok(false);
+        return commit_if_written(tx, settled).await;
     }
 
     let chosen = match chosen {
         Ok(chosen) => chosen,
         Err(reason) => {
             if is_enrolment_error(reason.error_code())
-                && settle_against_recorded_credits(
+                && let Some(settled) = settle_against_recorded_credits(
                     &mut tx,
                     row,
                     context,
@@ -406,8 +406,7 @@ async fn choose(
                 )
                 .await?
             {
-                tx.commit().await?;
-                return Ok(false);
+                return commit_if_written(tx, settled).await;
             }
             let outcome = headless_lms_models::library::credit_registration::outcomes::Outcome {
                 error_code: Some(reason.error_code()),
@@ -417,7 +416,7 @@ async fn choose(
                     &row_facts(row),
                 )
             };
-            apply_outcome(
+            let applied = apply_outcome(
                 &mut tx,
                 row,
                 &outcome,
@@ -428,8 +427,7 @@ async fn choose(
                 Some(lookup_state(row)),
             )
             .await?;
-            tx.commit().await?;
-            return Ok(true);
+            return commit_if_written(tx, applied).await;
         }
     };
 
@@ -447,7 +445,7 @@ async fn choose(
     let built = match built {
         Ok(built) => built,
         Err(code) => {
-            apply_outcome(
+            let applied = apply_outcome(
                 &mut tx,
                 row,
                 &submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &row_facts(row)),
@@ -455,8 +453,7 @@ async fn choose(
                 Some(lookup_state(row)),
             )
             .await?;
-            tx.commit().await?;
-            return Ok(true);
+            return commit_if_written(tx, applied).await;
         }
     };
     for replaced in &registered {
@@ -482,7 +479,7 @@ async fn choose(
         .reduce(|first, second| format!("{first} {second}"));
     // Only now does the row become claimable by `import`: the payload is frozen and the event
     // records when the enrolment was resolved.
-    let after = transition(
+    let transitioned = transition_unless_moved_on(
         &mut tx,
         row.id,
         &Transition {
@@ -496,13 +493,26 @@ async fn choose(
         },
     )
     .await?;
-    record_enrolment_check(&mut tx, event.enrolment_check, &after).await?;
-    tx.commit().await?;
-    Ok(false)
+    if let Transitioned::Written(after) = &transitioned {
+        record_enrolment_check(&mut tx, event.enrolment_check, after).await?;
+    }
+    commit_if_written(tx, transitioned.into()).await
+}
+
+/// Commits `tx` only when the row was written, so what was written for a row that moved on
+/// meanwhile rolls back with it.
+async fn commit_if_written(
+    tx: Transaction<'_, Postgres>,
+    applied: Applied,
+) -> anyhow::Result<Applied> {
+    if matches!(applied, Applied::Written { .. }) {
+        tx.commit().await?;
+    }
+    Ok(applied)
 }
 
 /// Settles the row as `duplicate` when the registry already holds an attainment for the course that
-/// the grade we would send does not beat. Returns whether it did.
+/// the grade we would send does not beat. `None` when it did not.
 ///
 /// `grade_scale_id` is the scale our grade would go out on; `None` guesses it from the completion.
 async fn settle_against_existing_attainments(
@@ -512,10 +522,10 @@ async fn settle_against_existing_attainments(
     existing: &[ExistingAttainment],
     grade_scale_id: Option<&str>,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Option<Applied>> {
     let candidates = attained_candidates(existing);
     let Some(attained) = preferred_attainment(&candidates) else {
-        return Ok(false);
+        return Ok(None);
     };
     if improves_on_all(
         candidates.iter().map(|attained| {
@@ -527,14 +537,14 @@ async fn settle_against_existing_attainments(
         context,
         grade_scale_id,
     ) {
-        return Ok(false);
+        return Ok(None);
     }
     // Outside the transaction: a lost race for the attainment surfaces as a unique violation, which
     // would abort it.
     set_sisu_attainment_if_unclaimed(conn, row.id, &attained.id, Some(&attained.attainment_type))
         .await?;
     let mut tx = conn.begin().await?;
-    settle_unsent_duplicate(
+    let settled = settle_unsent_duplicate(
         &mut tx,
         row,
         context,
@@ -544,8 +554,7 @@ async fn settle_against_existing_attainments(
         event,
     )
     .await?;
-    tx.commit().await?;
-    Ok(true)
+    commit_if_written(tx, settled).await.map(Some)
 }
 
 /// The attainment `sisu_attainment_id` records: the course unit one when there is one, else the
@@ -572,7 +581,7 @@ fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
 }
 
 /// Settles the row as `duplicate` when our own records hold a credit for the module that the grade
-/// we would send does not beat. Returns whether it did.
+/// we would send does not beat, in the caller's transaction. `None` when it did not.
 ///
 /// For an enrolment error, after [`settle_against_existing_attainments`]: Suotar's copy of Sisu may
 /// predate a pull-path registration, so a student who holds the credit would be told to enrol again.
@@ -583,18 +592,17 @@ async fn settle_against_recorded_credits(
     context: &SubmissionContext,
     enrolment_grade_scale_id: Option<&str>,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Option<Applied>> {
     let recorded = get_recorded_credits_for_same_module(conn, row.id).await?;
     if recorded.is_empty() {
-        return Ok(false);
+        return Ok(None);
     }
     let held_grades: Vec<_> = recorded.iter().map(RecordedCredit::held_grade).collect();
     if improves_on_all(pairs_of(&held_grades), context, enrolment_grade_scale_id) {
-        return Ok(false);
+        return Ok(None);
     }
-    let mut tx = conn.begin().await?;
-    settle_unsent_duplicate(
-        &mut tx,
+    let settled = settle_unsent_duplicate(
+        conn,
         row,
         context,
         enrolment_grade_scale_id,
@@ -603,11 +611,11 @@ async fn settle_against_recorded_credits(
         event,
     )
     .await?;
-    tx.commit().await?;
-    Ok(true)
+    Ok(Some(settled))
 }
 
-/// Moves a row that is not sent, because the registry already holds the credit, to `duplicate`.
+/// Moves a row that is not sent, because the registry already holds the credit, to `duplicate`, in
+/// the caller's transaction, which must roll back if the row moved on.
 async fn settle_unsent_duplicate(
     conn: &mut PgConnection,
     row: &CreditRegistration,
@@ -615,7 +623,7 @@ async fn settle_unsent_duplicate(
     enrolment_grade_scale_id: Option<&str>,
     message: &str,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Applied> {
     let weighed_grade = map_grade(GradeSource {
         passed: context.completion.passed,
         grade: context.completion.grade,
@@ -623,7 +631,7 @@ async fn settle_unsent_duplicate(
     })
     .ok();
     prepare_unsent_duplicate(conn, row.id, weighed_grade.as_ref()).await?;
-    let after = transition(
+    let transitioned = transition_unless_moved_on(
         conn,
         row.id,
         &Transition {
@@ -639,8 +647,10 @@ async fn settle_unsent_duplicate(
         },
     )
     .await?;
-    record_enrolment_check(conn, event.enrolment_check, &after).await?;
-    Ok(())
+    if let Transitioned::Written(after) = &transitioned {
+        record_enrolment_check(conn, event.enrolment_check, after).await?;
+    }
+    Ok(transitioned.into())
 }
 
 fn pairs_of(grades: &[Option<MappedGrade>]) -> impl Iterator<Item = (Option<&str>, Option<&str>)> {

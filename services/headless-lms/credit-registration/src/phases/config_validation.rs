@@ -15,7 +15,6 @@ use headless_lms_models::library::credit_registration::classification::{WireOutc
 use headless_lms_models::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config,
 };
-use headless_lms_utils::prelude::BackendError;
 use headless_lms_utils::services::suotar::{
     SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
     ValidateCourseCodeRequestItem, ValidateCourseCodeResult, new_request_item_id,

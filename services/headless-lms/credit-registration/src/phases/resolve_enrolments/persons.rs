@@ -18,17 +18,16 @@ use headless_lms_models::library::credit_registration::outcomes::{
 };
 use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{study_registry_student_number_conflicts, verified_student_numbers};
-use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::services::suotar::{
     PersonResult, ResolvePersonRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
-    SuotarItemStatus, SuotarResponseItem, new_request_item_id,
+    SuotarError, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
 use super::{hold_for_lookup, lookup_state};
-use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, row_facts};
+use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{
     Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
     is_malformed_request,
@@ -106,7 +105,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
         ctx.suotar_client
             .resolve_persons(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ResolveEnrolments))
@@ -122,7 +121,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool> {
+    ) -> anyhow::Result<Applied> {
         let registration = &row.registration;
         let facts = row_facts(registration);
         let found = item.and_then(|item| {
@@ -159,8 +158,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
             },
             Some(lookup_state(registration)),
         )
-        .await?;
-        Ok(counts_as_failed(&outcome))
+        .await
     }
 
     async fn apply_request_rejection(
@@ -169,8 +167,8 @@ impl SuotarBatchPhase for ResolvePersonIds {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_request_level_outcome(
             conn,
             ENDPOINT,
@@ -183,7 +181,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         .await
     }
 
-    fn isolates_request_rejection(error: &UtilError) -> bool {
+    fn isolates_request_rejection(error: &SuotarError) -> bool {
         is_malformed_request(error)
     }
 
@@ -193,8 +191,8 @@ impl SuotarBatchPhase for ResolvePersonIds {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_isolated_malformed_request(
             conn,
             &row.registration,

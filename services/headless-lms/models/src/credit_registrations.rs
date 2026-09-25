@@ -760,9 +760,9 @@ impl Transition {
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
 /// The only writer of `state`, and the one place (from → to) legality is decided: an edge outside
-/// the transition's [`TransitionPolicy`] is refused as `InvalidRequest` rather than written.
-/// Deliberately not `PreconditionFailed`, which the phases read as "another writer got here first"
-/// and skip over.
+/// the transition's [`TransitionPolicy`] is refused as `InvalidRequest` rather than written. A row
+/// no longer in `expected_from_state` is refused as `PreconditionFailed`; a caller that has to tell
+/// that apart from a real failure uses [`transition_unless_moved_on`] instead.
 ///
 /// Owns the lifecycle stamps, so callers must not touch them (bar [`reset_for_resubmission`]
 /// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at` and
@@ -777,6 +777,38 @@ pub async fn transition(
     id: Uuid,
     transition: &Transition,
 ) -> ModelResult<CreditRegistration> {
+    match transition_unless_moved_on(conn, id, transition).await? {
+        Transitioned::Written(after) => Ok(*after),
+        Transitioned::MovedOn { found } => Err(model_err!(
+            PreconditionFailed,
+            format!(
+                "Credit registration {id} is in {found:?}, not the expected {}: refusing to overwrite it.",
+                transition
+                    .expected_from_state
+                    .map(|expected| format!("{expected:?}"))
+                    .unwrap_or_default()
+            )
+        )),
+    }
+}
+
+/// What [`transition_unless_moved_on`] did.
+#[derive(Debug, Clone)]
+pub enum Transitioned {
+    /// The row as written.
+    Written(Box<CreditRegistration>),
+    /// Another writer moved the row out of `expected_from_state` first, so nothing was written.
+    MovedOn { found: CreditRegistrationState },
+}
+
+/// [`transition`] for a caller deciding from a snapshot another writer may have overtaken: a row
+/// no longer in `expected_from_state` comes back as [`Transitioned::MovedOn`] rather than as an
+/// error, since the row is now that writer's and the caller carries on with the rest of its work.
+pub async fn transition_unless_moved_on(
+    conn: &mut PgConnection,
+    id: Uuid,
+    transition: &Transition,
+) -> ModelResult<Transitioned> {
     let mut tx = conn.begin().await?;
     let from_state = lock_for_moves(&mut tx, &[id])
         .await?
@@ -787,16 +819,11 @@ pub async fn transition(
                 format!("Credit registration {id} does not exist.")
             )
         })?;
-    if let Some(expected) = transition.expected_from_state
-        && from_state != expected
+    if transition
+        .expected_from_state
+        .is_some_and(|expected| from_state != expected)
     {
-        return Err(model_err!(
-            PreconditionFailed,
-            format!(
-                "Credit registration {id} is in {:?}, not the expected {expected:?}: refusing to overwrite it.",
-                from_state
-            )
-        ));
+        return Ok(Transitioned::MovedOn { found: from_state });
     }
     check_edge(id, from_state, transition.to_state, transition.policy)?;
     let after = write_moves(&mut tx, &[(id, from_state, transition)])
@@ -809,7 +836,7 @@ pub async fn transition(
             )
         })?;
     tx.commit().await?;
-    Ok(after)
+    Ok(Transitioned::Written(Box::new(after)))
 }
 
 /// The states of the named rows, locked until the caller's transaction ends.

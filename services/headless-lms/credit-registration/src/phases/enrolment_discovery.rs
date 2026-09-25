@@ -29,17 +29,17 @@ use headless_lms_models::library::credit_registration::enrolment_checks::{
 };
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
 use headless_lms_models::verified_student_numbers::{self, VerifiedStudentNumber};
-use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError};
-use headless_lms_utils::prelude::{BackendError, Utc};
+use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::secret_string::expose_option;
 use headless_lms_utils::services::suotar::{
     EnrolmentsListedResult, ListByCourseRequestItem, ListedPerson, SuotarBatchResponse,
-    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, new_request_item_id,
+    SuotarCallContext, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus,
+    new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 
-use crate::batch_phase::{every_item_service_unavailable, suotar_error_variant};
+use crate::batch_phase::every_item_service_unavailable;
 use crate::dispatch::{PhaseContext, claim_limit};
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 use crate::{breaker, rate_limit};
@@ -216,7 +216,7 @@ async fn list(
         Err(error) => {
             record_request_failure(&mut conn, request, &error).await?;
             let is_known_bad_code = matches!(request, [only] if only.is_fetched_alone)
-                && blames_the_codes(suotar_error_variant(&error));
+                && blames_the_codes(error.variant);
             return Ok(PhaseRunOutcome {
                 items_processed: attempted,
                 items_failed: attempted,
@@ -305,9 +305,9 @@ fn blames_the_codes(variant: SuotarErrorVariant) -> bool {
 async fn record_request_failure(
     conn: &mut PgConnection,
     request: &[CodeListing],
-    error: &UtilError,
+    error: &SuotarError,
 ) -> anyhow::Result<()> {
-    let variant = suotar_error_variant(error);
+    let variant = error.variant;
     let code = request_level_code(variant);
     for module in request.iter().flat_map(|listing| &listing.modules) {
         mark_listing_failed(conn, module.course_module_id, code).await?;

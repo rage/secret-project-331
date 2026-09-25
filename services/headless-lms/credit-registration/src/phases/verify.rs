@@ -4,13 +4,13 @@
 //! and a failed row is one an admin retries, which for an uncertain submission would mean sending
 //! it twice. The one way back to `import` is Suotar itself answering `notRegistered`.
 
-use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due, increment_verify_attempt_counts, mark_partially_registered, reset_for_resubmission,
-    schedule_next_attempts, set_resubmit_not_before, set_sisu_attainment_if_unclaimed, transition,
+    schedule_next_attempts, set_resubmit_not_before, set_sisu_attainment_if_unclaimed,
+    transition_unless_moved_on,
 };
 use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
@@ -20,16 +20,16 @@ use headless_lms_models::library::credit_registration::outcomes::{
     verify_poll_lease_until,
 };
 use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
-use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ResolveEnrolmentRequestItem,
-    SuotarAttainment, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarItemStatus,
-    SuotarResponseItem, VerifyAttainmentRequestItem, VerifyAttainmentResult, new_request_item_id,
+    SuotarAttainment, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarError,
+    SuotarItemStatus, SuotarResponseItem, VerifyAttainmentRequestItem, VerifyAttainmentResult,
+    new_request_item_id,
 };
 use sqlx::{Connection, PgConnection};
 
-use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, row_facts};
+use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{Prepared, SuotarBatchPhase, run_suotar_batch_phase};
 use crate::dispatch::PhaseContext;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
@@ -188,7 +188,7 @@ impl SuotarBatchPhase for VerifyPoll {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
         ctx.suotar_client
             .verify_attainments(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
@@ -204,7 +204,7 @@ impl SuotarBatchPhase for VerifyPoll {
         poll: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool> {
+    ) -> anyhow::Result<Applied> {
         apply_poll_answer(conn, poll, item, event).await
     }
 
@@ -217,8 +217,8 @@ impl SuotarBatchPhase for VerifyPoll {
         poll: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_outcome(
             conn,
             &poll.row,
@@ -232,8 +232,7 @@ impl SuotarBatchPhase for VerifyPoll {
             },
             Some(poll.row.state),
         )
-        .await?;
-        Ok(false)
+        .await
     }
 }
 
@@ -255,7 +254,7 @@ async fn apply_poll_answer(
     poll: &Poll,
     item: Option<&SuotarResponseItem<VerifyAttainmentResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let row = &poll.row;
     let facts = poll.facts();
     let Some(item) = item else {
@@ -316,9 +315,9 @@ async fn apply_poll_answer(
                 message: Some("Sisu has no trace of the submission, so it will be sent again."),
                 ..event
             };
-            apply_outcome(&mut tx, row, &outcome, event, Some(row.state)).await?;
+            let applied = apply_outcome(&mut tx, row, &outcome, event, Some(row.state)).await?;
             tx.commit().await?;
-            Ok(counts_as_failed(&outcome))
+            Ok(applied)
         }
         WireOutcome::Failure(code) => {
             apply_poll_outcome(
@@ -346,7 +345,7 @@ async fn apply_registered(
     row: &CreditRegistration,
     attainment: &SuotarAttainment,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     set_sisu_attainment_if_unclaimed(
         conn,
         row.id,
@@ -365,8 +364,7 @@ async fn apply_registered(
         event,
         Some(row.state),
     )
-    .await?;
-    Ok(false)
+    .await
 }
 
 async fn apply_poll_outcome(
@@ -374,9 +372,8 @@ async fn apply_poll_outcome(
     row: &CreditRegistration,
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
-    apply_outcome(conn, row, outcome, event, Some(row.state)).await?;
-    Ok(counts_as_failed(outcome))
+) -> anyhow::Result<Applied> {
+    apply_outcome(conn, row, outcome, event, Some(row.state)).await
 }
 
 /// Looks for the attainment a submission we lost track of would have produced. The row stays
@@ -451,7 +448,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
         ctx.suotar_client
             .resolve_enrolments(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Verify))
@@ -467,7 +464,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         recovery: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool> {
+    ) -> anyhow::Result<Applied> {
         apply_recovery_answer(conn, recovery, item, event).await
     }
 
@@ -479,8 +476,8 @@ impl SuotarBatchPhase for UncertainRecovery {
         recovery: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_outcome(
             conn,
             &recovery.row,
@@ -494,8 +491,7 @@ impl SuotarBatchPhase for UncertainRecovery {
             },
             Some(recovery.row.state),
         )
-        .await?;
-        Ok(false)
+        .await
     }
 }
 
@@ -514,7 +510,7 @@ async fn apply_recovery_answer(
     recovery: &Recovery,
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let row = &recovery.row;
     // An enrolment error still lists the attainments, and the enrolment may be gone by now.
     let found = item
@@ -530,7 +526,7 @@ async fn apply_recovery_answer(
             )
         });
     let Some(attainment) = found else {
-        apply_outcome(
+        return apply_outcome(
             conn,
             row,
             &uncertain_recheck_outcome(&recovery.facts()),
@@ -542,10 +538,7 @@ async fn apply_recovery_answer(
             },
             Some(row.state),
         )
-        .await?;
-        // A row still waiting to be resolved is not a failed item; the recheck raises the admin
-        // flag once it has waited long enough instead.
-        return Ok(false);
+        .await;
     };
     set_sisu_attainment_if_unclaimed(
         conn,
@@ -554,7 +547,7 @@ async fn apply_recovery_answer(
         Some(&attainment.attainment_type),
     )
     .await?;
-    transition(
+    let transitioned = transition_unless_moved_on(
         conn,
         row.id,
         &Transition {
@@ -578,7 +571,7 @@ async fn apply_recovery_answer(
         },
     )
     .await?;
-    Ok(false)
+    Ok(transitioned.into())
 }
 
 #[cfg(test)]

@@ -3,7 +3,7 @@
 //! landed must never be sent again. The one exception is verify's `notRegistered`, which is Suotar
 //! itself saying the submission did not land.
 
-use headless_lms_utils::error::util_error::SuotarErrorVariant;
+use headless_lms_utils::services::suotar::SuotarErrorVariant;
 
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;

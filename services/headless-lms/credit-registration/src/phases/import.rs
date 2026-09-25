@@ -13,6 +13,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due_for_import, restamp_submitting, schedule_next_attempt, set_needs_admin_attention,
     set_sisu_attainment_if_unclaimed, set_submitted_attainment, transition,
+    transition_unless_moved_on,
 };
 use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF_SECS;
 use headless_lms_models::library::credit_registration::classification::map_code;
@@ -23,18 +24,18 @@ use headless_lms_models::library::credit_registration::outcomes::{
 };
 use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{ModelError, ModelResult};
-use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
-    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, new_request_item_id,
+    SuotarCallContext, SuotarEndpoint, SuotarError, SuotarItemStatus, SuotarResponseItem,
+    new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 use uuid::Uuid;
 
-use crate::apply::{OutcomeEvent, apply_outcome, row_facts, row_moved_on};
+use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{
     Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
     is_malformed_request, run_suotar_batch_phase,
@@ -134,7 +135,7 @@ impl SuotarBatchPhase for Import {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError> {
         ctx.suotar_client
             .import_attainments(
                 SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::Import))
@@ -150,7 +151,7 @@ impl SuotarBatchPhase for Import {
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool> {
+    ) -> anyhow::Result<Applied> {
         apply_answer(conn, row, item, event).await
     }
 
@@ -160,8 +161,8 @@ impl SuotarBatchPhase for Import {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_request_level_outcome(
             conn,
             SuotarEndpoint::ImportAttainments,
@@ -174,7 +175,7 @@ impl SuotarBatchPhase for Import {
         .await
     }
 
-    fn isolates_request_rejection(error: &UtilError) -> bool {
+    fn isolates_request_rejection(error: &SuotarError) -> bool {
         is_malformed_request(error)
     }
 
@@ -193,7 +194,7 @@ impl SuotarBatchPhase for Import {
         rows: &[&Self::Row],
     ) -> anyhow::Result<()> {
         for row in rows {
-            let released = transition(
+            transition_unless_moved_on(
                 conn,
                 row.id,
                 &Transition {
@@ -206,12 +207,7 @@ impl SuotarBatchPhase for Import {
                     ..Transition::to(CreditRegistrationState::Pending)
                 },
             )
-            .await;
-            if let Err(error) = released.map_err(anyhow::Error::from)
-                && !row_moved_on(&error)
-            {
-                return Err(error);
-            }
+            .await?;
         }
         Ok(())
     }
@@ -222,8 +218,8 @@ impl SuotarBatchPhase for Import {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         apply_isolated_malformed_request(
             conn,
             row,
@@ -333,8 +329,7 @@ async fn hold_back(
     Ok(())
 }
 
-/// Applies the study registry's answer for one submitted row. Returns whether the row ended up in a
-/// failure state; errors with `PreconditionFailed` if the row left `submitting` meanwhile.
+/// Applies the study registry's answer for one submitted row.
 ///
 /// Anything the answer disclosed about the attainment is written before the transition, so a row
 /// that did move on still keeps the id support needs to find what was created.
@@ -343,7 +338,7 @@ async fn apply_answer(
     row: &CreditRegistration,
     item: Option<&SuotarResponseItem<ImportAttainmentResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let facts = row_facts(row);
     match item {
         // Sent and unanswered: verified from here, never re-sent.
@@ -361,8 +356,7 @@ async fn apply_answer(
                 },
                 Some(CreditRegistrationState::Submitting),
             )
-            .await?;
-            Ok(true)
+            .await
         }
         Some(item) => match import_success_state(&item.code) {
             // `sent` or `duplicateRequestItem`: both name a submission to verify.
@@ -397,8 +391,7 @@ async fn apply_answer(
                             event,
                             Some(CreditRegistrationState::Submitting),
                         )
-                        .await?;
-                        Ok(false)
+                        .await
                     }
                     // Accepted with nothing to verify by; recovery is a lookup among the student's
                     // existing attainments, never a second import.
@@ -415,8 +408,7 @@ async fn apply_answer(
                             },
                             Some(CreditRegistrationState::Submitting),
                         )
-                        .await?;
-                        Ok(true)
+                        .await
                     }
                 }
             }
@@ -439,8 +431,7 @@ async fn apply_answer(
                     },
                     Some(CreditRegistrationState::Submitting),
                 )
-                .await?;
-                Ok(false)
+                .await
             }
             None if item.status == SuotarItemStatus::Error => {
                 apply_error_answer(conn, row, item, event).await
@@ -460,8 +451,7 @@ async fn apply_answer(
                     },
                     Some(CreditRegistrationState::Submitting),
                 )
-                .await?;
-                Ok(true)
+                .await
             }
         },
     }
@@ -474,7 +464,7 @@ async fn apply_error_answer(
     row: &CreditRegistration,
     item: &SuotarResponseItem<ImportAttainmentResult>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
         .unwrap_or(CreditRegistrationErrorCode::Unknown);
     let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &row_facts(row));
@@ -500,8 +490,7 @@ async fn apply_error_answer(
         },
         Some(CreditRegistrationState::Submitting),
     )
-    .await?;
-    Ok(true)
+    .await
 }
 
 /// The timeline line for an answer that settled the row. `not_improved` names the grade the registry

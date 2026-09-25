@@ -1,11 +1,10 @@
 //! Writing a decided outcome, and the exchange behind it, to one ledger row.
 
-use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, scrub_text, suotar_exchange_details,
 };
 use headless_lms_models::credit_registrations::{
-    self, CreditRegistration, CreditRegistrationState, Transition,
+    self, CreditRegistration, CreditRegistrationState, Transition, Transitioned,
 };
 use headless_lms_models::library::credit_registration::backoff::next_attempt_at;
 use headless_lms_models::library::credit_registration::enrolment_checks::{
@@ -31,7 +30,7 @@ pub(crate) async fn apply_outcome(
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
     expected_from_state: Option<CreditRegistrationState>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Applied> {
     // Only if the request carried this number: a student who linked a working one while the request
     // was out must not lose the link they just made.
     if outcome.drop_verified_student_number
@@ -46,7 +45,7 @@ pub(crate) async fn apply_outcome(
     if outcome.increment_submit_retry_count {
         credit_registrations::increment_submit_retry_count(&mut tx, registration.id).await?;
     }
-    let after = credit_registrations::transition(
+    let written = credit_registrations::transition_unless_moved_on(
         &mut tx,
         registration.id,
         &Transition {
@@ -60,6 +59,10 @@ pub(crate) async fn apply_outcome(
         },
     )
     .await?;
+    let after = match written {
+        Transitioned::Written(after) => *after,
+        Transitioned::MovedOn { found } => return Ok(Applied::MovedOn { found }),
+    };
     if outcome.schedules_next_enrolment_check {
         enrolment_checks::schedule_next_check(&mut tx, registration.id).await?;
     }
@@ -73,7 +76,30 @@ pub(crate) async fn apply_outcome(
             "Credit registration entered submission_uncertain; Sisu's outcome could not be confirmed"
         );
     }
-    Ok(())
+    Ok(Applied::Written {
+        is_failure: counts_as_failed(outcome),
+    })
+}
+
+/// What writing one answer did to its row.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Applied {
+    /// `is_failure` when the row now carries an error code, which is what `items_failed` counts.
+    Written { is_failure: bool },
+    /// Another writer moved the row since it was read, so the row is theirs and nothing was
+    /// written. The rest of the batch carries on: aborting would leave it in the state the phase's
+    /// own preflight wrote, which no phase claims again.
+    MovedOn { found: CreditRegistrationState },
+}
+
+impl From<Transitioned> for Applied {
+    /// For a hand-built transition, which never leaves a failure behind.
+    fn from(transitioned: Transitioned) -> Self {
+        match transitioned {
+            Transitioned::Written(_) => Self::Written { is_failure: false },
+            Transitioned::MovedOn { found } => Self::MovedOn { found },
+        }
+    }
 }
 
 /// The ledger write one decided outcome asks for, without the audit half [`apply_outcome`] adds.
@@ -94,23 +120,6 @@ pub(crate) fn outcome_transition(
         keeps_enrolment_checked_at: outcome.keeps_enrolment_checked_at,
         ..Transition::to(outcome.to_state)
     }
-}
-
-/// Whether the error is `transition` refusing to write because another writer moved the row since
-/// the snapshot the decision was made from.
-///
-/// A phase that hits this on one row of a batch must skip that row and carry on: the row belongs to
-/// whoever moved it, and aborting the loop would leave every row after it in the state the phase's
-/// own preflight wrote, with no phase claiming that state again.
-pub(crate) fn row_moved_on(error: &anyhow::Error) -> bool {
-    error
-        .downcast_ref::<headless_lms_models::ModelError>()
-        .is_some_and(|error| {
-            matches!(
-                error.error_type(),
-                headless_lms_models::ModelErrorType::PreconditionFailed
-            )
-        })
 }
 
 /// Whether an outcome counts against the iteration's `items_failed`: an error code is a failed

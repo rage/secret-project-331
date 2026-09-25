@@ -10,15 +10,14 @@ use headless_lms_models::library::credit_registration::outcomes::{
     isolated_malformed_request_outcome, request_level_outcome,
 };
 use headless_lms_models::secret::DbSecret;
-use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError, UtilErrorType};
-use headless_lms_utils::prelude::BackendError;
 use headless_lms_utils::services::suotar::{
-    SuotarBatchResponse, SuotarEndpoint, SuotarItemStatus, SuotarRequestItem, SuotarResponseItem,
+    SuotarBatchResponse, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus,
+    SuotarRequestItem, SuotarResponseItem,
 };
 use itertools::izip;
 use sqlx::{Connection, PgConnection};
 
-use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, row_facts, row_moved_on};
+use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::dispatch::{PhaseContext, claim_limit};
 use crate::phase::PhaseScope;
 use crate::{breaker, rate_limit};
@@ -84,17 +83,16 @@ pub(crate) trait SuotarBatchPhase {
         ctx: &PhaseContext<'_>,
         rows: &[Self::Row],
         items: Vec<Self::Item>,
-    ) -> Result<SuotarBatchResponse<Self::Result>, UtilError>;
+    ) -> Result<SuotarBatchResponse<Self::Result>, SuotarError>;
 
-    /// Applies one answer, or the absence of one, to its row. Returns whether the row ended up in a
-    /// failure state; errors with `PreconditionFailed` if another writer moved the row meanwhile.
+    /// Applies one answer, or the absence of one, to its row.
     async fn apply(
         &self,
         conn: &mut PgConnection,
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<bool>;
+    ) -> anyhow::Result<Applied>;
 
     /// What one row gets when the study registry rejected the whole request.
     async fn apply_request_rejection(
@@ -103,13 +101,13 @@ pub(crate) trait SuotarBatchPhase {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool>;
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied>;
 
     /// Whether a whole-request refusal is one that some rows of the batch alone may have caused, and
     /// that proves nothing was acted on: the batch is then split in halves, each sent again, until
     /// the rows it keeps refusing are alone in their batch.
-    fn isolates_request_rejection(_error: &UtilError) -> bool {
+    fn isolates_request_rejection(_error: &SuotarError) -> bool {
         false
     }
 
@@ -141,8 +139,8 @@ pub(crate) trait SuotarBatchPhase {
         row: &Self::Row,
         request: &serde_json::Value,
         request_item_id: &str,
-        error: &UtilError,
-    ) -> anyhow::Result<bool> {
+        error: &SuotarError,
+    ) -> anyhow::Result<Applied> {
         self.apply_request_rejection(conn, row, request, request_item_id, error)
             .await
     }
@@ -257,11 +255,11 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                             .await
                     };
                     count_applied(
-                        applied,
+                        applied?,
                         P::registration(row),
                         &mut processed,
                         &mut items_failed,
-                    )?;
+                    );
                 }
                 if isolated {
                     isolated_rejection = Some(scrub_text(send_error.message()));
@@ -289,11 +287,11 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                 .apply(&mut conn, row, response.item(request_item_id), event)
                 .await;
             count_applied(
-                applied,
+                applied?,
                 P::registration(row),
                 &mut processed,
                 &mut items_failed,
-            )?;
+            );
         }
         if every_item_service_unavailable(&response) {
             error = Some(P::ALL_UNAVAILABLE_ERROR.to_string());
@@ -324,30 +322,25 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     })
 }
 
-/// Counts one written row, or skips one that had already moved on. Skipped rather than propagated:
-/// the row belongs to whoever moved it, and aborting would leave the rest of the batch in the state
-/// the preflight wrote, which no phase claims again.
+/// Counts one written row, or skips one that had already moved on.
 fn count_applied(
-    applied: anyhow::Result<bool>,
+    applied: Applied,
     row: &CreditRegistration,
     processed: &mut i32,
     items_failed: &mut i32,
-) -> anyhow::Result<()> {
+) {
     match applied {
-        Ok(failed) => {
+        Applied::Written { is_failure } => {
             *processed += 1;
-            *items_failed += i32::from(failed);
-            Ok(())
+            *items_failed += i32::from(is_failure);
         }
-        Err(error) if row_moved_on(&error) => {
+        Applied::MovedOn { found } => {
             warn!(
                 credit_registration_id = %row.id,
-                error = ?error,
+                found_state = ?found,
                 "Credit registration moved on while the study registry answered; leaving it"
             );
-            Ok(())
         }
-        Err(error) => Err(error),
     }
 }
 
@@ -384,7 +377,6 @@ pub(crate) fn every_item_service_unavailable<R>(response: &SuotarBatchResponse<R
 }
 
 /// Applies one request-level outcome to one row of a batch the study registry rejected whole.
-/// Returns whether the row ended up carrying an error code.
 ///
 /// `expected_from_state` is the state the phase's own preflight put every row in, since the rows
 /// were read before that transition and are stale by the time this runs.
@@ -394,10 +386,10 @@ pub(crate) async fn apply_request_level_outcome(
     row: &CreditRegistration,
     request: &serde_json::Value,
     request_item_id: &str,
-    error: &UtilError,
+    error: &SuotarError,
     expected_from_state: CreditRegistrationState,
-) -> anyhow::Result<bool> {
-    let outcome = request_level_outcome(endpoint, suotar_error_variant(error), &row_facts(row));
+) -> anyhow::Result<Applied> {
+    let outcome = request_level_outcome(endpoint, error.variant, &row_facts(row));
     apply_outcome(
         conn,
         row,
@@ -411,14 +403,13 @@ pub(crate) async fn apply_request_level_outcome(
         },
         Some(expected_from_state),
     )
-    .await?;
-    Ok(counts_as_failed(&outcome))
+    .await
 }
 
 /// Suotar validates every item before acting on any, so a malformed-request refusal proves nothing
 /// was acted on, and one bad row takes its whole batch down with it.
-pub(crate) fn is_malformed_request(error: &UtilError) -> bool {
-    suotar_error_variant(error) == SuotarErrorVariant::MalformedRequest
+pub(crate) fn is_malformed_request(error: &SuotarError) -> bool {
+    error.variant == SuotarErrorVariant::MalformedRequest
 }
 
 /// Fails, for a human to look at, a row Suotar refused as malformed even in a batch of its own.
@@ -427,9 +418,9 @@ pub(crate) async fn apply_isolated_malformed_request(
     row: &CreditRegistration,
     request: &serde_json::Value,
     request_item_id: &str,
-    error: &UtilError,
+    error: &SuotarError,
     expected_from_state: CreditRegistrationState,
-) -> anyhow::Result<bool> {
+) -> anyhow::Result<Applied> {
     apply_outcome(
         conn,
         row,
@@ -443,17 +434,7 @@ pub(crate) async fn apply_isolated_malformed_request(
         },
         Some(expected_from_state),
     )
-    .await?;
-    Ok(true)
-}
-
-/// A failure that never reached the study registry is safe to send again; everything else may have
-/// been acted on. Anything that is not a client error was raised before the request was built.
-pub(crate) fn suotar_error_variant(error: &UtilError) -> SuotarErrorVariant {
-    match error.error_type() {
-        UtilErrorType::SuotarClientError(variant) => *variant,
-        _ => SuotarErrorVariant::TransportNotDelivered,
-    }
+    .await
 }
 
 #[cfg(test)]

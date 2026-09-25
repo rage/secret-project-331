@@ -18,39 +18,42 @@ use headless_lms_models::{
 use utoipa::ToSchema;
 
 use crate::domain::system_health::HealthStatus;
+use chrono::TimeDelta;
 
 /// Within this much of the past, one rejected credential is enough.
-const CREDENTIAL_REJECTION_WINDOW_SECS: i64 = 60 * 60;
+const CREDENTIAL_REJECTION_WINDOW: TimeDelta = TimeDelta::hours(1);
 /// Long enough to hold three failed calls at the longest request timeout.
-const UNREACHABLE_WINDOW_SECS: i64 = 4 * 60 * 60;
+const UNREACHABLE_WINDOW: TimeDelta = TimeDelta::hours(4);
 /// Below this the run is a bad minute rather than an outage.
 const UNREACHABLE_CONSECUTIVE_FAILURES: i64 = 3;
-const SERVICE_OUTAGE_WINDOW_SECS: i64 = 60 * 60;
+const SERVICE_OUTAGE_WINDOW: TimeDelta = TimeDelta::hours(1);
 /// Below this many items the share below is one bad batch, not a signal.
 const SERVICE_OUTAGE_MIN_ITEMS: i64 = 10;
 const SERVICE_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
 /// The longest `submissionPending` asks verify to wait before polling again.
-const SUOTAR_PENDING_WAIT_SECS: i64 = 24 * 60 * 60;
+const SUOTAR_PENDING_WAIT: TimeDelta = TimeDelta::days(1);
 const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
     stuck_ready_to_submit_secs: 2 * 60 * 60,
     stuck_submitting_secs: 90 * 60,
-    stuck_awaiting_verification_secs: SUOTAR_PENDING_WAIT_SECS + 2 * 60 * 60,
+    stuck_awaiting_verification_secs: SUOTAR_PENDING_WAIT.num_seconds() + 2 * 60 * 60,
     stuck_failed_retryable_secs: 3 * 24 * 60 * 60,
 };
 
 const _: () = assert!(
     STUCK_THRESHOLDS.stuck_failed_retryable_secs
-        < headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE_SECS,
+        < headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE
+            .num_seconds(),
     "a row must be considered stuck before backoff gives up retrying it"
 );
 const _: () = assert!(
     STUCK_THRESHOLDS.stuck_submitting_secs
-        > headless_lms_models::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE_SECS,
+        > headless_lms_models::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE
+            .num_seconds(),
     "the stuck threshold must outlast the grace period that lets a submit recover on its own"
 );
 /// Above this many stuck rows the backlog stops being something to look at tomorrow.
 const STUCK_CRITICAL_COUNT: i64 = 50;
-const LINKING_MAIL_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
+const LINKING_MAIL_WINDOW: TimeDelta = TimeDelta::days(7);
 /// A phase is late once this many of its own intervals have passed without a heartbeat.
 /// `pub(crate)` because the dashboard's phase rows apply the same threshold server-side.
 pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
@@ -58,29 +61,29 @@ pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
 /// A phase that owns a nonempty queue and has not succeeded within this many of its own intervals
 /// is running without getting anywhere, which no failure count catches. Never less than its
-/// slowest possible iteration plus [`PHASE_SUCCESS_CALL_MARGIN_SECS`], or one slow call would look
+/// slowest possible iteration plus [`PHASE_SUCCESS_CALL_MARGIN`], or one slow call would look
 /// like a wedge.
 const PHASE_SUCCESS_INTERVAL_MULTIPLIER: i32 = 10;
-const PHASE_SUCCESS_CALL_MARGIN_SECS: i64 = 10 * 60;
+const PHASE_SUCCESS_CALL_MARGIN: TimeDelta = TimeDelta::minutes(10);
 /// The window every "in the last day" rule shares.
-const TERMINAL_WINDOW_SECS: i64 = 24 * 60 * 60;
+const TERMINAL_WINDOW: TimeDelta = TimeDelta::days(1);
 const PERMANENT_FAILURE_COUNT: i64 = 20;
 const PERMANENT_FAILURE_RATE_PERCENT: i64 = 10;
 /// A reversal is always worth saying; this many at once is an incident.
 const MISREGISTRATION_CRITICAL_COUNT: i64 = 5;
 /// Linking mails one hour may hand over before the volume itself is the problem.
 const LINKING_MAIL_HOURLY_CAP: i64 = 500;
-const LINKING_MAIL_RATE_WINDOW_SECS: i64 = 60 * 60;
+const LINKING_MAIL_RATE_WINDOW: TimeDelta = TimeDelta::hours(1);
 /// Queued work that makes a day without a single completion mean something.
 const IDLE_QUEUE_DEPTH: i64 = 20;
 /// How long a completion may sit outside the ledger before `materialize` is the suspect rather
 /// than the clock.
-const NEVER_ENTERED_MIN_AGE_SECS: i64 = 6 * 60 * 60;
+const NEVER_ENTERED_MIN_AGE: TimeDelta = TimeDelta::hours(6);
 /// Bounds the anti-join behind that rule; a bigger backlog reports as this many.
 const NEVER_ENTERED_SAMPLE_LIMIT: i64 = 100;
-const LATENCY_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
+const LATENCY_WINDOW: TimeDelta = TimeDelta::days(7);
 /// Under this the registry is quick enough that a doubling says nothing.
-const LATENCY_REGRESSION_FLOOR_SECS: i64 = 6 * 60 * 60;
+const LATENCY_REGRESSION_FLOOR: TimeDelta = TimeDelta::hours(6);
 const LATENCY_REGRESSION_FACTOR: i64 = 2;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
@@ -186,13 +189,13 @@ pub async fn evaluate(
 
     let credentials = suotar_api_calls::count_credential_rejections_since(
         conn,
-        now - chrono::Duration::seconds(CREDENTIAL_REJECTION_WINDOW_SECS),
+        now - CREDENTIAL_REJECTION_WINDOW,
     )
     .await?;
     if credentials.count > 0 {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::CredentialsRejected,
-            window_secs: Some(CREDENTIAL_REJECTION_WINDOW_SECS),
+            window_secs: Some(CREDENTIAL_REJECTION_WINDOW.num_seconds()),
             severity: CreditRegistrationAlertSeverity::Critical,
             count: credentials.count,
             total: None,
@@ -201,15 +204,12 @@ pub async fn evaluate(
         });
     }
 
-    let unreachable = suotar_api_calls::count_unreachable_run_since(
-        conn,
-        now - chrono::Duration::seconds(UNREACHABLE_WINDOW_SECS),
-    )
-    .await?;
+    let unreachable =
+        suotar_api_calls::count_unreachable_run_since(conn, now - UNREACHABLE_WINDOW).await?;
     if unreachable.count >= UNREACHABLE_CONSECUTIVE_FAILURES {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::StudyRegistryUnreachable,
-            window_secs: Some(UNREACHABLE_WINDOW_SECS),
+            window_secs: Some(UNREACHABLE_WINDOW.num_seconds()),
             severity: CreditRegistrationAlertSeverity::Critical,
             count: unreachable.count,
             total: None,
@@ -274,11 +274,9 @@ async fn service_outage_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let totals = credit_registration_events::count_item_outcomes_since(
-        conn,
-        now - chrono::Duration::seconds(SERVICE_OUTAGE_WINDOW_SECS),
-    )
-    .await?;
+    let totals =
+        credit_registration_events::count_item_outcomes_since(conn, now - SERVICE_OUTAGE_WINDOW)
+            .await?;
     if totals.item_count < SERVICE_OUTAGE_MIN_ITEMS
         || totals.service_unavailable_count * 100
             < totals.item_count * SERVICE_OUTAGE_FAILURE_SHARE_PERCENT
@@ -287,7 +285,7 @@ async fn service_outage_alert(
     }
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::ServiceUnavailable,
-        window_secs: Some(SERVICE_OUTAGE_WINDOW_SECS),
+        window_secs: Some(SERVICE_OUTAGE_WINDOW.num_seconds()),
         severity: CreditRegistrationAlertSeverity::Critical,
         count: totals.service_unavailable_count,
         total: Some(totals.item_count),
@@ -327,7 +325,7 @@ async fn linking_mail_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let since = now - chrono::Duration::seconds(LINKING_MAIL_WINDOW_SECS);
+    let since = now - LINKING_MAIL_WINDOW;
     let totals =
         credit_registration_account_linking_emails::get_send_status_totals_since(conn, since, now)
             .await?;
@@ -343,7 +341,7 @@ async fn linking_mail_alert(
     .map(|row| row.domain);
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::LinkingMailSendFailed,
-        window_secs: Some(LINKING_MAIL_WINDOW_SECS),
+        window_secs: Some(LINKING_MAIL_WINDOW.num_seconds()),
         severity: CreditRegistrationAlertSeverity::Warning,
         count: totals.send_failed,
         total: Some(totals.mails_in_window),
@@ -360,7 +358,7 @@ async fn linking_mail_rate_alert(
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let sent = credit_registration_account_linking_emails::count_sent_since(
         conn,
-        now - chrono::Duration::seconds(LINKING_MAIL_RATE_WINDOW_SECS),
+        now - LINKING_MAIL_RATE_WINDOW,
     )
     .await?;
     if sent <= LINKING_MAIL_HOURLY_CAP {
@@ -373,7 +371,7 @@ async fn linking_mail_rate_alert(
     };
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::LinkingMailRateCapExceeded,
-        window_secs: Some(LINKING_MAIL_RATE_WINDOW_SECS),
+        window_secs: Some(LINKING_MAIL_RATE_WINDOW.num_seconds()),
         severity,
         count: sent,
         total: Some(LINKING_MAIL_HOURLY_CAP),
@@ -421,7 +419,8 @@ async fn phase_alerts(
             known.queue_depth(|state| depth_of(depths, state), due_enrolment_checks) > 0
         });
         let slowest_iteration_secs = known_phase.map_or(0, |known| {
-            known.max_study_registry_wait().as_secs() as i64 + PHASE_SUCCESS_CALL_MARGIN_SECS
+            known.max_study_registry_wait().as_secs() as i64
+                + PHASE_SUCCESS_CALL_MARGIN.num_seconds()
         });
         let unproductive_after_secs =
             (interval * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER)).max(slowest_iteration_secs);
@@ -486,7 +485,7 @@ async fn terminal_outcome_alerts(
     now: DateTime<Utc>,
     depths: &[(CreditRegistrationState, i64)],
 ) -> ModelResult<Vec<CreditRegistrationAlert>> {
-    let since = now - chrono::Duration::seconds(TERMINAL_WINDOW_SECS);
+    let since = now - TERMINAL_WINDOW;
     let totals = credit_registrations::count_terminal_outcomes_since(conn, since).await?;
     let mut alerts = Vec::new();
 
@@ -496,7 +495,7 @@ async fn terminal_outcome_alerts(
     if totals.failed_permanent_count >= PERMANENT_FAILURE_COUNT || rate_broken {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PermanentFailuresAccumulating,
-            window_secs: Some(TERMINAL_WINDOW_SECS),
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
             severity: CreditRegistrationAlertSeverity::Warning,
             count: totals.failed_permanent_count,
             total: Some(totals.total_count),
@@ -514,7 +513,7 @@ async fn terminal_outcome_alerts(
     if misregistered > 0 {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::MisregistrationsDetected,
-            window_secs: Some(TERMINAL_WINDOW_SECS),
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
             severity: if misregistered >= MISREGISTRATION_CRITICAL_COUNT {
                 CreditRegistrationAlertSeverity::Critical
             } else {
@@ -532,7 +531,7 @@ async fn terminal_outcome_alerts(
     if totals.total_count == 0 && queued > IDLE_QUEUE_DEPTH {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PipelineIdle,
-            window_secs: Some(TERMINAL_WINDOW_SECS),
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
             severity: CreditRegistrationAlertSeverity::Warning,
             count: queued,
             total: None,
@@ -568,7 +567,7 @@ async fn never_entered_alert(
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let found = get_unmaterialised_eligible_completions(
         conn,
-        NEVER_ENTERED_MIN_AGE_SECS,
+        NEVER_ENTERED_MIN_AGE.num_seconds(),
         NEVER_ENTERED_SAMPLE_LIMIT,
     )
     .await?;
@@ -592,14 +591,14 @@ async fn latency_regression_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let window = chrono::Duration::seconds(LATENCY_WINDOW_SECS);
+    let window = LATENCY_WINDOW;
     let current =
         credit_registrations::get_registration_latency_between(conn, now - window, now).await?;
     let (Some(current_p95), true) = (current.p95_confirmation_secs, current.registered_count > 0)
     else {
         return Ok(None);
     };
-    if current_p95 < LATENCY_REGRESSION_FLOOR_SECS {
+    if current_p95 < LATENCY_REGRESSION_FLOOR.num_seconds() {
         return Ok(None);
     }
     let previous = credit_registrations::get_registration_latency_between(
@@ -619,7 +618,7 @@ async fn latency_regression_alert(
     }
     Ok(Some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::ConfirmationLatencyRegressed,
-        window_secs: Some(LATENCY_WINDOW_SECS),
+        window_secs: Some(LATENCY_WINDOW.num_seconds()),
         severity: CreditRegistrationAlertSeverity::Info,
         count: current_p95,
         total: Some(previous_p95),

@@ -10,12 +10,13 @@ use crate::credit_registrations::{
     CreditRegistration, CreditRegistrationState, RegistrationScope, is_waiting_for_enrolment,
 };
 use crate::prelude::*;
+use chrono::TimeDelta;
 
 use super::enrolment_check_schedule::{
-    BATCH_INTERVAL_SECS, BATCH_PULL_FORWARD_SECS, CHECK_REQUEST_MIN_INTERVAL_SECS,
-    CHECK_REQUEST_RESTART_WINDOW_SECS, EnrolmentCheckGroup, EnrolmentCheckSource,
-    MAX_CHECK_REQUEST_RESTARTS_PER_DAY, ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY_SECS,
-    VISIT_RESTART_MIN_INTERVAL_SECS, first_check, never, next_check_after,
+    BATCH_INTERVAL, BATCH_PULL_FORWARD, CHECK_REQUEST_MIN_INTERVAL, CHECK_REQUEST_RESTART_WINDOW,
+    EnrolmentCheckGroup, EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY,
+    ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY, VISIT_RESTART_MIN_INTERVAL, first_check,
+    never, next_check_after,
 };
 
 /// What a check request did to the row.
@@ -85,8 +86,8 @@ impl ScheduleFacts {
     }
 }
 
-fn is_within(at: Option<DateTime<Utc>>, now: DateTime<Utc>, secs: i64) -> bool {
-    at.is_some_and(|at| now - at < chrono::Duration::seconds(secs))
+fn is_within(at: Option<DateTime<Utc>>, now: DateTime<Utc>, span: TimeDelta) -> bool {
+    at.is_some_and(|at| now - at < span)
 }
 
 /// Writes a (re)started or advanced schedule. `next_attempt_at` is only moved for a row parked in
@@ -157,19 +158,15 @@ pub async fn request_check(
     if is_within(
         facts.enrolment_check_requested_at,
         now,
-        CHECK_REQUEST_MIN_INTERVAL_SECS,
+        CHECK_REQUEST_MIN_INTERVAL,
     ) {
         return Ok(CheckRequestOutcome::TooSoon);
     }
-    let checked_recently = is_within(
-        facts.enrolment_checked_at,
-        now,
-        CHECK_REQUEST_MIN_INTERVAL_SECS,
-    );
+    let checked_recently = is_within(facts.enrolment_checked_at, now, CHECK_REQUEST_MIN_INTERVAL);
     let window_is_current = is_within(
         facts.enrolment_check_restart_window_started_at,
         now,
-        CHECK_REQUEST_RESTART_WINDOW_SECS,
+        CHECK_REQUEST_RESTART_WINDOW,
     );
     let (window_started_at, restart_count) = if window_is_current {
         (
@@ -265,8 +262,8 @@ pub fn is_check_request_limited(
     is_within(
         enrolment_check_requested_at,
         now,
-        CHECK_REQUEST_MIN_INTERVAL_SECS,
-    ) || is_within(enrolment_checked_at, now, CHECK_REQUEST_MIN_INTERVAL_SECS)
+        CHECK_REQUEST_MIN_INTERVAL,
+    ) || is_within(enrolment_checked_at, now, CHECK_REQUEST_MIN_INTERVAL)
 }
 
 /// A visit to the registration page while it showed the enrolment instructions. Moves a
@@ -285,7 +282,7 @@ pub async fn record_visit(
     let restart_is_due = !is_within(
         facts.enrolment_check_anchor_at,
         now,
-        VISIT_RESTART_MIN_INTERVAL_SECS,
+        VISIT_RESTART_MIN_INTERVAL,
     );
     let restarts = facts.enrolment_check_group < EnrolmentCheckGroup::Visited
         || (restart_is_due
@@ -596,18 +593,18 @@ pub async fn record_enrolment_check(
     Ok(())
 }
 
-/// Moves the schedules of a module's rows past a pause of `paused_for_secs`, so the pause spends
-/// none of their ladder. A batched row stays on a batch boundary. Stopped rows are left as they are.
+/// Moves the schedules of a module's rows past a pause of `paused_for`, so the pause spends none
+/// of their ladder. A batched row stays on a batch boundary. Stopped rows are left as they are.
 pub async fn shift_past_pause(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    paused_for_secs: i64,
+    paused_for: TimeDelta,
 ) -> ModelResult<u64> {
     let res = sqlx::query!(
         r#"
 UPDATE credit_registrations
-SET enrolment_check_anchor_at = enrolment_check_anchor_at + ($2::bigint * INTERVAL '1 second'),
-  enrolment_check_due_at = enrolment_check_due_at + ($2::bigint * INTERVAL '1 second'),
+SET enrolment_check_anchor_at = enrolment_check_anchor_at + $2::interval,
+  enrolment_check_due_at = enrolment_check_due_at + $2::interval,
   next_attempt_at = CASE
     WHEN state <> 'no_usable_enrolment'
     OR enrolment_check_source <> 'schedule' THEN next_attempt_at
@@ -615,11 +612,11 @@ SET enrolment_check_anchor_at = enrolment_check_anchor_at + ($2::bigint * INTERV
       CEIL(
         EXTRACT(
           EPOCH
-          FROM next_attempt_at + ($2::bigint * INTERVAL '1 second')
+          FROM next_attempt_at + $2::interval
         ) / $3::bigint
       ) * $3::bigint
     )
-    ELSE next_attempt_at + ($2::bigint * INTERVAL '1 second')
+    ELSE next_attempt_at + $2::interval
   END
 WHERE course_module_id = $1
   AND enrolment_check_anchor_at IS NOT NULL
@@ -628,17 +625,17 @@ WHERE course_module_id = $1
   AND deleted_at IS NULL
         "#,
         course_module_id,
-        paused_for_secs.max(0),
-        BATCH_INTERVAL_SECS,
+        paused_for.max(TimeDelta::zero()) as TimeDelta,
+        BATCH_INTERVAL.num_seconds(),
     )
     .execute(conn)
     .await?;
     Ok(res.rows_affected())
 }
 
-/// Brings the slow checks due within [`BATCH_PULL_FORWARD_SECS`] forward to now when another slow
+/// Brings the slow checks due within [`BATCH_PULL_FORWARD`] forward to now when another slow
 /// check in `scope` is released and not yet claimed: they cost nothing extra in the request that
-/// goes out for it. A row tried within [`TRANSIENT_FAILURE_RETRY_SECS`] keeps waiting out its failed
+/// goes out for it. A row tried within [`TRANSIENT_FAILURE_RETRY`] keeps waiting out its failed
 /// lookup.
 pub async fn pull_forward_batched_checks(
     conn: &mut PgConnection,
@@ -671,10 +668,10 @@ FROM scoped
 WHERE cr.id = scoped.id
   AND scoped.next_attempt_at > now()
   AND scoped.enrolment_check_due_at > now()
-  AND scoped.enrolment_check_due_at <= now() + ($4::bigint * INTERVAL '1 second')
+  AND scoped.enrolment_check_due_at <= now() + $4::interval
   AND (
     scoped.last_attempt_at IS NULL
-    OR scoped.last_attempt_at <= now() - ($5::bigint * INTERVAL '1 second')
+    OR scoped.last_attempt_at <= now() - $5::interval
   )
   AND EXISTS (
     SELECT 1
@@ -689,8 +686,8 @@ WHERE cr.id = scoped.id
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
-        BATCH_PULL_FORWARD_SECS,
-        TRANSIENT_FAILURE_RETRY_SECS,
+        BATCH_PULL_FORWARD as TimeDelta,
+        TRANSIENT_FAILURE_RETRY as TimeDelta,
     )
     .execute(conn)
     .await?;

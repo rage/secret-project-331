@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use chrono::TimeDelta;
 use headless_lms_utils::services::suotar::ListedPerson;
 use secrecy::ExposeSecret;
 
@@ -35,7 +36,7 @@ pub fn link_student_number_url(base_url: &str, token: &str) -> String {
 }
 
 /// How long after a linking mail the person is left alone, across every course and address.
-pub const LINKING_MAIL_QUIET_PERIOD_SECS: i64 = 24 * 60 * 60;
+pub const LINKING_MAIL_QUIET_PERIOD: TimeDelta = TimeDelta::days(1);
 
 /// How many linking mails one person may ever get for one course, tokens that expired unused
 /// included.
@@ -116,7 +117,7 @@ pub async fn claim_linking_mails_batch(
             .or_default()
             .push(fact);
     }
-    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
+    let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
 
     let mut to_claim: Vec<(usize, DbSecret)> = Vec::new();
     for (i, person) in people.iter().enumerate() {
@@ -207,7 +208,7 @@ pub async fn retire_capped_mails(
     let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
         return Ok(0);
     };
-    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
+    let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
     let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
         conn,
         person_id.expose_secret(),

@@ -13,7 +13,7 @@ use headless_lms_models::credit_registrations::{
     claim_due_for_import, restamp_submitting, schedule_next_attempt, set_needs_admin_attention,
     transition, transition_unless_moved_on,
 };
-use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF_SECS;
+use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF;
 use headless_lms_models::library::credit_registration::classification::{
     DUPLICATE_REQUEST_ITEM_CODE, map_code,
 };
@@ -244,12 +244,7 @@ async fn hold_back(
         "Could not prepare credit registration for import; holding it back"
     );
     set_needs_admin_attention(conn, row.id, true).await?;
-    schedule_next_attempt(
-        conn,
-        row.id,
-        Utc::now() + chrono::Duration::seconds(SUBMIT_MAX_BACKOFF_SECS),
-    )
-    .await?;
+    schedule_next_attempt(conn, row.id, Utc::now() + SUBMIT_MAX_BACKOFF).await?;
     credit_registration_events::insert(
         conn,
         &NewCreditRegistrationEvent {

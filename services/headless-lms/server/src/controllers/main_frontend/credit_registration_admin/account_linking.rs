@@ -14,7 +14,7 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registrations;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
-    LINKING_MAIL_QUIET_PERIOD_SECS, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
+    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
 };
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
@@ -436,7 +436,7 @@ pub async fn get_account_linking_stats(
         links_in_window_by_method,
         waiting_for_student_number_count,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
-        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD_SECS,
+        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
         study_registry_conflicts,
     }))
 }
@@ -896,7 +896,7 @@ async fn finish_resend(
         linking_emails,
         mails_sent_for_this_course,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
-        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD_SECS,
+        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
     }))
 }
 

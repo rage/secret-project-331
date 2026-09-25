@@ -13,13 +13,13 @@ use crate::suotar_api_calls::SuotarEndpoint;
 use chrono::TimeDelta;
 
 use super::backoff::{
-    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER_SECS,
-    UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at,
-    submit_backoff_secs, submit_window_expired, uncertain_needs_admin, uncertain_recheck_secs,
-    verify_backoff_secs, verify_window_expired,
+    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER, UNCERTAIN_RECHECK,
+    VERIFY_FIRST_DELAY, VERIFY_GIVE_UP_POLL, next_attempt_at, submit_backoff,
+    submit_window_expired, uncertain_needs_admin, uncertain_recheck_delay, verify_backoff,
+    verify_window_expired,
 };
 use super::classification::{Retryability, retryability, settled_state};
-use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY_SECS;
+use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY;
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -107,7 +107,7 @@ impl Outcome {
             expected_from_state,
             next_attempt_at: match self.next {
                 NextAttempt::StateDefault | NextAttempt::NextEnrolmentRung => None,
-                NextAttempt::After(delay) => Some(next_attempt_at(Utc::now(), delay.num_seconds())),
+                NextAttempt::After(delay) => Some(next_attempt_at(Utc::now(), delay)),
                 NextAttempt::At(at) => Some(at),
             },
             keeps_enrolment_checked_at: self.keeps_enrolment_checked_at,
@@ -129,9 +129,9 @@ impl Outcome {
         }
     }
 
-    fn after(self, delay_secs: i64) -> Self {
+    fn after(self, delay: TimeDelta) -> Self {
         Self {
-            next: NextAttempt::After(TimeDelta::seconds(delay_secs)),
+            next: NextAttempt::After(delay),
             ..self
         }
     }
@@ -142,7 +142,7 @@ impl Outcome {
 pub fn submission_uncertain() -> Outcome {
     Outcome::to(CreditRegistrationState::SubmissionUncertain)
         .with_code(CreditRegistrationErrorCode::SisuTimeout)
-        .after(UNCERTAIN_RECHECK_SECS)
+        .after(UNCERTAIN_RECHECK)
 }
 
 /// A per-item error on the calls leading towards a submission. Only `import` creates attainments,
@@ -205,9 +205,9 @@ pub fn verify_error_outcome(
 pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
     let expired = verify_window_expired(facts.submitted_at, facts.now);
     let outcome = Outcome::to(state).after(if expired {
-        VERIFY_GIVE_UP_POLL_SECS
+        VERIFY_GIVE_UP_POLL
     } else {
-        verify_backoff_secs(facts.verify_attempt_count)
+        verify_backoff(facts.verify_attempt_count)
     });
     if expired {
         outcome.needing_admin()
@@ -221,9 +221,8 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
     let outcome = Outcome::to(CreditRegistrationState::AwaitingVerification)
-        .after(verify_backoff_secs(facts.verify_attempt_count));
-    if (facts.now - partially_registered_at).num_seconds() >= PARTIAL_REGISTRATION_ADMIN_AFTER_SECS
-    {
+        .after(verify_backoff(facts.verify_attempt_count));
+    if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()
     } else {
         outcome
@@ -238,7 +237,7 @@ pub fn verify_not_registered_outcome(facts: &RowFacts, reimport_count: i32) -> O
         increment_submit_retry_count: true,
         ..Outcome::to(CreditRegistrationState::FailedRetryable)
             .with_code(CreditRegistrationErrorCode::NotRegistered)
-            .after(submit_backoff_secs(facts.submit_retry_count))
+            .after(submit_backoff(facts.submit_retry_count))
     };
     if reimport_count >= NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD {
         outcome.needing_admin()
@@ -251,7 +250,7 @@ pub fn verify_not_registered_outcome(facts: &RowFacts, reimport_count: i32) -> O
 /// attainment has had a day to show up a human checks Sisu by hand; the row still never resubmits.
 pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
     let outcome = Outcome::to(CreditRegistrationState::SubmissionUncertain)
-        .after(uncertain_recheck_secs(facts.verify_attempt_count));
+        .after(uncertain_recheck_delay(facts.verify_attempt_count));
     if uncertain_needs_admin(facts.submitted_at, facts.now) {
         outcome.needing_admin()
     } else {
@@ -290,8 +289,7 @@ fn waiting_lookup_failed(endpoint: SuotarEndpoint, facts: &RowFacts) -> Option<O
     (is_lookup && facts.is_waiting_for_enrolment).then(|| Outcome {
         error_code: facts.error_code,
         keeps_enrolment_checked_at: true,
-        ..Outcome::to(CreditRegistrationState::NoUsableEnrolment)
-            .after(TRANSIENT_FAILURE_RETRY_SECS)
+        ..Outcome::to(CreditRegistrationState::NoUsableEnrolment).after(TRANSIENT_FAILURE_RETRY)
     })
 }
 
@@ -370,9 +368,9 @@ fn retry_or_expire(
             .needing_admin();
     }
     let delay = if endpoint == SuotarEndpoint::VerifyAttainments {
-        verify_backoff_secs(facts.verify_attempt_count)
+        verify_backoff(facts.verify_attempt_count)
     } else {
-        submit_backoff_secs(facts.submit_retry_count)
+        submit_backoff(facts.submit_retry_count)
     };
     Outcome {
         increment_submit_retry_count: endpoint != SuotarEndpoint::VerifyAttainments,
@@ -392,7 +390,7 @@ pub fn import_success_state(code: &str) -> Option<CreditRegistrationState> {
 pub fn import_success_outcome(state: CreditRegistrationState) -> Outcome {
     let outcome = Outcome::to(state);
     if state == CreditRegistrationState::AwaitingVerification {
-        return outcome.after(VERIFY_FIRST_DELAY_SECS);
+        return outcome.after(VERIFY_FIRST_DELAY);
     }
     outcome
 }
@@ -413,16 +411,17 @@ pub fn missing_context_outcome(facts: &RowFacts) -> Outcome {
 /// iteration cannot poll it twice. The poll's own outcome overwrites this. Covers both calls of one
 /// verify iteration, the poll and the recovery lookup after it.
 pub fn verify_poll_lease_until(now: DateTime<Utc>, attempt: i32) -> DateTime<Utc> {
-    let calls_secs = (SuotarEndpoint::VerifyAttainments.request_timeout()
-        + SuotarEndpoint::ResolveEnrolments.request_timeout())
-    .as_secs() as i64
-        + 5 * 60;
-    next_attempt_at(now, verify_backoff_secs(attempt).max(calls_secs))
+    let calls = TimeDelta::seconds(
+        (SuotarEndpoint::VerifyAttainments.request_timeout()
+            + SuotarEndpoint::ResolveEnrolments.request_timeout())
+        .as_secs() as i64,
+    ) + TimeDelta::minutes(5);
+    next_attempt_at(now, verify_backoff(attempt).max(calls))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::super::backoff::UNCERTAIN_MAX_RECHECK_SECS;
+    use super::super::backoff::UNCERTAIN_MAX_RECHECK;
     use super::*;
     use CreditRegistrationErrorCode as Code;
     use CreditRegistrationState as State;
@@ -701,10 +700,7 @@ mod tests {
         let outcome = verify_inconclusive_outcome(State::AwaitingVerification, &facts);
         assert_eq!(outcome.to_state, State::AwaitingVerification);
         assert_eq!(outcome.needs_admin_attention, Some(true));
-        assert_eq!(
-            outcome.next,
-            NextAttempt::After(TimeDelta::seconds(VERIFY_GIVE_UP_POLL_SECS))
-        );
+        assert_eq!(outcome.next, NextAttempt::After(VERIFY_GIVE_UP_POLL));
     }
 
     /// A row the phase can build no request for has to accrue retry age like any other failure, or
@@ -732,10 +728,7 @@ mod tests {
         });
         assert_eq!(first.needs_admin_attention, None);
         assert_eq!(first.to_state, State::SubmissionUncertain);
-        assert_eq!(
-            first.next,
-            NextAttempt::After(TimeDelta::seconds(UNCERTAIN_RECHECK_SECS * 2))
-        );
+        assert_eq!(first.next, NextAttempt::After(UNCERTAIN_RECHECK * 2));
 
         let late = uncertain_recheck_outcome(&RowFacts {
             verify_attempt_count: 30,
@@ -743,9 +736,6 @@ mod tests {
             ..facts()
         });
         assert_eq!(late.needs_admin_attention, Some(true));
-        assert_eq!(
-            late.next,
-            NextAttempt::After(TimeDelta::seconds(UNCERTAIN_MAX_RECHECK_SECS))
-        );
+        assert_eq!(late.next, NextAttempt::After(UNCERTAIN_MAX_RECHECK));
     }
 }

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET enrolment_check_claimed_until = now() + $2::interval\nWHERE id = $1\n  AND state = 'no_usable_enrolment'\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bc3f63091da85a4d15ec86d7d418ba8f5d8bfdffcc42b990a42a3804abc3a637"
+}

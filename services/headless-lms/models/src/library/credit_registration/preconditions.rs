@@ -8,9 +8,7 @@ use crate::credit_registrations::{
 use crate::prelude::*;
 use chrono::TimeDelta;
 
-use super::backoff::{
-    RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
-};
+use super::backoff::{RESOLVING_RECOVERY_GRACE, SUBMIT_MAX_RETRY_AGE, SUBMITTING_RECOVERY_GRACE};
 use super::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck, first_check,
 };
@@ -55,7 +53,7 @@ enum Target {
 fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
     use CreditRegistrationState as State;
     let facts = &row.preconditions;
-    let elapsed = |since: DateTime<Utc>, secs: i64| since < now - TimeDelta::seconds(secs);
+    let elapsed = |since: DateTime<Utc>, span: TimeDelta| since < now - span;
     match row.state {
         // A worker committed `submitting` and never came back with an answer. There is no way to
         // know whether the request landed, so the row is never imported again. Timed from the last
@@ -63,7 +61,7 @@ fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
         State::Submitting
             if elapsed(
                 row.submitted_at.unwrap_or(row.state_entered_at),
-                SUBMITTING_RECOVERY_GRACE_SECS,
+                SUBMITTING_RECOVERY_GRACE,
             ) =>
         {
             Target::Move(State::SubmissionUncertain)
@@ -74,9 +72,9 @@ fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
         _ if row.completion_deleted => Target::Move(State::Cancelled),
         State::FailedRetryable if !facts.completion_eligible => Target::Move(State::Blocked),
         State::FailedRetryable
-            if row.first_failed_at.is_some_and(|first_failed_at| {
-                elapsed(first_failed_at, SUBMIT_MAX_RETRY_AGE_SECS)
-            }) =>
+            if row
+                .first_failed_at
+                .is_some_and(|first_failed_at| elapsed(first_failed_at, SUBMIT_MAX_RETRY_AGE)) =>
         {
             Target::Move(State::FailedPermanent)
         }
@@ -111,9 +109,7 @@ fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
         // forever.
         State::CheckingEnrolment => Target::Stay,
         // Past the grace the worker that claimed it is gone, and asking again is harmless.
-        State::ResolvingEnrolment
-            if elapsed(row.state_entered_at, RESOLVING_RECOVERY_GRACE_SECS) =>
-        {
+        State::ResolvingEnrolment if elapsed(row.state_entered_at, RESOLVING_RECOVERY_GRACE) => {
             Target::Move(State::ReadyToSubmit)
         }
         // A resolve-enrolments call for this row is in flight; only that phase's own commit may
@@ -415,7 +411,7 @@ SELECT id,
 FROM facts
 WHERE (
     state = 'submitting'
-    AND COALESCE(submitted_at, state_entered_at) < now() - ($5::bigint * INTERVAL '1 second')
+    AND COALESCE(submitted_at, state_entered_at) < now() - $5::interval
   )
   OR (
     state <> ALL($9::credit_registration_state [])
@@ -431,7 +427,7 @@ WHERE (
             AND NOT has_submitted_attainment
           )
           OR next_attempt_at <= now()
-          OR first_failed_at < now() - ($6::bigint * INTERVAL '1 second')
+          OR first_failed_at < now() - $6::interval
         )
       )
       OR (
@@ -458,7 +454,7 @@ WHERE (
       )
       OR (
         state = 'resolving_enrolment'
-        AND state_entered_at < now() - ($7::bigint * INTERVAL '1 second')
+        AND state_entered_at < now() - $7::interval
       )
     )
   )
@@ -469,9 +465,9 @@ LIMIT $1
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
-        SUBMITTING_RECOVERY_GRACE_SECS,
-        SUBMIT_MAX_RETRY_AGE_SECS,
-        RESOLVING_RECOVERY_GRACE_SECS,
+        SUBMITTING_RECOVERY_GRACE as TimeDelta,
+        SUBMIT_MAX_RETRY_AGE as TimeDelta,
+        RESOLVING_RECOVERY_GRACE as TimeDelta,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
     )
@@ -599,7 +595,7 @@ mod tests {
     }
 
     async fn entered_state_long_ago(conn: &mut PgConnection, id: Uuid) {
-        let long_ago = Utc::now() - chrono::Duration::seconds(SUBMITTING_RECOVERY_GRACE_SECS + 60);
+        let long_ago = Utc::now() - SUBMITTING_RECOVERY_GRACE - TimeDelta::minutes(1);
         crate::credit_registrations::set_state_entered_at_for_testing(conn, id, long_ago)
             .await
             .unwrap();

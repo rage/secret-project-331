@@ -26,7 +26,7 @@ use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.
-const TICK_INTERVAL_SECS: u64 = 10;
+const TICK_INTERVAL: Duration = Duration::from_secs(10);
 
 /// Ten minutes of ticks. The per-phase heartbeat in the database is the machine-readable half.
 const STILL_RUNNING_MESSAGE_TICKS: u32 = 60;
@@ -58,7 +58,7 @@ pub async fn run(
 
     let still_running = run_periodic_worker_until(
         PeriodicWorkerConfig {
-            tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
+            tick_interval: TICK_INTERVAL,
             still_running: Some(StillRunningLog {
                 every: STILL_RUNNING_MESSAGE_TICKS,
                 message: still_running_message,
@@ -92,7 +92,7 @@ async fn run_phase_loop(
 ) -> CreditRegistrationResult<()> {
     run_periodic_worker_until(
         PeriodicWorkerConfig {
-            tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
+            tick_interval: TICK_INTERVAL,
             // `run` logs one message for the whole process.
             still_running: None,
             // A slow iteration should push later ticks out, not fire them back to back (tokio's

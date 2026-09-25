@@ -6,7 +6,7 @@
 //! here, from [`CreditRegistrationState::allowed_targets`].
 use std::collections::HashMap;
 
-use chrono::NaiveDate;
+use chrono::{NaiveDate, TimeDelta};
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use utoipa::ToSchema;
@@ -376,17 +376,17 @@ impl CreditRegistrationState {
     /// Only the states a claim query reads, or a precondition arm holds a row in, need a nonzero
     /// one: a phase that forgot to defer would otherwise spin on the row, since `claim_due` orders
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
-    fn default_attempt_delay_secs(self) -> i64 {
+    fn default_attempt_delay(self) -> TimeDelta {
         use crate::library::credit_registration::backoff::{
-            SUBMIT_BASE_BACKOFF_SECS, UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
+            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY,
         };
-        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG_SECS;
+        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
-            Self::AwaitingVerification => VERIFY_FIRST_DELAY_SECS,
-            Self::SubmissionUncertain => UNCERTAIN_RECHECK_SECS,
-            Self::NoUsableEnrolment => REGISTRY_LAG_SECS,
-            Self::FailedRetryable => SUBMIT_BASE_BACKOFF_SECS,
-            _ => 0,
+            Self::AwaitingVerification => VERIFY_FIRST_DELAY,
+            Self::SubmissionUncertain => UNCERTAIN_RECHECK,
+            Self::NoUsableEnrolment => REGISTRY_LAG,
+            Self::FailedRetryable => SUBMIT_BASE_BACKOFF,
+            _ => TimeDelta::zero(),
         }
     }
 }
@@ -919,9 +919,9 @@ async fn write_moves(
         .iter()
         .map(|(_, _, transition)| transition.next_attempt_at)
         .collect();
-    let default_delays: Vec<i64> = to_states
+    let default_delays: Vec<TimeDelta> = to_states
         .iter()
-        .map(|state| state.default_attempt_delay_secs())
+        .map(|state| state.default_attempt_delay())
         .collect();
     let keeps_checked_at: Vec<bool> = moves
         .iter()
@@ -1015,7 +1015,7 @@ SET state = move.to_state,
   enrolment_check_claimed_until = NULL,
   next_attempt_at = COALESCE(
     move.next_attempt_at,
-    now() + (move.default_delay_secs * INTERVAL '1 second')
+    now() + move.default_delay
   )
 FROM UNNEST(
     $1::uuid [],
@@ -1026,7 +1026,7 @@ FROM UNNEST(
     $6::boolean [],
     $7::boolean [],
     $8::timestamptz [],
-    $9::bigint [],
+    $9::interval [],
     $10::boolean [],
     $11::boolean [],
     $12::boolean []
@@ -1039,7 +1039,7 @@ FROM UNNEST(
     terminal,
     failure,
     next_attempt_at,
-    default_delay_secs,
+    default_delay,
     keeps_checked_at,
     keeps_schedule,
     keeps_waiting_since
@@ -1056,7 +1056,7 @@ RETURNING cr.*
         &terminal,
         &failure,
         &next_attempts as &[Option<DateTime<Utc>>],
-        &default_delays,
+        &default_delays as &[TimeDelta],
         &keeps_checked_at,
         &keeps_schedule,
         &keeps_waiting_since,
@@ -1264,12 +1264,12 @@ pub async fn expire_enrolment_recheck_allowance_for_testing(
     id: Uuid,
     clear_restarts: bool,
 ) -> ModelResult<()> {
-    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL_SECS;
+    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL;
     sqlx::query!(
         "
 UPDATE credit_registrations
-SET enrolment_checked_at = enrolment_checked_at - ($2::bigint * INTERVAL '1 second'),
-  enrolment_check_requested_at = enrolment_check_requested_at - ($2::bigint * INTERVAL '1 second'),
+SET enrolment_checked_at = enrolment_checked_at - $2::interval,
+  enrolment_check_requested_at = enrolment_check_requested_at - $2::interval,
   enrolment_check_restart_count = CASE
     WHEN $3 THEN 0
     ELSE enrolment_check_restart_count
@@ -1277,7 +1277,7 @@ SET enrolment_checked_at = enrolment_checked_at - ($2::bigint * INTERVAL '1 seco
 WHERE id = $1
         ",
         id,
-        CHECK_REQUEST_MIN_INTERVAL_SECS,
+        CHECK_REQUEST_MIN_INTERVAL as TimeDelta,
         clear_restarts,
     )
     .execute(conn)
@@ -1402,19 +1402,19 @@ pub async fn claim_due_for_resolve(
 /// Keeps a parked row out of every claim while a lookup for it is out, as `resolving_enrolment`
 /// does for a row on its first resolve. The answer's [`transition`] ends the claim; one a worker
 /// died holding expires after
-/// [`RESOLVING_RECOVERY_GRACE_SECS`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE_SECS).
+/// [`RESOLVING_RECOVERY_GRACE`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE).
 /// A no-op for a row in any other state.
 pub async fn claim_enrolment_check(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE_SECS;
+    use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE;
     sqlx::query!(
         r#"
 UPDATE credit_registrations
-SET enrolment_check_claimed_until = now() + ($2::bigint * INTERVAL '1 second')
+SET enrolment_check_claimed_until = now() + $2::interval
 WHERE id = $1
   AND state = 'no_usable_enrolment'
         "#,
         id,
-        RESOLVING_RECOVERY_GRACE_SECS,
+        RESOLVING_RECOVERY_GRACE as TimeDelta,
     )
     .execute(conn)
     .await?;

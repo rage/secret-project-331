@@ -24,11 +24,11 @@ use crate::process_local::ProcessLocalMap;
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 /// The first cooldown; each trip without a success between adds another, up to
 /// [`MAX_COOLDOWN_TRIPS`] of them.
-pub const SUOTAR_COOLDOWN_SECS: u64 = 300;
+pub const SUOTAR_COOLDOWN: Duration = Duration::from_secs(5 * 60);
 pub const MAX_COOLDOWN_TRIPS: u32 = 3;
 /// Playwright's per-test budget is 100 s, which the production cooldown does not fit inside: a test
 /// that trips the breaker deliberately has to be able to watch it recover.
-pub const TEST_SUOTAR_COOLDOWN_SECS: u64 = 5;
+pub const TEST_SUOTAR_COOLDOWN: Duration = Duration::from_secs(5);
 
 /// What one breaker counts failures for.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -92,11 +92,11 @@ static BREAKERS: ProcessLocalMap<BreakerKey, BreakerState> = ProcessLocalMap::ne
 
 /// The first cooldown, which later trips multiply.
 pub fn cooldown(test_mode: bool) -> Duration {
-    Duration::from_secs(if test_mode {
-        TEST_SUOTAR_COOLDOWN_SECS
+    if test_mode {
+        TEST_SUOTAR_COOLDOWN
     } else {
-        SUOTAR_COOLDOWN_SECS
-    })
+        SUOTAR_COOLDOWN
+    }
 }
 
 /// Whether the phases `target` covers should skip this iteration.

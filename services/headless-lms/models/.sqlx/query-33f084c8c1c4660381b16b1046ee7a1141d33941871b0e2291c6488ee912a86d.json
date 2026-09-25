@@ -1,0 +1,159 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT state AS \"state: CreditRegistrationState\",\n  no_usable_enrolment_since,\n  enrolment_check_group AS \"enrolment_check_group: EnrolmentCheckGroup\",\n  enrolment_check_anchor_at,\n  enrolment_checks_stopped_at,\n  enrolment_check_requested_at,\n  enrolment_check_restart_window_started_at,\n  enrolment_check_restart_count,\n  enrolment_checked_at\nFROM credit_registrations\nWHERE id = $1\n  AND deleted_at IS NULL\nFOR UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "no_usable_enrolment_since",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "no_usable_enrolment_since"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "enrolment_check_group: EnrolmentCheckGroup",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_group"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "enrolment_check_anchor_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_anchor_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "enrolment_checks_stopped_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_checks_stopped_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "enrolment_check_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "enrolment_check_restart_window_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_restart_window_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "enrolment_check_restart_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_restart_count"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "enrolment_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_checked_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "33f084c8c1c4660381b16b1046ee7a1141d33941871b0e2291c6488ee912a86d"
+}

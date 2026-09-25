@@ -1,0 +1,93 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_code,\n  consecutive_failures,\n  last_error AS \"last_error: CreditRegistrationErrorCode\",\n  last_attempted_at\nFROM credit_registration_roster_schedules\nWHERE consecutive_failures > 0\nORDER BY consecutive_failures DESC,\n  course_code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "last_error: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
+                "misregistered",
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_error"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_attempted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "4996125a0a82a37e9f44e703a39c9a4baace5d6d73f872e646caad43a305302f"
+}

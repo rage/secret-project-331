@@ -1,0 +1,87 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT enrolment_check_group AS \"enrolment_check_group!: EnrolmentCheckGroup\",\n  enrolment_check_step AS \"enrolment_check_step!\",\n  COUNT(*) AS \"check_count!\",\n  PERCENTILE_CONT(0.5) WITHIN GROUP (\n    ORDER BY late_secs\n  ) AS \"p50_late_secs!\",\n  PERCENTILE_CONT(0.95) WITHIN GROUP (\n    ORDER BY late_secs\n  ) AS \"p95_late_secs!\",\n  MAX(late_secs) AS \"max_late_secs!\",\n  COUNT(*) FILTER (\n    WHERE late_secs > $2\n  ) AS \"very_late_count!\"\nFROM (\n    SELECT enrolment_check_group,\n      enrolment_check_step,\n      GREATEST(EXTRACT(EPOCH FROM checked_at - due_at), 0)::double precision AS late_secs\n    FROM credit_registration_enrolment_check_outcomes\n    WHERE checked_at >= $1\n      AND source = 'schedule'\n      AND due_at IS NOT NULL\n      AND enrolment_check_step IS NOT NULL\n  ) checks\nGROUP BY enrolment_check_group,\n  enrolment_check_step\nORDER BY enrolment_check_group,\n  enrolment_check_step\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "enrolment_check_group!: EnrolmentCheckGroup",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_check_outcomes",
+            "name": "enrolment_check_group"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "enrolment_check_step!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_check_outcomes",
+            "name": "enrolment_check_step"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "check_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "p50_late_secs!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "p95_late_secs!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "max_late_secs!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "very_late_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "35a0db8334996a38965187c1892332492222e720f729f3f7edee618c8bfc26ad"
+}

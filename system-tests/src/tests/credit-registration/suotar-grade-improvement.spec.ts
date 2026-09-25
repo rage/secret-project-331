@@ -33,9 +33,12 @@ import {
 } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
+  makeEnrolmentChecksDue,
   regradeCompletion,
+  runEnrolmentCheckNow,
   runImportSubmissionTick,
   runMaterializeTick,
+  runPhasesUpToSubmission,
   runPreconditionsTick,
   runResolveEnrolmentsTick,
   runStudentNotificationsTick,
@@ -98,10 +101,7 @@ test("Raising a registered grade starts a new attempt, and the registered one st
   adminApi,
 }) => {
   const first = await test.step("The seeded grade-3 completion registers", async () => {
-    await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
-    await runImportSubmissionTick(page.request, scope)
+    await runPhasesUpToSubmission(page.request, scope)
     const submitted = await waitForRegistrationState(
       page.request,
       adminApi,
@@ -380,8 +380,7 @@ test("A better grade given as a new completion is sent, and the registered one s
       },
     ])
     registeredId = await addLaterCompletion(page, adminApi, 3)
-    await runPreconditionsTick(page.request, laterScope)
-    await runResolveEnrolmentsTick(page.request, laterScope)
+    await runEnrolmentCheckNow(page.request, laterScope)
     await runImportSubmissionTick(page.request, laterScope)
     await waitForRowState(adminApi, registeredId, ["awaiting_verification"])
     await transitionMockSuotarSubmissionsFor(
@@ -397,8 +396,7 @@ test("A better grade given as a new completion is sent, and the registered one s
 
   await test.step("The teacher's grade-5 completion is resolved without replacing it", async () => {
     reversedId = await addLaterCompletion(page, adminApi, 5)
-    await runPreconditionsTick(page.request, laterScope)
-    await runResolveEnrolmentsTick(page.request, laterScope)
+    await runEnrolmentCheckNow(page.request, laterScope)
     const improving = await waitForRowState(adminApi, reversedId, [
       "checking_enrolment",
       "submitting",
@@ -504,8 +502,7 @@ test("A later completion that is not better waits for the one in flight and is n
 
   await test.step("Another grade-5 completion goes out while grade 3 stays held", async () => {
     betterId = await addLaterCompletion(page, adminApi, 5)
-    await runPreconditionsTick(page.request, laterScope)
-    await runResolveEnrolmentsTick(page.request, laterScope)
+    await runEnrolmentCheckNow(page.request, laterScope)
     await runImportSubmissionTick(page.request, laterScope)
     await waitForRowState(adminApi, betterId, ["awaiting_verification"])
     expect(await submittedGrades(page)).toStrictEqual(["3", "5", "5"])
@@ -523,11 +520,16 @@ test("A later completion that is not better waits for the one in flight and is n
     await test.step("A grade-4 completion is held while grade 5 is in flight", async () => {
       const id = await addLaterCompletion(page, adminApi, 4)
       await runPreconditionsTick(page.request, laterScope)
-      await waitForRowState(adminApi, id, ["ready_to_submit"])
+      // Parked for its first check, or due for it at once if an earlier attempt asked for one.
+      const waiting = await waitForRowState(adminApi, id, [
+        "no_usable_enrolment",
+        "ready_to_submit",
+      ])
+      await makeEnrolmentChecksDue(page.request, laterScope)
       await runResolveEnrolmentsTick(page.request, laterScope)
       // Nothing but a resolve claim moves it on, and that claim holds it back.
       expect((await adminRegistrationDetails(adminApi, id)).registration.state).toBe(
-        "ready_to_submit",
+        waiting.registration.state,
       )
       expect(
         await countMockCallsForStudent(

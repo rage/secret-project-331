@@ -17,8 +17,8 @@ use headless_lms_models::{
     },
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
-        CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
-        StudentCreditRegistration, StudentRegistrationFilter,
+        CreditRegistrationErrorCode, CreditRegistrationState, StudentCreditRegistration,
+        StudentRegistrationFilter,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
@@ -30,11 +30,12 @@ use headless_lms_models::{
         self, NewVerifiedStudentNumber, StudentNumberVerificationMethod, VerifiedStudentNumber,
     },
 };
-use headless_lms_utils::secret_string::expose_option;
-use models::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
-use models::library::credit_registration::preconditions::{
-    PRECONDITIONS_LIMIT, recompute_preconditions,
+use headless_lms_models::{
+    credit_registration_enrolment_check_signals, credit_registration_roster_schedules,
+    library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource,
+    library::credit_registration::enrolment_checks::{self, CheckRequestOutcome},
 };
+use headless_lms_utils::secret_string::expose_option;
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -56,6 +57,7 @@ use headless_lms_base::config::ApplicationConfiguration;
     set_my_enrolment_route,
     confirm_my_enrolment,
     withdraw_my_enrolment_confirmation,
+    record_my_enrolment_page_visit,
     set_my_credit_justification,
     unlink_my_student_number,
     preview_student_number_verification_token,
@@ -327,7 +329,7 @@ pub async fn get_my_credit_registration_enrolment_banners(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = build_my_credit_registrations(
+    let mut res = build_my_credit_registrations(
         &mut conn,
         user.id,
         StudentRegistrationFilter {
@@ -337,6 +339,10 @@ pub async fn get_my_credit_registration_enrolment_banners(
         },
     )
     .await?;
+    // Left out while a check the student asked for is out: its answer decides whether they must act.
+    res.retain(|registration| {
+        registration.student_facing_status == StudentFacingCreditRegistrationStatus::NeedsEnrolment
+    });
 
     token.authorized_ok(web::Json(res))
 }
@@ -380,42 +386,60 @@ pub async fn dismiss_credit_registration_enrolment_banner(
     token.authorized_ok(web::Json(()))
 }
 
-/// When the study registry may next be asked about this row, or `None` before it has been asked at
-/// all.
-fn next_enrolment_recheck_allowed_at(
-    enrolment_checked_at: Option<DateTime<Utc>>,
-) -> Option<DateTime<Utc>> {
-    enrolment_checked_at
-        .map(|checked| checked + chrono::Duration::seconds(ENROLMENT_RECHECK_MIN_INTERVAL_SECS))
-}
-
-/// Whether we looked recently enough that looking again would tell nobody anything new.
-pub(crate) fn looked_for_enrolment_recently(enrolment_checked_at: Option<DateTime<Utc>>) -> bool {
-    next_enrolment_recheck_allowed_at(enrolment_checked_at)
-        .is_some_and(|allowed| allowed > Utc::now())
-}
-
-/// Whether a row may be sent to look for an enrolment again right now, by its student or a teacher.
+/// Whether a row's student or a teacher may ask for an enrolment check right now, which is when
+/// their buttons show.
 pub(crate) fn can_request_enrolment_recheck(
     state: CreditRegistrationState,
+    enrolment_check_requested_at: Option<DateTime<Utc>>,
     enrolment_checked_at: Option<DateTime<Utc>>,
 ) -> bool {
     state == CreditRegistrationState::NoUsableEnrolment
-        && !looked_for_enrolment_recently(enrolment_checked_at)
+        && !enrolment_checks::is_check_request_limited(
+            enrolment_check_requested_at,
+            enrolment_checked_at,
+            Utc::now(),
+        )
 }
 
-/// Records who asked and makes the row due for its next enrolment check.
+/// A row waiting for an enrolment to check, and the completion it registers.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RecheckTarget {
+    pub registration_id: Uuid,
+    pub course_module_completion_id: Uuid,
+}
+
+/// Asks for an enrolment check of a row waiting for one, and records who asked.
 ///
-/// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ
-/// only in the event and in how they decide the allowance is free.
+/// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ in
+/// `source` and the event. Every kind shares one limit on asking; see
+/// [`enrolment_checks::request_check`]. The completion's check signal is recorded unless the row
+/// turned out not to be waiting, even for a request refused as too soon.
 pub(crate) async fn start_enrolment_recheck(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
-    registration_id: Uuid,
+    target: RecheckTarget,
+    source: EnrolmentCheckSource,
     event_kind: CreditRegistrationEventKind,
     message: &str,
-) -> Result<(), ControllerError> {
+) -> Result<CheckRequestOutcome, ControllerError> {
+    let registration_id = target.registration_id;
     let mut tx = conn.begin().await?;
+    let outcome =
+        enrolment_checks::request_check(&mut tx, registration_id, source, Utc::now()).await?;
+    if outcome == CheckRequestOutcome::NotWaiting {
+        tx.commit().await?;
+        return Ok(outcome);
+    }
+    credit_registration_enrolment_check_signals::record_check_request(
+        &mut tx,
+        target.course_module_completion_id,
+        source,
+    )
+    .await?;
+    if outcome == CheckRequestOutcome::TooSoon {
+        tx.commit().await?;
+        return Ok(outcome);
+    }
     models::credit_registration_events::insert(
         &mut tx,
         &NewCreditRegistrationEvent {
@@ -425,18 +449,8 @@ pub(crate) async fn start_enrolment_recheck(
         },
     )
     .await?;
-    models::credit_registrations::make_due_now_batch(&mut tx, &[registration_id]).await?;
-    recompute_preconditions(
-        &mut tx,
-        &RegistrationScope {
-            credit_registration_ids: vec![registration_id],
-            ..RegistrationScope::default()
-        },
-        PRECONDITIONS_LIMIT,
-    )
-    .await?;
     tx.commit().await?;
-    Ok(())
+    Ok(outcome)
 }
 
 /**
@@ -478,23 +492,21 @@ pub async fn request_credit_registration_enrolment_recheck(
         ));
     }
 
-    if looked_for_enrolment_recently(registration.enrolment_checked_at) {
-        return token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
-            recheck_started: false,
-        }));
-    }
-
-    start_enrolment_recheck(
+    let outcome = start_enrolment_recheck(
         &mut conn,
         user.id,
-        registration.id,
+        RecheckTarget {
+            registration_id: registration.id,
+            course_module_completion_id: registration.course_module_completion_id,
+        },
+        EnrolmentCheckSource::StudentRequest,
         CreditRegistrationEventKind::StudentAction,
         "The student asked us to check for an enrolment again.",
     )
     .await?;
 
     token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
-        recheck_started: true,
+        recheck_started: outcome.started_check(),
     }))
 }
 
@@ -756,6 +768,13 @@ pub async fn claim_student_number_verification_token(
             "The student linked a student number.",
         )
         .await?;
+    // The mail went out because the course roster lists them, which proves an enrolment.
+    if let Some(course_id) = verification_token.course_id {
+        credit_registration_enrolment_check_signals::record_account_link_for_course(
+            &mut tx, user.id, course_id,
+        )
+        .await?;
+    }
     tx.commit().await?;
 
     auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
@@ -783,11 +802,15 @@ async fn build_my_credit_registrations(
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let state = row.state;
-        let status = StudentFacingCreditRegistrationStatus::of(
-            state,
-            row.preconditions(),
-            row.enrolment_resolved,
-        );
+        let status = if row.is_requested_check_unanswered() {
+            StudentFacingCreditRegistrationStatus::LookingForEnrolment
+        } else {
+            StudentFacingCreditRegistrationStatus::of(
+                state,
+                row.preconditions(),
+                row.enrolment_resolved,
+            )
+        };
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             row.enrolment_link.clone()
         } else {
@@ -819,8 +842,11 @@ fn to_my_credit_registration(
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
     let enrolment_found = row.has_usable_enrolment();
-    let can_request_enrolment_recheck =
-        can_request_enrolment_recheck(row.state, row.enrolment_checked_at);
+    let can_request_enrolment_recheck = can_request_enrolment_recheck(
+        row.state,
+        row.enrolment_check_requested_at,
+        row.enrolment_checked_at,
+    );
     MyCreditRegistration {
         id: row.id,
         course_id: row.course_id,
@@ -1164,10 +1190,12 @@ pub async fn set_my_enrolment_route(
 POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
 - The caller says they have enrolled.
 
-Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
-enrolment check forward, and only when the hourly allowance the manual button spends is free.
+Counts as a check request: a waiting registration restarts its checks on the check-requested
+schedule, under the limit every check request shares. Recorded against the completion too, so a
+registration that starts waiting later starts on that schedule. With account linking on, a caller
+with no linked student number books a roster listing of the course code instead.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
@@ -1181,6 +1209,7 @@ enrolment check forward, and only when the hourly allowance the manual button sp
 pub async fn confirm_my_enrolment(
     user: AuthUser,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
     let mut conn = pool.acquire().await?;
@@ -1206,8 +1235,38 @@ pub async fn confirm_my_enrolment(
         true,
     )
     .await?;
-    if let Some(registration) = registration {
-        bring_enrolment_check_forward(&mut conn, user.id, &registration).await?;
+    match registration {
+        Some(registration) if registration.is_waiting_for_enrolment() => {
+            start_enrolment_recheck(
+                &mut conn,
+                user.id,
+                RecheckTarget {
+                    registration_id: registration.id,
+                    course_module_completion_id: current.course_module_completion_id,
+                },
+                EnrolmentCheckSource::StudentRequest,
+                CreditRegistrationEventKind::StudentAction,
+                "The student said they had enrolled.",
+            )
+            .await?;
+        }
+        _ => {
+            // No row waits yet: a row that starts waiting takes its group from the signal.
+            credit_registration_enrolment_check_signals::record_check_request(
+                &mut conn,
+                current.course_module_completion_id,
+                EnrolmentCheckSource::StudentRequest,
+            )
+            .await?;
+            book_roster_listing_for_unlinked_student(
+                &mut conn,
+                &app_conf,
+                user.id,
+                *course_module_id,
+                false,
+            )
+            .await?;
+        }
     }
 
     token.authorized_ok(web::Json(my_enrolment_route(
@@ -1343,29 +1402,102 @@ pub async fn set_my_credit_justification(
     }))
 }
 
-/// Makes the row due for its next enrolment check, unless we looked recently enough that asking
-/// again would tell the student nothing new.
-///
-/// Shares [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`] with the manual buttons rather than getting an
-/// allowance of its own, so pressing Done cannot be used to poll the study registry.
-async fn bring_enrolment_check_forward(
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
+- The caller opened the registration page after completing, and it is showing them how to enrol.
+
+Moves a waiting registration onto the schedule for students who have looked, or restarts that
+schedule at most once a day. Recorded against the completion too, so a visit before there is a
+registration, or before a student number is linked, still counts once there is. Idempotent enough
+to call on every page load; the page sends it once per load.
+*/
+#[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/my/by-course-module/{course_module_id}/enrolment-page-visit",
+    operation_id = "recordMyEnrolmentPageVisit",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The visit is recorded"),
+        (status = 404, description = "No completion on the push path for this module")
+    )
+)]
+pub async fn record_my_enrolment_page_visit(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let course_module_completion_id =
+        my_completion_for_module(&mut conn, user.id, *course_module_id).await?;
+    let registration =
+        my_live_registration_for_module(&mut conn, user.id, *course_module_id).await?;
+    if registration
+        .as_ref()
+        .is_some_and(StudentCreditRegistration::has_usable_enrolment)
+    {
+        return token.authorized_ok(web::Json(()));
+    }
+    let previous_visit_at = credit_registration_enrolment_check_signals::record_visit(
+        &mut conn,
+        course_module_completion_id,
+    )
+    .await?;
+    match registration {
+        Some(registration) if registration.is_waiting_for_enrolment() => {
+            enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
+        }
+        _ => {
+            // Each unlinked visitor asks for a listing at most once a day.
+            let today = Utc::now().date_naive();
+            if previous_visit_at.is_none_or(|visited| visited.date_naive() != today) {
+                book_roster_listing_for_unlinked_student(
+                    &mut conn,
+                    &app_conf,
+                    user.id,
+                    *course_module_id,
+                    true,
+                )
+                .await?;
+            }
+        }
+    }
+
+    token.authorized_ok(web::Json(()))
+}
+
+/// With account linking on, books a roster listing of the module's course code for a student we
+/// hold no number for: the listing is what mails them the link. `is_visit` also books the
+/// follow-up listing a visit gets. Does nothing for a linked student or with linking off.
+async fn book_roster_listing_for_unlinked_student(
     conn: &mut PgConnection,
+    app_conf: &ApplicationConfiguration,
     user_id: Uuid,
-    registration: &StudentCreditRegistration,
+    course_module_id: Uuid,
+    is_visit: bool,
 ) -> Result<(), ControllerError> {
-    if registration.has_usable_enrolment()
-        || looked_for_enrolment_recently(registration.enrolment_checked_at)
+    if !app_conf.suotar_configuration.account_linking_enabled
+        || verified_student_numbers::get_by_user_id(conn, user_id)
+            .await?
+            .is_some()
     {
         return Ok(());
     }
-    start_enrolment_recheck(
-        conn,
-        user_id,
-        registration.id,
-        CreditRegistrationEventKind::StudentAction,
-        "The student said they had enrolled.",
-    )
-    .await
+    let course_module = models::course_modules::get_by_id(conn, course_module_id).await?;
+    let Some(course_code) = course_module
+        .uh_course_code
+        .as_deref()
+        .map(str::trim)
+        .filter(|code| !code.is_empty())
+    else {
+        return Ok(());
+    };
+    credit_registration_roster_schedules::book_triggered_fetch(conn, course_code, is_visit).await?;
+    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -1396,6 +1528,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(
             web::resource("/my/by-course-module/{course_module_id}/credit-justification")
                 .route(web::put().to(set_my_credit_justification)),
+        )
+        .service(
+            web::resource("/my/by-course-module/{course_module_id}/enrolment-page-visit")
+                .wrap(RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(60),
+                    ..Default::default()
+                }))
+                .route(web::post().to(record_my_enrolment_page_visit)),
         )
         .route(
             "/my/enrolment-banners/by-course/{course_id}",

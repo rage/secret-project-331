@@ -57,7 +57,7 @@ const CompletionPage: React.FC = () => {
               courseName={data.course_name}
               moduleName={data.course_module_name}
               ectsCredits={data.ects_credits}
-              creditRegistrationExpected={data.credit_registration_expected}
+              statusBeforeRegistration={data.status_before_registration}
             />
           )
         }

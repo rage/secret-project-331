@@ -14,6 +14,7 @@ import type {
 } from "@/generated/api/types.generated"
 import {
   creditRegistrationCoursesRoute,
+  creditRegistrationEnrolmentChecksRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
@@ -66,6 +67,7 @@ const ALERT_ROUTES = {
   confirmation_latency_regressed: creditRegistrationSystemRoute(),
   pipeline_paused_globally: creditRegistrationSystemRoute(),
   study_registry_student_number_conflicts: creditRegistrationLinkingRoute(),
+  roster_course_code_failing: creditRegistrationEnrolmentChecksRoute(),
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const bannerCss = css`

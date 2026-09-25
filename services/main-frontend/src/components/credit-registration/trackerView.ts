@@ -80,23 +80,18 @@ export const isWaitingForEnrolment = (input: TrackerViewInput): boolean =>
 /**
  * Whether the state needs saying in its own words.
  *
- * Silent through the enrolment wait and through `needs_student_number`, which have bands of their
- * own. Every other state says something none of those can.
+ * Silent through the enrolment wait, through `needs_student_number` and, while the enrolment
+ * question is asked, through the stages it is about: each has a band of its own, and the question
+ * with its button is the last thing the student should read. Every other state says something none
+ * of those can.
  */
 export const saysWhatIsHappening = (input: TrackerViewInput): boolean =>
   input.registration !== null &&
   input.registration.student_facing_status !== "needs_student_number" &&
-  !isWaitingForEnrolment(input)
-
-/**
- * Whether the status band sits under the enrolment question and so says only where things stand:
- * the question band already gives the enrolment instructions and levers, and repeating them
- * underneath reads as two different things happening.
- */
-export const explainsBesideTheQuestion = (input: TrackerViewInput): boolean =>
-  input.registration !== null &&
-  asksWhereYouEnrolled(input) &&
-  ENROLMENT_WAIT.includes(input.registration.student_facing_status)
+  !isWaitingForEnrolment(input) &&
+  !(
+    asksWhereYouEnrolled(input) && ENROLMENT_WAIT.includes(input.registration.student_facing_status)
+  )
 
 /**
  * Whether the registration's own facts — when it was registered, the grade, the credits — belong on

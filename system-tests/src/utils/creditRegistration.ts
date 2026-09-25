@@ -62,6 +62,7 @@
  * | suotar-teacher-views        | credit-registration-student-1–4 | retry          |
  * |                             | frozen rows only                | states         |
  * | suotar-account-linking      | credit-registration-link-claimer | none          |
+ * | suotar-enrolment-check-pacing | credit-registration-student-3 | its own, one per test |
  *
  * `student6` holds nothing a student is asked to act on, because its studies page is asserted to be
  * clean.
@@ -262,6 +263,18 @@ export const myCreditRegistrations = (
   request: APIRequestContext,
 ): Promise<MyCreditRegistration[]> =>
   getJson<MyCreditRegistration[]>(request, `${CREDIT_REGISTRATIONS_API}/my`)
+
+/** Records that the logged-in student opened the module's registration page, as the page does. */
+export const recordEnrolmentPageVisit = async (
+  request: APIRequestContext,
+  courseModuleId: string,
+): Promise<void> => {
+  const url = `${CREDIT_REGISTRATIONS_API}/my/by-course-module/${courseModuleId}/enrolment-page-visit`
+  const response = await request.post(url)
+  if (!response.ok()) {
+    throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)
+  }
+}
 
 /** The `state` of one registration, read from the admin API by a spec that already holds `adminApi`. */
 const adminStateOf = async (

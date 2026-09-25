@@ -12,10 +12,11 @@ use crate::suotar_api_calls::SuotarEndpoint;
 use super::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER_SECS,
     UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at,
-    no_usable_enrolment_recheck_secs, submit_backoff_secs, submit_window_expired,
-    uncertain_needs_admin, uncertain_recheck_secs, verify_backoff_secs, verify_window_expired,
+    submit_backoff_secs, submit_window_expired, uncertain_needs_admin, uncertain_recheck_secs,
+    verify_backoff_secs, verify_window_expired,
 };
 use super::classification::{Retryability, retryability, settled_state};
+use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY_SECS;
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -25,17 +26,10 @@ pub struct RowFacts {
     pub submit_retry_count: i32,
     pub verify_attempt_count: i32,
     pub submitted_at: Option<DateTime<Utc>>,
-    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
-}
-
-impl RowFacts {
-    /// The wait before the next look for an enrolment, were the row to park without one now.
-    fn no_usable_enrolment_recheck_secs(&self) -> i64 {
-        let parked_for_secs = self
-            .no_usable_enrolment_since
-            .map_or(0, |since| (self.now - since).num_seconds());
-        no_usable_enrolment_recheck_secs(parked_for_secs)
-    }
+    /// The row is waiting for an enrolment, so a lookup that fails in transit leaves it waiting.
+    pub is_waiting_for_enrolment: bool,
+    /// The code the row carries now, which a waiting row keeps through a failed lookup.
+    pub error_code: Option<CreditRegistrationErrorCode>,
 }
 
 /// What the phase writes for this row.
@@ -47,9 +41,17 @@ pub struct Outcome {
     pub needs_admin_attention: Option<bool>,
     /// Seconds to wait before the row may be claimed again.
     pub delay_secs: Option<i64>,
+    /// When the row may be claimed again, exactly; overrides `delay_secs`.
+    pub next_attempt_at: Option<DateTime<Utc>>,
     /// Set when Suotar says the stored number names nobody, so it is wrong wherever we hold it.
     pub drop_verified_student_number: bool,
     pub increment_submit_retry_count: bool,
+    /// The next wait comes from the row's enrolment check schedule rather than `delay_secs`; see
+    /// [`super::enrolment_checks::schedule_next_check`].
+    pub schedules_next_enrolment_check: bool,
+    /// A lookup that failed in transit, or only found the Sisu person: it was no check, so the row's
+    /// last check time stands.
+    pub keeps_enrolment_checked_at: bool,
 }
 
 impl Outcome {
@@ -59,8 +61,11 @@ impl Outcome {
             error_code: None,
             needs_admin_attention: None,
             delay_secs: None,
+            next_attempt_at: None,
             drop_verified_student_number: false,
             increment_submit_retry_count: false,
+            schedules_next_enrolment_check: false,
+            keeps_enrolment_checked_at: false,
         }
     }
 
@@ -112,7 +117,7 @@ pub fn submit_error_outcome(
             submission_uncertain()
         }
         Retryability::VerifyOnly | Retryability::RetryableTransient => {
-            retry_or_expire(code, endpoint, facts)
+            retry_or_expire(code, endpoint, facts, Failure::Transient)
         }
         Retryability::PermanentNeedsStudent => match code {
             // Dropping the number puts the student back in the linking flow, the only thing that
@@ -121,9 +126,10 @@ pub fn submit_error_outcome(
                 drop_verified_student_number: true,
                 ..Outcome::to(CreditRegistrationState::Pending).with_code(code)
             },
-            _ => Outcome::to(CreditRegistrationState::NoUsableEnrolment)
-                .with_code(code)
-                .after(facts.no_usable_enrolment_recheck_secs()),
+            _ => Outcome {
+                schedules_next_enrolment_check: true,
+                ..Outcome::to(CreditRegistrationState::NoUsableEnrolment).with_code(code)
+            },
         },
         Retryability::PermanentNeedsConfig | Retryability::PermanentNeedsAdmin => {
             Outcome::to(CreditRegistrationState::FailedPermanent)
@@ -209,6 +215,8 @@ pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
 
 /// The outcome for every row of a batch Suotar rejected as a whole. On `import` all that matters is
 /// whether the request could have been acted on: a connection that never opened proves it was not.
+/// A waiting row's lookup keeps waiting only through an outage; a refusal of the request itself
+/// would come back every retry, so it ages out like any other failure.
 pub fn request_level_outcome(
     endpoint: SuotarEndpoint,
     variant: SuotarErrorVariant,
@@ -217,11 +225,32 @@ pub fn request_level_outcome(
     if endpoint == SuotarEndpoint::ImportAttainments && variant.outcome_may_have_landed() {
         return submission_uncertain();
     }
-    retry_or_expire(request_level_code(variant), endpoint, facts)
+    let failure = if variant.is_transient() {
+        Failure::Transient
+    } else {
+        Failure::Lasting
+    };
+    retry_or_expire(request_level_code(variant), endpoint, facts, failure)
+}
+
+/// A lookup for a row waiting for an enrolment that failed in transit: the row keeps waiting and
+/// retries the same check shortly, with none of a failure's retry window or count, which over a
+/// schedule of months would expire it. `None` for any other row or endpoint.
+fn waiting_lookup_failed(endpoint: SuotarEndpoint, facts: &RowFacts) -> Option<Outcome> {
+    let is_lookup = matches!(
+        endpoint,
+        SuotarEndpoint::ResolveEnrolments | SuotarEndpoint::ResolvePersons
+    );
+    (is_lookup && facts.is_waiting_for_enrolment).then(|| Outcome {
+        error_code: facts.error_code,
+        keeps_enrolment_checked_at: true,
+        ..Outcome::to(CreditRegistrationState::NoUsableEnrolment)
+            .after(TRANSIENT_FAILURE_RETRY_SECS)
+    })
 }
 
 /// A row Suotar refused as a malformed request even in a batch of its own: resending the same
-/// payload is refused the same way, so it needs a human.
+/// request is refused the same way, so it needs a human.
 pub fn isolated_malformed_request_outcome() -> Outcome {
     Outcome::to(CreditRegistrationState::FailedPermanent)
         .with_code(CreditRegistrationErrorCode::MalformedRequest)
@@ -245,6 +274,7 @@ pub fn unanswered_item_outcome(
         CreditRegistrationErrorCode::UnexpectedResponse,
         endpoint,
         facts,
+        Failure::Transient,
     )
 }
 
@@ -266,13 +296,28 @@ pub fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErro
     }
 }
 
+/// Whether a failure could go away on its own.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Failure {
+    Transient,
+    /// The same request would fail the same way on every retry.
+    Lasting,
+}
+
 /// Retryable until the row has been failing for a week, and then a support case rather than an
-/// endless one.
+/// endless one. A transient failure of a waiting row's lookup is not counted as one at all; see
+/// [`waiting_lookup_failed`].
 fn retry_or_expire(
     code: CreditRegistrationErrorCode,
     endpoint: SuotarEndpoint,
     facts: &RowFacts,
+    failure: Failure,
 ) -> Outcome {
+    if failure == Failure::Transient
+        && let Some(outcome) = waiting_lookup_failed(endpoint, facts)
+    {
+        return outcome;
+    }
     if submit_window_expired(facts.first_failed_at, facts.now) {
         return Outcome::to(CreditRegistrationState::FailedPermanent)
             .with_code(CreditRegistrationErrorCode::RetryWindowExpired)
@@ -314,6 +359,7 @@ pub fn missing_context_outcome(facts: &RowFacts) -> Outcome {
         CreditRegistrationErrorCode::Unknown,
         SuotarEndpoint::ResolveEnrolments,
         facts,
+        Failure::Lasting,
     )
 }
 
@@ -342,7 +388,8 @@ mod tests {
             submit_retry_count: 0,
             verify_attempt_count: 0,
             submitted_at: None,
-            no_usable_enrolment_since: None,
+            is_waiting_for_enrolment: false,
+            error_code: None,
         }
     }
 

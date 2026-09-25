@@ -1003,8 +1003,11 @@ pub(crate) async fn build_teacher_registrations(
 
 impl From<TeacherCreditRegistration> for CourseCreditRegistration {
     fn from(row: TeacherCreditRegistration) -> Self {
-        let can_request_enrolment_recheck =
-            can_request_enrolment_recheck(row.state, row.enrolment_checked_at);
+        let can_request_enrolment_recheck = can_request_enrolment_recheck(
+            row.state,
+            row.enrolment_check_requested_at,
+            row.enrolment_checked_at,
+        );
         Self {
             can_request_enrolment_recheck,
             student_facing_status: StudentFacingCreditRegistrationStatus::of(

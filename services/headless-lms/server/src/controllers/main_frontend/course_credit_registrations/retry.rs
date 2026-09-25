@@ -8,6 +8,7 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 
@@ -207,7 +208,12 @@ pub async fn retry_failed_credit_registrations_for_course(
     }
     // Batched rather than one `UPDATE` per row inside the loop above: the row transition needs its
     // own audit event per row, but making it due now does not.
-    credit_registrations::make_due_now_batch(&mut tx, &retried_ids).await?;
+    credit_registrations::make_due_now_batch(
+        &mut tx,
+        &retried_ids,
+        EnrolmentCheckSource::TeacherRequest,
+    )
+    .await?;
     let mut skipped: Vec<RetryCreditRegistrationSkip> = skipped
         .into_iter()
         .map(|(refusal, count)| RetryCreditRegistrationSkip { refusal, count })
@@ -286,7 +292,8 @@ async fn requeue(
     let state = transition_to_ready_to_submit(tx, id, from_state, actor_user_id, reason).await?;
     // Nothing else brings the row forward, so without this the retry sits out whatever backoff the
     // last failure set.
-    credit_registrations::make_due_now_batch(tx, &[id]).await?;
+    credit_registrations::make_due_now_batch(tx, &[id], EnrolmentCheckSource::TeacherRequest)
+        .await?;
     Ok(state)
 }
 

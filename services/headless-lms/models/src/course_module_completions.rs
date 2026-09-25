@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use futures::Stream;
 use utoipa::ToSchema;
@@ -27,18 +27,6 @@ pub struct CourseModuleCompletion {
     pub needs_to_be_reviewed: bool,
     /// Whether the push path owns this completion. See the column comment.
     pub register_credits_via_suotar: bool,
-}
-
-impl CourseModuleCompletion {
-    /// Whether the push path will create a credit registration for this completion, now or on its
-    /// next materialise tick. Must match the membership test of the
-    /// `credit_registration_eligible_completions` view.
-    pub fn is_credit_registration_expected(&self) -> bool {
-        self.register_credits_via_suotar
-            && self.deleted_at.is_none()
-            && self.passed
-            && self.eligible_for_ects
-    }
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
@@ -477,6 +465,25 @@ pub fn select_best_completion(
             completion.id,
         )
     })
+}
+
+/// Which of `ids` the push path will create a credit registration for, now or on its next
+/// materialise tick: those in `credit_registration_eligible_completions`.
+pub async fn get_credit_registration_expected_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<HashSet<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT course_module_completion_id AS "course_module_completion_id!"
+FROM credit_registration_eligible_completions
+WHERE course_module_completion_id = ANY($1)
+        "#,
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.into_iter().collect())
 }
 
 /// The completion that decides which credit registration flow a student gets for one module: one

@@ -16,6 +16,7 @@ use headless_lms_models::credit_registrations::{
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
@@ -556,7 +557,12 @@ pub async fn admin_transition_credit_registration(
     let (outcome, after_state, needs_admin_attention, needs_due_now) =
         apply_transition(&mut tx, &row, payload.action, user.id, reason).await?;
     if needs_due_now {
-        credit_registrations::make_due_now_batch(&mut tx, &[id]).await?;
+        credit_registrations::make_due_now_batch(
+            &mut tx,
+            &[id],
+            EnrolmentCheckSource::AdminRequest,
+        )
+        .await?;
     }
     models::credit_registration_admin_actions::record(
         &mut tx,
@@ -671,7 +677,12 @@ pub async fn admin_bulk_transition_credit_registrations(
     }
     // Batched rather than one `UPDATE` per row inside the loop above: the row transition needs its
     // own audit event per row, but making it due now does not.
-    credit_registrations::make_due_now_batch(&mut tx, &due_now_ids).await?;
+    credit_registrations::make_due_now_batch(
+        &mut tx,
+        &due_now_ids,
+        EnrolmentCheckSource::AdminRequest,
+    )
+    .await?;
     let mut skipped: Vec<AdminBulkTransitionSkipCount> = skipped
         .into_iter()
         .map(|(refusal, count)| AdminBulkTransitionSkipCount { refusal, count })

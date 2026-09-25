@@ -2,7 +2,6 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   asksWhereYouEnrolled,
-  explainsBesideTheQuestion,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -155,19 +154,24 @@ describe("waiting for the enrolment to turn up", () => {
 })
 
 describe("whether the state gets said in its own words", () => {
-  test("says where things stand under the question, without repeating its instructions", () => {
-    const view = { registration: registration(), enrolmentRoute: route() }
-    expect(saysWhatIsHappening(view)).toBe(true)
-    expect(explainsBesideTheQuestion(view)).toBe(true)
+  test("leaves the enrolment question as the last thing on the page", () => {
+    for (const status of ["looking_for_enrolment", "needs_enrolment"] as const) {
+      const view = {
+        registration: registration({ student_facing_status: status }),
+        enrolmentRoute: route(),
+      }
+      expect(asksWhereYouEnrolled(view)).toBe(true)
+      expect(saysWhatIsHappening(view)).toBe(false)
+    }
   })
 
-  test("explains in full once the question is no longer asked", () => {
-    const view = {
-      registration: registration({ student_facing_status: "sending" }),
-      enrolmentRoute: route(),
-    }
-    expect(saysWhatIsHappening(view)).toBe(true)
-    expect(explainsBesideTheQuestion(view)).toBe(false)
+  test("speaks up once the question is no longer asked", () => {
+    expect(
+      saysWhatIsHappening({
+        registration: registration({ student_facing_status: "sending" }),
+        enrolmentRoute: route(),
+      }),
+    ).toBe(true)
   })
 
   test("stays quiet for the student number, which the linking band says in full", () => {

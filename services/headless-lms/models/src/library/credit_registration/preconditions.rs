@@ -10,6 +10,10 @@ use crate::prelude::*;
 use super::backoff::{
     RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
 };
+use super::enrolment_check_schedule::{
+    EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck, first_check,
+};
+use super::enrolment_checks::{EnrolmentCheckStart, record_starts};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
@@ -27,6 +31,16 @@ struct PendingMove {
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
     payload_unweighed_against_held_credit: bool,
+    /// Set for a row that would leave `pending` or `blocked` for its first enrolment check: it
+    /// starts the check schedule instead of resolving at once.
+    check_start: Option<CheckStartFacts>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct CheckStartFacts {
+    group: EnrolmentCheckGroup,
+    anchor_at: DateTime<Utc>,
+    source: EnrolmentCheckSource,
 }
 
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
@@ -63,16 +77,24 @@ fn resume_state(
 /// A row a worker claimed between the snapshot and the write is left where it is: its state is that
 /// phase's to own now, and the next iteration decides again from whatever it committed. Writing
 /// anyway could put an in-flight import back into a state a second import claims.
+///
+/// A row that would start resolving without ever having been checked starts its enrolment check
+/// schedule instead: nobody has enrolled at the moment they complete, so it waits in
+/// `no_usable_enrolment` for the first rung of its group's ladder unless that rung is due already.
+/// A row waiting there is left to resolve-enrolments, which checks it where it stands.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    let moves: Vec<BatchMove> = pending_moves(conn, scope, limit)
+    let now = Utc::now();
+    let mut tx = conn.begin().await?;
+    let mut starts = Vec::new();
+    let moves: Vec<BatchMove> = pending_moves(&mut tx, scope, limit)
         .await?
         .iter()
         .filter_map(|pending| {
-            let target = pending.target.unwrap_or_else(|| {
+            let mut target = pending.target.unwrap_or_else(|| {
                 resume_state(
                     pending.has_submitted_attainment,
                     pending.has_payload_snapshot,
@@ -80,13 +102,42 @@ pub async fn recompute_preconditions(
                     pending.payload_unweighed_against_held_credit,
                 )
             });
+            let mut next_attempt_at = None;
+            if target == CreditRegistrationState::ReadyToSubmit
+                && let Some(start) = &pending.check_start
+                && let Some(scheduled) = first_check(start.group, start.anchor_at)
+            {
+                // A rung already past when the schedule starts is due from now, or its lateness
+                // would count time before the row could be checked.
+                let scheduled = ScheduledEnrolmentCheck {
+                    due_at: scheduled.due_at.max(now),
+                    ..scheduled
+                };
+                starts.push(EnrolmentCheckStart {
+                    credit_registration_id: pending.id,
+                    group: start.group,
+                    anchor_at: start.anchor_at,
+                    scheduled,
+                    source: start.source,
+                });
+                if scheduled.due_at > now {
+                    target = CreditRegistrationState::NoUsableEnrolment;
+                    next_attempt_at = Some(scheduled.release_at());
+                }
+            }
             (target != pending.state).then(|| BatchMove {
                 id: pending.id,
-                transition: transition_for(pending, target),
+                transition: Transition {
+                    next_attempt_at,
+                    ..transition_for(pending, target)
+                },
             })
         })
         .collect();
-    transition_batch(conn, &moves).await
+    let moved = transition_batch(&mut tx, &moves).await?;
+    record_starts(&mut tx, &starts).await?;
+    tx.commit().await?;
+    Ok(moved)
 }
 
 /// The transition each edge writes: kept out of the query so every edge's error code, admin flag
@@ -148,6 +199,10 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             }),
             ..base
         },
+        State::NoUsableEnrolment => Transition {
+            event_message: Some("Waiting for the first enrolment check.".to_string()),
+            ..base
+        },
         // Keys off `pending.state`, not just `target`: the message is about where the row came
         // from, unlike every arm above.
         State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {
@@ -198,9 +253,41 @@ WITH facts AS (
         AND held.superseded_by_id IS NULL
         AND held.pending_superseded_by_id IS DISTINCT FROM cr.id
         AND held.state IN ('registered', 'duplicate', 'not_improved')
-    ) AS payload_unweighed_against_held_credit
+    ) AS payload_unweighed_against_held_credit,
+    cr.state IN ('pending', 'blocked')
+    AND cr.enrolment_checked_at IS NULL AS starts_enrolment_checks,
+    GREATEST(
+      cr.enrolment_check_group,
+      CASE
+        WHEN sig.last_check_requested_at IS NOT NULL THEN 'check_requested'
+        WHEN sig.last_visited_at IS NOT NULL THEN 'visited'
+        ELSE 'completed'
+      END::enrolment_check_group,
+      (
+        SELECT MAX(earlier.enrolment_check_group)
+        FROM credit_registrations earlier
+        WHERE earlier.user_id = cr.user_id
+          AND earlier.course_module_id = cr.course_module_id
+          AND earlier.created_at < cr.created_at
+          AND earlier.deleted_at IS NULL
+      )
+    ) AS check_group,
+    GREATEST(
+      cmc.completion_date,
+      vsn.verified_at,
+      COALESCE(sig.last_check_requested_at, sig.last_visited_at)
+    ) AS check_anchor_at,
+    CASE
+      WHEN sig.last_check_requested_at IS NOT NULL THEN sig.check_request_source
+      ELSE 'schedule'
+    END::enrolment_check_source AS check_source
   FROM credit_registrations cr
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+    LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+    AND vsn.deleted_at IS NULL
+    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+    AND sig.deleted_at IS NULL
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
     AND conf.deleted_at IS NULL
   WHERE cr.deleted_at IS NULL
@@ -253,9 +340,8 @@ targets AS (
       WHEN NOT facts.eligible
       OR NOT facts.has_student_number
       OR NOT facts.course_code_allowed THEN 'pending'
-      -- The periodic look for an enrolment that may have appeared since.
-      WHEN facts.state = 'no_usable_enrolment'
-      AND facts.next_attempt_at > now() THEN facts.state
+      -- resolve-enrolments checks it where it stands when its schedule says.
+      WHEN facts.state = 'no_usable_enrolment' THEN facts.state
       -- A relink after the payload was frozen must not let the row import against the account's
       -- previous number: send it back to resolve a fresh payload against the current one.
       WHEN facts.state = 'checking_enrolment'
@@ -282,7 +368,11 @@ SELECT id,
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
   frozen_identity_stale AS "frozen_identity_stale!",
-  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!"
+  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!",
+  starts_enrolment_checks AS "starts_enrolment_checks!",
+  check_group AS "check_group!: EnrolmentCheckGroup",
+  check_anchor_at AS "check_anchor_at!",
+  check_source AS "check_source!: EnrolmentCheckSource"
 FROM targets
 WHERE target IS NULL
   OR target <> state
@@ -314,6 +404,11 @@ LIMIT $1
             has_payload_snapshot: row.has_payload_snapshot,
             frozen_identity_stale: row.frozen_identity_stale,
             payload_unweighed_against_held_credit: row.payload_unweighed_against_held_credit,
+            check_start: row.starts_enrolment_checks.then_some(CheckStartFacts {
+                group: row.check_group,
+                anchor_at: row.check_anchor_at,
+                source: row.check_source,
+            }),
         })
         .collect())
 }
@@ -486,10 +581,11 @@ mod tests {
 
         link_student_number(tx.as_mut(), user).await;
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 1);
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
-        );
+        // Nobody has enrolled the moment they complete, so the first check waits for its rung.
+        let parked = get_by_id(tx.as_mut(), fixture.registration).await.unwrap();
+        assert_eq!(parked.state, CreditRegistrationState::NoUsableEnrolment);
+        assert_eq!(parked.enrolment_checked_at, None);
+        assert_eq!(parked.enrolment_check_step, Some(0));
 
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
     }
@@ -549,7 +645,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
 
         crate::course_module_completions::update_needs_to_be_reviewed(
@@ -575,7 +671,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
     }
 
@@ -602,7 +698,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
 
         let linked = crate::verified_student_numbers::get_by_user_id(tx.as_mut(), user)
@@ -680,26 +776,41 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn a_row_with_no_usable_enrolment_is_looked_at_again_when_its_recheck_falls_due() {
+    async fn a_parked_row_is_claimed_for_its_check_where_it_stands() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
+        crate::course_modules::update(
+            tx.as_mut(),
+            course_module.id,
+            &crate::course_modules::NewCourseModule::new(
+                course_module.course_id,
+                course_module.name.clone(),
+                course_module.order_number,
+            )
+            .set_enable_credit_registration_via_suotar(true),
+        )
+        .await
+        .unwrap();
+        crate::course_modules::set_register_eligible_new_completions_via_suotar(
+            tx.as_mut(),
+            course_module.id,
+            true,
+        )
+        .await
+        .unwrap();
         link_student_number(tx.as_mut(), user).await;
-        transition(
-            tx.as_mut(),
-            fixture.registration,
-            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
-        )
-        .await
-        .unwrap();
-        crate::credit_registrations::schedule_next_attempt(
-            tx.as_mut(),
-            fixture.registration,
-            Utc::now() + chrono::Duration::hours(24),
-        )
-        .await
-        .unwrap();
-
-        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
+        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
+        recompute(tx.as_mut(), &fixture).await;
+        let scope = RegistrationScope {
+            credit_registration_ids: vec![fixture.registration],
+            ..RegistrationScope::default()
+        };
+        let claim = async |conn: &mut PgConnection| {
+            crate::credit_registrations::claim_due_for_resolve(conn, &scope, 10)
+                .await
+                .unwrap()
+                .len()
+        };
+        assert_eq!(claim(tx.as_mut()).await, 0);
 
         crate::credit_registrations::schedule_next_attempt(
             tx.as_mut(),
@@ -708,11 +819,30 @@ mod tests {
         )
         .await
         .unwrap();
-        recompute(tx.as_mut(), &fixture).await;
+        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
+        assert_eq!(claim(tx.as_mut()).await, 1);
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
+
+        crate::credit_registrations::claim_enrolment_check(tx.as_mut(), fixture.registration)
+            .await
+            .unwrap();
+        assert_eq!(claim(tx.as_mut()).await, 0);
+        let answered = transition(
+            tx.as_mut(),
+            fixture.registration,
+            &Transition {
+                next_attempt_at: Some(Utc::now() - chrono::Duration::seconds(1)),
+                ..Transition::to(CreditRegistrationState::NoUsableEnrolment)
+            },
+        )
+        .await
+        .unwrap();
+        assert!(answered.enrolment_checked_at.is_some());
+        assert_eq!(answered.enrolment_check_claimed_until, None);
+        assert_eq!(claim(tx.as_mut()).await, 1);
     }
 
     /// Its payload is already frozen, so resolving the enrolment again would be a loop.
@@ -842,7 +972,7 @@ mod tests {
         );
         assert_eq!(
             state(tx.as_mut(), &mine).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
         assert_eq!(
             state(tx.as_mut(), &theirs).await,

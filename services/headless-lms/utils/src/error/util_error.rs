@@ -88,6 +88,18 @@ impl SuotarErrorVariant {
                 | Self::TransportNotDelivered
         )
     }
+
+    /// Whether the failure is Suotar or the network being down rather than anything about the
+    /// request, so the same request may succeed once they are back.
+    pub fn is_transient(self) -> bool {
+        matches!(
+            self,
+            Self::ServiceTemporarilyUnavailable
+                | Self::ServerError
+                | Self::TransportNotDelivered
+                | Self::TransportUnknown
+        )
+    }
 }
 
 /**

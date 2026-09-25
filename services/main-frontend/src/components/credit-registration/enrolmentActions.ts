@@ -1,6 +1,7 @@
 "use client"
 
 import { type QueryClient, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useRef } from "react"
 
 import {
   getMyCreditRegistrationEnrolmentBannersQueryKey,
@@ -8,6 +9,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import {
   dismissCreditRegistrationEnrolmentBanner,
+  recordMyEnrolmentPageVisit,
   requestCreditRegistrationEnrolmentRecheck,
 } from "@/generated/api/sdk.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
@@ -68,4 +70,33 @@ export const useDismissEnrolmentBanner = () => {
         await invalidateRegistrationViews(queryClient, registration.course_id),
     },
   )
+}
+
+const useRecordEnrolmentPageVisit = () =>
+  useToastMutation<void, unknown, string>(
+    async (courseModuleId) => {
+      await recordMyEnrolmentPageVisit({ path: { course_module_id: courseModuleId } })
+    },
+    { notify: false },
+  )
+
+/**
+ * Tells the backend the student is looking at the enrolment instructions, at most once per mount.
+ *
+ * The page polls its registration every 10 s; a `useRef` guard, not the polled data, is what keeps
+ * a 10-minute visit from firing the request sixty times. Silent on failure: this is a scheduling
+ * nudge, not something the student needs to know about.
+ */
+export const useRecordEnrolmentPageVisitOnce = (
+  courseModuleId: string,
+  shouldRecord: boolean,
+): void => {
+  const { mutate: recordVisit } = useRecordEnrolmentPageVisit()
+  const hasRecordedRef = useRef(false)
+  useEffect(() => {
+    if (shouldRecord && !hasRecordedRef.current) {
+      hasRecordedRef.current = true
+      recordVisit(courseModuleId)
+    }
+  }, [shouldRecord, courseModuleId, recordVisit])
 }

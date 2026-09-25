@@ -1942,6 +1942,7 @@ export type CreditRegistrationAlertId =
   | "confirmation_latency_regressed"
   | "pipeline_paused_globally"
   | "study_registry_student_number_conflicts"
+  | "roster_course_code_failing"
 
 export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
 
@@ -2332,8 +2333,8 @@ export type CreditRegistrationPhaseRow = {
    */
   process_name: string
   /**
-   * Live rows in `owned_states`, or `None` where there are none to own — which is not the same
-   * as an empty queue.
+   * Live rows in `owned_states` waiting on this phase, of `no_usable_enrolment` only those due a
+   * check, or `None` where there are none to own — which is not the same as an empty queue.
    */
   queue_depth?: number | null
   /**
@@ -2743,6 +2744,112 @@ export type EmailVerificationStatus = {
    */
   verification_enabled: boolean
 }
+
+export type EnrolmentCheckDashboard = {
+  daily_costs: Array<SuotarEndpointDailyCost>
+  findings: Array<EnrolmentCheckFindings>
+  lateness: Array<EnrolmentCheckLateness>
+  population: Array<EnrolmentCheckPopulation>
+  /**
+   * What the worker last reported; empty until it has run.
+   */
+  rate_limits: Array<SuotarEndpointRateLimit>
+  roster_codes: Array<EnrolmentCheckRosterCode>
+  /**
+   * Lateness past this counts as very late.
+   */
+  very_late_after_secs: number
+}
+
+/**
+ * What the checks of one group, step and source found.
+ */
+export type EnrolmentCheckFindings = {
+  check_count: number
+  enrolment_check_group: EnrolmentCheckGroup
+  /**
+   * `None` for checks of rows whose schedule had run out.
+   */
+  enrolment_check_step?: number | null
+  found_count: number
+  /**
+   * Time from the enrolment, as Sisu records it, to the check that found it; over the finds
+   * that carry an enrolment time.
+   */
+  p50_detection_secs?: number | null
+  p95_detection_secs?: number | null
+  source: EnrolmentCheckSource
+}
+
+/**
+ * How strongly a student has signalled that they are enrolling, which picks the ladder. Ordered: a
+ * row only ever moves to a later variant.
+ */
+export type EnrolmentCheckGroup = "completed" | "visited" | "check_requested"
+
+/**
+ * How late schedule checks of one group and step ran against their ladder time.
+ */
+export type EnrolmentCheckLateness = {
+  check_count: number
+  enrolment_check_group: EnrolmentCheckGroup
+  enrolment_check_step: number
+  max_late_secs: number
+  p50_late_secs: number
+  p95_late_secs: number
+  /**
+   * Checks more than [`VERY_LATE_SECS`] late.
+   */
+  very_late_count: number
+}
+
+/**
+ * How many rows wait for an enrolment in one group and step.
+ */
+export type EnrolmentCheckPopulation = {
+  enrolment_check_group: EnrolmentCheckGroup
+  /**
+   * `None` for rows whose schedule has run out.
+   */
+  enrolment_check_step?: number | null
+  /**
+   * Of those, how many have never been checked.
+   */
+  never_checked_count: number
+  row_count: number
+}
+
+/**
+ * One course code's roster schedule as it stands.
+ */
+export type EnrolmentCheckRosterCode = {
+  consecutive_failures: number
+  course_code: string
+  is_fetched_alone: boolean
+  last_error?: null | CreditRegistrationErrorCode
+  last_fetch_duration_ms?: number | null
+  last_fetched_at?: string | null
+  last_listed_person_count?: number | null
+  module_count: number
+  /**
+   * When a trigger or the tier next makes it due; `None` when neither will.
+   */
+  next_fetch_at?: string | null
+  retry_not_before?: string | null
+  tier: RosterTier
+  triggered_fetch_count_today: number
+}
+
+/**
+ * What made an enrolment check run when it did.
+ */
+export type EnrolmentCheckSource =
+  | "schedule"
+  | "student_request"
+  | "teacher_request"
+  | "admin_request"
+  | "roster_listing"
+  | "account_link"
 
 export type EventInfo = {
   count?: number | null
@@ -3436,11 +3543,6 @@ export type MyStudiesCourseModule = {
   automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
-  /**
-   * Whether a credit registration exists or is about to for this student's completion, so a
-   * completion without one yet is on its way rather than never coming.
-   */
-  credit_registration_expected: boolean
   ects_credits?: number | null
   /**
    * `None` for the course's default module; the frontend labels those with the course name.
@@ -3464,6 +3566,7 @@ export type MyStudiesCourseModule = {
    * manually or sets no point threshold.
    */
   score_required?: number | null
+  status_before_registration?: null | StudentFacingCreditRegistrationStatus
   /**
    * Whether this student's credits for the module go through credit registration via Suotar: the
    * flag of the completion [`models::course_module_completions::select_registration_completion`]
@@ -4478,6 +4581,11 @@ export type RoleUser = {
   user_id: string
 }
 
+/**
+ * How often a code is listed without a trigger.
+ */
+export type RosterTier = "active" | "idle" | "dormant" | "unlisted"
+
 export type SaveCourseDesignerScheduleRequest = {
   name?: string | null
   stages: Array<CourseDesignerScheduleStageInput>
@@ -4708,6 +4816,42 @@ export type SuotarEndpoint =
   | "verify_attainments"
   | "list_by_course"
   | "validate_course_codes"
+
+/**
+ * One endpoint's calls on one UTC day: what the enrolment check pacing costs Suotar.
+ */
+export type SuotarEndpointDailyCost = {
+  call_count: number
+  day: string
+  endpoint: SuotarEndpoint
+  failed_call_count: number
+  item_count: number
+  max_items_per_call: number
+  p50_duration_ms?: number | null
+  p95_duration_ms?: number | null
+}
+
+export type SuotarEndpointRateLimit = {
+  /**
+   * Items, or requests, that could go out right now.
+   */
+  available: number
+  breaker_trip_count: number
+  endpoint: SuotarEndpoint
+  /**
+   * Items per minute, or requests per minute for `list_by_course`.
+   */
+  full_rate_per_minute: number
+  is_breaker_open: boolean
+  /**
+   * The share of the full rate allowed, from 0.1 up to 1.
+   */
+  rate_share: number
+  /**
+   * When the worker last reported the state.
+   */
+  updated_at: string
+}
 
 /**
  * Where one study registry endpoint stands, over all time.
@@ -4950,11 +5094,6 @@ export type UserCompletionInformation = {
    * asked and answered. Advisory; it seeds the field when they come back to the page.
    */
   credit_justification?: string | null
-  /**
-   * Whether the push path will register this completion. With `register_credits_via_suotar`
-   * set and this false, no credit registration is ever created for it.
-   */
-  credit_registration_expected: boolean
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean
@@ -4964,6 +5103,11 @@ export type UserCompletionInformation = {
    * page shows: the module flag above only says the module takes part.
    */
   register_credits_via_suotar: boolean
+  /**
+   * What the student is told while the completion has no credit registration: `sending` when
+   * the push path will create one, `not_registering` when it never will.
+   */
+  status_before_registration: StudentFacingCreditRegistrationStatus
   /**
    * `None` only on a module registering through credit registration.
    */
@@ -9748,6 +9892,28 @@ export type AdminResumeCourseModuleCreditRegistrationResponses = {
   200: unknown
 }
 
+export type GetCreditRegistrationEnrolmentChecksData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * How far back to read checks and calls, in seconds
+     */
+    window_secs?: number
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/enrolment-checks"
+}
+
+export type GetCreditRegistrationEnrolmentChecksResponses = {
+  /**
+   * The enrolment check dashboard
+   */
+  200: EnrolmentCheckDashboard
+}
+
+export type GetCreditRegistrationEnrolmentChecksResponse =
+  GetCreditRegistrationEnrolmentChecksResponses[keyof GetCreditRegistrationEnrolmentChecksResponses]
+
 export type GetCreditRegistrationErrorsByCodeData = {
   body?: never
   path?: never
@@ -10366,6 +10532,32 @@ export type SetMyCreditJustificationResponses = {
 
 export type SetMyCreditJustificationResponse =
   SetMyCreditJustificationResponses[keyof SetMyCreditJustificationResponses]
+
+export type RecordMyEnrolmentPageVisitData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit"
+}
+
+export type RecordMyEnrolmentPageVisitErrors = {
+  /**
+   * No completion on the push path for this module
+   */
+  404: unknown
+}
+
+export type RecordMyEnrolmentPageVisitResponses = {
+  /**
+   * The visit is recorded
+   */
+  200: unknown
+}
 
 export type GetMyEnrolmentRouteData = {
   body?: never

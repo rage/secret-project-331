@@ -6,6 +6,8 @@ pub mod account_linking;
 pub mod backoff;
 pub mod classification;
 pub mod config_validation;
+pub mod enrolment_check_schedule;
+pub mod enrolment_checks;
 pub mod enrolment_selection;
 pub mod grade_mapping;
 pub mod legacy_mirror;

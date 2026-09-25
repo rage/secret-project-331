@@ -11,7 +11,8 @@ use headless_lms_models::library::credit_registration::materialize::get_unmateri
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     course_module_suotar_configurations, credit_registration_account_linking_emails,
-    credit_registration_events, credit_registration_phase_state, credit_registrations,
+    credit_registration_events, credit_registration_phase_state,
+    credit_registration_roster_schedules, credit_registrations,
     study_registry_student_number_conflicts, suotar_api_calls,
 };
 use utoipa::ToSchema;
@@ -101,6 +102,7 @@ pub enum CreditRegistrationAlertId {
     ConfirmationLatencyRegressed,
     PipelinePausedGlobally,
     StudyRegistryStudentNumberConflicts,
+    RosterCourseCodeFailing,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, ToSchema)]
@@ -240,6 +242,9 @@ pub async fn evaluate(
         alerts.push(alert);
     }
     if let Some(alert) = study_registry_conflict_alert(conn).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = roster_course_code_alert(conn).await? {
         alerts.push(alert);
     }
 
@@ -388,6 +393,7 @@ async fn phase_alerts(
     depths: &[(CreditRegistrationState, i64)],
 ) -> ModelResult<Vec<CreditRegistrationAlert>> {
     let phases = credit_registration_phase_state::get_all(conn).await?;
+    let due_enrolment_checks = credit_registrations::count_due_enrolment_checks(conn).await?;
     let mut stale: Vec<&str> = Vec::new();
     let mut failing: Vec<&str> = Vec::new();
     let mut paused = 0;
@@ -411,7 +417,9 @@ async fn phase_alerts(
             crate::domain::credit_registration_phases::CreditRegistrationPhase::from_phase_name(
                 &phase.phase,
             );
-        let owns_work = known_phase.is_some_and(|known| owned_depth(known, depths) > 0);
+        let owns_work = known_phase.is_some_and(|known| {
+            known.queue_depth(|state| depth_of(depths, state), due_enrolment_checks) > 0
+        });
         let slowest_iteration_secs = known_phase.map_or(0, |known| {
             known.max_study_registry_wait().as_secs() as i64 + PHASE_SUCCESS_CALL_MARGIN_SECS
         });
@@ -636,22 +644,31 @@ async fn study_registry_conflict_alert(
     }))
 }
 
+/// Course codes whose roster fails even when listed on their own, so enrolment discovery is backing
+/// them off. The worst one rides along, since the usual cause is that one code's configuration.
+async fn roster_course_code_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let failing = credit_registration_roster_schedules::get_failing_codes(conn).await?;
+    let Some(worst) = failing.first() else {
+        return Ok(None);
+    };
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::RosterCourseCodeFailing,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count: i64::try_from(failing.len()).unwrap_or(i64::MAX),
+        total: None,
+        at: worst.last_attempted_at,
+        subject: Some(worst.course_code.clone()),
+    }))
+}
+
 fn depth_of(depths: &[(CreditRegistrationState, i64)], state: CreditRegistrationState) -> i64 {
     depths
         .iter()
         .find(|(row_state, _)| *row_state == state)
         .map_or(0, |(_, count)| *count)
-}
-
-fn owned_depth(
-    phase: crate::domain::credit_registration_phases::CreditRegistrationPhase,
-    depths: &[(CreditRegistrationState, i64)],
-) -> i64 {
-    phase
-        .owned_states()
-        .iter()
-        .map(|state| depth_of(depths, *state))
-        .sum()
 }
 
 /// The state's own wire name, taken from its serialisation so the two cannot drift.

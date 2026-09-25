@@ -177,6 +177,26 @@ export const upsertMockSuotarEnrolments = (
   enrolments: MockSuotarEnrolmentUpsert[],
 ) => sendCommand(request, { command: "upsertEnrolments", enrolments })
 
+/** A course unit in the registry's world, by its course code. */
+export interface MockSuotarCourseUnitUpsert {
+  courseCode: string
+  name?: { fi: string; sv: string; en: string }
+  /** `max: null` is an open range, which Suotar refuses to import against. */
+  credits?: { min: number; max: number | null }
+  gradeScaleId?: string
+  realisations: { kind: MockSuotarRealisationKind; activityPeriod: MockSuotarDatePeriod }[]
+  /** Omitted is a code Suotar does not carry, which it refuses every import on. */
+  suotarCourse?: { name: string }
+  /** The course slug a fault's `owner.course` resolves to this code. */
+  ownerCourseSlug?: string
+}
+
+/** A course unit the registry knows, for a spec that brings a course code of its own. */
+export const upsertMockSuotarCourseUnits = (
+  request: APIRequestContext,
+  courseUnits: MockSuotarCourseUnitUpsert[],
+) => sendCommand(request, { command: "upsertCourseUnits", courseUnits })
+
 export interface MockSuotarAttainmentUpsert {
   id?: string
   studentNumber: string

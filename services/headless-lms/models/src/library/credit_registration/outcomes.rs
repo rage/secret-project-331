@@ -155,13 +155,11 @@ pub fn submit_error_outcome(
     use CreditRegistrationErrorCode as Code;
     // An unclassifiable answer is no evidence that nothing was created, and an admin retry from
     // `failed_permanent` would then be a second submission.
-    if endpoint == SuotarEndpoint::ImportAttainments && code == Code::Unknown {
+    if endpoint.creates_attainments() && code == Code::Unknown {
         return submission_uncertain();
     }
     match retryability(code) {
-        Retryability::VerifyOnly if endpoint == SuotarEndpoint::ImportAttainments => {
-            submission_uncertain()
-        }
+        Retryability::VerifyOnly if endpoint.creates_attainments() => submission_uncertain(),
         Retryability::VerifyOnly | Retryability::RetryableTransient => {
             retry_or_expire(code, endpoint, facts, Failure::Transient)
         }
@@ -267,7 +265,7 @@ pub fn request_level_outcome(
     variant: SuotarErrorVariant,
     facts: &RowFacts,
 ) -> Outcome {
-    if endpoint == SuotarEndpoint::ImportAttainments && variant.outcome_may_have_landed() {
+    if endpoint.creates_attainments() && variant.outcome_may_have_landed() {
         return submission_uncertain();
     }
     let failure = if variant.is_transient() {
@@ -308,7 +306,7 @@ pub fn unanswered_item_outcome(
     state: CreditRegistrationState,
     facts: &RowFacts,
 ) -> Outcome {
-    if endpoint == SuotarEndpoint::ImportAttainments {
+    if endpoint.creates_attainments() {
         return submission_uncertain();
     }
     if endpoint == SuotarEndpoint::VerifyAttainments {

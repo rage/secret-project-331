@@ -191,7 +191,7 @@ impl SuotarBatchPhase for VerifyPoll {
 
     /// Deliberately not the shared request-level outcome: a failure to ask proves nothing was or
     /// was not created, and moving the row towards `failed_retryable` would let an admin resubmit
-    /// it. The iteration is still reported as failed, so the breaker sees it.
+    /// it. The iteration still reports the refusal, and the gate still records it.
     fn on_refusal(&self, poll: &Self::Row) -> Refusal {
         Refusal::KeepWaiting {
             outcome: verify_inconclusive_outcome(poll.row.state, &poll.facts()),

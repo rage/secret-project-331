@@ -703,8 +703,8 @@ impl SuotarErrorVariant {
     }
 }
 
-/// A Suotar call that got no batch response. [`SuotarError::variant`] is the whole decision a
-/// caller makes from it; the message and the source are for the logs and the audit trail.
+/// A Suotar call that got no batch response. [`SuotarError::variant`] and [`SuotarError::was_sent`]
+/// are what a caller decides by; the message and the source are for the logs and the audit trail.
 #[derive(Debug)]
 pub struct SuotarError {
     pub variant: SuotarErrorVariant,

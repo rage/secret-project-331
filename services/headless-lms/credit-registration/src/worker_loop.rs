@@ -31,9 +31,9 @@ const TICK_INTERVAL: Duration = Duration::from_secs(10);
 /// Ten minutes of ticks. The per-phase heartbeat in the database is the machine-readable half.
 const STILL_RUNNING_MESSAGE_TICKS: u32 = 60;
 
-/// Runs the phases `process` owns until SIGTERM or Ctrl-C. Each phase loops on its own, so an hour-long call in
-/// one does not hold up the others. On shutdown no phase starts another iteration, and the function
-/// returns once the iterations already running have finished.
+/// Runs the phases `process` owns until SIGTERM or Ctrl-C. Each phase loops on its own, so an
+/// hour-long call in one does not hold up the others. On shutdown no phase starts another
+/// iteration, and the function returns once the iterations already running have finished.
 pub async fn run(
     process: WorkerProcess,
     db_pool: PgPool,

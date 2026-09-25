@@ -123,6 +123,17 @@
             "name": "page_id"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "category_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "category_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -140,6 +151,7 @@
       false,
       false,
       false,
+      true,
       true,
       true,
       true,

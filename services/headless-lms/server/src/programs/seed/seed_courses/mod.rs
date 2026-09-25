@@ -1880,6 +1880,7 @@ pub async fn seed_sample_course(
             order_number: Some(0),
         }],
         page_id: page_3,
+        category: None,
     };
     let feedback = feedback::insert(
         &mut conn,
@@ -1911,6 +1912,7 @@ pub async fn seed_sample_course(
             },
         ],
         page_id: page_3,
+        category: None,
     };
     feedback::insert(
         &mut conn,
@@ -1934,6 +1936,7 @@ pub async fn seed_sample_course(
                 order_number: Some(0),
             }],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;
@@ -1947,6 +1950,7 @@ pub async fn seed_sample_course(
             selected_text: None,
             related_blocks: vec![],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;

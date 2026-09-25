@@ -5560,6 +5560,16 @@
         "type": "object",
         "required": ["feedback_given", "related_blocks", "page_id"],
         "properties": {
+          "category": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NewFeedbackCategory"
+              }
+            ]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -5575,6 +5585,15 @@
           },
           "selected_text": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "NewFeedbackCategory": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
           }
         }
       },

@@ -153,6 +153,7 @@ import {
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
   getCourseFeedback,
+  getCourseFeedbackCategories,
   getCourseFeedbackCount,
   getCourseFlaggedSuspectedCheatersCount,
   getCourseGlossary,
@@ -207,7 +208,6 @@ import {
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
-  getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
   getEmailVerificationCodeForTestMode,
@@ -647,6 +647,8 @@ import type {
   GetCourseExercisesResponse,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponse,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponse,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponse,
   GetCourseFeedbackData,
@@ -754,8 +756,6 @@ import type {
   GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
-  GetEditProposalCountData,
-  GetEditProposalCountResponse,
   GetEditProposalsData,
   GetEditProposalsResponse,
   GetEmailTemplatesData,
@@ -4016,6 +4016,33 @@ export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedb
   )
   return opts as Omit<typeof opts, "initialData">
 }
+
+export const getCourseFeedbackCategoriesQueryKey = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) => createQueryKey("getCourseFeedbackCategories", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategoriesOptions = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) =>
+  queryOptions<
+    GetCourseFeedbackCategoriesResponse,
+    DefaultError,
+    GetCourseFeedbackCategoriesResponse,
+    ReturnType<typeof getCourseFeedbackCategoriesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseFeedbackCategories({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseFeedbackCategoriesQueryKey(options),
+  })
 
 export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbackCountData>) =>
   createQueryKey("getCourseFeedbackCount", options)
@@ -10923,30 +10950,6 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
   )
   return opts as Omit<typeof opts, "initialData">
 }
-
-export const getEditProposalCountQueryKey = (options: Options<GetEditProposalCountData>) =>
-  createQueryKey("getEditProposalCount", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCountOptions = (options: Options<GetEditProposalCountData>) =>
-  queryOptions<
-    GetEditProposalCountResponse,
-    DefaultError,
-    GetEditProposalCountResponse,
-    ReturnType<typeof getEditProposalCountQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getEditProposalCount({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getEditProposalCountQueryKey(options),
-  })
 
 /**
  *

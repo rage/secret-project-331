@@ -6,7 +6,10 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_chatbot::feedback_categorization::categorize_feedback;
+use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
+use headless_lms_models::feedback_categories::NewFeedbackCategory;
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -762,9 +765,10 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     )
 )]
 pub async fn feedback(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
-    pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
@@ -798,9 +802,44 @@ pub async fn feedback(
         }
     }
 
-    let mut tx = conn.begin().await?;
+    let task_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::MessageSuggestion,
+    )
+    .await
+    .ok();
+    let feedback_categories = models::feedback_categories::get_all(&mut conn, *course_id).await?;
     let mut ids = vec![];
+    let mut new = vec![];
     for f in fs {
+        let new_feedback = if let Some(llm) = &task_llm {
+            match categorize_feedback(&app_conf, llm, &f, &feedback_categories).await {
+                Ok(val) => NewFeedback {
+                    category: Some(NewFeedbackCategory {
+                        name: val.category_name,
+                    }),
+                    ..f
+                },
+                Err(e) => {
+                    error!("Failed to categorise feedback: {e}");
+                    // remove the category if there happened to be one in the payload.
+                    // only accept categories assinged by the LLM
+                    NewFeedback {
+                        category: None,
+                        ..f
+                    }
+                }
+            }
+        } else {
+            NewFeedback {
+                category: None,
+                ..f
+            }
+        };
+        new.push(new_feedback)
+    }
+    let mut tx = conn.begin().await?;
+    for f in new {
         let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }

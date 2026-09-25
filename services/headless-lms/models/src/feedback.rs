@@ -1,4 +1,7 @@
-use crate::prelude::*;
+use crate::{
+    feedback_categories::{self, NewFeedbackCategory},
+    prelude::*,
+};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
@@ -8,6 +11,7 @@ pub struct NewFeedback {
     pub selected_text: Option<String>,
     pub related_blocks: Vec<FeedbackBlock>,
     pub page_id: Uuid,
+    pub category: Option<NewFeedbackCategory>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -21,6 +25,9 @@ pub struct FeedbackBlock {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct FeedbackRow {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
@@ -28,9 +35,7 @@ pub struct FeedbackRow {
     pub feedback_given: String,
     pub selected_text: Option<String>,
     pub marked_as_read: bool,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
+    pub category_id: Option<Uuid>,
 }
 
 pub async fn insert(
@@ -41,6 +46,16 @@ pub async fn insert(
     new_feedback: NewFeedback,
 ) -> ModelResult<Uuid> {
     let mut tx = conn.begin().await?;
+    let category_id = if let Some(category) = new_feedback.category {
+        // if inserting the category fails for some reason, let's still try to insert
+        // the feedback.
+        feedback_categories::insert(&mut tx, category)
+            .await
+            .inspect_err(|e| error!("Error while inserting new feedback cateogry: {e}"))
+            .ok()
+    } else {
+        None
+    };
     let res = sqlx::query!(
         "
 INSERT INTO feedback(
@@ -49,9 +64,10 @@ INSERT INTO feedback(
     course_id,
     feedback_given,
     selected_text,
-    page_id
+    page_id,
+    category_id
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -59,7 +75,8 @@ RETURNING *
         course_id,
         new_feedback.feedback_given,
         new_feedback.selected_text,
-        new_feedback.page_id
+        new_feedback.page_id,
+        category_id
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -151,59 +168,80 @@ pub struct Feedback {
     pub blocks: Vec<FeedbackBlock>,
     pub page_title: String,
     pub page_url_path: String,
+    pub feedback_category_name: Option<String>,
+    pub feedback_category_id: Option<Uuid>,
 }
 
 pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
+    category_filter: Option<String>,
     read: bool,
     pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
+    let fc = if let Some(cf) = category_filter {
+        feedback_categories::get_by_name(conn, &cf)
+            .await?
+            .map(|x| x.name)
+    } else {
+        None
+    };
+    // empty string if None
+    let name = fc.as_slice().join("");
+
     let res = sqlx::query!(
         r#"
 SELECT fb.*,
-  pages.title as "page_title",
-  pages.url_path as "page_url_path"
+  pages.title AS "page_title",
+  pages.url_path AS "page_url_path"
 FROM (
-    SELECT feedback.id as "id!",
+    SELECT feedback.id AS "id!",
       feedback.user_id,
-      feedback.course_id as "course_id!",
+      feedback.course_id AS "course_id!",
       feedback.page_id,
-      feedback.feedback_given as "feedback_given!",
+      feedback.feedback_given AS "feedback_given!",
       feedback.selected_text,
-      feedback.marked_as_read as "marked_as_read!",
-      feedback.created_at as "created_at!",
+      feedback.marked_as_read AS "marked_as_read!",
+      feedback.created_at AS "created_at!",
+      feedback.category_id,
+      feedback_categories.name AS "feedback_category_name: Option<String>",
       array_agg(block_feedback.block_id) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_ids: Vec<Uuid>",
       array_agg(block_feedback.block_text) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_texts: Vec<Option<String>>",
       array_agg(block_feedback.order_number) filter (
-        where block_feedback.block_id IS NOT NULL
+        WHERE block_feedback.block_id IS NOT NULL
       ) AS "block_order_numbers: Vec<Option<i32>>"
     FROM feedback
       LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
+      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id AND feedback_categories.deleted_at IS NULL
     WHERE course_id = $1
       AND feedback.marked_as_read = $2
       AND feedback.deleted_at IS NULL
       AND block_feedback.deleted_at IS NULL
+      AND COALESCE(feedback_categories.name, '') LIKE '%' || $5 || ''
     GROUP BY feedback.id,
       feedback.user_id,
       feedback.course_id,
       feedback.feedback_given,
       feedback.marked_as_read,
-      feedback.created_at
+      feedback.created_at,
+      feedback_categories.name
     ORDER BY feedback.created_at DESC,
       feedback.id
     LIMIT $3 OFFSET $4
   ) fb
-  JOIN pages on pages.id = fb.page_id
-"#,
+  JOIN pages ON pages.id = fb.page_id
+  ORDER BY fb."created_at!" DESC,
+      fb."id!"
+        "#,
         course_id,
         read,
         pagination.limit(),
         pagination.offset(),
+        name
     )
     .map(|r| Feedback {
         id: r.id,
@@ -228,6 +266,8 @@ FROM (
             .collect(),
         page_title: r.page_title,
         page_url_path: r.page_url_path,
+        feedback_category_name: r.feedback_category_name,
+        feedback_category_id: r.category_id,
     })
     .fetch_all(conn)
     .await?;

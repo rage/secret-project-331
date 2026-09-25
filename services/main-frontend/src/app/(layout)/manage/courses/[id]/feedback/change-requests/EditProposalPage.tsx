@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import {
+  getCourseFeedbackCountQueryKey,
   getEditProposalsOptions,
   processEditProposalMutation as processProposalMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -31,6 +32,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const getEditProposalList = useQuery({
     ...getEditProposalsOptions({
       path: {
@@ -43,10 +45,20 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
-  const processProposalMutation = useToastMutationOptions(processProposalMutationOptions(), {
-    notify: true,
-    method: "POST",
-  })
+  const processProposalMutation = useToastMutationOptions(
+    processProposalMutationOptions(),
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
+        })
+      },
+    },
+  )
 
   async function handleProposal(
     pageId: string,

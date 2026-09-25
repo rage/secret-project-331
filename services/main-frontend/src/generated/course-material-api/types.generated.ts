@@ -886,10 +886,15 @@ export type NewCourseBackgroundQuestionAnswer = {
 }
 
 export type NewFeedback = {
+  category?: null | NewFeedbackCategory
   feedback_given: string
   page_id: string
   related_blocks: Array<FeedbackBlock>
   selected_text?: string | null
+}
+
+export type NewFeedbackCategory = {
+  name: string
 }
 
 export type NewFlaggedAnswerWithToken = {

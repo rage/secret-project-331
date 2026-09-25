@@ -80,6 +80,7 @@ pub mod exercise_tasks;
 pub mod exercises;
 pub mod external_courses;
 pub mod feedback;
+pub mod feedback_categories;
 pub mod file_uploads;
 pub mod flagged_answers;
 pub mod generated_certificates;

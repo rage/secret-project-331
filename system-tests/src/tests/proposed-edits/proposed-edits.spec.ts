@@ -114,7 +114,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 
-  await page.getByText("Change requests").click()
+  await page.getByText("Feedback").click()
+  await page.getByText("Feedback and change requests").last().waitFor()
+  await page.getByRole("tab", { name: "Change requests" }).click()
   await page.getByText("Accept").first().waitFor({ state: "visible" })
 
   await page.click(':nth-match(:text("Accept"), 1)')
@@ -127,7 +129,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     await page.click('text="Send"')
   })
 
-  await page.click('text="Old"')
+  await page.click('text="Handled"')
 
   await page.getByRole("tab", { name: "Pending" }).click()
 

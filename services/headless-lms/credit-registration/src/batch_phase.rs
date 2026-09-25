@@ -168,7 +168,11 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             .map(|item| item.request_item_id().to_string())
             .collect();
 
-        it.registry.spend(endpoint, rows.len());
+        if has_split {
+            it.registry.spend_split(endpoint, rows.len());
+        } else {
+            it.registry.spend(endpoint, rows.len());
+        }
         let call = it
             .call_context()
             .for_registrations(rows.iter().map(|row| row.as_ref().id).collect());

@@ -194,8 +194,10 @@ async fn list(
     let response = match response {
         Ok(response) => response,
         Err(error) => {
+            // An outage fails a code listed alone as surely as a batch, so it still counts as one.
             let is_known_bad_code = matches!(request, [only] if only.is_fetched_alone)
-                && blames_the_codes(error.variant);
+                && blames_the_codes(error.variant)
+                && !error.variant.is_transient();
             it.registry.record(
                 ENDPOINT,
                 if is_known_bad_code {

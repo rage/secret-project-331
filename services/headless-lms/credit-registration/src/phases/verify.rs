@@ -5,9 +5,9 @@
 //! it twice. The one way back to `import` is Suotar itself answering `notRegistered`.
 
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, claim_due,
-    increment_verify_attempt_counts, mark_partially_registered, reset_for_resubmission,
-    schedule_next_attempts,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, VerifyFlow,
+    claim_due_for_verify, increment_verify_attempt_counts, mark_partially_registered,
+    reset_for_resubmission, schedule_next_attempts,
 };
 use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
@@ -32,19 +32,11 @@ use crate::error::CreditRegistrationResult;
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::VerifyAttainments;
 
-/// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
-/// without any query having to know about withdrawal.
-const CLAIMED_STATES: [CreditRegistrationState; 2] = [
-    CreditRegistrationState::AwaitingVerification,
-    CreditRegistrationState::SubmissionUncertain,
-];
-
 /// One claimed row and the poll it was claimed for. The attempt count travels with it because it
 /// sets the backoff the answer is scheduled by.
 struct Poll {
     row: CreditRegistration,
     attempt: i32,
-    submitted_attainment_id: String,
 }
 
 /// A row whose submission we lost track of: nothing to poll by, so the lookup goes through
@@ -55,100 +47,43 @@ struct Recovery {
 }
 
 pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
-    let (polls, mut recoveries) = claim_polls(
-        it,
-        it.registry.allowance(SuotarEndpoint::VerifyAttainments),
-        it.registry.allowance(SuotarEndpoint::ResolveEnrolments),
-    )
-    .await?;
-
-    let mut counts = Counts::default();
-    if !polls.is_empty() {
-        counts += run_suotar_batch_phase(&mut VerifyPoll { polls }, it).await?;
-    }
-    // Recoveries go out on `resolve-enrolments`, whose batch limit need not match the one these rows
-    // were claimed at, and an oversized set would be refused whole before anything was sent.
-    let batch_size = SuotarEndpoint::ResolveEnrolments.max_batch_size();
-    while !recoveries.is_empty() {
-        let rest = recoveries.split_off(batch_size.min(recoveries.len()));
-        counts += run_suotar_batch_phase(&mut UncertainRecovery { recoveries }, it).await?;
-        recoveries = rest;
-    }
+    let mut counts = run_suotar_batch_phase(&mut VerifyPoll, it).await?;
+    counts += run_suotar_batch_phase(&mut UncertainRecovery, it).await?;
     Ok(counts)
 }
 
-/// Claims up to `poll_limit` due rows and splits them into polls and recoveries, keeping at most
-/// `recovery_limit` of the recoveries. Only the rows kept, and the stuck ones, count an attempt and
-/// are leased: the rest are left due, rather than counted as polled without having been asked.
-async fn claim_polls(
+/// Claims up to `limit` of `flow`'s due rows, counts an attempt on each and leases it until its
+/// poll's backoff, so a concurrent iteration cannot poll the same row. Each answer overwrites its
+/// own row's schedule. Returns each row with the attempt it is polled under.
+async fn claim_and_lease(
+    conn: &mut PgConnection,
     it: &Iteration<'_>,
-    poll_limit: usize,
-    recovery_limit: usize,
-) -> CreditRegistrationResult<(Vec<Poll>, Vec<Recovery>)> {
-    if poll_limit == 0 {
-        return Ok((Vec::new(), Vec::new()));
-    }
-    let mut conn = it.ctx.pool.acquire().await?;
-    let mut tx = conn.begin().await?;
-    let claimed = claim_due(&mut tx, &CLAIMED_STATES, it.scope, poll_limit as i64).await?;
-    let mut recovery_count = 0;
-    let kept: Vec<CreditRegistration> = claimed
-        .into_iter()
-        .filter(|row| {
-            let is_recovery = row.submitted_attainment_id.is_none()
-                && row.state == CreditRegistrationState::SubmissionUncertain;
-            if !is_recovery {
-                return true;
-            }
-            recovery_count += 1;
-            recovery_count <= recovery_limit
-        })
-        .collect();
+    flow: VerifyFlow,
+    limit: usize,
+) -> CreditRegistrationResult<Vec<(CreditRegistration, i32)>> {
+    let claimed = claim_due_for_verify(conn, flow, it.scope, limit as i64).await?;
     let attempts = increment_verify_attempt_counts(
-        &mut tx,
-        &kept.iter().map(|row| row.id).collect::<Vec<_>>(),
+        conn,
+        &claimed.iter().map(|row| row.id).collect::<Vec<_>>(),
     )
     .await?;
-    // Pushed out of reach before the request leaves, so a concurrent iteration cannot poll the same
-    // row. Each answer overwrites its own row's schedule.
     let now = Utc::now();
     let scheduled: Vec<_> = attempts
         .iter()
         .map(|(id, attempt)| (*id, verify_poll_lease_until(now, *attempt)))
         .collect();
-    schedule_next_attempts(&mut tx, &scheduled).await?;
-
-    let mut polls = Vec::new();
-    let mut recoveries = Vec::new();
-    for row in kept {
-        let Some(attempt) = attempts.get(&row.id).copied() else {
-            continue;
-        };
-        match row.submitted_attainment_id.clone() {
-            Some(submitted_attainment_id) => polls.push(Poll {
-                row,
-                attempt,
-                submitted_attainment_id,
-            }),
-            None if row.state == CreditRegistrationState::SubmissionUncertain => {
-                recoveries.push(Recovery { row, attempt })
-            }
-            None => {
-                error!(
-                    credit_registration_id = %row.id,
-                    "Credit registration is awaiting verification with no submitted attainment id; stuck"
-                );
-            }
-        }
-    }
-    tx.commit().await?;
-    Ok((polls, recoveries))
+    schedule_next_attempts(conn, &scheduled).await?;
+    Ok(claimed
+        .into_iter()
+        .filter_map(|row| {
+            let attempt = attempts.get(&row.id).copied()?;
+            Some((row, attempt))
+        })
+        .collect())
 }
 
 /// Polls the rows that have something to poll by.
-struct VerifyPoll {
-    polls: Vec<Poll>,
-}
+struct VerifyPoll;
 
 impl SuotarBatchPhase for VerifyPoll {
     type Endpoint = endpoints::VerifyAttainments;
@@ -156,27 +91,30 @@ impl SuotarBatchPhase for VerifyPoll {
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
 
-    /// The rows were claimed by [`claim_polls`], at this endpoint's limit, so there is nothing left
-    /// to decide here.
+    /// A row stuck without a submitted attainment id is leased like the rest, so it is not claimed
+    /// again every iteration, but never sent.
     async fn claim(
         &mut self,
-        _it: &Iteration<'_>,
-        _conn: &mut PgConnection,
-        _limit: usize,
+        it: &Iteration<'_>,
+        conn: &mut PgConnection,
+        limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, VerifyAttainmentRequestItem>> {
-        Ok(Prepared {
-            sendable: std::mem::take(&mut self.polls)
-                .into_iter()
-                .map(|poll| {
-                    let item = VerifyAttainmentRequestItem {
-                        request_item_id: new_request_item_id(),
-                        submitted_attainment_id: poll.submitted_attainment_id.clone(),
-                    };
-                    (poll, item)
-                })
-                .collect(),
-            ..Prepared::default()
-        })
+        let mut prepared = Prepared::default();
+        for (row, attempt) in claim_and_lease(conn, it, VerifyFlow::Poll, limit).await? {
+            let Some(submitted_attainment_id) = row.submitted_attainment_id.clone() else {
+                error!(
+                    credit_registration_id = %row.id,
+                    "Credit registration is awaiting verification with no submitted attainment id; stuck"
+                );
+                continue;
+            };
+            let item = VerifyAttainmentRequestItem {
+                request_item_id: new_request_item_id(),
+                submitted_attainment_id,
+            };
+            prepared.sendable.push((Poll { row, attempt }, item));
+        }
+        Ok(prepared)
     }
 
     async fn apply(
@@ -318,9 +256,7 @@ fn decide_poll<'a>(
 
 /// Looks for the attainment a submission we lost track of would have produced. The row stays
 /// `submission_uncertain` unless it is found: never failed, never re-imported.
-struct UncertainRecovery {
-    recoveries: Vec<Recovery>,
-}
+struct UncertainRecovery;
 
 impl SuotarBatchPhase for UncertainRecovery {
     type Endpoint = endpoints::ResolveEnrolments;
@@ -328,16 +264,20 @@ impl SuotarBatchPhase for UncertainRecovery {
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
 
-    /// The rows were claimed by [`claim_polls`], already fit to this endpoint's limit. A row with
-    /// nothing to ask about is left where it is: it is uncertain, which no answer of ours may turn
-    /// into a failure, and it is already scheduled for the next check.
+    /// A row with nothing to ask about is left where it is: it is uncertain, which no answer of ours
+    /// may turn into a failure, and its lease already schedules the next check.
     async fn claim(
         &mut self,
-        _it: &Iteration<'_>,
+        it: &Iteration<'_>,
         conn: &mut PgConnection,
-        _limit: usize,
+        limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
-        let recoveries = std::mem::take(&mut self.recoveries);
+        let recoveries: Vec<Recovery> =
+            claim_and_lease(conn, it, VerifyFlow::UncertainRecovery, limit)
+                .await?
+                .into_iter()
+                .map(|(row, attempt)| Recovery { row, attempt })
+                .collect();
         let contexts = get_submission_contexts(
             conn,
             &recoveries
@@ -455,18 +395,4 @@ fn decide_recovery<'a>(
         "The credits this submission would have created are in Sisu, so it was registered after \
          all.",
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// The poller claims only the states a submission may still be in, never one import sends from.
-    #[test]
-    fn the_poller_owns_exactly_the_two_states_a_submission_can_still_be_in() {
-        assert!(CLAIMED_STATES.contains(&CreditRegistrationState::AwaitingVerification));
-        assert!(CLAIMED_STATES.contains(&CreditRegistrationState::SubmissionUncertain));
-        assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Submitting));
-        assert!(!CLAIMED_STATES.contains(&CreditRegistrationState::Cancelled));
-    }
 }

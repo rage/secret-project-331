@@ -11,6 +11,7 @@ use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::periodic_worker::is_db_disconnect;
 use tracing_error::SpanTrace;
 
+/// The result of anything that can fail with a [`CreditRegistrationError`].
 pub type CreditRegistrationResult<T> = Result<T, CreditRegistrationError>;
 
 /// The type of [`CreditRegistrationError`] that occurred.
@@ -23,6 +24,9 @@ pub enum CreditRegistrationErrorType {
     Database,
 }
 
+/// Why a credit registration phase iteration, or a controller calling into one, could not finish.
+/// A database failure mid-iteration is one; nothing Suotar answers is. For a models failure,
+/// [`Self::into_model_error`] recovers the [`ModelError`].
 pub struct CreditRegistrationError {
     error_type: <CreditRegistrationError as BackendError>::ErrorType,
     message: String,
@@ -117,6 +121,23 @@ impl CreditRegistrationError {
             }
             None => Err(self),
         }
+    }
+
+    /// The message and every cause under it, joined with `: `, for a plain-text record such as a
+    /// phase's last error. A cause whose text is already in the chain is left out, since each
+    /// wrapper's message repeats the error it wraps.
+    pub fn cause_chain(&self) -> String {
+        let mut chain = self.message.clone();
+        let mut cause = std::error::Error::source(self);
+        while let Some(error) = cause {
+            let text = error.to_string();
+            if !chain.contains(&text) {
+                chain.push_str(": ");
+                chain.push_str(&text);
+            }
+            cause = error.source();
+        }
+        chain
     }
 
     /// Whether the database connection was lost anywhere in the cause chain; see

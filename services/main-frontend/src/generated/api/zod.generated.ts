@@ -5329,12 +5329,11 @@ export const zSuotarEndpointDailyCost = z.object({
     .nullish(),
 })
 
+/**
+ * One endpoint's limiter as the worker last reported it.
+ */
 export const zSuotarEndpointRateLimit = z.object({
   available: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  breaker_trip_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -5343,7 +5342,6 @@ export const zSuotarEndpointRateLimit = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  is_breaker_open: z.boolean(),
   rate_share: z.number(),
   updated_at: z.iso.datetime(),
 })

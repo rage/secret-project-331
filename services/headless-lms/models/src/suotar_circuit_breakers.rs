@@ -16,6 +16,8 @@ pub enum BreakerTarget {
     SisuSubmissions,
 }
 
+/// One worker process's circuit breaker as that process last reported it, for the dashboard. Stale
+/// once the process stops reporting: check `updated_at`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct SuotarCircuitBreaker {
     /// The worker process the breaker belongs to; each keeps its own.
@@ -39,6 +41,9 @@ pub struct SuotarCircuitBreakerReport<'a> {
     pub trip_count: i32,
 }
 
+/// Replaces the reported state of one process's breaker. Only the worker process that owns the
+/// breaker may call this: any other process holds a breaker of its own, and would overwrite the
+/// worker's.
 pub async fn upsert(
     conn: &mut PgConnection,
     breaker: &SuotarCircuitBreakerReport<'_>,
@@ -69,6 +74,7 @@ SET consecutive_failures = EXCLUDED.consecutive_failures,
     Ok(())
 }
 
+/// Every reported breaker, by process and target.
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<SuotarCircuitBreaker>> {
     let res = sqlx::query_as!(
         SuotarCircuitBreaker,

@@ -137,6 +137,16 @@ pub fn take(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
     });
 }
 
+/// Spends `count` even past what [`available`] allows, leaving the bucket in debt that later
+/// refills pay off before [`available`] allows anything again. At most one capacity of debt, so
+/// the limiter is back within one refill of the full burst. Only for a split batch's resent halves,
+/// which must not wait for a later iteration: that would claim and refuse the same batch again.
+pub fn overdraw(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
+    with_bucket(key, endpoint, |bucket, rate| {
+        bucket.tokens = (bucket.tokens - count as f64).max(-rate.capacity);
+    });
+}
+
 /// Drops `endpoints` to [`FLOOR_SHARE`] of their rate, restarting the climb back. Unlimited ones
 /// are skipped.
 pub fn drop_to_floor(key: &ScopeKey, endpoints: &[SuotarEndpoint]) {

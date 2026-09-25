@@ -170,6 +170,14 @@ impl StudyRegistryGate {
         self.has_probed = true;
     }
 
+    /// [`Self::spend`] for the resent halves of a batch refused as malformed, which may go past
+    /// the allowance; see [`rate_limit::overdraw`].
+    pub fn spend_split(&mut self, endpoint: SuotarEndpoint, count: usize) {
+        rate_limit::overdraw(&self.key, endpoint, count);
+        self.has_probed = true;
+    }
+
+    /// Records what one request to `endpoint` came to, for [`Self::settle`].
     pub fn record(&mut self, endpoint: SuotarEndpoint, exchange: Exchange<'_>) {
         let tally = &mut self.tally;
         match exchange {

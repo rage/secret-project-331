@@ -4848,18 +4848,19 @@ export type SuotarEndpointDailyCost = {
   p95_duration_ms?: number | null
 }
 
+/**
+ * One endpoint's limiter as the worker last reported it.
+ */
 export type SuotarEndpointRateLimit = {
   /**
    * Items, or requests, that could go out right now.
    */
   available: number
-  breaker_trip_count: number
   endpoint: SuotarEndpoint
   /**
    * Items per minute, or requests per minute for `list_by_course`.
    */
   full_rate_per_minute: number
-  is_breaker_open: boolean
   /**
    * The share of the full rate allowed, from 0.1 up to 1.
    */

@@ -1440,11 +1440,42 @@ pub async fn claim_due_for_import(
     .await
 }
 
+/// The states verify polls from. Withdrawal moves a row out of both, which is what stops the
+/// polling without any query having to know about withdrawal.
+const VERIFY_STATES: [CreditRegistrationState; 2] = [
+    CreditRegistrationState::AwaitingVerification,
+    CreditRegistrationState::SubmissionUncertain,
+];
+
+/// Which of verify's flows a claim is for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VerifyFlow {
+    /// Rows with a submitted attainment to poll by, and `awaiting_verification` rows stuck without
+    /// one.
+    Poll,
+    /// `submission_uncertain` rows with no submitted attainment id, looked up through
+    /// resolve-enrolments instead.
+    UncertainRecovery,
+}
+
+/// [`claim_due`] for one of verify's flows. Each flow is claimed on its own, so that rows one flow
+/// has no allowance to send cannot fill the other's claim.
+pub async fn claim_due_for_verify(
+    conn: &mut PgConnection,
+    flow: VerifyFlow,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(conn, &VERIFY_STATES, scope, limit, ClaimKind::Verify(flow)).await
+}
+
 /// Which caller a claim is for, which decides the rows that hold a row back and the order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ClaimKind {
     /// See [`claim_due`].
     Plain,
+    /// See [`claim_due_for_verify`].
+    Verify(VerifyFlow),
     /// See [`claim_due_for_person_lookup`].
     PersonLookup,
     /// See [`claim_due_for_resolve`].
@@ -1453,6 +1484,7 @@ enum ClaimKind {
     Import,
 }
 
+/// Shares its eligibility filters with [`count_due_enrolment_checks`]; change both together.
 async fn claim(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -1487,6 +1519,13 @@ WITH due AS (
     AND (
       cardinality($5::uuid []) = 0
       OR cr.id = ANY($5::uuid [])
+    )
+    AND (
+      $12::boolean IS NULL
+      OR (
+        cr.state = 'submission_uncertain'
+        AND cr.submitted_attainment_id IS NULL
+      ) = $12
     )
     AND (
       $6::boolean
@@ -1576,6 +1615,10 @@ RETURNING cr.*
         matches!(kind, ClaimKind::PersonLookup | ClaimKind::Resolve),
         &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        match kind {
+            ClaimKind::Verify(flow) => Some(flow == VerifyFlow::UncertainRecovery),
+            _ => None,
+        },
     )
     .fetch_all(conn)
     .await?;
@@ -2593,17 +2636,39 @@ GROUP BY state
     Ok(rows.into_iter().map(|r| (r.state, r.count)).collect())
 }
 
-/// Live rows parked in `no_usable_enrolment` whose enrolment check is due or out, which are the ones
-/// resolve-enrolments owes work; the rest wait for their schedule.
+/// Live rows parked in `no_usable_enrolment` that an unscoped resolve-enrolments claim would take
+/// for an enrolment check now; the rest wait for their schedule, their module, or a lookup already
+/// out. Leaves out the claim's one-row-per-student-and-module hold, which only defers a row.
 pub async fn count_due_enrolment_checks(conn: &mut PgConnection) -> ModelResult<i64> {
+    // Must match the unscoped filters of `claim`, or the queue depth counts rows no claim takes.
     let count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"
-FROM credit_registrations
-WHERE state = 'no_usable_enrolment'
-  AND next_attempt_at <= now()
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
+FROM credit_registrations cr
+  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+WHERE cr.state = 'no_usable_enrolment'
+  AND cr.next_attempt_at <= now()
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND (
+    cmc.register_credits_via_suotar
+    OR cr.submitted_at IS NOT NULL
+  )
+  AND (
+    cr.enrolment_check_claimed_until IS NULL
+    OR cr.enrolment_check_claimed_until <= now()
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registration_test_exclusive_holds h
+    WHERE h.user_id = cr.user_id
+      AND (
+        h.course_id IS NULL
+        OR h.course_id = cr.course_id
+      )
+      AND h.held_until > now()
+  )
         "#,
     )
     .fetch_one(conn)

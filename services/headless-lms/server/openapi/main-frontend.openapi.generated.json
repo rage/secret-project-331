@@ -27017,24 +27017,13 @@
       },
       "SuotarEndpointRateLimit": {
         "type": "object",
-        "required": [
-          "endpoint",
-          "updated_at",
-          "rate_share",
-          "full_rate_per_minute",
-          "available",
-          "is_breaker_open",
-          "breaker_trip_count"
-        ],
+        "description": "One endpoint's limiter as the worker last reported it.",
+        "required": ["endpoint", "updated_at", "rate_share", "full_rate_per_minute", "available"],
         "properties": {
           "available": {
             "type": "integer",
             "format": "int32",
             "description": "Items, or requests, that could go out right now."
-          },
-          "breaker_trip_count": {
-            "type": "integer",
-            "format": "int32"
           },
           "endpoint": {
             "$ref": "#/components/schemas/SuotarEndpoint"
@@ -27043,9 +27032,6 @@
             "type": "integer",
             "format": "int32",
             "description": "Items per minute, or requests per minute for `list_by_course`."
-          },
-          "is_breaker_open": {
-            "type": "boolean"
           },
           "rate_share": {
             "type": "number",

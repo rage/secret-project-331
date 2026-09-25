@@ -411,23 +411,19 @@ CREATE TABLE suotar_endpoint_rate_limits (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   rate_share REAL NOT NULL,
   full_rate_per_minute INT NOT NULL,
-  available INT NOT NULL,
-  is_breaker_open BOOLEAN NOT NULL,
-  breaker_trip_count INT NOT NULL
+  available INT NOT NULL
 );
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON suotar_endpoint_rate_limits FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter and circuit breaker reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it.';
+COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it. The circuit breakers are in suotar_circuit_breakers.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.endpoint IS 'The limited endpoint.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.updated_at IS 'Timestamp when the record was last updated, which is when the worker last reported this state. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.rate_share IS 'The share of the full rate currently allowed, 0.1 to 1: it drops to 0.1 after failures or a breaker cooldown and doubles every five healthy minutes.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.full_rate_per_minute IS 'The full rate, in items per minute, or requests per minute for list_by_course.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.available IS 'Items, or requests for list_by_course, that could be sent right now.';
-COMMENT ON COLUMN suotar_endpoint_rate_limits.is_breaker_open IS 'Whether the circuit breaker the endpoint''s phases share was open.';
-COMMENT ON COLUMN suotar_endpoint_rate_limits.breaker_trip_count IS 'How many times in a row the breaker has opened without a success between; the cooldown grows with it.';
 
 CREATE TYPE suotar_circuit_breaker_target AS ENUM ('study_registry', 'sisu_submissions');
 

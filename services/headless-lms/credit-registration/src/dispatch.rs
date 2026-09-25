@@ -104,6 +104,9 @@ pub async fn run_phase_once(
     // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
     // test's traffic in it would make a dead worker look alive to the heartbeat alert.
     let bookkeeping = scope.is_unscoped();
+    // The breakers and the limiter live in the running process's memory, so only the phase's own
+    // worker holds the state the dashboard shows; a run-tick in the web server holds its own.
+    let is_own_worker = ctx.caller == phase.spec().process.as_str();
     // Before the breaker check, unlike the pause above, which health.rs excludes from the staleness
     // alert by itself. A cooldown is a worker deliberately waiting, not a worker that died, and
     // skipping the heartbeat through it would raise a critical alert within a tick or two.
@@ -117,7 +120,7 @@ pub async fn run_phase_once(
     let registry = match StudyRegistryGate::admit(phase, scope, ctx.test_mode) {
         Ok(registry) => registry,
         Err(skip) => {
-            if bookkeeping {
+            if bookkeeping && is_own_worker {
                 record_breakers(&mut conn, phase).await?;
             }
             return Ok(PhaseTick::Skipped(skip));
@@ -139,10 +142,10 @@ pub async fn run_phase_once(
         Ok(counts) => PhaseRunOutcome {
             items_processed: counts.processed,
             items_failed: counts.failed,
-            error: counts.finding.or(failure),
+            error: failure.or(counts.finding),
         },
         Err(error) => PhaseRunOutcome {
-            error: Some(scrub_text(&format!("{error:#}"))),
+            error: Some(scrub_text(&error.cause_chain())),
             ..PhaseRunOutcome::default()
         },
     };
@@ -152,8 +155,10 @@ pub async fn run_phase_once(
     if bookkeeping {
         let mut conn = ctx.pool.acquire().await?;
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
-        record_rate_limits(&mut conn, phase).await?;
-        record_breakers(&mut conn, phase).await?;
+        if is_own_worker {
+            record_rate_limits(&mut conn, phase).await?;
+            record_breakers(&mut conn, phase).await?;
+        }
     }
     Ok(PhaseTick::Ran(outcome))
 }
@@ -249,16 +254,12 @@ async fn record_breakers(
     Ok(())
 }
 
-/// Copies the limiter and breaker state of the phase's endpoints to the database for the
-/// dashboard, which runs in another process.
+/// Copies the limiter state of the phase's endpoints to the database for the dashboard, which runs
+/// in another process.
 async fn record_rate_limits(
     conn: &mut PgConnection,
     phase: CreditRegistrationPhase,
 ) -> CreditRegistrationResult<()> {
-    let breaker = breaker::snapshot(
-        &breaker::ScopeKey::Global,
-        breaker::BreakerTarget::StudyRegistry,
-    );
     for &endpoint in phase.spec().endpoints {
         let Some(limiter) = rate_limit::snapshot(&breaker::ScopeKey::Global, endpoint) else {
             continue;
@@ -270,8 +271,6 @@ async fn record_rate_limits(
                 rate_share: limiter.share as f32,
                 full_rate_per_minute: limiter.rate.per_minute as i32,
                 available: i32::try_from(limiter.available).unwrap_or(i32::MAX),
-                is_breaker_open: breaker.open,
-                breaker_trip_count: i32::try_from(breaker.trip_count).unwrap_or(i32::MAX),
             },
         )
         .await?;

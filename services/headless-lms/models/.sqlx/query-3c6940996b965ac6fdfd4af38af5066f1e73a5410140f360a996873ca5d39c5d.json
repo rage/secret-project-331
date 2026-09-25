@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO code_giveaways (\n    id,\n    course_id,\n    course_module_id,\n    enabled,\n    require_course_specific_consent_form_question_id,\n    name\n  )\nSELECT uuid_generate_v5($1, cg.id::text),\n  $1,\n  copied_module.id,\n  cg.enabled\n  AND (\n    cg.require_course_specific_consent_form_question_id IS NULL\n    OR copied_question.id IS NOT NULL\n  ),\n  copied_question.id,\n  cg.name\nFROM code_giveaways cg\n  LEFT JOIN course_modules copied_module ON (\n    copied_module.id = uuid_generate_v5($1, cg.course_module_id::text)\n  )\n  LEFT JOIN course_specific_consent_form_questions copied_question ON (\n    copied_question.id = uuid_generate_v5(\n      $1,\n      cg.require_course_specific_consent_form_question_id::text\n    )\n  )\nWHERE cg.course_id = $2\n  AND cg.deleted_at IS NULL\nRETURNING id;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "code_giveaways",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3c6940996b965ac6fdfd4af38af5066f1e73a5410140f360a996873ca5d39c5d"
+}

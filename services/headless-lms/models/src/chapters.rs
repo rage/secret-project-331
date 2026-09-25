@@ -323,6 +323,26 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
+/// Whether a live chapter still uses this image path.
+///
+/// Course copies share images with their source, so check this before deleting the blob.
+pub async fn chapter_image_path_is_referenced(
+    conn: &mut PgConnection,
+    chapter_image_path: &str,
+) -> ModelResult<bool> {
+    let referenced = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM chapters WHERE chapter_image_path = $1 AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        chapter_image_path
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(referenced)
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ChapterWithStatus {
@@ -530,18 +550,19 @@ RETURNING *;
     )
     .execute(&mut *tx)
     .await?;
+    // Covers exercises by page_id too, not just chapter_id, in case the two ever disagree.
     sqlx::query!(
-        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
+        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1))));",
         chapter_id
     )
     .execute(&mut *tx).await?;
     sqlx::query!(
-        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
+        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1)));",
         chapter_id
     )
     .execute(&mut *tx).await?;
     sqlx::query!(
-        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
+        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1));",
         chapter_id
     )
     .execute(&mut *tx)

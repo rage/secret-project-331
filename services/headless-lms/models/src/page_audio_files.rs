@@ -52,6 +52,21 @@ RETURNING *
     Ok(response.path)
 }
 
+/// Whether a live page audio row still points at this storage path.
+pub async fn path_is_referenced(conn: &mut PgConnection, path: &str) -> ModelResult<bool> {
+    let referenced = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM page_audio_files WHERE path = $1 AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        path
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(referenced)
+}
+
 pub async fn get_page_audio_files(
     conn: &mut PgConnection,
     page_id: Uuid,

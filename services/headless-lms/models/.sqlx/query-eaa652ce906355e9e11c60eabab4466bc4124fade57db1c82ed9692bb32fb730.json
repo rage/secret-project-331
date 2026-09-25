@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_configs (\n    id,\n    course_id,\n    exercise_id,\n    peer_reviews_to_give,\n    peer_reviews_to_receive,\n    processing_strategy,\n    accepting_threshold,\n    manual_review_cutoff_in_days,\n    points_are_all_or_nothing,\n    review_instructions,\n    reset_answer_if_zero_points_from_review\n  )\nSELECT uuid_generate_v5($1, posrc.id::text),\n  $1,\n  copied_exercise.id,\n  posrc.peer_reviews_to_give,\n  posrc.peer_reviews_to_receive,\n  posrc.processing_strategy,\n  posrc.accepting_threshold,\n  posrc.manual_review_cutoff_in_days,\n  posrc.points_are_all_or_nothing,\n  posrc.review_instructions,\n  posrc.reset_answer_if_zero_points_from_review\nFROM peer_or_self_review_configs posrc\n  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)\n  LEFT JOIN exercises copied_exercise ON (\n    copied_exercise.id = uuid_generate_v5($1, posrc.exercise_id::text)\n  )\nWHERE posrc.deleted_at IS NULL\n  AND (\n    (\n      posrc.exercise_id IS NULL\n      AND posrc.course_id = $2\n    )\n    OR (\n      e.course_id = $2\n      AND copied_exercise.id IS NOT NULL\n    )\n  );\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eaa652ce906355e9e11c60eabab4466bc4124fade57db1c82ed9692bb32fb730"
+}

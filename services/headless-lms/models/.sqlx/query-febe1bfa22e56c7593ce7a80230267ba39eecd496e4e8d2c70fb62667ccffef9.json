@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2;\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "febe1bfa22e56c7593ce7a80230267ba39eecd496e4e8d2c70fb62667ccffef9"
+}

@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercises (\n    id,\n    exam_id,\n    name,\n    deadline,\n    page_id,\n    score_maximum,\n    order_number,\n    chapter_id,\n    copied_from,\n    max_tries_per_slide,\n    limit_number_of_tries,\n    needs_peer_review,\n    use_course_default_peer_or_self_review_config,\n    needs_self_review,\n    teacher_reviews_answer_after_locking\n  )\nSELECT uuid_generate_v5($1, e.id::text),\n  $1,\n  e.name,\n  e.deadline,\n  copied_page.id,\n  e.score_maximum,\n  e.order_number,\n  NULL,\n  e.id,\n  e.max_tries_per_slide,\n  e.limit_number_of_tries,\n  e.needs_peer_review,\n  e.use_course_default_peer_or_self_review_config,\n  e.needs_self_review,\n  e.teacher_reviews_answer_after_locking\nFROM exercises e\n  JOIN pages copied_page ON copied_page.id = uuid_generate_v5($1, e.page_id::text)\nWHERE e.exam_id = $2\n  AND e.deleted_at IS NULL\nRETURNING id;\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f3a6504b12a53ccd8d2ad47536007945bd9d662635466d1d0249008680e27bfb"
+}

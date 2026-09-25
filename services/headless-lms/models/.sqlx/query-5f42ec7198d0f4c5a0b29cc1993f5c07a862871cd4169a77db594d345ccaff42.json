@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(\n  SELECT 1 FROM pages\n  WHERE id = $1\n    AND deleted_at IS NULL\n    AND chapter_id IS NULL\n    AND course_id IS NOT NULL\n    AND trim(url_path) = '/'\n) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "5f42ec7198d0f4c5a0b29cc1993f5c07a862871cd4169a77db594d345ccaff42"
+}

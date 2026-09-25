@@ -2617,18 +2617,21 @@ pub async fn upsert_peer_or_self_review_configs(
             new_peer_or_self_review_config_id_to_old_id
                 .insert(safe_for_db_peer_or_self_review_config_id, pr.id);
 
-            let safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
-                let res = remapped_exercises.get(&id).map(|e| e.id);
+            let exercise = pr.exercise_id.and_then(|id| {
+                let res = remapped_exercises.get(&id);
                 if res.is_none() {
                     error!("Illegal exercise id {:?}", id);
                     illegal_exercise_id = Some(id);
                 }
                 res
             });
+            // The client's course_id is stale when the exercise block was pasted from another
+            // course, and course copying breaks if it disagrees with the exercise's course.
+            let safe_for_db_course_id = exercise.and_then(|e| e.course_id).unwrap_or(pr.course_id);
 
             x.push_bind(safe_for_db_peer_or_self_review_config_id)
-                .push_bind(pr.course_id)
-                .push_bind(safe_for_db_exercise_id)
+                .push_bind(safe_for_db_course_id)
+                .push_bind(exercise.map(|e| e.id))
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.processing_strategy)
@@ -3200,6 +3203,46 @@ pub async fn delete_page_and_exercises(
     author: Uuid,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
+
+    let is_chapter_front_page = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM chapters WHERE front_page_id = $1 AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        page_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if is_chapter_front_page {
+        return Err(model_err!(
+            InvalidRequest,
+            "Cannot delete a chapter's front page".to_string()
+        ));
+    }
+
+    let is_course_front_page = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM pages
+  WHERE id = $1
+    AND deleted_at IS NULL
+    AND chapter_id IS NULL
+    AND course_id IS NOT NULL
+    AND trim(url_path) = '/'
+) AS "exists!"
+        "#,
+        page_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if is_course_front_page {
+        return Err(model_err!(
+            InvalidRequest,
+            "Cannot delete a course's front page".to_string()
+        ));
+    }
+
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -4420,6 +4463,13 @@ WHERE course_id = $1
                                 .execute(&mut *tx)
                                 .await?;
                                 sqlx::query!(
+                                    "UPDATE exercises SET chapter_id = $2 WHERE page_id = $1 AND deleted_at IS NULL",
+                                    page.id,
+                                    new_chapter.id
+                                )
+                                .execute(&mut *tx)
+                                .await?;
+                                sqlx::query!(
                                     "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                                     page.id,
                                     old_path,
@@ -5469,29 +5519,35 @@ mod test {
     async fn reorder_top_level_pages_works() {
         insert_data!(:tx, :user, :org, :course);
 
-        // First, delete any existing pages in this course to ensure a clean slate
+        // First, delete any existing pages in this course to ensure a clean slate, except the
+        // course front page, which cannot be deleted.
         let existing_pages =
             get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
                 .await
                 .unwrap();
-        for page in &existing_pages {
+        for page in existing_pages.iter().filter(|p| p.url_path.trim() != "/") {
             delete_page_and_exercises(tx.as_mut(), page.id, user)
                 .await
                 .unwrap();
         }
 
-        // Create our test pages
-        let page1 = NewCoursePage::new(course, 0, "top-page-1", "Top Page 1");
+        // Create our test pages. Order numbers start at 1: the course front page (not deleted
+        // above) already occupies order_number 0.
+        let page1 = NewCoursePage::new(course, 1, "top-page-1", "Top Page 1");
         let (page1_id, _) = insert_course_page(tx.as_mut(), &page1, user).await.unwrap();
-        let page2 = NewCoursePage::new(course, 1, "top-page-2", "Top Page 2");
+        let page2 = NewCoursePage::new(course, 2, "top-page-2", "Top Page 2");
         let (page2_id, _) = insert_course_page(tx.as_mut(), &page2, user).await.unwrap();
-        let page3 = NewCoursePage::new(course, 2, "top-page-3", "Top Page 3");
+        let page3 = NewCoursePage::new(course, 3, "top-page-3", "Top Page 3");
         let (page3_id, _) = insert_course_page(tx.as_mut(), &page3, user).await.unwrap();
 
-        let mut pages =
+        // The frontend never sends front pages to reorder_pages.
+        let mut pages: Vec<_> =
             get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
                 .await
-                .unwrap();
+                .unwrap()
+                .into_iter()
+                .filter(|p| p.url_path.trim() != "/")
+                .collect();
 
         let page1_index = pages.iter().position(|p| p.id == page1_id).unwrap();
         let page2_index = pages.iter().position(|p| p.id == page2_id).unwrap();

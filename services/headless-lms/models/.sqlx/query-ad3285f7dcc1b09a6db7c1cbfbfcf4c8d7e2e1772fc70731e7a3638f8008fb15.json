@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE pages\nSET content = $1\nWHERE id = $2;\n                ",
+  "query": "UPDATE email_templates SET content = $1 WHERE id = $2;",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "d9d04909a35ed8edd343a0be75ee10041e50a42d8ca3547d001672a9557b6d9d"
+  "hash": "ad3285f7dcc1b09a6db7c1cbfbfcf4c8d7e2e1772fc70731e7a3638f8008fb15"
 }

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(\n  SELECT 1 FROM chapters WHERE chapter_image_path = $1 AND deleted_at IS NULL\n) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "623bf53d374db17925c32295a2ea807abb5c9b9c7bd690dc09b88c83476ac4bf"
+}

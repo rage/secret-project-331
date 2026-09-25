@@ -1183,8 +1183,10 @@ pub async fn set_my_enrolment_route(
 POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
 - The caller says they have enrolled.
 
-Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
-enrolment check forward, and only when the hourly allowance the manual button spends is free.
+Counts as a check request: a waiting registration restarts its checks on the check-requested
+schedule, under the limit every check request shares. Recorded against the completion too, so a
+registration that starts waiting later starts on that schedule. With account linking on, a caller
+with no linked student number books a roster listing of the course code instead.
 */
 #[instrument(skip(pool, app_conf))]
 #[utoipa::path(
@@ -1234,7 +1236,7 @@ pub async fn confirm_my_enrolment(
     )
     .await?;
     match registration {
-        Some(registration) if registration.is_waiting_for_enrolment_check => {
+        Some(registration) if registration.is_waiting_for_enrolment() => {
             start_enrolment_recheck(
                 &mut conn,
                 user.id,
@@ -1437,7 +1439,7 @@ pub async fn record_my_enrolment_page_visit(
     )
     .await?;
     match registration {
-        Some(registration) if registration.is_waiting_for_enrolment_check => {
+        Some(registration) if registration.is_waiting_for_enrolment() => {
             let mut tx = conn.begin().await?;
             if enrolment_checks::record_visit(&mut tx, registration.id, Utc::now()).await? {
                 recompute_preconditions(

@@ -575,6 +575,29 @@ pub struct CreditRegistration {
     pub seen_enrolment_ids: Option<Vec<String>>,
 }
 
+impl CreditRegistration {
+    /// See [`is_waiting_for_enrolment`].
+    pub fn is_waiting_for_enrolment(&self) -> bool {
+        is_waiting_for_enrolment(
+            self.state,
+            self.enrolment_check_anchor_at,
+            self.no_usable_enrolment_since,
+        )
+    }
+}
+
+/// Whether a row is waiting for an enrolment: parked without a usable one, check schedule started
+/// or not, or on a recheck on its way back there. Only such a row is moved by a visit or a check
+/// request, and kept waiting through a lookup that fails in transit.
+pub fn is_waiting_for_enrolment(
+    state: CreditRegistrationState,
+    enrolment_check_anchor_at: Option<DateTime<Utc>>,
+    no_usable_enrolment_since: Option<DateTime<Utc>>,
+) -> bool {
+    state.keeps_enrolment_check_schedule()
+        && (enrolment_check_anchor_at.is_some() || no_usable_enrolment_since.is_some())
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewCreditRegistration {
     pub course_module_completion_id: Uuid,
@@ -1359,8 +1382,7 @@ impl RegistrationScope {
     }
 }
 
-/// Claims up to `limit` due rows in the given states for this worker, rows with the later
-/// [`EnrolmentCheckGroup`] first and then the longest due.
+/// Claims up to `limit` due rows in the given states for this worker, the longest due first.
 ///
 /// The row locks live until the caller's transaction ends, so callers must pass a transaction. Rows
 /// on a paused course module, or on one whose credit registration has been switched off, are never
@@ -1377,11 +1399,30 @@ pub async fn claim_due(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
-    claim(conn, states, scope, limit, ClaimHold::None).await
+    claim(conn, states, scope, limit, ClaimHold::None, false).await
 }
 
-/// [`claim_due`] for resolve-enrolments: `ready_to_submit` rows, minus any whose student already
-/// has another live row for the module somewhere between resolving and a known outcome.
+/// [`claim_due`] for the person lookup that precedes resolve-enrolments: `ready_to_submit` rows,
+/// the later [`EnrolmentCheckGroup`] first.
+pub async fn claim_due_for_person_lookup(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(
+        conn,
+        &[CreditRegistrationState::ReadyToSubmit],
+        scope,
+        limit,
+        ClaimHold::None,
+        true,
+    )
+    .await
+}
+
+/// [`claim_due`] for resolve-enrolments: `ready_to_submit` rows, the later [`EnrolmentCheckGroup`]
+/// first, minus any whose student already has another live row for the module somewhere between
+/// resolving and a known outcome.
 ///
 /// Only one completion per student and module goes past resolve at a time, so each is weighed
 /// against the outcome of the one before it rather than racing it to the registry; see
@@ -1398,6 +1439,7 @@ pub async fn claim_due_for_resolve(
         scope,
         limit,
         ClaimHold::BehindLiveRowAhead,
+        true,
     )
     .await
 }
@@ -1417,6 +1459,7 @@ pub async fn claim_due_for_import(
         scope,
         limit,
         ClaimHold::BehindSubmission,
+        false,
     )
     .await
 }
@@ -1437,6 +1480,7 @@ async fn claim(
     scope: &RegistrationScope,
     limit: i64,
     hold: ClaimHold,
+    is_enrolment_check_claim: bool,
 ) -> ModelResult<Vec<CreditRegistration>> {
     let is_scoped_call = !scope.is_unscoped();
     let res = sqlx::query_as!(
@@ -1533,7 +1577,9 @@ WITH due AS (
           )
       )
     )
-  ORDER BY cr.enrolment_check_group DESC,
+  ORDER BY CASE
+      WHEN $9 THEN cr.enrolment_check_group
+    END DESC NULLS LAST,
     cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
@@ -1552,6 +1598,7 @@ RETURNING cr.*
         is_scoped_call,
         hold == ClaimHold::BehindSubmission,
         hold == ClaimHold::BehindLiveRowAhead,
+        is_enrolment_check_claim,
     )
     .fetch_all(conn)
     .await?;
@@ -1673,8 +1720,8 @@ pub struct StudentCreditRegistration {
     /// When a check was last asked for; with `enrolment_checked_at`, what the limit on asking again
     /// counts from.
     pub enrolment_check_requested_at: Option<DateTime<Utc>>,
-    /// Whether the row is waiting for an enrolment check, so a visit or a request can move it.
-    pub is_waiting_for_enrolment_check: bool,
+    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
+    pub enrolment_check_anchor_at: Option<DateTime<Utc>>,
     /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where
     /// Suotar gave the realisation no name, so the step list ticks from this rather than the name.
     pub enrolment_resolved: bool,
@@ -1706,6 +1753,15 @@ impl StudentCreditRegistration {
     /// `selected_enrolment_id`, so a student who has to go and enrol reads as resolved.
     pub fn has_usable_enrolment(&self) -> bool {
         self.enrolment_resolved && self.state != CreditRegistrationState::NoUsableEnrolment
+    }
+
+    /// See [`is_waiting_for_enrolment`].
+    pub fn is_waiting_for_enrolment(&self) -> bool {
+        is_waiting_for_enrolment(
+            self.state,
+            self.enrolment_check_anchor_at,
+            self.no_usable_enrolment_since,
+        )
     }
 }
 
@@ -1753,16 +1809,8 @@ SELECT cr.id,
   cr.superseded_at,
   cr.enrolment_checked_at,
   cr.enrolment_check_requested_at,
-  (
-    cr.enrolment_check_anchor_at IS NOT NULL
-    OR cr.no_usable_enrolment_since IS NOT NULL
-  )
-  AND cr.state IN (
-    'no_usable_enrolment',
-    'ready_to_submit',
-    'resolving_enrolment',
-    'failed_retryable'
-  ) AS "is_waiting_for_enrolment_check!",
+  cr.no_usable_enrolment_since,
+  cr.enrolment_check_anchor_at,
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COALESCE(
     cr.selected_enrolment_realisation_name->>'fi',

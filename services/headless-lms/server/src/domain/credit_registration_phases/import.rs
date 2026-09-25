@@ -4,7 +4,6 @@
 //! leads from that state or `submission_uncertain` back into a batch: a second import on a guess
 //! would put a second attainment on a real transcript, and we could neither see it nor undo it.
 
-use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
 use headless_lms_models::credit_registration_events::{
     self, CreditRegistrationEventKind, NewCreditRegistrationEvent, scrub_text,
@@ -19,12 +18,12 @@ use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKO
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::grade_mapping::is_known_grade;
 use headless_lms_models::library::credit_registration::outcomes::{
-    import_success_outcome, import_success_state, isolated_malformed_request_outcome,
-    submission_uncertain, submit_error_outcome, unanswered_item_outcome,
+    import_success_outcome, import_success_state, submission_uncertain, submit_error_outcome,
+    unanswered_item_outcome,
 };
 use headless_lms_models::secret::DbSecret;
 use headless_lms_models::{ModelError, ModelResult};
-use headless_lms_utils::error::util_error::{SuotarErrorVariant, UtilError};
+use headless_lms_utils::error::util_error::UtilError;
 use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ImportAttainmentResult, SuotarAttainment, SuotarBatchResponse,
@@ -37,8 +36,8 @@ use uuid::Uuid;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, apply_request_level_outcome, row_facts, row_moved_on, run_suotar_batch_phase,
-    suotar_error_variant,
+    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome,
+    is_malformed_request, row_facts, row_moved_on, run_suotar_batch_phase,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -58,6 +57,7 @@ impl SuotarBatchPhase for Import {
 
     const ALL_UNAVAILABLE_ERROR: &'static str =
         "Every item of the batch timed out in Sisu or came back unavailable.";
+    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ImportAttainments;
 
     async fn prepare(
         &mut self,
@@ -173,10 +173,8 @@ impl SuotarBatchPhase for Import {
         .await
     }
 
-    /// Suotar validates every item before acting on any, so a malformed-request refusal proves
-    /// nothing was written, and one bad row takes its whole batch down with it.
     fn isolates_request_rejection(error: &UtilError) -> bool {
-        suotar_error_variant(error) == SuotarErrorVariant::MalformedRequest
+        is_malformed_request(error)
     }
 
     async fn keep_in_flight(
@@ -225,21 +223,15 @@ impl SuotarBatchPhase for Import {
         request_item_id: &str,
         error: &UtilError,
     ) -> anyhow::Result<bool> {
-        apply_outcome(
+        apply_isolated_malformed_request(
             conn,
             row,
-            &isolated_malformed_request_outcome(),
-            OutcomeEvent {
-                message: Some("Sisu did not accept this row even when it was sent alone."),
-                error_message: Some(error.message()),
-                request_item_id: Some(request_item_id),
-                request: Some(request),
-                ..OutcomeEvent::default()
-            },
-            Some(CreditRegistrationState::Submitting),
+            request,
+            request_item_id,
+            error,
+            CreditRegistrationState::Submitting,
         )
-        .await?;
-        Ok(true)
+        .await
     }
 }
 

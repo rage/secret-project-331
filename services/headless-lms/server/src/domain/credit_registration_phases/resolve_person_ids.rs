@@ -10,7 +10,7 @@ use std::collections::HashMap;
 
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due, transition,
+    claim_due_for_person_lookup, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::outcomes::{
@@ -29,8 +29,8 @@ use uuid::Uuid;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, apply_request_level_outcome, breaker, claim_limit, counts_as_failed, rate_limit,
-    row_facts,
+    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, breaker,
+    claim_limit, counts_as_failed, is_malformed_request, rate_limit, row_facts,
 };
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
@@ -50,6 +50,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
     type Result = PersonResult;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every person lookup came back unavailable.";
+    const ENDPOINT: SuotarEndpoint = ENDPOINT;
 
     /// Claims the ready rows and keeps only those whose link lacks a person id; the others are left
     /// for the enrolment lookup.
@@ -63,13 +64,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         if limit == 0 {
             return Ok(Prepared::default());
         }
-        let claimed = claim_due(
-            conn,
-            &[CreditRegistrationState::ReadyToSubmit],
-            scope,
-            limit as i64,
-        )
-        .await?;
+        let claimed = claim_due_for_person_lookup(conn, scope, limit as i64).await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
         let links: HashMap<Uuid, _> = verified_student_numbers::get_by_user_ids(conn, &user_ids)
             .await?
@@ -192,6 +187,29 @@ impl SuotarBatchPhase for ResolvePersonIds {
         apply_request_level_outcome(
             conn,
             ENDPOINT,
+            &row.registration,
+            request,
+            request_item_id,
+            error,
+            CreditRegistrationState::ResolvingEnrolment,
+        )
+        .await
+    }
+
+    fn isolates_request_rejection(error: &UtilError) -> bool {
+        is_malformed_request(error)
+    }
+
+    async fn apply_isolated_rejection(
+        &self,
+        conn: &mut PgConnection,
+        row: &Self::Row,
+        request: &serde_json::Value,
+        request_item_id: &str,
+        error: &UtilError,
+    ) -> anyhow::Result<bool> {
+        apply_isolated_malformed_request(
+            conn,
             &row.registration,
             request,
             request_item_id,

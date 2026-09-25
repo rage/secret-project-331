@@ -55,9 +55,10 @@ use std::collections::HashSet;
 
 use super::resolve_person_ids::ResolvePersonIds;
 use super::{
-    OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase, apply_outcome,
-    apply_request_level_outcome, breaker, claim_limit, counts_as_failed, outcome_transition,
-    rate_limit, row_facts, run_suotar_batch_phase,
+    OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
+    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, breaker,
+    claim_limit, counts_as_failed, is_malformed_request, outcome_transition, rate_limit, row_facts,
+    run_suotar_batch_phase,
 };
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -86,6 +87,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
     type Result = EnrolmentResolutionResult;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every item of the batch came back unavailable.";
+    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolveEnrolments;
 
     async fn prepare(
         &mut self,
@@ -209,7 +211,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
     ) -> anyhow::Result<bool> {
         let failed = apply_answer(conn, row, context, item, event).await?;
         if row.enrolment_check_anchor_at.is_some() {
-            record_check_outcome(conn, row, item).await?;
+            record_check_outcome(conn, row, context, item).await?;
         }
         Ok(failed)
     }
@@ -233,6 +235,29 @@ impl SuotarBatchPhase for ResolveEnrolments {
         )
         .await
     }
+
+    fn isolates_request_rejection(error: &UtilError) -> bool {
+        is_malformed_request(error)
+    }
+
+    async fn apply_isolated_rejection(
+        &self,
+        conn: &mut PgConnection,
+        (row, _): &Self::Row,
+        request: &serde_json::Value,
+        request_item_id: &str,
+        error: &UtilError,
+    ) -> anyhow::Result<bool> {
+        apply_isolated_malformed_request(
+            conn,
+            row,
+            request,
+            request_item_id,
+            error,
+            CreditRegistrationState::ResolvingEnrolment,
+        )
+        .await
+    }
 }
 
 /// Logs what a check of a row waiting for an enrolment found, and remembers the enrolments it saw
@@ -240,6 +265,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
 async fn record_check_outcome(
     conn: &mut PgConnection,
     row: &CreditRegistration,
+    context: &SubmissionContext,
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
 ) -> anyhow::Result<()> {
     let after = get_by_id(conn, row.id).await?;
@@ -252,15 +278,10 @@ async fn record_check_outcome(
         .and_then(|item| item.result.as_ref())
         .map(|result| result.enrolments.as_slice())
         .unwrap_or_default();
-    let is_enrolment_found = after.state == CreditRegistrationState::CheckingEnrolment;
-    let enrolled_at = is_enrolment_found
-        .then(|| {
-            enrolments
-                .iter()
-                .find(|enrolment| Some(&enrolment.id) == after.selected_enrolment_id.as_ref())
-                .and_then(|enrolment| enrolment.enrolment_date_time)
-        })
-        .flatten();
+    // Whether the answer had an enrolment to register against, however the row then settled.
+    let usable = select_enrolment(enrolments, enrolment_criteria(context)).ok();
+    let is_enrolment_found = usable.is_some();
+    let enrolled_at = usable.and_then(|enrolment| enrolment.enrolment_date_time);
     let mut tx = conn.begin().await?;
     credit_registration_enrolment_check_outcomes::insert(
         &mut tx,
@@ -370,6 +391,16 @@ async fn apply_answer(
     }
 }
 
+/// What an enrolment must fit for this row's attainment to be registered against it.
+fn enrolment_criteria(context: &SubmissionContext) -> EnrolmentCriteria {
+    EnrolmentCriteria {
+        attainment_date: headless_lms_utils::helsinki_time::helsinki_date(
+            context.completion.completion_date,
+        ),
+        credits: context.ects_credits.unwrap_or_default(),
+    }
+}
+
 /// Applies the choice for one answered row. Returns whether the row ended up in a failure state.
 async fn choose(
     conn: &mut PgConnection,
@@ -380,16 +411,7 @@ async fn choose(
     event: OutcomeEvent<'_>,
 ) -> anyhow::Result<bool> {
     let details = suotar_exchange_details(event.request, event.response);
-    let credits = context.ects_credits.unwrap_or_default();
-    let attainment_date =
-        headless_lms_utils::helsinki_time::helsinki_date(context.completion.completion_date);
-    let chosen = select_enrolment(
-        enrolments,
-        EnrolmentCriteria {
-            attainment_date,
-            credits,
-        },
-    );
+    let chosen = select_enrolment(enrolments, enrolment_criteria(context));
     // The scale the grade would go out on; all enrolments on one course code share it in practice.
     let enrolment_grade_scale_id = chosen
         .ok()

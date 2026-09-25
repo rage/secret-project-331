@@ -41,7 +41,7 @@ use headless_lms_models::library::credit_registration::materialize::{
     start_re_attempts_for_improved_grades,
 };
 use headless_lms_models::library::credit_registration::outcomes::{
-    Outcome, RowFacts, request_level_outcome,
+    Outcome, RowFacts, isolated_malformed_request_outcome, request_level_outcome,
 };
 use headless_lms_models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
@@ -444,7 +444,7 @@ pub async fn run_phase_once(
     // The ramp back starts from the probe, not from the failure that opened the breaker, or a long
     // cooldown would spend it with nothing sent.
     if breaker::is_half_open(&breaker_key, breaker::BreakerTarget::StudyRegistry) {
-        rate_limit::drop_to_floor(&breaker_key);
+        rate_limit::drop_to_floor(&breaker_key, &rate_limit::LIMITED_ENDPOINTS);
     }
     drop(conn);
 
@@ -482,6 +482,7 @@ pub async fn run_phase_once(
             items_failed: 0,
             error: Some(scrub_text(&format!("{error:#}"))),
             is_sisu_outage: false,
+            is_isolated_failure: false,
         },
     };
     drop(keep_alive);
@@ -496,7 +497,7 @@ pub async fn run_phase_once(
     // breaker, and an empty queue is the common case: without this, a phase with nothing to do
     // resets the counter every tick and the breaker never opens during an outage.
     let reached_study_registry = suotar_client.exchange_count() > 0;
-    if phase.calls_study_registry() && reached_study_registry {
+    if phase.calls_study_registry() && reached_study_registry && !outcome.is_isolated_failure {
         record_breaker_outcome(&breaker_key, phase, &outcome, ctx.test_mode);
     }
     if bookkeeping {
@@ -575,7 +576,6 @@ fn record_breaker_outcome(
             }
         }
         (Some(_), false) => {
-            rate_limit::drop_to_floor(key);
             if let Some(cooldown) =
                 breaker::record_failure(key, BreakerTarget::StudyRegistry, base_cooldown)
             {
@@ -735,6 +735,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
             )
         }),
         is_sisu_outage: false,
+        is_isolated_failure: false,
     })
 }
 
@@ -772,6 +773,8 @@ pub(crate) trait SuotarBatchPhase {
 
     /// The iteration's error when every item came back unavailable.
     const ALL_UNAVAILABLE_ERROR: &'static str;
+    /// The endpoint [`Self::send`] calls, whose limiter a failed iteration drops.
+    const ENDPOINT: SuotarEndpoint;
 
     /// Claims rows and decides what may be asked about them. Whatever has to be true before the
     /// request leaves is written here, in the caller's transaction.
@@ -1009,6 +1012,9 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
         }
     }
 
+    if has_suotar_failure {
+        rate_limit::drop_to_floor(&breaker::ScopeKey::of(scope), &[P::ENDPOINT]);
+    }
     if error.is_none() && !has_answer && isolated_rejection.is_some() {
         error = isolated_rejection;
         has_suotar_failure = true;
@@ -1018,6 +1024,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
         items_processed: processed,
         items_failed,
         is_sisu_outage: error.is_some() && !has_suotar_failure,
+        is_isolated_failure: false,
         error,
     })
 }
@@ -1189,8 +1196,7 @@ pub(crate) fn row_facts(row: &CreditRegistration) -> RowFacts {
         submit_retry_count: row.submit_retry_count,
         verify_attempt_count: row.verify_attempt_count,
         submitted_at: row.submitted_at,
-        is_waiting_for_enrolment: row.enrolment_check_anchor_at.is_some()
-            || row.no_usable_enrolment_since.is_some(),
+        is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
         error_code: row.error_code,
     }
 }
@@ -1235,6 +1241,38 @@ pub(crate) async fn apply_request_level_outcome(
     )
     .await?;
     Ok(counts_as_failed(&outcome))
+}
+
+/// Suotar validates every item before acting on any, so a malformed-request refusal proves nothing
+/// was acted on, and one bad row takes its whole batch down with it.
+pub(crate) fn is_malformed_request(error: &UtilError) -> bool {
+    suotar_error_variant(error) == SuotarErrorVariant::MalformedRequest
+}
+
+/// Fails, for a human to look at, a row Suotar refused as malformed even in a batch of its own.
+pub(crate) async fn apply_isolated_malformed_request(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+    request: &serde_json::Value,
+    request_item_id: &str,
+    error: &UtilError,
+    expected_from_state: CreditRegistrationState,
+) -> anyhow::Result<bool> {
+    apply_outcome(
+        conn,
+        row,
+        &isolated_malformed_request_outcome(),
+        OutcomeEvent {
+            message: Some("Sisu did not accept this row even when it was sent alone."),
+            error_message: Some(error.message()),
+            request_item_id: Some(request_item_id),
+            request: Some(request),
+            ..OutcomeEvent::default()
+        },
+        Some(expected_from_state),
+    )
+    .await?;
+    Ok(true)
 }
 
 /// A failure that never reached the study registry is safe to send again; everything else may have

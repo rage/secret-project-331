@@ -64,6 +64,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                     items_failed: 0,
                     error: Some(scrub_text(error.message())),
                     is_sisu_outage: false,
+                    is_isolated_failure: false,
                 });
             }
         };
@@ -100,6 +101,7 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         items_failed: 0,
         error: None,
         is_sisu_outage: false,
+        is_isolated_failure: false,
     })
 }
 

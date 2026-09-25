@@ -147,6 +147,7 @@ impl SuotarBatchPhase for VerifyPoll {
     type Result = VerifyAttainmentResult;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
+    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::VerifyAttainments;
 
     /// The rows are claimed by the phase itself, which splits them between this flow and the
     /// recovery one, so there is nothing left to decide here.
@@ -383,6 +384,7 @@ impl SuotarBatchPhase for UncertainRecovery {
     type Result = EnrolmentResolutionResult;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
+    const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolveEnrolments;
 
     /// A row with nothing to ask about is left where it is: it is uncertain, which no answer of
     /// ours may turn into a failure, and it is already scheduled for the next check.

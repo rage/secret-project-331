@@ -2,13 +2,13 @@
 //! request, scheduling the next check once one answers, waking rows off a roster and shifting them
 //! past a module pause. The ladders are [`super::enrolment_check_schedule`].
 
-use crate::credit_registrations::CreditRegistrationState;
+use crate::credit_registrations::{CreditRegistrationState, is_waiting_for_enrolment};
 use crate::prelude::*;
 
 use super::enrolment_check_schedule::{
-    CHECK_REQUEST_MIN_INTERVAL_SECS, CHECK_REQUEST_RESTART_WINDOW_SECS, EnrolmentCheckGroup,
-    EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY, ScheduledEnrolmentCheck,
-    VISIT_RESTART_MIN_INTERVAL_SECS, first_check, never, next_check_after,
+    BATCH_INTERVAL_SECS, CHECK_REQUEST_MIN_INTERVAL_SECS, CHECK_REQUEST_RESTART_WINDOW_SECS,
+    EnrolmentCheckGroup, EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY,
+    ScheduledEnrolmentCheck, VISIT_RESTART_MIN_INTERVAL_SECS, first_check, never, next_check_after,
 };
 
 /// What a check request did to the row.
@@ -69,13 +69,12 @@ FOR UPDATE
 }
 
 impl ScheduleFacts {
-    /// A row parked before it had a schedule counts as waiting too; its schedule starts on the
-    /// first visit or request.
     fn is_waiting(&self) -> bool {
-        self.state.keeps_enrolment_check_schedule()
-            && (self.enrolment_check_anchor_at.is_some()
-                || self.no_usable_enrolment_since.is_some()
-                || self.state == CreditRegistrationState::NoUsableEnrolment)
+        is_waiting_for_enrolment(
+            self.state,
+            self.enrolment_check_anchor_at,
+            self.no_usable_enrolment_since,
+        )
     }
 }
 
@@ -176,6 +175,9 @@ pub async fn request_check(
         (now, 0)
     };
     let may_restart = restart_count < MAX_CHECK_REQUEST_RESTARTS_PER_DAY;
+    if !may_restart && checked_recently {
+        return Ok(CheckRequestOutcome::TooSoon);
+    }
     sqlx::query!(
         r#"
 UPDATE credit_registrations
@@ -224,8 +226,6 @@ WHERE id = $1
         )
         .await?;
         outcome
-    } else if checked_recently {
-        CheckRequestOutcome::TooSoon
     } else {
         sqlx::query!(
             r#"
@@ -536,7 +536,7 @@ WHERE id = $1
 }
 
 /// Moves the schedules of a module's rows past a pause of `paused_for_secs`, so the pause spends
-/// none of their ladder. Stopped rows are left as they are.
+/// none of their ladder. A batched row stays on a batch boundary. Stopped rows are left as they are.
 pub async fn shift_past_pause(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -548,9 +548,17 @@ UPDATE credit_registrations
 SET enrolment_check_anchor_at = enrolment_check_anchor_at + ($2::bigint * INTERVAL '1 second'),
   enrolment_check_due_at = enrolment_check_due_at + ($2::bigint * INTERVAL '1 second'),
   next_attempt_at = CASE
-    WHEN state = 'no_usable_enrolment'
-    AND enrolment_check_source = 'schedule' THEN next_attempt_at + ($2::bigint * INTERVAL '1 second')
-    ELSE next_attempt_at
+    WHEN state <> 'no_usable_enrolment'
+    OR enrolment_check_source <> 'schedule' THEN next_attempt_at
+    WHEN is_enrolment_check_batched THEN to_timestamp(
+      CEIL(
+        EXTRACT(
+          EPOCH
+          FROM next_attempt_at + ($2::bigint * INTERVAL '1 second')
+        ) / $3::bigint
+      ) * $3::bigint
+    )
+    ELSE next_attempt_at + ($2::bigint * INTERVAL '1 second')
   END
 WHERE course_module_id = $1
   AND enrolment_check_anchor_at IS NOT NULL
@@ -560,6 +568,7 @@ WHERE course_module_id = $1
         "#,
         course_module_id,
         paused_for_secs.max(0),
+        BATCH_INTERVAL_SECS,
     )
     .execute(conn)
     .await?;

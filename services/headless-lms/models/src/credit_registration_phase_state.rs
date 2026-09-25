@@ -54,6 +54,9 @@ pub struct PhaseRunOutcome {
     /// The error is Sisu timing out on every submission while Suotar itself answered, which pauses
     /// only the phase that submits, not every phase that talks to Suotar.
     pub is_sisu_outage: bool,
+    /// The error is a course code already listed alone, after taking its batch down, failing again.
+    /// That says nothing about the study registry, so no breaker counts it.
+    pub is_isolated_failure: bool,
 }
 
 impl PhaseRunOutcome {
@@ -65,6 +68,7 @@ impl PhaseRunOutcome {
             items_failed: 0,
             error: None,
             is_sisu_outage: false,
+            is_isolated_failure: false,
         }
     }
 }

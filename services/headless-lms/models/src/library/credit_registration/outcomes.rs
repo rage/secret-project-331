@@ -212,6 +212,8 @@ pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
 
 /// The outcome for every row of a batch Suotar rejected as a whole. On `import` all that matters is
 /// whether the request could have been acted on: a connection that never opened proves it was not.
+/// A waiting row's lookup keeps waiting only through an outage; a refusal of the request itself
+/// would come back every retry, so it ages out like any other failure.
 pub fn request_level_outcome(
     endpoint: SuotarEndpoint,
     variant: SuotarErrorVariant,
@@ -220,7 +222,10 @@ pub fn request_level_outcome(
     if endpoint == SuotarEndpoint::ImportAttainments && variant.outcome_may_have_landed() {
         return submission_uncertain();
     }
-    waiting_lookup_failed(endpoint, facts)
+    variant
+        .is_transient()
+        .then(|| waiting_lookup_failed(endpoint, facts))
+        .flatten()
         .unwrap_or_else(|| retry_or_expire(request_level_code(variant), endpoint, facts))
 }
 
@@ -241,7 +246,7 @@ fn waiting_lookup_failed(endpoint: SuotarEndpoint, facts: &RowFacts) -> Option<O
 }
 
 /// A row Suotar refused as a malformed request even in a batch of its own: resending the same
-/// payload is refused the same way, so it needs a human.
+/// request is refused the same way, so it needs a human.
 pub fn isolated_malformed_request_outcome() -> Outcome {
     Outcome::to(CreditRegistrationState::FailedPermanent)
         .with_code(CreditRegistrationErrorCode::MalformedRequest)

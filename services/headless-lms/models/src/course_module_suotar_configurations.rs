@@ -285,8 +285,9 @@ pub struct SuotarPause<'a> {
 }
 
 /// Pauses or resumes the module. Every phase's claim query skips a paused module, so pausing freezes
-/// its ledger rows where they stand instead of cancelling them. `None` resumes, and moves the rows'
-/// enrolment check schedules on by as long as the pause lasted.
+/// its ledger rows where they stand instead of cancelling them. Pausing a paused module only updates
+/// who paused it and why. `None` resumes, and moves the rows' enrolment check schedules on by as
+/// long as the pause lasted.
 pub async fn set_paused(
     conn: &mut PgConnection,
     course_module_id: Uuid,
@@ -310,7 +311,9 @@ FOR UPDATE
     sqlx::query!(
         r#"
 UPDATE course_module_suotar_configurations
-SET paused_at = $2,
+SET paused_at = CASE
+    WHEN $2::timestamptz IS NOT NULL THEN COALESCE(paused_at, $2)
+  END,
   paused_by_user_id = $3,
   pause_reason = $4
 WHERE course_module_id = $1

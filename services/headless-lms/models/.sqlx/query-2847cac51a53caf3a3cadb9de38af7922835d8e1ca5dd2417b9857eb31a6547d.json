@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  (\n    cr.enrolment_check_anchor_at IS NOT NULL\n    OR cr.no_usable_enrolment_since IS NOT NULL\n  )\n  AND cr.state IN (\n    'no_usable_enrolment',\n    'ready_to_submit',\n    'resolving_enrolment',\n    'failed_retryable'\n  ) AS \"is_waiting_for_enrolment_check!\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_check_anchor_at,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -324,24 +324,40 @@
       },
       {
         "ordinal": 24,
-        "name": "is_waiting_for_enrolment_check!",
-        "type_info": "Bool",
-        "origin": "Expression"
+        "name": "no_usable_enrolment_since",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "no_usable_enrolment_since"
+          }
+        }
       },
       {
         "ordinal": 25,
+        "name": "enrolment_check_anchor_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_anchor_at"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
         "name": "enrolment_resolved!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "enrolment_realisation_name?",
         "type_info": "Text",
         "origin": "Expression"
       },
       {
-        "ordinal": 27,
+        "ordinal": 28,
         "name": "submitted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -352,13 +368,13 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 29,
         "name": "enrolment_link?",
         "type_info": "Text",
         "origin": "Expression"
       },
       {
-        "ordinal": 29,
+        "ordinal": 30,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -369,7 +385,7 @@
         }
       },
       {
-        "ordinal": 30,
+        "ordinal": 31,
         "name": "has_verified_student_number!",
         "type_info": "Bool",
         "origin": {
@@ -380,7 +396,7 @@
         }
       },
       {
-        "ordinal": 31,
+        "ordinal": 32,
         "name": "course_code_allowed!",
         "type_info": "Bool",
         "origin": {
@@ -424,7 +440,8 @@
       true,
       true,
       true,
-      null,
+      true,
+      true,
       null,
       null,
       true,
@@ -434,5 +451,5 @@
       true
     ]
   },
-  "hash": "dd05147e49193bbb252b207e99db903dc9a3ade2e0055350b28f4da41188ec1c"
+  "hash": "2847cac51a53caf3a3cadb9de38af7922835d8e1ca5dd2417b9857eb31a6547d"
 }

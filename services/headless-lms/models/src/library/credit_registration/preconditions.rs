@@ -11,7 +11,8 @@ use super::backoff::{
     RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
 };
 use super::enrolment_check_schedule::{
-    BATCH_PULL_FORWARD_SECS, EnrolmentCheckGroup, EnrolmentCheckSource, first_check,
+    BATCH_PULL_FORWARD_SECS, EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck,
+    TRANSIENT_FAILURE_RETRY_SECS, first_check,
 };
 use super::enrolment_checks::{EnrolmentCheckStart, record_starts};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
@@ -108,6 +109,12 @@ pub async fn recompute_preconditions(
                 && let Some(start) = &pending.check_start
                 && let Some(scheduled) = first_check(start.group, start.anchor_at)
             {
+                // A rung already past when the schedule starts is due from now, or its lateness
+                // would count time before the row could be checked.
+                let scheduled = ScheduledEnrolmentCheck {
+                    due_at: scheduled.due_at.max(now),
+                    ..scheduled
+                };
                 starts.push(EnrolmentCheckStart {
                     credit_registration_id: pending.id,
                     group: start.group,
@@ -136,7 +143,9 @@ pub async fn recompute_preconditions(
 }
 
 /// Brings the slow checks due within [`BATCH_PULL_FORWARD_SECS`] forward into the batch released
-/// now, when there is one: they cost nothing extra in a request that is going out anyway.
+/// now, when there is one: they cost nothing extra in a request that is going out anyway. A row
+/// already due, or tried within [`TRANSIENT_FAILURE_RETRY_SECS`], is waiting out a failed lookup
+/// and keeps that wait.
 async fn pull_forward_batched_checks(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -146,7 +155,8 @@ async fn pull_forward_batched_checks(
 WITH scoped AS (
   SELECT cr.id,
     cr.next_attempt_at,
-    cr.enrolment_check_due_at
+    cr.enrolment_check_due_at,
+    cr.last_attempt_at
   FROM credit_registrations cr
     JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
   WHERE cr.state = 'no_usable_enrolment'
@@ -165,7 +175,12 @@ SET next_attempt_at = now()
 FROM scoped
 WHERE cr.id = scoped.id
   AND scoped.next_attempt_at > now()
+  AND scoped.enrolment_check_due_at > now()
   AND scoped.enrolment_check_due_at <= now() + ($4::bigint * INTERVAL '1 second')
+  AND (
+    scoped.last_attempt_at IS NULL
+    OR scoped.last_attempt_at <= now() - ($5::bigint * INTERVAL '1 second')
+  )
   AND EXISTS (
     SELECT 1
     FROM scoped released
@@ -176,6 +191,7 @@ WHERE cr.id = scoped.id
         scope.user_id,
         &scope.credit_registration_ids,
         BATCH_PULL_FORWARD_SECS,
+        TRANSIENT_FAILURE_RETRY_SECS,
     )
     .execute(conn)
     .await?;

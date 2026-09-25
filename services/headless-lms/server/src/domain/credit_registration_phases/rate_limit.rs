@@ -1,8 +1,8 @@
 //! How much one worker process may ask of each rate-limited Suotar endpoint.
 //!
 //! One token bucket per endpoint, in memory like the circuit breaker: every endpoint is called from
-//! one process only. After failures, or once a breaker cooldown ends, an endpoint drops to a tenth
-//! of its rate and doubles back every five healthy minutes.
+//! one process only. After its own failures, or once a breaker cooldown ends, an endpoint drops to a
+//! tenth of its rate and doubles back every five healthy minutes.
 //!
 //! Only the unscoped runs of the live workers are limited. A test's scoped ticks are few, and must
 //! not wait out a limit another test's traffic spent.
@@ -136,9 +136,10 @@ pub fn take(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
     });
 }
 
-/// Drops every limited endpoint to [`FLOOR_SHARE`] of its rate, restarting the climb back.
-pub fn drop_to_floor(key: &ScopeKey) {
-    for endpoint in LIMITED_ENDPOINTS {
+/// Drops `endpoints` to [`FLOOR_SHARE`] of their rate, restarting the climb back. Unlimited ones
+/// are skipped.
+pub fn drop_to_floor(key: &ScopeKey, endpoints: &[SuotarEndpoint]) {
+    for &endpoint in endpoints {
         with_bucket(key, endpoint, |bucket, rate| {
             bucket.floor_started_at = Some(Instant::now());
             bucket.tokens = bucket.tokens.min(burst_limit(rate, FLOOR_SHARE));

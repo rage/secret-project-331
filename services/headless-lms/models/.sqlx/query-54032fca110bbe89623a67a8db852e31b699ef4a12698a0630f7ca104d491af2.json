@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_suotar_configurations\nSET paused_at = CASE\n    WHEN $2::timestamptz IS NOT NULL THEN COALESCE(paused_at, $2)\n  END,\n  paused_by_user_id = $3,\n  pause_reason = $4\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "54032fca110bbe89623a67a8db852e31b699ef4a12698a0630f7ca104d491af2"
+}

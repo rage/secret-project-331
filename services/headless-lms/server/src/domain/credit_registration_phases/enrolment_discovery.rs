@@ -74,6 +74,7 @@ struct CodeListing {
     course_code: String,
     request_item_id: String,
     modules: Vec<ModuleToList>,
+    is_fetched_alone: bool,
 }
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
@@ -110,12 +111,27 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         .into_iter()
         .take(rate_limit::available(&limiter_key, ENDPOINT));
     let mut outcome = PhaseRunOutcome::processed(0);
+    let mut isolated_error = None;
+    let mut has_answer = false;
     for request in requests {
         rate_limit::take(&limiter_key, ENDPOINT, 1);
         let part = list(ctx, &request, is_account_linking_enabled).await?;
         outcome.items_processed += part.items_processed;
         outcome.items_failed += part.items_failed;
-        outcome.error = outcome.error.take().or(part.error);
+        match part.error {
+            Some(error) if part.is_isolated_failure => {
+                isolated_error = isolated_error.or(Some(error));
+            }
+            Some(error) => {
+                rate_limit::drop_to_floor(&limiter_key, &[ENDPOINT]);
+                outcome.error = outcome.error.take().or(Some(error));
+            }
+            None => has_answer = true,
+        }
+    }
+    if outcome.error.is_none() && !has_answer && isolated_error.is_some() {
+        outcome.error = isolated_error;
+        outcome.is_isolated_failure = true;
     }
     Ok(outcome)
 }
@@ -131,6 +147,7 @@ fn requests_for(due: Vec<(RosterSchedule, Vec<ModuleToList>)>) -> Vec<Vec<CodeLi
             course_code: schedule.course_code,
             request_item_id: new_request_item_id(),
             modules,
+            is_fetched_alone: schedule.is_fetched_alone,
         };
         if schedule.is_fetched_alone {
             requests.push(vec![listing]);
@@ -182,11 +199,14 @@ async fn list(
         Ok(response) => response,
         Err(error) => {
             record_request_failure(&mut conn, request, &error).await?;
+            let is_known_bad_code = matches!(request, [only] if only.is_fetched_alone)
+                && blames_the_codes(suotar_error_variant(&error));
             return Ok(PhaseRunOutcome {
                 items_processed: attempted,
                 items_failed: attempted,
                 error: Some(scrub_text(error.message())),
                 is_sisu_outage: false,
+                is_isolated_failure: is_known_bad_code,
             });
         }
     };
@@ -219,6 +239,7 @@ async fn list(
         error: every_item_service_unavailable(&response)
             .then(|| "Every course code of the batch came back unavailable.".to_string()),
         is_sisu_outage: false,
+        is_isolated_failure: false,
     })
 }
 
@@ -250,9 +271,18 @@ fn listed_people<'a>(
     }
 }
 
+/// Whether a failed listing request may be down to one of its codes. A connection that never opened
+/// or our own credentials say nothing about any code.
+fn blames_the_codes(variant: SuotarErrorVariant) -> bool {
+    !matches!(
+        variant,
+        SuotarErrorVariant::TransportNotDelivered | SuotarErrorVariant::Unauthorized
+    )
+}
+
 /// A request Suotar failed as a whole. Suotar fails every code of a request when one fails, so the
 /// codes of a failed batch are listed on their own from now on, and a code that fails alone backs
-/// off. A connection that never opened or our own credentials say nothing about any code.
+/// off.
 async fn record_request_failure(
     conn: &mut PgConnection,
     request: &[CodeListing],
@@ -263,10 +293,7 @@ async fn record_request_failure(
     for module in request.iter().flat_map(|listing| &listing.modules) {
         mark_listing_failed(conn, module.course_module_id, code).await?;
     }
-    if matches!(
-        variant,
-        SuotarErrorVariant::TransportNotDelivered | SuotarErrorVariant::Unauthorized
-    ) {
+    if !blames_the_codes(variant) {
         return Ok(());
     }
     match request {

@@ -47,6 +47,7 @@ pub async fn run(
     let shutdown = CancellationToken::new();
     tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
     let ctx = PhaseContext {
+        owning_process: Some(process),
         shutdown: Some(&shutdown),
         ..PhaseContext::from_app(
             &db_pool,

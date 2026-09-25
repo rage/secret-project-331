@@ -24,19 +24,13 @@ import {
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
-import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
-import {
-  breakerHealth,
-  breakerHealthLabel,
-  breakerNextAttemptAt,
-  breakerTargetLabel,
-  isUnhealthyBreaker,
-} from "./breakerStatus"
+import { useCreditRegistrationPhases } from "./adminCreditRegistrationHooks"
+import { breakerNextAttemptAt, breakerStatusLabel, breakerTargetLabel } from "./breakerStatus"
 
 /** How each worker process's own circuit breakers last reported themselves. */
 const CircuitBreakerSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const overviewQuery = useCreditRegistrationOverview()
+  const phasesQuery = useCreditRegistrationPhases()
 
   return (
     <section className={sectionCardCss}>
@@ -46,14 +40,14 @@ const CircuitBreakerSection: React.FC = () => {
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-circuit-breakers-note")}
       </p>
-      <QueryResult query={overviewQuery} refreshIndicator={QUIET_REFRESH}>
-        {(overview) => (
+      <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
+        {(list) => (
           <Table
             caption={t("credit-registration-heading-circuit-breakers")}
             density={DENSITY_COMPACT}
             responsive={TABLE_STACK}
             rowKey={(row) => `${row.process_name}/${row.target}`}
-            rows={overview.circuit_breakers}
+            rows={list.circuit_breakers}
             emptyState={t("credit-registration-admin-no-circuit-breakers")}
             columns={[
               {
@@ -70,17 +64,17 @@ const CircuitBreakerSection: React.FC = () => {
                 header: t("label-status"),
                 minWidth: "11rem",
                 cell: (row) => {
-                  const health = breakerHealth(row)
+                  const { status } = row
                   return (
                     <span className={stackedCellCss}>
-                      {isUnhealthyBreaker(health) ? (
-                        <Badge tone={health === "open" ? TONE.DANGER : TONE.WARNING} size="compact">
-                          {breakerHealthLabel(t, health)}
-                        </Badge>
+                      {status === "closed" ? (
+                        <span>{breakerStatusLabel(t, status)}</span>
                       ) : (
-                        <span>{breakerHealthLabel(t, health)}</span>
+                        <Badge tone={status === "open" ? TONE.DANGER : TONE.WARNING} size="compact">
+                          {breakerStatusLabel(t, status)}
+                        </Badge>
                       )}
-                      {health === "open" &&
+                      {status === "open" &&
                         row.open_for_secs !== null &&
                         row.open_for_secs !== undefined && (
                           <span className={noteCss}>

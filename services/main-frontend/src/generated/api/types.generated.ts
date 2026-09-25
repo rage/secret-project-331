@@ -852,6 +852,11 @@ export type ChatbotConfigurationModel = {
   updated_at: string
 }
 
+/**
+ * Where one circuit breaker stands, as its worker last reported it.
+ */
+export type CircuitBreakerStatus = "closed" | "open" | "waiting_to_probe"
+
 export type ClaimStudentNumberVerificationTokenOutcome =
   | "linked"
   | "already_linked_to_this_account"
@@ -2038,15 +2043,14 @@ export type CreditRegistrationCircuitBreakerState = {
    * The endpoints whose phases the breaker pauses.
    */
   endpoints: Array<SuotarEndpoint>
-  open: boolean
   /**
    * How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
    */
   open_for_secs?: number | null
   process_name: string
+  status: CircuitBreakerStatus
   target: BreakerTarget
   trip_count: number
-  trips_after_consecutive_failures: number
   /**
    * When the worker last reported the state.
    */
@@ -2267,7 +2271,6 @@ export type CreditRegistrationOldestNonTerminal = {
 }
 
 export type CreditRegistrationOverview = {
-  circuit_breakers: Array<CreditRegistrationCircuitBreakerState>
   counts_by_state: Array<CreditRegistrationStateTotal>
   endpoints: Array<SuotarEndpointStanding>
   error_codes: Array<CreditRegistrationErrorCodeTotal>
@@ -2293,6 +2296,7 @@ export type CreditRegistrationOverview = {
 export type CreditRegistrationPendingReason = "completion" | "student_number" | "course_code"
 
 export type CreditRegistrationPhaseList = {
+  circuit_breakers: Array<CreditRegistrationCircuitBreakerState>
   consecutive_failure_limit: number
   heartbeat_interval_multiplier: number
   /**
@@ -9997,7 +10001,7 @@ export type ListCreditRegistrationPhasesData = {
 
 export type ListCreditRegistrationPhasesResponses = {
   /**
-   * One row per pipeline phase
+   * One row per pipeline phase, and the workers' circuit breakers
    */
   200: CreditRegistrationPhaseList
 }

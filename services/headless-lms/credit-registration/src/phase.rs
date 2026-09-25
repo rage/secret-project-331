@@ -252,12 +252,6 @@ impl CreditRegistrationPhase {
         Self::ALL.into_iter().find(|phase| phase.as_str() == name)
     }
 
-    /// Whether the phase talks to the study registry, and so shares the study registry circuit
-    /// breaker with the other such phases of its own worker process.
-    pub fn calls_study_registry(self) -> bool {
-        !self.spec().endpoints.is_empty()
-    }
-
     /// The longest one iteration may wait on the study registry before its calls time out.
     pub fn max_study_registry_wait(self) -> Duration {
         self.spec()

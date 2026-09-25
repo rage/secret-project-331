@@ -1,36 +1,17 @@
-import type {
-  BreakerTarget,
-  CreditRegistrationCircuitBreakerState,
-} from "@/generated/api/types.generated"
+import type { BreakerTarget, CircuitBreakerStatus } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
 
-export type BreakerHealth = "closed" | "open" | "waiting_to_probe"
-
-/**
- * `waiting_to_probe`: the cooldown has passed, but the API only exposes that as the failure count
- * staying at the trip threshold; it drops back below it once a call finally succeeds.
- */
-export const breakerHealth = (breaker: CreditRegistrationCircuitBreakerState): BreakerHealth => {
-  if (breaker.open) {
-    return "open"
-  }
-  return breaker.consecutive_failures >= breaker.trips_after_consecutive_failures
-    ? "waiting_to_probe"
-    : "closed"
-}
-
-const HEALTH_KEYS = {
+const STATUS_KEYS = {
   closed: "credit-registration-admin-breaker-closed",
   open: "credit-registration-admin-breaker-open",
   waiting_to_probe: "credit-registration-admin-breaker-waiting-to-probe",
-} as const satisfies Record<BreakerHealth, string>
+} as const satisfies Record<CircuitBreakerStatus, string>
 
-export const breakerHealthLabel = (t: CreditRegistrationTFunction, health: BreakerHealth): string =>
-  t(HEALTH_KEYS[health])
-
-/** Whether a breaker's state should stand out rather than read as ordinary. */
-export const isUnhealthyBreaker = (health: BreakerHealth): boolean => health !== "closed"
+export const breakerStatusLabel = (
+  t: CreditRegistrationTFunction,
+  status: CircuitBreakerStatus,
+): string => t(STATUS_KEYS[status])
 
 const TARGET_KEYS = {
   study_registry: "credit-registration-admin-breaker-target-study-registry",

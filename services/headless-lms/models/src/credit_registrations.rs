@@ -591,7 +591,7 @@ pub struct CreditRegistration {
     /// `None` until the first check, which is what lets any roster listing wake a row never checked.
     pub seen_enrolment_ids: Option<Vec<String>>,
     /// Set while a lookup is out for a row parked in `no_usable_enrolment`; see
-    /// [`claim_enrolment_check`].
+    /// [`claim_enrolment_checks`].
     pub enrolment_check_claimed_until: Option<DateTime<Utc>>,
 }
 
@@ -1387,7 +1387,7 @@ pub async fn claim_due_for_person_lookup(
 /// Only one completion per student and module goes past resolve at a time, so each is weighed
 /// against the outcome of the one before it rather than racing it to the registry; see
 /// [`lock_live_successes_for_same_module`]. Two such rows claimed together must still be resolved
-/// one at a time. A parked row sent for a check must be marked with [`claim_enrolment_check`]
+/// one at a time. A parked row sent for a check must be marked with [`claim_enrolment_checks`]
 /// before the claim's transaction commits.
 pub async fn claim_due_for_resolve(
     conn: &mut PgConnection,
@@ -1399,21 +1399,24 @@ pub async fn claim_due_for_resolve(
     claim(conn, &LOOKUP_STATES, scope, limit, ClaimKind::Resolve).await
 }
 
-/// Keeps a parked row out of every claim while a lookup for it is out, as `resolving_enrolment`
+/// Keeps parked rows out of every claim while a lookup for them is out, as `resolving_enrolment`
 /// does for a row on its first resolve. The answer's [`transition`] ends the claim; one a worker
 /// died holding expires after
 /// [`RESOLVING_RECOVERY_GRACE`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE).
 /// A no-op for a row in any other state.
-pub async fn claim_enrolment_check(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+pub async fn claim_enrolment_checks(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
     use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE;
+    if ids.is_empty() {
+        return Ok(());
+    }
     sqlx::query!(
         r#"
 UPDATE credit_registrations
 SET enrolment_check_claimed_until = now() + $2::interval
-WHERE id = $1
+WHERE id = ANY($1)
   AND state = 'no_usable_enrolment'
         "#,
-        id,
+        ids,
         RESOLVING_RECOVERY_GRACE as TimeDelta,
     )
     .execute(conn)
@@ -1484,7 +1487,9 @@ enum ClaimKind {
     Import,
 }
 
-/// Shares its eligibility filters with [`count_due_enrolment_checks`]; change both together.
+/// Shares its eligibility filters with [`count_due_enrolment_checks`] and
+/// [`pull_forward_batched_checks`](crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks);
+/// change all three together.
 async fn claim(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -2639,8 +2644,11 @@ GROUP BY state
 /// Live rows parked in `no_usable_enrolment` that an unscoped resolve-enrolments claim would take
 /// for an enrolment check now; the rest wait for their schedule, their module, or a lookup already
 /// out. Leaves out the claim's one-row-per-student-and-module hold, which only defers a row.
+///
+/// Shares its filters with the unscoped `claim` and with the released-check test of
+/// [`pull_forward_batched_checks`](crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks);
+/// change all three together, or the queue depth counts rows no claim takes.
 pub async fn count_due_enrolment_checks(conn: &mut PgConnection) -> ModelResult<i64> {
-    // Must match the unscoped filters of `claim`, or the queue depth counts rows no claim takes.
     let count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"

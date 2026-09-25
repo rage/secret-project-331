@@ -27,7 +27,7 @@ use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use super::Lookup;
+use super::{Lookup, hold};
 use crate::apply::{Applied, Effects, OutcomeEvent, apply_outcome};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase};
 use crate::dispatch::Iteration;
@@ -79,7 +79,6 @@ impl SuotarBatchPhase for ResolvePersonIds {
                 continue;
             };
             let lookup = Lookup::of(&row);
-            lookup.hold(conn, &row).await?;
             let item = ResolvePersonRequestItem {
                 request_item_id: new_request_item_id(),
                 student_number: link.student_number.clone().into(),
@@ -91,6 +90,14 @@ impl SuotarBatchPhase for ResolvePersonIds {
             };
             prepared.sendable.push((awaiting, item));
         }
+        hold(
+            conn,
+            prepared
+                .sendable
+                .iter()
+                .map(|(awaiting, _)| (awaiting.registration.id, awaiting.lookup)),
+        )
+        .await?;
         Ok(prepared)
     }
 

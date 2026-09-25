@@ -1,8 +1,5 @@
 //! The account-linking funnel, resending and hand-resolving linking mails, and manual links.
 
-use std::future::Future;
-use std::pin::Pin;
-
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
@@ -14,7 +11,7 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registrations;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
-    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
+    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
 };
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
@@ -28,10 +25,9 @@ use crate::controllers::main_frontend::course_credit_registrations::record_resen
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::PhaseContext;
-use headless_lms_credit_registration::error::CreditRegistrationResult;
 use headless_lms_credit_registration::linking_mail_resend::{
-    ResendOutcome, ResolvePersonError, ResolvedPerson, resend_linking_mail_for_target,
-    resolve_person,
+    RateCapOverride, ResendOutcome, ResolvePersonError, ResolvedPerson,
+    resend_linking_mail_for_target, resolve_person,
 };
 
 use super::{
@@ -513,26 +509,13 @@ pub async fn admin_resend_account_linking_email(
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
-    // Boxed so both the no-op and the override branch type-check as the same value; it only runs
-    // once the shared helper has confirmed the number is not already linked.
-    let before_send: Pin<Box<dyn Future<Output = CreditRegistrationResult<i64>> + '_>> =
-        match &override_reason {
-            Some(reason) => Box::pin(async {
-                let mut conn = pool.acquire().await?;
-                Ok(retire_capped_mails(
-                    &mut conn,
-                    user.id,
-                    GLOBAL_ADMIN_ROLE,
-                    payload.course_id,
-                    student_number.expose_secret(),
-                    reason,
-                )
-                .await?)
-            }),
-            None => Box::pin(async { Ok(0) }),
-        };
+    let rate_cap_override = override_reason.as_deref().map(|reason| RateCapOverride {
+        actor_user_id: user.id,
+        actor_role: GLOBAL_ADMIN_ROLE,
+        reason,
+    });
     let attempt =
-        resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, before_send)
+        resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, rate_cap_override)
             .await?;
     let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.decision);

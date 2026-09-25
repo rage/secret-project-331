@@ -9,7 +9,7 @@
 //! `import` from sending a request before the enrolment this one resolves is known.
 //!
 //! A row parked in `no_usable_enrolment` is checked where it stands instead, under
-//! [`claim_enrolment_check`], so a check that finds nothing leaves it there with only its schedule
+//! [`claim_enrolment_checks`], so a check that finds nothing leaves it there with only its schedule
 //! and last check time moved.
 //!
 //! Each iteration first looks up the Sisu person for links that lack one; see [`persons`].
@@ -18,9 +18,11 @@ mod enrolments;
 mod persons;
 
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationState, Transition, claim_enrolment_check, transition,
+    BatchMove, CreditRegistration, CreditRegistrationState, Transition, claim_enrolment_checks,
+    transition_batch,
 };
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::batch_phase::run_suotar_batch_phase;
 use crate::dispatch::{Counts, Iteration};
@@ -60,25 +62,26 @@ impl Lookup {
             Self::ParkedCheck => CreditRegistrationState::NoUsableEnrolment,
         }
     }
+}
 
-    /// Keeps the row from being claimed again, or imported, while its lookup is out. In the claim's
-    /// transaction.
-    async fn hold(
-        self,
-        conn: &mut PgConnection,
-        row: &CreditRegistration,
-    ) -> CreditRegistrationResult<()> {
-        match self {
-            Self::FirstResolve => {
-                transition(
-                    conn,
-                    row.id,
-                    &Transition::to(CreditRegistrationState::ResolvingEnrolment),
-                )
-                .await?;
-            }
-            Self::ParkedCheck => claim_enrolment_check(conn, row.id).await?,
-        }
-        Ok(())
-    }
+/// Keeps the claimed rows from being claimed again, or imported, while their lookups are out. In the
+/// claim's transaction.
+async fn hold(
+    conn: &mut PgConnection,
+    rows: impl IntoIterator<Item = (Uuid, Lookup)>,
+) -> CreditRegistrationResult<()> {
+    let (first_resolves, parked_checks): (Vec<_>, Vec<_>) = rows
+        .into_iter()
+        .partition(|&(_, lookup)| lookup == Lookup::FirstResolve);
+    let moves: Vec<BatchMove> = first_resolves
+        .into_iter()
+        .map(|(id, _)| BatchMove {
+            id,
+            transition: Transition::to(CreditRegistrationState::ResolvingEnrolment),
+        })
+        .collect();
+    transition_batch(conn, &moves).await?;
+    let parked_ids: Vec<Uuid> = parked_checks.into_iter().map(|(id, _)| id).collect();
+    claim_enrolment_checks(conn, &parked_ids).await?;
+    Ok(())
 }

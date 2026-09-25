@@ -19,7 +19,7 @@ use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
 use crate::phase::PhaseScope;
-use crate::process_local::ProcessLocalMap;
+use crate::process_local::{LastReported, ProcessLocalMap};
 
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 /// The first cooldown; each trip without a success between adds another, up to
@@ -90,6 +90,9 @@ type BreakerKey = (ScopeKey, BreakerTarget);
 
 static BREAKERS: ProcessLocalMap<BreakerKey, BreakerState> = ProcessLocalMap::new();
 
+/// The global breakers as this process last wrote them for the dashboard.
+pub(crate) static REPORTED: LastReported<BreakerTarget, BreakerSnapshot> = LastReported::new();
+
 /// The first cooldown, which later trips multiply.
 pub fn cooldown(test_mode: bool) -> Duration {
     if test_mode {
@@ -128,9 +131,19 @@ pub fn is_half_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
         .get(&(scope.clone(), target))
         .is_some_and(|state| {
             state.is_live(now)
-                && state.open_until.is_some_and(|until| now >= until)
-                && state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES
+                && is_waiting_to_probe(state.consecutive_failures, state.open_until, now)
         })
+}
+
+/// Whether a breaker with this run of failures and cooldown is past the cooldown without the
+/// success that closes it. [`is_half_open`] for a breaker read back from the database.
+pub fn is_waiting_to_probe<T: PartialOrd>(
+    consecutive_failures: u32,
+    open_until: Option<T>,
+    now: T,
+) -> bool {
+    open_until.is_some_and(|until| now >= until)
+        && consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES
 }
 
 /// What one breaker holds right now, in this process.
@@ -141,6 +154,17 @@ pub struct BreakerSnapshot {
     /// When the cooldown ends, or ended for a breaker that is half-open now.
     pub open_until: Option<DateTime<Utc>>,
     pub trip_count: u32,
+}
+
+impl BreakerSnapshot {
+    /// Whether the two write the same database row, `open_until` to the second: converting it from
+    /// the monotonic clock moves it a little on every [`snapshot`].
+    pub(crate) fn is_same_report(&self, other: &Self) -> bool {
+        let to_second = |snapshot: &Self| snapshot.open_until.map(|until| until.timestamp());
+        self.consecutive_failures == other.consecutive_failures
+            && self.trip_count == other.trip_count
+            && to_second(self) == to_second(other)
+    }
 }
 
 /// Reads a breaker without touching it, for the dashboard. Not [`is_open`], which clears an elapsed

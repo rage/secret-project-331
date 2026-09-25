@@ -10,6 +10,9 @@ use headless_lms_models::credit_registration_phase_state::{
     self, CreditRegistrationPhaseState as PhaseStateRow,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationState};
+use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::suotar_circuit_breakers::{self, BreakerTarget, SuotarCircuitBreaker};
+use itertools::Itertools;
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
@@ -17,6 +20,7 @@ use crate::domain::credit_registration::health::{
 };
 use crate::prelude::*;
 use headless_lms_credit_registration::CreditRegistrationPhase;
+use headless_lms_credit_registration::breaker::is_waiting_to_probe;
 
 use super::authorize_credit_registration_admin;
 
@@ -61,6 +65,34 @@ pub struct CreditRegistrationPhaseRow {
     pub queue_depth: Option<i64>,
 }
 
+/// Where one circuit breaker stands, as its worker last reported it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CircuitBreakerStatus {
+    Closed,
+    /// In its cooldown: the phases it pauses skip their iterations.
+    Open,
+    /// Past its cooldown, and the next iteration sends a single-item probe that closes it only if
+    /// it succeeds.
+    WaitingToProbe,
+}
+
+/// One worker process's circuit breaker, as the worker last reported it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationCircuitBreakerState {
+    pub process_name: String,
+    pub target: BreakerTarget,
+    /// The endpoints whose phases the breaker pauses.
+    pub endpoints: Vec<SuotarEndpoint>,
+    pub status: CircuitBreakerStatus,
+    pub consecutive_failures: i64,
+    /// How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
+    pub open_for_secs: Option<i64>,
+    pub trip_count: i64,
+    /// When the worker last reported the state.
+    pub updated_at: DateTime<Utc>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationPhaseList {
     /// In process then pipeline order, so the grouping is a fold over the list.
@@ -69,11 +101,12 @@ pub struct CreditRegistrationPhaseList {
     pub consecutive_failure_limit: i32,
     /// Every phase is stopped, which is what the kill switch does.
     pub paused_globally: bool,
+    pub circuit_breakers: Vec<CreditRegistrationCircuitBreakerState>,
 }
 
 /**
 GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
-and the queue it is responsible for.
+and the queue it is responsible for, and the workers' circuit breakers.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -82,7 +115,7 @@ and the queue it is responsible for.
     operation_id = "listCreditRegistrationPhases",
     tag = "credit-registration-admin",
     responses(
-        (status = 200, description = "One row per pipeline phase", body = CreditRegistrationPhaseList)
+        (status = 200, description = "One row per pipeline phase, and the workers' circuit breakers", body = CreditRegistrationPhaseList)
     )
 )]
 pub async fn list_credit_registration_phases(
@@ -117,12 +150,18 @@ pub async fn list_credit_registration_phases(
                 .unwrap_or(usize::MAX),
         )
     });
+    let circuit_breakers = suotar_circuit_breakers::get_all(&mut conn)
+        .await?
+        .into_iter()
+        .map(|breaker| to_circuit_breaker_state(breaker, now))
+        .collect();
 
     token.authorized_ok(web::Json(CreditRegistrationPhaseList {
         paused_globally: !phases.is_empty() && phases.iter().all(|row| row.paused_at.is_some()),
         phases,
         heartbeat_interval_multiplier: PHASE_HEARTBEAT_INTERVAL_MULTIPLIER,
         consecutive_failure_limit: PHASE_CONSECUTIVE_FAILURE_LIMIT,
+        circuit_breakers,
     }))
 }
 
@@ -180,4 +219,41 @@ fn to_phase_row(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/phases", web::get().to(list_credit_registration_phases));
+}
+
+fn to_circuit_breaker_state(
+    breaker: SuotarCircuitBreaker,
+    now: DateTime<Utc>,
+) -> CreditRegistrationCircuitBreakerState {
+    let open_for_secs = breaker
+        .open_until
+        .map(|until| (until - now).num_seconds())
+        .filter(|&secs| secs > 0);
+    let consecutive_failures = u32::try_from(breaker.consecutive_failures).unwrap_or_default();
+    let status = if breaker.open_until.is_some_and(|until| now < until) {
+        CircuitBreakerStatus::Open
+    } else if is_waiting_to_probe(consecutive_failures, breaker.open_until, now) {
+        CircuitBreakerStatus::WaitingToProbe
+    } else {
+        CircuitBreakerStatus::Closed
+    };
+    let endpoints = CreditRegistrationPhase::ALL
+        .into_iter()
+        .map(CreditRegistrationPhase::spec)
+        .filter(|spec| {
+            spec.process.as_str() == breaker.process_name && spec.breakers.contains(&breaker.target)
+        })
+        .flat_map(|spec| spec.endpoints.iter().copied())
+        .unique()
+        .collect();
+    CreditRegistrationCircuitBreakerState {
+        process_name: breaker.process_name,
+        target: breaker.target,
+        endpoints,
+        status,
+        consecutive_failures: i64::from(breaker.consecutive_failures),
+        open_for_secs,
+        trip_count: i64::from(breaker.trip_count),
+        updated_at: breaker.updated_at,
+    }
 }

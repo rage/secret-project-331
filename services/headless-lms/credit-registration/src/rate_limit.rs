@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::breaker::ScopeKey;
-use crate::process_local::ProcessLocalMap;
+use crate::process_local::{LastReported, ProcessLocalMap};
 
 /// What an endpoint may take at full rate.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -98,6 +98,9 @@ impl Bucket {
 }
 
 static BUCKETS: ProcessLocalMap<(ScopeKey, SuotarEndpoint), Bucket> = ProcessLocalMap::new();
+
+/// The global limiters as this process last wrote them for the dashboard.
+pub(crate) static REPORTED: LastReported<SuotarEndpoint, LimiterSnapshot> = LastReported::new();
 
 fn with_bucket<T>(
     key: &ScopeKey,

@@ -914,7 +914,7 @@ mod tests {
             CreditRegistrationState::NoUsableEnrolment
         );
 
-        crate::credit_registrations::claim_enrolment_check(tx.as_mut(), fixture.registration)
+        crate::credit_registrations::claim_enrolment_checks(tx.as_mut(), &[fixture.registration])
             .await
             .unwrap();
         assert_eq!(claim(tx.as_mut()).await, 0);

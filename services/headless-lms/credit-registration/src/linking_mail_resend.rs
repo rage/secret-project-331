@@ -5,9 +5,6 @@
 //! ledger, and the claim goes through [`claim_linking_mails`], so the caps and dedup guard apply
 //! exactly as they do to the worker.
 
-use std::future::Future;
-use std::pin::Pin;
-
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -16,6 +13,7 @@ use futures::future::join_all;
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, listed_person_addresses,
+    retire_capped_mails,
 };
 use headless_lms_models::library::credit_registration::classification::PERSON_NOT_FOUND_CODE;
 use headless_lms_models::verified_student_numbers;
@@ -205,17 +203,23 @@ impl From<ResendDecision> for ResendOutcome {
     }
 }
 
+/// An admin's go-ahead to get past the linking-mail caps by retiring the mails they count; see
+/// [`retire_capped_mails`].
+pub struct RateCapOverride<'a> {
+    pub actor_user_id: Uuid,
+    pub actor_role: &'a str,
+    pub reason: &'a str,
+}
+
 /// Shared by the teacher- and admin-facing resend endpoints: refuses a target that is already linked,
-/// otherwise runs `before_send` (the admin path's rate-cap override; the teacher path passes a no-op)
-/// and reruns the send path exactly as the worker would.
-///
-/// `before_send` runs strictly after the already-linked check and before [`resend_linking_mail`], so an
-/// override never retires mails for a number that turns out to already be linked.
-pub async fn resend_linking_mail_for_target<'a>(
+/// otherwise applies `rate_cap_override`, if any, and reruns the send path exactly as the worker
+/// would. The override runs only after the already-linked check, so it never retires mails for a
+/// number that turns out to be linked.
+pub async fn resend_linking_mail_for_target(
     ctx: &PhaseContext<'_>,
     course_id: Uuid,
     student_number: &SecretString,
-    before_send: Pin<Box<dyn Future<Output = CreditRegistrationResult<i64>> + 'a>>,
+    rate_cap_override: Option<RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
     let already_linked = {
         let mut conn = ctx.pool.acquire().await?;
@@ -229,7 +233,21 @@ pub async fn resend_linking_mail_for_target<'a>(
             retired_mail_count: 0,
         });
     }
-    let retired_mail_count = before_send.await?;
+    let retired_mail_count = match rate_cap_override {
+        Some(rate_cap_override) => {
+            let mut conn = ctx.pool.acquire().await?;
+            retire_capped_mails(
+                &mut conn,
+                rate_cap_override.actor_user_id,
+                rate_cap_override.actor_role,
+                course_id,
+                student_number.expose_secret(),
+                rate_cap_override.reason,
+            )
+            .await?
+        }
+        None => 0,
+    };
     let decision =
         ResendDecision::Attempted(resend_linking_mail(ctx, course_id, student_number).await?);
     Ok(ResendAttempt {

@@ -32,18 +32,28 @@ use crate::error::CreditRegistrationResult;
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::VerifyAttainments;
 
-/// One claimed row and the poll it was claimed for. The attempt count travels with it because it
-/// sets the backoff the answer is scheduled by.
-struct Poll {
+/// One claimed row and the verify attempt it was claimed for, which sets the backoff the answer is
+/// scheduled by.
+struct Leased {
     row: CreditRegistration,
     attempt: i32,
 }
 
-/// A row whose submission we lost track of: nothing to poll by, so the lookup goes through
-/// `resolve-enrolments` instead.
-struct Recovery {
-    row: CreditRegistration,
-    attempt: i32,
+impl AsRef<CreditRegistration> for Leased {
+    fn as_ref(&self) -> &CreditRegistration {
+        &self.row
+    }
+}
+
+impl Leased {
+    /// The count this attempt was made under, not the one the row was claimed with, so the backoff
+    /// advances once per attempt.
+    fn facts(&self) -> RowFacts {
+        RowFacts {
+            verify_attempt_count: self.attempt,
+            ..RowFacts::of(&self.row, Utc::now())
+        }
+    }
 }
 
 pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
@@ -54,13 +64,13 @@ pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Coun
 
 /// Claims up to `limit` of `flow`'s due rows, counts an attempt on each and leases it until its
 /// poll's backoff, so a concurrent iteration cannot poll the same row. Each answer overwrites its
-/// own row's schedule. Returns each row with the attempt it is polled under.
+/// own row's schedule.
 async fn claim_and_lease(
     conn: &mut PgConnection,
     it: &Iteration<'_>,
     flow: VerifyFlow,
     limit: usize,
-) -> CreditRegistrationResult<Vec<(CreditRegistration, i32)>> {
+) -> CreditRegistrationResult<Vec<Leased>> {
     let claimed = claim_due_for_verify(conn, flow, it.scope, limit as i64).await?;
     let attempts = increment_verify_attempt_counts(
         conn,
@@ -77,7 +87,7 @@ async fn claim_and_lease(
         .into_iter()
         .filter_map(|row| {
             let attempt = attempts.get(&row.id).copied()?;
-            Some((row, attempt))
+            Some(Leased { row, attempt })
         })
         .collect())
 }
@@ -87,7 +97,7 @@ struct VerifyPoll;
 
 impl SuotarBatchPhase for VerifyPoll {
     type Endpoint = endpoints::VerifyAttainments;
-    type Row = Poll;
+    type Row = Leased;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
 
@@ -100,10 +110,10 @@ impl SuotarBatchPhase for VerifyPoll {
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, VerifyAttainmentRequestItem>> {
         let mut prepared = Prepared::default();
-        for (row, attempt) in claim_and_lease(conn, it, VerifyFlow::Poll, limit).await? {
-            let Some(submitted_attainment_id) = row.submitted_attainment_id.clone() else {
+        for poll in claim_and_lease(conn, it, VerifyFlow::Poll, limit).await? {
+            let Some(submitted_attainment_id) = poll.row.submitted_attainment_id.clone() else {
                 error!(
-                    credit_registration_id = %row.id,
+                    credit_registration_id = %poll.row.id,
                     "Credit registration is awaiting verification with no submitted attainment id; stuck"
                 );
                 continue;
@@ -112,7 +122,7 @@ impl SuotarBatchPhase for VerifyPoll {
                 request_item_id: new_request_item_id(),
                 submitted_attainment_id,
             };
-            prepared.sendable.push((Poll { row, attempt }, item));
+            prepared.sendable.push((poll, item));
         }
         Ok(prepared)
     }
@@ -138,27 +148,10 @@ impl SuotarBatchPhase for VerifyPoll {
     }
 }
 
-impl AsRef<CreditRegistration> for Poll {
-    fn as_ref(&self) -> &CreditRegistration {
-        &self.row
-    }
-}
-
-impl Poll {
-    /// The count this poll was made under, not the one the row was claimed with, so the backoff
-    /// doubles once per poll.
-    fn facts(&self) -> RowFacts {
-        RowFacts {
-            verify_attempt_count: self.attempt,
-            ..RowFacts::of(&self.row, Utc::now())
-        }
-    }
-}
-
 /// Applies one poll's answer.
 async fn apply_poll_answer(
     conn: &mut PgConnection,
-    poll: &Poll,
+    poll: &Leased,
     item: Option<&SuotarResponseItem<VerifyAttainmentResult>>,
     event: OutcomeEvent<'_>,
 ) -> CreditRegistrationResult<Applied> {
@@ -203,7 +196,7 @@ enum PollAnswer<'a> {
 /// Only a course unit attainment registers the row, and only `notRegistered` sends it back towards
 /// import; anything else keeps it polling.
 fn decide_poll<'a>(
-    poll: &Poll,
+    poll: &Leased,
     item: Option<&'a SuotarResponseItem<VerifyAttainmentResult>>,
     facts: &RowFacts,
 ) -> PollAnswer<'a> {
@@ -260,7 +253,7 @@ struct UncertainRecovery;
 
 impl SuotarBatchPhase for UncertainRecovery {
     type Endpoint = endpoints::ResolveEnrolments;
-    type Row = Recovery;
+    type Row = Leased;
 
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
 
@@ -272,12 +265,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         conn: &mut PgConnection,
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
-        let recoveries: Vec<Recovery> =
-            claim_and_lease(conn, it, VerifyFlow::UncertainRecovery, limit)
-                .await?
-                .into_iter()
-                .map(|(row, attempt)| Recovery { row, attempt })
-                .collect();
+        let recoveries = claim_and_lease(conn, it, VerifyFlow::UncertainRecovery, limit).await?;
         let contexts = get_submission_contexts(
             conn,
             &recoveries
@@ -342,26 +330,10 @@ impl SuotarBatchPhase for UncertainRecovery {
     }
 }
 
-impl AsRef<CreditRegistration> for Recovery {
-    fn as_ref(&self) -> &CreditRegistration {
-        &self.row
-    }
-}
-
-impl Recovery {
-    /// The count this lookup was made under, so the recheck cadence advances once per lookup.
-    fn facts(&self) -> RowFacts {
-        RowFacts {
-            verify_attempt_count: self.attempt,
-            ..RowFacts::of(&self.row, Utc::now())
-        }
-    }
-}
-
 /// Settles an uncertain row as `duplicate` if the lookup found the attainment it would have created,
 /// and otherwise leaves it uncertain.
 fn decide_recovery<'a>(
-    recovery: &Recovery,
+    recovery: &Leased,
     item: Option<&'a SuotarResponseItem<EnrolmentResolutionResult>>,
 ) -> Decision<'a> {
     let row = &recovery.row;

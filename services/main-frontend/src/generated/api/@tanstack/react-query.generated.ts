@@ -6682,7 +6682,7 @@ export const listCreditRegistrationPhasesQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
- * and the queue it is responsible for.
+ * and the queue it is responsible for, and the workers' circuit breakers.
  */
 export const listCreditRegistrationPhasesOptions = (
   options?: Options<ListCreditRegistrationPhasesData>,

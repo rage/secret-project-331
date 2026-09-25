@@ -23,9 +23,6 @@ use crate::domain::credit_registration::health::{
 };
 use crate::prelude::*;
 use headless_lms_credit_registration::CreditRegistrationPhase;
-use headless_lms_credit_registration::breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES;
-use headless_lms_models::suotar_circuit_breakers::{self, BreakerTarget, SuotarCircuitBreaker};
-use itertools::Itertools;
 
 use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin, required_reason};
 
@@ -84,23 +81,6 @@ pub struct SuotarEndpointStanding {
     pub consecutive_failures: i64,
 }
 
-/// One worker process's circuit breaker, as the worker last reported it.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationCircuitBreakerState {
-    pub process_name: String,
-    pub target: BreakerTarget,
-    /// The endpoints whose phases the breaker pauses.
-    pub endpoints: Vec<SuotarEndpoint>,
-    pub open: bool,
-    pub consecutive_failures: i64,
-    /// How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
-    pub open_for_secs: Option<i64>,
-    pub trip_count: i64,
-    pub trips_after_consecutive_failures: i64,
-    /// When the worker last reported the state.
-    pub updated_at: DateTime<Utc>,
-}
-
 /// One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
 /// narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
 /// `CreditRegistrationPhaseRow` instead, which is wider.
@@ -142,7 +122,6 @@ pub struct CreditRegistrationOverview {
     pub throughput_days: i64,
     pub stuck: Vec<CreditRegistrationStuckTotal>,
     pub endpoints: Vec<SuotarEndpointStanding>,
-    pub circuit_breakers: Vec<CreditRegistrationCircuitBreakerState>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -240,12 +219,6 @@ pub async fn get_credit_registration_overview(
     })
     .collect();
     let stuck = stuck_rows.into_iter().map(to_stuck_total).collect();
-    let now = Utc::now();
-    let circuit_breakers = suotar_circuit_breakers::get_all(&mut conn)
-        .await?
-        .into_iter()
-        .map(|breaker| to_circuit_breaker_state(breaker, now))
-        .collect();
     let endpoints = suotar_api_calls::get_endpoint_standings(&mut conn)
         .await?
         .into_iter()
@@ -263,7 +236,6 @@ pub async fn get_credit_registration_overview(
         throughput_days: THROUGHPUT_DAYS,
         stuck,
         endpoints,
-        circuit_breakers,
     }))
 }
 
@@ -505,36 +477,6 @@ fn to_phase_status(
         pause_reason: row.pause_reason,
         seconds_since_heartbeat,
         heartbeat_late,
-    }
-}
-
-fn to_circuit_breaker_state(
-    breaker: SuotarCircuitBreaker,
-    now: DateTime<Utc>,
-) -> CreditRegistrationCircuitBreakerState {
-    let open_for_secs = breaker
-        .open_until
-        .map(|until| (until - now).num_seconds())
-        .filter(|&secs| secs > 0);
-    let endpoints = CreditRegistrationPhase::ALL
-        .into_iter()
-        .map(CreditRegistrationPhase::spec)
-        .filter(|spec| {
-            spec.process.as_str() == breaker.process_name && spec.breakers.contains(&breaker.target)
-        })
-        .flat_map(|spec| spec.endpoints.iter().copied())
-        .unique()
-        .collect();
-    CreditRegistrationCircuitBreakerState {
-        process_name: breaker.process_name,
-        target: breaker.target,
-        endpoints,
-        open: open_for_secs.is_some(),
-        consecutive_failures: i64::from(breaker.consecutive_failures),
-        open_for_secs,
-        trip_count: i64::from(breaker.trip_count),
-        trips_after_consecutive_failures: i64::from(MAX_CONSECUTIVE_SUOTAR_FAILURES),
-        updated_at: breaker.updated_at,
     }
 }
 

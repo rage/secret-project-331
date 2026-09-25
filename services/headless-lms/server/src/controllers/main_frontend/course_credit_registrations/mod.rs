@@ -717,13 +717,7 @@ pub async fn resend_course_credit_registration_linking_email(
     // Released first: the call below takes connections of its own and can hold the request for the
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
     drop(conn);
-    let attempt = resend_linking_mail_for_target(
-        &ctx,
-        *course_id,
-        &student_number,
-        Box::pin(async { Ok(0) }),
-    )
-    .await?;
+    let attempt = resend_linking_mail_for_target(&ctx, *course_id, &student_number, None).await?;
     let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.decision);
 

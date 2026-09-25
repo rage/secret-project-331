@@ -36,7 +36,7 @@ use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 use uuid::Uuid;
 
-use super::Lookup;
+use super::{Lookup, hold};
 use crate::apply::{
     Applied, Decision, Effects, OutcomeEvent, PayloadChange, apply_decision, apply_unasked_outcome,
 };
@@ -110,7 +110,6 @@ impl SuotarBatchPhase for ResolveEnrolments {
             match preflight(&context) {
                 Ok(item) => {
                     let lookup = Lookup::of(&row);
-                    lookup.hold(conn, &row).await?;
                     let request = ResolveEnrolmentRequestItem {
                         request_item_id: new_request_item_id(),
                         student_number: item.student_number.into(),
@@ -137,6 +136,14 @@ impl SuotarBatchPhase for ResolveEnrolments {
                 }
             }
         }
+        hold(
+            conn,
+            prepared
+                .sendable
+                .iter()
+                .map(|(resolvable, _)| (resolvable.registration.id, resolvable.lookup)),
+        )
+        .await?;
         Ok(prepared)
     }
 

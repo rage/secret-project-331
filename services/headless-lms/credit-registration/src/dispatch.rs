@@ -6,13 +6,15 @@ use headless_lms_models::{
     credit_registration_phase_state::{self, PhaseRunOutcome},
     suotar_circuit_breakers, suotar_endpoint_rate_limits,
 };
+use headless_lms_utils::periodic_worker::{PeriodicWorkerConfig, run_periodic_worker_until};
 use headless_lms_utils::services::suotar::{SuotarCallContext, SuotarClient};
 use sqlx::{PgConnection, PgPool};
+use std::convert::Infallible;
 use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
 use crate::phases::{
     config_validation, database_phases, enrolment_discovery, import, link_emails,
     resolve_enrolments, student_notifications, verify,
@@ -45,6 +47,9 @@ pub struct PhaseContext<'a> {
     pub test_mode: bool,
     /// Goes into the audit log's `worker_name` alongside the phase.
     pub caller: &'a str,
+    /// The worker process running the loop, the only holder of the breaker and limiter state the
+    /// dashboard shows; `None` for any other caller, whose in-memory state would overwrite it.
+    pub owning_process: Option<WorkerProcess>,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
     /// Holds the account-linking switch that gates the linking mails.
@@ -54,10 +59,6 @@ pub struct PhaseContext<'a> {
 }
 
 impl<'a> PhaseContext<'a> {
-    pub(crate) fn worker_name(&self, phase: CreditRegistrationPhase) -> String {
-        worker_name(self.caller, phase)
-    }
-
     /// Builds a context from the application configuration, the shape every construction site
     /// starts from.
     pub fn from_app(
@@ -71,6 +72,7 @@ impl<'a> PhaseContext<'a> {
             suotar_client,
             test_mode: app_conf.test_mode,
             caller,
+            owning_process: None,
             base_url: &app_conf.base_url,
             suotar_conf: &app_conf.suotar_configuration,
             shutdown: None,
@@ -104,9 +106,7 @@ pub async fn run_phase_once(
     // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
     // test's traffic in it would make a dead worker look alive to the heartbeat alert.
     let bookkeeping = scope.is_unscoped();
-    // The breakers and the limiter live in the running process's memory, so only the phase's own
-    // worker holds the state the dashboard shows; a run-tick in the web server holds its own.
-    let is_own_worker = ctx.caller == phase.spec().process.as_str();
+    let is_own_worker = ctx.owning_process == Some(phase.spec().process);
     // Before the breaker check, unlike the pause above, which health.rs excludes from the staleness
     // alert by itself. A cooldown is a worker deliberately waiting, not a worker that died, and
     // skipping the heartbeat through it would raise a critical alert within a tick or two.
@@ -134,9 +134,14 @@ pub async fn run_phase_once(
         scope,
         registry,
     };
-    let keep_alive = bookkeeping.then(|| KeepAlive::spawn(ctx.pool, phase));
-    let body = run_body(&mut it).await;
-    drop(keep_alive);
+    let body = if bookkeeping {
+        tokio::select! {
+            body = run_body(&mut it) => body,
+            never = keep_alive(ctx.pool, phase) => match never {},
+        }
+    } else {
+        run_body(&mut it).await
+    };
     let failure = it.registry.settle();
     let outcome = match body {
         Ok(counts) => PhaseRunOutcome {
@@ -194,7 +199,7 @@ pub(crate) struct Iteration<'a> {
 impl Iteration<'_> {
     /// The call context of a request this iteration sends, naming it in the audit log.
     pub fn call_context(&self) -> SuotarCallContext {
-        SuotarCallContext::new(self.ctx.worker_name(self.phase))
+        SuotarCallContext::new(worker_name(self.ctx.caller, self.phase))
     }
 }
 
@@ -238,6 +243,9 @@ async fn record_breakers(
     let spec = phase.spec();
     for &target in spec.breakers {
         let breaker = breaker::snapshot(&breaker::ScopeKey::Global, target);
+        if !breaker::REPORTED.is_due(&target, &breaker, breaker::BreakerSnapshot::is_same_report) {
+            continue;
+        }
         suotar_circuit_breakers::upsert(
             conn,
             &suotar_circuit_breakers::SuotarCircuitBreakerReport {
@@ -250,6 +258,7 @@ async fn record_breakers(
             },
         )
         .await?;
+        breaker::REPORTED.record(target, breaker);
     }
     Ok(())
 }
@@ -264,6 +273,9 @@ async fn record_rate_limits(
         let Some(limiter) = rate_limit::snapshot(&breaker::ScopeKey::Global, endpoint) else {
             continue;
         };
+        if !rate_limit::REPORTED.is_due(&endpoint, &limiter, PartialEq::eq) {
+            continue;
+        }
         suotar_endpoint_rate_limits::upsert(
             conn,
             &suotar_endpoint_rate_limits::SuotarEndpointRateLimitReport {
@@ -274,6 +286,7 @@ async fn record_rate_limits(
             },
         )
         .await?;
+        rate_limit::REPORTED.record(endpoint, limiter);
     }
     Ok(())
 }
@@ -284,45 +297,39 @@ const KEEP_ALIVE_INTERVAL: Duration = Duration::from_secs(5);
 
 /// Refreshes one phase's heartbeat until dropped, so a long study registry call does not raise the
 /// stale-worker alert.
-struct KeepAlive(tokio::task::JoinHandle<()>);
-
-impl KeepAlive {
-    fn spawn(pool: &PgPool, phase: CreditRegistrationPhase) -> Self {
-        let pool = pool.clone();
-        Self(tokio::spawn(async move {
-            let mut ticks = tokio::time::interval(KEEP_ALIVE_INTERVAL);
-            ticks.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
-            // The first tick is immediate, and the iteration has just heartbeated.
-            ticks.tick().await;
-            loop {
-                ticks.tick().await;
-                let refreshed = async {
-                    let mut conn = pool.acquire().await?;
-                    credit_registration_phase_state::keep_alive(&mut conn, phase.as_str()).await?;
-                    CreditRegistrationResult::Ok(())
-                }
-                .await;
-                if let Err(error) = refreshed {
-                    warn!(
-                        "Refreshing the heartbeat of credit registration phase {} failed: {error:#}",
-                        phase.as_str()
-                    );
-                }
+async fn keep_alive(pool: &PgPool, phase: CreditRegistrationPhase) -> Infallible {
+    let never_cancelled = CancellationToken::new();
+    let refreshing = run_periodic_worker_until(
+        PeriodicWorkerConfig {
+            tick_interval: KEEP_ALIVE_INTERVAL,
+            still_running: None,
+            delay_missed_ticks: true,
+        },
+        &never_cancelled,
+        async || {
+            let refreshed = async {
+                let mut conn = pool.acquire().await?;
+                credit_registration_phase_state::keep_alive(&mut conn, phase.as_str()).await?;
+                CreditRegistrationResult::Ok(())
             }
-        }))
-    }
-}
-
-impl Drop for KeepAlive {
-    fn drop(&mut self) {
-        self.0.abort();
-    }
+            .await;
+            if let Err(error) = refreshed {
+                warn!(
+                    "Refreshing the heartbeat of credit registration phase {} failed: {error:#}",
+                    phase.as_str()
+                );
+            }
+            Ok::<(), Infallible>(())
+        },
+    );
+    // The helper returns only once its token is cancelled, which this one never is.
+    let Ok(()) = refreshing.await;
+    std::future::pending().await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phase::WorkerProcess;
 
     #[test]
     fn the_audit_name_says_who_ran_the_phase() {

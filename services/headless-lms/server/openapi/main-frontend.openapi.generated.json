@@ -7667,11 +7667,11 @@
     "/api/v0/main-frontend/credit-registration-admin/phases": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat\nand the queue it is responsible for.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat\nand the queue it is responsible for, and the workers' circuit breakers.",
         "operationId": "listCreditRegistrationPhases",
         "responses": {
           "200": {
-            "description": "One row per pipeline phase",
+            "description": "One row per pipeline phase, and the workers' circuit breakers",
             "content": {
               "application/json": {
                 "schema": {
@@ -16463,6 +16463,11 @@
           }
         }
       },
+      "CircuitBreakerStatus": {
+        "type": "string",
+        "description": "Where one circuit breaker stands, as its worker last reported it.",
+        "enum": ["closed", "open", "waiting_to_probe"]
+      },
       "ClaimStudentNumberVerificationTokenOutcome": {
         "type": "string",
         "enum": [
@@ -19592,10 +19597,9 @@
           "process_name",
           "target",
           "endpoints",
-          "open",
+          "status",
           "consecutive_failures",
           "trip_count",
-          "trips_after_consecutive_failures",
           "updated_at"
         ],
         "properties": {
@@ -19610,9 +19614,6 @@
             },
             "description": "The endpoints whose phases the breaker pauses."
           },
-          "open": {
-            "type": "boolean"
-          },
           "open_for_secs": {
             "type": ["integer", "null"],
             "format": "int64",
@@ -19621,14 +19622,13 @@
           "process_name": {
             "type": "string"
           },
+          "status": {
+            "$ref": "#/components/schemas/CircuitBreakerStatus"
+          },
           "target": {
             "$ref": "#/components/schemas/BreakerTarget"
           },
           "trip_count": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "trips_after_consecutive_failures": {
             "type": "integer",
             "format": "int64"
           },
@@ -20053,16 +20053,9 @@
           "throughput",
           "throughput_days",
           "stuck",
-          "endpoints",
-          "circuit_breakers"
+          "endpoints"
         ],
         "properties": {
-          "circuit_breakers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
-            }
-          },
           "counts_by_state": {
             "type": "array",
             "items": {
@@ -20132,9 +20125,16 @@
           "phases",
           "heartbeat_interval_multiplier",
           "consecutive_failure_limit",
-          "paused_globally"
+          "paused_globally",
+          "circuit_breakers"
         ],
         "properties": {
+          "circuit_breakers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
+            }
+          },
           "consecutive_failure_limit": {
             "type": "integer",
             "format": "int32"

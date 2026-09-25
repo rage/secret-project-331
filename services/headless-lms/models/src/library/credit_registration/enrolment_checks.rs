@@ -637,6 +637,11 @@ WHERE course_module_id = $1
 /// check in `scope` is released and not yet claimed: they cost nothing extra in the request that
 /// goes out for it. A row tried within [`TRANSIENT_FAILURE_RETRY`] keeps waiting out its failed
 /// lookup.
+///
+/// Its test for a released check shares its filters with the claim behind
+/// [`claim_due_for_resolve`](crate::credit_registrations::claim_due_for_resolve) and with
+/// [`count_due_enrolment_checks`](crate::credit_registrations::count_due_enrolment_checks); change
+/// all three together.
 pub async fn pull_forward_batched_checks(
     conn: &mut PgConnection,
     scope: &RegistrationScope,

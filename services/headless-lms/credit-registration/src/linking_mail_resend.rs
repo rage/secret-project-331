@@ -17,6 +17,7 @@ use headless_lms_models::course_module_suotar_configurations::get_active_modules
 use headless_lms_models::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, listed_person_addresses,
 };
+use headless_lms_models::library::credit_registration::classification::PERSON_NOT_FOUND_CODE;
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, ResolvePersonRequestItem, SuotarCallContext, SuotarItemStatus,
@@ -236,8 +237,6 @@ pub async fn resend_linking_mail_for_target<'a>(
         retired_mail_count,
     })
 }
-
-const PERSON_NOT_FOUND_CODE: &str = "personNotFound";
 
 pub struct ResolvedPerson {
     pub sisu_person_id: SecretString,

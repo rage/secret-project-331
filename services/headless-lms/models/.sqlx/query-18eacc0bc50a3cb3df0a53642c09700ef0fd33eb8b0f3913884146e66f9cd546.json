@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE credit_registrations cr\nSET state = move.to_state,\n  -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in\n  -- one transaction would share an instant and the timeline would lose their order.\n  state_entered_at = clock_timestamp(),\n  error_code = move.error_code,\n  error_message = move.error_message,\n  needs_admin_attention = COALESCE(move.needs_admin_attention, cr.needs_admin_attention),\n  -- ELSE NULL: without it an admin retry stays invisible to every terminal_at IS NULL query.\n  terminal_at = CASE\n    WHEN move.terminal THEN COALESCE(cr.terminal_at, now())\n    ELSE NULL\n  END,\n  first_failed_at = CASE\n    WHEN move.failure THEN COALESCE(cr.first_failed_at, now())\n    WHEN move.to_state = 'no_usable_enrolment' THEN NULL\n    ELSE cr.first_failed_at\n  END,\n  submit_retry_count = CASE\n    WHEN move.to_state = 'no_usable_enrolment' THEN 0\n    ELSE cr.submit_retry_count\n  END,\n  registered_at = CASE\n    WHEN move.to_state = 'registered' THEN COALESCE(cr.registered_at, now())\n    ELSE cr.registered_at\n  END,\n  submitted_at = CASE\n    WHEN move.to_state = 'submitting' THEN now()\n    ELSE cr.submitted_at\n  END,\n  enrolment_checked_at = CASE\n    WHEN move.keeps_checked_at THEN cr.enrolment_checked_at\n    WHEN (\n      cr.state = 'resolving_enrolment'\n      OR cr.enrolment_check_claimed_until IS NOT NULL\n    )\n    AND move.to_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()\n    WHEN cr.state = 'checking_enrolment'\n    AND move.to_state <> 'checking_enrolment' THEN now()\n    ELSE cr.enrolment_checked_at\n  END,\n  -- Only on starting to wait, not on every check that finds no enrolment again.\n  enrolment_banner_dismissed_at = CASE\n    WHEN move.to_state = 'no_usable_enrolment'\n    AND cr.no_usable_enrolment_since IS NULL THEN NULL\n    ELSE cr.enrolment_banner_dismissed_at\n  END,\n  -- A retried lookup passes through these on its way back to no_usable_enrolment.\n  no_usable_enrolment_since = CASE\n    WHEN move.to_state = 'no_usable_enrolment' THEN COALESCE(cr.no_usable_enrolment_since, now())\n    WHEN move.to_state IN (\n      'ready_to_submit',\n      'resolving_enrolment',\n      'failed_retryable'\n    ) THEN cr.no_usable_enrolment_since\n    ELSE NULL\n  END,\n  enrolment_check_anchor_at = CASE\n    WHEN move.keeps_schedule THEN cr.enrolment_check_anchor_at\n  END,\n  enrolment_check_step = CASE\n    WHEN move.keeps_schedule THEN cr.enrolment_check_step\n  END,\n  enrolment_check_due_at = CASE\n    WHEN move.keeps_schedule THEN cr.enrolment_check_due_at\n  END,\n  is_enrolment_check_batched = move.keeps_schedule\n  AND cr.is_enrolment_check_batched,\n  enrolment_checks_stopped_at = CASE\n    WHEN move.keeps_schedule THEN cr.enrolment_checks_stopped_at\n  END,\n  enrolment_check_source = CASE\n    WHEN move.keeps_schedule THEN cr.enrolment_check_source\n    ELSE 'schedule'\n  END,\n  enrolment_check_claimed_until = NULL,\n  next_attempt_at = COALESCE(\n    move.next_attempt_at,\n    now() + (move.default_delay_secs * INTERVAL '1 second')\n  )\nFROM UNNEST(\n    $1::uuid [],\n    $2::credit_registration_state [],\n    $3::credit_registration_error_code [],\n    $4::text [],\n    $5::boolean [],\n    $6::boolean [],\n    $7::boolean [],\n    $8::timestamptz [],\n    $9::bigint [],\n    $10::boolean [],\n    $11::boolean []\n  ) AS move(\n    id,\n    to_state,\n    error_code,\n    error_message,\n    needs_admin_attention,\n    terminal,\n    failure,\n    next_attempt_at,\n    default_delay_secs,\n    keeps_checked_at,\n    keeps_schedule\n  )\nWHERE cr.id = move.id\n  AND cr.deleted_at IS NULL\nRETURNING cr.*\n        ",
+  "query": "\nWITH due AS (\n  SELECT cr.id\n  FROM credit_registrations cr\n    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id\n    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.\n    AND (\n      cmc.register_credits_via_suotar\n      OR cr.submitted_at IS NOT NULL\n    )\n    AND cr.state = ANY($1::credit_registration_state [])\n    AND cr.next_attempt_at <= now()\n    AND (\n      cr.enrolment_check_claimed_until IS NULL\n      OR cr.enrolment_check_claimed_until <= now()\n    )\n    AND ($3::uuid IS NULL OR cr.course_id = $3)\n    AND ($4::uuid IS NULL OR cr.user_id = $4)\n    AND (\n      cardinality($5::uuid []) = 0\n      OR cr.id = ANY($5::uuid [])\n    )\n    AND (\n      $6::boolean\n      OR NOT EXISTS (\n        SELECT 1\n        FROM credit_registration_test_exclusive_holds h\n        WHERE h.user_id = cr.user_id\n          AND (\n            h.course_id IS NULL\n            OR h.course_id = cr.course_id\n          )\n          AND h.held_until > now()\n      )\n    )\n    AND (\n      NOT $7::boolean\n      OR (\n        NOT EXISTS (\n          SELECT 1\n          FROM credit_registrations twin\n          WHERE twin.student_number = cr.student_number\n            AND twin.uh_course_code = cr.uh_course_code\n            AND twin.id <> cr.id\n            AND twin.deleted_at IS NULL\n            AND twin.state = ANY($10::credit_registration_state [])\n        )\n        -- Mirrors uq_credit_registrations_person_module, which moving to submitting would violate.\n        AND NOT EXISTS (\n          SELECT 1\n          FROM credit_registrations holder\n          WHERE holder.sisu_person_id = cr.sisu_person_id\n            AND holder.course_module_id = cr.course_module_id\n            AND holder.id <> cr.id\n            AND holder.deleted_at IS NULL\n            AND holder.superseded_by_id IS NULL\n            AND holder.pending_superseded_by_id IS NULL\n            AND (\n              holder.state = ANY($10::credit_registration_state [])\n              OR holder.state = ANY($11::credit_registration_state [])\n            )\n        )\n      )\n    )\n    AND (\n      NOT $8::boolean\n      OR NOT EXISTS (\n        SELECT 1\n        FROM credit_registrations ahead\n        WHERE ahead.user_id = cr.user_id\n          AND ahead.course_module_id = cr.course_module_id\n          AND ahead.id <> cr.id\n          AND ahead.deleted_at IS NULL\n          AND ahead.superseded_by_id IS NULL\n          -- failed_retryable because its backoff may resume it at checking_enrolment or later.\n          AND (\n            ahead.state IN (\n              'resolving_enrolment',\n              'checking_enrolment',\n              'failed_retryable'\n            )\n            OR ahead.state = ANY($10::credit_registration_state [])\n            OR ahead.enrolment_check_claimed_until > now()\n          )\n      )\n    )\n  ORDER BY CASE\n      WHEN $9 THEN cr.enrolment_check_group\n    END DESC NULLS LAST,\n    cr.next_attempt_at\n  FOR UPDATE OF cr SKIP LOCKED\n  LIMIT $2\n)\nUPDATE credit_registrations cr\nSET last_attempt_at = now()\nFROM due\nWHERE cr.id = due.id\nRETURNING cr.*\n        ",
   "describe": {
     "columns": [
       {
@@ -779,7 +779,46 @@
     ],
     "parameters": {
       "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Int8",
+        "Uuid",
+        "Uuid",
         "UuidArray",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool",
         {
           "Custom": {
             "name": "credit_registration_state[]",
@@ -814,51 +853,36 @@
         },
         {
           "Custom": {
-            "name": "credit_registration_error_code[]",
+            "name": "credit_registration_state[]",
             "kind": {
               "Array": {
                 "Custom": {
-                  "name": "credit_registration_error_code",
+                  "name": "credit_registration_state",
                   "kind": {
                     "Enum": [
-                      "person_not_found",
-                      "course_code_not_found",
-                      "enrolment_not_found",
-                      "enrolment_not_accepted",
-                      "invalid_grade_for_grade_scale",
-                      "grade_scale_mismatch",
-                      "course_not_allowed",
-                      "invalid_credits",
-                      "study_right_not_valid",
-                      "sisu_validation_failed",
-                      "sisu_timeout",
-                      "service_temporarily_unavailable",
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
                       "misregistered",
-                      "not_registered",
-                      "unauthorized",
-                      "malformed_request",
-                      "transport_error",
-                      "unexpected_response",
-                      "no_grade_scale_mapping",
-                      "missing_uh_course_code",
-                      "missing_ects_credits",
-                      "retry_window_expired",
-                      "unknown"
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
                     ]
                   }
                 }
               }
             }
           }
-        },
-        "TextArray",
-        "BoolArray",
-        "BoolArray",
-        "BoolArray",
-        "TimestamptzArray",
-        "Int8Array",
-        "BoolArray",
-        "BoolArray"
+        }
       ]
     },
     "nullable": [
@@ -927,5 +951,5 @@
       true
     ]
   },
-  "hash": "5953354c7a65eabf4de1d32b8b8292ad7e8db568aa8318d52aed716c51ec5b85"
+  "hash": "18eacc0bc50a3cb3df0a53642c09700ef0fd33eb8b0f3913884146e66f9cd546"
 }

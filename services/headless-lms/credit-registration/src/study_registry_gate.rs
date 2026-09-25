@@ -4,11 +4,9 @@
 
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::library::credit_registration::classification::{
-    is_service_unavailable_code, is_sisu_timeout_code,
+    is_all_unavailable, is_only_sisu_timeouts,
 };
-use headless_lms_utils::services::suotar::{
-    SuotarBatchResponse, SuotarEndpoint, SuotarError, SuotarItemStatus,
-};
+use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarEndpoint, SuotarError};
 
 use crate::breaker::{self, BreakerTarget, ScopeKey};
 use crate::dispatch::PhaseSkipReason;
@@ -26,8 +24,7 @@ pub(crate) enum Exchange<'a> {
     RefusedAlone(&'a SuotarError),
 }
 
-/// A batch whose every item came back unavailable, which fails the iteration. One good item makes it
-/// a plain answer, because something moved.
+/// A batch whose every item came back unavailable, which fails the iteration.
 pub(crate) struct Unavailable {
     /// The iteration's error for it.
     pub message: &'static str,
@@ -43,18 +40,10 @@ impl Exchange<'_> {
         response: &SuotarBatchResponse<R>,
         unavailable_message: &'static str,
     ) -> Self {
-        let is_all_unavailable = !response.items.is_empty()
-            && response.items.iter().all(|item| {
-                item.status == SuotarItemStatus::Error
-                    && is_service_unavailable_code(response.endpoint, &item.code)
-            });
         Self::Answered {
-            unavailable: is_all_unavailable.then(|| Unavailable {
+            unavailable: is_all_unavailable(response).then(|| Unavailable {
                 message: unavailable_message,
-                is_only_sisu_timeouts: response
-                    .items
-                    .iter()
-                    .all(|item| is_sisu_timeout_code(response.endpoint, &item.code)),
+                is_only_sisu_timeouts: is_only_sisu_timeouts(response),
             }),
         }
     }

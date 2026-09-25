@@ -151,6 +151,38 @@ fn grade_rank(family: GradeScaleFamily, grade_id: &str) -> Option<i32> {
     }
 }
 
+/// Whether the grade `ours` maps to beats every grade in `held`, as `(grade_scale_id, grade_id)`
+/// pairs, which is what Suotar requires of an improvement.
+///
+/// Stricter than Suotar where the two differ: an equal grade never submits (Suotar would let a
+/// later date or more credits through), and neither does a grade on a scale that does not rank
+/// against a held one, or a held grade that is missing.
+pub fn improves_on_all<'a>(
+    held: impl IntoIterator<Item = (Option<&'a str>, Option<&'a str>)>,
+    ours: GradeSource<'_>,
+) -> bool {
+    map_grade(ours).is_ok_and(|mapped| {
+        held.into_iter().all(|(grade_scale_id, grade_id)| {
+            let (Some(grade_scale_id), Some(grade_id)) = (grade_scale_id, grade_id) else {
+                return false;
+            };
+            compare_grades(grade_scale_id, grade_id, &mapped) == GradeComparison::Better
+        })
+    })
+}
+
+/// Held grades as the `(grade_scale_id, grade_id)` pairs [`improves_on_all`] weighs.
+pub fn grade_pairs(
+    grades: &[Option<MappedGrade>],
+) -> impl Iterator<Item = (Option<&str>, Option<&str>)> {
+    grades.iter().map(|grade| {
+        (
+            grade.as_ref().map(|grade| grade.grade_scale_id.as_str()),
+            grade.as_ref().map(|grade| grade.grade_id.as_str()),
+        )
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -2,8 +2,9 @@
 
 use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use headless_lms_models::library::credit_registration::outcomes::{
-    Outcome, isolated_malformed_request_outcome, request_level_outcome,
+    Outcome, RowFacts, isolated_malformed_request_outcome, request_level_outcome,
 };
+use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     BatchEndpoint, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarRequestItem,
     SuotarResponseItem,
@@ -11,7 +12,7 @@ use headless_lms_utils::services::suotar::{
 use itertools::izip;
 use sqlx::{Connection, PgConnection};
 
-use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
+use crate::apply::{Applied, Effects, OutcomeEvent, apply_outcome};
 use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
 use crate::study_registry_gate::Exchange;
@@ -325,7 +326,7 @@ async fn apply_refusal(
             in_flight,
         ),
         Refusal::RequestLevel { in_flight } => (
-            request_level_outcome(endpoint, error.variant, &row_facts(row)),
+            request_level_outcome(endpoint, error.variant, &RowFacts::of(row, Utc::now())),
             "Sisu did not accept the whole request.",
             in_flight,
         ),
@@ -335,6 +336,7 @@ async fn apply_refusal(
         conn,
         row,
         &outcome,
+        Effects::default(),
         OutcomeEvent {
             message: Some(message),
             ..event

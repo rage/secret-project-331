@@ -5,9 +5,12 @@
 
 use headless_lms_utils::services::suotar::SuotarErrorVariant;
 
-use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
+use crate::credit_registrations::{
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
+};
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
+use chrono::TimeDelta;
 
 use super::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER_SECS,
@@ -32,6 +35,34 @@ pub struct RowFacts {
     pub error_code: Option<CreditRegistrationErrorCode>,
 }
 
+impl RowFacts {
+    /// The facts of `row` as they stand at `now`.
+    pub fn of(row: &CreditRegistration, now: DateTime<Utc>) -> Self {
+        Self {
+            now,
+            first_failed_at: row.first_failed_at,
+            submit_retry_count: row.submit_retry_count,
+            verify_attempt_count: row.verify_attempt_count,
+            submitted_at: row.submitted_at,
+            is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
+            error_code: row.error_code,
+        }
+    }
+}
+
+/// When the pipeline may claim the row again.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum NextAttempt {
+    /// The target state's default cadence; see [`Transition::next_attempt_at`].
+    StateDefault,
+    /// After a backoff, which gets the jitter that spreads a batch that failed together.
+    After(TimeDelta),
+    At(DateTime<Utc>),
+    /// When the row's enrolment check schedule says, which only a row entering
+    /// `no_usable_enrolment` has; see [`super::enrolment_checks::schedule_next_check`].
+    NextEnrolmentRung,
+}
+
 /// What the phase writes for this row.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Outcome {
@@ -39,16 +70,10 @@ pub struct Outcome {
     pub error_code: Option<CreditRegistrationErrorCode>,
     /// `None` leaves the flag as it was, so a retry keeps an operator's earlier verdict.
     pub needs_admin_attention: Option<bool>,
-    /// Seconds to wait before the row may be claimed again.
-    pub delay_secs: Option<i64>,
-    /// When the row may be claimed again, exactly; overrides `delay_secs`.
-    pub next_attempt_at: Option<DateTime<Utc>>,
+    pub next: NextAttempt,
     /// Set when Suotar says the stored number names nobody, so it is wrong wherever we hold it.
     pub drop_verified_student_number: bool,
     pub increment_submit_retry_count: bool,
-    /// The next wait comes from the row's enrolment check schedule rather than `delay_secs`; see
-    /// [`super::enrolment_checks::schedule_next_check`].
-    pub schedules_next_enrolment_check: bool,
     /// A lookup that failed in transit, or only found the Sisu person: it was no check, so the row's
     /// last check time stands.
     pub keeps_enrolment_checked_at: bool,
@@ -60,12 +85,33 @@ impl Outcome {
             to_state,
             error_code: None,
             needs_admin_attention: None,
-            delay_secs: None,
-            next_attempt_at: None,
+            next: NextAttempt::StateDefault,
             drop_verified_student_number: false,
             increment_submit_retry_count: false,
-            schedules_next_enrolment_check: false,
             keeps_enrolment_checked_at: false,
+        }
+    }
+
+    /// Whether the row counts against the iteration's `items_failed`: an error code is a failed
+    /// item, so a verify poll that is still waiting is not one.
+    pub fn is_failure(&self) -> bool {
+        self.error_code.is_some()
+    }
+
+    /// The ledger write this outcome asks for, without the audit fields of the exchange behind it.
+    /// `expected_from_state` is as [`Transition::expected_from_state`].
+    pub fn transition(&self, expected_from_state: Option<CreditRegistrationState>) -> Transition {
+        Transition {
+            error_code: self.error_code,
+            needs_admin_attention: self.needs_admin_attention,
+            expected_from_state,
+            next_attempt_at: match self.next {
+                NextAttempt::StateDefault | NextAttempt::NextEnrolmentRung => None,
+                NextAttempt::After(delay) => Some(next_attempt_at(Utc::now(), delay.num_seconds())),
+                NextAttempt::At(at) => Some(at),
+            },
+            keeps_enrolment_checked_at: self.keeps_enrolment_checked_at,
+            ..Transition::to(self.to_state)
         }
     }
 
@@ -85,7 +131,7 @@ impl Outcome {
 
     fn after(self, delay_secs: i64) -> Self {
         Self {
-            delay_secs: Some(delay_secs),
+            next: NextAttempt::After(TimeDelta::seconds(delay_secs)),
             ..self
         }
     }
@@ -127,7 +173,7 @@ pub fn submit_error_outcome(
                 ..Outcome::to(CreditRegistrationState::Pending).with_code(code)
             },
             _ => Outcome {
-                schedules_next_enrolment_check: true,
+                next: NextAttempt::NextEnrolmentRung,
                 ..Outcome::to(CreditRegistrationState::NoUsableEnrolment).with_code(code)
             },
         },
@@ -616,7 +662,7 @@ mod tests {
             &facts(),
         );
         assert_eq!(outcome.to_state, State::AwaitingVerification);
-        assert!(outcome.delay_secs.is_some());
+        assert!(matches!(outcome.next, NextAttempt::After(_)));
     }
 
     #[test]
@@ -655,7 +701,10 @@ mod tests {
         let outcome = verify_inconclusive_outcome(State::AwaitingVerification, &facts);
         assert_eq!(outcome.to_state, State::AwaitingVerification);
         assert_eq!(outcome.needs_admin_attention, Some(true));
-        assert_eq!(outcome.delay_secs, Some(VERIFY_GIVE_UP_POLL_SECS));
+        assert_eq!(
+            outcome.next,
+            NextAttempt::After(TimeDelta::seconds(VERIFY_GIVE_UP_POLL_SECS))
+        );
     }
 
     /// A row the phase can build no request for has to accrue retry age like any other failure, or
@@ -683,7 +732,10 @@ mod tests {
         });
         assert_eq!(first.needs_admin_attention, None);
         assert_eq!(first.to_state, State::SubmissionUncertain);
-        assert_eq!(first.delay_secs, Some(UNCERTAIN_RECHECK_SECS * 2));
+        assert_eq!(
+            first.next,
+            NextAttempt::After(TimeDelta::seconds(UNCERTAIN_RECHECK_SECS * 2))
+        );
 
         let late = uncertain_recheck_outcome(&RowFacts {
             verify_attempt_count: 30,
@@ -691,6 +743,9 @@ mod tests {
             ..facts()
         });
         assert_eq!(late.needs_admin_attention, Some(true));
-        assert_eq!(late.delay_secs, Some(UNCERTAIN_MAX_RECHECK_SECS));
+        assert_eq!(
+            late.next,
+            NextAttempt::After(TimeDelta::seconds(UNCERTAIN_MAX_RECHECK_SECS))
+        );
     }
 }

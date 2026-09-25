@@ -1,0 +1,316 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH facts AS (\n  SELECT cr.id,\n    cr.state,\n    cr.next_attempt_at,\n    cr.state_entered_at,\n    cr.submitted_at,\n    cr.first_failed_at,\n    cr.submitted_attainment_id IS NOT NULL AS has_submitted_attainment,\n    (\n      cr.selected_enrolment_id IS NOT NULL\n      AND cr.grade_id IS NOT NULL\n    ) AS has_payload_snapshot,\n    p.completion_deleted,\n    p.completion_eligible AS eligible,\n    p.has_verified_student_number AS has_student_number,\n    p.course_code_allowed,\n    p.frozen_identity_stale,\n    EXISTS (\n      SELECT 1\n      FROM credit_registrations held\n      WHERE held.user_id = cr.user_id\n        AND held.course_module_id = cr.course_module_id\n        AND held.id <> cr.id\n        AND held.deleted_at IS NULL\n        AND held.superseded_by_id IS NULL\n        AND held.pending_superseded_by_id IS DISTINCT FROM cr.id\n        AND held.state = ANY($8::credit_registration_state [])\n    ) AS payload_unweighed_against_held_credit,\n    cr.state IN ('pending', 'blocked')\n    AND cr.enrolment_checked_at IS NULL AS starts_enrolment_checks,\n    GREATEST(\n      cr.enrolment_check_group,\n      CASE\n        WHEN sig.last_check_requested_at IS NOT NULL THEN 'check_requested'\n        WHEN sig.last_visited_at IS NOT NULL THEN 'visited'\n        ELSE 'completed'\n      END::enrolment_check_group,\n      (\n        SELECT MAX(earlier.enrolment_check_group)\n        FROM credit_registrations earlier\n        WHERE earlier.user_id = cr.user_id\n          AND earlier.course_module_id = cr.course_module_id\n          AND earlier.created_at < cr.created_at\n          AND earlier.deleted_at IS NULL\n      )\n    ) AS check_group,\n    GREATEST(\n      cmc.completion_date,\n      vsn.verified_at,\n      COALESCE(sig.last_check_requested_at, sig.last_visited_at)\n    ) AS check_anchor_at,\n    CASE\n      WHEN sig.last_check_requested_at IS NOT NULL THEN sig.check_request_source\n      ELSE 'schedule'\n    END::enrolment_check_source AS check_source\n  FROM credit_registrations cr\n    JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n    LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n    AND vsn.deleted_at IS NULL\n    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n    AND sig.deleted_at IS NULL\n    LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id\n    AND conf.deleted_at IS NULL\n  WHERE cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.terminal_at IS NULL\n    -- Only a human moves a row the study registry reversed.\n    AND cr.state <> 'misregistered'\n    AND conf.paused_at IS NULL\n    AND ($2::uuid IS NULL OR cr.course_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n)\nSELECT id,\n  state AS \"state: CreditRegistrationState\",\n  next_attempt_at,\n  state_entered_at,\n  submitted_at,\n  first_failed_at,\n  completion_deleted AS \"completion_deleted!\",\n  eligible AS \"eligible!\",\n  has_student_number AS \"has_student_number!\",\n  course_code_allowed AS \"course_code_allowed!\",\n  has_submitted_attainment AS \"has_submitted_attainment!\",\n  has_payload_snapshot AS \"has_payload_snapshot!\",\n  frozen_identity_stale AS \"frozen_identity_stale!\",\n  payload_unweighed_against_held_credit AS \"payload_unweighed_against_held_credit!\",\n  starts_enrolment_checks AS \"starts_enrolment_checks!\",\n  check_group AS \"check_group!: EnrolmentCheckGroup\",\n  check_anchor_at AS \"check_anchor_at!\",\n  check_source AS \"check_source!: EnrolmentCheckSource\"\nFROM facts\nWHERE (\n    state = 'submitting'\n    AND COALESCE(submitted_at, state_entered_at) < now() - ($5::bigint * INTERVAL '1 second')\n  )\n  OR (\n    state <> ALL($9::credit_registration_state [])\n    AND (\n      completion_deleted\n      OR (\n        state = 'failed_retryable'\n        AND (\n          NOT eligible\n          OR NOT has_student_number\n          OR (\n            NOT course_code_allowed\n            AND NOT has_submitted_attainment\n          )\n          OR next_attempt_at <= now()\n          OR first_failed_at < now() - ($6::bigint * INTERVAL '1 second')\n        )\n      )\n      OR (\n        state NOT IN ('failed_retryable', 'pending', 'blocked')\n        AND (\n          NOT eligible\n          OR NOT has_student_number\n          OR NOT course_code_allowed\n        )\n      )\n      OR (\n        state = 'blocked'\n        AND eligible\n      )\n      OR (\n        state = 'pending'\n        AND eligible\n        AND has_student_number\n        AND course_code_allowed\n      )\n      OR (\n        state = 'checking_enrolment'\n        AND frozen_identity_stale\n      )\n      OR (\n        state = 'resolving_enrolment'\n        AND state_entered_at < now() - ($7::bigint * INTERVAL '1 second')\n      )\n    )\n  )\nORDER BY state_entered_at\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "state: CreditRegistrationState",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "next_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "next_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "state_entered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_entered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "submitted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "submitted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "first_failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "completion_deleted!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "completion_deleted"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "eligible!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "completion_eligible"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "has_student_number!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "has_verified_student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "course_code_allowed!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "course_code_allowed"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "has_submitted_attainment!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "has_payload_snapshot!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 12,
+        "name": "frozen_identity_stale!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_preconditions",
+            "name": "frozen_identity_stale"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "payload_unweighed_against_held_credit!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 14,
+        "name": "starts_enrolment_checks!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
+        "name": "check_group!: EnrolmentCheckGroup",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 16,
+        "name": "check_anchor_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 17,
+        "name": "check_source!: EnrolmentCheckSource",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_source",
+            "kind": {
+              "Enum": [
+                "schedule",
+                "student_request",
+                "teacher_request",
+                "admin_request",
+                "roster_listing",
+                "account_link"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Int8",
+        "Int8",
+        "Int8",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null,
+      true,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "f8b2104832dd6a2cb13b63d21a36dd218eb45c93d4cba4febfb02b204c7da28e"
+}

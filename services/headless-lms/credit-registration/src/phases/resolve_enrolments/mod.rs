@@ -35,31 +35,50 @@ pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Coun
     Ok(counts)
 }
 
-/// The state a row claimed for a lookup waits out the call in: a parked row stays where it is,
-/// anything else moves to `resolving_enrolment`. What the answer's write expects to find.
-fn lookup_state(row: &CreditRegistration) -> CreditRegistrationState {
-    if row.state == CreditRegistrationState::NoUsableEnrolment {
-        CreditRegistrationState::NoUsableEnrolment
-    } else {
-        CreditRegistrationState::ResolvingEnrolment
-    }
+/// Which kind of lookup a claimed row is on, decided once, at claim time.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Lookup {
+    /// On its way to a first resolve, from `ready_to_submit`.
+    FirstResolve,
+    /// Parked in `no_usable_enrolment`, and checked where it stands.
+    ParkedCheck,
 }
 
-/// Keeps a claimed row from being claimed again, or imported, while its lookup is out; see
-/// [`lookup_state`]. In the claim's transaction.
-async fn hold_for_lookup(
-    conn: &mut PgConnection,
-    row: &CreditRegistration,
-) -> CreditRegistrationResult<()> {
-    if lookup_state(row) == CreditRegistrationState::NoUsableEnrolment {
-        claim_enrolment_check(conn, row.id).await?;
-    } else {
-        transition(
-            conn,
-            row.id,
-            &Transition::to(CreditRegistrationState::ResolvingEnrolment),
-        )
-        .await?;
+impl Lookup {
+    fn of(row: &CreditRegistration) -> Self {
+        if row.state == CreditRegistrationState::NoUsableEnrolment {
+            Self::ParkedCheck
+        } else {
+            Self::FirstResolve
+        }
     }
-    Ok(())
+
+    /// The state the row waits out the call in, which the answer's write expects to find.
+    fn in_flight_state(self) -> CreditRegistrationState {
+        match self {
+            Self::FirstResolve => CreditRegistrationState::ResolvingEnrolment,
+            Self::ParkedCheck => CreditRegistrationState::NoUsableEnrolment,
+        }
+    }
+
+    /// Keeps the row from being claimed again, or imported, while its lookup is out. In the claim's
+    /// transaction.
+    async fn hold(
+        self,
+        conn: &mut PgConnection,
+        row: &CreditRegistration,
+    ) -> CreditRegistrationResult<()> {
+        match self {
+            Self::FirstResolve => {
+                transition(
+                    conn,
+                    row.id,
+                    &Transition::to(CreditRegistrationState::ResolvingEnrolment),
+                )
+                .await?;
+            }
+            Self::ParkedCheck => claim_enrolment_check(conn, row.id).await?,
+        }
+        Ok(())
+    }
 }

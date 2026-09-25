@@ -101,6 +101,14 @@ impl CreditRegistrationState {
     /// [`Self::SUCCESS_STATES`] minus `Registered`: the credit exists but we did not put it there.
     pub const OTHER_SUCCESS_STATES: [Self; 2] = [Self::Duplicate, Self::NotImproved];
 
+    /// The states of a row whose submission may be in Sisu with its outcome not yet known: a request
+    /// may be out, or its answer is still to be verified.
+    pub const IN_FLIGHT_STATES: [Self; 3] = [
+        Self::Submitting,
+        Self::SubmissionUncertain,
+        Self::AwaitingVerification,
+    ];
+
     /// The two states a "failed" count means across the admin reports: a permanent submit failure
     /// and a reversal the study registry made after the fact.
     pub const HARD_FAILURE_STATES: [Self; 2] = [Self::FailedPermanent, Self::Misregistered];
@@ -923,6 +931,13 @@ async fn write_moves(
         .iter()
         .map(|state| state.keeps_enrolment_check_schedule())
         .collect();
+    let keeps_waiting_since: Vec<bool> = to_states
+        .iter()
+        .map(|state| {
+            state.keeps_enrolment_check_schedule()
+                && *state != CreditRegistrationState::NoUsableEnrolment
+        })
+        .collect();
     let written = sqlx::query_as!(
         CreditRegistration,
         r#"
@@ -973,14 +988,10 @@ SET state = move.to_state,
     AND cr.no_usable_enrolment_since IS NULL THEN NULL
     ELSE cr.enrolment_banner_dismissed_at
   END,
-  -- A retried lookup passes through these on its way back to no_usable_enrolment.
+  -- A retried lookup passes through the states that keep it on its way back to no_usable_enrolment.
   no_usable_enrolment_since = CASE
     WHEN move.to_state = 'no_usable_enrolment' THEN COALESCE(cr.no_usable_enrolment_since, now())
-    WHEN move.to_state IN (
-      'ready_to_submit',
-      'resolving_enrolment',
-      'failed_retryable'
-    ) THEN cr.no_usable_enrolment_since
+    WHEN move.keeps_waiting_since THEN cr.no_usable_enrolment_since
     ELSE NULL
   END,
   enrolment_check_anchor_at = CASE
@@ -1017,7 +1028,8 @@ FROM UNNEST(
     $8::timestamptz [],
     $9::bigint [],
     $10::boolean [],
-    $11::boolean []
+    $11::boolean [],
+    $12::boolean []
   ) AS move(
     id,
     to_state,
@@ -1029,7 +1041,8 @@ FROM UNNEST(
     next_attempt_at,
     default_delay_secs,
     keeps_checked_at,
-    keeps_schedule
+    keeps_schedule,
+    keeps_waiting_since
   )
 WHERE cr.id = move.id
   AND cr.deleted_at IS NULL
@@ -1046,6 +1059,7 @@ RETURNING cr.*
         &default_delays,
         &keeps_checked_at,
         &keeps_schedule,
+        &keeps_waiting_since,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -1497,11 +1511,7 @@ WITH due AS (
             AND twin.uh_course_code = cr.uh_course_code
             AND twin.id <> cr.id
             AND twin.deleted_at IS NULL
-            AND twin.state IN (
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification'
-            )
+            AND twin.state = ANY($10::credit_registration_state [])
         )
         -- Mirrors uq_credit_registrations_person_module, which moving to submitting would violate.
         AND NOT EXISTS (
@@ -1513,13 +1523,9 @@ WITH due AS (
             AND holder.deleted_at IS NULL
             AND holder.superseded_by_id IS NULL
             AND holder.pending_superseded_by_id IS NULL
-            AND holder.state IN (
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification',
-              'registered',
-              'duplicate',
-              'not_improved'
+            AND (
+              holder.state = ANY($10::credit_registration_state [])
+              OR holder.state = ANY($11::credit_registration_state [])
             )
         )
       )
@@ -1539,11 +1545,9 @@ WITH due AS (
             ahead.state IN (
               'resolving_enrolment',
               'checking_enrolment',
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification',
               'failed_retryable'
             )
+            OR ahead.state = ANY($10::credit_registration_state [])
             OR ahead.enrolment_check_claimed_until > now()
           )
       )
@@ -1570,6 +1574,8 @@ RETURNING cr.*
         kind == ClaimKind::Import,
         kind == ClaimKind::Resolve,
         matches!(kind, ClaimKind::PersonLookup | ClaimKind::Resolve),
+        &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;

@@ -6,6 +6,7 @@ use crate::credit_registrations::{
     transition_batch,
 };
 use crate::prelude::*;
+use chrono::TimeDelta;
 
 use super::backoff::{
     RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
@@ -23,8 +24,11 @@ pub const PRECONDITIONS_LIMIT: i64 = 500;
 struct PendingMove {
     id: Uuid,
     state: CreditRegistrationState,
-    /// `None` for a row whose backoff has elapsed; where it resumes is decided by [`resume_state`].
-    target: Option<CreditRegistrationState>,
+    next_attempt_at: DateTime<Utc>,
+    state_entered_at: DateTime<Utc>,
+    submitted_at: Option<DateTime<Utc>>,
+    first_failed_at: Option<DateTime<Utc>>,
+    completion_deleted: bool,
     /// Names the blocker in the audit event when the target is `pending`.
     preconditions: PendingPreconditions,
     has_submitted_attainment: bool,
@@ -34,6 +38,89 @@ struct PendingMove {
     /// Set for a row that would leave `pending` or `blocked` for its first enrolment check: it
     /// starts the check schedule instead of resolving at once.
     check_start: Option<CheckStartFacts>,
+}
+
+/// What the preconditions make of one row.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Target {
+    Stay,
+    Move(CreditRegistrationState),
+    /// A retryable row whose backoff has elapsed, resuming where [`resume_state`] says.
+    Resume,
+}
+
+/// The one table of the pipeline's moves that need no study registry: recovering rows a dead
+/// worker left behind, and moving a row along, or out of, the chain of preconditions. A target equal
+/// to the row's state is staying put.
+fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
+    use CreditRegistrationState as State;
+    let facts = &row.preconditions;
+    let elapsed = |since: DateTime<Utc>, secs: i64| since < now - TimeDelta::seconds(secs);
+    match row.state {
+        // A worker committed `submitting` and never came back with an answer. There is no way to
+        // know whether the request landed, so the row is never imported again. Timed from the last
+        // send, which a split import batch repeats.
+        State::Submitting
+            if elapsed(
+                row.submitted_at.unwrap_or(row.state_entered_at),
+                SUBMITTING_RECOVERY_GRACE_SECS,
+            ) =>
+        {
+            Target::Move(State::SubmissionUncertain)
+        }
+        State::Submitting | State::SubmissionUncertain | State::AwaitingVerification => {
+            Target::Stay
+        }
+        _ if row.completion_deleted => Target::Move(State::Cancelled),
+        State::FailedRetryable if !facts.completion_eligible => Target::Move(State::Blocked),
+        State::FailedRetryable
+            if row.first_failed_at.is_some_and(|first_failed_at| {
+                elapsed(first_failed_at, SUBMIT_MAX_RETRY_AGE_SECS)
+            }) =>
+        {
+            Target::Move(State::FailedPermanent)
+        }
+        // Before the resume below, or a retry would carry on past a precondition the student has
+        // since removed and import would send the frozen student_number under a link they gave up.
+        State::FailedRetryable if !facts.has_verified_student_number => {
+            Target::Move(State::Pending)
+        }
+        // Only a row with nothing in flight: one with a submission to verify has to resume there.
+        State::FailedRetryable if !facts.course_code_allowed && !row.has_submitted_attainment => {
+            Target::Move(State::Pending)
+        }
+        State::FailedRetryable if row.next_attempt_at <= now => Target::Resume,
+        State::FailedRetryable => Target::Stay,
+        // Eligibility lost after the row had already moved on is what `blocked` is for; a row still
+        // waiting is simply where it belongs, and the reason it reports changes to say so.
+        state if !facts.completion_eligible && state != State::Pending => {
+            Target::Move(State::Blocked)
+        }
+        _ if !facts.completion_eligible
+            || !facts.has_verified_student_number
+            || !facts.course_code_allowed =>
+        {
+            Target::Move(State::Pending)
+        }
+        // resolve-enrolments checks it where it stands when its schedule says.
+        State::NoUsableEnrolment => Target::Stay,
+        // A relink after the payload was frozen must not let the row import against the account's
+        // previous number: send it back to resolve a fresh payload against the current one.
+        State::CheckingEnrolment if row.frozen_identity_stale => Target::Move(State::ReadyToSubmit),
+        // Already queued for import with its payload frozen; sending it back would resolve again
+        // forever.
+        State::CheckingEnrolment => Target::Stay,
+        // Past the grace the worker that claimed it is gone, and asking again is harmless.
+        State::ResolvingEnrolment
+            if elapsed(row.state_entered_at, RESOLVING_RECOVERY_GRACE_SECS) =>
+        {
+            Target::Move(State::ReadyToSubmit)
+        }
+        // A resolve-enrolments call for this row is in flight; only that phase's own commit may
+        // move it, or import could claim it before the enrolment is actually resolved.
+        State::ResolvingEnrolment => Target::Stay,
+        _ => Target::Move(State::ReadyToSubmit),
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -94,14 +181,16 @@ pub async fn recompute_preconditions(
         .await?
         .iter()
         .filter_map(|pending| {
-            let mut target = pending.target.unwrap_or_else(|| {
-                resume_state(
+            let mut target = match precondition_target(pending, now) {
+                Target::Stay => pending.state,
+                Target::Move(target) => target,
+                Target::Resume => resume_state(
                     pending.has_submitted_attainment,
                     pending.has_payload_snapshot,
                     pending.frozen_identity_stale,
                     pending.payload_unweighed_against_held_credit,
-                )
-            });
+                ),
+            };
             let mut next_attempt_at = None;
             if target == CreditRegistrationState::ReadyToSubmit
                 && let Some(start) = &pending.check_start
@@ -217,8 +306,10 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
     }
 }
 
-/// Only the rows whose facts disagree with the state they are in, so `limit` cannot be spent on
-/// rows that need nothing.
+/// The facts of the rows that may need a move, so `limit` cannot be spent on rows that need nothing.
+///
+/// The `WHERE` only narrows to the rows [`precondition_target`] could move, and must keep every one
+/// of them: the decision itself is that function's.
 async fn pending_moves(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -252,7 +343,7 @@ WITH facts AS (
         AND held.deleted_at IS NULL
         AND held.superseded_by_id IS NULL
         AND held.pending_superseded_by_id IS DISTINCT FROM cr.id
-        AND held.state IN ('registered', 'duplicate', 'not_improved')
+        AND held.state = ANY($8::credit_registration_state [])
     ) AS payload_unweighed_against_held_credit,
     cr.state IN ('pending', 'blocked')
     AND cr.enrolment_checked_at IS NULL AS starts_enrolment_checks,
@@ -302,66 +393,14 @@ WITH facts AS (
       cardinality($4::uuid []) = 0
       OR cr.id = ANY($4::uuid [])
     )
-),
-targets AS (
-  SELECT facts.*,
-    CASE
-      -- A worker committed `submitting` and never came back with an answer. There is no way to
-      -- know whether the request landed, so the row is never imported again. Timed from the last
-      -- send, which a split import batch repeats.
-      WHEN facts.state = 'submitting'
-      AND COALESCE(facts.submitted_at, facts.state_entered_at) < now() - ($5::bigint * INTERVAL '1 second') THEN 'submission_uncertain'
-      WHEN facts.state IN (
-        'submitting',
-        'submission_uncertain',
-        'awaiting_verification'
-      ) THEN facts.state
-      WHEN facts.completion_deleted THEN 'cancelled'
-      WHEN facts.state = 'failed_retryable'
-      AND NOT facts.eligible THEN 'blocked'
-      WHEN facts.state = 'failed_retryable'
-      AND facts.first_failed_at < now() - ($6::bigint * INTERVAL '1 second') THEN 'failed_permanent'
-      -- Before the resume arm below, or a retry would carry on past a precondition the student has
-      -- since removed and import would send the frozen student_number under a link they gave up.
-      WHEN facts.state = 'failed_retryable'
-      AND NOT facts.has_student_number THEN 'pending'
-      -- Only a row with nothing in flight: one with a submission to verify has to resume there.
-      WHEN facts.state = 'failed_retryable'
-      AND NOT facts.course_code_allowed
-      AND NOT facts.has_submitted_attainment THEN 'pending'
-      -- Resumed at whichever state matches how far it had got; decided outside this query.
-      WHEN facts.state = 'failed_retryable'
-      AND facts.next_attempt_at <= now() THEN NULL
-      WHEN facts.state = 'failed_retryable' THEN facts.state
-      -- Eligibility lost after the row had already moved on is what `blocked` is for; a row still
-      -- waiting is simply where it belongs, and the reason it reports changes to say so.
-      WHEN NOT facts.eligible
-      AND facts.state <> 'pending' THEN 'blocked'
-      WHEN NOT facts.eligible
-      OR NOT facts.has_student_number
-      OR NOT facts.course_code_allowed THEN 'pending'
-      -- resolve-enrolments checks it where it stands when its schedule says.
-      WHEN facts.state = 'no_usable_enrolment' THEN facts.state
-      -- A relink after the payload was frozen must not let the row import against the account's
-      -- previous number: send it back to resolve a fresh payload against the current one.
-      WHEN facts.state = 'checking_enrolment'
-      AND facts.frozen_identity_stale THEN 'ready_to_submit'
-      -- Already queued for import with its payload frozen; sending it back would resolve again
-      -- forever.
-      WHEN facts.state = 'checking_enrolment' THEN facts.state
-      -- Past the grace the worker that claimed it is gone, and asking again is harmless.
-      WHEN facts.state = 'resolving_enrolment'
-      AND facts.state_entered_at < now() - ($7::bigint * INTERVAL '1 second') THEN 'ready_to_submit'
-      -- A resolve-enrolments call for this row is in flight; only that phase's own commit may
-      -- move it, or import could claim it before the enrolment is actually resolved.
-      WHEN facts.state = 'resolving_enrolment' THEN facts.state
-      ELSE 'ready_to_submit'
-    END::credit_registration_state AS target
-  FROM facts
 )
 SELECT id,
   state AS "state: CreditRegistrationState",
-  target AS "target?: CreditRegistrationState",
+  next_attempt_at,
+  state_entered_at,
+  submitted_at,
+  first_failed_at,
+  completion_deleted AS "completion_deleted!",
   eligible AS "eligible!",
   has_student_number AS "has_student_number!",
   course_code_allowed AS "course_code_allowed!",
@@ -373,9 +412,56 @@ SELECT id,
   check_group AS "check_group!: EnrolmentCheckGroup",
   check_anchor_at AS "check_anchor_at!",
   check_source AS "check_source!: EnrolmentCheckSource"
-FROM targets
-WHERE target IS NULL
-  OR target <> state
+FROM facts
+WHERE (
+    state = 'submitting'
+    AND COALESCE(submitted_at, state_entered_at) < now() - ($5::bigint * INTERVAL '1 second')
+  )
+  OR (
+    state <> ALL($9::credit_registration_state [])
+    AND (
+      completion_deleted
+      OR (
+        state = 'failed_retryable'
+        AND (
+          NOT eligible
+          OR NOT has_student_number
+          OR (
+            NOT course_code_allowed
+            AND NOT has_submitted_attainment
+          )
+          OR next_attempt_at <= now()
+          OR first_failed_at < now() - ($6::bigint * INTERVAL '1 second')
+        )
+      )
+      OR (
+        state NOT IN ('failed_retryable', 'pending', 'blocked')
+        AND (
+          NOT eligible
+          OR NOT has_student_number
+          OR NOT course_code_allowed
+        )
+      )
+      OR (
+        state = 'blocked'
+        AND eligible
+      )
+      OR (
+        state = 'pending'
+        AND eligible
+        AND has_student_number
+        AND course_code_allowed
+      )
+      OR (
+        state = 'checking_enrolment'
+        AND frozen_identity_stale
+      )
+      OR (
+        state = 'resolving_enrolment'
+        AND state_entered_at < now() - ($7::bigint * INTERVAL '1 second')
+      )
+    )
+  )
 ORDER BY state_entered_at
 LIMIT $1
         "#,
@@ -386,6 +472,8 @@ LIMIT $1
         SUBMITTING_RECOVERY_GRACE_SECS,
         SUBMIT_MAX_RETRY_AGE_SECS,
         RESOLVING_RECOVERY_GRACE_SECS,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -394,7 +482,11 @@ LIMIT $1
         .map(|row| PendingMove {
             id: row.id,
             state: row.state,
-            target: row.target,
+            next_attempt_at: row.next_attempt_at,
+            state_entered_at: row.state_entered_at,
+            submitted_at: row.submitted_at,
+            first_failed_at: row.first_failed_at,
+            completion_deleted: row.completion_deleted,
             preconditions: PendingPreconditions {
                 completion_eligible: row.eligible,
                 has_verified_student_number: row.has_student_number,

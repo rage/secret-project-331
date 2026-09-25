@@ -271,15 +271,16 @@ fn listed_people<'a>(
             .unwrap_or_default()),
         Some(item) => {
             warn!(
-                "Listing course code {} failed with {}.",
-                listing.course_code, item.code
+                course_code = %listing.course_code,
+                code = %item.code,
+                "Listing course code failed"
             );
             Err(map_code(ENDPOINT, &item.code).unwrap_or(CreditRegistrationErrorCode::Unknown))
         }
         None => {
             warn!(
-                "The study registry did not answer for course code {}.",
-                listing.course_code
+                course_code = %listing.course_code,
+                "The study registry did not answer for a course code"
             );
             Err(CreditRegistrationErrorCode::UnexpectedResponse)
         }

@@ -113,8 +113,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
             }
             let Some(context) = contexts.remove(&row.id) else {
                 warn!(
-                    "Credit registration {} has no completion or module to submit for.",
-                    row.id
+                    credit_registration_id = %row.id,
+                    "Credit registration has no completion or module to submit for"
                 );
                 let outcome = missing_context_outcome(&row_facts(&row));
                 if outcome.increment_submit_retry_count {
@@ -150,6 +150,13 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     prepared.sendable.push(((row, context), request));
                 }
                 Err(problem) => {
+                    if let Preflight::Config(code) = &problem {
+                        warn!(
+                            credit_registration_id = %row.id,
+                            error_code = ?code,
+                            "Course module is not configured for credit registration"
+                        );
+                    }
                     transition(conn, row.id, &problem.transition()).await?;
                     prepared.decided += 1;
                     prepared.failed += 1;

@@ -31,7 +31,10 @@ pub async fn run(ctx: &PhaseContext<'_>, _scope: &PhaseScope) -> anyhow::Result<
     let retired_tokens = soft_delete_expired(&mut conn, SWEEP_LIMIT).await?;
     if purged_calls > 0 || purged_outcomes > 0 || retired_tokens > 0 {
         info!(
-            "Purged {purged_calls} study registry call rows past the {RETENTION_DAYS} day window, {purged_outcomes} enrolment check outcomes past theirs, and retired {retired_tokens} expired student number verification tokens."
+            purged_calls,
+            purged_outcomes,
+            retired_tokens,
+            "Retention sweep purged expired credit registration records"
         );
     }
     Ok(PhaseRunOutcome::processed(

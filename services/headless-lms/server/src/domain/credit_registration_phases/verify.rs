@@ -96,9 +96,9 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
                 recoveries.push(Recovery { row, attempt })
             }
             None => {
-                warn!(
-                    "Credit registration {} is awaiting verification with no submitted attainment id.",
-                    row.id
+                error!(
+                    credit_registration_id = %row.id,
+                    "Credit registration is awaiting verification with no submitted attainment id; stuck"
                 );
             }
         }

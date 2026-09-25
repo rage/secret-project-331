@@ -89,7 +89,10 @@ pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<P
         record_config_check(&mut conn, module.course_module_id, &check).await?;
     }
     if with_problems > 0 {
-        info!("{with_problems} Suotar-enabled course modules have configuration problems.");
+        warn!(
+            modules_with_problems = with_problems,
+            "Suotar-enabled course modules have configuration problems"
+        );
     }
 
     // A misconfigured module is a finding, not a failed item: the phase did its job.

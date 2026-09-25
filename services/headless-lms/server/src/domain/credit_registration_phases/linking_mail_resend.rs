@@ -81,9 +81,16 @@ pub async fn resend_linking_mail(
     let mut has_unanswered_code = false;
     let mut person = None;
     for response in responses {
-        let Ok(response) = response else {
-            has_unanswered_code = true;
-            continue;
+        let response = match response {
+            Ok(response) => response,
+            Err(error) => {
+                warn!(
+                    error = %error,
+                    "Could not list a course code's roster for a linking mail resend"
+                );
+                has_unanswered_code = true;
+                continue;
+            }
         };
         person = person.or_else(|| {
             response
@@ -269,7 +276,10 @@ pub async fn resolve_person(
             }],
         )
         .await
-        .map_err(|_| ResolvePersonError::StudyRegistryUnavailable)?;
+        .map_err(|error| {
+            warn!(error = %error, "Could not resolve a student number in the study registry");
+            ResolvePersonError::StudyRegistryUnavailable
+        })?;
     let Some(item) = response.item(&request_item_id) else {
         return Err(ResolvePersonError::ItemMissingFromResponse);
     };

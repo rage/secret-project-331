@@ -25,4 +25,14 @@ impl ProgramConfig {
     pub fn bool_flag(key: &str) -> bool {
         bool_env_false_by_default(key)
     }
+
+    /// Gives a worker process a quieter default than the web server's (sqlx queries at `warn`
+    /// instead of `info`), without overriding a `RUST_LOG` the operator already set.
+    /// Call after loading `.env`, so a `RUST_LOG` from there counts as already set.
+    pub fn ensure_default_rust_log_for_workers() {
+        if env::var("RUST_LOG").is_err() {
+            // TODO: Audit that the environment access only happens in single-threaded code.
+            unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
+        }
+    }
 }

@@ -1,4 +1,4 @@
-use std::{env, error::Error, sync::Arc, time::Duration};
+use std::{error::Error, sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
@@ -16,9 +16,8 @@ use sqlx::PgPool;
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
 */
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     crate::setup_tracing()?;
     let db_url = ProgramConfig::database_url_with_default();
     let app_conf = ApplicationConfiguration::try_from_env()?;

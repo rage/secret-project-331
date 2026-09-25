@@ -11,8 +11,8 @@ use std::time::{Duration, Instant};
 
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use super::breaker::ScopeKey;
-use super::process_local::ProcessLocalMap;
+use crate::breaker::ScopeKey;
+use crate::process_local::ProcessLocalMap;
 
 /// What an endpoint may take at full rate.
 #[derive(Debug, Clone, Copy, PartialEq)]

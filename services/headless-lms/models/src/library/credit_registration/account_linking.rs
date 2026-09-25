@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use headless_lms_utils::services::suotar::ListedPerson;
 use secrecy::ExposeSecret;
 
 use crate::credit_registration_account_linking_emails::{
@@ -50,6 +51,17 @@ pub struct DiscoveredPerson {
     pub course_id: Uuid,
     /// Each address gets its own mail and its own token: we cannot tell which one they read.
     pub addresses: Vec<DbSecret>,
+}
+
+/// Every address the study registry holds for a listed person, in the order it lists them; which
+/// one they read is not something we can know.
+pub fn listed_person_addresses(person: &ListedPerson) -> Vec<DbSecret> {
+    [&person.primary_email, &person.secondary_email]
+        .into_iter()
+        .flatten()
+        .filter(|address| !address.expose_secret().trim().is_empty())
+        .map(|address| DbSecret::from(address.clone()))
+        .collect()
 }
 
 /// The three buckets are disjoint and sum to the addresses tried.

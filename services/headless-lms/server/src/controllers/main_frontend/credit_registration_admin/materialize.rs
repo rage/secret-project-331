@@ -13,8 +13,8 @@ use headless_lms_models::library::credit_registration::preconditions::{
 };
 use utoipa::ToSchema;
 
-use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::prelude::*;
+use headless_lms_credit_registration::CreditRegistrationPhase;
 
 use super::authorize_credit_registration_admin;
 

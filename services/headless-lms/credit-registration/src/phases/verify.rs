@@ -29,10 +29,10 @@ use headless_lms_utils::services::suotar::{
 };
 use sqlx::{Connection, PgConnection};
 
-use super::{
-    CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, counts_as_failed, row_facts, run_suotar_batch_phase,
-};
+use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, row_facts};
+use crate::batch_phase::{Prepared, SuotarBatchPhase, run_suotar_batch_phase};
+use crate::dispatch::PhaseContext;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
 /// without any query having to know about withdrawal.
@@ -56,7 +56,10 @@ struct Recovery {
     attempt: i32,
 }
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+pub(crate) async fn run(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let claimed = claim_due(

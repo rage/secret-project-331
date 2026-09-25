@@ -25,13 +25,13 @@ use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
-use crate::domain::credit_registration_phases::PhaseContext;
-use crate::domain::credit_registration_phases::linking_mail_resend::{
+use crate::prelude::*;
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::PhaseContext;
+use headless_lms_credit_registration::linking_mail_resend::{
     ResendOutcome, ResolvePersonError, ResolvedPerson, resend_linking_mail_for_target,
     resolve_person,
 };
-use crate::prelude::*;
-use headless_lms_base::config::ApplicationConfiguration;
 
 use super::{
     AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,

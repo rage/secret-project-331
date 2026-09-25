@@ -15,7 +15,7 @@ use utoipa::ToSchema;
 use futures::future::join_all;
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
-    ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails,
+    ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, listed_person_addresses,
 };
 use headless_lms_models::verified_student_numbers;
 use headless_lms_utils::services::suotar::{
@@ -25,7 +25,8 @@ use headless_lms_utils::services::suotar::{
 use std::collections::BTreeSet;
 use uuid::Uuid;
 
-use super::{CreditRegistrationPhase, PhaseContext, listed_person_addresses, worker_name};
+use crate::dispatch::{PhaseContext, worker_name};
+use crate::phase::CreditRegistrationPhase;
 
 /// What one resend attempt did.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

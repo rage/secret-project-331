@@ -3,7 +3,7 @@
 //! submissions says nothing about the rest of Suotar.
 //!
 //! `BREAKERS` is a process-local static: `credit-registrar` and `suotar-syncer` are separate OS
-//! processes (see `programs/credit_registrar.rs` and `programs/suotar_syncer.rs`), each with its own
+//! processes (see `server/src/programs/credit_registrar.rs` and `suotar_syncer.rs`), each with its own
 //! map, so an outage tripping the breaker in one does not pause the study-registry phases of the
 //! other. Only the phases within the same process actually share a breaker per scope key.
 //!
@@ -16,8 +16,8 @@ use std::time::{Duration, Instant};
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
-use super::PhaseScope;
-use super::process_local::ProcessLocalMap;
+use crate::phase::PhaseScope;
+use crate::process_local::ProcessLocalMap;
 
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 /// The first cooldown; each trip without a success between adds another, up to

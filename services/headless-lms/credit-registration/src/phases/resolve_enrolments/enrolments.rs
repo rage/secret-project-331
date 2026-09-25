@@ -1,36 +1,19 @@
-//! The `resolve-enrolments` phase: which enrolment the attainment belongs to, and what we will send.
-//!
-//! Ends with the payload frozen and the row queued for import in `checking_enrolment`, never
-//! `submitting`: that state means a request may be in flight, and is the import phase's to write.
-//!
-//! The row spends the Suotar round trip itself in `resolving_enrolment`, not `checking_enrolment`:
-//! `import`'s claim query reads the latter, and the row's own claim lock is gone as soon as the
-//! preflight transaction below commits. Landing in a state `import` does not claim keeps a second
-//! tick of `import` from sending a request before the enrolment this one resolves is known.
-//!
-//! A row parked in `no_usable_enrolment` is checked where it stands instead, under
-//! [`claim_enrolment_check`], so a check that finds nothing leaves it there with only its schedule
-//! and last check time moved.
-//!
-//! Each iteration first looks up the Sisu person for links that lack one; see
-//! [`super::resolve_person_ids`].
+//! The second half of a `resolve-enrolments` iteration: the enrolment lookup, and freezing the
+//! payload the import will send.
 
-use headless_lms_models::credit_registration_enrolment_check_outcomes::{
-    self, NewEnrolmentCheckOutcome,
-};
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, suotar_exchange_details,
 };
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
-    RecordedCredit, Transition, claim_due_for_resolve, claim_enrolment_check,
-    get_recorded_credits_for_same_module, increment_submit_retry_count,
-    lock_live_successes_for_same_module, mark_pending_superseded, prepare_unsent_duplicate,
-    set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
+    RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
+    increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
+    prepare_unsent_duplicate, set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
-use headless_lms_models::library::credit_registration::enrolment_checks::add_seen_enrolment_ids;
+use headless_lms_models::library::credit_registration::enrolment_checks::{
+    EnrolmentCheckAnswer, record_enrolment_check,
+};
 use headless_lms_models::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, NoUsableEnrolment, attained_candidates, select_enrolment,
 };
@@ -48,7 +31,6 @@ use headless_lms_models::library::credit_registration::submission_context::{
 };
 use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::error::util_error::UtilError;
-use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::services::suotar::{
     ATTAINMENT_TYPE_COURSE_UNIT, EnrolmentResolutionResult, ExistingAttainment,
     ResolveEnrolmentRequestItem, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint,
@@ -57,30 +39,16 @@ use headless_lms_utils::services::suotar::{
 use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 
-use super::resolve_person_ids::ResolvePersonIds;
-use super::{
-    OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, counts_as_failed,
-    is_malformed_request, outcome_transition, row_facts, run_suotar_batch_phase,
+use super::{hold_for_lookup, lookup_state};
+use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, outcome_transition, row_facts};
+use crate::batch_phase::{
+    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
+    is_malformed_request,
 };
+use crate::dispatch::PhaseContext;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
-    let persons = run_suotar_batch_phase(&mut ResolvePersonIds, ctx, scope).await?;
-    let enrolments = run_suotar_batch_phase(&mut ResolveEnrolments, ctx, scope).await?;
-    // The first error stands for the iteration.
-    let (first, second) = if persons.error.is_some() {
-        (persons, enrolments)
-    } else {
-        (enrolments, persons)
-    };
-    Ok(PhaseRunOutcome {
-        items_processed: first.items_processed + second.items_processed,
-        items_failed: first.items_failed + second.items_failed,
-        ..first
-    })
-}
-
-struct ResolveEnrolments;
+pub(super) struct ResolveEnrolments;
 
 impl SuotarBatchPhase for ResolveEnrolments {
     /// The frozen context travels with the row: the answer is applied against what was asked, not
@@ -182,10 +150,8 @@ impl SuotarBatchPhase for ResolveEnrolments {
     ) -> Result<SuotarBatchResponse<Self::Result>, UtilError> {
         ctx.suotar_client
             .resolve_enrolments(
-                SuotarCallContext::new(
-                    ctx.worker_name(super::CreditRegistrationPhase::ResolveEnrolments),
-                )
-                .for_registrations(rows.iter().map(|(row, _)| row.id).collect()),
+                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ResolveEnrolments))
+                    .for_registrations(rows.iter().map(|(row, _)| row.id).collect()),
                 items,
             )
             .await
@@ -267,89 +233,6 @@ impl SuotarBatchPhase for ResolveEnrolments {
         )
         .await
     }
-}
-
-/// The state a row claimed for a lookup waits out the call in: a parked row stays where it is,
-/// anything else moves to `resolving_enrolment`. What the answer's write expects to find.
-pub(super) fn lookup_state(row: &CreditRegistration) -> CreditRegistrationState {
-    if row.state == CreditRegistrationState::NoUsableEnrolment {
-        CreditRegistrationState::NoUsableEnrolment
-    } else {
-        CreditRegistrationState::ResolvingEnrolment
-    }
-}
-
-/// Keeps a claimed row from being claimed again, or imported, while its lookup is out; see
-/// [`lookup_state`]. In the claim's transaction.
-pub(super) async fn hold_for_lookup(
-    conn: &mut PgConnection,
-    row: &CreditRegistration,
-) -> anyhow::Result<()> {
-    if lookup_state(row) == CreditRegistrationState::NoUsableEnrolment {
-        claim_enrolment_check(conn, row.id).await?;
-    } else {
-        transition(
-            conn,
-            row.id,
-            &Transition::to(CreditRegistrationState::ResolvingEnrolment),
-        )
-        .await?;
-    }
-    Ok(())
-}
-
-/// An answered check of a row waiting for an enrolment, logged with the write its answer makes.
-#[derive(Clone, Copy)]
-pub(crate) struct EnrolmentCheckAnswer<'a> {
-    /// The row as it was claimed for the check.
-    pub checked: &'a CreditRegistration,
-    /// The enrolment the answer had to register against, however the row then settled.
-    pub usable_enrolment: Option<&'a SuotarEnrolment>,
-    pub listed_enrolments: &'a [SuotarEnrolment],
-}
-
-/// Logs what a check found and remembers the enrolments it saw for the roster wake-ups, given the
-/// row as the answer's write left it. A lookup that failed in transit was no check and leaves no
-/// trace.
-pub(crate) async fn record_enrolment_check(
-    conn: &mut PgConnection,
-    check: Option<&EnrolmentCheckAnswer<'_>>,
-    after: &CreditRegistration,
-) -> anyhow::Result<()> {
-    let Some(check) = check else {
-        return Ok(());
-    };
-    let row = check.checked;
-    let was_answered = after.state != CreditRegistrationState::NoUsableEnrolment
-        || after.enrolment_checked_at != row.enrolment_checked_at;
-    if !was_answered {
-        return Ok(());
-    }
-    credit_registration_enrolment_check_outcomes::insert(
-        conn,
-        &NewEnrolmentCheckOutcome {
-            credit_registration_id: row.id,
-            course_module_id: row.course_module_id,
-            enrolment_check_group: row.enrolment_check_group,
-            enrolment_check_step: row.enrolment_check_step,
-            source: row.enrolment_check_source,
-            due_at: row.enrolment_check_due_at,
-            checked_at: after.enrolment_checked_at.unwrap_or_else(Utc::now),
-            previous_checked_at: row.enrolment_checked_at,
-            is_enrolment_found: check.usable_enrolment.is_some(),
-            enrolled_at: check
-                .usable_enrolment
-                .and_then(|enrolment| enrolment.enrolment_date_time),
-        },
-    )
-    .await?;
-    let seen: Vec<String> = check
-        .listed_enrolments
-        .iter()
-        .map(|enrolment| enrolment.id.clone())
-        .collect();
-    add_seen_enrolment_ids(conn, row.id, &seen).await?;
-    Ok(())
 }
 
 /// Applies the study registry's answer for one row. Returns whether the row ended up in a failure

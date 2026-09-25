@@ -2,7 +2,7 @@
 //! the account-linking mails and the course configuration check. Separate from the registrar because
 //! no phase of it moves a ledger row and its intervals are hours, not seconds.
 
-use super::credit_registrar::run_credit_registration_worker;
+use super::credit_registration_worker::run_credit_registration_worker;
 
 const PROCESS_NAME: &str = "suotar-syncer";
 

@@ -47,12 +47,12 @@ use secrecy::{ExposeSecret, SecretString};
 use std::collections::HashMap;
 use utoipa::{OpenApi, ToSchema};
 
-use crate::domain::credit_registration_phases::PhaseContext;
-use crate::domain::credit_registration_phases::linking_mail_resend::{
-    ResendOutcome, resend_linking_mail_for_target,
-};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::PhaseContext;
+use headless_lms_credit_registration::linking_mail_resend::{
+    ResendOutcome, resend_linking_mail_for_target,
+};
 use headless_lms_utils::services::suotar::SuotarClient;
 
 use super::credit_registrations::{

@@ -21,11 +21,11 @@ use utoipa::ToSchema;
 use crate::domain::credit_registration::health::{
     CreditRegistrationHealth, evaluate, is_heartbeat_late, stuck_thresholds,
 };
-use crate::domain::credit_registration_phases::CreditRegistrationPhase;
-use crate::domain::credit_registration_phases::breaker::{
+use crate::prelude::*;
+use headless_lms_credit_registration::CreditRegistrationPhase;
+use headless_lms_credit_registration::breaker::{
     BreakerTarget, MAX_CONSECUTIVE_SUOTAR_FAILURES, ScopeKey, snapshot,
 };
-use crate::prelude::*;
 
 use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin, required_reason};
 

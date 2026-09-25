@@ -3,7 +3,7 @@
 //!
 //! Runs before the enrolment lookup freezes the payload, so the frozen row carries the person id
 //! that `uq_credit_registrations_person_module` and enrolment discovery key on. Rows wait out the
-//! call as the enrolment lookup's do (see [`super::resolve_enrolments::lookup_state`]), and a found
+//! call as the enrolment lookup's do (see [`super::lookup_state`]), and a found
 //! person leaves the row claimable for the second half of the same iteration.
 
 use std::collections::HashMap;
@@ -27,12 +27,14 @@ use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use super::resolve_enrolments::{hold_for_lookup, lookup_state};
-use super::{
-    CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, counts_as_failed,
-    is_malformed_request, row_facts,
+use super::{hold_for_lookup, lookup_state};
+use crate::apply::{OutcomeEvent, apply_outcome, counts_as_failed, row_facts};
+use crate::batch_phase::{
+    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
+    is_malformed_request,
 };
+use crate::dispatch::PhaseContext;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
 

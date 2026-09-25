@@ -21,7 +21,7 @@ use headless_lms_models::credit_registration_roster_schedules::{
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, claim_linking_mails_batch,
+    DiscoveredPerson, claim_linking_mails_batch, listed_person_addresses,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_checks::{
@@ -39,10 +39,10 @@ use headless_lms_utils::services::suotar::{
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 
-use super::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, breaker, claim_limit,
-    every_item_service_unavailable, listed_person_addresses, rate_limit, suotar_error_variant,
-};
+use crate::batch_phase::{every_item_service_unavailable, suotar_error_variant};
+use crate::dispatch::{PhaseContext, claim_limit};
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::{breaker, rate_limit};
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ListByCourse;
 
@@ -77,7 +77,10 @@ struct CodeListing {
     is_fetched_alone: bool,
 }
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+pub(crate) async fn run(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
     let _guard = if scope.is_unscoped() {
         let Some(guard) = ListingGuard::acquire() else {
             return Ok(PhaseRunOutcome::processed(0));

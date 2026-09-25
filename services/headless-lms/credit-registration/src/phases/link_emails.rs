@@ -17,13 +17,18 @@ use serde_json::json;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use super::{MailQueuePhase, PhaseContext, PhaseScope, run_mail_queue_phase, template_language};
+use crate::dispatch::PhaseContext;
+use crate::mail_queue::{MailQueuePhase, run_mail_queue_phase, template_language};
+use crate::phase::PhaseScope;
 
 /// How many mails one iteration queues; the sender has its own rate, so this only bounds how much
 /// one transaction holds open.
 const QUEUE_LIMIT: i64 = 200;
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+pub(crate) async fn run(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
     run_mail_queue_phase::<LinkEmailsPhase>(ctx, scope).await
 }
 

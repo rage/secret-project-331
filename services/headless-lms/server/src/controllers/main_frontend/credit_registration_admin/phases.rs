@@ -15,8 +15,8 @@ use utoipa::ToSchema;
 use crate::domain::credit_registration::health::{
     PHASE_CONSECUTIVE_FAILURE_LIMIT, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
 };
-use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::prelude::*;
+use headless_lms_credit_registration::CreditRegistrationPhase;
 
 use super::authorize_credit_registration_admin;
 

@@ -34,13 +34,18 @@ use sqlx::{Connection, PgConnection};
 use std::collections::HashSet;
 use uuid::Uuid;
 
-use super::{
-    CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome,
-    is_malformed_request, row_facts, row_moved_on, run_suotar_batch_phase,
+use crate::apply::{OutcomeEvent, apply_outcome, row_facts, row_moved_on};
+use crate::batch_phase::{
+    Prepared, SuotarBatchPhase, apply_isolated_malformed_request, apply_request_level_outcome,
+    is_malformed_request, run_suotar_batch_phase,
 };
+use crate::dispatch::PhaseContext;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+pub(crate) async fn run(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
     run_suotar_batch_phase(&mut Import, ctx, scope).await
 }
 

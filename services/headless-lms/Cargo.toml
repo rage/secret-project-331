@@ -9,6 +9,7 @@ members = [
   "doc-macro",
   "certificates",
   "chatbot",
+  "credit-registration",
   "exercise-services-api",
 ]
 

@@ -22,9 +22,13 @@ use headless_lms_utils::services::suotar::{
 };
 use itertools::Itertools;
 
-use super::{CreditRegistrationPhase, PhaseContext, PhaseScope};
+use crate::dispatch::PhaseContext;
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
-pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
+pub(crate) async fn run(
+    ctx: &PhaseContext<'_>,
+    scope: &PhaseScope,
+) -> anyhow::Result<PhaseRunOutcome> {
     let modules = {
         let mut conn = ctx.pool.acquire().await?;
         get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?

@@ -16,11 +16,12 @@ use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::services::suotar::SuotarClient;
 use tokio_util::sync::CancellationToken;
 
-use crate::programs::periodic_worker::{
+use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, is_db_disconnect, run_periodic_worker_until,
 };
 
-use super::{CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseTick, run_phase_once};
+use crate::dispatch::{PhaseContext, PhaseTick, run_phase_once};
+use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.

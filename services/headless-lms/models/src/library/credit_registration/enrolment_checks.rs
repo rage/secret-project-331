@@ -3,8 +3,11 @@
 //! roster and shifting them past a module pause. The ladders are
 //! [`super::enrolment_check_schedule`].
 
+use headless_lms_utils::services::suotar::SuotarEnrolment;
+
+use crate::credit_registration_enrolment_check_outcomes::{self, NewEnrolmentCheckOutcome};
 use crate::credit_registrations::{
-    CreditRegistrationState, RegistrationScope, is_waiting_for_enrolment,
+    CreditRegistration, CreditRegistrationState, RegistrationScope, is_waiting_for_enrolment,
 };
 use crate::prelude::*;
 
@@ -536,6 +539,60 @@ WHERE id = $1
     )
     .execute(conn)
     .await?;
+    Ok(())
+}
+
+/// An answered check of a row waiting for an enrolment, logged with the write its answer makes.
+#[derive(Clone, Copy)]
+pub struct EnrolmentCheckAnswer<'a> {
+    /// The row as it was claimed for the check.
+    pub checked: &'a CreditRegistration,
+    /// The enrolment the answer had to register against, however the row then settled.
+    pub usable_enrolment: Option<&'a SuotarEnrolment>,
+    pub listed_enrolments: &'a [SuotarEnrolment],
+}
+
+/// Logs what a check found and remembers the enrolments it saw for the roster wake-ups, given the
+/// row as the answer's write left it. A lookup that failed in transit was no check and leaves no
+/// trace.
+pub async fn record_enrolment_check(
+    conn: &mut PgConnection,
+    check: Option<&EnrolmentCheckAnswer<'_>>,
+    after: &CreditRegistration,
+) -> ModelResult<()> {
+    let Some(check) = check else {
+        return Ok(());
+    };
+    let row = check.checked;
+    let was_answered = after.state != CreditRegistrationState::NoUsableEnrolment
+        || after.enrolment_checked_at != row.enrolment_checked_at;
+    if !was_answered {
+        return Ok(());
+    }
+    credit_registration_enrolment_check_outcomes::insert(
+        conn,
+        &NewEnrolmentCheckOutcome {
+            credit_registration_id: row.id,
+            course_module_id: row.course_module_id,
+            enrolment_check_group: row.enrolment_check_group,
+            enrolment_check_step: row.enrolment_check_step,
+            source: row.enrolment_check_source,
+            due_at: row.enrolment_check_due_at,
+            checked_at: after.enrolment_checked_at.unwrap_or_else(Utc::now),
+            previous_checked_at: row.enrolment_checked_at,
+            is_enrolment_found: check.usable_enrolment.is_some(),
+            enrolled_at: check
+                .usable_enrolment
+                .and_then(|enrolment| enrolment.enrolment_date_time),
+        },
+    )
+    .await?;
+    let seen: Vec<String> = check
+        .listed_enrolments
+        .iter()
+        .map(|enrolment| enrolment.id.clone())
+        .collect();
+    add_seen_enrolment_ids(conn, row.id, &seen).await?;
     Ok(())
 }
 

@@ -1,0 +1,43 @@
+[package]
+name = "headless-lms-credit-registration"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../base" }
+headless-lms-utils = { path = "../utils" }
+headless-lms-models = { path = "../models" }
+
+# An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
+tokio = { workspace = true, features = ["macros", "signal", "time"] }
+# Utilities for working with Tokio.
+tokio-util = "0.7.19"
+# An implementation of futures and streams featuring zero allocations, composability, and itera…
+futures = "0.3.34"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx.workspace = true
+# Date and time library for Rust
+chrono = { version = "0.4.45", features = ["serde"] }
+# A library to generate and parse UUIDs.
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+# A generic serialization/deserialization framework
+serde = { version = "1.0.229", features = ["derive"] }
+# A JSON serialization file format
+serde_json = "1.0.151"
+# Code-first OpenAPI schema generation for shared utility structs used in request/response models.
+utoipa.workspace = true
+# Wrapper types (SecretString/SecretBox) for sensitive values such as student numbers.
+secrecy.workspace = true
+# Extra iterator adaptors, iterator methods, free functions, and macros.
+itertools = "0.15.0"
+# Application-level tracing for Rust.
+tracing = "0.1.44"
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.104"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

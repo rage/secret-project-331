@@ -414,7 +414,7 @@ async fn phase_alerts(
             stale.push(&phase.phase);
         }
         let known_phase =
-            crate::domain::credit_registration_phases::CreditRegistrationPhase::from_phase_name(
+            headless_lms_credit_registration::CreditRegistrationPhase::from_phase_name(
                 &phase.phase,
             );
         let owns_work = known_phase.is_some_and(|known| {

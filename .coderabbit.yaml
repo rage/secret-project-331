@@ -124,6 +124,19 @@ reviews:
         - For `.ok_or_else()` chains, use helper functions: `.ok_or_else(missing_model_error(ModelErrorType::NotFound, "msg".to_string()))?`
         These macros work with `format!()` for dynamic messages: `model_err!(Generic, format!("Failed: {}", detail))`
 
+    - path: "services/headless-lms/**/*.{rs,sql}"
+      instructions: >
+        Course copying (`models/src/library/copying.rs`, used for new language versions and exam copies) must keep up with the schema. Flag changes that break these rules:
+
+        - A new table or column holding course or exam content, configuration or settings must be copied in copying.rs, or the PR must say why not. A column left out of the copy's column list silently falls back to its default.
+        - Never copy learner data: submissions, answers, consent answers, enrollments, progress, points, completions.
+        - Copied rows get the id `uuid_generate_v5(<copy id>, <source id>::text)`. Remap every foreign key the same way, so it points to the copy and never to a row of the source course. A missed remap either fails the FK or silently ties the copy to the source.
+        - Copy parents before children. Select only non-deleted source rows, and join to the copied parent so that children of deleted or uncopied parents are skipped instead of failing the FK.
+        - Scope the source rows through the parent (for example the exercise's course), not through a denormalized `course_id` on the row, which can be stale.
+        - Ids, slugs and course URLs embedded in JSON or text (block attributes, exercise specs, instructions, email templates) must be rewritten through `ContentRewrite`.
+        - Stored files (images, audio, certificate backgrounds) are shared by path, never duplicated. Code that deletes or replaces a stored file must first check that no other non-deleted row references the path.
+        - Unique constraints on course-scoped tables must include the course (or a copied parent), or the copy's insert conflicts with the source.
+
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >
         Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.

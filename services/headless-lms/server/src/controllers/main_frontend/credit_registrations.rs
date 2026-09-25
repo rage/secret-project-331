@@ -40,7 +40,7 @@ use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 
-use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 
@@ -1531,11 +1531,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/enrolment-page-visit")
-                .wrap(RateLimit::new(RateLimitConfig {
-                    per_minute: Some(10),
-                    per_hour: Some(60),
-                    ..Default::default()
-                }))
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(10),
+                        per_hour: Some(60),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
                 .route(web::post().to(record_my_enrolment_page_visit)),
         )
         .route(
@@ -1546,11 +1549,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         // these mutations would run on a GET a link can trigger with the visitor's session cookie.
         .service(
             web::resource("/my/{id}/recheck-enrolment")
-                .wrap(RateLimit::new(RateLimitConfig {
-                    per_minute: Some(5),
-                    per_hour: Some(30),
-                    ..Default::default()
-                }))
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(5),
+                        per_hour: Some(30),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
                 .route(web::post().to(request_credit_registration_enrolment_recheck)),
         )
         .service(

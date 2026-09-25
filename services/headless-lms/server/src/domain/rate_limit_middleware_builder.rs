@@ -1,3 +1,5 @@
+use crate::domain::authentication::session_user_id;
+use actix_session::SessionExt;
 use actix_web::{
     Error, HttpResponse,
     body::{EitherBody, MessageBody},
@@ -27,6 +29,16 @@ pub struct RateLimitConfig {
     pub per_hour: Option<u64>,
     pub per_day: Option<u64>,
     pub per_month: Option<u64>,
+}
+
+/// Whose requests share one quota.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum RateLimitKey {
+    #[default]
+    ClientIp,
+    /// The signed-in user, falling back to the client IP for anonymous requests. For endpoints
+    /// that act on the caller's own data, where users behind one NAT address must not share a quota.
+    User,
 }
 
 type Key = String;
@@ -95,6 +107,7 @@ fn build_custom_period_limiter(n: u64, period: Duration) -> Option<Arc<Limiter>>
 #[derive(Clone)]
 pub struct RateLimit {
     limiters: Arc<EndpointLimiters>,
+    key: RateLimitKey,
     calls: Arc<AtomicU64>,
 }
 
@@ -120,8 +133,14 @@ impl RateLimit {
     pub fn new(cfg: RateLimitConfig) -> Self {
         Self {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
+            key: RateLimitKey::default(),
             calls: Arc::new(AtomicU64::new(0)),
         }
+    }
+
+    /// Shares each quota by `key` instead of by client IP.
+    pub fn keyed_by(self, key: RateLimitKey) -> Self {
+        Self { key, ..self }
     }
 }
 
@@ -140,6 +159,7 @@ where
         ready(Ok(RateLimitInner {
             service,
             limiters: self.limiters.clone(),
+            key: self.key,
             calls: self.calls.clone(),
         }))
     }
@@ -148,6 +168,7 @@ where
 pub struct RateLimitInner<S> {
     service: S,
     limiters: Arc<EndpointLimiters>,
+    key: RateLimitKey,
     calls: Arc<AtomicU64>,
 }
 
@@ -186,7 +207,12 @@ where
         }
 
         let clock = DefaultClock::default();
-        let key = extract_client_ip_key(&req);
+        let key = match self.key {
+            RateLimitKey::User => session_user_id(&req.get_session())
+                .map(|id| format!("user:{id}"))
+                .unwrap_or_else(|| extract_client_ip_key(&req)),
+            RateLimitKey::ClientIp => extract_client_ip_key(&req),
+        };
 
         let mut retry_after: Option<Duration> = None;
         for limiter in self.limiters.iter() {

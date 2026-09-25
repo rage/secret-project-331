@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_specific_consent_form_questions (\n    id,\n    course_id,\n    research_consent_form_id,\n    question\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (id)\nDO UPDATE SET question = $4,\ndeleted_at = NULL\nWHERE course_specific_consent_form_questions.course_id = excluded.course_id\nRETURNING *\n",
+  "query": "\nINSERT INTO course_specific_consent_form_questions (\n    id,\n    course_id,\n    research_consent_form_id,\n    question\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (id)\nDO UPDATE SET question = $4,\nresearch_consent_form_id = $3,\ndeleted_at = NULL\nWHERE course_specific_consent_form_questions.course_id = excluded.course_id\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -99,5 +99,5 @@
       true
     ]
   },
-  "hash": "ebdd2d2d2d2a1a6c8866dcc58b977dd71a3bf2d3de140c10a7d3aba25f302cdf"
+  "hash": "a09b57934623c6a86f12c249bb5de9b732154fe6fedc74ffab2f541ec1fac1b9"
 }

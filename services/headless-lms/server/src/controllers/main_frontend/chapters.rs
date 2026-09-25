@@ -328,17 +328,17 @@ async fn remove_chapter_image(
             .await?
         {
             let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
+                controller_err!(
+                    InternalServerError,
                     original_error.to_string(),
-                    Some(original_error.into()),
+                    original_error
                 )
             })?;
             file_store.delete(&file).await.map_err(|original_error| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
+                controller_err!(
+                    InternalServerError,
                     original_error.to_string(),
-                    Some(original_error.into()),
+                    original_error
                 )
             })?;
         }

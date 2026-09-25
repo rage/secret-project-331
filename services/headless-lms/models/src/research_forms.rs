@@ -145,6 +145,7 @@ INSERT INTO course_specific_consent_form_questions (
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (id)
 DO UPDATE SET question = $4,
+research_consent_form_id = $3,
 deleted_at = NULL
 WHERE course_specific_consent_form_questions.course_id = excluded.course_id
 RETURNING *

@@ -60,3 +60,18 @@ WHERE jsonb_typeof(f.content) = 'array'
     WHERE block->>'name' = 'moocfi/research-consent-question'
       AND q.course_id <> f.course_id
   );
+
+UPDATE course_specific_consent_form_answers a
+SET research_form_question_id = nq.id
+FROM course_specific_consent_form_questions q,
+  course_specific_consent_form_questions nq
+WHERE q.id = a.research_form_question_id
+  AND q.course_id <> a.course_id
+  AND nq.id = uuid_generate_v5(a.course_id, q.id::text)
+  AND nq.course_id = a.course_id
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_specific_consent_form_answers a2
+    WHERE a2.user_id = a.user_id
+      AND a2.research_form_question_id = nq.id
+  );

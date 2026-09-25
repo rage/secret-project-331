@@ -109,12 +109,12 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
           }
           questions.push(newResearchQuestion)
         }
-        upsertCmsCourseResearchFormQuestions({
-          path: {
-            course_id: researchForm.id,
-          },
-          body: questions,
-        })
+      })
+      await upsertCmsCourseResearchFormQuestions({
+        path: {
+          course_id: researchForm.course_id,
+        },
+        body: questions,
       })
     },
     {

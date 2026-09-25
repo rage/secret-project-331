@@ -737,21 +737,6 @@ RETURNING id
     Ok((page_res.id, history_id))
 }
 
-pub async fn set_chapter(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-    chapter_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "UPDATE pages SET chapter_id = $1 WHERE id = $2",
-        chapter_id,
-        page_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 pub async fn get_course_and_exam_id(
     conn: &mut PgConnection,
     id: Uuid,

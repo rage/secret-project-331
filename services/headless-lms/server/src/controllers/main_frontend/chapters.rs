@@ -256,7 +256,7 @@ async fn set_chapter_image(
         models::chapters::update_chapter_image_path(&mut conn, chapter.id, Some(chapter_image))
             .await?;
 
-    // Remove old image if one exists and no other chapter (e.g. a course copy) still uses it.
+    // Course copies share chapter images with their source.
     if let Some(old_image_path) = chapter.chapter_image_path
         && !models::chapters::chapter_image_path_is_referenced(&mut conn, &old_image_path).await?
     {
@@ -323,7 +323,7 @@ async fn remove_chapter_image(
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
         let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
-        // Only remove the blob if no other chapter (e.g. a course copy) still uses it.
+        // Course copies share chapter images with their source.
         if !models::chapters::chapter_image_path_is_referenced(&mut conn, &chapter_image_path)
             .await?
         {

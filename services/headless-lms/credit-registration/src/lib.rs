@@ -22,4 +22,4 @@ mod study_registry_gate;
 pub mod worker_loop;
 
 pub use dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, run_phase_once};
-pub use phase::{CreditRegistrationPhase, PhaseScope, ScopeSupport};
+pub use phase::{CreditRegistrationPhase, PhaseScope, PhaseSpec, ScopeSupport, WorkerProcess};

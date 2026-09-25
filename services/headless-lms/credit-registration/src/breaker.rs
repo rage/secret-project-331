@@ -3,9 +3,9 @@
 //! submissions says nothing about the rest of Suotar.
 //!
 //! `BREAKERS` is a process-local static: `credit-registrar` and `suotar-syncer` are separate OS
-//! processes (see `server/src/programs/credit_registrar.rs` and `suotar_syncer.rs`), each with its own
-//! map, so an outage tripping the breaker in one does not pause the study-registry phases of the
-//! other. Only the phases within the same process actually share a breaker per scope key.
+//! processes (see [`crate::WorkerProcess`]), each with its own map, so an outage tripping the
+//! breaker in one does not pause the study-registry phases of the other. Only the phases within the
+//! same process actually share a breaker per scope key.
 //!
 //! Keyed by scope rather than global: a test driving a deliberate outage for its own course must not
 //! silence the pipeline for every other test running at the same moment. Production only ever uses

@@ -94,7 +94,7 @@ pub async fn run_phase_once(
     scope: &PhaseScope,
 ) -> CreditRegistrationResult<PhaseTick> {
     // Before the pause check: a caller whose narrowing cannot be honoured must not be told it ran.
-    if !phase.scope_support().covers(scope) {
+    if !phase.spec().scope.covers(scope) {
         return Ok(PhaseTick::ScopeNotSupported);
     }
     let mut conn = ctx.pool.acquire().await?;
@@ -111,7 +111,7 @@ pub async fn run_phase_once(
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
-    if phase.is_account_linking_only() && !ctx.suotar_conf.account_linking_enabled {
+    if phase.spec().is_account_linking_only && !ctx.suotar_conf.account_linking_enabled {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
     let registry = match StudyRegistryGate::admit(phase, scope, ctx.test_mode) {
@@ -228,7 +228,7 @@ async fn record_rate_limits(
         &breaker::ScopeKey::Global,
         breaker::BreakerTarget::StudyRegistry,
     );
-    for &endpoint in phase.study_registry_endpoints() {
+    for &endpoint in phase.spec().endpoints {
         let Some(limiter) = rate_limit::snapshot(&breaker::ScopeKey::Global, endpoint) else {
             continue;
         };
@@ -292,10 +292,11 @@ impl Drop for KeepAlive {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::phase::WorkerProcess;
 
     #[test]
     fn the_audit_name_says_who_ran_the_phase() {
-        for caller in ["credit-registrar", "run-tick"] {
+        for caller in [WorkerProcess::CreditRegistrar.as_str(), "run-tick"] {
             for phase in CreditRegistrationPhase::ALL {
                 let name = worker_name(caller, phase);
                 assert!(name.starts_with(caller));

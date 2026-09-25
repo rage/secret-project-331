@@ -22,7 +22,7 @@ use headless_lms_utils::periodic_worker::{
 
 use crate::dispatch::{PhaseContext, PhaseTick, run_phase_once};
 use crate::error::{CreditRegistrationError, CreditRegistrationResult};
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.
@@ -31,12 +31,11 @@ const TICK_INTERVAL_SECS: u64 = 10;
 /// Ten minutes of ticks. The per-phase heartbeat in the database is the machine-readable half.
 const STILL_RUNNING_MESSAGE_TICKS: u32 = 60;
 
-/// Runs the phases this process owns until SIGTERM or Ctrl-C, matching `process_name` against
-/// [`CreditRegistrationPhase::process_name`]. Each phase loops on its own, so an hour-long call in
+/// Runs the phases `process` owns until SIGTERM or Ctrl-C. Each phase loops on its own, so an hour-long call in
 /// one does not hold up the others. On shutdown no phase starts another iteration, and the function
 /// returns once the iterations already running have finished.
 pub async fn run(
-    process_name: &'static str,
+    process: WorkerProcess,
     db_pool: PgPool,
     app_configuration: ApplicationConfiguration,
     still_running_message: &str,
@@ -49,7 +48,12 @@ pub async fn run(
     tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
     let ctx = PhaseContext {
         shutdown: Some(&shutdown),
-        ..PhaseContext::from_app(&db_pool, &suotar_client, &app_configuration, process_name)
+        ..PhaseContext::from_app(
+            &db_pool,
+            &suotar_client,
+            &app_configuration,
+            process.as_str(),
+        )
     };
 
     let still_running = run_periodic_worker_until(
@@ -69,7 +73,7 @@ pub async fn run(
     // need to wait on the study registry side by side, not to run in parallel.
     let phase_loops = CreditRegistrationPhase::ALL
         .into_iter()
-        .filter(|phase| phase.process_name() == process_name)
+        .filter(|phase| phase.spec().process == process)
         .map(|phase| run_phase_loop(&ctx, phase, &shutdown));
     let (still_running, phase_loops) =
         tokio::join!(still_running, futures::future::join_all(phase_loops));
@@ -77,7 +81,7 @@ pub async fn run(
     phase_loops
         .into_iter()
         .collect::<CreditRegistrationResult<()>>()?;
-    info!("{process_name} stopped.");
+    info!("{} stopped.", process.as_str());
     Ok(())
 }
 
@@ -262,11 +266,11 @@ mod tests {
     #[test]
     fn the_two_processes_between_them_own_every_phase() {
         let mut owned: Vec<&str> = Vec::new();
-        for process in ["credit-registrar", "suotar-syncer"] {
+        for process in WorkerProcess::ALL {
             owned.extend(
                 CreditRegistrationPhase::ALL
                     .into_iter()
-                    .filter(|phase| phase.process_name() == process)
+                    .filter(|phase| phase.spec().process == process)
                     .map(|phase| phase.as_str()),
             );
         }

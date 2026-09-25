@@ -113,7 +113,7 @@ impl StudyRegistryGate {
         test_mode: bool,
     ) -> Result<Self, PhaseSkipReason> {
         let key = ScopeKey::of(scope);
-        let targets = breaker_targets(phase);
+        let targets = phase.spec().breakers;
         if targets.iter().any(|&target| breaker::is_open(&key, target)) {
             return Err(PhaseSkipReason::CircuitBreakerOpen);
         }
@@ -215,7 +215,11 @@ impl StudyRegistryGate {
         let key = &self.key;
         let phase = self.phase.as_str();
         let base_cooldown = breaker::cooldown(self.test_mode);
-        let submits_to_sisu = self.phase.submits_to_sisu();
+        let submits_to_sisu = self
+            .phase
+            .spec()
+            .breakers
+            .contains(&BreakerTarget::SisuSubmissions);
         rate_limit::drop_to_floor(key, &self.tally.failed_endpoints);
         match verdict(&self.tally) {
             Verdict::Idle => {}
@@ -258,18 +262,6 @@ impl StudyRegistryGate {
         } else {
             tally.isolated
         })
-    }
-}
-
-/// The breakers that pause `phase`: every study registry phase shares one, and the phase that
-/// submits to Sisu also stops for Sisu timing out.
-fn breaker_targets(phase: CreditRegistrationPhase) -> &'static [BreakerTarget] {
-    if phase.submits_to_sisu() {
-        &[BreakerTarget::StudyRegistry, BreakerTarget::SisuSubmissions]
-    } else if phase.calls_study_registry() {
-        &[BreakerTarget::StudyRegistry]
-    } else {
-        &[]
     }
 }
 

@@ -3,12 +3,11 @@
 //! the same dispatcher the test tick endpoint uses.
 
 use super::credit_registration_worker::run_credit_registration_worker;
-
-const PROCESS_NAME: &str = "credit-registrar";
+use headless_lms_credit_registration::WorkerProcess;
 
 pub async fn main() -> anyhow::Result<()> {
     run_credit_registration_worker(
-        PROCESS_NAME,
+        WorkerProcess::CreditRegistrar,
         "Starting the credit registrar.",
         "Still registering credits.",
     )

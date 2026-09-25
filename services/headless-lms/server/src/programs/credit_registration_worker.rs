@@ -1,15 +1,15 @@
 //! The bootstrap both credit registration workers share; they differ only in the phases
-//! `worker_loop::run` picks for `process_name` and in their log messages.
+//! `worker_loop::run` picks for their process and in their log messages.
 
 use sqlx::postgres::PgPoolOptions;
 
 use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::worker_loop;
+use headless_lms_credit_registration::{WorkerProcess, worker_loop};
 
 pub async fn run_credit_registration_worker(
-    process_name: &'static str,
+    process: WorkerProcess,
     start_message: &str,
     still_running_message: &str,
 ) -> anyhow::Result<()> {
@@ -27,12 +27,6 @@ pub async fn run_credit_registration_worker(
         .await?;
 
     info!("{start_message}");
-    worker_loop::run(
-        process_name,
-        db_pool,
-        app_configuration,
-        still_running_message,
-    )
-    .await?;
+    worker_loop::run(process, db_pool, app_configuration, still_running_message).await?;
     Ok(())
 }

@@ -4,6 +4,8 @@ use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 use std::time::Duration;
 
+use crate::breaker::BreakerTarget;
+
 /// Which rows one iteration may touch.
 pub use headless_lms_models::credit_registrations::RegistrationScope as PhaseScope;
 
@@ -25,6 +27,178 @@ pub enum CreditRegistrationPhase {
     RetentionSweep,
     LedgerSnapshot,
 }
+
+/// The worker process that runs a phase's loop. The two are separate OS processes, each with its
+/// own circuit breakers and limiter.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum WorkerProcess {
+    /// Owns the ledger.
+    CreditRegistrar,
+    /// Owns everything about credit registration except the ledger.
+    SuotarSyncer,
+}
+
+impl WorkerProcess {
+    pub const ALL: [Self; 2] = [Self::CreditRegistrar, Self::SuotarSyncer];
+
+    /// `credit_registration_phase_state.process_name`, and the caller the audit log names.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::CreditRegistrar => "credit-registrar",
+            Self::SuotarSyncer => "suotar-syncer",
+        }
+    }
+}
+
+/// Everything fixed about one phase, declared in one place.
+#[derive(Debug)]
+pub struct PhaseSpec {
+    /// See [`CreditRegistrationPhase::as_str`].
+    pub name: &'static str,
+    pub process: WorkerProcess,
+    pub scope: ScopeSupport,
+    /// The study registry endpoints one iteration calls, one after the other. Empty for a
+    /// database-only phase, which no breaker ever holds back.
+    pub endpoints: &'static [SuotarEndpoint],
+    /// The circuit breakers that pause the phase.
+    pub breakers: &'static [BreakerTarget],
+    /// The ledger states this phase is the one to move a row out of; see
+    /// [`CreditRegistrationPhase::owned_states`].
+    pub owned_states: &'static [CreditRegistrationState],
+    /// The phase does nothing but account linking, and so is skipped while the deployment has
+    /// linking switched off. `enrolment-discovery` is not one: with linking off it still wakes
+    /// linked students' registrations and only leaves out the mails.
+    pub is_account_linking_only: bool,
+}
+
+/// What a spec below leaves as it is: a `credit-registrar` phase over ledger rows that calls no
+/// study registry.
+const DEFAULTS: PhaseSpec = PhaseSpec {
+    name: "",
+    process: WorkerProcess::CreditRegistrar,
+    scope: ScopeSupport::LEDGER,
+    endpoints: &[],
+    breakers: &[],
+    owned_states: &[],
+    is_account_linking_only: false,
+};
+
+const STUDY_REGISTRY: &[BreakerTarget] = &[BreakerTarget::StudyRegistry];
+
+/// These reach their rows through the course module, which has no user dimension: a roster and a
+/// module configuration are facts about a course, not about one of our accounts.
+const COURSE_MODULES: ScopeSupport = ScopeSupport {
+    course: true,
+    user: false,
+    registration_ids: false,
+};
+
+const MATERIALIZE: PhaseSpec = PhaseSpec {
+    name: "materialize",
+    // No ledger row exists yet, so there is no registration id to narrow on.
+    scope: ScopeSupport {
+        course: true,
+        user: true,
+        registration_ids: false,
+    },
+    ..DEFAULTS
+};
+const PRECONDITIONS: PhaseSpec = PhaseSpec {
+    name: "preconditions",
+    owned_states: &[
+        CreditRegistrationState::Pending,
+        CreditRegistrationState::FailedRetryable,
+        CreditRegistrationState::Blocked,
+    ],
+    ..DEFAULTS
+};
+const RESOLVE_ENROLMENTS: PhaseSpec = PhaseSpec {
+    name: "resolve-enrolments",
+    // The person lookup for links that lack one, then the enrolment lookup.
+    endpoints: &[
+        SuotarEndpoint::ResolvePersons,
+        SuotarEndpoint::ResolveEnrolments,
+    ],
+    breakers: STUDY_REGISTRY,
+    owned_states: &[
+        CreditRegistrationState::ReadyToSubmit,
+        CreditRegistrationState::ResolvingEnrolment,
+        CreditRegistrationState::NoUsableEnrolment,
+    ],
+    ..DEFAULTS
+};
+const IMPORT: PhaseSpec = PhaseSpec {
+    name: "import",
+    endpoints: &[SuotarEndpoint::ImportAttainments],
+    // Sisu timing out on submissions says nothing about the rest of Suotar, so only this phase
+    // stops for it.
+    breakers: &[BreakerTarget::StudyRegistry, BreakerTarget::SisuSubmissions],
+    owned_states: &[
+        CreditRegistrationState::CheckingEnrolment,
+        CreditRegistrationState::Submitting,
+    ],
+    ..DEFAULTS
+};
+const VERIFY: PhaseSpec = PhaseSpec {
+    name: "verify",
+    // The poll, then the recovery lookup for rows with nothing to poll by.
+    endpoints: &[
+        SuotarEndpoint::VerifyAttainments,
+        SuotarEndpoint::ResolveEnrolments,
+    ],
+    breakers: STUDY_REGISTRY,
+    owned_states: &[
+        CreditRegistrationState::AwaitingVerification,
+        CreditRegistrationState::SubmissionUncertain,
+    ],
+    ..DEFAULTS
+};
+const LEGACY_MIRROR: PhaseSpec = PhaseSpec {
+    name: "legacy-mirror",
+    ..DEFAULTS
+};
+const STUDENT_NOTIFICATIONS: PhaseSpec = PhaseSpec {
+    name: "student-notifications",
+    ..DEFAULTS
+};
+const ENROLMENT_DISCOVERY: PhaseSpec = PhaseSpec {
+    name: "enrolment-discovery",
+    process: WorkerProcess::SuotarSyncer,
+    scope: COURSE_MODULES,
+    endpoints: &[SuotarEndpoint::ListByCourse],
+    breakers: STUDY_REGISTRY,
+    ..DEFAULTS
+};
+const LINK_EMAILS: PhaseSpec = PhaseSpec {
+    name: "link-emails",
+    process: WorkerProcess::SuotarSyncer,
+    scope: COURSE_MODULES,
+    is_account_linking_only: true,
+    ..DEFAULTS
+};
+const CONFIG_VALIDATION: PhaseSpec = PhaseSpec {
+    name: "config-validation",
+    process: WorkerProcess::SuotarSyncer,
+    scope: COURSE_MODULES,
+    endpoints: &[SuotarEndpoint::ValidateCourseCodes],
+    breakers: STUDY_REGISTRY,
+    ..DEFAULTS
+};
+const RETENTION_SWEEP: PhaseSpec = PhaseSpec {
+    name: "retention-sweep",
+    process: WorkerProcess::SuotarSyncer,
+    // Sweeps whole tables by age; there is nothing in them to narrow on.
+    scope: ScopeSupport::NONE,
+    ..DEFAULTS
+};
+const LEDGER_SNAPSHOT: PhaseSpec = PhaseSpec {
+    name: "ledger-snapshot",
+    process: WorkerProcess::SuotarSyncer,
+    // Counts every row in the ledger for the day; a scoped run would write that as if it were
+    // everyone's snapshot.
+    scope: ScopeSupport::NONE,
+    ..DEFAULTS
+};
 
 impl CreditRegistrationPhase {
     /// Every phase, in pipeline order.
@@ -53,97 +227,44 @@ impl CreditRegistrationPhase {
         Self::Verify,
     ];
 
-    pub fn as_str(self) -> &'static str {
+    pub fn spec(self) -> &'static PhaseSpec {
         match self {
-            Self::Materialize => "materialize",
-            Self::Preconditions => "preconditions",
-            Self::ResolveEnrolments => "resolve-enrolments",
-            Self::Import => "import",
-            Self::Verify => "verify",
-            Self::LegacyMirror => "legacy-mirror",
-            Self::StudentNotifications => "student-notifications",
-            Self::EnrolmentDiscovery => "enrolment-discovery",
-            Self::LinkEmails => "link-emails",
-            Self::ConfigValidation => "config-validation",
-            Self::RetentionSweep => "retention-sweep",
-            Self::LedgerSnapshot => "ledger-snapshot",
+            Self::Materialize => &MATERIALIZE,
+            Self::Preconditions => &PRECONDITIONS,
+            Self::ResolveEnrolments => &RESOLVE_ENROLMENTS,
+            Self::Import => &IMPORT,
+            Self::Verify => &VERIFY,
+            Self::LegacyMirror => &LEGACY_MIRROR,
+            Self::StudentNotifications => &STUDENT_NOTIFICATIONS,
+            Self::EnrolmentDiscovery => &ENROLMENT_DISCOVERY,
+            Self::LinkEmails => &LINK_EMAILS,
+            Self::ConfigValidation => &CONFIG_VALIDATION,
+            Self::RetentionSweep => &RETENTION_SWEEP,
+            Self::LedgerSnapshot => &LEDGER_SNAPSHOT,
         }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        self.spec().name
     }
 
     pub fn from_phase_name(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|phase| phase.as_str() == name)
     }
 
-    /// Which worker process owns the phase's loop.
-    pub fn process_name(self) -> &'static str {
-        match self {
-            Self::Materialize
-            | Self::Preconditions
-            | Self::ResolveEnrolments
-            | Self::Import
-            | Self::Verify
-            | Self::LegacyMirror
-            | Self::StudentNotifications => "credit-registrar",
-            Self::EnrolmentDiscovery
-            | Self::LinkEmails
-            | Self::ConfigValidation
-            | Self::RetentionSweep
-            | Self::LedgerSnapshot => "suotar-syncer",
-        }
-    }
-
     /// Whether the phase talks to the study registry, and so shares the study registry circuit
-    /// breaker with the other such phases of its own worker process (`breaker::BREAKERS` is
-    /// process-local, not shared between `credit-registrar` and `suotar-syncer`).
+    /// breaker with the other such phases of its own worker process.
     pub fn calls_study_registry(self) -> bool {
-        !self.study_registry_endpoints().is_empty()
-    }
-
-    /// Whether the phase is the one that sends attainments on to Sisu, and so the one a Sisu outage
-    /// pauses while Suotar itself keeps answering.
-    pub fn submits_to_sisu(self) -> bool {
-        self == Self::Import
-    }
-
-    /// The study registry endpoints one iteration calls, one after the other.
-    pub fn study_registry_endpoints(self) -> &'static [SuotarEndpoint] {
-        match self {
-            // The person lookup for links that lack one, then the enrolment lookup.
-            Self::ResolveEnrolments => &[
-                SuotarEndpoint::ResolvePersons,
-                SuotarEndpoint::ResolveEnrolments,
-            ],
-            Self::Import => &[SuotarEndpoint::ImportAttainments],
-            // The poll, then the recovery lookup for rows with nothing to poll by.
-            Self::Verify => &[
-                SuotarEndpoint::VerifyAttainments,
-                SuotarEndpoint::ResolveEnrolments,
-            ],
-            Self::EnrolmentDiscovery => &[SuotarEndpoint::ListByCourse],
-            Self::ConfigValidation => &[SuotarEndpoint::ValidateCourseCodes],
-            Self::Materialize
-            | Self::Preconditions
-            | Self::LegacyMirror
-            | Self::StudentNotifications
-            | Self::LinkEmails
-            | Self::RetentionSweep
-            | Self::LedgerSnapshot => &[],
-        }
+        !self.spec().endpoints.is_empty()
     }
 
     /// The longest one iteration may wait on the study registry before its calls time out.
     pub fn max_study_registry_wait(self) -> Duration {
-        self.study_registry_endpoints()
+        self.spec()
+            .endpoints
             .iter()
             .map(|endpoint| endpoint.request_timeout())
             .sum()
-    }
-
-    /// Whether the phase does nothing but account linking, and so is skipped while the deployment
-    /// has linking switched off. `enrolment-discovery` is not one: with linking off it still wakes
-    /// linked students' registrations and only leaves out the mails.
-    pub fn is_account_linking_only(self) -> bool {
-        self == Self::LinkEmails
     }
 
     /// The ledger states this phase is the one to move a row out of.
@@ -153,27 +274,7 @@ impl CreditRegistrationPhase {
     /// what `preconditions` may claim, which is every non-terminal row: these are the states nothing
     /// else advances. How many of their rows are waiting on the phase is [`Self::queue_depth`].
     pub fn owned_states(self) -> &'static [CreditRegistrationState] {
-        match self {
-            Self::Preconditions => &[
-                CreditRegistrationState::Pending,
-                CreditRegistrationState::FailedRetryable,
-                CreditRegistrationState::Blocked,
-            ],
-            Self::ResolveEnrolments => &[
-                CreditRegistrationState::ReadyToSubmit,
-                CreditRegistrationState::ResolvingEnrolment,
-                CreditRegistrationState::NoUsableEnrolment,
-            ],
-            Self::Import => &[
-                CreditRegistrationState::CheckingEnrolment,
-                CreditRegistrationState::Submitting,
-            ],
-            Self::Verify => &[
-                CreditRegistrationState::AwaitingVerification,
-                CreditRegistrationState::SubmissionUncertain,
-            ],
-            _ => &[],
-        }
+        self.spec().owned_states
     }
 
     /// The live rows waiting on this phase: the Workers tab's "queue depth it is responsible for",
@@ -196,36 +297,6 @@ impl CreditRegistrationPhase {
                 }
             })
             .sum()
-    }
-
-    pub fn scope_support(self) -> ScopeSupport {
-        match self {
-            Self::Preconditions
-            | Self::ResolveEnrolments
-            | Self::Import
-            | Self::Verify
-            | Self::LegacyMirror
-            | Self::StudentNotifications => ScopeSupport::LEDGER,
-            // No ledger row exists yet, so there is no registration id to narrow on.
-            Self::Materialize => ScopeSupport {
-                course: true,
-                user: true,
-                registration_ids: false,
-            },
-            // These reach their rows through the course module, which has no user dimension: a
-            // roster and a module configuration are facts about a course, not about one of our
-            // accounts.
-            Self::EnrolmentDiscovery | Self::LinkEmails | Self::ConfigValidation => ScopeSupport {
-                course: true,
-                user: false,
-                registration_ids: false,
-            },
-            // Sweeps whole tables by age; there is nothing in them to narrow on.
-            Self::RetentionSweep => ScopeSupport::NONE,
-            // Counts every row in the ledger for the day; a scoped run would write that as if it
-            // were everyone's snapshot.
-            Self::LedgerSnapshot => ScopeSupport::NONE,
-        }
     }
 }
 
@@ -288,13 +359,15 @@ mod tests {
         };
         assert!(
             !CreditRegistrationPhase::Materialize
-                .scope_support()
+                .spec()
+                .scope
                 .covers(&ids)
         );
-        assert!(CreditRegistrationPhase::Import.scope_support().covers(&ids));
+        assert!(CreditRegistrationPhase::Import.spec().scope.covers(&ids));
         assert!(
             !CreditRegistrationPhase::RetentionSweep
-                .scope_support()
+                .spec()
+                .scope
                 .covers(&PhaseScope::for_course(Uuid::new_v4()))
         );
     }

@@ -7,6 +7,8 @@ UPDATE credit_registration_phase_state
 SET expected_interval_secs = 1800
 WHERE phase = 'enrolment-discovery';
 
+DROP TABLE suotar_circuit_breakers;
+DROP TYPE suotar_circuit_breaker_target;
 DROP TABLE suotar_endpoint_rate_limits;
 DROP TABLE credit_registration_roster_schedules;
 

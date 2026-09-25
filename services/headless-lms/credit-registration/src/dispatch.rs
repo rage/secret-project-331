@@ -4,7 +4,7 @@
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::{
     credit_registration_phase_state::{self, PhaseRunOutcome},
-    suotar_endpoint_rate_limits,
+    suotar_circuit_breakers, suotar_endpoint_rate_limits,
 };
 use headless_lms_utils::services::suotar::{SuotarCallContext, SuotarClient};
 use sqlx::{PgConnection, PgPool};
@@ -116,7 +116,12 @@ pub async fn run_phase_once(
     }
     let registry = match StudyRegistryGate::admit(phase, scope, ctx.test_mode) {
         Ok(registry) => registry,
-        Err(skip) => return Ok(PhaseTick::Skipped(skip)),
+        Err(skip) => {
+            if bookkeeping {
+                record_breakers(&mut conn, phase).await?;
+            }
+            return Ok(PhaseTick::Skipped(skip));
+        }
     };
     drop(conn);
 
@@ -148,6 +153,7 @@ pub async fn run_phase_once(
         let mut conn = ctx.pool.acquire().await?;
         credit_registration_phase_state::record_run(&mut conn, phase.as_str(), &outcome).await?;
         record_rate_limits(&mut conn, phase).await?;
+        record_breakers(&mut conn, phase).await?;
     }
     Ok(PhaseTick::Ran(outcome))
 }
@@ -216,6 +222,31 @@ impl std::ops::AddAssign for Counts {
         self.failed += other.failed;
         self.finding = self.finding.take().or(other.finding);
     }
+}
+
+/// Copies the state of the breakers that pause the phase to the database for the dashboard, which
+/// runs in another process.
+async fn record_breakers(
+    conn: &mut PgConnection,
+    phase: CreditRegistrationPhase,
+) -> CreditRegistrationResult<()> {
+    let spec = phase.spec();
+    for &target in spec.breakers {
+        let breaker = breaker::snapshot(&breaker::ScopeKey::Global, target);
+        suotar_circuit_breakers::upsert(
+            conn,
+            &suotar_circuit_breakers::SuotarCircuitBreakerReport {
+                process_name: spec.process.as_str(),
+                target,
+                consecutive_failures: i32::try_from(breaker.consecutive_failures)
+                    .unwrap_or(i32::MAX),
+                open_until: breaker.open_until,
+                trip_count: i32::try_from(breaker.trip_count).unwrap_or(i32::MAX),
+            },
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 /// Copies the limiter and breaker state of the phase's endpoints to the database for the

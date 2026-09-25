@@ -429,6 +429,33 @@ COMMENT ON COLUMN suotar_endpoint_rate_limits.available IS 'Items, or requests f
 COMMENT ON COLUMN suotar_endpoint_rate_limits.is_breaker_open IS 'Whether the circuit breaker the endpoint''s phases share was open.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.breaker_trip_count IS 'How many times in a row the breaker has opened without a success between; the cooldown grows with it.';
 
+CREATE TYPE suotar_circuit_breaker_target AS ENUM ('study_registry', 'sisu_submissions');
+
+COMMENT ON TYPE suotar_circuit_breaker_target IS 'Which phases a worker process''s circuit breaker pauses: study_registry every phase that calls the study registry, sisu_submissions only the one that submits to Sisu.';
+
+CREATE TABLE suotar_circuit_breakers (
+  process_name VARCHAR(64) NOT NULL,
+  target suotar_circuit_breaker_target NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  consecutive_failures INT NOT NULL,
+  open_until TIMESTAMP WITH TIME ZONE,
+  trip_count INT NOT NULL,
+  PRIMARY KEY (process_name, target)
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON suotar_circuit_breakers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE suotar_circuit_breakers IS 'The last state each worker process''s in-memory circuit breakers reported, so the dashboard in another process can show them. Written by the worker, never read back by it.';
+COMMENT ON COLUMN suotar_circuit_breakers.process_name IS 'The worker process the breaker belongs to, as in credit_registration_phase_state.process_name: each process keeps its own.';
+COMMENT ON COLUMN suotar_circuit_breakers.target IS 'Which phases the breaker pauses.';
+COMMENT ON COLUMN suotar_circuit_breakers.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN suotar_circuit_breakers.updated_at IS 'Timestamp when the record was last updated, which is when the worker last reported this state. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN suotar_circuit_breakers.consecutive_failures IS 'Failed iterations in a row that counted against the breaker; it opens at five.';
+COMMENT ON COLUMN suotar_circuit_breakers.open_until IS 'When the cooldown of an open breaker ends, after which one probe request may go out. NULL for a breaker that has not opened since its last success.';
+COMMENT ON COLUMN suotar_circuit_breakers.trip_count IS 'How many times in a row the breaker has opened without a success between; the cooldown grows with it.';
+
 UPDATE credit_registration_phase_state
 SET expected_interval_secs = 60
 WHERE phase = 'enrolment-discovery';

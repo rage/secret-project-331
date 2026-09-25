@@ -418,6 +418,11 @@ export const zBlockProposalInfo = z.object({
   id: z.uuid(),
 })
 
+/**
+ * Which phases one circuit breaker pauses.
+ */
+export const zBreakerTarget = z.enum(["study_registry", "sisu_submissions"])
+
 export const zBulkUserDetailsRequest = z.object({
   course_id: z.uuid(),
   user_ids: z.array(z.uuid()),
@@ -1394,40 +1399,6 @@ export const zCreditRegistrationAttentionReasonCount = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   reason: zCreditRegistrationAttentionReason,
-})
-
-/**
- * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
- * — and the counters live in process memory, so this says whether this server would currently skip a
- * study registry call, not whether the workers would.
- */
-export const zCreditRegistrationCircuitBreakerState = z.object({
-  consecutive_failures: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  open: z.boolean(),
-  open_for_secs: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    })
-    .nullish(),
-  trips_after_consecutive_failures: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 /**
@@ -5118,6 +5089,50 @@ export const zAdminCreditRegistrationDetails = z.object({
 })
 
 /**
+ * One worker process's circuit breaker, as the worker last reported it.
+ */
+export const zCreditRegistrationCircuitBreakerState = z.object({
+  consecutive_failures: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  endpoints: z.array(zSuotarEndpoint),
+  open: z.boolean(),
+  open_for_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  process_name: z.string(),
+  target: zBreakerTarget,
+  trip_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  trips_after_consecutive_failures: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  updated_at: z.iso.datetime(),
+})
+
+/**
  * One error code over the chosen window and the one before it.
  */
 export const zCreditRegistrationErrorCodeWindow = z.object({
@@ -5368,7 +5383,7 @@ export const zSuotarEndpointStanding = z.object({
 })
 
 export const zCreditRegistrationOverview = z.object({
-  circuit_breaker: zCreditRegistrationCircuitBreakerState,
+  circuit_breakers: z.array(zCreditRegistrationCircuitBreakerState),
   counts_by_state: z.array(zCreditRegistrationStateTotal),
   endpoints: z.array(zSuotarEndpointStanding),
   error_codes: z.array(zCreditRegistrationErrorCodeTotal),

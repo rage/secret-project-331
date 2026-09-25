@@ -41,6 +41,7 @@
 'report_reason' = "crate::flagged_answers::ReportReason"
 'reviewing_stage' = "crate::user_exercise_states::ReviewingStage"
 'student_number_verification_method' = "crate::verified_student_numbers::StudentNumberVerificationMethod"
+'suotar_circuit_breaker_target' = "crate::suotar_circuit_breakers::BreakerTarget"
 'suotar_endpoint' = "crate::suotar_api_calls::SuotarEndpoint"
 'suspected_cheater_status' = "crate::suspected_cheaters::SuspectedCheaterStatus"
 'teacher_decision_type' = "crate::teacher_grading_decisions::TeacherDecisionType"

@@ -13,6 +13,8 @@
 
 use std::time::{Duration, Instant};
 
+use chrono::{DateTime, TimeDelta, Utc};
+
 use headless_lms_utils::services::suotar::SuotarEndpoint;
 use uuid::Uuid;
 
@@ -54,14 +56,7 @@ impl ScopeKey {
     }
 }
 
-/// Which phases one breaker pauses.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum BreakerTarget {
-    /// Every phase that calls the study registry: Suotar itself failing.
-    StudyRegistry,
-    /// Only the phase that submits to Sisu: Suotar answering that Sisu timed out.
-    SisuSubmissions,
-}
+pub use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 
 /// How long a run of failures that never tripped the breaker is remembered, so a scope never run
 /// again leaves the map. Failures an outage spreads between hour-long timed-out calls must still
@@ -143,8 +138,8 @@ pub fn is_half_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
 pub struct BreakerSnapshot {
     pub open: bool,
     pub consecutive_failures: u32,
-    /// How much of the cooldown is left, in seconds.
-    pub open_for_secs: Option<u64>,
+    /// When the cooldown ends, or ended for a breaker that is half-open now.
+    pub open_until: Option<DateTime<Utc>>,
     pub trip_count: u32,
 }
 
@@ -152,19 +147,25 @@ pub struct BreakerSnapshot {
 /// cooldown as a side effect.
 pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
     let breakers = BREAKERS.lock();
+    let now = Instant::now();
     let Some(state) = breakers
         .get(&(scope.clone(), target))
-        .filter(|state| state.is_live(Instant::now()))
+        .filter(|state| state.is_live(now))
     else {
         return BreakerSnapshot::default();
     };
-    let remaining = state
-        .open_until
-        .and_then(|until| until.checked_duration_since(Instant::now()));
+    let wall_now = Utc::now();
     BreakerSnapshot {
-        open: remaining.is_some(),
+        open: state.open_until.is_some_and(|until| now < until),
         consecutive_failures: state.consecutive_failures,
-        open_for_secs: remaining.map(|left| left.as_secs()),
+        open_until: state
+            .open_until
+            .map(|until| match until.checked_duration_since(now) {
+                Some(left) => wall_now + TimeDelta::from_std(left).unwrap_or_default(),
+                None => {
+                    wall_now - TimeDelta::from_std(now.duration_since(until)).unwrap_or_default()
+                }
+            }),
         trip_count: state.trip_count,
     }
 }

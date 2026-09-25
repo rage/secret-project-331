@@ -15740,6 +15740,11 @@
           }
         }
       },
+      "BreakerTarget": {
+        "type": "string",
+        "description": "Which phases one circuit breaker pauses.",
+        "enum": ["study_registry", "sisu_submissions"]
+      },
       "BulkUserDetailsRequest": {
         "type": "object",
         "required": ["user_ids", "course_id"],
@@ -19582,23 +19587,55 @@
       },
       "CreditRegistrationCircuitBreakerState": {
         "type": "object",
-        "description": "The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own\n— and the counters live in process memory, so this says whether this server would currently skip a\nstudy registry call, not whether the workers would.",
-        "required": ["open", "consecutive_failures", "trips_after_consecutive_failures"],
+        "description": "One worker process's circuit breaker, as the worker last reported it.",
+        "required": [
+          "process_name",
+          "target",
+          "endpoints",
+          "open",
+          "consecutive_failures",
+          "trip_count",
+          "trips_after_consecutive_failures",
+          "updated_at"
+        ],
         "properties": {
           "consecutive_failures": {
             "type": "integer",
             "format": "int64"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarEndpoint"
+            },
+            "description": "The endpoints whose phases the breaker pauses."
           },
           "open": {
             "type": "boolean"
           },
           "open_for_secs": {
             "type": ["integer", "null"],
+            "format": "int64",
+            "description": "How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`."
+          },
+          "process_name": {
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/BreakerTarget"
+          },
+          "trip_count": {
+            "type": "integer",
             "format": "int64"
           },
           "trips_after_consecutive_failures": {
             "type": "integer",
             "format": "int64"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the worker last reported the state."
           }
         }
       },
@@ -20017,11 +20054,14 @@
           "throughput_days",
           "stuck",
           "endpoints",
-          "circuit_breaker"
+          "circuit_breakers"
         ],
         "properties": {
-          "circuit_breaker": {
-            "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
+          "circuit_breakers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationCircuitBreakerState"
+            }
           },
           "counts_by_state": {
             "type": "array",

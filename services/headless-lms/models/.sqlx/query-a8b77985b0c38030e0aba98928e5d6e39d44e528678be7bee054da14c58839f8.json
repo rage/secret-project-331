@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO suotar_circuit_breakers (\n    process_name,\n    target,\n    consecutive_failures,\n    open_until,\n    trip_count\n  )\nVALUES ($1, $2, $3, $4, $5) ON CONFLICT (process_name, target) DO\nUPDATE\nSET consecutive_failures = EXCLUDED.consecutive_failures,\n  open_until = EXCLUDED.open_until,\n  trip_count = EXCLUDED.trip_count\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        {
+          "Custom": {
+            "name": "suotar_circuit_breaker_target",
+            "kind": {
+              "Enum": [
+                "study_registry",
+                "sisu_submissions"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Timestamptz",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a8b77985b0c38030e0aba98928e5d6e39d44e528678be7bee054da14c58839f8"
+}

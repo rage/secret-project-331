@@ -648,6 +648,11 @@ export type BlockProposalInfo = {
   id: string
 }
 
+/**
+ * Which phases one circuit breaker pauses.
+ */
+export type BreakerTarget = "study_registry" | "sisu_submissions"
+
 export type BulkUserDetailsRequest = {
   course_id: string
   user_ids: Array<string>
@@ -2025,15 +2030,27 @@ export type CreditRegistrationAttentionReasonCount = {
 }
 
 /**
- * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
- * — and the counters live in process memory, so this says whether this server would currently skip a
- * study registry call, not whether the workers would.
+ * One worker process's circuit breaker, as the worker last reported it.
  */
 export type CreditRegistrationCircuitBreakerState = {
   consecutive_failures: number
+  /**
+   * The endpoints whose phases the breaker pauses.
+   */
+  endpoints: Array<SuotarEndpoint>
   open: boolean
+  /**
+   * How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
+   */
   open_for_secs?: number | null
+  process_name: string
+  target: BreakerTarget
+  trip_count: number
   trips_after_consecutive_failures: number
+  /**
+   * When the worker last reported the state.
+   */
+  updated_at: string
 }
 
 /**
@@ -2250,7 +2267,7 @@ export type CreditRegistrationOldestNonTerminal = {
 }
 
 export type CreditRegistrationOverview = {
-  circuit_breaker: CreditRegistrationCircuitBreakerState
+  circuit_breakers: Array<CreditRegistrationCircuitBreakerState>
   counts_by_state: Array<CreditRegistrationStateTotal>
   endpoints: Array<SuotarEndpointStanding>
   error_codes: Array<CreditRegistrationErrorCodeTotal>

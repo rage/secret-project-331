@@ -266,7 +266,10 @@ async fn upsert_course_research_form(
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let new_research_form = payload;
+    let new_research_form = NewResearchForm {
+        course_id: *course_id,
+        ..payload.into_inner()
+    };
     let res = models::research_forms::upsert_research_form(
         &mut conn,
         PKeyPolicy::Generate,
@@ -336,7 +339,17 @@ async fn upsert_course_research_form_questions(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
-    let res = models::research_forms::upsert_research_form_questions(&mut conn, &payload).await?;
+    let mut questions = payload.into_inner();
+    if !questions.is_empty() {
+        let research_form =
+            models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
+        for question in &mut questions {
+            question.course_id = *course_id;
+            question.research_consent_form_id = research_form.id;
+        }
+    }
+
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &questions).await?;
 
     token.authorized_ok(web::Json(res))
 }

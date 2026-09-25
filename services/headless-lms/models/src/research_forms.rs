@@ -132,6 +132,8 @@ pub async fn upsert_research_form_questions(
     let mut inserted_questions = Vec::new();
 
     for question in questions {
+        // Blocks a save from hijacking a question id that belongs to another course; the caller
+        // must still send a validated course_id/form_id pair for a normal save to succeed.
         let form_res = sqlx::query_as!(
             ResearchFormQuestion,
             "
@@ -143,7 +145,9 @@ INSERT INTO course_specific_consent_form_questions (
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (id)
 DO UPDATE SET question = $4,
+research_consent_form_id = $3,
 deleted_at = NULL
+WHERE course_specific_consent_form_questions.course_id = excluded.course_id
 RETURNING *
 ",
             question.question_id,
@@ -151,8 +155,14 @@ RETURNING *
             question.research_consent_form_id,
             question.question
         )
-        .fetch_one(&mut *tx)
-        .await?;
+        .fetch_optional(&mut *tx)
+        .await?
+        .ok_or_else(|| {
+            model_err!(
+                InvalidRequest,
+                "Question id belongs to a different course".to_string()
+            )
+        })?;
 
         inserted_questions.push(form_res);
     }

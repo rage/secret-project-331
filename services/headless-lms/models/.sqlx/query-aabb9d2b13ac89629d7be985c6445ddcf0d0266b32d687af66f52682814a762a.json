@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH src AS (\n  SELECT p.*,\n    CASE\n      WHEN $4 THEN p.page_language_group_id\n      ELSE uuid_generate_v5($3, p.page_language_group_id::text)\n    END AS tgt_plg_id\n  FROM pages p\n  WHERE p.course_id = $2\n    AND p.deleted_at IS NULL\n    AND (\n      p.chapter_id IS NULL\n      OR EXISTS (\n        SELECT 1\n        FROM chapters c\n        WHERE c.id = uuid_generate_v5($1, p.chapter_id::text)\n      )\n    )\n),\nins_plg AS (\n  INSERT INTO page_language_groups (id, course_language_group_id)\n  SELECT DISTINCT tgt_plg_id,\n    $3\n  FROM src\n  WHERE NOT $4\n    AND tgt_plg_id IS NOT NULL ON CONFLICT (id) DO NOTHING\n)\nINSERT INTO pages (\n    id,\n    course_id,\n    content,\n    url_path,\n    title,\n    chapter_id,\n    order_number,\n    copied_from,\n    content_search_language,\n    page_language_group_id,\n    hidden\n  )\nSELECT uuid_generate_v5($1, src.id::text),\n  $1,\n  src.content,\n  src.url_path,\n  src.title,\n  uuid_generate_v5($1, src.chapter_id::text),\n  src.order_number,\n  src.id,\n  src.content_search_language,\n  src.tgt_plg_id,\n  src.hidden\nFROM src\nRETURNING id,\n  content;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "content",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "content"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "aabb9d2b13ac89629d7be985c6445ddcf0d0266b32d687af66f52682814a762a"
+}

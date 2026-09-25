@@ -160,13 +160,15 @@ async fn remove_page_audio(
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
         let path = models::page_audio_files::delete_page_audio(&mut conn, *file_id).await?;
-        file_store.delete(Path::new(&path)).await.map_err(|_| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Could not delete the file from the file store".to_string(),
-                None,
-            )
-        })?;
+        if !models::page_audio_files::path_is_referenced(&mut conn, &path).await? {
+            file_store.delete(Path::new(&path)).await.map_err(|_| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "Could not delete the file from the file store".to_string(),
+                    None,
+                )
+            })?;
+        }
         token.authorized_ok(web::Json(()))
     } else {
         Err(ControllerError::new(

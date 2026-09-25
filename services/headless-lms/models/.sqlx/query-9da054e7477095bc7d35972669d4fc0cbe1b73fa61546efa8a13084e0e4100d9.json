@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE pages SET chapter_id = $1 WHERE id = $2",
+  "query": "UPDATE exercises SET chapter_id = $2 WHERE page_id = $1 AND deleted_at IS NULL",
   "describe": {
     "columns": [],
     "parameters": {
@@ -11,5 +11,5 @@
     },
     "nullable": []
   },
-  "hash": "d13e367302b3873770dbcd15736161dd89130c0d06620cb5d337b1f7c9f230e8"
+  "hash": "9da054e7477095bc7d35972669d4fc0cbe1b73fa61546efa8a13084e0e4100d9"
 }

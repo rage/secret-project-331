@@ -122,6 +122,21 @@ pub async fn update_certificate_configuration(
         Ok(files_to_delete) => {
             tx.commit().await?;
             for file_to_delete in files_to_delete {
+                // A course copy reuses the source course's file_upload id, so another course's
+                // certificate can still point at it.
+                match models::certificate_configurations::file_upload_is_referenced(
+                    &mut conn,
+                    file_to_delete,
+                )
+                .await
+                {
+                    Ok(true) => continue,
+                    Ok(false) => {}
+                    Err(err) => {
+                        error!("Failed to check if file '{file_to_delete}' is still in use: {err}");
+                        continue;
+                    }
+                }
                 if let Err(err) = file_uploading::delete_file_from_storage(
                     &mut conn,
                     file_to_delete,

@@ -21,6 +21,7 @@ use headless_lms_models::student_number_verification_tokens::soft_delete_expired
 use headless_lms_models::suotar_api_calls::{RETENTION_DAYS, delete_older_than};
 
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::PhaseScope;
 
 /// Both statements that create ledger rows, bounded apart from each other. Together in one phase so
@@ -28,7 +29,7 @@ use crate::phase::PhaseScope;
 pub(crate) async fn run_materialize(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let created =
         ensure_registration_rows_for_eligible_completions(&mut conn, scope, MATERIALIZE_LIMIT)
@@ -41,7 +42,7 @@ pub(crate) async fn run_materialize(
 pub(crate) async fn run_preconditions(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let moved = recompute_preconditions(&mut conn, scope, PRECONDITIONS_LIMIT).await?;
     Ok(PhaseRunOutcome::processed(moved))
@@ -50,7 +51,7 @@ pub(crate) async fn run_preconditions(
 pub(crate) async fn run_legacy_mirror(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let mirrored = mirror_successes_to_legacy_ledger(&mut conn, scope, LEGACY_MIRROR_LIMIT).await?;
     Ok(PhaseRunOutcome::processed(mirrored))
@@ -64,7 +65,7 @@ pub(crate) async fn run_legacy_mirror(
 pub(crate) async fn run_ledger_snapshot(
     ctx: &PhaseContext<'_>,
     _scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let today = Utc::now().date_naive();
     let day_start = today.and_time(NaiveTime::MIN).and_utc();
@@ -87,7 +88,7 @@ const OUTCOME_SWEEP_LIMIT: i64 = 5000;
 pub(crate) async fn run_retention_sweep(
     ctx: &PhaseContext<'_>,
     _scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let cutoff = Utc::now() - Duration::days(RETENTION_DAYS);
     let purged_calls = delete_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;

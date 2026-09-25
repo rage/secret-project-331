@@ -41,6 +41,7 @@ use sqlx::PgConnection;
 
 use crate::batch_phase::every_item_service_unavailable;
 use crate::dispatch::{PhaseContext, claim_limit};
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 use crate::{breaker, rate_limit};
 
@@ -80,7 +81,7 @@ struct CodeListing {
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let _guard = if scope.is_unscoped() {
         let Some(guard) = ListingGuard::acquire() else {
             return Ok(PhaseRunOutcome::processed(0));
@@ -185,7 +186,7 @@ async fn list(
     ctx: &PhaseContext<'_>,
     request: &[CodeListing],
     is_account_linking_enabled: bool,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let codes: Vec<String> = request
         .iter()
         .map(|listing| listing.course_code.clone())
@@ -306,7 +307,7 @@ async fn record_request_failure(
     conn: &mut PgConnection,
     request: &[CodeListing],
     error: &SuotarError,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     let variant = error.variant;
     let code = request_level_code(variant);
     for module in request.iter().flat_map(|listing| &listing.modules) {
@@ -334,7 +335,7 @@ async fn reconcile(
     listing: &CodeListing,
     people: &[ListedPerson],
     is_account_linking_enabled: bool,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     let distinct = distinct_people(people);
     let linked = linked_accounts(conn, &distinct).await?;
     let enrolees = roster_enrolees(people, &linked);
@@ -383,7 +384,7 @@ fn distinct_people(people: &[ListedPerson]) -> Vec<&ListedPerson> {
 async fn linked_accounts(
     conn: &mut PgConnection,
     people: &[&ListedPerson],
-) -> anyhow::Result<Vec<VerifiedStudentNumber>> {
+) -> CreditRegistrationResult<Vec<VerifiedStudentNumber>> {
     let person_ids: Vec<String> = people
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
@@ -448,7 +449,7 @@ async fn claim_linking_mails(
     module: &ModuleToList,
     people: &[&ListedPerson],
     linked: &[VerifiedStudentNumber],
-) -> anyhow::Result<ModuleListingOutcome> {
+) -> CreditRegistrationResult<ModuleListingOutcome> {
     let mut outcome = ModuleListingOutcome {
         listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
         ..ModuleListingOutcome::default()

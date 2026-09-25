@@ -32,6 +32,7 @@ use sqlx::{Connection, PgConnection};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{Prepared, SuotarBatchPhase, run_suotar_batch_phase};
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
@@ -59,7 +60,7 @@ struct Recovery {
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let claimed = claim_due(
@@ -163,7 +164,7 @@ impl SuotarBatchPhase for VerifyPoll {
         _conn: &mut PgConnection,
         _scope: &PhaseScope,
         _limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
         Ok(Prepared {
             sendable: std::mem::take(&mut self.polls)
                 .into_iter()
@@ -204,7 +205,7 @@ impl SuotarBatchPhase for VerifyPoll {
         poll: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_poll_answer(conn, poll, item, event).await
     }
 
@@ -218,7 +219,7 @@ impl SuotarBatchPhase for VerifyPoll {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_outcome(
             conn,
             &poll.row,
@@ -254,7 +255,7 @@ async fn apply_poll_answer(
     poll: &Poll,
     item: Option<&SuotarResponseItem<VerifyAttainmentResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let row = &poll.row;
     let facts = poll.facts();
     let Some(item) = item else {
@@ -345,7 +346,7 @@ async fn apply_registered(
     row: &CreditRegistration,
     attainment: &SuotarAttainment,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     set_sisu_attainment_if_unclaimed(
         conn,
         row.id,
@@ -372,7 +373,7 @@ async fn apply_poll_outcome(
     row: &CreditRegistration,
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     apply_outcome(conn, row, outcome, event, Some(row.state)).await
 }
 
@@ -398,7 +399,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         conn: &mut PgConnection,
         _scope: &PhaseScope,
         limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
         // Past the limit, a row waits out the lease its poll set.
         let mut recoveries = std::mem::take(&mut self.recoveries);
         recoveries.truncate(limit);
@@ -464,7 +465,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         recovery: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_recovery_answer(conn, recovery, item, event).await
     }
 
@@ -477,7 +478,7 @@ impl SuotarBatchPhase for UncertainRecovery {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_outcome(
             conn,
             &recovery.row,
@@ -510,7 +511,7 @@ async fn apply_recovery_answer(
     recovery: &Recovery,
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let row = &recovery.row;
     // An enrolment error still lists the attainments, and the enrolment may be gone by now.
     let found = item

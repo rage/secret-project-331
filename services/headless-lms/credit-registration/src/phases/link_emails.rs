@@ -18,6 +18,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::mail_queue::{MailQueuePhase, run_mail_queue_phase, template_language};
 use crate::phase::PhaseScope;
 
@@ -28,7 +29,7 @@ const QUEUE_LIMIT: i64 = 200;
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     run_mail_queue_phase::<LinkEmailsPhase>(ctx, scope).await
 }
 
@@ -37,7 +38,10 @@ struct LinkEmailsPhase;
 impl MailQueuePhase for LinkEmailsPhase {
     type Item = LinkingMailToQueue;
 
-    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
+    async fn claim(
+        conn: &mut PgConnection,
+        scope: &PhaseScope,
+    ) -> CreditRegistrationResult<Vec<Self::Item>> {
         Ok(claim_unqueued(conn, QUEUE_LIMIT, scope.course_id).await?)
     }
 
@@ -54,7 +58,7 @@ impl MailQueuePhase for LinkEmailsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         let delivery = insert_email_delivery_to_address(
             conn,
             item.emailed_to.expose_secret(),

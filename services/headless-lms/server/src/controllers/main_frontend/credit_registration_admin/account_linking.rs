@@ -28,6 +28,7 @@ use crate::controllers::main_frontend::course_credit_registrations::record_resen
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::PhaseContext;
+use headless_lms_credit_registration::error::CreditRegistrationResult;
 use headless_lms_credit_registration::linking_mail_resend::{
     ResendOutcome, ResolvePersonError, ResolvedPerson, resend_linking_mail_for_target,
     resolve_person,
@@ -514,7 +515,7 @@ pub async fn admin_resend_account_linking_email(
     drop(conn);
     // Boxed so both the no-op and the override branch type-check as the same value; it only runs
     // once the shared helper has confirmed the number is not already linked.
-    let before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + '_>> =
+    let before_send: Pin<Box<dyn Future<Output = CreditRegistrationResult<i64>> + '_>> =
         match &override_reason {
             Some(reason) => Box::pin(async {
                 let mut conn = pool.acquire().await?;

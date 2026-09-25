@@ -36,11 +36,11 @@ pub async fn run_periodic_worker(
 
 /// [`run_periodic_worker`] that returns `Ok` once `shutdown` is cancelled. An iteration already
 /// running is left to finish; only the wait for the next tick is cut short.
-pub async fn run_periodic_worker_until(
+pub async fn run_periodic_worker_until<E>(
     config: PeriodicWorkerConfig<'_>,
     shutdown: &CancellationToken,
-    mut body: impl AsyncFnMut() -> anyhow::Result<()>,
-) -> anyhow::Result<()> {
+    mut body: impl AsyncFnMut() -> Result<(), E>,
+) -> Result<(), E> {
     let mut interval = tokio::time::interval(config.tick_interval);
     if config.delay_missed_ticks {
         interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);

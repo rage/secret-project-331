@@ -25,6 +25,7 @@ use sqlx::PgConnection;
 
 use crate::batch_phase::run_suotar_batch_phase;
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::PhaseScope;
 
 use enrolments::ResolveEnrolments;
@@ -33,7 +34,7 @@ use persons::ResolvePersonIds;
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let persons = run_suotar_batch_phase(&mut ResolvePersonIds, ctx, scope).await?;
     let enrolments = run_suotar_batch_phase(&mut ResolveEnrolments, ctx, scope).await?;
     // The first error stands for the iteration.
@@ -61,7 +62,10 @@ fn lookup_state(row: &CreditRegistration) -> CreditRegistrationState {
 
 /// Keeps a claimed row from being claimed again, or imported, while its lookup is out; see
 /// [`lookup_state`]. In the claim's transaction.
-async fn hold_for_lookup(conn: &mut PgConnection, row: &CreditRegistration) -> anyhow::Result<()> {
+async fn hold_for_lookup(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+) -> CreditRegistrationResult<()> {
     if lookup_state(row) == CreditRegistrationState::NoUsableEnrolment {
         claim_enrolment_check(conn, row.id).await?;
     } else {

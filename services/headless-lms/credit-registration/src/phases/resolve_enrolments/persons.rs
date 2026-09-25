@@ -33,6 +33,7 @@ use crate::batch_phase::{
     is_malformed_request,
 };
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
@@ -62,7 +63,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
         let claimed = claim_due_for_person_lookup(conn, scope, limit as i64).await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
         let links: HashMap<Uuid, _> = verified_student_numbers::get_by_user_ids(conn, &user_ids)
@@ -121,7 +122,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         let registration = &row.registration;
         let facts = row_facts(registration);
         let found = item.and_then(|item| {
@@ -168,7 +169,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_request_level_outcome(
             conn,
             ENDPOINT,
@@ -192,7 +193,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_isolated_malformed_request(
             conn,
             &row.registration,
@@ -211,7 +212,7 @@ async fn fill_person_id(
     conn: &mut PgConnection,
     row: &AwaitingPersonId,
     person: &PersonResult,
-) -> anyhow::Result<(Outcome, Option<&'static str>)> {
+) -> CreditRegistrationResult<(Outcome, Option<&'static str>)> {
     let sisu_person_id = DbSecret::from(person.person_id.clone());
     let first_names = person.first_names.clone().map(DbSecret::from);
     let last_name = person.last_name.clone().map(DbSecret::from);

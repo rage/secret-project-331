@@ -19,6 +19,7 @@ use sqlx::{Connection, PgConnection};
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::dispatch::{PhaseContext, claim_limit};
+use crate::error::CreditRegistrationResult;
 use crate::phase::PhaseScope;
 use crate::{breaker, rate_limit};
 
@@ -68,7 +69,7 @@ pub(crate) trait SuotarBatchPhase {
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>>;
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>>;
 
     fn registration(row: &Self::Row) -> &CreditRegistration;
 
@@ -92,7 +93,7 @@ pub(crate) trait SuotarBatchPhase {
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied>;
+    ) -> CreditRegistrationResult<Applied>;
 
     /// What one row gets when the study registry rejected the whole request.
     async fn apply_request_rejection(
@@ -102,7 +103,7 @@ pub(crate) trait SuotarBatchPhase {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied>;
+    ) -> CreditRegistrationResult<Applied>;
 
     /// Whether a whole-request refusal is one that some rows of the batch alone may have caused, and
     /// that proves nothing was acted on: the batch is then split in halves, each sent again, until
@@ -117,7 +118,7 @@ pub(crate) trait SuotarBatchPhase {
         &self,
         _conn: &mut PgConnection,
         _rows: &[&Self::Row],
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         Ok(())
     }
 
@@ -127,7 +128,7 @@ pub(crate) trait SuotarBatchPhase {
         &self,
         _conn: &mut PgConnection,
         _rows: &[&Self::Row],
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         Ok(())
     }
 
@@ -140,7 +141,7 @@ pub(crate) trait SuotarBatchPhase {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         self.apply_request_rejection(conn, row, request, request_item_id, error)
             .await
     }
@@ -155,7 +156,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     phase: &mut P,
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let limiter_key = breaker::ScopeKey::of(scope);
     let limit = claim_limit(&limiter_key, P::ENDPOINT);
     if limit == 0 {
@@ -388,7 +389,7 @@ pub(crate) async fn apply_request_level_outcome(
     request_item_id: &str,
     error: &SuotarError,
     expected_from_state: CreditRegistrationState,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let outcome = request_level_outcome(endpoint, error.variant, &row_facts(row));
     apply_outcome(
         conn,
@@ -420,7 +421,7 @@ pub(crate) async fn apply_isolated_malformed_request(
     request_item_id: &str,
     error: &SuotarError,
     expected_from_state: CreditRegistrationState,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     apply_outcome(
         conn,
         row,

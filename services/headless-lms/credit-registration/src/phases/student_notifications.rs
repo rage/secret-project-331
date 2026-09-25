@@ -17,13 +17,14 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::mail_queue::{MailQueuePhase, run_mail_queue_phase, template_language};
 use crate::phase::PhaseScope;
 
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     run_mail_queue_phase::<StudentNotificationsPhase>(ctx, scope).await
 }
 
@@ -32,7 +33,10 @@ struct StudentNotificationsPhase;
 impl MailQueuePhase for StudentNotificationsPhase {
     type Item = StudentNotificationToQueue;
 
-    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
+    async fn claim(
+        conn: &mut PgConnection,
+        scope: &PhaseScope,
+    ) -> CreditRegistrationResult<Vec<Self::Item>> {
         Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
     }
 
@@ -49,7 +53,7 @@ impl MailQueuePhase for StudentNotificationsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         let placeholders = placeholders(ctx.base_url, item);
         let delivery =
             insert_email_delivery_with_placeholders(conn, item.user_id, template_id, &placeholders)

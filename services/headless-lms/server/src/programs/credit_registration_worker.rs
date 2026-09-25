@@ -33,5 +33,6 @@ pub async fn run_credit_registration_worker(
         app_configuration,
         still_running_message,
     )
-    .await
+    .await?;
+    Ok(())
 }

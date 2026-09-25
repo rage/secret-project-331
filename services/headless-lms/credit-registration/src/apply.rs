@@ -1,5 +1,6 @@
 //! Writing a decided outcome, and the exchange behind it, to one ledger row.
 
+use crate::error::CreditRegistrationResult;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, scrub_text, suotar_exchange_details,
 };
@@ -30,7 +31,7 @@ pub(crate) async fn apply_outcome(
     outcome: &Outcome,
     event: OutcomeEvent<'_>,
     expected_from_state: Option<CreditRegistrationState>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     // Only if the request carried this number: a student who linked a working one while the request
     // was out must not lose the link they just made.
     if outcome.drop_verified_student_number

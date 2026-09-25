@@ -2924,6 +2924,7 @@ name = "headless-lms-credit-registration"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "backtrace",
  "chrono",
  "futures",
  "headless-lms-base",
@@ -2937,6 +2938,7 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
+ "tracing-error",
  "utoipa",
  "uuid",
 ]

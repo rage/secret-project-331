@@ -26,6 +26,7 @@ use std::collections::BTreeSet;
 use uuid::Uuid;
 
 use crate::dispatch::{PhaseContext, worker_name};
+use crate::error::CreditRegistrationResult;
 use crate::phase::CreditRegistrationPhase;
 
 /// What one resend attempt did.
@@ -49,7 +50,7 @@ pub async fn resend_linking_mail(
     ctx: &PhaseContext<'_>,
     course_id: Uuid,
     student_number: &SecretString,
-) -> anyhow::Result<LinkingMailResendOutcome> {
+) -> CreditRegistrationResult<LinkingMailResendOutcome> {
     let course_codes: BTreeSet<String> = {
         let mut conn = ctx.pool.acquire().await?;
         get_active_modules_for_course(&mut conn, course_id)
@@ -213,8 +214,8 @@ pub async fn resend_linking_mail_for_target<'a>(
     ctx: &PhaseContext<'_>,
     course_id: Uuid,
     student_number: &SecretString,
-    before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + 'a>>,
-) -> anyhow::Result<ResendAttempt> {
+    before_send: Pin<Box<dyn Future<Output = CreditRegistrationResult<i64>> + 'a>>,
+) -> CreditRegistrationResult<ResendAttempt> {
     let already_linked = {
         let mut conn = ctx.pool.acquire().await?;
         verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())

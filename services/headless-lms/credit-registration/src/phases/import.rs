@@ -41,12 +41,13 @@ use crate::batch_phase::{
     is_malformed_request, run_suotar_batch_phase,
 };
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 pub(crate) async fn run(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     run_suotar_batch_phase(&mut Import, ctx, scope).await
 }
 
@@ -71,7 +72,7 @@ impl SuotarBatchPhase for Import {
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
         let claimed = claim_due_for_import(conn, scope, limit as i64).await?;
         // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
         // submission for the same completion.
@@ -151,7 +152,7 @@ impl SuotarBatchPhase for Import {
         row: &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_answer(conn, row, item, event).await
     }
 
@@ -162,7 +163,7 @@ impl SuotarBatchPhase for Import {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_request_level_outcome(
             conn,
             SuotarEndpoint::ImportAttainments,
@@ -183,7 +184,7 @@ impl SuotarBatchPhase for Import {
         &self,
         conn: &mut PgConnection,
         rows: &[&Self::Row],
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         restamp_submitting(conn, &rows.iter().map(|row| row.id).collect::<Vec<_>>()).await?;
         Ok(())
     }
@@ -192,7 +193,7 @@ impl SuotarBatchPhase for Import {
         &self,
         conn: &mut PgConnection,
         rows: &[&Self::Row],
-    ) -> anyhow::Result<()> {
+    ) -> CreditRegistrationResult<()> {
         for row in rows {
             transition_unless_moved_on(
                 conn,
@@ -219,7 +220,7 @@ impl SuotarBatchPhase for Import {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_isolated_malformed_request(
             conn,
             row,
@@ -302,7 +303,7 @@ async fn hold_back(
     conn: &mut PgConnection,
     row: &CreditRegistration,
     error: &ModelError,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     error!(
         credit_registration_id = %row.id,
         error = ?error,
@@ -338,7 +339,7 @@ async fn apply_answer(
     row: &CreditRegistration,
     item: Option<&SuotarResponseItem<ImportAttainmentResult>>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let facts = row_facts(row);
     match item {
         // Sent and unanswered: verified from here, never re-sent.
@@ -464,7 +465,7 @@ async fn apply_error_answer(
     row: &CreditRegistration,
     item: &SuotarResponseItem<ImportAttainmentResult>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let code = map_code(SuotarEndpoint::ImportAttainments, &item.code)
         .unwrap_or(CreditRegistrationErrorCode::Unknown);
     let outcome = submit_error_outcome(SuotarEndpoint::ImportAttainments, code, &row_facts(row));
@@ -524,7 +525,7 @@ async fn record_attainment(
     conn: &mut PgConnection,
     row: &CreditRegistration,
     attainment: Option<&SuotarAttainment>,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     if let Some(attainment) = attainment {
         set_sisu_attainment_if_unclaimed(
             conn,

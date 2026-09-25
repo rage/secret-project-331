@@ -10,6 +10,7 @@ use std::collections::{BTreeSet, HashMap};
 use uuid::Uuid;
 
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::PhaseScope;
 
 /// One template lookup per type and language per iteration rather than per mail. `None` means no
@@ -23,7 +24,7 @@ impl TemplateCache {
         conn: &mut PgConnection,
         template_type: EmailTemplateType,
         language: &str,
-    ) -> anyhow::Result<Option<Uuid>> {
+    ) -> CreditRegistrationResult<Option<Uuid>> {
         let key = (template_type, language.to_string());
         if let Some(id) = self.0.get(&key) {
             return Ok(*id);
@@ -54,7 +55,10 @@ impl TemplateCache {
 pub(crate) trait MailQueuePhase {
     type Item;
 
-    async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>>;
+    async fn claim(
+        conn: &mut PgConnection,
+        scope: &PhaseScope,
+    ) -> CreditRegistrationResult<Vec<Self::Item>>;
 
     fn template_type(item: &Self::Item) -> EmailTemplateType;
     fn language(item: &Self::Item) -> String;
@@ -66,7 +70,7 @@ pub(crate) trait MailQueuePhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-    ) -> anyhow::Result<()>;
+    ) -> CreditRegistrationResult<()>;
 
     /// One entry of the missing-templates report, e.g. the language alone or a type-and-language
     /// pair, depending on whether the phase has more than one template type.
@@ -82,7 +86,7 @@ pub(crate) trait MailQueuePhase {
 pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     ctx: &PhaseContext<'_>,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseRunOutcome> {
+) -> CreditRegistrationResult<PhaseRunOutcome> {
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let claimed = P::claim(&mut tx, scope).await?;

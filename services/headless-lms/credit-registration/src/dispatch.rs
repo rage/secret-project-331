@@ -13,6 +13,7 @@ use std::pin::Pin;
 use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 use crate::phases::{
     config_validation, database_phases, enrolment_discovery, import, link_emails,
@@ -94,7 +95,7 @@ pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
     scope: &PhaseScope,
-) -> anyhow::Result<PhaseTick> {
+) -> CreditRegistrationResult<PhaseTick> {
     // Before the pause check: a caller whose narrowing cannot be honoured must not be told it ran.
     if !phase.scope_support().covers(scope) {
         return Ok(PhaseTick::ScopeNotSupported);
@@ -134,34 +135,39 @@ pub async fn run_phase_once(
         suotar_client: &suotar_client,
         ..*ctx
     };
-    let body: Pin<Box<dyn Future<Output = anyhow::Result<PhaseRunOutcome>> + '_>> = match phase {
-        CreditRegistrationPhase::Materialize => {
-            Box::pin(database_phases::run_materialize(ctx, scope))
-        }
-        CreditRegistrationPhase::Preconditions => {
-            Box::pin(database_phases::run_preconditions(ctx, scope))
-        }
-        CreditRegistrationPhase::ResolveEnrolments => Box::pin(resolve_enrolments::run(ctx, scope)),
-        CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
-        CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
-        CreditRegistrationPhase::LegacyMirror => {
-            Box::pin(database_phases::run_legacy_mirror(ctx, scope))
-        }
-        CreditRegistrationPhase::StudentNotifications => {
-            Box::pin(student_notifications::run(ctx, scope))
-        }
-        CreditRegistrationPhase::EnrolmentDiscovery => {
-            Box::pin(enrolment_discovery::run(ctx, scope))
-        }
-        CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-        CreditRegistrationPhase::ConfigValidation => Box::pin(config_validation::run(ctx, scope)),
-        CreditRegistrationPhase::RetentionSweep => {
-            Box::pin(database_phases::run_retention_sweep(ctx, scope))
-        }
-        CreditRegistrationPhase::LedgerSnapshot => {
-            Box::pin(database_phases::run_ledger_snapshot(ctx, scope))
-        }
-    };
+    let body: Pin<Box<dyn Future<Output = CreditRegistrationResult<PhaseRunOutcome>> + '_>> =
+        match phase {
+            CreditRegistrationPhase::Materialize => {
+                Box::pin(database_phases::run_materialize(ctx, scope))
+            }
+            CreditRegistrationPhase::Preconditions => {
+                Box::pin(database_phases::run_preconditions(ctx, scope))
+            }
+            CreditRegistrationPhase::ResolveEnrolments => {
+                Box::pin(resolve_enrolments::run(ctx, scope))
+            }
+            CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
+            CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
+            CreditRegistrationPhase::LegacyMirror => {
+                Box::pin(database_phases::run_legacy_mirror(ctx, scope))
+            }
+            CreditRegistrationPhase::StudentNotifications => {
+                Box::pin(student_notifications::run(ctx, scope))
+            }
+            CreditRegistrationPhase::EnrolmentDiscovery => {
+                Box::pin(enrolment_discovery::run(ctx, scope))
+            }
+            CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
+            CreditRegistrationPhase::ConfigValidation => {
+                Box::pin(config_validation::run(ctx, scope))
+            }
+            CreditRegistrationPhase::RetentionSweep => {
+                Box::pin(database_phases::run_retention_sweep(ctx, scope))
+            }
+            CreditRegistrationPhase::LedgerSnapshot => {
+                Box::pin(database_phases::run_ledger_snapshot(ctx, scope))
+            }
+        };
 
     let keep_alive = bookkeeping.then(|| KeepAlive::spawn(ctx.pool, phase));
     let outcome = match body.await {
@@ -196,7 +202,7 @@ pub async fn run_phase_once(
 async fn record_rate_limits(
     conn: &mut PgConnection,
     phase: CreditRegistrationPhase,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     let breaker = breaker::snapshot(
         &breaker::ScopeKey::Global,
         breaker::BreakerTarget::StudyRegistry,
@@ -324,7 +330,7 @@ impl KeepAlive {
                 let refreshed = async {
                     let mut conn = pool.acquire().await?;
                     credit_registration_phase_state::keep_alive(&mut conn, phase.as_str()).await?;
-                    anyhow::Ok(())
+                    CreditRegistrationResult::Ok(())
                 }
                 .await;
                 if let Err(error) = refreshed {

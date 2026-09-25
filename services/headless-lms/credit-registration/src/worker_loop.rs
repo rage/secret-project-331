@@ -17,10 +17,11 @@ use headless_lms_utils::services::suotar::SuotarClient;
 use tokio_util::sync::CancellationToken;
 
 use headless_lms_utils::periodic_worker::{
-    PeriodicWorkerConfig, StillRunningLog, is_db_disconnect, run_periodic_worker_until,
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker_until,
 };
 
 use crate::dispatch::{PhaseContext, PhaseTick, run_phase_once};
+use crate::error::{CreditRegistrationError, CreditRegistrationResult};
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
@@ -39,7 +40,7 @@ pub async fn run(
     db_pool: PgPool,
     app_configuration: ApplicationConfiguration,
     still_running_message: &str,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     let suotar_client = SuotarClient::new(
         &app_configuration.suotar_configuration,
         Arc::new(PgSuotarCallAudit::new(db_pool.clone())),
@@ -62,7 +63,7 @@ pub async fn run(
             delay_missed_ticks: true,
         },
         &shutdown,
-        async || Ok(()),
+        async || Ok::<(), CreditRegistrationError>(()),
     );
     // Futures of one task rather than spawned tasks: the phase bodies are not `Send`. They only
     // need to wait on the study registry side by side, not to run in parallel.
@@ -73,7 +74,9 @@ pub async fn run(
     let (still_running, phase_loops) =
         tokio::join!(still_running, futures::future::join_all(phase_loops));
     still_running?;
-    phase_loops.into_iter().collect::<anyhow::Result<()>>()?;
+    phase_loops
+        .into_iter()
+        .collect::<CreditRegistrationResult<()>>()?;
     info!("{process_name} stopped.");
     Ok(())
 }
@@ -82,7 +85,7 @@ async fn run_phase_loop(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
     shutdown: &CancellationToken,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     run_periodic_worker_until(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(TICK_INTERVAL_SECS),
@@ -129,7 +132,10 @@ async fn cancel_on_termination_signal(shutdown: CancellationToken) {
     shutdown.cancel();
 }
 
-async fn run_if_due(ctx: &PhaseContext<'_>, phase: CreditRegistrationPhase) -> anyhow::Result<()> {
+async fn run_if_due(
+    ctx: &PhaseContext<'_>,
+    phase: CreditRegistrationPhase,
+) -> CreditRegistrationResult<()> {
     let state = {
         let mut conn = ctx.pool.acquire().await?;
         credit_registration_phase_state::get_by_phase(&mut conn, phase.as_str()).await?
@@ -140,9 +146,9 @@ async fn run_if_due(ctx: &PhaseContext<'_>, phase: CreditRegistrationPhase) -> a
     run_due_phase(ctx, phase, &state).await
 }
 
-fn log_failure(process_name: &str, subject: &str, error: &anyhow::Error) {
+fn log_failure(process_name: &str, subject: &str, error: &CreditRegistrationError) {
     error!(error = %error, "{subject} failed");
-    if is_db_disconnect(error.source()) {
+    if error.is_db_disconnect() {
         info!("{process_name} may have lost its connection to the database");
     }
 }
@@ -152,7 +158,7 @@ async fn run_due_phase(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
     state: &CreditRegistrationPhaseState,
-) -> anyhow::Result<()> {
+) -> CreditRegistrationResult<()> {
     let mut conn = ctx.pool.acquire().await?;
     // Stamped before the work, so a phase whose iteration takes longer than its interval does not
     // run back to back.

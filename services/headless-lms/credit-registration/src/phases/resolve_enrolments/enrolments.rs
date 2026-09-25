@@ -46,6 +46,7 @@ use crate::batch_phase::{
     is_malformed_request,
 };
 use crate::dispatch::PhaseContext;
+use crate::error::CreditRegistrationResult;
 use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 pub(super) struct ResolveEnrolments;
@@ -66,7 +67,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         conn: &mut PgConnection,
         scope: &PhaseScope,
         limit: usize,
-    ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Item>> {
         let claimed = claim_due_for_resolve(conn, scope, limit as i64).await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
@@ -163,7 +164,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         (row, context): &Self::Row,
         item: Option<&SuotarResponseItem<Self::Result>>,
         event: OutcomeEvent<'_>,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         let enrolments = item
             .and_then(|item| item.result.as_ref())
             .map(|result| result.enrolments.as_slice())
@@ -198,7 +199,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_request_level_outcome(
             conn,
             SuotarEndpoint::ResolveEnrolments,
@@ -222,7 +223,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
         request: &serde_json::Value,
         request_item_id: &str,
         error: &SuotarError,
-    ) -> anyhow::Result<Applied> {
+    ) -> CreditRegistrationResult<Applied> {
         apply_isolated_malformed_request(
             conn,
             row,
@@ -243,7 +244,7 @@ async fn apply_answer(
     item: Option<&SuotarResponseItem<EnrolmentResolutionResult>>,
     chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let facts = row_facts(row);
     match item {
         None => {
@@ -339,7 +340,7 @@ async fn choose(
     chosen: Result<&SuotarEnrolment, NoUsableEnrolment>,
     existing: &[ExistingAttainment],
     event: OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let details = suotar_exchange_details(event.request, event.response);
     // The scale the grade would go out on; all enrolments on one course code share it in practice.
     let enrolment_grade_scale_id = chosen
@@ -504,7 +505,7 @@ async fn choose(
 async fn commit_if_written(
     tx: Transaction<'_, Postgres>,
     applied: Applied,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     if matches!(applied, Applied::Written { .. }) {
         tx.commit().await?;
     }
@@ -522,7 +523,7 @@ async fn settle_against_existing_attainments(
     existing: &[ExistingAttainment],
     grade_scale_id: Option<&str>,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<Option<Applied>> {
+) -> CreditRegistrationResult<Option<Applied>> {
     let candidates = attained_candidates(existing);
     let Some(attained) = preferred_attainment(&candidates) else {
         return Ok(None);
@@ -592,7 +593,7 @@ async fn settle_against_recorded_credits(
     context: &SubmissionContext,
     enrolment_grade_scale_id: Option<&str>,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<Option<Applied>> {
+) -> CreditRegistrationResult<Option<Applied>> {
     let recorded = get_recorded_credits_for_same_module(conn, row.id).await?;
     if recorded.is_empty() {
         return Ok(None);
@@ -623,7 +624,7 @@ async fn settle_unsent_duplicate(
     enrolment_grade_scale_id: Option<&str>,
     message: &str,
     event: &OutcomeEvent<'_>,
-) -> anyhow::Result<Applied> {
+) -> CreditRegistrationResult<Applied> {
     let weighed_grade = map_grade(GradeSource {
         passed: context.completion.passed,
         grade: context.completion.grade,

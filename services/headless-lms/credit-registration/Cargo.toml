@@ -35,8 +35,12 @@ secrecy.workspace = true
 itertools = "0.15.0"
 # Application-level tracing for Rust.
 tracing = "0.1.44"
-# Flexible concrete Error type built on std::error::Error
+# The opaque source carrier of CreditRegistrationError, as in every house error type.
 anyhow = "1.0.104"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.1"
+# A library to acquire a stack trace (backtrace) at runtime in a Rust program.
+backtrace = "0.3.76"
 
 [lints.clippy]
 unwrap_used = "deny"

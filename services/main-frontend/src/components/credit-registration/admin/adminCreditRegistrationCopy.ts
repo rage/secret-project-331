@@ -29,14 +29,11 @@ export {
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
 
-/**
- * How much the link is worth as proof. The automatic match is the weakest: nobody confirmed
- * anything, an address just lined up — which is what the name-mismatch alert is about.
- */
+/** How much the link is worth as proof. */
 const VERIFICATION_METHOD_TONES = {
   emailed_link: TONE.SUCCESS,
-  email_match_fast_track: TONE.INFO,
   admin_manual: TONE.NEUTRAL,
+  study_registry: TONE.NEUTRAL,
 } as const satisfies Record<StudentNumberVerificationMethod, BadgeTone>
 
 export const verificationMethodTone = (
@@ -63,10 +60,14 @@ const STATE_TONES = {
   cancelled: "upcoming",
 } as const satisfies Record<CreditRegistrationState, RegistrationStatusState>
 
-/** A `pending` row waiting on the student is the admin's problem; one waiting on a completion is not. */
+/**
+ * A `pending` row waiting on the student or on the course code is the admin's problem; one waiting on
+ * a completion is not.
+ */
 const PENDING_REASON_TONES = {
   completion: "upcoming",
   student_number: "action-needed",
+  course_code: "action-needed",
 } as const satisfies Record<CreditRegistrationPendingReason, RegistrationStatusState>
 
 export const stateTone = (
@@ -84,14 +85,16 @@ const ADMIN_ERROR_CODE_KEYS = {
   enrolment_not_found: "credit-registration-admin-error-enrolment-not-found",
   enrolment_not_accepted: "credit-registration-admin-error-enrolment-not-accepted",
   invalid_grade_for_grade_scale: "credit-registration-admin-error-invalid-grade-for-grade-scale",
+  grade_scale_mismatch: "credit-registration-admin-error-grade-scale-mismatch",
   course_not_allowed: "credit-registration-admin-error-course-not-allowed",
   invalid_credits: "credit-registration-admin-error-invalid-credits",
   study_right_not_valid: "credit-registration-admin-error-study-right-not-valid",
-  acceptor_not_found: "credit-registration-admin-error-acceptor-not-found",
   sisu_validation_failed: "credit-registration-admin-error-sisu-validation-failed",
   sisu_timeout: "credit-registration-admin-error-sisu-timeout",
-  sisu_temporarily_unavailable: "credit-registration-admin-error-sisu-temporarily-unavailable",
+  service_temporarily_unavailable:
+    "credit-registration-admin-error-service-temporarily-unavailable",
   misregistered: "credit-registration-admin-error-misregistered",
+  not_registered: "credit-registration-admin-error-not-registered",
   unauthorized: "credit-registration-admin-error-unauthorized",
   malformed_request: "credit-registration-admin-error-malformed-request",
   transport_error: "credit-registration-admin-error-transport-error",
@@ -183,7 +186,7 @@ export const actorRoleLabel = (t: CreditRegistrationTFunction, actorRole: string
 const ALERT_KEYS = {
   credentials_rejected: "credit-registration-alert-credentials-rejected",
   study_registry_unreachable: "credit-registration-alert-study-registry-unreachable",
-  sisu_unavailable: "credit-registration-alert-sisu-unavailable",
+  service_unavailable: "credit-registration-alert-service-unavailable",
   stuck_registrations: "credit-registration-alert-stuck-registrations",
   linking_mail_send_failed: "credit-registration-alert-linking-mail-send-failed",
   linking_mail_rate_cap_exceeded: "credit-registration-alert-linking-mail-rate-cap-exceeded",
@@ -195,8 +198,9 @@ const ALERT_KEYS = {
   pipeline_idle: "credit-registration-alert-pipeline-idle",
   completions_never_entered: "credit-registration-alert-completions-never-entered",
   confirmation_latency_regressed: "credit-registration-alert-confirmation-latency-regressed",
-  fast_track_name_mismatch: "credit-registration-alert-fast-track-name-mismatch",
   pipeline_paused_globally: "credit-registration-alert-pipeline-paused-globally",
+  study_registry_student_number_conflicts:
+    "credit-registration-alert-study-registry-student-number-conflicts",
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
@@ -265,6 +269,18 @@ export const registrationErrorNote = (
   }
   return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
 }
+
+/**
+ * Why a course code's roster listing fails. On the listing, `course_code_not_found` means only that
+ * no realisation of the code is current, not that the code is wrong.
+ */
+export const listingErrorLabel = (
+  t: CreditRegistrationTFunction,
+  errorCode: CreditRegistrationErrorCode,
+): string =>
+  errorCode === "course_code_not_found"
+    ? t("credit-registration-admin-listing-no-current-realisations")
+    : (registrationErrorShortLabel(t, errorCode) ?? errorCode)
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",

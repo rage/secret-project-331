@@ -6,7 +6,7 @@
 //! phases cannot mail twice.
 use std::collections::{HashMap, HashSet};
 
-use utoipa::ToSchema;
+use secrecy::ExposeSecret;
 
 use crate::email_deliveries::{
     EmailSendStatus, EmailSendStatusFacts, EmailSendStatusReport, derive_email_send_status,
@@ -14,27 +14,27 @@ use crate::email_deliveries::{
 };
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Clone)]
 pub struct CreditRegistrationAccountLinkingEmail {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
     pub course_id: Uuid,
-    pub emailed_to: String,
+    pub emailed_to: DbSecret,
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
     pub sent_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct NewAccountLinkingEmail {
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
     pub course_id: Uuid,
-    pub emailed_to: String,
+    pub emailed_to: DbSecret,
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
 }
@@ -58,10 +58,10 @@ INSERT INTO credit_registration_account_linking_emails (
 VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING
 RETURNING id
         "#,
-        new.student_number,
-        new.sisu_person_id,
+        new.student_number.expose_secret(),
+        new.sisu_person_id.expose_secret(),
         new.course_id,
-        new.emailed_to,
+        new.emailed_to.expose_secret(),
         new.student_number_verification_token_id,
         new.email_delivery_id,
     )
@@ -71,11 +71,11 @@ RETURNING id
 }
 
 /// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {
-    pub sisu_person_id: String,
+    pub sisu_person_id: DbSecret,
     pub course_id: Uuid,
-    pub emailed_to: String,
+    pub emailed_to: DbSecret,
     pub sent_at: DateTime<Utc>,
 }
 
@@ -118,10 +118,19 @@ pub async fn claim_send_slots(
     if new.is_empty() {
         return Ok(HashSet::new());
     }
-    let student_numbers: Vec<String> = new.iter().map(|n| n.student_number.clone()).collect();
-    let sisu_person_ids: Vec<String> = new.iter().map(|n| n.sisu_person_id.clone()).collect();
+    let student_numbers: Vec<String> = new
+        .iter()
+        .map(|n| n.student_number.expose_secret().to_owned())
+        .collect();
+    let sisu_person_ids: Vec<String> = new
+        .iter()
+        .map(|n| n.sisu_person_id.expose_secret().to_owned())
+        .collect();
     let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
-    let emailed_tos: Vec<String> = new.iter().map(|n| n.emailed_to.clone()).collect();
+    let emailed_tos: Vec<String> = new
+        .iter()
+        .map(|n| n.emailed_to.expose_secret().to_owned())
+        .collect();
 
     let claimed = sqlx::query_scalar!(
         r#"
@@ -170,7 +179,7 @@ ORDER BY sisu_person_id,
     .await?;
     Ok(res
         .into_iter()
-        .map(|row| (row.sisu_person_id.clone(), row))
+        .map(|row| (row.sisu_person_id.expose_secret().to_owned(), row))
         .collect())
 }
 
@@ -248,9 +257,9 @@ WHERE sisu_person_id = $1
 #[derive(Debug, Clone)]
 pub struct LinkingMailToQueue {
     pub id: Uuid,
-    pub emailed_to: String,
-    pub student_number: String,
-    pub first_names: Option<String>,
+    pub emailed_to: DbSecret,
+    pub student_number: DbSecret,
+    pub first_names: Option<DbSecret>,
     /// Mailed as part of the link, so the recipient can prove the address is theirs.
     pub token: DbSecret,
     pub course_name: String,
@@ -443,10 +452,10 @@ pub async fn get_send_status_totals_since(
 SELECT
   e.sent_at AS "sent_at!",
   e.email_delivery_id,
-  ed.sent AS delivery_sent,
-  ed.retryable,
-  ed.first_failed_at,
-  ed.retry_count
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.retry_count AS "retry_count?"
 FROM credit_registration_account_linking_emails e
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
 WHERE e.sent_at >= $1
@@ -510,7 +519,7 @@ pub async fn get_send_failure_domains_since(
     now: DateTime<Utc>,
 ) -> ModelResult<Vec<LinkingMailFailureDomain>> {
     struct Row {
-        emailed_to: String,
+        emailed_to: DbSecret,
         retryable: bool,
         first_failed_at: Option<DateTime<Utc>>,
     }
@@ -535,12 +544,11 @@ WHERE e.sent_at >= $1
         if !is_hard_send_failure(row.retryable, row.first_failed_at, now) {
             continue;
         }
-        let Some(at) = row.emailed_to.find('@') else {
+        let emailed_to = row.emailed_to.expose_secret();
+        let Some(at) = emailed_to.find('@') else {
             continue;
         };
-        *counts
-            .entry(row.emailed_to[at + 1..].to_string())
-            .or_insert(0) += 1;
+        *counts.entry(emailed_to[at + 1..].to_string()).or_insert(0) += 1;
     }
 
     let mut domains: Vec<LinkingMailFailureDomain> = counts
@@ -584,10 +592,10 @@ WHERE e.course_id = $1
 
 /// One person and course mailed to the cap without a single claim: the stale-address population,
 /// which is how "the student is ignoring us" is told from "the address Sisu holds is dead".
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct StaleUnclaimedLinkingMails {
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
     pub course_id: Uuid,
     pub course_name: String,
     pub mail_count: i64,
@@ -595,7 +603,7 @@ pub struct StaleUnclaimedLinkingMails {
     pub last_sent_at: DateTime<Utc>,
     pub mail_ids: Vec<Uuid>,
     /// In full: an admin deciding whether resending can work has to read the address.
-    pub addresses: Vec<String>,
+    pub addresses: Vec<DbSecret>,
 }
 
 pub async fn get_stale_unclaimed(
@@ -620,7 +628,7 @@ SELECT e.student_number AS "student_number!",
   ARRAY_AGG(
     e.emailed_to
     ORDER BY e.sent_at
-  ) AS "addresses!"
+  ) AS "addresses!: Vec<DbSecret>"
 FROM credit_registration_account_linking_emails e
   JOIN courses c ON c.id = e.course_id
 WHERE e.deleted_at IS NULL
@@ -684,12 +692,12 @@ mod tests {
         claim_linking_mails(
             conn,
             &DiscoveredPerson {
-                sisu_person_id: "hy-hlo-1".to_string(),
-                student_number: "012345678".to_string(),
-                first_names: Some("Aada".to_string()),
-                last_name: Some("Virtanen".to_string()),
+                sisu_person_id: "hy-hlo-1".to_string().into(),
+                student_number: "012345678".to_string().into(),
+                first_names: Some("Aada".to_string().into()),
+                last_name: Some("Virtanen".to_string().into()),
                 course_id,
-                addresses: vec!["aada@helsinki.fi".to_string()],
+                addresses: vec![DbSecret::new("aada@example.com")],
             },
         )
         .await
@@ -730,11 +738,11 @@ mod tests {
         let claimed = claim_unqueued(tx.as_mut(), 10, None).await.unwrap();
         assert_eq!(claimed.len(), 1);
         assert_eq!(claimed[0].id, slot);
-        assert_eq!(claimed[0].emailed_to, "aada@helsinki.fi");
+        assert_eq!(claimed[0].emailed_to.expose_secret(), "aada@example.com");
 
         let delivery = insert_email_delivery_to_address(
             tx.as_mut(),
-            &claimed[0].emailed_to,
+            claimed[0].emailed_to.expose_secret(),
             template,
             &serde_json::json!({ "NAME": "Aada" }),
         )

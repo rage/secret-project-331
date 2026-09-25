@@ -1,11 +1,11 @@
 //! Creating ledger rows for completions that are allowed to be registered. It catches up as well as
 //! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
-//! at `pending`, because historical completions belong to students nobody ever asked. Flipping a
-//! module on reaches none made before it — `register_credits_via_suotar` is frozen at creation.
+//! at `pending`, because historical completions belong to students nobody ever asked. Turning a
+//! module on reaches none made before it: `register_credits_via_suotar` is set at creation or by hand.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, mark_superseded, transition_batch,
+    mark_improvement_checked, transition_batch,
 };
 use crate::prelude::*;
 
@@ -25,8 +25,6 @@ pub async fn ensure_registration_rows_for_eligible_completions(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    // The ids are generated in the CTE so request_item_id stays derivable from the row id in both
-    // directions: it is the only handle Suotar's log and ours share on one registration.
     let created = sqlx::query_scalar!(
         r#"
 WITH registrable_completion AS (
@@ -60,16 +58,14 @@ inserted AS (
       user_id,
       course_id,
       course_module_id,
-      course_instance_id,
-      request_item_id
+      course_instance_id
     )
   SELECT id,
     course_module_completion_id,
     user_id,
     course_id,
     course_module_id,
-    course_instance_id,
-    'cr-' || id
+    course_instance_id
   FROM registrable_completion ON CONFLICT DO NOTHING
   RETURNING id
 ),
@@ -162,13 +158,18 @@ LIMIT $2
     Ok(res)
 }
 
-/// Supersedes accepted attempts whose completion has since been graded higher, and starts the next
-/// attempt at `ready_to_submit`; returns how many were started.
+/// Starts a new attempt at `ready_to_submit` for every accepted attempt whose completion has since
+/// been graded higher; returns how many were started.
 ///
 /// Only a strictly better grade on the same scale qualifies, so a downward correction and a
 /// cross-scale change both do nothing at all. Rows in `submission_uncertain` are deliberately not
 /// candidates: whether their import landed is unknown, and a successor would risk a second
-/// attainment. The new attempt is an ordinary `ready_to_submit` row from here on.
+/// attainment.
+///
+/// The accepted attempt stays the live credit: resolve-enrolments weighs the new one against it
+/// through [`crate::credit_registrations::lock_live_successes_for_same_module`], exactly as it does a
+/// better grade that arrives as a new completion, and marks it for replacement only if the new one
+/// goes out.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -188,22 +189,29 @@ SELECT cr.id,
   cr.grade_id AS "registered_grade_id!",
   cmc.passed,
   cmc.grade,
-  cmc.updated_at AS completion_updated_at,
-  conf.grade_scale_id AS "configured_grade_scale_id?"
+  cmc.updated_at AS completion_updated_at
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   -- Membership is the whole eligibility check: the view is the module opt-in and the completion
   -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.
   JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id
   AND e.fully_eligible
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
+  AND cr.pending_superseded_by_id IS NULL
   -- The success set only: a row whose outcome we do not know must not gain a successor.
   AND cr.state = ANY($4::credit_registration_state [])
   AND cr.grade_scale_id IS NOT NULL
   AND cr.grade_id IS NOT NULL
+  -- Only the latest attempt: a newer one, even one that stopped short, reads the completion's grade
+  -- afresh whenever it resolves again.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations later
+    WHERE later.course_module_completion_id = cr.course_module_completion_id
+      AND later.attempt_number > cr.attempt_number
+      AND later.deleted_at IS NULL
+  )
   -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot
   -- have been regraded after that attempt froze its grade; but one touched for any other reason
   -- passes that test forever, and only the grade comparison below can tell the two apart, which is
@@ -237,9 +245,8 @@ LIMIT $1
         let Ok(mapped) = map_grade(GradeSource {
             passed: candidate.passed,
             grade: candidate.grade,
-            configured_grade_scale_id: candidate.configured_grade_scale_id.as_deref(),
-            // No enrolment has been resolved for the next attempt yet, so the scale is the module's
-            // override or the one the completion itself implies.
+            // No enrolment has been resolved for the next attempt yet, so the scale is the one the
+            // completion itself implies.
             enrolment_grade_scale_id: None,
         }) else {
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
@@ -254,15 +261,9 @@ LIMIT $1
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
-        // `uq_credit_registrations_completion` allows one live attempt per completion, so the old
-        // one has to point away before the successor is inserted. The successor's id is allocated
-        // here rather than by the database because of that order; the deferred foreign key is what
-        // lets the pointer name a row this transaction has not written yet.
-        let next = Uuid::new_v4();
-        mark_superseded(&mut tx, candidate.id, next).await?;
-        crate::credit_registrations::insert(
+        let next = crate::credit_registrations::insert(
             &mut tx,
-            PKeyPolicy::Fixed(next),
+            PKeyPolicy::Generate,
             &NewCreditRegistration {
                 course_module_completion_id: candidate.course_module_completion_id,
                 user_id: candidate.user_id,
@@ -272,8 +273,8 @@ LIMIT $1
                 attempt_number: candidate.attempt_number + 1,
             },
             Some(&format!(
-                "The completion's grade rose from {} to {}, so the registered attempt was \
-                 superseded.",
+                "The completion's grade rose from {} to {}. The registered attempt stays the credit \
+                 until this one is registered in its place.",
                 candidate.registered_grade_id, mapped.grade_id
             )),
         )
@@ -298,7 +299,7 @@ mod tests {
     use crate::course_module_completions::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion,
     };
-    use crate::credit_registrations::{CreditRegistrationState, import_request_item_id};
+    use crate::credit_registrations::CreditRegistrationState;
     use crate::test_helper::*;
 
     async fn enable_suotar(
@@ -317,6 +318,13 @@ mod tests {
         )
         .await
         .unwrap();
+        crate::course_modules::set_register_eligible_new_completions_via_suotar(
+            conn,
+            course_module.id,
+            true,
+        )
+        .await
+        .unwrap();
     }
 
     async fn add_completion(
@@ -331,6 +339,33 @@ mod tests {
         crate::course_instance_enrollments::insert(conn, user, course, course_instance)
             .await
             .unwrap();
+        // Eligibility for the push path at creation.
+        if crate::verified_student_numbers::get_by_user_id(conn, user)
+            .await
+            .unwrap()
+            .is_none()
+        {
+            let student_number = format!("{:09}", user.as_u128() % 1_000_000_000);
+            crate::verified_student_numbers::insert(
+                conn,
+                PKeyPolicy::Generate,
+                &crate::verified_student_numbers::NewVerifiedStudentNumber {
+                    user_id: user,
+                    sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
+                    student_number: DbSecret::new(student_number),
+                    first_names: None,
+                    last_name: None,
+                    verified_via:
+                        crate::verified_student_numbers::StudentNumberVerificationMethod::EmailedLink,
+                    verified_via_email: Some(DbSecret::new("student@example.com")),
+                    linked_by_user_id: None,
+                    link_reason: None,
+                    verified_from_course_id: None,
+                },
+            )
+            .await
+            .unwrap();
+        }
         crate::course_module_completions::insert(
             conn,
             PKeyPolicy::Generate,
@@ -382,7 +417,6 @@ mod tests {
             .unwrap();
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].state, CreditRegistrationState::Pending);
-        assert_eq!(rows[0].request_item_id, import_request_item_id(rows[0].id));
 
         let events =
             crate::credit_registration_events::get_by_registration_id(tx.as_mut(), rows[0].id)

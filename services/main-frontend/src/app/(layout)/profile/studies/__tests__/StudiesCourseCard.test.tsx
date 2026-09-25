@@ -19,6 +19,7 @@ const courseModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCours
   order_number: 0,
   ects_credits: 5,
   supports_credit_registration: false,
+  credit_registration_expected: false,
   score_given: 12,
   score_maximum: 20,
   score_required: 16,
@@ -172,6 +173,26 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
+    expect(
+      screen.getByRole("link", { name: "credit-registration-status-link-label" }),
+    ).toHaveAttribute("href", "/completion-registration/module-default")
+  })
+
+  it("says a completion is being registered before its registration exists", () => {
+    render(
+      <StudiesCourseCard
+        course={course([
+          courseModule({
+            supports_credit_registration: true,
+            credit_registration_expected: true,
+            completion: completion(true),
+          }),
+        ])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("credit-registration-status-sending")).toBeInTheDocument()
     expect(
       screen.getByRole("link", { name: "credit-registration-status-link-label" }),
     ).toHaveAttribute("href", "/completion-registration/module-default")

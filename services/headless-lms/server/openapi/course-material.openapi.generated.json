@@ -4551,7 +4551,7 @@
           },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether the push path owns this completion. See the column comment; decided at insert."
+            "description": "Whether the push path owns this completion. See the column comment."
           },
           "updated_at": {
             "type": "string",
@@ -7037,6 +7037,7 @@
           "prerequisite_modules_completed",
           "enable_registering_completion_to_uh_open_university",
           "enable_credit_registration_via_suotar",
+          "register_credits_via_suotar",
           "certification_enabled"
         ],
         "properties": {
@@ -7079,6 +7080,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the module's registration flow is the push path, decided by\n[`course_module_completions::select_registration_completion`] rather than by the shown\ncompletion. False when no completion is shown."
           }
         }
       },

@@ -4,9 +4,15 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
   COURSE_CREDIT_REGISTRATIONS_API,
+  CREDIT_REGISTRATION_STUDENT_1,
+  CREDIT_REGISTRATION_STUDENT_2,
+  CREDIT_REGISTRATION_STUDENT_3,
+  CREDIT_REGISTRATION_STUDENT_4,
+  CRS_STATES_101,
   getJson,
   ORIGIN,
   RETRY_COURSE_ID,
+  seededEnrolmentLink,
   STATES_COURSE_ID,
 } from "@/utils/creditRegistration"
 import {
@@ -16,18 +22,18 @@ import {
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
- * Owns student numbers `9000008xx`. Reads the `credit-registration-states` course and writes to the
- * `credit-registration-retry` one; both have a paused module so their rows hold still — a read model
- * needs every state present at once, and the workers in the test deployment would otherwise walk
- * them onwards.
+ * Reads the `credit-registration-states` course and writes to the `credit-registration-retry` one,
+ * where `credit-registration-student-1`–`4` hold one row each. Both have paused modules so their rows
+ * hold still — a read model needs every state present at once, and the workers in the test deployment
+ * would otherwise walk them onwards.
  *
  * The retry fixtures are a course of their own because a bulk retry sweeps a whole course: run
  * against the states course it would leave that fixture with no failure and no error codes.
  *
  * `teacher@example.com` teaches the fixture courses and nothing else here, which is what makes the
  * authorization cases meaningful.
- * Serial and order-dependent: the single-row retry test spends `Retry01`'s `failed_permanent` state,
- * and the bulk retry after it sweeps the whole retry course. `retries: 0` because neither state comes
+ * Serial and order-dependent: the single-row retry test spends one `failed_permanent` row, and the
+ * bulk retry after it sweeps the whole retry course. `retries: 0` because neither state comes
  * back, so retrying only turns one failure into three.
  */
 test.describe.configure({ mode: "serial", retries: 0 })
@@ -37,14 +43,14 @@ test.use({ storageState: "src/states/teacher@example.com.json" })
 const STATES_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${STATES_COURSE_ID}/students/completions`
 const RETRY_COMPLETIONS_URL = `${ORIGIN}/manage/courses/${RETRY_COURSE_ID}/students/completions`
 
-const EMAIL_LINK_STUDENT_NUMBER = "900000801"
-const ADMIN_MANUAL_STUDENT_NUMBER = "900000802"
+const EMAIL_LINK_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
+const ADMIN_MANUAL_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
 
-/** The retry fixtures, by the last name the seed gives each one. */
-const RETRIABLE = "Retry01"
-const BULK_RETRIABLE = "Retry02"
-const SUBMISSION_UNCERTAIN = "Retry03"
-const NOT_A_FAILURE = "Retry04"
+/** The retry fixtures, by the last name of the account holding each one. */
+const RETRIABLE = CREDIT_REGISTRATION_STUDENT_1.lastName
+const BULK_RETRIABLE = CREDIT_REGISTRATION_STUDENT_2.lastName
+const SUBMISSION_UNCERTAIN = CREDIT_REGISTRATION_STUDENT_3.lastName
+const NOT_A_FAILURE = CREDIT_REGISTRATION_STUDENT_4.lastName
 
 /** The subset of the teacher's per-course row these tests read. */
 interface TeacherRegistrationRow {
@@ -168,6 +174,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
 
   const first = await resend()
   await expect(first).toBeOK()
+  // Only a person the course's codes list gets as far as the cap.
   expect(await first.json()).toMatchObject({ outcome: "refused_by_rate_cap" })
 
   await test.step("The teacher UI offers no override anywhere", async () => {
@@ -177,6 +184,26 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
       page.getByRole("button", { name: "Send the confirmation link again" }),
     ).toHaveCount(0)
   })
+})
+
+test("The module editor configures a study registry module by its course code and link", async ({
+  page,
+}) => {
+  await page.goto(`${ORIGIN}/manage/courses/${STATES_COURSE_ID}/modules`)
+  const form = page.locator('form:has-text("Default module")')
+  await expect(form.getByText("no enrolment link")).toHaveCount(0)
+  await form.getByRole("button", { name: "Edit" }).click()
+
+  await expect(
+    form.getByRole("checkbox", { name: "Register opted-in completions in Sisu" }),
+  ).toBeChecked()
+  await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
+    seededEnrolmentLink(CRS_STATES_101),
+  )
+  await expect(
+    form.getByText("Also the enrolment link for students without a valid enrolment in Sisu."),
+  ).toBeVisible()
+  await expect(form.getByText(/product|realisation/i)).toHaveCount(0)
 })
 
 test("A teacher of another course cannot read this course's registration", async ({
@@ -250,7 +277,7 @@ test("A teacher retries a failed registration, and the course says who did it", 
   await test.step("The history is on the page, so a colleague sees it before clicking", async () => {
     await page.goto(RETRY_COMPLETIONS_URL)
     await expect(page.getByRole("heading", { name: "Recent actions on this course" })).toBeVisible()
-    await expect(page.getByText("Retried a registration").first()).toBeVisible()
+    await expect(page.getByText("Sent a registration again").first()).toBeVisible()
     await accessibilityCheck(page, "Teacher credit registration action history")
   })
 })

@@ -28,6 +28,7 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::authorization::AuthorizationToken;
 use crate::prelude::*;
+use secrecy::ExposeSecret;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -135,9 +136,9 @@ async fn build_linking_emails(
                 ),
                 id: mail.id,
                 course_id: mail.course_id,
-                student_number: mail.student_number,
-                sisu_person_id: mail.sisu_person_id,
-                emailed_to: mail.emailed_to,
+                student_number: mail.student_number.expose_secret().to_owned(),
+                sisu_person_id: mail.sisu_person_id.expose_secret().to_owned(),
+                emailed_to: mail.emailed_to.expose_secret().to_owned(),
                 claimed_at: mail.sent_at,
                 token_claimed_by_user_id: token.and_then(|row| row.claimed_by_user_id),
                 token_used_at: token.and_then(|row| row.used_at),

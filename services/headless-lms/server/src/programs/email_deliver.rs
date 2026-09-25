@@ -338,8 +338,7 @@ async fn apply_email_template_replacements(
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
-        | EmailTemplateType::CreditRegistrationRegistered
-        | EmailTemplateType::CreditRegistrationStudentNumberLinked => {}
+        | EmailTemplateType::CreditRegistrationRegistered => {}
     }
 
     Ok(TemplateApplyResult::Ready(insert_placeholders(

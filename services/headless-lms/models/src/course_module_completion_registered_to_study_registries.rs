@@ -215,7 +215,24 @@ pub async fn mark_completions_as_registered_to_study_registry(
         });
     }
 
-    insert_bulk(conn, new_registrations).await?;
+    let user_ids: Vec<Uuid> = new_registrations.iter().map(|r| r.user_id).collect();
+    let mut tx = conn.begin().await?;
+    insert_bulk(&mut tx, new_registrations).await?;
+    // A savepoint, so a linking failure is rolled back alone and the registrar's POST still lands.
+    let mut savepoint = tx.begin().await?;
+    match crate::verified_student_numbers::link_numbers_reported_by_study_registry(
+        &mut savepoint,
+        &user_ids,
+    )
+    .await
+    {
+        Ok(_) => savepoint.commit().await?,
+        Err(error) => {
+            warn!("Could not link student numbers the study registry reported: {error}");
+            savepoint.rollback().await?;
+        }
+    }
+    tx.commit().await?;
 
     Ok(())
 }

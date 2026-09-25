@@ -2,6 +2,7 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   asksWhereYouEnrolled,
+  explainsBesideTheQuestion,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -66,8 +67,14 @@ describe("whether the student is still asked where they enrol", () => {
     ).toBe(false)
   })
 
-  test("stops asking once the row is somewhere it cannot come back from", () => {
-    for (const status of ["registered", "failed", "not_registering"] as const) {
+  test("stops asking once the row is past needing an enrolment", () => {
+    for (const status of [
+      "registered",
+      "failed",
+      "not_registering",
+      "sending",
+      "waiting_for_sisu",
+    ] as const) {
       expect(
         asksWhereYouEnrolled({
           registration: registration({ student_facing_status: status }),
@@ -75,6 +82,15 @@ describe("whether the student is still asked where they enrol", () => {
         }),
       ).toBe(false)
     }
+  })
+
+  test("stops asking while the row is parked on a course-setup problem, not an enrolment one", () => {
+    expect(
+      asksWhereYouEnrolled({
+        registration: registration({ student_facing_status: "waiting_for_course_setup" }),
+        enrolmentRoute: route(),
+      }),
+    ).toBe(false)
   })
 
   test("keeps asking while the student is being asked for a student number instead", () => {
@@ -98,7 +114,7 @@ describe("whether the student is still asked where they enrol", () => {
           linking_email: {
             email_send_status: "sent",
             sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@helsinki.fi",
+            emailed_to_masked: "...@example.com",
           },
         }),
         enrolmentRoute: route(),
@@ -139,10 +155,19 @@ describe("waiting for the enrolment to turn up", () => {
 })
 
 describe("whether the state gets said in its own words", () => {
-  test("stays quiet while the question band already gives the enrolment instructions", () => {
-    expect(saysWhatIsHappening({ registration: registration(), enrolmentRoute: route() })).toBe(
-      false,
-    )
+  test("says where things stand under the question, without repeating its instructions", () => {
+    const view = { registration: registration(), enrolmentRoute: route() }
+    expect(saysWhatIsHappening(view)).toBe(true)
+    expect(explainsBesideTheQuestion(view)).toBe(true)
+  })
+
+  test("explains in full once the question is no longer asked", () => {
+    const view = {
+      registration: registration({ student_facing_status: "sending" }),
+      enrolmentRoute: route(),
+    }
+    expect(saysWhatIsHappening(view)).toBe(true)
+    expect(explainsBesideTheQuestion(view)).toBe(false)
   })
 
   test("stays quiet for the student number, which the linking band says in full", () => {
@@ -155,7 +180,7 @@ describe("whether the state gets said in its own words", () => {
   })
 
   test("speaks up for anything neither the question nor the wait covers", () => {
-    for (const status of ["failed", "waiting_for_sisu"] as const) {
+    for (const status of ["failed", "waiting_for_sisu", "waiting_for_course_setup"] as const) {
       expect(
         saysWhatIsHappening({
           registration: registration({ student_facing_status: status }),
@@ -189,12 +214,11 @@ describe("what the linking band says", () => {
     student_number: "014567890",
     verified_at: "2026-08-21T07:00:00Z",
     verified_via: "emailed_link",
-    linked_automatically: false,
-    auto_link_notice_dismissed: true,
   } as const
+  const linkingOn = { isAccountLinkingEnabled: true }
 
   test("promises the number while the credits are still on their way", () => {
-    expect(studentNumberLinkBand(registration(), linked)).toEqual({
+    expect(studentNumberLinkBand(registration(), linked, linkingOn)).toEqual({
       kind: "registering",
       studentNumber: "014567890",
     })
@@ -202,7 +226,17 @@ describe("what the linking band says", () => {
 
   test("drops the promise once the row has failed", () => {
     expect(
-      studentNumberLinkBand(registration({ student_facing_status: "failed" }), linked),
+      studentNumberLinkBand(registration({ student_facing_status: "failed" }), linked, linkingOn),
+    ).toEqual({ kind: "linked", studentNumber: "014567890" })
+  })
+
+  test("drops the promise on a registered row that has no fact sheet to name the number", () => {
+    expect(
+      studentNumberLinkBand(
+        registration({ student_facing_status: "registered", registered_at: null }),
+        linked,
+        linkingOn,
+      ),
     ).toEqual({ kind: "linked", studentNumber: "014567890" })
   })
 
@@ -214,6 +248,7 @@ describe("what the linking band says", () => {
           registered_at: "2026-09-08T09:00:00Z",
         }),
         linked,
+        linkingOn,
       ),
     ).toBeNull()
   })
@@ -226,27 +261,35 @@ describe("what the linking band says", () => {
           registered_at: "2026-09-08T09:00:00Z",
         }),
         null,
+        linkingOn,
       ),
     ).toBeNull()
   })
 
   test("says nothing about a row nobody is registering", () => {
     expect(
-      studentNumberLinkBand(registration({ student_facing_status: "not_registering" }), linked),
+      studentNumberLinkBand(
+        registration({ student_facing_status: "not_registering" }),
+        linked,
+        linkingOn,
+      ),
     ).toBeNull()
   })
 
   test("explains the wait before any mail can exist", () => {
-    expect(studentNumberLinkBand(registration(), null)).toEqual({ kind: "awaiting-enrolment" })
+    expect(studentNumberLinkBand(registration(), null, linkingOn)).toEqual({
+      kind: "awaiting-enrolment",
+    })
   })
 
   test("stops promising a future mail once one is queued", () => {
     expect(
       studentNumberLinkBand(
         registration({
-          linking_email: { email_send_status: "queued", emailed_to_masked: "...@helsinki.fi" },
+          linking_email: { email_send_status: "queued", emailed_to_masked: "...@example.com" },
         }),
         null,
+        linkingOn,
       ),
     ).toEqual({ kind: "mailing" })
   })
@@ -258,22 +301,40 @@ describe("what the linking band says", () => {
           linking_email: {
             email_send_status: "sent",
             sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@helsinki.fi",
+            emailed_to_masked: "...@example.com",
           },
         }),
         null,
+        linkingOn,
       ),
-    ).toEqual({ kind: "mailed", emailMasked: "...@helsinki.fi", sentAt: "2026-08-20T10:00:00Z" })
+    ).toEqual({ kind: "mailed", emailMasked: "...@example.com", sentAt: "2026-08-20T10:00:00Z" })
   })
 
   test("says the mail failed rather than telling them to look for it", () => {
     expect(
       studentNumberLinkBand(
         registration({
-          linking_email: { email_send_status: "send_failed", emailed_to_masked: "...@helsinki.fi" },
+          linking_email: { email_send_status: "send_failed", emailed_to_masked: "...@example.com" },
         }),
         null,
+        linkingOn,
       ),
     ).toEqual({ kind: "send-failed" })
+  })
+
+  test("promises no mail while account linking is off", () => {
+    const linkingOff = { isAccountLinkingEnabled: false }
+    expect(studentNumberLinkBand(registration(), null, linkingOff)).toEqual({
+      kind: "staff-links",
+    })
+    expect(
+      studentNumberLinkBand(
+        registration({
+          linking_email: { email_send_status: "queued", emailed_to_masked: "...@example.com" },
+        }),
+        null,
+        linkingOff,
+      ),
+    ).toEqual({ kind: "staff-links" })
   })
 })

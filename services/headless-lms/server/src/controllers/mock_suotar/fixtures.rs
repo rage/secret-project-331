@@ -3,20 +3,12 @@
 //! The seed writes the database rows and the mock study registry serves the matching registry rows,
 //! so neither side owns these: both read them here.
 //!
-//! Student numbers are `90000SSPP`: `SS` the spec index listed below, `PP` the person within that
-//! spec, the leading `9` keeping them clear of real UH numbers. Digits only, 6–12 of them, per
-//! `verified_student_numbers.student_number_format`.
-//!
-//! Account linking and worker ticks are both global — one spec's tick advances every eligible row in
-//! the shared database — so two specs sharing a student number would see each other's registration
-//! attempts. Each spec under `system-tests/src/tests/credit-registration/` owns one `SS`, and the
-//! mock Suotar's persons must reuse the same numbers: 02 `suotar-account-linking`,
-//! 03 `suotar-enrolment-problems`, 04 `suotar-import-outcomes`, 05 `suotar-verify-outcomes`,
-//! 06 `suotar-sisu-outage`, 08 `suotar-teacher-views`, 09 `suotar-admin-dashboard`,
-//! 10 `suotar-old-flow-coexistence`, 12 `suotar-grade-improvement`,
-//! 13 `suotar-student-emails`, 14 `suotar-fast-track-linking`, 15 `suotar-in-course-banner`,
-//! 16 `suotar-student-profile`. `01` belongs to no single spec: it holds the linked and unlinked
-//! students that read-only specs share. `07` and `11` are unused.
+//! Every seeded account holds one student number for good, so a number is shared by every spec that
+//! drives that account. Isolation is per (student number, course code) instead: the mock and the
+//! workers are global, so no two specs may drive the same account on the same course.
+//! [`LANE_COMPLETIONS`] and the table in `system-tests/src/utils/creditRegistration.ts` allocate
+//! them. Numbers are digits only, 6–12 of them, per `verified_student_numbers.student_number_format`,
+//! the leading `9` keeping them clear of real UH numbers.
 //!
 //! Names and emails are unlikely strings (`Zzyzx …`) because a spec asserts their absence from the
 //! scrubbed Suotar API log.
@@ -25,17 +17,18 @@ use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
 use super::commands::{
-    CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, ProductAccessTokenUpsert, RealisationUpsert,
-    WorldPush,
+    AttainmentUpsert, CourseUnitUpsert, EnrolmentUpsert, PersonUpsert, RealisationUpsert,
+    SisuViolationsUpsert, WorldPush,
 };
-use super::ids as mock_ids;
 use super::world::{
     CourseBehaviour, CreditRange, DatePeriod, EnrolmentState, LocalizedName, PersonBehaviour,
-    RealisationKind, Ripeness, WorldDefaults,
+    RealisationKind, SuotarCourse, WorldDefaults,
 };
 
-/// The course the Suotar specs live on.
+/// The general Suotar course, and the only one with a chapter page to read.
 pub const SUOTAR_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0001_4a5e_9e6e_c0de00000001);
+/// A second general Suotar course, so one account can serve a spec on each.
+pub const SUOTAR_B_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0003_4a5e_9e6e_c0de00000003);
 /// A course left on the legacy open-university pull flow, for the coexistence specs.
 pub const OLD_FLOW_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0002_4a5e_9e6e_c0de00000002);
 /// Owned by `suotar-import-outcomes.spec.ts`; its modules are the failing shapes.
@@ -43,23 +36,31 @@ pub const IMPORT_OUTCOMES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0004_4a5e
 /// Owned by `suotar-grade-improvement.spec.ts`, and the only graded module here.
 pub const GRADE_IMPROVEMENT_COURSE_ID: Uuid =
     Uuid::from_u128(0xc5ed17ea_0005_4a5e_9e6e_c0de00000005);
-/// Owned exclusively by `suotar-admin-dashboard.spec.ts`: discovery and the linking mails tick by
-/// course, so the spec that ticks them needs a course no other spec has students on.
+/// Owned by `suotar-admin-dashboard.spec.ts`: discovery and the linking mails tick by course, so the
+/// spec that ticks them needs a roster no other spec's unlinked people are on.
 pub const ADMIN_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0006_4a5e_9e6e_c0de00000006);
-/// One frozen ledger row per registration state and per error code, on a paused module. Read by
+/// One frozen ledger row per registration state and per error code, on paused modules. Read by
 /// `suotar-teacher-views.spec.ts` and the admin explorer, written by neither.
 pub const STATES_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0007_4a5e_9e6e_c0de00000007);
 /// Owned by `suotar-teacher-views.spec.ts`'s retry half, and swept by its bulk retry.
 pub const RETRY_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0009_4a5e_9e6e_c0de00000009);
 
 pub const CRS_101: &str = "CRS-101";
-pub const CRS_102: &str = "CRS-102";
+pub const CRS_B_101: &str = "CRS-B-101";
 pub const CRS_OLD_101: &str = "CRS-OLD-101";
 /// The module `suotar-old-flow-coexistence.spec.ts` treats as already cut over: Suotar-enabled, but
 /// holding a completion the legacy pull path registered before the cutover happened.
 pub const CRS_OLD_102: &str = "CRS-OLD-102";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
-pub const CRS_STATES_101: &str = "CRS-STATES-101";
+/// One module per column of the frozen-row grid: an account holds one completion per module.
+pub const STATES_COURSE_CODES: [&str; 6] = [
+    "CRS-STATES-101",
+    "CRS-STATES-102",
+    "CRS-STATES-103",
+    "CRS-STATES-104",
+    "CRS-STATES-105",
+    "CRS-STATES-106",
+];
 pub const CRS_RETRY_101: &str = "CRS-RETRY-101";
 
 pub const CRS_GRADED_101: &str = "CRS-GRADED-101";
@@ -76,6 +77,7 @@ pub const IMPORT_OUTCOME_COURSE_CODES: [&str; 4] = [
 ];
 
 pub const SUOTAR_COURSE_SLUG: &str = "credit-registration-via-suotar";
+pub const SUOTAR_B_COURSE_SLUG: &str = "credit-registration-via-suotar-b";
 pub const OLD_FLOW_COURSE_SLUG: &str = "credit-registration-old-flow";
 pub const IMPORT_OUTCOMES_COURSE_SLUG: &str = "credit-registration-import-outcomes";
 pub const GRADE_IMPROVEMENT_COURSE_SLUG: &str = "credit-registration-grade-improvement";
@@ -83,8 +85,8 @@ pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
 pub const STATES_COURSE_SLUG: &str = "credit-registration-states";
 pub const RETRY_COURSE_SLUG: &str = "credit-registration-retry";
 
-/// A seeded student and the Sisu person the mock must answer with for them. The database rows and
-/// the pushed persons must carry the same identifiers, so both are built from here.
+/// A Sisu person, and the seeded account it belongs to if any. The database rows and the pushed
+/// persons must carry the same identifiers, so both are built from here.
 pub struct MockPersonFixture {
     pub student_number: &'static str,
     pub first_names: &'static str,
@@ -100,97 +102,192 @@ impl MockPersonFixture {
     }
 }
 
-/// Linked to its student number from seed time: `suotar-student-profile.spec.ts` reads its linked
-/// card.
-pub const LINKED_STUDENT: MockPersonFixture = MockPersonFixture {
-    student_number: "900000101",
+/// A general seeded student the credit-registration seed links to this number, like `student7` and
+/// `student8`. Kept off every row that asks something of the student:
+/// `suotar-student-profile.spec.ts` asserts its studies page is clean.
+pub const STUDENT_6: MockPersonFixture = MockPersonFixture {
+    student_number: "900000006",
     first_names: "Zzyzx",
-    last_name: "Numberlinked",
-    sisu_email: "zzyzx.numberlinked@helsinki.example",
-    account_email: Some("credit-registration-linked-student@example.com"),
+    last_name: "Studentsix",
+    sisu_email: "zzyzx.studentsix@helsinki.example.com",
+    account_email: Some("student6@example.com"),
 };
-/// The twin with no student number linked, enrolled and nothing more.
-pub const UNLINKED_STUDENT: MockPersonFixture = MockPersonFixture {
-    student_number: "900000102",
+pub const STUDENT_7: MockPersonFixture = MockPersonFixture {
+    student_number: "900000007",
     first_names: "Zzyzx",
-    last_name: "Linkpending",
-    sisu_email: "zzyzx.linkpending@helsinki.example",
-    account_email: Some("credit-registration-unlinked-student@example.com"),
+    last_name: "Studentseven",
+    sisu_email: "zzyzx.studentseven@helsinki.example.com",
+    account_email: Some("student7@example.com"),
 };
-/// The import that times out. Its own person, so the fault keyed on this student number cannot reach
-/// another spec's row on the shared course.
-///
-/// Has a seeded person but, unlike its `on_crs_101` neighbours, no seeded enrolment: a pre-seeded one
-/// would let some other spec's unscoped tick resolve and import the row for real before this one ever
-/// arms the `sisuTimeout` fault. Its own spec creates the enrolment atomically with the fault. Keeping
-/// the person seeded matters — without it, that same unscoped tick answers `personNotFound`, which
-/// drops `verified_student_number` and strands the row in `pending` for good.
-pub const IMPORT_TIMEOUT: MockPersonFixture = MockPersonFixture {
-    student_number: "900000402",
+pub const STUDENT_8: MockPersonFixture = MockPersonFixture {
+    student_number: "900000008",
     first_names: "Zzyzx",
-    last_name: "Timedout",
-    sisu_email: "zzyzx.timedout@helsinki.example",
-    account_email: Some("credit-registration-import-timeout@example.com"),
+    last_name: "Studenteight",
+    sisu_email: "zzyzx.studenteight@helsinki.example.com",
+    account_email: Some("student8@example.com"),
 };
-/// The outage spec's own person, so a fault keyed on this student number cannot reach another
-/// spec's row on the shared course. Enrolment left unseeded for `IMPORT_TIMEOUT`'s reason: its spec
-/// arms the outage before creating the enrolment, so no earlier unscoped sweep can import the row
-/// while the study registry is still answering normally.
-pub const SISU_OUTAGE: MockPersonFixture = MockPersonFixture {
-    student_number: "900000601",
+
+/// Created and linked to this number by the credit-registration seed, like the four below.
+pub const CREDIT_REGISTRATION_STUDENT_1: MockPersonFixture = MockPersonFixture {
+    student_number: "900000011",
     first_names: "Zzyzx",
-    last_name: "Outaged",
-    sisu_email: "zzyzx.outaged@helsinki.example",
-    account_email: Some("credit-registration-sisu-outage@example.com"),
+    last_name: "Crsone",
+    sisu_email: "zzyzx.crsone@helsinki.example.com",
+    account_email: Some("credit-registration-student-1@example.com"),
 };
-/// Deliberately absent from the mock's enrolments: the only way to reach `no_usable_enrolment`
-/// without arming a fault.
-pub const NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
-    student_number: "900000301",
+/// Linked by support by hand rather than by the mailed link, which the teacher view renders
+/// differently.
+pub const CREDIT_REGISTRATION_STUDENT_2: MockPersonFixture = MockPersonFixture {
+    student_number: "900000012",
     first_names: "Zzyzx",
-    // Not "Notenrolled": its trigram distance from "notexisting" is close enough to spuriously
-    // match search-users.spec.ts's no-such-user search.
-    last_name: "Unenrolled",
-    sisu_email: "zzyzx.unenrolled@helsinki.example",
-    account_email: Some("credit-registration-no-enrolment@example.com"),
+    last_name: "Crstwo",
+    sisu_email: "zzyzx.crstwo@helsinki.example.com",
+    account_email: Some("credit-registration-student-2@example.com"),
 };
-/// Enrolled on one course twice, through a degree programme and through the open university, so the
-/// selection policy has something to choose between.
-pub const TWO_ENROLMENTS: MockPersonFixture = MockPersonFixture {
-    student_number: "900000302",
+pub const CREDIT_REGISTRATION_STUDENT_3: MockPersonFixture = MockPersonFixture {
+    student_number: "900000013",
     first_names: "Zzyzx",
-    last_name: "Twicenrolled",
-    sisu_email: "zzyzx.twicenrolled@helsinki.example",
-    account_email: Some("credit-registration-two-enrolments@example.com"),
+    last_name: "Crsthree",
+    sisu_email: "zzyzx.crsthree@helsinki.example.com",
+    account_email: Some("credit-registration-student-3@example.com"),
 };
-pub const VERIFY_POLLING: MockPersonFixture = MockPersonFixture {
-    student_number: "900000501",
+pub const CREDIT_REGISTRATION_STUDENT_4: MockPersonFixture = MockPersonFixture {
+    student_number: "900000014",
     first_names: "Zzyzx",
-    last_name: "Polling",
-    sisu_email: "zzyzx.polling@helsinki.example",
-    account_email: Some("credit-registration-verify-polling@example.com"),
+    last_name: "Crsfour",
+    sisu_email: "zzyzx.crsfour@helsinki.example.com",
+    account_email: Some("credit-registration-student-4@example.com"),
 };
-pub const VERIFY_MISREGISTERED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000502",
+pub const CREDIT_REGISTRATION_STUDENT_5: MockPersonFixture = MockPersonFixture {
+    student_number: "900000015",
     first_names: "Zzyzx",
-    last_name: "Reversed",
-    sisu_email: "zzyzx.reversed@helsinki.example",
-    account_email: Some("credit-registration-verify-misregistered@example.com"),
+    last_name: "Crsfive",
+    sisu_email: "zzyzx.crsfive@helsinki.example.com",
+    account_email: Some("credit-registration-student-5@example.com"),
 };
-pub const ADMIN_UNLINKED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000902",
+pub const CREDIT_REGISTRATION_STUDENT_6: MockPersonFixture = MockPersonFixture {
+    student_number: "900000016",
     first_names: "Zzyzx",
-    last_name: "Unlinked",
-    sisu_email: "zzyzx.unlinked@helsinki.example",
-    account_email: Some("credit-registration-admin-unlinked@example.com"),
+    last_name: "Crssix",
+    sisu_email: "zzyzx.crssix@helsinki.example.com",
+    account_email: Some("credit-registration-student-6@example.com"),
 };
+
+/// A seeded completion on one of the two general Suotar courses, and the enrolments the registry
+/// holds for it. Without one the row parks at `no_usable_enrolment`, or waits for its spec to create
+/// the enrolment after arming a fault, so no earlier unscoped sweep can import the row first.
+pub struct LaneCompletion {
+    pub student: &'static MockPersonFixture,
+    pub course_code: &'static str,
+    pub enrolments: &'static [RealisationKind],
+}
+
+const NOT_ENROLLED: &[RealisationKind] = &[];
+const DEGREE: &[RealisationKind] = &[RealisationKind::Degree];
+
+pub const LANE_COMPLETIONS: [LaneCompletion; 17] = [
+    // suotar-in-course-banner
+    LaneCompletion {
+        student: &STUDENT_7,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &STUDENT_8,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-enrolment-problems
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_1,
+        course_code: CRS_101,
+        enrolments: &[RealisationKind::Degree, RealisationKind::OpenUniversity],
+    },
+    LaneCompletion {
+        student: &STUDENT_7,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-student-emails
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_2,
+        course_code: CRS_101,
+        enrolments: DEGREE,
+    },
+    LaneCompletion {
+        student: &STUDENT_8,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-import-outcomes
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_3,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_3,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_4,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_5,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_6,
+        course_code: CRS_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-enrolment-problems; the registry already holds this credit
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_5,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-verify-outcomes
+    LaneCompletion {
+        student: &STUDENT_6,
+        course_code: CRS_B_101,
+        enrolments: DEGREE,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_1,
+        course_code: CRS_B_101,
+        enrolments: DEGREE,
+    },
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_2,
+        course_code: CRS_B_101,
+        enrolments: DEGREE,
+    },
+    // suotar-sisu-outage
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_4,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+    // suotar-enrolment-recheck
+    LaneCompletion {
+        student: &CREDIT_REGISTRATION_STUDENT_6,
+        course_code: CRS_B_101,
+        enrolments: NOT_ENROLLED,
+    },
+];
+
 /// Mailed to the cap, never claimed, no account: the stale-address population is the only place the
 /// resend and manual-link actions render.
 pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
     student_number: "900000903",
     first_names: "Zzyzx",
     last_name: "Deadaddress",
-    sisu_email: "zzyzx.deadaddress@helsinki.example",
+    sisu_email: "zzyzx.deadaddress@helsinki.example.com",
     account_email: None,
 };
 /// A second capped person on `ADMIN_STALE`'s course, owned by the teacher specs so a cap-refused
@@ -199,24 +296,13 @@ pub const TEACHER_RESEND_CAPPED: MockPersonFixture = MockPersonFixture {
     student_number: "900000804",
     first_names: "Zzyzx",
     last_name: "Cappedmail",
-    sisu_email: "zzyzx.cappedmail@helsinki.example",
+    sisu_email: "zzyzx.cappedmail@helsinki.example.com",
     account_email: None,
-};
-
-pub const ADMIN_LINKED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000904",
-    first_names: "Zzyzx",
-    last_name: "Alreadylinked",
-    sisu_email: "zzyzx.alreadylinked@helsinki.example",
-    account_email: Some("credit-registration-admin-linked@example.com"),
 };
 
 /// Three distinct addresses out of one Sisu address: the dedup key is the address and the cap is
 /// three mails per person and course.
 pub const MAILED_ADDRESS_SUFFIXES: [&str; 3] = ["", "old.", "older."];
-
-/// Enrolled on a Suotar course and nothing else, for the profile tab's empty state.
-pub const PROFILE_EMPTY_EMAIL: &str = "credit-registration-profile-empty@example.com";
 
 /// Claims the seeded linking tokens, and holds no student number of its own: the tokens are unbound
 /// and bind to whoever opens the link.
@@ -225,147 +311,24 @@ pub const LINK_VALID: MockPersonFixture = MockPersonFixture {
     student_number: "900000201",
     first_names: "Zzyzx",
     last_name: "Linkvalid",
-    sisu_email: "zzyzx.linkvalid@helsinki.example",
+    sisu_email: "zzyzx.linkvalid@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_EXPIRED: MockPersonFixture = MockPersonFixture {
     student_number: "900000202",
     first_names: "Zzyzx",
     last_name: "Linkexpired",
-    sisu_email: "zzyzx.linkexpired@helsinki.example",
+    sisu_email: "zzyzx.linkexpired@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_USED: MockPersonFixture = MockPersonFixture {
     student_number: "900000203",
     first_names: "Zzyzx",
     last_name: "Linkused",
-    sisu_email: "zzyzx.linkused@helsinki.example",
+    sisu_email: "zzyzx.linkused@helsinki.example.com",
     account_email: None,
 };
-pub const SUPERSEDED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000901",
-    first_names: "Zzyzx",
-    last_name: "Regraded",
-    sisu_email: "zzyzx.regraded@helsinki.example",
-    account_email: Some("credit-registration-superseded@example.com"),
-};
-/// Its Sisu address equals the account address, which is what the fast track fires on; the twin
-/// below differs only in the account's verification flag.
-pub const FAST_TRACK_VERIFIED: MockPersonFixture = MockPersonFixture {
-    student_number: "900001401",
-    first_names: "Zzyzx",
-    last_name: "Fasttrack",
-    sisu_email: "credit-registration-verified-email@example.com",
-    account_email: Some("credit-registration-verified-email@example.com"),
-};
-pub const FAST_TRACK_TWIN: MockPersonFixture = MockPersonFixture {
-    student_number: "900001402",
-    first_names: "Zzyzx",
-    last_name: "Nearmiss",
-    sisu_email: "credit-registration-unverified-twin@example.com",
-    account_email: Some("credit-registration-unverified-twin@example.com"),
-};
-/// Verified far outside the recency window: a deprovisioned university address can be reissued, and
-/// the account holding it would still look verified.
-pub const FAST_TRACK_STALE: MockPersonFixture = MockPersonFixture {
-    student_number: "900001403",
-    first_names: "Zzyzx",
-    last_name: "Staleproof",
-    sisu_email: "credit-registration-stale-proof@example.com",
-    account_email: Some("credit-registration-stale-proof@example.com"),
-};
-/// The recycled-address signal: the address is proved, but the account belongs to somebody else.
-/// `seed_fast_track_near_misses` gives its account a name unlike the registry's.
-pub const FAST_TRACK_NAME_MISMATCH: MockPersonFixture = MockPersonFixture {
-    student_number: "900001404",
-    first_names: "Zzyzx",
-    last_name: "Registryname",
-    sisu_email: "credit-registration-name-mismatch@example.com",
-    account_email: Some("credit-registration-name-mismatch@example.com"),
-};
-/// Its account already holds [`FAST_TRACK_OTHER_NUMBER`], so swapping it belongs behind the mailed
-/// link's confirmation screen, which names both numbers.
-pub const FAST_TRACK_HAS_NUMBER: MockPersonFixture = MockPersonFixture {
-    student_number: "900001405",
-    first_names: "Zzyzx",
-    last_name: "Alreadynumbered",
-    sisu_email: "credit-registration-has-number@example.com",
-    account_email: Some("credit-registration-has-number@example.com"),
-};
-/// Not on any roster: only the account's existing link needs it to exist.
-pub const FAST_TRACK_OTHER_NUMBER: &str = "900001495";
-/// `mock_suotar_world` moves its account address to the registry's *secondary* field, which is
-/// self-entered there and therefore never proof.
-pub const FAST_TRACK_SECONDARY_ONLY: MockPersonFixture = MockPersonFixture {
-    student_number: "900001406",
-    first_names: "Zzyzx",
-    last_name: "Secondonly",
-    sisu_email: "zzyzx.secondonly@helsinki.example",
-    account_email: Some("credit-registration-secondary-only@example.com"),
-};
-/// A confirmed account whose address the registry simply does not hold. The population the linking
-/// mail exists for, and the regression that matters most: it must still be mailed.
-pub const FAST_TRACK_NO_MATCH: MockPersonFixture = MockPersonFixture {
-    student_number: "900001407",
-    first_names: "Zzyzx",
-    last_name: "Othermailbox",
-    sisu_email: "zzyzx.othermailbox@helsinki.example",
-    account_email: Some("credit-registration-fast-track-no-match@example.com"),
-};
-
-/// Absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks where the in-course
-/// re-enrol banner shows. Its spec only reads and dismisses, so the row stays parked.
-pub const BANNER_STUCK: MockPersonFixture = MockPersonFixture {
-    student_number: "900001501",
-    first_names: "Zzyzx",
-    last_name: "Bannerstuck",
-    sisu_email: "zzyzx.bannerstuck@helsinki.example",
-    account_email: Some("credit-registration-banner-stuck@example.com"),
-};
-/// Its own person, because its spec creates the enrolment that makes the banner go away and that
-/// must not clear another spec's banner.
-pub const BANNER_REENROLS: MockPersonFixture = MockPersonFixture {
-    student_number: "900001502",
-    first_names: "Zzyzx",
-    last_name: "Bannerreenrols",
-    sisu_email: "zzyzx.bannerreenrols@helsinki.example",
-    account_email: Some("credit-registration-banner-reenrols@example.com"),
-};
-
-/// Driven all the way to `registered`, which is what earns the "your credits are in Sisu" mail.
-pub const EMAILS_REGISTERED: MockPersonFixture = MockPersonFixture {
-    student_number: "900001301",
-    first_names: "Zzyzx",
-    last_name: "Mailedsuccess",
-    sisu_email: "zzyzx.mailedsuccess@helsinki.example",
-    account_email: Some("credit-registration-emails-registered@example.com"),
-};
-/// Deliberately absent from the mock's enrolments, like `NO_ENROLMENT`, so its row parks at
-/// `no_usable_enrolment` and earns the action-needed mail without arming a fault.
-pub const EMAILS_NO_ENROLMENT: MockPersonFixture = MockPersonFixture {
-    student_number: "900001302",
-    first_names: "Zzyzx",
-    last_name: "Mailedaction",
-    sisu_email: "zzyzx.mailedaction@helsinki.example",
-    account_email: Some("credit-registration-emails-no-enrolment@example.com"),
-};
-
-pub const IMPORT_OUTCOMES: MockPersonFixture = MockPersonFixture {
-    student_number: "900000401",
-    first_names: "Zzyzx",
-    last_name: "Importoutcomes",
-    sisu_email: "zzyzx.importoutcomes@helsinki.example",
-    account_email: Some("credit-registration-import-outcomes@example.com"),
-};
-pub const GRADE_IMPROVEMENT: MockPersonFixture = MockPersonFixture {
-    student_number: "900001201",
-    first_names: "Zzyzx",
-    last_name: "Improved",
-    sisu_email: "zzyzx.improved@helsinki.example",
-    account_email: Some("credit-registration-grade-improvement@example.com"),
-};
-
-/// The world the mock Suotar serves, built from the same fixtures the database rows above are.
+/// The world the mock Suotar serves, built from the same fixtures the database rows are.
 ///
 /// Pure and pool-free on purpose: the restore-from-template setup path runs no seed and has the mock
 /// install this lazily instead, so both setup scripts hand the suite the same fixtures.
@@ -373,157 +336,116 @@ pub fn mock_suotar_world() -> WorldPush {
     let now = Utc::now();
     let wide = DatePeriod {
         start_date: (now - Duration::days(730)).date_naive(),
-        end_date: (now + Duration::days(730)).date_naive(),
+        end_date: Some((now + Duration::days(730)).date_naive()),
     };
-    let past = DatePeriod {
-        start_date: (now - Duration::days(900)).date_naive(),
-        end_date: (now - Duration::days(800)).date_naive(),
-    };
-
-    let on_crs_101 = [
-        &LINKED_STUDENT,
-        &UNLINKED_STUDENT,
-        &LINK_VALID,
-        &LINK_EXPIRED,
-        &LINK_USED,
-        &SUPERSEDED,
-        &FAST_TRACK_VERIFIED,
-        &FAST_TRACK_TWIN,
-        &FAST_TRACK_STALE,
-        &FAST_TRACK_NAME_MISMATCH,
-        &FAST_TRACK_HAS_NUMBER,
-        &FAST_TRACK_SECONDARY_ONLY,
-        &FAST_TRACK_NO_MATCH,
-        &IMPORT_TIMEOUT,
-        &SISU_OUTAGE,
-        &TWO_ENROLMENTS,
-        &VERIFY_POLLING,
-        &VERIFY_MISREGISTERED,
-        &EMAILS_REGISTERED,
-    ];
-    let on_crs_admin_101 = [
-        &ADMIN_UNLINKED,
-        &ADMIN_STALE,
-        &ADMIN_LINKED,
-        &TEACHER_RESEND_CAPPED,
-    ];
-
-    let mut persons: Vec<PersonUpsert> = on_crs_101.iter().map(|f| person(f)).collect();
-    persons.extend(on_crs_admin_101.iter().map(|f| {
-        let mut upsert = person(f);
-        // Sisu's live address must differ from the mailed history below, or a resend hits the
-        // dedup guard (already mailed this address) before it ever reaches the cap it exists to
-        // demonstrate.
-        if f.student_number == ADMIN_STALE.student_number
-            || f.student_number == TEACHER_RESEND_CAPPED.student_number
-        {
-            upsert.primary_email = format!("current.{}", f.sisu_email);
-        }
-        upsert
-    }));
-    for upsert in &mut persons {
-        // The one fixture whose account address is on the registry's secondary field. The mail still
-        // goes to both addresses; only the fast track's proof is primary-only.
-        if upsert.student_number == FAST_TRACK_SECONDARY_ONLY.student_number {
-            upsert.secondary_email = FAST_TRACK_SECONDARY_ONLY.account_email.map(str::to_string);
-        }
-    }
-    persons.push(person(&NO_ENROLMENT));
-    persons.push(person(&EMAILS_NO_ENROLMENT));
-    persons.push(person(&BANNER_STUCK));
-    persons.push(person(&BANNER_REENROLS));
-    persons.push(person(&IMPORT_OUTCOMES));
-    persons.push(person(&GRADE_IMPROVEMENT));
-
-    let mut enrolments: Vec<EnrolmentUpsert> = on_crs_101
-        .iter()
-        // Like `NO_ENROLMENT`, minus the person: these two specs create their own enrolment, so no
-        // earlier, unscoped resolve-enrolments sweep can resolve it before their fault is armed.
-        .filter(|fixture| {
-            fixture.student_number != IMPORT_TIMEOUT.student_number
-                && fixture.student_number != SISU_OUTAGE.student_number
-        })
-        .map(|fixture| enrolment(fixture, CRS_101, RealisationKind::Degree, wide.clone(), now))
-        .collect();
-    enrolments.extend(IMPORT_OUTCOME_COURSE_CODES.iter().map(|course_code| {
-        EnrolmentUpsert {
-            // The plain (student, kind) id would collide across all four: one student enrolled in
-            // four realisations of the same kind at once.
-            id: Some(mock_ids::enrolment_id_for_course(
-                IMPORT_OUTCOMES.student_number,
-                course_code,
-                RealisationKind::Degree,
-            )),
-            ..enrolment(
-                &IMPORT_OUTCOMES,
-                course_code,
-                RealisationKind::Degree,
-                wide.clone(),
-                now,
-            )
-        }
-    }));
-    enrolments.push(enrolment(
-        &GRADE_IMPROVEMENT,
-        CRS_GRADED_101,
-        RealisationKind::Degree,
-        wide.clone(),
-        now,
-    ));
-    enrolments.extend(on_crs_admin_101.iter().map(|fixture| {
+    let degree = |fixture: &MockPersonFixture, course_code: &str| {
         enrolment(
             fixture,
-            CRS_ADMIN_101,
+            course_code,
             RealisationKind::Degree,
             wide.clone(),
             now,
         )
-    }));
-    enrolments.push(enrolment(
-        &TWO_ENROLMENTS,
-        CRS_101,
-        RealisationKind::OpenUniversity,
-        wide.clone(),
-        now,
-    ));
+    };
+
+    let seeded_students = [
+        &STUDENT_6,
+        &STUDENT_7,
+        &STUDENT_8,
+        &CREDIT_REGISTRATION_STUDENT_1,
+        &CREDIT_REGISTRATION_STUDENT_2,
+        &CREDIT_REGISTRATION_STUDENT_3,
+        &CREDIT_REGISTRATION_STUDENT_4,
+        &CREDIT_REGISTRATION_STUDENT_5,
+        &CREDIT_REGISTRATION_STUDENT_6,
+    ];
+    let link_token_people = [&LINK_VALID, &LINK_EXPIRED, &LINK_USED];
+    let admin_roster = [
+        &CREDIT_REGISTRATION_STUDENT_1,
+        &ADMIN_STALE,
+        &TEACHER_RESEND_CAPPED,
+    ];
+
+    let mut persons: Vec<PersonUpsert> = seeded_students
+        .iter()
+        .chain(&link_token_people)
+        .map(|fixture| person(fixture))
+        .collect();
+    for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
+        persons.push(PersonUpsert {
+            // Sisu's live address must differ from the mailed history, or a resend hits the dedup
+            // guard (already mailed this address) before it ever reaches the cap it exists to
+            // demonstrate.
+            primary_email: Some(format!("current.{}", fixture.sisu_email)),
+            ..person(fixture)
+        });
+    }
+
+    let mut enrolments: Vec<EnrolmentUpsert> = LANE_COMPLETIONS
+        .iter()
+        .flat_map(|lane| {
+            lane.enrolments
+                .iter()
+                .map(|kind| enrolment(lane.student, lane.course_code, *kind, wide.clone(), now))
+        })
+        .collect();
+    // The replaced attempt pair `suotar-student-profile.spec.ts` reads.
+    enrolments.push(degree(&STUDENT_6, CRS_101));
+    enrolments.extend(link_token_people.iter().map(|f| degree(f, CRS_101)));
+    enrolments.extend(admin_roster.iter().map(|f| degree(f, CRS_ADMIN_101)));
+    enrolments.extend(
+        IMPORT_OUTCOME_COURSE_CODES
+            .iter()
+            .map(|course_code| degree(&STUDENT_8, course_code)),
+    );
+    enrolments.push(degree(&CREDIT_REGISTRATION_STUDENT_2, CRS_GRADED_101));
 
     let import_outcomes = [
         CourseUnitShape {
-            import_allowed: false,
+            carried_by_suotar: false,
             ..CourseUnitShape::new(CRS_IMPORT_101, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
         CourseUnitShape {
-            credits: Some(CreditRange { min: 1.0, max: 1.0 }),
+            credits: Some(CreditRange {
+                min: 5.0,
+                max: None,
+            }),
             ..CourseUnitShape::new(CRS_IMPORT_102, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
+        // Sisu refuses the send; the realisation with no end date is a shape the client must read.
         CourseUnitShape {
-            activity_period: Some(past),
+            is_open_ended: true,
             ..CourseUnitShape::new(CRS_IMPORT_103, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
+        // Graded on 0–5 in Sisu while the module registers pass/fail.
         CourseUnitShape {
-            acceptor: false,
+            grade_scale_id: "sis-0-5",
             ..CourseUnitShape::new(CRS_IMPORT_104, IMPORT_OUTCOMES_COURSE_SLUG, 5.0)
         },
     ];
+    let both_kinds = &[RealisationKind::Degree, RealisationKind::OpenUniversity];
 
     let mut course_units = vec![
         CourseUnitShape {
-            kinds: &[RealisationKind::Degree, RealisationKind::OpenUniversity],
+            kinds: both_kinds,
             ..CourseUnitShape::new(CRS_101, SUOTAR_COURSE_SLUG, 5.0)
         }
         .build(&wide),
-        CourseUnitShape::new(CRS_102, SUOTAR_COURSE_SLUG, 3.0).build(&wide),
+        CourseUnitShape {
+            kinds: both_kinds,
+            ..CourseUnitShape::new(CRS_B_101, SUOTAR_B_COURSE_SLUG, 5.0)
+        }
+        .build(&wide),
         CourseUnitShape {
             kinds: &[RealisationKind::OpenUniversity],
             ..CourseUnitShape::new(CRS_OLD_101, OLD_FLOW_COURSE_SLUG, 5.0)
         }
         .build(&wide),
         CourseUnitShape {
-            kinds: &[RealisationKind::Degree, RealisationKind::OpenUniversity],
+            kinds: both_kinds,
             ..CourseUnitShape::new(CRS_ADMIN_101, ADMIN_COURSE_SLUG, 5.0)
         }
         .build(&wide),
-        CourseUnitShape::new(CRS_STATES_101, STATES_COURSE_SLUG, 5.0).build(&wide),
         CourseUnitShape::new(CRS_RETRY_101, RETRY_COURSE_SLUG, 5.0).build(&wide),
         // Every other module is pass/fail, so grade improvement needs a graded one.
         CourseUnitShape {
@@ -532,23 +454,40 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         .build(&wide),
     ];
+    course_units.extend(STATES_COURSE_CODES.iter().map(|course_code| {
+        CourseUnitShape::new(course_code, STATES_COURSE_SLUG, 5.0).build(&wide)
+    }));
     course_units.extend(import_outcomes.into_iter().map(|shape| shape.build(&wide)));
 
     WorldPush {
-        defaults: Some(WorldDefaults {
-            ripeness: Ripeness::Manual,
-            ..WorldDefaults::default()
-        }),
+        defaults: Some(WorldDefaults::default()),
         persons,
         course_units,
         enrolments,
-        attainments: Vec::new(),
+        // In the world from the start, so no sweep sees the student without it and mails them.
+        attainments: vec![AttainmentUpsert {
+            id: None,
+            student_number: CREDIT_REGISTRATION_STUDENT_5.student_number.to_string(),
+            course_code: CRS_B_101.to_string(),
+            person_id: None,
+            kind: RealisationKind::Degree,
+            attainment_type: None,
+            state: None,
+            attainment_date: (now - Duration::days(400)).date_naive(),
+            registration_date: None,
+            grade_scale_id: "sis-hyl-hyv".to_string(),
+            grade_id: "1".to_string(),
+            passed: Some(true),
+            credits: None,
+        }],
         submissions: Vec::new(),
-        product_tokens: vec![
-            product_token(CRS_101),
-            product_token(CRS_OLD_101),
-            product_token(CRS_ADMIN_101),
-        ],
+        sisu_violations: vec![SisuViolationsUpsert {
+            student_number: STUDENT_8.student_number.to_string(),
+            course_code: CRS_IMPORT_103.to_string(),
+            violations: vec![
+                "Student must have an active study right on attainment date or on credit transfer date.".to_string(),
+            ],
+        }],
     }
 }
 
@@ -556,9 +495,9 @@ fn person(fixture: &MockPersonFixture) -> PersonUpsert {
     PersonUpsert {
         student_number: fixture.student_number.to_string(),
         person_id: Some(fixture.sisu_person_id()),
-        first_names: fixture.first_names.to_string(),
-        last_name: fixture.last_name.to_string(),
-        primary_email: fixture.sisu_email.to_string(),
+        first_names: Some(fixture.first_names.to_string()),
+        last_name: Some(fixture.last_name.to_string()),
+        primary_email: Some(fixture.sisu_email.to_string()),
         secondary_email: None,
         behaviour: PersonBehaviour::default(),
         owner_user_email: fixture.account_email.map(str::to_string),
@@ -580,12 +519,13 @@ fn enrolment(
         kind,
         state: EnrolmentState::Enrolled,
         study_right_id: None,
-        study_right_validity_period: validity,
-        enrolment_date_time: Some(enrolled_at),
+        study_right_validity_period: Some(validity),
+        study_right_grant_date: None,
+        enrolment_date_time: Some(Some(enrolled_at)),
     }
 }
 
-/// What the mock's realisation for one module looks like. The defaults are the working shape; the
+/// What the mock's course unit for one module looks like. The defaults are the working shape; the
 /// import-outcomes modules each break exactly one of them.
 struct CourseUnitShape<'a> {
     course_code: &'a str,
@@ -594,9 +534,9 @@ struct CourseUnitShape<'a> {
     kinds: &'a [RealisationKind],
     grade_scale_id: &'a str,
     credits: Option<CreditRange>,
-    activity_period: Option<DatePeriod>,
-    acceptor: bool,
-    import_allowed: bool,
+    carried_by_suotar: bool,
+    /// The realisations' activity periods have no end date.
+    is_open_ended: bool,
 }
 
 impl<'a> CourseUnitShape<'a> {
@@ -608,9 +548,8 @@ impl<'a> CourseUnitShape<'a> {
             kinds: &[RealisationKind::Degree],
             grade_scale_id: "sis-hyl-hyv",
             credits: None,
-            activity_period: None,
-            acceptor: true,
-            import_allowed: true,
+            carried_by_suotar: true,
+            is_open_ended: false,
         }
     }
 
@@ -624,6 +563,11 @@ impl<'a> CourseUnitShape<'a> {
             course_code: self.course_code.to_string(),
             course_unit_id: None,
             name: Some(name),
+            credits: Some(self.credits.unwrap_or(CreditRange {
+                min: self.ects,
+                max: Some(self.ects),
+            })),
+            grade_scale_id: Some(self.grade_scale_id.to_string()),
             realisations: self
                 .kinds
                 .iter()
@@ -632,42 +576,20 @@ impl<'a> CourseUnitShape<'a> {
                     name: None,
                     assessment_item_id: None,
                     kind: *kind,
-                    activity_period: self
-                        .activity_period
-                        .clone()
-                        .unwrap_or_else(|| activity_period.clone()),
-                    grade_scale_id: self.grade_scale_id.to_string(),
-                    credits: self.credits.clone().unwrap_or(CreditRange {
-                        min: self.ects,
-                        max: self.ects,
+                    activity_period: Some(DatePeriod {
+                        end_date: activity_period.end_date.filter(|_| !self.is_open_ended),
+                        ..activity_period.clone()
                     }),
-                    acceptor_person_id: self.acceptor.then(|| "hy-hlo-acceptor".to_string()),
-                    open_university_product_id: match kind {
-                        RealisationKind::OpenUniversity => Some(product_id(self.course_code)),
-                        RealisationKind::Degree => None,
-                    },
+                    grade_scale_id: None,
                 })
                 .collect(),
-            behaviour: CourseBehaviour {
-                import_allowed: self.import_allowed,
-            },
+            suotar_course: self.carried_by_suotar.then(|| SuotarCourse {
+                name: self.course_code.to_string(),
+            }),
+            behaviour: CourseBehaviour::default(),
             owner_course_slug: Some(self.course_slug.to_string()),
         }
     }
-}
-
-fn product_token(course_code: &str) -> ProductAccessTokenUpsert {
-    ProductAccessTokenUpsert {
-        open_university_product_id: product_id(course_code),
-        id: None,
-        access_token: None,
-        state: None,
-        document_state: None,
-    }
-}
-
-pub fn product_id(course_code: &str) -> String {
-    format!("otm-product-{}", course_code.to_lowercase())
 }
 
 #[cfg(test)]
@@ -683,29 +605,14 @@ mod tests {
             .as_ref()
             .map(|defaults| defaults.grade_scales.clone())
             .unwrap_or_default();
-        let product_ids: Vec<&String> = world
-            .product_tokens
-            .iter()
-            .map(|token| &token.open_university_product_id)
-            .collect();
 
         for unit in &world.course_units {
-            for realisation in &unit.realisations {
+            if let Some(scale_id) = &unit.grade_scale_id {
                 assert!(
-                    scales
-                        .iter()
-                        .any(|scale| scale.answers_to(&realisation.grade_scale_id)),
-                    "{} names an unknown grade scale {}",
-                    unit.course_code,
-                    realisation.grade_scale_id
+                    scales.iter().any(|scale| &scale.id == scale_id),
+                    "{} names an unknown grade scale {scale_id}",
+                    unit.course_code
                 );
-                if let Some(product_id) = &realisation.open_university_product_id {
-                    assert!(
-                        product_ids.contains(&product_id),
-                        "{} references a product token that was not pushed: {product_id}",
-                        unit.course_code
-                    );
-                }
             }
         }
 

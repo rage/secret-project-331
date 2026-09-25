@@ -151,7 +151,6 @@ const EmailTemplatesList: React.FC = () => {
         case "verify_email_address":
         case "credit_registration_action_needed":
         case "credit_registration_registered":
-        case "credit_registration_student_number_linked":
           return type
       }
     },

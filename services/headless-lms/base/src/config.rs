@@ -27,13 +27,6 @@ fn non_empty_env(key: &str) -> Option<String> {
     }
 }
 
-/// Reads an integer env var, falling back to `default` when unset, blank or unparseable.
-fn i64_env_or(key: &str, default: i64) -> i64 {
-    non_empty_env(key)
-        .and_then(|value| value.parse().ok())
-        .unwrap_or(default)
-}
-
 /// Parses a [`Url::join`] base, adding the trailing slash one needs: joining onto a base without it
 /// replaces the base's last path segment instead of extending it.
 ///
@@ -191,28 +184,24 @@ impl ApplicationConfiguration {
     }
 }
 
-/// TODO: Suotar has not confirmed whether they want `Basic` or `Bearer`; `Basic` is what they
-/// already accept on the legacy study-registry path.
-pub const SUOTAR_AUTH_SCHEME: &str = "Basic";
+/// The scheme word Suotar requires before the API key.
+pub const SUOTAR_AUTH_SCHEME: &str = "Bearer";
 
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
 
-/// Auto-links a student number when Sisu's address matches a verified account email. The same flag
-/// is the kill switch that stops it during an incident.
-const FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT: bool = false;
+/// Enrolment discovery, the linking mails and their resends. Off where students get their number
+/// linked some other way.
+const ACCOUNT_LINKING_ENABLED_DEFAULT: bool = false;
 
-/// Days an `email_verified_at` may be old and still count as fast-track proof. Bounded because a
-/// deprovisioned university address can be reissued to somebody else.
-const FAST_TRACK_MAX_EMAIL_VERIFICATION_AGE_DAYS_DEFAULT: i64 = 365;
-
+/// Where and how to reach Suotar's moocfi API. In production the base url is
+/// `https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/`.
 #[derive(Clone)]
 pub struct SuotarConfiguration {
     /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
     pub api_base_url: Url,
     pub api_token: SecretString,
-    pub fast_track_email_match_enabled: bool,
-    pub fast_track_max_email_verification_age_days: i64,
+    pub account_linking_enabled: bool,
 }
 
 impl SuotarConfiguration {
@@ -224,8 +213,7 @@ impl SuotarConfiguration {
                 .context("Invalid URL in BASE_URL")?
                 .join("/api/v0/mock-suotar/")?,
             api_token: SecretString::new(MOCK_SUOTAR_TOKEN.to_string().into()),
-            fast_track_email_match_enabled: Self::fast_track_enabled_from_env(),
-            fast_track_max_email_verification_age_days: Self::fast_track_max_age_from_env(),
+            account_linking_enabled: Self::account_linking_enabled_from_env(),
         })
     }
 
@@ -233,31 +221,22 @@ impl SuotarConfiguration {
         Self::from_values(
             non_empty_env("SUOTAR_API_BASE_URL"),
             non_empty_env("SUOTAR_API_KEY"),
-            Self::fast_track_enabled_from_env(),
-            Self::fast_track_max_age_from_env(),
+            Self::account_linking_enabled_from_env(),
         )
     }
 
-    fn fast_track_enabled_from_env() -> bool {
-        match non_empty_env("SUOTAR_FAST_TRACK_EMAIL_MATCH_ENABLED") {
-            Some(_) => bool_env_false_by_default("SUOTAR_FAST_TRACK_EMAIL_MATCH_ENABLED"),
-            None => FAST_TRACK_EMAIL_MATCH_ENABLED_DEFAULT,
+    fn account_linking_enabled_from_env() -> bool {
+        match non_empty_env("SUOTAR_ACCOUNT_LINKING_ENABLED") {
+            Some(_) => bool_env_false_by_default("SUOTAR_ACCOUNT_LINKING_ENABLED"),
+            None => ACCOUNT_LINKING_ENABLED_DEFAULT,
         }
-    }
-
-    fn fast_track_max_age_from_env() -> i64 {
-        i64_env_or(
-            "SUOTAR_FAST_TRACK_MAX_EMAIL_VERIFICATION_AGE_DAYS",
-            FAST_TRACK_MAX_EMAIL_VERIFICATION_AGE_DAYS_DEFAULT,
-        )
     }
 
     /// Pure so the no-mock-fallback rule can be tested without touching process env.
     fn from_values(
         api_base_url: Option<String>,
         api_token: Option<String>,
-        fast_track_email_match_enabled: bool,
-        fast_track_max_email_verification_age_days: i64,
+        account_linking_enabled: bool,
     ) -> anyhow::Result<Self> {
         let api_base_url = api_base_url.context(
             "SUOTAR_API_BASE_URL must be defined unless TEST_MODE and USE_MOCK_SUOTAR_ENDPOINT are both on. Credit registration writes to the real student registry, so there is no mock fallback.",
@@ -269,8 +248,7 @@ impl SuotarConfiguration {
             api_base_url: parse_join_base(&api_base_url)
                 .context("Invalid URL in SUOTAR_API_BASE_URL")?,
             api_token: SecretString::new(api_token.into()),
-            fast_track_email_match_enabled,
-            fast_track_max_email_verification_age_days,
+            account_linking_enabled,
         })
     }
 }
@@ -553,25 +531,21 @@ mod tests {
 
     #[test]
     fn suotar_configuration_has_no_mock_fallback() {
-        assert!(SuotarConfiguration::from_values(None, None, false, 365).is_err());
+        assert!(SuotarConfiguration::from_values(None, None, false).is_err());
         assert!(
             SuotarConfiguration::from_values(
                 Some("https://suotar.example.com/api".to_string()),
                 None,
-                false,
-                365
+                false
             )
             .is_err()
         );
-        assert!(
-            SuotarConfiguration::from_values(None, Some("token".to_string()), false, 365).is_err()
-        );
+        assert!(SuotarConfiguration::from_values(None, Some("token".to_string()), false).is_err());
         assert!(
             SuotarConfiguration::from_values(
                 Some("https://suotar.example.com/api".to_string()),
                 Some("token".to_string()),
-                false,
-                365
+                false
             )
             .is_ok()
         );
@@ -582,22 +556,21 @@ mod tests {
     #[test]
     fn suotar_configuration_normalises_the_join_base() {
         let conf = SuotarConfiguration::from_values(
-            Some("https://suotar.example.com/api".to_string()),
+            Some("https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi".to_string()),
             Some("token".to_string()),
             false,
-            365,
         )
         .expect("valid fixture values");
         assert_eq!(
             conf.api_base_url.as_str(),
-            "https://suotar.example.com/api/"
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/"
         );
         assert_eq!(
             conf.api_base_url
                 .join("persons/resolve-by-student-numbers")
                 .expect("a relative join on a base ending in a slash")
                 .as_str(),
-            "https://suotar.example.com/api/persons/resolve-by-student-numbers"
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/persons/resolve-by-student-numbers"
         );
     }
 
@@ -695,13 +668,5 @@ mod tests {
             "http://project-331.local/api/v0/mock-suotar/"
         );
         assert_eq!(conf.api_token.expose_secret(), MOCK_SUOTAR_TOKEN);
-    }
-
-    #[test]
-    fn fast_track_defaults_are_off_and_a_year() {
-        let conf = SuotarConfiguration::mock_conf("http://project-331.local")
-            .expect("valid fixture values");
-        assert!(!conf.fast_track_email_match_enabled);
-        assert_eq!(conf.fast_track_max_email_verification_age_days, 365);
     }
 }

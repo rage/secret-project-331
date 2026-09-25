@@ -327,7 +327,7 @@ mod test {
         let second_user = crate::users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            "ordering@example.org",
+            "ordering@example.com",
             None,
             None,
         )

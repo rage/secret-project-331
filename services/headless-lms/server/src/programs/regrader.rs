@@ -4,7 +4,7 @@ use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests;
 use crate::programs::periodic_worker::{
-    PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
+    PeriodicWorkerConfig, StillRunningLog, is_db_disconnect, run_periodic_worker,
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
@@ -33,9 +33,11 @@ pub async fn main() -> anyhow::Result<()> {
     run_periodic_worker(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(10),
-            still_running_every: 60,
-            still_running_message: "running the regrader",
-            initial_ticks: 60,
+            still_running: Some(StillRunningLog {
+                every: 60,
+                message: "running the regrader",
+                initial_ticks: 60,
+            }),
             delay_missed_ticks: false,
         },
         async || {

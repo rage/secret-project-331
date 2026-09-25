@@ -5,9 +5,12 @@ import {
   courseFrontPageUrl,
   CREDIT_REGISTRATIONS_API,
   CRS_101,
+  CRS_101_ENROLMENT_LINK,
   getJson,
   type MyCreditRegistration,
   seededStudentStorageState,
+  STUDENT_7,
+  STUDENT_8,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -15,25 +18,25 @@ import { activeStudyRightPeriod, upsertMockSuotarEnrolments } from "@/utils/mock
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
+  expireEnrolmentRecheckAllowance,
   runMaterializeTick,
   runPreconditionsTick,
-  runProductTokenRefreshTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns student numbers `9000015xx` and reads the seeded chapter page of
- * `credit-registration-via-suotar`.
+ * Owns `student7` and `student8` on `credit-registration-via-suotar`, and reads its seeded chapter
+ * page.
  *
  * The banner's substance — a working enrolment link and a check-again action on a missing enrolment
  * — is asserted on the status page in suotar-enrolment-problems.spec.ts. What is only testable here
  * is where it appears, that it does not block reading, and that its visibility follows the ledger
  * state rather than the browser.
  */
-const STUCK_EMAIL = "credit-registration-banner-stuck@example.com"
-const REENROLS_EMAIL = "credit-registration-banner-reenrols@example.com"
-const REENROLS_STUDENT_NUMBER = "900001502"
+const STUCK_EMAIL = STUDENT_7.email
+const REENROLS_EMAIL = STUDENT_8.email
+const REENROLS_STUDENT_NUMBER = STUDENT_8.studentNumber
 
 const CHAPTER_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1/page-1`
 const CHAPTER_FRONT_PAGE_URL = `${courseFrontPageUrl(SUOTAR_COURSE_SLUG)}/chapter-1`
@@ -47,8 +50,7 @@ const parkOnMissingEnrolment = async (
   adminApi: APIRequestContext,
   userEmail: string,
 ) => {
-  const scope = { userEmail }
-  await runProductTokenRefreshTick(page.request, { courseSlug: SUOTAR_COURSE_SLUG })
+  const scope = { userEmail, courseSlug: SUOTAR_COURSE_SLUG }
   await runMaterializeTick(page.request, scope)
   await runPreconditionsTick(page.request, scope)
   await runResolveEnrolmentsTick(page.request, scope)
@@ -70,7 +72,9 @@ test.describe("A student the University has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
+    // The park itself was a check, and the button stays hidden for an hour after one.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)
@@ -80,8 +84,8 @@ test.describe("A student the University has no enrolment for", () => {
     await expect(notice.getByText("Enrolment needed")).toBeVisible()
     await expect(
       notice.getByRole("link", { name: "Enrol at the Open University" }),
-    ).toHaveAttribute("href", /token/)
-    await expect(notice.getByRole("button", { name: "I have enrolled, check again" })).toBeVisible()
+    ).toHaveAttribute("href", CRS_101_ENROLMENT_LINK)
+    await expect(notice.getByRole("button", { name: "I have enrolled" })).toBeVisible()
 
     await test.step("It is a banner, not a dialog", async () => {
       await expect(page.getByRole("dialog")).toHaveCount(0)
@@ -96,7 +100,7 @@ test.describe("A student the University has no enrolment for", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: STUCK_EMAIL }
+    const scope = { userEmail: STUCK_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
     const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
 
     await page.goto(CHAPTER_PAGE_URL)
@@ -112,6 +116,7 @@ test.describe("A student the University has no enrolment for", () => {
     })
 
     await test.step("A new run of the same problem brings it back", async () => {
+      await expireEnrolmentRecheckAllowance(page.request, parked.id)
       const recheck = await page.request.post(
         `${CREDIT_REGISTRATIONS_API}/my/${parked.id}/recheck-enrolment`,
       )
@@ -136,8 +141,10 @@ test.describe("A student who enrols after being told to", () => {
     page,
     adminApi,
   }) => {
-    const scope = { userEmail: REENROLS_EMAIL }
-    await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    const scope = { userEmail: REENROLS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
+    const parked = await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
+    // The park itself was a look, so the button would otherwise wait out the hour.
+    await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
     await selectCourseInstanceIfPrompted(page)
@@ -163,7 +170,7 @@ test.describe("A student who enrols after being told to", () => {
       await waitForSuccessNotification(
         page,
         async () => {
-          await banner(page).getByRole("button", { name: "I have enrolled, check again" }).click()
+          await banner(page).getByRole("button", { name: "I have enrolled" }).click()
         },
         "Success",
       )

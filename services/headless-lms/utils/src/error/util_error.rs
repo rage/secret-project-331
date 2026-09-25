@@ -57,6 +57,9 @@ pub enum SuotarErrorVariant {
     MalformedRequest,
     /// Another 4xx carrying the documented `{ error: { code, message } }` body.
     RequestLevelError,
+    /// Suotar's 503 `serviceTemporarilyUnavailable`: an importer lookup failed before anything was
+    /// written or sent.
+    ServiceTemporarilyUnavailable,
     ServerError,
     /// The connection itself failed, so the request provably never arrived.
     TransportNotDelivered,
@@ -71,16 +74,17 @@ impl SuotarErrorVariant {
     /// verified rather than re-sent, or a transcript gets a second attainment.
     ///
     /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
-    /// business logic, so it is as resendable as a connection that never opened
-    /// (`TransportNotDelivered`); a genuine 5xx (`ServerError`), a response that never arrived
-    /// (`TransportUnknown`), or one that arrived malformed (`Deserialization`) all leave the
-    /// outcome unknown.
+    /// business logic, and `ServiceTemporarilyUnavailable` stops before anything is written, so
+    /// both are as resendable as a connection that never opened (`TransportNotDelivered`); any
+    /// other 5xx (`ServerError`), a response that never arrived (`TransportUnknown`), or one that
+    /// arrived malformed (`Deserialization`) all leave the outcome unknown.
     pub fn outcome_may_have_landed(self) -> bool {
         !matches!(
             self,
             Self::Unauthorized
                 | Self::MalformedRequest
                 | Self::RequestLevelError
+                | Self::ServiceTemporarilyUnavailable
                 | Self::TransportNotDelivered
         )
     }

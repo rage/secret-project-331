@@ -7,9 +7,12 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
+use crate::library::credit_registration::grade_mapping::{GradeSource, MappedGrade, map_grade};
 use crate::library::credit_registration::{
     CreditRegistrationPendingReason, PendingPreconditions, PendingReasonCounts, StageMatch,
     StudentFacingCreditRegistrationStatus,
@@ -123,10 +126,12 @@ impl CreditRegistrationState {
                 S::Blocked,
                 S::Cancelled,
             ],
-            // No `ready_to_submit`: a resolve call is out, and only that phase's own commit may
-            // move the row, or import could claim it before the enrolment is resolved.
+            // `ready_to_submit` only once the recovery grace has passed: while a resolve call is
+            // out, only that phase's own commit may move the row, or import could claim it before
+            // the enrolment is resolved.
             S::ResolvingEnrolment => &[
                 S::Pending,
+                S::ReadyToSubmit,
                 S::CheckingEnrolment,
                 S::NoUsableEnrolment,
                 S::Duplicate,
@@ -159,11 +164,22 @@ impl CreditRegistrationState {
                 S::FailedRetryable,
                 S::FailedPermanent,
             ],
-            // Both poller states: verify is the only path to `registered`, and neither may reach a
-            // state that leads back to import.
-            S::AwaitingVerification | S::SubmissionUncertain => {
-                &[S::Registered, S::Duplicate, S::Misregistered]
-            }
+            // Both poller states: verify is the only path to `registered`. `failed_retryable` leads
+            // back to import, and only Suotar's own `notRegistered` may take it.
+            S::AwaitingVerification => &[
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::FailedRetryable,
+            ],
+            // `awaiting_verification` once verify finds evidence that the submission landed.
+            S::SubmissionUncertain => &[
+                S::AwaitingVerification,
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::FailedRetryable,
+            ],
             // The backoff elapsing resumes the row at whichever state matches how far it had got.
             S::FailedRetryable => &[
                 S::Pending,
@@ -188,16 +204,16 @@ impl CreditRegistrationState {
 
     /// Whether a row in `self` may move back to `ready_to_submit`, and why not if it may not.
     ///
-    /// One precedence shared by the teacher-facing retry and the admin ledger's hand transitions,
-    /// which otherwise refuse the same rows for the same reasons in three independently maintained
-    /// copies. `strictness` is the one real difference between the callers: how far outside a
-    /// failure a row may still be moved from. Superseded is checked first regardless, since acting
-    /// on a replaced attempt is never right, and an outcome the registry already holds next, since
-    /// no strictness may resubmit over one.
+    /// One precedence shared by the teacher-facing retry and the admin ledger's hand transitions;
+    /// `strictness` is how far outside a failure a caller may move a row from. A row that has been
+    /// sent is refused at every strictness unless its state says the submission cannot count twice,
+    /// so `awaiting_verification` -> `cancelled` -> `ready_to_submit` cannot launder a resend.
     pub fn resubmission_refusal(
         self,
         superseded: bool,
         strictness: ResubmissionStrictness,
+        resubmit_not_before: Option<DateTime<Utc>>,
+        submitted_at: Option<DateTime<Utc>>,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
             return Some(ResubmissionRefusal::Superseded);
@@ -205,15 +221,52 @@ impl CreditRegistrationState {
         if self.is_success() {
             return Some(ResubmissionRefusal::AlreadySucceeded);
         }
+        if matches!(self, Self::Submitting | Self::AwaitingVerification) {
+            return Some(ResubmissionRefusal::AlreadySubmitted);
+        }
         if strictness != ResubmissionStrictness::Any && self == Self::SubmissionUncertain {
             return Some(ResubmissionRefusal::SubmissionUncertain);
+        }
+        if submitted_at.is_some() && !self.may_resend_after_sending(strictness) {
+            return Some(ResubmissionRefusal::AlreadySubmitted);
         }
         if strictness == ResubmissionStrictness::OnlyFailedPermanent
             && self != Self::FailedPermanent
         {
             return Some(ResubmissionRefusal::NotFailedPermanent);
         }
+        if resubmit_not_before.is_some_and(|not_before| Utc::now() < not_before) {
+            return Some(ResubmissionRefusal::SubmissionPending);
+        }
         None
+    }
+
+    /// Whether a row that has been sent may be sent again from this state. The outcomes lead a
+    /// possibly landed import back towards `import` only on Suotar's `notRegistered`, so the pipeline
+    /// states here mean nothing landed.
+    fn may_resend_after_sending(self, strictness: ResubmissionStrictness) -> bool {
+        match self {
+            Self::Pending
+            | Self::ReadyToSubmit
+            | Self::ResolvingEnrolment
+            | Self::CheckingEnrolment
+            | Self::NoUsableEnrolment
+            | Self::FailedRetryable
+            | Self::FailedPermanent
+            | Self::Blocked => true,
+            // Whether the attainment landed, or Sisu voided it, is for someone looking at this one
+            // row to have checked.
+            Self::SubmissionUncertain | Self::Misregistered => {
+                strictness == ResubmissionStrictness::Any
+            }
+            // `cancelled` may be a hand cancellation of a row still awaiting verification.
+            Self::Submitting
+            | Self::AwaitingVerification
+            | Self::Registered
+            | Self::Duplicate
+            | Self::NotImproved
+            | Self::Cancelled => false,
+        }
     }
 
     /// Why a hand transition of this row to `target` is refused, or `None` if it may go ahead.
@@ -222,12 +275,15 @@ impl CreditRegistrationState {
     /// the edge table says the move exists, this says whether this row may take it. A row whose
     /// outcome the study registry already holds is refused whatever the target, because `cancelled`
     /// is a legal step on to `ready_to_submit` and would otherwise launder a second submission for
-    /// a credit Sisu has. `strictness` is how the caller treats `submission_uncertain`.
+    /// a credit Sisu has. Cancelling a `submitting` row is refused too, since its request is still in
+    /// flight. `ready_to_submit` is decided by [`resubmission_refusal`](Self::resubmission_refusal).
     pub fn admin_transition_refusal(
         self,
         target: Self,
         superseded: bool,
         strictness: ResubmissionStrictness,
+        resubmit_not_before: Option<DateTime<Utc>>,
+        submitted_at: Option<DateTime<Utc>>,
     ) -> Option<ResubmissionRefusal> {
         if superseded {
             return Some(ResubmissionRefusal::Superseded);
@@ -235,10 +291,40 @@ impl CreditRegistrationState {
         if self.is_success() {
             return Some(ResubmissionRefusal::AlreadySucceeded);
         }
+        if target == Self::Cancelled && self == Self::Submitting {
+            return Some(ResubmissionRefusal::AlreadySubmitted);
+        }
         if target != Self::ReadyToSubmit {
             return None;
         }
-        self.resubmission_refusal(false, strictness)
+        self.resubmission_refusal(false, strictness, resubmit_not_before, submitted_at)
+    }
+
+    /// What an attempt entering `self` does to the rows it was sent to replace; see
+    /// [`mark_pending_superseded`].
+    fn pending_supersession_effect(self) -> PendingSupersessionEffect {
+        use PendingSupersessionEffect as Effect;
+        match self {
+            Self::Registered | Self::Duplicate => Effect::Complete,
+            // Frozen and still headed for Sisu, or already in the person-module slot. A
+            // `not_improved` row keeps the slot, so the row it was meant to replace stays out of it.
+            Self::CheckingEnrolment
+            | Self::Submitting
+            | Self::SubmissionUncertain
+            | Self::AwaitingVerification
+            | Self::FailedRetryable
+            | Self::NotImproved => Effect::Keep,
+            // Nothing of this attempt is in Sisu, and it goes through resolve-enrolments again,
+            // which weighs it afresh, before anything more is sent.
+            Self::Pending
+            | Self::ReadyToSubmit
+            | Self::ResolvingEnrolment
+            | Self::NoUsableEnrolment
+            | Self::Misregistered
+            | Self::FailedPermanent
+            | Self::Blocked
+            | Self::Cancelled => Effect::Abandon,
+        }
     }
 
     /// How long a row entering this state waits before the pipeline may claim it again, when the
@@ -249,17 +335,26 @@ impl CreditRegistrationState {
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
     fn default_attempt_delay_secs(self) -> i64 {
         use crate::library::credit_registration::backoff::{
-            NO_USABLE_ENROLMENT_RECHECK_SECS, SUBMIT_BASE_BACKOFF_SECS, UNCERTAIN_RECHECK_SECS,
-            VERIFY_FIRST_DELAY_SECS,
+            NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS, SUBMIT_BASE_BACKOFF_SECS,
+            UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
         };
         match self {
             Self::AwaitingVerification => VERIFY_FIRST_DELAY_SECS,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK_SECS,
-            Self::NoUsableEnrolment => NO_USABLE_ENROLMENT_RECHECK_SECS,
+            Self::NoUsableEnrolment => NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS[0],
             Self::FailedRetryable => SUBMIT_BASE_BACKOFF_SECS,
             _ => 0,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PendingSupersessionEffect {
+    Keep,
+    /// The replaced rows become superseded by this one.
+    Complete,
+    /// The replaced rows are the live credit again.
+    Abandon,
 }
 
 /// The edges only a hand transition may take, from any state [`admin_transition_refusal`] does not
@@ -278,7 +373,7 @@ pub enum ResubmissionStrictness {
     /// The automatic teacher retry: only a row that failed for good may go back on the pipeline,
     /// because a row this always refuses would otherwise occupy a slot of the bulk cap forever.
     OnlyFailedPermanent,
-    /// An admin's bulk hand transition: any state may move, except `submission_uncertain`, which
+    /// An admin's bulk hand transition: [`Self::Any`] minus `submission_uncertain`, which
     /// re-importing could put a second attainment on a real transcript over, so it needs a human
     /// looking at that one row rather than a checkbox in a list.
     AnyExceptSubmissionUncertain,
@@ -303,6 +398,11 @@ pub enum ResubmissionRefusal {
     SubmissionUncertain,
     /// Not a failure at all: [`ResubmissionStrictness::OnlyFailedPermanent`] only.
     NotFailedPermanent,
+    /// Suotar still holds the earlier submission open, and may yet turn it into an attainment.
+    SubmissionPending,
+    /// Already sent to Suotar with no final answer on this row: acting again risks a second Sisu
+    /// attainment before the first is resolved.
+    AlreadySubmitted,
 }
 
 /// Why a ledger row is where it is; `state` says what happens to it next.
@@ -318,14 +418,15 @@ pub enum CreditRegistrationErrorCode {
     EnrolmentNotFound,
     EnrolmentNotAccepted,
     InvalidGradeForGradeScale,
+    GradeScaleMismatch,
     CourseNotAllowed,
     InvalidCredits,
     StudyRightNotValid,
-    AcceptorNotFound,
     SisuValidationFailed,
     SisuTimeout,
-    SisuTemporarilyUnavailable,
+    ServiceTemporarilyUnavailable,
     Misregistered,
+    NotRegistered,
     Unauthorized,
     MalformedRequest,
     TransportError,
@@ -339,20 +440,21 @@ pub enum CreditRegistrationErrorCode {
 
 impl CreditRegistrationErrorCode {
     /// Every code, so the retryability classification can be proven total at runtime too.
-    pub const ALL: [Self; 22] = [
+    pub const ALL: [Self; 23] = [
         Self::PersonNotFound,
         Self::CourseCodeNotFound,
         Self::EnrolmentNotFound,
         Self::EnrolmentNotAccepted,
         Self::InvalidGradeForGradeScale,
+        Self::GradeScaleMismatch,
         Self::CourseNotAllowed,
         Self::InvalidCredits,
         Self::StudyRightNotValid,
-        Self::AcceptorNotFound,
         Self::SisuValidationFailed,
         Self::SisuTimeout,
-        Self::SisuTemporarilyUnavailable,
+        Self::ServiceTemporarilyUnavailable,
         Self::Misregistered,
+        Self::NotRegistered,
         Self::Unauthorized,
         Self::MalformedRequest,
         Self::TransportError,
@@ -365,7 +467,7 @@ impl CreditRegistrationErrorCode {
     ];
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct CreditRegistration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -382,8 +484,8 @@ pub struct CreditRegistration {
     pub error_message: Option<String>,
     pub needs_admin_attention: bool,
     pub enrolment_banner_dismissed_at: Option<DateTime<Utc>>,
-    pub student_number: Option<String>,
-    pub sisu_person_id: Option<String>,
+    pub student_number: Option<DbSecret>,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
@@ -393,7 +495,6 @@ pub struct CreditRegistration {
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub submitted_attainment_type: Option<String>,
     pub sisu_attainment_id: Option<String>,
@@ -417,6 +518,19 @@ pub struct CreditRegistration {
     /// The completion revision the grade-improvement scan last found no improvement against. See
     /// [`mark_improvement_checked`].
     pub improvement_checked_completion_updated_at: Option<DateTime<Utc>>,
+    /// Set while verify sees only an assessment item attainment for the submission.
+    pub partially_registered_at: Option<DateTime<Utc>>,
+    pub not_registered_reimport_count: i32,
+    /// Localized `{fi, sv, en}` name of the chosen enrolment's realisation, as Suotar reported it.
+    pub selected_enrolment_realisation_name: Option<serde_json::Value>,
+    /// Suotar's `retryAfter` for a pending submission; resubmitting earlier may duplicate it.
+    pub resubmit_not_before: Option<DateTime<Utc>>,
+    /// A later attempt on its way to replace this registered row; see [`mark_pending_superseded`].
+    /// Until it lands this row is still the credit Sisu holds.
+    pub pending_superseded_by_id: Option<Uuid>,
+    /// When the pipeline first found no usable enrolment, held across the rechecks that keep finding
+    /// none; what the recheck schedule is timed from.
+    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -429,48 +543,7 @@ pub struct NewCreditRegistration {
     pub attempt_number: i32,
 }
 
-/// The item id Suotar sees for the import and resolve calls. Deterministic, so a Suotar log line
-/// maps to one ledger row without an id allocation table.
-pub fn import_request_item_id(registration_id: Uuid) -> String {
-    format!("cr-{registration_id}")
-}
-
-/// The item id Suotar sees for one verify poll.
-pub fn verify_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
-    format!("vf-{registration_id}-{verify_attempt_count}")
-}
-
-/// The item id Suotar sees for one look through a student's attainments for a submission we lost
-/// track of.
-pub fn recovery_request_item_id(registration_id: Uuid, verify_attempt_count: i32) -> String {
-    format!("rc-{registration_id}-{verify_attempt_count}")
-}
-
-/// Which call a request item id addresses a row for.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RequestPurpose {
-    /// Carrying the row's payload forward: `resolve-enrolments` and then `import`. The row's own
-    /// stored id, unchanged across retries, because it is the handle Suotar's log and ours share on
-    /// one registration.
-    Submission,
-    VerifyPoll(i32),
-    /// A recovery lookup, which goes to `resolve-enrolments` too: under the submission id it would
-    /// be indistinguishable from the row's own resolve call in the registry's log.
-    UncertainRecovery(i32),
-}
-
-/// What one registration is called in a request. The one place a sender picks an item id, so two
-/// calls about one row stay tellable apart in both logs.
-pub fn request_item_id(row: &CreditRegistration, purpose: RequestPurpose) -> String {
-    match purpose {
-        RequestPurpose::Submission => row.request_item_id.clone(),
-        RequestPurpose::VerifyPoll(attempt) => verify_request_item_id(row.id, attempt),
-        RequestPurpose::UncertainRecovery(attempt) => recovery_request_item_id(row.id, attempt),
-    }
-}
-
-/// Creates a ledger row at `pending` with a `created` event. The id is allocated here
-/// because `request_item_id` derives from it.
+/// Creates a ledger row at `pending` with a `created` event.
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -488,10 +561,9 @@ INSERT INTO credit_registrations (
     course_id,
     course_module_id,
     course_instance_id,
-    attempt_number,
-    request_item_id
+    attempt_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
         id,
         new.course_module_completion_id,
@@ -500,7 +572,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         new.course_module_id,
         new.course_instance_id,
         new.attempt_number,
-        import_request_item_id(id),
     )
     .execute(&mut *tx)
     .await?;
@@ -531,6 +602,8 @@ pub struct Transition {
     pub suotar_api_call_id: Option<Uuid>,
     /// Already scrubbed `{request, response}` payload for the event row.
     pub event_details: Option<serde_json::Value>,
+    /// The requestItemId the row went out under in the call behind this move.
+    pub request_item_id: Option<String>,
     /// Set by a caller that computed `to_state` from a row snapshot taken before an `await` (an
     /// external call, or a gap before its own transaction) during which some other writer could
     /// have moved the row on. `None` skips the check, for callers writing from a snapshot taken
@@ -579,6 +652,7 @@ impl Transition {
             actor_user_id: None,
             suotar_api_call_id: None,
             event_details: None,
+            request_item_id: None,
             expected_from_state: None,
             policy: TransitionPolicy::Pipeline,
             next_attempt_at: None,
@@ -609,10 +683,11 @@ impl Transition {
 /// Deliberately not `PreconditionFailed`, which the phases read as "another writer got here first"
 /// and skip over.
 ///
-/// Owns the lifecycle stamps, so callers must not touch them: `state_entered_at`, `terminal_at`,
-/// `first_failed_at`, `registered_at`, `submitted_at`, `enrolment_checked_at`,
-/// `enrolment_banner_dismissed_at`, which entering `no_usable_enrolment` clears, and
-/// `next_attempt_at`, which takes the target state's default cadence unless the caller names a time.
+/// Owns the lifecycle stamps, so callers must not touch them (bar [`reset_for_resubmission`]
+/// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at`,
+/// `registered_at`, `submitted_at`, `enrolment_checked_at`, `enrolment_banner_dismissed_at`, which
+/// entering `no_usable_enrolment` clears, `no_usable_enrolment_since`, and `next_attempt_at`, which
+/// takes the target state's default cadence unless the caller names a time.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -678,6 +753,8 @@ SET state = $2::credit_registration_state,
     ELSE submitted_at
   END,
   enrolment_checked_at = CASE
+    WHEN state = 'resolving_enrolment'
+    AND $2::credit_registration_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()
     WHEN state = 'checking_enrolment'
     AND $2::credit_registration_state <> 'checking_enrolment' THEN now()
     ELSE enrolment_checked_at
@@ -685,6 +762,16 @@ SET state = $2::credit_registration_state,
   enrolment_banner_dismissed_at = CASE
     WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL
     ELSE enrolment_banner_dismissed_at
+  END,
+  -- The recheck loop passes through these on its way back to no_usable_enrolment.
+  no_usable_enrolment_since = CASE
+    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN COALESCE(no_usable_enrolment_since, now())
+    WHEN $2::credit_registration_state IN (
+      'ready_to_submit',
+      'resolving_enrolment',
+      'failed_retryable'
+    ) THEN no_usable_enrolment_since
+    ELSE NULL
   END,
   next_attempt_at = COALESCE(
     $8::timestamptz,
@@ -707,6 +794,8 @@ RETURNING *
     .fetch_one(&mut *tx)
     .await?;
 
+    settle_pending_supersessions(&mut tx, &[(id, to_state)]).await?;
+
     crate::credit_registration_events::insert(
         &mut tx,
         &NewCreditRegistrationEvent {
@@ -719,12 +808,57 @@ RETURNING *
             suotar_api_call_id: transition.suotar_api_call_id,
             actor_user_id: transition.actor_user_id,
             details: transition.event_details.clone(),
+            request_item_id: transition.request_item_id.clone(),
         },
     )
     .await?;
 
     tx.commit().await?;
     Ok(after)
+}
+
+/// Completes or abandons the pending supersessions of rows that were waiting on these attempts, as
+/// each attempt's new state decides.
+async fn settle_pending_supersessions(
+    conn: &mut PgConnection,
+    moves: &[(Uuid, CreditRegistrationState)],
+) -> ModelResult<()> {
+    let mut completed = Vec::new();
+    let mut abandoned = Vec::new();
+    for &(id, to_state) in moves {
+        match to_state.pending_supersession_effect() {
+            PendingSupersessionEffect::Keep => {}
+            PendingSupersessionEffect::Complete => completed.push(id),
+            PendingSupersessionEffect::Abandon => abandoned.push(id),
+        }
+    }
+    if completed.is_empty() && abandoned.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET superseded_by_id = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN pending_superseded_by_id
+    ELSE superseded_by_id
+  END,
+  superseded_at = CASE
+    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN now()
+    ELSE superseded_at
+  END,
+  pending_superseded_by_id = NULL
+WHERE (
+    pending_superseded_by_id = ANY($1::uuid [])
+    OR pending_superseded_by_id = ANY($2::uuid [])
+  )
+  AND deleted_at IS NULL
+        "#,
+        &completed,
+        &abandoned,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// Refuses an edge outside the policy. The one place (from → to) legality is decided, for the
@@ -807,6 +941,7 @@ UPDATE
             suotar_api_call_id: batch_move.transition.suotar_api_call_id,
             actor_user_id: batch_move.transition.actor_user_id,
             details: batch_move.transition.event_details.clone(),
+            request_item_id: batch_move.transition.request_item_id.clone(),
         });
     }
     if writes.is_empty() {
@@ -869,6 +1004,8 @@ SET state = move.to_state,
     ELSE cr.submitted_at
   END,
   enrolment_checked_at = CASE
+    WHEN cr.state = 'resolving_enrolment'
+    AND move.to_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()
     WHEN cr.state = 'checking_enrolment'
     AND move.to_state <> 'checking_enrolment' THEN now()
     ELSE cr.enrolment_checked_at
@@ -876,6 +1013,16 @@ SET state = move.to_state,
   enrolment_banner_dismissed_at = CASE
     WHEN move.to_state = 'no_usable_enrolment' THEN NULL
     ELSE cr.enrolment_banner_dismissed_at
+  END,
+  -- The recheck loop passes through these on its way back to no_usable_enrolment.
+  no_usable_enrolment_since = CASE
+    WHEN move.to_state = 'no_usable_enrolment' THEN COALESCE(cr.no_usable_enrolment_since, now())
+    WHEN move.to_state IN (
+      'ready_to_submit',
+      'resolving_enrolment',
+      'failed_retryable'
+    ) THEN cr.no_usable_enrolment_since
+    ELSE NULL
   END,
   next_attempt_at = COALESCE(
     move.next_attempt_at,
@@ -917,6 +1064,9 @@ WHERE cr.id = move.id
     )
     .execute(&mut *tx)
     .await?;
+
+    let settled: Vec<_> = ids.iter().copied().zip(to_states.iter().copied()).collect();
+    settle_pending_supersessions(&mut tx, &settled).await?;
 
     crate::credit_registration_events::insert_batch(&mut tx, &events).await?;
     tx.commit().await?;
@@ -1000,6 +1150,28 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
+/// Backdates the row's last enrolment check past the manual recheck allowance, so a spec can press
+/// a recheck button without waiting out the hour. Exists only for test setup.
+pub async fn expire_enrolment_recheck_allowance_for_testing(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<()> {
+    use crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
+    sqlx::query!(
+        "
+UPDATE credit_registrations
+SET enrolment_checked_at = now() - ($2::bigint * INTERVAL '1 second')
+WHERE id = $1
+  AND enrolment_checked_at IS NOT NULL
+        ",
+        id,
+        ENROLMENT_RECHECK_MIN_INTERVAL_SECS,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Which rows a phase iteration may touch. Empty means every row, which is what production runs; a
 /// narrowed scope lets a test drive the pipeline for its own course on a shared database.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -1042,6 +1214,67 @@ pub async fn claim_due(
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
+    claim(conn, states, scope, limit, ClaimHold::None).await
+}
+
+/// [`claim_due`] for resolve-enrolments: `ready_to_submit` rows, minus any whose student already
+/// has another live row for the module somewhere between resolving and a known outcome.
+///
+/// Only one completion per student and module goes past resolve at a time, so each is weighed
+/// against the outcome of the one before it rather than racing it to the registry; see
+/// [`lock_live_successes_for_same_module`]. Two such rows claimed together must still be resolved
+/// one at a time.
+pub async fn claim_due_for_resolve(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(
+        conn,
+        &[CreditRegistrationState::ReadyToSubmit],
+        scope,
+        limit,
+        ClaimHold::BehindLiveRowAhead,
+    )
+    .await
+}
+
+/// [`claim_due`] for import: `checking_enrolment` rows, minus any whose student and course code
+/// already have a submission in flight, which Suotar's hour-old copy of Sisu would not stop from
+/// registering twice, and any whose person and module slot in `uq_credit_registrations_person_module`
+/// is taken. Two such rows claimed together must still go in separate batches.
+pub async fn claim_due_for_import(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(
+        conn,
+        &[CreditRegistrationState::CheckingEnrolment],
+        scope,
+        limit,
+        ClaimHold::BehindSubmission,
+    )
+    .await
+}
+
+/// Which other rows of the same student hold a row back from a claim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ClaimHold {
+    None,
+    /// See [`claim_due_for_resolve`].
+    BehindLiveRowAhead,
+    /// See [`claim_due_for_import`].
+    BehindSubmission,
+}
+
+async fn claim(
+    conn: &mut PgConnection,
+    states: &[CreditRegistrationState],
+    scope: &RegistrationScope,
+    limit: i64,
+    hold: ClaimHold,
+) -> ModelResult<Vec<CreditRegistration>> {
     let is_scoped_call = !scope.is_unscoped();
     let res = sqlx::query_as!(
         CreditRegistration,
@@ -1050,8 +1283,14 @@ WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
     JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
+    -- A completion opted out by hand is the pull path's again; only a row already sent carries on.
+    AND (
+      cmc.register_credits_via_suotar
+      OR cr.submitted_at IS NOT NULL
+    )
     AND cr.state = ANY($1::credit_registration_state [])
     AND cr.next_attempt_at <= now()
     AND ($3::uuid IS NULL OR cr.course_id = $3)
@@ -1073,6 +1312,64 @@ WITH due AS (
           AND h.held_until > now()
       )
     )
+    AND (
+      NOT $7::boolean
+      OR (
+        NOT EXISTS (
+          SELECT 1
+          FROM credit_registrations twin
+          WHERE twin.student_number = cr.student_number
+            AND twin.uh_course_code = cr.uh_course_code
+            AND twin.id <> cr.id
+            AND twin.deleted_at IS NULL
+            AND twin.state IN (
+              'submitting',
+              'submission_uncertain',
+              'awaiting_verification'
+            )
+        )
+        -- Mirrors uq_credit_registrations_person_module, which moving to submitting would violate.
+        AND NOT EXISTS (
+          SELECT 1
+          FROM credit_registrations holder
+          WHERE holder.sisu_person_id = cr.sisu_person_id
+            AND holder.course_module_id = cr.course_module_id
+            AND holder.id <> cr.id
+            AND holder.deleted_at IS NULL
+            AND holder.superseded_by_id IS NULL
+            AND holder.pending_superseded_by_id IS NULL
+            AND holder.state IN (
+              'submitting',
+              'submission_uncertain',
+              'awaiting_verification',
+              'registered',
+              'duplicate',
+              'not_improved'
+            )
+        )
+      )
+    )
+    AND (
+      NOT $8::boolean
+      OR NOT EXISTS (
+        SELECT 1
+        FROM credit_registrations ahead
+        WHERE ahead.user_id = cr.user_id
+          AND ahead.course_module_id = cr.course_module_id
+          AND ahead.id <> cr.id
+          AND ahead.deleted_at IS NULL
+          AND ahead.superseded_by_id IS NULL
+          -- failed_retryable because its backoff may resume it at checking_enrolment or later.
+          AND ahead.state IN (
+            'resolving_enrolment',
+            'checking_enrolment',
+            'submitting',
+            'submission_uncertain',
+            'awaiting_verification',
+            'failed_retryable'
+          )
+      )
+    )
   ORDER BY cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
@@ -1089,6 +1386,8 @@ RETURNING cr.*
         scope.user_id,
         &scope.credit_registration_ids,
         is_scoped_call,
+        hold == ClaimHold::BehindSubmission,
+        hold == ClaimHold::BehindLiveRowAhead,
     )
     .fetch_all(conn)
     .await?;
@@ -1178,7 +1477,7 @@ ORDER BY created_at DESC
 
 /// One ledger row with the course, module and enrolment facts every student view needs, so a status
 /// page is one query rather than a fan-out per row.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct StudentCreditRegistration {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -1197,7 +1496,7 @@ pub struct StudentCreditRegistration {
     pub sisu_attainment_id: Option<String>,
     /// The number frozen on the row before it was sent, which is the one a student would check a
     /// registration against; `None` until the row leaves `checking_enrolment`.
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub credits: Option<f32>,
     pub grade_id: Option<String>,
     /// Needed to read `grade_id`: "1" is a pass on the pass/fail scale and a one out of five on the
@@ -1207,16 +1506,17 @@ pub struct StudentCreditRegistration {
     pub superseded_by_id: Option<Uuid>,
     pub superseded_at: Option<DateTime<Utc>>,
     pub enrolment_checked_at: Option<DateTime<Utc>>,
-    /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where the
-    /// realisation has no teacher label yet, so the step list ticks from this rather than the name.
+    /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where
+    /// Suotar gave the realisation no name, so the step list ticks from this rather than the name.
     pub enrolment_resolved: bool,
-    /// The teacher's label for the realisation we submitted against, not a Sisu id.
+    /// The name of the realisation we submitted against, not a Sisu id.
     pub enrolment_realisation_name: Option<String>,
     pub submitted_at: Option<DateTime<Utc>>,
-    /// Needed to build the enrolment link a student with no usable enrolment is sent to.
-    pub open_university_product_id: Option<String>,
+    /// Where a student with no usable enrolment is sent to enrol.
+    pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
 }
 
 impl StudentCreditRegistration {
@@ -1225,6 +1525,7 @@ impl StudentCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.has_verified_student_number,
+            course_code_allowed: self.course_code_allowed,
         }
     }
 
@@ -1283,21 +1584,21 @@ SELECT cr.id,
   cr.superseded_at,
   cr.enrolment_checked_at,
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
-  r.label AS "enrolment_realisation_name?",
+  COALESCE(
+    cr.selected_enrolment_realisation_name->>'fi',
+    cr.selected_enrolment_realisation_name->>'en',
+    cr.selected_enrolment_realisation_name->>'sv'
+  ) AS "enrolment_realisation_name?",
   cr.submitted_at,
-  conf.open_university_product_id AS "open_university_product_id?",
+  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
-  p.has_verified_student_number AS "has_verified_student_number!"
+  p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
-  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
-  AND r.deleted_at IS NULL
 WHERE cr.user_id = $1
   AND cr.deleted_at IS NULL
   AND ($2::uuid IS NULL OR cr.course_module_id = $2)
@@ -1324,14 +1625,16 @@ ORDER BY cmc.completion_date DESC,
 
 /// Frozen copy of what we are about to submit. Written once, before the row leaves
 /// `checking_enrolment`: a later regrade must not alter a submitted row.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct PayloadSnapshot {
-    pub student_number: String,
-    pub sisu_person_id: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: String,
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
     pub selected_enrolment_realisation_id: Option<String>,
+    /// Localized `{fi, sv, en}` realisation name, as Suotar reported it.
+    pub selected_enrolment_realisation_name: Option<serde_json::Value>,
     pub attainment_date: NaiveDate,
     pub attainment_language: String,
     pub grade_scale_id: String,
@@ -1357,13 +1660,14 @@ SET student_number = $2,
   attainment_language = $9,
   grade_scale_id = $10,
   grade_id = $11,
-  credits = $12
+  credits = $12,
+  selected_enrolment_realisation_name = $13
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
         id,
-        snapshot.student_number,
-        snapshot.sisu_person_id,
+        snapshot.student_number.expose_secret(),
+        expose_option(&snapshot.sisu_person_id),
         snapshot.uh_course_code,
         snapshot.selected_enrolment_id,
         snapshot.selected_enrolment_kind,
@@ -1373,6 +1677,7 @@ WHERE id = $1
         snapshot.grade_scale_id,
         snapshot.grade_id,
         snapshot.credits,
+        snapshot.selected_enrolment_realisation_name,
     )
     .execute(conn)
     .await?;
@@ -1400,6 +1705,97 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Notes that verify saw only the assessment item attainment, keeping the first sighting, and
+/// returns when that was.
+pub async fn mark_partially_registered(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<DateTime<Utc>> {
+    let partially_registered_at = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registrations
+SET partially_registered_at = COALESCE(partially_registered_at, now())
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING partially_registered_at AS "partially_registered_at!"
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(partially_registered_at)
+}
+
+/// Restamps `submitted_at` on rows still `submitting`, for an import that sends them again after
+/// splitting a refused batch: the precondition sweep times a lost submission from this stamp, and
+/// must not condemn a row still waiting its turn in the same iteration.
+pub async fn restamp_submitting(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET submitted_at = now()
+WHERE id = ANY($1)
+  AND state = 'submitting'
+  AND deleted_at IS NULL
+        "#,
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Records Suotar's `retryAfter` for the pending submission, before which a resubmission may
+/// register the credits twice. See [`CreditRegistrationState::resubmission_refusal`].
+pub async fn set_resubmit_not_before(
+    conn: &mut PgConnection,
+    id: Uuid,
+    resubmit_not_before: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET resubmit_not_before = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        resubmit_not_before,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Forgets a submission Suotar says never landed, so the row resolves its enrolment and imports
+/// again from scratch, and returns how many times that has now happened.
+///
+/// Also restarts the retry window and the verify count: the resend is new work, and the old
+/// submission's history would expire it or flag it at once.
+pub async fn reset_for_resubmission(conn: &mut PgConnection, id: Uuid) -> ModelResult<i32> {
+    let reimport_count = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registrations
+SET submitted_attainment_id = NULL,
+  submitted_attainment_type = NULL,
+  partially_registered_at = NULL,
+  resubmit_not_before = NULL,
+  selected_enrolment_id = NULL,
+  grade_id = NULL,
+  first_failed_at = NULL,
+  verify_attempt_count = 0,
+  not_registered_reimport_count = not_registered_reimport_count + 1
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING not_registered_reimport_count
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(reimport_count)
 }
 
 /// Records the attainment the study registry holds, unless another live row already claims it.
@@ -1497,29 +1893,55 @@ WHERE id = ANY($1)
     Ok(())
 }
 
-/// Brings forward the recheck of rows parked for want of an enrolment, for students the study
-/// registry now lists as enrolled.
+/// One linked account the study registry lists on a module's roster.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RosterEnrolee {
+    pub user_id: Uuid,
+    /// When the listed enrolment was made, if the registry says.
+    pub enrolled_at: Option<DateTime<Utc>>,
+}
+
+/// Brings forward the recheck of this module's rows parked for want of an enrolment, for students
+/// the study registry lists on its roster.
 ///
-/// Only the clock moves: the enrolment is re-resolved by the precondition recompute rather than
-/// assumed from a roster entry.
+/// Only where the roster can tell us something new: an enrolment made since the row's last check,
+/// or, for one with no time on it, a last check older than [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`].
+/// Only the clock moves: the enrolment is re-resolved rather than assumed from a roster entry.
+///
+/// [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`]: crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS
 pub async fn recheck_no_usable_enrolment_now(
     conn: &mut PgConnection,
-    course_id: Uuid,
-    user_ids: &[Uuid],
+    course_module_id: Uuid,
+    enrolees: &[RosterEnrolee],
 ) -> ModelResult<u64> {
+    use crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
+    let user_ids: Vec<Uuid> = enrolees.iter().map(|enrolee| enrolee.user_id).collect();
+    let enrolled_ats: Vec<Option<DateTime<Utc>>> =
+        enrolees.iter().map(|enrolee| enrolee.enrolled_at).collect();
     let res = sqlx::query!(
         r#"
-UPDATE credit_registrations
+UPDATE credit_registrations cr
 SET next_attempt_at = now()
-WHERE course_id = $1
-  AND user_id = ANY($2::uuid [])
-  AND state = 'no_usable_enrolment'
-  AND next_attempt_at > now()
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
+FROM UNNEST($2::uuid [], $3::timestamptz []) AS listed(user_id, enrolled_at)
+WHERE cr.course_module_id = $1
+  AND cr.user_id = listed.user_id
+  AND cr.state = 'no_usable_enrolment'
+  AND cr.next_attempt_at > now()
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND (
+    cr.enrolment_checked_at IS NULL
+    OR listed.enrolled_at > cr.enrolment_checked_at
+    OR (
+      listed.enrolled_at IS NULL
+      AND cr.enrolment_checked_at <= now() - ($4::bigint * INTERVAL '1 second')
+    )
+  )
         "#,
-        course_id,
-        user_ids,
+        course_module_id,
+        &user_ids,
+        &enrolled_ats as &[Option<DateTime<Utc>>],
+        ENROLMENT_RECHECK_MIN_INTERVAL_SECS,
     )
     .execute(conn)
     .await?;
@@ -1542,8 +1964,8 @@ RETURNING submit_retry_count
     Ok(res.submit_retry_count)
 }
 
-/// Counts one verify poll for every row of a batch and returns each row's new count. The count is
-/// part of the poll's request item id, so it has to be taken before the request goes out.
+/// Counts one verify poll for every row of a batch and returns each row's new count, which sets the
+/// backoff the poll's answer is scheduled by.
 pub async fn increment_verify_attempt_counts(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -1634,9 +2056,11 @@ WHERE id = $1
 /// Points an old attempt at the newer one that replaced it. The old row keeps its state and
 /// `terminal_at`: it really was registered.
 ///
+/// For fixtures planting a finished replacement. The pipeline goes through
+/// [`mark_pending_superseded`], which supersedes the row only once the new attempt is registered.
+///
 /// `superseded_by_id` may name a row that does not exist yet, as long as it is inserted before the
-/// caller's transaction commits: the foreign key is deferred, which is what lets the successor take
-/// the completion's one live slot without the old attempt ever pointing at itself.
+/// caller's transaction commits: the foreign key is deferred.
 pub async fn mark_superseded(
     conn: &mut PgConnection,
     id: Uuid,
@@ -1656,6 +2080,215 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Marks a registered row as being replaced by `superseded_by_id`, a later attempt with a better
+/// grade, of the same completion or another, which takes over the row's slot in
+/// `uq_credit_registrations_person_module`.
+///
+/// Not [`mark_superseded`]: the row stays the live credit until the new attempt is registered,
+/// since Sisu may accept the better grade without ever making it the course unit's attainment.
+/// [`transition`] then supersedes the row, or clears the mark if the new attempt stops short.
+pub async fn mark_pending_superseded(
+    conn: &mut PgConnection,
+    id: Uuid,
+    superseded_by_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET pending_superseded_by_id = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        superseded_by_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Another live attempt, of any completion of the same student and module, that the study registry
+/// already holds.
+#[derive(Debug, Clone)]
+pub struct LiveSuccessForModule {
+    pub id: Uuid,
+    pub grade_scale_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub completion_passed: bool,
+    pub completion_grade: Option<i32>,
+}
+
+impl LiveSuccessForModule {
+    /// The grade the registry holds for this attempt: the frozen one, or for a row settled before
+    /// anything was frozen, its completion's, which the registry held at least as well.
+    pub fn held_grade(&self) -> Option<MappedGrade> {
+        held_grade(
+            self.grade_scale_id.as_deref(),
+            self.grade_id.as_deref(),
+            self.completion_passed,
+            self.completion_grade,
+        )
+    }
+}
+
+fn held_grade(
+    grade_scale_id: Option<&str>,
+    grade_id: Option<&str>,
+    completion_passed: bool,
+    completion_grade: Option<i32>,
+) -> Option<MappedGrade> {
+    match (grade_scale_id, grade_id) {
+        (Some(grade_scale_id), Some(grade_id)) => Some(MappedGrade {
+            grade_scale_id: grade_scale_id.to_string(),
+            grade_id: grade_id.to_string(),
+        }),
+        _ => map_grade(GradeSource {
+            passed: completion_passed,
+            grade: completion_grade,
+            enrolment_grade_scale_id: None,
+        })
+        .ok(),
+    }
+}
+
+/// A credit for the student and module that our own records say the study registry holds.
+#[derive(Debug, Clone)]
+pub struct RecordedCredit {
+    /// `None` for a credit the pull path registered, which freezes nothing.
+    pub grade_scale_id: Option<String>,
+    pub grade_id: Option<String>,
+    pub completion_passed: bool,
+    pub completion_grade: Option<i32>,
+}
+
+impl RecordedCredit {
+    /// See [`LiveSuccessForModule::held_grade`]; a pull-path credit is read off its completion.
+    pub fn held_grade(&self) -> Option<MappedGrade> {
+        held_grade(
+            self.grade_scale_id.as_deref(),
+            self.grade_id.as_deref(),
+            self.completion_passed,
+            self.completion_grade,
+        )
+    }
+}
+
+/// Every credit for the row's student and module that our records say the registry holds: another
+/// of our live attempts in a success state, or a registrar's pull-path registration.
+///
+/// For an answer that lists no existing attainments. Not [`lock_live_successes_for_same_module`],
+/// which locks, and leaves out the pull path because nothing there can be marked for replacement.
+pub async fn get_recorded_credits_for_same_module(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<Vec<RecordedCredit>> {
+    let res = sqlx::query_as!(
+        RecordedCredit,
+        r#"
+SELECT other.grade_scale_id::text AS "grade_scale_id?",
+  other.grade_id::text AS "grade_id?",
+  cmc.passed AS "completion_passed!",
+  cmc.grade AS "completion_grade?"
+FROM credit_registrations cr
+  JOIN credit_registrations other ON other.user_id = cr.user_id
+  AND other.course_module_id = cr.course_module_id
+  AND other.id <> cr.id
+  JOIN course_module_completions cmc ON cmc.id = other.course_module_completion_id
+WHERE cr.id = $1
+  AND other.deleted_at IS NULL
+  AND other.superseded_by_id IS NULL
+  AND other.state = ANY($2::credit_registration_state [])
+UNION ALL
+SELECT NULL::text,
+  NULL::text,
+  cmc.passed,
+  cmc.grade
+FROM credit_registrations cr
+  JOIN course_module_completion_registered_to_study_registries r ON r.user_id = cr.user_id
+  AND r.course_module_id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = r.course_module_completion_id
+WHERE cr.id = $1
+  -- A null registrar is our own mirror of a row the first half already reads.
+  AND r.study_registry_registrar_id IS NOT NULL
+  AND r.deleted_at IS NULL
+        "#,
+        id,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Readies a row that resolve-enrolments settles as `duplicate` without sending it, in the caller's
+/// transaction and before the transition.
+///
+/// Drops the row's claim on `uq_credit_registrations_person_module`, left from an earlier freeze,
+/// since the slot belongs to the credit the registry holds, and the frozen credits, which nothing
+/// registered. Keeps `weighed_grade`, the grade we would have sent, as the grade a later regrade of
+/// the completion has to beat.
+pub async fn prepare_unsent_duplicate(
+    conn: &mut PgConnection,
+    id: Uuid,
+    weighed_grade: Option<&MappedGrade>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET sisu_person_id = NULL,
+  grade_scale_id = $2,
+  grade_id = $3,
+  credits = NULL
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        weighed_grade.map(|grade| grade.grade_scale_id.as_str()),
+        weighed_grade.map(|grade| grade.grade_id.as_str()),
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The student's other live attempts for the row's module that the registry already holds, locked
+/// until the caller's transaction ends.
+///
+/// What another attempt has to beat to be sent, and what it replaces when it does, through
+/// [`mark_pending_superseded`]. Includes rows already waiting on an earlier replacement, which a
+/// better one takes over.
+pub async fn lock_live_successes_for_same_module(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<Vec<LiveSuccessForModule>> {
+    let res = sqlx::query_as!(
+        LiveSuccessForModule,
+        r#"
+SELECT other.id,
+  other.grade_scale_id,
+  other.grade_id,
+  cmc.passed AS completion_passed,
+  cmc.grade AS completion_grade
+FROM credit_registrations cr
+  JOIN credit_registrations other ON other.user_id = cr.user_id
+  AND other.course_module_id = cr.course_module_id
+  AND other.id <> cr.id
+  JOIN course_module_completions cmc ON cmc.id = other.course_module_completion_id
+WHERE cr.id = $1
+  AND other.deleted_at IS NULL
+  AND other.superseded_by_id IS NULL
+  AND other.state = ANY($2::credit_registration_state [])
+ORDER BY other.id FOR
+UPDATE OF other
+        "#,
+        id,
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 /// Whether this account has any attempt, live or replaced, on this course.
@@ -1710,8 +2343,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// The course's live rows a bulk retry can actually move: failed for good. Oldest first, capped by
-/// `limit`.
+/// The course's live rows a bulk retry can actually move: failed for good, and not held open by
+/// Suotar. Oldest first, capped by `limit`.
 ///
 /// Deliberately only these. A row a retry always refuses keeps matching for as long as it exists, so
 /// letting one into the batch would spend a slot of the cap on it forever: a course holding `limit`
@@ -1728,6 +2361,10 @@ SELECT id
 FROM credit_registrations cr
 WHERE cr.course_id = $1
   AND cr.state = 'failed_permanent'
+  AND (
+    cr.resubmit_not_before IS NULL
+    OR cr.resubmit_not_before <= now()
+  )
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
 ORDER BY cr.state_entered_at
@@ -1827,6 +2464,7 @@ pub struct CourseModuleStateCount {
     pub state: CreditRegistrationState,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
     pub enrolment_resolved: bool,
     pub count: i64,
     /// Of `count`, how many carry the pipeline's flag.
@@ -1846,6 +2484,7 @@ SELECT cr.course_module_id,
   cr.state,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!",
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COUNT(*) AS "count!",
   COUNT(*) FILTER (
@@ -1864,6 +2503,7 @@ GROUP BY cr.course_module_id,
   cr.state,
   p.completion_eligible,
   p.has_verified_student_number,
+  p.course_code_allowed,
   (cr.selected_enrolment_id IS NOT NULL)
         "#,
         course_id,
@@ -1876,7 +2516,7 @@ GROUP BY cr.course_module_id,
 
 /// One ledger row as a teacher sees it: the raw state, the student's identity and the unmasked
 /// verified student number, but never the study registry's own error text.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct TeacherCreditRegistration {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -1900,15 +2540,19 @@ pub struct TeacherCreditRegistration {
     pub credits: Option<f32>,
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
+    pub submitted_at: Option<DateTime<Utc>>,
+    pub resubmit_not_before: Option<DateTime<Utc>>,
     /// Live only: a soft-deleted link is no longer a number we hold for this student.
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub student_number_verified_at: Option<DateTime<Utc>>,
     pub student_number_verified_via: Option<StudentNumberVerificationMethod>,
     /// Needed to find the account's linking mails, which are keyed on the Sisu person.
-    pub sisu_person_id: Option<String>,
+    pub sisu_person_id: Option<DbSecret>,
     pub enrolment_resolved: bool,
     pub enrolment_realisation_name: Option<String>,
+    pub enrolment_checked_at: Option<DateTime<Utc>>,
     pub completion_eligible: bool,
+    pub course_code_allowed: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
 }
@@ -1920,6 +2564,7 @@ impl TeacherCreditRegistration {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
             has_verified_student_number: self.student_number.is_some(),
+            course_code_allowed: self.course_code_allowed,
         }
     }
 }
@@ -1977,13 +2622,21 @@ SELECT cr.id,
   cr.credits,
   cr.attempt_number,
   cr.superseded_by_id,
+  cr.submitted_at,
+  cr.resubmit_not_before,
   vsn.student_number AS "student_number?",
   vsn.verified_at AS "student_number_verified_at?",
   vsn.verified_via AS "student_number_verified_via?",
   vsn.sisu_person_id AS "sisu_person_id?",
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
-  r.label AS "enrolment_realisation_name?",
+  COALESCE(
+    cr.selected_enrolment_realisation_name->>'fi',
+    cr.selected_enrolment_realisation_name->>'en',
+    cr.selected_enrolment_realisation_name->>'sv'
+  ) AS "enrolment_realisation_name?",
+  cr.enrolment_checked_at,
   p.completion_eligible AS "completion_eligible!",
+  p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN course_modules cm ON cm.id = cr.course_module_id
@@ -1992,9 +2645,6 @@ FROM credit_registrations cr
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
-  LEFT JOIN course_module_suotar_realisations r ON r.course_module_id = cr.course_module_id
-  AND r.course_unit_realisation_id = cr.selected_enrolment_realisation_id
-  AND r.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND ($1::uuid IS NULL OR cr.course_id = $1)
   AND ($2::uuid IS NULL OR cr.id = $2)
@@ -2019,16 +2669,19 @@ WHERE cr.deleted_at IS NULL
           $10::credit_registration_state [],
           $11::boolean [],
           $12::boolean [],
-          $13::boolean []
+          $13::boolean [],
+          $14::boolean []
         ) AS stage(
           state,
           completion_eligible,
           has_verified_student_number,
+          course_code_allowed,
           enrolment_resolved
         )
       WHERE stage.state = cr.state
         AND stage.completion_eligible = p.completion_eligible
         AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)
+        AND stage.course_code_allowed = p.course_code_allowed
         AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
     )
   )
@@ -2049,6 +2702,7 @@ LIMIT $8 OFFSET $9
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(conn)
@@ -2125,7 +2779,7 @@ pub async fn get_teacher_facing_attempts_for_completion(
 ///
 /// Not the study registry's own error text: it is written for an integrator, may name a person and
 /// is untranslated. The error code and the scrubbed call bodies stand in for it.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct AdminCreditRegistration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -2151,14 +2805,13 @@ pub struct AdminCreditRegistration {
     pub registered_at: Option<DateTime<Utc>>,
     pub terminal_at: Option<DateTime<Utc>>,
     /// Frozen on the row when it left `checking_enrolment`, so it is what we actually sent.
-    pub student_number: Option<String>,
-    pub sisu_person_id: Option<String>,
+    pub student_number: Option<DbSecret>,
+    pub sisu_person_id: Option<DbSecret>,
     pub uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub sisu_attainment_id: Option<String>,
     pub submit_retry_count: i32,
@@ -2166,11 +2819,13 @@ pub struct AdminCreditRegistration {
     pub attempt_number: i32,
     pub superseded_by_id: Option<Uuid>,
     /// The account's live link now, which may differ from the number frozen on the row.
-    pub verified_student_number: Option<String>,
+    pub verified_student_number: Option<DbSecret>,
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
+    pub resubmit_not_before: Option<DateTime<Utc>>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
     pub total_count: i64,
 }
@@ -2184,6 +2839,7 @@ impl AdminCreditRegistration {
                 PendingPreconditions {
                     completion_eligible: self.completion_eligible,
                     has_verified_student_number: self.has_verified_student_number,
+                    course_code_allowed: self.course_code_allowed,
                 }
                 .reason()
             })
@@ -2285,7 +2941,6 @@ SELECT cr.id,
   cr.grade_scale_id,
   cr.grade_id,
   cr.credits,
-  cr.request_item_id,
   cr.submitted_attainment_id,
   cr.sisu_attainment_id,
   cr.submit_retry_count,
@@ -2295,8 +2950,10 @@ SELECT cr.id,
   vsn.student_number AS "verified_student_number?",
   vsn.verified_at AS "verified_student_number_at?",
   vsn.verified_via AS "verified_student_number_via?",
+  cr.resubmit_not_before,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
+  p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
@@ -2776,7 +3433,7 @@ impl AttentionSort {
 ///
 /// The `*_count` fields are totals over the whole queue this call selected, not over the page, so a
 /// caller reads them off the first row instead of running a second aggregate.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct AttentionRegistration {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -2795,7 +3452,7 @@ pub struct AttentionRegistration {
     /// on it alone, and it is never reported as a reason.
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
-    pub student_number: Option<String>,
+    pub student_number: Option<DbSecret>,
     pub stuck_in_state: bool,
     pub permanent_error: bool,
     pub retry_window_expired: bool,

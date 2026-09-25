@@ -89,7 +89,6 @@ import {
   deviceAuthorizationOauth,
   dismissCourseSuspectedCheater,
   dismissCreditRegistrationEnrolmentBanner,
-  dismissMyAutoLinkNotice,
   downloadCodeGiveawayCodesCsv,
   downloadExerciseAnswerFiles,
   duplicateExam,
@@ -204,6 +203,7 @@ import {
   getCreditRegistrationOverview,
   getCreditRegistrationPipelineHistory,
   getCreditRegistrationReconciliation,
+  getCreditRegistrationSettings,
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
@@ -334,6 +334,7 @@ import {
   previewStudentNumberVerificationToken,
   processEditProposal,
   receivePlaygroundGrading,
+  recheckCreditRegistrationEnrolment,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
@@ -528,7 +529,6 @@ import type {
   DeviceAuthorizationOauthResponse,
   DismissCourseSuspectedCheaterData,
   DismissCreditRegistrationEnrolmentBannerData,
-  DismissMyAutoLinkNoticeData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
   DownloadExerciseAnswerFilesData,
@@ -748,6 +748,8 @@ import type {
   GetCreditRegistrationPipelineHistoryResponse,
   GetCreditRegistrationReconciliationData,
   GetCreditRegistrationReconciliationResponse,
+  GetCreditRegistrationSettingsData,
+  GetCreditRegistrationSettingsResponse,
   GetCreditRegistrationStatsByCourseData,
   GetCreditRegistrationStatsByCourseResponse,
   GetCreditRegistrationThresholdsData,
@@ -996,6 +998,8 @@ import type {
   PreviewStudentNumberVerificationTokenResponse,
   ProcessEditProposalData,
   ReceivePlaygroundGradingData,
+  RecheckCreditRegistrationEnrolmentData,
+  RecheckCreditRegistrationEnrolmentResponse,
   ReleaseExamGradesData,
   RemoveCoursePlanMemberData,
   RemoveCoursePlanMemberResponse,
@@ -2291,6 +2295,38 @@ export const getCreditRegistrationDetailsOptions = (
       }),
     queryKey: getCreditRegistrationDetailsQueryKey(options),
   })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
+ * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
+ * none.
+ *
+ * Shares the student's button's allowance, so between them they cannot ask the registry more than once
+ * an hour. Authorized on the row's own course, like the retry.
+ */
+export const recheckCreditRegistrationEnrolmentMutation = (
+  options?: Partial<Options<RecheckCreditRegistrationEnrolmentData>>,
+): UseMutationOptions<
+  RecheckCreditRegistrationEnrolmentResponse,
+  DefaultError,
+  Options<RecheckCreditRegistrationEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RecheckCreditRegistrationEnrolmentResponse,
+    DefaultError,
+    Options<RecheckCreditRegistrationEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await recheckCreditRegistrationEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -6144,7 +6180,7 @@ export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinki
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-realisation counters, the send-status totals and the stale-address list.
+ * per-module counters, the send-status totals and the stale-address list.
  */
 export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkingStatsData>) =>
   queryOptions<
@@ -6849,7 +6885,7 @@ export const listCreditRegistrationsForAdminInfiniteOptions = (
  * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
  * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
  * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
- * time.
+ * time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
  */
 export const adminBulkTransitionCreditRegistrationsMutation = (
   options?: Partial<Options<AdminBulkTransitionCreditRegistrationsData>>,
@@ -6938,7 +6974,8 @@ export const getCreditRegistrationForAdminOptions = (
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript.
+ * re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+ * while Suotar still holds its earlier submission open (`submission_pending`).
  */
 export const adminTransitionCreditRegistrationMutation = (
   options?: Partial<Options<AdminTransitionCreditRegistrationData>>,
@@ -7515,31 +7552,6 @@ export const getMyVerifiedStudentNumberOptions = (
 
 /**
  *
- * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
- * away the notice saying the pipeline linked this student number without asking.
- *
- * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
- */
-export const dismissMyAutoLinkNoticeMutation = (
-  options?: Partial<Options<DismissMyAutoLinkNoticeData>>,
-): UseMutationOptions<unknown, DefaultError, Options<DismissMyAutoLinkNoticeData>> => {
-  const mutationOptions: UseMutationOptions<
-    unknown,
-    DefaultError,
-    Options<DismissMyAutoLinkNoticeData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await dismissMyAutoLinkNotice({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -7593,6 +7605,34 @@ export const requestCreditRegistrationEnrolmentRecheckMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationSettingsQueryKey = (
+  options?: Options<GetCreditRegistrationSettingsData>,
+) => createQueryKey("getCreditRegistrationSettings", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+ * switches.
+ */
+export const getCreditRegistrationSettingsOptions = (
+  options?: Options<GetCreditRegistrationSettingsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationSettingsResponse,
+    DefaultError,
+    GetCreditRegistrationSettingsResponse,
+    ReturnType<typeof getCreditRegistrationSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationSettingsQueryKey(options),
+  })
 
 export const previewStudentNumberVerificationTokenQueryKey = (
   options: Options<PreviewStudentNumberVerificationTokenData>,

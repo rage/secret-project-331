@@ -156,7 +156,6 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
       label: t("label-credit-registration-completion-id"),
       value: row.course_module_completion_id,
     },
-    { label: t("label-credit-registration-request-item-id"), value: row.request_item_id },
     { label: t("label-credit-registration-enrolment"), value: row.selected_enrolment_id },
     {
       label: t("credit-registration-admin-submitted-attainment-id"),

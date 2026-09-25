@@ -60,6 +60,14 @@ export const STATE_ACTION_NEEDED = "action-needed" as const
 export const STATE_FAILED = "failed" as const
 export const STATE_SUPERSEDED = "superseded" as const
 
+/**
+ * The student-facing status of a completion the pipeline will register but has not yet created a
+ * registration for: to the student, the credits are already being registered.
+ */
+export const STATUS_BEFORE_REGISTRATION = "sending" as const
+/** The student-facing status of credits nobody is going to register. */
+export const STATUS_NOT_REGISTERING = "not_registering" as const
+
 /** `Badge.size` for a badge that is a dense table cell's content rather than a chip in a row. */
 export const BADGE_COMPACT = "compact" as const
 
@@ -116,7 +124,7 @@ const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI =
 const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN =
   "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
 
-/** How the Open University explains enrolling, for a module that names no product of its own. */
+/** How the Open University explains enrolling, for a module with no enrolment link of its own. */
 export const openUniversityEnrolmentInfoUrl = (language: string): string =>
   /^fi(?:-|$)/.test(language)
     ? OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI

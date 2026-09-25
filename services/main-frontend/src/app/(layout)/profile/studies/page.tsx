@@ -16,6 +16,7 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
+import { useIsInCreditRegistrationPipeline } from "@/components/credit-registration/useIsInCreditRegistrationPipeline"
 import {
   getMyCreditRegistrationsOptions,
   getMyStudiesOptions,
@@ -58,21 +59,31 @@ const courseListCss = css`
 const mostRecentlyStartedFirst = (courses: MyStudiesCourse[]): MyStudiesCourse[] =>
   courses.toSorted((a, b) => b.first_enrolled_at.localeCompare(a.first_enrolled_at))
 
+const holdsCredit = (registration: MyCreditRegistration) =>
+  registration.student_facing_status === "registered"
+
 /**
- * The registration whose status a module's line should show: the newest attempt, since an earlier
- * one is history the module status page carries.
+ * The registration whose status a module's line should show: the newest live one the registry holds
+ * the credit for, else the newest live one. Replaced attempts are history the module status page
+ * carries, and a later completion's better grade leaves the registered row live until it is
+ * registered itself.
+ *
+ * Expects newest completion first, as `getMyCreditRegistrations` returns them.
  */
-const newestRegistrationPerCourseModule = (
+const shownRegistrationPerCourseModule = (
   registrations: MyCreditRegistration[],
 ): ReadonlyMap<string, MyCreditRegistration> => {
-  const newest = new Map<string, MyCreditRegistration>()
+  const shown = new Map<string, MyCreditRegistration>()
   for (const registration of registrations) {
-    const previous = newest.get(registration.course_module_id)
-    if (!previous || previous.attempt_number < registration.attempt_number) {
-      newest.set(registration.course_module_id, registration)
+    if (registration.superseded) {
+      continue
+    }
+    const chosen = shown.get(registration.course_module_id)
+    if (!chosen || (!holdsCredit(chosen) && holdsCredit(registration))) {
+      shown.set(registration.course_module_id, registration)
     }
   }
-  return newest
+  return shown
 }
 
 const StudiesPage: React.FC = () => {
@@ -80,16 +91,12 @@ const StudiesPage: React.FC = () => {
   usePageTitle(t("heading-my-studies"))
 
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
-  const showCreditRegistration =
-    myStudiesQuery.data?.any_module_supports_credit_registration === true
-  const registrationsQuery = useQuery({
-    ...getMyCreditRegistrationsOptions(),
-    enabled: showCreditRegistration,
-  })
+  const showCreditRegistration = useIsInCreditRegistrationPipeline() === true
+  const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
   // Read directly rather than through QueryResult: the study record must render even when the
   // registration statuses cannot, and RegistrationsNeedingAttention reports that problem on its own.
   const registrations = registrationsQuery.data ?? []
-  const registrationByCourseModuleId = newestRegistrationPerCourseModule(registrations)
+  const registrationByCourseModuleId = shownRegistrationPerCourseModule(registrations)
   const hasAttentionItems = registrations.some(
     (registration) =>
       !registration.superseded && registrationNeedsAttention(registration.student_facing_status),

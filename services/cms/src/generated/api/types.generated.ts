@@ -289,7 +289,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "credit_registration_student_number_linked"
 
 export type EmailTemplateUpdate = {
   content: unknown

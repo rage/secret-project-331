@@ -47,8 +47,7 @@ impl CreditRegistrationNotificationKind {
     }
 }
 
-/// One row owed a mail, with everything the message renders. `open_university_product_id` is the
-/// module's configured product, from which the action-needed mail's enrolment link is built.
+/// One row owed a mail, with everything the message renders.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StudentNotificationToQueue {
     pub credit_registration_id: Uuid,
@@ -59,13 +58,17 @@ pub struct StudentNotificationToQueue {
     pub course_language_code: String,
     pub course_module_name: Option<String>,
     pub first_name: Option<String>,
-    pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
+    /// The credits frozen on the row, which may have been clamped to the enrolment's range, else the
+    /// module's.
+    pub credits: Option<f32>,
+    /// Where the action-needed mail sends the student to enrol.
+    pub enrolment_link: Option<String>,
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
 /// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
-/// nothing.
+/// nothing. Nor a `duplicate` or `not_improved` row whose student already has, or is owed, the
+/// registered mail for another row of the module.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -81,14 +84,12 @@ SELECT cr.id AS "credit_registration_id!",
   c.language_code AS "course_language_code!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
-  cm.ects_credits AS "ects_credits?",
-  conf.open_university_product_id AS "open_university_product_id?"
+  COALESCE(cr.credits, cm.ects_credits) AS "credits?",
+  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
-  AND conf.deleted_at IS NULL
 WHERE cr.deleted_at IS NULL
   AND (
     (
@@ -98,6 +99,22 @@ WHERE cr.deleted_at IS NULL
     OR (
       cr.state = ANY($5::credit_registration_state [])
       AND cr.registered_email_delivery_id IS NULL
+      -- A credit found already recorded is no news to a student told of one for the module.
+      AND NOT (
+        cr.state = ANY($6::credit_registration_state [])
+        AND EXISTS (
+          SELECT 1
+          FROM credit_registrations told
+          WHERE told.user_id = cr.user_id
+            AND told.course_module_id = cr.course_module_id
+            AND told.id <> cr.id
+            AND told.deleted_at IS NULL
+            AND (
+              told.registered_email_delivery_id IS NOT NULL
+              OR told.state = 'registered'
+            )
+        )
+      )
     )
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
@@ -115,6 +132,7 @@ LIMIT $1
         scope.user_id,
         &scope.credit_registration_ids,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -131,8 +149,8 @@ LIMIT $1
             course_language_code: row.course_language_code,
             course_module_name: row.course_module_name,
             first_name: row.first_name,
-            ects_credits: row.ects_credits,
-            open_university_product_id: row.open_university_product_id,
+            credits: row.credits,
+            enrolment_link: row.enrolment_link,
         })
         .collect())
 }

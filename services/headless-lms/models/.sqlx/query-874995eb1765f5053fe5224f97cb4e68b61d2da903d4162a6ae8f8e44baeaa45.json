@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO verified_student_numbers (\n    id,\n    user_id,\n    student_number,\n    sisu_person_id,\n    first_names,\n    last_name,\n    verified_via,\n    verified_via_email,\n    linked_by_user_id,\n    link_reason,\n    verified_from_course_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "student_number_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_link",
+                "admin_manual",
+                "study_registry"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "874995eb1765f5053fe5224f97cb4e68b61d2da903d4162a6ae8f8e44baeaa45"
+}

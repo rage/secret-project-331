@@ -12,34 +12,11 @@ use headless_lms_models::library::credit_registration::student_notifications::{
     CreditRegistrationNotificationKind, STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue,
     claim_unnotified, set_email_delivery_id,
 };
-use headless_lms_models::open_university_product_access_tokens::enrolment_url_for_product;
 use serde_json::json;
 use sqlx::PgConnection;
-use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::{MailQueuePhase, PhaseContext, PhaseScope, run_mail_queue_phase, template_language};
-
-/// One [`enrolment_url_for_product`] lookup per product id per phase run, rather than per row: many
-/// claimed rows share the same module's product.
-#[derive(Default)]
-struct ProductUrlCache(HashMap<Option<String>, Option<String>>);
-
-impl ProductUrlCache {
-    async fn url_for(
-        &mut self,
-        conn: &mut PgConnection,
-        open_university_product_id: Option<&str>,
-    ) -> anyhow::Result<Option<String>> {
-        let key = open_university_product_id.map(str::to_string);
-        if let Some(url) = self.0.get(&key) {
-            return Ok(url.clone());
-        }
-        let url = enrolment_url_for_product(conn, open_university_product_id).await?;
-        self.0.insert(key, url.clone());
-        Ok(url)
-    }
-}
 
 pub async fn run(ctx: &PhaseContext<'_>, scope: &PhaseScope) -> anyhow::Result<PhaseRunOutcome> {
     run_mail_queue_phase::<StudentNotificationsPhase>(ctx, scope).await
@@ -49,7 +26,6 @@ struct StudentNotificationsPhase;
 
 impl MailQueuePhase for StudentNotificationsPhase {
     type Item = StudentNotificationToQueue;
-    type Cache = ProductUrlCache;
 
     async fn claim(conn: &mut PgConnection, scope: &PhaseScope) -> anyhow::Result<Vec<Self::Item>> {
         Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
@@ -68,9 +44,8 @@ impl MailQueuePhase for StudentNotificationsPhase {
         conn: &mut PgConnection,
         item: &Self::Item,
         template_id: Uuid,
-        cache: &mut Self::Cache,
     ) -> anyhow::Result<()> {
-        let placeholders = placeholders(ctx.base_url, conn, item, cache).await?;
+        let placeholders = placeholders(ctx.base_url, item);
         let delivery =
             insert_email_delivery_with_placeholders(conn, item.user_id, template_id, &placeholders)
                 .await?;
@@ -89,30 +64,39 @@ impl MailQueuePhase for StudentNotificationsPhase {
 
 /// Stored on the delivery row, so the sender needs no lookup of its own.
 ///
-/// `ENROLMENT_LINK` is empty when the module has no product or no resolved token; the template's
-/// sentence has to read correctly without it, because a mail that only says "enrol in Sisu" is all
-/// the student gets in that case.
-async fn placeholders(
-    base_url: &str,
-    conn: &mut PgConnection,
-    notification: &StudentNotificationToQueue,
-    product_urls: &mut ProductUrlCache,
-) -> anyhow::Result<serde_json::Value> {
+/// `ENROLMENT_LINK` is empty when the module has no enrolment link; the template's sentence has to
+/// read correctly without it, because a mail that only says "enrol in Sisu" is all the student gets
+/// in that case.
+fn placeholders(base_url: &str, notification: &StudentNotificationToQueue) -> serde_json::Value {
     let enrolment_link = match notification.kind {
-        CreditRegistrationNotificationKind::ActionNeeded => product_urls
-            .url_for(conn, notification.open_university_product_id.as_deref())
-            .await?
-            .unwrap_or_default(),
+        CreditRegistrationNotificationKind::ActionNeeded => {
+            notification.enrolment_link.clone().unwrap_or_default()
+        }
         CreditRegistrationNotificationKind::Registered => String::new(),
     };
-    Ok(json!({
+    let language = template_language(&notification.course_language_code);
+    json!({
         "NAME": notification.first_name.clone().unwrap_or_default(),
         "COURSE_NAME": notification.course_name,
         "MODULE_NAME": notification.course_module_name.clone().unwrap_or_default(),
-        "CREDITS": notification.ects_credits.map(|credits| credits.to_string()).unwrap_or_default(),
+        "CREDITS": notification
+            .credits
+            .map(|credits| format_credits(credits, &language))
+            .unwrap_or_default(),
         "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
         "ENROLMENT_LINK": enrolment_link,
-    }))
+    })
+}
+
+/// `credits` as the mail's language writes a number: at most two decimals, none when whole, and a
+/// decimal comma in Finnish and Swedish.
+fn format_credits(credits: f32, language: &str) -> String {
+    let formatted = format!("{credits:.2}");
+    let formatted = formatted.trim_end_matches('0').trim_end_matches('.');
+    match language {
+        "fi" | "sv" => formatted.replace('.', ","),
+        _ => formatted.to_string(),
+    }
 }
 
 /// The page the mail sends the student to, which is where every next step already lives.

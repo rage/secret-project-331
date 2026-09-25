@@ -5,6 +5,8 @@ import {
   courseFrontPageUrl,
   OLD_FLOW_COURSE_SLUG,
   seededStudentStorageState,
+  STUDENT_7,
+  STUDENT_8,
 } from "@/utils/creditRegistration"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
@@ -12,12 +14,15 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
  * The detour between "I am not a University of Helsinki student" and the Open University
  * instructions, which only appears on a module whose certificate the student could take instead.
  *
- * Owns no student numbers: this path never reaches Suotar. The fixture course is seeded by
- * `seed_certificate_detour_course`, and `credit-registration-old-flow` stands in for the modules
- * that must keep showing the plain page.
+ * This path never reaches Suotar. The fixture course is seeded by `seed_certificate_detour_course`,
+ * and `credit-registration-old-flow` stands in for the modules that must keep showing the plain page.
+ * `student7` has a completion on both. `student8` has its own completion on the same detour module,
+ * so the failed-save test below never shares a (module, student) pair with the test that saves a
+ * reason for good.
  */
-const DETOUR_STUDENT_EMAIL = "credit-registration-certificate-detour@example.com"
-const OLD_FLOW_STUDENT_EMAIL = "credit-registration-old-flow-still-legacy@example.com"
+const DETOUR_STUDENT_EMAIL = STUDENT_7.email
+const OLD_FLOW_STUDENT_EMAIL = STUDENT_7.email
+const FAILED_SAVE_STUDENT_EMAIL = STUDENT_8.email
 
 const STUDENT_TYPE_QUESTION =
   "Are you a student or an exchange student at the University of Helsinki?"
@@ -29,9 +34,9 @@ const IDENTIFICATION_QUESTION =
 const RECONSIDER_QUESTION = "Reconsider: which do you need?"
 
 const CERTIFICATE_OPTION = "A certificate of completion"
-const CREDITS_OPTION = "Credits in the UH study registry"
+const CREDITS_OPTION = "University of Helsinki credits"
 
-const OPEN_UNIVERSITY_INSTRUCTIONS = /Use this email address on the enrollment form/
+const OPEN_UNIVERSITY_INSTRUCTIONS = /Use this email address on the enrolment form/
 const JUSTIFICATION_ENDPOINT = "**/credit-justification"
 
 /** Opens the registration page the way a student does: from the completed module's own card. */
@@ -48,7 +53,7 @@ const answer = (page: Page, question: string, option: string | RegExp) =>
 
 /** The identification question answers itself with plain buttons, not a radio group. */
 const answerIdentification = (page: Page, option: string | RegExp) =>
-  page.getByRole("button", { name: option }).click()
+  page.getByRole("button", { name: option, exact: true }).click()
 
 test.describe("A module whose certificate a student could take instead of the credits", () => {
   test.use({ storageState: seededStudentStorageState(DETOUR_STUDENT_EMAIL) })
@@ -96,7 +101,7 @@ test.describe("A module whose certificate a student could take instead of the cr
 
     await expect(page.getByText(/Then select Identification methods for foreigners/)).toBeVisible()
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
-    await expect(page.getByRole("link", { name: "Go to enrollment form" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "Go to the enrolment form" })).toBeVisible()
   })
 
   test("A student with another Suomi.fi method gets the other tip", async ({ page }) => {
@@ -176,6 +181,10 @@ test.describe("A module whose certificate a student could take instead of the cr
       await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toBeVisible()
     })
   })
+})
+
+test.describe("A failed save on the certificate detour module", () => {
+  test.use({ storageState: seededStudentStorageState(FAILED_SAVE_STUDENT_EMAIL) })
 
   test("A failed save is reported instead of quietly letting the student past", async ({
     page,
@@ -193,7 +202,7 @@ test.describe("A module whose certificate a student could take instead of the cr
     await page.getByRole("textbox", { name: "Your reason" }).fill("I need them in the registry.")
     await page.getByRole("button", { name: "Continue" }).click()
 
-    await expect(page.getByText("Saving your answer failed. Please try again.")).toBeVisible()
+    await expect(page.getByText("We could not save your answer. Please try again.")).toBeVisible()
     await expect(page.getByText(OPEN_UNIVERSITY_INSTRUCTIONS)).toHaveCount(0)
     await expect(page.getByRole("textbox", { name: "Your reason" })).toBeVisible()
   })

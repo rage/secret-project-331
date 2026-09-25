@@ -17,8 +17,8 @@ export type MockSuotarEndpoint =
   | "resolve_enrolments"
   | "import_attainments"
   | "verify_attainments"
-  | "product_access_tokens"
   | "list_by_course"
+  | "validate_course_codes"
 
 /** Required on every fault. A post-commit stage means something different from a pre-write one. */
 export type MockSuotarStage =
@@ -58,9 +58,13 @@ export interface MockSuotarEnrolmentUpsert {
   realisationId?: string
   kind?: MockSuotarRealisationKind
   state: MockSuotarEnrolmentState
-  studyRightId?: string
-  studyRightValidityPeriod: MockSuotarDatePeriod
-  enrolmentDateTime?: string
+  /** Omitted derives one from `kind`; `null` is an enrolment with no study right at all. */
+  studyRightId?: string | null
+  /** Omitted is a study right the registry did not return. */
+  studyRightValidityPeriod?: MockSuotarDatePeriod
+  studyRightGrantDate?: string
+  /** Omitted is now; `null` is an enrolment the registry hands over no time for. */
+  enrolmentDateTime?: string | null
 }
 
 export type MockSuotarPredicate =
@@ -71,14 +75,12 @@ export type MockSuotarPredicate =
   | { owner: MockSuotarOwnerRef }
 
 export type MockSuotarEffect =
-  | {
-      kind: "itemLevel"
-      code: string
-      message?: string
-      discloseSubmittedAttainmentId?: boolean
-    }
+  | { kind: "itemLevel"; code: string; message?: string }
   | { kind: "requestLevel"; status: number; code: string; message?: string }
+  | { kind: "rawBody"; status: number; body: string; contentType?: string }
   | { kind: "connectionReset" }
+  /** Only at `respond`: the item is left out of the response whatever became of it. */
+  | { kind: "dropItem" }
 
 /** Omitted means until disarmed. */
 export interface MockSuotarLifetime {
@@ -111,6 +113,7 @@ export interface MockSuotarCallFilter {
 
 export type MockSuotarSubmissionTarget =
   | "registered"
+  | "partiallyRegistered"
   | "misregistered"
   | "notRegistered"
   | "timedOutButLanded"
@@ -153,6 +156,22 @@ const get = async (request: APIRequestContext, path: string): Promise<Record<str
   return (await response.json()) as Record<string, unknown>
 }
 
+export interface MockSuotarPersonUpsert {
+  studentNumber: string
+  /** Omitted derives one from the student number. */
+  personId?: string
+  firstNames?: string
+  lastName?: string
+  primaryEmail?: string
+  secondaryEmail?: string
+}
+
+/** A registry person with no account of ours, such as someone only a roster lists. */
+export const upsertMockSuotarPersons = (
+  request: APIRequestContext,
+  persons: MockSuotarPersonUpsert[],
+) => sendCommand(request, { command: "upsertPersons", persons })
+
 export const upsertMockSuotarEnrolments = (
   request: APIRequestContext,
   enrolments: MockSuotarEnrolmentUpsert[],
@@ -168,6 +187,8 @@ export interface MockSuotarAttainmentUpsert {
   gradeScaleId: string
   gradeId: string
   passed?: boolean
+  /** Omitted counts as equal to whatever is imported against it. */
+  credits?: number
 }
 
 /** An attainment the registry holds without our having submitted it. */
@@ -187,6 +208,18 @@ export const transitionMockSuotarSubmissionsFor = (
     command: "transitionSubmissionsFor",
     studentNumber,
     courseCode,
+    to,
+  })
+
+/** One submission only, where a student's other submissions on the course must stay as they are. */
+export const transitionMockSuotarSubmission = (
+  request: APIRequestContext,
+  submittedAttainmentId: string,
+  to: MockSuotarSubmissionTarget,
+) =>
+  sendCommand(request, {
+    command: "transitionSubmission",
+    submittedAttainmentId,
     to,
   })
 
@@ -223,3 +256,30 @@ export const listMockSuotarCalls = (
 ) => sendCommand(request, { command: "listCalls", ...filter })
 
 export const getMockSuotarWorld = (request: APIRequestContext) => get(request, "world")
+
+/** The subset of a mock submission (one row Suotar wrote for an import) these specs assert on. */
+export interface MockSuotarSubmission {
+  submittedAttainmentId: string
+  studentNumber: string
+  courseCode: string
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+}
+
+/** Every submission the mock holds for one student on one course code, oldest first. */
+export const mockSuotarSubmissionsFor = async (
+  request: APIRequestContext,
+  studentNumber: string,
+  courseCode: string,
+): Promise<MockSuotarSubmission[]> => {
+  const world = (await getMockSuotarWorld(request)) as {
+    submissions?: Record<string, MockSuotarSubmission & { createdAt: string }>
+  }
+  return Object.values(world.submissions ?? {})
+    .filter(
+      (submission) =>
+        submission.studentNumber === studentNumber && submission.courseCode === courseCode,
+    )
+    .toSorted((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+}

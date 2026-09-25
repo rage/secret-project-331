@@ -10,9 +10,9 @@ use headless_lms_models::credit_registrations::{
 use headless_lms_models::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
-    course_module_suotar_configurations, course_module_suotar_realisations,
-    credit_registration_account_linking_emails, credit_registration_events,
-    credit_registration_phase_state, credit_registrations, suotar_api_calls,
+    course_module_suotar_configurations, credit_registration_account_linking_emails,
+    credit_registration_events, credit_registration_phase_state, credit_registrations,
+    study_registry_student_number_conflicts, suotar_api_calls,
 };
 use utoipa::ToSchema;
 
@@ -20,17 +20,20 @@ use crate::domain::system_health::HealthStatus;
 
 /// Within this much of the past, one rejected credential is enough.
 const CREDENTIAL_REJECTION_WINDOW_SECS: i64 = 60 * 60;
-const UNREACHABLE_WINDOW_SECS: i64 = 15 * 60;
+/// Long enough to hold three failed calls at the longest request timeout.
+const UNREACHABLE_WINDOW_SECS: i64 = 4 * 60 * 60;
 /// Below this the run is a bad minute rather than an outage.
 const UNREACHABLE_CONSECUTIVE_FAILURES: i64 = 3;
-const SISU_OUTAGE_WINDOW_SECS: i64 = 15 * 60;
+const SERVICE_OUTAGE_WINDOW_SECS: i64 = 60 * 60;
 /// Below this many items the share below is one bad batch, not a signal.
-const SISU_OUTAGE_MIN_ITEMS: i64 = 10;
-const SISU_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
+const SERVICE_OUTAGE_MIN_ITEMS: i64 = 10;
+const SERVICE_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
+/// The longest `submissionPending` asks verify to wait before polling again.
+const SUOTAR_PENDING_WAIT_SECS: i64 = 24 * 60 * 60;
 const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
     stuck_ready_to_submit_secs: 2 * 60 * 60,
-    stuck_submitting_secs: 15 * 60,
-    stuck_awaiting_verification_secs: 24 * 60 * 60,
+    stuck_submitting_secs: 90 * 60,
+    stuck_awaiting_verification_secs: SUOTAR_PENDING_WAIT_SECS + 2 * 60 * 60,
     stuck_failed_retryable_secs: 3 * 24 * 60 * 60,
 };
 
@@ -53,8 +56,11 @@ pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 /// Failures in a row before a phase counts as broken rather than unlucky.
 pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
 /// A phase that owns a nonempty queue and has not succeeded within this many of its own intervals
-/// is running without getting anywhere, which no failure count catches.
+/// is running without getting anywhere, which no failure count catches. Never less than its
+/// slowest possible iteration plus [`PHASE_SUCCESS_CALL_MARGIN_SECS`], or one slow call would look
+/// like a wedge.
 const PHASE_SUCCESS_INTERVAL_MULTIPLIER: i32 = 10;
+const PHASE_SUCCESS_CALL_MARGIN_SECS: i64 = 10 * 60;
 /// The window every "in the last day" rule shares.
 const TERMINAL_WINDOW_SECS: i64 = 24 * 60 * 60;
 const PERMANENT_FAILURE_COUNT: i64 = 20;
@@ -75,16 +81,13 @@ const LATENCY_WINDOW_SECS: i64 = 7 * 24 * 60 * 60;
 /// Under this the registry is quick enough that a doubling says nothing.
 const LATENCY_REGRESSION_FLOOR_SECS: i64 = 6 * 60 * 60;
 const LATENCY_REGRESSION_FACTOR: i64 = 2;
-/// One person the registry names differently from the account whose address matched is worth a
-/// look: it is the only signal we get that a university address was reissued.
-const FAST_TRACK_NAME_MISMATCH_COUNT: i64 = 1;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum CreditRegistrationAlertId {
     CredentialsRejected,
     StudyRegistryUnreachable,
-    SisuUnavailable,
+    ServiceUnavailable,
     StuckRegistrations,
     LinkingMailSendFailed,
     LinkingMailRateCapExceeded,
@@ -96,8 +99,8 @@ pub enum CreditRegistrationAlertId {
     PipelineIdle,
     CompletionsNeverEntered,
     ConfirmationLatencyRegressed,
-    FastTrackNameMismatch,
     PipelinePausedGlobally,
+    StudyRegistryStudentNumberConflicts,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, ToSchema)]
@@ -213,7 +216,7 @@ pub async fn evaluate(
         });
     }
 
-    if let Some(alert) = sisu_outage_alert(conn, now).await? {
+    if let Some(alert) = service_outage_alert(conn, now).await? {
         alerts.push(alert);
     }
     if let Some(alert) = stuck_alert(stuck) {
@@ -236,7 +239,7 @@ pub async fn evaluate(
     if let Some(alert) = latency_regression_alert(conn, now).await? {
         alerts.push(alert);
     }
-    if let Some(alert) = fast_track_name_mismatch_alert(conn).await? {
+    if let Some(alert) = study_registry_conflict_alert(conn).await? {
         alerts.push(alert);
     }
 
@@ -259,30 +262,31 @@ pub async fn evaluate(
     })
 }
 
-/// The share of recent items the study registry blamed on Sisu. Our only proxy for Sisu's uptime,
-/// which is why it is a rule of its own rather than part of the request-level one above.
-async fn sisu_outage_alert(
+/// The share of recent items that failed on Suotar or Sisu being unavailable. Our only proxy for
+/// Sisu's uptime, which is why it is a rule of its own rather than part of the request-level one
+/// above.
+async fn service_outage_alert(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let totals = credit_registration_events::count_item_outcomes_since(
         conn,
-        now - chrono::Duration::seconds(SISU_OUTAGE_WINDOW_SECS),
+        now - chrono::Duration::seconds(SERVICE_OUTAGE_WINDOW_SECS),
     )
     .await?;
-    if totals.item_count < SISU_OUTAGE_MIN_ITEMS
-        || totals.sisu_unavailable_count * 100
-            < totals.item_count * SISU_OUTAGE_FAILURE_SHARE_PERCENT
+    if totals.item_count < SERVICE_OUTAGE_MIN_ITEMS
+        || totals.service_unavailable_count * 100
+            < totals.item_count * SERVICE_OUTAGE_FAILURE_SHARE_PERCENT
     {
         return Ok(None);
     }
     Ok(Some(CreditRegistrationAlert {
-        id: CreditRegistrationAlertId::SisuUnavailable,
-        window_secs: Some(SISU_OUTAGE_WINDOW_SECS),
+        id: CreditRegistrationAlertId::ServiceUnavailable,
+        window_secs: Some(SERVICE_OUTAGE_WINDOW_SECS),
         severity: CreditRegistrationAlertSeverity::Critical,
-        count: totals.sisu_unavailable_count,
+        count: totals.service_unavailable_count,
         total: Some(totals.item_count),
-        at: totals.last_sisu_unavailable_at,
+        at: totals.last_service_unavailable_at,
         subject: None,
     }))
 }
@@ -403,17 +407,29 @@ async fn phase_alerts(
         ) {
             stale.push(&phase.phase);
         }
-        let owns_work =
+        let known_phase =
             crate::domain::credit_registration_phases::CreditRegistrationPhase::from_phase_name(
                 &phase.phase,
-            )
-            .is_some_and(|known| owned_depth(known, depths) > 0);
+            );
+        let owns_work = known_phase.is_some_and(|known| owned_depth(known, depths) > 0);
+        let slowest_iteration_secs = known_phase.map_or(0, |known| {
+            known.max_study_registry_wait().as_secs() as i64 + PHASE_SUCCESS_CALL_MARGIN_SECS
+        });
+        let unproductive_after_secs =
+            (interval * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER)).max(slowest_iteration_secs);
         let unproductive = owns_work
             && phase.last_success_at.is_some_and(|last_success_at| {
-                (now - last_success_at).num_seconds()
-                    > interval * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER)
+                (now - last_success_at).num_seconds() > unproductive_after_secs
             });
-        if phase.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT || unproductive {
+        // The keep-alive refreshes the heartbeat for as long as an iteration runs, so a hung one
+        // shows only here.
+        let hung = phase.last_run_started_at.is_some_and(|started_at| {
+            phase
+                .last_run_finished_at
+                .is_none_or(|finished_at| finished_at < started_at)
+                && (now - started_at).num_seconds() > unproductive_after_secs
+        });
+        if phase.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT || unproductive || hung {
             failing.push(&phase.phase);
         }
     }
@@ -604,25 +620,20 @@ async fn latency_regression_alert(
     }))
 }
 
-/// Persons whose university address matched a verified account under a different name. The
-/// observable signature of an address reissued to somebody else, and the only warning we get before
-/// a link is made to the wrong account.
-async fn fast_track_name_mismatch_alert(
+/// Accounts the study registry reported a number for that another live link kept us from linking.
+async fn study_registry_conflict_alert(
     conn: &mut PgConnection,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
-    let count =
-        course_module_suotar_realisations::sum_last_fast_track_name_mismatches(conn).await?;
-    Ok(
-        (count >= FAST_TRACK_NAME_MISMATCH_COUNT).then_some(CreditRegistrationAlert {
-            id: CreditRegistrationAlertId::FastTrackNameMismatch,
-            window_secs: None,
-            severity: CreditRegistrationAlertSeverity::Warning,
-            count,
-            total: None,
-            at: None,
-            subject: None,
-        }),
-    )
+    let count = study_registry_student_number_conflicts::count_unresolved(conn).await?;
+    Ok((count > 0).then_some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::StudyRegistryStudentNumberConflicts,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count,
+        total: None,
+        at: None,
+        subject: None,
+    }))
 }
 
 fn depth_of(depths: &[(CreditRegistrationState, i64)], state: CreditRegistrationState) -> i64 {

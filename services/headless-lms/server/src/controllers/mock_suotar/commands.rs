@@ -5,7 +5,7 @@
 use std::collections::BTreeMap;
 
 use chrono::NaiveDate;
-use headless_lms_utils::services::suotar::SuotarEndpoint;
+use serde::Deserializer;
 use serde_json::json;
 use sqlx::PgPool;
 
@@ -16,11 +16,13 @@ use super::faults::{Fault, OwnerRef, Predicate, ResolvedOwner, Stage, validate};
 use super::ids;
 use super::scenarios;
 use super::store::{EntityHash, MockSuotarStore, OwnerKeys, World};
+use super::wire::Endpoint;
 use super::world::{
-    AttainmentState, CourseBehaviour, CreditRange, DatePeriod, DuplicateDetection, EnrolmentState,
-    GradeScale, LocalizedName, MockAttainment, MockCourseUnit, MockEnrolment, MockPerson,
-    MockProductAccessToken, MockRealisation, MockSubmission, PersonBehaviour, ProductDocumentState,
-    ProductTokenState, RealisationKind, RecordedCall, Ripeness, SubmissionLifecycle, WorldDefaults,
+    AttainmentLevel, AttainmentState, CourseBehaviour, CreditRange, DatePeriod, EnrolmentState,
+    GradeScale, ImporterVisibility, LocalizedName, MockAttainment, MockCourseUnit, MockEnrolment,
+    MockPerson, MockRealisation, MockStudyRight, MockSubmission, PENDING_WINDOW_HOURS,
+    PersonBehaviour, RealisationKind, RecordedCall, SendState, SuotarCourse, WorldDefaults,
+    person_course_key,
 };
 
 const DEFAULT_CALL_LIMIT: usize = 200;
@@ -45,9 +47,6 @@ pub enum MockSuotarCommand {
     },
     UpsertAttainments {
         attainments: Vec<AttainmentUpsert>,
-    },
-    UpsertProductAccessTokens {
-        tokens: Vec<ProductAccessTokenUpsert>,
     },
     #[serde(rename_all = "camelCase")]
     DeletePersons {
@@ -134,7 +133,17 @@ pub struct WorldPush {
     #[serde(default)]
     pub submissions: Vec<MockSubmission>,
     #[serde(default)]
-    pub product_tokens: Vec<ProductAccessTokenUpsert>,
+    pub sisu_violations: Vec<SisuViolationsUpsert>,
+}
+
+/// What Sisu refuses an attainment of this student on this course with, answered as
+/// `sisuValidationFailed`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SisuViolationsUpsert {
+    pub student_number: String,
+    pub course_code: String,
+    pub violations: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -142,9 +151,9 @@ pub struct WorldPush {
 pub struct PersonUpsert {
     pub student_number: String,
     pub person_id: Option<String>,
-    pub first_names: String,
-    pub last_name: String,
-    pub primary_email: String,
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    pub primary_email: Option<String>,
     pub secondary_email: Option<String>,
     #[serde(default)]
     pub behaviour: PersonBehaviour,
@@ -159,13 +168,9 @@ pub struct RealisationUpsert {
     pub assessment_item_id: Option<String>,
     #[serde(default = "degree")]
     pub kind: RealisationKind,
-    pub activity_period: DatePeriod,
-    pub grade_scale_id: String,
-    pub credits: CreditRange,
-    /// Never derived: null means no acceptor, which is how `acceptorNotFound` is reached from data
-    /// alone.
-    pub acceptor_person_id: Option<String>,
-    pub open_university_product_id: Option<String>,
+    pub activity_period: Option<DatePeriod>,
+    /// The assessment item's own scale; absent falls back to the course unit's.
+    pub grade_scale_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -174,8 +179,12 @@ pub struct CourseUnitUpsert {
     pub course_code: String,
     pub course_unit_id: Option<String>,
     pub name: Option<LocalizedName>,
+    pub credits: Option<CreditRange>,
+    pub grade_scale_id: Option<String>,
     #[serde(default)]
     pub realisations: Vec<RealisationUpsert>,
+    /// Never defaulted: absent is a code Suotar does not carry.
+    pub suotar_course: Option<SuotarCourse>,
     #[serde(default)]
     pub behaviour: CourseBehaviour,
     pub owner_course_slug: Option<String>,
@@ -191,9 +200,23 @@ pub struct EnrolmentUpsert {
     #[serde(default = "degree")]
     pub kind: RealisationKind,
     pub state: EnrolmentState,
-    pub study_right_id: Option<String>,
-    pub study_right_validity_period: DatePeriod,
-    pub enrolment_date_time: Option<DateTime<Utc>>,
+    /// Absent derives one from `kind`; an explicit `null` is an enrolment with no study right.
+    #[serde(
+        default,
+        deserialize_with = "explicit_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub study_right_id: Option<Option<String>>,
+    /// Absent is a study right the importer did not return.
+    pub study_right_validity_period: Option<DatePeriod>,
+    pub study_right_grant_date: Option<NaiveDate>,
+    /// Absent is now; an explicit `null` is an enrolment the importer hands over no time for.
+    #[serde(
+        default,
+        deserialize_with = "explicit_null",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub enrolment_date_time: Option<Option<DateTime<Utc>>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -212,16 +235,7 @@ pub struct AttainmentUpsert {
     pub grade_scale_id: String,
     pub grade_id: String,
     pub passed: Option<bool>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProductAccessTokenUpsert {
-    pub open_university_product_id: String,
-    pub id: Option<String>,
-    pub access_token: Option<String>,
-    pub state: Option<ProductTokenState>,
-    pub document_state: Option<ProductDocumentState>,
+    pub credits: Option<f64>,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -237,8 +251,7 @@ pub struct AllocatePerson {
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PersonBehaviourPatch {
-    pub ripeness: Option<Ripeness>,
-    pub duplicate_detection: Option<DuplicateDetection>,
+    pub study_right_unresolvable: Option<bool>,
     pub primary_email: Option<String>,
     pub secondary_email: Option<String>,
 }
@@ -246,13 +259,15 @@ pub struct PersonBehaviourPatch {
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CourseBehaviourPatch {
-    pub import_allowed: Option<bool>,
+    pub no_acceptors: Option<bool>,
+    pub acceptor_lookup_fails: Option<bool>,
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum SubmissionTarget {
     Registered,
+    PartiallyRegistered,
     Misregistered,
     NotRegistered,
     TimedOutButLanded,
@@ -277,23 +292,14 @@ pub struct FaultFilter {
 #[serde(rename_all = "camelCase")]
 pub struct DefaultsPatch {
     pub accepted_token: Option<String>,
-    pub ripeness: Option<Ripeness>,
-    pub duplicate_detection: Option<DuplicateDetection>,
     pub grade_scales: Option<Vec<GradeScale>>,
     pub call_log_capacity: Option<usize>,
-    pub include_non_enrolled_in_result: Option<bool>,
-    pub realisation_id_required: Option<bool>,
-    pub static_grade_error_code: Option<String>,
-    /// The one target field that may itself be `None`, so an absent key and an explicit `null` are
-    /// otherwise indistinguishable.
-    #[serde(default)]
-    pub clear_static_grade_error_code: bool,
 }
 
 #[derive(Debug, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CallFilter {
-    pub endpoint: Option<SuotarEndpoint>,
+    pub endpoint: Option<Endpoint>,
     pub student_number: Option<String>,
     pub course_code: Option<String>,
     pub request_item_id: Option<String>,
@@ -350,7 +356,6 @@ impl MockSuotarCommand {
             Self::UpsertCourseUnits { .. } => "upsertCourseUnits",
             Self::UpsertEnrolments { .. } => "upsertEnrolments",
             Self::UpsertAttainments { .. } => "upsertAttainments",
-            Self::UpsertProductAccessTokens { .. } => "upsertProductAccessTokens",
             Self::DeletePersons { .. } => "deletePersons",
             Self::AllocatePerson(_) => "allocatePerson",
             Self::GenerateRoster { .. } => "generateRoster",
@@ -407,7 +412,7 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
             "enrolments": world.enrolments.len(),
             "attainments": world.attainments.len(),
             "submissions": world.submissions.len(),
-            "productTokens": world.product_tokens.len(),
+            "sisuViolations": world.sisu_violations.len(),
         });
         let generation = store.install_world(&world, marker.as_deref()).await?;
         return Ok(json!({ "generation": generation, "counts": counts }));
@@ -465,18 +470,6 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
             )
             .await
         }
-        MockSuotarCommand::UpsertProductAccessTokens { tokens } => {
-            upsert_command(
-                store,
-                &generation,
-                EntityHash::ProductTokens,
-                "productIds",
-                tokens,
-                product_token_from,
-                |token| token.open_university_product_id.clone(),
-            )
-            .await
-        }
         MockSuotarCommand::DeletePersons { student_numbers } => {
             delete_persons(store, &generation, &student_numbers).await
         }
@@ -510,14 +503,11 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
                         format!("No person `{student_number}` in the world."),
                     )
                 })?;
-            if let Some(ripeness) = patch.ripeness {
-                person.behaviour.ripeness = Some(ripeness);
-            }
-            if let Some(detection) = patch.duplicate_detection {
-                person.behaviour.duplicate_detection = Some(detection);
+            if let Some(unresolvable) = patch.study_right_unresolvable {
+                person.behaviour.study_right_unresolvable = unresolvable;
             }
             if let Some(email) = patch.primary_email {
-                person.primary_email = email;
+                person.primary_email = Some(email);
             }
             if let Some(email) = patch.secondary_email {
                 person.secondary_email = Some(email);
@@ -541,8 +531,11 @@ async fn run(store: &MockSuotarStore, pool: &PgPool, command: MockSuotarCommand)
                         format!("No course unit `{course_code}` in the world."),
                     )
                 })?;
-            if let Some(allowed) = patch.import_allowed {
-                unit.behaviour.import_allowed = allowed;
+            if let Some(no_acceptors) = patch.no_acceptors {
+                unit.behaviour.no_acceptors = no_acceptors;
+            }
+            if let Some(fails) = patch.acceptor_lookup_fails {
+                unit.behaviour.acceptor_lookup_fails = fails;
             }
             store
                 .upsert_json(
@@ -760,18 +753,19 @@ async fn allocate_person(
 ) -> Outcome {
     let sequence = store.next_person_seq(generation).await?;
     let student_number = format!("99{sequence:07}");
-    let person = MockPerson {
-        person_id: ids::person_id(&student_number),
-        first_names: args.first_names.unwrap_or_else(|| "Zzyzx".to_string()),
-        last_name: args.last_name.unwrap_or_else(|| "Allocated".to_string()),
-        primary_email: args
-            .primary_email
-            .unwrap_or_else(|| format!("zzyzx.allocated.{student_number}@helsinki.example")),
-        secondary_email: args.secondary_email,
-        behaviour: PersonBehaviour::default(),
-        owner_user_email: args.owner_user_email,
-        student_number: student_number.clone(),
-    };
+    let person =
+        MockPerson {
+            person_id: ids::person_id(&student_number),
+            first_names: Some(args.first_names.unwrap_or_else(|| "Zzyzx".to_string())),
+            last_name: Some(args.last_name.unwrap_or_else(|| "Allocated".to_string())),
+            primary_email: Some(args.primary_email.unwrap_or_else(|| {
+                format!("zzyzx.allocated.{student_number}@helsinki.example.com")
+            })),
+            secondary_email: args.secondary_email,
+            behaviour: PersonBehaviour::default(),
+            owner_user_email: args.owner_user_email,
+            student_number: student_number.clone(),
+        };
     let result = json!({ "studentNumber": student_number, "personId": person.person_id });
     store
         .upsert_json(
@@ -807,14 +801,9 @@ async fn generate_roster(
             format!("`{realisation_id}` is not a realisation of `{course_code}`."),
         )
     })?;
-    // A spec index owns only a hundred numbers, so a large roster has to come from the allocator
-    // range.
+    // The allocator range, clear of every seeded fixture's `900…` number.
     let prefix = student_number_prefix.unwrap_or("99");
     let now = Utc::now();
-    let validity = DatePeriod {
-        start_date: (now - chrono::Duration::days(365)).date_naive(),
-        end_date: (now + chrono::Duration::days(365)).date_naive(),
-    };
 
     let mut persons = BTreeMap::new();
     let mut enrolments = BTreeMap::new();
@@ -827,29 +816,20 @@ async fn generate_roster(
             student_number.clone(),
             MockPerson {
                 person_id: ids::person_id(&student_number),
-                first_names: "Zzyzx".to_string(),
-                last_name: format!("Roster{sequence}"),
-                primary_email: format!("zzyzx.roster.{student_number}@helsinki.example"),
+                first_names: Some("Zzyzx".to_string()),
+                last_name: Some(format!("Roster{sequence}")),
+                primary_email: Some(format!(
+                    "zzyzx.roster.{student_number}@helsinki.example.com"
+                )),
                 secondary_email: None,
                 behaviour: PersonBehaviour::default(),
                 owner_user_email: None,
                 student_number: student_number.clone(),
             },
         );
-        let enrolment_id = ids::enrolment_id(&student_number, realisation.kind);
-        enrolments.insert(
-            enrolment_id.clone(),
-            MockEnrolment {
-                id: enrolment_id,
-                student_number: student_number.clone(),
-                course_code: course_code.to_string(),
-                realisation_id: realisation.id.clone(),
-                state: EnrolmentState::Enrolled,
-                study_right_id: ids::study_right_id(&student_number, realisation.kind),
-                study_right_validity_period: validity.clone(),
-                enrolment_date_time: now,
-            },
-        );
+        let enrolment =
+            MockEnrolment::enrolled_now(&student_number, course_code, &realisation, now);
+        enrolments.insert(enrolment.id.clone(), enrolment);
     }
     store
         .upsert_json(generation, EntityHash::Persons, &persons)
@@ -881,6 +861,9 @@ async fn submission_ids_for(
         .collect())
 }
 
+/// Moves submissions to where the importer and the send would have left them. Attainments minted
+/// from a submission are replaced wholesale, so a later transition never leaves an earlier one's
+/// attainment behind.
 async fn transition(
     store: &MockSuotarStore,
     generation: &str,
@@ -888,9 +871,9 @@ async fn transition(
     to: SubmissionTarget,
 ) -> Outcome {
     let now = Utc::now();
-    let mut touched = Vec::new();
     let mut updated: BTreeMap<String, MockSubmission> = BTreeMap::new();
-    let mut new_attainments: BTreeMap<String, MockAttainment> = BTreeMap::new();
+    let mut minted: BTreeMap<String, MockAttainment> = BTreeMap::new();
+    let mut retired: Vec<String> = Vec::new();
     let defaults = store.preamble(generation).await?.defaults;
 
     for id in ids {
@@ -903,65 +886,81 @@ async fn transition(
                 format!("No submission `{id}` in the world."),
             ));
         };
-        match to {
-            SubmissionTarget::Registered => {
-                let attainment_id = ids::final_attainment_id(id);
-                let attainment = MockAttainment::from_submission(
-                    &submission,
-                    &attainment_id,
-                    AttainmentState::Attained,
-                    &defaults,
-                    now,
-                );
-                new_attainments.insert(attainment_id.clone(), attainment);
-                submission.lifecycle = SubmissionLifecycle::Registered {
-                    attainment_id,
-                    registered_at: now,
-                };
+        let final_id = ids::final_attainment_id(id);
+        retired.extend([id.clone(), final_id.clone()]);
+        let mut mint = |attainment_id: &str, level: AttainmentLevel, state: AttainmentState| {
+            let attainment = MockAttainment::from_submission(
+                &submission,
+                attainment_id,
+                level,
+                state,
+                &defaults,
+                now,
+            );
+            minted.insert(attainment_id.to_string(), attainment);
+        };
+        let importer = match to {
+            SubmissionTarget::Registered | SubmissionTarget::TimedOutButLanded => {
+                mint(&final_id, AttainmentLevel::Final, AttainmentState::Attained);
+                ImporterVisibility::Final {
+                    attainment_id: final_id,
+                }
+            }
+            SubmissionTarget::PartiallyRegistered => {
+                mint(id, AttainmentLevel::Partial, AttainmentState::Attained);
+                ImporterVisibility::Partial {
+                    attainment_id: id.clone(),
+                }
             }
             SubmissionTarget::Misregistered => {
-                let attainment_id = ids::final_attainment_id(id);
-                let attainment = MockAttainment::from_submission(
-                    &submission,
-                    &attainment_id,
+                mint(
+                    &final_id,
+                    AttainmentLevel::Final,
                     AttainmentState::Misregistered,
-                    &defaults,
-                    now,
                 );
-                new_attainments.insert(attainment_id.clone(), attainment);
-                submission.lifecycle = SubmissionLifecycle::Misregistered {
-                    attainment_id,
-                    misregistered_at: now,
-                };
+                ImporterVisibility::Misregistered {
+                    attainment_id: final_id,
+                }
             }
-            SubmissionTarget::NotRegistered => {
-                submission.lifecycle = SubmissionLifecycle::Pending {
-                    ripeness: Ripeness::Manual,
-                };
+            SubmissionTarget::NotRegistered | SubmissionTarget::TimedOutNothingLanded => {
+                ImporterVisibility::None
             }
-            SubmissionTarget::TimedOutButLanded => {
-                submission.lifecycle = SubmissionLifecycle::TimedOutButLanded {
-                    ripeness: Ripeness::Manual,
-                };
-            }
+        };
+        submission.importer = importer;
+        match to {
+            SubmissionTarget::NotRegistered => submission.send_state = SendState::Rejected,
+            SubmissionTarget::TimedOutButLanded => submission.send_state = SendState::Attempted,
             SubmissionTarget::TimedOutNothingLanded => {
-                submission.lifecycle = SubmissionLifecycle::TimedOutNothingLanded;
+                submission.send_state = SendState::Attempted;
+                submission.created_at = submission
+                    .created_at
+                    .min(now - chrono::Duration::hours(PENDING_WINDOW_HOURS + 1));
             }
+            // A misregistration is a later correction in Sisu, past Suotar's recent-send check.
+            SubmissionTarget::Misregistered => {
+                submission.created_at = submission
+                    .created_at
+                    .min(now - chrono::Duration::hours(super::logic::RECENTLY_ACCEPTED_HOURS + 1));
+            }
+            SubmissionTarget::Registered | SubmissionTarget::PartiallyRegistered => {}
         }
-        touched.push(id.clone());
         updated.insert(id.clone(), submission);
     }
 
+    retired.retain(|id| !minted.contains_key(id));
+    store
+        .delete_fields(generation, EntityHash::Attainments, &retired)
+        .await?;
     store
         .upsert_json(generation, EntityHash::Submissions, &updated)
         .await?;
     store
-        .upsert_json(generation, EntityHash::Attainments, &new_attainments)
+        .upsert_json(generation, EntityHash::Attainments, &minted)
         .await?;
     store.reindex(generation).await?;
     Ok(json!({
-        "submittedAttainmentIds": touched,
-        "attainmentIds": new_attainments.keys().collect::<Vec<_>>(),
+        "submittedAttainmentIds": updated.keys().collect::<Vec<_>>(),
+        "attainmentIds": minted.keys().collect::<Vec<_>>(),
     }))
 }
 
@@ -985,7 +984,7 @@ async fn build_fault(
     store: &MockSuotarStore,
     generation: &str,
     spec: super::faults::FaultSpec,
-) -> Result<(Fault, (SuotarEndpoint, Stage)), CommandError> {
+) -> Result<(Fault, (Endpoint, Stage)), CommandError> {
     let predicates = spec.when.into_predicates();
     let validated = validate(&predicates, &spec.then, spec.proves_double_submission)
         .map_err(|problem| CommandError::new(&problem.code, problem.message))?;
@@ -1047,7 +1046,6 @@ async fn resolve_owner(
             resolved.student_numbers = keys.student_numbers;
         } else {
             resolved.course_codes = keys.course_codes;
-            resolved.product_ids = keys.product_ids;
         }
     }
     Ok(resolved)
@@ -1081,25 +1079,25 @@ async fn list_calls(store: &MockSuotarStore, generation: &str, filter: CallFilte
                 .as_ref()
                 .is_none_or(|id| call.faults.applied.contains(id))
         })
+        // One item must match every item-level key: a batch holding (A, X) and (B, Y) is no call
+        // for (A, Y).
         .filter(|call| {
-            filter.student_number.as_ref().is_none_or(|value| {
-                call.items
-                    .iter()
-                    .any(|item| item.student_number.as_ref() == Some(value))
-            })
-        })
-        .filter(|call| {
-            filter.course_code.as_ref().is_none_or(|value| {
-                call.items
-                    .iter()
-                    .any(|item| item.course_code.as_ref() == Some(value))
-            })
-        })
-        .filter(|call| {
-            filter
-                .request_item_id
-                .as_ref()
-                .is_none_or(|value| call.items.iter().any(|item| &item.request_item_id == value))
+            call.items.iter().any(|item| {
+                filter
+                    .student_number
+                    .as_ref()
+                    .is_none_or(|value| item.student_number.as_ref() == Some(value))
+                    && filter
+                        .course_code
+                        .as_ref()
+                        .is_none_or(|value| item.course_code.as_ref() == Some(value))
+                    && filter
+                        .request_item_id
+                        .as_ref()
+                        .is_none_or(|value| &item.request_item_id == value)
+            }) || (filter.student_number.is_none()
+                && filter.course_code.is_none()
+                && filter.request_item_id.is_none())
         })
         .collect();
     Ok(json!({ "calls": matching, "scanned": calls.len() }))
@@ -1109,28 +1107,11 @@ fn apply_defaults_patch(defaults: &mut WorldDefaults, patch: DefaultsPatch) {
     if let Some(value) = patch.accepted_token {
         defaults.accepted_token = value;
     }
-    if let Some(value) = patch.ripeness {
-        defaults.ripeness = value;
-    }
-    if let Some(value) = patch.duplicate_detection {
-        defaults.duplicate_detection = value;
-    }
     if let Some(value) = patch.grade_scales {
         defaults.grade_scales = value;
     }
     if let Some(value) = patch.call_log_capacity {
         defaults.call_log_capacity = value;
-    }
-    if let Some(value) = patch.include_non_enrolled_in_result {
-        defaults.include_non_enrolled_in_result = value;
-    }
-    if let Some(value) = patch.realisation_id_required {
-        defaults.realisation_id_required = value;
-    }
-    if let Some(value) = patch.static_grade_error_code {
-        defaults.static_grade_error_code = Some(value);
-    } else if patch.clear_static_grade_error_code {
-        defaults.static_grade_error_code = None;
     }
 }
 
@@ -1168,12 +1149,15 @@ pub fn world_from_push(push: WorldPush) -> World {
             .into_iter()
             .map(|submission| (submission.submitted_attainment_id.clone(), submission))
             .collect(),
-        product_tokens: push
-            .product_tokens
+        sisu_violations: push
+            .sisu_violations
             .into_iter()
-            .map(|token| {
-                let token = product_token_from(token);
-                (token.open_university_product_id.clone(), token)
+            .filter(|upsert| !upsert.violations.is_empty())
+            .map(|upsert| {
+                (
+                    person_course_key(&upsert.student_number, &upsert.course_code),
+                    upsert.violations,
+                )
             })
             .collect(),
     }
@@ -1181,6 +1165,15 @@ pub fn world_from_push(push: WorldPush) -> World {
 
 fn degree() -> RealisationKind {
     RealisationKind::Degree
+}
+
+/// Keeps an explicit `null` apart from an absent key, which serde otherwise folds together.
+fn explicit_null<'de, D, T>(deserializer: D) -> Result<Option<Option<T>>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    Option::<T>::deserialize(deserializer).map(Some)
 }
 
 fn person_from(upsert: PersonUpsert) -> MockPerson {
@@ -1212,18 +1205,18 @@ fn course_unit_from(upsert: CourseUnitUpsert) -> MockCourseUnit {
                 id: realisation
                     .id
                     .unwrap_or_else(|| ids::realisation_id(&course_code, realisation.kind)),
-                name: realisation.name.unwrap_or_else(|| name.clone()),
+                name: Some(realisation.name.unwrap_or_else(|| name.clone())),
                 assessment_item_id: realisation
                     .assessment_item_id
                     .unwrap_or_else(|| ids::assessment_item_id(&course_code, realisation.kind)),
                 kind: realisation.kind,
                 activity_period: realisation.activity_period,
                 grade_scale_id: realisation.grade_scale_id,
-                credits: realisation.credits,
-                acceptor_person_id: realisation.acceptor_person_id,
-                open_university_product_id: realisation.open_university_product_id,
             })
             .collect(),
+        credits: upsert.credits,
+        grade_scale_id: upsert.grade_scale_id,
+        suotar_course: upsert.suotar_course,
         behaviour: upsert.behaviour,
         owner_course_slug: upsert.owner_course_slug,
         name,
@@ -1233,24 +1226,36 @@ fn course_unit_from(upsert: CourseUnitUpsert) -> MockCourseUnit {
 
 fn enrolment_from(upsert: EnrolmentUpsert) -> MockEnrolment {
     MockEnrolment {
-        id: upsert
-            .id
-            .unwrap_or_else(|| ids::enrolment_id(&upsert.student_number, upsert.kind)),
+        id: upsert.id.unwrap_or_else(|| {
+            ids::enrolment_id(&upsert.student_number, &upsert.course_code, upsert.kind)
+        }),
         realisation_id: upsert
             .realisation_id
             .unwrap_or_else(|| ids::realisation_id(&upsert.course_code, upsert.kind)),
         study_right_id: upsert
             .study_right_id
-            .unwrap_or_else(|| ids::study_right_id(&upsert.student_number, upsert.kind)),
-        enrolment_date_time: upsert.enrolment_date_time.unwrap_or_else(Utc::now),
+            .unwrap_or_else(|| Some(ids::study_right_id(&upsert.student_number, upsert.kind))),
+        study_right: upsert
+            .study_right_validity_period
+            .map(|validity| MockStudyRight {
+                validity,
+                grant_date: upsert.study_right_grant_date,
+            }),
+        enrolment_date_time: upsert
+            .enrolment_date_time
+            .unwrap_or_else(|| Some(Utc::now())),
         student_number: upsert.student_number,
         course_code: upsert.course_code,
         state: upsert.state,
-        study_right_validity_period: upsert.study_right_validity_period,
     }
 }
 
+/// A course-unit attainment, the default, carries no assessment item or realisation.
 fn attainment_from(upsert: AttainmentUpsert) -> MockAttainment {
+    let attainment_type = upsert
+        .attainment_type
+        .unwrap_or_else(|| super::wire::COURSE_UNIT_ATTAINMENT.to_string());
+    let is_assessment_item = attainment_type == super::wire::ASSESSMENT_ITEM_ATTAINMENT;
     MockAttainment {
         id: upsert.id.unwrap_or_else(|| {
             ids::pushed_attainment_id(
@@ -1259,40 +1264,25 @@ fn attainment_from(upsert: AttainmentUpsert) -> MockAttainment {
                 &upsert.grade_id,
             )
         }),
-        attainment_type: upsert
-            .attainment_type
-            .unwrap_or_else(|| "CourseUnitAttainment".to_string()),
         state: upsert.state.unwrap_or(AttainmentState::Attained),
         person_id: upsert
             .person_id
             .unwrap_or_else(|| ids::person_id(&upsert.student_number)),
         course_unit_id: ids::course_unit_id(&upsert.course_code),
-        assessment_item_id: ids::assessment_item_id(&upsert.course_code, upsert.kind),
-        course_unit_realisation_id: ids::realisation_id(&upsert.course_code, upsert.kind),
+        assessment_item_id: is_assessment_item
+            .then(|| ids::assessment_item_id(&upsert.course_code, upsert.kind)),
+        course_unit_realisation_id: is_assessment_item
+            .then(|| ids::realisation_id(&upsert.course_code, upsert.kind)),
+        attainment_type,
         registration_date: upsert.registration_date.unwrap_or(upsert.attainment_date),
-        passed: upsert.passed.unwrap_or(true),
+        passed: Some(upsert.passed.unwrap_or(true)),
+        credits: upsert.credits,
         attainment_date: upsert.attainment_date,
         grade_scale_id: upsert.grade_scale_id,
         grade_id: upsert.grade_id,
         student_number: upsert.student_number,
         course_code: upsert.course_code,
         from_submission: None,
-    }
-}
-
-fn product_token_from(upsert: ProductAccessTokenUpsert) -> MockProductAccessToken {
-    MockProductAccessToken {
-        id: upsert
-            .id
-            .unwrap_or_else(|| format!("{}-token", upsert.open_university_product_id)),
-        access_token: upsert
-            .access_token
-            .unwrap_or_else(|| ids::product_access_token(&upsert.open_university_product_id)),
-        state: upsert.state.unwrap_or(ProductTokenState::Enabled),
-        document_state: upsert
-            .document_state
-            .unwrap_or(ProductDocumentState::Active),
-        open_university_product_id: upsert.open_university_product_id,
     }
 }
 
@@ -1381,7 +1371,7 @@ async fn dump(store: &MockSuotarStore, generation: &str) -> anyhow::Result<serde
         "enrolments": store.all_json::<MockEnrolment>(generation, EntityHash::Enrolments).await?,
         "attainments": store.all_json::<MockAttainment>(generation, EntityHash::Attainments).await?,
         "submissions": store.all_json::<MockSubmission>(generation, EntityHash::Submissions).await?,
-        "productTokens": store.all_json::<MockProductAccessToken>(generation, EntityHash::ProductTokens).await?,
+        "sisuViolations": store.all_json::<Vec<String>>(generation, EntityHash::SisuViolations).await?,
         "faults": store.faults(generation).await?,
         "calls": store.recent_calls(generation, WORLD_DUMP_CALL_LIMIT).await?,
         "callLogLen": counts.call_log_len,
@@ -1448,7 +1438,7 @@ mod tests {
                 { "stage": "requestGate" },
                 { "owner": { "user": "someone@example.com", "course": "crs-401" } }
             ],
-            "then": { "kind": "requestLevel", "status": 503, "code": "sisuTemporarilyUnavailable" },
+            "then": { "kind": "requestLevel", "status": 503, "code": "serviceTemporarilyUnavailable" },
             "lifetime": { "matchingCalls": 1 }
         }))
         .expect("armFault");
@@ -1460,17 +1450,24 @@ mod tests {
                 "studentNumber": "900000101",
                 "firstNames": "Zzyzx",
                 "lastName": "Happypath",
-                "primaryEmail": "zzyzx.happypath@helsinki.example",
-                "behaviour": { "ripeness": { "autoAfterVerifyCalls": { "calls": 1 } } }
+                "primaryEmail": "zzyzx.happypath@helsinki.example.com",
+                "behaviour": { "studyRightUnresolvable": true }
             }],
             "courseUnits": [{
                 "courseCode": "CRS-101",
+                "credits": { "min": 5, "max": 5 },
+                "gradeScaleId": "sis-hyl-hyv",
+                "suotarCourse": { "name": "CRS-101" },
                 "realisations": [{
                     "kind": "openUniversity",
-                    "activityPeriod": { "startDate": "2026-01-01", "endDate": "2026-12-31" },
-                    "gradeScaleId": "sis-hyl-hyv",
-                    "credits": { "min": 5, "max": 5 }
+                    "activityPeriod": { "startDate": "2026-01-01", "endDate": "2026-12-31" }
                 }]
+            }],
+            "enrolments": [{
+                "studentNumber": "900000101",
+                "courseCode": "CRS-101",
+                "state": "ENROLLED",
+                "studyRightId": null
             }]
         }))
         .expect("pushWorld");

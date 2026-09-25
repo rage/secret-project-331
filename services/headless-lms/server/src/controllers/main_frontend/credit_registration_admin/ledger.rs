@@ -25,6 +25,8 @@ use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 
 use super::{
     AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
@@ -66,7 +68,6 @@ pub struct AdminCreditRegistrationRow {
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub sisu_attainment_id: Option<String>,
     pub submit_retry_count: i32,
@@ -99,6 +100,8 @@ pub struct AdminCreditRegistrationEvent {
     /// The `{request, response}` pair, scrubbed at write time: names, student numbers and email
     /// addresses read `[redacted]` while their keys survive. The values we sent are on the row.
     pub details: Option<serde_json::Value>,
+    /// The requestItemId the row went out under in the call behind this event.
+    pub request_item_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -269,11 +272,11 @@ pub struct ListCreditRegistrationsQuery {
     course_id: Option<Uuid>,
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
-    student_number: Option<String>,
+    student_number: Option<SecretString>,
     needs_admin_attention: Option<bool>,
     submitted_after: Option<DateTime<Utc>>,
     submitted_before: Option<DateTime<Utc>>,
-    search: Option<String>,
+    search: Option<SecretString>,
     include_superseded: Option<bool>,
     sort: Option<String>,
 }
@@ -317,8 +320,8 @@ pub async fn list_credit_registrations_for_admin(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let pagination = parse_pagination(query.page, query.limit, 50)?;
-    let search = non_empty(query.search.as_deref());
-    let student_number = non_empty(query.student_number.as_deref());
+    let search = non_empty(expose_option(&query.search));
+    let student_number = non_empty(expose_option(&query.student_number));
     let filters = AdminCreditRegistrationFilters {
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
@@ -417,6 +420,7 @@ pub async fn get_credit_registration_for_admin(
                 actor_user_id: event.actor_user_id,
                 suotar_api_call_id: event.suotar_api_call_id,
                 details: event.details,
+                request_item_id: event.request_item_id,
             })
             .collect();
     let suotar_api_calls =
@@ -447,12 +451,13 @@ pub async fn get_credit_registration_for_admin(
             registration.user_id,
         )
         .await?
-        .map(|link| link.sisu_person_id),
+        .and_then(|link| link.sisu_person_id),
     };
     let linking_emails = match sisu_person_id {
         Some(person_id) => {
             let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
-                &mut conn, &person_id,
+                &mut conn,
+                person_id.expose_secret(),
             )
             .await?;
             build_linking_emails(&mut conn, mails).await?
@@ -492,7 +497,8 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 - Moves one row by hand.
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
-re-importing could put a second attainment on a real transcript.
+re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+while Suotar still holds its earlier submission open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -534,6 +540,8 @@ pub async fn admin_transition_credit_registration(
             state_move.to_state(),
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
+            row.resubmit_not_before,
+            row.submitted_at,
         ) {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::Refused,
@@ -586,7 +594,7 @@ Resubmitting refuses every row in `submission_uncertain`, whatever the selection
 those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
 looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
 attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
-time.
+time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -642,6 +650,8 @@ pub async fn admin_bulk_transition_credit_registrations(
                 state_move.to_state(),
                 row.superseded_by_id.is_some(),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
+                row.resubmit_not_before,
+                row.submitted_at,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
             None if row.superseded_by_id.is_some() => Some(ResubmissionRefusal::Superseded),
@@ -878,6 +888,8 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
             CreditRegistrationState::ReadyToSubmit,
             row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
+            row.resubmit_not_before,
+            row.submitted_at,
         ),
         id: row.id,
         created_at: row.created_at,
@@ -901,21 +913,20 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         submitted_at: row.submitted_at,
         registered_at: row.registered_at,
         terminal_at: row.terminal_at,
-        student_number: row.student_number,
-        sisu_person_id: row.sisu_person_id,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
+        sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         uh_course_code: row.uh_course_code,
         selected_enrolment_id: row.selected_enrolment_id,
         grade_scale_id: row.grade_scale_id,
         grade_id: row.grade_id,
         credits: row.credits,
-        request_item_id: row.request_item_id,
         submitted_attainment_id: row.submitted_attainment_id,
         sisu_attainment_id: row.sisu_attainment_id,
         submit_retry_count: row.submit_retry_count,
         verify_attempt_count: row.verify_attempt_count,
         attempt_number: row.attempt_number,
         superseded_by_id: row.superseded_by_id,
-        verified_student_number: row.verified_student_number,
+        verified_student_number: expose_option(&row.verified_student_number).map(str::to_owned),
         verified_student_number_at: row.verified_student_number_at,
         verified_student_number_via: row.verified_student_number_via,
     }

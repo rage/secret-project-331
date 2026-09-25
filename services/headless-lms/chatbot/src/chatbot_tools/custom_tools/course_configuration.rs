@@ -608,10 +608,11 @@ impl ChatbotTool for CourseConfigurationTool {
                 );
             }
             notes.push(
-                "enable_registering_completion_to_uh_open_university and \
-                 enable_credit_registration_via_suotar are mutually exclusive \
-                 credit-registration routes (student-initiated link vs. system push); both \
-                 false means the student cannot register credits at all. \
+                "enable_registering_completion_to_uh_open_university is the \
+                 student-initiated credit-registration link; \
+                 enable_credit_registration_via_suotar means the module also takes part in the \
+                 system push, which only handles completions individually opted in to it, so \
+                 both can be on. Both false means the student cannot register credits at all. \
                  certification_enabled alone is not sufficient for a certificate to exist — a \
                  certificate_configuration must also reference the module."
                     .to_string(),

@@ -38,6 +38,7 @@ import {
 } from "../registrationFailures"
 import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss, proseCss, rowCss, subsectionCss } from "../styles"
+import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { AdminActionDialog } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
@@ -213,6 +214,7 @@ const offeredActions = (registration: AdminCreditRegistrationRow): readonly Fail
  */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
 
   if (registration.superseded) {
     return <p className={noteCss}>{t("credit-registration-admin-superseded-no-actions")}</p>
@@ -279,7 +281,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
           />
         ) : null
       case "resend_student_number_link":
-        return studentNumber ? (
+        return isAccountLinkingEnabled && studentNumber ? (
           <AdminResendLinkingEmailButton
             key={action}
             studentNumber={studentNumber}

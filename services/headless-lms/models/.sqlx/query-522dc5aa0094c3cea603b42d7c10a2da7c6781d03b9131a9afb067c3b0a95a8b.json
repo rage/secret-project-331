@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM study_registry_student_number_conflicts c\nWHERE c.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers vsn\n    WHERE vsn.user_id = c.user_id\n      AND vsn.student_number = c.student_number\n      AND vsn.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "522dc5aa0094c3cea603b42d7c10a2da7c6781d03b9131a9afb067c3b0a95a8b"
+}

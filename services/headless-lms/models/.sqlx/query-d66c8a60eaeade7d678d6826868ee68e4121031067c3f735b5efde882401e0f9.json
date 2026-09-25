@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE verified_student_numbers\nSET sisu_person_id = $2,\n  first_names = COALESCE(first_names, $3),\n  last_name = COALESCE(last_name, $4)\nWHERE id = $1\n  AND deleted_at IS NULL\n  AND (\n    sisu_person_id IS NULL\n    OR sisu_person_id = $2\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers other\n    WHERE other.sisu_person_id = $2\n      AND other.deleted_at IS NULL\n      AND other.id <> $1\n  )\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "d66c8a60eaeade7d678d6826868ee68e4121031067c3f735b5efde882401e0f9"
+}

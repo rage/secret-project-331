@@ -21,13 +21,6 @@ export type AccountLinkingFailureDomain = {
  */
 export type AccountLinkingFunnel = {
   already_linked_last_run: number
-  /**
-   * The branch that skips the mail entirely: discovered persons linked straight away because the
-   * study registry holds a verified account address for them. A terminal branch off `discovered`,
-   * not a stage every person passes through.
-   */
-  fast_tracked_in_window: number
-  fast_tracked_last_run: number
   mails_claimed_in_window: number
   mails_sent_in_window: number
   /**
@@ -41,31 +34,15 @@ export type AccountLinkingFunnel = {
   suppressed_by_rate_cap_last_run: number
 }
 
-export type AccountLinkingRealisationCounters = {
+export type AccountLinkingModuleCounters = {
   already_linked_count?: number | null
   consecutive_listing_failures: number
   course_id: string
   course_module_id: string
   course_module_name?: string | null
   course_name: string
-  course_unit_realisation_id: string
-  fast_track_skipped_account_has_number_count?: number | null
   /**
-   * A rise here is the only early warning of a university address reissued to a different person.
-   */
-  fast_track_skipped_name_mismatch_count?: number | null
-  fast_track_skipped_no_account_count?: number | null
-  fast_track_skipped_stale_verification_count?: number | null
-  fast_track_skipped_unlinked_before_count?: number | null
-  /**
-   * Matched an account that has never proved the address. The population an email-verification
-   * campaign would convert.
-   */
-  fast_track_skipped_unverified_count?: number | null
-  fast_tracked_count?: number | null
-  label?: string | null
-  /**
-   * When the counters below were collected. Not the last attempt: a failing realisation keeps the
+   * When the counters below were collected. Not the last attempt: a failing listing keeps the
    * last roster that arrived.
    */
   last_listed_at?: string | null
@@ -115,15 +92,23 @@ export type AccountLinkingStaleAddress = {
 }
 
 export type AccountLinkingStats = {
+  /**
+   * When false, no linking mails are sent and resends are refused.
+   */
+  account_linking_enabled: boolean
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
   links_total_by_method: Array<VerifiedStudentNumberMethodTotal>
   max_mails_per_person_and_course: number
+  modules: Array<AccountLinkingModuleCounters>
   quiet_period_secs: number
-  realisations: Array<AccountLinkingRealisationCounters>
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
+  /**
+   * Newest first, capped.
+   */
+  study_registry_conflicts: Array<StudyRegistryStudentNumberConflict>
   /**
    * Accounts with an eligible completion still waiting for a student number.
    */
@@ -223,6 +208,10 @@ export type AdminCreditRegistrationEvent = {
    * Our own wording, written by the pipeline or by whoever acted.
    */
   message?: string | null
+  /**
+   * The requestItemId the row went out under in the call behind this event.
+   */
+  request_item_id?: string | null
   suotar_api_call_id?: string | null
   to_state?: null | CreditRegistrationState
 }
@@ -253,7 +242,6 @@ export type AdminCreditRegistrationRow = {
   next_attempt_at: string
   pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
-  request_item_id: string
   resubmission_refusal?: null | ResubmissionRefusal
   selected_enrolment_id?: string | null
   sisu_attainment_id?: string | null
@@ -419,6 +407,11 @@ export type AdminResolveStudentNumberResult = {
   last_name?: string | null
   linking_emails: Array<AdminLinkingEmail>
   /**
+   * The registry's per-item code when it answered with an error other than `personNotFound`,
+   * which leaves it unknown whether the number exists.
+   */
+  lookup_error_code?: string | null
+  /**
    * Echoed back to the manual-link endpoint, which refuses without it.
    */
   sisu_person_id?: string | null
@@ -482,7 +475,10 @@ export type AdminVerifiedStudentNumberRow = {
   link_reason?: string | null
   linked_by_user_id?: string | null
   live_registration_count: number
-  sisu_person_id: string
+  /**
+   * `None` for a link the study registry reported, which names no person.
+   */
+  sisu_person_id?: string | null
   student_number: string
   /**
    * In full.
@@ -1184,6 +1180,11 @@ export type CourseCount = {
 
 export type CourseCreditRegistration = {
   attempt_number: number
+  /**
+   * Whether the row's "check enrolment again" action is available now; it shares the student's
+   * button's allowance.
+   */
+  can_request_enrolment_recheck: boolean
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -1264,17 +1265,6 @@ export type CourseCreditRegistrationEvent = {
 }
 
 /**
- * Every module of the course with its Suotar configuration, for the module editor.
- */
-export type CourseCreditRegistrationModuleConfigs = {
-  modules: Array<CourseModuleCreditRegistrationConfig>
-  /**
-   * Every live realisation of every module of the course, to be grouped by `course_module_id`.
-   */
-  realisations: Array<CourseModuleSuotarRealisation>
-}
-
-/**
  * One module's live registrations, split so a teacher can add the columns up.
  *
  * `registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and
@@ -1297,7 +1287,7 @@ export type CourseCreditRegistrationModuleSummary = {
    */
   needs_admin_attention_count: number
   /**
-   * Blocked or cancelled: nothing is happening and nothing will.
+   * Blocked, cancelled or held until the course's settings are fixed: nothing is moving.
    */
   not_registering_count: number
   paused: boolean
@@ -1596,7 +1586,7 @@ export type CourseModuleCompletion = {
   passed: boolean
   prerequisite_modules_completed: boolean
   /**
-   * Whether the push path owns this completion. See the column comment; decided at insert.
+   * Whether the push path owns this completion. See the column comment.
    */
   register_credits_via_suotar: boolean
   updated_at: string
@@ -1656,35 +1646,18 @@ export type CourseModuleCreditRegistrationConfig = {
   /**
    * `None` means never checked, which is not the same as a failed check.
    */
-  credit_registration_course_code_resolves?: boolean | null
+  credit_registration_course_code_allowed?: boolean | null
   /**
-   * `None` means derive the grade scale from the completion.
+   * Whether `completion_registration_link_override` is set, which is also the enrolment link for
+   * students without a usable enrolment.
    */
-  credit_registration_grade_scale_id?: string | null
+  credit_registration_has_enrolment_link: boolean
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_paused_by_user_id?: string | null
-  credit_registration_product_token_found?: boolean | null
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
-  open_university_product_id?: string | null
   uh_course_code?: string | null
-}
-
-/**
- * The module editor's writable half of the Suotar configuration. The pause and the
- * config-validation verdict are not here: their writers are the admin dashboard and the pipeline.
- */
-export type CourseModuleCreditRegistrationEdit = {
-  /**
-   * `None` means derive the grade scale from the completion.
-   */
-  grade_scale_id?: string | null
-  open_university_product_id?: string | null
-  /**
-   * The full set for the module; anything missing from it is soft-deleted.
-   */
-  realisations: Array<CourseModuleSuotarRealisationEdit>
 }
 
 /**
@@ -1718,43 +1691,6 @@ export type CourseModuleInfo = {
    * The module's course code in the university's registry, e.g. `BSCS1001`.
    */
   uh_course_code?: string | null
-}
-
-export type CourseModuleSuotarRealisation = {
-  active: boolean
-  consecutive_listing_failures: number
-  course_module_id: string
-  course_unit_realisation_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  label?: string | null
-  last_already_linked_count?: number | null
-  last_fast_track_skipped_account_has_number_count?: number | null
-  last_fast_track_skipped_name_mismatch_count?: number | null
-  last_fast_track_skipped_no_account_count?: number | null
-  last_fast_track_skipped_stale_verification_count?: number | null
-  last_fast_track_skipped_unlinked_before_count?: number | null
-  last_fast_track_skipped_unverified_count?: number | null
-  last_fast_tracked_count?: number | null
-  last_listed_at?: string | null
-  last_listed_person_count?: number | null
-  last_listing_attempted_at?: string | null
-  last_listing_error?: null | CreditRegistrationErrorCode
-  last_mailed_count?: number | null
-  last_no_address_count?: number | null
-  last_suppressed_by_dedup_count?: number | null
-  last_suppressed_by_rate_cap_count?: number | null
-  updated_at: string
-}
-
-export type CourseModuleSuotarRealisationEdit = {
-  active: boolean
-  course_unit_realisation_id: string
-  /**
-   * Rendered to students as the name of the realisation their credits go against.
-   */
-  label?: string | null
 }
 
 /**
@@ -1992,7 +1928,7 @@ export type CreditRegistrationAlert = {
 export type CreditRegistrationAlertId =
   | "credentials_rejected"
   | "study_registry_unreachable"
-  | "sisu_unavailable"
+  | "service_unavailable"
   | "stuck_registrations"
   | "linking_mail_send_failed"
   | "linking_mail_rate_cap_exceeded"
@@ -2004,8 +1940,8 @@ export type CreditRegistrationAlertId =
   | "pipeline_idle"
   | "completions_never_entered"
   | "confirmation_latency_regressed"
-  | "fast_track_name_mismatch"
   | "pipeline_paused_globally"
+  | "study_registry_student_number_conflicts"
 
 export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
 
@@ -2101,22 +2037,21 @@ export type CreditRegistrationCircuitBreakerState = {
 
 /**
  * What the configuration check concluded about one module, freshly derived from the same facts and
- * the same rule the `config-validation` phase uses.
+ * the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+ * phase.
  *
- * `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
- * same as checked and failed, and the two must not render alike.
+ * `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+ * never checked is not the same as checked and failed, and the two must not render alike.
  */
 export type CreditRegistrationCourseConfigCheck = {
-  course_code_resolves?: boolean | null
+  course_code_allowed?: boolean | null
   /**
    * Every problem found, in one line. `None` means the module is fine.
    */
   message?: string | null
-  product_token_found?: boolean | null
 }
 
 export type CreditRegistrationCourseStats = {
-  active_realisation_count: number
   /**
    * What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
    * longer shows as broken.
@@ -2139,20 +2074,15 @@ export type CreditRegistrationCourseStats = {
    * completions that predate the opt-in.
    */
   eligible_completion_count: number
-  failed_count: number
   /**
-   * The module's override; `None` means the scale is derived from the completion.
+   * Where a student with no usable enrolment is sent to enrol.
    */
-  grade_scale_id?: string | null
+  enrolment_link?: string | null
+  failed_count: number
   in_flight_count: number
   last_listed_at?: string | null
   last_registered_at?: string | null
   needs_admin_attention_count: number
-  /**
-   * The old pull path is on as well, which would register the same completion twice.
-   */
-  old_flow_also_enabled: boolean
-  open_university_product_id?: string | null
   pause_reason?: string | null
   paused_at?: string | null
   registration_count: number
@@ -2191,14 +2121,15 @@ export type CreditRegistrationErrorCode =
   | "enrolment_not_found"
   | "enrolment_not_accepted"
   | "invalid_grade_for_grade_scale"
+  | "grade_scale_mismatch"
   | "course_not_allowed"
   | "invalid_credits"
   | "study_right_not_valid"
-  | "acceptor_not_found"
   | "sisu_validation_failed"
   | "sisu_timeout"
-  | "sisu_temporarily_unavailable"
+  | "service_temporarily_unavailable"
   | "misregistered"
+  | "not_registered"
   | "unauthorized"
   | "malformed_request"
   | "transport_error"
@@ -2341,7 +2272,7 @@ export type CreditRegistrationOverview = {
 /**
  * What a `pending` row is waiting for.
  */
-export type CreditRegistrationPendingReason = "completion" | "student_number"
+export type CreditRegistrationPendingReason = "completion" | "student_number" | "course_code"
 
 export type CreditRegistrationPhaseList = {
   consecutive_failure_limit: number
@@ -2477,6 +2408,17 @@ export type CreditRegistrationReconciliation = {
    */
   several_submitted_attainments: Array<ReconciliationRegistration>
   several_submitted_attainments_count: number
+}
+
+/**
+ * Deployment-wide switches the credit registration views adapt to.
+ */
+export type CreditRegistrationSettings = {
+  /**
+   * Whether linking mails are sent and can be resent. When off, students get a number only from
+   * the study registry or an admin.
+   */
+  account_linking_enabled: boolean
 }
 
 /**
@@ -2767,7 +2709,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "credit_registration_student_number_linked"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -3291,7 +3232,6 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  credit_registration: CourseModuleCreditRegistrationEdit
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
@@ -3496,6 +3436,11 @@ export type MyStudiesCourseModule = {
   automatic_completion: boolean
   completion?: null | MyStudiesCompletion
   course_module_id: string
+  /**
+   * Whether a credit registration exists or is about to for this student's completion, so a
+   * completion without one yet is on its way rather than never coming.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   /**
    * `None` for the course's default module; the frontend labels those with the course name.
@@ -3519,6 +3464,11 @@ export type MyStudiesCourseModule = {
    * manually or sets no point threshold.
    */
   score_required?: number | null
+  /**
+   * Whether this student's credits for the module go through credit registration via Suotar: the
+   * flag of the completion [`models::course_module_completions::select_registration_completion`]
+   * picks, or, before a completion is shown, whether a new one would get it.
+   */
   supports_credit_registration: boolean
   /**
    * Exercises the module offers. `None` when it has none.
@@ -3543,18 +3493,10 @@ export type MyStudiesTotals = {
 }
 
 /**
- * The account's linked student number, unmasked: it is the holder's own.
+ * The account's linked student number, unmasked: it is the holder's own. Deliberately carries no
+ * Sisu-held names.
  */
 export type MyVerifiedStudentNumber = {
-  auto_link_notice_dismissed: boolean
-  first_names?: string | null
-  last_name?: string | null
-  /**
-   * Whether the pipeline linked this without asking, because the study registry holds this
-   * account's verified address for the student number. True until the student puts the notice
-   * away, and the notice is what makes a wrong automatic link noticeable.
-   */
-  linked_automatically: boolean
   student_number: string
   verified_at: string
   verified_via: StudentNumberVerificationMethod
@@ -3694,7 +3636,6 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  credit_registration: CourseModuleCreditRegistrationEdit
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
@@ -3965,7 +3906,6 @@ export type PageAdminCreditRegistrationRow = {
     next_attempt_at: string
     pending_reason?: null | CreditRegistrationPendingReason
     registered_at?: string | null
-    request_item_id: string
     resubmission_refusal?: null | ResubmissionRefusal
     selected_enrolment_id?: string | null
     sisu_attainment_id?: string | null
@@ -4004,7 +3944,10 @@ export type PageAdminVerifiedStudentNumberRow = {
     link_reason?: string | null
     linked_by_user_id?: string | null
     live_registration_count: number
-    sisu_person_id: string
+    /**
+     * `None` for a link the study registry reported, which names no person.
+     */
+    sisu_person_id?: string | null
     student_number: string
     /**
      * In full.
@@ -4342,7 +4285,6 @@ export type RegradingSubmissionInfo = {
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
 export type RequestCreditRegistrationEnrolmentRecheckResult = {
-  next_recheck_allowed_at?: string | null
   /**
    * False when we looked so recently that asking again would tell the student nothing new.
    */
@@ -4428,6 +4370,8 @@ export type ResubmissionRefusal =
   | "already_succeeded"
   | "submission_uncertain"
   | "not_failed_permanent"
+  | "submission_pending"
+  | "already_submitted"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null
@@ -4591,6 +4535,7 @@ export type StudentFacingCreditRegistrationStatus =
   | "needs_student_number"
   | "looking_for_enrolment"
   | "needs_enrolment"
+  | "waiting_for_course_setup"
   | "sending"
   | "waiting_for_sisu"
   | "registered"
@@ -4600,14 +4545,11 @@ export type StudentFacingCreditRegistrationStatus =
 /**
  * How a student number was proven to belong to an account.
  */
-export type StudentNumberVerificationMethod =
-  | "emailed_link"
-  | "email_match_fast_track"
-  | "admin_manual"
+export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | "study_registry"
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token.
+ * able to spend the token. Deliberately carries no Sisu-held names.
  */
 export type StudentNumberVerificationTokenPreview = {
   already_used: boolean
@@ -4629,8 +4571,6 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
-  first_names?: string | null
-  last_name?: string | null
   student_number: string
   /**
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.
@@ -4649,6 +4589,33 @@ export type StudentsByCountryTotalsResult = {
 export type StudentsListPage = {
   data: Array<CourseStudentListRow>
   total_pages: number
+}
+
+/**
+ * A student number the study registry reported for an account that another live link kept us from
+ * linking. The existing link stays until someone acts.
+ */
+export type StudyRegistryStudentNumberConflict = {
+  conflicting_link_student_number: string
+  conflicting_link_user_email?: string | null
+  /**
+   * The link in the way: the same account's link to another number, or another account's link to
+   * the reported one.
+   */
+  conflicting_link_user_id: string
+  conflicting_link_verified_via: StudentNumberVerificationMethod
+  /**
+   * The course whose registration reported the number.
+   */
+  course_id: string
+  course_name: string
+  created_at: string
+  first_name?: string | null
+  id: string
+  last_name?: string | null
+  reported_student_number: string
+  user_email?: string | null
+  user_id: string
 }
 
 export type SuotarApiCallDetails = {
@@ -4696,9 +4663,10 @@ export type SuotarApiCallLedgerReference = {
   first_name?: string | null
   last_name?: string | null
   /**
-   * The id the registry saw for this row, so a line of the stored body maps to a student.
+   * The id the registry saw for this row, so a line of the stored body maps to a student. `None`
+   * when no event recorded it.
    */
-  request_item_id: string
+  request_item_id?: string | null
   state: CreditRegistrationState
   student_number?: string | null
   user_id: string
@@ -4738,8 +4706,8 @@ export type SuotarEndpoint =
   | "resolve_enrolments"
   | "import_attainments"
   | "verify_attainments"
-  | "product_access_tokens"
   | "list_by_course"
+  | "validate_course_codes"
 
 /**
  * Where one study registry endpoint stands, over all time.
@@ -4962,9 +4930,10 @@ export type UserCompletionInformation = {
    * `Some` only when the student can generate a certificate for this module right now, which is
    * also the id `/generate-certificate` wants.
    *
-   * Read off the same completion as the rest of this object, the latest one. The course page's
-   * congratulations card reads off the best one instead, so a student whose newest completion is
-   * not their best can see a certificate there and none here.
+   * Read off the same completion as the rest of this object, the one
+   * [`course_module_completions::select_registration_completion`] picks. The course page's
+   * congratulations card reads off the best one instead, so a student whose registration
+   * completion is not their best can see a certificate there and none here.
    */
   certificate_configuration_id?: string | null
   course_module_completion_id: string
@@ -4981,13 +4950,18 @@ export type UserCompletionInformation = {
    * asked and answered. Advisory; it seeds the field when they come back to the page.
    */
   credit_justification?: string | null
+  /**
+   * Whether the push path will register this completion. With `register_credits_via_suotar`
+   * set and this false, no credit registration is ever created for it.
+   */
+  credit_registration_expected: boolean
   ects_credits?: number | null
   email: string
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   /**
-   * Whether this completion in particular goes through the push path. Both this and the module
-   * flag above must hold; the module's is permission, this is the per-student switch.
+   * Whether this completion in particular goes through the push path. Decides which flow the
+   * page shows: the module flag above only says the module takes part.
    */
   register_credits_via_suotar: boolean
   /**
@@ -5920,9 +5894,9 @@ export type GetCourseCreditRegistrationModuleConfigsData = {
 
 export type GetCourseCreditRegistrationModuleConfigsResponses = {
   /**
-   * The course's per-module configuration
+   * Every module of the course with its Suotar configuration
    */
-  200: CourseCreditRegistrationModuleConfigs
+  200: Array<CourseModuleCreditRegistrationConfig>
 }
 
 export type GetCourseCreditRegistrationModuleConfigsResponse =
@@ -6034,6 +6008,39 @@ export type GetCreditRegistrationDetailsResponses = {
 
 export type GetCreditRegistrationDetailsResponse =
   GetCreditRegistrationDetailsResponses[keyof GetCreditRegistrationDetailsResponses]
+
+export type RecheckCreditRegistrationEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment"
+}
+
+export type RecheckCreditRegistrationEnrolmentErrors = {
+  /**
+   * The registration is not waiting for an enrolment
+   */
+  400: unknown
+  /**
+   * No such registration
+   */
+  404: unknown
+}
+
+export type RecheckCreditRegistrationEnrolmentResponses = {
+  /**
+   * Whether a recheck was started
+   */
+  200: RequestCreditRegistrationEnrolmentRecheckResult
+}
+
+export type RecheckCreditRegistrationEnrolmentResponse =
+  RecheckCreditRegistrationEnrolmentResponses[keyof RecheckCreditRegistrationEnrolmentResponses]
 
 export type RetryCreditRegistrationData = {
   body: RetryCreditRegistrationPayload
@@ -7159,6 +7166,13 @@ export type UpdateCourseModulesData = {
   }
   query?: never
   url: "/api/v0/main-frontend/courses/{course_id}/course-modules"
+}
+
+export type UpdateCourseModulesErrors = {
+  /**
+   * A module or chapter is not in the course, or a completion registration link is not https
+   */
+  400: unknown
 }
 
 export type UpdateCourseModulesResponses = {
@@ -10497,20 +10511,6 @@ export type GetMyVerifiedStudentNumberResponses = {
 export type GetMyVerifiedStudentNumberResponse =
   GetMyVerifiedStudentNumberResponses[keyof GetMyVerifiedStudentNumberResponses]
 
-export type DismissMyAutoLinkNoticeData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice"
-}
-
-export type DismissMyAutoLinkNoticeResponses = {
-  /**
-   * The notice is dismissed
-   */
-  200: unknown
-}
-
 export type DismissCreditRegistrationEnrolmentBannerData = {
   body?: never
   path: {
@@ -10569,6 +10569,23 @@ export type RequestCreditRegistrationEnrolmentRecheckResponses = {
 
 export type RequestCreditRegistrationEnrolmentRecheckResponse =
   RequestCreditRegistrationEnrolmentRecheckResponses[keyof RequestCreditRegistrationEnrolmentRecheckResponses]
+
+export type GetCreditRegistrationSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/settings"
+}
+
+export type GetCreditRegistrationSettingsResponses = {
+  /**
+   * The switches
+   */
+  200: CreditRegistrationSettings
+}
+
+export type GetCreditRegistrationSettingsResponse =
+  GetCreditRegistrationSettingsResponses[keyof GetCreditRegistrationSettingsResponses]
 
 export type PreviewStudentNumberVerificationTokenData = {
   body?: never

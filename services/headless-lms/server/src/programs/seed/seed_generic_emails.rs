@@ -203,274 +203,6 @@ pub async fn seed_generic_emails(
 
     seed_email_ownership_verification_templates(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
-    seed_student_notification_templates(&mut conn).await?;
-    seed_student_number_linked_templates(&mut conn).await?;
-
-    Ok(())
-}
-
-/// The two terminal-state mails a student may get about a credit registration, and the only two
-/// that exist.
-///
-/// `{{ENROLMENT_LINK}}` is empty for a module with no open university product or no resolved access
-/// token, so the sentence carrying it has to read correctly on its own; that degraded case is what
-/// the configuration check reports as a problem.
-async fn seed_student_notification_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
-    info!("inserting credit registration student notification emails");
-
-    let english_subject = Some("We could not register your credits yet");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, we could not register your {{CREDITS}} credits for {{COURSE_NAME}} because the University of Helsinki study registry has no active enrolment for you on this course.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Enrol on the course in Sisu and we will register the credits for you automatically. {{ENROLMENT_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000003",
-            "attributes": {
-                "content": "You can follow the registration here: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationActionNeeded,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Emme voineet vielä kirjata opintopisteitäsi");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, emme voineet kirjata {{CREDITS}} opintopistettäsi kurssilta {{COURSE_NAME}}, koska Helsingin yliopiston opintorekisterissä ei ole sinulle voimassa olevaa ilmoittautumista tälle kurssille.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Ilmoittaudu kurssille Sisussa, niin kirjaamme opintopisteet puolestasi automaattisesti. {{ENROLMENT_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000003",
-            "attributes": {
-                "content": "Voit seurata kirjausta täältä: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationActionNeeded,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
-
-    // One template for `registered`, `duplicate` and `not_improved`: from the student's side the
-    // credit exists either way, and a message that told them apart would only invite a support
-    // question about a distinction they cannot act on.
-    let english_subject = Some("Your credits are recorded in Sisu");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d5000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, your {{CREDITS}} credits for {{COURSE_NAME}} are now recorded in the University of Helsinki study registry.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d5000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "If the credits were already recorded there, this message simply confirms it. You can see the details here: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationRegistered,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Opintopisteesi on kirjattu Sisuun");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d6000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, {{CREDITS}} opintopistettäsi kurssilta {{COURSE_NAME}} on nyt kirjattu Helsingin yliopiston opintorekisteriin.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d6000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Jos opintopisteet oli jo kirjattu sinne, tämä viesti vain vahvistaa sen. Näet tiedot täältä: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationRegistered,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
-
-    Ok(())
-}
-
-/// Told to a student whose student number we linked from a matching verified email address, without
-/// them clicking anything. A compensating control for that automatic link: it is how someone finds
-/// out a number was attached to their account and can detach it.
-async fn seed_student_number_linked_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
-    info!("inserting credit registration student number linked emails");
-
-    let english_subject = Some("Your student number was linked to your account");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, we linked student number {{STUDENT_NUMBER}} to your courses.mooc.fi account, because the University of Helsinki study registry holds this same confirmed email address for that student number.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Your credits will be registered under this student number. If it is not yours, remove it here: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Opiskelijanumerosi liitettiin tiliisi");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, liitimme opiskelijanumeron {{STUDENT_NUMBER}} courses.mooc.fi-tiliisi, koska Helsingin yliopiston opintorekisterissä on samalle opiskelijanumerolle tämä sama vahvistettu sähköpostiosoite.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Opintopisteesi kirjataan tälle opiskelijanumerolle. Jos se ei ole sinun, poista se täältä: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
 
     Ok(())
 }
@@ -489,7 +221,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hello {{NAME}}, you completed {{COURSE_NAME}} on courses.mooc.fi and we can register the credits for you.",
+                "content": "Hello {{NAME}}, we can see your enrolment on {{COURSE_NAME}}. To register your credits in Sisu, we need to link your student number to your account on courses.mooc.fi.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -499,7 +231,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Open this link while logged in to confirm that student number {{STUDENT_NUMBER}} is yours: {{LINK}}",
+                "content": "Log in to courses.mooc.fi with the account you use for the course. Then open this confirmation link to link student number {{STUDENT_NUMBER}} to it: {{LINK}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -509,7 +241,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "The link is valid for 14 days and can be used once. You received this message because you are enrolled in {{COURSE_NAME}} at the University of Helsinki and completed it on courses.mooc.fi. If this was not you, please ignore this message.",
+                "content": "The link works for 14 days and only once. You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If this was not you, you can ignore this email.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -529,14 +261,14 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     )
     .await?;
 
-    let finnish_subject = Some("Yhdistä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
+    let finnish_subject = Some("Liitä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
     let finnish_body = json!([
         {
             "type": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hei {{NAME}}, olet suorittanut kurssin {{COURSE_NAME}} courses.mooc.fi-palvelussa ja voimme kirjata opintopisteet puolestasi.",
+                "content": "Hei {{NAME}}, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata opintopisteesi Sisuun, meidän pitää liittää opiskelijanumerosi courses.mooc.fi-tiliisi.",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -546,7 +278,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Avaa tämä linkki kirjautuneena vahvistaaksesi, että opiskelijanumero {{STUDENT_NUMBER}} on sinun: {{LINK}}",
+                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Avaa sitten tämä vahvistuslinkki, niin opiskelijanumero {{STUDENT_NUMBER}} liitetään tiliisi: {{LINK}}",
                 "drop_cap": false
             },
             "innerBlocks": []
@@ -556,7 +288,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "Linkki on voimassa 14 päivää ja sen voi käyttää kertaalleen. Sait tämän viestin, koska olet ilmoittautunut kurssille {{COURSE_NAME}} Helsingin yliopistossa ja suorittanut sen courses.mooc.fi-palvelussa. Jos tämä ei ollut sinä, voit jättää viestin huomiotta.",
+                "content": "Linkki toimii 14 päivää ja vain kerran. Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos et ole ilmoittautunut, voit jättää viestin huomiotta.",
                 "drop_cap": false
             },
             "innerBlocks": []

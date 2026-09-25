@@ -7,6 +7,8 @@
 
 use std::collections::HashMap;
 
+use secrecy::ExposeSecret;
+
 use crate::credit_registration_account_linking_emails::{
     self, ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
     get_existing_facts_for_persons,
@@ -39,15 +41,15 @@ pub const LINKING_MAIL_QUIET_PERIOD_SECS: i64 = 24 * 60 * 60;
 pub const MAX_LINKING_MAILS_PER_PERSON_AND_COURSE: i64 = 3;
 
 /// One person Sisu's `list-by-course` returned, and every address we could reach them at.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct DiscoveredPerson {
-    pub sisu_person_id: String,
-    pub student_number: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
+    pub sisu_person_id: DbSecret,
+    pub student_number: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
     pub course_id: Uuid,
     /// Each address gets its own mail and its own token: we cannot tell which one they read.
-    pub addresses: Vec<String>,
+    pub addresses: Vec<DbSecret>,
 }
 
 /// The three buckets are disjoint and sum to the addresses tried.
@@ -80,7 +82,7 @@ pub async fn claim_linking_mails_batch(
     people: &[DiscoveredPerson],
 ) -> ModelResult<Vec<ClaimedLinkingMails>> {
     let mut outcomes = vec![ClaimedLinkingMails::default(); people.len()];
-    let per_person_addresses: Vec<Vec<String>> = people
+    let per_person_addresses: Vec<Vec<DbSecret>> = people
         .iter()
         .map(|person| distinct_addresses(&person.addresses))
         .collect();
@@ -89,7 +91,7 @@ pub async fn claim_linking_mails_batch(
         .iter()
         .enumerate()
         .filter(|(i, _)| !per_person_addresses[*i].is_empty())
-        .map(|(_, person)| person.sisu_person_id.clone())
+        .map(|(_, person)| person.sisu_person_id.expose_secret().to_owned())
         .collect();
     if sisu_person_ids.is_empty() {
         return Ok(outcomes);
@@ -98,24 +100,24 @@ pub async fn claim_linking_mails_batch(
     let mut by_person: HashMap<&str, Vec<&ExistingLinkingMailFact>> = HashMap::new();
     for fact in &facts {
         by_person
-            .entry(fact.sisu_person_id.as_str())
+            .entry(fact.sisu_person_id.expose_secret())
             .or_default()
             .push(fact);
     }
     let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
 
-    let mut to_claim: Vec<(usize, String)> = Vec::new();
+    let mut to_claim: Vec<(usize, DbSecret)> = Vec::new();
     for (i, person) in people.iter().enumerate() {
         if per_person_addresses[i].is_empty() {
             continue;
         }
         let person_facts = by_person
-            .get(person.sisu_person_id.as_str())
+            .get(person.sisu_person_id.expose_secret())
             .map(Vec::as_slice)
             .unwrap_or(&[]);
         let mut allowance = remaining_allowance(person, person_facts, quiet_since);
         for address in &per_person_addresses[i] {
-            if already_mailed(person_facts, person.course_id, address) {
+            if already_mailed(person_facts, person.course_id, address.expose_secret()) {
                 outcomes[i].suppressed_by_dedup += 1;
                 continue;
             }
@@ -194,8 +196,11 @@ pub async fn retire_capped_mails(
         return Ok(0);
     };
     let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
-    let mails =
-        credit_registration_account_linking_emails::get_by_sisu_person_id(conn, &person_id).await?;
+    let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
+        conn,
+        person_id.expose_secret(),
+    )
+    .await?;
     // This course's rows carry the dedup guard and the lifetime cap; a recent row on any course
     // carries the quiet period, which is about the person's inbox rather than one course.
     let retired: Vec<Uuid> = mails
@@ -236,7 +241,7 @@ async fn person_id_of_mails(
     conn: &mut PgConnection,
     course_id: Uuid,
     student_number: &str,
-) -> ModelResult<Option<String>> {
+) -> ModelResult<Option<DbSecret>> {
     let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
         conn,
         course_id,
@@ -266,9 +271,13 @@ fn remaining_allowance(
 /// Whether this (person, course, address) already had its mail. The unique index behind
 /// [`claim_send_slots`] is what actually prevents a second one.
 fn already_mailed(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
-    facts
-        .iter()
-        .any(|fact| fact.course_id == course_id && fact.emailed_to.eq_ignore_ascii_case(address))
+    facts.iter().any(|fact| {
+        fact.course_id == course_id
+            && fact
+                .emailed_to
+                .expose_secret()
+                .eq_ignore_ascii_case(address)
+    })
 }
 
 /// Soft-deletes tokens whose slot lost the race, so no unusable link is left behind.
@@ -292,17 +301,20 @@ WHERE id = ANY($1::uuid [])
 
 /// Sisu can list one address twice and the dedup key is case-insensitive, so the pair is collapsed
 /// before either is charged against a cap.
-fn distinct_addresses(addresses: &[String]) -> Vec<String> {
-    let mut kept: Vec<String> = Vec::new();
+fn distinct_addresses(addresses: &[DbSecret]) -> Vec<DbSecret> {
+    let mut kept: Vec<DbSecret> = Vec::new();
     for address in addresses {
-        let trimmed = address.trim();
+        let trimmed = address.expose_secret().trim();
         if trimmed.is_empty() {
             continue;
         }
-        if kept.iter().any(|seen| seen.eq_ignore_ascii_case(trimmed)) {
+        if kept
+            .iter()
+            .any(|seen| seen.expose_secret().eq_ignore_ascii_case(trimmed))
+        {
             continue;
         }
-        kept.push(trimmed.to_string());
+        kept.push(DbSecret::new(trimmed));
     }
     kept
 }
@@ -319,12 +331,12 @@ mod tests {
 
     fn person(course_id: Uuid, addresses: &[&str]) -> DiscoveredPerson {
         DiscoveredPerson {
-            sisu_person_id: "hy-hlo-1".to_string(),
-            student_number: "012345678".to_string(),
-            first_names: Some("Aada Maria".to_string()),
-            last_name: Some("Virtanen".to_string()),
+            sisu_person_id: "hy-hlo-1".to_string().into(),
+            student_number: "012345678".to_string().into(),
+            first_names: Some("Aada Maria".to_string().into()),
+            last_name: Some("Virtanen".to_string().into()),
             course_id,
-            addresses: addresses.iter().map(|a| a.to_string()).collect(),
+            addresses: addresses.iter().map(|a| DbSecret::new(*a)).collect(),
         }
     }
 
@@ -333,7 +345,7 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
         let claimed = claim_linking_mails(
             tx.as_mut(),
-            &person(course, &["aada@helsinki.fi", "aada@example.com"]),
+            &person(course, &["aada.uni@example.com", "aada@example.com"]),
         )
         .await
         .unwrap();
@@ -354,7 +366,10 @@ mod tests {
         insert_data!(:tx, :user, :org, :course);
         let claimed = claim_linking_mails(
             tx.as_mut(),
-            &person(course, &["Aada@Helsinki.fi", "aada@helsinki.fi", "  "]),
+            &person(
+                course,
+                &["Aada.Uni@Example.com", "aada.uni@example.com", "  "],
+            ),
         )
         .await
         .unwrap();
@@ -365,7 +380,7 @@ mod tests {
     #[tokio::test]
     async fn mailing_the_same_address_twice_is_refused_as_a_duplicate() {
         insert_data!(:tx, :user, :org, :course);
-        let discovered = person(course, &["aada@helsinki.fi"]);
+        let discovered = person(course, &["aada.uni@example.com"]);
         assert_eq!(
             claim_linking_mails(tx.as_mut(), &discovered).await.unwrap(),
             ClaimedLinkingMails {
@@ -392,7 +407,7 @@ mod tests {
     #[tokio::test]
     async fn a_person_mailed_today_is_left_alone_even_at_another_address() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mails(tx.as_mut(), &person(course, &["aada.uni@example.com"]))
             .await
             .unwrap();
         let claimed = claim_linking_mails(tx.as_mut(), &person(course, &["aada@example.com"]))
@@ -411,8 +426,8 @@ mod tests {
     async fn a_person_and_course_are_never_mailed_more_than_the_cap() {
         insert_data!(:tx, :user, :org, :course);
         let cap = usize::try_from(MAX_LINKING_MAILS_PER_PERSON_AND_COURSE).unwrap();
-        let addresses: Vec<String> = (0..cap + 2)
-            .map(|i| format!("aada{i}@example.com"))
+        let addresses: Vec<DbSecret> = (0..cap + 2)
+            .map(|i| DbSecret::new(format!("aada{i}@example.com")))
             .collect();
         let claimed = claim_linking_mails(
             tx.as_mut(),
@@ -433,7 +448,7 @@ mod tests {
     #[tokio::test]
     async fn the_token_is_created_unbound_and_can_be_claimed_only_once() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mails(tx.as_mut(), &person(course, &["aada.uni@example.com"]))
             .await
             .unwrap();
         let slot = get_by_sisu_person_id(tx.as_mut(), "hy-hlo-1")
@@ -462,12 +477,12 @@ mod tests {
         let claimed = claim_linking_mails(
             tx.as_mut(),
             &DiscoveredPerson {
-                sisu_person_id: "hy-hlo-1".to_string(),
-                student_number: "012345678".to_string(),
-                first_names: Some("Aada Maria".to_string()),
-                last_name: Some("Virtanen".to_string()),
+                sisu_person_id: "hy-hlo-1".to_string().into(),
+                student_number: "012345678".to_string().into(),
+                first_names: Some("Aada Maria".to_string().into()),
+                last_name: Some("Virtanen".to_string().into()),
                 course_id: course,
-                addresses: vec!["aada@helsinki.fi".to_string()],
+                addresses: vec![DbSecret::new("aada.uni@example.com")],
             },
         )
         .await

@@ -52,7 +52,7 @@ const PERMANENT_ERROR_QUERY = "?reason=permanent_error"
 const ALERT_ROUTES = {
   credentials_rejected: creditRegistrationSystemRoute(),
   study_registry_unreachable: creditRegistrationSystemRoute(),
-  sisu_unavailable: creditRegistrationSystemRoute(),
+  service_unavailable: creditRegistrationSystemRoute(),
   stuck_registrations: `${creditRegistrationErrorsRoute()}${STUCK_QUERY}`,
   linking_mail_send_failed: creditRegistrationLinkingRoute(),
   linking_mail_rate_cap_exceeded: creditRegistrationLinkingRoute(),
@@ -64,8 +64,8 @@ const ALERT_ROUTES = {
   pipeline_idle: creditRegistrationSystemRoute(),
   completions_never_entered: creditRegistrationOverviewRoute(),
   confirmation_latency_regressed: creditRegistrationSystemRoute(),
-  fast_track_name_mismatch: creditRegistrationLinkingRoute(),
   pipeline_paused_globally: creditRegistrationSystemRoute(),
+  study_registry_student_number_conflicts: creditRegistrationLinkingRoute(),
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const bannerCss = css`

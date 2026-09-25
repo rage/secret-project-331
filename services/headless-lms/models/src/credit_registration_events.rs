@@ -2,6 +2,7 @@
 //!
 //! No retention sweep touches this table, so every Suotar payload must go through
 //! [`scrub_suotar_body`] at the write site — redacting on read would leave the raw values on disk.
+use std::collections::HashMap;
 use std::sync::LazyLock;
 
 use regex::{Captures, Regex};
@@ -32,7 +33,7 @@ const REDACTED_KEYS: &[&str] = &[
 ];
 
 /// Keys whose values the value scan must leave alone: they carry ids shaped like student numbers —
-/// `cr-{uuid}` request item ids, Sisu ids such as `hy-CUR-135176012` — that the scan would mangle.
+/// request item ids, Sisu ids such as `hy-CUR-135176012` — that the scan would mangle.
 ///
 /// Container keys do not belong here: an exemption stops at the objects below it.
 const NEVER_SCANNED_KEYS: &[&str] = &[
@@ -48,7 +49,6 @@ const NEVER_SCANNED_KEYS: &[&str] = &[
     "attainmentid",
     "sisuattainmentid",
     "courseunitrealisationid",
-    "openuniversityproductid",
 ];
 
 static EMAIL_RE: LazyLock<Regex> = LazyLock::new(|| {
@@ -203,6 +203,8 @@ pub struct CreditRegistrationEvent {
     pub suotar_api_call_id: Option<Uuid>,
     pub actor_user_id: Option<Uuid>,
     pub details: Option<Value>,
+    /// The requestItemId the row went out under in the call behind this event.
+    pub request_item_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -217,6 +219,7 @@ pub struct NewCreditRegistrationEvent {
     pub actor_user_id: Option<Uuid>,
     /// Build with [`suotar_exchange_details`] so it is scrubbed.
     pub details: Option<Value>,
+    pub request_item_id: Option<String>,
 }
 
 impl NewCreditRegistrationEvent {
@@ -231,6 +234,7 @@ impl NewCreditRegistrationEvent {
             suotar_api_call_id: None,
             actor_user_id: None,
             details: None,
+            request_item_id: None,
         }
     }
 }
@@ -252,9 +256,10 @@ INSERT INTO credit_registration_events (
     message,
     suotar_api_call_id,
     actor_user_id,
-    details
+    details,
+    request_item_id
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id
         "#,
         new.credit_registration_id,
@@ -266,6 +271,7 @@ RETURNING id
         new.suotar_api_call_id,
         new.actor_user_id,
         new.details,
+        new.request_item_id,
     )
     .fetch_one(conn)
     .await?;
@@ -294,6 +300,8 @@ pub async fn insert_batch(
     let call_ids: Vec<Option<Uuid>> = events.iter().map(|e| e.suotar_api_call_id).collect();
     let actors: Vec<Option<Uuid>> = events.iter().map(|e| e.actor_user_id).collect();
     let details: Vec<Option<Value>> = events.iter().map(|e| e.details.clone()).collect();
+    let request_item_ids: Vec<Option<String>> =
+        events.iter().map(|e| e.request_item_id.clone()).collect();
     sqlx::query!(
         r#"
 INSERT INTO credit_registration_events (
@@ -305,7 +313,8 @@ INSERT INTO credit_registration_events (
     message,
     suotar_api_call_id,
     actor_user_id,
-    details
+    details,
+    request_item_id
   )
 SELECT *
 FROM UNNEST(
@@ -317,7 +326,8 @@ FROM UNNEST(
     $6::text [],
     $7::uuid [],
     $8::uuid [],
-    $9::jsonb []
+    $9::jsonb [],
+    $10::text []
   )
         "#,
         &ids,
@@ -329,6 +339,7 @@ FROM UNNEST(
         &call_ids as &[Option<Uuid>],
         &actors as &[Option<Uuid>],
         &details as &[Option<Value>],
+        &request_item_ids as &[Option<String>],
     )
     .execute(conn)
     .await?;
@@ -404,6 +415,35 @@ ORDER BY created_at
     Ok(res)
 }
 
+/// The requestItemId each of `credit_registration_ids` went out under among `request_item_ids`,
+/// which are one call's. A row the call carried but no event recorded is missing from the map.
+pub async fn get_request_item_ids_in_call(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+    request_item_ids: &[String],
+) -> ModelResult<HashMap<Uuid, String>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT DISTINCT ON (credit_registration_id) credit_registration_id,
+  request_item_id AS "request_item_id!"
+FROM credit_registration_events
+WHERE credit_registration_id = ANY($1)
+  AND request_item_id = ANY($2)
+  AND deleted_at IS NULL
+ORDER BY credit_registration_id,
+  created_at
+        "#,
+        credit_registration_ids,
+        request_item_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.credit_registration_id, row.request_item_id))
+        .collect())
+}
+
 /// The attainment the study registry pointed at when it turned a submission down as no improvement.
 ///
 /// Read back off the event the answer was recorded on rather than stored on the ledger row: the row
@@ -451,9 +491,10 @@ fn string_field(value: &Value, key: &str) -> Option<String> {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct SuotarItemOutcomeTotals {
     pub item_count: i64,
-    /// Items blamed on Sisu being down or slow, which is the only proxy we have for its uptime.
-    pub sisu_unavailable_count: i64,
-    pub last_sisu_unavailable_at: Option<DateTime<Utc>>,
+    /// Items that failed on Suotar or Sisu being down or slow, the only proxy we have for Sisu's
+    /// uptime.
+    pub service_unavailable_count: i64,
+    pub last_service_unavailable_at: Option<DateTime<Utc>>,
 }
 
 /// Per-item outcomes in `[since, now)`, counted over events rather than rows: an item that failed
@@ -467,11 +508,11 @@ pub async fn count_item_outcomes_since(
         r#"
 SELECT COUNT(*) AS "item_count!",
   COUNT(*) FILTER (
-    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')
-  ) AS "sisu_unavailable_count!",
+    WHERE error_code IN ('service_temporarily_unavailable', 'sisu_timeout')
+  ) AS "service_unavailable_count!",
   MAX(created_at) FILTER (
-    WHERE error_code IN ('sisu_temporarily_unavailable', 'sisu_timeout')
-  ) AS "last_sisu_unavailable_at"
+    WHERE error_code IN ('service_temporarily_unavailable', 'sisu_timeout')
+  ) AS "last_service_unavailable_at"
 FROM credit_registration_events
 WHERE kind = 'suotar_response'
   AND created_at >= $1
@@ -606,7 +647,7 @@ mod tests {
             "studentNumber": "012345678",
             "firstNames": "Aada Maria",
             "lastName": "Virtanen",
-            "primaryEmail": "aada@helsinki.fi",
+            "primaryEmail": "aada@example.com",
             "accessToken": "abc123",
             "personId": "hy-hlo-1",
         }));
@@ -627,7 +668,7 @@ mod tests {
     fn keeps_the_fields_debugging_needs() {
         // These ids carry student-number-shaped digit runs the value scan must not touch.
         let body = json!({
-            "requestItemId": "cr-2a4b0d6e-0000-4000-8000-000000000001",
+            "requestItemId": "2a4b0d6e-0000-4000-8000-000000000001",
             "code": "sent",
             "status": "ok",
             "courseCode": "AYTKT21018",
@@ -666,7 +707,7 @@ mod tests {
         let scrubbed = scrub_suotar_body(&json!({
             "STUDENT_NUMBER": "012345678",
             "Student-Number": "012345678",
-            "emailedTo": "aada@helsinki.fi",
+            "emailedTo": "aada@example.com",
         }));
         assert_eq!(
             scrubbed,
@@ -682,7 +723,7 @@ mod tests {
     fn value_scan_catches_identifiers_quoted_in_free_text() {
         // Suotar error messages quote the input, so key-based redaction alone would leak here.
         let scrubbed = scrub_suotar_body(&json!({
-            "message": "Person 012345678 (aada@helsinki.fi) has no accepted enrolment",
+            "message": "Person 012345678 (aada@example.com) has no accepted enrolment",
         }));
         assert_eq!(
             scrubbed,
@@ -732,7 +773,7 @@ mod tests {
             "items": [{
                 "status": {
                     "code": "personNotFound",
-                    "message": "Person 012345678 (aada@helsinki.fi) not found",
+                    "message": "Person 012345678 (aada@example.com) not found",
                 },
             }],
         }));

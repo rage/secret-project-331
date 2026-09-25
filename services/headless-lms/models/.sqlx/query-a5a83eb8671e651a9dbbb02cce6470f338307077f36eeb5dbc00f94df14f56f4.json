@@ -128,14 +128,15 @@
                 "enrolment_not_found",
                 "enrolment_not_accepted",
                 "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
                 "course_not_allowed",
                 "invalid_credits",
                 "study_right_not_valid",
-                "acceptor_not_found",
                 "sisu_validation_failed",
                 "sisu_timeout",
-                "sisu_temporarily_unavailable",
+                "service_temporarily_unavailable",
                 "misregistered",
+                "not_registered",
                 "unauthorized",
                 "malformed_request",
                 "transport_error",
@@ -312,17 +313,6 @@
       },
       {
         "ordinal": 23,
-        "name": "request_item_id",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "credit_registrations",
-            "name": "request_item_id"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
         "name": "submitted_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -333,7 +323,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "submitted_attainment_type",
         "type_info": "Varchar",
         "origin": {
@@ -344,7 +334,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 25,
         "name": "sisu_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -355,7 +345,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 26,
         "name": "sisu_attainment_type",
         "type_info": "Varchar",
         "origin": {
@@ -366,7 +356,7 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 27,
         "name": "submit_retry_count",
         "type_info": "Int4",
         "origin": {
@@ -377,7 +367,7 @@
         }
       },
       {
-        "ordinal": 29,
+        "ordinal": 28,
         "name": "verify_attempt_count",
         "type_info": "Int4",
         "origin": {
@@ -388,7 +378,7 @@
         }
       },
       {
-        "ordinal": 30,
+        "ordinal": 29,
         "name": "next_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -399,7 +389,7 @@
         }
       },
       {
-        "ordinal": 31,
+        "ordinal": 30,
         "name": "first_failed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -410,7 +400,7 @@
         }
       },
       {
-        "ordinal": 32,
+        "ordinal": 31,
         "name": "last_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -421,7 +411,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 32,
         "name": "attempt_number",
         "type_info": "Int4",
         "origin": {
@@ -432,7 +422,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 33,
         "name": "superseded_by_id",
         "type_info": "Uuid",
         "origin": {
@@ -443,7 +433,7 @@
         }
       },
       {
-        "ordinal": 35,
+        "ordinal": 34,
         "name": "superseded_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -454,7 +444,7 @@
         }
       },
       {
-        "ordinal": 36,
+        "ordinal": 35,
         "name": "enrolment_checked_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -465,7 +455,7 @@
         }
       },
       {
-        "ordinal": 37,
+        "ordinal": 36,
         "name": "submitted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -476,7 +466,7 @@
         }
       },
       {
-        "ordinal": 38,
+        "ordinal": 37,
         "name": "registered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -487,7 +477,7 @@
         }
       },
       {
-        "ordinal": 39,
+        "ordinal": 38,
         "name": "terminal_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -498,7 +488,7 @@
         }
       },
       {
-        "ordinal": 40,
+        "ordinal": 39,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -509,7 +499,7 @@
         }
       },
       {
-        "ordinal": 41,
+        "ordinal": 40,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -520,7 +510,7 @@
         }
       },
       {
-        "ordinal": 42,
+        "ordinal": 41,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -531,7 +521,7 @@
         }
       },
       {
-        "ordinal": 43,
+        "ordinal": 42,
         "name": "action_needed_email_delivery_id",
         "type_info": "Uuid",
         "origin": {
@@ -542,7 +532,7 @@
         }
       },
       {
-        "ordinal": 44,
+        "ordinal": 43,
         "name": "registered_email_delivery_id",
         "type_info": "Uuid",
         "origin": {
@@ -553,13 +543,79 @@
         }
       },
       {
-        "ordinal": 45,
+        "ordinal": 44,
         "name": "improvement_checked_completion_updated_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "credit_registrations",
             "name": "improvement_checked_completion_updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 45,
+        "name": "partially_registered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "partially_registered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 46,
+        "name": "not_registered_reimport_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "not_registered_reimport_count"
+          }
+        }
+      },
+      {
+        "ordinal": 47,
+        "name": "selected_enrolment_realisation_name",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "selected_enrolment_realisation_name"
+          }
+        }
+      },
+      {
+        "ordinal": 48,
+        "name": "resubmit_not_before",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "resubmit_not_before"
+          }
+        }
+      },
+      {
+        "ordinal": 49,
+        "name": "pending_superseded_by_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "pending_superseded_by_id"
+          }
+        }
+      },
+      {
+        "ordinal": 50,
+        "name": "no_usable_enrolment_since",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "no_usable_enrolment_since"
           }
         }
       }
@@ -625,7 +681,6 @@
       true,
       true,
       true,
-      false,
       true,
       true,
       true,
@@ -643,6 +698,12 @@
       true,
       true,
       false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       true,
       true,

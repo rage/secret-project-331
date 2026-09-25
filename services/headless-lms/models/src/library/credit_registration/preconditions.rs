@@ -7,7 +7,9 @@ use crate::credit_registrations::{
 };
 use crate::prelude::*;
 
-use super::backoff::{SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS};
+use super::backoff::{
+    RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
+};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
@@ -24,20 +26,30 @@ struct PendingMove {
     has_submitted_attainment: bool,
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
+    payload_unweighed_against_held_credit: bool,
 }
 
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
 /// Never `submitting`: only the import phase writes that, in the transaction before it sends.
 ///
-/// `frozen_identity_stale` demotes a frozen payload to no payload at all. Nothing ever clears
-/// `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a relink still looks
-/// frozen; without this it would resume at `checking_enrolment` and import the previous number.
+/// `frozen_identity_stale` demotes a frozen payload to no payload at all. Only a `notRegistered`
+/// resend clears `selected_enrolment_id`/`grade_id`, so a row sent back to re-resolve after a
+/// relink still looks frozen; without this it would resume at `checking_enrolment` and import the
+/// previous number.
+///
+/// `payload_unweighed_against_held_credit` also resolves again: another row of the module holds a
+/// credit this row is not marked to replace, and only resolve-enrolments may weigh the two and hand
+/// this row that row's slot in `uq_credit_registrations_person_module`. Import would otherwise hold
+/// the row back for good.
 fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
+    payload_unweighed_against_held_credit: bool,
 ) -> CreditRegistrationState {
-    if has_submitted_attainment_id {
+    if payload_unweighed_against_held_credit {
+        CreditRegistrationState::ReadyToSubmit
+    } else if has_submitted_attainment_id {
         CreditRegistrationState::AwaitingVerification
     } else if has_payload_snapshot && !frozen_identity_stale {
         CreditRegistrationState::CheckingEnrolment
@@ -65,6 +77,7 @@ pub async fn recompute_preconditions(
                     pending.has_submitted_attainment,
                     pending.has_payload_snapshot,
                     pending.frozen_identity_stale,
+                    pending.payload_unweighed_against_held_credit,
                 )
             });
             (target != pending.state).then(|| BatchMove {
@@ -126,6 +139,10 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
                     CreditRegistrationPendingReason::StudentNumber => {
                         "No verified student number is linked to the account."
                     }
+                    CreditRegistrationPendingReason::CourseCode => {
+                        "Suotar does not accept the module's course code, so nothing is sent \
+                         until it does."
+                    }
                 }
                 .to_string()
             }),
@@ -159,6 +176,7 @@ WITH facts AS (
     cr.state,
     cr.next_attempt_at,
     cr.state_entered_at,
+    cr.submitted_at,
     cr.first_failed_at,
     cr.submitted_attainment_id IS NOT NULL AS has_submitted_attainment,
     (
@@ -168,7 +186,19 @@ WITH facts AS (
     p.completion_deleted,
     p.completion_eligible AS eligible,
     p.has_verified_student_number AS has_student_number,
-    p.frozen_identity_stale
+    p.course_code_allowed,
+    p.frozen_identity_stale,
+    EXISTS (
+      SELECT 1
+      FROM credit_registrations held
+      WHERE held.user_id = cr.user_id
+        AND held.course_module_id = cr.course_module_id
+        AND held.id <> cr.id
+        AND held.deleted_at IS NULL
+        AND held.superseded_by_id IS NULL
+        AND held.pending_superseded_by_id IS DISTINCT FROM cr.id
+        AND held.state IN ('registered', 'duplicate', 'not_improved')
+    ) AS payload_unweighed_against_held_credit
   FROM credit_registrations cr
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
@@ -190,9 +220,10 @@ targets AS (
   SELECT facts.*,
     CASE
       -- A worker committed `submitting` and never came back with an answer. There is no way to
-      -- know whether the request landed, so the row is never imported again.
+      -- know whether the request landed, so the row is never imported again. Timed from the last
+      -- send, which a split import batch repeats.
       WHEN facts.state = 'submitting'
-      AND facts.state_entered_at < now() - ($5::bigint * INTERVAL '1 second') THEN 'submission_uncertain'
+      AND COALESCE(facts.submitted_at, facts.state_entered_at) < now() - ($5::bigint * INTERVAL '1 second') THEN 'submission_uncertain'
       WHEN facts.state IN (
         'submitting',
         'submission_uncertain',
@@ -207,6 +238,10 @@ targets AS (
       -- since removed and import would send the frozen student_number under a link they gave up.
       WHEN facts.state = 'failed_retryable'
       AND NOT facts.has_student_number THEN 'pending'
+      -- Only a row with nothing in flight: one with a submission to verify has to resume there.
+      WHEN facts.state = 'failed_retryable'
+      AND NOT facts.course_code_allowed
+      AND NOT facts.has_submitted_attainment THEN 'pending'
       -- Resumed at whichever state matches how far it had got; decided outside this query.
       WHEN facts.state = 'failed_retryable'
       AND facts.next_attempt_at <= now() THEN NULL
@@ -216,7 +251,8 @@ targets AS (
       WHEN NOT facts.eligible
       AND facts.state <> 'pending' THEN 'blocked'
       WHEN NOT facts.eligible
-      OR NOT facts.has_student_number THEN 'pending'
+      OR NOT facts.has_student_number
+      OR NOT facts.course_code_allowed THEN 'pending'
       -- The periodic look for an enrolment that may have appeared since.
       WHEN facts.state = 'no_usable_enrolment'
       AND facts.next_attempt_at > now() THEN facts.state
@@ -227,6 +263,9 @@ targets AS (
       -- Already queued for import with its payload frozen; sending it back would resolve again
       -- forever.
       WHEN facts.state = 'checking_enrolment' THEN facts.state
+      -- Past the grace the worker that claimed it is gone, and asking again is harmless.
+      WHEN facts.state = 'resolving_enrolment'
+      AND facts.state_entered_at < now() - ($7::bigint * INTERVAL '1 second') THEN 'ready_to_submit'
       -- A resolve-enrolments call for this row is in flight; only that phase's own commit may
       -- move it, or import could claim it before the enrolment is actually resolved.
       WHEN facts.state = 'resolving_enrolment' THEN facts.state
@@ -239,9 +278,11 @@ SELECT id,
   target AS "target?: CreditRegistrationState",
   eligible AS "eligible!",
   has_student_number AS "has_student_number!",
+  course_code_allowed AS "course_code_allowed!",
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
-  frozen_identity_stale AS "frozen_identity_stale!"
+  frozen_identity_stale AS "frozen_identity_stale!",
+  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!"
 FROM targets
 WHERE target IS NULL
   OR target <> state
@@ -254,6 +295,7 @@ LIMIT $1
         &scope.credit_registration_ids,
         SUBMITTING_RECOVERY_GRACE_SECS,
         SUBMIT_MAX_RETRY_AGE_SECS,
+        RESOLVING_RECOVERY_GRACE_SECS,
     )
     .fetch_all(conn)
     .await?;
@@ -266,10 +308,12 @@ LIMIT $1
             preconditions: PendingPreconditions {
                 completion_eligible: row.eligible,
                 has_verified_student_number: row.has_student_number,
+                course_code_allowed: row.course_code_allowed,
             },
             has_submitted_attainment: row.has_submitted_attainment,
             has_payload_snapshot: row.has_payload_snapshot,
             frozen_identity_stale: row.frozen_identity_stale,
+            payload_unweighed_against_held_credit: row.payload_unweighed_against_held_credit,
         })
         .collect())
 }
@@ -352,14 +396,12 @@ mod tests {
             PKeyPolicy::Generate,
             &NewVerifiedStudentNumber {
                 user_id: user,
-                student_number: format!("9{:08}", rand_suffix()),
-                sisu_person_id: format!("hy-hlo-{}", rand_suffix()),
+                student_number: DbSecret::new(format!("9{:08}", rand_suffix())),
+                sisu_person_id: DbSecret::new(format!("hy-hlo-{}", rand_suffix())),
                 first_names: None,
                 last_name: None,
                 verified_via: StudentNumberVerificationMethod::EmailedLink,
-                verified_via_email: Some("student@helsinki.example".to_string()),
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
+                verified_via_email: Some(DbSecret::new("student@helsinki.example.com")),
                 linked_by_user_id: None,
                 link_reason: None,
                 verified_from_course_id: None,
@@ -370,13 +412,16 @@ mod tests {
     }
 
     async fn entered_state_long_ago(conn: &mut PgConnection, id: Uuid) {
-        crate::credit_registrations::set_state_entered_at_for_testing(
-            conn,
-            id,
-            Utc::now() - chrono::Duration::hours(1),
-        )
-        .await
-        .unwrap();
+        let long_ago = Utc::now() - chrono::Duration::seconds(SUBMITTING_RECOVERY_GRACE_SECS + 60);
+        crate::credit_registrations::set_state_entered_at_for_testing(conn, id, long_ago)
+            .await
+            .unwrap();
+        sqlx::query("UPDATE credit_registrations SET submitted_at = $2 WHERE id = $1")
+            .bind(id)
+            .bind(long_ago)
+            .execute(conn)
+            .await
+            .unwrap();
     }
 
     async fn first_failed_long_ago(conn: &mut PgConnection, id: Uuid) {
@@ -390,7 +435,7 @@ mod tests {
     }
 
     async fn pause_module(conn: &mut PgConnection, course_module_id: Uuid, user_id: Uuid) {
-        crate::course_module_suotar_configurations::upsert(conn, course_module_id, None, None)
+        crate::course_module_suotar_configurations::ensure_exists(conn, course_module_id)
             .await
             .unwrap();
         crate::course_module_suotar_configurations::set_paused(
@@ -745,15 +790,15 @@ mod tests {
     #[test]
     fn a_retry_resumes_where_the_row_had_got_to() {
         assert_eq!(
-            resume_state(false, false, false),
+            resume_state(false, false, false, false),
             CreditRegistrationState::ReadyToSubmit
         );
         assert_eq!(
-            resume_state(false, true, false),
+            resume_state(false, true, false, false),
             CreditRegistrationState::CheckingEnrolment
         );
         assert_eq!(
-            resume_state(true, true, false),
+            resume_state(true, true, false, false),
             CreditRegistrationState::AwaitingVerification
         );
     }
@@ -762,7 +807,7 @@ mod tests {
     #[test]
     fn a_retry_whose_frozen_identity_went_stale_resolves_the_enrolment_again() {
         assert_eq!(
-            resume_state(false, true, true),
+            resume_state(false, true, true, false),
             CreditRegistrationState::ReadyToSubmit
         );
     }

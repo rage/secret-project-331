@@ -130,10 +130,10 @@ reviews:
 
         - A new table or column holding course or exam content, configuration or settings must be copied in copying.rs, or the PR must say why not. A column left out of the copy's column list silently falls back to its default.
         - Never copy learner data: submissions, answers, consent answers, enrollments, progress, points, completions.
-        - Copied rows get the id `uuid_generate_v5(<copy id>, <source id>::text)`. Remap every foreign key the same way, so it points to the copy and never to a row of the source course. A missed remap either fails the FK or silently ties the copy to the source.
+        - Copied rows get the id `uuid_generate_v5(<copy id>, <source id>::text)`. Remap every foreign key to a copied row the same way, so it points to the copy and never to a row of the source course; references to shared rows (file uploads, grade scales, Open University products) keep their id. A missed remap either fails the FK or silently ties the copy to the source.
         - Copy parents before children. Select only non-deleted source rows, and join to the copied parent so that children of deleted or uncopied parents are skipped instead of failing the FK.
         - Scope the source rows through the parent (for example the exercise's course), not through a denormalized `course_id` on the row, which can be stale.
-        - Ids, slugs and course URLs embedded in JSON or text (block attributes, exercise specs, instructions, email templates) must be rewritten through `ContentRewrite`.
+        - Ids, slugs and course URLs embedded in JSON or text (block attributes, exercise specs, instructions, email templates) must be rewritten: block content through `ContentRewrite`, HTML text through `rewrite_html_hrefs`, bare URLs through `rewrite_course_path`.
         - Stored files (images, audio, certificate backgrounds) are shared by path, never duplicated. Code that deletes or replaces a stored file must first check that no other non-deleted row references the path.
         - Unique constraints on course-scoped tables must include the course (or a copied parent), or the copy's insert conflicts with the source.
 

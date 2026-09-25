@@ -40,6 +40,7 @@ import {
   runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
+  setTestExclusiveHold,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
@@ -59,6 +60,13 @@ const scope = { userEmail: STUDENT_EMAIL, courseSlug: GRADE_IMPROVEMENT_COURSE_S
 
 test.use({ storageState: seededStudentStorageState(STUDENT_EMAIL) })
 test.describe.configure({ mode: "serial", retries: 0 })
+
+// The live worker would otherwise claim rows between this spec's own ticks.
+test.beforeEach(async ({ page }) => {
+  for (const email of [STUDENT_EMAIL, CREDIT_REGISTRATION_STUDENT_3.email]) {
+    await setTestExclusiveHold(page.request, email, 120, GRADE_IMPROVEMENT_COURSE_ID)
+  }
+})
 
 /** The completion's newest attempt: after a regrade the registered one stays live beside it. */
 const latestAttempt = async (studentApi: APIRequestContext, adminApi: APIRequestContext) => {
@@ -308,10 +316,11 @@ const addLaterCompletion = async (page: Page, adminApi: APIRequestContext, grade
 const importCount = (page: Page) =>
   countMockCallsForStudent(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101, "import_attainments")
 
+// Sorted: the mock ages a misregistered send, which reorders the list.
 const submittedGrades = async (page: Page) =>
-  (await mockSuotarSubmissionsFor(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101)).map(
-    (submission) => submission.gradeId,
-  )
+  (await mockSuotarSubmissionsFor(page.request, LATER_STUDENT_NUMBER, CRS_GRADED_101))
+    .map((submission) => submission.gradeId)
+    .toSorted()
 
 let registeredId = ""
 let reversedId = ""

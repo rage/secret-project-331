@@ -936,9 +936,13 @@ async fn transition(
                     .created_at
                     .min(now - chrono::Duration::hours(PENDING_WINDOW_HOURS + 1));
             }
-            SubmissionTarget::Registered
-            | SubmissionTarget::PartiallyRegistered
-            | SubmissionTarget::Misregistered => {}
+            // A misregistration is a later correction in Sisu, past Suotar's recent-send check.
+            SubmissionTarget::Misregistered => {
+                submission.created_at = submission
+                    .created_at
+                    .min(now - chrono::Duration::hours(super::logic::RECENTLY_ACCEPTED_HOURS + 1));
+            }
+            SubmissionTarget::Registered | SubmissionTarget::PartiallyRegistered => {}
         }
         updated.insert(id.clone(), submission);
     }

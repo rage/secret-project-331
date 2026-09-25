@@ -105,12 +105,17 @@ const recheckButton = (dialog: Locator) =>
 
 const openDetails = async (page: Page) => {
   await page.goto(COMPLETIONS_URL)
-  await page
-    .getByRole("row")
-    .filter({ hasText: STUDENT.lastName })
-    .getByRole("button", { name: /Show credit registration details/ })
-    .click()
-  return page.getByRole("dialog")
+  const dialog = page.getByRole("dialog")
+  // A click that lands before hydration opens nothing.
+  await expect(async () => {
+    await page
+      .getByRole("row")
+      .filter({ hasText: STUDENT.lastName })
+      .getByRole("button", { name: /Show credit registration details/ })
+      .click()
+    await expect(dialog).toBeVisible({ timeout: 2000 })
+  }).toPass()
+  return dialog
 }
 
 test("A teacher asks for the enrolment to be checked again, within the student's allowance", async ({

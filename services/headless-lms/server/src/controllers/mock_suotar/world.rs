@@ -42,7 +42,7 @@ pub enum EnrolmentState {
 }
 
 /// `Misregistered` stands for Sisu's separate misregistration flag, which the wire never shows: such
-/// an attainment is listed as `ATTAINED`.
+/// an attainment reads as `ATTAINED` where it is listed at all, and resolve leaves it out.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AttainmentState {

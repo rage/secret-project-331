@@ -60,8 +60,12 @@ pub fn resolve_enrolments_item(
         return ResponseItem::error(endpoint, id, "courseCodeNotFound");
     };
 
+    // The importer leaves misregistered attainments out of this listing.
     let mut existing: Vec<&MockAttainment> =
-        attainments_for(working, &item.student_number, &item.course_code);
+        attainments_for(working, &item.student_number, &item.course_code)
+            .into_iter()
+            .filter(|attainment| attainment.state != AttainmentState::Misregistered)
+            .collect();
     existing.sort_by(|a, b| {
         a.attainment_date
             .cmp(&b.attainment_date)
@@ -274,7 +278,7 @@ pub fn resolve_import_item(
 
 /// How far back Suotar checks its own accepted sends, which the importer's copy of Sisu may not show
 /// yet.
-const RECENTLY_ACCEPTED_HOURS: i64 = 24;
+pub(super) const RECENTLY_ACCEPTED_HOURS: i64 = 24;
 
 /// A send Sisu accepted within [`RECENTLY_ACCEPTED_HOURS`] of the same completion. Not matched on the
 /// date, which Suotar's cron runs vary for one completion.

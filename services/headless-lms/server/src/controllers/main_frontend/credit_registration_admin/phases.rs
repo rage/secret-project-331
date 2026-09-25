@@ -56,8 +56,8 @@ pub struct CreditRegistrationPhaseRow {
     /// The ledger states nothing but this phase moves a row out of. Empty for the phases whose work
     /// is not a ledger state: `materialize` waits on completions, the syncer's phases on modules.
     pub owned_states: Vec<CreditRegistrationState>,
-    /// Live rows in `owned_states`, or `None` where there are none to own — which is not the same
-    /// as an empty queue.
+    /// Live rows in `owned_states` waiting on this phase, of `no_usable_enrolment` only those due a
+    /// check, or `None` where there are none to own — which is not the same as an empty queue.
     pub queue_depth: Option<i64>,
 }
 
@@ -97,12 +97,13 @@ pub async fn list_credit_registration_phases(
             .await?
             .into_iter()
             .collect();
+    let due_enrolment_checks = credit_registrations::count_due_enrolment_checks(&mut conn).await?;
     let now = Utc::now();
     let mut phases: Vec<CreditRegistrationPhaseRow> =
         credit_registration_phase_state::get_all(&mut conn)
             .await?
             .into_iter()
-            .map(|row| to_phase_row(row, now, &depths))
+            .map(|row| to_phase_row(row, now, &depths, due_enrolment_checks))
             .collect();
     phases.sort_by_key(|row| {
         (
@@ -129,6 +130,7 @@ fn to_phase_row(
     row: PhaseStateRow,
     now: DateTime<Utc>,
     depths: &HashMap<CreditRegistrationState, i64>,
+    due_enrolment_checks: i64,
 ) -> CreditRegistrationPhaseRow {
     let known = CreditRegistrationPhase::from_phase_name(&row.phase);
     let owned_states: Vec<CreditRegistrationState> = known
@@ -143,11 +145,11 @@ fn to_phase_row(
     );
     CreditRegistrationPhaseRow {
         implemented: known.is_some(),
-        queue_depth: (!owned_states.is_empty()).then(|| {
-            owned_states
-                .iter()
-                .map(|state| depths.get(state).copied().unwrap_or(0))
-                .sum()
+        queue_depth: known.filter(|_| !owned_states.is_empty()).map(|phase| {
+            phase.queue_depth(
+                |state| depths.get(&state).copied().unwrap_or(0),
+                due_enrolment_checks,
+            )
         }),
         owned_states,
         seconds_since_heartbeat,

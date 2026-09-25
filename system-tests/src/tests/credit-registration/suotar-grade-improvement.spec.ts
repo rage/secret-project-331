@@ -520,13 +520,16 @@ test("A later completion that is not better waits for the one in flight and is n
     await test.step("A grade-4 completion is held while grade 5 is in flight", async () => {
       const id = await addLaterCompletion(page, adminApi, 4)
       await runPreconditionsTick(page.request, laterScope)
+      // Parked for its first check, or due for it at once if an earlier attempt asked for one.
+      const waiting = await waitForRowState(adminApi, id, [
+        "no_usable_enrolment",
+        "ready_to_submit",
+      ])
       await makeEnrolmentChecksDue(page.request, laterScope)
-      await runPreconditionsTick(page.request, laterScope)
-      await waitForRowState(adminApi, id, ["ready_to_submit"])
       await runResolveEnrolmentsTick(page.request, laterScope)
       // Nothing but a resolve claim moves it on, and that claim holds it back.
       expect((await adminRegistrationDetails(adminApi, id)).registration.state).toBe(
-        "ready_to_submit",
+        waiting.registration.state,
       )
       expect(
         await countMockCallsForStudent(

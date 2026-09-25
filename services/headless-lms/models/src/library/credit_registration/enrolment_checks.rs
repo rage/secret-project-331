@@ -1,14 +1,18 @@
 //! Moving one row's enrolment check schedule: starting it, restarting it for a visit or a check
-//! request, scheduling the next check once one answers, waking rows off a roster and shifting them
-//! past a module pause. The ladders are [`super::enrolment_check_schedule`].
+//! request, scheduling the next check once one answers, batching slow checks, waking rows off a
+//! roster and shifting them past a module pause. The ladders are
+//! [`super::enrolment_check_schedule`].
 
-use crate::credit_registrations::{CreditRegistrationState, is_waiting_for_enrolment};
+use crate::credit_registrations::{
+    CreditRegistrationState, RegistrationScope, is_waiting_for_enrolment,
+};
 use crate::prelude::*;
 
 use super::enrolment_check_schedule::{
-    BATCH_INTERVAL_SECS, CHECK_REQUEST_MIN_INTERVAL_SECS, CHECK_REQUEST_RESTART_WINDOW_SECS,
-    EnrolmentCheckGroup, EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY,
-    ScheduledEnrolmentCheck, VISIT_RESTART_MIN_INTERVAL_SECS, first_check, never, next_check_after,
+    BATCH_INTERVAL_SECS, BATCH_PULL_FORWARD_SECS, CHECK_REQUEST_MIN_INTERVAL_SECS,
+    CHECK_REQUEST_RESTART_WINDOW_SECS, EnrolmentCheckGroup, EnrolmentCheckSource,
+    MAX_CHECK_REQUEST_RESTARTS_PER_DAY, ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY_SECS,
+    VISIT_RESTART_MIN_INTERVAL_SECS, first_check, never, next_check_after,
 };
 
 /// What a check request did to the row.
@@ -573,4 +577,65 @@ WHERE course_module_id = $1
     .execute(conn)
     .await?;
     Ok(res.rows_affected())
+}
+
+/// Brings the slow checks due within [`BATCH_PULL_FORWARD_SECS`] forward to now when another slow
+/// check in `scope` is released and not yet claimed: they cost nothing extra in the request that
+/// goes out for it. A row tried within [`TRANSIENT_FAILURE_RETRY_SECS`] keeps waiting out its failed
+/// lookup.
+pub async fn pull_forward_batched_checks(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+WITH scoped AS (
+  SELECT cr.id,
+    cr.next_attempt_at,
+    cr.enrolment_check_due_at,
+    cr.last_attempt_at,
+    cr.enrolment_check_claimed_until
+  FROM credit_registrations cr
+    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+  WHERE cr.state = 'no_usable_enrolment'
+    AND cr.is_enrolment_check_batched
+    AND cr.superseded_by_id IS NULL
+    AND cr.deleted_at IS NULL
+    AND ($1::uuid IS NULL OR cr.course_id = $1)
+    AND ($2::uuid IS NULL OR cr.user_id = $2)
+    AND (
+      cardinality($3::uuid []) = 0
+      OR cr.id = ANY($3::uuid [])
+    )
+)
+UPDATE credit_registrations cr
+SET next_attempt_at = now()
+FROM scoped
+WHERE cr.id = scoped.id
+  AND scoped.next_attempt_at > now()
+  AND scoped.enrolment_check_due_at > now()
+  AND scoped.enrolment_check_due_at <= now() + ($4::bigint * INTERVAL '1 second')
+  AND (
+    scoped.last_attempt_at IS NULL
+    OR scoped.last_attempt_at <= now() - ($5::bigint * INTERVAL '1 second')
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM scoped released
+    WHERE released.next_attempt_at <= now()
+      AND (
+        released.enrolment_check_claimed_until IS NULL
+        OR released.enrolment_check_claimed_until <= now()
+      )
+  )
+        "#,
+        scope.course_id,
+        scope.user_id,
+        &scope.credit_registration_ids,
+        BATCH_PULL_FORWARD_SECS,
+        TRANSIENT_FAILURE_RETRY_SECS,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

@@ -317,13 +317,15 @@ test("Asking for a check runs one at once, and the next an hour later", async ({
   const parked = await parkCompletedModule(page, adminApi, course)
 
   expect(await requestRecheck(page.request, parked.id)).toStrictEqual({ recheck_started: true })
-  expect(await getEnrolmentCheckSchedule(page.request, parked.id)).toMatchObject({
-    state: "ready_to_submit",
+  const requested = await getEnrolmentCheckSchedule(page.request, parked.id)
+  expect(requested).toMatchObject({
+    state: "no_usable_enrolment",
     group: "check_requested",
     step: 0,
     source: "student_request",
     restartCount: 1,
   })
+  expect(Date.parse(requested.nextAttemptAt)).toBeLessThanOrEqual(Date.now() + CLOCK_SLACK_MS)
 
   await runResolveEnrolmentsTick(page.request, parked.rowScope)
   const answered = await getEnrolmentCheckSchedule(page.request, parked.id)
@@ -369,7 +371,7 @@ test("Check requests wait out half an hour, and restart the schedule four times 
         recheck_started: true,
       })
       const restarted = await getEnrolmentCheckSchedule(page.request, parked.id)
-      expect(restarted).toMatchObject({ state: "ready_to_submit", step: 0, restartCount })
+      expect(restarted).toMatchObject({ state: "no_usable_enrolment", step: 0, restartCount })
       expect(Date.parse(restarted.anchorAt ?? "")).toBeGreaterThan(
         Date.parse(previous.anchorAt ?? ""),
       )
@@ -383,10 +385,12 @@ test("Check requests wait out half an hour, and restart the schedule four times 
     expect(await requestRecheck(page.request, parked.id)).toStrictEqual({ recheck_started: true })
     const checking = await getEnrolmentCheckSchedule(page.request, parked.id)
     expect(checking).toMatchObject({
-      state: "ready_to_submit",
+      state: "no_usable_enrolment",
+      source: "student_request",
       anchorAt: previous.anchorAt,
       restartCount: 4,
     })
+    expect(Date.parse(checking.nextAttemptAt)).toBeLessThanOrEqual(Date.now() + CLOCK_SLACK_MS)
   })
 })
 
@@ -429,7 +433,6 @@ test("A roster listing the student wakes the waiting row once per enrolment", as
       // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
       then: { kind: "itemLevel", code: "enrolmentNotFound" },
     })
-    await runPreconditionsTick(page.request, parked.rowScope)
     await runResolveEnrolmentsTick(page.request, parked.rowScope)
     const checked = await getEnrolmentCheckSchedule(page.request, parked.id)
     expect(checked).toMatchObject({ state: "no_usable_enrolment", source: "schedule" })
@@ -529,7 +532,6 @@ test("A lookup that fails in transit leaves the waiting row where it was", async
     then: { kind: "requestLevel", status: 503, code: UNAVAILABLE_WIRE_CODE },
   })
   await makeEnrolmentChecksDue(page.request, parked.rowScope)
-  await runPreconditionsTick(page.request, parked.rowScope)
   const tick = await runTickUnchecked(page.request, "resolve-enrolments", parked.rowScope)
   expect(tick.status === "ran" ? tick.error : null).not.toBeNull()
   expect(

@@ -17,8 +17,8 @@ use headless_lms_models::{
     },
     credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent},
     credit_registrations::{
-        CreditRegistrationErrorCode, CreditRegistrationState, RegistrationScope,
-        StudentCreditRegistration, StudentRegistrationFilter,
+        CreditRegistrationErrorCode, CreditRegistrationState, StudentCreditRegistration,
+        StudentRegistrationFilter,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
@@ -36,9 +36,6 @@ use headless_lms_models::{
     library::credit_registration::enrolment_checks::{self, CheckRequestOutcome},
 };
 use headless_lms_utils::secret_string::expose_option;
-use models::library::credit_registration::preconditions::{
-    PRECONDITIONS_LIMIT, recompute_preconditions,
-};
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -332,7 +329,7 @@ pub async fn get_my_credit_registration_enrolment_banners(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let res = build_my_credit_registrations(
+    let mut res = build_my_credit_registrations(
         &mut conn,
         user.id,
         StudentRegistrationFilter {
@@ -342,6 +339,10 @@ pub async fn get_my_credit_registration_enrolment_banners(
         },
     )
     .await?;
+    // Left out while a check the student asked for is out: its answer decides whether they must act.
+    res.retain(|registration| {
+        registration.student_facing_status == StudentFacingCreditRegistrationStatus::NeedsEnrolment
+    });
 
     token.authorized_ok(web::Json(res))
 }
@@ -407,8 +408,7 @@ pub(crate) struct RecheckTarget {
     pub course_module_completion_id: Uuid,
 }
 
-/// Asks for an enrolment check of a row waiting for one, records who asked, and moves the row on
-/// at once if the check is due now.
+/// Asks for an enrolment check of a row waiting for one, and records who asked.
 ///
 /// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ in
 /// `source` and the event. Every kind shares one limit on asking; see
@@ -447,15 +447,6 @@ pub(crate) async fn start_enrolment_recheck(
             message: Some(message.to_string()),
             ..NewCreditRegistrationEvent::new(registration_id, event_kind)
         },
-    )
-    .await?;
-    recompute_preconditions(
-        &mut tx,
-        &RegistrationScope {
-            credit_registration_ids: vec![registration_id],
-            ..RegistrationScope::default()
-        },
-        PRECONDITIONS_LIMIT,
     )
     .await?;
     tx.commit().await?;
@@ -811,11 +802,15 @@ async fn build_my_credit_registrations(
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let state = row.state;
-        let status = StudentFacingCreditRegistrationStatus::of(
-            state,
-            row.preconditions(),
-            row.enrolment_resolved,
-        );
+        let status = if row.is_requested_check_unanswered() {
+            StudentFacingCreditRegistrationStatus::LookingForEnrolment
+        } else {
+            StudentFacingCreditRegistrationStatus::of(
+                state,
+                row.preconditions(),
+                row.enrolment_resolved,
+            )
+        };
         let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
             row.enrolment_link.clone()
         } else {
@@ -1454,19 +1449,7 @@ pub async fn record_my_enrolment_page_visit(
     .await?;
     match registration {
         Some(registration) if registration.is_waiting_for_enrolment() => {
-            let mut tx = conn.begin().await?;
-            if enrolment_checks::record_visit(&mut tx, registration.id, Utc::now()).await? {
-                recompute_preconditions(
-                    &mut tx,
-                    &RegistrationScope {
-                        credit_registration_ids: vec![registration.id],
-                        ..RegistrationScope::default()
-                    },
-                    PRECONDITIONS_LIMIT,
-                )
-                .await?;
-            }
-            tx.commit().await?;
+            enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
         }
         _ => {
             // Each unlinked visitor asks for a listing at most once a day.

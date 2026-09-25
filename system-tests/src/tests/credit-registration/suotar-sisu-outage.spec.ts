@@ -120,7 +120,6 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     // Renewed every pass so a slow run can never let the hold lapse before the row is disarmed.
     await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
     await makeEnrolmentChecksDue(page.request, rowScope)
-    await runPreconditionsTick(page.request, rowScope)
     // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
     // phase-level error of its own.
     const tick = await runTickUnchecked(page.request, "resolve-enrolments", rowScope)

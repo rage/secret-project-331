@@ -2333,8 +2333,8 @@ export type CreditRegistrationPhaseRow = {
    */
   process_name: string
   /**
-   * Live rows in `owned_states`, or `None` where there are none to own — which is not the same
-   * as an empty queue.
+   * Live rows in `owned_states` waiting on this phase, of `no_usable_enrolment` only those due a
+   * check, or `None` where there are none to own — which is not the same as an empty queue.
    */
   queue_depth?: number | null
   /**

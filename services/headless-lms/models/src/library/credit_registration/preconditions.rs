@@ -11,8 +11,7 @@ use super::backoff::{
     RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
 };
 use super::enrolment_check_schedule::{
-    BATCH_PULL_FORWARD_SECS, EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck,
-    TRANSIENT_FAILURE_RETRY_SECS, first_check,
+    EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck, first_check,
 };
 use super::enrolment_checks::{EnrolmentCheckStart, record_starts};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
@@ -82,7 +81,7 @@ fn resume_state(
 /// A row that would start resolving without ever having been checked starts its enrolment check
 /// schedule instead: nobody has enrolled at the moment they complete, so it waits in
 /// `no_usable_enrolment` for the first rung of its group's ladder unless that rung is due already.
-/// Slow checks due soon are pulled forward first, into the batch that goes out anyway.
+/// A row waiting there is left to resolve-enrolments, which checks it where it stands.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -90,7 +89,6 @@ pub async fn recompute_preconditions(
 ) -> ModelResult<i64> {
     let now = Utc::now();
     let mut tx = conn.begin().await?;
-    pull_forward_batched_checks(&mut tx, scope).await?;
     let mut starts = Vec::new();
     let moves: Vec<BatchMove> = pending_moves(&mut tx, scope, limit)
         .await?
@@ -140,62 +138,6 @@ pub async fn recompute_preconditions(
     record_starts(&mut tx, &starts).await?;
     tx.commit().await?;
     Ok(moved)
-}
-
-/// Brings the slow checks due within [`BATCH_PULL_FORWARD_SECS`] forward into the batch released
-/// now, when there is one: they cost nothing extra in a request that is going out anyway. A row
-/// already due, or tried within [`TRANSIENT_FAILURE_RETRY_SECS`], is waiting out a failed lookup
-/// and keeps that wait.
-async fn pull_forward_batched_checks(
-    conn: &mut PgConnection,
-    scope: &RegistrationScope,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-WITH scoped AS (
-  SELECT cr.id,
-    cr.next_attempt_at,
-    cr.enrolment_check_due_at,
-    cr.last_attempt_at
-  FROM credit_registrations cr
-    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
-  WHERE cr.state = 'no_usable_enrolment'
-    AND cr.is_enrolment_check_batched
-    AND cr.superseded_by_id IS NULL
-    AND cr.deleted_at IS NULL
-    AND ($1::uuid IS NULL OR cr.course_id = $1)
-    AND ($2::uuid IS NULL OR cr.user_id = $2)
-    AND (
-      cardinality($3::uuid []) = 0
-      OR cr.id = ANY($3::uuid [])
-    )
-)
-UPDATE credit_registrations cr
-SET next_attempt_at = now()
-FROM scoped
-WHERE cr.id = scoped.id
-  AND scoped.next_attempt_at > now()
-  AND scoped.enrolment_check_due_at > now()
-  AND scoped.enrolment_check_due_at <= now() + ($4::bigint * INTERVAL '1 second')
-  AND (
-    scoped.last_attempt_at IS NULL
-    OR scoped.last_attempt_at <= now() - ($5::bigint * INTERVAL '1 second')
-  )
-  AND EXISTS (
-    SELECT 1
-    FROM scoped released
-    WHERE released.next_attempt_at <= now()
-  )
-        "#,
-        scope.course_id,
-        scope.user_id,
-        &scope.credit_registration_ids,
-        BATCH_PULL_FORWARD_SECS,
-        TRANSIENT_FAILURE_RETRY_SECS,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
 }
 
 /// The transition each edge writes: kept out of the query so every edge's error code, admin flag
@@ -398,9 +340,8 @@ targets AS (
       WHEN NOT facts.eligible
       OR NOT facts.has_student_number
       OR NOT facts.course_code_allowed THEN 'pending'
-      -- The periodic look for an enrolment that may have appeared since.
-      WHEN facts.state = 'no_usable_enrolment'
-      AND facts.next_attempt_at > now() THEN facts.state
+      -- resolve-enrolments checks it where it stands when its schedule says.
+      WHEN facts.state = 'no_usable_enrolment' THEN facts.state
       -- A relink after the payload was frozen must not let the row import against the account's
       -- previous number: send it back to resolve a fresh payload against the current one.
       WHEN facts.state = 'checking_enrolment'
@@ -835,26 +776,41 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn a_row_with_no_usable_enrolment_is_looked_at_again_when_its_recheck_falls_due() {
+    async fn a_parked_row_is_claimed_for_its_check_where_it_stands() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
+        crate::course_modules::update(
+            tx.as_mut(),
+            course_module.id,
+            &crate::course_modules::NewCourseModule::new(
+                course_module.course_id,
+                course_module.name.clone(),
+                course_module.order_number,
+            )
+            .set_enable_credit_registration_via_suotar(true),
+        )
+        .await
+        .unwrap();
+        crate::course_modules::set_register_eligible_new_completions_via_suotar(
+            tx.as_mut(),
+            course_module.id,
+            true,
+        )
+        .await
+        .unwrap();
         link_student_number(tx.as_mut(), user).await;
-        transition(
-            tx.as_mut(),
-            fixture.registration,
-            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
-        )
-        .await
-        .unwrap();
-        crate::credit_registrations::schedule_next_attempt(
-            tx.as_mut(),
-            fixture.registration,
-            Utc::now() + chrono::Duration::hours(24),
-        )
-        .await
-        .unwrap();
-
-        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
+        let fixture = fixture(tx.as_mut(), user, course, instance.id, course_module.id).await;
+        recompute(tx.as_mut(), &fixture).await;
+        let scope = RegistrationScope {
+            credit_registration_ids: vec![fixture.registration],
+            ..RegistrationScope::default()
+        };
+        let claim = async |conn: &mut PgConnection| {
+            crate::credit_registrations::claim_due_for_resolve(conn, &scope, 10)
+                .await
+                .unwrap()
+                .len()
+        };
+        assert_eq!(claim(tx.as_mut()).await, 0);
 
         crate::credit_registrations::schedule_next_attempt(
             tx.as_mut(),
@@ -863,11 +819,30 @@ mod tests {
         )
         .await
         .unwrap();
-        recompute(tx.as_mut(), &fixture).await;
+        assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
+        assert_eq!(claim(tx.as_mut()).await, 1);
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
+
+        crate::credit_registrations::claim_enrolment_check(tx.as_mut(), fixture.registration)
+            .await
+            .unwrap();
+        assert_eq!(claim(tx.as_mut()).await, 0);
+        let answered = transition(
+            tx.as_mut(),
+            fixture.registration,
+            &Transition {
+                next_attempt_at: Some(Utc::now() - chrono::Duration::seconds(1)),
+                ..Transition::to(CreditRegistrationState::NoUsableEnrolment)
+            },
+        )
+        .await
+        .unwrap();
+        assert!(answered.enrolment_checked_at.is_some());
+        assert_eq!(answered.enrolment_check_claimed_until, None);
+        assert_eq!(claim(tx.as_mut()).await, 1);
     }
 
     /// Its payload is already frozen, so resolving the enrolment again would be a loop.

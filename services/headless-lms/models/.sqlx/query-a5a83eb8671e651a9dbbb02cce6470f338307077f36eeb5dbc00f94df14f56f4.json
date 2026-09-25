@@ -764,6 +764,17 @@
             "name": "seen_enrolment_ids"
           }
         }
+      },
+      {
+        "ordinal": 62,
+        "name": "enrolment_check_claimed_until",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_claimed_until"
+          }
+        }
       }
     ],
     "parameters": {
@@ -865,6 +876,7 @@
       true,
       true,
       false,
+      true,
       true
     ]
   },

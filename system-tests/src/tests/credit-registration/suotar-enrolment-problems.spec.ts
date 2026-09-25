@@ -114,7 +114,6 @@ test.describe("A student the University has no enrolment for", () => {
       await runResolveEnrolmentsTick(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
       await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
-        "ready_to_submit",
         "submitting",
         "awaiting_verification",
       ])

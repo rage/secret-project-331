@@ -42,6 +42,16 @@ pub enum EnrolmentCheckSource {
     AccountLink,
 }
 
+impl EnrolmentCheckSource {
+    /// Whether someone pressed a button for the check, and so is waiting to see its answer.
+    pub fn is_request(self) -> bool {
+        matches!(
+            self,
+            Self::StudentRequest | Self::TeacherRequest | Self::AdminRequest
+        )
+    }
+}
+
 const MINUTE_SECS: i64 = 60;
 const HOUR_SECS: i64 = 60 * MINUTE_SECS;
 const DAY_SECS: i64 = 24 * HOUR_SECS;

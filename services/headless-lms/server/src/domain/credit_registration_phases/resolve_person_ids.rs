@@ -2,15 +2,15 @@
 //! link, which arrives with a student number only.
 //!
 //! Runs before the enrolment lookup freezes the payload, so the frozen row carries the person id
-//! that `uq_credit_registrations_person_module` and enrolment discovery key on. Rows wait in
-//! `resolving_enrolment` for the call, as the enrolment lookup's do, and a found person sends the
-//! row back to `ready_to_submit` for the second half of the same iteration.
+//! that `uq_credit_registrations_person_module` and enrolment discovery key on. Rows wait out the
+//! call as the enrolment lookup's do (see [`super::resolve_enrolments::lookup_state`]), and a found
+//! person leaves the row claimable for the second half of the same iteration.
 
 use std::collections::HashMap;
 
 use headless_lms_models::credit_registrations::{
-    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
-    claim_due_for_person_lookup, transition,
+    CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState,
+    claim_due_for_person_lookup,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::outcomes::{
@@ -27,6 +27,7 @@ use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
+use super::resolve_enrolments::{hold_for_lookup, lookup_state};
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
     apply_isolated_malformed_request, apply_outcome, apply_request_level_outcome, counts_as_failed,
@@ -52,8 +53,8 @@ impl SuotarBatchPhase for ResolvePersonIds {
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every person lookup came back unavailable.";
     const ENDPOINT: SuotarEndpoint = ENDPOINT;
 
-    /// Claims the ready rows and keeps only those whose link lacks a person id; the others are left
-    /// for the enrolment lookup.
+    /// Claims the rows the enrolment lookup would and keeps only those whose link lacks a person
+    /// id; the others are left for the enrolment lookup.
     async fn prepare(
         &mut self,
         _ctx: &PhaseContext<'_>,
@@ -75,12 +76,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
             let Some(link) = links.get(&row.user_id) else {
                 continue;
             };
-            transition(
-                conn,
-                row.id,
-                &Transition::to(CreditRegistrationState::ResolvingEnrolment),
-            )
-            .await?;
+            hold_for_lookup(conn, &row).await?;
             let item = ResolvePersonRequestItem {
                 request_item_id: new_request_item_id(),
                 student_number: link.student_number.clone().into(),
@@ -159,7 +155,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
                 }),
                 ..event
             },
-            Some(CreditRegistrationState::ResolvingEnrolment),
+            Some(lookup_state(registration)),
         )
         .await?;
         Ok(counts_as_failed(&outcome))
@@ -180,7 +176,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
             request,
             request_item_id,
             error,
-            CreditRegistrationState::ResolvingEnrolment,
+            lookup_state(&row.registration),
         )
         .await
     }
@@ -203,7 +199,7 @@ impl SuotarBatchPhase for ResolvePersonIds {
             request,
             request_item_id,
             error,
-            CreditRegistrationState::ResolvingEnrolment,
+            lookup_state(&row.registration),
         )
         .await
     }
@@ -229,7 +225,7 @@ async fn fill_person_id(
     .await?
     {
         return Ok((
-            Outcome::to(CreditRegistrationState::ReadyToSubmit),
+            found_person_outcome(&row.registration),
             Some("Found the Sisu person the linked student number belongs to."),
         ));
     }
@@ -254,4 +250,18 @@ async fn fill_person_id(
             "Another account's link already holds the Sisu person this student number belongs to.",
         ),
     ))
+}
+
+/// Leaves the row due for the enrolment lookup: a first resolve back in `ready_to_submit`, a parked
+/// row where it was, with its error code and last check time, since its enrolment was not checked.
+fn found_person_outcome(registration: &CreditRegistration) -> Outcome {
+    if registration.state != CreditRegistrationState::NoUsableEnrolment {
+        return Outcome::to(CreditRegistrationState::ReadyToSubmit);
+    }
+    Outcome {
+        error_code: registration.error_code,
+        next_attempt_at: Some(registration.next_attempt_at),
+        keeps_enrolment_checked_at: true,
+        ..Outcome::to(CreditRegistrationState::NoUsableEnrolment)
+    }
 }

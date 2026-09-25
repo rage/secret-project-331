@@ -219,8 +219,7 @@ export const expireEnrolmentRecheckAllowance = async (
 
 /**
  * Brings the next enrolment check of every row in `scope` that waits for one forward to now, and
- * returns how many it moved. A preconditions tick then hands them to resolve-enrolments. Refuses an
- * empty scope.
+ * returns how many it moved. The next resolve-enrolments tick checks them. Refuses an empty scope.
  */
 export const makeEnrolmentChecksDue = async (
   request: APIRequestContext,
@@ -292,6 +291,8 @@ export interface EnrolmentCheckSchedule {
   errorCode: string | null
   /** `null` until the row's first answered check or roster listing. */
   seenEnrolmentIds: string[] | null
+  /** Set while a check of the parked row is out; the row stays `no_usable_enrolment` for it. */
+  claimedUntil: string | null
 }
 
 /** One row's enrolment check schedule, which no product surface shows whole. */
@@ -390,7 +391,6 @@ export const runEnrolmentCheckNow = async (
 ): Promise<void> => {
   await runPreconditionsTick(request, scope)
   await makeEnrolmentChecksDue(request, scope)
-  await runPreconditionsTick(request, scope)
   await runResolveEnrolmentsTick(request, scope)
 }
 

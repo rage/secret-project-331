@@ -27,7 +27,6 @@ import {
   runEnrolmentCheckNow,
   runEnrolmentDiscoveryTick,
   runMaterializeTick,
-  runPreconditionsTick,
   runResolveEnrolmentsTick,
   setTestExclusiveHold,
 } from "@/utils/suotarControl"
@@ -134,7 +133,7 @@ test("A teacher asks for the enrolment to be checked again, within the student's
     ).toBeVisible()
 
     const details = await teacherDetails(page.request, parked.id)
-    expect(details.registration.state).toBe("ready_to_submit")
+    expect(details.registration.state).toBe("no_usable_enrolment")
     expect(details.events).toContainEqual(
       expect.objectContaining({
         kind: "admin_action",
@@ -222,9 +221,7 @@ test("With account linking off, discovery wakes a linked student and mails nobod
     const woken = (await adminRegistrationDetails(adminApi, parked.id)).registration
     expect(new Date(woken.next_attempt_at).getTime()).toBeLessThanOrEqual(Date.now())
 
-    const rowScope = { creditRegistrationIds: [parked.id] }
-    await runPreconditionsTick(page.request, rowScope)
-    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runResolveEnrolmentsTick(page.request, { creditRegistrationIds: [parked.id] })
     await rowInState(adminApi, ["checking_enrolment", "submitting", "awaiting_verification"])
   })
 })

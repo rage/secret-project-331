@@ -410,6 +410,7 @@ pub struct EnrolmentCheckSchedule {
     pub submit_retry_count: i32,
     pub error_code: Option<models::credit_registrations::CreditRegistrationErrorCode>,
     pub seen_enrolment_ids: Option<Vec<String>>,
+    pub claimed_until: Option<DateTime<Utc>>,
 }
 
 async fn enrolment_check_schedule(
@@ -440,6 +441,7 @@ async fn enrolment_check_schedule(
         submit_retry_count: row.submit_retry_count,
         error_code: row.error_code,
         seen_enrolment_ids: row.seen_enrolment_ids,
+        claimed_until: row.enrolment_check_claimed_until,
     }))
 }
 

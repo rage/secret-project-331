@@ -8,6 +8,10 @@
 //! preflight transaction below commits. Landing in a state `import` does not claim keeps a second
 //! tick of `import` from sending a request before the enrolment this one resolves is known.
 //!
+//! A row parked in `no_usable_enrolment` is checked where it stands instead, under
+//! [`claim_enrolment_check`], so a check that finds nothing leaves it there with only its schedule
+//! and last check time moved.
+//!
 //! Each iteration first looks up the Sisu person for links that lack one; see
 //! [`super::resolve_person_ids`].
 
@@ -20,9 +24,10 @@ use headless_lms_models::credit_registration_events::{
 use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, LiveSuccessForModule,
-    RecordedCredit, Transition, claim_due_for_resolve, get_recorded_credits_for_same_module,
-    increment_submit_retry_count, lock_live_successes_for_same_module, mark_pending_superseded,
-    prepare_unsent_duplicate, set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
+    RecordedCredit, Transition, claim_due_for_resolve, claim_enrolment_check,
+    get_recorded_credits_for_same_module, increment_submit_retry_count,
+    lock_live_successes_for_same_module, mark_pending_superseded, prepare_unsent_duplicate,
+    set_payload_snapshot, set_sisu_attainment_if_unclaimed, transition,
 };
 use headless_lms_models::library::credit_registration::classification::map_code;
 use headless_lms_models::library::credit_registration::enrolment_checks::add_seen_enrolment_ids;
@@ -136,16 +141,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
             }
             match preflight(&context) {
                 Ok(item) => {
-                    // Moved out of the state this phase reads, so a second tick cannot pick it up
-                    // while the request is out; `resolving_enrolment` rather than
-                    // `checking_enrolment` so `import` cannot claim it either before the payload
-                    // below is actually frozen.
-                    transition(
-                        conn,
-                        row.id,
-                        &Transition::to(CreditRegistrationState::ResolvingEnrolment),
-                    )
-                    .await?;
+                    hold_for_lookup(conn, &row).await?;
                     let request = ResolveEnrolmentRequestItem {
                         request_item_id: new_request_item_id(),
                         student_number: item.student_number.into(),
@@ -200,11 +196,14 @@ impl SuotarBatchPhase for ResolveEnrolments {
             .map(|result| result.enrolments.as_slice())
             .unwrap_or_default();
         let chosen = select_enrolment(enrolments, enrolment_criteria(context));
-        let check = row.is_enrolment_recheck().then(|| EnrolmentCheckAnswer {
-            checked: row,
-            usable_enrolment: chosen.ok(),
-            listed_enrolments: enrolments,
-        });
+        let check = row
+            .enrolment_check_anchor_at
+            .is_some()
+            .then(|| EnrolmentCheckAnswer {
+                checked: row,
+                usable_enrolment: chosen.ok(),
+                listed_enrolments: enrolments,
+            });
         apply_answer(
             conn,
             row,
@@ -234,7 +233,7 @@ impl SuotarBatchPhase for ResolveEnrolments {
             request,
             request_item_id,
             error,
-            CreditRegistrationState::ResolvingEnrolment,
+            lookup_state(row),
         )
         .await
     }
@@ -257,10 +256,39 @@ impl SuotarBatchPhase for ResolveEnrolments {
             request,
             request_item_id,
             error,
-            CreditRegistrationState::ResolvingEnrolment,
+            lookup_state(row),
         )
         .await
     }
+}
+
+/// The state a row claimed for a lookup waits out the call in: a parked row stays where it is,
+/// anything else moves to `resolving_enrolment`. What the answer's write expects to find.
+pub(super) fn lookup_state(row: &CreditRegistration) -> CreditRegistrationState {
+    if row.state == CreditRegistrationState::NoUsableEnrolment {
+        CreditRegistrationState::NoUsableEnrolment
+    } else {
+        CreditRegistrationState::ResolvingEnrolment
+    }
+}
+
+/// Keeps a claimed row from being claimed again, or imported, while its lookup is out; see
+/// [`lookup_state`]. In the claim's transaction.
+pub(super) async fn hold_for_lookup(
+    conn: &mut PgConnection,
+    row: &CreditRegistration,
+) -> anyhow::Result<()> {
+    if lookup_state(row) == CreditRegistrationState::NoUsableEnrolment {
+        claim_enrolment_check(conn, row.id).await?;
+    } else {
+        transition(
+            conn,
+            row.id,
+            &Transition::to(CreditRegistrationState::ResolvingEnrolment),
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 /// An answered check of a row waiting for an enrolment, logged with the write its answer makes.
@@ -318,7 +346,7 @@ pub(crate) async fn record_enrolment_check(
 }
 
 /// Applies the study registry's answer for one row. Returns whether the row ended up in a failure
-/// state; errors with `PreconditionFailed` if the row left `resolving_enrolment` meanwhile.
+/// state; errors with `PreconditionFailed` if the row left its [`lookup_state`] meanwhile.
 async fn apply_answer(
     conn: &mut PgConnection,
     row: &CreditRegistration,
@@ -340,7 +368,7 @@ async fn apply_answer(
                     message: Some("Sisu did not answer for this item."),
                     ..event
                 },
-                Some(CreditRegistrationState::ResolvingEnrolment),
+                Some(lookup_state(row)),
             )
             .await?;
             Ok(counts_as_failed(&outcome))
@@ -382,7 +410,7 @@ async fn apply_answer(
                     error_message: item.error.as_ref().map(|error| error.message.as_str()),
                     ..event
                 },
-                Some(CreditRegistrationState::ResolvingEnrolment),
+                Some(lookup_state(row)),
             )
             .await?;
             Ok(counts_as_failed(&outcome))
@@ -507,7 +535,7 @@ async fn choose(
                     message: Some(reason.message()),
                     ..event
                 },
-                Some(CreditRegistrationState::ResolvingEnrolment),
+                Some(lookup_state(row)),
             )
             .await?;
             tx.commit().await?;
@@ -534,7 +562,7 @@ async fn choose(
                 row,
                 &submit_error_outcome(SuotarEndpoint::ResolveEnrolments, code, &row_facts(row)),
                 event,
-                Some(CreditRegistrationState::ResolvingEnrolment),
+                Some(lookup_state(row)),
             )
             .await?;
             tx.commit().await?;
@@ -573,7 +601,7 @@ async fn choose(
             suotar_api_call_id: event.suotar_api_call_id,
             request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(details),
-            expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
+            expected_from_state: Some(lookup_state(row)),
             ..Transition::to(CreditRegistrationState::CheckingEnrolment)
         },
     )
@@ -715,8 +743,8 @@ async fn settle_unsent_duplicate(
             request_item_id: event.request_item_id.map(str::to_string),
             event_details: Some(suotar_exchange_details(event.request, event.response)),
             // The row spent the Suotar round trip unlocked, so an admin action may have already
-            // moved it out of `resolving_enrolment`.
-            expected_from_state: Some(CreditRegistrationState::ResolvingEnrolment),
+            // moved it on.
+            expected_from_state: Some(lookup_state(row)),
             ..Transition::to(CreditRegistrationState::Duplicate)
         },
     )

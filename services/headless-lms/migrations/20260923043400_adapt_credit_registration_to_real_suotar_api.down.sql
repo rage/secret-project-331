@@ -12,7 +12,8 @@ DROP TABLE credit_registration_roster_schedules;
 
 DROP INDEX idx_credit_registrations_module_created;
 DROP INDEX idx_credit_registrations_batched_enrolment_checks;
-ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_enrolment_check_step,
+ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_enrolment_check_claimed,
+  DROP CONSTRAINT credit_registrations_enrolment_check_step,
   DROP CONSTRAINT credit_registrations_enrolment_checks_stopped,
   DROP CONSTRAINT credit_registrations_enrolment_check_restart_count,
   DROP COLUMN enrolment_check_group,
@@ -25,7 +26,8 @@ ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_enrolment_
   DROP COLUMN enrolment_check_requested_at,
   DROP COLUMN enrolment_check_restart_window_started_at,
   DROP COLUMN enrolment_check_restart_count,
-  DROP COLUMN seen_enrolment_ids;
+  DROP COLUMN seen_enrolment_ids,
+  DROP COLUMN enrolment_check_claimed_until;
 
 ALTER TYPE email_template_type
 ADD VALUE 'credit_registration_student_number_linked';

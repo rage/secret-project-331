@@ -190,7 +190,7 @@ COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'A later atte
 
 ALTER TABLE credit_registrations
 ADD COLUMN no_usable_enrolment_since TIMESTAMP WITH TIME ZONE;
-COMMENT ON COLUMN credit_registrations.no_usable_enrolment_since IS 'When the row started waiting for an enrolment, kept through the rechecks that pass through ready_to_submit, resolving_enrolment and failed_retryable. Cleared once the row leaves that loop, for example when an enrolment is found.';
+COMMENT ON COLUMN credit_registrations.no_usable_enrolment_since IS 'When the row started waiting for an enrolment, kept through every check that finds none and through the ready_to_submit, resolving_enrolment and failed_retryable a first check or a retried lookup passes through. Cleared once the row stops waiting, for example when an enrolment is found.';
 
 UPDATE credit_registrations
 SET no_usable_enrolment_since = state_entered_at
@@ -246,6 +246,11 @@ ADD COLUMN enrolment_check_group enrolment_check_group NOT NULL DEFAULT 'complet
   ADD COLUMN enrolment_check_restart_window_started_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN enrolment_check_restart_count INT NOT NULL DEFAULT 0,
   ADD COLUMN seen_enrolment_ids TEXT [],
+  ADD COLUMN enrolment_check_claimed_until TIMESTAMP WITH TIME ZONE,
+  ADD CONSTRAINT credit_registrations_enrolment_check_claimed CHECK (
+    enrolment_check_claimed_until IS NULL
+    OR state = 'no_usable_enrolment'
+  ),
   ADD CONSTRAINT credit_registrations_enrolment_check_step CHECK (
     (enrolment_check_step IS NULL) = (enrolment_check_due_at IS NULL)
     AND (
@@ -276,13 +281,14 @@ WHERE deleted_at IS NULL;
 COMMENT ON COLUMN credit_registrations.enrolment_check_group IS 'Which enrolment check schedule the row follows. Kept for the row''s whole life, through every state, and inherited by a later attempt for the same student and module.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_anchor_at IS 'What the group''s schedule offsets are counted from: the completion or the link, whichever is later, for completed; the latest restart for the other groups. NULL until the row first waits for an enrolment.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_step IS 'Zero-based index into the group''s schedule of the check the row waits for. Moves only when a check answers, never when one is claimed. NULL while no check is scheduled, including after the schedule has run out.';
-COMMENT ON COLUMN credit_registrations.enrolment_check_due_at IS 'The schedule time of enrolment_check_step, which next_attempt_at loses whenever a check is brought forward or the row detours through the resolve states.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_due_at IS 'The schedule time of enrolment_check_step, which next_attempt_at loses whenever a check is brought forward or waits out a failed lookup.';
 COMMENT ON COLUMN credit_registrations.is_enrolment_check_batched IS 'Whether the scheduled check is a slow one (a gap of a day or more): released only on a five-minute boundary, and pulled up to 15 minutes forward into a batch that is going out anyway.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_source IS 'What made the next or running enrolment check due. Back to schedule once the check answers.';
 COMMENT ON COLUMN credit_registrations.enrolment_checks_stopped_at IS 'When the schedule ran out without an enrolment. The row keeps waiting in no_usable_enrolment and nothing tells the student; a visit, a check request, a new completion or a roster listing can still wake it.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_requested_at IS 'When a student or teacher last asked for a check. With enrolment_checked_at, it is what the shared 30-minute limit on asking is counted from.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_restart_window_started_at IS 'Start of the 24-hour window enrolment_check_restart_count counts in.';
 COMMENT ON COLUMN credit_registrations.enrolment_check_restart_count IS 'How many check requests restarted the schedule in the current window. Past the daily cap a request still gets one check, without a restart.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_claimed_until IS 'Set while resolve-enrolments has a lookup out for a row parked in no_usable_enrolment, which stays in that state for the call: no other lookup claims the row before this time. The answer clears it; a worker that died mid-call leaves it to expire.';
 COMMENT ON COLUMN credit_registrations.seen_enrolment_ids IS 'Every Sisu enrolment id the row''s checks have seen, plus those a roster listing has already woken it for. A listing naming any other id wakes the row. NULL until the first check, so any listing wakes a row never checked.';
 
 

@@ -213,22 +213,21 @@ impl CreditRegistrationPhase {
 
     /// The ledger states this phase is the one to move a row out of.
     ///
-    /// The Workers tab's "queue depth it is responsible for", and the depth the failing-phase alert
-    /// asks about before calling a quiet phase wedged. Empty for the phases whose work is not a
-    /// ledger state at all: `materialize`'s queue is completions with no row yet, and the syncer's
-    /// phases work on course modules. Narrower than what `preconditions` may claim, which is every
-    /// non-terminal row: these are the states nothing else advances.
+    /// Empty for the phases whose work is not a ledger state at all: `materialize`'s queue is
+    /// completions with no row yet, and the syncer's phases work on course modules. Narrower than
+    /// what `preconditions` may claim, which is every non-terminal row: these are the states nothing
+    /// else advances. How many of their rows are waiting on the phase is [`Self::queue_depth`].
     pub fn owned_states(self) -> &'static [CreditRegistrationState] {
         match self {
             Self::Preconditions => &[
                 CreditRegistrationState::Pending,
-                CreditRegistrationState::NoUsableEnrolment,
                 CreditRegistrationState::FailedRetryable,
                 CreditRegistrationState::Blocked,
             ],
             Self::ResolveEnrolments => &[
                 CreditRegistrationState::ReadyToSubmit,
                 CreditRegistrationState::ResolvingEnrolment,
+                CreditRegistrationState::NoUsableEnrolment,
             ],
             Self::Import => &[
                 CreditRegistrationState::CheckingEnrolment,
@@ -240,6 +239,28 @@ impl CreditRegistrationPhase {
             ],
             _ => &[],
         }
+    }
+
+    /// The live rows waiting on this phase: the Workers tab's "queue depth it is responsible for",
+    /// and the depth the failing-phase alert asks about before calling a quiet phase wedged.
+    ///
+    /// `depth_of` is the live count of a state. `due_enrolment_checks` stands in for
+    /// `no_usable_enrolment`, whose other rows wait for their schedule rather than for the phase.
+    pub fn queue_depth(
+        self,
+        depth_of: impl Fn(CreditRegistrationState) -> i64,
+        due_enrolment_checks: i64,
+    ) -> i64 {
+        self.owned_states()
+            .iter()
+            .map(|&state| {
+                if state == CreditRegistrationState::NoUsableEnrolment {
+                    due_enrolment_checks
+                } else {
+                    depth_of(state)
+                }
+            })
+            .sum()
     }
 
     pub fn scope_support(self) -> ScopeSupport {
@@ -1171,9 +1192,11 @@ pub(crate) fn outcome_transition(
         error_code: outcome.error_code,
         needs_admin_attention: outcome.needs_admin_attention,
         expected_from_state,
-        next_attempt_at: outcome
-            .delay_secs
-            .map(|delay_secs| next_attempt_at(Utc::now(), delay_secs)),
+        next_attempt_at: outcome.next_attempt_at.or_else(|| {
+            outcome
+                .delay_secs
+                .map(|delay_secs| next_attempt_at(Utc::now(), delay_secs))
+        }),
         keeps_enrolment_checked_at: outcome.keeps_enrolment_checked_at,
         ..Transition::to(outcome.to_state)
     }

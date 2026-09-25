@@ -20213,7 +20213,7 @@
           "queue_depth": {
             "type": ["integer", "null"],
             "format": "int64",
-            "description": "Live rows in `owned_states`, or `None` where there are none to own — which is not the same\nas an empty queue."
+            "description": "Live rows in `owned_states` waiting on this phase, of `no_usable_enrolment` only those due a\ncheck, or `None` where there are none to own — which is not the same as an empty queue."
           },
           "seconds_since_heartbeat": {
             "type": ["integer", "null"],

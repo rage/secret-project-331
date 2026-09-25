@@ -393,6 +393,7 @@ async fn phase_alerts(
     depths: &[(CreditRegistrationState, i64)],
 ) -> ModelResult<Vec<CreditRegistrationAlert>> {
     let phases = credit_registration_phase_state::get_all(conn).await?;
+    let due_enrolment_checks = credit_registrations::count_due_enrolment_checks(conn).await?;
     let mut stale: Vec<&str> = Vec::new();
     let mut failing: Vec<&str> = Vec::new();
     let mut paused = 0;
@@ -416,7 +417,9 @@ async fn phase_alerts(
             crate::domain::credit_registration_phases::CreditRegistrationPhase::from_phase_name(
                 &phase.phase,
             );
-        let owns_work = known_phase.is_some_and(|known| owned_depth(known, depths) > 0);
+        let owns_work = known_phase.is_some_and(|known| {
+            known.queue_depth(|state| depth_of(depths, state), due_enrolment_checks) > 0
+        });
         let slowest_iteration_secs = known_phase.map_or(0, |known| {
             known.max_study_registry_wait().as_secs() as i64 + PHASE_SUCCESS_CALL_MARGIN_SECS
         });
@@ -666,17 +669,6 @@ fn depth_of(depths: &[(CreditRegistrationState, i64)], state: CreditRegistration
         .iter()
         .find(|(row_state, _)| *row_state == state)
         .map_or(0, |(_, count)| *count)
-}
-
-fn owned_depth(
-    phase: crate::domain::credit_registration_phases::CreditRegistrationPhase,
-    depths: &[(CreditRegistrationState, i64)],
-) -> i64 {
-    phase
-        .owned_states()
-        .iter()
-        .map(|state| depth_of(depths, *state))
-        .sum()
 }
 
 /// The state's own wire name, taken from its serialisation so the two cannot drift.

@@ -41,13 +41,16 @@ pub struct Outcome {
     pub needs_admin_attention: Option<bool>,
     /// Seconds to wait before the row may be claimed again.
     pub delay_secs: Option<i64>,
+    /// When the row may be claimed again, exactly; overrides `delay_secs`.
+    pub next_attempt_at: Option<DateTime<Utc>>,
     /// Set when Suotar says the stored number names nobody, so it is wrong wherever we hold it.
     pub drop_verified_student_number: bool,
     pub increment_submit_retry_count: bool,
     /// The next wait comes from the row's enrolment check schedule rather than `delay_secs`; see
     /// [`super::enrolment_checks::schedule_next_check`].
     pub schedules_next_enrolment_check: bool,
-    /// A lookup that failed in transit: it was no check, so the row's last check time stands.
+    /// A lookup that failed in transit, or only found the Sisu person: it was no check, so the row's
+    /// last check time stands.
     pub keeps_enrolment_checked_at: bool,
 }
 
@@ -58,6 +61,7 @@ impl Outcome {
             error_code: None,
             needs_admin_attention: None,
             delay_secs: None,
+            next_attempt_at: None,
             drop_verified_student_number: false,
             increment_submit_retry_count: false,
             schedules_next_enrolment_check: false,

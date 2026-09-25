@@ -41,7 +41,8 @@ pub const SUBMITTING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ImportAttainment
     .as_secs() as i64
     + 15 * 60;
 /// A row still `resolving_enrolment` this long belongs to a worker that died mid-call, and goes back
-/// to `ready_to_submit`. Above the resolve timeout, so a live answer still lands.
+/// to `ready_to_submit`; a parked row's claimed check expires after as long. Above the resolve
+/// timeout, so a live answer still lands.
 pub const RESOLVING_RECOVERY_GRACE_SECS: i64 = SuotarEndpoint::ResolveEnrolments
     .request_timeout()
     .as_secs() as i64

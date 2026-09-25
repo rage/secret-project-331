@@ -7,11 +7,11 @@
 
 use chrono::Duration;
 
-use crate::domain::credit_registration_phases::{
+use crate::prelude::*;
+use headless_lms_credit_registration::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, breaker,
     rate_limit, run_phase_once,
 };
-use crate::prelude::*;
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };

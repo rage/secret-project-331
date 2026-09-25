@@ -5226,7 +5226,7 @@ export const getCreditRegistrationOverview = <ThrowOnError extends boolean = tru
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
- * and the queue it is responsible for.
+ * and the queue it is responsible for, and the workers' circuit breakers.
  */
 export const listCreditRegistrationPhases = <ThrowOnError extends boolean = true>(
   options?: Options<ListCreditRegistrationPhasesData, ThrowOnError>,

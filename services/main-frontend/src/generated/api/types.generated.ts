@@ -648,6 +648,11 @@ export type BlockProposalInfo = {
   id: string
 }
 
+/**
+ * Which phases one circuit breaker pauses.
+ */
+export type BreakerTarget = "study_registry" | "sisu_submissions"
+
 export type BulkUserDetailsRequest = {
   course_id: string
   user_ids: Array<string>
@@ -846,6 +851,11 @@ export type ChatbotConfigurationModel = {
   model_type: ModelType
   updated_at: string
 }
+
+/**
+ * Where one circuit breaker stands, as its worker last reported it.
+ */
+export type CircuitBreakerStatus = "closed" | "open" | "waiting_to_probe"
 
 export type ClaimStudentNumberVerificationTokenOutcome =
   | "linked"
@@ -2025,15 +2035,26 @@ export type CreditRegistrationAttentionReasonCount = {
 }
 
 /**
- * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
- * — and the counters live in process memory, so this says whether this server would currently skip a
- * study registry call, not whether the workers would.
+ * One worker process's circuit breaker, as the worker last reported it.
  */
 export type CreditRegistrationCircuitBreakerState = {
   consecutive_failures: number
-  open: boolean
+  /**
+   * The endpoints whose phases the breaker pauses.
+   */
+  endpoints: Array<SuotarEndpoint>
+  /**
+   * How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
+   */
   open_for_secs?: number | null
-  trips_after_consecutive_failures: number
+  process_name: string
+  status: CircuitBreakerStatus
+  target: BreakerTarget
+  trip_count: number
+  /**
+   * When the worker last reported the state.
+   */
+  updated_at: string
 }
 
 /**
@@ -2250,7 +2271,6 @@ export type CreditRegistrationOldestNonTerminal = {
 }
 
 export type CreditRegistrationOverview = {
-  circuit_breaker: CreditRegistrationCircuitBreakerState
   counts_by_state: Array<CreditRegistrationStateTotal>
   endpoints: Array<SuotarEndpointStanding>
   error_codes: Array<CreditRegistrationErrorCodeTotal>
@@ -2276,6 +2296,7 @@ export type CreditRegistrationOverview = {
 export type CreditRegistrationPendingReason = "completion" | "student_number" | "course_code"
 
 export type CreditRegistrationPhaseList = {
+  circuit_breakers: Array<CreditRegistrationCircuitBreakerState>
   consecutive_failure_limit: number
   heartbeat_interval_multiplier: number
   /**
@@ -4831,18 +4852,19 @@ export type SuotarEndpointDailyCost = {
   p95_duration_ms?: number | null
 }
 
+/**
+ * One endpoint's limiter as the worker last reported it.
+ */
 export type SuotarEndpointRateLimit = {
   /**
    * Items, or requests, that could go out right now.
    */
   available: number
-  breaker_trip_count: number
   endpoint: SuotarEndpoint
   /**
    * Items per minute, or requests per minute for `list_by_course`.
    */
   full_rate_per_minute: number
-  is_breaker_open: boolean
   /**
    * The share of the full rate allowed, from 0.1 up to 1.
    */
@@ -9979,7 +10001,7 @@ export type ListCreditRegistrationPhasesData = {
 
 export type ListCreditRegistrationPhasesResponses = {
   /**
-   * One row per pipeline phase
+   * One row per pipeline phase, and the workers' circuit breakers
    */
   200: CreditRegistrationPhaseList
 }

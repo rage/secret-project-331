@@ -1,0 +1,96 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT process_name,\n  target AS \"target: BreakerTarget\",\n  updated_at,\n  consecutive_failures,\n  open_until,\n  trip_count\nFROM suotar_circuit_breakers\nORDER BY process_name,\n  target\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "process_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "process_name"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "target: BreakerTarget",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_circuit_breaker_target",
+            "kind": {
+              "Enum": [
+                "study_registry",
+                "sisu_submissions"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "target"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "open_until",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "open_until"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "trip_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_circuit_breakers",
+            "name": "trip_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "463e38c80356cee1f9b70f5d952a74fd389d1c286cb5db4d639c2dbf66e902e6"
+}

@@ -21,11 +21,8 @@ use utoipa::ToSchema;
 use crate::domain::credit_registration::health::{
     CreditRegistrationHealth, evaluate, is_heartbeat_late, stuck_thresholds,
 };
-use crate::domain::credit_registration_phases::CreditRegistrationPhase;
-use crate::domain::credit_registration_phases::breaker::{
-    BreakerTarget, MAX_CONSECUTIVE_SUOTAR_FAILURES, ScopeKey, snapshot,
-};
 use crate::prelude::*;
+use headless_lms_credit_registration::CreditRegistrationPhase;
 
 use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin, required_reason};
 
@@ -84,17 +81,6 @@ pub struct SuotarEndpointStanding {
     pub consecutive_failures: i64,
 }
 
-/// The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
-/// — and the counters live in process memory, so this says whether this server would currently skip a
-/// study registry call, not whether the workers would.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct CreditRegistrationCircuitBreakerState {
-    pub open: bool,
-    pub consecutive_failures: i64,
-    pub open_for_secs: Option<i64>,
-    pub trips_after_consecutive_failures: i64,
-}
-
 /// One pipeline phase's heartbeat, written by the worker loops and by unscoped runs only, never by a
 /// narrowed one. Returned by the pause/resume/run-now actions; the Workers tab lists
 /// `CreditRegistrationPhaseRow` instead, which is wider.
@@ -136,7 +122,6 @@ pub struct CreditRegistrationOverview {
     pub throughput_days: i64,
     pub stuck: Vec<CreditRegistrationStuckTotal>,
     pub endpoints: Vec<SuotarEndpointStanding>,
-    pub circuit_breaker: CreditRegistrationCircuitBreakerState,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -251,7 +236,6 @@ pub async fn get_credit_registration_overview(
         throughput_days: THROUGHPUT_DAYS,
         stuck,
         endpoints,
-        circuit_breaker: circuit_breaker_state(),
     }))
 }
 
@@ -493,16 +477,6 @@ fn to_phase_status(
         pause_reason: row.pause_reason,
         seconds_since_heartbeat,
         heartbeat_late,
-    }
-}
-
-fn circuit_breaker_state() -> CreditRegistrationCircuitBreakerState {
-    let state = snapshot(&ScopeKey::Global, BreakerTarget::StudyRegistry);
-    CreditRegistrationCircuitBreakerState {
-        open: state.open,
-        consecutive_failures: i64::from(state.consecutive_failures),
-        open_for_secs: state.open_for_secs.map(|secs| secs as i64),
-        trips_after_consecutive_failures: i64::from(MAX_CONSECUTIVE_SUOTAR_FAILURES),
     }
 }
 

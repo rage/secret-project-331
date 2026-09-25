@@ -12,7 +12,7 @@ license.workspace = true
 [dependencies]
 headless-lms-base = { path = "../base" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio.workspace = true
+tokio = { workspace = true, features = ["macros", "time"] }
 # Additional utilities for working with Tokio.
 tokio-util = { version = "0.7.19", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.

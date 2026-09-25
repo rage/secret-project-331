@@ -216,7 +216,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
   )
 }
 
-/** The limiter and breaker state the live worker last reported, per endpoint. */
+/** The limiter state the live worker last reported, per endpoint. */
 const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
@@ -258,25 +258,6 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
             minWidth: "7rem",
             nowrap: true,
             cell: (row) => row.available,
-          },
-          {
-            header: t("credit-registration-admin-column-breaker"),
-            minWidth: "8rem",
-            cell: (row) =>
-              row.is_breaker_open ? (
-                <Badge tone={TONE.DANGER} size="compact">
-                  {t("credit-registration-admin-breaker-open")}
-                </Badge>
-              ) : (
-                ABSENT
-              ),
-          },
-          {
-            header: t("credit-registration-admin-column-trip-count"),
-            align: ALIGN_END,
-            minWidth: "5rem",
-            nowrap: true,
-            cell: (row) => row.breaker_trip_count,
           },
           {
             header: t("credit-registration-admin-column-recorded-at"),

@@ -143,6 +143,20 @@ fn is_valid_attainment(attainment: &ExistingAttainment) -> bool {
 /// How long after the submission its attainment may be registered and still count as its own.
 const RECOVERY_REGISTRATION_WINDOW_DAYS: i64 = 2;
 
+/// The attainment `sisu_attainment_id` records: the course unit one when there is one, else the
+/// latest.
+pub fn preferred_attainment<'a>(
+    candidates: &[&'a ExistingAttainment],
+) -> Option<&'a ExistingAttainment> {
+    candidates.iter().copied().max_by_key(|attainment| {
+        (
+            attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT,
+            attainment.registration_date,
+            attainment.attainment_date,
+        )
+    })
+}
+
 /// The attainment a submission we lost track of would have produced, matched on what we sent.
 ///
 /// Suotar may move the attainment date into the study right without telling us, so an attainment

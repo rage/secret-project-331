@@ -135,6 +135,7 @@ pub mod student_number_verification_tokens;
 pub mod study_registry_registrars;
 pub mod study_registry_student_number_conflicts;
 pub mod suotar_api_calls;
+pub mod suotar_circuit_breakers;
 pub mod suotar_endpoint_rate_limits;
 pub mod suspected_cheaters;
 pub mod teacher_grading_decisions;

@@ -6,7 +6,6 @@
 
 use std::collections::HashSet;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -19,10 +18,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer};
 use utoipa::ToSchema;
 
-use crate::{
-    error::util_error::SuotarErrorVariant, helsinki_time::helsinki_date, prelude::*,
-    secret_string::serialize_exposed,
-};
+use crate::{helsinki_time::helsinki_date, prelude::*, secret_string::serialize_exposed};
 
 /// Under the ingress's 60 s, so an admin waiting on a call gets our answer rather than a 504.
 pub const INTERACTIVE_REQUEST_TIMEOUT: Duration = Duration::from_secs(50);
@@ -103,6 +99,58 @@ impl SuotarEndpoint {
     }
 }
 
+/// The item and result types of one endpoint, tied together so a caller cannot pair an import item
+/// with a verify result.
+pub trait BatchEndpoint {
+    type Item: SuotarRequestItem + Clone;
+    type Result: DeserializeOwned;
+    const ENDPOINT: SuotarEndpoint;
+}
+
+/// One marker type per [`SuotarEndpoint`], for [`SuotarClient::post`].
+pub mod endpoints {
+    use super::*;
+
+    macro_rules! batch_endpoint {
+        ($name:ident, $item:ty, $result:ty) => {
+            pub struct $name;
+
+            impl BatchEndpoint for $name {
+                type Item = $item;
+                type Result = $result;
+                const ENDPOINT: SuotarEndpoint = SuotarEndpoint::$name;
+            }
+        };
+    }
+
+    batch_endpoint!(ResolvePersons, ResolvePersonRequestItem, PersonResult);
+    batch_endpoint!(
+        ResolveEnrolments,
+        ResolveEnrolmentRequestItem,
+        EnrolmentResolutionResult
+    );
+    batch_endpoint!(
+        ImportAttainments,
+        ImportAttainmentRequestItem,
+        ImportAttainmentResult
+    );
+    batch_endpoint!(
+        VerifyAttainments,
+        VerifyAttainmentRequestItem,
+        VerifyAttainmentResult
+    );
+    batch_endpoint!(
+        ListByCourse,
+        ListByCourseRequestItem,
+        EnrolmentsListedResult
+    );
+    batch_endpoint!(
+        ValidateCourseCodes,
+        ValidateCourseCodeRequestItem,
+        ValidateCourseCodeResult
+    );
+}
+
 /// A fresh requestItemId for one item of one call.
 pub fn new_request_item_id() -> String {
     Uuid::new_v4().to_string()
@@ -114,10 +162,14 @@ pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
     /// Gives the item a fresh requestItemId, for sending it again in another call.
     fn renew_request_item_id(&mut self);
+    /// The student number the item asks about, for the items that carry one.
+    fn student_number(&self) -> Option<&SecretString> {
+        None
+    }
 }
 
 macro_rules! request_item {
-    ($name:ident) => {
+    ($name:ident $(, $student_number:ident)?) => {
         impl SuotarRequestItem for $name {
             fn request_item_id(&self) -> &str {
                 &self.request_item_id
@@ -126,6 +178,12 @@ macro_rules! request_item {
             fn renew_request_item_id(&mut self) {
                 self.request_item_id = new_request_item_id();
             }
+
+            $(
+                fn student_number(&self) -> Option<&SecretString> {
+                    Some(&self.$student_number)
+                }
+            )?
         }
     };
 }
@@ -137,7 +195,7 @@ pub struct ResolvePersonRequestItem {
     #[serde(serialize_with = "serialize_exposed")]
     pub student_number: SecretString,
 }
-request_item!(ResolvePersonRequestItem);
+request_item!(ResolvePersonRequestItem, student_number);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -147,7 +205,7 @@ pub struct ResolveEnrolmentRequestItem {
     pub student_number: SecretString,
     pub course_code: String,
 }
-request_item!(ResolveEnrolmentRequestItem);
+request_item!(ResolveEnrolmentRequestItem, student_number);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -163,7 +221,7 @@ pub struct ImportAttainmentRequestItem {
     pub grade_id: String,
     pub credits: f64,
 }
-request_item!(ImportAttainmentRequestItem);
+request_item!(ImportAttainmentRequestItem, student_number);
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -590,6 +648,118 @@ impl<R> SuotarBatchResponse<R> {
     }
 }
 
+/// How a call to Suotar failed at the request level. Per-item failures are not errors: they come
+/// back inside a successful batch response.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SuotarErrorVariant {
+    /// Our credentials. Loud, and never attributed to the rows in the batch.
+    Unauthorized,
+    /// Our request. Loud, and never attributed to the rows in the batch.
+    MalformedRequest,
+    /// Another 4xx carrying the documented `{ error: { code, message } }` body.
+    RequestLevelError,
+    /// Suotar's 503 `serviceTemporarilyUnavailable`: an importer lookup failed before anything was
+    /// written or sent.
+    ServiceTemporarilyUnavailable,
+    ServerError,
+    /// The connection itself failed, so the request provably never arrived.
+    TransportNotDelivered,
+    /// The request left and the answer did not arrive. A timeout is this, not the above.
+    TransportUnknown,
+    /// Suotar answered, and the answer was not a batch response.
+    Deserialization,
+}
+
+impl SuotarErrorVariant {
+    /// Whether Suotar may have acted on the request. An import that may have landed must be
+    /// verified rather than re-sent, or a transcript gets a second attainment.
+    ///
+    /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
+    /// business logic, and `ServiceTemporarilyUnavailable` stops before anything is written, so
+    /// both are as resendable as a connection that never opened (`TransportNotDelivered`); any
+    /// other 5xx (`ServerError`), a response that never arrived (`TransportUnknown`), or one that
+    /// arrived malformed (`Deserialization`) all leave the outcome unknown.
+    pub fn outcome_may_have_landed(self) -> bool {
+        !matches!(
+            self,
+            Self::Unauthorized
+                | Self::MalformedRequest
+                | Self::RequestLevelError
+                | Self::ServiceTemporarilyUnavailable
+                | Self::TransportNotDelivered
+        )
+    }
+
+    /// Whether the failure is Suotar or the network being down rather than anything about the
+    /// request, so the same request may succeed once they are back.
+    pub fn is_transient(self) -> bool {
+        matches!(
+            self,
+            Self::ServiceTemporarilyUnavailable
+                | Self::ServerError
+                | Self::TransportNotDelivered
+                | Self::TransportUnknown
+        )
+    }
+}
+
+/// A Suotar call that got no batch response. [`SuotarError::variant`] and [`SuotarError::was_sent`]
+/// are what a caller decides by; the message and the source are for the logs and the audit trail.
+#[derive(Debug)]
+pub struct SuotarError {
+    pub variant: SuotarErrorVariant,
+    /// `false` for a request refused before it left, which says nothing about Suotar.
+    pub was_sent: bool,
+    error: UtilError,
+}
+
+impl SuotarError {
+    #[track_caller]
+    fn new(variant: SuotarErrorVariant, message: impl Into<String>) -> Self {
+        Self {
+            variant,
+            was_sent: true,
+            error: util_err!(SuotarClientError, message.into()),
+        }
+    }
+
+    #[track_caller]
+    fn caused_by(
+        variant: SuotarErrorVariant,
+        message: impl Into<String>,
+        source: impl Into<anyhow::Error>,
+    ) -> Self {
+        Self {
+            variant,
+            was_sent: true,
+            error: util_err!(SuotarClientError, message.into(), source.into()),
+        }
+    }
+
+    fn unsent(self) -> Self {
+        Self {
+            was_sent: false,
+            ..self
+        }
+    }
+
+    pub fn message(&self) -> &str {
+        self.error.message()
+    }
+}
+
+impl std::fmt::Display for SuotarError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}: {}", self.variant, self.message())
+    }
+}
+
+impl std::error::Error for SuotarError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.error)
+    }
+}
+
 /// Both fields are audit-row columns: `worker_name` separates the submitter from the verify poller
 /// from a manual retry, and the ids replace the identifiers scrubbing removes from stored bodies.
 #[derive(Debug, Clone, Default)]
@@ -678,10 +848,6 @@ pub struct SuotarClient {
     api_base_url: Url,
     authorization: SecretString,
     audit: Arc<dyn SuotarCallAudit>,
-    /// Requests that actually left for the study registry, shared by every clone of the client
-    /// except those made by [`SuotarClient::with_own_exchange_count`]. A pre-flight refusal is not
-    /// counted because it never reached the registry.
-    exchanges: Arc<AtomicU64>,
 }
 
 impl SuotarClient {
@@ -692,7 +858,6 @@ impl SuotarClient {
                 authorization_header_value(config.api_token.expose_secret()).into(),
             ),
             audit,
-            exchanges: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -702,76 +867,16 @@ impl SuotarClient {
                 .expect("hardcoded url"),
             authorization: SecretString::new(authorization_header_value(MOCK_SUOTAR_TOKEN).into()),
             audit: Arc::new(NoSuotarCallAudit),
-            exchanges: Arc::new(AtomicU64::new(0)),
         }
     }
 
-    /// A clone whose [`SuotarClient::exchange_count`] starts from zero and counts only its own
-    /// requests, so work running beside it cannot pass for its own.
-    pub fn with_own_exchange_count(&self) -> Self {
-        Self {
-            exchanges: Arc::new(AtomicU64::new(0)),
-            ..self.clone()
-        }
-    }
-
-    /// How many requests this client and the clones sharing its count have sent.
-    pub fn exchange_count(&self) -> u64 {
-        self.exchanges.load(Ordering::Relaxed)
-    }
-
-    pub async fn resolve_persons(
+    /// Sends one batch to `E`'s endpoint. An empty batch is not sent.
+    pub async fn post<E: BatchEndpoint>(
         &self,
         context: SuotarCallContext,
-        items: Vec<ResolvePersonRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<PersonResult>> {
-        self.post_batch(SuotarEndpoint::ResolvePersons, context, items)
-            .await
-    }
-
-    pub async fn resolve_enrolments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ResolveEnrolmentRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<EnrolmentResolutionResult>> {
-        self.post_batch(SuotarEndpoint::ResolveEnrolments, context, items)
-            .await
-    }
-
-    pub async fn import_attainments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ImportAttainmentRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<ImportAttainmentResult>> {
-        self.post_batch(SuotarEndpoint::ImportAttainments, context, items)
-            .await
-    }
-
-    pub async fn verify_attainments(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<VerifyAttainmentRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<VerifyAttainmentResult>> {
-        self.post_batch(SuotarEndpoint::VerifyAttainments, context, items)
-            .await
-    }
-
-    pub async fn list_enrolments_by_course(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ListByCourseRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<EnrolmentsListedResult>> {
-        self.post_batch(SuotarEndpoint::ListByCourse, context, items)
-            .await
-    }
-
-    pub async fn validate_course_codes(
-        &self,
-        context: SuotarCallContext,
-        items: Vec<ValidateCourseCodeRequestItem>,
-    ) -> UtilResult<SuotarBatchResponse<ValidateCourseCodeResult>> {
-        self.post_batch(SuotarEndpoint::ValidateCourseCodes, context, items)
-            .await
+        items: Vec<E::Item>,
+    ) -> Result<SuotarBatchResponse<E::Result>, SuotarError> {
+        self.post_batch(E::ENDPOINT, context, items).await
     }
 
     async fn post_batch<T: SuotarRequestItem, R: DeserializeOwned>(
@@ -779,13 +884,21 @@ impl SuotarClient {
         endpoint: SuotarEndpoint,
         context: SuotarCallContext,
         items: Vec<T>,
-    ) -> UtilResult<SuotarBatchResponse<R>> {
+    ) -> Result<SuotarBatchResponse<R>, SuotarError> {
         if items.is_empty() {
             return Ok(empty_batch_response(endpoint));
         }
         // Serialized once: the audited body and the wire body must be byte-for-byte the same.
-        let request_body = serde_json::to_value(&items)?;
-        let encoded = serde_json::to_vec(&request_body)?;
+        let not_encoded = |error| {
+            SuotarError::caused_by(
+                SuotarErrorVariant::TransportNotDelivered,
+                format!("Could not encode a {} request", endpoint.path()),
+                error,
+            )
+            .unsent()
+        };
+        let request_body = serde_json::to_value(&items).map_err(not_encoded)?;
+        let encoded = serde_json::to_vec(&request_body).map_err(not_encoded)?;
         // Before the pre-flight checks, so a refused batch still leaves an audit row to diagnose.
         let call_id = self
             .audit
@@ -817,20 +930,24 @@ impl SuotarClient {
             return self
                 .refused(
                     call_id,
-                    util_err!(
-                        SuotarClientError(SuotarErrorVariant::MalformedRequest),
-                        format!(
+                    SuotarError::new(SuotarErrorVariant::MalformedRequest, format!(
                             "A {} request of {} items encodes to {} bytes, over the {MAX_REQUEST_BODY_BYTES} byte limit.",
                             endpoint.path(),
                             sent_ids.len(),
                             encoded.len()
-                        )
-                    ),
+                        )),
                 )
                 .await;
         }
 
-        let url = self.api_base_url.join(endpoint.path())?;
+        let url = self.api_base_url.join(endpoint.path()).map_err(|error| {
+            SuotarError::caused_by(
+                SuotarErrorVariant::TransportNotDelivered,
+                format!("Could not build the Suotar {} url", endpoint.path()),
+                error,
+            )
+            .unsent()
+        })?;
         let clock = Instant::now();
         let mut request = SUOTAR_HTTP_CLIENT
             .post(url)
@@ -845,7 +962,6 @@ impl SuotarClient {
             request = request.header(CORRELATION_ID_HEADER, call_id.to_string());
         }
 
-        self.exchanges.fetch_add(1, Ordering::Relaxed);
         let (mut outcome, finished) = self
             .exchange(endpoint, request, encoded, sent_ids, clock)
             .await;
@@ -862,8 +978,8 @@ impl SuotarClient {
     async fn refused<R>(
         &self,
         call_id: Option<Uuid>,
-        error: UtilError,
-    ) -> UtilResult<SuotarBatchResponse<R>> {
+        error: SuotarError,
+    ) -> Result<SuotarBatchResponse<R>, SuotarError> {
         if let Some(call_id) = call_id {
             self.audit
                 .finished(
@@ -875,7 +991,7 @@ impl SuotarClient {
                 )
                 .await;
         }
-        Err(error)
+        Err(error.unsent())
     }
 
     /// Returns the audit record alongside the result: only this function knows the status, the
@@ -892,10 +1008,10 @@ impl SuotarClient {
             Ok(response) => response,
             Err(error) => {
                 return failed(
-                    util_err!(
-                        SuotarClientError(transport_variant(&error)),
+                    SuotarError::caused_by(
+                        transport_variant(&error),
                         format!("Request to Suotar {} failed", endpoint.path()),
-                        error
+                        error,
                     ),
                     None,
                     clock.elapsed(),
@@ -910,13 +1026,13 @@ impl SuotarClient {
             Ok(text) => text,
             Err(error) => {
                 return failed(
-                    util_err!(
-                        SuotarClientError(transport_variant(&error)),
+                    SuotarError::caused_by(
+                        transport_variant(&error),
                         format!(
                             "Reading the Suotar {} response body failed",
                             endpoint.path()
                         ),
-                        error
+                        error,
                     ),
                     Some(http_status),
                     clock.elapsed(),
@@ -949,13 +1065,13 @@ impl SuotarClient {
             Ok(value) => Arc::new(value),
             Err(error) => {
                 return failed(
-                    util_err!(
-                        SuotarClientError(SuotarErrorVariant::Deserialization),
+                    SuotarError::caused_by(
+                        SuotarErrorVariant::Deserialization,
                         format!(
                             "Suotar {} answered {http_status} with a body that is not JSON",
                             endpoint.path()
                         ),
-                        error
+                        error,
                     ),
                     Some(http_status),
                     duration,
@@ -966,12 +1082,12 @@ impl SuotarClient {
         };
         let Some(array) = raw_response.as_array() else {
             return failed(
-                util_err!(
-                    SuotarClientError(SuotarErrorVariant::Deserialization),
+                SuotarError::new(
+                    SuotarErrorVariant::Deserialization,
                     format!(
                         "Suotar {} answered {http_status} with a body that is not a batch response",
                         endpoint.path()
-                    )
+                    ),
                 ),
                 Some(http_status),
                 duration,
@@ -1027,10 +1143,13 @@ impl SuotarClient {
     }
 }
 
-type Exchanged<R> = (UtilResult<SuotarBatchResponse<R>>, SuotarCallFinished);
+type Exchanged<R> = (
+    Result<SuotarBatchResponse<R>, SuotarError>,
+    SuotarCallFinished,
+);
 
 fn failed<R>(
-    error: UtilError,
+    error: SuotarError,
     http_status: Option<u16>,
     duration: Duration,
     request_level_error_code: Option<String>,
@@ -1059,28 +1178,28 @@ fn body_for_audit(text: &str) -> serde_json::Value {
 fn check_batch<T: SuotarRequestItem>(
     endpoint: SuotarEndpoint,
     items: &[T],
-) -> UtilResult<Vec<String>> {
+) -> Result<Vec<String>, SuotarError> {
     if items.len() > endpoint.max_batch_size() {
-        return Err(util_err!(
-            SuotarClientError(SuotarErrorVariant::MalformedRequest),
+        return Err(SuotarError::new(
+            SuotarErrorVariant::MalformedRequest,
             format!(
                 "A {} request carries {} items, over the batch size of {}.",
                 endpoint.path(),
                 items.len(),
                 endpoint.max_batch_size()
-            )
+            ),
         ));
     }
     let mut seen = HashSet::with_capacity(items.len());
     for item in items {
         if !seen.insert(item.request_item_id()) {
-            return Err(util_err!(
-                SuotarClientError(SuotarErrorVariant::MalformedRequest),
+            return Err(SuotarError::new(
+                SuotarErrorVariant::MalformedRequest,
                 format!(
                     "A {} request repeats requestItemId `{}`.",
                     endpoint.path(),
                     item.request_item_id()
-                )
+                ),
             ));
         }
     }
@@ -1184,18 +1303,18 @@ fn request_level_error(
     endpoint: SuotarEndpoint,
     http_status: u16,
     detail: Option<&RequestLevelErrorDetail>,
-) -> UtilError {
+) -> SuotarError {
     let path = endpoint.path();
     // A path the moocfi router does not serve falls through to a route that refuses our key; the
     // key is fine and the base url is wrong.
     if let Some(RequestLevelErrorDetail::Bare(message)) = detail
         && http_status == 401
     {
-        return util_err!(
-            SuotarClientError(SuotarErrorVariant::RequestLevelError),
+        return SuotarError::new(
+            SuotarErrorVariant::RequestLevelError,
             format!(
                 "Suotar answered {path} with 401 `{message}`, which means the moocfi API does not serve that path. Check SUOTAR_API_BASE_URL."
-            )
+            ),
         );
     }
     let variant = match (http_status, detail.and_then(RequestLevelErrorDetail::code)) {
@@ -1214,9 +1333,9 @@ fn request_level_error(
         Some(RequestLevelErrorDetail::Bare(message)) => format!("`{message}`"),
         None => "no documented error body".to_string(),
     };
-    util_err!(
-        SuotarClientError(variant),
-        format!("Suotar {path} rejected the whole request with {http_status}, {detail}")
+    SuotarError::new(
+        variant,
+        format!("Suotar {path} rejected the whole request with {http_status}, {detail}"),
     )
 }
 
@@ -1264,7 +1383,7 @@ mod tests {
         serde_json::from_value(json!(items)).expect("person response")
     }
 
-    fn classified(http_status: u16, body: &str) -> UtilError {
+    fn classified(http_status: u16, body: &str) -> SuotarError {
         let detail = serde_json::from_str::<RequestLevelErrorBody>(body)
             .ok()
             .map(|parsed| parsed.error);
@@ -1588,59 +1707,41 @@ mod tests {
             401,
             r#"{"error":{"code":"unauthorized","message":"Missing or invalid credentials."}}"#,
         );
-        assert!(matches!(
-            unauthorized.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::Unauthorized)
-        ));
+        assert_eq!(unauthorized.variant, SuotarErrorVariant::Unauthorized);
 
         let malformed = classified(
             400,
             r#"{"error":{"code":"malformedRequest","message":"Request body is not valid JSON or has the wrong top-level shape."}}"#,
         );
-        assert!(matches!(
-            malformed.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::MalformedRequest)
-        ));
+        assert_eq!(malformed.variant, SuotarErrorVariant::MalformedRequest);
 
         let too_large = classified(
             413,
             r#"{"error":{"code":"requestTooLarge","message":"Request body is too large."}}"#,
         );
-        assert!(matches!(
-            too_large.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::MalformedRequest)
-        ));
+        assert_eq!(too_large.variant, SuotarErrorVariant::MalformedRequest);
 
         let unavailable = classified(
             503,
             r#"{"error":{"code":"serviceTemporarilyUnavailable","message":"Failed to fetch Sisu data."}}"#,
         );
-        assert!(matches!(
-            unavailable.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::ServiceTemporarilyUnavailable)
-        ));
+        assert_eq!(
+            unavailable.variant,
+            SuotarErrorVariant::ServiceTemporarilyUnavailable
+        );
 
         let internal = classified(
             500,
             r#"{"error":{"code":"internalError","message":"Suotar failed to process the request."}}"#,
         );
-        assert!(matches!(
-            internal.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::ServerError)
-        ));
+        assert_eq!(internal.variant, SuotarErrorVariant::ServerError);
 
         let unserved_path = classified(401, r#"{"error":"Unauthorized access"}"#);
-        assert!(matches!(
-            unserved_path.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::RequestLevelError)
-        ));
+        assert_eq!(unserved_path.variant, SuotarErrorVariant::RequestLevelError);
         assert!(unserved_path.message().contains("SUOTAR_API_BASE_URL"));
 
         let bodyless = classified(502, "<html>");
-        assert!(matches!(
-            bodyless.error_type(),
-            UtilErrorType::SuotarClientError(SuotarErrorVariant::ServerError)
-        ));
+        assert_eq!(bodyless.variant, SuotarErrorVariant::ServerError);
     }
 
     #[test]

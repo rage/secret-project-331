@@ -6,7 +6,7 @@
 //! here, from [`CreditRegistrationState::allowed_targets`].
 use std::collections::HashMap;
 
-use chrono::NaiveDate;
+use chrono::{NaiveDate, TimeDelta};
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use utoipa::ToSchema;
@@ -100,6 +100,14 @@ impl CreditRegistrationState {
 
     /// [`Self::SUCCESS_STATES`] minus `Registered`: the credit exists but we did not put it there.
     pub const OTHER_SUCCESS_STATES: [Self; 2] = [Self::Duplicate, Self::NotImproved];
+
+    /// The states of a row whose submission may be in Sisu with its outcome not yet known: a request
+    /// may be out, or its answer is still to be verified.
+    pub const IN_FLIGHT_STATES: [Self; 3] = [
+        Self::Submitting,
+        Self::SubmissionUncertain,
+        Self::AwaitingVerification,
+    ];
 
     /// The two states a "failed" count means across the admin reports: a permanent submit failure
     /// and a reversal the study registry made after the fact.
@@ -368,17 +376,17 @@ impl CreditRegistrationState {
     /// Only the states a claim query reads, or a precondition arm holds a row in, need a nonzero
     /// one: a phase that forgot to defer would otherwise spin on the row, since `claim_due` orders
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
-    fn default_attempt_delay_secs(self) -> i64 {
+    fn default_attempt_delay(self) -> TimeDelta {
         use crate::library::credit_registration::backoff::{
-            SUBMIT_BASE_BACKOFF_SECS, UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
+            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY,
         };
-        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG_SECS;
+        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
-            Self::AwaitingVerification => VERIFY_FIRST_DELAY_SECS,
-            Self::SubmissionUncertain => UNCERTAIN_RECHECK_SECS,
-            Self::NoUsableEnrolment => REGISTRY_LAG_SECS,
-            Self::FailedRetryable => SUBMIT_BASE_BACKOFF_SECS,
-            _ => 0,
+            Self::AwaitingVerification => VERIFY_FIRST_DELAY,
+            Self::SubmissionUncertain => UNCERTAIN_RECHECK,
+            Self::NoUsableEnrolment => REGISTRY_LAG,
+            Self::FailedRetryable => SUBMIT_BASE_BACKOFF,
+            _ => TimeDelta::zero(),
         }
     }
 }
@@ -583,7 +591,7 @@ pub struct CreditRegistration {
     /// `None` until the first check, which is what lets any roster listing wake a row never checked.
     pub seen_enrolment_ids: Option<Vec<String>>,
     /// Set while a lookup is out for a row parked in `no_usable_enrolment`; see
-    /// [`claim_enrolment_check`].
+    /// [`claim_enrolment_checks`].
     pub enrolment_check_claimed_until: Option<DateTime<Utc>>,
 }
 
@@ -595,6 +603,13 @@ impl CreditRegistration {
             self.enrolment_check_anchor_at,
             self.no_usable_enrolment_since,
         )
+    }
+}
+
+/// Lets code generic over rows that carry a registration take a bare one too.
+impl AsRef<CreditRegistration> for CreditRegistration {
+    fn as_ref(&self) -> &Self {
+        self
     }
 }
 
@@ -760,9 +775,9 @@ impl Transition {
 /// Moves a ledger row to a new state and appends the matching audit event, atomically.
 ///
 /// The only writer of `state`, and the one place (from → to) legality is decided: an edge outside
-/// the transition's [`TransitionPolicy`] is refused as `InvalidRequest` rather than written.
-/// Deliberately not `PreconditionFailed`, which the phases read as "another writer got here first"
-/// and skip over.
+/// the transition's [`TransitionPolicy`] is refused as `InvalidRequest` rather than written. A row
+/// no longer in `expected_from_state` is refused as `PreconditionFailed`; a caller that has to tell
+/// that apart from a real failure uses [`transition_unless_moved_on`] instead.
 ///
 /// Owns the lifecycle stamps, so callers must not touch them (bar [`reset_for_resubmission`]
 /// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at` and
@@ -777,6 +792,38 @@ pub async fn transition(
     id: Uuid,
     transition: &Transition,
 ) -> ModelResult<CreditRegistration> {
+    match transition_unless_moved_on(conn, id, transition).await? {
+        Transitioned::Written(after) => Ok(*after),
+        Transitioned::MovedOn { found } => Err(model_err!(
+            PreconditionFailed,
+            format!(
+                "Credit registration {id} is in {found:?}, not the expected {}: refusing to overwrite it.",
+                transition
+                    .expected_from_state
+                    .map(|expected| format!("{expected:?}"))
+                    .unwrap_or_default()
+            )
+        )),
+    }
+}
+
+/// What [`transition_unless_moved_on`] did.
+#[derive(Debug, Clone)]
+pub enum Transitioned {
+    /// The row as written.
+    Written(Box<CreditRegistration>),
+    /// Another writer moved the row out of `expected_from_state` first, so nothing was written.
+    MovedOn { found: CreditRegistrationState },
+}
+
+/// [`transition`] for a caller deciding from a snapshot another writer may have overtaken: a row
+/// no longer in `expected_from_state` comes back as [`Transitioned::MovedOn`] rather than as an
+/// error, since the row is now that writer's and the caller carries on with the rest of its work.
+pub async fn transition_unless_moved_on(
+    conn: &mut PgConnection,
+    id: Uuid,
+    transition: &Transition,
+) -> ModelResult<Transitioned> {
     let mut tx = conn.begin().await?;
     let from_state = lock_for_moves(&mut tx, &[id])
         .await?
@@ -787,16 +834,11 @@ pub async fn transition(
                 format!("Credit registration {id} does not exist.")
             )
         })?;
-    if let Some(expected) = transition.expected_from_state
-        && from_state != expected
+    if transition
+        .expected_from_state
+        .is_some_and(|expected| from_state != expected)
     {
-        return Err(model_err!(
-            PreconditionFailed,
-            format!(
-                "Credit registration {id} is in {:?}, not the expected {expected:?}: refusing to overwrite it.",
-                from_state
-            )
-        ));
+        return Ok(Transitioned::MovedOn { found: from_state });
     }
     check_edge(id, from_state, transition.to_state, transition.policy)?;
     let after = write_moves(&mut tx, &[(id, from_state, transition)])
@@ -809,7 +851,7 @@ pub async fn transition(
             )
         })?;
     tx.commit().await?;
-    Ok(after)
+    Ok(Transitioned::Written(Box::new(after)))
 }
 
 /// The states of the named rows, locked until the caller's transaction ends.
@@ -877,9 +919,9 @@ async fn write_moves(
         .iter()
         .map(|(_, _, transition)| transition.next_attempt_at)
         .collect();
-    let default_delays: Vec<i64> = to_states
+    let default_delays: Vec<TimeDelta> = to_states
         .iter()
-        .map(|state| state.default_attempt_delay_secs())
+        .map(|state| state.default_attempt_delay())
         .collect();
     let keeps_checked_at: Vec<bool> = moves
         .iter()
@@ -888,6 +930,13 @@ async fn write_moves(
     let keeps_schedule: Vec<bool> = to_states
         .iter()
         .map(|state| state.keeps_enrolment_check_schedule())
+        .collect();
+    let keeps_waiting_since: Vec<bool> = to_states
+        .iter()
+        .map(|state| {
+            state.keeps_enrolment_check_schedule()
+                && *state != CreditRegistrationState::NoUsableEnrolment
+        })
         .collect();
     let written = sqlx::query_as!(
         CreditRegistration,
@@ -939,14 +988,10 @@ SET state = move.to_state,
     AND cr.no_usable_enrolment_since IS NULL THEN NULL
     ELSE cr.enrolment_banner_dismissed_at
   END,
-  -- A retried lookup passes through these on its way back to no_usable_enrolment.
+  -- A retried lookup passes through the states that keep it on its way back to no_usable_enrolment.
   no_usable_enrolment_since = CASE
     WHEN move.to_state = 'no_usable_enrolment' THEN COALESCE(cr.no_usable_enrolment_since, now())
-    WHEN move.to_state IN (
-      'ready_to_submit',
-      'resolving_enrolment',
-      'failed_retryable'
-    ) THEN cr.no_usable_enrolment_since
+    WHEN move.keeps_waiting_since THEN cr.no_usable_enrolment_since
     ELSE NULL
   END,
   enrolment_check_anchor_at = CASE
@@ -970,7 +1015,7 @@ SET state = move.to_state,
   enrolment_check_claimed_until = NULL,
   next_attempt_at = COALESCE(
     move.next_attempt_at,
-    now() + (move.default_delay_secs * INTERVAL '1 second')
+    now() + move.default_delay
   )
 FROM UNNEST(
     $1::uuid [],
@@ -981,9 +1026,10 @@ FROM UNNEST(
     $6::boolean [],
     $7::boolean [],
     $8::timestamptz [],
-    $9::bigint [],
+    $9::interval [],
     $10::boolean [],
-    $11::boolean []
+    $11::boolean [],
+    $12::boolean []
   ) AS move(
     id,
     to_state,
@@ -993,9 +1039,10 @@ FROM UNNEST(
     terminal,
     failure,
     next_attempt_at,
-    default_delay_secs,
+    default_delay,
     keeps_checked_at,
-    keeps_schedule
+    keeps_schedule,
+    keeps_waiting_since
   )
 WHERE cr.id = move.id
   AND cr.deleted_at IS NULL
@@ -1009,9 +1056,10 @@ RETURNING cr.*
         &terminal,
         &failure,
         &next_attempts as &[Option<DateTime<Utc>>],
-        &default_delays,
+        &default_delays as &[TimeDelta],
         &keeps_checked_at,
         &keeps_schedule,
+        &keeps_waiting_since,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -1216,12 +1264,12 @@ pub async fn expire_enrolment_recheck_allowance_for_testing(
     id: Uuid,
     clear_restarts: bool,
 ) -> ModelResult<()> {
-    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL_SECS;
+    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL;
     sqlx::query!(
         "
 UPDATE credit_registrations
-SET enrolment_checked_at = enrolment_checked_at - ($2::bigint * INTERVAL '1 second'),
-  enrolment_check_requested_at = enrolment_check_requested_at - ($2::bigint * INTERVAL '1 second'),
+SET enrolment_checked_at = enrolment_checked_at - $2::interval,
+  enrolment_check_requested_at = enrolment_check_requested_at - $2::interval,
   enrolment_check_restart_count = CASE
     WHEN $3 THEN 0
     ELSE enrolment_check_restart_count
@@ -1229,7 +1277,7 @@ SET enrolment_checked_at = enrolment_checked_at - ($2::bigint * INTERVAL '1 seco
 WHERE id = $1
         ",
         id,
-        CHECK_REQUEST_MIN_INTERVAL_SECS,
+        CHECK_REQUEST_MIN_INTERVAL as TimeDelta,
         clear_restarts,
     )
     .execute(conn)
@@ -1339,7 +1387,7 @@ pub async fn claim_due_for_person_lookup(
 /// Only one completion per student and module goes past resolve at a time, so each is weighed
 /// against the outcome of the one before it rather than racing it to the registry; see
 /// [`lock_live_successes_for_same_module`]. Two such rows claimed together must still be resolved
-/// one at a time. A parked row sent for a check must be marked with [`claim_enrolment_check`]
+/// one at a time. A parked row sent for a check must be marked with [`claim_enrolment_checks`]
 /// before the claim's transaction commits.
 pub async fn claim_due_for_resolve(
     conn: &mut PgConnection,
@@ -1351,22 +1399,25 @@ pub async fn claim_due_for_resolve(
     claim(conn, &LOOKUP_STATES, scope, limit, ClaimKind::Resolve).await
 }
 
-/// Keeps a parked row out of every claim while a lookup for it is out, as `resolving_enrolment`
+/// Keeps parked rows out of every claim while a lookup for them is out, as `resolving_enrolment`
 /// does for a row on its first resolve. The answer's [`transition`] ends the claim; one a worker
 /// died holding expires after
-/// [`RESOLVING_RECOVERY_GRACE_SECS`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE_SECS).
+/// [`RESOLVING_RECOVERY_GRACE`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE).
 /// A no-op for a row in any other state.
-pub async fn claim_enrolment_check(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE_SECS;
+pub async fn claim_enrolment_checks(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE;
+    if ids.is_empty() {
+        return Ok(());
+    }
     sqlx::query!(
         r#"
 UPDATE credit_registrations
-SET enrolment_check_claimed_until = now() + ($2::bigint * INTERVAL '1 second')
-WHERE id = $1
+SET enrolment_check_claimed_until = now() + $2::interval
+WHERE id = ANY($1)
   AND state = 'no_usable_enrolment'
         "#,
-        id,
-        RESOLVING_RECOVERY_GRACE_SECS,
+        ids,
+        RESOLVING_RECOVERY_GRACE as TimeDelta,
     )
     .execute(conn)
     .await?;
@@ -1392,11 +1443,42 @@ pub async fn claim_due_for_import(
     .await
 }
 
+/// The states verify polls from. Withdrawal moves a row out of both, which is what stops the
+/// polling without any query having to know about withdrawal.
+const VERIFY_STATES: [CreditRegistrationState; 2] = [
+    CreditRegistrationState::AwaitingVerification,
+    CreditRegistrationState::SubmissionUncertain,
+];
+
+/// Which of verify's flows a claim is for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VerifyFlow {
+    /// Rows with a submitted attainment to poll by, and `awaiting_verification` rows stuck without
+    /// one.
+    Poll,
+    /// `submission_uncertain` rows with no submitted attainment id, looked up through
+    /// resolve-enrolments instead.
+    UncertainRecovery,
+}
+
+/// [`claim_due`] for one of verify's flows. Each flow is claimed on its own, so that rows one flow
+/// has no allowance to send cannot fill the other's claim.
+pub async fn claim_due_for_verify(
+    conn: &mut PgConnection,
+    flow: VerifyFlow,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<Vec<CreditRegistration>> {
+    claim(conn, &VERIFY_STATES, scope, limit, ClaimKind::Verify(flow)).await
+}
+
 /// Which caller a claim is for, which decides the rows that hold a row back and the order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ClaimKind {
     /// See [`claim_due`].
     Plain,
+    /// See [`claim_due_for_verify`].
+    Verify(VerifyFlow),
     /// See [`claim_due_for_person_lookup`].
     PersonLookup,
     /// See [`claim_due_for_resolve`].
@@ -1405,6 +1487,9 @@ enum ClaimKind {
     Import,
 }
 
+/// Shares its eligibility filters with [`count_due_enrolment_checks`] and
+/// [`pull_forward_batched_checks`](crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks);
+/// change all three together.
 async fn claim(
     conn: &mut PgConnection,
     states: &[CreditRegistrationState],
@@ -1441,6 +1526,13 @@ WITH due AS (
       OR cr.id = ANY($5::uuid [])
     )
     AND (
+      $12::boolean IS NULL
+      OR (
+        cr.state = 'submission_uncertain'
+        AND cr.submitted_attainment_id IS NULL
+      ) = $12
+    )
+    AND (
       $6::boolean
       OR NOT EXISTS (
         SELECT 1
@@ -1463,11 +1555,7 @@ WITH due AS (
             AND twin.uh_course_code = cr.uh_course_code
             AND twin.id <> cr.id
             AND twin.deleted_at IS NULL
-            AND twin.state IN (
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification'
-            )
+            AND twin.state = ANY($10::credit_registration_state [])
         )
         -- Mirrors uq_credit_registrations_person_module, which moving to submitting would violate.
         AND NOT EXISTS (
@@ -1479,13 +1567,9 @@ WITH due AS (
             AND holder.deleted_at IS NULL
             AND holder.superseded_by_id IS NULL
             AND holder.pending_superseded_by_id IS NULL
-            AND holder.state IN (
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification',
-              'registered',
-              'duplicate',
-              'not_improved'
+            AND (
+              holder.state = ANY($10::credit_registration_state [])
+              OR holder.state = ANY($11::credit_registration_state [])
             )
         )
       )
@@ -1505,11 +1589,9 @@ WITH due AS (
             ahead.state IN (
               'resolving_enrolment',
               'checking_enrolment',
-              'submitting',
-              'submission_uncertain',
-              'awaiting_verification',
               'failed_retryable'
             )
+            OR ahead.state = ANY($10::credit_registration_state [])
             OR ahead.enrolment_check_claimed_until > now()
           )
       )
@@ -1536,6 +1618,12 @@ RETURNING cr.*
         kind == ClaimKind::Import,
         kind == ClaimKind::Resolve,
         matches!(kind, ClaimKind::PersonLookup | ClaimKind::Resolve),
+        &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        match kind {
+            ClaimKind::Verify(flow) => Some(flow == VerifyFlow::UncertainRecovery),
+            _ => None,
+        },
     )
     .fetch_all(conn)
     .await?;
@@ -2553,17 +2641,42 @@ GROUP BY state
     Ok(rows.into_iter().map(|r| (r.state, r.count)).collect())
 }
 
-/// Live rows parked in `no_usable_enrolment` whose enrolment check is due or out, which are the ones
-/// resolve-enrolments owes work; the rest wait for their schedule.
+/// Live rows parked in `no_usable_enrolment` that an unscoped resolve-enrolments claim would take
+/// for an enrolment check now; the rest wait for their schedule, their module, or a lookup already
+/// out. Leaves out the claim's one-row-per-student-and-module hold, which only defers a row.
+///
+/// Shares its filters with the unscoped `claim` and with the released-check test of
+/// [`pull_forward_batched_checks`](crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks);
+/// change all three together, or the queue depth counts rows no claim takes.
 pub async fn count_due_enrolment_checks(conn: &mut PgConnection) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"
 SELECT COUNT(*) AS "count!"
-FROM credit_registrations
-WHERE state = 'no_usable_enrolment'
-  AND next_attempt_at <= now()
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
+FROM credit_registrations cr
+  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+WHERE cr.state = 'no_usable_enrolment'
+  AND cr.next_attempt_at <= now()
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND (
+    cmc.register_credits_via_suotar
+    OR cr.submitted_at IS NOT NULL
+  )
+  AND (
+    cr.enrolment_check_claimed_until IS NULL
+    OR cr.enrolment_check_claimed_until <= now()
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registration_test_exclusive_holds h
+    WHERE h.user_id = cr.user_id
+      AND (
+        h.course_id IS NULL
+        OR h.course_id = cr.course_id
+      )
+      AND h.held_until > now()
+  )
         "#,
     )
     .fetch_one(conn)

@@ -418,6 +418,11 @@ export const zBlockProposalInfo = z.object({
   id: z.uuid(),
 })
 
+/**
+ * Which phases one circuit breaker pauses.
+ */
+export const zBreakerTarget = z.enum(["study_registry", "sisu_submissions"])
+
 export const zBulkUserDetailsRequest = z.object({
   course_id: z.uuid(),
   user_ids: z.array(z.uuid()),
@@ -520,6 +525,11 @@ export const zChapterUpdate = z.object({
   name: z.string(),
   opens_at: z.iso.datetime().nullish(),
 })
+
+/**
+ * Where one circuit breaker stands, as its worker last reported it.
+ */
+export const zCircuitBreakerStatus = z.enum(["closed", "open", "waiting_to_probe"])
 
 export const zClaimStudentNumberVerificationTokenOutcome = z.enum([
   "linked",
@@ -1397,40 +1407,6 @@ export const zCreditRegistrationAttentionReasonCount = z.object({
 })
 
 /**
- * The circuit breaker as this web process holds it. The global key only — a narrowed run gets its own
- * — and the counters live in process memory, so this says whether this server would currently skip a
- * study registry call, not whether the workers would.
- */
-export const zCreditRegistrationCircuitBreakerState = z.object({
-  consecutive_failures: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  open: z.boolean(),
-  open_for_secs: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    })
-    .nullish(),
-  trips_after_consecutive_failures: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
-/**
  * What the configuration check concluded about one module, freshly derived from the same facts and
  * the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
  * phase.
@@ -1980,19 +1956,6 @@ export const zCreditRegistrationPhaseRow = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     })
     .nullish(),
-})
-
-export const zCreditRegistrationPhaseList = z.object({
-  consecutive_failure_limit: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  heartbeat_interval_multiplier: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  paused_globally: z.boolean(),
-  phases: z.array(zCreditRegistrationPhaseRow),
 })
 
 export const zCreditRegistrationStateTotal = z.object({
@@ -5118,6 +5081,42 @@ export const zAdminCreditRegistrationDetails = z.object({
 })
 
 /**
+ * One worker process's circuit breaker, as the worker last reported it.
+ */
+export const zCreditRegistrationCircuitBreakerState = z.object({
+  consecutive_failures: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  endpoints: z.array(zSuotarEndpoint),
+  open_for_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  process_name: z.string(),
+  status: zCircuitBreakerStatus,
+  target: zBreakerTarget,
+  trip_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  updated_at: z.iso.datetime(),
+})
+
+/**
  * One error code over the chosen window and the one before it.
  */
 export const zCreditRegistrationErrorCodeWindow = z.object({
@@ -5171,6 +5170,20 @@ export const zCreditRegistrationErrorsByCode = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+export const zCreditRegistrationPhaseList = z.object({
+  circuit_breakers: z.array(zCreditRegistrationCircuitBreakerState),
+  consecutive_failure_limit: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  heartbeat_interval_multiplier: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  paused_globally: z.boolean(),
+  phases: z.array(zCreditRegistrationPhaseRow),
 })
 
 export const zPageSuotarApiCallRow = z.object({
@@ -5314,12 +5327,11 @@ export const zSuotarEndpointDailyCost = z.object({
     .nullish(),
 })
 
+/**
+ * One endpoint's limiter as the worker last reported it.
+ */
 export const zSuotarEndpointRateLimit = z.object({
   available: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  breaker_trip_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -5328,7 +5340,6 @@ export const zSuotarEndpointRateLimit = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  is_breaker_open: z.boolean(),
   rate_share: z.number(),
   updated_at: z.iso.datetime(),
 })
@@ -5368,7 +5379,6 @@ export const zSuotarEndpointStanding = z.object({
 })
 
 export const zCreditRegistrationOverview = z.object({
-  circuit_breaker: zCreditRegistrationCircuitBreakerState,
   counts_by_state: z.array(zCreditRegistrationStateTotal),
   endpoints: z.array(zSuotarEndpointStanding),
   error_codes: z.array(zCreditRegistrationErrorCodeTotal),
@@ -8222,7 +8232,7 @@ export const zAdminMaterializeCreditRegistrationsResponse = zAdminMaterializeRes
 export const zGetCreditRegistrationOverviewResponse = zCreditRegistrationOverview
 
 /**
- * One row per pipeline phase
+ * One row per pipeline phase, and the workers' circuit breakers
  */
 export const zListCreditRegistrationPhasesResponse = zCreditRegistrationPhaseList
 

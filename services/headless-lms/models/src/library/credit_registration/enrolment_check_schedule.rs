@@ -9,6 +9,7 @@ use std::sync::LazyLock;
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use chrono::TimeDelta;
 
 /// How strongly a student has signalled that they are enrolling, which picks the ladder. Ordered: a
 /// row only ever moves to a later variant.
@@ -52,33 +53,28 @@ impl EnrolmentCheckSource {
     }
 }
 
-const MINUTE_SECS: i64 = 60;
-const HOUR_SECS: i64 = 60 * MINUTE_SECS;
-const DAY_SECS: i64 = 24 * HOUR_SECS;
-const WEEK_SECS: i64 = 7 * DAY_SECS;
-
 /// Suotar's copy of Sisu is about an hour old, so a check sooner than this after an enrolment
 /// cannot see it.
-pub const REGISTRY_LAG_SECS: i64 = HOUR_SECS;
+pub const REGISTRY_LAG: TimeDelta = TimeDelta::hours(1);
 
 /// How soon after a check request, or after the last check, another request may start one. Shared
 /// by the student's recheck, Done and the teacher's button.
-pub const CHECK_REQUEST_MIN_INTERVAL_SECS: i64 = 30 * MINUTE_SECS;
+pub const CHECK_REQUEST_MIN_INTERVAL: TimeDelta = TimeDelta::minutes(30);
 /// How many check requests a day may restart the ladder. Past it a request gets one check only.
 pub const MAX_CHECK_REQUEST_RESTARTS_PER_DAY: i32 = 4;
-pub const CHECK_REQUEST_RESTART_WINDOW_SECS: i64 = DAY_SECS;
+pub const CHECK_REQUEST_RESTART_WINDOW: TimeDelta = TimeDelta::days(1);
 /// A repeat visit restarts the visited ladder at most this often.
-pub const VISIT_RESTART_MIN_INTERVAL_SECS: i64 = DAY_SECS;
+pub const VISIT_RESTART_MIN_INTERVAL: TimeDelta = TimeDelta::days(1);
 
 /// Slow checks go out together on boundaries this far apart.
-pub const BATCH_INTERVAL_SECS: i64 = 5 * MINUTE_SECS;
+pub const BATCH_INTERVAL: TimeDelta = TimeDelta::minutes(5);
 /// A slow check due this soon after a batch goes out joins it.
-pub const BATCH_PULL_FORWARD_SECS: i64 = 15 * MINUTE_SECS;
+pub const BATCH_PULL_FORWARD: TimeDelta = TimeDelta::minutes(15);
 /// A rung at least this far after the one before it is a slow one.
-const SLOW_GAP_SECS: i64 = DAY_SECS;
+const SLOW_GAP: TimeDelta = TimeDelta::days(1);
 
 /// How long a check that failed in transit waits before the same rung is tried again.
-pub const TRANSIENT_FAILURE_RETRY_SECS: i64 = 5 * MINUTE_SECS;
+pub const TRANSIENT_FAILURE_RETRY: TimeDelta = TimeDelta::minutes(5);
 
 /// Where a stopped row's `next_attempt_at` is parked: it is never claimed on its own again.
 pub fn never() -> DateTime<Utc> {
@@ -107,9 +103,10 @@ impl ScheduledEnrolmentCheck {
             return self.due_at;
         }
         let secs = self.due_at.timestamp();
-        let boundary = secs.div_euclid(BATCH_INTERVAL_SECS) * BATCH_INTERVAL_SECS;
+        let interval_secs = BATCH_INTERVAL.num_seconds();
+        let boundary = secs.div_euclid(interval_secs) * interval_secs;
         let boundary = if boundary < secs {
-            boundary + BATCH_INTERVAL_SECS
+            boundary + interval_secs
         } else {
             boundary
         };
@@ -117,35 +114,38 @@ impl ScheduledEnrolmentCheck {
     }
 }
 
-/// The group's ladder, as offsets in seconds from the anchor, ascending.
-pub fn ladder_offsets_secs(group: EnrolmentCheckGroup) -> &'static [i64] {
-    static COMPLETED: LazyLock<Vec<i64>> = LazyLock::new(|| {
-        let mut offsets: Vec<i64> = (1..=7).map(|day| day * DAY_SECS).collect();
-        offsets.extend([10 * DAY_SECS, 13 * DAY_SECS]);
-        extend_by(&mut offsets, WEEK_SECS, 90 * DAY_SECS);
+/// The group's ladder, as offsets from the anchor, ascending.
+pub fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
+    const HOUR: TimeDelta = TimeDelta::hours(1);
+    const DAY: TimeDelta = TimeDelta::days(1);
+    const WEEK: TimeDelta = TimeDelta::weeks(1);
+    static COMPLETED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
+        let mut offsets: Vec<TimeDelta> = (1..=7).map(TimeDelta::days).collect();
+        offsets.extend([TimeDelta::days(10), TimeDelta::days(13)]);
+        extend_by(&mut offsets, WEEK, TimeDelta::days(90));
         offsets
     });
-    static VISITED: LazyLock<Vec<i64>> = LazyLock::new(|| {
-        let mut offsets: Vec<i64> = [1, 2, 4, 7, 11, 17, 25, 37, 55, 79]
+    static VISITED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
+        let mut offsets: Vec<TimeDelta> = [1, 2, 4, 7, 11, 17, 25, 37, 55, 79]
             .into_iter()
-            .map(|hours| hours * HOUR_SECS)
+            .map(TimeDelta::hours)
             .collect();
-        extend_by(&mut offsets, DAY_SECS, 14 * DAY_SECS);
-        extend_by(&mut offsets, WEEK_SECS, 90 * DAY_SECS);
+        extend_by(&mut offsets, DAY, TimeDelta::days(14));
+        extend_by(&mut offsets, WEEK, TimeDelta::days(90));
         offsets
     });
-    static CHECK_REQUESTED: LazyLock<Vec<i64>> = LazyLock::new(|| {
-        let mut offsets = vec![0, REGISTRY_LAG_SECS];
-        let mut gap = 30 * MINUTE_SECS;
-        while gap <= 5 * HOUR_SECS {
+    static CHECK_REQUESTED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
+        let mut offsets = vec![TimeDelta::zero(), REGISTRY_LAG];
+        let mut gap = TimeDelta::minutes(30);
+        while gap <= HOUR * 5 {
             push_after(&mut offsets, gap);
-            gap += 30 * MINUTE_SECS;
+            gap += TimeDelta::minutes(30);
         }
         for hours in [6, 8, 12, 24] {
-            push_after(&mut offsets, hours * HOUR_SECS);
+            push_after(&mut offsets, TimeDelta::hours(hours));
         }
-        extend_by(&mut offsets, DAY_SECS, 28 * DAY_SECS);
-        extend_by(&mut offsets, WEEK_SECS, 180 * DAY_SECS);
+        extend_by(&mut offsets, DAY, TimeDelta::days(28));
+        extend_by(&mut offsets, WEEK, TimeDelta::days(180));
         offsets
     });
     match group {
@@ -155,15 +155,15 @@ pub fn ladder_offsets_secs(group: EnrolmentCheckGroup) -> &'static [i64] {
     }
 }
 
-fn push_after(offsets: &mut Vec<i64>, gap_secs: i64) {
-    let last = offsets.last().copied().unwrap_or(0);
-    offsets.push(last + gap_secs);
+fn push_after(offsets: &mut Vec<TimeDelta>, gap: TimeDelta) {
+    let last = offsets.last().copied().unwrap_or_default();
+    offsets.push(last + gap);
 }
 
-/// Appends rungs `gap_secs` apart until the next one would pass `until_secs`.
-fn extend_by(offsets: &mut Vec<i64>, gap_secs: i64, until_secs: i64) {
-    while offsets.last().copied().unwrap_or(0) + gap_secs <= until_secs {
-        push_after(offsets, gap_secs);
+/// Appends rungs `gap` apart until the next one would pass `until`.
+fn extend_by(offsets: &mut Vec<TimeDelta>, gap: TimeDelta, until: TimeDelta) {
+    while offsets.last().copied().unwrap_or_default() + gap <= until {
+        push_after(offsets, gap);
     }
 }
 
@@ -172,13 +172,15 @@ fn resolve(
     anchor: DateTime<Utc>,
     step: usize,
 ) -> Option<ScheduledEnrolmentCheck> {
-    let offsets = ladder_offsets_secs(group);
+    let offsets = ladder_offsets(group);
     let offset = *offsets.get(step)?;
-    let previous = step.checked_sub(1).map_or(0, |previous| offsets[previous]);
+    let previous = step
+        .checked_sub(1)
+        .map_or(TimeDelta::zero(), |previous| offsets[previous]);
     Some(ScheduledEnrolmentCheck {
         step: i32::try_from(step).ok()?,
-        due_at: anchor + chrono::Duration::seconds(offset),
-        is_batched: offset - previous >= SLOW_GAP_SECS,
+        due_at: anchor + offset,
+        is_batched: offset - previous >= SLOW_GAP,
     })
 }
 
@@ -197,8 +199,8 @@ pub fn next_check_after(
     anchor: DateTime<Utc>,
     after: DateTime<Utc>,
 ) -> Option<ScheduledEnrolmentCheck> {
-    let elapsed_secs = (after - anchor).num_seconds();
-    let step = ladder_offsets_secs(group).partition_point(|&offset| offset <= elapsed_secs);
+    let elapsed = after - anchor;
+    let step = ladder_offsets(group).partition_point(|&offset| offset <= elapsed);
     resolve(group, anchor, step)
 }
 
@@ -212,14 +214,14 @@ mod tests {
         EnrolmentCheckGroup::CheckRequested,
     ];
 
-    fn at(secs: i64) -> DateTime<Utc> {
-        DateTime::from_timestamp(1_800_000_000 + secs, 0).unwrap()
+    fn at(offset: TimeDelta) -> DateTime<Utc> {
+        DateTime::from_timestamp(1_800_000_000, 0).unwrap() + offset
     }
 
     fn offsets_hours(group: EnrolmentCheckGroup) -> Vec<f64> {
-        ladder_offsets_secs(group)
+        ladder_offsets(group)
             .iter()
-            .map(|&secs| secs as f64 / HOUR_SECS as f64)
+            .map(|offset| offset.num_seconds() as f64 / 3600.0)
             .collect()
     }
 
@@ -254,7 +256,7 @@ mod tests {
         assert!(requested.last().unwrap() <= &(180.0 * 24.0));
         for group in ALL_GROUPS {
             assert!(
-                ladder_offsets_secs(group)
+                ladder_offsets(group)
                     .windows(2)
                     .all(|pair| pair[0] < pair[1])
             );
@@ -263,29 +265,39 @@ mod tests {
 
     #[test]
     fn the_next_check_is_the_first_rung_after_now() {
-        let anchor = at(0);
+        let anchor = at(TimeDelta::zero());
         let requested = EnrolmentCheckGroup::CheckRequested;
         assert_eq!(first_check(requested, anchor).unwrap().due_at, anchor);
         let after_immediate = next_check_after(requested, anchor, anchor).unwrap();
         assert_eq!(after_immediate.step, 1);
-        assert_eq!(after_immediate.due_at, at(HOUR_SECS));
+        assert_eq!(after_immediate.due_at, at(TimeDelta::hours(1)));
         // A row that sat out several rungs gets one catch-up, not one per rung.
-        let late = next_check_after(requested, anchor, at(10 * HOUR_SECS)).unwrap();
-        assert_eq!(late.due_at, at(11 * HOUR_SECS + 30 * MINUTE_SECS));
+        let late = next_check_after(requested, anchor, at(TimeDelta::hours(10))).unwrap();
         assert_eq!(
-            next_check_after(EnrolmentCheckGroup::Completed, anchor, at(91 * DAY_SECS)),
+            late.due_at,
+            at(TimeDelta::hours(11) + TimeDelta::minutes(30))
+        );
+        assert_eq!(
+            next_check_after(
+                EnrolmentCheckGroup::Completed,
+                anchor,
+                at(TimeDelta::days(91))
+            ),
             None
         );
     }
 
     #[test]
     fn only_slow_rungs_are_batched_on_five_minute_boundaries() {
-        let anchor = at(7);
+        let anchor = at(TimeDelta::seconds(7));
         let first = first_check(EnrolmentCheckGroup::Completed, anchor).unwrap();
         assert!(first.is_batched);
-        assert_eq!(first.release_at().timestamp() % BATCH_INTERVAL_SECS, 0);
+        assert_eq!(
+            first.release_at().timestamp() % BATCH_INTERVAL.num_seconds(),
+            0
+        );
         assert!(first.release_at() >= first.due_at);
-        assert!(first.release_at() < first.due_at + chrono::Duration::seconds(BATCH_INTERVAL_SECS));
+        assert!(first.release_at() < first.due_at + BATCH_INTERVAL);
 
         let visit = first_check(EnrolmentCheckGroup::Visited, anchor).unwrap();
         assert!(!visit.is_batched);

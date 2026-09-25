@@ -6,6 +6,7 @@ use utoipa::ToSchema;
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
+use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarItemStatus};
 
 /// What may be done about an error code. The class is the contract's, not the endpoint's: the
 /// import phase is the only place that upgrades a code to [`Retryability::VerifyOnly`].
@@ -62,6 +63,12 @@ pub enum WireOutcome {
     Failure(CreditRegistrationErrorCode),
 }
 
+/// Suotar's answer for a later item of a batch that repeats an earlier one; it names the earlier
+/// item's submission.
+pub const DUPLICATE_REQUEST_ITEM_CODE: &str = "duplicateRequestItem";
+/// Suotar's answer for a student number that names nobody.
+pub const PERSON_NOT_FOUND_CODE: &str = "personNotFound";
+
 /// The contract's own reading of a `code`, before any hardening of ours.
 ///
 /// An unrecognised code is a failure rather than an error, since Suotar may add codes; which of
@@ -73,14 +80,14 @@ fn wire_outcome(code: &str) -> WireOutcome {
         "sent" => WireOutcome::Settled(State::AwaitingVerification),
         // An error on the wire, but it names the submission an earlier item of the batch made for
         // the same completion, which is ours to verify.
-        "duplicateRequestItem" => WireOutcome::Settled(State::AwaitingVerification),
+        DUPLICATE_REQUEST_ITEM_CODE => WireOutcome::Settled(State::AwaitingVerification),
         "registered" => WireOutcome::Settled(State::Registered),
         "duplicateAttainment" => WireOutcome::Settled(State::Duplicate),
         "notImprovedAttainment" => WireOutcome::Settled(State::NotImproved),
         "personFound" | "enrolmentFound" | "enrolmentsListed" | "courseAllowed"
         | "submissionPending" => WireOutcome::Unsettled,
         "notRegistered" => WireOutcome::Failure(Code::NotRegistered),
-        "personNotFound" => WireOutcome::Failure(Code::PersonNotFound),
+        PERSON_NOT_FOUND_CODE => WireOutcome::Failure(Code::PersonNotFound),
         "courseCodeNotFound" => WireOutcome::Failure(Code::CourseCodeNotFound),
         "enrolmentNotFound" => WireOutcome::Failure(Code::EnrolmentNotFound),
         "enrolmentNotAccepted" => WireOutcome::Failure(Code::EnrolmentNotAccepted),
@@ -140,6 +147,33 @@ pub fn is_service_unavailable_code(endpoint: SuotarEndpoint, code: &str) -> bool
 pub fn is_sisu_timeout_code(endpoint: SuotarEndpoint, code: &str) -> bool {
     endpoint == SuotarEndpoint::ImportAttainments
         && wire_outcome(code) == WireOutcome::Failure(CreditRegistrationErrorCode::SisuTimeout)
+}
+
+/// The answers that would send the student off to enrol.
+pub fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
+    matches!(
+        code,
+        CreditRegistrationErrorCode::EnrolmentNotFound
+            | CreditRegistrationErrorCode::EnrolmentNotAccepted
+    )
+}
+
+/// Whether every item of an answer says the registry could not be reached. One good item makes it a
+/// plain answer, because something moved.
+pub fn is_all_unavailable<R>(response: &SuotarBatchResponse<R>) -> bool {
+    !response.items.is_empty()
+        && response.items.iter().all(|item| {
+            item.status == SuotarItemStatus::Error
+                && is_service_unavailable_code(response.endpoint, &item.code)
+        })
+}
+
+/// Whether every item of an answer says Sisu timed out: Suotar itself answered.
+pub fn is_only_sisu_timeouts<R>(response: &SuotarBatchResponse<R>) -> bool {
+    response
+        .items
+        .iter()
+        .all(|item| is_sisu_timeout_code(response.endpoint, &item.code))
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.

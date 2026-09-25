@@ -10,10 +10,10 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::config::program_config::ProgramConfig;
-use crate::programs::periodic_worker::{
+use crate::setup_tracing;
+use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
 };
-use crate::setup_tracing;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_chatbot::{

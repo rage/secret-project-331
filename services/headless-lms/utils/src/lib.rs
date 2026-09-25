@@ -21,6 +21,7 @@ pub mod merge_edits;
 pub mod numbers;
 pub mod page_visit_hasher;
 pub mod pagination;
+pub mod periodic_worker;
 pub mod prelude;
 pub mod secret_string;
 pub mod services;

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
+import CircuitBreakerSection from "@/components/credit-registration/admin/CircuitBreakerSection"
 import EndpointSummarySection from "@/components/credit-registration/admin/EndpointSummarySection"
 import {
   countPhasesByHealth,
@@ -244,6 +245,7 @@ const SystemPage: React.FC = () => {
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
+      <CircuitBreakerSection />
       <EndpointSummarySection />
       <ApiLogSection />
     </div>

@@ -45,39 +45,13 @@ pub struct CreditRegistrationPhaseState {
     pub pause_reason: Option<String>,
 }
 
+/// What one iteration of a phase did, as its phase-state row records it.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PhaseRunOutcome {
     pub items_processed: i32,
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,
-    /// Which circuit breaker `error` counts against. Meaningless without an error.
-    pub error_kind: PhaseErrorKind,
-}
-
-/// What a failed iteration says about the study registry.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub enum PhaseErrorKind {
-    /// The study registry failed, or the phase failed before reaching it.
-    #[default]
-    StudyRegistry,
-    /// Sisu timed out on every submission while Suotar itself answered, which pauses only the
-    /// phase that submits.
-    SisuOutage,
-    /// Only rows or codes already sent on their own failed again. That is their own fault, so no
-    /// breaker counts it.
-    Isolated,
-}
-
-impl PhaseRunOutcome {
-    /// A clean iteration that moved `count` rows; saturating, so an over-large sweep never reaches
-    /// the dashboard as negative throughput.
-    pub fn processed(count: i64) -> Self {
-        Self {
-            items_processed: count.try_into().unwrap_or(i32::MAX),
-            ..Self::default()
-        }
-    }
 }
 
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<CreditRegistrationPhaseState>> {

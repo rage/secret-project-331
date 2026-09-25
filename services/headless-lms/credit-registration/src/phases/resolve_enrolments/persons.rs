@@ -29,9 +29,8 @@ use uuid::Uuid;
 use super::{hold_for_lookup, lookup_state};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase};
-use crate::dispatch::PhaseContext;
+use crate::dispatch::Iteration;
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
 
@@ -53,19 +52,17 @@ impl SuotarBatchPhase for ResolvePersonIds {
     type Endpoint = endpoints::ResolvePersons;
     type Row = AwaitingPersonId;
 
-    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::ResolveEnrolments;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every person lookup came back unavailable.";
 
     /// Claims the rows the enrolment lookup would and keeps only those whose link lacks a person
     /// id; the others are left for the enrolment lookup.
     async fn claim(
         &mut self,
-        _ctx: &PhaseContext<'_>,
+        it: &Iteration<'_>,
         conn: &mut PgConnection,
-        scope: &PhaseScope,
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ResolvePersonRequestItem>> {
-        let claimed = claim_due_for_person_lookup(conn, scope, limit as i64).await?;
+        let claimed = claim_due_for_person_lookup(conn, it.scope, limit as i64).await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
         let links: HashMap<Uuid, _> = verified_student_numbers::get_by_user_ids(conn, &user_ids)
             .await?

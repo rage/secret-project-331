@@ -13,8 +13,6 @@ use headless_lms_models::course_module_suotar_configurations::{
     ModuleListingOutcome, ModuleToList, mark_listing_failed,
     mark_listing_succeeded_without_linking, record_listing_outcome,
 };
-use headless_lms_models::credit_registration_events::scrub_text;
-use headless_lms_models::credit_registration_phase_state::{PhaseErrorKind, PhaseRunOutcome};
 use headless_lms_models::credit_registration_roster_schedules::{
     RosterSchedule, ScheduleSelection, ensure_rows, get_modules_by_code, get_schedules,
     mark_alone_failed, mark_attempted, mark_batch_failed, mark_fetched, mark_window_closed,
@@ -33,17 +31,15 @@ use headless_lms_utils::prelude::Utc;
 use headless_lms_utils::secret_string::expose_option;
 use headless_lms_utils::services::suotar::{
     EnrolmentsListedResult, ListByCourseRequestItem, ListedPerson, SuotarBatchResponse,
-    SuotarCallContext, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus,
-    endpoints, new_request_item_id,
+    SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarItemStatus, endpoints,
+    new_request_item_id,
 };
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
 
-use crate::batch_phase::every_item_service_unavailable;
-use crate::dispatch::{PhaseContext, claim_limit};
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
-use crate::{breaker, rate_limit};
+use crate::study_registry_gate::Exchange;
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ListByCourse;
 
@@ -78,13 +74,12 @@ struct CodeListing {
     is_fetched_alone: bool,
 }
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let ctx = it.ctx;
+    let scope = it.scope;
     let _guard = if scope.is_unscoped() {
         let Some(guard) = ListingGuard::acquire() else {
-            return Ok(PhaseRunOutcome::processed(0));
+            return Ok(Counts::default());
         };
         Some(guard)
     } else {
@@ -92,11 +87,10 @@ pub(crate) async fn run(
     };
     let is_account_linking_enabled = ctx.suotar_conf.account_linking_enabled;
     let now = Utc::now();
-    let limiter_key = breaker::ScopeKey::of(scope);
     // The limiter counts requests on this endpoint, so the limit is how many may go out.
-    let request_limit = claim_limit(&limiter_key, ENDPOINT);
+    let request_limit = it.registry.allowance(ENDPOINT);
     if request_limit == 0 {
-        return Ok(PhaseRunOutcome::processed(0));
+        return Ok(Counts::default());
     }
     let mut conn = ctx.pool.acquire().await?;
     ensure_rows(&mut conn, scope.course_id).await?;
@@ -114,6 +108,11 @@ pub(crate) async fn run(
     });
     let mut requests = requests_for(due);
     requests.truncate(request_limit);
+    if it.registry.is_probe()
+        && let Some(probe) = requests.first_mut()
+    {
+        probe.truncate(1);
+    }
     let codes: Vec<String> = requests
         .iter()
         .flatten()
@@ -127,30 +126,12 @@ pub(crate) async fn run(
             .unwrap_or_default();
     }
 
-    let mut outcome = PhaseRunOutcome::processed(0);
-    let mut isolated_error = None;
-    let mut has_answer = false;
+    let mut counts = Counts::default();
     for request in requests {
-        rate_limit::take(&limiter_key, ENDPOINT, 1);
-        let part = list(ctx, &request, is_account_linking_enabled).await?;
-        outcome.items_processed += part.items_processed;
-        outcome.items_failed += part.items_failed;
-        match part.error {
-            Some(error) if part.error_kind == PhaseErrorKind::Isolated => {
-                isolated_error = isolated_error.or(Some(error));
-            }
-            Some(error) => {
-                rate_limit::drop_to_floor(&limiter_key, &[ENDPOINT]);
-                outcome.error = outcome.error.take().or(Some(error));
-            }
-            None => has_answer = true,
-        }
+        it.registry.spend(ENDPOINT, 1);
+        counts += list(it, &request, is_account_linking_enabled).await?;
     }
-    if outcome.error.is_none() && !has_answer && isolated_error.is_some() {
-        outcome.error = isolated_error;
-        outcome.error_kind = PhaseErrorKind::Isolated;
-    }
-    Ok(outcome)
+    Ok(counts)
 }
 
 /// Splits the due codes into requests: one per code that is listed on its own, and batches of up
@@ -183,10 +164,11 @@ fn requests_for(due: Vec<RosterSchedule>) -> Vec<Vec<CodeListing>> {
 
 /// Sends one listing request and reconciles what came back.
 async fn list(
-    ctx: &PhaseContext<'_>,
+    it: &mut Iteration<'_>,
     request: &[CodeListing],
     is_account_linking_enabled: bool,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
+) -> CreditRegistrationResult<Counts> {
+    let ctx = it.ctx;
     let codes: Vec<String> = request
         .iter()
         .map(|listing| listing.course_code.clone())
@@ -206,30 +188,37 @@ async fn list(
         .collect();
     let response = ctx
         .suotar_client
-        .post::<endpoints::ListByCourse>(
-            SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::EnrolmentDiscovery)),
-            items,
-        )
+        .post::<endpoints::ListByCourse>(it.call_context(), items)
         .await;
     let mut conn = ctx.pool.acquire().await?;
     let response = match response {
         Ok(response) => response,
         Err(error) => {
-            record_request_failure(&mut conn, request, &error).await?;
             let is_known_bad_code = matches!(request, [only] if only.is_fetched_alone)
                 && blames_the_codes(error.variant);
-            return Ok(PhaseRunOutcome {
-                items_processed: attempted,
-                items_failed: attempted,
-                error: Some(scrub_text(error.message())),
-                error_kind: if is_known_bad_code {
-                    PhaseErrorKind::Isolated
+            it.registry.record(
+                ENDPOINT,
+                if is_known_bad_code {
+                    Exchange::RefusedAlone(&error)
                 } else {
-                    PhaseErrorKind::StudyRegistry
+                    Exchange::Refused(&error)
                 },
+            );
+            record_request_failure(&mut conn, request, &error).await?;
+            return Ok(Counts {
+                processed: attempted,
+                failed: attempted,
+                finding: None,
             });
         }
     };
+    it.registry.record(
+        ENDPOINT,
+        Exchange::answered(
+            &response,
+            "Every course code of the batch came back unavailable.",
+        ),
+    );
 
     let duration_ms = i32::try_from(response.duration.as_millis()).unwrap_or(i32::MAX);
     let mut items_failed = 0;
@@ -253,12 +242,10 @@ async fn list(
             }
         }
     }
-    Ok(PhaseRunOutcome {
-        items_processed: attempted,
-        items_failed,
-        error: every_item_service_unavailable(&response)
-            .then(|| "Every course code of the batch came back unavailable.".to_string()),
-        ..PhaseRunOutcome::default()
+    Ok(Counts {
+        processed: attempted,
+        failed: items_failed,
+        finding: None,
     })
 }
 

@@ -1,7 +1,6 @@
 //! The loop the two mail phases share, and the template lookup it needs.
 
 use headless_lms_base::error::backend_error::BackendError;
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::email_templates::{
     EmailTemplateType, get_generic_email_template_by_type_and_language,
 };
@@ -9,7 +8,7 @@ use sqlx::{Connection, PgConnection};
 use std::collections::{BTreeSet, HashMap};
 use uuid::Uuid;
 
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration, PhaseContext};
 use crate::error::CreditRegistrationResult;
 use crate::phase::PhaseScope;
 
@@ -84,12 +83,11 @@ pub(crate) trait MailQueuePhase {
 /// with no template is skipped rather than failing the iteration: the batch is one transaction, so an
 /// error would roll back every mail that could be queued, and the claimed rows stay claimable.
 pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
+    it: &Iteration<'_>,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let claimed = P::claim(&mut tx, scope).await?;
+    let claimed = P::claim(&mut tx, it.scope).await?;
     let mut templates = TemplateCache::default();
     let mut missing_templates: BTreeSet<String> = BTreeSet::new();
     let mut skipped = 0;
@@ -101,21 +99,20 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
             skipped += 1;
             continue;
         };
-        P::queue(ctx, &mut tx, item, template_id).await?;
+        P::queue(it.ctx, &mut tx, item, template_id).await?;
     }
     tx.commit().await?;
 
-    Ok(PhaseRunOutcome {
-        items_processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
-        items_failed: skipped,
-        error: (!missing_templates.is_empty()).then(|| {
+    Ok(Counts {
+        processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
+        failed: skipped,
+        finding: (!missing_templates.is_empty()).then(|| {
             format!(
                 "{} {}.",
                 P::missing_templates_error_prefix(),
                 missing_templates.into_iter().collect::<Vec<_>>().join(", ")
             )
         }),
-        ..PhaseRunOutcome::default()
     })
 }
 

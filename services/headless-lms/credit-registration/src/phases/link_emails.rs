@@ -7,7 +7,6 @@
 use headless_lms_models::credit_registration_account_linking_emails::{
     LinkingMailToQueue, claim_unqueued, set_email_delivery_id,
 };
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::email_deliveries::insert_email_delivery_to_address;
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::account_linking::link_student_number_url;
@@ -17,7 +16,7 @@ use serde_json::json;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration, PhaseContext};
 use crate::error::CreditRegistrationResult;
 use crate::mail_queue::{MailQueuePhase, run_mail_queue_phase, template_language};
 use crate::phase::PhaseScope;
@@ -26,11 +25,8 @@ use crate::phase::PhaseScope;
 /// one transaction holds open.
 const QUEUE_LIMIT: i64 = 200;
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    run_mail_queue_phase::<LinkEmailsPhase>(ctx, scope).await
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    run_mail_queue_phase::<LinkEmailsPhase>(it).await
 }
 
 struct LinkEmailsPhase;

@@ -3,13 +3,11 @@
 
 use headless_lms_models::credit_registration_events::scrub_text;
 use headless_lms_models::{
-    credit_registration_phase_state::{self, PhaseErrorKind, PhaseRunOutcome},
+    credit_registration_phase_state::{self, PhaseRunOutcome},
     suotar_endpoint_rate_limits,
 };
-use headless_lms_utils::services::suotar::{SuotarClient, SuotarEndpoint};
+use headless_lms_utils::services::suotar::{SuotarCallContext, SuotarClient};
 use sqlx::{PgConnection, PgPool};
-use std::future::Future;
-use std::pin::Pin;
 use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
@@ -19,6 +17,7 @@ use crate::phases::{
     config_validation, database_phases, enrolment_discovery, import, link_emails,
     resolve_enrolments, student_notifications, verify,
 };
+use crate::study_registry_gate::StudyRegistryGate;
 use crate::{breaker, rate_limit};
 
 /// What one dispatch attempt did.
@@ -88,9 +87,7 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
     format!("{caller}/{}", phase.as_str())
 }
 
-/// Runs exactly one iteration of one phase. The match below is the only place a phase
-/// implementation is registered; it is exhaustive over [`CreditRegistrationPhase`], so a variant
-/// added there without a dispatch arm here fails to compile.
+/// Runs exactly one iteration of one phase.
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
@@ -113,81 +110,39 @@ pub async fn run_phase_once(
     if bookkeeping {
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
     }
-    // After the heartbeat, like the breaker below: a switched-off phase is idle, not dead.
+    // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
     if phase.is_account_linking_only() && !ctx.suotar_conf.account_linking_enabled {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
-    let breaker_key = breaker::ScopeKey::of(scope);
-    let is_paused_by_breaker =
-        breaker::is_open(&breaker_key, breaker::BreakerTarget::StudyRegistry)
-            || (phase.submits_to_sisu()
-                && breaker::is_open(&breaker_key, breaker::BreakerTarget::SisuSubmissions));
-    if phase.calls_study_registry() && is_paused_by_breaker {
-        // Only these stop: an outage must not stall the database-only phases.
-        return Ok(PhaseTick::Skipped(PhaseSkipReason::CircuitBreakerOpen));
-    }
+    let registry = match StudyRegistryGate::admit(phase, scope, ctx.test_mode) {
+        Ok(registry) => registry,
+        Err(skip) => return Ok(PhaseTick::Skipped(skip)),
+    };
     drop(conn);
 
-    // The phase loops run side by side, so a shared count would credit this iteration with another
-    // phase's requests.
-    let suotar_client = ctx.suotar_client.with_own_exchange_count();
-    let ctx = &PhaseContext {
-        suotar_client: &suotar_client,
-        ..*ctx
+    let mut it = Iteration {
+        ctx,
+        phase,
+        scope,
+        registry,
     };
-    let body: Pin<Box<dyn Future<Output = CreditRegistrationResult<PhaseRunOutcome>> + '_>> =
-        match phase {
-            CreditRegistrationPhase::Materialize => {
-                Box::pin(database_phases::run_materialize(ctx, scope))
-            }
-            CreditRegistrationPhase::Preconditions => {
-                Box::pin(database_phases::run_preconditions(ctx, scope))
-            }
-            CreditRegistrationPhase::ResolveEnrolments => {
-                Box::pin(resolve_enrolments::run(ctx, scope))
-            }
-            CreditRegistrationPhase::Import => Box::pin(import::run(ctx, scope)),
-            CreditRegistrationPhase::Verify => Box::pin(verify::run(ctx, scope)),
-            CreditRegistrationPhase::LegacyMirror => {
-                Box::pin(database_phases::run_legacy_mirror(ctx, scope))
-            }
-            CreditRegistrationPhase::StudentNotifications => {
-                Box::pin(student_notifications::run(ctx, scope))
-            }
-            CreditRegistrationPhase::EnrolmentDiscovery => {
-                Box::pin(enrolment_discovery::run(ctx, scope))
-            }
-            CreditRegistrationPhase::LinkEmails => Box::pin(link_emails::run(ctx, scope)),
-            CreditRegistrationPhase::ConfigValidation => {
-                Box::pin(config_validation::run(ctx, scope))
-            }
-            CreditRegistrationPhase::RetentionSweep => {
-                Box::pin(database_phases::run_retention_sweep(ctx, scope))
-            }
-            CreditRegistrationPhase::LedgerSnapshot => {
-                Box::pin(database_phases::run_ledger_snapshot(ctx, scope))
-            }
-        };
-
     let keep_alive = bookkeeping.then(|| KeepAlive::spawn(ctx.pool, phase));
-    let outcome = match body.await {
-        Ok(outcome) => outcome,
+    let body = run_body(&mut it).await;
+    drop(keep_alive);
+    let failure = it.registry.settle();
+    let outcome = match body {
+        Ok(counts) => PhaseRunOutcome {
+            items_processed: counts.processed,
+            items_failed: counts.failed,
+            error: counts.finding.or(failure),
+        },
         Err(error) => PhaseRunOutcome {
             error: Some(scrub_text(&format!("{error:#}"))),
             ..PhaseRunOutcome::default()
         },
     };
-    drop(keep_alive);
     if let Some(error) = &outcome.error {
         error!(phase = phase.as_str(), error = %error, "Credit registration phase failed");
-    }
-    // An iteration that never sent a request says nothing about whether the study registry is up,
-    // so it must neither count against the breaker nor clear a run of failures. Phases share one
-    // breaker, and an empty queue is the common case: without this, a phase with nothing to do
-    // resets the counter every tick and the breaker never opens during an outage.
-    let reached_study_registry = suotar_client.exchange_count() > 0;
-    if phase.calls_study_registry() && reached_study_registry {
-        record_breaker_outcome(&breaker_key, phase, &outcome, ctx.test_mode);
     }
     if bookkeeping {
         let mut conn = ctx.pool.acquire().await?;
@@ -195,6 +150,72 @@ pub async fn run_phase_once(
         record_rate_limits(&mut conn, phase).await?;
     }
     Ok(PhaseTick::Ran(outcome))
+}
+
+/// The one place a phase implementation is registered: exhaustive over [`CreditRegistrationPhase`],
+/// so a variant added there without an arm here fails to compile.
+async fn run_body(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    match it.phase {
+        CreditRegistrationPhase::Materialize => database_phases::run_materialize(it).await,
+        CreditRegistrationPhase::Preconditions => database_phases::run_preconditions(it).await,
+        CreditRegistrationPhase::ResolveEnrolments => resolve_enrolments::run(it).await,
+        CreditRegistrationPhase::Import => import::run(it).await,
+        CreditRegistrationPhase::Verify => verify::run(it).await,
+        CreditRegistrationPhase::LegacyMirror => database_phases::run_legacy_mirror(it).await,
+        CreditRegistrationPhase::StudentNotifications => student_notifications::run(it).await,
+        CreditRegistrationPhase::EnrolmentDiscovery => enrolment_discovery::run(it).await,
+        CreditRegistrationPhase::LinkEmails => link_emails::run(it).await,
+        CreditRegistrationPhase::ConfigValidation => config_validation::run(it).await,
+        CreditRegistrationPhase::RetentionSweep => database_phases::run_retention_sweep(it).await,
+        CreditRegistrationPhase::LedgerSnapshot => database_phases::run_ledger_snapshot(it).await,
+    }
+}
+
+/// What a phase body gets: the caller's context, the phase and scope it runs for, and the gate
+/// every Suotar request of the iteration goes through.
+pub(crate) struct Iteration<'a> {
+    pub ctx: &'a PhaseContext<'a>,
+    pub phase: CreditRegistrationPhase,
+    pub scope: &'a PhaseScope,
+    pub registry: StudyRegistryGate,
+}
+
+impl Iteration<'_> {
+    /// The call context of a request this iteration sends, naming it in the audit log.
+    pub fn call_context(&self) -> SuotarCallContext {
+        SuotarCallContext::new(self.ctx.worker_name(self.phase))
+    }
+}
+
+/// What a phase body did. Composite phases add up their flows' counts with `+=`.
+#[derive(Debug, Default)]
+pub(crate) struct Counts {
+    /// The rows, or modules, the iteration wrote a decision for.
+    pub processed: i32,
+    /// How many of `processed` ended up carrying an error code.
+    pub failed: i32,
+    /// Something the phase found wrong that failed no row, such as a missing mail template: the
+    /// iteration's error when no request failed.
+    pub finding: Option<String>,
+}
+
+impl Counts {
+    /// A clean iteration that moved `count` rows; saturating, so an over-large sweep never reaches
+    /// the dashboard as negative throughput.
+    pub fn processed(count: i64) -> Self {
+        Self {
+            processed: count.try_into().unwrap_or(i32::MAX),
+            ..Self::default()
+        }
+    }
+}
+
+impl std::ops::AddAssign for Counts {
+    fn add_assign(&mut self, other: Self) {
+        self.processed += other.processed;
+        self.failed += other.failed;
+        self.finding = self.finding.take().or(other.finding);
+    }
 }
 
 /// Copies the limiter and breaker state of the phase's endpoints to the database for the
@@ -225,88 +246,6 @@ async fn record_rate_limits(
         .await?;
     }
     Ok(())
-}
-
-/// How many items one request to `endpoint` may carry: its batch size, cut to what the limiter
-/// allows, and to a single item for the probe after a breaker cooldown.
-pub(crate) fn claim_limit(key: &breaker::ScopeKey, endpoint: SuotarEndpoint) -> usize {
-    if breaker::is_half_open(key, breaker::BreakerTarget::StudyRegistry) {
-        debug!(
-            ?endpoint,
-            "Study registry breaker is half-open; probing with one item"
-        );
-        return 1;
-    }
-    let limit = endpoint
-        .max_batch_size()
-        .min(rate_limit::available(key, endpoint));
-    debug!(
-        ?endpoint,
-        limit, "Computed the claim limit for a Suotar endpoint"
-    );
-    limit
-}
-
-/// Counts one iteration that reached the study registry against the breakers. Sisu timing out on
-/// every submission is Suotar answering, so it counts against the submitting phase's own breaker
-/// and as a success for the one every study registry phase shares.
-///
-/// The limiter drops to its floor whenever the shared breaker trips or closes again, so the ramp
-/// back starts from the probe that got through rather than from a failure a long cooldown ago.
-fn record_breaker_outcome(
-    key: &breaker::ScopeKey,
-    phase: CreditRegistrationPhase,
-    outcome: &PhaseRunOutcome,
-    test_mode: bool,
-) {
-    use breaker::BreakerTarget;
-    let base_cooldown = breaker::cooldown(test_mode);
-    if outcome.error.is_none() {
-        record_study_registry_success(key);
-        if phase.submits_to_sisu() && breaker::record_success(key, BreakerTarget::SisuSubmissions) {
-            info!(
-                phase = phase.as_str(),
-                "Sisu submissions circuit breaker closed"
-            );
-        }
-        return;
-    }
-    match outcome.error_kind {
-        PhaseErrorKind::Isolated => {}
-        PhaseErrorKind::SisuOutage => {
-            record_study_registry_success(key);
-            if let Some(cooldown) =
-                breaker::record_failure(key, BreakerTarget::SisuSubmissions, base_cooldown)
-            {
-                warn!(
-                    phase = phase.as_str(),
-                    cooldown_secs = cooldown.as_secs(),
-                    consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
-                    "Pausing phase after consecutive Sisu timeouts"
-                );
-            }
-        }
-        PhaseErrorKind::StudyRegistry => {
-            if let Some(cooldown) =
-                breaker::record_failure(key, BreakerTarget::StudyRegistry, base_cooldown)
-            {
-                rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
-                warn!(
-                    phase = phase.as_str(),
-                    cooldown_secs = cooldown.as_secs(),
-                    consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
-                    "Pausing study registry phases after consecutive failures"
-                );
-            }
-        }
-    }
-}
-
-fn record_study_registry_success(key: &breaker::ScopeKey) {
-    if breaker::record_success(key, breaker::BreakerTarget::StudyRegistry) {
-        rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
-        info!("Study registry circuit breaker closed");
-    }
 }
 
 /// How often a running iteration refreshes its heartbeat. Under half the shortest phase interval,

@@ -1,26 +1,20 @@
 //! The loop every "claim rows, send one batch, write one answer per row" flow shares.
 
-use headless_lms_models::credit_registration_events::scrub_text;
-use headless_lms_models::credit_registration_phase_state::{PhaseErrorKind, PhaseRunOutcome};
 use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
-use headless_lms_models::library::credit_registration::classification::{
-    is_service_unavailable_code, is_sisu_timeout_code,
-};
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, isolated_malformed_request_outcome, request_level_outcome,
 };
 use headless_lms_utils::services::suotar::{
-    BatchEndpoint, SuotarBatchResponse, SuotarCallContext, SuotarEndpoint, SuotarError,
-    SuotarErrorVariant, SuotarItemStatus, SuotarRequestItem, SuotarResponseItem,
+    BatchEndpoint, SuotarEndpoint, SuotarError, SuotarErrorVariant, SuotarRequestItem,
+    SuotarResponseItem,
 };
 use itertools::izip;
 use sqlx::{Connection, PgConnection};
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
-use crate::dispatch::{PhaseContext, claim_limit};
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
-use crate::{breaker, rate_limit};
+use crate::study_registry_gate::Exchange;
 
 /// What one iteration of a [`SuotarBatchPhase`] settled before it sent anything.
 pub(crate) struct Prepared<Row, Item> {
@@ -56,8 +50,6 @@ pub(crate) trait SuotarBatchPhase {
     /// A row to send for, with whatever its preflight read alongside it.
     type Row: AsRef<CreditRegistration>;
 
-    /// The phase the audit log names as the caller.
-    const PHASE: CreditRegistrationPhase;
     /// The iteration's error when every item came back unavailable.
     const ALL_UNAVAILABLE_ERROR: &'static str;
 
@@ -65,9 +57,8 @@ pub(crate) trait SuotarBatchPhase {
     /// true before the request leaves is written here, in the caller's transaction.
     async fn claim(
         &mut self,
-        ctx: &PhaseContext<'_>,
+        it: &Iteration<'_>,
         conn: &mut PgConnection,
-        scope: &PhaseScope,
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ItemOf<Self>>>;
 
@@ -118,40 +109,36 @@ pub(crate) enum Refusal {
     },
 }
 
-/// Runs one iteration of a [`SuotarBatchPhase`].
+/// Runs one flow of a [`SuotarBatchPhase`], spending and recording each request through the
+/// iteration's gate.
 ///
-/// `items_processed` counts the rows this iteration wrote a decision for: the preflight's included,
-/// the ones another writer had moved on before the answer could be applied excluded.
-/// `items_failed` counts how many of those ended up carrying an error code.
+/// `processed` counts the rows this flow wrote a decision for: the claim's included, the ones
+/// another writer had moved on before the answer could be applied excluded.
 pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     phase: &mut P,
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let limiter_key = breaker::ScopeKey::of(scope);
+    it: &mut Iteration<'_>,
+) -> CreditRegistrationResult<Counts> {
+    let ctx = it.ctx;
     let endpoint = P::Endpoint::ENDPOINT;
-    let limit = claim_limit(&limiter_key, endpoint);
+    let limit = it.registry.allowance(endpoint);
     if limit == 0 {
-        return Ok(PhaseRunOutcome::default());
+        return Ok(Counts::default());
     }
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let prepared = phase.claim(ctx, &mut tx, scope, limit).await?;
+    let prepared = phase.claim(it, &mut tx, limit).await?;
     tx.commit().await?;
     // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
     drop(conn);
 
-    let mut processed = prepared.decided;
-    let mut items_failed = prepared.failed;
-    let mut error = None;
-    let mut has_suotar_failure = false;
-    // A row refused even alone is its own data fault, and counts against the breaker only when no
-    // batch of the iteration got an answer.
-    let mut isolated_rejection = None;
-    let mut has_answer = false;
-    // The halves a split holds back wait in whatever state the preflight left them, which for
-    // import is `submitting`: no phase claims that, so none of them can be sent twice meanwhile.
-    // Each answered half is written before the next one is sent.
+    let mut counts = Counts {
+        processed: prepared.decided,
+        failed: prepared.failed,
+        finding: None,
+    };
+    // The halves a split holds back wait in whatever state the claim left them, which for import is
+    // `submitting`: no phase claims that, so none of them can be sent twice meanwhile. Each answered
+    // half is written before the next one is sent.
     let mut batches = vec![prepared.sendable];
     let mut has_split = false;
     while let Some(batch) = batches.pop() {
@@ -180,8 +167,9 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             .map(|item| item.request_item_id().to_string())
             .collect();
 
-        rate_limit::take(&limiter_key, endpoint, rows.len());
-        let call = SuotarCallContext::new(ctx.worker_name(P::PHASE))
+        it.registry.spend(endpoint, rows.len());
+        let call = it
+            .call_context()
             .for_registrations(rows.iter().map(|row| row.as_ref().id).collect());
         let sent = ctx
             .suotar_client
@@ -209,7 +197,15 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                 continue;
             }
             Err(send_error) => {
-                let isolated = isolates(phase, &rows, &send_error);
+                let is_isolated = isolates(phase, &rows, &send_error);
+                it.registry.record(
+                    endpoint,
+                    if is_isolated {
+                        Exchange::RefusedAlone(&send_error)
+                    } else {
+                        Exchange::Refused(&send_error)
+                    },
+                );
                 let mut conn = ctx.pool.acquire().await?;
                 for (row, request, request_item_id) in izip!(&rows, &requests, &request_item_ids) {
                     let applied = apply_refusal(
@@ -217,7 +213,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                         endpoint,
                         row.as_ref(),
                         phase.on_refusal(row),
-                        isolated,
+                        is_isolated,
                         OutcomeEvent {
                             error_message: Some(send_error.message()),
                             request_item_id: Some(request_item_id),
@@ -227,18 +223,15 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                         &send_error,
                     )
                     .await?;
-                    count_applied(applied, row.as_ref(), &mut processed, &mut items_failed);
-                }
-                if isolated {
-                    isolated_rejection = Some(scrub_text(send_error.message()));
-                } else {
-                    error = Some(scrub_text(send_error.message()));
-                    has_suotar_failure = true;
+                    count_applied(applied, row.as_ref(), &mut counts);
                 }
                 continue;
             }
         };
-        has_answer = true;
+        it.registry.record(
+            endpoint,
+            Exchange::answered(&response, P::ALL_UNAVAILABLE_ERROR),
+        );
 
         let mut conn = ctx.pool.acquire().await?;
         for (row, item, request, request_item_id) in
@@ -256,48 +249,18 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             let applied = phase
                 .apply(&mut conn, row, response.item(request_item_id), event)
                 .await?;
-            count_applied(applied, row.as_ref(), &mut processed, &mut items_failed);
-        }
-        if every_item_service_unavailable(&response) {
-            error = Some(P::ALL_UNAVAILABLE_ERROR.to_string());
-            has_suotar_failure |= !response
-                .items
-                .iter()
-                .all(|item| is_sisu_timeout_code(response.endpoint, &item.code));
+            count_applied(applied, row.as_ref(), &mut counts);
         }
     }
-
-    if has_suotar_failure {
-        rate_limit::drop_to_floor(&limiter_key, &[endpoint]);
-    }
-    if error.is_none() && !has_answer && isolated_rejection.is_some() {
-        error = isolated_rejection;
-        has_suotar_failure = true;
-    }
-
-    Ok(PhaseRunOutcome {
-        items_processed: processed,
-        items_failed,
-        error_kind: if error.is_some() && !has_suotar_failure {
-            PhaseErrorKind::SisuOutage
-        } else {
-            PhaseErrorKind::StudyRegistry
-        },
-        error,
-    })
+    Ok(counts)
 }
 
 /// Counts one written row, or skips one that had already moved on.
-fn count_applied(
-    applied: Applied,
-    row: &CreditRegistration,
-    processed: &mut i32,
-    items_failed: &mut i32,
-) {
+fn count_applied(applied: Applied, row: &CreditRegistration, counts: &mut Counts) {
     match applied {
         Applied::Written { is_failure } => {
-            *processed += 1;
-            *items_failed += i32::from(is_failure);
+            counts.processed += 1;
+            counts.failed += i32::from(is_failure);
         }
         Applied::MovedOn { found } => {
             warn!(
@@ -329,16 +292,6 @@ pub(crate) fn response_item_json(
         .iter()
         .find(|item| item.get("requestItemId").and_then(|id| id.as_str()) == Some(request_item_id))
         .cloned()
-}
-
-/// Whether the whole batch came back saying "not now". Failing the iteration on it is what opens the
-/// circuit breaker; a batch with one good item is a success, because something moved.
-pub(crate) fn every_item_service_unavailable<R>(response: &SuotarBatchResponse<R>) -> bool {
-    !response.items.is_empty()
-        && response.items.iter().all(|item| {
-            item.status == SuotarItemStatus::Error
-                && is_service_unavailable_code(response.endpoint, &item.code)
-        })
 }
 
 /// Whether a refusal of this batch is one some of its rows alone may have caused, and that proves

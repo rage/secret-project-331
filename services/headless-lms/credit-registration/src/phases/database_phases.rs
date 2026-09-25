@@ -6,7 +6,6 @@ use headless_lms_models::credit_registration_daily_snapshots::{
     count_states_for_day, write_snapshot_for_date,
 };
 use headless_lms_models::credit_registration_enrolment_check_outcomes;
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
@@ -20,41 +19,32 @@ use headless_lms_models::library::credit_registration::preconditions::{
 use headless_lms_models::student_number_verification_tokens::soft_delete_expired;
 use headless_lms_models::suotar_api_calls::{RETENTION_DAYS, delete_older_than};
 
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::PhaseScope;
 
 /// Both statements that create ledger rows, bounded apart from each other. Together in one phase so
 /// the Workers tab's row-creation counter accounts for every row the pipeline invented.
-pub(crate) async fn run_materialize(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
+pub(crate) async fn run_materialize(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
     let created =
-        ensure_registration_rows_for_eligible_completions(&mut conn, scope, MATERIALIZE_LIMIT)
+        ensure_registration_rows_for_eligible_completions(&mut conn, it.scope, MATERIALIZE_LIMIT)
             .await?;
     let re_attempted =
-        start_re_attempts_for_improved_grades(&mut conn, scope, GRADE_IMPROVEMENT_LIMIT).await?;
-    Ok(PhaseRunOutcome::processed(created + re_attempted))
+        start_re_attempts_for_improved_grades(&mut conn, it.scope, GRADE_IMPROVEMENT_LIMIT).await?;
+    Ok(Counts::processed(created + re_attempted))
 }
 
-pub(crate) async fn run_preconditions(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let moved = recompute_preconditions(&mut conn, scope, PRECONDITIONS_LIMIT).await?;
-    Ok(PhaseRunOutcome::processed(moved))
+pub(crate) async fn run_preconditions(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
+    let moved = recompute_preconditions(&mut conn, it.scope, PRECONDITIONS_LIMIT).await?;
+    Ok(Counts::processed(moved))
 }
 
-pub(crate) async fn run_legacy_mirror(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
-    let mirrored = mirror_successes_to_legacy_ledger(&mut conn, scope, LEGACY_MIRROR_LIMIT).await?;
-    Ok(PhaseRunOutcome::processed(mirrored))
+pub(crate) async fn run_legacy_mirror(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
+    let mirrored =
+        mirror_successes_to_legacy_ledger(&mut conn, it.scope, LEGACY_MIRROR_LIMIT).await?;
+    Ok(Counts::processed(mirrored))
 }
 
 /// The day's queue-depth snapshot for every ledger state.
@@ -63,15 +53,14 @@ pub(crate) async fn run_legacy_mirror(
 /// never write a snapshot that claims to cover every course, and `ScopeSupport::NONE` only enforces
 /// that if the write has no other job sharing its dispatch.
 pub(crate) async fn run_ledger_snapshot(
-    ctx: &PhaseContext<'_>,
-    _scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
+    it: &mut Iteration<'_>,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
     let today = Utc::now().date_naive();
     let day_start = today.and_time(NaiveTime::MIN).and_utc();
     let counts = count_states_for_day(&mut conn, day_start, day_start + Duration::days(1)).await?;
     write_snapshot_for_date(&mut conn, today, &counts).await?;
-    Ok(PhaseRunOutcome::processed(counts.len() as i64))
+    Ok(Counts::processed(counts.len() as i64))
 }
 
 /// How much one retention sweep removes from each table.
@@ -86,10 +75,9 @@ const OUTCOME_SWEEP_LIMIT: i64 = 5000;
 /// over several hours instead of in one statement that locks every `credit_registration_events` row
 /// referencing it.
 pub(crate) async fn run_retention_sweep(
-    ctx: &PhaseContext<'_>,
-    _scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let mut conn = ctx.pool.acquire().await?;
+    it: &mut Iteration<'_>,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = it.ctx.pool.acquire().await?;
     let cutoff = Utc::now() - Duration::days(RETENTION_DAYS);
     let purged_calls = delete_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;
     let purged_outcomes = credit_registration_enrolment_check_outcomes::delete_older_than(
@@ -107,7 +95,7 @@ pub(crate) async fn run_retention_sweep(
             "Retention sweep purged expired credit registration records"
         );
     }
-    Ok(PhaseRunOutcome::processed(
+    Ok(Counts::processed(
         i64::try_from(purged_calls + purged_outcomes + retired_tokens).unwrap_or(i64::MAX),
     ))
 }

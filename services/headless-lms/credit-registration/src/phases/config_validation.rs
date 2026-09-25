@@ -8,30 +8,28 @@ use std::collections::HashMap;
 use headless_lms_models::course_module_suotar_configurations::{
     get_config_facts_for_enabled_modules, record_config_check,
 };
-use headless_lms_models::credit_registration_events::scrub_text;
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::classification::{WireOutcome, outcome_of};
 use headless_lms_models::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config,
 };
 use headless_lms_utils::services::suotar::{
-    SuotarCallContext, SuotarEndpoint, SuotarItemStatus, SuotarResponseItem,
-    ValidateCourseCodeRequestItem, ValidateCourseCodeResult, endpoints, new_request_item_id,
+    SuotarEndpoint, SuotarItemStatus, SuotarResponseItem, ValidateCourseCodeRequestItem,
+    ValidateCourseCodeResult, endpoints, new_request_item_id,
 };
 use itertools::Itertools;
 
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::study_registry_gate::Exchange;
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
+const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ValidateCourseCodes;
+
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let ctx = it.ctx;
     let modules = {
         let mut conn = ctx.pool.acquire().await?;
-        get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?
+        get_config_facts_for_enabled_modules(&mut conn, it.scope.course_id).await?
     };
     let course_codes: Vec<String> = modules
         .iter()
@@ -44,7 +42,15 @@ pub(crate) async fn run(
         .collect();
 
     let mut verdicts: HashMap<String, CourseCodeVerdict> = HashMap::new();
-    for chunk in course_codes.chunks(SuotarEndpoint::ValidateCourseCodes.max_batch_size()) {
+    let mut unchecked = course_codes.as_slice();
+    while !unchecked.is_empty() {
+        // A code left unchecked keeps its stored verdict, as one Suotar gave no verdict for does.
+        let allowance = it.registry.allowance(ENDPOINT);
+        if allowance == 0 {
+            break;
+        }
+        let (chunk, rest) = unchecked.split_at(allowance.min(unchecked.len()));
+        unchecked = rest;
         let items: Vec<ValidateCourseCodeRequestItem> = chunk
             .iter()
             .map(|course_code| ValidateCourseCodeRequestItem {
@@ -52,23 +58,26 @@ pub(crate) async fn run(
                 course_code: course_code.clone(),
             })
             .collect();
+        it.registry.spend(ENDPOINT, items.len());
         let response = ctx
             .suotar_client
-            .post::<endpoints::ValidateCourseCodes>(
-                SuotarCallContext::new(ctx.worker_name(CreditRegistrationPhase::ConfigValidation)),
-                items.clone(),
-            )
+            .post::<endpoints::ValidateCourseCodes>(it.call_context(), items.clone())
             .await;
         // Nothing is recorded, so the previous verdicts stand until a check gets through.
         let response = match response {
             Ok(response) => response,
             Err(error) => {
-                return Ok(PhaseRunOutcome {
-                    error: Some(scrub_text(error.message())),
-                    ..PhaseRunOutcome::default()
-                });
+                it.registry.record(ENDPOINT, Exchange::Refused(&error));
+                return Ok(Counts::default());
             }
         };
+        it.registry.record(
+            ENDPOINT,
+            Exchange::answered(
+                &response,
+                "Every course code of the batch came back unavailable.",
+            ),
+        );
         for item in &items {
             if let Some(verdict) = response.item(&item.request_item_id).and_then(verdict_of) {
                 verdicts.insert(item.course_code.clone(), verdict);
@@ -100,14 +109,14 @@ pub(crate) async fn run(
     }
 
     // A misconfigured module is a finding, not a failed item: the phase did its job.
-    Ok(PhaseRunOutcome::processed(
+    Ok(Counts::processed(
         i64::try_from(modules.len()).unwrap_or(i64::MAX),
     ))
 }
 
 /// `None` for any answer that is neither verdict.
 fn verdict_of(item: &SuotarResponseItem<ValidateCourseCodeResult>) -> Option<CourseCodeVerdict> {
-    match outcome_of(SuotarEndpoint::ValidateCourseCodes, &item.code) {
+    match outcome_of(ENDPOINT, &item.code) {
         WireOutcome::Unsettled if item.status == SuotarItemStatus::Ok => {
             Some(CourseCodeVerdict::Allowed)
         }

@@ -18,6 +18,7 @@ mod phase;
 mod phases;
 mod process_local;
 pub mod rate_limit;
+mod study_registry_gate;
 pub mod worker_loop;
 
 pub use dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, run_phase_once};

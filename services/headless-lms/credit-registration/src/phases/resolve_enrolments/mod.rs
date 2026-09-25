@@ -17,37 +17,22 @@
 mod enrolments;
 mod persons;
 
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationState, Transition, claim_enrolment_check, transition,
 };
 use sqlx::PgConnection;
 
 use crate::batch_phase::run_suotar_batch_phase;
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::PhaseScope;
 
 use enrolments::ResolveEnrolments;
 use persons::ResolvePersonIds;
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let persons = run_suotar_batch_phase(&mut ResolvePersonIds, ctx, scope).await?;
-    let enrolments = run_suotar_batch_phase(&mut ResolveEnrolments, ctx, scope).await?;
-    // The first error stands for the iteration.
-    let (first, second) = if persons.error.is_some() {
-        (persons, enrolments)
-    } else {
-        (enrolments, persons)
-    };
-    Ok(PhaseRunOutcome {
-        items_processed: first.items_processed + second.items_processed,
-        items_failed: first.items_failed + second.items_failed,
-        ..first
-    })
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    let mut counts = run_suotar_batch_phase(&mut ResolvePersonIds, it).await?;
+    counts += run_suotar_batch_phase(&mut ResolveEnrolments, it).await?;
+    Ok(counts)
 }
 
 /// The state a row claimed for a lookup waits out the call in: a parked row stays where it is,

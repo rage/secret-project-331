@@ -42,9 +42,8 @@ use std::collections::HashSet;
 use super::{hold_for_lookup, lookup_state};
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, outcome_transition, row_facts};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase};
-use crate::dispatch::PhaseContext;
+use crate::dispatch::Iteration;
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
 pub(super) struct ResolveEnrolments;
 
@@ -65,17 +64,15 @@ impl SuotarBatchPhase for ResolveEnrolments {
     type Endpoint = endpoints::ResolveEnrolments;
     type Row = Resolvable;
 
-    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::ResolveEnrolments;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every item of the batch came back unavailable.";
 
     async fn claim(
         &mut self,
-        _ctx: &PhaseContext<'_>,
+        it: &Iteration<'_>,
         conn: &mut PgConnection,
-        scope: &PhaseScope,
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
-        let claimed = claim_due_for_resolve(conn, scope, limit as i64).await?;
+        let claimed = claim_due_for_resolve(conn, it.scope, limit as i64).await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
 

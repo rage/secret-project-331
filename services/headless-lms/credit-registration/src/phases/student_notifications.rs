@@ -5,7 +5,6 @@
 //! `failed_permanent` row is a configuration problem the student cannot act on, a withdrawn one was
 //! the student's own decision, and the linking mail already covers a missing student number.
 
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::student_notifications::{
@@ -16,16 +15,13 @@ use serde_json::json;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration, PhaseContext};
 use crate::error::CreditRegistrationResult;
 use crate::mail_queue::{MailQueuePhase, run_mail_queue_phase, template_language};
 use crate::phase::PhaseScope;
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    run_mail_queue_phase::<StudentNotificationsPhase>(ctx, scope).await
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    run_mail_queue_phase::<StudentNotificationsPhase>(it).await
 }
 
 struct StudentNotificationsPhase;

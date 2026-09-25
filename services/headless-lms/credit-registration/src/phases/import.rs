@@ -8,7 +8,6 @@ use headless_lms_models::course_module_completion_registered_to_study_registries
 use headless_lms_models::credit_registration_events::{
     self, CreditRegistrationEventKind, NewCreditRegistrationEvent, scrub_text,
 };
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due_for_import, restamp_submitting, schedule_next_attempt, set_needs_admin_attention,
@@ -35,15 +34,11 @@ use uuid::Uuid;
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
-use crate::dispatch::PhaseContext;
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    run_suotar_batch_phase(&mut Import, ctx, scope).await
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
+    run_suotar_batch_phase(&mut Import, it).await
 }
 
 struct Import;
@@ -56,18 +51,16 @@ impl SuotarBatchPhase for Import {
     type Endpoint = endpoints::ImportAttainments;
     type Row = CreditRegistration;
 
-    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Import;
     const ALL_UNAVAILABLE_ERROR: &'static str =
         "Every item of the batch timed out in Sisu or came back unavailable.";
 
     async fn claim(
         &mut self,
-        _ctx: &PhaseContext<'_>,
+        it: &Iteration<'_>,
         conn: &mut PgConnection,
-        scope: &PhaseScope,
         limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ImportAttainmentRequestItem>> {
-        let claimed = claim_due_for_import(conn, scope, limit as i64).await?;
+        let claimed = claim_due_for_import(conn, it.scope, limit as i64).await?;
         // Registrars only, not our own mirror rows: a grade improvement is deliberately a second
         // submission for the same completion.
         let already_registered = completion_ids_registered_by_a_registrar(

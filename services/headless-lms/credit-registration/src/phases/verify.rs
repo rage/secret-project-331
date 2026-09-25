@@ -5,7 +5,6 @@
 //! it twice. The one way back to `import` is Suotar itself answering `notRegistered`.
 
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
-use headless_lms_models::credit_registration_phase_state::PhaseRunOutcome;
 use headless_lms_models::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
     claim_due, increment_verify_attempt_counts, mark_partially_registered, reset_for_resubmission,
@@ -30,10 +29,8 @@ use sqlx::{Connection, PgConnection};
 
 use crate::apply::{Applied, OutcomeEvent, apply_outcome, row_facts};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
-use crate::dispatch::{PhaseContext, claim_limit};
+use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
-use crate::{breaker, rate_limit};
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
 /// without any query having to know about withdrawal.
@@ -57,61 +54,43 @@ struct Recovery {
     attempt: i32,
 }
 
-pub(crate) async fn run(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
-) -> CreditRegistrationResult<PhaseRunOutcome> {
-    let key = breaker::ScopeKey::of(scope);
-    let recovery_limit = if breaker::is_half_open(&key, breaker::BreakerTarget::StudyRegistry) {
-        1
-    } else {
-        rate_limit::available(&key, SuotarEndpoint::ResolveEnrolments)
-    };
+pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Counts> {
     let (polls, mut recoveries) = claim_polls(
-        ctx,
-        scope,
-        claim_limit(&key, SuotarEndpoint::VerifyAttainments),
-        recovery_limit,
+        it,
+        it.registry.allowance(SuotarEndpoint::VerifyAttainments),
+        it.registry.allowance(SuotarEndpoint::ResolveEnrolments),
     )
     .await?;
 
-    let mut outcome = PhaseRunOutcome::default();
+    let mut counts = Counts::default();
     if !polls.is_empty() {
-        add(
-            &mut outcome,
-            run_suotar_batch_phase(&mut VerifyPoll { polls }, ctx, scope).await?,
-        );
+        counts += run_suotar_batch_phase(&mut VerifyPoll { polls }, it).await?;
     }
     // Recoveries go out on `resolve-enrolments`, whose batch limit need not match the one these rows
     // were claimed at, and an oversized set would be refused whole before anything was sent.
     let batch_size = SuotarEndpoint::ResolveEnrolments.max_batch_size();
     while !recoveries.is_empty() {
         let rest = recoveries.split_off(batch_size.min(recoveries.len()));
-        let mut flow = UncertainRecovery { recoveries };
-        add(
-            &mut outcome,
-            run_suotar_batch_phase(&mut flow, ctx, scope).await?,
-        );
+        counts += run_suotar_batch_phase(&mut UncertainRecovery { recoveries }, it).await?;
         recoveries = rest;
     }
-    Ok(outcome)
+    Ok(counts)
 }
 
 /// Claims up to `poll_limit` due rows and splits them into polls and recoveries, keeping at most
 /// `recovery_limit` of the recoveries. Only the rows kept, and the stuck ones, count an attempt and
 /// are leased: the rest are left due, rather than counted as polled without having been asked.
 async fn claim_polls(
-    ctx: &PhaseContext<'_>,
-    scope: &PhaseScope,
+    it: &Iteration<'_>,
     poll_limit: usize,
     recovery_limit: usize,
 ) -> CreditRegistrationResult<(Vec<Poll>, Vec<Recovery>)> {
     if poll_limit == 0 {
         return Ok((Vec::new(), Vec::new()));
     }
-    let mut conn = ctx.pool.acquire().await?;
+    let mut conn = it.ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let claimed = claim_due(&mut tx, &CLAIMED_STATES, scope, poll_limit as i64).await?;
+    let claimed = claim_due(&mut tx, &CLAIMED_STATES, it.scope, poll_limit as i64).await?;
     let mut recovery_count = 0;
     let kept: Vec<CreditRegistration> = claimed
         .into_iter()
@@ -166,16 +145,6 @@ async fn claim_polls(
     Ok((polls, recoveries))
 }
 
-/// Sums what the two flows of one iteration did; the first error stands for the iteration.
-fn add(total: &mut PhaseRunOutcome, part: PhaseRunOutcome) {
-    total.items_processed += part.items_processed;
-    total.items_failed += part.items_failed;
-    if total.error.is_none() {
-        total.error = part.error;
-        total.error_kind = part.error_kind;
-    }
-}
-
 /// Polls the rows that have something to poll by.
 struct VerifyPoll {
     polls: Vec<Poll>,
@@ -185,16 +154,14 @@ impl SuotarBatchPhase for VerifyPoll {
     type Endpoint = endpoints::VerifyAttainments;
     type Row = Poll;
 
-    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Verify;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every verify poll came back unavailable.";
 
     /// The rows were claimed by [`claim_polls`], at this endpoint's limit, so there is nothing left
     /// to decide here.
     async fn claim(
         &mut self,
-        _ctx: &PhaseContext<'_>,
+        _it: &Iteration<'_>,
         _conn: &mut PgConnection,
-        _scope: &PhaseScope,
         _limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, VerifyAttainmentRequestItem>> {
         Ok(Prepared {
@@ -389,7 +356,6 @@ impl SuotarBatchPhase for UncertainRecovery {
     type Endpoint = endpoints::ResolveEnrolments;
     type Row = Recovery;
 
-    const PHASE: CreditRegistrationPhase = CreditRegistrationPhase::Verify;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every recovery lookup came back unavailable.";
 
     /// The rows were claimed by [`claim_polls`], already fit to this endpoint's limit. A row with
@@ -397,9 +363,8 @@ impl SuotarBatchPhase for UncertainRecovery {
     /// into a failure, and it is already scheduled for the next check.
     async fn claim(
         &mut self,
-        _ctx: &PhaseContext<'_>,
+        _it: &Iteration<'_>,
         conn: &mut PgConnection,
-        _scope: &PhaseScope,
         _limit: usize,
     ) -> CreditRegistrationResult<Prepared<Self::Row, ResolveEnrolmentRequestItem>> {
         let recoveries = std::mem::take(&mut self.recoveries);

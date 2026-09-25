@@ -6,7 +6,6 @@
 
 use std::collections::HashSet;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -709,6 +708,8 @@ impl SuotarErrorVariant {
 #[derive(Debug)]
 pub struct SuotarError {
     pub variant: SuotarErrorVariant,
+    /// `false` for a request refused before it left, which says nothing about Suotar.
+    pub was_sent: bool,
     error: UtilError,
 }
 
@@ -717,6 +718,7 @@ impl SuotarError {
     fn new(variant: SuotarErrorVariant, message: impl Into<String>) -> Self {
         Self {
             variant,
+            was_sent: true,
             error: util_err!(SuotarClientError, message.into()),
         }
     }
@@ -729,7 +731,15 @@ impl SuotarError {
     ) -> Self {
         Self {
             variant,
+            was_sent: true,
             error: util_err!(SuotarClientError, message.into(), source.into()),
+        }
+    }
+
+    fn unsent(self) -> Self {
+        Self {
+            was_sent: false,
+            ..self
         }
     }
 
@@ -838,10 +848,6 @@ pub struct SuotarClient {
     api_base_url: Url,
     authorization: SecretString,
     audit: Arc<dyn SuotarCallAudit>,
-    /// Requests that actually left for the study registry, shared by every clone of the client
-    /// except those made by [`SuotarClient::with_own_exchange_count`]. A pre-flight refusal is not
-    /// counted because it never reached the registry.
-    exchanges: Arc<AtomicU64>,
 }
 
 impl SuotarClient {
@@ -852,7 +858,6 @@ impl SuotarClient {
                 authorization_header_value(config.api_token.expose_secret()).into(),
             ),
             audit,
-            exchanges: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -862,22 +867,7 @@ impl SuotarClient {
                 .expect("hardcoded url"),
             authorization: SecretString::new(authorization_header_value(MOCK_SUOTAR_TOKEN).into()),
             audit: Arc::new(NoSuotarCallAudit),
-            exchanges: Arc::new(AtomicU64::new(0)),
         }
-    }
-
-    /// A clone whose [`SuotarClient::exchange_count`] starts from zero and counts only its own
-    /// requests, so work running beside it cannot pass for its own.
-    pub fn with_own_exchange_count(&self) -> Self {
-        Self {
-            exchanges: Arc::new(AtomicU64::new(0)),
-            ..self.clone()
-        }
-    }
-
-    /// How many requests this client and the clones sharing its count have sent.
-    pub fn exchange_count(&self) -> u64 {
-        self.exchanges.load(Ordering::Relaxed)
     }
 
     /// Sends one batch to `E`'s endpoint. An empty batch is not sent.
@@ -905,6 +895,7 @@ impl SuotarClient {
                 format!("Could not encode a {} request", endpoint.path()),
                 error,
             )
+            .unsent()
         };
         let request_body = serde_json::to_value(&items).map_err(not_encoded)?;
         let encoded = serde_json::to_vec(&request_body).map_err(not_encoded)?;
@@ -955,6 +946,7 @@ impl SuotarClient {
                 format!("Could not build the Suotar {} url", endpoint.path()),
                 error,
             )
+            .unsent()
         })?;
         let clock = Instant::now();
         let mut request = SUOTAR_HTTP_CLIENT
@@ -970,7 +962,6 @@ impl SuotarClient {
             request = request.header(CORRELATION_ID_HEADER, call_id.to_string());
         }
 
-        self.exchanges.fetch_add(1, Ordering::Relaxed);
         let (mut outcome, finished) = self
             .exchange(endpoint, request, encoded, sent_ids, clock)
             .await;
@@ -1000,7 +991,7 @@ impl SuotarClient {
                 )
                 .await;
         }
-        Err(error)
+        Err(error.unsent())
     }
 
     /// Returns the audit record alongside the result: only this function knows the status, the

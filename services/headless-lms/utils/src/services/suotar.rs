@@ -483,8 +483,8 @@ where
         .collect();
     if readable.len() < total {
         warn!(
-            "Suotar answered with {} of {total} list elements that could not be read; skipping them.",
-            total - readable.len()
+            unreadable = total - readable.len(),
+            total, "Suotar answered with list elements that could not be read; skipping them"
         );
     }
     Ok(readable)
@@ -541,8 +541,8 @@ impl<'de, R: DeserializeOwned> Deserialize<'de> for SuotarResponseItem<R> {
             // The code is the answer on an error item, and the result only adds to it.
             Some(Err(_)) if wire.status == SuotarItemStatus::Error => {
                 warn!(
-                    "Suotar answered `{}` with a result that could not be read; ignoring the result.",
-                    wire.code
+                    code = %wire.code,
+                    "Suotar answered with a result that could not be read; ignoring the result"
                 );
                 None
             }
@@ -804,8 +804,8 @@ impl SuotarClient {
             .await;
         if call_id.is_none() {
             error!(
-                "Could not write a suotar_api_calls row for a {} call; sending it unaudited.",
-                endpoint.path()
+                endpoint = endpoint.path(),
+                "Could not write a suotar_api_calls row; sending the call unaudited"
             );
         }
 
@@ -989,8 +989,8 @@ impl SuotarClient {
                 // Not the serde message: it quotes the offending value, which may be personal data.
                 Err(_) => {
                     error!(
-                        "Suotar {} answered with an item that could not be read; treating it as unanswered.",
-                        endpoint.path()
+                        endpoint = endpoint.path(),
+                        "Suotar answered with an item that could not be read; treating it as unanswered"
                     );
                     None
                 }
@@ -1132,17 +1132,17 @@ fn reconcile<R>(
 
     if !unexpected_request_item_ids.is_empty() {
         warn!(
-            "Suotar {} answered with {} requestItemIds that were not sent; ignoring them.",
-            endpoint.path(),
-            unexpected_request_item_ids.len()
+            endpoint = endpoint.path(),
+            unexpected = unexpected_request_item_ids.len(),
+            "Suotar answered with requestItemIds that were not sent; ignoring them"
         );
     }
     if !missing_request_item_ids.is_empty() && endpoint.creates_attainments() {
         error!(
-            "Suotar {} left {} of {} items unanswered. Their attainments may or may not exist and they must not be re-sent.",
-            endpoint.path(),
-            missing_request_item_ids.len(),
-            sent_ids.len()
+            endpoint = endpoint.path(),
+            missing = missing_request_item_ids.len(),
+            sent = sent_ids.len(),
+            "Suotar left items unanswered; their attainments may or may not exist and must not be re-sent"
         );
     }
 

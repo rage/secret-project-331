@@ -2,8 +2,6 @@
 //! own interval and its own row in `credit_registration_phase_state`. Every iteration goes through
 //! the same dispatcher the test tick endpoint uses.
 
-use std::env;
-
 use sqlx::postgres::PgPoolOptions;
 
 use crate::config::program_config::ProgramConfig;
@@ -29,9 +27,8 @@ pub async fn run_credit_registration_worker(
     start_message: &str,
     still_running_message: &str,
 ) -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
 
     let db_url = ProgramConfig::database_url_with_default();

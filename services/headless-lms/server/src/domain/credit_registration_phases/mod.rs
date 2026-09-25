@@ -501,10 +501,7 @@ pub async fn run_phase_once(
     };
     drop(keep_alive);
     if let Some(error) = &outcome.error {
-        error!(
-            "Credit registration phase {} failed: {error}",
-            phase.as_str()
-        );
+        error!(phase = phase.as_str(), error = %error, "Credit registration phase failed");
     }
     // An iteration that never sent a request says nothing about whether the study registry is up,
     // so it must neither count against the breaker nor clear a run of failures. Phases share one
@@ -556,11 +553,20 @@ async fn record_rate_limits(
 /// allows, and to a single item for the probe after a breaker cooldown.
 pub(crate) fn claim_limit(key: &breaker::ScopeKey, endpoint: SuotarEndpoint) -> usize {
     if breaker::is_half_open(key, breaker::BreakerTarget::StudyRegistry) {
+        debug!(
+            ?endpoint,
+            "Study registry breaker is half-open; probing with one item"
+        );
         return 1;
     }
-    endpoint
+    let limit = endpoint
         .max_batch_size()
-        .min(rate_limit::available(key, endpoint))
+        .min(rate_limit::available(key, endpoint));
+    debug!(
+        ?endpoint,
+        limit, "Computed the claim limit for a Suotar endpoint"
+    );
+    limit
 }
 
 /// Counts one iteration that reached the study registry against the breakers. Sisu timing out on
@@ -579,8 +585,11 @@ fn record_breaker_outcome(
     let base_cooldown = breaker::cooldown(test_mode);
     if outcome.error.is_none() {
         record_study_registry_success(key);
-        if phase.submits_to_sisu() {
-            breaker::record_success(key, BreakerTarget::SisuSubmissions);
+        if phase.submits_to_sisu() && breaker::record_success(key, BreakerTarget::SisuSubmissions) {
+            info!(
+                phase = phase.as_str(),
+                "Sisu submissions circuit breaker closed"
+            );
         }
         return;
     }
@@ -592,9 +601,10 @@ fn record_breaker_outcome(
                 breaker::record_failure(key, BreakerTarget::SisuSubmissions, base_cooldown)
             {
                 warn!(
-                    "Pausing {} for {cooldown:?} after {} consecutive iterations Sisu timed out on.",
-                    phase.as_str(),
-                    breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
+                    phase = phase.as_str(),
+                    cooldown_secs = cooldown.as_secs(),
+                    consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
+                    "Pausing phase after consecutive Sisu timeouts"
                 );
             }
         }
@@ -604,8 +614,10 @@ fn record_breaker_outcome(
             {
                 rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
                 warn!(
-                    "Pausing the study registry phases for {cooldown:?} after {} consecutive failures.",
-                    breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES
+                    phase = phase.as_str(),
+                    cooldown_secs = cooldown.as_secs(),
+                    consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
+                    "Pausing study registry phases after consecutive failures"
                 );
             }
         }
@@ -615,6 +627,7 @@ fn record_breaker_outcome(
 fn record_study_registry_success(key: &breaker::ScopeKey) {
     if breaker::record_success(key, breaker::BreakerTarget::StudyRegistry) {
         rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
+        info!("Study registry circuit breaker closed");
     }
 }
 
@@ -953,9 +966,9 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             Ok(response) => response,
             Err(send_error) if P::isolates_request_rejection(&send_error) && rows.len() > 1 => {
                 warn!(
-                    "The study registry refused a batch of {} as a whole; splitting it to find the rows it refuses. {}",
-                    rows.len(),
-                    send_error.message()
+                    batch_size = rows.len(),
+                    error = send_error.message(),
+                    "The study registry refused a batch as a whole; splitting it to find the rows it refuses"
                 );
                 let mut halves: Vec<(P::Row, P::Item)> = rows
                     .into_iter()
@@ -1080,8 +1093,9 @@ fn count_applied(
         }
         Err(error) if row_moved_on(&error) => {
             warn!(
-                "Credit registration {} moved on while the study registry answered; leaving it. {error:#}",
-                row.id
+                credit_registration_id = %row.id,
+                error = ?error,
+                "Credit registration moved on while the study registry answered; leaving it"
             );
             Ok(())
         }
@@ -1179,6 +1193,14 @@ pub(crate) async fn apply_outcome(
     }
     resolve_enrolments::record_enrolment_check(&mut tx, event.enrolment_check, &after).await?;
     tx.commit().await?;
+    if outcome.to_state == CreditRegistrationState::SubmissionUncertain
+        && registration.state != CreditRegistrationState::SubmissionUncertain
+    {
+        warn!(
+            credit_registration_id = %registration.id,
+            "Credit registration entered submission_uncertain; Sisu's outcome could not be confirmed"
+        );
+    }
     Ok(())
 }
 

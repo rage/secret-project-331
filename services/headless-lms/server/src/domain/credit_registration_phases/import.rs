@@ -273,6 +273,22 @@ async fn preflight(
             Ok(Preflight::Send(item))
         }
         Err(problem) => {
+            match &problem {
+                Unsendable::Incomplete => {}
+                Unsendable::UnknownGrade => {
+                    warn!(
+                        credit_registration_id = %row.id,
+                        "Credit registration's frozen grade is not one Sisu accepts; needs admin attention"
+                    );
+                }
+                Unsendable::Invalid(field) => {
+                    warn!(
+                        credit_registration_id = %row.id,
+                        field = *field,
+                        "Sisu does not accept a required field; needs admin attention"
+                    );
+                }
+            }
             transition(conn, row.id, &problem.transition()).await?;
             Ok(Preflight::Decided { failed: true })
         }
@@ -287,8 +303,9 @@ async fn hold_back(
     error: &ModelError,
 ) -> anyhow::Result<()> {
     error!(
-        "Credit registration {} could not be prepared for import, holding it back: {error:#}",
-        row.id
+        credit_registration_id = %row.id,
+        error = ?error,
+        "Could not prepare credit registration for import; holding it back"
     );
     set_needs_admin_attention(conn, row.id, true).await?;
     schedule_next_attempt(
@@ -359,9 +376,8 @@ async fn apply_answer(
                         let mut event = event;
                         if item.code == DUPLICATE_REQUEST_ITEM_CODE {
                             error!(
-                                "Suotar answered duplicateRequestItem for credit registration {}: \
-                                 a batch carried the same completion twice.",
-                                row.id
+                                credit_registration_id = %row.id,
+                                "Suotar answered duplicateRequestItem; a batch carried the same completion twice"
                             );
                             outcome.needs_admin_attention = Some(true);
                             event.message = Some(

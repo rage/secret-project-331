@@ -116,7 +116,7 @@ async fn cancel_on_termination_signal(shutdown: CancellationToken) {
                 signal.recv().await;
             }
             Err(error) => {
-                error!("Could not listen for SIGTERM: {error}");
+                error!(error = %error, "Could not listen for SIGTERM");
                 std::future::pending::<()>().await;
             }
         }
@@ -140,9 +140,9 @@ async fn run_if_due(ctx: &PhaseContext<'_>, phase: CreditRegistrationPhase) -> a
 }
 
 fn log_failure(process_name: &str, subject: &str, error: &anyhow::Error) {
-    error!("{subject} failed: {error}");
+    error!(error = %error, "{subject} failed");
     if is_db_disconnect(error.source()) {
-        info!("{process_name} may have lost its connection to the database.");
+        info!("{process_name} may have lost its connection to the database");
     }
 }
 
@@ -167,10 +167,10 @@ async fn run_due_phase(
     match run_phase_once(ctx, phase, &PhaseScope::default()).await? {
         PhaseTick::Ran(outcome) if outcome.items_processed > 0 || outcome.items_failed > 0 => {
             info!(
-                "Credit registration phase {} processed {} rows, {} of them unsuccessfully.",
-                phase.as_str(),
-                outcome.items_processed,
-                outcome.items_failed
+                phase = phase.as_str(),
+                processed = outcome.items_processed,
+                failed = outcome.items_failed,
+                "Credit registration phase finished"
             );
         }
         // Nothing to do, paused, or waiting out a cooldown: quiet on purpose, because the heartbeat

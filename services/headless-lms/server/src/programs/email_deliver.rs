@@ -2,6 +2,7 @@ use std::{error::Error as StdError, time::Duration};
 
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
+use crate::setup_tracing;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use futures::{FutureExt, StreamExt};
@@ -471,8 +472,9 @@ async fn record_message_build_failure(
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt().init();
     dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
+    setup_tracing()?;
     tracing::info!("Email sender starting up...");
 
     if ProgramConfig::optional("SMTP_USER").is_none()

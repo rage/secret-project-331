@@ -21,7 +21,10 @@ use uuid::Uuid;
 use super::PhaseScope;
 
 pub const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
+/// The first cooldown; each trip without a success between adds another, up to
+/// [`MAX_COOLDOWN_TRIPS`] of them.
 pub const SUOTAR_COOLDOWN_SECS: u64 = 300;
+pub const MAX_COOLDOWN_TRIPS: u32 = 3;
 /// Playwright's per-test budget is 100 s, which the production cooldown does not fit inside: a test
 /// that trips the breaker deliberately has to be able to watch it recover.
 pub const TEST_SUOTAR_COOLDOWN_SECS: u64 = 5;
@@ -77,6 +80,8 @@ struct BreakerState {
     consecutive_failures: u32,
     open_until: Option<Instant>,
     last_failure_at: Instant,
+    /// Times opened since the last success, which the next cooldown grows with.
+    trip_count: u32,
 }
 
 impl BreakerState {
@@ -92,6 +97,7 @@ type BreakerKey = (ScopeKey, BreakerTarget);
 static BREAKERS: LazyLock<Mutex<HashMap<BreakerKey, BreakerState>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+/// The first cooldown, which later trips multiply.
 pub fn cooldown(test_mode: bool) -> Duration {
     Duration::from_secs(if test_mode {
         TEST_SUOTAR_COOLDOWN_SECS
@@ -120,6 +126,17 @@ pub fn is_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
     false
 }
 
+/// Whether the breaker's cooldown has ended with no success since: the next iteration is a probe,
+/// and sends one item only.
+pub fn is_half_open(scope: &ScopeKey, target: BreakerTarget) -> bool {
+    let now = Instant::now();
+    lock().get(&(scope.clone(), target)).is_some_and(|state| {
+        state.is_live(now)
+            && state.open_until.is_some_and(|until| now >= until)
+            && state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES
+    })
+}
+
 /// What one breaker holds right now, in this process.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct BreakerSnapshot {
@@ -127,6 +144,7 @@ pub struct BreakerSnapshot {
     pub consecutive_failures: u32,
     /// How much of the cooldown is left, in seconds.
     pub open_for_secs: Option<u64>,
+    pub trip_count: u32,
 }
 
 /// Reads a breaker without touching it, for the dashboard. Not [`is_open`], which clears an elapsed
@@ -146,6 +164,7 @@ pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
         open: remaining.is_some(),
         consecutive_failures: state.consecutive_failures,
         open_for_secs: remaining.map(|left| left.as_secs()),
+        trip_count: state.trip_count,
     }
 }
 
@@ -154,8 +173,13 @@ pub fn record_success(scope: &ScopeKey, target: BreakerTarget) {
     breakers.remove(&(scope.clone(), target));
 }
 
-/// Returns whether this failure opened the breaker.
-pub fn record_failure(scope: &ScopeKey, target: BreakerTarget, cooldown: Duration) -> bool {
+/// Returns the cooldown this failure opened the breaker for, if it did. `base_cooldown` is the
+/// first trip's; a failure while half-open trips again at once, for longer.
+pub fn record_failure(
+    scope: &ScopeKey,
+    target: BreakerTarget,
+    base_cooldown: Duration,
+) -> Option<Duration> {
     let now = Instant::now();
     let mut breakers = lock();
     breakers.retain(|_, state| state.is_live(now));
@@ -165,14 +189,17 @@ pub fn record_failure(scope: &ScopeKey, target: BreakerTarget, cooldown: Duratio
             consecutive_failures: 0,
             open_until: None,
             last_failure_at: now,
+            trip_count: 0,
         });
     state.last_failure_at = now;
     state.consecutive_failures = state.consecutive_failures.saturating_add(1);
-    if state.consecutive_failures >= MAX_CONSECUTIVE_SUOTAR_FAILURES {
-        state.open_until = Some(now + cooldown);
-        return true;
+    if state.consecutive_failures < MAX_CONSECUTIVE_SUOTAR_FAILURES {
+        return None;
     }
-    false
+    state.trip_count = state.trip_count.saturating_add(1);
+    let cooldown = base_cooldown * state.trip_count.min(MAX_COOLDOWN_TRIPS);
+    state.open_until = Some(now + cooldown);
+    Some(cooldown)
 }
 
 #[cfg(test)]
@@ -202,10 +229,10 @@ mod tests {
     fn the_breaker_opens_only_after_the_documented_run_of_failures() {
         let key = key();
         for _ in 1..MAX_CONSECUTIVE_SUOTAR_FAILURES {
-            assert!(!record_failure(&key, TARGET, cooldown(false)));
+            assert!(record_failure(&key, TARGET, cooldown(false)).is_none());
             assert!(!is_open(&key, TARGET));
         }
-        assert!(record_failure(&key, TARGET, cooldown(false)));
+        assert!(record_failure(&key, TARGET, cooldown(false)).is_some());
         assert!(is_open(&key, TARGET));
         reset(&key);
     }
@@ -217,7 +244,7 @@ mod tests {
             record_failure(&key, TARGET, cooldown(false));
         }
         record_success(&key, TARGET);
-        assert!(!record_failure(&key, TARGET, cooldown(false)));
+        assert!(record_failure(&key, TARGET, cooldown(false)).is_none());
         assert!(!is_open(&key, TARGET));
         reset(&key);
     }

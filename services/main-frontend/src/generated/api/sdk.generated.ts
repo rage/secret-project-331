@@ -405,6 +405,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEnrolmentChecksData,
+  GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
   GetCreditRegistrationErrorsByCodeResponses,
   GetCreditRegistrationForAdminData,
@@ -686,6 +688,9 @@ import type {
   RecheckCreditRegistrationEnrolmentData,
   RecheckCreditRegistrationEnrolmentErrors,
   RecheckCreditRegistrationEnrolmentResponses,
+  RecordMyEnrolmentPageVisitData,
+  RecordMyEnrolmentPageVisitErrors,
+  RecordMyEnrolmentPageVisitResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -975,6 +980,7 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
   zGetCreditRegistrationOverviewResponse,
@@ -1996,8 +2002,8 @@ export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true
  * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
  * none.
  *
- * Shares the student's button's allowance, so between them they cannot ask the registry more than once
- * an hour. Authorized on the row's own course, like the retry.
+ * Shares the student's limit on asking, so between them they cannot start more than one check in 30
+ * minutes. Authorized on the row's own course, like the retry.
  */
 export const recheckCreditRegistrationEnrolment = <ThrowOnError extends boolean = true>(
   options: Options<RecheckCreditRegistrationEnrolmentData, ThrowOnError>,
@@ -5124,6 +5130,27 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
+ * and findings of the enrolment checks, and the roster schedule per course code.
+ */
+export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationEnrolmentChecksData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEnrolmentChecksResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationEnrolmentChecksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEnrolmentChecksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/enrolment-checks",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
  * window and the window before it, with the terminal verdicts of the same window beside them.
  *
@@ -5670,6 +5697,35 @@ export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
+ * - The caller opened the registration page after completing, and it is showing them how to enrol.
+ *
+ * Moves a waiting registration onto the schedule for students who have looked, or restarts that
+ * schedule at most once a day. Recorded against the completion too, so a visit before there is a
+ * registration, or before a student number is linked, still counts once there is. Idempotent enough
+ * to call on every page load; the page sends it once per load.
+ */
+export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
+  options: Options<RecordMyEnrolmentPageVisitData, ThrowOnError>,
+): RequestResult<
+  RecordMyEnrolmentPageVisitResponses,
+  RecordMyEnrolmentPageVisitErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecordMyEnrolmentPageVisitResponses,
+    RecordMyEnrolmentPageVisitErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit",
+    ...options,
   })
 
 /**

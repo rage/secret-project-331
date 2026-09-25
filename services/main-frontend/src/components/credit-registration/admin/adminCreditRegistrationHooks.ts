@@ -5,6 +5,7 @@ import {
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
+  getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
   getCreditRegistrationOverviewOptions,
@@ -214,6 +215,15 @@ export const useCreditRegistrationMisconfiguredCourseCount = () =>
 export const useCreditRegistrationUnhealthyPhaseCount = () =>
   useOverviewCount(selectUnhealthyPhases)
 
+const ROSTER_ALERT_IDS: readonly CreditRegistrationAlertId[] = ["roster_course_code_failing"]
+
+const selectFailingRosterCodes = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, ROSTER_ALERT_IDS)
+
+/** Course codes whose roster listing is backing off after repeated failures. */
+export const useCreditRegistrationFailingRosterCodeCount = () =>
+  useOverviewCount(selectFailingRosterCodes)
+
 /**
  * Account-linking mails our own sender never got out, all time — the number the Linking page's
  * "Sending failed" tile shows. Keep the two reading the same field.
@@ -263,6 +273,13 @@ export const useInvalidateAfterMaterialize = () => {
       queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
     ])
 }
+
+/** The pacing dashboard: lateness, cost, population and findings for the chosen window. */
+export const useCreditRegistrationEnrolmentChecks = (days: number) =>
+  useQuery({
+    ...getCreditRegistrationEnrolmentChecksOptions({ query: { days } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
 
 export const useCreditRegistrationCourseStats = () =>
   useQuery({

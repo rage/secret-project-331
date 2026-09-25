@@ -17,10 +17,12 @@ import {
 } from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
+  getEnrolmentCheckSchedule,
+  makeEnrolmentChecksDue,
+  runEnrolmentCheckNow,
   runImportSubmissionTick,
   runMaterializeTick,
   runPreconditionsTick,
-  runResolveEnrolmentsTick,
   runTickUnchecked,
   runVerifyPollTick,
   setTestExclusiveHold,
@@ -37,8 +39,8 @@ import { pollUntil } from "@/utils/waitingUtils"
  *
  * Deliberately not covered here: the "too many attempts" attention-table reason. That reason and
  * `breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES` share the same threshold (5), so reaching it here would
- * mean racing this scope's own circuit breaker with zero margin. Two retries is enough to prove a
- * transient code is never treated as final.
+ * mean racing this scope's own circuit breaker with zero margin. Two failed lookups are enough to
+ * prove a transient code is never held against a waiting row.
  */
 test.use({ storageState: ADMIN_STORAGE_STATE })
 
@@ -109,47 +111,36 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
   const materialized = await outageRow(adminApi)
   expect(materialized).not.toBeNull()
   const rowScope = { creditRegistrationIds: [materialized!.id] }
-  // The completion behind this row is seeded eligible, so the live credit-registrar worker has
-  // been ticking it since long before this spec started. If it reached resolve-enrolments before
-  // the scenario above created the mock enrolment, the row is now parked in `no_usable_enrolment`
-  // under a long backoff (see suotar-import-outcomes.spec.ts for the same hazard). Forcing it due
-  // now is a no-op for a fresh row and the only way to unstick a backfilled one.
-  await makeRegistrationDueNow(adminApi, materialized!.id)
+  // Parks the row until its first check.
   await runPreconditionsTick(page.request, rowScope)
-  // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
-  // phase-level error of its own.
-  await runTickUnchecked(page.request, "resolve-enrolments", rowScope)
+  const parked = await getEnrolmentCheckSchedule(page.request, materialized!.id)
 
-  const failing = await pollUntil(
-    async () => {
-      const row = await outageRow(adminApi)
-      return row?.state === "failed_retryable" ? row : null
-    },
-    { description: "the outage row to be waiting for a retry" },
-  )
-  expect(failing.error_code).toBe(UNAVAILABLE_LEDGER_CODE)
+  /** One check of the waiting row, which the outage makes fail. */
+  const checkDuringOutage = async () => {
+    // Renewed every pass so a slow run can never let the hold lapse before the row is disarmed.
+    await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
+    await makeEnrolmentChecksDue(page.request, rowScope)
+    await runPreconditionsTick(page.request, rowScope)
+    // Unchecked: the outage makes this iteration fail by construction, so the tick reports a
+    // phase-level error of its own.
+    const tick = await runTickUnchecked(page.request, "resolve-enrolments", rowScope)
+    expect(tick.status === "ran" ? tick.error : null).not.toBeNull()
+  }
 
-  await test.step("Repeated passes retry rather than give up", async () => {
+  await test.step("A lookup that fails in transit leaves the row waiting for its enrolment", async () => {
+    // A transient code must never count against a row that may wait months for its enrolment.
     for (let pass = 0; pass < RETRY_PASSES; pass++) {
-      await makeRegistrationDueNow(adminApi, failing.id)
-      // Renewed every pass so a slow run can never let the hold lapse before the row is disarmed.
-      await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
-      // A backoff-expired `failed_retryable` row resumes through `preconditions`, back to
-      // `ready_to_submit`, before `resolve-enrolments` can claim and fail it again.
-      await runPreconditionsTick(page.request, rowScope)
-      await runTickUnchecked(page.request, "resolve-enrolments", rowScope)
+      await checkDuringOutage()
+      const waiting = await getEnrolmentCheckSchedule(page.request, materialized!.id)
+      expect(waiting).toMatchObject({
+        state: "no_usable_enrolment",
+        errorCode: parked.errorCode,
+        firstFailedAt: null,
+        submitRetryCount: 0,
+        checkedAt: parked.checkedAt,
+      })
+      expect(new Date(waiting.nextAttemptAt).getTime()).toBeGreaterThan(Date.now())
     }
-    const row = await outageRow(adminApi)
-    // A transient code must never be treated as final, however many passes it survives.
-    expect(row?.state).toBe("failed_retryable")
-    expect(row?.submit_retry_count).toBeGreaterThan(1)
-  })
-
-  await test.step("The errors tab counts the code", async () => {
-    const codes = await errorsByCode(adminApi)
-    const unavailable = codes.codes.find((row) => row.error_code === UNAVAILABLE_LEDGER_CODE)
-    expect(unavailable?.current_count ?? 0).toBeGreaterThan(0)
-    expect(unavailable?.retryability).toBe("retryable_transient")
   })
 
   await test.step("A 503 on import is retried rather than left uncertain", async () => {
@@ -166,12 +157,9 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
       then: { kind: "requestLevel", status: 503, code: UNAVAILABLE_WIRE_CODE },
     })
     await disarmMockSuotarFault(page.request, OUTAGE_FAULT_ID)
-    await makeRegistrationDueNow(adminApi, failing.id)
     await setTestExclusiveHold(page.request, OUTAGE_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
-    // Resumes through `preconditions` to `ready_to_submit`, and `resolve-enrolments` now succeeds
-    // and freezes the payload.
-    await runPreconditionsTick(page.request, rowScope)
-    await runResolveEnrolmentsTick(page.request, rowScope)
+    // `resolve-enrolments` now succeeds and freezes the payload.
+    await runEnrolmentCheckNow(page.request, rowScope)
     await runTickUnchecked(page.request, "import", rowScope)
 
     const retrying = await pollUntil(
@@ -184,9 +172,16 @@ test("An outage backs off, surfaces on the errors tab, and recovers", async ({
     expect(retrying.error_code).toBe(UNAVAILABLE_LEDGER_CODE)
   })
 
+  await test.step("The errors tab counts the code", async () => {
+    const codes = await errorsByCode(adminApi)
+    const unavailable = codes.codes.find((row) => row.error_code === UNAVAILABLE_LEDGER_CODE)
+    expect(unavailable?.current_count ?? 0).toBeGreaterThan(0)
+    expect(unavailable?.retryability).toBe("retryable_transient")
+  })
+
   await test.step("The row registers once the study registry answers again", async () => {
     await disarmMockSuotarFault(page.request, IMPORT_OUTAGE_FAULT_ID)
-    await makeRegistrationDueNow(adminApi, failing.id)
+    await makeRegistrationDueNow(adminApi, materialized!.id)
     // The payload is frozen, so `preconditions` resumes the row at `checking_enrolment` and
     // `import` sends it. Well under the circuit breaker's failure limit, so this runs cleanly on
     // the first attempt.

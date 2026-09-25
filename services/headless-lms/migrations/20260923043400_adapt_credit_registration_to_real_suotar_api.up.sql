@@ -190,7 +190,7 @@ COMMENT ON COLUMN credit_registrations.pending_superseded_by_id IS 'A later atte
 
 ALTER TABLE credit_registrations
 ADD COLUMN no_usable_enrolment_since TIMESTAMP WITH TIME ZONE;
-COMMENT ON COLUMN credit_registrations.no_usable_enrolment_since IS 'When the pipeline first found no usable enrolment for this row, kept while its rechecks keep finding none; the recheck interval grows with how long ago this was. Cleared once the row leaves that loop, for example when an enrolment is found.';
+COMMENT ON COLUMN credit_registrations.no_usable_enrolment_since IS 'When the row started waiting for an enrolment, kept through the rechecks that pass through ready_to_submit, resolving_enrolment and failed_retryable. Cleared once the row leaves that loop, for example when an enrolment is found.';
 
 UPDATE credit_registrations
 SET no_usable_enrolment_since = state_entered_at
@@ -218,6 +218,220 @@ COMMENT ON COLUMN course_module_suotar_configurations.last_mailed_count IS 'Of t
 COMMENT ON COLUMN course_module_suotar_configurations.last_suppressed_by_dedup_count IS 'Of the last listing, how many mails were suppressed because we had already mailed that person and address for this course.';
 COMMENT ON COLUMN course_module_suotar_configurations.last_suppressed_by_rate_cap_count IS 'Of the last listing, how many mails were suppressed by a per-person rate cap.';
 COMMENT ON COLUMN course_module_suotar_configurations.last_no_address_count IS 'Of the last listing, how many persons had no usable address to mail.';
+
+CREATE TYPE enrolment_check_group AS ENUM ('completed', 'visited', 'check_requested');
+
+COMMENT ON TYPE enrolment_check_group IS 'How strongly a student has signalled that they are enrolling, which picks the schedule we look for their enrolment on. Ordered, and a row only ever moves to a later value. completed: finished the module and has not opened its registration page since. visited: opened the registration page after completing while it showed the enrolment instructions. check_requested: pressed a button saying they had enrolled, had a teacher ask for a check, or linked their student number from a mail sent off the course roster.';
+
+CREATE TYPE enrolment_check_source AS ENUM (
+  'schedule',
+  'student_request',
+  'teacher_request',
+  'admin_request',
+  'roster_listing',
+  'account_link'
+);
+
+COMMENT ON TYPE enrolment_check_source IS 'What made an enrolment check run when it did. schedule is the group''s own ladder; every other value brought a check forward, so lateness is measured on schedule checks only.';
+
+ALTER TABLE credit_registrations
+ADD COLUMN enrolment_check_group enrolment_check_group NOT NULL DEFAULT 'completed',
+  ADD COLUMN enrolment_check_anchor_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN enrolment_check_step INT,
+  ADD COLUMN enrolment_check_due_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN is_enrolment_check_batched BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN enrolment_check_source enrolment_check_source NOT NULL DEFAULT 'schedule',
+  ADD COLUMN enrolment_checks_stopped_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN enrolment_check_requested_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN enrolment_check_restart_window_started_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN enrolment_check_restart_count INT NOT NULL DEFAULT 0,
+  ADD COLUMN seen_enrolment_ids TEXT [],
+  ADD CONSTRAINT credit_registrations_enrolment_check_step CHECK (
+    (enrolment_check_step IS NULL) = (enrolment_check_due_at IS NULL)
+    AND (
+      enrolment_check_step IS NULL
+      OR (
+        enrolment_check_step >= 0
+        AND enrolment_check_anchor_at IS NOT NULL
+      )
+    )
+  ),
+  ADD CONSTRAINT credit_registrations_enrolment_checks_stopped CHECK (
+    enrolment_checks_stopped_at IS NULL
+    OR (
+      enrolment_check_step IS NULL
+      AND enrolment_check_anchor_at IS NOT NULL
+    )
+  ),
+  ADD CONSTRAINT credit_registrations_enrolment_check_restart_count CHECK (enrolment_check_restart_count >= 0);
+
+CREATE INDEX idx_credit_registrations_batched_enrolment_checks ON credit_registrations (enrolment_check_due_at)
+WHERE state = 'no_usable_enrolment'
+  AND is_enrolment_check_batched
+  AND deleted_at IS NULL;
+
+CREATE INDEX idx_credit_registrations_module_created ON credit_registrations (course_module_id, created_at DESC)
+WHERE deleted_at IS NULL;
+
+COMMENT ON COLUMN credit_registrations.enrolment_check_group IS 'Which enrolment check schedule the row follows. Kept for the row''s whole life, through every state, and inherited by a later attempt for the same student and module.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_anchor_at IS 'What the group''s schedule offsets are counted from: the completion or the link, whichever is later, for completed; the latest restart for the other groups. NULL until the row first waits for an enrolment.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_step IS 'Zero-based index into the group''s schedule of the check the row waits for. Moves only when a check answers, never when one is claimed. NULL while no check is scheduled, including after the schedule has run out.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_due_at IS 'The schedule time of enrolment_check_step, which next_attempt_at loses whenever a check is brought forward or the row detours through the resolve states.';
+COMMENT ON COLUMN credit_registrations.is_enrolment_check_batched IS 'Whether the scheduled check is a slow one (a gap of a day or more): released only on a five-minute boundary, and pulled up to 15 minutes forward into a batch that is going out anyway.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_source IS 'What made the next or running enrolment check due. Back to schedule once the check answers.';
+COMMENT ON COLUMN credit_registrations.enrolment_checks_stopped_at IS 'When the schedule ran out without an enrolment. The row keeps waiting in no_usable_enrolment and nothing tells the student; a visit, a check request, a new completion or a roster listing can still wake it.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_requested_at IS 'When a student or teacher last asked for a check. With enrolment_checked_at, it is what the shared 30-minute limit on asking is counted from.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_restart_window_started_at IS 'Start of the 24-hour window enrolment_check_restart_count counts in.';
+COMMENT ON COLUMN credit_registrations.enrolment_check_restart_count IS 'How many check requests restarted the schedule in the current window. Past the daily cap a request still gets one check, without a restart.';
+COMMENT ON COLUMN credit_registrations.seen_enrolment_ids IS 'Every Sisu enrolment id the row''s checks have seen, plus those a roster listing has already woken it for. A listing naming any other id wakes the row. NULL until the first check, so any listing wakes a row never checked.';
+
+
+CREATE TABLE credit_registration_enrolment_check_signals (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  course_module_completion_id UUID NOT NULL,
+  user_id UUID NOT NULL,
+  last_visited_at TIMESTAMP WITH TIME ZONE,
+  last_check_requested_at TIMESTAMP WITH TIME ZONE,
+  check_request_source enrolment_check_source,
+  CONSTRAINT credit_registration_enrolment_check_signals_request_source CHECK (
+    (last_check_requested_at IS NULL) = (check_request_source IS NULL)
+    AND check_request_source IS DISTINCT FROM 'schedule'
+    AND check_request_source IS DISTINCT FROM 'roster_listing'
+    AND check_request_source IS DISTINCT FROM 'admin_request'
+  )
+);
+
+CREATE UNIQUE INDEX uq_credit_registration_enrolment_check_signals_completion ON credit_registration_enrolment_check_signals (course_module_completion_id)
+WHERE deleted_at IS NULL;
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON credit_registration_enrolment_check_signals FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE credit_registration_enrolment_check_signals IS 'Visits to the registration page and check requests, per completion, recorded whether or not the completion has a ledger row or a linked student number yet. A row that starts waiting for an enrolment takes its group from here.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.course_module_completion_id IS 'The completion the signals are about. Unique among live rows.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.user_id IS 'The completion''s own user, stored so a signal can be scoped to a user without joining.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.last_visited_at IS 'When the student last opened the registration page after completing, while it showed the enrolment instructions.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.last_check_requested_at IS 'When a check was last asked for: by the student, by a teacher, or by linking a student number from a roster mail.';
+COMMENT ON COLUMN credit_registration_enrolment_check_signals.check_request_source IS 'Who asked for the check at last_check_requested_at.';
+
+CREATE TABLE credit_registration_roster_schedules (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  course_code VARCHAR(255) NOT NULL,
+  last_attempted_at TIMESTAMP WITH TIME ZONE,
+  last_fetched_at TIMESTAMP WITH TIME ZONE,
+  last_fetch_duration_ms INT,
+  last_listed_person_count INT,
+  triggered_fetch_at TIMESTAMP WITH TIME ZONE,
+  follow_up_fetch_at TIMESTAMP WITH TIME ZONE,
+  triggered_fetch_day DATE,
+  triggered_fetch_count INT NOT NULL DEFAULT 0,
+  is_fetched_alone BOOLEAN NOT NULL DEFAULT FALSE,
+  consecutive_failures INT NOT NULL DEFAULT 0,
+  retry_not_before TIMESTAMP WITH TIME ZONE,
+  last_error credit_registration_error_code,
+  window_closed_at TIMESTAMP WITH TIME ZONE,
+  CONSTRAINT credit_registration_roster_schedules_counts CHECK (
+    triggered_fetch_count >= 0
+    AND consecutive_failures >= 0
+  )
+);
+
+CREATE UNIQUE INDEX uq_credit_registration_roster_schedules_course_code ON credit_registration_roster_schedules (course_code);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON credit_registration_roster_schedules FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE credit_registration_roster_schedules IS 'When enrolment discovery lists each course code''s roster. The tier (three a day while completions keep coming, then daily, and weekly with account linking on) is derived at claim time from the modules on the code, so only what cannot be derived is kept here. Modules sharing a code share its row. The per-module counters on course_module_suotar_configurations still describe what each module did with the roster.';
+COMMENT ON COLUMN credit_registration_roster_schedules.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN credit_registration_roster_schedules.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN credit_registration_roster_schedules.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN credit_registration_roster_schedules.course_code IS 'The trimmed uh_course_code the roster is listed by.';
+COMMENT ON COLUMN credit_registration_roster_schedules.last_attempted_at IS 'When a listing of the code was last sent, whether or not it arrived.';
+COMMENT ON COLUMN credit_registration_roster_schedules.last_fetched_at IS 'When the roster last arrived. The tier interval is counted from here.';
+COMMENT ON COLUMN credit_registration_roster_schedules.last_fetch_duration_ms IS 'How long the request that last brought the roster took, in milliseconds. Shared by every code in that request.';
+COMMENT ON COLUMN credit_registration_roster_schedules.last_listed_person_count IS 'How many enrolments the last roster listed.';
+COMMENT ON COLUMN credit_registration_roster_schedules.triggered_fetch_at IS 'A listing an unlinked student''s visit or check request asked for, with account linking on. Claimed before any tier.';
+COMMENT ON COLUMN credit_registration_roster_schedules.follow_up_fetch_at IS 'The one later listing an unlinked student''s visit books, for an enrolment Suotar''s copy of Sisu did not have yet.';
+COMMENT ON COLUMN credit_registration_roster_schedules.triggered_fetch_day IS 'The UTC day triggered_fetch_count counts.';
+COMMENT ON COLUMN credit_registration_roster_schedules.triggered_fetch_count IS 'How many triggered and follow-up listings ran on triggered_fetch_day, against the daily cap.';
+COMMENT ON COLUMN credit_registration_roster_schedules.is_fetched_alone IS 'Set when a request batching this code with others failed as a whole: Suotar fails every code of a request for one bad one, so the code is listed on its own until a listing of it succeeds.';
+COMMENT ON COLUMN credit_registration_roster_schedules.consecutive_failures IS 'Failed listings of the code on its own since the last success. Drives the per-code backoff and the admin alert.';
+COMMENT ON COLUMN credit_registration_roster_schedules.retry_not_before IS 'Until when the code is left alone after failing on its own.';
+COMMENT ON COLUMN credit_registration_roster_schedules.last_error IS 'Why the last listing of the code failed; NULL once one succeeds.';
+COMMENT ON COLUMN credit_registration_roster_schedules.window_closed_at IS 'When Suotar last said it holds no realisation of the code, which it does once the last one ended over two months ago. Tier listings stop until a completion arrives after this.';
+
+CREATE TABLE credit_registration_enrolment_check_outcomes (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  credit_registration_id UUID NOT NULL REFERENCES credit_registrations(id),
+  course_module_id UUID NOT NULL,
+  enrolment_check_group enrolment_check_group NOT NULL,
+  enrolment_check_step INT,
+  source enrolment_check_source NOT NULL,
+  due_at TIMESTAMP WITH TIME ZONE,
+  checked_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  previous_checked_at TIMESTAMP WITH TIME ZONE,
+  is_enrolment_found BOOLEAN NOT NULL,
+  enrolled_at TIMESTAMP WITH TIME ZONE,
+  were_checks_stopped BOOLEAN NOT NULL
+);
+
+CREATE INDEX idx_credit_registration_enrolment_check_outcomes_checked ON credit_registration_enrolment_check_outcomes (checked_at DESC);
+CREATE INDEX idx_credit_registration_enrolment_check_outcomes_registration ON credit_registration_enrolment_check_outcomes (credit_registration_id);
+
+COMMENT ON TABLE credit_registration_enrolment_check_outcomes IS 'One row per answered enrolment check of a row waiting for an enrolment: the data the check schedules are tuned from, offline. Ids and times only, and kept for 400 days, well past the call log''s 90.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.credit_registration_id IS 'The row that was checked.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.course_module_id IS 'The row''s module, kept so outcomes can be grouped by course without the ledger.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.enrolment_check_group IS 'The row''s group when it was checked.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.enrolment_check_step IS 'The schedule step the row was waiting for. NULL once the schedule had run out.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.source IS 'What made the check run.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.due_at IS 'The schedule time of that step. Lateness is checked_at minus this, on schedule checks.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.checked_at IS 'When Suotar answered.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.previous_checked_at IS 'When the row was last checked before this, NULL for its first check. With checked_at it brackets when an enrolment found here appeared.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.is_enrolment_found IS 'Whether the check found an enrolment the row can be registered against.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.enrolled_at IS 'When the enrolment found was made, as Sisu records it; NULL when none was found or Sisu gives no time.';
+COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.were_checks_stopped IS 'Whether the row''s schedule had already run out, so only a wake-up could have checked it.';
+
+CREATE TABLE suotar_endpoint_rate_limits (
+  endpoint suotar_endpoint PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  rate_share REAL NOT NULL,
+  full_rate_per_minute INT NOT NULL,
+  available INT NOT NULL,
+  is_breaker_open BOOLEAN NOT NULL,
+  breaker_trip_count INT NOT NULL,
+  recorded_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON suotar_endpoint_rate_limits FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter and circuit breaker reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.endpoint IS 'The limited endpoint.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.rate_share IS 'The share of the full rate currently allowed, 0.1 to 1: it drops to 0.1 after failures or a breaker cooldown and doubles every five healthy minutes.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.full_rate_per_minute IS 'The full rate, in items per minute, or requests per minute for list_by_course.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.available IS 'Items, or requests for list_by_course, that could be sent right now.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.is_breaker_open IS 'Whether the circuit breaker the endpoint''s phases share was open.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.breaker_trip_count IS 'How many times in a row the breaker has opened without a success between; the cooldown grows with it.';
+COMMENT ON COLUMN suotar_endpoint_rate_limits.recorded_at IS 'When the worker reported this state.';
+
+UPDATE credit_registration_phase_state
+SET expected_interval_secs = 60
+WHERE phase = 'enrolment-discovery';
 
 CREATE TYPE student_number_verification_method_new AS ENUM (
   'emailed_link',
@@ -469,6 +683,13 @@ DROP TYPE credit_registration_error_code_old;
 
 ALTER TABLE study_registry_student_number_conflicts
 ADD FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE credit_registration_enrolment_check_outcomes
+ADD FOREIGN KEY (course_module_id) REFERENCES course_modules(id);
+
+ALTER TABLE credit_registration_enrolment_check_signals
+ADD FOREIGN KEY (course_module_completion_id) REFERENCES course_module_completions(id),
+  ADD FOREIGN KEY (user_id) REFERENCES users(id);
 
 ALTER TABLE course_modules DROP CONSTRAINT course_modules_one_credit_registration_path,
   ADD COLUMN register_eligible_new_completions_via_suotar BOOLEAN NOT NULL DEFAULT FALSE,

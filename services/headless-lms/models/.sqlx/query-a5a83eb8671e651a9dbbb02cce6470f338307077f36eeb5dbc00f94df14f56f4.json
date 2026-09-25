@@ -618,6 +618,152 @@
             "name": "no_usable_enrolment_since"
           }
         }
+      },
+      {
+        "ordinal": 51,
+        "name": "enrolment_check_group",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_group"
+          }
+        }
+      },
+      {
+        "ordinal": 52,
+        "name": "enrolment_check_anchor_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_anchor_at"
+          }
+        }
+      },
+      {
+        "ordinal": 53,
+        "name": "enrolment_check_step",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_step"
+          }
+        }
+      },
+      {
+        "ordinal": 54,
+        "name": "enrolment_check_due_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_due_at"
+          }
+        }
+      },
+      {
+        "ordinal": 55,
+        "name": "is_enrolment_check_batched",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "is_enrolment_check_batched"
+          }
+        }
+      },
+      {
+        "ordinal": 56,
+        "name": "enrolment_check_source",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_source",
+            "kind": {
+              "Enum": [
+                "schedule",
+                "student_request",
+                "teacher_request",
+                "admin_request",
+                "roster_listing",
+                "account_link"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_source"
+          }
+        }
+      },
+      {
+        "ordinal": 57,
+        "name": "enrolment_checks_stopped_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_checks_stopped_at"
+          }
+        }
+      },
+      {
+        "ordinal": 58,
+        "name": "enrolment_check_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 59,
+        "name": "enrolment_check_restart_window_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_restart_window_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 60,
+        "name": "enrolment_check_restart_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_restart_count"
+          }
+        }
+      },
+      {
+        "ordinal": 61,
+        "name": "seen_enrolment_ids",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "seen_enrolment_ids"
+          }
+        }
       }
     ],
     "parameters": {
@@ -708,6 +854,17 @@
       true,
       true,
       true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
       true
     ]
   },

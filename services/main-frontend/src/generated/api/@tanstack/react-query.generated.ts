@@ -198,6 +198,7 @@ import {
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
   getCreditRegistrationOverview,
@@ -335,6 +336,7 @@ import {
   processEditProposal,
   receivePlaygroundGrading,
   recheckCreditRegistrationEnrolment,
+  recordMyEnrolmentPageVisit,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
@@ -738,6 +740,8 @@ import type {
   GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEnrolmentChecksData,
+  GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
   GetCreditRegistrationErrorsByCodeResponse,
   GetCreditRegistrationForAdminData,
@@ -1000,6 +1004,7 @@ import type {
   ReceivePlaygroundGradingData,
   RecheckCreditRegistrationEnrolmentData,
   RecheckCreditRegistrationEnrolmentResponse,
+  RecordMyEnrolmentPageVisitData,
   ReleaseExamGradesData,
   RemoveCoursePlanMemberData,
   RemoveCoursePlanMemberResponse,
@@ -2303,8 +2308,8 @@ export const getCreditRegistrationDetailsOptions = (
  * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
  * none.
  *
- * Shares the student's button's allowance, so between them they cannot ask the registry more than once
- * an hour. Authorized on the row's own course, like the retry.
+ * Shares the student's limit on asking, so between them they cannot start more than one check in 30
+ * minutes. Authorized on the row's own course, like the retry.
  */
 export const recheckCreditRegistrationEnrolmentMutation = (
   options?: Partial<Options<RecheckCreditRegistrationEnrolmentData>>,
@@ -6552,6 +6557,34 @@ export const adminResumeCourseModuleCreditRegistrationMutation = (
   return mutationOptions
 }
 
+export const getCreditRegistrationEnrolmentChecksQueryKey = (
+  options?: Options<GetCreditRegistrationEnrolmentChecksData>,
+) => createQueryKey("getCreditRegistrationEnrolmentChecks", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
+ * and findings of the enrolment checks, and the roster schedule per course code.
+ */
+export const getCreditRegistrationEnrolmentChecksOptions = (
+  options?: Options<GetCreditRegistrationEnrolmentChecksData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEnrolmentChecksResponse,
+    DefaultError,
+    GetCreditRegistrationEnrolmentChecksResponse,
+    ReturnType<typeof getCreditRegistrationEnrolmentChecksQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEnrolmentChecks({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEnrolmentChecksQueryKey(options),
+  })
+
 export const getCreditRegistrationErrorsByCodeQueryKey = (
   options?: Options<GetCreditRegistrationErrorsByCodeData>,
 ) => createQueryKey("getCreditRegistrationErrorsByCode", options)
@@ -7345,6 +7378,34 @@ export const setMyCreditJustificationMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await setMyCreditJustification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
+ * - The caller opened the registration page after completing, and it is showing them how to enrol.
+ *
+ * Moves a waiting registration onto the schedule for students who have looked, or restarts that
+ * schedule at most once a day. Recorded against the completion too, so a visit before there is a
+ * registration, or before a student number is linked, still counts once there is. Idempotent enough
+ * to call on every page load; the page sends it once per load.
+ */
+export const recordMyEnrolmentPageVisitMutation = (
+  options?: Partial<Options<RecordMyEnrolmentPageVisitData>>,
+): UseMutationOptions<unknown, DefaultError, Options<RecordMyEnrolmentPageVisitData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<RecordMyEnrolmentPageVisitData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await recordMyEnrolmentPageVisit({
         ...options,
         ...fnOptions,
         throwOnError: true,

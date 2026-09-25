@@ -464,7 +464,7 @@ pub fn mock_suotar_world() -> WorldPush {
         persons,
         course_units,
         enrolments,
-        // In the world from the start, so no sweep sees the student without it and mails them.
+        // In the world from the start, so no check finds the student without it.
         attainments: vec![AttainmentUpsert {
             id: None,
             student_number: CREDIT_REGISTRATION_STUDENT_5.student_number.to_string(),

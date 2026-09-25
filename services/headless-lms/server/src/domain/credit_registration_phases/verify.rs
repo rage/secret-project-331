@@ -31,7 +31,7 @@ use sqlx::{Connection, PgConnection};
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, counts_as_failed, row_facts, run_suotar_batch_phase,
+    apply_outcome, breaker, counts_as_failed, rate_limit, row_facts, run_suotar_batch_phase,
 };
 
 /// Both states the poller owns. Withdrawal moves a row out of both, which is what stops the polling
@@ -390,9 +390,15 @@ impl SuotarBatchPhase for UncertainRecovery {
         &mut self,
         _ctx: &PhaseContext<'_>,
         conn: &mut PgConnection,
-        _scope: &PhaseScope,
+        scope: &PhaseScope,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
-        let recoveries = std::mem::take(&mut self.recoveries);
+        // Past what the lookup limiter allows now, a row waits out the lease its poll set.
+        let limiter_key = breaker::ScopeKey::of(scope);
+        let mut recoveries = std::mem::take(&mut self.recoveries);
+        recoveries.truncate(rate_limit::available(
+            &limiter_key,
+            SuotarEndpoint::ResolveEnrolments,
+        ));
         let contexts = get_submission_contexts(
             conn,
             &recoveries
@@ -427,6 +433,11 @@ impl SuotarBatchPhase for UncertainRecovery {
             };
             prepared.sendable.push((recovery, item));
         }
+        rate_limit::take(
+            &limiter_key,
+            SuotarEndpoint::ResolveEnrolments,
+            prepared.sendable.len(),
+        );
         Ok(prepared)
     }
 

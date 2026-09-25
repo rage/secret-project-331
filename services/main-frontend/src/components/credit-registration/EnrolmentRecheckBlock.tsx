@@ -22,8 +22,8 @@ const NO_USABLE_ENROLMENT = "no_usable_enrolment" as const
 
 /**
  * A teacher's way to have a registration waiting for an enrolment checked again, for when the
- * student says they have enrolled. Shares the student's hourly allowance and is hidden while it is
- * spent.
+ * student says they have enrolled. Shares the student's 30-minute allowance and is hidden while it
+ * is spent.
  */
 const EnrolmentRecheckBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)

@@ -29,7 +29,8 @@ use uuid::Uuid;
 
 use super::{
     CreditRegistrationPhase, OutcomeEvent, PhaseContext, PhaseScope, Prepared, SuotarBatchPhase,
-    apply_outcome, apply_request_level_outcome, counts_as_failed, row_facts,
+    apply_outcome, apply_request_level_outcome, breaker, claim_limit, counts_as_failed, rate_limit,
+    row_facts,
 };
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolvePersons;
@@ -58,11 +59,15 @@ impl SuotarBatchPhase for ResolvePersonIds {
         conn: &mut PgConnection,
         scope: &PhaseScope,
     ) -> anyhow::Result<Prepared<Self::Row, Self::Item>> {
+        let limit = claim_limit(scope, ENDPOINT);
+        if limit == 0 {
+            return Ok(Prepared::default());
+        }
         let claimed = claim_due(
             conn,
             &[CreditRegistrationState::ReadyToSubmit],
             scope,
-            ENDPOINT.max_batch_size() as i64,
+            limit as i64,
         )
         .await?;
         let user_ids: Vec<Uuid> = claimed.iter().map(|row| row.user_id).collect();
@@ -81,7 +86,10 @@ impl SuotarBatchPhase for ResolvePersonIds {
             transition(
                 conn,
                 row.id,
-                &Transition::to(CreditRegistrationState::ResolvingEnrolment),
+                &Transition {
+                    records_event: row.enrolment_check_anchor_at.is_none(),
+                    ..Transition::to(CreditRegistrationState::ResolvingEnrolment)
+                },
             )
             .await?;
             let item = ResolvePersonRequestItem {
@@ -95,6 +103,11 @@ impl SuotarBatchPhase for ResolvePersonIds {
             };
             prepared.sendable.push((awaiting, item));
         }
+        rate_limit::take(
+            &breaker::ScopeKey::of(scope),
+            ENDPOINT,
+            prepared.sendable.len(),
+        );
         Ok(prepared)
     }
 

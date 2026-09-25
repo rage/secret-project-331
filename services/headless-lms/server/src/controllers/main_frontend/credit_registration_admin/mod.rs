@@ -11,6 +11,7 @@ mod api_log;
 mod audit;
 mod courses;
 mod dashboard;
+mod enrolment_checks;
 mod errors;
 mod history;
 mod ledger;
@@ -54,6 +55,7 @@ use secrecy::ExposeSecret;
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
     history::get_credit_registration_pipeline_history,
+    enrolment_checks::get_credit_registration_enrolment_checks,
     account_linking::get_account_linking_stats,
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
@@ -158,6 +160,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     reconciliation::_add_routes(cfg);
     audit::_add_routes(cfg);
     history::_add_routes(cfg);
+    enrolment_checks::_add_routes(cfg);
     account_linking::_add_routes(cfg);
     student_numbers::_add_routes(cfg);
     materialize::_add_routes(cfg);

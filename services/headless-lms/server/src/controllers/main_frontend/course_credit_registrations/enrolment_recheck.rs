@@ -7,9 +7,12 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 
+use headless_lms_models::credit_registration_enrolment_check_signals;
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_models::library::credit_registration::enrolment_checks::CheckRequestOutcome;
+
 use crate::controllers::main_frontend::credit_registrations::{
-    RequestCreditRegistrationEnrolmentRecheckResult, looked_for_enrolment_recently,
-    start_enrolment_recheck,
+    RequestCreditRegistrationEnrolmentRecheckResult, start_enrolment_recheck,
 };
 use crate::prelude::*;
 
@@ -19,8 +22,8 @@ POST
 - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
 none.
 
-Shares the student's button's allowance, so between them they cannot ask the registry more than once
-an hour. Authorized on the row's own course, like the retry.
+Shares the student's limit on asking, so between them they cannot start more than one check in 30
+minutes. Authorized on the row's own course, like the retry.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -54,19 +57,30 @@ pub async fn recheck_credit_registration_enrolment(
             "This registration is not waiting for an enrolment.".to_string()
         ));
     }
-    if looked_for_enrolment_recently(row.enrolment_checked_at) {
+    let mut tx = conn.begin().await?;
+    let outcome = start_enrolment_recheck(
+        &mut tx,
+        user.id,
+        id,
+        EnrolmentCheckSource::TeacherRequest,
+        CreditRegistrationEventKind::AdminAction,
+        "A teacher of the course asked us to check for an enrolment again.",
+    )
+    .await?;
+    if matches!(
+        outcome,
+        CheckRequestOutcome::TooSoon | CheckRequestOutcome::NotWaiting
+    ) {
+        tx.commit().await?;
         return token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
             recheck_started: false,
         }));
     }
-
-    let mut tx = conn.begin().await?;
-    start_enrolment_recheck(
+    credit_registration_enrolment_check_signals::record_check_request(
         &mut tx,
-        user.id,
-        id,
-        CreditRegistrationEventKind::AdminAction,
-        "A teacher of the course asked us to check for an enrolment again.",
+        row.course_module_completion_id,
+        row.user_id,
+        EnrolmentCheckSource::TeacherRequest,
     )
     .await?;
     models::credit_registration_admin_actions::record(
@@ -88,7 +102,7 @@ pub async fn recheck_credit_registration_enrolment(
     tx.commit().await?;
 
     token.authorized_ok(web::Json(RequestCreditRegistrationEnrolmentRecheckResult {
-        recheck_started: true,
+        recheck_started: outcome.started_check(),
     }))
 }
 

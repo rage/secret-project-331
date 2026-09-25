@@ -1,0 +1,215 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_code,\n  last_attempted_at,\n  last_fetched_at,\n  last_fetch_duration_ms,\n  last_listed_person_count,\n  triggered_fetch_at,\n  follow_up_fetch_at,\n  triggered_fetch_day,\n  triggered_fetch_count,\n  is_fetched_alone,\n  consecutive_failures,\n  retry_not_before,\n  last_error AS \"last_error: CreditRegistrationErrorCode\",\n  window_closed_at\nFROM credit_registration_roster_schedules\nWHERE course_code = ANY($1::text [])\nORDER BY course_code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "last_attempted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_attempted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "last_fetched_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_fetched_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_fetch_duration_ms",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_fetch_duration_ms"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_listed_person_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_listed_person_count"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "triggered_fetch_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "triggered_fetch_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "follow_up_fetch_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "follow_up_fetch_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "triggered_fetch_day",
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "triggered_fetch_day"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "triggered_fetch_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "triggered_fetch_count"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_fetched_alone",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "is_fetched_alone"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "retry_not_before",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "retry_not_before"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "last_error: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
+                "misregistered",
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_error"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "window_closed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "window_closed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "7e9e7b1678541acf9eb55150ce1a1fcec2f733c48514b282d983ce4f9bca21b9"
+}

@@ -1479,7 +1479,7 @@
     "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment": {
       "post": {
         "tags": ["course-credit-registrations"],
-        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`\n- Asks the pipeline to look for an enrolment again, for a row parked because the study registry had\nnone.\n\nShares the student's button's allowance, so between them they cannot ask the registry more than once\nan hour. Authorized on the row's own course, like the retry.",
+        "summary": "\nPOST\n`/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`\n- Asks the pipeline to look for an enrolment again, for a row parked because the study registry had\nnone.\n\nShares the student's limit on asking, so between them they cannot start more than one check in 30\nminutes. Authorized on the row's own course, like the retry.",
         "operationId": "recheckCreditRegistrationEnrolment",
         "parameters": [
           {
@@ -7554,6 +7554,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/enrolment-checks": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population\nand findings of the enrolment checks, and the roster schedule per course code.",
+        "operationId": "getCreditRegistrationEnrolmentChecks",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "description": "How many days of checks and calls to read",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The enrolment check dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrolmentCheckDashboard"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/errors/by-code": {
       "get": {
         "tags": ["credit-registration-admin"],
@@ -8515,6 +8546,33 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`\n- The caller opened the registration page after completing, and it is showing them how to enrol.\n\nMoves a waiting registration onto the schedule for students who have looked, or restarts that\nschedule at most once a day. Recorded against the completion too, so a visit before there is a\nregistration, or before a student number is linked, still counts once there is. Idempotent enough\nto call on every page load; the page sends it once per load.",
+        "operationId": "recordMyEnrolmentPageVisit",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The visit is recorded"
+          },
+          "404": {
+            "description": "No completion on the push path for this module"
           }
         }
       }
@@ -19353,7 +19411,8 @@
           "completions_never_entered",
           "confirmation_latency_regressed",
           "pipeline_paused_globally",
-          "study_registry_student_number_conflicts"
+          "study_registry_student_number_conflicts",
+          "roster_course_code_failing"
         ]
       },
       "CreditRegistrationAlertSeverity": {
@@ -21053,6 +21112,266 @@
             "description": "False switches the feature off entirely; the request and verify endpoints 404 then."
           }
         }
+      },
+      "EnrolmentCheckDashboard": {
+        "type": "object",
+        "required": [
+          "since",
+          "very_late_after_secs",
+          "lateness",
+          "findings",
+          "population",
+          "daily_costs",
+          "roster_codes",
+          "rate_limits"
+        ],
+        "properties": {
+          "daily_costs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarEndpointDailyCost"
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrolmentCheckFindings"
+            }
+          },
+          "lateness": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrolmentCheckLateness"
+            }
+          },
+          "population": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrolmentCheckPopulation"
+            }
+          },
+          "rate_limits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuotarEndpointRateLimit"
+            },
+            "description": "What the worker last reported; empty until it has run."
+          },
+          "roster_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnrolmentCheckRosterCode"
+            }
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "very_late_after_secs": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Lateness past this counts as very late."
+          }
+        }
+      },
+      "EnrolmentCheckFindings": {
+        "type": "object",
+        "description": "What the checks of one group, step and source found.",
+        "required": [
+          "enrolment_check_group",
+          "source",
+          "check_count",
+          "found_count",
+          "found_after_stop_count"
+        ],
+        "properties": {
+          "check_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enrolment_check_group": {
+            "$ref": "#/components/schemas/EnrolmentCheckGroup"
+          },
+          "enrolment_check_step": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` for checks of rows whose schedule had run out."
+          },
+          "found_after_stop_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of the finds, how many a row whose schedule had run out made."
+          },
+          "found_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "p50_detection_secs": {
+            "type": ["number", "null"],
+            "format": "double",
+            "description": "Time from the enrolment, as Sisu records it, to the check that found it; over the finds\nthat carry an enrolment time."
+          },
+          "p95_detection_secs": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "source": {
+            "$ref": "#/components/schemas/EnrolmentCheckSource"
+          }
+        }
+      },
+      "EnrolmentCheckGroup": {
+        "type": "string",
+        "description": "How strongly a student has signalled that they are enrolling, which picks the ladder. Ordered: a\nrow only ever moves to a later variant.",
+        "enum": ["completed", "visited", "check_requested"]
+      },
+      "EnrolmentCheckLateness": {
+        "type": "object",
+        "description": "How late schedule checks of one group and step ran against their ladder time.",
+        "required": [
+          "enrolment_check_group",
+          "enrolment_check_step",
+          "check_count",
+          "p50_late_secs",
+          "p95_late_secs",
+          "max_late_secs",
+          "very_late_count"
+        ],
+        "properties": {
+          "check_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enrolment_check_group": {
+            "$ref": "#/components/schemas/EnrolmentCheckGroup"
+          },
+          "enrolment_check_step": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "max_late_secs": {
+            "type": "number",
+            "format": "double"
+          },
+          "p50_late_secs": {
+            "type": "number",
+            "format": "double"
+          },
+          "p95_late_secs": {
+            "type": "number",
+            "format": "double"
+          },
+          "very_late_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Checks more than [`VERY_LATE_SECS`] late."
+          }
+        }
+      },
+      "EnrolmentCheckPopulation": {
+        "type": "object",
+        "description": "How many rows wait for an enrolment in one group and step.",
+        "required": ["enrolment_check_group", "is_stopped", "row_count", "never_checked_count"],
+        "properties": {
+          "enrolment_check_group": {
+            "$ref": "#/components/schemas/EnrolmentCheckGroup"
+          },
+          "enrolment_check_step": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` for rows whose schedule has run out."
+          },
+          "is_stopped": {
+            "type": "boolean"
+          },
+          "never_checked_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of those, how many have never been checked."
+          },
+          "row_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "EnrolmentCheckRosterCode": {
+        "type": "object",
+        "description": "One course code's roster schedule as it stands.",
+        "required": [
+          "course_code",
+          "tier",
+          "triggered_fetch_count_today",
+          "is_fetched_alone",
+          "consecutive_failures",
+          "module_count"
+        ],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_code": {
+            "type": "string"
+          },
+          "is_fetched_alone": {
+            "type": "boolean"
+          },
+          "last_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "last_fetch_duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_fetched_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listed_person_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "module_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "next_fetch_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When a trigger or the tier next makes it due; `None` when neither will."
+          },
+          "retry_not_before": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RosterTier"
+          },
+          "triggered_fetch_count_today": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EnrolmentCheckSource": {
+        "type": "string",
+        "description": "What made an enrolment check run when it did.",
+        "enum": [
+          "schedule",
+          "student_request",
+          "teacher_request",
+          "admin_request",
+          "roster_listing",
+          "account_link"
+        ]
       },
       "EventInfo": {
         "type": "object",
@@ -26090,6 +26409,11 @@
           }
         }
       },
+      "RosterTier": {
+        "type": "string",
+        "description": "How often a code is listed without a trigger.",
+        "enum": ["active", "idle", "dormant", "unlisted"]
+      },
       "SaveCourseDesignerScheduleRequest": {
         "type": "object",
         "required": ["stages"],
@@ -26618,6 +26942,94 @@
           "list_by_course",
           "validate_course_codes"
         ]
+      },
+      "SuotarEndpointDailyCost": {
+        "type": "object",
+        "description": "One endpoint's calls on one UTC day: what the enrolment check pacing costs Suotar.",
+        "required": [
+          "day",
+          "endpoint",
+          "call_count",
+          "failed_call_count",
+          "item_count",
+          "max_items_per_call"
+        ],
+        "properties": {
+          "call_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/SuotarEndpoint"
+          },
+          "failed_call_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "item_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max_items_per_call": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "p50_duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "p95_duration_ms": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
+      "SuotarEndpointRateLimit": {
+        "type": "object",
+        "required": [
+          "endpoint",
+          "rate_share",
+          "full_rate_per_minute",
+          "available",
+          "is_breaker_open",
+          "breaker_trip_count",
+          "recorded_at"
+        ],
+        "properties": {
+          "available": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Items, or requests, that could go out right now."
+          },
+          "breaker_trip_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "endpoint": {
+            "$ref": "#/components/schemas/SuotarEndpoint"
+          },
+          "full_rate_per_minute": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Items per minute, or requests per minute for `list_by_course`."
+          },
+          "is_breaker_open": {
+            "type": "boolean"
+          },
+          "rate_share": {
+            "type": "number",
+            "format": "float",
+            "description": "The share of the full rate allowed, from 0.1 up to 1."
+          },
+          "recorded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "SuotarEndpointStanding": {
         "type": "object",

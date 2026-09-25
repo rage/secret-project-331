@@ -11,6 +11,9 @@ use crate::domain::credit_registration_phases::{
     CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, run_phase_once,
 };
 use crate::prelude::*;
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
+    EnrolmentCheckGroup, EnrolmentCheckSource,
+};
 use headless_lms_utils::services::suotar::SuotarClient;
 use sqlx::PgPool;
 
@@ -282,9 +285,13 @@ async fn set_test_exclusive_hold(
 #[serde(rename_all = "camelCase")]
 pub struct ExpireEnrolmentRecheckAllowancePayload {
     pub credit_registration_id: Uuid,
+    /// Also forgets the day's schedule restarts, so a spec can go on restarting.
+    #[serde(default)]
+    pub clear_restarts: bool,
 }
 
-/// Lets a spec press a recheck button right after the pipeline looked, instead of waiting an hour.
+/// Lets a spec press a recheck button right after the last check or request, instead of waiting
+/// out the limit on asking.
 async fn expire_enrolment_recheck_allowance(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -297,6 +304,127 @@ async fn expire_enrolment_recheck_allowance(
     models::credit_registrations::expire_enrolment_recheck_allowance_for_testing(
         &mut conn,
         payload.credit_registration_id,
+        payload.clear_restarts,
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::Ok().json(()))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MakeEnrolmentChecksDueResult {
+    pub made_due_count: u64,
+}
+
+/// Brings the next enrolment check of every waiting row in the scope forward to now, so a spec can
+/// drive a row past its first rung without waiting a day. Takes the tick's scope; the phase is
+/// ignored.
+async fn make_enrolment_checks_due(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    query: web::Query<RunTickQuery>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let scope = match resolve_scope(&pool, &query).await? {
+        Ok(scope) if !scope.is_unscoped() => scope,
+        Ok(_) => {
+            return token.authorized_ok(
+                HttpResponse::BadRequest().json("A scope is required, or every test's rows move."),
+            );
+        }
+        Err(unresolved) => {
+            return token.authorized_ok(HttpResponse::BadRequest().json(unresolved));
+        }
+    };
+    let mut conn = pool.acquire().await?;
+    let made_due_count =
+        models::credit_registrations::make_enrolment_checks_due_for_testing(&mut conn, &scope)
+            .await?;
+    token.authorized_ok(HttpResponse::Ok().json(MakeEnrolmentChecksDueResult { made_due_count }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnrolmentCheckScheduleQuery {
+    pub credit_registration_id: Uuid,
+}
+
+/// A row's enrolment check schedule, which no product surface shows whole.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnrolmentCheckSchedule {
+    pub state: models::credit_registrations::CreditRegistrationState,
+    pub group: EnrolmentCheckGroup,
+    pub anchor_at: Option<DateTime<Utc>>,
+    pub step: Option<i32>,
+    pub due_at: Option<DateTime<Utc>>,
+    pub next_attempt_at: DateTime<Utc>,
+    pub is_batched: bool,
+    pub source: EnrolmentCheckSource,
+    pub stopped_at: Option<DateTime<Utc>>,
+    pub requested_at: Option<DateTime<Utc>>,
+    pub restart_count: i32,
+    pub checked_at: Option<DateTime<Utc>>,
+    pub first_failed_at: Option<DateTime<Utc>>,
+    pub submit_retry_count: i32,
+    pub error_code: Option<models::credit_registrations::CreditRegistrationErrorCode>,
+    pub seen_enrolment_ids: Option<Vec<String>>,
+}
+
+async fn enrolment_check_schedule(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    query: web::Query<EnrolmentCheckScheduleQuery>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let row =
+        models::credit_registrations::get_by_id(&mut conn, query.credit_registration_id).await?;
+    token.authorized_ok(HttpResponse::Ok().json(EnrolmentCheckSchedule {
+        state: row.state,
+        group: row.enrolment_check_group,
+        anchor_at: row.enrolment_check_anchor_at,
+        step: row.enrolment_check_step,
+        due_at: row.enrolment_check_due_at,
+        next_attempt_at: row.next_attempt_at,
+        is_batched: row.is_enrolment_check_batched,
+        source: row.enrolment_check_source,
+        stopped_at: row.enrolment_checks_stopped_at,
+        requested_at: row.enrolment_check_requested_at,
+        restart_count: row.enrolment_check_restart_count,
+        checked_at: row.enrolment_checked_at,
+        first_failed_at: row.first_failed_at,
+        submit_retry_count: row.submit_retry_count,
+        error_code: row.error_code,
+        seen_enrolment_ids: row.seen_enrolment_ids,
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegisterNewCompletionsViaSuotarPayload {
+    pub course_module_id: Uuid,
+}
+
+/// Opts a module's new completions of linked students into Suotar, which only support can do by
+/// hand: a spec that creates its own course needs its completions on the pipeline.
+async fn register_new_completions_via_suotar(
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+    payload: web::Json<RegisterNewCompletionsViaSuotarPayload>,
+) -> ControllerResult<HttpResponse> {
+    super::assert_enabled(&app_conf);
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    models::course_modules::set_register_eligible_new_completions_via_suotar(
+        &mut conn,
+        payload.course_module_id,
+        true,
     )
     .await?;
     token.authorized_ok(HttpResponse::Ok().json(()))
@@ -446,6 +574,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/expire-enrolment-recheck-allowance",
             web::post().to(expire_enrolment_recheck_allowance),
+        )
+        .route(
+            "/enrolment-check-schedule",
+            web::get().to(enrolment_check_schedule),
+        )
+        .route(
+            "/make-enrolment-checks-due",
+            web::post().to(make_enrolment_checks_due),
+        )
+        .route(
+            "/register-new-completions-via-suotar",
+            web::post().to(register_new_completions_via_suotar),
         )
         .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);

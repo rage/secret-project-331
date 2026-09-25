@@ -19,18 +19,17 @@ import {
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
-  runImportSubmissionTick,
   runMaterializeTick,
+  runPhasesUpToSubmission,
   runPreconditionsTick,
-  runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
 
 /**
- * The only two emails a student ever gets about credit registration: no usable enrolment was found,
- * and the registration succeeded. Owns `credit-registration-student-2` on `via-suotar` and `student8`
- * on `via-suotar-b`.
+ * The only two emails a student ever gets about credit registration: the registration waits for
+ * their enrolment, and the registration succeeded. Owns `credit-registration-student-2` on
+ * `via-suotar` and `student8` on `via-suotar-b`.
  *
  * The workers tick every phase unscoped in the test deployment, so a mail can already be queued
  * before this file asks for one. Every assertion is therefore "exactly one of this kind exists",
@@ -71,10 +70,7 @@ test.describe("A student whose credits reach the study registry", () => {
     const scope = { userEmail: REGISTERED_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
 
     const registration = await test.step("Drive the completion to registered", async () => {
-      await runMaterializeTick(page.request, scope)
-      await runPreconditionsTick(page.request, scope)
-      await runResolveEnrolmentsTick(page.request, scope)
-      await runImportSubmissionTick(page.request, scope)
+      await runPhasesUpToSubmission(page.request, scope)
       const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
         "awaiting_verification",
       ])
@@ -95,8 +91,10 @@ test.describe("A student whose credits reach the study registry", () => {
       await runStudentNotificationsTick(page.request, scope)
       const details = await adminRegistrationDetails(adminApi, registration.id)
       expect(mailsOfKind(details.notification_emails, "registered")).toHaveLength(1)
-      // Nothing else is mailed about a success: no action-needed mail on a row that never parked.
-      expect(mailsOfKind(details.notification_emails, "action_needed")).toHaveLength(0)
+      // Its wait for the first check is mailed at most once, if the workers ran while it waited.
+      expect(mailsOfKind(details.notification_emails, "action_needed").length).toBeLessThanOrEqual(
+        1,
+      )
       return details.notification_emails
     })
 
@@ -131,12 +129,13 @@ test.describe("A student the study registry has no enrolment for", () => {
   }) => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
+    // The row waits a day for its first check, and the student is told what to do meanwhile.
     await runMaterializeTick(page.request, scope)
     await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
     const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
       "no_usable_enrolment",
     ])
+    expect(parked.student_facing_status).toBe("needs_enrolment")
 
     await runStudentNotificationsTick(page.request, scope)
     const queued = await adminRegistrationDetails(adminApi, parked.id)

@@ -12,10 +12,11 @@ use crate::suotar_api_calls::SuotarEndpoint;
 use super::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER_SECS,
     UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS, VERIFY_GIVE_UP_POLL_SECS, next_attempt_at,
-    no_usable_enrolment_recheck_secs, submit_backoff_secs, submit_window_expired,
-    uncertain_needs_admin, uncertain_recheck_secs, verify_backoff_secs, verify_window_expired,
+    submit_backoff_secs, submit_window_expired, uncertain_needs_admin, uncertain_recheck_secs,
+    verify_backoff_secs, verify_window_expired,
 };
 use super::classification::{Retryability, retryability, settled_state};
+use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY_SECS;
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -25,17 +26,10 @@ pub struct RowFacts {
     pub submit_retry_count: i32,
     pub verify_attempt_count: i32,
     pub submitted_at: Option<DateTime<Utc>>,
-    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
-}
-
-impl RowFacts {
-    /// The wait before the next look for an enrolment, were the row to park without one now.
-    fn no_usable_enrolment_recheck_secs(&self) -> i64 {
-        let parked_for_secs = self
-            .no_usable_enrolment_since
-            .map_or(0, |since| (self.now - since).num_seconds());
-        no_usable_enrolment_recheck_secs(parked_for_secs)
-    }
+    /// The row is waiting for an enrolment, so a lookup that fails in transit leaves it waiting.
+    pub is_waiting_for_enrolment: bool,
+    /// The code the row carries now, which a waiting row keeps through a failed lookup.
+    pub error_code: Option<CreditRegistrationErrorCode>,
 }
 
 /// What the phase writes for this row.
@@ -50,6 +44,11 @@ pub struct Outcome {
     /// Set when Suotar says the stored number names nobody, so it is wrong wherever we hold it.
     pub drop_verified_student_number: bool,
     pub increment_submit_retry_count: bool,
+    /// The next wait comes from the row's enrolment check schedule rather than `delay_secs`; see
+    /// [`super::enrolment_checks::schedule_next_check`].
+    pub schedules_next_enrolment_check: bool,
+    /// A lookup that failed in transit: it was no check, so the row's last check time stands.
+    pub keeps_enrolment_checked_at: bool,
 }
 
 impl Outcome {
@@ -61,6 +60,8 @@ impl Outcome {
             delay_secs: None,
             drop_verified_student_number: false,
             increment_submit_retry_count: false,
+            schedules_next_enrolment_check: false,
+            keeps_enrolment_checked_at: false,
         }
     }
 
@@ -112,7 +113,8 @@ pub fn submit_error_outcome(
             submission_uncertain()
         }
         Retryability::VerifyOnly | Retryability::RetryableTransient => {
-            retry_or_expire(code, endpoint, facts)
+            waiting_lookup_failed(endpoint, facts)
+                .unwrap_or_else(|| retry_or_expire(code, endpoint, facts))
         }
         Retryability::PermanentNeedsStudent => match code {
             // Dropping the number puts the student back in the linking flow, the only thing that
@@ -121,9 +123,10 @@ pub fn submit_error_outcome(
                 drop_verified_student_number: true,
                 ..Outcome::to(CreditRegistrationState::Pending).with_code(code)
             },
-            _ => Outcome::to(CreditRegistrationState::NoUsableEnrolment)
-                .with_code(code)
-                .after(facts.no_usable_enrolment_recheck_secs()),
+            _ => Outcome {
+                schedules_next_enrolment_check: true,
+                ..Outcome::to(CreditRegistrationState::NoUsableEnrolment).with_code(code)
+            },
         },
         Retryability::PermanentNeedsConfig | Retryability::PermanentNeedsAdmin => {
             Outcome::to(CreditRegistrationState::FailedPermanent)
@@ -217,7 +220,24 @@ pub fn request_level_outcome(
     if endpoint == SuotarEndpoint::ImportAttainments && variant.outcome_may_have_landed() {
         return submission_uncertain();
     }
-    retry_or_expire(request_level_code(variant), endpoint, facts)
+    waiting_lookup_failed(endpoint, facts)
+        .unwrap_or_else(|| retry_or_expire(request_level_code(variant), endpoint, facts))
+}
+
+/// A lookup for a row waiting for an enrolment that failed in transit: the row keeps waiting and
+/// retries the same check shortly, with none of a failure's retry window or count, which over a
+/// schedule of months would expire it. `None` for any other row or endpoint.
+fn waiting_lookup_failed(endpoint: SuotarEndpoint, facts: &RowFacts) -> Option<Outcome> {
+    let is_lookup = matches!(
+        endpoint,
+        SuotarEndpoint::ResolveEnrolments | SuotarEndpoint::ResolvePersons
+    );
+    (is_lookup && facts.is_waiting_for_enrolment).then(|| Outcome {
+        error_code: facts.error_code,
+        keeps_enrolment_checked_at: true,
+        ..Outcome::to(CreditRegistrationState::NoUsableEnrolment)
+            .after(TRANSIENT_FAILURE_RETRY_SECS)
+    })
 }
 
 /// A row Suotar refused as a malformed request even in a batch of its own: resending the same
@@ -241,11 +261,13 @@ pub fn unanswered_item_outcome(
     if endpoint == SuotarEndpoint::VerifyAttainments {
         return verify_inconclusive_outcome(state, facts);
     }
-    retry_or_expire(
-        CreditRegistrationErrorCode::UnexpectedResponse,
-        endpoint,
-        facts,
-    )
+    waiting_lookup_failed(endpoint, facts).unwrap_or_else(|| {
+        retry_or_expire(
+            CreditRegistrationErrorCode::UnexpectedResponse,
+            endpoint,
+            facts,
+        )
+    })
 }
 
 /// The ledger error code for a request the study registry rejected, or never answered, as a whole.
@@ -342,7 +364,8 @@ mod tests {
             submit_retry_count: 0,
             verify_attempt_count: 0,
             submitted_at: None,
-            no_usable_enrolment_since: None,
+            is_waiting_for_enrolment: false,
+            error_code: None,
         }
     }
 

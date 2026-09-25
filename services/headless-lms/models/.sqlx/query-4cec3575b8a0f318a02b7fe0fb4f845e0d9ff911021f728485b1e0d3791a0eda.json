@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT endpoint AS \"endpoint: SuotarEndpoint\",\n  rate_share,\n  full_rate_per_minute,\n  available,\n  is_breaker_open,\n  breaker_trip_count,\n  recorded_at\nFROM suotar_endpoint_rate_limits\nORDER BY endpoint\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "endpoint: SuotarEndpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "rate_share",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "rate_share"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "full_rate_per_minute",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "full_rate_per_minute"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "available",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "available"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "is_breaker_open",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "is_breaker_open"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "breaker_trip_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "breaker_trip_count"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "recorded_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "recorded_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4cec3575b8a0f318a02b7fe0fb4f845e0d9ff911021f728485b1e0d3791a0eda"
+}

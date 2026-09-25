@@ -11,6 +11,7 @@ use chrono::{Duration, Utc};
 use headless_lms_base::config::{
     ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
 };
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::{
     PKeyPolicy,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
@@ -21,6 +22,7 @@ use headless_lms_models::{
         self, COURSE_TEACHER_ROLE, CreditRegistrationAdminAction,
         CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
     },
+    credit_registration_enrolment_check_signals,
     credit_registrations::{
         self, CreditRegistrationErrorCode, CreditRegistrationState, NewCreditRegistration,
         PayloadSnapshot, Transition,
@@ -234,7 +236,19 @@ pub async fn seed_credit_registration(
         )
         .await?;
         let module_id = default_module_id(&mut conn, course.course_id).await?;
-        seed_eligible_completion(&mut conn, student, module_id, course.course_id, None).await?;
+        let completion_id =
+            seed_eligible_completion(&mut conn, student, module_id, course.course_id, None).await?;
+        // A first check a day out would leave `student6`'s studies page asking it to act, and
+        // suotar-student-profile asserts that page is clean.
+        if lane.student.student_number == STUDENT_6.student_number {
+            credit_registration_enrolment_check_signals::record_check_request(
+                &mut conn,
+                completion_id,
+                student.user_id,
+                EnrolmentCheckSource::StudentRequest,
+            )
+            .await?;
+        }
     }
 
     let link_claimer = insert_student(

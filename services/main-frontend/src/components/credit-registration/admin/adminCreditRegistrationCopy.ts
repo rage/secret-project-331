@@ -9,8 +9,11 @@ import type {
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   EmailSendStatus,
+  EnrolmentCheckGroup,
+  EnrolmentCheckSource,
   ResendOutcome,
   Retryability,
+  RosterTier,
   StudentNumberVerificationMethod,
 } from "@/generated/api/types.generated"
 import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
@@ -201,6 +204,7 @@ const ALERT_KEYS = {
   pipeline_paused_globally: "credit-registration-alert-pipeline-paused-globally",
   study_registry_student_number_conflicts:
     "credit-registration-alert-study-registry-student-number-conflicts",
+  roster_course_code_failing: "credit-registration-alert-roster-course-code-failing",
 } as const satisfies Record<CreditRegistrationAlertId, string>
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
@@ -400,3 +404,48 @@ export const manualLinkOutcomeLabel = (
   t: CreditRegistrationTFunction,
   outcome: AdminManualLinkOutcome,
 ): string => labelFrom(t, MANUAL_LINK_OUTCOME_KEYS, outcome, MANUAL_LINK_OUTCOME_UNKNOWN_KEY)
+
+const ENROLMENT_CHECK_GROUP_KEYS = {
+  completed: "credit-registration-admin-enrolment-check-group-completed",
+  visited: "credit-registration-admin-enrolment-check-group-visited",
+  check_requested: "credit-registration-admin-enrolment-check-group-check-requested",
+} as const satisfies Record<EnrolmentCheckGroup, string>
+
+const ENROLMENT_CHECK_GROUP_UNKNOWN_KEY = "credit-registration-admin-enrolment-check-group-unknown"
+
+/** Which ladder a row's checks follow, ordered the same way a row can only move up it. */
+export const enrolmentCheckGroupLabel = (
+  t: CreditRegistrationTFunction,
+  group: EnrolmentCheckGroup,
+): string => labelFrom(t, ENROLMENT_CHECK_GROUP_KEYS, group, ENROLMENT_CHECK_GROUP_UNKNOWN_KEY)
+
+const ENROLMENT_CHECK_SOURCE_KEYS = {
+  schedule: "credit-registration-admin-enrolment-check-source-schedule",
+  student_request: "credit-registration-admin-enrolment-check-source-student-request",
+  teacher_request: "credit-registration-admin-enrolment-check-source-teacher-request",
+  admin_request: "credit-registration-admin-enrolment-check-source-admin-request",
+  roster_listing: "credit-registration-admin-enrolment-check-source-roster-listing",
+  account_link: "credit-registration-admin-enrolment-check-source-account-link",
+} as const satisfies Record<EnrolmentCheckSource, string>
+
+const ENROLMENT_CHECK_SOURCE_UNKNOWN_KEY =
+  "credit-registration-admin-enrolment-check-source-unknown"
+
+/** What made a check run when it did. */
+export const enrolmentCheckSourceLabel = (
+  t: CreditRegistrationTFunction,
+  source: EnrolmentCheckSource,
+): string => labelFrom(t, ENROLMENT_CHECK_SOURCE_KEYS, source, ENROLMENT_CHECK_SOURCE_UNKNOWN_KEY)
+
+const ROSTER_TIER_KEYS = {
+  active: "credit-registration-admin-roster-tier-active",
+  idle: "credit-registration-admin-roster-tier-idle",
+  dormant: "credit-registration-admin-roster-tier-dormant",
+  unlisted: "credit-registration-admin-roster-tier-unlisted",
+} as const satisfies Record<RosterTier, string>
+
+const ROSTER_TIER_UNKNOWN_KEY = "credit-registration-admin-roster-tier-unknown"
+
+/** How often a course code's roster listing is due, from how recently it has had activity. */
+export const rosterTierLabel = (t: CreditRegistrationTFunction, tier: RosterTier): string =>
+  labelFrom(t, ROSTER_TIER_KEYS, tier, ROSTER_TIER_UNKNOWN_KEY)

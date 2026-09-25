@@ -19,11 +19,10 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import {
   expireEnrolmentRecheckAllowance,
+  runEnrolmentCheckNow,
   runMaterializeTick,
-  runPreconditionsTick,
   runResolveEnrolmentsTick,
 } from "@/utils/suotarControl"
-import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * Owns `student7` and `student8` on `credit-registration-via-suotar`, and reads its seeded chapter
@@ -52,8 +51,7 @@ const parkOnMissingEnrolment = async (
 ) => {
   const scope = { userEmail, courseSlug: SUOTAR_COURSE_SLUG }
   await runMaterializeTick(page.request, scope)
-  await runPreconditionsTick(page.request, scope)
-  await runResolveEnrolmentsTick(page.request, scope)
+  await runEnrolmentCheckNow(page.request, scope)
   return await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
     "no_usable_enrolment",
   ])
@@ -73,7 +71,7 @@ test.describe("A student the University has no enrolment for", () => {
     adminApi,
   }) => {
     const parked = await parkOnMissingEnrolment(page, adminApi, STUCK_EMAIL)
-    // The park itself was a check, and the button stays hidden for an hour after one.
+    // The park itself was a check, and the button stays hidden for half an hour after one.
     await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)
@@ -96,7 +94,7 @@ test.describe("A student the University has no enrolment for", () => {
     })
   })
 
-  test("Dismissal hides it, but a fresh enrolment problem brings it back", async ({
+  test("Dismissal hides it, and a recheck that still finds nothing keeps it hidden", async ({
     page,
     adminApi,
   }) => {
@@ -115,21 +113,22 @@ test.describe("A student the University has no enrolment for", () => {
       await expect(banner(page)).toHaveCount(0)
     })
 
-    await test.step("A new run of the same problem brings it back", async () => {
+    await test.step("A recheck that finds nothing does not bring it back", async () => {
       await expireEnrolmentRecheckAllowance(page.request, parked.id)
       const recheck = await page.request.post(
         `${CREDIT_REGISTRATIONS_API}/my/${parked.id}/recheck-enrolment`,
       )
       expect(recheck.ok()).toBe(true)
       await runResolveEnrolmentsTick(page.request, scope)
-      // The mock still has no enrolment, so the row lands back in the same state, which is what
-      // clears the dismissal.
-      await pollUntil(async () => (await bannersDue(page.request, parked.course_id)).length > 0, {
-        description: "the dismissed banner to become due again",
-      })
+      // Every check of a waiting row passes back through the same state, so only starting to wait
+      // anew may clear a dismissal.
+      await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+        "no_usable_enrolment",
+      ])
+      expect(await bannersDue(page.request, parked.course_id)).toHaveLength(0)
 
       await page.reload()
-      await expect(banner(page)).toBeVisible()
+      await expect(banner(page)).toHaveCount(0)
     })
   })
 })
@@ -143,7 +142,7 @@ test.describe("A student who enrols after being told to", () => {
   }) => {
     const scope = { userEmail: REENROLS_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
     const parked = await parkOnMissingEnrolment(page, adminApi, REENROLS_EMAIL)
-    // The park itself was a look, so the button would otherwise wait out the hour.
+    // The park itself was a check, so the button would otherwise wait out the half hour.
     await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
     await page.goto(CHAPTER_PAGE_URL)

@@ -1,0 +1,91 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT (started_at AT TIME ZONE 'UTC')::date AS \"day!\",\n  endpoint AS \"endpoint!: SuotarEndpoint\",\n  COUNT(*) AS \"call_count!\",\n  COUNT(*) FILTER (\n    WHERE NOT succeeded\n  ) AS \"failed_call_count!\",\n  COALESCE(SUM(request_item_count), 0) AS \"item_count!\",\n  COALESCE(MAX(request_item_count), 0) AS \"max_items_per_call!\",\n  PERCENTILE_DISC(0.5) WITHIN GROUP (\n    ORDER BY duration_ms\n  ) AS p50_duration_ms,\n  PERCENTILE_DISC(0.95) WITHIN GROUP (\n    ORDER BY duration_ms\n  ) AS p95_duration_ms\nFROM suotar_api_calls\nWHERE started_at >= $1\n  AND duration_ms IS NOT NULL\n  AND deleted_at IS NULL\nGROUP BY 1,\n  2\nORDER BY 1,\n  2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "day!",
+        "type_info": "Date",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "endpoint!: SuotarEndpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "failed_call_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "item_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "max_items_per_call!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "p50_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
+        "name": "p95_duration_ms",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "23564cef8960b578be22d1d2ff501edf69ad53ffc4190e135a761de7891f6c3f"
+}

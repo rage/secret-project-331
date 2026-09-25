@@ -12,6 +12,9 @@ use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
+use crate::library::credit_registration::enrolment_check_schedule::{
+    EnrolmentCheckGroup, EnrolmentCheckSource,
+};
 use crate::library::credit_registration::grade_mapping::{GradeSource, MappedGrade, map_grade};
 use crate::library::credit_registration::{
     CreditRegistrationPendingReason, PendingPreconditions, PendingReasonCounts, StageMatch,
@@ -112,9 +115,15 @@ impl CreditRegistrationState {
     pub fn allowed_targets(self) -> &'static [Self] {
         use CreditRegistrationState as S;
         match self {
-            // The way out of the wait is every precondition being met; the other two edges are
-            // eligibility or the completion going away.
-            S::Pending => &[S::ReadyToSubmit, S::Blocked, S::Cancelled],
+            // The way out of the wait is every precondition being met, into the first enrolment
+            // check or straight to resolving; the other two edges are eligibility or the
+            // completion going away.
+            S::Pending => &[
+                S::ReadyToSubmit,
+                S::NoUsableEnrolment,
+                S::Blocked,
+                S::Cancelled,
+            ],
             // `resolving_enrolment` is resolve-enrolments claiming the row and `failed_retryable`
             // is it finding nothing to ask about; the rest is that phase's preflight and the
             // preconditions.
@@ -190,7 +199,12 @@ impl CreditRegistrationState {
                 S::Blocked,
                 S::Cancelled,
             ],
-            S::Blocked => &[S::Pending, S::ReadyToSubmit, S::Cancelled],
+            S::Blocked => &[
+                S::Pending,
+                S::ReadyToSubmit,
+                S::NoUsableEnrolment,
+                S::Cancelled,
+            ],
             // Terminal, and `misregistered` waits for a human: the pipeline leaves all of these
             // where they are.
             S::Registered
@@ -327,6 +341,18 @@ impl CreditRegistrationState {
         }
     }
 
+    /// The states of the wait for an enrolment, which a recheck passes through on its way back to
+    /// `no_usable_enrolment`. Entering any other clears the check schedule.
+    pub fn keeps_enrolment_check_schedule(self) -> bool {
+        matches!(
+            self,
+            Self::NoUsableEnrolment
+                | Self::ReadyToSubmit
+                | Self::ResolvingEnrolment
+                | Self::FailedRetryable
+        )
+    }
+
     /// How long a row entering this state waits before the pipeline may claim it again, when the
     /// caller of [`transition`] names no time of its own. Zero leaves it claimable at once.
     ///
@@ -335,13 +361,13 @@ impl CreditRegistrationState {
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
     fn default_attempt_delay_secs(self) -> i64 {
         use crate::library::credit_registration::backoff::{
-            NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS, SUBMIT_BASE_BACKOFF_SECS,
-            UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
+            SUBMIT_BASE_BACKOFF_SECS, UNCERTAIN_RECHECK_SECS, VERIFY_FIRST_DELAY_SECS,
         };
+        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG_SECS;
         match self {
             Self::AwaitingVerification => VERIFY_FIRST_DELAY_SECS,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK_SECS,
-            Self::NoUsableEnrolment => NO_USABLE_ENROLMENT_FIRST_RECHECKS_SECS[0],
+            Self::NoUsableEnrolment => REGISTRY_LAG_SECS,
             Self::FailedRetryable => SUBMIT_BASE_BACKOFF_SECS,
             _ => 0,
         }
@@ -528,9 +554,25 @@ pub struct CreditRegistration {
     /// A later attempt on its way to replace this registered row; see [`mark_pending_superseded`].
     /// Until it lands this row is still the credit Sisu holds.
     pub pending_superseded_by_id: Option<Uuid>,
-    /// When the pipeline first found no usable enrolment, held across the rechecks that keep finding
-    /// none; what the recheck schedule is timed from.
+    /// When the row started waiting for an enrolment, held across the rechecks that keep finding
+    /// none.
     pub no_usable_enrolment_since: Option<DateTime<Utc>>,
+    /// Kept for the row's whole life; see [`EnrolmentCheckGroup`].
+    pub enrolment_check_group: EnrolmentCheckGroup,
+    /// What the ladder is counted from. `None` outside the wait for an enrolment, which is how the
+    /// phases tell a recheck from any other resolve.
+    pub enrolment_check_anchor_at: Option<DateTime<Utc>>,
+    pub enrolment_check_step: Option<i32>,
+    /// The ladder time of `enrolment_check_step`, which `next_attempt_at` does not keep.
+    pub enrolment_check_due_at: Option<DateTime<Utc>>,
+    pub is_enrolment_check_batched: bool,
+    pub enrolment_check_source: EnrolmentCheckSource,
+    pub enrolment_checks_stopped_at: Option<DateTime<Utc>>,
+    pub enrolment_check_requested_at: Option<DateTime<Utc>>,
+    pub enrolment_check_restart_window_started_at: Option<DateTime<Utc>>,
+    pub enrolment_check_restart_count: i32,
+    /// `None` until the first check, which is what lets any roster listing wake a row never checked.
+    pub seen_enrolment_ids: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -614,6 +656,12 @@ pub struct Transition {
     /// When the pipeline may claim the row next. `None` takes the target state's default cadence,
     /// which is what keeps a caller that forgets from leaving the row spinning.
     pub next_attempt_at: Option<DateTime<Utc>>,
+    /// False for the moves of a routine enrolment recheck on its way out, so each recheck leaves one
+    /// event (its answer) rather than three.
+    pub records_event: bool,
+    /// Leaves `enrolment_checked_at` alone on a move that would stamp it: a check that failed in
+    /// transit did not look.
+    pub keeps_enrolment_checked_at: bool,
 }
 
 /// Which (from → to) edges [`transition`] will write.
@@ -656,6 +704,8 @@ impl Transition {
             expected_from_state: None,
             policy: TransitionPolicy::Pipeline,
             next_attempt_at: None,
+            records_event: true,
+            keeps_enrolment_checked_at: false,
         }
     }
 
@@ -684,10 +734,12 @@ impl Transition {
 /// and skip over.
 ///
 /// Owns the lifecycle stamps, so callers must not touch them (bar [`reset_for_resubmission`]
-/// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at`,
-/// `registered_at`, `submitted_at`, `enrolment_checked_at`, `enrolment_banner_dismissed_at`, which
-/// entering `no_usable_enrolment` clears, `no_usable_enrolment_since`, and `next_attempt_at`, which
-/// takes the target state's default cadence unless the caller names a time.
+/// clearing `first_failed_at`): `state_entered_at`, `terminal_at`, `first_failed_at` and
+/// `submit_retry_count`, which starting to wait for an enrolment clears, `registered_at`,
+/// `submitted_at`, `enrolment_checked_at`, `enrolment_banner_dismissed_at`, which starting to wait
+/// for an enrolment clears, `no_usable_enrolment_since`, and `next_attempt_at`, which takes the
+/// target state's default cadence unless the caller names a time. Leaving the wait for an
+/// enrolment also clears the check schedule, but not `enrolment_check_group`.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -742,7 +794,12 @@ SET state = $2::credit_registration_state,
   END,
   first_failed_at = CASE
     WHEN $7 THEN COALESCE(first_failed_at, now())
+    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL
     ELSE first_failed_at
+  END,
+  submit_retry_count = CASE
+    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN 0
+    ELSE submit_retry_count
   END,
   registered_at = CASE
     WHEN $2::credit_registration_state = 'registered' THEN COALESCE(registered_at, now())
@@ -753,14 +810,17 @@ SET state = $2::credit_registration_state,
     ELSE submitted_at
   END,
   enrolment_checked_at = CASE
+    WHEN $10 THEN enrolment_checked_at
     WHEN state = 'resolving_enrolment'
     AND $2::credit_registration_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()
     WHEN state = 'checking_enrolment'
     AND $2::credit_registration_state <> 'checking_enrolment' THEN now()
     ELSE enrolment_checked_at
   END,
+  -- Only on starting to wait: every recheck passes back through no_usable_enrolment.
   enrolment_banner_dismissed_at = CASE
-    WHEN $2::credit_registration_state = 'no_usable_enrolment' THEN NULL
+    WHEN $2::credit_registration_state = 'no_usable_enrolment'
+    AND no_usable_enrolment_since IS NULL THEN NULL
     ELSE enrolment_banner_dismissed_at
   END,
   -- The recheck loop passes through these on its way back to no_usable_enrolment.
@@ -772,6 +832,24 @@ SET state = $2::credit_registration_state,
       'failed_retryable'
     ) THEN no_usable_enrolment_since
     ELSE NULL
+  END,
+  enrolment_check_anchor_at = CASE
+    WHEN $11 THEN enrolment_check_anchor_at
+  END,
+  enrolment_check_step = CASE
+    WHEN $11 THEN enrolment_check_step
+  END,
+  enrolment_check_due_at = CASE
+    WHEN $11 THEN enrolment_check_due_at
+  END,
+  is_enrolment_check_batched = $11
+  AND is_enrolment_check_batched,
+  enrolment_checks_stopped_at = CASE
+    WHEN $11 THEN enrolment_checks_stopped_at
+  END,
+  enrolment_check_source = CASE
+    WHEN $11 THEN enrolment_check_source
+    ELSE 'schedule'
   END,
   next_attempt_at = COALESCE(
     $8::timestamptz,
@@ -790,28 +868,32 @@ RETURNING *
         to_state.is_failure(),
         transition.next_attempt_at,
         to_state.default_attempt_delay_secs(),
+        transition.keeps_enrolment_checked_at,
+        to_state.keeps_enrolment_check_schedule(),
     )
     .fetch_one(&mut *tx)
     .await?;
 
     settle_pending_supersessions(&mut tx, &[(id, to_state)]).await?;
 
-    crate::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            credit_registration_id: id,
-            kind: transition.event_kind,
-            from_state: Some(before.state),
-            to_state: Some(to_state),
-            error_code: transition.error_code,
-            message: transition.event_message.clone(),
-            suotar_api_call_id: transition.suotar_api_call_id,
-            actor_user_id: transition.actor_user_id,
-            details: transition.event_details.clone(),
-            request_item_id: transition.request_item_id.clone(),
-        },
-    )
-    .await?;
+    if transition.records_event {
+        crate::credit_registration_events::insert(
+            &mut tx,
+            &NewCreditRegistrationEvent {
+                credit_registration_id: id,
+                kind: transition.event_kind,
+                from_state: Some(before.state),
+                to_state: Some(to_state),
+                error_code: transition.error_code,
+                message: transition.event_message.clone(),
+                suotar_api_call_id: transition.suotar_api_call_id,
+                actor_user_id: transition.actor_user_id,
+                details: transition.event_details.clone(),
+                request_item_id: transition.request_item_id.clone(),
+            },
+        )
+        .await?;
+    }
 
     tx.commit().await?;
     Ok(after)
@@ -931,6 +1013,9 @@ UPDATE
         }
         check_edge(batch_move.id, from, to, batch_move.transition.policy)?;
         writes.push(batch_move);
+        if !batch_move.transition.records_event {
+            continue;
+        }
         events.push(NewCreditRegistrationEvent {
             credit_registration_id: batch_move.id,
             kind: batch_move.transition.event_kind,
@@ -976,6 +1061,14 @@ UPDATE
         .iter()
         .map(|state| state.default_attempt_delay_secs())
         .collect();
+    let keeps_checked_at: Vec<bool> = writes
+        .iter()
+        .map(|write| write.transition.keeps_enrolment_checked_at)
+        .collect();
+    let keeps_schedule: Vec<bool> = to_states
+        .iter()
+        .map(|state| state.keeps_enrolment_check_schedule())
+        .collect();
     sqlx::query!(
         r#"
 UPDATE credit_registrations cr
@@ -993,7 +1086,12 @@ SET state = move.to_state,
   END,
   first_failed_at = CASE
     WHEN move.failure THEN COALESCE(cr.first_failed_at, now())
+    WHEN move.to_state = 'no_usable_enrolment' THEN NULL
     ELSE cr.first_failed_at
+  END,
+  submit_retry_count = CASE
+    WHEN move.to_state = 'no_usable_enrolment' THEN 0
+    ELSE cr.submit_retry_count
   END,
   registered_at = CASE
     WHEN move.to_state = 'registered' THEN COALESCE(cr.registered_at, now())
@@ -1004,14 +1102,17 @@ SET state = move.to_state,
     ELSE cr.submitted_at
   END,
   enrolment_checked_at = CASE
+    WHEN move.keeps_checked_at THEN cr.enrolment_checked_at
     WHEN cr.state = 'resolving_enrolment'
     AND move.to_state IN ('checking_enrolment', 'no_usable_enrolment') THEN now()
     WHEN cr.state = 'checking_enrolment'
     AND move.to_state <> 'checking_enrolment' THEN now()
     ELSE cr.enrolment_checked_at
   END,
+  -- Only on starting to wait: every recheck passes back through no_usable_enrolment.
   enrolment_banner_dismissed_at = CASE
-    WHEN move.to_state = 'no_usable_enrolment' THEN NULL
+    WHEN move.to_state = 'no_usable_enrolment'
+    AND cr.no_usable_enrolment_since IS NULL THEN NULL
     ELSE cr.enrolment_banner_dismissed_at
   END,
   -- The recheck loop passes through these on its way back to no_usable_enrolment.
@@ -1023,6 +1124,24 @@ SET state = move.to_state,
       'failed_retryable'
     ) THEN cr.no_usable_enrolment_since
     ELSE NULL
+  END,
+  enrolment_check_anchor_at = CASE
+    WHEN move.keeps_schedule THEN cr.enrolment_check_anchor_at
+  END,
+  enrolment_check_step = CASE
+    WHEN move.keeps_schedule THEN cr.enrolment_check_step
+  END,
+  enrolment_check_due_at = CASE
+    WHEN move.keeps_schedule THEN cr.enrolment_check_due_at
+  END,
+  is_enrolment_check_batched = move.keeps_schedule
+  AND cr.is_enrolment_check_batched,
+  enrolment_checks_stopped_at = CASE
+    WHEN move.keeps_schedule THEN cr.enrolment_checks_stopped_at
+  END,
+  enrolment_check_source = CASE
+    WHEN move.keeps_schedule THEN cr.enrolment_check_source
+    ELSE 'schedule'
   END,
   next_attempt_at = COALESCE(
     move.next_attempt_at,
@@ -1037,7 +1156,9 @@ FROM UNNEST(
     $6::boolean [],
     $7::boolean [],
     $8::timestamptz [],
-    $9::bigint []
+    $9::bigint [],
+    $10::boolean [],
+    $11::boolean []
   ) AS move(
     id,
     to_state,
@@ -1047,7 +1168,9 @@ FROM UNNEST(
     terminal,
     failure,
     next_attempt_at,
-    default_delay_secs
+    default_delay_secs,
+    keeps_checked_at,
+    keeps_schedule
   )
 WHERE cr.id = move.id
   AND cr.deleted_at IS NULL
@@ -1061,6 +1184,8 @@ WHERE cr.id = move.id
         &failure,
         &next_attempts as &[Option<DateTime<Utc>>],
         &default_delays,
+        &keeps_checked_at,
+        &keeps_schedule,
     )
     .execute(&mut *tx)
     .await?;
@@ -1150,26 +1275,63 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
-/// Backdates the row's last enrolment check past the manual recheck allowance, so a spec can press
-/// a recheck button without waiting out the hour. Exists only for test setup.
+/// Backdates the row's last enrolment check and last check request past the limit on asking, so a
+/// spec can press a recheck button without waiting it out. With `clear_restarts`, also forgets the
+/// day's restarts. Exists only for test setup.
 pub async fn expire_enrolment_recheck_allowance_for_testing(
     conn: &mut PgConnection,
     id: Uuid,
+    clear_restarts: bool,
 ) -> ModelResult<()> {
-    use crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
+    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL_SECS;
     sqlx::query!(
         "
 UPDATE credit_registrations
-SET enrolment_checked_at = now() - ($2::bigint * INTERVAL '1 second')
+SET enrolment_checked_at = enrolment_checked_at - ($2::bigint * INTERVAL '1 second'),
+  enrolment_check_requested_at = enrolment_check_requested_at - ($2::bigint * INTERVAL '1 second'),
+  enrolment_check_restart_count = CASE
+    WHEN $3 THEN 0
+    ELSE enrolment_check_restart_count
+  END
 WHERE id = $1
-  AND enrolment_checked_at IS NOT NULL
         ",
         id,
-        ENROLMENT_RECHECK_MIN_INTERVAL_SECS,
+        CHECK_REQUEST_MIN_INTERVAL_SECS,
+        clear_restarts,
     )
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Makes every row in `scope` that waits for an enrolment check due now, as if its next rung had
+/// come, and returns how many it moved. Exists only for test setup: specs cannot wait out a day for a
+/// row's first check.
+pub async fn make_enrolment_checks_due_for_testing(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET next_attempt_at = now()
+WHERE state = 'no_usable_enrolment'
+  AND next_attempt_at > now()
+  AND deleted_at IS NULL
+  AND ($1::uuid IS NULL OR course_id = $1)
+  AND ($2::uuid IS NULL OR user_id = $2)
+  AND (
+    cardinality($3::uuid []) = 0
+    OR id = ANY($3::uuid [])
+  )
+        "#,
+        scope.course_id,
+        scope.user_id,
+        &scope.credit_registration_ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
 }
 
 /// Which rows a phase iteration may touch. Empty means every row, which is what production runs; a
@@ -1197,7 +1359,8 @@ impl RegistrationScope {
     }
 }
 
-/// Claims up to `limit` due rows in the given states for this worker.
+/// Claims up to `limit` due rows in the given states for this worker, rows with the later
+/// [`EnrolmentCheckGroup`] first and then the longest due.
 ///
 /// The row locks live until the caller's transaction ends, so callers must pass a transaction. Rows
 /// on a paused course module, or on one whose credit registration has been switched off, are never
@@ -1370,7 +1533,8 @@ WITH due AS (
           )
       )
     )
-  ORDER BY cr.next_attempt_at
+  ORDER BY cr.enrolment_check_group DESC,
+    cr.next_attempt_at
   FOR UPDATE OF cr SKIP LOCKED
   LIMIT $2
 )
@@ -1506,6 +1670,11 @@ pub struct StudentCreditRegistration {
     pub superseded_by_id: Option<Uuid>,
     pub superseded_at: Option<DateTime<Utc>>,
     pub enrolment_checked_at: Option<DateTime<Utc>>,
+    /// When a check was last asked for; with `enrolment_checked_at`, what the limit on asking again
+    /// counts from.
+    pub enrolment_check_requested_at: Option<DateTime<Utc>>,
+    /// Whether the row is waiting for an enrolment check, so a visit or a request can move it.
+    pub is_waiting_for_enrolment_check: bool,
     /// Whether an enrolment has been settled on. True without `enrolment_realisation_name` where
     /// Suotar gave the realisation no name, so the step list ticks from this rather than the name.
     pub enrolment_resolved: bool,
@@ -1583,6 +1752,17 @@ SELECT cr.id,
   cr.superseded_by_id,
   cr.superseded_at,
   cr.enrolment_checked_at,
+  cr.enrolment_check_requested_at,
+  (
+    cr.enrolment_check_anchor_at IS NOT NULL
+    OR cr.no_usable_enrolment_since IS NOT NULL
+  )
+  AND cr.state IN (
+    'no_usable_enrolment',
+    'ready_to_submit',
+    'resolving_enrolment',
+    'failed_retryable'
+  ) AS "is_waiting_for_enrolment_check!",
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COALESCE(
     cr.selected_enrolment_realisation_name->>'fi',
@@ -1872,7 +2052,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// Makes rows claimable again now, whatever backoff parked them.
+/// Makes rows claimable again now, whatever backoff parked them. Only a human asks for this, so a
+/// row waiting for an enrolment check has its check marked as an admin's.
 ///
 /// Uses the database clock: an app-clock value sampled after `BEGIN` is still in the future when
 /// the same transaction compares it against `now()`.
@@ -1880,7 +2061,11 @@ pub async fn make_due_now_batch(conn: &mut PgConnection, ids: &[Uuid]) -> ModelR
     sqlx::query!(
         r#"
 UPDATE credit_registrations
-SET next_attempt_at = now()
+SET next_attempt_at = now(),
+  enrolment_check_source = CASE
+    WHEN state = 'no_usable_enrolment' THEN 'admin_request'
+    ELSE enrolment_check_source
+  END
 WHERE id = ANY($1)
   AND next_attempt_at > now()
   AND superseded_by_id IS NULL
@@ -1891,61 +2076,6 @@ WHERE id = ANY($1)
     .execute(conn)
     .await?;
     Ok(())
-}
-
-/// One linked account the study registry lists on a module's roster.
-#[derive(Debug, Clone, PartialEq)]
-pub struct RosterEnrolee {
-    pub user_id: Uuid,
-    /// When the listed enrolment was made, if the registry says.
-    pub enrolled_at: Option<DateTime<Utc>>,
-}
-
-/// Brings forward the recheck of this module's rows parked for want of an enrolment, for students
-/// the study registry lists on its roster.
-///
-/// Only where the roster can tell us something new: an enrolment made since the row's last check,
-/// or, for one with no time on it, a last check older than [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`].
-/// Only the clock moves: the enrolment is re-resolved rather than assumed from a roster entry.
-///
-/// [`ENROLMENT_RECHECK_MIN_INTERVAL_SECS`]: crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS
-pub async fn recheck_no_usable_enrolment_now(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-    enrolees: &[RosterEnrolee],
-) -> ModelResult<u64> {
-    use crate::library::credit_registration::backoff::ENROLMENT_RECHECK_MIN_INTERVAL_SECS;
-    let user_ids: Vec<Uuid> = enrolees.iter().map(|enrolee| enrolee.user_id).collect();
-    let enrolled_ats: Vec<Option<DateTime<Utc>>> =
-        enrolees.iter().map(|enrolee| enrolee.enrolled_at).collect();
-    let res = sqlx::query!(
-        r#"
-UPDATE credit_registrations cr
-SET next_attempt_at = now()
-FROM UNNEST($2::uuid [], $3::timestamptz []) AS listed(user_id, enrolled_at)
-WHERE cr.course_module_id = $1
-  AND cr.user_id = listed.user_id
-  AND cr.state = 'no_usable_enrolment'
-  AND cr.next_attempt_at > now()
-  AND cr.superseded_by_id IS NULL
-  AND cr.deleted_at IS NULL
-  AND (
-    cr.enrolment_checked_at IS NULL
-    OR listed.enrolled_at > cr.enrolment_checked_at
-    OR (
-      listed.enrolled_at IS NULL
-      AND cr.enrolment_checked_at <= now() - ($4::bigint * INTERVAL '1 second')
-    )
-  )
-        "#,
-        course_module_id,
-        &user_ids,
-        &enrolled_ats as &[Option<DateTime<Utc>>],
-        ENROLMENT_RECHECK_MIN_INTERVAL_SECS,
-    )
-    .execute(conn)
-    .await?;
-    Ok(res.rows_affected())
 }
 
 pub async fn increment_submit_retry_count(conn: &mut PgConnection, id: Uuid) -> ModelResult<i32> {
@@ -2551,6 +2681,7 @@ pub struct TeacherCreditRegistration {
     pub enrolment_resolved: bool,
     pub enrolment_realisation_name: Option<String>,
     pub enrolment_checked_at: Option<DateTime<Utc>>,
+    pub enrolment_check_requested_at: Option<DateTime<Utc>>,
     pub completion_eligible: bool,
     pub course_code_allowed: bool,
     /// The page's total row count, so a caller can read it off the first row instead of a second query.
@@ -2635,6 +2766,7 @@ SELECT cr.id,
     cr.selected_enrolment_realisation_name->>'sv'
   ) AS "enrolment_realisation_name?",
   cr.enrolment_checked_at,
+  cr.enrolment_check_requested_at,
   p.completion_eligible AS "completion_eligible!",
   p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
@@ -4108,7 +4240,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn entering_no_usable_enrolment_clears_a_dismissed_banner() {
+    async fn starting_to_wait_for_an_enrolment_again_clears_a_dismissed_banner() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         let id =
             insert_registration(tx.as_mut(), user, course, instance.id, course_module.id).await;
@@ -4138,15 +4270,23 @@ mod tests {
         )
         .await
         .unwrap();
-        // Still dismissed: only a fresh enrolment problem brings the banner back.
-        assert!(
-            get_by_id(tx.as_mut(), id)
-                .await
-                .unwrap()
-                .enrolment_banner_dismissed_at
-                .is_some()
-        );
+        // A recheck coming back empty is the same enrolment problem, not a fresh one.
+        let rechecked = transition(
+            tx.as_mut(),
+            id,
+            &Transition::planted(CreditRegistrationState::NoUsableEnrolment),
+        )
+        .await
+        .unwrap();
+        assert!(rechecked.enrolment_banner_dismissed_at.is_some());
 
+        transition(
+            tx.as_mut(),
+            id,
+            &Transition::planted(CreditRegistrationState::Pending),
+        )
+        .await
+        .unwrap();
         let back = transition(
             tx.as_mut(),
             id,

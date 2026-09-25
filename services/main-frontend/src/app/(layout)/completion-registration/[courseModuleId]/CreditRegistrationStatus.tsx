@@ -21,6 +21,7 @@ import {
   registrationGradeLabel,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
+import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
 import {
   RegistrationActions,
@@ -279,6 +280,10 @@ const Tracker: React.FC<TrackerProps> = ({
     [primaryAction, ...secondaryActions].find(
       (action) => action?.key === RECHECK_ENROLMENT_ACTION_KEY,
     ) ?? null
+  useRecordEnrolmentPageVisitOnce(
+    courseModuleId,
+    asksWhereYouEnrolled(view) || isWaitingForEnrolment(view),
+  )
 
   return (
     <>

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations replaced\nSET enrolment_check_anchor_at = COALESCE(replaced.enrolment_check_anchor_at, now()),\n  enrolment_check_step = NULL,\n  enrolment_check_due_at = NULL,\n  is_enrolment_check_batched = FALSE,\n  enrolment_checks_stopped_at = COALESCE(replaced.enrolment_checks_stopped_at, now()),\n  next_attempt_at = $2\nFROM credit_registrations started\nWHERE started.id = ANY($1::uuid [])\n  AND replaced.user_id = started.user_id\n  AND replaced.course_module_id = started.course_module_id\n  AND replaced.id <> started.id\n  AND replaced.created_at < started.created_at\n  AND replaced.state = 'no_usable_enrolment'\n  AND replaced.superseded_by_id IS NULL\n  AND replaced.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5baf54eef2ba592440743a4acc7894ff78ff8292ba741e31108ec9d3361461ab"
+}

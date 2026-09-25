@@ -3,6 +3,30 @@
 -- table are last.
 SET LOCAL lock_timeout = '5s';
 
+UPDATE credit_registration_phase_state
+SET expected_interval_secs = 1800
+WHERE phase = 'enrolment-discovery';
+
+DROP TABLE suotar_endpoint_rate_limits;
+DROP TABLE credit_registration_roster_schedules;
+
+DROP INDEX idx_credit_registrations_module_created;
+DROP INDEX idx_credit_registrations_batched_enrolment_checks;
+ALTER TABLE credit_registrations DROP CONSTRAINT credit_registrations_enrolment_check_step,
+  DROP CONSTRAINT credit_registrations_enrolment_checks_stopped,
+  DROP CONSTRAINT credit_registrations_enrolment_check_restart_count,
+  DROP COLUMN enrolment_check_group,
+  DROP COLUMN enrolment_check_anchor_at,
+  DROP COLUMN enrolment_check_step,
+  DROP COLUMN enrolment_check_due_at,
+  DROP COLUMN is_enrolment_check_batched,
+  DROP COLUMN enrolment_check_source,
+  DROP COLUMN enrolment_checks_stopped_at,
+  DROP COLUMN enrolment_check_requested_at,
+  DROP COLUMN enrolment_check_restart_window_started_at,
+  DROP COLUMN enrolment_check_restart_count,
+  DROP COLUMN seen_enrolment_ids;
+
 ALTER TYPE email_template_type
 ADD VALUE 'credit_registration_student_number_linked';
 
@@ -281,3 +305,8 @@ CREATE UNIQUE INDEX uq_course_module_suotar_realisations ON course_module_suotar
 ) NULLS NOT DISTINCT;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_module_suotar_realisations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+DROP TABLE credit_registration_enrolment_check_outcomes;
+DROP TABLE credit_registration_enrolment_check_signals;
+DROP TYPE enrolment_check_source;
+DROP TYPE enrolment_check_group;

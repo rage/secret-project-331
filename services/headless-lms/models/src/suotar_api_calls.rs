@@ -511,6 +511,57 @@ GROUP BY w.window_secs,
     Ok(rows)
 }
 
+/// One endpoint's calls on one UTC day: what the enrolment check pacing costs Suotar.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct SuotarEndpointDailyCost {
+    pub day: chrono::NaiveDate,
+    pub endpoint: SuotarEndpoint,
+    pub call_count: i64,
+    pub failed_call_count: i64,
+    pub item_count: i64,
+    pub max_items_per_call: i32,
+    pub p50_duration_ms: Option<i32>,
+    pub p95_duration_ms: Option<i32>,
+}
+
+/// Finished calls per endpoint per UTC day since `since`, oldest day first.
+pub async fn get_daily_costs_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<SuotarEndpointDailyCost>> {
+    let rows = sqlx::query_as!(
+        SuotarEndpointDailyCost,
+        r#"
+SELECT (started_at AT TIME ZONE 'UTC')::date AS "day!",
+  endpoint AS "endpoint!: SuotarEndpoint",
+  COUNT(*) AS "call_count!",
+  COUNT(*) FILTER (
+    WHERE NOT succeeded
+  ) AS "failed_call_count!",
+  COALESCE(SUM(request_item_count), 0) AS "item_count!",
+  COALESCE(MAX(request_item_count), 0) AS "max_items_per_call!",
+  PERCENTILE_DISC(0.5) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p50_duration_ms,
+  PERCENTILE_DISC(0.95) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p95_duration_ms
+FROM suotar_api_calls
+WHERE started_at >= $1
+  AND duration_ms IS NOT NULL
+  AND deleted_at IS NULL
+GROUP BY 1,
+  2
+ORDER BY 1,
+  2
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
 /// Where one endpoint stands right now.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStanding {

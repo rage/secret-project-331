@@ -285,13 +285,28 @@ pub struct SuotarPause<'a> {
 }
 
 /// Pauses or resumes the module. Every phase's claim query skips a paused module, so pausing freezes
-/// its ledger rows where they stand instead of cancelling them. `None` resumes.
+/// its ledger rows where they stand instead of cancelling them. `None` resumes, and moves the rows'
+/// enrolment check schedules on by as long as the pause lasted.
 pub async fn set_paused(
     conn: &mut PgConnection,
     course_module_id: Uuid,
     pause: Option<SuotarPause<'_>>,
 ) -> ModelResult<()> {
     let pause = pause.as_ref();
+    let mut tx = conn.begin().await?;
+    let previously_paused_at = sqlx::query_scalar!(
+        r#"
+SELECT paused_at
+FROM course_module_suotar_configurations
+WHERE course_module_id = $1
+  AND deleted_at IS NULL
+FOR UPDATE
+        "#,
+        course_module_id,
+    )
+    .fetch_optional(&mut *tx)
+    .await?
+    .flatten();
     sqlx::query!(
         r#"
 UPDATE course_module_suotar_configurations
@@ -306,8 +321,19 @@ WHERE course_module_id = $1
         pause.map(|pause| pause.paused_by_user_id),
         pause.and_then(|pause| pause.reason),
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+    if pause.is_none()
+        && let Some(paused_at) = previously_paused_at
+    {
+        crate::library::credit_registration::enrolment_checks::shift_past_pause(
+            &mut tx,
+            course_module_id,
+            (Utc::now() - paused_at).num_seconds(),
+        )
+        .await?;
+    }
+    tx.commit().await?;
     Ok(())
 }
 
@@ -333,88 +359,7 @@ pub struct ModuleToList {
     pub course_language_code: String,
 }
 
-/// Claims the modules one discovery iteration lists, stalest attempt first, and stamps
-/// `last_listing_attempted_at` on them. The caller must commit before its Suotar call: once the
-/// `SKIP LOCKED` lock is released, the stamp is what keeps a concurrent run off these modules.
-/// Ordered by attempt rather than success, so a module that keeps failing cannot starve the rest.
-/// `only_with_parked_rows` skips the modules with no live registration parked on a missing
-/// enrolment, the only ones a listing can help while no linking mails go out.
-pub async fn claim_stalest_modules_for_listing(
-    conn: &mut PgConnection,
-    limit: i64,
-    course_id: Option<Uuid>,
-    only_with_parked_rows: bool,
-) -> ModelResult<Vec<ModuleToList>> {
-    // The stamp and the lock need a row to live on.
-    sqlx::query!(
-        r#"
-INSERT INTO course_module_suotar_configurations (course_module_id)
-SELECT acm.course_module_id
-FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id
-WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
-  AND ($1::uuid IS NULL OR acm.course_id = $1) ON CONFLICT (course_module_id) DO NOTHING
-        "#,
-        course_id,
-    )
-    .execute(&mut *conn)
-    .await?;
-    let res = sqlx::query_as!(
-        ModuleToList,
-        r#"
-SELECT acm.course_module_id AS "course_module_id!",
-  acm.course_id AS "course_id!",
-  TRIM(cm.uh_course_code) AS "uh_course_code!",
-  co.language_code AS "course_language_code!"
-FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id
-  JOIN courses co ON co.id = acm.course_id
-  JOIN course_module_suotar_configurations conf ON conf.course_module_id = acm.course_module_id
-  AND conf.deleted_at IS NULL
-WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
-  AND ($2::uuid IS NULL OR acm.course_id = $2)
-  AND (
-    NOT $3::boolean
-    OR EXISTS (
-      SELECT 1
-      FROM credit_registrations cr
-      WHERE cr.course_module_id = acm.course_module_id
-        AND cr.state = 'no_usable_enrolment'
-        AND cr.superseded_by_id IS NULL
-        AND cr.deleted_at IS NULL
-    )
-  )
-ORDER BY COALESCE(conf.last_listing_attempted_at, conf.last_listed_at) ASC NULLS FIRST,
-  conf.id
-LIMIT $1
-FOR UPDATE OF conf SKIP LOCKED
-        "#,
-        limit,
-        course_id,
-        only_with_parked_rows,
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    let ids: Vec<Uuid> = res.iter().map(|row| row.course_module_id).collect();
-    if !ids.is_empty() {
-        sqlx::query!(
-            r#"
-UPDATE course_module_suotar_configurations
-SET last_listing_attempted_at = now()
-WHERE course_module_id = ANY($1)
-  AND deleted_at IS NULL
-            "#,
-            &ids,
-        )
-        .execute(conn)
-        .await?;
-    }
-    Ok(res)
-}
-
-/// Every active, listable module of one course, unpaginated: unlike
-/// [`claim_stalest_modules_for_listing`], which pages by staleness for the scheduler, this one must
-/// not miss any of them.
+/// Every active, listable module of one course, unpaginated.
 pub async fn get_active_modules_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

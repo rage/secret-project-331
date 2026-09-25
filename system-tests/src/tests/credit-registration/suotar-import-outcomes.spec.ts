@@ -34,6 +34,7 @@ import {
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   runConfigValidationTick,
+  runEnrolmentCheckNow,
   runImportSubmissionTick,
   runMaterializeTick,
   runPhasesUpToSubmission,
@@ -85,15 +86,9 @@ test.describe("An import the study registry never answered", () => {
     })
 
     await runMaterializeTick(page.request, scope)
-    // The live credit-registrar worker keeps ticking this seeded-as-completed row regardless of
-    // this spec: if it reached resolve-enrolments before the scenario above created the mock
-    // enrolment, the row is now parked in `no_usable_enrolment` for an hour or more. Forcing it due
-    // now is a no-op for a fresh row and the only way to unstick a backfilled one.
     const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_COURSE_SLUG)
-    await makeRegistrationDueNow(adminApi, materialized.id)
     const rowScope = { creditRegistrationIds: [materialized.id] }
-    await runPreconditionsTick(page.request, rowScope)
-    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runEnrolmentCheckNow(page.request, rowScope)
     // A batch answered with nothing but `sisuTimeout` is what a Sisu outage looks like, so the
     // iteration fails, which counts it against the breaker that pauses import alone.
     const importTick = await runTickUnchecked(page.request, "import", rowScope)
@@ -193,12 +188,9 @@ test.describe("An import whose answer left the item out", () => {
     })
 
     await runMaterializeTick(page.request, scope)
-    // See the timeout spec above: a worker may have parked the row before the enrolment existed.
     const materialized = await myRegistrationOnCourse(page.request, adminApi, SUOTAR_B_COURSE_SLUG)
-    await makeRegistrationDueNow(adminApi, materialized.id)
     const rowScope = { creditRegistrationIds: [materialized.id] }
-    await runPreconditionsTick(page.request, rowScope)
-    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runEnrolmentCheckNow(page.request, rowScope)
     await runTickUnchecked(page.request, "import", rowScope)
 
     const uncertain = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
@@ -355,10 +347,7 @@ test.describe("A batch Suotar refuses as malformed because of one row", () => {
       })
       const row = await stateOf(student.studentNumber)
       expect(row).toBeDefined()
-      await makeRegistrationDueNow(adminApi, row!.id)
-      const rowScope = { creditRegistrationIds: [row!.id] }
-      await runPreconditionsTick(page.request, rowScope)
-      await runResolveEnrolmentsTick(page.request, rowScope)
+      await runEnrolmentCheckNow(page.request, { creditRegistrationIds: [row!.id] })
       rowIds.push(row!.id)
     }
 
@@ -453,10 +442,7 @@ test.describe("A resend of a completion Sisu accepted from Suotar moments ago", 
         { description: `the resent row to reach ${state}` },
       )
 
-    // A worker may have parked the row on the missing enrolment before the upsert above.
-    await makeRegistrationDueNow(adminApi, rowId)
-    await runPreconditionsTick(page.request, rowScope)
-    await runResolveEnrolmentsTick(page.request, rowScope)
+    await runEnrolmentCheckNow(page.request, rowScope)
     await runImportSubmissionTick(page.request, rowScope)
     await waitForState("awaiting_verification")
     const [sent] = await mockSuotarSubmissionsFor(page.request, RESENT_STUDENT_NUMBER, CRS_101)

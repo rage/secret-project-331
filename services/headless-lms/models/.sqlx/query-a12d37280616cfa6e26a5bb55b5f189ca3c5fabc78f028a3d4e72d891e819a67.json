@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT m.id AS \"course_module_id!\",\n  (\n    SELECT cr.created_at\n    FROM credit_registrations cr\n    WHERE cr.course_module_id = m.id\n      AND cr.deleted_at IS NULL\n    ORDER BY cr.created_at DESC\n    LIMIT 1\n  ) AS last_completion_at,\n  EXISTS (\n    SELECT 1\n    FROM credit_registrations cr\n    WHERE cr.course_module_id = m.id\n      AND cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_checks_stopped_at IS NULL\n      AND cr.superseded_by_id IS NULL\n      AND cr.deleted_at IS NULL\n  ) AS \"has_waiting_rows!\"\nFROM UNNEST($1::uuid []) AS m(id)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_completion_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "has_waiting_rows!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "a12d37280616cfa6e26a5bb55b5f189ca3c5fabc78f028a3d4e72d891e819a67"
+}

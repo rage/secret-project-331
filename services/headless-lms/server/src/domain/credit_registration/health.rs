@@ -11,7 +11,8 @@ use headless_lms_models::library::credit_registration::materialize::get_unmateri
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     course_module_suotar_configurations, credit_registration_account_linking_emails,
-    credit_registration_events, credit_registration_phase_state, credit_registrations,
+    credit_registration_events, credit_registration_phase_state,
+    credit_registration_roster_schedules, credit_registrations,
     study_registry_student_number_conflicts, suotar_api_calls,
 };
 use utoipa::ToSchema;
@@ -101,6 +102,7 @@ pub enum CreditRegistrationAlertId {
     ConfirmationLatencyRegressed,
     PipelinePausedGlobally,
     StudyRegistryStudentNumberConflicts,
+    RosterCourseCodeFailing,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, ToSchema)]
@@ -240,6 +242,9 @@ pub async fn evaluate(
         alerts.push(alert);
     }
     if let Some(alert) = study_registry_conflict_alert(conn).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = roster_course_code_alert(conn).await? {
         alerts.push(alert);
     }
 
@@ -633,6 +638,26 @@ async fn study_registry_conflict_alert(
         total: None,
         at: None,
         subject: None,
+    }))
+}
+
+/// Course codes whose roster fails even when listed on their own, so enrolment discovery is backing
+/// them off. The worst one rides along, since the usual cause is that one code's configuration.
+async fn roster_course_code_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let failing = credit_registration_roster_schedules::get_failing_codes(conn).await?;
+    let Some(worst) = failing.first() else {
+        return Ok(None);
+    };
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::RosterCourseCodeFailing,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count: i64::try_from(failing.len()).unwrap_or(i64::MAX),
+        total: None,
+        at: worst.last_attempted_at,
+        subject: Some(worst.course_code.clone()),
     }))
 }
 

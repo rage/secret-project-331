@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT enrolment_check_group AS \"enrolment_check_group!: EnrolmentCheckGroup\",\n  enrolment_check_step,\n  enrolment_checks_stopped_at IS NOT NULL AS \"is_stopped!\",\n  COUNT(*) AS \"row_count!\",\n  COUNT(*) FILTER (\n    WHERE enrolment_checked_at IS NULL\n  ) AS \"never_checked_count!\"\nFROM credit_registrations\nWHERE state IN (\n    'no_usable_enrolment',\n    'ready_to_submit',\n    'resolving_enrolment',\n    'failed_retryable'\n  )\n  AND enrolment_check_anchor_at IS NOT NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY enrolment_check_group,\n  enrolment_check_step,\n  enrolment_checks_stopped_at IS NOT NULL\nORDER BY enrolment_check_group,\n  enrolment_check_step NULLS LAST\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "enrolment_check_group!: EnrolmentCheckGroup",
+        "type_info": {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_group"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "enrolment_check_step",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_step"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "is_stopped!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "row_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "never_checked_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "2509fedeeee03af1a9ed56282030acf3cc7f9d86bdf77965ade24dd03588bed2"
+}

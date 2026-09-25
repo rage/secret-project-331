@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   useCreditRegistrationAttentionCount,
+  useCreditRegistrationFailingRosterCodeCount,
   useCreditRegistrationLinkingFailureCount,
   useCreditRegistrationMisconfiguredCourseCount,
   useCreditRegistrationUnhealthyPhaseCount,
@@ -26,6 +27,7 @@ import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMulti
 import {
   creditRegistrationAuditRoute,
   creditRegistrationCoursesRoute,
+  creditRegistrationEnrolmentChecksRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
@@ -40,6 +42,7 @@ const KEY_ERRORS = "errors"
 const KEY_COURSES = "courses"
 const KEY_LINKING = "linking"
 const KEY_SYSTEM = "system"
+const KEY_ENROLMENT_CHECKS = "enrolment-checks"
 const KEY_AUDIT = "audit"
 
 // The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
@@ -106,6 +109,14 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         title: t("credit-registration-tab-system"),
         href: creditRegistrationSystemRoute(),
         countHook: useCreditRegistrationUnhealthyPhaseCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
+      },
+      {
+        key: KEY_ENROLMENT_CHECKS,
+        title: t("credit-registration-tab-enrolment-checks"),
+        href: creditRegistrationEnrolmentChecksRoute(),
+        countHook: useCreditRegistrationFailingRosterCodeCount,
         // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
         countTone: "danger",
       },

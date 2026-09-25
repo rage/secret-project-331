@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.submitted_at,\n  cr.resubmit_not_before,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.enrolment_checked_at,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cr.course_id = $1)\n  AND ($2::uuid IS NULL OR cr.id = $2)\n  AND ($3::uuid [] IS NULL OR cr.user_id = ANY($3))\n  AND (\n    $4::credit_registration_state IS NULL\n    OR cr.state = $4\n  )\n  AND (\n    $5::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\\'\n  )\n  AND ($6::uuid IS NULL OR cr.course_instance_id = $6)\n  AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)\n  AND (\n    CARDINALITY($10::credit_registration_state []) = 0\n    OR EXISTS (\n      SELECT 1\n      FROM UNNEST(\n          $10::credit_registration_state [],\n          $11::boolean [],\n          $12::boolean [],\n          $13::boolean [],\n          $14::boolean []\n        ) AS stage(\n          state,\n          completion_eligible,\n          has_verified_student_number,\n          course_code_allowed,\n          enrolment_resolved\n        )\n      WHERE stage.state = cr.state\n        AND stage.completion_eligible = p.completion_eligible\n        AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)\n        AND stage.course_code_allowed = p.course_code_allowed\n        AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $8 OFFSET $9\n        ",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_entered_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.grade_id,\n  cr.credits,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.submitted_at,\n  cr.resubmit_not_before,\n  vsn.student_number AS \"student_number?\",\n  vsn.verified_at AS \"student_number_verified_at?\",\n  vsn.verified_via AS \"student_number_verified_via?\",\n  vsn.sisu_person_id AS \"sisu_person_id?\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\nWHERE cr.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR cr.course_id = $1)\n  AND ($2::uuid IS NULL OR cr.id = $2)\n  AND ($3::uuid [] IS NULL OR cr.user_id = ANY($3))\n  AND (\n    $4::credit_registration_state IS NULL\n    OR cr.state = $4\n  )\n  AND (\n    $5::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\\'\n  )\n  AND ($6::uuid IS NULL OR cr.course_instance_id = $6)\n  AND ($7::uuid IS NULL OR cr.course_module_completion_id = $7)\n  AND (\n    CARDINALITY($10::credit_registration_state []) = 0\n    OR EXISTS (\n      SELECT 1\n      FROM UNNEST(\n          $10::credit_registration_state [],\n          $11::boolean [],\n          $12::boolean [],\n          $13::boolean [],\n          $14::boolean []\n        ) AS stage(\n          state,\n          completion_eligible,\n          has_verified_student_number,\n          course_code_allowed,\n          enrolment_resolved\n        )\n      WHERE stage.state = cr.state\n        AND stage.completion_eligible = p.completion_eligible\n        AND stage.has_verified_student_number = (vsn.student_number IS NOT NULL)\n        AND stage.course_code_allowed = p.course_code_allowed\n        AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC,\n  cr.id\nLIMIT $8 OFFSET $9\n        ",
   "describe": {
     "columns": [
       {
@@ -402,6 +402,17 @@
       },
       {
         "ordinal": 31,
+        "name": "enrolment_check_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "enrolment_check_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 32,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -412,7 +423,7 @@
         }
       },
       {
-        "ordinal": 32,
+        "ordinal": 33,
         "name": "course_code_allowed!",
         "type_info": "Bool",
         "origin": {
@@ -423,7 +434,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "total_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -536,8 +547,9 @@
       true,
       true,
       true,
+      true,
       null
     ]
   },
-  "hash": "9e6f3f3584770e2e16de783c67b70ffbbc16367ed38636c091e7411168c4fea6"
+  "hash": "cb15b25c4def6b9938e1f511e595cb30dda02875142c9281cb2e5fcb05d228fe"
 }

@@ -19,12 +19,11 @@ import { getMockSuotarWorld, upsertMockSuotarEnrolments } from "@/utils/mockSuot
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   expireEnrolmentRecheckAllowance,
+  runEnrolmentCheckNow,
   runImportSubmissionTick,
   runMaterializeTick,
   runPhasesUpToSubmission,
-  runPreconditionsTick,
   runResolveEnrolmentsTick,
-  runStudentNotificationsTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
 
@@ -56,14 +55,13 @@ test.describe("A student the University has no enrolment for", () => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
     await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
+    await runEnrolmentCheckNow(page.request, scope)
 
     const stuck = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
       "no_usable_enrolment",
     ])
     expect(stuck.student_facing_status).toBe("needs_enrolment")
-    // Parking was a look, so saying they have enrolled would otherwise wait out the hour.
+    // The check just made would otherwise hold off saying they have enrolled for half an hour.
     await expireEnrolmentRecheckAllowance(page.request, stuck.id)
 
     await test.step("The guidance is a working link, not an instruction to go looking", async () => {
@@ -187,15 +185,14 @@ test.describe("A student enrolled both as a degree student and through the Open 
 test.describe("A student the study registry already credited, with no enrolment", () => {
   test.use({ storageState: ADMIN_STORAGE_STATE })
 
-  test("The credit Sisu already holds settles the row without asking the student to enrol", async ({
+  test("The credit Sisu already holds settles the row, with nothing imported", async ({
     page,
     adminApi,
   }) => {
     const scope = { userEmail: PRIOR_CREDIT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
 
     await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    await runResolveEnrolmentsTick(page.request, scope)
+    await runEnrolmentCheckNow(page.request, scope)
 
     const settled = await pollUntil(
       async () => {
@@ -216,9 +213,6 @@ test.describe("A student the study registry already credited, with no enrolment"
     // Nothing was sent, so no Sisu person may stay frozen on the row.
     expect(registration.sisu_person_id).toBeNull()
 
-    await runStudentNotificationsTick(page.request, scope)
-    const { notification_emails } = await adminRegistrationDetails(adminApi, settled.id)
-    expect(notification_emails.filter((mail) => mail.kind === "action_needed")).toHaveLength(0)
     expect(
       await countMockCallsForStudent(
         page.request,

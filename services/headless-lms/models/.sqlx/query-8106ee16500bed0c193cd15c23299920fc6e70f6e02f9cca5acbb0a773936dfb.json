@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET next_attempt_at = now(),\n  enrolment_check_source = CASE\n    WHEN state = 'no_usable_enrolment' THEN 'admin_request'\n    ELSE enrolment_check_source\n  END\nWHERE id = ANY($1)\n  AND next_attempt_at > now()\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8106ee16500bed0c193cd15c23299920fc6e70f6e02f9cca5acbb0a773936dfb"
+}

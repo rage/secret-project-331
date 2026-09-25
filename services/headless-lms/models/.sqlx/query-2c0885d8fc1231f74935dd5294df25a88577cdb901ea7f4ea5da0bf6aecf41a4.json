@@ -1,0 +1,59 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations cr\nSET enrolment_check_group = GREATEST(cr.enrolment_check_group, started.enrolment_check_group),\n  enrolment_check_anchor_at = started.anchor_at,\n  enrolment_check_step = started.step,\n  enrolment_check_due_at = started.due_at,\n  is_enrolment_check_batched = started.is_batched,\n  enrolment_checks_stopped_at = NULL,\n  enrolment_check_source = started.source\nFROM UNNEST(\n    $1::uuid [],\n    $2::enrolment_check_group [],\n    $3::timestamptz [],\n    $4::int [],\n    $5::timestamptz [],\n    $6::boolean [],\n    $7::enrolment_check_source []\n  ) AS started(\n    id,\n    enrolment_check_group,\n    anchor_at,\n    step,\n    due_at,\n    is_batched,\n    source\n  )\nWHERE cr.id = started.id\n  AND cr.state IN ('no_usable_enrolment', 'ready_to_submit')\n  AND cr.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        {
+          "Custom": {
+            "name": "enrolment_check_group[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "enrolment_check_group",
+                  "kind": {
+                    "Enum": [
+                      "completed",
+                      "visited",
+                      "check_requested"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TimestamptzArray",
+        "Int4Array",
+        "TimestamptzArray",
+        "BoolArray",
+        {
+          "Custom": {
+            "name": "enrolment_check_source[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "enrolment_check_source",
+                  "kind": {
+                    "Enum": [
+                      "schedule",
+                      "student_request",
+                      "teacher_request",
+                      "admin_request",
+                      "roster_listing",
+                      "account_link"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2c0885d8fc1231f74935dd5294df25a88577cdb901ea7f4ea5da0bf6aecf41a4"
+}

@@ -10,6 +10,10 @@ use crate::prelude::*;
 use super::backoff::{
     RESOLVING_RECOVERY_GRACE_SECS, SUBMIT_MAX_RETRY_AGE_SECS, SUBMITTING_RECOVERY_GRACE_SECS,
 };
+use super::enrolment_check_schedule::{
+    BATCH_PULL_FORWARD_SECS, EnrolmentCheckGroup, EnrolmentCheckSource, first_check,
+};
+use super::enrolment_checks::{EnrolmentCheckStart, record_starts};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
@@ -27,6 +31,16 @@ struct PendingMove {
     has_payload_snapshot: bool,
     frozen_identity_stale: bool,
     payload_unweighed_against_held_credit: bool,
+    /// Set for a row that would leave `pending` or `blocked` for its first enrolment check: it
+    /// starts the check schedule instead of resolving at once.
+    check_start: Option<CheckStartFacts>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct CheckStartFacts {
+    group: EnrolmentCheckGroup,
+    anchor_at: DateTime<Utc>,
+    source: EnrolmentCheckSource,
 }
 
 /// Where a `failed_retryable` row goes when its backoff elapses, derived from how far it had got.
@@ -63,16 +77,25 @@ fn resume_state(
 /// A row a worker claimed between the snapshot and the write is left where it is: its state is that
 /// phase's to own now, and the next iteration decides again from whatever it committed. Writing
 /// anyway could put an in-flight import back into a state a second import claims.
+///
+/// A row that would start resolving without ever having been checked starts its enrolment check
+/// schedule instead: nobody has enrolled at the moment they complete, so it waits in
+/// `no_usable_enrolment` for the first rung of its group's ladder unless that rung is due already.
+/// Slow checks due soon are pulled forward first, into the batch that goes out anyway.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<i64> {
-    let moves: Vec<BatchMove> = pending_moves(conn, scope, limit)
+    let now = Utc::now();
+    let mut tx = conn.begin().await?;
+    pull_forward_batched_checks(&mut tx, scope).await?;
+    let mut starts = Vec::new();
+    let moves: Vec<BatchMove> = pending_moves(&mut tx, scope, limit)
         .await?
         .iter()
         .filter_map(|pending| {
-            let target = pending.target.unwrap_or_else(|| {
+            let mut target = pending.target.unwrap_or_else(|| {
                 resume_state(
                     pending.has_submitted_attainment,
                     pending.has_payload_snapshot,
@@ -80,13 +103,83 @@ pub async fn recompute_preconditions(
                     pending.payload_unweighed_against_held_credit,
                 )
             });
+            let mut next_attempt_at = None;
+            if target == CreditRegistrationState::ReadyToSubmit
+                && let Some(start) = &pending.check_start
+                && let Some(scheduled) = first_check(start.group, start.anchor_at)
+            {
+                starts.push(EnrolmentCheckStart {
+                    credit_registration_id: pending.id,
+                    group: start.group,
+                    anchor_at: start.anchor_at,
+                    scheduled,
+                    source: start.source,
+                });
+                if scheduled.due_at > now {
+                    target = CreditRegistrationState::NoUsableEnrolment;
+                    next_attempt_at = Some(scheduled.release_at());
+                }
+            }
             (target != pending.state).then(|| BatchMove {
                 id: pending.id,
-                transition: transition_for(pending, target),
+                transition: Transition {
+                    next_attempt_at,
+                    ..transition_for(pending, target)
+                },
             })
         })
         .collect();
-    transition_batch(conn, &moves).await
+    let moved = transition_batch(&mut tx, &moves).await?;
+    record_starts(&mut tx, &starts).await?;
+    tx.commit().await?;
+    Ok(moved)
+}
+
+/// Brings the slow checks due within [`BATCH_PULL_FORWARD_SECS`] forward into the batch released
+/// now, when there is one: they cost nothing extra in a request that is going out anyway.
+async fn pull_forward_batched_checks(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+WITH scoped AS (
+  SELECT cr.id,
+    cr.next_attempt_at,
+    cr.enrolment_check_due_at
+  FROM credit_registrations cr
+    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+  WHERE cr.state = 'no_usable_enrolment'
+    AND cr.is_enrolment_check_batched
+    AND cr.superseded_by_id IS NULL
+    AND cr.deleted_at IS NULL
+    AND ($1::uuid IS NULL OR cr.course_id = $1)
+    AND ($2::uuid IS NULL OR cr.user_id = $2)
+    AND (
+      cardinality($3::uuid []) = 0
+      OR cr.id = ANY($3::uuid [])
+    )
+)
+UPDATE credit_registrations cr
+SET next_attempt_at = now()
+FROM scoped
+WHERE cr.id = scoped.id
+  AND scoped.next_attempt_at > now()
+  AND scoped.enrolment_check_due_at <= now() + ($4::bigint * INTERVAL '1 second')
+  AND EXISTS (
+    SELECT 1
+    FROM scoped released
+    WHERE released.next_attempt_at <= now()
+  )
+        "#,
+        scope.course_id,
+        scope.user_id,
+        &scope.credit_registration_ids,
+        BATCH_PULL_FORWARD_SECS,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// The transition each edge writes: kept out of the query so every edge's error code, admin flag
@@ -148,6 +241,15 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
             }),
             ..base
         },
+        State::NoUsableEnrolment => Transition {
+            event_message: Some("Waiting for the first enrolment check.".to_string()),
+            ..base
+        },
+        // A routine recheck: its answer is the event.
+        State::ReadyToSubmit if pending.state == State::NoUsableEnrolment => Transition {
+            records_event: false,
+            ..base
+        },
         // Keys off `pending.state`, not just `target`: the message is about where the row came
         // from, unlike every arm above.
         State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {
@@ -198,9 +300,41 @@ WITH facts AS (
         AND held.superseded_by_id IS NULL
         AND held.pending_superseded_by_id IS DISTINCT FROM cr.id
         AND held.state IN ('registered', 'duplicate', 'not_improved')
-    ) AS payload_unweighed_against_held_credit
+    ) AS payload_unweighed_against_held_credit,
+    cr.state IN ('pending', 'blocked')
+    AND cr.enrolment_checked_at IS NULL AS starts_enrolment_checks,
+    GREATEST(
+      cr.enrolment_check_group,
+      CASE
+        WHEN sig.last_check_requested_at IS NOT NULL THEN 'check_requested'
+        WHEN sig.last_visited_at IS NOT NULL THEN 'visited'
+        ELSE 'completed'
+      END::enrolment_check_group,
+      (
+        SELECT MAX(earlier.enrolment_check_group)
+        FROM credit_registrations earlier
+        WHERE earlier.user_id = cr.user_id
+          AND earlier.course_module_id = cr.course_module_id
+          AND earlier.created_at < cr.created_at
+          AND earlier.deleted_at IS NULL
+      )
+    ) AS check_group,
+    GREATEST(
+      cmc.completion_date,
+      vsn.verified_at,
+      COALESCE(sig.last_check_requested_at, sig.last_visited_at)
+    ) AS check_anchor_at,
+    CASE
+      WHEN sig.last_check_requested_at IS NOT NULL THEN sig.check_request_source
+      ELSE 'schedule'
+    END::enrolment_check_source AS check_source
   FROM credit_registrations cr
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+    LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
+    AND vsn.deleted_at IS NULL
+    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+    AND sig.deleted_at IS NULL
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
     AND conf.deleted_at IS NULL
   WHERE cr.deleted_at IS NULL
@@ -282,7 +416,11 @@ SELECT id,
   has_submitted_attainment AS "has_submitted_attainment!",
   has_payload_snapshot AS "has_payload_snapshot!",
   frozen_identity_stale AS "frozen_identity_stale!",
-  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!"
+  payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!",
+  starts_enrolment_checks AS "starts_enrolment_checks!",
+  check_group AS "check_group!: EnrolmentCheckGroup",
+  check_anchor_at AS "check_anchor_at!",
+  check_source AS "check_source!: EnrolmentCheckSource"
 FROM targets
 WHERE target IS NULL
   OR target <> state
@@ -314,6 +452,11 @@ LIMIT $1
             has_payload_snapshot: row.has_payload_snapshot,
             frozen_identity_stale: row.frozen_identity_stale,
             payload_unweighed_against_held_credit: row.payload_unweighed_against_held_credit,
+            check_start: row.starts_enrolment_checks.then_some(CheckStartFacts {
+                group: row.check_group,
+                anchor_at: row.check_anchor_at,
+                source: row.check_source,
+            }),
         })
         .collect())
 }
@@ -486,10 +629,11 @@ mod tests {
 
         link_student_number(tx.as_mut(), user).await;
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 1);
-        assert_eq!(
-            state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
-        );
+        // Nobody has enrolled the moment they complete, so the first check waits for its rung.
+        let parked = get_by_id(tx.as_mut(), fixture.registration).await.unwrap();
+        assert_eq!(parked.state, CreditRegistrationState::NoUsableEnrolment);
+        assert_eq!(parked.enrolment_checked_at, None);
+        assert_eq!(parked.enrolment_check_step, Some(0));
 
         assert_eq!(recompute(tx.as_mut(), &fixture).await, 0);
     }
@@ -549,7 +693,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
 
         crate::course_module_completions::update_needs_to_be_reviewed(
@@ -575,7 +719,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
     }
 
@@ -602,7 +746,7 @@ mod tests {
         recompute(tx.as_mut(), &fixture).await;
         assert_eq!(
             state(tx.as_mut(), &fixture).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
 
         let linked = crate::verified_student_numbers::get_by_user_id(tx.as_mut(), user)
@@ -842,7 +986,7 @@ mod tests {
         );
         assert_eq!(
             state(tx.as_mut(), &mine).await,
-            CreditRegistrationState::ReadyToSubmit
+            CreditRegistrationState::NoUsableEnrolment
         );
         assert_eq!(
             state(tx.as_mut(), &theirs).await,

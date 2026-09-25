@@ -14,7 +14,6 @@ import {
   adminRegistrationDetails,
   adminResolveStudentNumber,
   listAdminRegistrations,
-  makeRegistrationDueNow,
 } from "@/utils/creditRegistrationAdmin"
 import {
   activeStudyRightPeriod,
@@ -24,6 +23,7 @@ import {
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   expireEnrolmentRecheckAllowance,
+  runEnrolmentCheckNow,
   runEnrolmentDiscoveryTick,
   runMaterializeTick,
   runPreconditionsTick,
@@ -81,10 +81,7 @@ const rowInState = (adminApi: APIRequestContext, states: string[]) =>
     { description: `the registration to reach one of ${states.join(", ")}` },
   )
 
-/**
- * Parks the seeded completion on a look made just now. The live worker has usually parked it long
- * before, under a look that may already be past the recheck allowance.
- */
+/** Parks the seeded completion on a check made just now, whatever its schedule. */
 const parkOnMissingEnrolment = async (page: Page, adminApi: APIRequestContext) => {
   await setTestExclusiveHold(page.request, STUDENT.email, HOLD_SECS, SUOTAR_B_COURSE_ID)
   await runMaterializeTick(page.request, {
@@ -92,10 +89,7 @@ const parkOnMissingEnrolment = async (page: Page, adminApi: APIRequestContext) =
     courseSlug: SUOTAR_B_COURSE_SLUG,
   })
   const materialized = await rowInState(adminApi, NOT_YET_SENT_STATES)
-  await makeRegistrationDueNow(adminApi, materialized.id)
-  const rowScope = { creditRegistrationIds: [materialized.id] }
-  await runPreconditionsTick(page.request, rowScope)
-  await runResolveEnrolmentsTick(page.request, rowScope)
+  await runEnrolmentCheckNow(page.request, { creditRegistrationIds: [materialized.id] })
   return await rowInState(adminApi, ["no_usable_enrolment"])
 }
 
@@ -123,14 +117,14 @@ test("A teacher asks for the enrolment to be checked again, within the student's
 }) => {
   const parked = await parkOnMissingEnrolment(page, adminApi)
 
-  await test.step("Just after the pipeline checked, the action is hidden for the hour", async () => {
+  await test.step("Just after the pipeline checked, the action is hidden for half an hour", async () => {
     const dialog = await openDetails(page)
     await expect(recheckButton(dialog)).toBeHidden()
     const row = (await teacherDetails(page.request, parked.id)).registration
     expect(row.can_request_enrolment_recheck).toBe(false)
   })
 
-  await test.step("Once the hour is up it starts a recheck and says who asked", async () => {
+  await test.step("Once the half hour is up it starts a recheck and says who asked", async () => {
     await expireEnrolmentRecheckAllowance(page.request, parked.id)
     const dialog = await openDetails(page)
     await recheckButton(dialog).click()

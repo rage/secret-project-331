@@ -106,6 +106,10 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         optionCells: createEmptyMatrix(),
         order: 0,
         feedbackMessages: [],
+        gradingPolicy: "whole-matrix",
+        tolerance: 0,
+        partialCreditForWrongShape: false,
+        fogOfWar: false,
       } as PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {

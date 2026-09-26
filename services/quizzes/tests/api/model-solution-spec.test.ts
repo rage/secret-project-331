@@ -7,6 +7,7 @@ import type { SpecRequest } from "@/utils/exerciseServiceApi"
 import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
+  ModelSolutionQuizItemMatrix,
   ModelSolutionQuizItemMultiplechoice,
 } from "../../types/quizTypes/modelSolutionSpec"
 import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
@@ -76,6 +77,19 @@ describe("Model solution spec generation", () => {
     }
     expect(modelSolution.messagesOnModelSolution).toEqual([QUIZ_ON_MODEL_SOLUTION_CANARY])
     expectNoAfterAnswerCanaries(modelSolution)
+  })
+
+  it("drops matrix grading config that is not part of the declared model solution shape", async () => {
+    const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
+    const modelSolution = await generateModelSolution(privateSpec)
+
+    const item = modelSolution.items[0] as ModelSolutionQuizItemMatrix
+    // @ts-expect-error: property that should not exist on the model solution
+    expect(item.tolerance).toBeUndefined()
+    // @ts-expect-error: property that should not exist on the model solution
+    expect(item.partialCreditForWrongShape).toBeUndefined()
+    // @ts-expect-error: property that should not exist on the model solution
+    expect(item.fogOfWar).toBeUndefined()
   })
 })
 

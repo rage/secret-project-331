@@ -87,4 +87,27 @@ describe("Matrix accessibility", () => {
       }),
     )
   })
+
+  it("accepts a number nothing can parse as a submittable answer, since the key may use the same text", () => {
+    const { setQuizItemAnswerState } = renderMatrix()
+    const firstCell = screen.getByLabelText("matrix-cell-aria-label row=1 column=1")
+    fireEvent.change(firstCell, { target: { value: "1,234,567" } })
+    expect(setQuizItemAnswerState).toHaveBeenCalledWith(expect.objectContaining({ valid: true }))
+  })
+
+  it("refuses a submission with a blank cell inside its own frame", () => {
+    const answerWithAGap: UserItemAnswerMatrix = {
+      type: "matrix",
+      valid: true,
+      quizItemId: "matrix-1",
+      matrix: [
+        ["1", ""],
+        ["", "4"],
+      ],
+    }
+    const { setQuizItemAnswerState } = renderMatrix(answerWithAGap)
+    const filledCell = screen.getByLabelText("matrix-cell-aria-label row=1 column=1")
+    fireEvent.change(filledCell, { target: { value: "9" } })
+    expect(setQuizItemAnswerState).toHaveBeenCalledWith(expect.objectContaining({ valid: false }))
+  })
 })

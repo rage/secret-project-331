@@ -1,3 +1,5 @@
+import { matrixShape } from "@/util/matrix"
+
 import type { UserItemAnswer } from "../../types/quizTypes/answer"
 import type {
   PrivateSpecQuiz,
@@ -84,31 +86,11 @@ export function getMatrixDimensions(matrix: string[][] | null | undefined): {
   rowCount: number | null
   columnCount: number | null
 } {
-  if (!matrix) {
+  const shape = matrixShape(matrix)
+  if (shape.rows === 0 || shape.columns === 0) {
     return { rowCount: null, columnCount: null }
   }
-
-  let maxRowIndex = -1
-  let maxColumnIndex = -1
-
-  for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
-    const row = matrix[rowIndex] ?? []
-    for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
-      if (isNonEmptyMatrixCell(row[columnIndex])) {
-        maxRowIndex = Math.max(maxRowIndex, rowIndex)
-        maxColumnIndex = Math.max(maxColumnIndex, columnIndex)
-      }
-    }
-  }
-
-  if (maxRowIndex === -1 || maxColumnIndex === -1) {
-    return { rowCount: null, columnCount: null }
-  }
-
-  return {
-    rowCount: maxRowIndex + 1,
-    columnCount: maxColumnIndex + 1,
-  }
+  return { rowCount: shape.rows, columnCount: shape.columns }
 }
 
 /** Returns trimmed cell value or null if missing/empty. */

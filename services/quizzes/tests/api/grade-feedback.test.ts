@@ -61,7 +61,7 @@ function buildMultipleChoiceRequest(items: ItemConfig[], quizFeedback: QuizFeedb
   })
 
   const exercise_spec: PrivateSpecQuiz = {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: specItems,
@@ -72,7 +72,7 @@ function buildMultipleChoiceRequest(items: ItemConfig[], quizFeedback: QuizFeedb
   }
 
   const submission_data: UserAnswer = {
-    version: "4",
+    version: "5",
     itemAnswers: items.map((config) => ({
       type: "multiple-choice",
       valid: true,

@@ -13,9 +13,24 @@ import type {
 } from "../../types/quizTypes/grading"
 import type {
   PrivateSpecQuiz,
+  PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
+
+const quantizeForFogOfWar = (correctnessCoefficient: number): number => {
+  if (correctnessCoefficient <= 0) {
+    return 0
+  }
+  if (correctnessCoefficient >= 1) {
+    return 1
+  }
+  return 0.5
+}
+
+/** Collapses the coefficient to wrong/partial/fully-correct when fog of war is on, leaves it exact otherwise. */
+const applyFogOfWar = (correctnessCoefficient: number, fogOfWar: boolean): number =>
+  fogOfWar ? quantizeForFogOfWar(correctnessCoefficient) : correctnessCoefficient
 
 const submissionFeedback = (
   submission: UserAnswer,
@@ -34,6 +49,8 @@ const submissionFeedback = (
           quiz_item_feedback: null,
           quiz_item_option_feedbacks: null,
           timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           correctnessCoefficient: 1,
         }
       }
@@ -57,17 +74,25 @@ const submissionFeedback = (
             quiz_item_feedback: null,
             quiz_item_option_feedbacks: null,
             timeline_item_feedbacks: null,
+            matrix_cell_feedbacks: null,
+            matrix_score_breakdown: null,
             correctnessCoefficient: 1,
           }
         }
 
         const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+        // Same leak the matrix branch below guards against: the raw coefficient moves by
+        // 1/optionCount per selection under partial-credit policies, so leaving it unquantized
+        // would let a student bisect the answer key across retries even with fog of war on.
+        const correctnessCoefficient = applyFogOfWar(itemGrading.correctnessCoefficient, fogOfWar)
 
         return {
           timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           quiz_item_id: multipleChoiceQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          correctnessCoefficient: itemGrading.correctnessCoefficient,
+          correctnessCoefficient,
           quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
             (optionId): OptionAnswerFeedback => {
               const option =
@@ -106,6 +131,8 @@ const submissionFeedback = (
           quiz_item_id: timelineQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
           quiz_item_option_feedbacks: null,
+          matrix_cell_feedbacks: null,
+          matrix_score_breakdown: null,
           correctnessCoefficient: itemGrading.correctnessCoefficient,
           timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
             (timelineChoice) => {
@@ -128,11 +155,43 @@ const submissionFeedback = (
         }
       }
 
+      if (item.type === "matrix") {
+        const matrixQuizItem = item as PrivateSpecQuizItemMatrix
+        // Reuses the comparison assessMatrixQuiz already made for the same item in the same
+        // request, rather than redoing it here; null only if that grading call itself failed.
+        const difference = itemGrading.matrixDifference ?? null
+        // Fog of war withholds the per-cell verdicts, which would otherwise let a student with
+        // repeated attempts resolve the key one cell at a time.
+        const revealCells = !matrixQuizItem.fogOfWar
+        // The exact fraction is the same leak in a different shape: under per-cell grading it
+        // moves by 1/keyCells per cell, so a student could still bisect the key across retries by
+        // watching it change. Collapse it to the same three-way signal every other item type
+        // already exposes (wrong / partial / fully correct) so the actually-awarded points (which
+        // come from the separate, full-precision QuizItemAnswerGrading, not this feedback object)
+        // are unaffected.
+        const correctnessCoefficient = applyFogOfWar(
+          itemGrading.correctnessCoefficient,
+          !revealCells,
+        )
+
+        return {
+          quiz_item_id: matrixQuizItem.id,
+          quiz_item_feedback: quizItemFeedback,
+          quiz_item_option_feedbacks: null,
+          timeline_item_feedbacks: null,
+          matrix_cell_feedbacks: revealCells ? (difference?.cellFeedbacks ?? null) : null,
+          matrix_score_breakdown: revealCells ? (difference?.breakdown ?? null) : null,
+          correctnessCoefficient,
+        }
+      }
+
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: quizItemFeedback,
         quiz_item_option_feedbacks: null,
         timeline_item_feedbacks: null,
+        matrix_cell_feedbacks: null,
+        matrix_score_breakdown: null,
         correctnessCoefficient: itemGrading.correctnessCoefficient,
       }
     },
@@ -147,6 +206,8 @@ const submissionFeedback = (
       quiz_item_feedback: quizLevelFeedback,
       quiz_item_option_feedbacks: null,
       timeline_item_feedbacks: null,
+      matrix_cell_feedbacks: null,
+      matrix_score_breakdown: null,
       correctnessCoefficient: 1,
     })
   }

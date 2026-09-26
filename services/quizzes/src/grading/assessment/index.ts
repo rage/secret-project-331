@@ -68,7 +68,15 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
       case "essay":
         return assessEssay(itemAnswer, quizItem as PrivateSpecQuizItemEssay)
       case "matrix":
-        return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        // A misconfigured key (no correct answer, or a gap inside the frame) throws so the
+        // problem is logged, but that must not fail every other item in the same submission the
+        // way an uncaught throw here would (server/grade.ts's catch 500s the whole request).
+        try {
+          return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        } catch (error) {
+          console.error(`Failed to grade matrix item ${quizItem.id}:`, error)
+          return { quizItemId: itemAnswer.quizItemId, correctnessCoefficient: 0 }
+        }
       case "checkbox":
       case "scale":
         return {

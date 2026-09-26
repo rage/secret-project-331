@@ -7,6 +7,7 @@ import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemClosedEndedQuestion,
+  ModelSolutionQuizItemMatrix,
 } from "../../types/quizTypes/modelSolutionSpec"
 
 const SERVICE = "quizzes"
@@ -136,6 +137,22 @@ function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
         messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
         correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
       } satisfies ModelSolutionQuizItemClosedEndedQuestion
+    }
+    if (quizItem.type === "matrix") {
+      // Grading config, not answer data, but still not for students: excluded explicitly, since
+      // spreading `...rest` into a typed return only hides excess properties from the type
+      // checker, it does not drop them from the actual response.
+      const {
+        feedbackMessages,
+        tolerance: _tolerance,
+        partialCreditForWrongShape: _partialCreditForWrongShape,
+        fogOfWar: _fogOfWar,
+        ...rest
+      } = quizItem
+      return {
+        ...rest,
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+      } satisfies ModelSolutionQuizItemMatrix
     }
     const { feedbackMessages, ...rest } = quizItem
     return {

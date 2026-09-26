@@ -1,13 +1,15 @@
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemClosedEndedQuestion,
+  PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
+import { blankCellsInsideShape, matrixShape } from "./matrix"
 
 /**
  * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
  * live; the editor reports the result as the `valid` flag in `current-state` and the host uses it to
  * gate saving. Half-finished specs are still representable (parseable) — validity is a separate
- * judgement. Only closed-ended items have type-specific checks for now; other item types are treated
+ * judgement. Closed-ended and matrix items have type-specific checks; other item types are treated
  * as valid until their invariants are encoded too. Feedback messages are checked at every scope.
  */
 
@@ -77,6 +79,23 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
   }
 }
 
+// A gap inside the key's own frame makes the item ungradeable (compareMatrices refuses to grade
+// against it), so it blocks saving the same way an unset closed-ended grading strategy does. A
+// tolerance outside [0, inf) is not a half-finished state either: it would make every numeric
+// comparison meaningless, and migration never produces one. An empty key defines no correct
+// answer at all (assessMatrixQuiz gives every answer zero), the same "accept anything" problem
+// a null closed-ended grading strategy has.
+const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean => {
+  const shape = matrixShape(item.optionCells)
+  return (
+    shape.rows > 0 &&
+    shape.columns > 0 &&
+    Number.isFinite(item.tolerance) &&
+    item.tolerance >= 0 &&
+    blankCellsInsideShape(item.optionCells, shape).length === 0
+  )
+}
+
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {
     return false
@@ -98,6 +117,9 @@ export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolea
     }
     if (item.type === "closed-ended-question") {
       return isClosedEndedItemValid(item)
+    }
+    if (item.type === "matrix") {
+      return isMatrixItemValid(item)
     }
     return true
   })

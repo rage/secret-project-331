@@ -14,6 +14,11 @@ const progressBeam = keyframes`
   100% { transform: translateX(420%); }
 `
 
+export const inheritWidthAndHeight = css`
+  width: inherit;
+  height: inherit;
+`
+
 /**
  * `width: 100%` keeps the frame as wide as the content it stands in for (echarts in a flex
  * container collapses to ~0 width otherwise, painting nothing). `min-width: 0` lets it shrink in

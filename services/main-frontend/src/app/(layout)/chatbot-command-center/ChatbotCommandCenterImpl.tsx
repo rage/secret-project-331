@@ -1,0 +1,93 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React, { useState } from "react"
+
+import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
+import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
+import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import NewConversationDialog from "./NewConversationDialog"
+import Sidebar from "./Sidebar"
+
+const gridContainer = css`
+  display: grid;
+
+  /*
+  Sidebar by default width of 400px
+  but when collapsed or on mobile
+  takes width of its elements
+  */
+  ${respondToOrLarger.md} {
+    grid-template-columns: 400px minmax(0, 1fr);
+  }
+
+  grid-template-columns: auto minmax(0, 1fr);
+  &:has([hidden="until-found"]) {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  margin: 0 1rem;
+  gap: 0.5rem;
+  /* remove navbar height and add 1rem of space to top and bottom */
+  height: calc(100vh - calc(64.8px + 2rem));
+`
+
+const chatbotPlaceHolder = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
+`
+
+interface ChatbotCommandCenterImplProps {
+  chatbots: ChatbotConfiguration[]
+  courses: Course[]
+  conversations: ChatbotConversation[]
+  configurationId: string | null
+  setConfigurationId: React.Dispatch<string | null>
+  setCreateChatbotVisible: React.Dispatch<boolean>
+}
+
+const ChatbotCommandCenterImpl: React.FC<ChatbotCommandCenterImplProps> = ({
+  chatbots,
+  courses,
+  conversations,
+  configurationId,
+  setConfigurationId,
+  setCreateChatbotVisible,
+}) => {
+  const [showChatbotDialog, setChatbotDialog] = useState(false)
+
+  return (
+    <div className={gridContainer}>
+      <Sidebar
+        setChatbotDialog={setChatbotDialog}
+        conversations={conversations}
+        chatbots={chatbots}
+        setConfigurationId={setConfigurationId}
+        setCreateChatbotVisible={setCreateChatbotVisible}
+      />
+      <div
+        className={css`
+          height: inherit;
+        `}
+      >
+        <NewConversationDialog
+          chatbots={chatbots}
+          courses={courses}
+          setConfigurationId={setConfigurationId}
+          onClose={() => setChatbotDialog(false)}
+          open={showChatbotDialog}
+        />
+        {configurationId === null ? <div className={chatbotPlaceHolder}></div> : <ChatbotChatBox />}
+      </div>
+    </div>
+  )
+}
+
+export default ChatbotCommandCenterImpl

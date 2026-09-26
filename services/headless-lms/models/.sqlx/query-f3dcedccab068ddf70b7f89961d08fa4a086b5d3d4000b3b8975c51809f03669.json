@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversations\nWHERE (\n    user_id = $1\n    OR anonymous_token = $2\n  )\n  AND chatbot_configuration_id = $3\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n        ",
+  "query": "\nSELECT *\nFROM chatbot_conversations\nWHERE (\n    user_id = $1\n    OR anonymous_token = $2\n  )\n  AND chatbot_configuration_id = $3\n  AND id = $4\n  AND deleted_at IS NULL\nORDER BY created_at DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -107,6 +107,7 @@
       "Left": [
         "Uuid",
         "Text",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -122,5 +123,5 @@
       true
     ]
   },
-  "hash": "46c871863309c1a9eb35136e4ef70f7d4de95bfda67602549ee61064859fe256"
+  "hash": "f3dcedccab068ddf70b7f89961d08fa4a086b5d3d4000b3b8975c51809f03669"
 }

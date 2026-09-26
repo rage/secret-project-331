@@ -14,13 +14,8 @@ import {
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
-import type { ChatbotStateAndData } from "../shared/hooks/useChatbotStateAndData"
+import { useChatbotContext } from "../shared/ChatbotContext"
 
-interface ChatbotDialogProps {
-  chatbotStateAndData: ChatbotStateAndData
-  isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
 export const CHATBOX_WIDTH_PX = 500
 export const CHATBOX_HEIGHT_PX = 900
 
@@ -46,12 +41,13 @@ const closeAnimation = keyframes`
   }
 `
 
-const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  const { isOpen, setIsOpen } = props
+const ChatbotDialog: React.FC = () => {
   const chatbotTitleId = useId()
   const [shouldRender, setShouldRender] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
+
+  const { isOpen, setIsOpen } = useChatbotContext()
 
   const state = {
     isOpen,
@@ -162,13 +158,11 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
               {...dialogProps}
             >
               <ChatbotChatHeader
-                currentConversationInfo={props.chatbotStateAndData.currentConversationInfo}
-                newConversationMutation={props.chatbotStateAndData.newConversationMutation}
                 titleProps={titleProps}
-                isCourseMaterialBlock={false}
+                isAlwaysOpen={false}
                 closeChatbot={() => state.setOpen(false)}
               />
-              <ChatbotChatBody {...props.chatbotStateAndData} />
+              <ChatbotChatBody />
             </div>
           </div>
         </FocusScope>

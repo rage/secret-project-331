@@ -96,6 +96,7 @@ export const zChapterWithStatus = z.object({
 export const zChatbotConversation = z.object({
   anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
+  conversation_title: z.string().nullish(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -1531,6 +1532,11 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPagePath = z.object({
  */
 export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(zPage)
 
+/**
+ * All chatbot conversations for user
+ */
+export const zAllUserConversationsResponse = z.array(zChatbotConversation)
+
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),
 })
@@ -1540,14 +1546,27 @@ export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
  */
 export const zGetDefaultChatbotConfigurationForCourseResponse = z.uuid().nullable()
 
-export const zGetChatbotCurrentConversationInfoPath = z.object({
+export const zGetConversationInfoPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+export const zGetConversationInfoQuery = z.object({
+  conversation_id: z.uuid().optional(),
+})
+
+/**
+ * Selected chatbot conversation info
+ */
+export const zGetConversationInfoResponse = zChatbotConversationInfo
+
+export const zGetCurrentConversationIdPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })
 
 /**
- * Current chatbot conversation info
+ * Current conversation ID
  */
-export const zGetChatbotCurrentConversationInfoResponse = zChatbotConversationInfo
+export const zGetCurrentConversationIdResponse = z.uuid().nullable()
 
 export const zNewChatbotConversationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1581,6 +1600,13 @@ export const zSendChatbotToolResponsePath = z.object({
  * Chatbot response stream
  */
 export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
+
+export const zUpdateTitleBody = z.string()
+
+export const zUpdateTitlePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

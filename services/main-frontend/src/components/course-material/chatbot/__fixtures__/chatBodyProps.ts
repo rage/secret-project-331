@@ -132,6 +132,10 @@ export const makeChatBodyProps = ({
     toolResponseMutation,
     isTurnInFlight,
     stopTurn,
+    setIsOpen: jest.fn(),
+    isOpen: true,
+    convId: null,
+    setConvId: jest.fn(),
   }
 
   return { props, sendMessage, answer, stopTurn }

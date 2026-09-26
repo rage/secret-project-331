@@ -5,10 +5,9 @@ import React from "react"
 
 import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
 import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
-import type { ChatbotStateAndData } from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const ChatbotChatBox: React.FC<ChatbotStateAndData> = (props) => {
+const ChatbotChatBox: React.FC = () => {
   return (
     <div
       className={css`
@@ -21,12 +20,8 @@ const ChatbotChatBox: React.FC<ChatbotStateAndData> = (props) => {
         border-radius: 10px;
       `}
     >
-      <ChatbotChatHeader
-        isCourseMaterialBlock={true}
-        currentConversationInfo={props.currentConversationInfo}
-        newConversationMutation={props.newConversationMutation}
-      />
-      <ChatbotChatBody {...props} />
+      <ChatbotChatHeader isAlwaysOpen={true} />
+      <ChatbotChatBody />
     </div>
   )
 }

@@ -18,6 +18,7 @@ pub struct ChatbotConversation {
     pub course_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
+    pub conversation_title: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -48,15 +49,17 @@ INSERT INTO chatbot_conversations (
     course_id,
     user_id,
     anonymous_token,
-    chatbot_configuration_id
+    chatbot_configuration_id,
+    conversation_title
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
         "#,
         input.course_id,
         input.user_id,
         input.anonymous_token,
-        input.chatbot_configuration_id
+        input.chatbot_configuration_id,
+        input.conversation_title
     )
     .fetch_one(conn)
     .await?;
@@ -116,13 +119,15 @@ INSERT INTO chatbot_conversations (
     course_id,
     user_id,
     anonymous_token,
-    chatbot_configuration_id
+    chatbot_configuration_id,
+    conversation_title
   )
 SELECT $1,
   chatbot_configurations.course_id,
   $2,
   $3,
-  chatbot_configurations.id
+  chatbot_configurations.id,
+  NULL
 FROM chatbot_configurations
 WHERE chatbot_configurations.id = $4
   AND chatbot_configurations.deleted_at IS NULL
@@ -131,7 +136,7 @@ RETURNING *
         pkey_policy.into_uuid(),
         user_id,
         anonymous_token,
-        chatbot_configuration_id
+        chatbot_configuration_id,
     )
     .fetch_one(conn)
     .await?;
@@ -173,12 +178,95 @@ LIMIT 1
     Ok(res)
 }
 
-/// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
-pub async fn get_current_conversation_info(
+pub async fn get_conversation_for_user(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE (
+    user_id = $1
+    OR anonymous_token = $2
+  )
+  AND chatbot_configuration_id = $3
+  AND id = $4
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+        anonymous_token,
+        chatbot_configuration_id,
+        conversation_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_conversations_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT chatbot_conversations.id,
+  chatbot_conversations.anonymous_token,
+    chatbot_conversations.created_at,
+  chatbot_conversations.updated_at,
+  chatbot_conversations.deleted_at,
+  chatbot_conversations.course_id,
+  chatbot_conversations.user_id,
+  chatbot_conversations.chatbot_configuration_id,
+  msg_msgs.text AS "conversation_title?"
+FROM chatbot_conversations
+  LEFT JOIN chatbot_conversation_messages AS msgs ON msgs.conversation_id = chatbot_conversations.id
+  AND msgs.order_number = 2
+  LEFT JOIN chatbot_conversation_message_messages AS msg_msgs ON msgs.id = msg_msgs.chatbot_conversation_message_id
+WHERE chatbot_conversations.user_id = $1
+  AND chatbot_conversations.deleted_at IS NULL
+ORDER BY chatbot_conversations.created_at DESC;
+        "#,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_conversation_title(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    conversation_title: String,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET conversation_title = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        "#,
+        conversation_title,
+        conversation_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Gets specific conversation or latest conversation for the user, if any. If conversation_id is not provided then latest conversation is given. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
+pub async fn get_conversation_info(
     tx: &mut PgConnection,
     user_id: Option<Uuid>,
     anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
+    conversation_id: Option<Uuid>,
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
@@ -188,20 +276,32 @@ pub async fn get_current_conversation_info(
         None
     };
 
-    let current_conversation =
+    let current_conversation = if let Some(conversation_id) = conversation_id {
+        get_conversation_for_user(
+            tx,
+            user_id,
+            anonymous_token,
+            chatbot_configuration_id,
+            conversation_id,
+        )
+        .await
+        .optional()?
+    } else {
         get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
-            .optional()?;
-    let current_conversation_id = current_conversation.as_ref().map(|c| c.id);
-    // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(current_conversation_id.map(|id| {
+            .optional()?
+    };
+
+    let conversation_id = current_conversation.as_ref().map(|c| c.id);
+
+    let current_conversation_messages = OptionFuture::from(conversation_id.map(|id| {
         crate::chatbot_conversation_messages::get_by_conversation_id_for_display(tx, id)
     }))
     .await
     .transpose()?;
 
     let current_conversation_message_citations =
-        OptionFuture::from(current_conversation_id.map(|id| {
+        OptionFuture::from(conversation_id.map(|id| {
             crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, id)
         }))
         .await

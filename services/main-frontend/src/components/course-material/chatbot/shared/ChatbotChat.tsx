@@ -1,33 +1,45 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 
-import ChatbotChatBox from "../../ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import ChatbotDialog from "../Chatbot/ChatbotDialog"
+import ChatbotContext from "./ChatbotContext"
 import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
 import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchronizeDefaultChatbotCommunicationChannel"
 
 interface ChatbotChatProps {
-  chatbotConfigurationId: string
-  isCourseMaterialBlock: boolean
+  chatbotConfigurationId: string | null
+  isAlwaysOpen: boolean
   /** The course material page to send as context with a message, or null where there is none. */
   pageId: string | null
+  children: React.ReactNode
 }
 
+/**
+ * Handles all the necessary setup and data for the chatbot.
+ *
+ * Passess chatbot state and data down to its children using ChatbotContext. Children
+ * can access the context using the useChatbotContext hook.
+ *
+ * @example
+ * <ChatbotChat chatbotConfigurationId="123" isAlwaysOpen={true} pageId={null}>
+ *   <ChatbotChatBox />
+ * </ChatbotChat>
+ *
+ * @example
+ * <ChatbotChat chatbotConfigurationId="123" isAlwaysOpen={false} pageId="page123">
+ *   <ChatbotDialog />
+ * </ChatbotChat>
+ */
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
-  isCourseMaterialBlock,
+  isAlwaysOpen,
   pageId,
+  children,
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const chatbotStateAndData = useChatbotStateAndData(
-    chatbotConfigurationId,
-    isCourseMaterialBlock ? undefined : setIsOpen,
-    pageId,
-  )
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, pageId)
 
   useSynchronizeDefaultChatbotCommunicationChannel(
-    isCourseMaterialBlock,
+    isAlwaysOpen,
     chatbotStateAndData.currentConversationInfo,
     chatbotStateAndData.newMessageMutation.mutateAsync,
     chatbotStateAndData.newConversationMutation.mutateAsync,
@@ -35,18 +47,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
     chatbotStateAndData.isTurnInFlight,
   )
 
-  return (
-    <>
-      {isCourseMaterialBlock && <ChatbotChatBox {...chatbotStateAndData} />}
-      {!isCourseMaterialBlock && (
-        <ChatbotDialog
-          chatbotStateAndData={chatbotStateAndData}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-        />
-      )}
-    </>
-  )
+  return <ChatbotContext value={chatbotStateAndData}>{children}</ChatbotContext>
 }
 
 export default ChatbotChat

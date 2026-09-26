@@ -14,6 +14,7 @@ import { QueryResult } from "@/shared-module/components"
 import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import type { BlockRendererProps } from "../.."
+import ChatbotChatBox from "./ChatbotChatBox"
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string
@@ -53,9 +54,11 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
         >
           <ChatbotChat
             chatbotConfigurationId={chatbotConfigurationId}
-            isCourseMaterialBlock={true}
+            isAlwaysOpen={true}
             pageId={pageId}
-          />
+          >
+            <ChatbotChatBox />
+          </ChatbotChat>
         </div>
       </div>
     )
@@ -81,9 +84,11 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
             >
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
-                isCourseMaterialBlock={true}
+                isAlwaysOpen={true}
                 pageId={pageId}
-              />
+              >
+                <ChatbotChatBox />
+              </ChatbotChat>
             </div>
           </div>
         )

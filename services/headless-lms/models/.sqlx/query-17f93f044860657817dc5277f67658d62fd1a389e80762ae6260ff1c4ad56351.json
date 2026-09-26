@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM chatbot_conversations\nWHERE (\n    user_id = $1\n    OR anonymous_token = $2\n  )\n  AND chatbot_configuration_id = $3\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n        ",
+  "query": "\nSELECT chatbot_conversations.id,\n  chatbot_conversations.anonymous_token,\n    chatbot_conversations.created_at,\n  chatbot_conversations.updated_at,\n  chatbot_conversations.deleted_at,\n  chatbot_conversations.course_id,\n  chatbot_conversations.user_id,\n  chatbot_conversations.chatbot_configuration_id,\n  msg_msgs.text AS \"conversation_title?\"\nFROM chatbot_conversations\n  LEFT JOIN chatbot_conversation_messages AS msgs ON msgs.conversation_id = chatbot_conversations.id\n  AND msgs.order_number = 2\n  LEFT JOIN chatbot_conversation_message_messages AS msg_msgs ON msgs.id = msg_msgs.chatbot_conversation_message_id\nWHERE chatbot_conversations.user_id = $1\n  AND chatbot_conversations.deleted_at IS NULL\nORDER BY chatbot_conversations.created_at DESC;\n        ",
   "describe": {
     "columns": [
       {
@@ -16,72 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "created_at"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
-        "name": "course_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "course_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
-        "name": "user_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "user_id"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
-        "name": "chatbot_configuration_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversations",
-            "name": "chatbot_configuration_id"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
         "name": "anonymous_token",
         "type_info": "Varchar",
         "origin": {
@@ -92,35 +26,99 @@
         }
       },
       {
-        "ordinal": 8,
-        "name": "conversation_title",
-        "type_info": "Varchar",
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "chatbot_conversations",
-            "name": "conversation_title"
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "chatbot_configuration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "chatbot_configuration_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "conversation_title?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_messages",
+            "name": "text"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Text",
         "Uuid"
       ]
     },
     "nullable": [
       false,
-      false,
-      false,
-      true,
-      true,
       true,
       false,
+      false,
       true,
-      true
+      true,
+      true,
+      false,
+      false
     ]
   },
-  "hash": "46c871863309c1a9eb35136e4ef70f7d4de95bfda67602549ee61064859fe256"
+  "hash": "17f93f044860657817dc5277f67658d62fd1a389e80762ae6260ff1c4ad56351"
 }

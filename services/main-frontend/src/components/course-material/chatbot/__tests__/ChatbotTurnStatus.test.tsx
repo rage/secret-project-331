@@ -8,6 +8,7 @@ import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils
 import { CONVERSATION_ID, makeChatBodyProps, TIME } from "../__fixtures__/chatBodyProps"
 import type { ChatbotConversationMessageWithStatus } from "../shared/ChatbotChatBody"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotContext from "../shared/ChatbotContext"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 
@@ -42,7 +43,9 @@ describe("Turn status while the chatbot answers", () => {
   // turn started", so the row must not yet claim "Thinking" (see the next describe block).
   it("renders the status row as a list item with the dots but no claim about what's happening yet", () => {
     const { container } = render(
-      <ChatbotChatBody {...makeChatBodyProps({ isTurnInFlight: true }).props} />,
+      <ChatbotContext value={makeChatBodyProps({ isTurnInFlight: true }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
 
     const rows = screen.getAllByRole("listitem")
@@ -53,19 +56,29 @@ describe("Turn status while the chatbot answers", () => {
   })
 
   it("drops the status row once no turn is in flight", () => {
-    const { container } = render(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    const { container } = render(
+      <ChatbotContext value={makeChatBodyProps().props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(container.querySelector('[aria-hidden="true"]')).toBeNull()
   })
 
   it("marks the message list busy only while a turn is in flight", () => {
     const { rerender } = render(
-      <ChatbotChatBody {...makeChatBodyProps({ isTurnInFlight: true }).props} />,
+      <ChatbotContext value={makeChatBodyProps({ isTurnInFlight: true }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
 
     expect(screen.getByRole("list")).toHaveAttribute("aria-busy", "true")
 
-    rerender(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    rerender(
+      <ChatbotContext value={makeChatBodyProps().props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
     expect(screen.getByRole("list")).toHaveAttribute("aria-busy", "false")
   })
 })
@@ -73,12 +86,16 @@ describe("Turn status while the chatbot answers", () => {
 describe("Streamed tool call and reasoning items", () => {
   it("reports an unfinished item as in progress while its turn is still running", () => {
     render(
-      <ChatbotChatBody
-        {...makeChatBodyProps({
-          isTurnInFlight: true,
-          streamedMessages: [unfinishedReasoningItem()],
-        }).props}
-      />,
+      <ChatbotContext
+        value={
+          makeChatBodyProps({
+            isTurnInFlight: true,
+            streamedMessages: [unfinishedReasoningItem()],
+          }).props
+        }
+      >
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
 
     expect(screen.getByText("chatbot-status-thinking")).toBeInTheDocument()
@@ -89,11 +106,15 @@ describe("Streamed tool call and reasoning items", () => {
   // once the turn ends, so this only has to check the bubble renders that state correctly.
   it("reports an item as finished once the reducer has marked it so", () => {
     render(
-      <ChatbotChatBody
-        {...makeChatBodyProps({
-          streamedMessages: [{ ...unfinishedReasoningItem(), finished: true }],
-        }).props}
-      />,
+      <ChatbotContext
+        value={
+          makeChatBodyProps({
+            streamedMessages: [{ ...unfinishedReasoningItem(), finished: true }],
+          }).props
+        }
+      >
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
 
     expect(screen.queryByText("chatbot-status-thinking")).toBeNull()
@@ -104,12 +125,18 @@ describe("Streamed tool call and reasoning items", () => {
 describe("Chatbot status live region", () => {
   it("keeps one live region node across a change of view state", () => {
     const { rerender } = render(
-      <ChatbotChatBody {...makeChatBodyProps({ isLoading: true }).props} />,
+      <ChatbotContext value={makeChatBodyProps({ isLoading: true }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
 
     const whileLoading = screen.getByRole("status")
 
-    rerender(<ChatbotChatBody {...makeChatBodyProps().props} />)
+    rerender(
+      <ChatbotContext value={makeChatBodyProps().props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
     expect(screen.getByRole("status")).toBe(whileLoading)
   })
 })
@@ -133,7 +160,11 @@ describe("Following the newest message", () => {
   })
 
   it("scrolls to the newest message when a scrollable conversation is first shown", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ historyLength: 20 }).props} />)
+    render(
+      <ChatbotContext value={makeChatBodyProps({ historyLength: 20 }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(setScrollTop).toHaveBeenCalledWith(SCROLL_HEIGHT)
   })
@@ -142,23 +173,35 @@ describe("Following the newest message", () => {
   // huge. Only what the learner did may decide whether to follow.
   it("keeps following new output for a learner who has not scrolled", () => {
     const { rerender } = render(
-      <ChatbotChatBody {...makeChatBodyProps({ historyLength: 20 }).props} />,
+      <ChatbotContext value={makeChatBodyProps({ historyLength: 20 }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
     setScrollTop.mockClear()
 
-    rerender(<ChatbotChatBody {...makeChatBodyProps({ historyLength: 21 }).props} />)
+    rerender(
+      <ChatbotContext value={makeChatBodyProps({ historyLength: 21 }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(setScrollTop).toHaveBeenCalledWith(SCROLL_HEIGHT)
   })
 
   it("stops following once the learner has scrolled away from the bottom", () => {
     const { rerender } = render(
-      <ChatbotChatBody {...makeChatBodyProps({ historyLength: 20 }).props} />,
+      <ChatbotContext value={makeChatBodyProps({ historyLength: 20 }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
     )
     fireEvent.scroll(screen.getByRole("list"))
     setScrollTop.mockClear()
 
-    rerender(<ChatbotChatBody {...makeChatBodyProps({ historyLength: 21 }).props} />)
+    rerender(
+      <ChatbotContext value={makeChatBodyProps({ historyLength: 21 }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(setScrollTop).not.toHaveBeenCalled()
   })

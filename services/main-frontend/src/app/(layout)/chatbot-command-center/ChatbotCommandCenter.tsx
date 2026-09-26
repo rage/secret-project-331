@@ -1,113 +1,40 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { useMemo } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import type React from "react"
+import { useState } from "react"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import { baseTheme } from "@/shared-module/common/styles"
-import { Select } from "@/shared-module/components"
+import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
+
+import ChatbotCommandCenterImpl from "./ChatbotCommandCenterImpl"
 
 interface ChatbotCommandCenterProps {
   chatbots: ChatbotConfiguration[]
   courses: Course[]
+  conversations: ChatbotConversation[]
+  setCreateChatbotVisible: React.Dispatch<boolean>
 }
 
-const ChatbotCommandCenter = ({ chatbots, courses }: ChatbotCommandCenterProps) => {
-  const { t } = useTranslation()
-  const { control, watch } = useForm<ChatbotConfiguration>({})
-  const configuration_id = watch("id")
-
-  const chatbotOptions = useMemo(() => {
-    const grouped = Object.values(
-      chatbots.reduce(
-        (acc, chatbot) => {
-          const matched = courses.find((course) => course.id === chatbot.course_id)
-          const courseName =
-            matched !== undefined ? matched.name : t("select-chatbot-globals-title")
-
-          // oxlint-disable-next-line i18next/no-literal-string
-          const groupId = chatbot.course_id ?? "globals"
-
-          if (!acc[groupId]) {
-            acc[groupId] = {
-              label: courseName,
-              courseId: chatbot.course_id,
-              options: [],
-            }
-          }
-          acc[groupId].options.push({
-            label: chatbot.chatbot_name,
-            value: chatbot.id,
-          })
-
-          return acc
-        },
-        {} as Record<
-          string,
-          {
-            label: string
-            courseId: string | null | undefined
-            options: { label: string; value: string }[]
-          }
-        >,
-      ),
-    )
-
-    const groupedSorted = grouped.toSorted((a, b) => {
-      if (!a.courseId && b.courseId) {
-        return -1
-      }
-      if (a.courseId && !b.courseId) {
-        return 1
-      }
-      return a.label.localeCompare(b.label)
-    })
-
-    return groupedSorted
-  }, [chatbots, courses, t])
+const ChatbotCommandCenter: React.FC<ChatbotCommandCenterProps> = ({
+  chatbots,
+  courses,
+  conversations,
+  setCreateChatbotVisible,
+}) => {
+  const [configurationId, setConfigurationId] = useState<null | string>(null)
 
   return (
-    <div>
-      <form>
-        <Select
-          id={"chatbot-select"}
-          control={control}
-          name={"id"}
-          label={t("select-chatbot")}
-          options={chatbotOptions}
-          searchEnabled={true}
-          searchPlaceholder={t("chatbot-search-placeholder")}
-        />
-      </form>
-      <div
-        className={css`
-          margin-top: 1rem;
-          height: 75vh;
-        `}
-      >
-        {configuration_id === undefined ? (
-          <div
-            className={css`
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 75vh;
-              border-radius: 10px;
-              box-shadow: inset 0 0 0 1px ${baseTheme.colors.gray[100]};
-            `}
-          ></div>
-        ) : (
-          <ChatbotChat
-            chatbotConfigurationId={configuration_id}
-            isCourseMaterialBlock={true}
-            pageId={null}
-          />
-        )}
-      </div>
-    </div>
+    <ChatbotChat chatbotConfigurationId={configurationId} isAlwaysOpen={true} pageId={null}>
+      <ChatbotCommandCenterImpl
+        chatbots={chatbots}
+        courses={courses}
+        conversations={conversations}
+        configurationId={configurationId}
+        setConfigurationId={setConfigurationId}
+        setCreateChatbotVisible={setCreateChatbotVisible}
+      />
+    </ChatbotChat>
   )
 }
 

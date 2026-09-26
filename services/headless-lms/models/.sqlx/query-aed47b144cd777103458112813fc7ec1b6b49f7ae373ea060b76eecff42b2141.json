@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_conversations (\n    course_id,\n    user_id,\n    anonymous_token,\n    chatbot_configuration_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_conversations (\n    course_id,\n    user_id,\n    anonymous_token,\n    chatbot_configuration_id,\n    conversation_title\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -90,6 +90,17 @@
             "name": "anonymous_token"
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "conversation_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "conversation_title"
+          }
+        }
       }
     ],
     "parameters": {
@@ -97,7 +108,8 @@
         "Uuid",
         "Uuid",
         "Varchar",
-        "Uuid"
+        "Uuid",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -108,8 +120,9 @@
       true,
       true,
       false,
+      true,
       true
     ]
   },
-  "hash": "ea06520b6286f4d07dfb03da8aada988aae87f01c9ee467101e52bf011a24831"
+  "hash": "aed47b144cd777103458112813fc7ec1b6b49f7ae373ea060b76eecff42b2141"
 }

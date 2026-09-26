@@ -7,6 +7,7 @@ import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils
 
 import { conversationMessage, makeChatBodyProps } from "../__fixtures__/chatBodyProps"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotContext from "../shared/ChatbotContext"
 import MessageBubble from "../shared/MessageBubble"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -25,15 +26,22 @@ const chatBodyProps = () =>
 describe("Chat message sender attribution (issue #56)", () => {
   // role=generic (the bubble div) can't be named, so the label sits on the <li> instead.
   it("exposes the chatbot message listitem with an accessible name identifying the sender", () => {
-    render(<ChatbotChatBody {...chatBodyProps()} />)
+    render(
+      <ChatbotContext value={chatBodyProps()}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     const chatbotItem = screen.getByRole("listitem", { name: "message-from-chatbot" })
     expect(chatbotItem).toHaveTextContent("Hello from the bot")
   })
 
   it("exposes the user message listitem with a distinct accessible name", () => {
-    render(<ChatbotChatBody {...chatBodyProps()} />)
-
+    render(
+      <ChatbotContext value={chatBodyProps()}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
     const userItem = screen.getByRole("listitem", { name: "message-from-you" })
     expect(userItem).toHaveTextContent("Hello from me")
     expect(userItem).not.toBe(screen.getByRole("listitem", { name: "message-from-chatbot" }))

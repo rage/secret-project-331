@@ -31,9 +31,17 @@ use rand::distr::{Alphanumeric, SampleString};
     send_message,
     tool_response,
     new_conversation,
-    current_conversation_info
+    conversation_info,
+    current_conversation_id,
+    all_user_conversations,
+    update_title,
 ))]
 pub(crate) struct CourseMaterialChatbotApiDoc;
+
+#[derive(Deserialize, Debug)]
+pub struct ConversationQuery {
+    pub conversation_id: Option<Uuid>,
+}
 
 /**
 GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
@@ -371,35 +379,65 @@ async fn new_conversation(
 }
 
 /**
-POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
+GET `/api/v0/course-material/chatbot/conversations/all`
 
-Returns the current conversation for the user.
+Returns all conversations that a user has.
 */
 #[utoipa::path(
     get,
-    path = "/{chatbot_configuration_id}/conversations/current",
-    operation_id = "getChatbotCurrentConversationInfo",
+    path = "/conversations/all",
+    operation_id = "AllUserConversations",
+    tag = "course-material-chatbot",
+    responses(
+        (status = 200, description = "All chatbot conversations for user", body = Vec<ChatbotConversation>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn all_user_conversations(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ChatbotConversation>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
+
+    let res = chatbot_conversations::get_all_conversations_for_user(&mut conn, user.id).await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
+
+Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations",
+    operation_id = "getConversationInfo",
     tag = "course-material-chatbot",
     params(
-        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Option<Uuid>, Query, description = "Conversation id")
     ),
     responses(
         (
             status = 200,
-            description = "Current chatbot conversation info",
+            description = "Selected chatbot conversation info",
             body = ChatbotConversationInfo
         )
     )
 )]
-#[instrument(skip(pool, app_conf, req))]
-async fn current_conversation_info(
+#[instrument(skip(pool, app_conf))]
+
+async fn conversation_info(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
+    query: web::Query<ConversationQuery>,
     req: HttpRequest,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let mut conn = pool.acquire().await?;
+    let conversation_id = query.conversation_id;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
 
@@ -408,17 +446,17 @@ async fn current_conversation_info(
 
     let anonymous_token = handle_anonymous_token(&req, user);
 
-    let res = chatbot_conversations::get_current_conversation_info(
+    let res = chatbot_conversations::get_conversation_info(
         &mut conn,
         user.map(|u| u.id),
-        anonymous_token.as_ref().map(|a| a.to_owned()),
+        anonymous_token.clone(),
         chatbot_configuration.id,
+        conversation_id,
     )
     .await?;
 
-    // A None means no suggestion belongs here at all, which includes a turn suspended on a question
-    // to the learner, so the generation below is skipped for those without a check of its own.
     if chatbot_configuration.suggest_next_messages
+        // suggested_messages is None if suggest_next_messages=false
         && let Some(suggested_messages) = &res.suggested_messages
         && suggested_messages.is_empty()
         && let Some(current_conversation_messages) = &res.current_conversation_messages
@@ -475,18 +513,115 @@ async fn current_conversation_info(
             )
             .await?;
         }
-
-        let res = chatbot_conversations::get_current_conversation_info(
+        let res = chatbot_conversations::get_conversation_info(
             &mut conn,
             user.map(|u| u.id),
-            anonymous_token,
+            anonymous_token.clone(),
             chatbot_configuration.id,
+            conversation_id,
         )
         .await?;
         return token.authorized_ok(web::Json(res));
     }
 
     token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
+
+Returns current chatbot conversation id.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/current/id",
+    operation_id = "getCurrentConversationId",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Current conversation ID", body = Option<Uuid>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn current_conversation_id(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    params: web::Path<Uuid>,
+    req: HttpRequest,
+) -> ControllerResult<web::Json<Option<Uuid>>> {
+    let mut conn = pool.acquire().await?;
+    let chatbot_configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+
+    let token =
+        authorize_access_to_chatbot(&mut conn, user.map(|u| u.id), &chatbot_configuration).await?;
+
+    let anonymous_token = handle_anonymous_token(&req, user);
+
+    let current_conversation = chatbot_conversations::get_latest_conversation_for_user(
+        &mut conn,
+        user.map(|u| u.id),
+        anonymous_token,
+        chatbot_configuration.id,
+    )
+    .await
+    .optional()?;
+
+    let current_conversation_id = current_conversation.map(|c| c.id);
+    token.authorized_ok(web::Json(current_conversation_id))
+}
+
+/**
+PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
+
+Updates the title of a chatbot conversation.
+*/
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
+    operation_id = "updateTitle",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Uuid, Path, description = "Conversation id")
+    ),
+    request_body = String,
+    responses(
+        (status = 200, description = "Conversation id")
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_title(
+    pool: web::Data<PgPool>,
+    user: Option<AuthUser>,
+    payload: web::Json<String>,
+    params: web::Path<(Uuid, Uuid)>,
+    req: HttpRequest,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let chatbot_configuration_id = params.0;
+    let conversation_id = params.1;
+
+    let (token, _chatbot_user) = authorize_access_to_conversation(
+        &mut conn,
+        chatbot_configuration_id,
+        conversation_id,
+        user,
+        req,
+    )
+    .await?;
+
+    chatbot_conversations::update_conversation_title(
+        &mut conn,
+        conversation_id,
+        payload.into_inner(),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -506,15 +641,24 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(tool_response),
     )
     .route(
-        "/{chatbot_configuration_id}/conversations/current",
-        web::get().to(current_conversation_info),
-    )
-    .route(
         "/{chatbot_configuration_id}/conversations/new",
         web::post().to(new_conversation),
     )
     .route(
         "/default-for-course/{course_id}",
         web::get().to(get_default_chatbot_configuration_for_course),
+    )
+    .route(
+        "/{chatbot_configuration_id}/conversations",
+        web::get().to(conversation_info),
+    )
+    .route(
+        "/{chatbot_configuration_id}/conversations/current/id",
+        web::get().to(current_conversation_id),
+    )
+    .route("/conversations/all", web::get().to(all_user_conversations))
+    .route(
+        "/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
+        web::put().to(update_title),
     );
 }

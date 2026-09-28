@@ -179,15 +179,17 @@ pub async fn get_feedback_for_course(
     read: bool,
     pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
-    let fc = if let Some(cf) = category_filter {
+    // Filter feedback by category name. When category_filter is None or no category
+    // is found, return all feedback (unfiltered)
+    let category_id = if let Some(cf) = category_filter {
         feedback_categories::get_by_name(conn, &cf)
             .await?
-            .map(|x| x.name)
+            .map(|x| x.id)
     } else {
         None
     };
     // empty string if None
-    let name = fc.as_slice().join("");
+    println!("AAAAAAAAAAAAAA{category_id:?}");
 
     let res = sqlx::query!(
         r#"
@@ -216,12 +218,19 @@ FROM (
       ) AS "block_order_numbers: Vec<Option<i32>>"
     FROM feedback
       LEFT JOIN block_feedback ON block_feedback.feedback_id = feedback.id
-      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id AND feedback_categories.deleted_at IS NULL
+      LEFT JOIN feedback_categories ON feedback_categories.id = feedback.category_id
+      AND feedback_categories.deleted_at IS NULL
     WHERE course_id = $1
       AND feedback.marked_as_read = $2
       AND feedback.deleted_at IS NULL
       AND block_feedback.deleted_at IS NULL
-      AND COALESCE(feedback_categories.name, '') LIKE '%' || $5 || ''
+      AND (
+        CASE
+          WHEN $5::uuid IS NOT NULL
+            THEN feedback_categories.id = $5::uuid
+            ELSE TRUE
+        END
+      )
     GROUP BY feedback.id,
       feedback.user_id,
       feedback.course_id,
@@ -234,14 +243,14 @@ FROM (
     LIMIT $3 OFFSET $4
   ) fb
   JOIN pages ON pages.id = fb.page_id
-  ORDER BY fb."created_at!" DESC,
-      fb."id!"
+ORDER BY fb."created_at!" DESC,
+  fb."id!"
         "#,
         course_id,
         read,
         pagination.limit(),
         pagination.offset(),
-        name
+        category_id as Option<Uuid>
     )
     .map(|r| Feedback {
         id: r.id,

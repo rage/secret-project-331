@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use serde_json::Value;
 
@@ -13,6 +13,7 @@ use crate::courses::get_course;
 use crate::exams;
 use crate::exams::Exam;
 use crate::exams::NewExam;
+use crate::page_history::{self, HistoryChangeReason, PageHistoryContent};
 use crate::pages;
 use crate::prelude::*;
 
@@ -54,6 +55,11 @@ pub async fn copy_course_with_language_group(
 ) -> ModelResult<Course> {
     let parent_course = get_course(conn, src_course_id).await?;
     let same_clg = target_clg_id == parent_course.course_language_group_id;
+    let description = if new_course.description.trim().is_empty() {
+        parent_course.description.clone()
+    } else {
+        Some(new_course.description.clone())
+    };
 
     let mut tx = conn.begin().await?;
 
@@ -81,7 +87,8 @@ INSERT INTO courses (
     cheater_detection_enabled,
     chapter_locking_enabled,
     ai_policy,
-    course_material_ai_instructions
+    course_material_ai_instructions,
+    is_test_mode
   )
 VALUES (
     $1,
@@ -104,7 +111,8 @@ VALUES (
     $18,
     $19,
     $20,
-    $21
+    $21,
+    $22
   )
 RETURNING id,
   name,
@@ -150,30 +158,31 @@ RETURNING id,
         new_course.is_joinable_by_code_only,
         new_course.join_code,
         new_course.ask_marketing_consent,
-        parent_course.description,
+        description,
         parent_course.flagged_answers_threshold,
         parent_course.flagged_answers_skip_manual_review_and_allow_retry,
         parent_course.cheater_detection_enabled,
         parent_course.chapter_locking_enabled,
         parent_course.ai_policy as CourseAiPolicy,
-        parent_course.course_material_ai_instructions
+        parent_course.course_material_ai_instructions,
+        new_course.is_test_mode,
     )
     .fetch_one(&mut *tx)
     .await?;
 
-    copy_course_modules(&mut tx, copied_course.id, src_course_id).await?;
+    let mut content_rewrite = ContentRewrite::new(copied_course.id);
+    content_rewrite.source_course_id = Some(src_course_id);
+    content_rewrite.course_slugs = Some((&parent_course.slug, &new_course.slug));
+
+    content_rewrite.course_module_ids =
+        copy_course_modules(&mut tx, copied_course.id, src_course_id).await?;
     copy_course_chapters(&mut tx, copied_course.id, src_course_id).await?;
 
     if new_course.copy_user_permissions {
         copy_user_permissions(&mut tx, copied_course.id, src_course_id, user_id).await?;
     }
 
-    let contents_iter =
-        copy_course_pages_and_return_contents(&mut tx, copied_course.id, src_course_id).await?;
-
-    set_chapter_front_pages(&mut tx, copied_course.id).await?;
-
-    let old_to_new_exercise_ids = map_old_exr_ids_to_new_exr_ids_for_courses(
+    let page_contents = copy_course_pages_and_return_contents(
         &mut tx,
         copied_course.id,
         src_course_id,
@@ -182,80 +191,22 @@ RETURNING id,
     )
     .await?;
 
-    // update page contents exercise IDs
-    for (page_id, content) in contents_iter {
-        if let Value::Array(mut blocks) = content {
-            for block in blocks.iter_mut() {
-                if block["name"] != Value::String("moocfi/exercise".to_string()) {
-                    continue;
-                }
-                if let Value::String(old_id) = &block["attributes"]["id"] {
-                    let new_id = old_to_new_exercise_ids
-                        .get(old_id)
-                        .ok_or_else(|| {
-                            ModelError::new(
-                                ModelErrorType::Generic,
-                                "Invalid exercise id in content.".to_string(),
-                                None,
-                            )
-                        })?
-                        .to_string();
-                    block["attributes"]["id"] = Value::String(new_id);
-                }
-            }
-            sqlx::query!(
-                r#"
-UPDATE pages
-SET content = $1
-WHERE id = $2;
-"#,
-                Value::Array(blocks),
-                page_id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
-    }
+    set_chapter_front_pages(&mut tx, copied_course.id).await?;
 
-    let pages_contents = pages::get_all_by_course_id_and_visibility(
-        tx.as_mut(),
+    content_rewrite.exercise_ids = copy_course_exercises(
+        &mut tx,
         copied_course.id,
-        pages::PageVisibility::Any,
+        src_course_id,
+        target_clg_id,
+        same_clg,
     )
-    .await?
-    .into_iter()
-    .map(|page| (page.id, page.content))
-    .collect::<HashMap<_, _>>();
-
-    for (page_id, content) in pages_contents {
-        if let Value::Array(mut blocks) = content {
-            for block in blocks.iter_mut() {
-                if let Some(content) = block["attributes"]["content"].as_str()
-                    && content.contains("<a href=")
-                {
-                    block["attributes"]["content"] =
-                        Value::String(content.replace(&parent_course.slug, &new_course.slug));
-                }
-            }
-            sqlx::query!(
-                r#"
-UPDATE pages
-SET content = $1
-WHERE id = $2;
-"#,
-                Value::Array(blocks),
-                page_id
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
-    }
+    .await?;
 
     copy_exercise_slides(&mut tx, copied_course.id, src_course_id).await?;
     copy_exercise_tasks(&mut tx, copied_course.id, src_course_id).await?;
 
     // We don't copy course instances at the moment because they are not related to the course content, and someone might want to take the content without the instances. We could add an option to copy them in the future.
-    course_instances::insert(
+    let course_instance = course_instances::insert(
         &mut tx,
         PKeyPolicy::Generate,
         NewCourseInstance {
@@ -270,6 +221,7 @@ WHERE id = $2;
         },
     )
     .await?;
+    content_rewrite.course_instance_id = Some(course_instance.id);
 
     copy_peer_or_self_review_configs(&mut tx, copied_course.id, src_course_id).await?;
     copy_peer_or_self_review_questions(&mut tx, copied_course.id, src_course_id).await?;
@@ -279,7 +231,8 @@ WHERE id = $2;
     // Copy course configurations and optional content
     copy_certificate_configurations_and_requirements(&mut tx, copied_course.id, src_course_id)
         .await?;
-    copy_chatbot_configurations(&mut tx, copied_course.id, src_course_id).await?;
+    content_rewrite.chatbot_configuration_ids =
+        copy_chatbot_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_cheater_thresholds(&mut tx, copied_course.id, src_course_id).await?;
     copy_course_module_suotar_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_course_custom_privacy_policy_checkbox_texts(&mut tx, copied_course.id, src_course_id)
@@ -287,7 +240,17 @@ WHERE id = $2;
     copy_exercise_repositories(&mut tx, copied_course.id, src_course_id).await?;
     copy_partners_blocks(&mut tx, copied_course.id, src_course_id).await?;
     copy_privacy_links(&mut tx, copied_course.id, src_course_id).await?;
-    copy_research_consent_forms_and_questions(&mut tx, copied_course.id, src_course_id).await?;
+    content_rewrite.consent_form_question_ids =
+        copy_research_consent_forms_and_questions(&mut tx, copied_course.id, src_course_id).await?;
+    copy_email_templates(&mut tx, copied_course.id, src_course_id).await?;
+    content_rewrite.code_giveaway_ids =
+        copy_code_giveaways(&mut tx, copied_course.id, src_course_id).await?;
+    copy_page_audio_files(&mut tx, copied_course.id, src_course_id).await?;
+
+    let copied_page_ids = page_contents.keys().copied().collect::<Vec<_>>();
+    rewrite_page_contents(&mut tx, page_contents, &content_rewrite).await?;
+    rewrite_course_texts(&mut tx, copied_course.id, &content_rewrite).await?;
+    insert_page_history_for_copies(&mut tx, &copied_page_ids, user_id).await?;
 
     tx.commit().await?;
 
@@ -298,9 +261,10 @@ pub async fn copy_exam(
     conn: &mut PgConnection,
     parent_exam_id: &Uuid,
     new_exam: &NewExam,
+    user_id: Uuid,
 ) -> ModelResult<Exam> {
     let mut tx = conn.begin().await?;
-    let copied_exam = copy_exam_content(&mut tx, parent_exam_id, new_exam, None).await?;
+    let copied_exam = copy_exam_content(&mut tx, parent_exam_id, new_exam, None, user_id).await?;
     tx.commit().await?;
     Ok(copied_exam)
 }
@@ -310,6 +274,7 @@ async fn copy_exam_content(
     parent_exam_id: &Uuid,
     new_exam: &NewExam,
     new_exam_id: Option<Uuid>,
+    user_id: Uuid,
 ) -> ModelResult<Exam> {
     let parent_exam = exams::get(tx, *parent_exam_id).await?;
 
@@ -352,56 +317,26 @@ RETURNING *
         new_exam.ends_at,
         parent_exam_fields.language,
         new_exam.time_minutes,
-        parent_exam_fields.minimum_points_treshold,
+        new_exam.minimum_points_treshold,
         new_exam.grade_manually,
     )
     .fetch_one(&mut *tx)
     .await?;
 
-    let contents_iter =
+    let page_contents =
         copy_exam_pages_and_return_contents(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
-    // Copy exam exercises
-    let old_to_new_exercise_ids =
-        map_old_exr_ids_to_new_exr_ids_for_exams(&mut *tx, copied_exam.id, parent_exam.id).await?;
-
-    // Replace exercise ids in page contents.
-    for (page_id, content) in contents_iter {
-        if let Value::Array(mut blocks) = content {
-            for block in blocks.iter_mut() {
-                if block["name"] != Value::String("moocfi/exercise".to_string()) {
-                    continue;
-                }
-                if let Value::String(old_id) = &block["attributes"]["id"] {
-                    let new_id = old_to_new_exercise_ids
-                        .get(old_id)
-                        .ok_or_else(|| {
-                            ModelError::new(
-                                ModelErrorType::Generic,
-                                "Invalid exercise id in content.".to_string(),
-                                None,
-                            )
-                        })?
-                        .to_string();
-                    block["attributes"]["id"] = Value::String(new_id);
-                }
-            }
-            sqlx::query!(
-                "
-UPDATE pages
-SET content = $1
-WHERE id = $2;
-                ",
-                Value::Array(blocks),
-                page_id,
-            )
-            .execute(&mut *tx)
-            .await?;
-        }
-    }
+    let mut content_rewrite = ContentRewrite::new(copied_exam.id);
+    content_rewrite.exercise_ids =
+        copy_exam_exercises(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
     copy_exercise_slides(&mut *tx, copied_exam.id, parent_exam.id).await?;
     copy_exercise_tasks(&mut *tx, copied_exam.id, parent_exam.id).await?;
+    copy_page_audio_files(&mut *tx, copied_exam.id, parent_exam.id).await?;
+
+    let copied_page_ids = page_contents.keys().copied().collect::<Vec<_>>();
+    rewrite_page_contents(&mut *tx, page_contents, &content_rewrite).await?;
+    insert_page_history_for_copies(&mut *tx, &copied_page_ids, user_id).await?;
 
     let get_page_id = sqlx::query!("SELECT id FROM pages WHERE exam_id = $1;", copied_exam.id)
         .fetch_one(&mut *tx)
@@ -424,14 +359,574 @@ WHERE id = $2;
     })
 }
 
+/// Points references inside copied block content at the copy.
+///
+/// Every copied row's id is `uuid_generate_v5(namespace_id, source_id)`; the id sets hold the ids of
+/// the rows that were actually copied, so references to anything left behind can be told apart.
+struct ContentRewrite<'a> {
+    namespace_id: Uuid,
+    source_course_id: Option<Uuid>,
+    course_instance_id: Option<Uuid>,
+    /// `(source slug, copy slug)`.
+    course_slugs: Option<(&'a str, &'a str)>,
+    exercise_ids: HashSet<Uuid>,
+    chatbot_configuration_ids: HashSet<Uuid>,
+    course_module_ids: HashSet<Uuid>,
+    code_giveaway_ids: HashSet<Uuid>,
+    consent_form_question_ids: HashSet<Uuid>,
+}
+
+impl<'a> ContentRewrite<'a> {
+    fn new(namespace_id: Uuid) -> Self {
+        Self {
+            namespace_id,
+            source_course_id: None,
+            course_instance_id: None,
+            course_slugs: None,
+            exercise_ids: HashSet::new(),
+            chatbot_configuration_ids: HashSet::new(),
+            course_module_ids: HashSet::new(),
+            code_giveaway_ids: HashSet::new(),
+            consent_form_question_ids: HashSet::new(),
+        }
+    }
+
+    /// The copy of the row `source_id` names, if that row was copied into `copied_ids`.
+    fn copy_of(&self, copied_ids: &HashSet<Uuid>, source_id: &Value) -> Option<Value> {
+        let source_id = Uuid::parse_str(source_id.as_str()?).ok()?;
+        let copied_id = Uuid::new_v5(&self.namespace_id, source_id.to_string().as_bytes());
+        copied_ids
+            .contains(&copied_id)
+            .then(|| Value::String(copied_id.to_string()))
+    }
+
+    fn rewrite_content(&self, content: &Value) -> Value {
+        match content {
+            Value::Array(blocks) => Value::Array(self.rewrite_blocks(blocks.clone())),
+            other => other.clone(),
+        }
+    }
+
+    fn rewrite_blocks(&self, blocks: Vec<Value>) -> Vec<Value> {
+        blocks
+            .into_iter()
+            .filter_map(|block| self.rewrite_block(block))
+            .collect()
+    }
+
+    /// `None` drops the block.
+    fn rewrite_block(&self, mut block: Value) -> Option<Value> {
+        let name = block["name"].as_str().unwrap_or_default().to_string();
+        if name == "moocfi/research-consent-question"
+            && let Some(copied_id) =
+                self.copy_of(&self.consent_form_question_ids, &block["clientId"])
+        {
+            block["clientId"] = copied_id;
+        }
+        if let Some(attributes) = block.get_mut("attributes").and_then(Value::as_object_mut) {
+            match name.as_str() {
+                // The exercise was left behind, so the block could only render as broken.
+                "moocfi/exercise" => {
+                    if let Some(source_id) = attributes.get("id").filter(|id| id.is_string()) {
+                        let copied_id = self.copy_of(&self.exercise_ids, source_id)?;
+                        attributes.insert("id".to_string(), copied_id);
+                    }
+                }
+                "moocfi/chatbot" => {
+                    if let Some(copied_id) = attributes
+                        .get("chatbotConfigurationId")
+                        .and_then(|id| self.copy_of(&self.chatbot_configuration_ids, id))
+                    {
+                        attributes.insert("chatbotConfigurationId".to_string(), copied_id);
+                    }
+                    if let Some(source_course_id) = self.source_course_id
+                        && attributes.get("courseId").and_then(Value::as_str)
+                            == Some(source_course_id.to_string().as_str())
+                    {
+                        attributes.insert(
+                            "courseId".to_string(),
+                            Value::String(self.namespace_id.to_string()),
+                        );
+                    }
+                }
+                "moocfi/conditional-block" => {
+                    if let Some(Value::Array(module_ids)) = attributes.get_mut("module_completion")
+                    {
+                        for module_id in module_ids.iter_mut() {
+                            if let Some(copied_id) =
+                                self.copy_of(&self.course_module_ids, module_id)
+                            {
+                                *module_id = copied_id;
+                            }
+                        }
+                    }
+                    // Instances are not copied. Requiring the copy's instance keeps the content
+                    // gated and shows the condition in the editor, where a source id would not.
+                    if let Some(course_instance_id) = self.course_instance_id
+                        && let Some(Value::Array(instance_ids)) =
+                            attributes.get_mut("instance_enrollment")
+                        && !instance_ids.is_empty()
+                    {
+                        *instance_ids = vec![Value::String(course_instance_id.to_string())];
+                    }
+                }
+                "moocfi/code-giveaway" => {
+                    if let Some(copied_id) = attributes
+                        .get("code_giveaway_id")
+                        .and_then(|id| self.copy_of(&self.code_giveaway_ids, id))
+                    {
+                        attributes.insert("code_giveaway_id".to_string(), copied_id);
+                    }
+                }
+                _ => {}
+            }
+            if let Some((source_slug, copy_slug)) = self.course_slugs {
+                for (key, value) in attributes.iter_mut() {
+                    rewrite_course_links(value, Some(key), source_slug, copy_slug);
+                }
+            }
+        }
+        if let Some(Value::Array(inner_blocks)) = block.get_mut("innerBlocks") {
+            *inner_blocks = self.rewrite_blocks(std::mem::take(inner_blocks));
+        }
+        Some(block)
+    }
+}
+
+/// Rewrites `/courses/<source_slug>` link targets in `value`: whole `url`/`href` attributes, and
+/// `href` values inside HTML strings. Visible text is left alone.
+fn rewrite_course_links(value: &mut Value, key: Option<&str>, source_slug: &str, copy_slug: &str) {
+    match value {
+        Value::String(text) => {
+            if !text.contains(&format!("/courses/{source_slug}")) {
+                return;
+            }
+            *text = if matches!(key, Some("url" | "href")) {
+                rewrite_course_path(text, source_slug, copy_slug)
+            } else {
+                rewrite_html_hrefs(text, source_slug, copy_slug)
+            };
+        }
+        Value::Array(items) => {
+            for item in items {
+                rewrite_course_links(item, None, source_slug, copy_slug);
+            }
+        }
+        Value::Object(fields) => {
+            for (field_key, field_value) in fields.iter_mut() {
+                rewrite_course_links(field_value, Some(field_key), source_slug, copy_slug);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn rewrite_html_hrefs(html: &str, source_slug: &str, copy_slug: &str) -> String {
+    let mut rewritten = String::with_capacity(html.len());
+    let mut rest = html;
+    while let Some(attribute_start) = rest.find("href=") {
+        let quote_start = attribute_start + "href=".len();
+        let Some(quote) = rest[quote_start..]
+            .chars()
+            .next()
+            .filter(|c| matches!(c, '"' | '\''))
+        else {
+            rewritten.push_str(&rest[..quote_start]);
+            rest = &rest[quote_start..];
+            continue;
+        };
+        let target_start = quote_start + quote.len_utf8();
+        let Some(target_len) = rest[target_start..].find(quote) else {
+            break;
+        };
+        let target_end = target_start + target_len;
+        rewritten.push_str(&rest[..target_start]);
+        rewritten.push_str(&rewrite_course_path(
+            &rest[target_start..target_end],
+            source_slug,
+            copy_slug,
+        ));
+        rest = &rest[target_end..];
+    }
+    rewritten.push_str(rest);
+    rewritten
+}
+
+fn rewrite_course_path(target: &str, source_slug: &str, copy_slug: &str) -> String {
+    let source_path = format!("/courses/{source_slug}");
+    let mut rewritten = String::with_capacity(target.len());
+    let mut rest = target;
+    while let Some(path_start) = rest.find(&source_path) {
+        let path_end = path_start + source_path.len();
+        let ends_at_slug = rest[path_end..]
+            .chars()
+            .next()
+            .is_none_or(|c| matches!(c, '/' | '?' | '#' | '"'));
+        rewritten.push_str(&rest[..path_start]);
+        if ends_at_slug {
+            rewritten.push_str("/courses/");
+            rewritten.push_str(copy_slug);
+        } else {
+            rewritten.push_str(&source_path);
+        }
+        rest = &rest[path_end..];
+    }
+    rewritten.push_str(rest);
+    rewritten
+}
+
+async fn rewrite_page_contents(
+    tx: &mut PgConnection,
+    page_contents: HashMap<Uuid, Value>,
+    content_rewrite: &ContentRewrite<'_>,
+) -> ModelResult<()> {
+    let (ids, contents) = changed_rows(page_contents, |content| {
+        content_rewrite.rewrite_content(content)
+    });
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE pages
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE pages.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+    Ok(())
+}
+
+/// The ids and rewritten values of the rows whose value `rewrite` changes.
+fn changed_rows<T: PartialEq>(
+    rows: impl IntoIterator<Item = (Uuid, T)>,
+    rewrite: impl Fn(&T) -> T,
+) -> (Vec<Uuid>, Vec<T>) {
+    rows.into_iter()
+        .filter_map(|(id, value)| {
+            let rewritten = rewrite(&value);
+            (rewritten != value).then_some((id, rewritten))
+        })
+        .unzip()
+}
+
+/// Applies `content_rewrite` to the copied course's block content and links outside pages.
+async fn rewrite_course_texts(
+    tx: &mut PgConnection,
+    course_id: Uuid,
+    content_rewrite: &ContentRewrite<'_>,
+) -> ModelResult<()> {
+    let assignments = sqlx::query!(
+        "
+SELECT t.id,
+  t.assignment
+FROM exercise_tasks t
+  JOIN exercise_slides s ON s.id = t.exercise_slide_id
+  JOIN exercises e ON e.id = s.exercise_id
+WHERE e.course_id = $1
+  AND t.deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, assignments) = changed_rows(
+        assignments
+            .into_iter()
+            .map(|task| (task.id, task.assignment)),
+        |assignment| content_rewrite.rewrite_content(assignment),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE exercise_tasks
+SET assignment = rewritten.assignment
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, assignment)
+WHERE exercise_tasks.id = rewritten.id;
+            ",
+            &ids,
+            &assignments
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let review_instructions = sqlx::query!(
+        "
+SELECT id,
+  review_instructions
+FROM peer_or_self_review_configs
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, review_instructions) = changed_rows(
+        review_instructions
+            .into_iter()
+            .filter_map(|config| Some((config.id, config.review_instructions?))),
+        |instructions| content_rewrite.rewrite_content(instructions),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE peer_or_self_review_configs
+SET review_instructions = rewritten.review_instructions
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, review_instructions)
+WHERE peer_or_self_review_configs.id = rewritten.id;
+            ",
+            &ids,
+            &review_instructions
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let research_forms = sqlx::query!(
+        "
+SELECT id,
+  content
+FROM course_specific_research_consent_forms
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, contents) = changed_rows(
+        research_forms
+            .into_iter()
+            .map(|form| (form.id, form.content)),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE course_specific_research_consent_forms
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE course_specific_research_consent_forms.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let email_templates = sqlx::query!(
+        "
+SELECT id,
+  content
+FROM email_templates
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, contents) = changed_rows(
+        email_templates
+            .into_iter()
+            .filter_map(|template| Some((template.id, template.content?))),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE email_templates
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE email_templates.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let partners_blocks = sqlx::query!(
+        "
+SELECT id,
+  content
+FROM partners_blocks
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, contents) = changed_rows(
+        partners_blocks
+            .into_iter()
+            .filter_map(|partners_block| Some((partners_block.id, partners_block.content?))),
+        |content| content_rewrite.rewrite_content(content),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE partners_blocks
+SET content = rewritten.content
+FROM UNNEST($1::uuid [], $2::jsonb []) AS rewritten(id, content)
+WHERE partners_blocks.id = rewritten.id;
+            ",
+            &ids,
+            &contents
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let Some((source_slug, copy_slug)) = content_rewrite.course_slugs else {
+        return Ok(());
+    };
+
+    let checkbox_texts = sqlx::query!(
+        "
+SELECT id,
+  text_html
+FROM course_custom_privacy_policy_checkbox_texts
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, texts) = changed_rows(
+        checkbox_texts
+            .into_iter()
+            .map(|checkbox_text| (checkbox_text.id, checkbox_text.text_html)),
+        |text_html| rewrite_html_hrefs(text_html, source_slug, copy_slug),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE course_custom_privacy_policy_checkbox_texts
+SET text_html = rewritten.text_html
+FROM UNNEST($1::uuid [], $2::text []) AS rewritten(id, text_html)
+WHERE course_custom_privacy_policy_checkbox_texts.id = rewritten.id;
+            ",
+            &ids,
+            &texts
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let privacy_links = sqlx::query!(
+        "
+SELECT id,
+  url
+FROM privacy_links
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        ",
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, urls) = changed_rows(
+        privacy_links
+            .into_iter()
+            .map(|privacy_link| (privacy_link.id, privacy_link.url)),
+        |url| rewrite_course_path(url, source_slug, copy_slug),
+    );
+    if !ids.is_empty() {
+        sqlx::query!(
+            "
+UPDATE privacy_links
+SET url = rewritten.url
+FROM UNNEST($1::uuid [], $2::text []) AS rewritten(id, url)
+WHERE privacy_links.id = rewritten.id;
+            ",
+            &ids,
+            &urls
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    Ok(())
+}
+
+/// Records each copied page's final state as its first history entry, as saving it in the CMS
+/// would. The chatbot syncer only indexes pages that have one.
+async fn insert_page_history_for_copies(
+    tx: &mut PgConnection,
+    page_ids: &[Uuid],
+    author_user_id: Uuid,
+) -> ModelResult<()> {
+    for page_id in page_ids {
+        let page = pages::get_page_with_exercises(&mut *tx, *page_id).await?;
+        page_history::insert(
+            &mut *tx,
+            PKeyPolicy::Generate,
+            page.page.id,
+            &page.page.title,
+            &PageHistoryContent {
+                content: page.page.content,
+                exercises: page.exercises,
+                exercise_slides: page.exercise_slides,
+                exercise_tasks: page.exercise_tasks,
+                peer_or_self_review_configs: page.peer_or_self_review_configs,
+                peer_or_self_review_questions: page.peer_or_self_review_questions,
+            },
+            HistoryChangeReason::PageSaved,
+            author_user_id,
+            None,
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+/// Skips pages of deleted chapters: chapter deletion once left the pages in place.
 async fn copy_course_pages_and_return_contents(
     tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_course_id: Uuid,
+    target_clg_id: Uuid,
+    same_clg: bool,
 ) -> ModelResult<HashMap<Uuid, Value>> {
     // Copy course pages. At this point, exercise ids in content will point to old course's exercises.
     let contents = sqlx::query!(
         "
+WITH src AS (
+  SELECT p.*,
+    CASE
+      WHEN $4 THEN p.page_language_group_id
+      ELSE uuid_generate_v5($3, p.page_language_group_id::text)
+    END AS tgt_plg_id
+  FROM pages p
+  WHERE p.course_id = $2
+    AND p.deleted_at IS NULL
+    AND (
+      p.chapter_id IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM chapters c
+        WHERE c.id = uuid_generate_v5($1, p.chapter_id::text)
+      )
+    )
+),
+ins_plg AS (
+  INSERT INTO page_language_groups (id, course_language_group_id)
+  SELECT DISTINCT tgt_plg_id,
+    $3
+  FROM src
+  WHERE NOT $4
+    AND tgt_plg_id IS NOT NULL ON CONFLICT (id) DO NOTHING
+)
 INSERT INTO pages (
     id,
     course_id,
@@ -445,25 +940,25 @@ INSERT INTO pages (
     page_language_group_id,
     hidden
   )
-SELECT uuid_generate_v5($1, id::text),
+SELECT uuid_generate_v5($1, src.id::text),
   $1,
-  content,
-  url_path,
-  title,
-  uuid_generate_v5($1, chapter_id::text),
-  order_number,
-  id,
-  content_search_language,
-  page_language_group_id,
-  hidden
-FROM pages
-WHERE (course_id = $2)
-  AND deleted_at IS NULL
+  src.content,
+  src.url_path,
+  src.title,
+  uuid_generate_v5($1, src.chapter_id::text),
+  src.order_number,
+  src.id,
+  src.content_search_language,
+  src.tgt_plg_id,
+  src.hidden
+FROM src
 RETURNING id,
   content;
         ",
         namespace_id,
-        parent_course_id
+        parent_course_id,
+        target_clg_id,
+        same_clg,
     )
     .fetch_all(tx)
     .await?
@@ -521,14 +1016,19 @@ RETURNING id,
     Ok(contents)
 }
 
+/// A chapter whose front page was not copied is left without one.
 async fn set_chapter_front_pages(tx: &mut PgConnection, namespace_id: Uuid) -> ModelResult<()> {
     // Update front_page_id of chapters now that new pages exist.
     sqlx::query!(
         "
-UPDATE chapters
-SET front_page_id = uuid_generate_v5(course_id, front_page_id::text)
-WHERE course_id = $1
-  AND front_page_id IS NOT NULL;
+UPDATE chapters c
+SET front_page_id = (
+    SELECT p.id
+    FROM pages p
+    WHERE p.id = uuid_generate_v5(c.course_id, c.front_page_id::text)
+  )
+WHERE c.course_id = $1
+  AND c.front_page_id IS NOT NULL;
             ",
         namespace_id,
     )
@@ -538,12 +1038,13 @@ WHERE course_id = $1
     Ok(())
 }
 
+/// Returns the ids of the copied modules.
 async fn copy_course_modules(
     tx: &mut PgConnection,
     new_course_id: Uuid,
     old_course_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<HashSet<Uuid>> {
+    let copied_ids = sqlx::query!(
         "
 INSERT INTO course_modules (
     id,
@@ -559,6 +1060,7 @@ INSERT INTO course_modules (
     completion_registration_link_override,
     ects_credits,
     enable_registering_completion_to_uh_open_university,
+    enable_credit_registration_via_suotar,
     uh_course_code
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -574,17 +1076,22 @@ SELECT uuid_generate_v5($1, id::text),
   completion_registration_link_override,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
+  enable_credit_registration_via_suotar,
   uh_course_code
 FROM course_modules
 WHERE course_id = $2
   AND deleted_at IS NULL
+RETURNING id
         ",
         new_course_id,
         old_course_id,
     )
-    .execute(&mut *tx)
-    .await?;
-    Ok(())
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|record| record.id)
+    .collect();
+    Ok(copied_ids)
 }
 
 /// After this one `set_chapter_front_pages` needs to be called to get these to point to the correct front pages.
@@ -632,22 +1139,28 @@ WHERE (course_id = $2)
     Ok(())
 }
 
-async fn map_old_exr_ids_to_new_exr_ids_for_courses(
+/// Copies the exercises of the copied pages and returns the copies' ids.
+///
+/// Exercises take their page's chapter, since `exercises.chapter_id` can be stale after a page
+/// moved between chapters.
+async fn copy_course_exercises(
     tx: &mut PgConnection,
     new_course_id: Uuid,
     src_course_id: Uuid,
     target_clg_id: Uuid,
     same_clg: bool,
-) -> ModelResult<HashMap<String, String>> {
-    let rows = sqlx::query!(
+) -> ModelResult<HashSet<Uuid>> {
+    let copied_ids = sqlx::query!(
         r#"
 WITH src AS (
   SELECT e.*,
+    copied_page.chapter_id AS tgt_chapter_id,
     CASE
       WHEN $4 THEN e.exercise_language_group_id
       ELSE uuid_generate_v5($3, e.id::text)
     END AS tgt_elg_id
   FROM exercises e
+    JOIN pages copied_page ON copied_page.id = uuid_generate_v5($1, e.page_id::text)
   WHERE e.course_id = $2
     AND e.deleted_at IS NULL
 ),
@@ -684,7 +1197,7 @@ ins_exercises AS (
     uuid_generate_v5($1, src.page_id::text),
     src.score_maximum,
     src.order_number,
-    uuid_generate_v5($1, src.chapter_id::text),
+    src.tgt_chapter_id,
     src.id,
     src.tgt_elg_id,
     src.max_tries_per_slide,
@@ -694,11 +1207,9 @@ ins_exercises AS (
     src.needs_self_review,
     src.teacher_reviews_answer_after_locking
   FROM src
-  RETURNING id,
-    copied_from
+  RETURNING id
 )
-SELECT id,
-  copied_from
+SELECT id
 FROM ins_exercises;
         "#,
         new_course_id,
@@ -707,30 +1218,21 @@ FROM ins_exercises;
         same_clg,
     )
     .fetch_all(tx)
-    .await?;
+    .await?
+    .into_iter()
+    .map(|record| record.id)
+    .collect();
 
-    rows.into_iter()
-        .map(|r| {
-            r.copied_from
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::Database,
-                        "copied_from should always be set from INSERT statement".to_string(),
-                        None,
-                    )
-                })
-                .map(|copied_from| (copied_from.to_string(), r.id.to_string()))
-        })
-        .collect::<ModelResult<Vec<_>>>()
-        .map(|vec| vec.into_iter().collect())
+    Ok(copied_ids)
 }
 
-async fn map_old_exr_ids_to_new_exr_ids_for_exams(
+/// Copies the exercises of the copied exam pages and returns the copies' ids.
+async fn copy_exam_exercises(
     tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_exam_id: Uuid,
-) -> ModelResult<HashMap<String, String>> {
-    let old_to_new_exercise_ids = sqlx::query!(
+) -> ModelResult<HashSet<Uuid>> {
+    let copied_ids = sqlx::query!(
         "
 INSERT INTO exercises (
     id,
@@ -749,26 +1251,26 @@ INSERT INTO exercises (
     needs_self_review,
     teacher_reviews_answer_after_locking
   )
-SELECT uuid_generate_v5($1, id::text),
+SELECT uuid_generate_v5($1, e.id::text),
   $1,
-  name,
-  deadline,
-  uuid_generate_v5($1, page_id::text),
-  score_maximum,
-  order_number,
+  e.name,
+  e.deadline,
+  copied_page.id,
+  e.score_maximum,
+  e.order_number,
   NULL,
-  id,
-  max_tries_per_slide,
-  limit_number_of_tries,
-  needs_peer_review,
-  use_course_default_peer_or_self_review_config,
-  needs_self_review,
-  teacher_reviews_answer_after_locking
-FROM exercises
-WHERE exam_id = $2
-  AND deleted_at IS NULL
-RETURNING id,
-  copied_from;
+  e.id,
+  e.max_tries_per_slide,
+  e.limit_number_of_tries,
+  e.needs_peer_review,
+  e.use_course_default_peer_or_self_review_config,
+  e.needs_self_review,
+  e.teacher_reviews_answer_after_locking
+FROM exercises e
+  JOIN pages copied_page ON copied_page.id = uuid_generate_v5($1, e.page_id::text)
+WHERE e.exam_id = $2
+  AND e.deleted_at IS NULL
+RETURNING id;
             ",
         namespace_id,
         parent_exam_id
@@ -776,24 +1278,10 @@ RETURNING id,
     .fetch_all(tx)
     .await?
     .into_iter()
-    .map(|record| {
-        Ok((
-            record
-                .copied_from
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        "Query failed to return valid data.".to_string(),
-                        None,
-                    )
-                })?
-                .to_string(),
-            record.id.to_string(),
-        ))
-    })
-    .collect::<ModelResult<HashMap<String, String>>>()?;
+    .map(|record| record.id)
+    .collect();
 
-    Ok(old_to_new_exercise_ids)
+    Ok(copied_ids)
 }
 
 async fn copy_exercise_slides(
@@ -801,18 +1289,17 @@ async fn copy_exercise_slides(
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
-    // Copy exercise slides
     sqlx::query!(
         "
-    INSERT INTO exercise_slides (
-        id, exercise_id, order_number
-    )
-    SELECT uuid_generate_v5($1, id::text),
-        uuid_generate_v5($1, exercise_id::text),
-        order_number
-    FROM exercise_slides
-    WHERE exercise_id IN (SELECT id FROM exercises WHERE course_id = $2 OR exam_id = $2 AND deleted_at IS NULL)
-    AND deleted_at IS NULL;
+INSERT INTO exercise_slides (id, exercise_id, order_number)
+SELECT uuid_generate_v5($1, s.id::text),
+  copied_exercise.id,
+  s.order_number
+FROM exercise_slides s
+  JOIN exercises e ON e.id = s.exercise_id
+  JOIN exercises copied_exercise ON copied_exercise.id = uuid_generate_v5($1, s.exercise_id::text)
+WHERE (e.course_id = $2 OR e.exam_id = $2)
+  AND s.deleted_at IS NULL;
             ",
         namespace_id,
         parent_id
@@ -828,7 +1315,6 @@ async fn copy_exercise_tasks(
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
-    // Copy exercise tasks
     sqlx::query!(
         "
 INSERT INTO exercise_tasks (
@@ -842,25 +1328,21 @@ INSERT INTO exercise_tasks (
     order_number,
     copied_from
   )
-SELECT uuid_generate_v5($1, id::text),
-  uuid_generate_v5($1, exercise_slide_id::text),
-  exercise_type,
-  assignment,
-  private_spec,
-  public_spec,
-  model_solution_spec,
-  order_number,
-  id
-FROM exercise_tasks
-WHERE exercise_slide_id IN (
-    SELECT s.id
-    FROM exercise_slides s
-      JOIN exercises e ON (e.id = s.exercise_id)
-    WHERE e.course_id = $2 OR e.exam_id = $2
-    AND e.deleted_at IS NULL
-    AND s.deleted_at IS NULL
-  )
-AND deleted_at IS NULL;
+SELECT uuid_generate_v5($1, t.id::text),
+  copied_slide.id,
+  t.exercise_type,
+  t.assignment,
+  t.private_spec,
+  t.public_spec,
+  t.model_solution_spec,
+  t.order_number,
+  t.id
+FROM exercise_tasks t
+  JOIN exercise_slides s ON s.id = t.exercise_slide_id
+  JOIN exercises e ON e.id = s.exercise_id
+  JOIN exercise_slides copied_slide ON copied_slide.id = uuid_generate_v5($1, t.exercise_slide_id::text)
+WHERE (e.course_id = $2 OR e.exam_id = $2)
+  AND t.deleted_at IS NULL;
     ",
         namespace_id,
         parent_id,
@@ -874,17 +1356,15 @@ AND deleted_at IS NULL;
     sqlx::query!(
         "
 INSERT INTO exercise_task_spec_files (exercise_task_id, file_upload_id, spec_kind)
-SELECT uuid_generate_v5($1, f.exercise_task_id::text),
+SELECT copied_task.id,
   f.file_upload_id,
   f.spec_kind
 FROM exercise_task_spec_files f
   JOIN exercise_tasks t ON t.id = f.exercise_task_id
   JOIN exercise_slides s ON s.id = t.exercise_slide_id
   JOIN exercises e ON e.id = s.exercise_id
+  JOIN exercise_tasks copied_task ON copied_task.id = uuid_generate_v5($1, f.exercise_task_id::text)
 WHERE (e.course_id = $2 OR e.exam_id = $2)
-  AND e.deleted_at IS NULL
-  AND s.deleted_at IS NULL
-  AND t.deleted_at IS NULL
   AND f.deleted_at IS NULL;
     ",
         namespace_id,
@@ -934,6 +1414,8 @@ async fn copy_peer_or_self_review_configs(
     namespace_id: Uuid,
     parent_id: Uuid,
 ) -> ModelResult<()> {
+    // Matched on the exercise's course, not the config's: older configs can carry the course_id of
+    // the course their exercise block was pasted from.
     sqlx::query!(
         "
 INSERT INTO peer_or_self_review_configs (
@@ -946,23 +1428,36 @@ INSERT INTO peer_or_self_review_configs (
     accepting_threshold,
     manual_review_cutoff_in_days,
     points_are_all_or_nothing,
-    review_instructions
+    review_instructions,
+    reset_answer_if_zero_points_from_review
   )
 SELECT uuid_generate_v5($1, posrc.id::text),
   $1,
-  uuid_generate_v5($1, posrc.exercise_id::text),
+  copied_exercise.id,
   posrc.peer_reviews_to_give,
   posrc.peer_reviews_to_receive,
   posrc.processing_strategy,
   posrc.accepting_threshold,
   posrc.manual_review_cutoff_in_days,
   posrc.points_are_all_or_nothing,
-  posrc.review_instructions
+  posrc.review_instructions,
+  posrc.reset_answer_if_zero_points_from_review
 FROM peer_or_self_review_configs posrc
   LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
-WHERE posrc.course_id = $2
-  AND posrc.deleted_at IS NULL
-  AND e.deleted_at IS NULL;
+  LEFT JOIN exercises copied_exercise ON (
+    copied_exercise.id = uuid_generate_v5($1, posrc.exercise_id::text)
+  )
+WHERE posrc.deleted_at IS NULL
+  AND (
+    (
+      posrc.exercise_id IS NULL
+      AND posrc.course_id = $2
+    )
+    OR (
+      e.course_id = $2
+      AND copied_exercise.id IS NOT NULL
+    )
+  );
     ",
         namespace_id,
         parent_id,
@@ -989,7 +1484,7 @@ INSERT INTO peer_or_self_review_questions (
     weight
   )
 SELECT uuid_generate_v5($1, q.id::text),
-  uuid_generate_v5($1, q.peer_or_self_review_config_id::text),
+  copied_config.id,
   q.order_number,
   q.question,
   q.question_type,
@@ -997,16 +1492,15 @@ SELECT uuid_generate_v5($1, q.id::text),
   q.weight
 FROM peer_or_self_review_questions q
   JOIN peer_or_self_review_configs posrc ON (posrc.id = q.peer_or_self_review_config_id)
-  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
-WHERE peer_or_self_review_config_id IN (
-    SELECT id
-    FROM peer_or_self_review_configs
-    WHERE course_id = $2
-      AND deleted_at IS NULL
+  JOIN peer_or_self_review_configs copied_config ON (
+    copied_config.id = uuid_generate_v5($1, q.peer_or_self_review_config_id::text)
   )
-  AND q.deleted_at IS NULL
-  AND e.deleted_at IS NULL
-  AND posrc.deleted_at IS NULL;
+  LEFT JOIN exercises e ON (e.id = posrc.exercise_id)
+WHERE q.deleted_at IS NULL
+  AND (
+    posrc.course_id = $2
+    OR e.course_id = $2
+  );
     ",
         namespace_id,
         parent_id,
@@ -1184,12 +1678,13 @@ WHERE cm.course_id = $2
     Ok(())
 }
 
+/// Returns the ids of the copied configurations.
 async fn copy_chatbot_configurations(
     tx: &mut PgConnection,
     new_course_id: Uuid,
     old_course_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<HashSet<Uuid>> {
+    let copied_ids = sqlx::query!(
         "
 INSERT INTO chatbot_configurations (
     id,
@@ -1211,7 +1706,12 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     enabled_to_students,
     model_id,
-    enabled_tool_categories
+    enabled_tool_categories,
+    verbosity,
+    reasoning_effort,
+    suggest_next_messages,
+    initial_suggested_messages,
+    publicly_accessible
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1233,17 +1733,26 @@ SELECT
   default_chatbot,
   enabled_to_students,
   model_id,
-  enabled_tool_categories
+  enabled_tool_categories,
+  verbosity,
+  reasoning_effort,
+  suggest_next_messages,
+  initial_suggested_messages,
+  publicly_accessible
 FROM chatbot_configurations
 WHERE course_id = $2
-  AND deleted_at IS NULL;
+  AND deleted_at IS NULL
+RETURNING id;
         ",
         new_course_id,
         old_course_id
     )
-    .execute(&mut *tx)
-    .await?;
-    Ok(())
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|record| record.id)
+    .collect();
+    Ok(copied_ids)
 }
 
 async fn copy_cheater_thresholds(
@@ -1251,25 +1760,20 @@ async fn copy_cheater_thresholds(
     new_course_id: Uuid,
     old_course_id: Uuid,
 ) -> ModelResult<()> {
-    let old_default_module =
-        crate::course_modules::get_default_by_course_id(tx, old_course_id).await?;
-    let new_default_module =
-        crate::course_modules::get_default_by_course_id(tx, new_course_id).await?;
-
     sqlx::query!(
         "
 INSERT INTO cheater_thresholds (id, course_module_id, duration_seconds)
-SELECT
-  uuid_generate_v5($1, id::text),
-  $2,
-  duration_seconds
-FROM cheater_thresholds
-WHERE course_module_id = $3
-  AND deleted_at IS NULL;
+SELECT uuid_generate_v5($1, ct.id::text),
+  copied_module.id,
+  ct.duration_seconds
+FROM cheater_thresholds ct
+  JOIN course_modules cm ON cm.id = ct.course_module_id
+  JOIN course_modules copied_module ON copied_module.id = uuid_generate_v5($1, ct.course_module_id::text)
+WHERE cm.course_id = $2
+  AND ct.deleted_at IS NULL;
         ",
         new_course_id,
-        new_default_module.id,
-        old_default_module.id
+        old_course_id
     )
     .execute(&mut *tx)
     .await?;
@@ -1420,11 +1924,13 @@ WHERE course_id = $2
     Ok(())
 }
 
+/// Returns the ids of the copied questions. The form content still names the source questions
+/// until it goes through `ContentRewrite`.
 async fn copy_research_consent_forms_and_questions(
     tx: &mut PgConnection,
     new_course_id: Uuid,
     old_course_id: Uuid,
-) -> ModelResult<()> {
+) -> ModelResult<HashSet<Uuid>> {
     sqlx::query!(
         "
 INSERT INTO course_specific_research_consent_forms (id, course_id, content)
@@ -1441,7 +1947,7 @@ WHERE course_id = $2
     .execute(&mut *tx)
     .await?;
 
-    sqlx::query!(
+    let copied_ids = sqlx::query!(
         "
 INSERT INTO course_specific_consent_form_questions (
     id,
@@ -1449,11 +1955,56 @@ INSERT INTO course_specific_consent_form_questions (
     research_consent_form_id,
     question
   )
+SELECT uuid_generate_v5($1, q.id::text),
+  $1,
+  copied_form.id,
+  q.question
+FROM course_specific_consent_form_questions q
+  JOIN course_specific_research_consent_forms copied_form ON (
+    copied_form.id = uuid_generate_v5($1, q.research_consent_form_id::text)
+  )
+WHERE q.course_id = $2
+  AND q.deleted_at IS NULL
+RETURNING id;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|record| record.id)
+    .collect();
+
+    Ok(copied_ids)
+}
+
+async fn copy_email_templates(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO email_templates (
+    id,
+    course_id,
+    content,
+    subject,
+    exercise_completions_threshold,
+    points_threshold,
+    language,
+    email_template_type
+  )
 SELECT uuid_generate_v5($1, id::text),
   $1,
-  uuid_generate_v5($1, research_consent_form_id::text),
-  question
-FROM course_specific_consent_form_questions
+  content,
+  subject,
+  exercise_completions_threshold,
+  points_threshold,
+  language,
+  email_template_type
+FROM email_templates
 WHERE course_id = $2
   AND deleted_at IS NULL;
         ",
@@ -1462,7 +2013,87 @@ WHERE course_id = $2
     )
     .execute(&mut *tx)
     .await?;
+    Ok(())
+}
 
+/// Copies the giveaways without their codes and returns the copies' ids. Must run after the
+/// modules and the research consent questions are copied.
+async fn copy_code_giveaways(
+    tx: &mut PgConnection,
+    new_course_id: Uuid,
+    old_course_id: Uuid,
+) -> ModelResult<HashSet<Uuid>> {
+    // A required consent question that was deleted cannot be answered, so the source giveaway can
+    // never hand out codes; dropping the requirement would open the copy to everyone instead.
+    let copied_ids = sqlx::query!(
+        "
+INSERT INTO code_giveaways (
+    id,
+    course_id,
+    course_module_id,
+    enabled,
+    require_course_specific_consent_form_question_id,
+    name
+  )
+SELECT uuid_generate_v5($1, cg.id::text),
+  $1,
+  copied_module.id,
+  cg.enabled
+  AND (
+    cg.require_course_specific_consent_form_question_id IS NULL
+    OR copied_question.id IS NOT NULL
+  ),
+  copied_question.id,
+  cg.name
+FROM code_giveaways cg
+  LEFT JOIN course_modules copied_module ON (
+    copied_module.id = uuid_generate_v5($1, cg.course_module_id::text)
+  )
+  LEFT JOIN course_specific_consent_form_questions copied_question ON (
+    copied_question.id = uuid_generate_v5(
+      $1,
+      cg.require_course_specific_consent_form_question_id::text
+    )
+  )
+WHERE cg.course_id = $2
+  AND cg.deleted_at IS NULL
+RETURNING id;
+        ",
+        new_course_id,
+        old_course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|record| record.id)
+    .collect();
+    Ok(copied_ids)
+}
+
+/// The copies share the stored audio files with the source pages.
+async fn copy_page_audio_files(
+    tx: &mut PgConnection,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO page_audio_files (id, page_id, path, mime_type)
+SELECT uuid_generate_v5($1, a.id::text),
+  copied_page.id,
+  a.path,
+  a.mime_type
+FROM page_audio_files a
+  JOIN pages p ON p.id = a.page_id
+  JOIN pages copied_page ON copied_page.id = uuid_generate_v5($1, a.page_id::text)
+WHERE (p.course_id = $2 OR p.exam_id = $2)
+  AND a.deleted_at IS NULL;
+        ",
+        namespace_id,
+        parent_id
+    )
+    .execute(&mut *tx)
+    .await?;
     Ok(())
 }
 
@@ -1854,7 +2485,10 @@ mod tests {
         let copied_content_in_page = copied_page.content[0]["attributes"]["content"]
             .as_str()
             .unwrap();
-        let content_with_updated_course_slug = "Internal link <a href=\"http://project-331.local/org/uh-cs/courses/copied-course\">http://project-331.local/org/uh-cs/courses/copied-course</a>";
+        let content_with_updated_course_slug = format!(
+            "Internal link <a href=\"http://project-331.local/org/uh-cs/courses/copied-course\">http://project-331.local/org/uh-cs/courses/{}</a>",
+            course.slug
+        );
         assert_eq!(copied_content_in_page, content_with_updated_course_slug);
     }
 

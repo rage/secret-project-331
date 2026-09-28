@@ -366,12 +366,9 @@ impl ValidationIssueCode {
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct ApiErrorResponse {
     #[serde(rename = "type")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub message_key: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub message: Option<String>,
+    pub error_type: String,
+    pub message_key: String,
+    pub message: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<ApiErrorIssue>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -530,12 +527,10 @@ impl error::ResponseError for ControllerError {
 
         let (error_type, message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
-        let message = Some(self.message.clone());
-
         let error_response = ApiErrorResponse {
-            error_type: Some(error_type.to_string()),
-            message_key: Some(message_key.to_string()),
-            message,
+            error_type: error_type.to_string(),
+            message_key: message_key.to_string(),
+            message: self.message.clone(),
             errors,
             metadata: metadata_json,
         };
@@ -544,7 +539,7 @@ impl error::ResponseError for ControllerError {
             .append_header(ContentType::json())
             .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
                 error!("Error while serialising error response: {e}");
-                r#"{"type":"internal_error","message_key":"internal_error"}"#.to_string()
+                r#"{"type":"internal_error","message_key":"internal_error","message":"Internal server error"}"#.to_string()
             }))
     }
 
@@ -1274,6 +1269,20 @@ mod tests {
         assert_eq!(value["message"], "Validation failed");
         assert!(value.get("status").is_none());
         assert!(value.get("request_id").is_none());
+    }
+
+    #[test]
+    fn test_error_envelope_schema_requires_type_message_key_and_message() {
+        let schema = serde_json::to_value(<ApiErrorResponse as utoipa::PartialSchema>::schema())
+            .expect("schema json");
+        let mut required: Vec<&str> = schema["required"]
+            .as_array()
+            .expect("required list")
+            .iter()
+            .map(|v| v.as_str().expect("field name"))
+            .collect();
+        required.sort_unstable();
+        assert_eq!(required, ["message", "message_key", "type"]);
     }
 
     #[test]

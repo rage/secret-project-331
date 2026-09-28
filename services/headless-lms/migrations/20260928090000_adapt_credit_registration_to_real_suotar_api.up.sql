@@ -1,6 +1,4 @@
--- Every lock is held until commit; fail fast rather than queue every reader of a hot table behind us.
 -- Statements that lock course_modules, course_module_completions, users or email_templates are last.
-SET LOCAL lock_timeout = '5s';
 
 DROP TABLE open_university_product_access_tokens;
 

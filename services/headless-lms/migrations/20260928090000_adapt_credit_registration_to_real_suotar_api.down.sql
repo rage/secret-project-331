@@ -1,7 +1,5 @@
--- Every lock is held until commit; fail fast rather than queue every reader of a hot table behind us.
 -- Statements that lock course_modules, course_module_completions, users or the legacy registration
 -- table are last.
-SET LOCAL lock_timeout = '5s';
 
 UPDATE credit_registration_phase_state
 SET expected_interval_secs = 1800

@@ -10,8 +10,10 @@ use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use chrono::NaiveDate;
+#[cfg(any(test, feature = "test-support"))]
+use headless_lms_base::config::MOCK_SUOTAR_TOKEN;
 use headless_lms_base::config::{
-    MOCK_SUOTAR_TOKEN, SUOTAR_AUTH_SCHEME, SuotarConfiguration, bool_env_false_by_default,
+    SUOTAR_AUTH_SCHEME, SuotarConfiguration, bool_env_false_by_default,
 };
 use once_cell::sync::Lazy;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
@@ -53,9 +55,6 @@ pub const CORRELATION_ID_HEADER: &str = "X-Correlation-Id";
 /// Suotar's own body limit (Express `5mb`), so an oversized batch is refused here rather than 413'd
 /// at the far end.
 pub const MAX_REQUEST_BODY_BYTES: usize = 5 * 1024 * 1024;
-
-/// The final attainment type in Sisu; verify's `registered` with any other type is partial evidence.
-pub const ATTAINMENT_TYPE_COURSE_UNIT: &str = "CourseUnitAttainment";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "suotar_endpoint", rename_all = "snake_case")]
@@ -117,7 +116,7 @@ impl SuotarEndpoint {
 /// The item and result types of one endpoint, tied together so a caller cannot pair an import item
 /// with a verify result.
 pub trait BatchEndpoint {
-    type Item: SuotarRequestItem + Clone;
+    type Item: SuotarRequestItem;
     type Result: DeserializeOwned;
     const ENDPOINT: SuotarEndpoint;
 }
@@ -175,8 +174,6 @@ pub fn new_request_item_id() -> String {
 /// read.
 pub trait SuotarRequestItem: Serialize {
     fn request_item_id(&self) -> &str;
-    /// Gives the item a fresh requestItemId, for sending it again in another call.
-    fn renew_request_item_id(&mut self);
     /// The student number the item asks about, for the items that carry one.
     fn student_number(&self) -> Option<&SecretString> {
         None
@@ -188,10 +185,6 @@ macro_rules! request_item {
         impl SuotarRequestItem for $name {
             fn request_item_id(&self) -> &str {
                 &self.request_item_id
-            }
-
-            fn renew_request_item_id(&mut self) {
-                self.request_item_id = new_request_item_id();
             }
 
             $(
@@ -330,25 +323,6 @@ pub struct SuotarEnrolment {
     pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
-/// An attainment as Suotar passes it through from its importer, so every field but the id and type
-/// may be missing.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ExistingAttainment {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub attainment_type: String,
-    pub state: Option<String>,
-    #[serde(default, deserialize_with = "lenient_date")]
-    pub attainment_date: Option<NaiveDate>,
-    #[serde(default, deserialize_with = "lenient_date")]
-    pub registration_date: Option<NaiveDate>,
-    #[serde(default, deserialize_with = "lenient_id")]
-    pub grade_scale_id: Option<String>,
-    #[serde(default, deserialize_with = "lenient_id")]
-    pub grade_id: Option<String>,
-}
-
 /// An enrolment or attainment that cannot be read drops out alone rather than taking the item with it.
 ///
 /// `enrolmentNotFound` and `enrolmentNotAccepted` carry this too, with `existing_attainments` only.
@@ -358,11 +332,12 @@ pub struct EnrolmentResolutionResult {
     #[serde(default, deserialize_with = "readable_elements")]
     pub enrolments: Vec<SuotarEnrolment>,
     #[serde(default, deserialize_with = "readable_elements")]
-    pub existing_attainments: Vec<ExistingAttainment>,
+    pub existing_attainments: Vec<SuotarAttainment>,
 }
 
-/// Covers the contract bodies: the bare `{id, type}` of verify's `registered` and the fuller one
-/// behind import's `duplicateAttainment` and `notImprovedAttainment`. A `duplicateAttainment` Suotar
+/// Covers the contract bodies: the bare `{id, type}` of verify's `registered`, the fuller one behind
+/// import's `duplicateAttainment` and `notImprovedAttainment`, and the ones an enrolment answer lists
+/// as already held, where every field but the id and type may be missing. A `duplicateAttainment` Suotar
 /// answers from its own recent sends names the `AssessmentItemAttainment` it submitted, and has no
 /// `state` or `registrationDate`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -632,12 +607,6 @@ impl<'de, R: DeserializeOwned> Deserialize<'de> for SuotarResponseItem<R> {
 pub struct SuotarBatchResponse<R> {
     pub endpoint: SuotarEndpoint,
     pub items: Vec<SuotarResponseItem<R>>,
-    /// Sent, but answered by nothing. Unknown outcome on [`SuotarEndpoint::creates_attainments`].
-    pub missing_request_item_ids: Vec<String>,
-    /// Answered, but never sent. Logged and otherwise ignored.
-    pub unexpected_request_item_ids: Vec<String>,
-    /// Zero when the batch was empty and no call was made.
-    pub http_status: u16,
     pub duration: Duration,
     /// `suotar_api_calls.id`, absent only when the audit write itself failed.
     pub call_id: Option<Uuid>,
@@ -674,39 +643,6 @@ pub enum SuotarErrorVariant {
     TransportUnknown,
     /// Suotar answered, and the answer was not a batch response.
     Deserialization,
-}
-
-impl SuotarErrorVariant {
-    /// Whether Suotar may have acted on the request. An import that may have landed must be
-    /// verified rather than re-sent, or a transcript gets a second attainment.
-    ///
-    /// A 4xx (`Unauthorized`, `MalformedRequest`, `RequestLevelError`) never reached Suotar's
-    /// business logic, and `ServiceTemporarilyUnavailable` stops before anything is written, so
-    /// both are as resendable as a connection that never opened (`TransportNotDelivered`); any
-    /// other 5xx (`ServerError`), a response that never arrived (`TransportUnknown`), or one that
-    /// arrived malformed (`Deserialization`) all leave the outcome unknown.
-    pub fn outcome_may_have_landed(self) -> bool {
-        !matches!(
-            self,
-            Self::Unauthorized
-                | Self::MalformedRequest
-                | Self::RequestLevelError
-                | Self::ServiceTemporarilyUnavailable
-                | Self::TransportNotDelivered
-        )
-    }
-
-    /// Whether the failure is Suotar or the network being down rather than anything about the
-    /// request, so the same request may succeed once they are back.
-    pub fn is_transient(self) -> bool {
-        matches!(
-            self,
-            Self::ServiceTemporarilyUnavailable
-                | Self::ServerError
-                | Self::TransportNotDelivered
-                | Self::TransportUnknown
-        )
-    }
 }
 
 /// A Suotar call that got no batch response. [`SuotarError::variant`] and [`SuotarError::was_sent`]
@@ -773,29 +709,9 @@ impl std::error::Error for SuotarError {
 pub struct SuotarCallContext {
     pub worker_name: String,
     pub credit_registration_ids: Vec<Uuid>,
-    /// Replaces [`SuotarEndpoint::request_timeout`] when set.
+    /// Replaces [`SuotarEndpoint::request_timeout`] when set, e.g. with
+    /// [`INTERACTIVE_REQUEST_TIMEOUT`] for a call someone is waiting on in the browser.
     pub request_timeout: Option<Duration>,
-}
-
-impl SuotarCallContext {
-    pub fn new(worker_name: impl Into<String>) -> Self {
-        Self {
-            worker_name: worker_name.into(),
-            credit_registration_ids: Vec::new(),
-            request_timeout: None,
-        }
-    }
-
-    /// For a call someone is waiting on in the browser.
-    pub fn interactive(mut self) -> Self {
-        self.request_timeout = Some(INTERACTIVE_REQUEST_TIMEOUT);
-        self
-    }
-
-    pub fn for_registrations(mut self, ids: Vec<Uuid>) -> Self {
-        self.credit_registration_ids = ids;
-        self
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -845,6 +761,10 @@ impl SuotarCallAudit for NoSuotarCallAudit {
     async fn finished(&self, _call_id: Uuid, _finished: SuotarCallFinished) {}
 }
 
+/// The `request_level_error_code` of a call refused before it was sent. Suotar never sends this
+/// code; `count_unreachable_run_since` in models matches it by this literal.
+pub const REFUSED_BEFORE_SENDING_CODE: &str = "refusedBeforeSending";
+
 /// Suotar matches the `Bearer ` prefix exactly: case-sensitive, one space.
 fn authorization_header_value(token: &str) -> String {
     format!("{SUOTAR_AUTH_SCHEME} {token}")
@@ -889,6 +809,7 @@ impl SuotarClient {
     }
 
     /// A client for the mock Suotar this server serves, with no call audit.
+    #[cfg(any(test, feature = "test-support"))]
     pub fn mock_for_test() -> Self {
         Self {
             api_base_url: Url::parse("http://project-331.local/api/v0/mock-suotar/")
@@ -905,15 +826,7 @@ impl SuotarClient {
         context: SuotarCallContext,
         items: Vec<E::Item>,
     ) -> Result<SuotarBatchResponse<E::Result>, SuotarError> {
-        self.post_batch(E::ENDPOINT, context, items).await
-    }
-
-    async fn post_batch<T: SuotarRequestItem, R: DeserializeOwned>(
-        &self,
-        endpoint: SuotarEndpoint,
-        context: SuotarCallContext,
-        items: Vec<T>,
-    ) -> Result<SuotarBatchResponse<R>, SuotarError> {
+        let endpoint = E::ENDPOINT;
         if items.is_empty() {
             return Ok(empty_batch_response(endpoint));
         }
@@ -969,23 +882,34 @@ impl SuotarClient {
                 .await;
         }
 
-        let url = self.api_base_url.join(endpoint.path()).map_err(|error| {
-            SuotarError::caused_by(
-                SuotarErrorVariant::TransportNotDelivered,
-                format!("Could not build the Suotar {} url", endpoint.path()),
-                error,
-            )
-            .unsent()
-        })?;
+        let url = match self.api_base_url.join(endpoint.path()) {
+            Ok(url) => url,
+            Err(error) => {
+                return self
+                    .refused(
+                        call_id,
+                        SuotarError::caused_by(
+                            SuotarErrorVariant::TransportNotDelivered,
+                            format!("Could not build the Suotar {} url", endpoint.path()),
+                            error,
+                        ),
+                    )
+                    .await;
+            }
+        };
         if !self.allow_http && url.scheme() != "https" {
-            return Err(SuotarError::new(
-                SuotarErrorVariant::TransportNotDelivered,
-                format!(
-                    "Refusing to send a {} request over plain http",
-                    endpoint.path()
-                ),
-            )
-            .unsent());
+            return self
+                .refused(
+                    call_id,
+                    SuotarError::new(
+                        SuotarErrorVariant::TransportNotDelivered,
+                        format!(
+                            "Refusing to send a {} request over plain http",
+                            endpoint.path()
+                        ),
+                    ),
+                )
+                .await;
         }
         let clock = Instant::now();
         #[cfg(any(test, feature = "test-support"))]
@@ -1022,7 +946,8 @@ impl SuotarClient {
         outcome
     }
 
-    /// Records a pre-flight refusal as the `suotar_api_calls` row any other failure would leave.
+    /// Finishes the `suotar_api_calls` row of a call that never left, tagged so the health rules can
+    /// tell our own refusal from Suotar being unreachable.
     async fn refused<R>(
         &self,
         call_id: Option<Uuid>,
@@ -1033,6 +958,7 @@ impl SuotarClient {
                 .finished(
                     call_id,
                     SuotarCallFinished {
+                        request_level_error_code: Some(REFUSED_BEFORE_SENDING_CODE.to_string()),
                         error_message: Some(error.message().to_string()),
                         ..SuotarCallFinished::default()
                     },
@@ -1161,14 +1087,7 @@ impl SuotarClient {
             })
             .collect();
 
-        let response = reconcile(
-            endpoint,
-            sent_ids,
-            items,
-            http_status,
-            duration,
-            raw_response,
-        );
+        let response = reconcile(endpoint, sent_ids, items, duration, raw_response);
         let finished = SuotarCallFinished {
             http_status: Some(http_status),
             duration,
@@ -1262,12 +1181,38 @@ fn empty_batch_response<R>(endpoint: SuotarEndpoint) -> SuotarBatchResponse<R> {
     SuotarBatchResponse {
         endpoint,
         items: Vec::new(),
-        missing_request_item_ids: Vec::new(),
-        unexpected_request_item_ids: Vec::new(),
-        http_status: 0,
         duration: Duration::ZERO,
         call_id: None,
         raw_response: Arc::new(serde_json::Value::Array(Vec::new())),
+    }
+}
+
+/// The requestItemIds a response does not pair with what was sent.
+#[derive(Debug, PartialEq)]
+struct UnpairedItemIds {
+    /// Sent, but answered by nothing. Unknown outcome on [`SuotarEndpoint::creates_attainments`].
+    missing: Vec<String>,
+    /// Answered, but never sent. Logged and otherwise ignored.
+    unexpected: Vec<String>,
+}
+
+fn unpaired_item_ids<R>(sent_ids: &[String], items: &[SuotarResponseItem<R>]) -> UnpairedItemIds {
+    let sent: HashSet<&str> = sent_ids.iter().map(String::as_str).collect();
+    let answered: HashSet<&str> = items
+        .iter()
+        .map(|item| item.request_item_id.as_str())
+        .collect();
+    UnpairedItemIds {
+        missing: sent_ids
+            .iter()
+            .filter(|id| !answered.contains(id.as_str()))
+            .cloned()
+            .collect(),
+        unexpected: items
+            .iter()
+            .filter(|item| !sent.contains(item.request_item_id.as_str()))
+            .map(|item| item.request_item_id.clone())
+            .collect(),
     }
 }
 
@@ -1276,38 +1221,21 @@ fn reconcile<R>(
     endpoint: SuotarEndpoint,
     sent_ids: Vec<String>,
     items: Vec<SuotarResponseItem<R>>,
-    http_status: u16,
     duration: Duration,
     raw_response: Arc<serde_json::Value>,
 ) -> SuotarBatchResponse<R> {
-    let sent: HashSet<&str> = sent_ids.iter().map(String::as_str).collect();
-    let answered: HashSet<&str> = items
-        .iter()
-        .map(|item| item.request_item_id.as_str())
-        .collect();
-
-    let missing_request_item_ids: Vec<String> = sent_ids
-        .iter()
-        .filter(|id| !answered.contains(id.as_str()))
-        .cloned()
-        .collect();
-    let unexpected_request_item_ids: Vec<String> = items
-        .iter()
-        .filter(|item| !sent.contains(item.request_item_id.as_str()))
-        .map(|item| item.request_item_id.clone())
-        .collect();
-
-    if !unexpected_request_item_ids.is_empty() {
+    let unpaired = unpaired_item_ids(&sent_ids, &items);
+    if !unpaired.unexpected.is_empty() {
         warn!(
             endpoint = endpoint.path(),
-            unexpected = unexpected_request_item_ids.len(),
+            unexpected = unpaired.unexpected.len(),
             "Suotar answered with requestItemIds that were not sent; ignoring them"
         );
     }
-    if !missing_request_item_ids.is_empty() && endpoint.creates_attainments() {
+    if !unpaired.missing.is_empty() && endpoint.creates_attainments() {
         error!(
             endpoint = endpoint.path(),
-            missing = missing_request_item_ids.len(),
+            missing = unpaired.missing.len(),
             sent = sent_ids.len(),
             "Suotar left items unanswered; their attainments may or may not exist and must not be re-sent"
         );
@@ -1316,9 +1244,6 @@ fn reconcile<R>(
     SuotarBatchResponse {
         endpoint,
         items,
-        missing_request_item_ids,
-        unexpected_request_item_ids,
-        http_status,
         duration,
         call_id: None,
         raw_response,
@@ -1442,6 +1367,11 @@ mod tests {
         )
     }
 
+    fn unpaired(sent: &[&str], items: &[SuotarResponseItem<PersonResult>]) -> UnpairedItemIds {
+        let sent: Vec<String> = sent.iter().map(|id| (*id).to_string()).collect();
+        unpaired_item_ids(&sent, items)
+    }
+
     fn reconciled(
         sent: &[&str],
         items: Vec<SuotarResponseItem<PersonResult>>,
@@ -1450,7 +1380,6 @@ mod tests {
             SuotarEndpoint::ResolvePersons,
             sent.iter().map(|id| (*id).to_string()).collect(),
             items,
-            200,
             Duration::ZERO,
             Arc::new(json!([])),
         )
@@ -1692,9 +1621,15 @@ mod tests {
 
     #[test]
     fn items_are_matched_by_request_item_id_not_position() {
-        let response = reconciled(&["a1", "b2", "c3"], person_response(&["c3", "a1", "b2"]));
-        assert!(response.missing_request_item_ids.is_empty());
-        assert!(response.unexpected_request_item_ids.is_empty());
+        let items = person_response(&["c3", "a1", "b2"]);
+        assert_eq!(
+            unpaired(&["a1", "b2", "c3"], &items),
+            UnpairedItemIds {
+                missing: Vec::new(),
+                unexpected: Vec::new(),
+            }
+        );
+        let response = reconciled(&["a1", "b2", "c3"], items);
         assert_eq!(
             response.item("b2").map(|item| item.code.as_str()),
             Some("personFound")
@@ -1703,17 +1638,25 @@ mod tests {
 
     #[test]
     fn an_unanswered_item_is_reported_rather_than_paired_with_a_neighbour() {
-        let response = reconciled(&["a1", "b2", "c3"], person_response(&["c3", "a1"]));
-        assert_eq!(response.missing_request_item_ids, vec!["b2".to_string()]);
+        let items = person_response(&["c3", "a1"]);
+        assert_eq!(
+            unpaired(&["a1", "b2", "c3"], &items).missing,
+            vec!["b2".to_string()]
+        );
+        let response = reconciled(&["a1", "b2", "c3"], items);
         assert!(response.item("b2").is_none());
         assert!(response.item("c3").is_some());
     }
 
     #[test]
     fn an_item_id_that_was_never_sent_is_reported_and_kept_out_of_the_way() {
-        let response = reconciled(&["a1"], person_response(&["a1", "z9"]));
-        assert_eq!(response.unexpected_request_item_ids, vec!["z9".to_string()]);
-        assert!(response.missing_request_item_ids.is_empty());
+        assert_eq!(
+            unpaired(&["a1"], &person_response(&["a1", "z9"])),
+            UnpairedItemIds {
+                missing: Vec::new(),
+                unexpected: vec!["z9".to_string()],
+            }
+        );
     }
 
     #[test]
@@ -1790,17 +1733,5 @@ mod tests {
 
         let bodyless = classified(502, "<html>");
         assert_eq!(bodyless.variant, SuotarErrorVariant::ServerError);
-    }
-
-    #[test]
-    fn only_the_failures_that_never_reached_suotar_are_safe_to_resend() {
-        assert!(!SuotarErrorVariant::TransportNotDelivered.outcome_may_have_landed());
-        assert!(!SuotarErrorVariant::Unauthorized.outcome_may_have_landed());
-        assert!(!SuotarErrorVariant::MalformedRequest.outcome_may_have_landed());
-        assert!(!SuotarErrorVariant::RequestLevelError.outcome_may_have_landed());
-        assert!(!SuotarErrorVariant::ServiceTemporarilyUnavailable.outcome_may_have_landed());
-        assert!(SuotarErrorVariant::TransportUnknown.outcome_may_have_landed());
-        assert!(SuotarErrorVariant::ServerError.outcome_may_have_landed());
-        assert!(SuotarErrorVariant::Deserialization.outcome_may_have_landed());
     }
 }

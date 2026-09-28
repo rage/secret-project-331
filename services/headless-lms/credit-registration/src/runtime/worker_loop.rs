@@ -23,11 +23,12 @@ use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker_until,
 };
 
-use super::dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, run_phase_once};
+use super::dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, Runner, run_phase_once};
 use super::process_local::LastReported;
 use crate::error::{CreditRegistrationError, CreditRegistrationResult};
 use crate::error_reports::ErrorReporter;
-use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
+use crate::phase::{CreditRegistrationPhase, WorkerProcess};
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.
@@ -52,16 +53,16 @@ pub async fn run(
     let shutdown = CancellationToken::new();
     tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
     let ctx = PhaseContext {
-        owning_process: Some(process),
         shutdown: Some(&shutdown),
         ..PhaseContext::from_app(
             &db_pool,
             &suotar_client,
             &app_configuration,
-            process.as_str(),
+            Runner::Worker(process),
         )
     };
 
+    // Its body is empty on purpose: the helper's own still-running line is all this loop is for.
     let still_running = run_periodic_worker_until(
         PeriodicWorkerConfig {
             tick_interval: TICK_INTERVAL,
@@ -111,8 +112,8 @@ async fn run_phase_loop(
             // Logged and swallowed: the phase-state row already carries the failure for the
             // dashboard, and the loop must keep going.
             if let Err(error) = run_if_due(ctx, phase).await {
-                log_failure(ctx.caller, phase.as_str(), &error);
-                ErrorReporter::new(ctx.pool, ctx.owning_process, phase)
+                log_failure(ctx.runner.caller(), phase.as_str(), &error);
+                ErrorReporter::new(ctx.pool, ctx.runner.owning_process(), phase)
                     .report(
                         &error.cause_chain(),
                         Some(format!("{error:?}")),
@@ -186,7 +187,7 @@ async fn run_due_phase(
 
     let started_at = Instant::now();
     // Always unscoped: a worker that narrowed would leave rows nobody sweeps.
-    let tick = run_phase_once(ctx, phase, &PhaseScope::default()).await?;
+    let tick = run_phase_once(ctx, phase, &RegistrationScope::default()).await?;
     let duration_ms = started_at.elapsed().as_millis() as u64;
     match tick {
         PhaseTick::Ran(outcome) if outcome.items_processed > 0 || outcome.items_failed > 0 => {

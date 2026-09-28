@@ -331,6 +331,7 @@
   "credit-registration-admin-manual-link-title": "Liitä opiskelijanumero käsin",
   "credit-registration-admin-manual-link-unblocked_one": "{{count}} kirjaus ei enää odota opiskelijanumeroa.",
   "credit-registration-admin-manual-link-unblocked_other": "{{count}} kirjausta ei enää odota opiskelijanumeroa.",
+  "credit-registration-admin-manual-link-unexpected-answer": "Sisu vastasi koodilla, jota emme tunnista, joten mitään ei liitetty. Tarkista numero uudelleen, niin näet koodin.",
   "credit-registration-admin-manual-link-unknown-outcome": "Emme tunnista tätä tulosta. Älä oleta, että liitos tehtiin. Tarkista tapahtumaloki.",
   "credit-registration-admin-manual-link-warning": "Tämä korvaa oman harkintasi avulla todisteen siitä, että opiskelija hallitsee sähköpostilaatikkoa. Virhe liittää jonkun toisen opiskelijanumeron tähän tiliin ja kirjaa hänen opintopisteensä sinne. Lähetä vahvistusviesti ensin uudelleen. Käytä tätä vain, jos tälle henkilölle ei saa toimitettua sähköpostia lainkaan.",
   "credit-registration-admin-manual-links-total-count_one": "{{count}} ylläpitäjän tekemä liitos",

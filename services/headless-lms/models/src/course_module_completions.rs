@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 
 use futures::Stream;
@@ -452,14 +453,15 @@ WHERE user_id = $1
 }
 
 /// Finds the best grade
-pub fn select_best_completion(
-    completions: Vec<CourseModuleCompletion>,
-) -> Option<CourseModuleCompletion> {
+pub fn select_best_completion<C: Borrow<CourseModuleCompletion>>(
+    completions: impl IntoIterator<Item = C>,
+) -> Option<C> {
     // Passed outranks not passed before grades are compared: ranking by grade alone let a failed
     // graded completion beat a passed pass/fail one, so a failure was reported as the best result.
     // `created_at` and `id` only break ties, so two equally good completions resolve to the newest
     // one instead of to whichever order the caller's query happened to return.
     completions.into_iter().max_by_key(|completion| {
+        let completion = completion.borrow();
         (
             completion.passed,
             completion.grade.unwrap_or(0),
@@ -494,10 +496,11 @@ WHERE course_module_completion_id = ANY($1)
 ///
 /// Pass completions awaiting review too: leaving them out could switch the flow and so reveal the
 /// flag. Not [`select_best_completion`], which picks the result shown to the student.
-pub fn select_registration_completion(
-    completions: Vec<CourseModuleCompletion>,
-) -> Option<CourseModuleCompletion> {
+pub fn select_registration_completion<C: Borrow<CourseModuleCompletion>>(
+    completions: impl IntoIterator<Item = C>,
+) -> Option<C> {
     completions.into_iter().max_by_key(|completion| {
+        let completion = completion.borrow();
         (
             completion.register_credits_via_suotar,
             completion.created_at,

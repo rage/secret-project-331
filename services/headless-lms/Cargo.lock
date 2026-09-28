@@ -2940,7 +2940,6 @@ dependencies = [
  "tokio-util",
  "tracing",
  "tracing-error",
- "utoipa",
  "uuid",
 ]
 

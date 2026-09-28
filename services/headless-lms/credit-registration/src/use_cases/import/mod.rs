@@ -7,103 +7,77 @@
 mod claim;
 mod decide;
 
-use headless_lms_models::credit_registrations::{restamp_submitting, transition_unless_moved_on};
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::credit_registrations::restamp_submitting;
+use headless_lms_models::library::credit_registration::outcomes::released_unsent_split_half;
 use headless_lms_utils::prelude::Utc;
 use sqlx::PgConnection;
 
-use crate::domain::{Applied, ClaimedRegistration, Counts, Prepared, Refusal, transitions};
 use crate::error::CreditRegistrationResult;
-use crate::registry::{
-    AttainmentSubmission, BatchReply, ExchangeAudit, ImportAnswer, RequestBatch, StudyRegistry,
+use crate::registry::{AttainmentSubmission, ExchangeAudit, ImportAnswer, StudyRegistry};
+use crate::use_cases::batch_flow::{
+    BatchFlowContext, Prepared, RegistryBatchFlow, run_registry_batch_flow,
 };
-use crate::use_cases::batch_flow::{RegistryBatchFlow, run_registry_batch_flow};
-use crate::use_cases::contexts::BatchFlowContext;
-use crate::use_cases::persist::write_decision;
+use crate::workflow::{
+    Applied, Claimed, Counts, RefusalPolicy, write_decision, write_unasked_move,
+};
 
 use claim::claim_import_candidates;
 use decide::decide_import_answer;
-
-const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ImportAttainments;
 
 pub(crate) async fn run<R: StudyRegistry>(
     ctx: &BatchFlowContext<'_>,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
-    run_registry_batch_flow(&mut Import, ctx, registry).await
+    run_registry_batch_flow::<Import, _>(ctx, registry).await
 }
 
 struct Import;
 
 impl RegistryBatchFlow for Import {
-    type Row = ClaimedRegistration;
+    type Extra = ();
     type Request = AttainmentSubmission;
-    type Answer = ImportAnswer;
 
-    const ENDPOINT: SuotarEndpoint = ENDPOINT;
-    const MAY_SPLIT: bool = true;
     const ALL_UNAVAILABLE_ERROR: &'static str =
         "Every item of the batch timed out in Sisu or came back unavailable.";
+    const REFUSAL: RefusalPolicy<()> = RefusalPolicy::RequestLevel;
 
     async fn claim(
-        &mut self,
         ctx: &BatchFlowContext<'_>,
         conn: &mut PgConnection,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Request>> {
+    ) -> CreditRegistrationResult<Prepared<(), AttainmentSubmission>> {
         claim_import_candidates(ctx, conn, limit).await
     }
 
-    async fn send<R: StudyRegistry>(
-        registry: &mut R,
-        batch: RequestBatch<Self::Row, Self::Request>,
-    ) -> BatchReply<Self::Row, Self::Request, Self::Answer> {
-        registry.import_attainments(batch).await
-    }
-
-    async fn persist_answer(
-        &self,
+    async fn apply_answer(
         conn: &mut PgConnection,
-        claim: &Self::Row,
-        answer: Option<&Self::Answer>,
+        row: &Claimed<()>,
+        answer: Option<&ImportAnswer>,
         audit: &ExchangeAudit,
     ) -> CreditRegistrationResult<Applied> {
+        let claim = &row.claim;
         let decision = decide_import_answer(claim.registration(), answer, &claim.facts(Utc::now()));
         write_decision(conn, claim, decision, audit).await
     }
 
-    fn on_refusal(&self, _claim: &Self::Row) -> Refusal {
-        Refusal::RequestLevel
-    }
-
     async fn keep_in_flight(
-        &self,
         conn: &mut PgConnection,
-        rows: &[&Self::Row],
+        rows: &[&Claimed<()>],
     ) -> CreditRegistrationResult<()> {
         restamp_submitting(
             conn,
-            &rows
-                .iter()
-                .map(|claim| claim.registration().id)
-                .collect::<Vec<_>>(),
+            &rows.iter().map(|row| row.claim.id()).collect::<Vec<_>>(),
         )
         .await?;
         Ok(())
     }
 
     async fn release_unsent(
-        &self,
         conn: &mut PgConnection,
-        rows: &[&Self::Row],
+        rows: &[&Claimed<()>],
     ) -> CreditRegistrationResult<()> {
-        for claim in rows {
-            transition_unless_moved_on(
-                conn,
-                claim.registration().id,
-                &transitions::released_unsent_split_half(),
-            )
-            .await?;
+        for row in rows {
+            write_unasked_move(conn, &row.claim, released_unsent_split_half()).await?;
         }
         Ok(())
     }

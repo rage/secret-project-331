@@ -19,16 +19,17 @@ mod persons;
 
 use headless_lms_models::credit_registrations::{
     BatchMove, CreditRegistration, CreditRegistrationState, claim_enrolment_checks,
-    transition_batch,
+    restamp_resolving_enrolment, transition_batch,
 };
+use headless_lms_models::library::credit_registration::outcomes::resolving_enrolment;
+use headless_lms_utils::prelude::Utc;
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::domain::{ClaimedRegistration, Counts, transitions};
 use crate::error::CreditRegistrationResult;
 use crate::registry::StudyRegistry;
-use crate::use_cases::batch_flow::run_registry_batch_flow;
-use crate::use_cases::contexts::BatchFlowContext;
+use crate::use_cases::batch_flow::{BatchFlowContext, run_registry_batch_flow};
+use crate::workflow::{ClaimedRegistration, Counts};
 
 use enrolments::ResolveEnrolments;
 use persons::ResolvePersonIds;
@@ -37,12 +38,12 @@ pub(crate) async fn run<R: StudyRegistry>(
     ctx: &BatchFlowContext<'_>,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
-    let mut counts = run_registry_batch_flow(&mut ResolvePersonIds, ctx, registry).await?;
-    counts += run_registry_batch_flow(&mut ResolveEnrolments, ctx, registry).await?;
+    let mut counts = run_registry_batch_flow::<ResolvePersonIds, _>(ctx, registry).await?;
+    counts += run_registry_batch_flow::<ResolveEnrolments, _>(ctx, registry).await?;
     Ok(counts)
 }
 
-/// Which kind of lookup a claimed row is on, decided once, at claim time.
+/// Which kind of lookup a claimed row is on, read from the state it was claimed in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Lookup {
     /// On its way to a first resolve, from `ready_to_submit`.
@@ -67,31 +68,60 @@ impl Lookup {
             Self::ParkedCheck => CreditRegistrationState::NoUsableEnrolment,
         }
     }
+}
 
-    /// The claim of `row` for this lookup, which [`hold`] makes good in the claim's transaction.
-    fn claim(self, row: CreditRegistration) -> ClaimedRegistration {
-        ClaimedRegistration::moved_to(row, self.in_flight_state())
-    }
+/// Claims `row` for its lookup, expecting the in-flight state [`hold_in_flight`] writes in the
+/// claim's transaction.
+fn claim_for_lookup(row: CreditRegistration) -> ClaimedRegistration {
+    let in_flight = Lookup::of(&row).in_flight_state();
+    ClaimedRegistration::moved_to(row, in_flight)
 }
 
 /// Keeps the claimed rows from being claimed again, or imported, while their lookups are out. In the
-/// claim's transaction.
-async fn hold(
+/// claim's transaction, whose lock makes each move's guard a confirmation of the state it read.
+async fn hold_in_flight<'a>(
     conn: &mut PgConnection,
-    rows: impl IntoIterator<Item = (Uuid, Lookup)>,
+    claims: impl IntoIterator<Item = &'a ClaimedRegistration>,
 ) -> CreditRegistrationResult<()> {
-    let (first_resolves, parked_checks): (Vec<_>, Vec<_>) = rows
-        .into_iter()
-        .partition(|&(_, lookup)| lookup == Lookup::FirstResolve);
+    let now = Utc::now();
+    let (first_resolves, parked_ids) = split_by_lookup(claims);
     let moves: Vec<BatchMove> = first_resolves
         .into_iter()
-        .map(|(id, _)| BatchMove {
-            id,
-            transition: transitions::resolving_enrolment(),
+        .map(|claim| BatchMove {
+            id: claim.id(),
+            transition: resolving_enrolment().transition(Some(claim.registration().state), now),
         })
         .collect();
     transition_batch(conn, &moves).await?;
-    let parked_ids: Vec<Uuid> = parked_checks.into_iter().map(|(id, _)| id).collect();
     claim_enrolment_checks(conn, &parked_ids).await?;
     Ok(())
+}
+
+/// Restarts the recovery grace of the rows a split still holds before each resent half, so a split
+/// that outlasts it does not see them recovered, and their answers discarded, meanwhile.
+async fn keep_lookups_in_flight<'a>(
+    conn: &mut PgConnection,
+    claims: impl IntoIterator<Item = &'a ClaimedRegistration>,
+) -> CreditRegistrationResult<()> {
+    let (first_resolves, parked_ids) = split_by_lookup(claims);
+    let resolving_ids: Vec<Uuid> = first_resolves.iter().map(|claim| claim.id()).collect();
+    restamp_resolving_enrolment(conn, &resolving_ids).await?;
+    claim_enrolment_checks(conn, &parked_ids).await?;
+    Ok(())
+}
+
+/// First resolves, which wait in `resolving_enrolment`, apart from parked checks, which stay where
+/// they are under a check claim.
+fn split_by_lookup<'a>(
+    claims: impl IntoIterator<Item = &'a ClaimedRegistration>,
+) -> (Vec<&'a ClaimedRegistration>, Vec<Uuid>) {
+    let mut first_resolves = Vec::new();
+    let mut parked_ids = Vec::new();
+    for claim in claims {
+        match Lookup::of(claim.registration()) {
+            Lookup::FirstResolve => first_resolves.push(claim),
+            Lookup::ParkedCheck => parked_ids.push(claim.id()),
+        }
+    }
+    (first_resolves, parked_ids)
 }

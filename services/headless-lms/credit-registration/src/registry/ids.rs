@@ -5,7 +5,7 @@ use std::borrow::Borrow;
 use secrecy::{ExposeSecret, SecretString};
 
 /// A student number sent to the study registry. Its `Debug` is redacted.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct StudentNumber(SecretString);
 
 impl StudentNumber {
@@ -22,13 +22,16 @@ impl StudentNumber {
     }
 }
 
-/// A University of Helsinki course code, as stored: callers trim where the request needs it.
+/// A University of Helsinki course code as the study registry is asked about it: trimmed, and never
+/// empty.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub(crate) struct CourseCode(String);
 
 impl CourseCode {
-    pub(crate) fn new(code: impl Into<String>) -> Self {
-        Self(code.into())
+    /// `None` for a code that is blank once trimmed.
+    pub(crate) fn parse(code: &str) -> Option<Self> {
+        let code = code.trim();
+        (!code.is_empty()).then(|| Self(code.to_string()))
     }
 
     pub(crate) fn as_str(&self) -> &str {
@@ -60,4 +63,20 @@ impl AttainmentId {
 pub(crate) struct SubmittedAttainmentRef {
     pub id: AttainmentId,
     pub attainment_type: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_course_code_is_trimmed_and_a_blank_one_is_none() {
+        assert_eq!(
+            CourseCode::parse(" TKT10002 ")
+                .as_ref()
+                .map(CourseCode::as_str),
+            Some("TKT10002")
+        );
+        assert_eq!(CourseCode::parse("   "), None);
+    }
 }

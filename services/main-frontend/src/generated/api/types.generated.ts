@@ -297,6 +297,7 @@ export type AdminManualLinkOutcome =
   | "already_linked_to_another_account"
   | "already_linked_to_this_account"
   | "study_registry_unavailable"
+  | "unexpected_study_registry_answer"
 
 export type AdminManuallyLinkStudentNumberPayload = {
   reason: string
@@ -323,6 +324,10 @@ export type AdminMaterializePayload = {
 }
 
 export type AdminMaterializeResult = {
+  /**
+   * Rows created, both for newly eligible completions and for grades that improved on a
+   * registered one.
+   */
   created_registration_count: number
   moved_registration_count: number
 }
@@ -2018,8 +2023,8 @@ export type CreditRegistrationAttentionItems = {
 /**
  * Which detector picked a row for the attention queue. A row can carry several.
  *
- * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
- * it says nothing about why, so it is reported per row rather than as a reason of its own.
+ * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue,
+ * but it says nothing about why, so it is reported per row rather than as a reason of its own.
  */
 export type CreditRegistrationAttentionReason =
   | "stuck_in_state"
@@ -2213,6 +2218,10 @@ export type CreditRegistrationHealth = {
    */
   alerts: Array<CreditRegistrationAlert>
   status: HealthStatus
+  /**
+   * The only thresholds the frontend reads off the health poll: how long a row may sit in each
+   * state before it counts as stuck. The other rule constants stay server-side.
+   */
   thresholds: StuckThresholds
 }
 
@@ -2318,15 +2327,19 @@ export type CreditRegistrationPhaseList = {
 export type CreditRegistrationPhaseRow = {
   consecutive_failures: number
   expected_interval_secs: number
+  /**
+   * The same verdict the `PhaseFailing` alert reaches; see `is_phase_failing`.
+   */
   failing: boolean
   /**
    * Always `false` while paused or never heartbeated.
    */
   heartbeat_late: boolean
   /**
-   * No implementation is registered for the phase yet, so it has never reported and will not.
+   * False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker
+   * runs or reports for.
    */
-  implemented: boolean
+  is_known_phase: boolean
   items_failed_last_run?: number | null
   items_processed_last_run?: number | null
   /**
@@ -2379,9 +2392,10 @@ export type CreditRegistrationPhaseStatus = {
    */
   heartbeat_late: boolean
   /**
-   * No implementation is registered for the phase yet, so it has never reported and will not.
+   * False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker
+   * runs or reports for.
    */
-  implemented: boolean
+  is_known_phase: boolean
   items_failed_last_run?: number | null
   items_processed_last_run?: number | null
   last_heartbeat_at?: string | null
@@ -3566,6 +3580,11 @@ export type MyStudiesCourseModule = {
   course_module_id: string
   ects_credits?: number | null
   /**
+   * Whether a credit registration is about to be created for the shown completion, which the
+   * student is told is `sending` until it exists.
+   */
+  is_credit_registration_starting: boolean
+  /**
    * `None` for the course's default module; the frontend labels those with the course name.
    */
   name?: string | null
@@ -3587,7 +3606,6 @@ export type MyStudiesCourseModule = {
    * manually or sets no point threshold.
    */
   score_required?: number | null
-  status_before_registration?: null | StudentFacingCreditRegistrationStatus
   /**
    * Whether this student's credits for the module go through credit registration via Suotar: the
    * flag of the completion [`models::course_module_completions::select_registration_completion`]
@@ -3831,8 +3849,8 @@ export type NotImprovedAttainment = {
 }
 
 /**
- * The same, for one of the two terminal-state mails. No address: these go to the account's own,
- * which the reader either owns or already sees.
+ * Where one of the two terminal-state mails stands, as a row shows it. No address: these go to
+ * the account's own, which the reader either owns or already sees.
  */
 export type NotificationEmailStatus = {
   email_send_status: EmailSendStatus
@@ -4269,8 +4287,7 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 /**
- * Live `pending` rows per blocker, for the surfaces that used to read the three states off the
- * ledger.
+ * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export type PendingReasonCounts = {
   completion_count: number
@@ -4484,7 +4501,7 @@ export type ResetPasswordTokenPayload = {
 }
 
 /**
- * Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.
+ * Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.
  *
  * Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
  * travels to them as it is rather than being re-mapped per surface.
@@ -10013,7 +10030,7 @@ export type AdminPausePhaseData = {
   body: AdminPausePhasePayload
   path: {
     /**
-     * One of the twelve canonical phase names
+     * A canonical phase name
      */
     phase: string
   }
@@ -10041,7 +10058,7 @@ export type AdminResumePhaseData = {
   body: AdminPhaseActionPayload
   path: {
     /**
-     * One of the twelve canonical phase names
+     * A canonical phase name
      */
     phase: string
   }
@@ -10069,7 +10086,7 @@ export type AdminRunPhaseNowData = {
   body: AdminPhaseActionPayload
   path: {
     /**
-     * One of the twelve canonical phase names
+     * A canonical phase name
      */
     phase: string
   }

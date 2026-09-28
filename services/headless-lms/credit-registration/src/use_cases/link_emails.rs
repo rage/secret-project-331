@@ -13,67 +13,47 @@ use headless_lms_models::library::credit_registration::account_linking::link_stu
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use serde_json::json;
-use sqlx::PgConnection;
-use uuid::Uuid;
+use sqlx::{Connection, PgPool};
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
-use crate::phase::PhaseScope;
-use crate::use_cases::contexts::MailContext;
-use crate::use_cases::mail_flow::{MailFlow, run_mail_flow, template_language};
+use crate::use_cases::mail_queue::{MailQueueSummary, TemplateCache, template_language};
+use crate::workflow::Counts;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 /// How many mails one iteration queues; the sender has its own rate, so this only bounds how much
 /// one transaction holds open.
 const QUEUE_LIMIT: i64 = 200;
 
-pub(crate) async fn run(ctx: &MailContext<'_>) -> CreditRegistrationResult<Counts> {
-    run_mail_flow::<LinkEmails>(ctx).await
-}
+const TEMPLATE: EmailTemplateType = EmailTemplateType::CreditRegistrationAccountLinking;
 
-struct LinkEmails;
-
-impl MailFlow for LinkEmails {
-    type Item = LinkingMailToQueue;
-
-    async fn claim(
-        conn: &mut PgConnection,
-        scope: &PhaseScope,
-    ) -> CreditRegistrationResult<Vec<Self::Item>> {
-        Ok(claim_unqueued(conn, QUEUE_LIMIT, scope.course_id).await?)
-    }
-
-    fn template_type(_item: &Self::Item) -> EmailTemplateType {
-        EmailTemplateType::CreditRegistrationAccountLinking
-    }
-
-    fn language(item: &Self::Item) -> String {
-        template_language(&item.course_language_code)
-    }
-
-    async fn queue(
-        base_url: &str,
-        conn: &mut PgConnection,
-        item: &Self::Item,
-        template_id: Uuid,
-    ) -> CreditRegistrationResult<()> {
+/// `base_url` is the absolute base for the mail's link, which outlives the process that wrote it.
+pub(crate) async fn run(
+    pool: &PgPool,
+    scope: &RegistrationScope,
+    base_url: &str,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    let claimed = claim_unqueued(&mut tx, QUEUE_LIMIT, scope.course_id).await?;
+    let mut templates = TemplateCache::default();
+    let mut summary = MailQueueSummary::new(claimed.len());
+    for mail in &claimed {
+        let language = template_language(&mail.course_language_code);
+        let Some(template_id) = templates.id_for(&mut tx, TEMPLATE, &language).await? else {
+            summary.skip_missing_template(TEMPLATE, &language, language.as_str());
+            continue;
+        };
         let delivery = insert_email_delivery_to_address(
-            conn,
-            item.emailed_to.expose_secret(),
+            &mut tx,
+            mail.emailed_to.expose_secret(),
             template_id,
-            &placeholders(base_url, item),
+            &placeholders(base_url, mail),
         )
         .await?;
-        set_email_delivery_id(conn, item.id, delivery).await?;
-        Ok(())
+        set_email_delivery_id(&mut tx, mail.id, delivery).await?;
     }
-
-    fn missing_template_label(_template_type: EmailTemplateType, language: &str) -> String {
-        language.to_string()
-    }
-
-    fn missing_templates_error_prefix() -> &'static str {
-        "No credit_registration_account_linking email template for:"
-    }
+    tx.commit().await?;
+    Ok(summary.finish("No credit_registration_account_linking email template for:"))
 }
 
 /// Stored on the delivery row because the recipient may have no account here for the sender to read

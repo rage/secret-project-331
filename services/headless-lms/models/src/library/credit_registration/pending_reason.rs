@@ -55,8 +55,7 @@ impl PendingPreconditions {
     }
 }
 
-/// Live `pending` rows per blocker, for the surfaces that used to read the three states off the
-/// ledger.
+/// Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, ToSchema)]
 pub struct PendingReasonCounts {
     pub completion_count: i64,

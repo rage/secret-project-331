@@ -3,14 +3,10 @@
 use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState,
 };
-use headless_lms_models::library::credit_registration::classification::{
-    DUPLICATE_REQUEST_ITEM_CODE, PERSON_NOT_FOUND_CODE, WireOutcome, map_code, outcome_of,
-};
 use headless_lms_models::library::credit_registration::config_validation::CourseCodeVerdict;
-use headless_lms_models::library::credit_registration::outcomes::import_success_state;
 use headless_lms_models::library::credit_registration::study_registry::{
-    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, ItemStatus, LocalizedName,
-    RegistryAttainment, RegistryEnrolment, RegistryErrorKind, RosterEnrolment, RosterPerson,
+    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, LocalizedName, RegistryAttainment,
+    RegistryEnrolment, RegistryErrorKind, RosterEnrolment, RosterPerson,
 };
 use headless_lms_utils::services::suotar::{
     self as wire, EnrolmentResolutionResult, EnrolmentsListedResult, ImportAttainmentResult,
@@ -18,32 +14,25 @@ use headless_lms_utils::services::suotar::{
     SuotarItemStatus, SuotarResponseItem, ValidateCourseCodeResult, VerifyAttainmentResult,
 };
 
+use super::codes::{
+    DUPLICATE_REQUEST_ITEM_CODE, PERSON_NOT_FOUND_CODE, WireOutcome, map_code, outcome_of,
+    settled_state,
+};
 use crate::registry::{
-    AttainmentId, CourseCode, EnrolmentAnswer, EnrolmentReading, FoundPerson, ImportAnswer,
-    PersonAnswer, PersonLookupAnswer, PersonReading, RegistryError, SubmittedAttainmentRef,
-    VerificationAnswer, VerificationReading,
+    AttainmentId, CourseCode, EnrolmentAnswer, EnrolmentReading, FoundPerson, HeldCredit,
+    ImportAnswer, PersonAnswer, PersonLookupError, PersonReading, RegistryError, RegistryPerson,
+    SubmittedAttainmentRef, VerificationAnswer, VerificationReading,
 };
 
-/// Converts a `wire::ExistingAttainment` or `wire::SuotarAttainment`, which share fields but no type.
-macro_rules! registry_attainment {
-    ($attainment:expr) => {{
-        let attainment = $attainment;
-        RegistryAttainment {
-            id: attainment.id.clone(),
-            attainment_type: attainment.attainment_type.clone(),
-            state: attainment.state.clone(),
-            attainment_date: attainment.attainment_date,
-            registration_date: attainment.registration_date,
-            grade_scale_id: attainment.grade_scale_id.clone(),
-            grade_id: attainment.grade_id.clone(),
-        }
-    }};
-}
-
-pub(super) fn item_status(status: SuotarItemStatus) -> ItemStatus {
-    match status {
-        SuotarItemStatus::Ok => ItemStatus::Ok,
-        SuotarItemStatus::Error => ItemStatus::Error,
+fn registry_attainment(attainment: &wire::SuotarAttainment) -> RegistryAttainment {
+    RegistryAttainment {
+        id: attainment.id.clone(),
+        attainment_type: attainment.attainment_type.clone(),
+        state: attainment.state.clone(),
+        attainment_date: attainment.attainment_date,
+        registration_date: attainment.registration_date,
+        grade_scale_id: attainment.grade_scale_id.clone(),
+        grade_id: attainment.grade_id.clone(),
     }
 }
 
@@ -98,23 +87,28 @@ pub(super) fn person_answer(item: &SuotarResponseItem<PersonResult>) -> PersonAn
     }
 }
 
-/// `personNotFound` is read before the status, whatever the status says.
-pub(super) fn person_lookup_answer(item: &SuotarResponseItem<PersonResult>) -> PersonLookupAnswer {
+/// An interactive lookup's item: `personNotFound` is read before the status, whatever the status
+/// says, and every other code is kept as Suotar gave it.
+pub(super) fn person_lookup(
+    item: &SuotarResponseItem<PersonResult>,
+) -> Result<Option<RegistryPerson>, PersonLookupError> {
     if item.code == PERSON_NOT_FOUND_CODE {
-        return PersonLookupAnswer::NotFound;
+        return Ok(None);
     }
     match item
         .result
         .as_ref()
         .filter(|_| item.status == SuotarItemStatus::Ok)
     {
-        Some(person) => PersonLookupAnswer::Found {
-            person: found_person(person),
-            registry_code: item.code.clone(),
-        },
-        None => PersonLookupAnswer::Unexpected {
-            registry_code: item.code.clone(),
-        },
+        Some(person) => Ok(Some(RegistryPerson {
+            sisu_person_id: person.person_id.clone(),
+            first_names: person.first_names.clone(),
+            last_name: person.last_name.clone(),
+            code: item.code.clone(),
+        })),
+        None => Err(PersonLookupError::UnexpectedAnswer {
+            code: item.code.clone(),
+        }),
     }
 }
 
@@ -141,7 +135,7 @@ pub(super) fn enrolment_answer(
                 result
                     .existing_attainments
                     .iter()
-                    .map(|existing| registry_attainment!(existing))
+                    .map(registry_attainment)
                     .collect()
             })
             .unwrap_or_default(),
@@ -159,29 +153,32 @@ pub(super) fn import_answer(item: &SuotarResponseItem<ImportAttainmentResult>) -
                 attainment_type: result.submitted_attainment_type.clone(),
             })
     });
-    match import_success_state(&item.code) {
+    let settled = |held| ImportAnswer::Settled {
+        held,
+        attainment: result
+            .and_then(|result| {
+                result
+                    .attainment
+                    .as_ref()
+                    .or(result.previous_attainment.as_ref())
+            })
+            .map(registry_attainment),
+    };
+    match settled_state(SuotarEndpoint::ImportAttainments, &item.code) {
         Some(CreditRegistrationState::AwaitingVerification) => ImportAnswer::Submitted {
             submission,
             is_repeat_in_batch: item.code == DUPLICATE_REQUEST_ITEM_CODE,
         },
-        Some(state) => ImportAnswer::Settled {
-            state,
-            attainment: result
-                .and_then(|result| {
-                    result
-                        .attainment
-                        .as_ref()
-                        .or(result.previous_attainment.as_ref())
-                })
-                .map(|attainment| registry_attainment!(attainment)),
-        },
+        Some(CreditRegistrationState::Duplicate) => settled(HeldCredit::Duplicate),
+        Some(CreditRegistrationState::NotImproved) => settled(HeldCredit::NotImproved),
         None if item.status == SuotarItemStatus::Error => ImportAnswer::Refused {
             code: map_code(SuotarEndpoint::ImportAttainments, &item.code)
                 .unwrap_or(CreditRegistrationErrorCode::Unknown),
             submission,
             error_message: error_message(item),
         },
-        None => ImportAnswer::UnknownSuccessCode,
+        // No other state settles an import.
+        Some(_) | None => ImportAnswer::UnknownSuccessCode,
     }
 }
 
@@ -196,7 +193,7 @@ pub(super) fn verification_answer(
             match result.and_then(|result| result.attainment.as_ref()) {
                 Some(registered) if registered.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT => {
                     VerificationReading::Registered {
-                        attainment: registry_attainment!(registered),
+                        attainment: registry_attainment(registered),
                     }
                 }
                 // The assessment item attainment's id can equal the submitted one, and verify

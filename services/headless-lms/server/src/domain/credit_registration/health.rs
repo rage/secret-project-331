@@ -19,6 +19,9 @@ use utoipa::ToSchema;
 
 use crate::domain::system_health::HealthStatus;
 use chrono::TimeDelta;
+use headless_lms_credit_registration::CreditRegistrationPhase;
+use headless_lms_credit_registration::registry_health::max_study_registry_wait;
+use headless_lms_models::credit_registration_phase_state::CreditRegistrationPhaseState;
 
 /// Within this much of the past, one rejected credential is enough.
 const CREDENTIAL_REJECTION_WINDOW: TimeDelta = TimeDelta::hours(1);
@@ -55,7 +58,6 @@ const _: () = assert!(
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW: TimeDelta = TimeDelta::days(7);
 /// A phase is late once this many of its own intervals have passed without a heartbeat.
-/// `pub(crate)` because the dashboard's phase rows apply the same threshold server-side.
 pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 /// Failures in a row before a phase counts as broken rather than unlucky.
 pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
@@ -137,21 +139,14 @@ pub struct CreditRegistrationAlert {
     pub subject: Option<String>,
 }
 
-/// The only thresholds the frontend reads off the health poll: how long a row may sit in each
-/// state before it counts as stuck. The other rule constants stay server-side.
-pub type CreditRegistrationAlertThresholds = StuckThresholds;
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationHealth {
     pub status: HealthStatus,
     /// Critical first, and a rejected credential first of all: nothing registers until it is fixed.
     pub alerts: Vec<CreditRegistrationAlert>,
-    pub thresholds: CreditRegistrationAlertThresholds,
-}
-
-/// Alias for [`stuck_thresholds`]: the same values, named for the health-poll wire response.
-pub fn thresholds() -> CreditRegistrationAlertThresholds {
-    stuck_thresholds()
+    /// The only thresholds the frontend reads off the health poll: how long a row may sit in each
+    /// state before it counts as stuck. The other rule constants stay server-side.
+    pub thresholds: StuckThresholds,
 }
 
 pub fn stuck_thresholds() -> StuckThresholds {
@@ -172,6 +167,46 @@ pub(crate) fn is_heartbeat_late(
             (now - at).num_seconds()
                 > i64::from(expected_interval_secs) * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
         })
+}
+
+/// Whether a phase counts as failing: too many failures in a row, or a nonempty queue with no
+/// success for too long, or an iteration hung past that same bound. Never while paused. The one
+/// definition behind both the `PhaseFailing` alert and the Workers tab's `failing` flag.
+///
+/// `depth_of` is the live count of a state; `due_enrolment_checks` as for
+/// [`CreditRegistrationPhase::queue_depth`].
+pub(crate) fn is_phase_failing(
+    phase: &CreditRegistrationPhaseState,
+    now: DateTime<Utc>,
+    depth_of: impl Fn(CreditRegistrationState) -> i64,
+    due_enrolment_checks: i64,
+) -> bool {
+    if phase.paused_at.is_some() {
+        return false;
+    }
+    let known_phase = CreditRegistrationPhase::from_phase_name(&phase.phase);
+    let owns_work =
+        known_phase.is_some_and(|known| known.queue_depth(&depth_of, due_enrolment_checks) > 0);
+    let slowest_iteration_secs = known_phase.map_or(0, |known| {
+        i64::try_from(max_study_registry_wait(known).as_secs()).unwrap_or(i64::MAX)
+            + PHASE_SUCCESS_CALL_MARGIN.num_seconds()
+    });
+    let unproductive_after_secs = (i64::from(phase.expected_interval_secs)
+        * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER))
+    .max(slowest_iteration_secs);
+    let unproductive = owns_work
+        && phase.last_success_at.is_some_and(|last_success_at| {
+            (now - last_success_at).num_seconds() > unproductive_after_secs
+        });
+    // The keep-alive refreshes the heartbeat for as long as an iteration runs, so a hung one
+    // shows only here.
+    let hung = phase.last_run_started_at.is_some_and(|started_at| {
+        phase
+            .last_run_finished_at
+            .is_none_or(|finished_at| finished_at < started_at)
+            && (now - started_at).num_seconds() > unproductive_after_secs
+    });
+    phase.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT || unproductive || hung
 }
 
 /// Runs every rule and ranks what it found.
@@ -263,7 +298,7 @@ pub async fn evaluate(
     Ok(CreditRegistrationHealth {
         status,
         alerts,
-        thresholds: thresholds(),
+        thresholds: stuck_thresholds(),
     })
 }
 
@@ -402,7 +437,6 @@ async fn phase_alerts(
             last_paused_at = last_paused_at.max(Some(paused_at));
             continue;
         }
-        let interval = i64::from(phase.expected_interval_secs);
         if is_heartbeat_late(
             phase.last_heartbeat_at,
             phase.expected_interval_secs,
@@ -411,32 +445,12 @@ async fn phase_alerts(
         ) {
             stale.push(&phase.phase);
         }
-        let known_phase =
-            headless_lms_credit_registration::CreditRegistrationPhase::from_phase_name(
-                &phase.phase,
-            );
-        let owns_work = known_phase.is_some_and(|known| {
-            known.queue_depth(|state| depth_of(depths, state), due_enrolment_checks) > 0
-        });
-        let slowest_iteration_secs = known_phase.map_or(0, |known| {
-            known.max_study_registry_wait().as_secs() as i64
-                + PHASE_SUCCESS_CALL_MARGIN.num_seconds()
-        });
-        let unproductive_after_secs =
-            (interval * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER)).max(slowest_iteration_secs);
-        let unproductive = owns_work
-            && phase.last_success_at.is_some_and(|last_success_at| {
-                (now - last_success_at).num_seconds() > unproductive_after_secs
-            });
-        // The keep-alive refreshes the heartbeat for as long as an iteration runs, so a hung one
-        // shows only here.
-        let hung = phase.last_run_started_at.is_some_and(|started_at| {
-            phase
-                .last_run_finished_at
-                .is_none_or(|finished_at| finished_at < started_at)
-                && (now - started_at).num_seconds() > unproductive_after_secs
-        });
-        if phase.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT || unproductive || hung {
+        if is_phase_failing(
+            phase,
+            now,
+            |state| depth_of(depths, state),
+            due_enrolment_checks,
+        ) {
             failing.push(&phase.phase);
         }
     }

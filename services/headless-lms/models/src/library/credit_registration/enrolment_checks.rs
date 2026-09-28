@@ -518,7 +518,7 @@ WHERE cr.course_module_id = $1
 
 /// Adds the enrolment ids a check saw to the row's seen set, which also marks it checked for
 /// [`wake_for_roster_listing`].
-pub async fn add_seen_enrolment_ids(
+async fn add_seen_enrolment_ids(
     conn: &mut PgConnection,
     id: Uuid,
     enrolment_ids: &[String],

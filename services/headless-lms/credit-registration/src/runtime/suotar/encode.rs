@@ -49,9 +49,9 @@ pub(super) fn import_item(
         enrolment_id: submission.enrolment_id.clone(),
         attainment_date: submission.attainment_date,
         attainment_language: submission.attainment_language.clone(),
-        grade_scale_id: submission.grade_scale_id.clone(),
-        grade_id: submission.grade_id.clone(),
-        credits: submission.credits,
+        grade_scale_id: submission.grade.grade_scale_id.clone(),
+        grade_id: submission.grade.grade_id.clone(),
+        credits: submission.credits.as_f64(),
     }
 }
 

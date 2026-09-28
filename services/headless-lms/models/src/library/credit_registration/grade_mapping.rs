@@ -19,7 +19,7 @@ pub enum GradeScaleFamily {
     Numeric,
 }
 
-pub fn grade_scale_family(grade_scale_id: &str) -> Option<GradeScaleFamily> {
+fn grade_scale_family(grade_scale_id: &str) -> Option<GradeScaleFamily> {
     match grade_scale_id {
         PASS_FAIL_GRADE_SCALE_ID | PASS_FAIL_GRADE_SCALE_ID_ALT => Some(GradeScaleFamily::PassFail),
         NUMERIC_GRADE_SCALE_ID => Some(GradeScaleFamily::Numeric),
@@ -40,6 +40,16 @@ pub fn same_grade_scale(left: &str, right: &str) -> bool {
 pub struct MappedGrade {
     pub grade_scale_id: String,
     pub grade_id: String,
+}
+
+impl MappedGrade {
+    /// The grade two nullable columns hold, or `None` unless both are set.
+    pub fn from_columns(grade_scale_id: Option<&str>, grade_id: Option<&str>) -> Option<Self> {
+        Some(Self {
+            grade_scale_id: grade_scale_id?.to_string(),
+            grade_id: grade_id?.to_string(),
+        })
+    }
 }
 
 /// What the completion says and what the chosen enrolment says the scale should be.
@@ -89,8 +99,9 @@ pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrat
 
 /// Whether a frozen pair is one we can send. Checked again before batching, so a pair our mapping
 /// does not produce fails on our side rather than as Suotar's `invalidGradeForGradeScale`.
-pub fn is_known_grade(grade_scale_id: &str, grade_id: &str) -> bool {
-    match grade_scale_family(grade_scale_id) {
+pub fn is_known_grade(grade: &MappedGrade) -> bool {
+    let grade_id = grade.grade_id.as_str();
+    match grade_scale_family(&grade.grade_scale_id) {
         Some(GradeScaleFamily::PassFail) => grade_id == PASS_GRADE_ID || grade_id == FAIL_GRADE_ID,
         Some(GradeScaleFamily::Numeric) => grade_id
             .parse::<i32>()
@@ -115,19 +126,15 @@ pub enum GradeComparison {
 ///
 /// `NotComparable` is not "unknown, try anyway": submitting on a cross-scale difference would ask
 /// the registry to replace a pass with a number, or the other way round, on a guess.
-pub fn compare_grades(
-    registered_grade_scale_id: &str,
-    registered_grade_id: &str,
-    candidate: &MappedGrade,
-) -> GradeComparison {
-    if !same_grade_scale(registered_grade_scale_id, &candidate.grade_scale_id) {
+pub fn compare_grades(registered: &MappedGrade, candidate: &MappedGrade) -> GradeComparison {
+    if !same_grade_scale(&registered.grade_scale_id, &candidate.grade_scale_id) {
         return GradeComparison::NotComparable;
     }
     let Some(family) = grade_scale_family(&candidate.grade_scale_id) else {
         return GradeComparison::NotComparable;
     };
     match (
-        grade_rank(family, registered_grade_id),
+        grade_rank(family, &registered.grade_id),
         grade_rank(family, &candidate.grade_id),
     ) {
         (Some(registered), Some(candidate)) if candidate > registered => GradeComparison::Better,
@@ -151,35 +158,18 @@ fn grade_rank(family: GradeScaleFamily, grade_id: &str) -> Option<i32> {
     }
 }
 
-/// Whether the grade `ours` maps to beats every grade in `held`, as `(grade_scale_id, grade_id)`
-/// pairs, which is what Suotar requires of an improvement.
+/// Whether the grade `ours` maps to beats every grade in `held`, which is what Suotar requires of an
+/// improvement. `None` is a held credit whose grade is unknown.
 ///
 /// Stricter than Suotar where the two differ: an equal grade never submits (Suotar would let a
 /// later date or more credits through), and neither does a grade on a scale that does not rank
 /// against a held one, or a held grade that is missing.
-pub fn improves_on_all<'a>(
-    held: impl IntoIterator<Item = (Option<&'a str>, Option<&'a str>)>,
-    ours: GradeSource<'_>,
-) -> bool {
+pub fn improves_on_all(held: &[Option<MappedGrade>], ours: GradeSource<'_>) -> bool {
     map_grade(ours).is_ok_and(|mapped| {
-        held.into_iter().all(|(grade_scale_id, grade_id)| {
-            let (Some(grade_scale_id), Some(grade_id)) = (grade_scale_id, grade_id) else {
-                return false;
-            };
-            compare_grades(grade_scale_id, grade_id, &mapped) == GradeComparison::Better
+        held.iter().all(|held| {
+            held.as_ref()
+                .is_some_and(|held| compare_grades(held, &mapped) == GradeComparison::Better)
         })
-    })
-}
-
-/// Held grades as the `(grade_scale_id, grade_id)` pairs [`improves_on_all`] weighs.
-pub fn grade_pairs(
-    grades: &[Option<MappedGrade>],
-) -> impl Iterator<Item = (Option<&str>, Option<&str>)> {
-    grades.iter().map(|grade| {
-        (
-            grade.as_ref().map(|grade| grade.grade_scale_id.as_str()),
-            grade.as_ref().map(|grade| grade.grade_id.as_str()),
-        )
     })
 }
 
@@ -276,12 +266,12 @@ mod tests {
 
     #[test]
     fn only_pairs_the_registry_knows_pass_the_pre_flight() {
-        assert!(is_known_grade(PASS_FAIL_GRADE_SCALE_ID, "1"));
-        assert!(is_known_grade(PASS_FAIL_GRADE_SCALE_ID_ALT, "0"));
-        assert!(is_known_grade(NUMERIC_GRADE_SCALE_ID, "5"));
-        assert!(!is_known_grade(NUMERIC_GRADE_SCALE_ID, "6"));
-        assert!(!is_known_grade(PASS_FAIL_GRADE_SCALE_ID, "3"));
-        assert!(!is_known_grade("sis-something-else", "1"));
+        assert!(is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID, "1")));
+        assert!(is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID_ALT, "0")));
+        assert!(is_known_grade(&mapped(NUMERIC_GRADE_SCALE_ID, "5")));
+        assert!(!is_known_grade(&mapped(NUMERIC_GRADE_SCALE_ID, "6")));
+        assert!(!is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID, "3")));
+        assert!(!is_known_grade(&mapped("sis-something-else", "1")));
     }
 
     fn mapped(grade_scale_id: &str, grade_id: &str) -> MappedGrade {
@@ -296,29 +286,27 @@ mod tests {
         use GradeComparison::*;
         let numeric = |grade: &str| mapped(NUMERIC_GRADE_SCALE_ID, grade);
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "3", &numeric("4")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "3"), &numeric("4")),
             Better
         );
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("4")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "4"), &numeric("4")),
             NotBetter
         );
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("3")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "4"), &numeric("3")),
             NotBetter
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                FAIL_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, FAIL_GRADE_ID),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID_ALT, PASS_GRADE_ID)
             ),
             Better
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                PASS_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
             ),
             NotBetter
@@ -330,24 +318,21 @@ mod tests {
         use GradeComparison::*;
         assert_eq!(
             compare_grades(
-                NUMERIC_GRADE_SCALE_ID,
-                "3",
+                &mapped(NUMERIC_GRADE_SCALE_ID, "3"),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
             ),
             NotComparable
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                PASS_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID),
                 &mapped(NUMERIC_GRADE_SCALE_ID, "5")
             ),
             NotComparable
         );
         assert_eq!(
             compare_grades(
-                "sis-something-else",
-                "3",
+                &mapped("sis-something-else", "3"),
                 &mapped("sis-something-else", "4")
             ),
             NotComparable
@@ -360,12 +345,29 @@ mod tests {
     fn an_unreadable_grade_on_a_known_scale_is_not_comparable() {
         assert_eq!(
             compare_grades(
-                NUMERIC_GRADE_SCALE_ID,
-                "excellent",
+                &mapped(NUMERIC_GRADE_SCALE_ID, "excellent"),
                 &mapped(NUMERIC_GRADE_SCALE_ID, "5")
             ),
             GradeComparison::NotComparable
         );
+    }
+
+    #[test]
+    fn our_grade_improves_only_on_held_grades_it_beats() {
+        let ours = source(true, Some(4));
+        assert!(improves_on_all(&[], ours));
+        assert!(improves_on_all(
+            &[Some(mapped(NUMERIC_GRADE_SCALE_ID, "3"))],
+            ours
+        ));
+        assert!(!improves_on_all(
+            &[
+                Some(mapped(NUMERIC_GRADE_SCALE_ID, "3")),
+                Some(mapped(NUMERIC_GRADE_SCALE_ID, "4"))
+            ],
+            ours
+        ));
+        assert!(!improves_on_all(&[None], ours));
     }
 
     #[test]
@@ -375,10 +377,7 @@ mod tests {
             mapped.push(map_grade(source(grade > 0, Some(grade))).unwrap());
         }
         for grade in mapped {
-            assert!(
-                is_known_grade(&grade.grade_scale_id, &grade.grade_id),
-                "{grade:?}"
-            );
+            assert!(is_known_grade(&grade), "{grade:?}");
         }
     }
 }

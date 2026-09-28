@@ -6,66 +6,58 @@
 //! the student's own decision, and the linking mail already covers a missing student number.
 
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
-use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::library::credit_registration::student_notifications::{
     CreditRegistrationNotificationKind, STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue,
     claim_unnotified, set_email_delivery_id,
 };
 use serde_json::json;
-use sqlx::PgConnection;
+use sqlx::{Connection, PgPool};
 use uuid::Uuid;
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
-use crate::phase::PhaseScope;
-use crate::use_cases::contexts::MailContext;
-use crate::use_cases::mail_flow::{MailFlow, run_mail_flow, template_language};
+use crate::use_cases::mail_queue::{MailQueueSummary, TemplateCache, template_language};
+use crate::workflow::Counts;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
-pub(crate) async fn run(ctx: &MailContext<'_>) -> CreditRegistrationResult<Counts> {
-    run_mail_flow::<StudentNotifications>(ctx).await
-}
-
-struct StudentNotifications;
-
-impl MailFlow for StudentNotifications {
-    type Item = StudentNotificationToQueue;
-
-    async fn claim(
-        conn: &mut PgConnection,
-        scope: &PhaseScope,
-    ) -> CreditRegistrationResult<Vec<Self::Item>> {
-        Ok(claim_unnotified(conn, scope, STUDENT_NOTIFICATION_LIMIT).await?)
+/// `base_url` is the absolute base for the mail's links, which outlive the process that wrote them.
+pub(crate) async fn run(
+    pool: &PgPool,
+    scope: &RegistrationScope,
+    base_url: &str,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    let claimed = claim_unnotified(&mut tx, scope, STUDENT_NOTIFICATION_LIMIT).await?;
+    let mut templates = TemplateCache::default();
+    let mut summary = MailQueueSummary::new(claimed.len());
+    for notification in &claimed {
+        let template_type = notification.kind.email_template_type();
+        let language = template_language(&notification.course_language_code);
+        let Some(template_id) = templates.id_for(&mut tx, template_type, &language).await? else {
+            summary.skip_missing_template(
+                template_type,
+                &language,
+                format!("{template_type:?} in {language}"),
+            );
+            continue;
+        };
+        let delivery = insert_email_delivery_with_placeholders(
+            &mut tx,
+            notification.user_id,
+            template_id,
+            &placeholders(base_url, notification, &language),
+        )
+        .await?;
+        set_email_delivery_id(
+            &mut tx,
+            notification.credit_registration_id,
+            notification.kind,
+            delivery,
+        )
+        .await?;
     }
-
-    fn template_type(item: &Self::Item) -> EmailTemplateType {
-        item.kind.email_template_type()
-    }
-
-    fn language(item: &Self::Item) -> String {
-        template_language(&item.course_language_code)
-    }
-
-    async fn queue(
-        base_url: &str,
-        conn: &mut PgConnection,
-        item: &Self::Item,
-        template_id: Uuid,
-    ) -> CreditRegistrationResult<()> {
-        let placeholders = placeholders(base_url, item);
-        let delivery =
-            insert_email_delivery_with_placeholders(conn, item.user_id, template_id, &placeholders)
-                .await?;
-        set_email_delivery_id(conn, item.credit_registration_id, item.kind, delivery).await?;
-        Ok(())
-    }
-
-    fn missing_template_label(template_type: EmailTemplateType, language: &str) -> String {
-        format!("{template_type:?} in {language}")
-    }
-
-    fn missing_templates_error_prefix() -> &'static str {
-        "No student notification email template for:"
-    }
+    tx.commit().await?;
+    Ok(summary.finish("No student notification email template for:"))
 }
 
 /// Stored on the delivery row, so the sender needs no lookup of its own.
@@ -73,21 +65,24 @@ impl MailFlow for StudentNotifications {
 /// `ENROLMENT_LINK` is empty when the module has no enrolment link; the template's sentence has to
 /// read correctly without it, because a mail that only says "enrol in Sisu" is all the student gets
 /// in that case.
-fn placeholders(base_url: &str, notification: &StudentNotificationToQueue) -> serde_json::Value {
+fn placeholders(
+    base_url: &str,
+    notification: &StudentNotificationToQueue,
+    language: &str,
+) -> serde_json::Value {
     let enrolment_link = match notification.kind {
         CreditRegistrationNotificationKind::ActionNeeded => {
-            notification.enrolment_link.clone().unwrap_or_default()
+            notification.enrolment_link.as_deref().unwrap_or_default()
         }
-        CreditRegistrationNotificationKind::Registered => String::new(),
+        CreditRegistrationNotificationKind::Registered => "",
     };
-    let language = template_language(&notification.course_language_code);
     json!({
-        "NAME": notification.first_name.clone().unwrap_or_default(),
+        "NAME": notification.first_name.as_deref().unwrap_or_default(),
         "COURSE_NAME": notification.course_name,
-        "MODULE_NAME": notification.course_module_name.clone().unwrap_or_default(),
+        "MODULE_NAME": notification.course_module_name.as_deref().unwrap_or_default(),
         "CREDITS": notification
             .credits
-            .map(|credits| format_credits(credits, &language))
+            .map(|credits| format_credits(credits, language))
             .unwrap_or_default(),
         "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
         "ENROLMENT_LINK": enrolment_link,

@@ -3,22 +3,13 @@ Mock Suotar: a stand-in for the University of Helsinki Suotar API, and the test/
 around it.
 
 Mounted at `/api/v0/mock-suotar` only when `TEST_MODE` and `USE_MOCK_SUOTAR_ENDPOINT` are both on;
-like `mock_sisu`, the gate is runtime route registration rather than `#[cfg]`. The mock writes no
-database table, and its call log holds unscrubbed fake data that must never feed `suotar_api_calls`.
+like `mock_sisu`, the gate is runtime route registration rather than `#[cfg]`. The simulator behind
+these routes is [`crate::mock_suotar`].
 */
 
 pub mod api;
 pub mod commands;
 pub mod control;
-pub mod default_world;
-pub mod faults;
-pub mod fixtures;
-pub mod ids;
-pub mod logic;
-pub mod scenarios;
-pub mod store;
-pub mod wire;
-pub mod world;
 
 use actix_web::{Resource, Scope};
 

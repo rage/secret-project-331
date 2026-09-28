@@ -9,11 +9,10 @@ mod lease;
 mod poll;
 mod recovery;
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
 use crate::registry::StudyRegistry;
-use crate::use_cases::batch_flow::run_registry_batch_flow;
-use crate::use_cases::contexts::BatchFlowContext;
+use crate::use_cases::batch_flow::{BatchFlowContext, run_registry_batch_flow};
+use crate::workflow::Counts;
 
 use poll::VerifyPoll;
 use recovery::UncertainRecovery;
@@ -22,7 +21,7 @@ pub(crate) async fn run<R: StudyRegistry>(
     ctx: &BatchFlowContext<'_>,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
-    let mut counts = run_registry_batch_flow(&mut VerifyPoll, ctx, registry).await?;
-    counts += run_registry_batch_flow(&mut UncertainRecovery, ctx, registry).await?;
+    let mut counts = run_registry_batch_flow::<VerifyPoll, _>(ctx, registry).await?;
+    counts += run_registry_batch_flow::<UncertainRecovery, _>(ctx, registry).await?;
     Ok(counts)
 }

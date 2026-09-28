@@ -8,8 +8,7 @@ use crate::setup_tracing;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::{WorkerProcess, worker_loop};
 
-/// Runs the worker that owns the credit registration ledger. Every iteration goes through the same
-/// dispatcher the test tick endpoint uses.
+/// Runs the worker that owns the credit registration ledger.
 pub async fn credit_registrar_main() -> anyhow::Result<()> {
     run(
         WorkerProcess::CreditRegistrar,

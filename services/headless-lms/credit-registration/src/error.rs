@@ -7,8 +7,8 @@ use std::panic::Location;
 use backtrace::Backtrace;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::ModelError;
+use headless_lms_utils::error::is_db_disconnect;
 use headless_lms_utils::error::util_error::UtilError;
-use headless_lms_utils::periodic_worker::is_db_disconnect;
 use tracing_error::SpanTrace;
 
 /// The result of anything that can fail with a [`CreditRegistrationError`].
@@ -143,10 +143,7 @@ impl CreditRegistrationError {
     /// Whether the database connection was lost anywhere in the cause chain; see
     /// [`is_db_disconnect`].
     pub fn is_db_disconnect(&self) -> bool {
-        std::iter::successors(Some(self as &(dyn std::error::Error + 'static)), |error| {
-            error.source()
-        })
-        .any(|error| is_db_disconnect(Some(error)))
+        is_db_disconnect(self)
     }
 }
 
@@ -171,11 +168,3 @@ impl From<sqlx::Error> for CreditRegistrationError {
         )
     }
 }
-
-headless_lms_utils::define_err_macro!(
-    credit_registration_err,
-    CreditRegistrationError,
-    CreditRegistrationErrorType,
-    CreditRegistrationErrorType,
-    "Create a CreditRegistrationError with less boilerplate."
-);

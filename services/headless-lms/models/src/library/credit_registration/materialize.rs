@@ -9,7 +9,7 @@ use crate::credit_registrations::{
 };
 use crate::prelude::*;
 
-use super::grade_mapping::{GradeComparison, GradeSource, compare_grades, map_grade};
+use super::grade_mapping::{GradeComparison, GradeSource, MappedGrade, compare_grades, map_grade};
 
 /// How many rows one iteration may create, and so the rate at which a catch-up drains.
 pub const MATERIALIZE_LIMIT: i64 = 500;
@@ -252,12 +252,11 @@ LIMIT $1
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         };
-        if compare_grades(
-            &candidate.registered_grade_scale_id,
-            &candidate.registered_grade_id,
-            &mapped,
-        ) != GradeComparison::Better
-        {
+        let registered = MappedGrade {
+            grade_scale_id: candidate.registered_grade_scale_id,
+            grade_id: candidate.registered_grade_id,
+        };
+        if compare_grades(&registered, &mapped) != GradeComparison::Better {
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
@@ -275,7 +274,7 @@ LIMIT $1
             Some(&format!(
                 "The completion's grade rose from {} to {}. The registered attempt stays the credit \
                  until this one is registered in its place.",
-                candidate.registered_grade_id, mapped.grade_id
+                registered.grade_id, mapped.grade_id
             )),
         )
         .await?;

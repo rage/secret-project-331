@@ -8,7 +8,7 @@ use headless_lms_models::course_module_suotar_configurations::{
     record_listing_outcome,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, claim_linking_mails_batch, listed_person_addresses,
+    DiscoveredPerson, claim_linking_mails_batch,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -31,7 +31,8 @@ pub(super) async fn reconcile_roster(
     is_account_linking_enabled: bool,
 ) -> CreditRegistrationResult<i32> {
     let distinct = distinct_people(people);
-    let linked = linked_accounts(conn, &distinct).await?;
+    let linked_rows = load_linked_accounts(conn, &distinct).await?;
+    let linked = LinkedAccounts::new(&linked_rows);
     let enrolees = roster_enrolees(people, &linked);
     let mut mailed_count = 0;
     for module in &listing.modules {
@@ -77,7 +78,7 @@ fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
 }
 
 /// The accounts already linked to someone on the roster, by Sisu person id or student number.
-async fn linked_accounts(
+async fn load_linked_accounts(
     conn: &mut PgConnection,
     people: &[&RosterPerson],
 ) -> CreditRegistrationResult<Vec<VerifiedStudentNumber>> {
@@ -101,11 +102,39 @@ async fn linked_accounts(
     Ok(linked)
 }
 
+/// The accounts linked to someone on one code's roster, indexed once for every module on it.
+struct LinkedAccounts<'a> {
+    rows: &'a [VerifiedStudentNumber],
+    person_ids: HashSet<&'a str>,
+    student_numbers: HashSet<&'a str>,
+}
+
+impl<'a> LinkedAccounts<'a> {
+    fn new(rows: &'a [VerifiedStudentNumber]) -> Self {
+        Self {
+            rows,
+            person_ids: rows
+                .iter()
+                .filter_map(|row| expose_option(&row.sisu_person_id))
+                .collect(),
+            student_numbers: rows
+                .iter()
+                .map(|row| row.student_number.expose_secret())
+                .collect(),
+        }
+    }
+
+    /// Whether some account is linked to `person`, by Sisu person id or student number.
+    fn is_linked(&self, person: &RosterPerson) -> bool {
+        self.person_ids.contains(person.person_id.expose_secret())
+            || self
+                .student_numbers
+                .contains(person.student_number.expose_secret())
+    }
+}
+
 /// The linked accounts on the roster, each with every enrolment id the registry lists them under.
-fn roster_enrolees(
-    people: &[RosterPerson],
-    linked: &[VerifiedStudentNumber],
-) -> Vec<RosterEnrolee> {
+fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<RosterEnrolee> {
     let mut ids_by_person_id: HashMap<&str, Vec<String>> = HashMap::new();
     let mut person_id_by_student_number: HashMap<&str, &str> = HashMap::new();
     for person in people {
@@ -121,6 +150,7 @@ fn roster_enrolees(
         }
     }
     linked
+        .rows
         .iter()
         .filter_map(|row| {
             let person_id = expose_option(&row.sisu_person_id)
@@ -144,7 +174,7 @@ async fn claim_linking_mails(
     conn: &mut PgConnection,
     module: &ModuleToList,
     people: &[&RosterPerson],
-    linked: &[VerifiedStudentNumber],
+    linked: &LinkedAccounts<'_>,
 ) -> CreditRegistrationResult<ModuleListingOutcome> {
     let (mut outcome, discovered) = linking_candidates(module, people, linked);
     if !discovered.is_empty() {
@@ -162,43 +192,25 @@ async fn claim_linking_mails(
 fn linking_candidates(
     module: &ModuleToList,
     people: &[&RosterPerson],
-    linked: &[VerifiedStudentNumber],
+    linked: &LinkedAccounts<'_>,
 ) -> (ModuleListingOutcome, Vec<DiscoveredPerson>) {
     let mut outcome = ModuleListingOutcome {
         listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
         ..ModuleListingOutcome::default()
     };
-    let linked_person_ids: HashSet<&str> = linked
-        .iter()
-        .filter_map(|row| expose_option(&row.sisu_person_id))
-        .collect();
-    let linked_student_numbers: HashSet<&str> = linked
-        .iter()
-        .map(|row| row.student_number.expose_secret())
-        .collect();
-
     let mut discovered = Vec::new();
     for &person in people {
-        if linked_person_ids.contains(person.person_id.expose_secret())
-            || linked_student_numbers.contains(person.student_number.expose_secret())
-        {
+        if linked.is_linked(person) {
             outcome.already_linked_count += 1;
             continue;
         }
-        let addresses = listed_person_addresses(person);
-        if addresses.is_empty() {
+        let listed = DiscoveredPerson::listed(person, module.course_id);
+        if listed.addresses.is_empty() {
             // The only genuinely unreachable population, and the reason it has a counter of its own.
             outcome.no_address_count += 1;
             continue;
         }
-        discovered.push(DiscoveredPerson {
-            sisu_person_id: person.person_id.clone().into(),
-            student_number: person.student_number.clone().into(),
-            first_names: person.first_names.clone().map(Into::into),
-            last_name: person.last_name.clone().map(Into::into),
-            course_id: module.course_id,
-            addresses,
-        });
+        discovered.push(listed);
     }
     (outcome, discovered)
 }
@@ -307,10 +319,8 @@ mod tests {
         let by_person_id = link("1", Some("p1"));
         let by_number_only = link("2", None);
         let unlisted = link("9", Some("p9"));
-        let enrolees = roster_enrolees(
-            &people,
-            &[by_person_id.clone(), by_number_only.clone(), unlisted],
-        );
+        let links = [by_person_id.clone(), by_number_only.clone(), unlisted];
+        let enrolees = roster_enrolees(&people, &LinkedAccounts::new(&links));
         let woken: Vec<_> = enrolees
             .iter()
             .map(|enrolee| (enrolee.user_id, enrolee.enrolment_ids.clone()))
@@ -338,11 +348,9 @@ mod tests {
         ];
         let listed: Vec<&RosterPerson> = people.iter().collect();
         let module = module();
-        let (outcome, discovered) = linking_candidates(
-            &module,
-            &listed,
-            &[link("other", Some("p1")), link("2", None)],
-        );
+        let links = [link("other", Some("p1")), link("2", None)];
+        let (outcome, discovered) =
+            linking_candidates(&module, &listed, &LinkedAccounts::new(&links));
         assert_eq!(
             outcome,
             ModuleListingOutcome {

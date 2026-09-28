@@ -11,8 +11,7 @@ use std::time::{Duration, Instant};
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 
-use super::breaker::ScopeKey;
-use crate::runtime::process_local::{LastReported, ProcessLocalMap};
+use crate::runtime::process_local::{LastReported, ProcessLocalMap, ScopeKey};
 
 /// What an endpoint may take at full rate.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -211,4 +210,26 @@ pub(super) fn snapshot(key: &ScopeKey, endpoint: SuotarEndpoint) -> Option<Limit
         available: bucket.tokens.floor().max(0.0) as usize,
         rate,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_limited_endpoints_are_exactly_the_rated_ones() {
+        let every = [
+            SuotarEndpoint::ResolvePersons,
+            SuotarEndpoint::ResolveEnrolments,
+            SuotarEndpoint::ImportAttainments,
+            SuotarEndpoint::VerifyAttainments,
+            SuotarEndpoint::ListByCourse,
+            SuotarEndpoint::ValidateCourseCodes,
+        ];
+        let rated: Vec<_> = every
+            .into_iter()
+            .filter(|&endpoint| endpoint_rate(endpoint).is_some())
+            .collect();
+        assert_eq!(rated, LIMITED_ENDPOINTS);
+    }
 }

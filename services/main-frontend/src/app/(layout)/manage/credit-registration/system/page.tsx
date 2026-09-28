@@ -167,7 +167,7 @@ const PhaseTable: React.FC<{
             <AdminPhaseActions
               phase={row.phase}
               paused={row.paused_at !== null}
-              implemented={row.implemented}
+              isKnownPhase={row.is_known_phase}
             />
           ),
         },

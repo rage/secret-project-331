@@ -546,33 +546,6 @@ WHERE course_code = $1
     Ok(booked.rows_affected() > 0)
 }
 
-/// Waits out the tier interval and the failure backoff of every code on the course's active
-/// modules, and returns how many codes it moved. A code its tier does not list stays unlisted.
-/// Exists only for test setup: specs cannot wait out a tier interval.
-pub async fn make_listings_due_for_testing(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<u64> {
-    let res = sqlx::query!(
-        r#"
-UPDATE credit_registration_roster_schedules
-SET last_fetched_at = last_fetched_at - ($2::bigint * INTERVAL '1 second'),
-  retry_not_before = NULL
-WHERE course_code IN (
-    SELECT TRIM(cm.uh_course_code)
-    FROM credit_registration_active_course_modules acm
-      JOIN course_modules cm ON cm.id = acm.course_module_id
-    WHERE acm.course_id = $1
-  )
-        "#,
-        course_id,
-        DORMANT_INTERVAL_SECS,
-    )
-    .execute(conn)
-    .await?;
-    Ok(res.rows_affected())
-}
-
 /// Codes listed on their own that keep failing, for the admin alert.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FailingRosterCode {
@@ -600,4 +573,37 @@ ORDER BY consecutive_failures DESC,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Test-mode setup the system tests drive through the mock Suotar control routes.
+pub mod testing {
+    use super::DORMANT_INTERVAL_SECS;
+    use crate::prelude::*;
+
+    /// Waits out the tier interval and the failure backoff of every code on the course's active
+    /// modules, and returns how many codes it moved. A code its tier does not list stays unlisted.
+    /// Exists only for test setup: specs cannot wait out a tier interval.
+    pub async fn make_listings_due_for_testing(
+        conn: &mut PgConnection,
+        course_id: Uuid,
+    ) -> ModelResult<u64> {
+        let res = sqlx::query!(
+            r#"
+UPDATE credit_registration_roster_schedules
+SET last_fetched_at = last_fetched_at - ($2::bigint * INTERVAL '1 second'),
+  retry_not_before = NULL
+WHERE course_code IN (
+    SELECT TRIM(cm.uh_course_code)
+    FROM credit_registration_active_course_modules acm
+      JOIN course_modules cm ON cm.id = acm.course_module_id
+    WHERE acm.course_id = $1
+  )
+        "#,
+            course_id,
+            DORMANT_INTERVAL_SECS,
+        )
+        .execute(conn)
+        .await?;
+        Ok(res.rows_affected())
+    }
 }

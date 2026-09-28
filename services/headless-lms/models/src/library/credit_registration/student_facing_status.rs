@@ -106,32 +106,31 @@ impl StageMatch {
             return matched;
         }
         let flags = [false, true];
-        for state in CreditRegistrationState::ALL {
-            for completion_eligible in flags {
-                for has_verified_student_number in flags {
-                    for course_code_allowed in flags {
-                        for enrolment_resolved in flags {
-                            let preconditions = PendingPreconditions {
-                                completion_eligible,
-                                has_verified_student_number,
-                                course_code_allowed,
-                            };
-                            if stages.contains(&StudentFacingCreditRegistrationStatus::of(
-                                state,
-                                preconditions,
-                                enrolment_resolved,
-                            )) {
-                                matched.states.push(state);
-                                matched.completion_eligible.push(completion_eligible);
-                                matched
-                                    .has_verified_student_number
-                                    .push(has_verified_student_number);
-                                matched.course_code_allowed.push(course_code_allowed);
-                                matched.enrolment_resolved.push(enrolment_resolved);
-                            }
-                        }
-                    }
-                }
+        for (
+            state,
+            completion_eligible,
+            has_verified_student_number,
+            course_code_allowed,
+            enrolment_resolved,
+        ) in itertools::iproduct!(CreditRegistrationState::ALL, flags, flags, flags, flags)
+        {
+            let preconditions = PendingPreconditions {
+                completion_eligible,
+                has_verified_student_number,
+                course_code_allowed,
+            };
+            if stages.contains(&StudentFacingCreditRegistrationStatus::of(
+                state,
+                preconditions,
+                enrolment_resolved,
+            )) {
+                matched.states.push(state);
+                matched.completion_eligible.push(completion_eligible);
+                matched
+                    .has_verified_student_number
+                    .push(has_verified_student_number);
+                matched.course_code_allowed.push(course_code_allowed);
+                matched.enrolment_resolved.push(enrolment_resolved);
             }
         }
         matched

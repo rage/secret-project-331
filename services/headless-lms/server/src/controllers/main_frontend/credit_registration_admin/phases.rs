@@ -12,15 +12,15 @@ use headless_lms_models::credit_registration_phase_state::{
 use headless_lms_models::credit_registrations::{self, CreditRegistrationState};
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use headless_lms_models::suotar_circuit_breakers::{self, BreakerTarget, SuotarCircuitBreaker};
-use itertools::Itertools;
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
     PHASE_CONSECUTIVE_FAILURE_LIMIT, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
+    is_phase_failing,
 };
 use crate::prelude::*;
 use headless_lms_credit_registration::CreditRegistrationPhase;
-use headless_lms_credit_registration::registry_health::is_waiting_to_probe;
+use headless_lms_credit_registration::registry_health::{endpoints_paused_by, is_waiting_to_probe};
 
 use super::authorize_credit_registration_admin;
 
@@ -48,14 +48,16 @@ pub struct CreditRegistrationPhaseRow {
     pub paused_at: Option<DateTime<Utc>>,
     pub paused_by_user_id: Option<Uuid>,
     pub pause_reason: Option<String>,
-    /// No implementation is registered for the phase yet, so it has never reported and will not.
-    pub implemented: bool,
+    /// False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker
+    /// runs or reports for.
+    pub is_known_phase: bool,
     /// Computed server-side: a page comparing its own clock against a server timestamp misjudges
     /// this on a skewed client.
     pub seconds_since_heartbeat: Option<i64>,
     pub last_run_duration_secs: Option<i64>,
     /// Always `false` while paused or never heartbeated.
     pub heartbeat_late: bool,
+    /// The same verdict the `PhaseFailing` alert reaches; see `is_phase_failing`.
     pub failing: bool,
     /// The ledger states nothing but this phase moves a row out of. Empty for the phases whose work
     /// is not a ledger state: `materialize` waits on completions, the syncer's phases on modules.
@@ -142,12 +144,7 @@ pub async fn list_credit_registration_phases(
         (
             row.process_name.clone(),
             CreditRegistrationPhase::from_phase_name(&row.phase)
-                .and_then(|phase| {
-                    CreditRegistrationPhase::ALL
-                        .iter()
-                        .position(|p| *p == phase)
-                })
-                .unwrap_or(usize::MAX),
+                .map_or(usize::MAX, CreditRegistrationPhase::pipeline_index),
         )
     });
     let circuit_breakers = suotar_circuit_breakers::get_all(&mut conn)
@@ -182,19 +179,17 @@ fn to_phase_row(
         row.paused_at,
         now,
     );
+    let depth_of = |state| depths.get(&state).copied().unwrap_or(0);
+    let failing = is_phase_failing(&row, now, depth_of, due_enrolment_checks);
     CreditRegistrationPhaseRow {
-        implemented: known.is_some(),
-        queue_depth: known.filter(|_| !owned_states.is_empty()).map(|phase| {
-            phase.queue_depth(
-                |state| depths.get(&state).copied().unwrap_or(0),
-                due_enrolment_checks,
-            )
-        }),
+        is_known_phase: known.is_some(),
+        queue_depth: known
+            .filter(|_| !owned_states.is_empty())
+            .map(|phase| phase.queue_depth(depth_of, due_enrolment_checks)),
         owned_states,
         seconds_since_heartbeat,
         heartbeat_late,
-        failing: row.paused_at.is_none()
-            && row.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT,
+        failing,
         last_run_duration_secs: row
             .last_run_started_at
             .zip(row.last_run_finished_at)
@@ -237,15 +232,7 @@ fn to_circuit_breaker_state(
     } else {
         CircuitBreakerStatus::Closed
     };
-    let endpoints = CreditRegistrationPhase::ALL
-        .into_iter()
-        .map(CreditRegistrationPhase::spec)
-        .filter(|spec| {
-            spec.process.as_str() == breaker.process_name && spec.breakers.contains(&breaker.target)
-        })
-        .flat_map(|spec| spec.endpoints.iter().copied())
-        .unique()
-        .collect();
+    let endpoints = endpoints_paused_by(&breaker.process_name, breaker.target);
     CreditRegistrationCircuitBreakerState {
         process_name: breaker.process_name,
         target: breaker.target,

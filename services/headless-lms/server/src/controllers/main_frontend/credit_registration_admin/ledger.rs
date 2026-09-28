@@ -537,13 +537,10 @@ pub async fn admin_transition_credit_registration(
     if let Some(state_move) = payload.action.state_move() {
         // `Any`: a human is already looking at this one row, so unlike the bulk transition below it
         // is not refused for being `submission_uncertain`.
-        if let Some(refusal) = row.state.admin_transition_refusal(
-            state_move.to_state(),
-            row.superseded_by_id.is_some(),
-            ResubmissionStrictness::Any,
-            row.resubmit_not_before,
-            row.submitted_at,
-        ) {
+        if let Some(refusal) = row
+            .resubmission_facts()
+            .admin_transition_refusal(state_move.to_state(), ResubmissionStrictness::Any)
+        {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::Refused,
                 refusal: Some(refusal),
@@ -554,9 +551,8 @@ pub async fn admin_transition_credit_registration(
     }
 
     let mut tx = conn.begin().await?;
-    let (outcome, after_state, needs_admin_attention, needs_due_now) =
-        apply_transition(&mut tx, &row, payload.action, user.id, reason).await?;
-    if needs_due_now {
+    let applied = apply_transition(&mut tx, &row, payload.action, user.id, reason).await?;
+    if applied.needs_due_now {
         credit_registrations::make_due_now_batch(
             &mut tx,
             &[id],
@@ -570,8 +566,8 @@ pub async fn admin_transition_credit_registration(
             target_id: Some(id),
             reason: Some(reason.to_string()),
             before_state: Some(row.state),
-            after_state: Some(after_state),
-            details: Some(serde_json::json!({ "outcome": outcome })),
+            after_state: Some(applied.state),
+            details: Some(serde_json::json!({ "outcome": applied.outcome })),
             affected_row_count: Some(1),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::TransitionItem,
@@ -585,10 +581,10 @@ pub async fn admin_transition_credit_registration(
     tx.commit().await?;
 
     token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
-        outcome,
+        outcome: applied.outcome,
         refusal: None,
-        state: after_state,
-        needs_admin_attention,
+        state: applied.state,
+        needs_admin_attention: applied.needs_admin_attention,
     }))
 }
 
@@ -652,12 +648,9 @@ pub async fn admin_bulk_transition_credit_registrations(
     let mut skipped: HashMap<ResubmissionRefusal, i64> = HashMap::new();
     for row in &rows {
         let refusal = match state_move {
-            Some(state_move) => row.state.admin_transition_refusal(
+            Some(state_move) => row.resubmission_facts().admin_transition_refusal(
                 state_move.to_state(),
-                row.superseded_by_id.is_some(),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
-                row.resubmit_not_before,
-                row.submitted_at,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
             None if row.superseded_by_id.is_some() => Some(ResubmissionRefusal::Superseded),
@@ -666,9 +659,9 @@ pub async fn admin_bulk_transition_credit_registrations(
         match refusal {
             Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,
             None => {
-                let (_, _, _, needs_due_now) =
+                let applied =
                     apply_transition(&mut tx, row, payload.action, user.id, reason).await?;
-                if needs_due_now {
+                if applied.needs_due_now {
                     due_now_ids.push(row.id);
                 }
                 applied_count += 1;
@@ -785,8 +778,17 @@ pub async fn admin_requeue_retryable_credit_registrations(
     }))
 }
 
-/// Applies one hand action in the caller's transaction, returning what it did, where the row ended
-/// up, whether it still asks for a human, and whether the caller must still make it due now.
+/// What one hand action did to its row.
+struct AppliedHandAction {
+    outcome: AdminTransitionOutcome,
+    /// Where the row ended up.
+    state: CreditRegistrationState,
+    needs_admin_attention: bool,
+    /// The caller must still make the row due now.
+    needs_due_now: bool,
+}
+
+/// Applies one hand action in the caller's transaction.
 ///
 /// The caller has already asked `admin_transition_refusal` whether this row may take the move,
 /// because what a refusal is reported as differs per caller. Making the row due is left to the
@@ -798,26 +800,41 @@ async fn apply_transition(
     action: AdminCreditRegistrationAction,
     actor_user_id: Uuid,
     reason: &str,
-) -> Result<(AdminTransitionOutcome, CreditRegistrationState, bool, bool), ControllerError> {
+) -> Result<AppliedHandAction, ControllerError> {
     let id = row.id;
     Ok(match action {
         AdminCreditRegistrationAction::ClearNeedsAdminAttention => {
             if !row.needs_admin_attention {
-                (AdminTransitionOutcome::NoChange, row.state, false, false)
+                AppliedHandAction {
+                    outcome: AdminTransitionOutcome::NoChange,
+                    state: row.state,
+                    needs_admin_attention: false,
+                    needs_due_now: false,
+                }
             } else {
-                credit_registrations::set_needs_admin_attention(tx, id, false).await?;
+                credit_registrations::set_needs_admin_attention(
+                    tx,
+                    id,
+                    credit_registrations::AdminAttention::Clear,
+                )
+                .await?;
                 insert_admin_action_event(tx, id, actor_user_id, reason).await?;
-                (AdminTransitionOutcome::Applied, row.state, false, false)
+                AppliedHandAction {
+                    outcome: AdminTransitionOutcome::Applied,
+                    state: row.state,
+                    needs_admin_attention: false,
+                    needs_due_now: false,
+                }
             }
         }
         AdminCreditRegistrationAction::CheckNow => {
             insert_admin_action_event(tx, id, actor_user_id, reason).await?;
-            (
-                AdminTransitionOutcome::Applied,
-                row.state,
-                row.needs_admin_attention,
-                true,
-            )
+            AppliedHandAction {
+                outcome: AdminTransitionOutcome::Applied,
+                state: row.state,
+                needs_admin_attention: row.needs_admin_attention,
+                needs_due_now: true,
+            }
         }
         AdminCreditRegistrationAction::StateMove { to_state } => {
             let to_state = to_state.to_state();
@@ -825,7 +842,7 @@ async fn apply_transition(
                 tx,
                 id,
                 &Transition {
-                    needs_admin_attention: Some(false),
+                    needs_admin_attention: Some(credit_registrations::AdminAttention::Clear),
                     event_kind: CreditRegistrationEventKind::AdminAction,
                     event_message: Some(reason.to_string()),
                     actor_user_id: Some(actor_user_id),
@@ -839,12 +856,12 @@ async fn apply_transition(
             .await?;
             // Nothing else brings the row forward, so without a due-now the resubmit would sit out
             // the backoff whatever failed last set.
-            (
-                AdminTransitionOutcome::Applied,
-                after.state,
-                after.needs_admin_attention,
-                !after.state.is_terminal(),
-            )
+            AppliedHandAction {
+                outcome: AdminTransitionOutcome::Applied,
+                state: after.state,
+                needs_admin_attention: after.needs_admin_attention,
+                needs_due_now: !after.state.is_terminal(),
+            }
         }
     })
 }
@@ -895,12 +912,9 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
     AdminCreditRegistrationRow {
         superseded: row.superseded_by_id.is_some(),
         pending_reason: row.pending_reason(),
-        resubmission_refusal: row.state.admin_transition_refusal(
+        resubmission_refusal: row.resubmission_facts().admin_transition_refusal(
             CreditRegistrationState::ReadyToSubmit,
-            row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
-            row.resubmit_not_before,
-            row.submitted_at,
         ),
         id: row.id,
         created_at: row.created_at,

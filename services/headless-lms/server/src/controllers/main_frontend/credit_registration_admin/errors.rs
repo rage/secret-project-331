@@ -3,7 +3,7 @@
 use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
     self, AttentionReason, AttentionRegistration, AttentionSort, CreditRegistrationErrorCode,
-    CreditRegistrationState,
+    CreditRegistrationState, StuckThresholds,
 };
 use headless_lms_models::library::credit_registration::classification::{
     Retryability, retryability,
@@ -11,9 +11,7 @@ use headless_lms_models::library::credit_registration::classification::{
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use utoipa::ToSchema;
 
-use crate::domain::credit_registration::health::{
-    CreditRegistrationAlertThresholds, stuck_thresholds, thresholds,
-};
+use crate::domain::credit_registration::health::stuck_thresholds;
 use crate::prelude::*;
 use headless_lms_utils::secret_string::expose_option;
 
@@ -128,16 +126,16 @@ The same values `/overview` embeds in its health block. Separate so a tab explai
     operation_id = "getCreditRegistrationThresholds",
     tag = "credit-registration-admin",
     responses(
-        (status = 200, description = "The thresholds every rule and detector shares", body = CreditRegistrationAlertThresholds)
+        (status = 200, description = "The thresholds every rule and detector shares", body = StuckThresholds)
     )
 )]
 pub async fn get_credit_registration_thresholds(
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<CreditRegistrationAlertThresholds>> {
+) -> ControllerResult<web::Json<StuckThresholds>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-    token.authorized_ok(web::Json(thresholds()))
+    token.authorized_ok(web::Json(stuck_thresholds()))
 }
 
 #[derive(Debug, Deserialize)]

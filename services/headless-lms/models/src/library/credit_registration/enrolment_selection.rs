@@ -11,7 +11,7 @@ pub const ENROLLED_STATE: &str = "ENROLLED";
 pub const FAILED_STATE: &str = "FAILED";
 pub const DEGREE_KIND: &str = "degree";
 
-use super::grade_mapping::same_grade_scale;
+use super::grade_mapping::{MappedGrade, same_grade_scale};
 use super::study_registry::{
     ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, RegistryAttainment, RegistryEnrolment,
 };
@@ -170,8 +170,7 @@ pub fn attainment_matching_submission<'a>(
     existing: &'a [RegistryAttainment],
     attainment_date: NaiveDate,
     submitted_at: Option<DateTime<Utc>>,
-    grade_scale_id: &str,
-    grade_id: &str,
+    grade: &MappedGrade,
 ) -> Option<&'a RegistryAttainment> {
     let submitted_on = submitted_at.map(|submitted_at| submitted_at.date_naive());
     existing
@@ -185,11 +184,11 @@ pub fn attainment_matching_submission<'a>(
                                 .contains(&(registered_on - submitted_on).num_days())
                         },
                     ))
-                && attainment.grade_id.as_deref() == Some(grade_id)
+                && attainment.grade_id.as_deref() == Some(grade.grade_id.as_str())
                 && attainment
                     .grade_scale_id
                     .as_deref()
-                    .is_some_and(|scale| same_grade_scale(scale, grade_scale_id))
+                    .is_some_and(|scale| same_grade_scale(scale, &grade.grade_scale_id))
         })
         .min_by_key(|attainment| attainment.attainment_type != ATTAINMENT_TYPE_COURSE_UNIT)
 }
@@ -347,20 +346,42 @@ mod tests {
         assert!(attained_candidates(&existing).is_empty());
     }
 
+    fn grade(grade_scale_id: &str, grade_id: &str) -> MappedGrade {
+        MappedGrade {
+            grade_scale_id: grade_scale_id.to_string(),
+            grade_id: grade_id.to_string(),
+        }
+    }
+
     #[test]
     fn a_lost_submission_is_recognised_across_both_scale_spellings() {
         let existing = [attainment("sis-hyv-hyl", "1", 22)];
         assert!(
-            attainment_matching_submission(&existing, date(2026, 5, 22), None, "sis-hyl-hyv", "1")
-                .is_some()
+            attainment_matching_submission(
+                &existing,
+                date(2026, 5, 22),
+                None,
+                &grade("sis-hyl-hyv", "1")
+            )
+            .is_some()
         );
         assert!(
-            attainment_matching_submission(&existing, date(2026, 5, 23), None, "sis-hyl-hyv", "1")
-                .is_none()
+            attainment_matching_submission(
+                &existing,
+                date(2026, 5, 23),
+                None,
+                &grade("sis-hyl-hyv", "1")
+            )
+            .is_none()
         );
         assert!(
-            attainment_matching_submission(&existing, date(2026, 5, 22), None, "sis-hyl-hyv", "0")
-                .is_none()
+            attainment_matching_submission(
+                &existing,
+                date(2026, 5, 22),
+                None,
+                &grade("sis-hyl-hyv", "0")
+            )
+            .is_none()
         );
     }
 }

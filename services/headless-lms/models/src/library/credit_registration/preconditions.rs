@@ -13,6 +13,7 @@ use super::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck, first_check,
 };
 use super::enrolment_checks::{EnrolmentCheckStart, record_starts};
+use super::outcomes::{NO_VERIFIED_STUDENT_NUMBER_MESSAGE, Outcome, UnaskedMove};
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// How many rows one iteration may move.
@@ -214,7 +215,12 @@ pub async fn recompute_preconditions(
                 id: pending.id,
                 transition: Transition {
                     next_attempt_at,
-                    ..transition_for(pending, target)
+                    ..precondition_move(pending, target).transition(
+                        // `pending_moves` reads without a row lock, so the guard refuses a stale
+                        // write instead of overwriting a row another phase already moved.
+                        Some(pending.state),
+                        now,
+                    )
                 },
             })
         })
@@ -225,55 +231,40 @@ pub async fn recompute_preconditions(
     Ok(moved)
 }
 
-/// The transition each edge writes: kept out of the query so every edge's error code, admin flag
-/// and audit message sit in one place.
-fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Transition {
+/// The move each edge makes: kept out of the query so every edge's error code, admin flag and
+/// timeline line sit in one place.
+fn precondition_move(pending: &PendingMove, target: CreditRegistrationState) -> UnaskedMove {
     use CreditRegistrationState as State;
-    let base = Transition {
-        // `pending_moves` reads without a row lock, so a phase can claim and move the row in the
-        // gap before this write. Guarding on the state we decided from turns that into a refusal
-        // instead of overwriting, say, a `submitting` row whose request is already out.
-        expected_from_state: Some(pending.state),
-        ..Transition::to(target)
-    };
+    let to = Outcome::to(target);
     match target {
-        State::SubmissionUncertain => Transition {
-            error_code: Some(CreditRegistrationErrorCode::SisuTimeout),
-            event_message: Some(
-                "Found still submitting after a restart, so the import may or may not have been \
-                 processed. Only verification may touch it from here."
-                    .to_string(),
-            ),
-            ..base
-        },
-        State::Cancelled => Transition {
-            event_message: Some(
-                "The completion no longer exists and nothing had been submitted.".to_string(),
-            ),
-            ..base
-        },
-        State::Blocked => Transition {
-            event_message: Some(
-                "The completion is no longer eligible for registration.".to_string(),
-            ),
-            ..base
-        },
-        State::FailedPermanent => Transition {
-            error_code: Some(CreditRegistrationErrorCode::RetryWindowExpired),
-            needs_admin_attention: Some(true),
-            event_message: Some("Retried for a week without success.".to_string()),
-            ..base
-        },
+        State::SubmissionUncertain => UnaskedMove::new(
+            to.with_code(CreditRegistrationErrorCode::SisuTimeout),
+            "Found still submitting after a restart, so the import may or may not have been \
+             processed. Only verification may touch it from here.",
+        ),
+        State::Cancelled => UnaskedMove::new(
+            to,
+            "The completion no longer exists and nothing had been submitted.",
+        ),
+        State::Blocked => {
+            UnaskedMove::new(to, "The completion is no longer eligible for registration.")
+        }
+        State::FailedPermanent => UnaskedMove::new(
+            to.with_code(CreditRegistrationErrorCode::RetryWindowExpired)
+                .needing_admin(),
+            "Retried for a week without success.",
+        ),
         // The ledger does not record which precondition a `pending` row waits on, so the event is
         // where the answer is kept for whoever reads the timeline later.
-        State::Pending => Transition {
-            event_message: pending.preconditions.reason().map(|reason| {
+        State::Pending => UnaskedMove {
+            outcome: to,
+            message: pending.preconditions.reason().map(|reason| {
                 match reason {
                     CreditRegistrationPendingReason::Completion => {
                         "The completion is not registrable yet."
                     }
                     CreditRegistrationPendingReason::StudentNumber => {
-                        "No verified student number is linked to the account."
+                        NO_VERIFIED_STUDENT_NUMBER_MESSAGE
                     }
                     CreditRegistrationPendingReason::CourseCode => {
                         "Suotar does not accept the module's course code, so nothing is sent \
@@ -282,23 +273,16 @@ fn transition_for(pending: &PendingMove, target: CreditRegistrationState) -> Tra
                 }
                 .to_string()
             }),
-            ..base
         },
-        State::NoUsableEnrolment => Transition {
-            event_message: Some("Waiting for the first enrolment check.".to_string()),
-            ..base
-        },
+        State::NoUsableEnrolment => UnaskedMove::new(to, "Waiting for the first enrolment check."),
         // Keys off `pending.state`, not just `target`: the message is about where the row came
         // from, unlike every arm above.
-        State::ReadyToSubmit if pending.state == State::CheckingEnrolment => Transition {
-            event_message: Some(
-                "The linked student number changed after this row's payload was frozen, so the \
-                 enrolment is resolved again against the current one."
-                    .to_string(),
-            ),
-            ..base
-        },
-        _ => base,
+        State::ReadyToSubmit if pending.state == State::CheckingEnrolment => UnaskedMove::new(
+            to,
+            "The linked student number changed after this row's payload was frozen, so the \
+             enrolment is resolved again against the current one.",
+        ),
+        _ => UnaskedMove::silent(to),
     }
 }
 
@@ -596,7 +580,7 @@ mod tests {
 
     async fn entered_state_long_ago(conn: &mut PgConnection, id: Uuid) {
         let long_ago = Utc::now() - SUBMITTING_RECOVERY_GRACE - TimeDelta::minutes(1);
-        crate::credit_registrations::set_state_entered_at_for_testing(conn, id, long_ago)
+        crate::credit_registrations::testing::set_state_entered_at_for_testing(conn, id, long_ago)
             .await
             .unwrap();
         sqlx::query("UPDATE credit_registrations SET submitted_at = $2 WHERE id = $1")
@@ -608,7 +592,7 @@ mod tests {
     }
 
     async fn first_failed_long_ago(conn: &mut PgConnection, id: Uuid) {
-        crate::credit_registrations::set_first_failed_at_for_testing(
+        crate::credit_registrations::testing::set_first_failed_at_for_testing(
             conn,
             id,
             Utc::now() - chrono::Duration::days(8),

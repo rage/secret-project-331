@@ -7619,7 +7619,7 @@
     "/api/v0/main-frontend/credit-registration-admin/materialize": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible\ncompletions and recomputes preconditions, now.\n\nRuns the two database-only steps directly rather than through the phase dispatcher, because the\nphase-state row describes the worker loops: an admin pressing a button must not make a dead worker look\nalive.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible\ncompletions and recomputes preconditions, now.\n\nRuns the `materialize` phase's body and the precondition recompute directly rather than through the\nphase dispatcher, because the phase-state row describes the worker loops: an admin pressing a button\nmust not make a dead worker look alive.",
         "operationId": "adminMaterializeCreditRegistrations",
         "requestBody": {
           "content": {
@@ -7692,7 +7692,7 @@
           {
             "name": "phase",
             "in": "path",
-            "description": "One of the twelve canonical phase names",
+            "description": "A canonical phase name",
             "required": true,
             "schema": {
               "type": "string"
@@ -7735,7 +7735,7 @@
           {
             "name": "phase",
             "in": "path",
-            "description": "One of the twelve canonical phase names",
+            "description": "A canonical phase name",
             "required": true,
             "schema": {
               "type": "string"
@@ -7778,7 +7778,7 @@
           {
             "name": "phase",
             "in": "path",
-            "description": "One of the twelve canonical phase names",
+            "description": "A canonical phase name",
             "required": true,
             "schema": {
               "type": "string"
@@ -14872,7 +14872,8 @@
           "preview_mismatch",
           "already_linked_to_another_account",
           "already_linked_to_this_account",
-          "study_registry_unavailable"
+          "study_registry_unavailable",
+          "unexpected_study_registry_answer"
         ]
       },
       "AdminManuallyLinkStudentNumberPayload": {
@@ -14927,7 +14928,8 @@
         "properties": {
           "created_registration_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Rows created, both for newly eligible completions and for grades that improved on a\nregistered one."
           },
           "moved_registration_count": {
             "type": "integer",
@@ -19567,7 +19569,7 @@
       },
       "CreditRegistrationAttentionReason": {
         "type": "string",
-        "description": "Which detector picked a row for the attention queue. A row can carry several.\n\nNot `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but\nit says nothing about why, so it is reported per row rather than as a reason of its own.",
+        "description": "Which detector picked a row for the attention queue. A row can carry several.\n\nNot `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue,\nbut it says nothing about why, so it is reported per row rather than as a reason of its own.",
         "enum": [
           "stuck_in_state",
           "permanent_error",
@@ -19948,7 +19950,8 @@
             "$ref": "#/components/schemas/HealthStatus"
           },
           "thresholds": {
-            "$ref": "#/components/schemas/StuckThresholds"
+            "$ref": "#/components/schemas/StuckThresholds",
+            "description": "The only thresholds the frontend reads off the health poll: how long a row may sit in each\nstate before it counts as stuck. The other rule constants stay server-side."
           }
         }
       },
@@ -20164,7 +20167,7 @@
           "process_name",
           "expected_interval_secs",
           "consecutive_failures",
-          "implemented",
+          "is_known_phase",
           "heartbeat_late",
           "failing",
           "owned_states"
@@ -20179,15 +20182,16 @@
             "format": "int32"
           },
           "failing": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "The same verdict the `PhaseFailing` alert reaches; see `is_phase_failing`."
           },
           "heartbeat_late": {
             "type": "boolean",
             "description": "Always `false` while paused or never heartbeated."
           },
-          "implemented": {
+          "is_known_phase": {
             "type": "boolean",
-            "description": "No implementation is registered for the phase yet, so it has never reported and will not."
+            "description": "False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker\nruns or reports for."
           },
           "items_failed_last_run": {
             "type": ["integer", "null"],
@@ -20270,7 +20274,7 @@
           "process_name",
           "expected_interval_secs",
           "consecutive_failures",
-          "implemented",
+          "is_known_phase",
           "heartbeat_late"
         ],
         "properties": {
@@ -20286,9 +20290,9 @@
             "type": "boolean",
             "description": "`seconds_since_heartbeat > expected_interval_secs * health.thresholds.phase_heartbeat_interval_multiplier`.\nAlways `false` while paused or never heartbeated."
           },
-          "implemented": {
+          "is_known_phase": {
             "type": "boolean",
-            "description": "No implementation is registered for the phase yet, so it has never reported and will not."
+            "description": "False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker\nruns or reports for."
           },
           "items_failed_last_run": {
             "type": ["integer", "null"],
@@ -23451,6 +23455,7 @@
           "course_module_id",
           "order_number",
           "supports_credit_registration",
+          "is_credit_registration_starting",
           "score_given",
           "attempted_exercises",
           "automatic_completion",
@@ -23490,6 +23495,10 @@
             "type": ["number", "null"],
             "format": "float"
           },
+          "is_credit_registration_starting": {
+            "type": "boolean",
+            "description": "Whether a credit registration is about to be created for the shown completion, which the\nstudent is told is `sending` until it exists."
+          },
           "name": {
             "type": ["string", "null"],
             "description": "`None` for the course's default module; the frontend labels those with the course name."
@@ -23517,17 +23526,6 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "Exercise points an automatic completion requires. `None` when the module is completed\nmanually or sets no point threshold."
-          },
-          "status_before_registration": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
-                "description": "What the student is told while their completion has no credit registration: `sending` when\none is about to be created. `None` when none is coming, or there is no completion."
-              }
-            ]
           },
           "supports_credit_registration": {
             "type": "boolean",
@@ -24155,7 +24153,7 @@
       },
       "NotificationEmailStatus": {
         "type": "object",
-        "description": "The same, for one of the two terminal-state mails. No address: these go to the account's own,\nwhich the reader either owns or already sees.",
+        "description": "Where one of the two terminal-state mails stands, as a row shows it. No address: these go to\nthe account's own, which the reader either owns or already sees.",
         "required": ["kind", "email_send_status"],
         "properties": {
           "email_send_status": {
@@ -25572,7 +25570,7 @@
       },
       "PendingReasonCounts": {
         "type": "object",
-        "description": "Live `pending` rows per blocker, for the surfaces that used to read the three states off the\nledger.",
+        "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
         "required": ["completion_count", "student_number_count"],
         "properties": {
           "completion_count": {
@@ -26184,7 +26182,7 @@
       },
       "ResubmissionRefusal": {
         "type": "string",
-        "description": "Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
+        "description": "Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
         "enum": [
           "superseded",
           "already_succeeded",

@@ -8,6 +8,8 @@ mod process_local;
 mod suotar;
 pub mod worker_loop;
 
-pub use dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, run_phase_once};
-pub use manual::{ManualActionContext, resend_linking_mail_for_target, resolve_person};
-pub use suotar::{is_waiting_to_probe, reset_rate_limits};
+pub use dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, Runner, run_phase_once};
+pub use manual::{ManualActionContext, look_up_person, resend_linking_mail_for_target};
+pub use suotar::{
+    endpoints_paused_by, is_waiting_to_probe, max_study_registry_wait, reset_rate_limits,
+};

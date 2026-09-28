@@ -3,6 +3,7 @@
 use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use headless_lms_models::library::credit_registration::outcomes::RowFacts;
+use uuid::Uuid;
 
 /// A claimed row. Every answer and refusal is written against it, and lands only if the row is
 /// still in [`Self::expected_state`]: the decision was made from a snapshot that the request, or
@@ -37,6 +38,15 @@ impl ClaimedRegistration {
         &self.registration
     }
 
+    pub(crate) fn id(&self) -> Uuid {
+        self.registration.id
+    }
+
+    /// The row back, to be claimed again as expecting the state the claim's own move just wrote.
+    pub(crate) fn into_registration(self) -> CreditRegistration {
+        self.registration
+    }
+
     pub(crate) fn expected_state(&self) -> CreditRegistrationState {
         self.expected_state
     }
@@ -46,10 +56,11 @@ impl ClaimedRegistration {
     }
 }
 
-impl AsRef<ClaimedRegistration> for ClaimedRegistration {
-    fn as_ref(&self) -> &ClaimedRegistration {
-        self
-    }
+/// A batch row: its claim, and whatever the flow's claim read alongside it, which the answer is
+/// applied with.
+pub(crate) struct Claimed<Extra> {
+    pub claim: ClaimedRegistration,
+    pub extra: Extra,
 }
 
 #[cfg(test)]

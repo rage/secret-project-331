@@ -27,7 +27,7 @@ export interface AdminPhaseStatus {
   last_heartbeat_at: string | null
   paused_at: string | null
   pause_reason: string | null
-  implemented: boolean
+  is_known_phase: boolean
 }
 
 export interface AdminRegistrationRow {
@@ -219,7 +219,7 @@ export const attentionItems = (request: APIRequestContext): Promise<AdminAttenti
 export interface AdminPhaseRow {
   phase: string
   process_name: string
-  implemented: boolean
+  is_known_phase: boolean
   last_heartbeat_at: string | null
   paused_at: string | null
   heartbeat_late: boolean

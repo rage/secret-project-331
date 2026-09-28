@@ -7,6 +7,7 @@ use sqlx::PgConnection;
 use super::{breaker, rate_limit};
 use crate::error::CreditRegistrationResult;
 use crate::phase::CreditRegistrationPhase;
+use crate::runtime::process_local::ScopeKey;
 
 /// Copies the state of the breakers that pause the phase to the database for the dashboard, which
 /// runs in another process.
@@ -16,7 +17,7 @@ pub(in crate::runtime) async fn report_breakers(
 ) -> CreditRegistrationResult<()> {
     let spec = phase.spec();
     for &target in spec.breakers {
-        let breaker = breaker::snapshot(&breaker::ScopeKey::Global, target);
+        let breaker = breaker::snapshot(&ScopeKey::Global, target);
         if !breaker::REPORTED.is_due(&target, &breaker, breaker::BreakerSnapshot::is_same_report) {
             continue;
         }
@@ -50,8 +51,8 @@ pub(in crate::runtime) async fn report_rate_limits(
     conn: &mut PgConnection,
     phase: CreditRegistrationPhase,
 ) -> CreditRegistrationResult<()> {
-    for &endpoint in phase.spec().endpoints {
-        let Some(limiter) = rate_limit::snapshot(&breaker::ScopeKey::Global, endpoint) else {
+    for endpoint in super::study_registry_endpoints(phase) {
+        let Some(limiter) = rate_limit::snapshot(&ScopeKey::Global, endpoint) else {
             continue;
         };
         if !rate_limit::REPORTED.is_due(&endpoint, &limiter, PartialEq::eq) {

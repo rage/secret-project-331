@@ -7,19 +7,16 @@
 //! breaker in one does not pause the study-registry phases of the other. Only the phases within the
 //! same process actually share a breaker per scope key.
 //!
-//! Keyed by scope rather than global: a test driving a deliberate outage for its own course must not
-//! silence the pipeline for every other test running at the same moment. Production only ever uses
-//! the global key.
+//! Keyed by [`ScopeKey`], so a test driving a deliberate outage for its own course does not silence
+//! the pipeline for every other test running at the same moment.
 
 use std::time::{Duration, Instant};
 
 use chrono::{DateTime, TimeDelta, Utc};
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
-use uuid::Uuid;
 
-use crate::phase::PhaseScope;
-use crate::runtime::process_local::{LastReported, ProcessLocalMap};
+use crate::runtime::process_local::{LastReported, ProcessLocalMap, ScopeKey};
 
 const MAX_CONSECUTIVE_SUOTAR_FAILURES: u32 = 5;
 /// The first cooldown; each trip without a success between adds another, up to
@@ -29,32 +26,6 @@ const MAX_COOLDOWN_TRIPS: u32 = 3;
 /// Playwright's per-test budget is 100 s, which the production cooldown does not fit inside: a test
 /// that trips the breaker deliberately has to be able to watch it recover.
 const TEST_SUOTAR_COOLDOWN: Duration = Duration::from_secs(5);
-
-/// What one breaker counts failures for.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub(super) enum ScopeKey {
-    /// Production, and any unscoped run.
-    Global,
-    Course(Uuid),
-    User(Uuid),
-    Registrations(Vec<Uuid>),
-}
-
-impl ScopeKey {
-    pub(super) fn of(scope: &PhaseScope) -> Self {
-        if let Some(course_id) = scope.course_id {
-            Self::Course(course_id)
-        } else if let Some(user_id) = scope.user_id {
-            Self::User(user_id)
-        } else if !scope.credit_registration_ids.is_empty() {
-            let mut ids = scope.credit_registration_ids.clone();
-            ids.sort();
-            Self::Registrations(ids)
-        } else {
-            Self::Global
-        }
-    }
-}
 
 pub(super) use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 
@@ -252,6 +223,8 @@ fn reset(scope: &ScopeKey) {
 
 #[cfg(test)]
 mod tests {
+    use uuid::Uuid;
+
     use super::*;
 
     const TARGET: BreakerTarget = BreakerTarget::StudyRegistry;
@@ -295,39 +268,6 @@ mod tests {
         assert!(!is_open(&bystander, TARGET));
         reset(&storm);
         reset(&bystander);
-    }
-
-    #[test]
-    fn a_scoped_run_gets_its_own_key_and_an_unscoped_one_gets_the_global_key() {
-        let course = Uuid::new_v4();
-        let user = Uuid::new_v4();
-        assert_eq!(ScopeKey::of(&PhaseScope::default()), ScopeKey::Global);
-        assert_eq!(
-            ScopeKey::of(&PhaseScope::for_course(course)),
-            ScopeKey::Course(course)
-        );
-        assert_eq!(
-            ScopeKey::of(&PhaseScope {
-                user_id: Some(user),
-                ..PhaseScope::default()
-            }),
-            ScopeKey::User(user)
-        );
-    }
-
-    #[test]
-    fn a_registration_scope_is_order_independent() {
-        let first = Uuid::new_v4();
-        let second = Uuid::new_v4();
-        let one = PhaseScope {
-            credit_registration_ids: vec![first, second],
-            ..PhaseScope::default()
-        };
-        let other = PhaseScope {
-            credit_registration_ids: vec![second, first],
-            ..PhaseScope::default()
-        };
-        assert_eq!(ScopeKey::of(&one), ScopeKey::of(&other));
     }
 
     #[test]

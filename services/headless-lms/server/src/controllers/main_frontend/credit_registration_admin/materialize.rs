@@ -5,16 +5,13 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations;
-use headless_lms_models::library::credit_registration::materialize::{
-    MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
-};
 use headless_lms_models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
 use utoipa::ToSchema;
 
 use crate::prelude::*;
-use headless_lms_credit_registration::CreditRegistrationPhase;
+use headless_lms_credit_registration::{CreditRegistrationPhase, Materialized, materialize_now};
 
 use super::authorize_credit_registration_admin;
 
@@ -25,6 +22,8 @@ pub struct AdminMaterializePayload {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminMaterializeResult {
+    /// Rows created, both for newly eligible completions and for grades that improved on a
+    /// registered one.
     pub created_registration_count: i64,
     pub moved_registration_count: i64,
 }
@@ -33,9 +32,9 @@ pub struct AdminMaterializeResult {
 POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
 completions and recomputes preconditions, now.
 
-Runs the two database-only steps directly rather than through the phase dispatcher, because the
-phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
-alive.
+Runs the `materialize` phase's body and the precondition recompute directly rather than through the
+phase dispatcher, because the phase-state row describes the worker loops: an admin pressing a button
+must not make a dead worker look alive.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -59,9 +58,11 @@ pub async fn admin_materialize_credit_registrations(
     info!(actor = %user.id, "Admin ran materialize and preconditions now");
     let mut tx = conn.begin().await?;
     let scope = credit_registrations::RegistrationScope::default();
-    let created_registration_count =
-        ensure_registration_rows_for_eligible_completions(&mut tx, &scope, MATERIALIZE_LIMIT)
-            .await?;
+    let Materialized {
+        created,
+        re_attempted,
+    } = materialize_now(&mut tx, &scope).await?;
+    let created_registration_count = created + re_attempted;
     let moved_registration_count =
         recompute_preconditions(&mut tx, &scope, PRECONDITIONS_LIMIT).await?;
     info!(

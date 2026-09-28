@@ -4,13 +4,17 @@
 use headless_lms_models::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
+use sqlx::PgPool;
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
-use crate::use_cases::contexts::DatabaseContext;
+use crate::workflow::Counts;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
-pub(crate) async fn run(ctx: &DatabaseContext<'_>) -> CreditRegistrationResult<Counts> {
-    let mut conn = ctx.pool.acquire().await?;
-    let moved = recompute_preconditions(&mut conn, ctx.scope, PRECONDITIONS_LIMIT).await?;
+pub(crate) async fn run(
+    pool: &PgPool,
+    scope: &RegistrationScope,
+) -> CreditRegistrationResult<Counts> {
+    let mut conn = pool.acquire().await?;
+    let moved = recompute_preconditions(&mut conn, scope, PRECONDITIONS_LIMIT).await?;
     Ok(Counts::processed(moved))
 }

@@ -1,6 +1,10 @@
-//! The credit registration state machine: `credit_registrations::transition` owns the write, this
-//! module owns the decision. A waiting row is only ever moved by the precondition recompute here or
-//! by a worker phase applying one of this module's outcomes to an answer from the study registry.
+//! The credit registration pipeline's rules, which the worker crate's phases apply.
+//!
+//! The pure half decides what each move does to a row (`outcomes`), how long to wait and what may
+//! be retried (`backoff`, `classification`), what gets registered (`payload`, `grade_mapping`,
+//! `enrolment_selection`), and what of an exchange may be kept (`scrub`). The rest are database steps
+//! the phases run, such as `materialize`, `preconditions`, `enrolment_checks` and `account_linking`.
+//! Every state change goes through `credit_registrations::transition`.
 
 pub mod account_linking;
 pub mod backoff;
@@ -16,6 +20,7 @@ pub mod outcomes;
 pub mod payload;
 pub mod pending_reason;
 pub mod preconditions;
+pub mod scrub;
 pub mod student_facing_status;
 pub mod student_notifications;
 pub mod student_number_change;

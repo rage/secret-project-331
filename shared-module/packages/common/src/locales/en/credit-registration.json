@@ -331,6 +331,7 @@
   "credit-registration-admin-manual-link-title": "Link a student number by hand",
   "credit-registration-admin-manual-link-unblocked_one": "{{count}} registration stopped waiting for a student number.",
   "credit-registration-admin-manual-link-unblocked_other": "{{count}} registrations stopped waiting for a student number.",
+  "credit-registration-admin-manual-link-unexpected-answer": "Sisu answered with a code we do not recognise, so nothing was linked. Check the number again to see the code.",
   "credit-registration-admin-manual-link-unknown-outcome": "We do not recognise this result. Do not assume the link was made. Check the audit log.",
   "credit-registration-admin-manual-link-warning": "This replaces proof that the student controls the mailbox with your judgement. A mistake links someone else's student number to this account and registers their credits there. Send the confirmation email again first. Use this only when email to this person cannot be delivered at all.",
   "credit-registration-admin-manual-links-total-count_one": "{{count}} link established by an administrator",

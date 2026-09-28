@@ -1,7 +1,8 @@
-//! The study registry over Suotar: the only part of the pipeline that names Suotar's wire items and
-//! errors, or sends through its client.
+//! The study registry over Suotar, for phase iterations and for manual actions: the only part of
+//! the pipeline that names Suotar's wire items and codes, or sends through its client.
 
 mod breaker;
+mod codes;
 #[cfg(test)]
 mod contract_tests;
 mod course_codes;
@@ -17,44 +18,97 @@ pub use breaker::is_waiting_to_probe;
 pub(super) use health_report::{report_breakers, report_rate_limits};
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 use headless_lms_utils::services::suotar::{
-    SuotarCallContext, SuotarClient, endpoints, new_request_item_id,
+    INTERACTIVE_REQUEST_TIMEOUT, SuotarCallContext, SuotarClient, endpoints, new_request_item_id,
 };
+use itertools::Itertools;
 use tracing::{Instrument, Span};
+use uuid::Uuid;
 
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::phase::CreditRegistrationPhase;
 use crate::registry::{
-    AttainmentSubmission, BatchReply, CourseCode, CourseCodeVerdicts, EnrolmentAnswer,
-    EnrolmentLookup, ImportAnswer, PersonAnswer, PersonLookup, PersonLookupAnswer, RegistryError,
-    RequestBatch, RosterCode, RosterListing, RosterSearch, StudentNumber, StudyRegistry,
-    VerificationAnswer, VerificationRequest,
+    AttainmentSubmission, BatchEntry, BatchOptions, BatchReply, CourseCode, CourseCodeVerdicts,
+    EnrolmentAnswer, EnrolmentLookup, ImportAnswer, InteractiveStudyRegistry, PersonAnswer,
+    PersonLookup, PersonLookupError, RegistryError, RegistryOperation, RegistryPerson, RosterCode,
+    RosterListing, RosterSearch, StudentNumber, StudyRegistry, VerificationAnswer,
+    VerificationRequest,
 };
 use crate::runtime::PhaseSkipReason;
-use gate::{Exchange, StudyRegistryGate};
+use crate::runtime::process_local::ScopeKey;
+use gate::StudyRegistryGate;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 /// Forgets the limiter state of `scope`, so its endpoints are back at full rate with a full burst.
-pub fn reset_rate_limits(scope: &PhaseScope) {
-    rate_limit::reset(&breaker::ScopeKey::of(scope));
+pub fn reset_rate_limits(scope: &RegistrationScope) {
+    rate_limit::reset(&ScopeKey::of(scope));
+}
+
+/// The Suotar endpoint that serves `operation`, which is also what the call log, the limiter and the
+/// dashboard key on.
+pub(super) fn endpoint_of(operation: RegistryOperation) -> SuotarEndpoint {
+    match operation {
+        RegistryOperation::ResolvePersons => SuotarEndpoint::ResolvePersons,
+        RegistryOperation::ResolveEnrolments => SuotarEndpoint::ResolveEnrolments,
+        RegistryOperation::ImportAttainments => SuotarEndpoint::ImportAttainments,
+        RegistryOperation::VerifyAttainments => SuotarEndpoint::VerifyAttainments,
+        RegistryOperation::ListCourseRoster => SuotarEndpoint::ListByCourse,
+        RegistryOperation::ValidateCourseCodes => SuotarEndpoint::ValidateCourseCodes,
+    }
+}
+
+/// The Suotar endpoints one iteration of `phase` calls, in order: its
+/// [`crate::PhaseSpec::operations`] as the call log and the dashboard name them.
+fn study_registry_endpoints(
+    phase: CreditRegistrationPhase,
+) -> impl Iterator<Item = SuotarEndpoint> {
+    phase
+        .spec()
+        .operations
+        .iter()
+        .map(|&operation| endpoint_of(operation))
+}
+
+/// The Suotar endpoints whose phases `process_name`'s `target` breaker pauses, each once.
+pub fn endpoints_paused_by(process_name: &str, target: BreakerTarget) -> Vec<SuotarEndpoint> {
+    CreditRegistrationPhase::ALL
+        .into_iter()
+        .filter(|phase| {
+            let spec = phase.spec();
+            spec.process.as_str() == process_name && spec.breakers.contains(&target)
+        })
+        .flat_map(study_registry_endpoints)
+        .unique()
+        .collect()
+}
+
+/// The longest one iteration of `phase` may wait on the study registry before its calls time out.
+pub fn max_study_registry_wait(phase: CreditRegistrationPhase) -> std::time::Duration {
+    study_registry_endpoints(phase)
+        .map(SuotarEndpoint::request_timeout)
+        .sum()
 }
 
 /// The span every request to `endpoint` runs in, whichever of the adapter's call sites sends it.
-fn request_span(endpoint: SuotarEndpoint, items: usize, is_resent_half: bool) -> Span {
+/// A resent half records `resent_half` on it.
+fn request_span(endpoint: SuotarEndpoint, items: usize) -> Span {
     debug_span!(
         "study_registry_request",
         ?endpoint,
         items,
-        resent_half = is_resent_half
+        resent_half = false
     )
 }
 
-/// The [`StudyRegistry`] over Suotar, for one phase iteration or one manual action.
+/// The [`StudyRegistry`] over Suotar for one phase iteration: every request is spent through, and
+/// recorded in, the iteration's gate.
 pub(super) struct SuotarStudyRegistry<'a> {
     client: &'a SuotarClient,
     /// The audit log's `worker_name` for every call.
     worker_name: String,
-    /// `None` for an interactive registry, whose calls no limiter or breaker learns from.
-    gate: Option<StudyRegistryGate>,
-    /// Replaces the endpoints' own timeouts, which run to minutes; only tests set it.
+    gate: StudyRegistryGate,
+    /// Replaces the endpoints' own timeouts, which run to minutes.
+    #[cfg(test)]
     request_timeout: Option<std::time::Duration>,
 }
 
@@ -64,89 +118,58 @@ impl<'a> SuotarStudyRegistry<'a> {
         client: &'a SuotarClient,
         worker_name: String,
         phase: CreditRegistrationPhase,
-        scope: &PhaseScope,
+        scope: &RegistrationScope,
         test_mode: bool,
     ) -> Result<Self, PhaseSkipReason> {
         Ok(Self {
             client,
             worker_name,
-            gate: Some(StudyRegistryGate::admit(phase, scope, test_mode)?),
+            gate: StudyRegistryGate::admit(phase, scope, test_mode)?,
+            #[cfg(test)]
             request_timeout: None,
         })
-    }
-
-    /// For calls someone is waiting on in the browser: the interactive timeout, and no allowance.
-    pub(super) fn interactive(client: &'a SuotarClient, worker_name: String) -> Self {
-        Self {
-            client,
-            worker_name,
-            gate: None,
-            request_timeout: None,
-        }
     }
 
     /// Applies what the iteration's calls said to the breakers and the limiter, and returns the
     /// iteration's error, if any.
     pub(super) fn finish(self) -> Option<String> {
-        self.gate.and_then(StudyRegistryGate::settle)
+        self.gate.settle()
     }
 
-    fn call_context(&self) -> SuotarCallContext {
-        let context = SuotarCallContext::new(self.worker_name.clone());
-        let context = if self.gate.is_none() {
-            context.interactive()
-        } else {
-            context
-        };
-        // After `.interactive()`, which would otherwise overwrite it with the interactive timeout.
-        match self.request_timeout {
-            Some(request_timeout) => SuotarCallContext {
-                request_timeout: Some(request_timeout),
-                ..context
-            },
-            None => context,
-        }
-    }
-
-    fn is_probe(&self) -> bool {
-        self.gate.as_ref().is_some_and(StudyRegistryGate::is_probe)
-    }
-
-    fn spend(&mut self, endpoint: SuotarEndpoint, count: usize) {
-        if let Some(gate) = self.gate.as_mut() {
-            gate.spend(endpoint, count);
-        }
-    }
-
-    /// For the resent halves of a batch refused as malformed, which may go past the allowance; see
-    /// [`StudyRegistryGate::spend_split`].
-    fn spend_split(&mut self, endpoint: SuotarEndpoint, count: usize) {
-        if let Some(gate) = self.gate.as_mut() {
-            gate.spend_split(endpoint, count);
-        }
-    }
-
-    fn record(&mut self, endpoint: SuotarEndpoint, exchange: Exchange<'_>) {
-        if let Some(gate) = self.gate.as_mut() {
-            gate.record(endpoint, exchange);
+    fn call_context(&self, registration_ids: Vec<Uuid>) -> SuotarCallContext {
+        SuotarCallContext {
+            worker_name: self.worker_name.clone(),
+            credit_registration_ids: registration_ids,
+            #[cfg(test)]
+            request_timeout: self.request_timeout,
+            #[cfg(not(test))]
+            request_timeout: None,
         }
     }
 }
 
 impl StudyRegistry for SuotarStudyRegistry<'_> {
-    fn allowance(&self, endpoint: SuotarEndpoint) -> usize {
-        self.gate
-            .as_ref()
-            .map_or(0, |gate| gate.allowance(endpoint))
+    fn allowance(&self, operation: RegistryOperation) -> usize {
+        self.gate.allowance(endpoint_of(operation))
+    }
+
+    fn roster_request_size(&self) -> usize {
+        if self.gate.is_probe() {
+            1
+        } else {
+            SuotarEndpoint::ListByCourse.max_batch_size()
+        }
     }
 
     async fn resolve_persons<K>(
         &mut self,
-        batch: RequestBatch<K, PersonLookup>,
+        entries: Vec<BatchEntry<K, PersonLookup>>,
+        options: BatchOptions,
     ) -> BatchReply<K, PersonLookup, PersonAnswer> {
         executor::send_batch::<endpoints::ResolvePersons, _, _, _>(
             self,
-            batch,
+            entries,
+            options,
             encode::person_lookup_item,
             decode::person_answer,
         )
@@ -155,11 +178,13 @@ impl StudyRegistry for SuotarStudyRegistry<'_> {
 
     async fn resolve_enrolments<K>(
         &mut self,
-        batch: RequestBatch<K, EnrolmentLookup>,
+        entries: Vec<BatchEntry<K, EnrolmentLookup>>,
+        options: BatchOptions,
     ) -> BatchReply<K, EnrolmentLookup, EnrolmentAnswer> {
         executor::send_batch::<endpoints::ResolveEnrolments, _, _, _>(
             self,
-            batch,
+            entries,
+            options,
             encode::enrolment_item,
             decode::enrolment_answer,
         )
@@ -168,11 +193,13 @@ impl StudyRegistry for SuotarStudyRegistry<'_> {
 
     async fn import_attainments<K>(
         &mut self,
-        batch: RequestBatch<K, AttainmentSubmission>,
+        entries: Vec<BatchEntry<K, AttainmentSubmission>>,
+        options: BatchOptions,
     ) -> BatchReply<K, AttainmentSubmission, ImportAnswer> {
         executor::send_batch::<endpoints::ImportAttainments, _, _, _>(
             self,
-            batch,
+            entries,
+            options,
             encode::import_item,
             decode::import_answer,
         )
@@ -181,23 +208,17 @@ impl StudyRegistry for SuotarStudyRegistry<'_> {
 
     async fn verify_attainments<K>(
         &mut self,
-        batch: RequestBatch<K, VerificationRequest>,
+        entries: Vec<BatchEntry<K, VerificationRequest>>,
+        options: BatchOptions,
     ) -> BatchReply<K, VerificationRequest, VerificationAnswer> {
         executor::send_batch::<endpoints::VerifyAttainments, _, _, _>(
             self,
-            batch,
+            entries,
+            options,
             encode::verify_item,
             decode::verification_answer,
         )
         .await
-    }
-
-    fn plan_roster_requests(
-        &self,
-        due: Vec<RosterCode>,
-        request_limit: usize,
-    ) -> Vec<Vec<RosterCode>> {
-        rosters::plan_requests(due, request_limit, self.is_probe())
     }
 
     async fn list_course_roster(
@@ -213,14 +234,41 @@ impl StudyRegistry for SuotarStudyRegistry<'_> {
     ) -> Result<CourseCodeVerdicts, RegistryError> {
         course_codes::validate(self, codes).await
     }
+}
 
+/// The [`InteractiveStudyRegistry`] over Suotar, for one manual action: the interactive timeout,
+/// and no gate.
+pub(super) struct InteractiveSuotar<'a> {
+    client: &'a SuotarClient,
+    /// The audit log's `worker_name` for every call.
+    worker_name: String,
+}
+
+impl<'a> InteractiveSuotar<'a> {
+    pub(super) fn new(client: &'a SuotarClient, worker_name: String) -> Self {
+        Self {
+            client,
+            worker_name,
+        }
+    }
+
+    fn call_context(&self) -> SuotarCallContext {
+        SuotarCallContext {
+            worker_name: self.worker_name.clone(),
+            credit_registration_ids: Vec::new(),
+            request_timeout: Some(INTERACTIVE_REQUEST_TIMEOUT),
+        }
+    }
+}
+
+impl InteractiveStudyRegistry for InteractiveSuotar<'_> {
     async fn look_up_person(
         &self,
         student_number: &StudentNumber,
-    ) -> Result<PersonLookupAnswer, RegistryError> {
+    ) -> Result<Option<RegistryPerson>, PersonLookupError> {
         let request_item_id = new_request_item_id();
         let item = encode::person_item(student_number, request_item_id.clone());
-        let span = request_span(SuotarEndpoint::ResolvePersons, 1, false);
+        let span = request_span(SuotarEndpoint::ResolvePersons, 1);
         let response = self
             .client
             .post::<endpoints::ResolvePersons>(self.call_context(), vec![item])
@@ -228,17 +276,17 @@ impl StudyRegistry for SuotarStudyRegistry<'_> {
             .await
             .map_err(|error| {
                 warn!(error = %error, "Could not resolve a student number in the study registry");
-                decode::registry_error(&error)
+                PersonLookupError::StudyRegistryUnavailable
             })?;
-        Ok(match response.item(&request_item_id) {
-            Some(item) => decode::person_lookup_answer(item),
-            None => PersonLookupAnswer::Unanswered,
-        })
+        match response.item(&request_item_id) {
+            Some(item) => decode::person_lookup(item),
+            None => Err(PersonLookupError::ItemMissingFromResponse),
+        }
     }
 
     async fn search_course_rosters(
         &self,
-        codes: Vec<CourseCode>,
+        codes: &[CourseCode],
         student_number: &StudentNumber,
     ) -> RosterSearch {
         rosters::search(self, codes, student_number).await

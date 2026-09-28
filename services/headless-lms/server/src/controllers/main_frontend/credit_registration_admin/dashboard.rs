@@ -97,8 +97,9 @@ pub struct CreditRegistrationPhaseStatus {
     pub consecutive_failures: i32,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
-    /// No implementation is registered for the phase yet, so it has never reported and will not.
-    pub implemented: bool,
+    /// False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker
+    /// runs or reports for.
+    pub is_known_phase: bool,
     /// Computed server-side: a page comparing its own clock against a server timestamp misjudges this
     /// on a skewed client.
     pub seconds_since_heartbeat: Option<i64>,
@@ -291,7 +292,7 @@ worker loop skips it on every tick until it is resumed.
     path = "/phases/{phase}/pause",
     operation_id = "adminPausePhase",
     tag = "credit-registration-admin",
-    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    params(("phase" = String, Path, description = "A canonical phase name")),
     request_body = AdminPausePhasePayload,
     responses(
         (status = 200, description = "The phase's status after pausing", body = CreditRegistrationPhaseStatus),
@@ -313,18 +314,12 @@ pub async fn admin_pause_phase(
     info!(phase, actor = %user.id, "Admin paused credit registration phase");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::pause(&mut tx, phase, user.id, Some(reason)).await?;
-    models::credit_registration_admin_actions::record(
+    record_phase_action(
         &mut tx,
-        &NewCreditRegistrationAdminAction {
-            target_phase: Some(phase.to_string()),
-            reason: Some(reason.to_string()),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::PausePhase,
-                CreditRegistrationAdminActionTarget::Phase,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
+        phase,
+        CreditRegistrationAdminAction::PausePhase,
+        user.id,
+        Some(reason.to_string()),
     )
     .await?;
     tx.commit().await?;
@@ -342,7 +337,7 @@ phase.
     path = "/phases/{phase}/resume",
     operation_id = "adminResumePhase",
     tag = "credit-registration-admin",
-    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    params(("phase" = String, Path, description = "A canonical phase name")),
     request_body = AdminPhaseActionPayload,
     responses(
         (status = 200, description = "The phase's status after resuming", body = CreditRegistrationPhaseStatus),
@@ -363,18 +358,12 @@ pub async fn admin_resume_phase(
     info!(phase, actor = %user.id, "Admin resumed credit registration phase");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::resume(&mut tx, phase).await?;
-    models::credit_registration_admin_actions::record(
+    record_phase_action(
         &mut tx,
-        &NewCreditRegistrationAdminAction {
-            target_phase: Some(phase.to_string()),
-            reason: payload.reason.clone(),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::ResumePhase,
-                CreditRegistrationAdminActionTarget::Phase,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
+        phase,
+        CreditRegistrationAdminAction::ResumePhase,
+        user.id,
+        payload.reason.clone(),
     )
     .await?;
     tx.commit().await?;
@@ -392,7 +381,7 @@ immediately: the worker loop picks it up on its next tick instead of waiting out
     path = "/phases/{phase}/run-now",
     operation_id = "adminRunPhaseNow",
     tag = "credit-registration-admin",
-    params(("phase" = String, Path, description = "One of the twelve canonical phase names")),
+    params(("phase" = String, Path, description = "A canonical phase name")),
     request_body = AdminPhaseActionPayload,
     responses(
         (status = 200, description = "The phase's status after being made due", body = CreditRegistrationPhaseStatus),
@@ -413,23 +402,42 @@ pub async fn admin_run_phase_now(
     info!(phase, actor = %user.id, "Admin forced credit registration phase to run now");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::run_now(&mut tx, phase).await?;
-    models::credit_registration_admin_actions::record(
+    record_phase_action(
         &mut tx,
-        &NewCreditRegistrationAdminAction {
-            target_phase: Some(phase.to_string()),
-            reason: payload.reason.clone(),
-            ..NewCreditRegistrationAdminAction::new(
-                CreditRegistrationAdminAction::RunPhaseNow,
-                CreditRegistrationAdminActionTarget::Phase,
-                user.id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
+        phase,
+        CreditRegistrationAdminAction::RunPhaseNow,
+        user.id,
+        payload.reason.clone(),
     )
     .await?;
     tx.commit().await?;
 
     token.authorized_ok(web::Json(one_phase_status(&mut conn, phase).await?))
+}
+
+/// Records one admin action on a phase in the caller's transaction.
+async fn record_phase_action(
+    tx: &mut PgConnection,
+    phase: &str,
+    action: CreditRegistrationAdminAction,
+    actor_user_id: Uuid,
+    reason: Option<String>,
+) -> Result<(), ControllerError> {
+    models::credit_registration_admin_actions::record(
+        tx,
+        &NewCreditRegistrationAdminAction {
+            target_phase: Some(phase.to_string()),
+            reason,
+            ..NewCreditRegistrationAdminAction::new(
+                action,
+                CreditRegistrationAdminActionTarget::Phase,
+                actor_user_id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    Ok(())
 }
 
 /// Resolves a path segment to the spelling `credit_registration_phase_state` stores, refusing anything
@@ -466,7 +474,7 @@ fn to_phase_status(
         now,
     );
     CreditRegistrationPhaseStatus {
-        implemented: CreditRegistrationPhase::from_phase_name(&row.phase).is_some(),
+        is_known_phase: CreditRegistrationPhase::from_phase_name(&row.phase).is_some(),
         phase: row.phase,
         process_name: row.process_name,
         expected_interval_secs: row.expected_interval_secs,

@@ -115,7 +115,7 @@ impl ScheduledEnrolmentCheck {
 }
 
 /// The group's ladder, as offsets from the anchor, ascending.
-pub fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
+fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
     const HOUR: TimeDelta = TimeDelta::hours(1);
     const DAY: TimeDelta = TimeDelta::days(1);
     const WEEK: TimeDelta = TimeDelta::weeks(1);

@@ -1,12 +1,9 @@
 //! Which phases exist, which process runs each, and what each may be narrowed on.
 
 use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::credit_registrations::RegistrationScope;
+use headless_lms_models::library::credit_registration::study_registry::RegistryOperation;
 use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
-use std::time::Duration;
-
-/// Which rows one iteration may touch.
-pub use headless_lms_models::credit_registrations::RegistrationScope as PhaseScope;
 
 /// A pipeline phase. [`CreditRegistrationPhase::as_str`] is canonical: it is
 /// `credit_registration_phase_state.phase`, the tick endpoint's `?phase=` and the audit log's
@@ -56,9 +53,10 @@ pub struct PhaseSpec {
     pub name: &'static str,
     pub process: WorkerProcess,
     pub scope: ScopeSupport,
-    /// The study registry endpoints one iteration calls, one after the other. Empty for a
+    /// What one iteration asks of the study registry, one after the other. Empty for a
     /// database-only phase, which no breaker ever holds back.
-    pub endpoints: &'static [SuotarEndpoint],
+    /// `study_registry_endpoints` names them as Suotar endpoints.
+    pub operations: &'static [RegistryOperation],
     /// The circuit breakers that pause the phase.
     pub breakers: &'static [BreakerTarget],
     /// The ledger states this phase is the one to move a row out of; see
@@ -76,7 +74,7 @@ const DEFAULTS: PhaseSpec = PhaseSpec {
     name: "",
     process: WorkerProcess::CreditRegistrar,
     scope: ScopeSupport::LEDGER,
-    endpoints: &[],
+    operations: &[],
     breakers: &[],
     owned_states: &[],
     is_account_linking_only: false,
@@ -114,9 +112,9 @@ const PRECONDITIONS: PhaseSpec = PhaseSpec {
 const RESOLVE_ENROLMENTS: PhaseSpec = PhaseSpec {
     name: "resolve-enrolments",
     // The person lookup for links that lack one, then the enrolment lookup.
-    endpoints: &[
-        SuotarEndpoint::ResolvePersons,
-        SuotarEndpoint::ResolveEnrolments,
+    operations: &[
+        RegistryOperation::ResolvePersons,
+        RegistryOperation::ResolveEnrolments,
     ],
     breakers: STUDY_REGISTRY,
     owned_states: &[
@@ -128,7 +126,7 @@ const RESOLVE_ENROLMENTS: PhaseSpec = PhaseSpec {
 };
 const IMPORT: PhaseSpec = PhaseSpec {
     name: "import",
-    endpoints: &[SuotarEndpoint::ImportAttainments],
+    operations: &[RegistryOperation::ImportAttainments],
     // Sisu timing out on submissions says nothing about the rest of Suotar, so only this phase
     // stops for it.
     breakers: &[BreakerTarget::StudyRegistry, BreakerTarget::SisuSubmissions],
@@ -141,9 +139,9 @@ const IMPORT: PhaseSpec = PhaseSpec {
 const VERIFY: PhaseSpec = PhaseSpec {
     name: "verify",
     // The poll, then the recovery lookup for rows with nothing to poll by.
-    endpoints: &[
-        SuotarEndpoint::VerifyAttainments,
-        SuotarEndpoint::ResolveEnrolments,
+    operations: &[
+        RegistryOperation::VerifyAttainments,
+        RegistryOperation::ResolveEnrolments,
     ],
     breakers: STUDY_REGISTRY,
     owned_states: &[
@@ -164,7 +162,7 @@ const ENROLMENT_DISCOVERY: PhaseSpec = PhaseSpec {
     name: "enrolment-discovery",
     process: WorkerProcess::SuotarSyncer,
     scope: COURSE_MODULES,
-    endpoints: &[SuotarEndpoint::ListByCourse],
+    operations: &[RegistryOperation::ListCourseRoster],
     breakers: STUDY_REGISTRY,
     ..DEFAULTS
 };
@@ -179,7 +177,7 @@ const CONFIG_VALIDATION: PhaseSpec = PhaseSpec {
     name: "config-validation",
     process: WorkerProcess::SuotarSyncer,
     scope: COURSE_MODULES,
-    endpoints: &[SuotarEndpoint::ValidateCourseCodes],
+    operations: &[RegistryOperation::ValidateCourseCodes],
     breakers: STUDY_REGISTRY,
     ..DEFAULTS
 };
@@ -216,16 +214,6 @@ impl CreditRegistrationPhase {
         Self::LedgerSnapshot,
     ];
 
-    /// The phases `run-registrar-tick` runs, in pipeline order. Not every `credit-registrar` phase:
-    /// `legacy-mirror` and `student-notifications` are driven explicitly by specs that need them.
-    pub const REGISTRAR_TICK_SEQUENCE: [Self; 5] = [
-        Self::Materialize,
-        Self::Preconditions,
-        Self::ResolveEnrolments,
-        Self::Import,
-        Self::Verify,
-    ];
-
     /// Everything fixed about the phase.
     pub fn spec(self) -> &'static PhaseSpec {
         match self {
@@ -254,13 +242,12 @@ impl CreditRegistrationPhase {
         Self::ALL.into_iter().find(|phase| phase.as_str() == name)
     }
 
-    /// The longest one iteration may wait on the study registry before its calls time out.
-    pub fn max_study_registry_wait(self) -> Duration {
-        self.spec()
-            .endpoints
+    /// Where the phase sits in [`Self::ALL`]'s pipeline order, for sorting phases by it.
+    pub fn pipeline_index(self) -> usize {
+        Self::ALL
             .iter()
-            .map(|endpoint| endpoint.request_timeout())
-            .sum()
+            .position(|phase| *phase == self)
+            .unwrap_or(Self::ALL.len())
     }
 
     /// The ledger states this phase is the one to move a row out of.
@@ -318,7 +305,7 @@ impl ScopeSupport {
         registration_ids: true,
     };
 
-    pub(crate) fn covers(self, scope: &PhaseScope) -> bool {
+    pub(crate) fn covers(self, scope: &RegistrationScope) -> bool {
         let requested_unsupported = (scope.course_id.is_some() && !self.course)
             || (scope.user_id.is_some() && !self.user)
             || (!scope.credit_registration_ids.is_empty() && !self.registration_ids);
@@ -349,9 +336,9 @@ mod tests {
     /// believes it narrowed the run gets a silently wrong answer.
     #[test]
     fn a_phase_refuses_a_scope_it_cannot_apply() {
-        let ids = PhaseScope {
+        let ids = RegistrationScope {
             credit_registration_ids: vec![Uuid::new_v4()],
-            ..PhaseScope::default()
+            ..RegistrationScope::default()
         };
         assert!(
             !CreditRegistrationPhase::Materialize
@@ -364,7 +351,7 @@ mod tests {
             !CreditRegistrationPhase::RetentionSweep
                 .spec()
                 .scope
-                .covers(&PhaseScope::for_course(Uuid::new_v4()))
+                .covers(&RegistrationScope::for_course(Uuid::new_v4()))
         );
     }
 }

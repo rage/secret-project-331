@@ -1,4 +1,4 @@
-use std::{error::Error, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
@@ -6,8 +6,9 @@ use crate::domain::models_requests;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
 use headless_lms_models as models;
+use headless_lms_utils::error::is_db_disconnect;
 use headless_lms_utils::periodic_worker::{
-    PeriodicWorkerConfig, StillRunningLog, is_db_disconnect, run_periodic_worker,
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
 };
 use models::library::regrading;
 use sqlx::PgPool;
@@ -60,7 +61,7 @@ pub async fn main() -> anyhow::Result<()> {
             .await
             {
                 tracing::error!("Error in regrader: {}", err);
-                if is_db_disconnect(err.source()) {
+                if is_db_disconnect(&err) {
                     // this usually happens if the database is reset while running bin/dev etc.
                     tracing::info!(
                         "regrader may have lost its connection to the db, trying to reconnect"

@@ -10,8 +10,9 @@ use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::enrolment_checks::CheckRequestOutcome;
 
-use crate::controllers::main_frontend::credit_registrations::{
-    RecheckTarget, RequestCreditRegistrationEnrolmentRecheckResult, start_enrolment_recheck,
+use crate::controllers::main_frontend::credit_registrations::RequestCreditRegistrationEnrolmentRecheckResult;
+use crate::domain::credit_registration::enrolment_recheck::{
+    RecheckTarget, start_enrolment_recheck,
 };
 use crate::domain::error::missing_controller_error;
 use crate::prelude::*;

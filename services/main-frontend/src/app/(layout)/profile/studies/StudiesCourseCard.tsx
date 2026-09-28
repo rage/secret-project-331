@@ -328,7 +328,9 @@ const ModuleRow: React.FC<{
       : null
   const registersOnCompletion = !completion && module.supports_credit_registration
   const registrationStatus =
-    registration?.student_facing_status ?? module.status_before_registration ?? null
+    registration?.student_facing_status ??
+    // oxlint-disable-next-line i18next/no-literal-string -- a status value, not user-facing text
+    (module.is_credit_registration_starting ? "sending" : null)
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}

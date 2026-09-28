@@ -3,7 +3,6 @@
 
 use headless_lms_utils::helsinki_time::helsinki_date;
 
-use crate::course_module_completions::CourseModuleCompletion;
 use crate::credit_registrations::{CreditRegistrationErrorCode, PayloadSnapshot};
 use crate::prelude::*;
 
@@ -17,17 +16,6 @@ pub struct CompletionFacts {
     pub grade: Option<i32>,
     pub completion_date: DateTime<Utc>,
     pub completion_language: String,
-}
-
-impl From<&CourseModuleCompletion> for CompletionFacts {
-    fn from(completion: &CourseModuleCompletion) -> Self {
-        Self {
-            passed: completion.passed,
-            grade: completion.grade,
-            completion_date: completion.completion_date,
-            completion_language: completion.completion_language.clone(),
-        }
-    }
 }
 
 /// Everything outside the completion that the payload is built from.

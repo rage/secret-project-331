@@ -9,7 +9,9 @@ use super::SuotarStudyRegistry;
 use super::decode::{course_code_verdict, registry_error};
 use super::encode::course_code_item;
 use super::gate::Exchange;
-use crate::registry::{CourseCode, CourseCodeVerdicts, RegistryError, StudyRegistry};
+use crate::registry::{
+    CourseCode, CourseCodeVerdicts, RegistryError, RegistryOperation, StudyRegistry,
+};
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ValidateCourseCodes;
 
@@ -20,7 +22,7 @@ pub(super) async fn validate(
     let mut verdicts = CourseCodeVerdicts::new();
     let mut unchecked = codes;
     while !unchecked.is_empty() {
-        let allowance = registry.allowance(ENDPOINT);
+        let allowance = registry.allowance(RegistryOperation::ValidateCourseCodes);
         if allowance == 0 {
             break;
         }
@@ -30,17 +32,21 @@ pub(super) async fn validate(
             .iter()
             .map(|course_code| course_code_item(course_code, new_request_item_id()))
             .collect();
-        registry.spend(ENDPOINT, items.len());
-        let span = super::request_span(ENDPOINT, items.len(), false);
+        let request_item_ids: Vec<String> = items
+            .iter()
+            .map(|item| item.request_item_id.clone())
+            .collect();
+        registry.gate.spend(ENDPOINT, items.len());
+        let span = super::request_span(ENDPOINT, items.len());
         let response = registry
             .client
-            .post::<endpoints::ValidateCourseCodes>(registry.call_context(), items.clone())
+            .post::<endpoints::ValidateCourseCodes>(registry.call_context(Vec::new()), items)
             .instrument(span)
             .await;
         let response = match response {
             Ok(response) => response,
             Err(error) => {
-                registry.record(ENDPOINT, Exchange::Refused(&error));
+                registry.gate.record(ENDPOINT, Exchange::Refused(&error));
                 debug!(
                     checked = verdicts.len(),
                     remaining = unchecked.len(),
@@ -49,18 +55,15 @@ pub(super) async fn validate(
                 return Err(registry_error(&error));
             }
         };
-        registry.record(
+        registry.gate.record(
             ENDPOINT,
             Exchange::answered(
                 &response,
                 "Every course code of the batch came back unavailable.",
             ),
         );
-        for (course_code, item) in chunk.iter().zip(&items) {
-            if let Some(verdict) = response
-                .item(&item.request_item_id)
-                .and_then(course_code_verdict)
-            {
+        for (course_code, request_item_id) in chunk.iter().zip(&request_item_ids) {
+            if let Some(verdict) = response.item(request_item_id).and_then(course_code_verdict) {
                 verdicts.insert(course_code.clone(), verdict);
             }
         }

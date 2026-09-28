@@ -6621,9 +6621,9 @@ export const getCreditRegistrationErrorsByCodeOptions = (
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
- * Runs the two database-only steps directly rather than through the phase dispatcher, because the
- * phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
- * alive.
+ * Runs the `materialize` phase's body and the precondition recompute directly rather than through the
+ * phase dispatcher, because the phase-state row describes the worker loops: an admin pressing a button
+ * must not make a dead worker look alive.
  */
 export const adminMaterializeCreditRegistrationsMutation = (
   options?: Partial<Options<AdminMaterializeCreditRegistrationsData>>,

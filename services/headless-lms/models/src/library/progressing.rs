@@ -934,13 +934,10 @@ pub async fn get_user_module_completion_statuses_for_course(
     let best_visible_completions: HashMap<Uuid, CourseModuleCompletion> = completions_by_module
         .iter()
         .filter_map(|(module_id, completions)| {
-            let visible = completions
-                .iter()
-                .filter(|c| !c.needs_to_be_reviewed)
-                .cloned()
-                .collect();
-            course_module_completions::select_best_completion(visible)
-                .map(|best| (*module_id, best))
+            course_module_completions::select_best_completion(
+                completions.iter().filter(|c| !c.needs_to_be_reviewed),
+            )
+            .map(|best| (*module_id, best.clone()))
         })
         .collect();
     let registers_via_suotar_module_ids: HashSet<Uuid> = completions_by_module

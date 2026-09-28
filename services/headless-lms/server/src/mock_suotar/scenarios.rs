@@ -46,17 +46,16 @@ pub async fn apply(
     name: &str,
     args: ScenarioArgs,
 ) -> Result<serde_json::Value, CommandError> {
-    if !SCENARIOS.contains(&name) {
-        return Err(CommandError::new(
-            "unknownScenario",
-            format!("No scenario `{name}`. Known: {}.", SCENARIOS.join(", ")),
-        ));
-    }
     let mut result = match name {
         "happy-path" => plain(store, generation, &args).await?,
         "timeout-but-landed" => timeout(store, generation, &args).await?,
         "import-unanswered" => unanswered(store, generation, &args).await?,
-        _ => unreachable!("checked against the catalogue above"),
+        _ => {
+            return Err(CommandError::new(
+                "unknownScenario",
+                format!("No scenario `{name}`. Known: {}.", SCENARIOS.join(", ")),
+            ));
+        }
     };
 
     // The scope comes from the owner the caller passed, not from the fixtures touched.

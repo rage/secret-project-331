@@ -6,12 +6,10 @@ use secrecy::SecretString;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use super::dispatch::worker_name;
-use super::suotar::SuotarStudyRegistry;
+use super::suotar::InteractiveSuotar;
 use crate::error::CreditRegistrationResult;
-use crate::phase::CreditRegistrationPhase;
-use crate::use_cases::linking_mail_resend::{self, RateCapOverride, ResendAttempt};
-use crate::use_cases::person_lookup::{self, ResolvePersonError, ResolvedPerson};
+use crate::registry::{InteractiveStudyRegistry, PersonLookupError, RegistryPerson, StudentNumber};
+use crate::use_cases::account_linking::{self, RateCapOverride, ResendAttempt};
 
 /// What a manual action needs from the controller that runs it.
 pub struct ManualActionContext<'a> {
@@ -21,8 +19,8 @@ pub struct ManualActionContext<'a> {
 }
 
 impl<'a> ManualActionContext<'a> {
-    /// `caller` marks the action's study registry calls in the audit log as something a person set
-    /// off.
+    /// `caller` is the `worker_name` the action's study registry calls are logged under, one per
+    /// endpoint that sets the action off, e.g. `admin-resend`.
     pub fn new(pool: &'a PgPool, suotar_client: &'a SuotarClient, caller: &'a str) -> Self {
         Self {
             pool,
@@ -32,21 +30,17 @@ impl<'a> ManualActionContext<'a> {
     }
 }
 
-/// Shared by the teacher- and admin-facing resend endpoints: refuses a target that is already linked,
-/// otherwise applies `rate_cap_override`, if any, and reruns the send path exactly as the worker
-/// would. The override runs only after the already-linked check, so it never retires mails for a
-/// number that turns out to be linked.
+/// Shared by the teacher- and admin-facing resend endpoints: refuses a target that is already
+/// linked, otherwise reruns the send path exactly as the worker would, applying
+/// `rate_cap_override`, if any, only once the registry has named an address to mail.
 pub async fn resend_linking_mail_for_target(
     ctx: &ManualActionContext<'_>,
     course_id: Uuid,
     student_number: &SecretString,
     rate_cap_override: Option<RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
-    let registry = SuotarStudyRegistry::interactive(
-        ctx.suotar_client,
-        worker_name(ctx.caller, CreditRegistrationPhase::EnrolmentDiscovery),
-    );
-    linking_mail_resend::resend_for_target(
+    let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
+    account_linking::resend_for_target(
         ctx.pool,
         &registry,
         course_id,
@@ -60,10 +54,11 @@ pub async fn resend_linking_mail_for_target(
 /// claimed mail slot, just the call log row every study registry call writes.
 ///
 /// `Ok(None)` means the registry answered `personNotFound`; `Err` means it gave no usable answer.
-pub async fn resolve_person(
+pub async fn look_up_person(
     ctx: &ManualActionContext<'_>,
     student_number: &SecretString,
-) -> Result<Option<ResolvedPerson>, ResolvePersonError> {
-    let registry = SuotarStudyRegistry::interactive(ctx.suotar_client, ctx.caller.to_string());
-    person_lookup::look_up_person(&registry, student_number).await
+) -> Result<Option<RegistryPerson>, PersonLookupError> {
+    InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string())
+        .look_up_person(&StudentNumber::new(student_number.clone()))
+        .await
 }

@@ -7,9 +7,7 @@ use std::time::Duration;
 
 use chrono::{DateTime, Utc};
 use headless_lms_base::config::SuotarConfiguration;
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode as Code, CreditRegistrationState as State,
-};
+use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
 use headless_lms_models::library::credit_registration::config_validation::CourseCodeVerdict;
 use headless_lms_models::library::credit_registration::study_registry::RegistryErrorKind as Kind;
 use headless_lms_utils::services::suotar::{NoSuotarCallAudit, SuotarClient};
@@ -18,12 +16,13 @@ use secrecy::ExposeSecret;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use super::breaker::{self, BreakerTarget, ScopeKey};
-use super::rosters::plan_requests;
+use super::breaker::{self, BreakerTarget};
 use super::*;
+use headless_lms_models::library::credit_registration::grade_mapping::MappedGrade;
+
 use crate::registry::{
-    AnsweredRow, AttainmentId, BatchEntry, EnrolmentReading, PersonReading, RefusedRow,
-    SubmittedAttainmentRef, VerificationReading,
+    AnsweredRow, AttainmentId, BatchEntry, Credits, EnrolmentReading, HeldCredit, PersonReading,
+    RefusedFor, RefusedRow, SubmittedAttainmentRef, VerificationReading,
 };
 use crate::test_fixtures::date;
 
@@ -150,14 +149,14 @@ fn gated(
     client: &SuotarClient,
     phase: CreditRegistrationPhase,
 ) -> (SuotarStudyRegistry<'_>, ScopeKey) {
-    let scope = PhaseScope::for_course(Uuid::new_v4());
+    let scope = RegistrationScope::for_course(Uuid::new_v4());
     (gated_in(client, phase, &scope), ScopeKey::of(&scope))
 }
 
 fn gated_in<'a>(
     client: &'a SuotarClient,
     phase: CreditRegistrationPhase,
-    scope: &PhaseScope,
+    scope: &RegistrationScope,
 ) -> SuotarStudyRegistry<'a> {
     let Ok(registry) =
         SuotarStudyRegistry::admit(client, "contract-test".to_string(), phase, scope, true)
@@ -171,17 +170,30 @@ fn failures(key: &ScopeKey, target: BreakerTarget) -> u32 {
     breaker::snapshot(key, target).consecutive_failures
 }
 
-fn batch<R>(requests: Vec<R>, may_split: bool) -> RequestBatch<usize, R> {
-    let entries = requests
+/// One entry per request, each row its position in the batch.
+fn entries<R>(requests: Vec<R>) -> Vec<BatchEntry<usize, R>> {
+    requests
         .into_iter()
         .enumerate()
-        .map(|(row, request)| BatchEntry {
-            row,
-            registration_id: Uuid::new_v4(),
-            request,
-        })
-        .collect();
-    RequestBatch::new(entries, may_split, ALL_UNAVAILABLE)
+        .map(|(row, request)| BatchEntry { row, request })
+        .collect()
+}
+
+fn options(may_split: bool) -> BatchOptions {
+    BatchOptions {
+        may_split,
+        is_resent_half: false,
+        all_unavailable_error: ALL_UNAVAILABLE,
+        registration_ids: Vec::new(),
+    }
+}
+
+/// A half of a splittable batch refused as malformed, as the batch runner resends it.
+fn resent_half() -> BatchOptions {
+    BatchOptions {
+        is_resent_half: true,
+        ..options(true)
+    }
 }
 
 fn person(student_number: &str) -> PersonLookup {
@@ -196,51 +208,60 @@ fn verification(id: &str) -> VerificationRequest {
     }
 }
 
-fn submission(student_number: &str, credits: f64) -> AttainmentSubmission {
+fn submission(student_number: &str, credits: f32) -> AttainmentSubmission {
     AttainmentSubmission {
         student_number: StudentNumber::new(student_number),
-        course_code: CourseCode::new("TKT10002"),
+        course_code: code("TKT10002"),
         enrolment_id: format!("enrolment-{student_number}"),
         attainment_date: date(2026, 8, 1),
         attainment_language: "fi".to_string(),
-        grade_scale_id: "sis-0-5".to_string(),
-        grade_id: "4".to_string(),
-        credits,
+        grade: MappedGrade {
+            grade_scale_id: "sis-0-5".to_string(),
+            grade_id: "4".to_string(),
+        },
+        credits: Credits::from_stored(credits).expect("finite credits"),
     }
 }
 
-fn answered<K, R, A>(reply: BatchReply<K, R, A>) -> Vec<AnsweredRow<K, R, A>> {
+fn code(code: &str) -> CourseCode {
+    CourseCode::parse(code).expect("a course code")
+}
+
+fn answered<K, R, A>(reply: BatchReply<K, R, A>) -> Vec<AnsweredRow<K, A>> {
     match reply {
         BatchReply::Answered(rows) => rows,
         BatchReply::Refused { error, .. } => {
-            panic!("refused as {:?}: {}", error.kind(), error.message())
+            panic!("refused as {:?}: {}", error.kind, error.message)
         }
-        BatchReply::Split { .. } => panic!("split"),
+        BatchReply::RefusedAsMalformed { .. } => panic!("refused as malformed"),
     }
 }
 
-fn refused<K, R, A>(reply: BatchReply<K, R, A>) -> (Vec<RefusedRow<K, R>>, RegistryError, bool) {
+fn refused<K, R, A>(reply: BatchReply<K, R, A>) -> (Vec<RefusedRow<K>>, RegistryError, RefusedFor) {
     match reply {
         BatchReply::Refused {
             rows,
             error,
-            is_isolated,
-        } => (rows, error, is_isolated),
+            refused_for,
+        } => (rows, error, refused_for),
         BatchReply::Answered(_) => panic!("answered"),
-        BatchReply::Split { .. } => panic!("split"),
+        BatchReply::RefusedAsMalformed { .. } => panic!("refused as malformed"),
     }
 }
 
-fn split<K, R, A>(reply: BatchReply<K, R, A>) -> (RequestBatch<K, R>, RequestBatch<K, R>) {
+fn refused_as_malformed<K, R, A>(reply: BatchReply<K, R, A>) -> Vec<BatchEntry<K, R>> {
     match reply {
-        BatchReply::Split { first, second } => (first, second),
+        BatchReply::RefusedAsMalformed { entries, error } => {
+            assert_eq!(error.kind, Kind::MalformedRequest);
+            entries
+        }
         BatchReply::Answered(_) => panic!("answered"),
         BatchReply::Refused { .. } => panic!("refused"),
     }
 }
 
-fn rows_of<R>(batch: &RequestBatch<usize, R>) -> Vec<usize> {
-    batch.entries().iter().map(|entry| entry.row).collect()
+fn rows_of<R>(entries: &[BatchEntry<usize, R>]) -> Vec<usize> {
+    entries.iter().map(|entry| entry.row).collect()
 }
 
 const MALFORMED: &str = r#"{"error":{"code":"malformedRequest","message":"bad item"}}"#;
@@ -267,10 +288,10 @@ async fn an_import_sends_each_row_as_its_wire_item_in_row_order() {
 
     let rows = answered(
         registry
-            .import_attainments(batch(
-                vec![submission("111", 5.0), submission("222", 2.5)],
-                false,
-            ))
+            .import_attainments(
+                entries(vec![submission("111", 5.0), submission("222", 2.5)]),
+                options(false),
+            )
             .await,
     );
 
@@ -299,7 +320,7 @@ async fn an_import_sends_each_row_as_its_wire_item_in_row_order() {
 
     assert_eq!(rows.len(), 2);
     for (index, row) in rows.iter().enumerate() {
-        assert_eq!(row.entry.row, index);
+        assert_eq!(row.row, index);
         assert_eq!(row.audit.request_item_id, ids[index]);
         assert_eq!(row.audit.request, items[index]);
         assert_eq!(
@@ -340,7 +361,10 @@ async fn the_same_rows_sent_again_go_out_under_fresh_ids() {
 
     for _ in 0..2 {
         registry
-            .verify_attainments(batch(vec![verification("a"), verification("b")], false))
+            .verify_attainments(
+                entries(vec![verification("a"), verification("b")]),
+                options(false),
+            )
             .await;
     }
 
@@ -392,7 +416,11 @@ async fn each_import_answer_reads_as_what_it_does_to_the_row() {
         .map(|index| submission(&index.to_string(), 5.0))
         .collect();
 
-    let rows = answered(registry.import_attainments(batch(submissions, false)).await);
+    let rows = answered(
+        registry
+            .import_attainments(entries(submissions), options(false))
+            .await,
+    );
     let answers: Vec<&ImportAnswer> = rows
         .iter()
         .map(|row| row.answer.as_ref().expect("answered"))
@@ -420,7 +448,7 @@ async fn each_import_answer_reads_as_what_it_does_to_the_row() {
     };
     assert_eq!(submitted_id(submission).as_deref(), Some("submitted-1"));
     let ImportAnswer::Settled {
-        state: State::Duplicate,
+        held: HeldCredit::Duplicate,
         attainment: Some(held),
     } = answers[2]
     else {
@@ -428,7 +456,7 @@ async fn each_import_answer_reads_as_what_it_does_to_the_row() {
     };
     assert_eq!(held.grade_id.as_deref(), Some("4"));
     let ImportAnswer::Settled {
-        state: State::NotImproved,
+        held: HeldCredit::NotImproved,
         attainment: Some(held),
     } = answers[3]
     else {
@@ -501,7 +529,11 @@ async fn each_verify_answer_reads_as_what_it_says_of_the_submission() {
         .map(|index| verification(&index.to_string()))
         .collect();
 
-    let rows = answered(registry.verify_attainments(batch(requests, false)).await);
+    let rows = answered(
+        registry
+            .verify_attainments(entries(requests), options(false))
+            .await,
+    );
     let readings: Vec<&VerificationReading> = rows
         .iter()
         .map(|row| &row.answer.as_ref().expect("answered").reading)
@@ -567,10 +599,10 @@ async fn a_person_answer_is_found_only_with_an_ok_person() {
 
     let rows = answered(
         registry
-            .resolve_persons(batch(
-                vec![person("1"), person("2"), person("3"), person("4")],
-                true,
-            ))
+            .resolve_persons(
+                entries(vec![person("1"), person("2"), person("3"), person("4")]),
+                options(true),
+            )
             .await,
     );
     let readings: Vec<&PersonReading> = rows
@@ -641,12 +673,12 @@ async fn an_enrolment_error_still_lists_the_existing_attainments() {
     let (mut registry, _key) = gated(&client, CreditRegistrationPhase::ResolveEnrolments);
     let lookup = |student_number: &str| EnrolmentLookup {
         student_number: StudentNumber::new(student_number),
-        course_code: CourseCode::new("TKT10002"),
+        course_code: code("TKT10002"),
     };
 
     let rows = answered(
         registry
-            .resolve_enrolments(batch(vec![lookup("1"), lookup("2")], true))
+            .resolve_enrolments(entries(vec![lookup("1"), lookup("2")]), options(true))
             .await,
     );
 
@@ -709,7 +741,10 @@ async fn an_item_the_registry_skips_has_no_answer_and_the_first_of_a_repeated_id
 
     let rows = answered(
         registry
-            .resolve_persons(batch(vec![person("1"), person("2"), person("3")], true))
+            .resolve_persons(
+                entries(vec![person("1"), person("2"), person("3")]),
+                options(true),
+            )
             .await,
     );
 
@@ -741,14 +776,14 @@ async fn an_answer_that_is_no_batch_refuses_every_row_without_counting_against_t
         let (_mock, sent) = replying(&mut server, SuotarEndpoint::ResolvePersons, 200, body).await;
         let (mut registry, key) = gated(&client, CreditRegistrationPhase::ResolveEnrolments);
 
-        let (rows, error, is_isolated) = refused(
+        let (rows, error, refused_for) = refused(
             registry
-                .resolve_persons(batch(vec![person("1"), person("2")], true))
+                .resolve_persons(entries(vec![person("1"), person("2")]), options(true))
                 .await,
         );
 
-        assert_eq!(error.kind(), Kind::ProtocolViolation);
-        assert!(!is_isolated);
+        assert_eq!(error.kind, Kind::ProtocolViolation);
+        assert_eq!(refused_for, RefusedFor::WholeBatch);
         let items = &bodies(&sent)[0];
         assert_eq!(rows.len(), 2);
         for (row, item) in rows.iter().zip(items) {
@@ -765,26 +800,29 @@ async fn an_answer_that_is_no_batch_refuses_every_row_without_counting_against_t
 }
 
 #[tokio::test]
-async fn a_malformed_request_is_split_until_the_row_it_refuses_is_alone() {
+async fn a_malformed_request_comes_back_for_splitting_until_the_row_it_refuses_is_alone() {
     let (mut server, client) = suotar().await;
     let (_mock, sent) = replying(&mut server, SuotarEndpoint::ResolvePersons, 400, MALFORMED).await;
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::ResolveEnrolments);
-    let full = registry.allowance(SuotarEndpoint::ResolvePersons);
+    let full = registry.allowance(RegistryOperation::ResolvePersons);
 
-    let (first, second) = split(
+    let mut first = refused_as_malformed(
         registry
-            .resolve_persons(batch(vec![person("1"), person("2"), person("3")], true))
+            .resolve_persons(
+                entries(vec![person("1"), person("2"), person("3")]),
+                options(true),
+            )
             .await,
     );
-    assert_eq!((rows_of(&first), rows_of(&second)), (vec![0], vec![1, 2]));
-    assert!(first.is_resent_half() && second.is_resent_half());
-    assert!(first.may_split() && second.may_split());
+    assert_eq!(rows_of(&first), [0, 1, 2], "the rows come back as sent");
+    let second = first.split_off(first.len() / 2);
 
-    let (rows, error, is_isolated) = refused(registry.resolve_persons(first).await);
-    assert!(is_isolated);
-    assert_eq!(error.kind(), Kind::MalformedRequest);
+    let (rows, error, refused_for) = refused(registry.resolve_persons(first, resent_half()).await);
+    assert_eq!(refused_for, RefusedFor::RowAlone);
+    assert_eq!(error.kind, Kind::MalformedRequest);
     assert_eq!(rows.len(), 1);
-    let (third, fourth) = split(registry.resolve_persons(second).await);
+    let mut third = refused_as_malformed(registry.resolve_persons(second, resent_half()).await);
+    let fourth = third.split_off(third.len() / 2);
     assert_eq!((rows_of(&third), rows_of(&fourth)), (vec![1], vec![2]));
 
     let bodies = bodies(&sent);
@@ -798,7 +836,7 @@ async fn a_malformed_request_is_split_until_the_row_it_refuses_is_alone() {
         .flat_map(|items| request_item_ids(items))
         .collect();
     assert_eq!(ids.len(), 6);
-    let spent = full - registry.allowance(SuotarEndpoint::ResolvePersons);
+    let spent = full - registry.allowance(RegistryOperation::ResolvePersons);
     assert!((5..=6).contains(&spent), "spent {spent}");
 
     assert!(registry.finish().is_some());
@@ -821,10 +859,13 @@ async fn a_malformed_request_that_may_not_split_blames_no_row_alone() {
         vec![verification("a"), verification("b")],
         vec![verification("c")],
     ] {
-        let (rows, error, is_isolated) =
-            refused(registry.verify_attainments(batch(requests, false)).await);
-        assert!(!is_isolated);
-        assert_eq!(error.kind(), Kind::MalformedRequest);
+        let (rows, error, refused_for) = refused(
+            registry
+                .verify_attainments(entries(requests), options(false))
+                .await,
+        );
+        assert_eq!(refused_for, RefusedFor::WholeBatch);
+        assert_eq!(error.kind, Kind::MalformedRequest);
         assert!(!rows.is_empty());
     }
     assert!(registry.finish().is_some());
@@ -856,14 +897,14 @@ async fn only_the_registry_failing_counts_against_the_breaker() {
             replying(&mut server, SuotarEndpoint::VerifyAttainments, status, body).await;
         let (mut registry, key) = gated(&client, CreditRegistrationPhase::Verify);
 
-        let (_rows, error, is_isolated) = refused(
+        let (_rows, error, refused_for) = refused(
             registry
-                .verify_attainments(batch(vec![verification("a")], false))
+                .verify_attainments(entries(vec![verification("a")]), options(false))
                 .await,
         );
 
-        assert_eq!(error.kind(), kind, "{status}");
-        assert!(!is_isolated);
+        assert_eq!(error.kind, kind, "{status}");
+        assert_eq!(refused_for, RefusedFor::WholeBatch);
         assert!(registry.finish().is_some());
         assert_eq!(
             failures(&key, BreakerTarget::StudyRegistry),
@@ -884,12 +925,12 @@ async fn a_connection_that_never_opens_is_not_delivered_and_counts() {
 
     let (_rows, error, _) = refused(
         registry
-            .import_attainments(batch(vec![submission("1", 5.0)], false))
+            .import_attainments(entries(vec![submission("1", 5.0)]), options(false))
             .await,
     );
 
-    assert_eq!(error.kind(), Kind::NotDelivered);
-    assert!(!error.kind().may_have_been_acted_on());
+    assert_eq!(error.kind, Kind::NotDelivered);
+    assert!(!error.kind.may_have_been_acted_on());
     assert!(registry.finish().is_some());
     assert_eq!(failures(&key, BreakerTarget::StudyRegistry), 1);
 }
@@ -908,15 +949,15 @@ async fn a_timed_out_import_may_have_landed_and_counts() {
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::Import);
     registry.request_timeout = Some(Duration::from_millis(200));
 
-    let (rows, error, is_isolated) = refused(
+    let (rows, error, refused_for) = refused(
         registry
-            .import_attainments(batch(vec![submission("1", 5.0)], false))
+            .import_attainments(entries(vec![submission("1", 5.0)]), options(false))
             .await,
     );
 
-    assert_eq!(error.kind(), Kind::NoAnswer);
-    assert!(error.kind().may_have_been_acted_on());
-    assert!(!is_isolated);
+    assert_eq!(error.kind, Kind::NoAnswer);
+    assert!(error.kind.may_have_been_acted_on());
+    assert_eq!(refused_for, RefusedFor::WholeBatch);
     assert_eq!(rows.len(), 1);
     assert!(registry.finish().is_some());
     assert_eq!(failures(&key, BreakerTarget::StudyRegistry), 1);
@@ -938,7 +979,7 @@ async fn every_item_unavailable_counts_as_the_registry_failing() {
 
     let rows = answered(
         registry
-            .resolve_persons(batch(vec![person("1"), person("2")], true))
+            .resolve_persons(entries(vec![person("1"), person("2")]), options(true))
             .await,
     );
 
@@ -970,7 +1011,7 @@ async fn one_answered_item_among_unavailable_ones_is_a_plain_answer() {
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::ResolveEnrolments);
 
     registry
-        .resolve_persons(batch(vec![person("1"), person("2")], true))
+        .resolve_persons(entries(vec![person("1"), person("2")]), options(true))
         .await;
 
     assert_eq!(registry.finish(), None);
@@ -987,10 +1028,10 @@ async fn sisu_timing_out_on_every_submission_pauses_only_the_submitting_phase() 
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::Import);
 
     registry
-        .import_attainments(batch(
-            vec![submission("1", 5.0), submission("2", 5.0)],
-            false,
-        ))
+        .import_attainments(
+            entries(vec![submission("1", 5.0), submission("2", 5.0)]),
+            options(false),
+        )
         .await;
 
     assert_eq!(registry.finish().as_deref(), Some(ALL_UNAVAILABLE));
@@ -999,7 +1040,7 @@ async fn sisu_timing_out_on_every_submission_pauses_only_the_submitting_phase() 
 }
 
 /// Trips the shared breaker of `scope` with a cooldown already over, so its next iteration probes.
-fn half_open(scope: &PhaseScope) -> ScopeKey {
+fn half_open(scope: &RegistrationScope) -> ScopeKey {
     let key = ScopeKey::of(scope);
     while breaker::record_failure(&key, BreakerTarget::StudyRegistry, Duration::ZERO).is_none() {}
     assert!(breaker::is_half_open(&key, BreakerTarget::StudyRegistry));
@@ -1018,17 +1059,18 @@ async fn a_probe_sends_one_single_item_request_across_all_flows_and_closes_on_su
         )]
     })
     .await;
-    let scope = PhaseScope::for_course(Uuid::new_v4());
+    let scope = RegistrationScope::for_course(Uuid::new_v4());
     let key = half_open(&scope);
     let mut registry = gated_in(&client, CreditRegistrationPhase::ResolveEnrolments, &scope);
 
-    assert_eq!(registry.allowance(SuotarEndpoint::ResolvePersons), 1);
-    assert_eq!(registry.allowance(SuotarEndpoint::ResolveEnrolments), 1);
+    assert_eq!(registry.allowance(RegistryOperation::ResolvePersons), 1);
+    assert_eq!(registry.allowance(RegistryOperation::ResolveEnrolments), 1);
+    assert_eq!(registry.roster_request_size(), 1);
     registry
-        .resolve_persons(batch(vec![person("1")], true))
+        .resolve_persons(entries(vec![person("1")]), options(true))
         .await;
-    assert_eq!(registry.allowance(SuotarEndpoint::ResolvePersons), 0);
-    assert_eq!(registry.allowance(SuotarEndpoint::ResolveEnrolments), 0);
+    assert_eq!(registry.allowance(RegistryOperation::ResolvePersons), 0);
+    assert_eq!(registry.allowance(RegistryOperation::ResolveEnrolments), 0);
 
     assert_eq!(bodies(&sent).iter().map(Vec::len).collect::<Vec<_>>(), [1]);
     assert_eq!(registry.finish(), None);
@@ -1046,12 +1088,12 @@ async fn a_failed_probe_opens_the_breaker_again() {
         UNAVAILABLE,
     )
     .await;
-    let scope = PhaseScope::for_course(Uuid::new_v4());
+    let scope = RegistrationScope::for_course(Uuid::new_v4());
     let key = half_open(&scope);
     let mut registry = gated_in(&client, CreditRegistrationPhase::ResolveEnrolments, &scope);
 
     registry
-        .resolve_persons(batch(vec![person("1")], true))
+        .resolve_persons(entries(vec![person("1")]), options(true))
         .await;
     registry.finish();
 
@@ -1069,40 +1111,15 @@ async fn a_failed_probe_opens_the_breaker_again() {
 }
 
 fn roster_codes(alone: &[&str], batched: usize) -> Vec<RosterCode> {
-    let alone = alone.iter().map(|code| RosterCode {
-        course_code: CourseCode::new(*code),
+    let alone = alone.iter().map(|alone_code| RosterCode {
+        course_code: code(alone_code),
         is_fetched_alone: true,
     });
     let batched = (0..batched).map(|index| RosterCode {
-        course_code: CourseCode::new(format!("B{index}")),
+        course_code: code(&format!("B{index}")),
         is_fetched_alone: false,
     });
     alone.chain(batched).collect()
-}
-
-fn planned_sizes(requests: &[Vec<RosterCode>]) -> Vec<usize> {
-    requests.iter().map(Vec::len).collect()
-}
-
-#[test]
-fn roster_codes_fetched_alone_go_in_requests_of_their_own_and_the_rest_in_full_batches() {
-    let due = roster_codes(&["A1", "A2"], 51);
-    let requests = plan_requests(due, usize::MAX, false);
-    assert_eq!(planned_sizes(&requests), [1, 1, 50, 1]);
-    assert_eq!(requests[1][0].course_code.as_str(), "A2");
-    assert_eq!(requests[3][0].course_code.as_str(), "B50");
-}
-
-#[test]
-fn roster_planning_keeps_the_first_requests_up_to_the_limit() {
-    let requests = plan_requests(roster_codes(&["A1"], 51), 2, false);
-    assert_eq!(planned_sizes(&requests), [1, 50]);
-}
-
-#[test]
-fn a_roster_probe_cuts_its_first_request_to_one_code() {
-    let requests = plan_requests(roster_codes(&[], 60), 1, true);
-    assert_eq!(planned_sizes(&requests), [1]);
 }
 
 #[tokio::test]
@@ -1135,7 +1152,7 @@ async fn a_roster_listing_answers_each_code_in_request_order_and_spends_one_requ
         )
         .await;
     let (mut registry, _key) = gated(&client, CreditRegistrationPhase::EnrolmentDiscovery);
-    let before = registry.allowance(SuotarEndpoint::ListByCourse);
+    let before = registry.allowance(RegistryOperation::ListCourseRoster);
 
     let request = roster_codes(&[], 3);
     let listing = registry
@@ -1166,7 +1183,10 @@ async fn a_roster_listing_answers_each_code_in_request_order_and_spends_one_requ
         listing.rosters[2].as_ref().err(),
         Some(&Code::UnexpectedResponse)
     );
-    assert_eq!(registry.allowance(SuotarEndpoint::ListByCourse), before - 1);
+    assert_eq!(
+        registry.allowance(RegistryOperation::ListCourseRoster),
+        before - 1
+    );
 }
 
 #[tokio::test]
@@ -1206,11 +1226,7 @@ async fn course_codes_get_a_verdict_only_where_the_registry_gave_one() {
     )
     .await;
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::ConfigValidation);
-    let codes = [
-        CourseCode::new("TKT1"),
-        CourseCode::new("TKT2"),
-        CourseCode::new("TKT3"),
-    ];
+    let codes = [code("TKT1"), code("TKT2"), code("TKT3")];
 
     let verdicts = registry
         .validate_course_codes(&codes)
@@ -1243,17 +1259,15 @@ async fn a_refused_course_code_check_drops_its_verdicts_and_counts_in_an_outage(
     .await;
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::ConfigValidation);
 
-    let refusal = registry
-        .validate_course_codes(&[CourseCode::new("TKT1")])
-        .await;
+    let refusal = registry.validate_course_codes(&[code("TKT1")]).await;
 
-    assert!(refusal.is_err_and(|error| error.kind() == Kind::TemporarilyUnavailable));
+    assert!(refusal.is_err_and(|error| error.kind == Kind::TemporarilyUnavailable));
     assert!(registry.finish().is_some());
     assert_eq!(failures(&key, BreakerTarget::StudyRegistry), 1);
 }
 
 #[tokio::test]
-async fn an_interactive_registry_gets_no_allowance_and_teaches_no_breaker() {
+async fn an_interactive_lookup_teaches_no_breaker() {
     let (mut server, client) = suotar().await;
     let (_mock, _sent) = replying(
         &mut server,
@@ -1262,20 +1276,12 @@ async fn an_interactive_registry_gets_no_allowance_and_teaches_no_breaker() {
         UNAVAILABLE,
     )
     .await;
-    let registry = SuotarStudyRegistry::interactive(&client, "contract-test".to_string());
+    let registry = InteractiveSuotar::new(&client, "contract-test".to_string());
     let global = failures(&ScopeKey::Global, BreakerTarget::StudyRegistry);
 
-    for endpoint in [
-        SuotarEndpoint::ResolvePersons,
-        SuotarEndpoint::ImportAttainments,
-        SuotarEndpoint::ListByCourse,
-    ] {
-        assert_eq!(registry.allowance(endpoint), 0);
-    }
     let refusal = registry.look_up_person(&StudentNumber::new("1")).await;
 
-    assert!(refusal.is_err_and(|error| error.kind() == Kind::TemporarilyUnavailable));
-    assert_eq!(registry.finish(), None);
+    assert!(refusal.is_err_and(|error| error == PersonLookupError::StudyRegistryUnavailable));
     assert_eq!(
         failures(&ScopeKey::Global, BreakerTarget::StudyRegistry),
         global
@@ -1311,23 +1317,21 @@ async fn an_interactive_person_lookup_tells_not_found_from_unanswered() {
             move |_, item| reply(item),
         )
         .await;
-        let registry = SuotarStudyRegistry::interactive(&client, "contract-test".to_string());
+        let registry = InteractiveSuotar::new(&client, "contract-test".to_string());
 
         let lookup = registry
             .look_up_person(&StudentNumber::new("012345678"))
-            .await
-            .ok()
-            .expect("answered");
+            .await;
 
         assert_eq!(bodies(&sent)[0][0]["studentNumber"], "012345678");
         let reading = match lookup {
-            PersonLookupAnswer::NotFound => "not found",
-            PersonLookupAnswer::Unanswered => "unanswered",
-            PersonLookupAnswer::Found { person, .. } => {
-                assert_eq!(person.person_id.expose_secret(), "person-1");
+            Ok(None) => "not found",
+            Err(PersonLookupError::ItemMissingFromResponse) => "unanswered",
+            Ok(Some(person)) => {
+                assert_eq!(person.sisu_person_id.expose_secret(), "person-1");
                 "found"
             }
-            PersonLookupAnswer::Unexpected { .. } => "unexpected",
+            Err(error) => panic!("{error:?}"),
         };
         assert_eq!(reading, expected);
     }
@@ -1355,13 +1359,10 @@ async fn a_roster_search_finds_the_number_and_notes_a_code_that_did_not_answer()
         )]
     })
     .await;
-    let registry = SuotarStudyRegistry::interactive(&client, "contract-test".to_string());
+    let registry = InteractiveSuotar::new(&client, "contract-test".to_string());
 
     let search = registry
-        .search_course_rosters(
-            vec![CourseCode::new("TKT1"), CourseCode::new("TKT2")],
-            &StudentNumber::new("1"),
-        )
+        .search_course_rosters(&[code("TKT1"), code("TKT2")], &StudentNumber::new("1"))
         .await;
 
     assert!(search.has_unanswered_code);

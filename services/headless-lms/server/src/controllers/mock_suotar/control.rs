@@ -9,9 +9,10 @@ use chrono::Duration;
 
 use crate::prelude::*;
 use headless_lms_credit_registration::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, registry_health,
+    CreditRegistrationPhase, PhaseContext, PhaseSkipReason, PhaseTick, Runner, registry_health,
     run_phase_once,
 };
+use headless_lms_models::credit_registrations::RegistrationScope;
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
@@ -131,12 +132,10 @@ async fn run_tick(
         }
     };
 
-    let mut suotar_conf = app_conf.suotar_configuration.clone();
-    if let Some(enabled) = query.account_linking_enabled {
-        suotar_conf.account_linking_enabled = enabled;
-    }
     let ctx = PhaseContext {
-        suotar_conf: &suotar_conf,
+        is_account_linking_enabled: query
+            .account_linking_enabled
+            .unwrap_or(app_conf.suotar_configuration.account_linking_enabled),
         ..tick_context(&app_conf, &pool, &suotar_client)
     };
     debug!(phase = phase.as_str(), ?scope, "run-tick requested");
@@ -152,6 +151,16 @@ async fn run_tick(
     })
 }
 
+/// The phases `run-registrar-tick` runs, in pipeline order. Not every `credit-registrar` phase:
+/// `legacy-mirror` and `student-notifications` are driven explicitly by specs that need them.
+const REGISTRAR_TICK_SEQUENCE: [CreditRegistrationPhase; 5] = [
+    CreditRegistrationPhase::Materialize,
+    CreditRegistrationPhase::Preconditions,
+    CreditRegistrationPhase::ResolveEnrolments,
+    CreditRegistrationPhase::Import,
+    CreditRegistrationPhase::Verify,
+];
+
 /// The combined form of `run-tick`, walking the sequence in pipeline order. Always 200; each phase
 /// reports its own status. Takes no scope on purpose: a suite that only ever ticks scoped never
 /// exercises the sweep-everything behaviour production has.
@@ -163,11 +172,11 @@ async fn run_registrar_tick(
     super::assert_enabled(&app_conf);
     let token = skip_authorize();
 
-    let scope = PhaseScope::default();
+    let scope = RegistrationScope::default();
     let ctx = tick_context(&app_conf, &pool, &suotar_client);
     debug!("run-registrar-tick requested");
     let mut phases = Vec::new();
-    for phase in CreditRegistrationPhase::REGISTRAR_TICK_SEQUENCE {
+    for phase in REGISTRAR_TICK_SEQUENCE {
         phases.push(PhaseTickResult::of(
             phase,
             run_phase_once(&ctx, phase, &scope).await?,
@@ -243,8 +252,8 @@ pub struct SetTestExclusiveHoldResult {
 const MAX_TEST_EXCLUSIVE_HOLD_SECS: i64 = 120;
 
 /// Excuses a user's rows from the live background worker's unscoped sweeps — see
-/// `credit_registrations::set_test_exclusive_hold_for_testing`. Keyed on identity rather than a row
-/// id, so a spec can hold before materialize creates the row it means to protect.
+/// `credit_registrations::testing::set_test_exclusive_hold_for_testing`. Keyed on identity rather
+/// than a row id, so a spec can hold before materialize creates the row it means to protect.
 async fn set_test_exclusive_hold(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -274,7 +283,7 @@ async fn set_test_exclusive_hold(
     };
 
     let held_until = Utc::now() + Duration::seconds(payload.hold_secs);
-    models::credit_registrations::set_test_exclusive_hold_for_testing(
+    models::credit_registrations::testing::set_test_exclusive_hold_for_testing(
         &mut conn,
         user_id,
         payload.course_id,
@@ -305,7 +314,7 @@ async fn expire_enrolment_recheck_allowance(
     let token = skip_authorize();
 
     let mut conn = pool.acquire().await?;
-    models::credit_registrations::expire_enrolment_recheck_allowance_for_testing(
+    models::credit_registrations::testing::expire_enrolment_recheck_allowance_for_testing(
         &mut conn,
         payload.credit_registration_id,
         payload.clear_restarts,
@@ -344,8 +353,10 @@ async fn make_enrolment_checks_due(
     };
     let mut conn = pool.acquire().await?;
     let made_due_count =
-        models::credit_registrations::make_enrolment_checks_due_for_testing(&mut conn, &scope)
-            .await?;
+        models::credit_registrations::testing::make_enrolment_checks_due_for_testing(
+            &mut conn, &scope,
+        )
+        .await?;
     token.authorized_ok(HttpResponse::Ok().json(MakeEnrolmentChecksDueResult { made_due_count }))
 }
 
@@ -379,7 +390,7 @@ async fn make_roster_listings_due(
     };
     let mut conn = pool.acquire().await?;
     let made_due_count =
-        models::credit_registration_roster_schedules::make_listings_due_for_testing(
+        models::credit_registration_roster_schedules::testing::make_listings_due_for_testing(
             &mut conn, course_id,
         )
         .await?;
@@ -540,15 +551,15 @@ fn tick_context<'a>(
     pool: &'a PgPool,
     suotar_client: &'a SuotarClient,
 ) -> PhaseContext<'a> {
-    PhaseContext::from_app(pool, suotar_client, app_conf, "run-tick")
+    PhaseContext::from_app(pool, suotar_client, app_conf, Runner::Other("run-tick"))
 }
 
 /// The outer error is a real failure; the inner one is a scope half that names nothing.
 async fn resolve_scope(
     pool: &PgPool,
     query: &RunTickQuery,
-) -> anyhow::Result<Result<PhaseScope, UnresolvedScope>> {
-    let mut scope = PhaseScope {
+) -> anyhow::Result<Result<RegistrationScope, UnresolvedScope>> {
+    let mut scope = RegistrationScope {
         course_id: query.course_id,
         user_id: query.user_id,
         credit_registration_ids: Vec::new(),

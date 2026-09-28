@@ -7,14 +7,13 @@ use headless_lms_models::credit_registration_roster_schedules::{
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
-use sqlx::PgConnection;
+use sqlx::{PgConnection, PgPool};
 
 use super::CodeListing;
 use super::reconcile::reconcile_roster;
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
 use crate::registry::{RegistryError, RosterCode, StudyRegistry};
-use crate::use_cases::contexts::DiscoveryContext;
+use crate::workflow::Counts;
 
 /// The code Suotar answers for a code it holds no realisation of, which it stops holding two months
 /// after the last one ends.
@@ -23,9 +22,10 @@ const NO_REALISATION_CODE: CreditRegistrationErrorCode =
 
 /// Sends one listing request and reconciles what came back.
 pub(super) async fn fetch_course_roster<R: StudyRegistry>(
-    ctx: &DiscoveryContext<'_>,
+    pool: &PgPool,
     registry: &mut R,
     request: &[CodeListing],
+    is_account_linking_enabled: bool,
 ) -> CreditRegistrationResult<Counts> {
     let codes: Vec<String> = request
         .iter()
@@ -34,17 +34,17 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     let module_count: usize = request.iter().map(|listing| listing.modules.len()).sum();
     let attempted = i32::try_from(module_count).unwrap_or(i32::MAX);
     {
-        let mut conn = ctx.pool.acquire().await?;
+        let mut conn = pool.acquire().await?;
         mark_attempted(&mut conn, &codes).await?;
     }
     let roster_codes: Vec<RosterCode> =
         request.iter().map(|listing| listing.code.clone()).collect();
     let listed = registry.list_course_roster(&roster_codes).await;
-    let mut conn = ctx.pool.acquire().await?;
+    let mut conn = pool.acquire().await?;
     let roster_listing = match listed {
         Ok(roster_listing) => roster_listing,
         Err(error) => {
-            record_roster_failure(&mut conn, request, &error).await?;
+            record_roster_failure(&mut conn, request, &codes, &error).await?;
             return Ok(Counts::all_failed(attempted));
         }
     };
@@ -53,12 +53,13 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     let mut items_failed = 0;
     let mut enrolments = 0;
     let mut new_mails = 0;
+    // The registry answers one roster per requested code, in request order.
     for (listing, roster) in request.iter().zip(&roster_listing.rosters) {
         let course_code = listing.code.course_code.as_str();
         match roster {
             Ok(people) => {
                 new_mails +=
-                    reconcile_roster(&mut conn, listing, people, ctx.is_account_linking_enabled)
+                    reconcile_roster(&mut conn, listing, people, is_account_linking_enabled)
                         .await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
@@ -95,9 +96,10 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
 async fn record_roster_failure(
     conn: &mut PgConnection,
     request: &[CodeListing],
+    codes: &[String],
     error: &RegistryError,
 ) -> CreditRegistrationResult<()> {
-    let code = request_level_code(error.kind());
+    let code = request_level_code(error.kind);
     for module in request.iter().flat_map(|listing| &listing.modules) {
         mark_listing_failed(conn, module.course_module_id, code).await?;
     }
@@ -106,13 +108,7 @@ async fn record_roster_failure(
     }
     match request {
         [only] => mark_alone_failed(conn, only.code.course_code.as_str(), code).await?,
-        _ => {
-            let codes: Vec<String> = request
-                .iter()
-                .map(|listing| listing.code.course_code.as_str().to_string())
-                .collect();
-            mark_batch_failed(conn, &codes, code).await?;
-        }
+        _ => mark_batch_failed(conn, codes, code).await?,
     }
     Ok(())
 }

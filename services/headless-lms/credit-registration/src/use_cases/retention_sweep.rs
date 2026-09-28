@@ -4,10 +4,10 @@ use chrono::{Duration, Utc};
 use headless_lms_models::credit_registration_enrolment_check_outcomes;
 use headless_lms_models::student_number_verification_tokens::soft_delete_expired;
 use headless_lms_models::suotar_api_calls::{RETENTION_DAYS, delete_older_than};
+use sqlx::PgPool;
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
-use crate::use_cases::contexts::DatabaseContext;
+use crate::workflow::Counts;
 
 /// How much one retention sweep removes from each table.
 const SWEEP_LIMIT: i64 = 500;
@@ -20,8 +20,8 @@ const OUTCOME_SWEEP_LIMIT: i64 = 5000;
 /// Bounded per iteration and run hourly, so the first sweep after the window opens clears a backlog
 /// over several hours instead of in one statement that locks every `credit_registration_events` row
 /// referencing it.
-pub(crate) async fn run(ctx: &DatabaseContext<'_>) -> CreditRegistrationResult<Counts> {
-    let mut conn = ctx.pool.acquire().await?;
+pub(crate) async fn run(pool: &PgPool) -> CreditRegistrationResult<Counts> {
+    let mut conn = pool.acquire().await?;
     let cutoff = Utc::now() - Duration::days(RETENTION_DAYS);
     let purged_calls = delete_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;
     let purged_outcomes = credit_registration_enrolment_check_outcomes::delete_older_than(

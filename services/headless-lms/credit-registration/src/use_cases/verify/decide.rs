@@ -1,19 +1,21 @@
 //! What a verify answer does to its row.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
+use headless_lms_models::credit_registrations::{
+    AdminAttention, CreditRegistration, CreditRegistrationState,
+};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
     verify_inconclusive_outcome, verify_not_registered_outcome, verify_partial_outcome,
 };
 
-use crate::domain::Decision;
 use crate::registry::{EnrolmentAnswer, VerificationAnswer, VerificationReading};
+use crate::workflow::Decision;
 
 /// What a poll's answer comes to, where that needs no more than the answer.
 pub(super) enum PollAnswer<'a> {
-    Decided(Decision<'a>),
+    Decided(Box<Decision<'a>>),
     /// Only the assessment item attainment is there yet; the outcome depends on when a poll first
     /// saw that.
     PartiallyRegistered,
@@ -29,12 +31,14 @@ pub(super) fn decide_poll<'a>(
     facts: &RowFacts,
 ) -> PollAnswer<'a> {
     let Some(answer) = answer else {
-        return PollAnswer::Decided(Decision::new(verify_inconclusive_outcome(state, facts)));
+        return PollAnswer::Decided(Box::new(Decision::new(verify_inconclusive_outcome(
+            state, facts,
+        ))));
     };
     let decision = match &answer.reading {
         VerificationReading::Registered { attainment } => Decision::new(Outcome {
             // Confirmed, so whatever an operator was asked to look at is settled.
-            needs_admin_attention: Some(false),
+            needs_admin_attention: Some(AdminAttention::Clear),
             ..Outcome::to(CreditRegistrationState::Registered)
         })
         .with_sisu_attainment(Some(attainment)),
@@ -53,7 +57,7 @@ pub(super) fn decide_poll<'a>(
             Decision::new(verify_inconclusive_outcome(state, facts))
         }
     };
-    PollAnswer::Decided(decision.with_row_error(answer.error_message.as_deref()))
+    PollAnswer::Decided(Box::new(decision))
 }
 
 /// A poll that found only the assessment item attainment, which a poll first saw at
@@ -81,13 +85,13 @@ pub(super) fn decide_recovery<'a>(
     // An enrolment error still lists the attainments, and the enrolment may be gone by now.
     let found = answer
         .zip(row.attainment_date)
-        .and_then(|(answer, attainment_date)| {
+        .zip(row.frozen_grade())
+        .and_then(|((answer, attainment_date), grade)| {
             attainment_matching_submission(
                 &answer.existing_attainments,
                 attainment_date,
                 row.submitted_at,
-                row.grade_scale_id.as_deref().unwrap_or_default(),
-                row.grade_id.as_deref().unwrap_or_default(),
+                &grade,
             )
         });
     let Some(attainment) = found else {
@@ -96,7 +100,7 @@ pub(super) fn decide_recovery<'a>(
         );
     };
     Decision::new(Outcome {
-        needs_admin_attention: Some(false),
+        needs_admin_attention: Some(AdminAttention::Clear),
         ..Outcome::to(CreditRegistrationState::Duplicate)
     })
     .with_sisu_attainment(Some(attainment))
@@ -134,7 +138,7 @@ mod tests {
 
     fn decided<'a>(state: State, answer: Option<&'a VerificationAnswer>) -> Decision<'a> {
         match decide_poll(state, answer, &facts()) {
-            PollAnswer::Decided(decision) => decision,
+            PollAnswer::Decided(decision) => *decision,
             PollAnswer::PartiallyRegistered => panic!("partially registered"),
             PollAnswer::NotRegistered => panic!("not registered"),
         }
@@ -147,22 +151,20 @@ mod tests {
             attainment: registered.clone(),
         });
         let decision = decided(State::SubmissionUncertain, Some(&answer));
-        assert_eq!(decision.outcome().to_state, State::Registered);
-        assert_eq!(decision.outcome().needs_admin_attention, Some(false));
+        assert_eq!(decision.outcome.to_state, State::Registered);
         assert_eq!(
-            decision.pre_transition().sisu_attainment(),
-            Some(&registered)
+            decision.outcome.needs_admin_attention,
+            Some(AdminAttention::Clear)
         );
-        assert_eq!(decision.row_error(), Some("item error"));
+        assert_eq!(decision.pre_transition.sisu_attainment, Some(&registered));
     }
 
     #[test]
     fn an_unanswered_poll_keeps_polling_in_place() {
         for state in [State::AwaitingVerification, State::SubmissionUncertain] {
             let decision = decided(state, None);
-            assert_eq!(decision.outcome().to_state, state);
-            assert!(!decision.outcome().is_failure());
-            assert!(decision.row_error().is_none());
+            assert_eq!(decision.outcome.to_state, state);
+            assert!(!decision.outcome.carries_error_code());
         }
     }
 
@@ -173,12 +175,12 @@ mod tests {
             resubmit_not_before: Some(resubmit_not_before),
         });
         let decision = decided(State::AwaitingVerification, Some(&answer));
-        assert_eq!(decision.outcome().to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
         assert_eq!(
-            decision.pre_transition().resubmit_not_before(),
+            decision.pre_transition.resubmit_not_before,
             Some(resubmit_not_before)
         );
-        assert!(matches!(decision.outcome().next, NextAttempt::After(_)));
+        assert!(matches!(decision.outcome.next, NextAttempt::After(_)));
     }
 
     #[test]
@@ -191,8 +193,7 @@ mod tests {
             } else {
                 State::AwaitingVerification
             };
-            assert_eq!(decision.outcome().to_state, expected, "{code:?}");
-            assert_eq!(decision.row_error(), Some("item error"));
+            assert_eq!(decision.outcome.to_state, expected, "{code:?}");
         }
     }
 
@@ -200,8 +201,8 @@ mod tests {
     fn an_inconclusive_answer_keeps_polling() {
         let answer = answer(VerificationReading::Inconclusive);
         let decision = decided(State::SubmissionUncertain, Some(&answer));
-        assert_eq!(decision.outcome().to_state, State::SubmissionUncertain);
-        assert!(!decision.outcome().is_failure());
+        assert_eq!(decision.outcome.to_state, State::SubmissionUncertain);
+        assert!(!decision.outcome.carries_error_code());
     }
 
     #[test]
@@ -221,31 +222,37 @@ mod tests {
     #[test]
     fn a_partial_registration_waits_for_the_course_unit_attainment() {
         let decision = partially_registered_decision(&facts(), now());
-        assert_eq!(decision.outcome().to_state, State::AwaitingVerification);
-        assert_eq!(decision.outcome().needs_admin_attention, None);
+        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.needs_admin_attention, None);
     }
 
     #[test]
     fn a_long_partial_registration_asks_for_an_admin() {
         let decision =
             partially_registered_decision(&facts(), now() - PARTIAL_REGISTRATION_ADMIN_AFTER);
-        assert_eq!(decision.outcome().to_state, State::AwaitingVerification);
-        assert_eq!(decision.outcome().needs_admin_attention, Some(true));
+        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(
+            decision.outcome.needs_admin_attention,
+            Some(AdminAttention::Raise)
+        );
     }
 
     #[test]
     fn not_registered_sends_the_row_back_to_be_imported_again() {
         let decision = not_registered_decision(&facts(), 1);
-        assert_eq!(decision.outcome().to_state, State::FailedRetryable);
-        assert_eq!(decision.outcome().error_code, Some(Code::NotRegistered));
-        assert!(decision.outcome().increment_submit_retry_count);
-        assert!(decision.message().is_some());
+        assert_eq!(decision.outcome.to_state, State::FailedRetryable);
+        assert_eq!(decision.outcome.error_code, Some(Code::NotRegistered));
+        assert!(decision.outcome.increment_submit_retry_count);
+        assert!(decision.message.as_deref().is_some());
     }
 
     #[test]
     fn repeated_not_registered_asks_for_an_admin() {
         let decision = not_registered_decision(&facts(), NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD);
-        assert_eq!(decision.outcome().needs_admin_attention, Some(true));
+        assert_eq!(
+            decision.outcome.needs_admin_attention,
+            Some(AdminAttention::Raise)
+        );
     }
 
     fn uncertain_row() -> CreditRegistration {
@@ -272,9 +279,12 @@ mod tests {
         let found = attainment("sis-0-5", "4", date(2026, 8, 1));
         let answer = enrolment_answer(vec![found.clone()]);
         let decision = decide_recovery(&row, &RowFacts::of(&row, now()), Some(&answer));
-        assert_eq!(decision.outcome().to_state, State::Duplicate);
-        assert_eq!(decision.outcome().needs_admin_attention, Some(false));
-        assert_eq!(decision.pre_transition().sisu_attainment(), Some(&found));
+        assert_eq!(decision.outcome.to_state, State::Duplicate);
+        assert_eq!(
+            decision.outcome.needs_admin_attention,
+            Some(AdminAttention::Clear)
+        );
+        assert_eq!(decision.pre_transition.sisu_attainment, Some(&found));
     }
 
     #[test]
@@ -282,9 +292,9 @@ mod tests {
         let row = uncertain_row();
         let answer = enrolment_answer(vec![attainment("sis-0-5", "3", date(2026, 8, 1))]);
         let decision = decide_recovery(&row, &RowFacts::of(&row, now()), Some(&answer));
-        assert_eq!(decision.outcome().to_state, State::SubmissionUncertain);
-        assert!(decision.pre_transition().sisu_attainment().is_none());
-        assert!(decision.message().is_some());
+        assert_eq!(decision.outcome.to_state, State::SubmissionUncertain);
+        assert!(decision.pre_transition.sisu_attainment.is_none());
+        assert!(decision.message.as_deref().is_some());
     }
 
     #[test]
@@ -292,7 +302,7 @@ mod tests {
         let row = uncertain_row();
         let facts = RowFacts::of(&row, now());
         assert_eq!(
-            decide_recovery(&row, &facts, None).outcome().to_state,
+            decide_recovery(&row, &facts, None).outcome.to_state,
             State::SubmissionUncertain
         );
         let undated = CreditRegistration {
@@ -302,7 +312,7 @@ mod tests {
         let answer = enrolment_answer(vec![attainment("sis-0-5", "4", date(2026, 8, 1))]);
         assert_eq!(
             decide_recovery(&undated, &facts, Some(&answer))
-                .outcome()
+                .outcome
                 .to_state,
             State::SubmissionUncertain
         );

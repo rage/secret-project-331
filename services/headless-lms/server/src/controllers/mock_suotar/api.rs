@@ -15,14 +15,16 @@ use sqlx::PgPool;
 
 use crate::prelude::*;
 
-use super::default_world;
-use super::faults::{Effect, Fault, FaultMatch, ItemAddress, Stage, matches_item, matches_request};
-use super::logic::{self, ImportResolution};
-use super::store::{MockSuotarStore, Preamble};
-use super::wire::{
+use crate::mock_suotar::default_world;
+use crate::mock_suotar::faults::{
+    Effect, Fault, FaultMatch, ItemAddress, Stage, matches_item, matches_request,
+};
+use crate::mock_suotar::logic::{self, ImportResolution};
+use crate::mock_suotar::store::{MockSuotarStore, Preamble};
+use crate::mock_suotar::wire::{
     self, Endpoint, ItemStatus, NOT_AN_ARRAY, RequestLevelError, ResponseItem, SubmittedAttainment,
 };
-use super::world::{
+use crate::mock_suotar::world::{
     MissedFault, MockSubmission, RecordedCall, RecordedFaults, RecordedItem, SendState, WorkingSet,
     WorldWrite,
 };
@@ -439,13 +441,13 @@ async fn answer(
                 Err(rejection) => return Ok(rejection),
             }
         }
-        _ => {
+        ParsedRequest::PerItem(request) => {
             let mut items = Vec::with_capacity(addresses.len());
             for (index, address) in addresses.iter().enumerate() {
                 let fault = runner.item_stage(endpoint, Stage::Resolve, address).await?;
                 items.push(match fault {
                     Some(effect) => item_effect_response(endpoint, address, &effect),
-                    None => parsed.resolve(index, working, now),
+                    None => request.resolve(index, working, now),
                 });
             }
             (items, vec![None; addresses.len()])
@@ -766,16 +768,46 @@ fn item_effect_response(
     }
 }
 
+/// Import resolves as a batch; every other endpoint answers item by item.
 enum ParsedRequest {
+    Import(Vec<wire::ImportAttainmentRequestItem>),
+    PerItem(PerItemRequest),
+}
+
+enum PerItemRequest {
     ResolvePersons(Vec<wire::ResolvePersonRequestItem>),
     ResolveEnrolments(Vec<wire::ResolveEnrolmentRequestItem>),
-    Import(Vec<wire::ImportAttainmentRequestItem>),
     Verify(Vec<wire::VerifyAttainmentRequestItem>),
     ListByCourse(Vec<wire::CourseCodeRequestItem>),
     ValidateCourseCodes(Vec<wire::CourseCodeRequestItem>),
 }
 
 impl ParsedRequest {
+    fn addresses(&self) -> Vec<ItemAddress> {
+        match self {
+            Self::Import(items) => items
+                .iter()
+                .map(|item| ItemAddress {
+                    request_item_id: item.request_item_id.clone(),
+                    student_number: Some(item.student_number.clone()),
+                    course_code: Some(item.course_code.clone()),
+                    ..Default::default()
+                })
+                .collect(),
+            Self::PerItem(request) => request.addresses(),
+        }
+    }
+
+    /// Verify's body carries only a submitted attainment id; the person behind it is what a spec
+    /// addresses a fault with.
+    fn enrich_addresses(&self, addresses: &mut [ItemAddress], working: &WorkingSet) {
+        if let Self::PerItem(PerItemRequest::Verify(_)) = self {
+            enrich_verify_addresses(addresses, working);
+        }
+    }
+}
+
+impl PerItemRequest {
     fn addresses(&self) -> Vec<ItemAddress> {
         let course_code_addresses = |items: &[wire::CourseCodeRequestItem]| {
             items
@@ -805,15 +837,6 @@ impl ParsedRequest {
                     ..Default::default()
                 })
                 .collect(),
-            Self::Import(items) => items
-                .iter()
-                .map(|item| ItemAddress {
-                    request_item_id: item.request_item_id.clone(),
-                    student_number: Some(item.student_number.clone()),
-                    course_code: Some(item.course_code.clone()),
-                    ..Default::default()
-                })
-                .collect(),
             Self::Verify(items) => items
                 .iter()
                 .map(|item| ItemAddress {
@@ -828,34 +851,6 @@ impl ParsedRequest {
         }
     }
 
-    /// Verify's body carries only a submitted attainment id; the person behind it is what a spec
-    /// addresses a fault with.
-    fn enrich_addresses(&self, addresses: &mut [ItemAddress], working: &WorkingSet) {
-        if !matches!(self, Self::Verify(_)) {
-            return;
-        }
-        for address in addresses.iter_mut() {
-            let Some(id) = address.submitted_attainment_id.as_ref() else {
-                continue;
-            };
-            let owner = working
-                .submissions
-                .get(id)
-                .map(|s| (s.student_number.clone(), s.course_code.clone()))
-                .or_else(|| {
-                    working
-                        .attainments
-                        .get(id)
-                        .map(|a| (a.student_number.clone(), a.course_code.clone()))
-                });
-            if let Some((student_number, course_code)) = owner {
-                address.student_number = Some(student_number);
-                address.course_code = Some(course_code);
-            }
-        }
-    }
-
-    /// Every endpoint but import, which resolves as a batch.
     fn resolve(&self, index: usize, working: &WorkingSet, now: DateTime<Utc>) -> ResponseItem {
         match self {
             Self::ResolvePersons(items) => logic::resolve_person_item(&items[index], working),
@@ -867,7 +862,28 @@ impl ParsedRequest {
             Self::ValidateCourseCodes(items) => {
                 logic::validate_course_code_item(&items[index], working)
             }
-            Self::Import(_) => unreachable!("import resolves as a batch"),
+        }
+    }
+}
+
+fn enrich_verify_addresses(addresses: &mut [ItemAddress], working: &WorkingSet) {
+    for address in addresses.iter_mut() {
+        let Some(id) = address.submitted_attainment_id.as_ref() else {
+            continue;
+        };
+        let owner = working
+            .submissions
+            .get(id)
+            .map(|s| (s.student_number.clone(), s.course_code.clone()))
+            .or_else(|| {
+                working
+                    .attainments
+                    .get(id)
+                    .map(|a| (a.student_number.clone(), a.course_code.clone()))
+            });
+        if let Some((student_number, course_code)) = owner {
+            address.student_number = Some(student_number);
+            address.course_code = Some(course_code);
         }
     }
 }
@@ -889,13 +905,13 @@ async fn load(
 ) -> anyhow::Result<()> {
     let defaults = working.defaults.clone();
     let loaded = match parsed {
-        ParsedRequest::ResolvePersons(items) => WorkingSet {
+        ParsedRequest::PerItem(PerItemRequest::ResolvePersons(items)) => WorkingSet {
             persons: store
                 .load_persons(generation, &unique_field(items, |i| &i.student_number))
                 .await?,
             ..Default::default()
         },
-        ParsedRequest::ResolveEnrolments(items) => {
+        ParsedRequest::PerItem(PerItemRequest::ResolveEnrolments(items)) => {
             store
                 .load_for_person_course(
                     generation,
@@ -913,7 +929,7 @@ async fn load(
                 )
                 .await?
         }
-        ParsedRequest::Verify(items) => {
+        ParsedRequest::PerItem(PerItemRequest::Verify(items)) => {
             store
                 .load_for_verify(
                     generation,
@@ -921,12 +937,12 @@ async fn load(
                 )
                 .await?
         }
-        ParsedRequest::ListByCourse(items) => {
+        ParsedRequest::PerItem(PerItemRequest::ListByCourse(items)) => {
             store
                 .load_for_list_by_course(generation, &unique_field(items, |i| &i.course_code))
                 .await?
         }
-        ParsedRequest::ValidateCourseCodes(items) => WorkingSet {
+        ParsedRequest::PerItem(PerItemRequest::ValidateCourseCodes(items)) => WorkingSet {
             course_units: store
                 .load_course_units(generation, &unique_field(items, |i| &i.course_code))
                 .await?,
@@ -973,12 +989,22 @@ fn parse_envelope(
     }
 
     Ok(Some(match endpoint {
-        Endpoint::ResolvePersons => ParsedRequest::ResolvePersons(typed(items)?),
-        Endpoint::ResolveEnrolments => ParsedRequest::ResolveEnrolments(typed(items)?),
         Endpoint::ImportAttainments => ParsedRequest::Import(typed(items)?),
-        Endpoint::VerifyAttainments => ParsedRequest::Verify(typed(items)?),
-        Endpoint::ListByCourse => ParsedRequest::ListByCourse(typed(items)?),
-        Endpoint::ValidateCourseCodes => ParsedRequest::ValidateCourseCodes(typed(items)?),
+        Endpoint::ResolvePersons => {
+            ParsedRequest::PerItem(PerItemRequest::ResolvePersons(typed(items)?))
+        }
+        Endpoint::ResolveEnrolments => {
+            ParsedRequest::PerItem(PerItemRequest::ResolveEnrolments(typed(items)?))
+        }
+        Endpoint::VerifyAttainments => {
+            ParsedRequest::PerItem(PerItemRequest::Verify(typed(items)?))
+        }
+        Endpoint::ListByCourse => {
+            ParsedRequest::PerItem(PerItemRequest::ListByCourse(typed(items)?))
+        }
+        Endpoint::ValidateCourseCodes => {
+            ParsedRequest::PerItem(PerItemRequest::ValidateCourseCodes(typed(items)?))
+        }
     }))
 }
 

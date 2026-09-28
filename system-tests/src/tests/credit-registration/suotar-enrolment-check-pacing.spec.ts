@@ -215,12 +215,20 @@ const parkCompletedModule = async (
 const msBetween = (from: string | null, to: string | null): number =>
   Date.parse(to ?? "") - Date.parse(from ?? "")
 
-const requestRecheck = (request: APIRequestContext, registrationId: string) =>
-  postJson<{ recheck_started: boolean }>(
-    request,
-    `${CREDIT_REGISTRATIONS_API}/my/${registrationId}/recheck-enrolment`,
-    {},
-  )
+/** Waits out a 429 once: the restart test asks six times, past the per-user cap of five a minute. */
+const requestRecheck = async (request: APIRequestContext, registrationId: string) => {
+  const url = `${CREDIT_REGISTRATIONS_API}/my/${registrationId}/recheck-enrolment`
+  const first = await request.post(url, { data: {} })
+  if (first.status() === 429) {
+    const waitSeconds = Number(first.headers()["retry-after"] ?? "15")
+    await new Promise((resolve) => setTimeout(resolve, (waitSeconds + 1) * 1000))
+    return postJson<{ recheck_started: boolean }>(request, url, {})
+  }
+  if (!first.ok()) {
+    throw new Error(`POST ${url} answered ${first.status()}: ${await first.text()}`)
+  }
+  return (await first.json()) as { recheck_started: boolean }
+}
 
 /** The newest listing call the mock recorded for the code. */
 const latestListingOf = async (

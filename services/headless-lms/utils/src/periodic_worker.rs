@@ -1,7 +1,6 @@
 //! The tick-interval scaffold shared by every background worker that polls the database on a fixed
 //! period: `regrader`, `chatbot_syncer` and the credit registration phase runners.
 
-use std::error::Error as StdError;
 use std::time::Duration;
 
 use tokio_util::sync::CancellationToken;
@@ -64,15 +63,4 @@ pub async fn run_periodic_worker_until<E>(
         }
         body().await?;
     }
-}
-
-/// True when an error's source is a `sqlx::Error::Io`, which is usually the database being reset
-/// underneath a local development cluster: the caller's cue to log its own hint and, if it keeps a
-/// connection open across ticks, reacquire one. Takes the source directly (`error.source()`)
-/// rather than the error, since `anyhow::Error` does not implement `std::error::Error`.
-pub fn is_db_disconnect(source: Option<&(dyn StdError + 'static)>) -> bool {
-    matches!(
-        source.and_then(|source| source.downcast_ref::<sqlx::Error>()),
-        Some(sqlx::Error::Io(..))
-    )
 }

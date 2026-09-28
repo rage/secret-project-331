@@ -1,25 +1,27 @@
 //! Running one iteration of one phase, and the bookkeeping around it: the pause and scope checks,
 //! the heartbeat, the circuit breakers and the limiter.
 
-use headless_lms_models::credit_registration_events::scrub_text;
+use chrono::TimeDelta;
 use headless_lms_models::credit_registration_phase_state::{self, PhaseRunOutcome};
+use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::services::suotar::SuotarClient;
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
 
 use super::heartbeat::keep_alive;
-use super::suotar::{SuotarStudyRegistry, report_breakers, report_rate_limits};
-use crate::domain::Counts;
+use super::suotar::{
+    SuotarStudyRegistry, max_study_registry_wait, report_breakers, report_rate_limits,
+};
 use crate::error::CreditRegistrationResult;
 use crate::error_reports::ErrorReporter;
-use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
-use crate::use_cases::contexts::{
-    BatchFlowContext, DatabaseContext, DiscoveryContext, MailContext,
-};
+use crate::phase::{CreditRegistrationPhase, WorkerProcess};
+use crate::use_cases::batch_flow::BatchFlowContext;
 use crate::use_cases::{
     config_validation, enrolment_discovery, import, ledger_snapshot, legacy_mirror, link_emails,
     materialize, preconditions, resolve_enrolments, retention_sweep, student_notifications, verify,
 };
+use crate::workflow::Counts;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 /// What one dispatch attempt did.
 #[derive(Debug, Clone, PartialEq)]
@@ -38,21 +40,45 @@ pub enum PhaseSkipReason {
     AccountLinkingDisabled,
 }
 
+/// Who runs a phase iteration.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Runner<'a> {
+    /// A worker process's loop, the only holder of the breaker and limiter state the dashboard
+    /// shows for the phases it owns.
+    Worker(WorkerProcess),
+    /// Anyone else, such as the test tick endpoint, named for the audit log. Its in-memory state
+    /// would overwrite the worker's on the dashboard, so it reports none.
+    Other(&'a str),
+}
+
+impl Runner<'_> {
+    /// What goes into the audit log's `worker_name` alongside the phase.
+    pub fn caller(&self) -> &str {
+        match self {
+            Self::Worker(process) => process.as_str(),
+            Self::Other(caller) => caller,
+        }
+    }
+
+    pub fn owning_process(&self) -> Option<WorkerProcess> {
+        match self {
+            Self::Worker(process) => Some(*process),
+            Self::Other(_) => None,
+        }
+    }
+}
+
 /// Everything a phase iteration needs from its caller: the worker loop or the test tick endpoint.
 pub struct PhaseContext<'a> {
     pub pool: &'a PgPool,
     pub suotar_client: &'a SuotarClient,
     /// Shortens the circuit breaker's cooldown to something a test can wait out.
     pub test_mode: bool,
-    /// Goes into the audit log's `worker_name` alongside the phase.
-    pub caller: &'a str,
-    /// The worker process running the loop, the only holder of the breaker and limiter state the
-    /// dashboard shows; `None` for any other caller, whose in-memory state would overwrite it.
-    pub owning_process: Option<WorkerProcess>,
+    pub runner: Runner<'a>,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
-    /// Holds the account-linking switch that gates the linking mails.
-    pub suotar_conf: &'a headless_lms_base::config::SuotarConfiguration,
+    /// Off, the linking mails are not sent, and discovery only wakes linked students' registrations.
+    pub is_account_linking_enabled: bool,
     /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
     pub shutdown: Option<&'a CancellationToken>,
 }
@@ -64,16 +90,15 @@ impl<'a> PhaseContext<'a> {
         pool: &'a PgPool,
         suotar_client: &'a SuotarClient,
         app_conf: &'a headless_lms_base::config::ApplicationConfiguration,
-        caller: &'a str,
+        runner: Runner<'a>,
     ) -> Self {
         Self {
             pool,
             suotar_client,
             test_mode: app_conf.test_mode,
-            caller,
-            owning_process: None,
+            runner,
             base_url: &app_conf.base_url,
-            suotar_conf: &app_conf.suotar_configuration,
+            is_account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
             shutdown: None,
         }
     }
@@ -87,12 +112,12 @@ pub(super) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
 /// Runs exactly one iteration of one phase.
 #[tracing::instrument(
     skip_all,
-    fields(phase = phase.as_str(), caller = ctx.caller, scope = ?scope)
+    fields(phase = phase.as_str(), caller = ctx.runner.caller(), scope = ?scope)
 )]
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
-    scope: &PhaseScope,
+    scope: &RegistrationScope,
 ) -> CreditRegistrationResult<PhaseTick> {
     // Before the pause check: a caller whose narrowing cannot be honoured must not be told it ran.
     if !phase.spec().scope.covers(scope) {
@@ -105,7 +130,7 @@ pub async fn run_phase_once(
     // A scoped run writes nothing to the phase-state row: that row describes the workers, and a
     // test's traffic in it would make a dead worker look alive to the heartbeat alert.
     let bookkeeping = scope.is_unscoped();
-    let is_own_worker = ctx.owning_process == Some(phase.spec().process);
+    let is_own_worker = ctx.runner.owning_process() == Some(phase.spec().process);
     // Before the breaker check, unlike the pause above, which health.rs excludes from the staleness
     // alert by itself. A cooldown is a worker deliberately waiting, not a worker that died, and
     // skipping the heartbeat through it would raise a critical alert within a tick or two.
@@ -114,12 +139,12 @@ pub async fn run_phase_once(
         trace!(phase = phase.as_str(), "Wrote phase heartbeat");
     }
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
-    if phase.spec().is_account_linking_only && !ctx.suotar_conf.account_linking_enabled {
+    if phase.spec().is_account_linking_only && !ctx.is_account_linking_enabled {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
     let mut registry = match SuotarStudyRegistry::admit(
         ctx.suotar_client,
-        worker_name(ctx.caller, phase),
+        worker_name(ctx.runner.caller(), phase),
         phase,
         scope,
         ctx.test_mode,
@@ -170,7 +195,7 @@ pub async fn run_phase_once(
         }
     };
     if let Some(error) = &outcome.error {
-        ErrorReporter::new(ctx.pool, ctx.owning_process, phase)
+        ErrorReporter::new(ctx.pool, ctx.runner.owning_process(), phase)
             .report(error, stack_trace, serde_json::json!({}))
             .await;
     }
@@ -186,53 +211,46 @@ pub async fn run_phase_once(
 }
 
 /// The one place a phase implementation is registered: exhaustive over [`CreditRegistrationPhase`],
-/// so a variant added there without an arm here fails to compile. Each phase gets only the context
-/// its kind of use case takes, and a phase that asks the study registry gets the iteration's
-/// registry beside it.
+/// so a variant added there without an arm here fails to compile. Each phase gets only what it
+/// touches, and a phase that asks the study registry gets the iteration's registry beside it.
 async fn run_body(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
-    scope: &PhaseScope,
+    scope: &RegistrationScope,
     registry: &mut SuotarStudyRegistry<'_>,
 ) -> CreditRegistrationResult<Counts> {
     let pool = ctx.pool;
-    let database = DatabaseContext { pool, scope };
     let batch_flow = BatchFlowContext {
         pool,
         scope,
         phase,
-        errors: ErrorReporter::new(pool, ctx.owning_process, phase),
+        errors: ErrorReporter::new(pool, ctx.runner.owning_process(), phase),
         shutdown: ctx.shutdown,
-    };
-    let mail = MailContext {
-        pool,
-        scope,
-        base_url: ctx.base_url,
-    };
-    let discovery = DiscoveryContext {
-        pool,
-        scope,
-        is_account_linking_enabled: ctx.suotar_conf.account_linking_enabled,
+        // Request timeouts are minutes, far inside the range.
+        study_registry_wait: TimeDelta::from_std(max_study_registry_wait(phase))
+            .unwrap_or(TimeDelta::zero()),
     };
     match phase {
-        CreditRegistrationPhase::Materialize => materialize::run(&database).await,
-        CreditRegistrationPhase::Preconditions => preconditions::run(&database).await,
+        CreditRegistrationPhase::Materialize => materialize::run(pool, scope).await,
+        CreditRegistrationPhase::Preconditions => preconditions::run(pool, scope).await,
         CreditRegistrationPhase::ResolveEnrolments => {
             resolve_enrolments::run(&batch_flow, registry).await
         }
         CreditRegistrationPhase::Import => import::run(&batch_flow, registry).await,
         CreditRegistrationPhase::Verify => verify::run(&batch_flow, registry).await,
-        CreditRegistrationPhase::LegacyMirror => legacy_mirror::run(&database).await,
-        CreditRegistrationPhase::StudentNotifications => student_notifications::run(&mail).await,
+        CreditRegistrationPhase::LegacyMirror => legacy_mirror::run(pool, scope).await,
+        CreditRegistrationPhase::StudentNotifications => {
+            student_notifications::run(pool, scope, ctx.base_url).await
+        }
         CreditRegistrationPhase::EnrolmentDiscovery => {
-            enrolment_discovery::run(&discovery, registry).await
+            enrolment_discovery::run(pool, scope, ctx.is_account_linking_enabled, registry).await
         }
-        CreditRegistrationPhase::LinkEmails => link_emails::run(&mail).await,
+        CreditRegistrationPhase::LinkEmails => link_emails::run(pool, scope, ctx.base_url).await,
         CreditRegistrationPhase::ConfigValidation => {
-            config_validation::run(&database, registry).await
+            config_validation::run(pool, scope, registry).await
         }
-        CreditRegistrationPhase::RetentionSweep => retention_sweep::run(&database).await,
-        CreditRegistrationPhase::LedgerSnapshot => ledger_snapshot::run(&database).await,
+        CreditRegistrationPhase::RetentionSweep => retention_sweep::run(pool).await,
+        CreditRegistrationPhase::LedgerSnapshot => ledger_snapshot::run(pool).await,
     }
 }
 

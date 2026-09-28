@@ -109,6 +109,7 @@ fn redacted_request_line(req: &ServiceRequest) -> String {
             path.push('/');
         }
         path.push_str(if is_token_segment { "{token}" } else { segment });
+        // The route segment the credit registration controller mounts the token routes under.
         is_token_segment = segment == "student-number-verifications";
     }
     let query = req.query_string();

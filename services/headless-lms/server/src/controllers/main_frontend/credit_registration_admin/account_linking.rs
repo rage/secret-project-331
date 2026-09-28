@@ -15,18 +15,21 @@ use headless_lms_models::library::credit_registration::account_linking::{
 };
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
-    self, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
+    self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
+use crate::domain::credit_registration::linking_mail_resend::{
+    ResendOutcome, ensure_resend_possible,
+};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, RateCapOverride, ResendOutcome, ResolvePersonError, ResolvedPerson,
-    resend_linking_mail_for_target, resolve_person,
+    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson, look_up_person,
+    resend_linking_mail_for_target,
 };
 
 use super::{
@@ -39,6 +42,7 @@ const STUDY_REGISTRY_CONFLICT_LIMIT: i64 = 200;
 /// Marks a manual action's study registry call in the call log as something a person set off.
 const RESEND_CALLER: &str = "admin-resend";
 const RESOLVE_CALLER: &str = "admin-resolve-person";
+const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
 /// ledger rows.
@@ -247,6 +251,8 @@ pub enum AdminManualLinkOutcome {
     AlreadyLinkedToAnotherAccount,
     AlreadyLinkedToThisAccount,
     StudyRegistryUnavailable,
+    /// The registry answered with a code we do not know; the preview shows it.
+    UnexpectedStudyRegistryAnswer,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -456,25 +462,7 @@ pub async fn admin_resend_account_linking_email(
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-    if !app_conf.suotar_configuration.account_linking_enabled {
-        return Err(controller_err!(
-            BadRequest,
-            "Account linking is switched off.".to_string()
-        ));
-    }
-
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(
-            &mut conn,
-            payload.course_id,
-        )
-        .await?;
-    if enabled_module_ids.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "This course has no credit registration module configured.".to_string()
-        ));
-    }
+    ensure_resend_possible(&mut conn, &app_conf, payload.course_id).await?;
 
     let student_number = required_student_number(&payload.student_number)?;
     let override_reason = if payload.override_rate_caps {
@@ -514,7 +502,7 @@ pub async fn admin_resend_account_linking_email(
         resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, rate_cap_override)
             .await?;
     let mut conn = pool.acquire().await?;
-    let outcome = ResendOutcome::from(attempt.decision);
+    let outcome = ResendOutcome::from(attempt.outcome);
     info!(
         ?outcome,
         retired_mail_count = attempt.retired_mail_count,
@@ -574,7 +562,7 @@ pub async fn admin_resolve_student_number_for_linking(
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(actor = %user.id, "Admin resolving a student number for linking");
-    let resolved = resolve_person(&ctx, &student_number).await;
+    let resolved = look_up_person(&ctx, &student_number).await;
     debug!(
         found = resolved.as_ref().is_ok_and(Option::is_some),
         "Student number resolution result"
@@ -594,10 +582,20 @@ pub async fn admin_resolve_student_number_for_linking(
                 _ => None,
             });
     let already_linked_to_user_email = match &existing {
-        Some(link) => models::user_details::get_user_details_by_user_id(&mut conn, link.user_id)
-            .await
-            .ok()
-            .map(|details| details.email),
+        Some(link) => {
+            match models::user_details::get_user_details_by_user_id(&mut conn, link.user_id).await {
+                Ok(details) => Some(details.email),
+                Err(error)
+                    if matches!(
+                        error.error_type(),
+                        models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound
+                    ) =>
+                {
+                    None
+                }
+                Err(error) => return Err(error.into()),
+            }
+        }
         None => None,
     };
 
@@ -637,13 +635,13 @@ pub async fn admin_resolve_student_number_for_linking(
             ..shared
         },
         Ok(None) => AdminResolveStudentNumberResult { ..shared },
-        Err(ResolvePersonError::UnexpectedAnswer { code }) => AdminResolveStudentNumberResult {
+        Err(PersonLookupError::UnexpectedAnswer { code }) => AdminResolveStudentNumberResult {
             lookup_error_code: Some(code),
             ..shared
         },
         Err(
-            ResolvePersonError::StudyRegistryUnavailable
-            | ResolvePersonError::ItemMissingFromResponse,
+            PersonLookupError::StudyRegistryUnavailable
+            | PersonLookupError::ItemMissingFromResponse,
         ) => AdminResolveStudentNumberResult {
             study_registry_unavailable: true,
             ..shared
@@ -704,18 +702,26 @@ pub async fn admin_manually_link_student_number(
             affected_registration_count: 0,
         }
     };
-    let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
+    let ctx = ManualActionContext::new(&pool, &suotar_client, MANUAL_LINK_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(actor = %user.id, target_user_id = %payload.user_id, "Admin manually linking a student number");
-    let person: ResolvedPerson = match resolve_person(&ctx, &student_number).await {
+    let person: RegistryPerson = match look_up_person(&ctx, &student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudentNumberNotFound,
             )));
         }
-        Err(_) => {
+        Err(PersonLookupError::UnexpectedAnswer { .. }) => {
+            return token.authorized_ok(web::Json(refused(
+                AdminManualLinkOutcome::UnexpectedStudyRegistryAnswer,
+            )));
+        }
+        Err(
+            PersonLookupError::StudyRegistryUnavailable
+            | PersonLookupError::ItemMissingFromResponse,
+        ) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudyRegistryUnavailable,
             )));
@@ -726,31 +732,17 @@ pub async fn admin_manually_link_student_number(
     }
     let mut conn = pool.acquire().await?;
 
-    let holder =
-        verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
-            .await?;
-    if let Some(holder) = &holder {
-        let outcome = if holder.user_id == payload.user_id {
-            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
-        } else {
-            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
-        };
-        return token.authorized_ok(web::Json(refused(outcome)));
-    }
-    // Both unique keys, not just the number: a student who changed programmes keeps their Sisu
-    // person id and gets a new number, so checking the number alone lets this through and then
-    // trips `uq_verified_student_numbers_person` as a bare 500. See `find_conflicting_account` on
-    // the student's own claim path, which this mirrors.
-    let person_holder = verified_student_numbers::get_by_sisu_person_id(
+    if let Some(conflict) = verified_student_numbers::find_link_conflict(
         &mut conn,
+        student_number.expose_secret(),
         person.sisu_person_id.expose_secret(),
+        payload.user_id,
     )
-    .await?;
-    if let Some(holder) = &person_holder {
-        let outcome = if holder.user_id == payload.user_id {
-            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
-        } else {
-            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
+    .await?
+    {
+        let outcome = match conflict {
+            LinkConflict::SameAccount => AdminManualLinkOutcome::AlreadyLinkedToThisAccount,
+            LinkConflict::AnotherAccount => AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount,
         };
         return token.authorized_ok(web::Json(refused(outcome)));
     }

@@ -47,16 +47,18 @@ use secrecy::{ExposeSecret, SecretString};
 use std::collections::HashMap;
 use utoipa::{OpenApi, ToSchema};
 
+use crate::domain::credit_registration::linking_mail_resend::{
+    ResendOutcome, ensure_resend_possible,
+};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, ResendOutcome, resend_linking_mail_for_target,
+    ManualActionContext, resend_linking_mail_for_target,
 };
 use headless_lms_utils::services::suotar::SuotarClient;
 
-use super::credit_registrations::{
-    NotificationEmailStatus, can_request_enrolment_recheck, mask_email,
-};
+use crate::domain::credit_registration::enrolment_recheck::can_request_enrolment_recheck;
+use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, mask_email};
 
 /// Every handler here that names a student gates on this; see the module doc for why
 /// `ViewAndManageCreditRegistrations` and not a broader course permission.
@@ -664,24 +666,7 @@ pub async fn resend_course_credit_registration_linking_email(
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
-    if !app_conf.suotar_configuration.account_linking_enabled {
-        return Err(controller_err!(
-            BadRequest,
-            "Account linking is switched off.".to_string()
-        ));
-    }
-
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(
-            &mut conn, *course_id,
-        )
-        .await?;
-    if enabled_module_ids.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "This course has no credit registration module configured.".to_string()
-        ));
-    }
+    ensure_resend_possible(&mut conn, &app_conf, *course_id).await?;
 
     let recent = models::credit_registration_admin_actions::count_by_actor_since(
         &mut conn,
@@ -719,7 +704,7 @@ pub async fn resend_course_credit_registration_linking_email(
     info!(actor = %user.id, course_id = %*course_id, "Teacher requested a linking mail resend");
     let attempt = resend_linking_mail_for_target(&ctx, *course_id, &student_number, None).await?;
     let mut conn = pool.acquire().await?;
-    let outcome = ResendOutcome::from(attempt.decision);
+    let outcome = ResendOutcome::from(attempt.outcome);
     info!(?outcome, "Teacher linking mail resend finished");
 
     finish_resend(
@@ -976,12 +961,9 @@ pub(crate) async fn build_teacher_registrations(
         .map(|row| {
             let linking_email = statuses.remove(&row.id);
             // The teacher's own retry strictness, so the row says exactly what that button would do.
-            let resubmission_refusal = row.state.resubmission_refusal(
-                row.superseded_by_id.is_some(),
-                ResubmissionStrictness::OnlyFailedPermanent,
-                row.resubmit_not_before,
-                row.submitted_at,
-            );
+            let resubmission_refusal = row
+                .resubmission_facts()
+                .resubmission_refusal(ResubmissionStrictness::OnlyFailedPermanent);
             let state = row.state;
             let base = CourseCreditRegistration::from(row);
             let notification_email =

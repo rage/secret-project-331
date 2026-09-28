@@ -186,26 +186,6 @@ pub async fn get_credit_registration_reconciliation(
     }))
 }
 
-/// A detector that is just "rows currently in this one live state". The single definition of which
-/// states these are and which detector each belongs to — `rows_in_states` iterates it instead of
-/// hand-writing the state list once for the query and again per detector's filter.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum LiveStateDetector {
-    OutcomeUncertain,
-    Misregistered,
-}
-
-impl LiveStateDetector {
-    const ALL: [Self; 2] = [Self::OutcomeUncertain, Self::Misregistered];
-
-    fn state(self) -> CreditRegistrationState {
-        match self {
-            Self::OutcomeUncertain => CreditRegistrationState::SubmissionUncertain,
-            Self::Misregistered => CreditRegistrationState::Misregistered,
-        }
-    }
-}
-
 /// The two detectors that each just read one live state, in one `IN`-list query and one
 /// admin-projection lookup shared across both.
 async fn rows_in_states(
@@ -217,29 +197,28 @@ async fn rows_in_states(
     ),
     ControllerError,
 > {
-    let states = LiveStateDetector::ALL.map(LiveStateDetector::state);
+    let states = [
+        CreditRegistrationState::SubmissionUncertain,
+        CreditRegistrationState::Misregistered,
+    ];
     let ids: Vec<Uuid> = credit_registrations::get_live_by_states(conn, &states, DETECTOR_LIMIT)
         .await?
         .into_iter()
         .map(|row| row.id)
         .collect();
-    let limit = ids.len() as i64;
+    let limit = i64::try_from(ids.len()).unwrap_or(i64::MAX);
     let rows = rows_by_ids(conn, &ids, limit).await?;
-    let mut by_detector = LiveStateDetector::ALL.map(|_| Vec::new());
+    // Re-read after the id query, so a row that moved on in between belongs to neither detector.
+    let mut submission_uncertain = Vec::new();
+    let mut misregistered = Vec::new();
     for row in rows {
-        let index = LiveStateDetector::ALL
-            .iter()
-            .position(|detector| detector.state() == row.state)
-            .ok_or_else(|| {
-                controller_err!(
-                    InternalServerError,
-                    "A reconciliation row carries a state no detector owns.".to_string()
-                )
-            })?;
-        by_detector[index].push(row);
+        match row.state {
+            CreditRegistrationState::SubmissionUncertain => submission_uncertain.push(row),
+            CreditRegistrationState::Misregistered => misregistered.push(row),
+            _ => {}
+        }
     }
-    let [outcome_uncertain, misregistered] = by_detector;
-    Ok((outcome_uncertain, misregistered))
+    Ok((submission_uncertain, misregistered))
 }
 
 /// Reads the same admin projection the explorer uses, so a name, a course and a student number are

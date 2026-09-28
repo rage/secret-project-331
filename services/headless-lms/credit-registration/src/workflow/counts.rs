@@ -2,9 +2,7 @@
 
 use uuid::Uuid;
 
-use super::claim::ClaimedRegistration;
 use super::decision::Applied;
-use crate::registry::BatchEntry;
 
 /// What a phase body did. Composite phases add up their flows' counts with `+=`.
 ///
@@ -99,51 +97,11 @@ impl std::ops::AddAssign for Counts {
     }
 }
 
-/// What a batch flow's claim settled before anything is sent: the rows to send, each with what it
-/// asks, and the rows it already wrote a decision for.
-pub(crate) struct Prepared<Row, Request> {
-    sendable: Vec<BatchEntry<Row, Request>>,
-    decided: Counts,
-}
-
-impl<Row: AsRef<ClaimedRegistration>, Request> Prepared<Row, Request> {
-    pub(crate) fn new() -> Self {
-        Self {
-            sendable: Vec::new(),
-            decided: Counts::default(),
-        }
-    }
-
-    /// Puts `row` in the batch, asking `request`.
-    pub(crate) fn send(&mut self, row: Row, request: Request) {
-        self.sendable.push(BatchEntry {
-            registration_id: row.as_ref().registration().id,
-            row,
-            request,
-        });
-    }
-
-    /// A row the claim wrote a decision for, which is owed no answer.
-    pub(crate) fn record_decided(&mut self, is_failure: bool) {
-        self.decided.record_decided(is_failure);
-    }
-
-    pub(crate) fn sendable(&self) -> &[BatchEntry<Row, Request>] {
-        &self.sendable
-    }
-
-    /// The batch, and the counts the claim's own decisions start the iteration with.
-    pub(crate) fn into_parts(self) -> (Vec<BatchEntry<Row, Request>>, Counts) {
-        (self.sendable, self.decided)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use headless_lms_models::credit_registrations::CreditRegistrationState as State;
 
     use super::*;
-    use crate::test_fixtures::registration;
 
     fn written(is_failure: bool) -> Applied {
         Applied::Written { is_failure }
@@ -195,27 +153,5 @@ mod tests {
     #[test]
     fn an_oversized_sweep_saturates_instead_of_going_negative() {
         assert_eq!(Counts::processed(i64::MAX).processed_count(), i32::MAX);
-    }
-
-    #[test]
-    fn a_claim_keeps_its_own_decisions_apart_from_the_batch_it_sends() {
-        let first = ClaimedRegistration::left_in_place(registration(State::AwaitingVerification));
-        let second = ClaimedRegistration::left_in_place(registration(State::AwaitingVerification));
-        let ids = [first.registration().id, second.registration().id];
-        let mut prepared = Prepared::new();
-        prepared.send(first, "first");
-        prepared.record_decided(true);
-        prepared.send(second, "second");
-        prepared.record_decided(false);
-        assert_eq!(prepared.sendable().len(), 2);
-        let (sendable, decided) = prepared.into_parts();
-        let sent: Vec<_> = sendable
-            .iter()
-            .map(|entry| (entry.registration_id, entry.request))
-            .collect();
-        assert_eq!(sent, [(ids[0], "first"), (ids[1], "second")]);
-        assert_eq!(decided.processed_count(), 2);
-        assert_eq!(decided.failed_count(), 1);
-        assert_eq!(decided.moved_on_count(), 0);
     }
 }

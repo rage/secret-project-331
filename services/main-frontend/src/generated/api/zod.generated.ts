@@ -187,6 +187,7 @@ export const zAdminManualLinkOutcome = z.enum([
   "already_linked_to_another_account",
   "already_linked_to_this_account",
   "study_registry_unavailable",
+  "unexpected_study_registry_answer",
 ])
 
 export const zAdminManuallyLinkStudentNumberPayload = z.object({
@@ -1382,8 +1383,8 @@ export const zCreditRegistrationAlert = z.object({
 /**
  * Which detector picked a row for the attention queue. A row can carry several.
  *
- * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue, but
- * it says nothing about why, so it is reported per row rather than as a reason of its own.
+ * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue,
+ * but it says nothing about why, so it is reported per row rather than as a reason of its own.
  */
 export const zCreditRegistrationAttentionReason = z.enum([
   "stuck_in_state",
@@ -1626,7 +1627,7 @@ export const zCreditRegistrationPhaseStatus = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   heartbeat_late: z.boolean(),
-  implemented: z.boolean(),
+  is_known_phase: z.boolean(),
   items_failed_last_run: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1906,7 +1907,7 @@ export const zCreditRegistrationPhaseRow = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   failing: z.boolean(),
   heartbeat_late: z.boolean(),
-  implemented: z.boolean(),
+  is_known_phase: z.boolean(),
   items_failed_last_run: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -3266,6 +3267,66 @@ export const zMyStudiesCompletion = z.object({
 })
 
 /**
+ * A course module as the student's own profile shows it, with their best visible completion.
+ */
+export const zMyStudiesCourseModule = z.object({
+  attempted_exercises: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  attempted_exercises_required: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  automatic_completion: z.boolean(),
+  completion: zMyStudiesCompletion.nullish(),
+  course_module_id: z.uuid(),
+  ects_credits: z.number().nullish(),
+  is_credit_registration_starting: z.boolean(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  score_required: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  supports_credit_registration: z.boolean(),
+  total_exercises: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
+export const zMyStudiesCourse = z.object({
+  course_id: z.uuid(),
+  course_name: z.string(),
+  course_slug: z.string(),
+  current_course_instance_id: z.uuid().nullish(),
+  current_course_instance_name: z.string().nullish(),
+  exam_passed: z.boolean().nullish(),
+  first_enrolled_at: z.iso.datetime(),
+  hidden: z.boolean(),
+  is_current: z.boolean(),
+  language_code: z.string(),
+  modules: z.array(zMyStudiesCourseModule),
+  organization_slug: z.string(),
+  supports_credit_registration: z.boolean(),
+})
+
+/**
  * Summarises the courses the profile lists, i.e. the non-hidden ones.
  */
 export const zMyStudiesTotals = z.object({
@@ -3278,6 +3339,12 @@ export const zMyStudiesTotals = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   ects: z.number(),
+})
+
+export const zMyStudies = z.object({
+  any_module_supports_credit_registration: z.boolean(),
+  courses: z.array(zMyStudiesCourse),
+  totals: zMyStudiesTotals,
 })
 
 /**
@@ -3416,8 +3483,8 @@ export const zNotImprovedAttainment = z.object({
 })
 
 /**
- * The same, for one of the two terminal-state mails. No address: these go to the account's own,
- * which the reader either owns or already sees.
+ * Where one of the two terminal-state mails stands, as a row shows it. No address: these go to
+ * the account's own, which the reader either owns or already sees.
  */
 export const zNotificationEmailStatus = z.object({
   email_send_status: zEmailSendStatus,
@@ -3912,8 +3979,7 @@ export const zPeerReviewWithQuestionsAndAnswers = z.object({
 })
 
 /**
- * Live `pending` rows per blocker, for the surfaces that used to read the three states off the
- * ledger.
+ * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export const zPendingReasonCounts = z.object({
   completion_count: z.coerce
@@ -4296,7 +4362,7 @@ export const zResetPasswordTokenPayload = z.object({
 })
 
 /**
- * Why [`CreditRegistrationState::resubmission_refusal`] would not move a row.
+ * Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.
  *
  * Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
  * travels to them as it is rather than being re-mapped per surface.
@@ -4640,72 +4706,6 @@ export const zMyCreditRegistration = z.object({
 export const zMyCreditRegistrationForCourseModule = z.object({
   earlier_attempts: z.array(zMyCreditRegistration),
   registration: zMyCreditRegistration,
-})
-
-/**
- * A course module as the student's own profile shows it, with their best visible completion.
- */
-export const zMyStudiesCourseModule = z.object({
-  attempted_exercises: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  attempted_exercises_required: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  automatic_completion: z.boolean(),
-  completion: zMyStudiesCompletion.nullish(),
-  course_module_id: z.uuid(),
-  ects_credits: z.number().nullish(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  requires_exam: z.boolean(),
-  score_given: z.number(),
-  score_maximum: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  score_required: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  status_before_registration: zStudentFacingCreditRegistrationStatus.nullish(),
-  supports_credit_registration: z.boolean(),
-  total_exercises: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  uh_course_code: z.string().nullish(),
-})
-
-export const zMyStudiesCourse = z.object({
-  course_id: z.uuid(),
-  course_name: z.string(),
-  course_slug: z.string(),
-  current_course_instance_id: z.uuid().nullish(),
-  current_course_instance_name: z.string().nullish(),
-  exam_passed: z.boolean().nullish(),
-  first_enrolled_at: z.iso.datetime(),
-  hidden: z.boolean(),
-  is_current: z.boolean(),
-  language_code: z.string(),
-  modules: z.array(zMyStudiesCourseModule),
-  organization_slug: z.string(),
-  supports_credit_registration: z.boolean(),
-})
-
-export const zMyStudies = z.object({
-  any_module_supports_credit_registration: z.boolean(),
-  courses: z.array(zMyStudiesCourse),
-  totals: zMyStudiesTotals,
 })
 
 /**

@@ -395,6 +395,7 @@ const MANUAL_LINK_OUTCOME_KEYS = {
   already_linked_to_another_account: "credit-registration-admin-manual-link-other-account",
   already_linked_to_this_account: "credit-registration-admin-manual-link-this-account",
   study_registry_unavailable: "credit-registration-admin-manual-link-registry-unavailable",
+  unexpected_study_registry_answer: "credit-registration-admin-manual-link-unexpected-answer",
 } as const satisfies Record<AdminManualLinkOutcome, string>
 
 const MANUAL_LINK_OUTCOME_UNKNOWN_KEY = "credit-registration-admin-manual-link-unknown-outcome"

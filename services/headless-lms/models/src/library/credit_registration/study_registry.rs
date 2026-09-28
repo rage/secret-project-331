@@ -4,6 +4,7 @@
 use chrono::NaiveDate;
 use secrecy::SecretString;
 
+use super::grade_mapping::MappedGrade;
 use crate::prelude::*;
 
 /// The final attainment type in Sisu; any other type on a registered submission is partial
@@ -73,6 +74,23 @@ pub struct RegistryAttainment {
     pub grade_id: Option<String>,
 }
 
+impl RegistryAttainment {
+    /// The grade the registry holds, or `None` when it gave no scale or no grade.
+    pub fn held_grade(&self) -> Option<MappedGrade> {
+        MappedGrade::from_columns(self.grade_scale_id.as_deref(), self.grade_id.as_deref())
+    }
+
+    /// The grade as a timeline line names it, with its scale: "1" is a pass on one scale and a one
+    /// out of five on the other. `None` when the registry gave no grade.
+    pub fn display_grade(&self) -> Option<String> {
+        let grade_id = self.grade_id.as_deref()?;
+        Some(match self.grade_scale_id.as_deref() {
+            Some(scale) => format!("{grade_id} on {scale}"),
+            None => grade_id.to_string(),
+        })
+    }
+}
+
 /// One person a course roster lists, once per realisation they are enrolled on.
 #[derive(Debug, Clone)]
 pub struct RosterPerson {
@@ -94,12 +112,24 @@ pub struct RosterEnrolment {
     pub enrolment_date_time: Option<DateTime<Utc>>,
 }
 
-/// Whether the registry answered an item as done or as failed; the item's code says what either
-/// means.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ItemStatus {
-    Ok,
-    Error,
+/// What the pipeline asks of the study registry, one variant per kind of request. The Suotar
+/// adapter maps each to its endpoint.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum RegistryOperation {
+    ResolvePersons,
+    ResolveEnrolments,
+    ImportAttainments,
+    VerifyAttainments,
+    ListCourseRoster,
+    ValidateCourseCodes,
+}
+
+impl RegistryOperation {
+    /// An item this operation never answered is uncertain, not retryable: re-sending it can put a
+    /// second attainment on a real transcript.
+    pub fn creates_attainments(self) -> bool {
+        matches!(self, Self::ImportAttainments)
+    }
 }
 
 /// How a whole request to the study registry failed. Failures of single items are answers, not

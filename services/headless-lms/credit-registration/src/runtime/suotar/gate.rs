@@ -2,17 +2,17 @@
 //! request is spent through the gate and recorded in it, and [`StudyRegistryGate::settle`] turns
 //! the records into the breaker and limiter effects.
 
-use headless_lms_models::credit_registration_events::scrub_text;
-use headless_lms_models::library::credit_registration::classification::{
-    is_all_unavailable, is_only_sisu_timeouts,
-};
+use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarEndpoint, SuotarError};
 
-use super::breaker::{self, BreakerTarget, ScopeKey};
-use super::decode::item_status;
+use super::breaker::{self, BreakerTarget};
+use super::codes::{is_all_unavailable, is_only_sisu_timeouts};
+use super::decode::registry_error;
 use super::rate_limit;
-use crate::phase::{CreditRegistrationPhase, PhaseScope};
+use crate::phase::CreditRegistrationPhase;
 use crate::runtime::PhaseSkipReason;
+use crate::runtime::process_local::ScopeKey;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 /// What one request to Suotar came to.
 pub(super) enum Exchange<'a> {
@@ -43,9 +43,7 @@ impl Exchange<'_> {
     ) -> Self {
         let endpoint = response.endpoint;
         let items = &response.items;
-        let answers = items
-            .iter()
-            .map(|item| (item_status(item.status), item.code.as_str()));
+        let answers = items.iter().map(|item| (item.status, item.code.as_str()));
         Self::Answered {
             unavailable: is_all_unavailable(endpoint, answers).then(|| Unavailable {
                 message: unavailable_message,
@@ -118,7 +116,7 @@ impl StudyRegistryGate {
     /// ever waits: an outage must not stall the database-only phases.
     pub(super) fn admit(
         phase: CreditRegistrationPhase,
-        scope: &PhaseScope,
+        scope: &RegistrationScope,
         test_mode: bool,
     ) -> Result<Self, PhaseSkipReason> {
         let key = ScopeKey::of(scope);
@@ -211,7 +209,8 @@ impl StudyRegistryGate {
                     .get_or_insert_with(|| scrub_text(error.message()));
                 // Only Suotar failing counts: not our own request or credentials, and not a request
                 // that never left.
-                tally.has_registry_failure |= error.was_sent && error.variant.is_transient();
+                tally.has_registry_failure |=
+                    error.was_sent && registry_error(error).kind.is_outage();
                 tally.failed_endpoints.push(endpoint);
             }
             Exchange::RefusedAlone(error) => {

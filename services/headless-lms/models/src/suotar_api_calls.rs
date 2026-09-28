@@ -1,10 +1,11 @@
 //! Per-request observability for calls to Suotar.
 //!
-//! Bodies must be scrubbed with [`crate::credit_registration_events::scrub_suotar_body`] before
-//! insert; `credit_registration_ids` replaces the removed identifiers for drill-down.
+//! Bodies must be scrubbed with [`crate::library::credit_registration::scrub::scrub_suotar_body`]
+//! before insert; `credit_registration_ids` ties a call to the rows it was for, which the scrubbed
+//! bodies no longer identify.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
-    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
+    REFUSED_BEFORE_SENDING_CODE, SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
 };
 use utoipa::ToSchema;
 
@@ -12,7 +13,7 @@ use utoipa::ToSchema;
 /// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
 pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
+use crate::library::credit_registration::scrub::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
 
 /// How long call rows are kept.
@@ -23,6 +24,8 @@ pub const FULL_BODY_ITEM_LIMIT: usize = 20;
 
 /// Above [`FULL_BODY_ITEM_LIMIT`], only this many items are kept plus a count.
 pub const SAMPLED_BODY_ITEM_COUNT: usize = 5;
+// `sample_body` slices this many off a body longer than the limit.
+const _: () = assert!(SAMPLED_BODY_ITEM_COUNT <= FULL_BODY_ITEM_LIMIT);
 
 /// Hard cap on a stored body, applied after sampling.
 pub const BODY_SAMPLE_MAX_BYTES: usize = 64 * 1024;
@@ -184,7 +187,7 @@ WHERE id = $1
 
 /// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small, then
 /// the leading items plus a count, then nothing but the measurements.
-pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
+fn sample_body(value: &serde_json::Value) -> serde_json::Value {
     let sampled = match value.as_array() {
         Some(items) if items.len() > FULL_BODY_ITEM_LIMIT => serde_json::json!({
             "items": &items[..SAMPLED_BODY_ITEM_COUNT],
@@ -652,6 +655,7 @@ WHERE started_at >= $1
 
 /// The unbroken run of "Suotar did not answer usefully" at the end of the window. A transport
 /// failure carries no HTTP status, which is how it is told from a refusal Suotar composed itself.
+/// Calls we refused before sending are left out.
 pub async fn count_unreachable_run_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -674,6 +678,7 @@ WHERE c.started_at >= $1
   AND c.deleted_at IS NULL
   AND c.duration_ms IS NOT NULL
   AND NOT c.succeeded
+  AND c.request_level_error_code IS DISTINCT FROM $2
   AND (
     c.http_status IS NULL
     OR c.http_status >= 500
@@ -684,6 +689,7 @@ WHERE c.started_at >= $1
   )
         "#,
         since,
+        REFUSED_BEFORE_SENDING_CODE,
     )
     .fetch_one(conn)
     .await?;

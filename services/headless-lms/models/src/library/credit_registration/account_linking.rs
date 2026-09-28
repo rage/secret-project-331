@@ -18,6 +18,7 @@ use crate::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
 };
+use crate::error::missing_model_error;
 use crate::prelude::*;
 use crate::student_number_verification_tokens::{
     NewStudentNumberVerificationToken, insert_batch as insert_tokens_batch,
@@ -55,9 +56,24 @@ pub struct DiscoveredPerson {
     pub addresses: Vec<DbSecret>,
 }
 
+impl DiscoveredPerson {
+    /// `person` as listed on a roster of `course_id`'s, with every address the registry holds for
+    /// them; the caller decides what an empty address list means.
+    pub fn listed(person: &RosterPerson, course_id: Uuid) -> Self {
+        Self {
+            sisu_person_id: person.person_id.clone().into(),
+            student_number: person.student_number.clone().into(),
+            first_names: person.first_names.clone().map(Into::into),
+            last_name: person.last_name.clone().map(Into::into),
+            course_id,
+            addresses: listed_person_addresses(person),
+        }
+    }
+}
+
 /// Every address the study registry holds for a listed person, in the order it lists them; which
 /// one they read is not something we can know.
-pub fn listed_person_addresses(person: &RosterPerson) -> Vec<DbSecret> {
+fn listed_person_addresses(person: &RosterPerson) -> Vec<DbSecret> {
     [&person.primary_email, &person.secondary_email]
         .into_iter()
         .flatten()
@@ -79,13 +95,14 @@ pub async fn claim_linking_mails(
     conn: &mut PgConnection,
     person: &DiscoveredPerson,
 ) -> ModelResult<ClaimedLinkingMails> {
-    Ok(
-        claim_linking_mails_batch(conn, std::slice::from_ref(person))
-            .await?
-            .into_iter()
-            .next()
-            .unwrap_or_default(),
-    )
+    claim_linking_mails_batch(conn, std::slice::from_ref(person))
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(missing_model_error(
+            ModelErrorType::Generic,
+            "Claiming linking mails answered nothing for the one person asked about.",
+        ))
 }
 
 /// Claims one slot and one unbound token per person and address, dedup before rate cap and the
@@ -103,9 +120,9 @@ pub async fn claim_linking_mails_batch(
 
     let sisu_person_ids: Vec<String> = people
         .iter()
-        .enumerate()
-        .filter(|(i, _)| !per_person_addresses[*i].is_empty())
-        .map(|(_, person)| person.sisu_person_id.expose_secret().to_owned())
+        .zip(&per_person_addresses)
+        .filter(|(_, addresses)| !addresses.is_empty())
+        .map(|(person, _)| person.sisu_person_id.expose_secret().to_owned())
         .collect();
     if sisu_person_ids.is_empty() {
         return Ok(outcomes);
@@ -120,9 +137,9 @@ pub async fn claim_linking_mails_batch(
     }
     let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
 
-    let mut to_claim: Vec<(usize, DbSecret)> = Vec::new();
-    for (i, person) in people.iter().enumerate() {
-        if per_person_addresses[i].is_empty() {
+    let mut to_claim: Vec<(usize, &DbSecret)> = Vec::new();
+    for (i, (person, addresses)) in people.iter().zip(&per_person_addresses).enumerate() {
+        if addresses.is_empty() {
             continue;
         }
         let person_facts = by_person
@@ -130,7 +147,7 @@ pub async fn claim_linking_mails_batch(
             .map(Vec::as_slice)
             .unwrap_or(&[]);
         let mut allowance = remaining_allowance(person, person_facts, quiet_since);
-        for address in &per_person_addresses[i] {
+        for address in addresses {
             if already_mailed(person_facts, person.course_id, address.expose_secret()) {
                 outcomes[i].suppressed_by_dedup += 1;
                 continue;
@@ -140,7 +157,7 @@ pub async fn claim_linking_mails_batch(
                 continue;
             }
             allowance -= 1;
-            to_claim.push((i, address.clone()));
+            to_claim.push((i, address));
         }
     }
     if to_claim.is_empty() {
@@ -160,7 +177,7 @@ pub async fn claim_linking_mails_batch(
             sisu_person_id: person.sisu_person_id.clone(),
             first_names: person.first_names.clone(),
             last_name: person.last_name.clone(),
-            emailed_to: address.clone(),
+            emailed_to: (*address).clone(),
             course_id: Some(person.course_id),
         });
         token_owner.insert(token_id, *person_index);
@@ -169,7 +186,7 @@ pub async fn claim_linking_mails_batch(
             student_number: person.student_number.clone(),
             sisu_person_id: person.sisu_person_id.clone(),
             course_id: person.course_id,
-            emailed_to: address.clone(),
+            emailed_to: (*address).clone(),
             student_number_verification_token_id: Some(token_id),
             email_delivery_id: None,
         });

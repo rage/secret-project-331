@@ -194,6 +194,44 @@ WHERE sisu_person_id = $1
     Ok(res)
 }
 
+/// Whose live link already holds a student number or its Sisu person, from the point of view of
+/// `user_id` about to link them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkConflict {
+    /// Linked to `user_id` already.
+    SameAccount,
+    /// Linked to another account; linking `user_id` would break a unique key.
+    AnotherAccount,
+}
+
+/// Checks both unique keys before linking: a student who changed programme keeps their Sisu person
+/// id and gets a new number, so checking the number alone lets the link through and then trips
+/// `uq_verified_student_numbers_person` as a bare 500. Another account's hold wins over our own.
+pub async fn find_link_conflict(
+    conn: &mut PgConnection,
+    student_number: &str,
+    sisu_person_id: &str,
+    user_id: Uuid,
+) -> ModelResult<Option<LinkConflict>> {
+    let by_number = get_by_student_number(conn, student_number).await?;
+    if by_number
+        .as_ref()
+        .is_some_and(|link| link.user_id != user_id)
+    {
+        return Ok(Some(LinkConflict::AnotherAccount));
+    }
+    let by_person = get_by_sisu_person_id(conn, sisu_person_id).await?;
+    let holders = [by_number, by_person];
+    let conflict = if holders.iter().flatten().any(|link| link.user_id != user_id) {
+        Some(LinkConflict::AnotherAccount)
+    } else if holders.iter().any(Option::is_some) {
+        Some(LinkConflict::SameAccount)
+    } else {
+        None
+    };
+    Ok(conflict)
+}
+
 pub async fn get_by_user_ids(
     conn: &mut PgConnection,
     user_ids: &[Uuid],

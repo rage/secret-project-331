@@ -1,5 +1,5 @@
 //! Database rows for the credit-registration (Suotar) system tests. The identities they are built
-//! from, and the matching registry world, are in [`crate::controllers::mock_suotar::fixtures`].
+//! from, and the matching registry world, are in [`crate::mock_suotar::fixtures`].
 //!
 //! The workers tick every phase unscoped every few seconds in the test deployment, so a fixture row
 //! nothing may move has to sit on a paused module — that is what the states course is for.
@@ -43,7 +43,7 @@ use sqlx::{Connection, PgConnection};
 use tracing::info;
 use uuid::Uuid;
 
-use crate::controllers::mock_suotar::fixtures::*;
+use crate::mock_suotar::fixtures::*;
 use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,
@@ -868,7 +868,7 @@ async fn seed_frozen_registration(
         id,
         &Transition {
             error_code,
-            needs_admin_attention: error_code.map(|_| true),
+            needs_admin_attention: error_code.map(|_| credit_registrations::AdminAttention::Raise),
             ..Transition::planted(state)
         },
     )

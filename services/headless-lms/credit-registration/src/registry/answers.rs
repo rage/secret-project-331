@@ -22,7 +22,8 @@ pub(crate) struct FoundPerson {
     pub last_name: Option<SecretString>,
 }
 
-/// A worker's person lookup.
+/// A worker's person lookup, read into the codes its row is written with. Not [`RegistryPerson`],
+/// which keeps Suotar's own code for someone to read.
 pub(crate) struct PersonAnswer {
     pub reading: PersonReading,
     /// The item's own error, which may accompany any reading.
@@ -37,20 +38,26 @@ pub(crate) enum PersonReading {
     },
 }
 
-/// An interactive person lookup, for someone waiting on the answer.
-pub(crate) enum PersonLookupAnswer {
-    NotFound,
-    Found {
-        person: FoundPerson,
-        /// The registry's own code, an identifier rather than prose.
-        registry_code: String,
-    },
-    /// Anything but a person or `personNotFound`.
-    Unexpected {
-        registry_code: String,
-    },
-    /// The registry answered without an item for the number.
-    Unanswered,
+/// The Sisu person an interactive lookup found for a student number.
+pub struct RegistryPerson {
+    pub sisu_person_id: SecretString,
+    pub first_names: Option<SecretString>,
+    pub last_name: Option<SecretString>,
+    /// The registry's own per-item code, an identifier rather than prose.
+    pub code: String,
+}
+
+/// Why an interactive person lookup could not say whether the number exists. `personNotFound` is
+/// an answer, not one of these.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PersonLookupError {
+    /// The request itself failed: network, auth, or a request-level error from the registry.
+    StudyRegistryUnavailable,
+    /// The registry answered but its response did not include this item.
+    ItemMissingFromResponse,
+    /// The registry answered for this item with something other than a person or
+    /// `personNotFound`: its own code, an identifier rather than prose.
+    UnexpectedAnswer { code: String },
 }
 
 /// An enrolment lookup. The lists are read whatever the reading: an enrolment error still lists
@@ -76,9 +83,9 @@ pub(crate) enum ImportAnswer {
         submission: Option<SubmittedAttainmentRef>,
         is_repeat_in_batch: bool,
     },
-    /// The registry already holds the credit: `state` is `duplicate` or `not_improved`.
+    /// The registry already holds the credit, so the row settles without a submission.
     Settled {
-        state: CreditRegistrationState,
+        held: HeldCredit,
         attainment: Option<RegistryAttainment>,
     },
     /// Anything the registry answered as an error, `sisuTimeout` included, which may still name a
@@ -90,6 +97,22 @@ pub(crate) enum ImportAnswer {
     },
     /// A success code we do not know, which is no proof that nothing was created.
     UnknownSuccessCode,
+}
+
+/// How the credit an import settled on is already held.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum HeldCredit {
+    Duplicate,
+    NotImproved,
+}
+
+impl HeldCredit {
+    pub(crate) fn state(self) -> CreditRegistrationState {
+        match self {
+            Self::Duplicate => CreditRegistrationState::Duplicate,
+            Self::NotImproved => CreditRegistrationState::NotImproved,
+        }
+    }
 }
 
 /// A verify poll.

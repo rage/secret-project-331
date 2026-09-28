@@ -398,27 +398,6 @@ WHERE sent_at >= $1
     Ok(count)
 }
 
-/// Mails claimed in the window, newest first, whatever course they belong to.
-pub async fn get_sent_since(
-    conn: &mut PgConnection,
-    since: DateTime<Utc>,
-) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationAccountLinkingEmail,
-        r#"
-SELECT *
-FROM credit_registration_account_linking_emails
-WHERE sent_at >= $1
-  AND deleted_at IS NULL
-ORDER BY sent_at DESC
-        "#,
-        since,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Every mail in a window, bucketed the way [`crate::email_deliveries::derive_email_send_status`]
 /// does. Computed in SQL from the same facts rather than from its output, so the two cannot drift
 /// on what counts as failed.

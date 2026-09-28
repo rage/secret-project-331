@@ -1,107 +1,84 @@
 //! The second half of a `resolve-enrolments` iteration: the enrolment lookup, and freezing the
 //! payload the import will send.
+//!
+//! [`request`] decides whether a row can be asked about, [`answer`] what the registry's answer
+//! means, and [`resolution`] what that comes to for the row; the orchestration, with its
+//! transaction, is here.
 
-mod decide;
+mod answer;
+mod request;
+mod resolution;
 
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationState, claim_due_for_resolve, get_recorded_credits_for_same_module,
-    lock_live_successes_for_same_module, transition,
-};
+use headless_lms_models::credit_registrations::claim_due_for_resolve;
 use headless_lms_models::library::credit_registration::enrolment_checks::EnrolmentCheckAnswer;
-use headless_lms_models::library::credit_registration::enrolment_selection::select_enrolment;
-use headless_lms_models::library::credit_registration::outcomes::{
-    Outcome, missing_context_outcome, unanswered_item_outcome,
+use headless_lms_models::library::credit_registration::enrolment_selection::{
+    EnrolmentCriteria, select_enrolment,
 };
-use headless_lms_models::library::credit_registration::study_registry::RegistryAttainment;
+use headless_lms_models::library::credit_registration::outcomes::{
+    missing_context, unanswered_item_outcome,
+};
 use headless_lms_models::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
-use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use headless_lms_utils::prelude::Utc;
 use sqlx::{Connection, PgConnection};
-use std::collections::HashSet;
-use uuid::Uuid;
 
-use super::{Lookup, hold};
-use crate::domain::{Applied, ClaimedRegistration, Decision, PayloadChange, Prepared, Refusal};
+use super::{claim_for_lookup, hold_in_flight, keep_lookups_in_flight};
 use crate::error::CreditRegistrationResult;
-use crate::registry::{
-    BatchReply, EnrolmentAnswer, EnrolmentLookup, ExchangeAudit, RequestBatch, StudyRegistry,
-};
-use crate::use_cases::batch_flow::RegistryBatchFlow;
-use crate::use_cases::contexts::BatchFlowContext;
-use crate::use_cases::persist::{
-    write_decision, write_decision_committing_if_written, write_unasked_outcome,
+use crate::registry::{BatchRequest, EnrolmentAnswer, EnrolmentLookup, ExchangeAudit};
+use crate::use_cases::batch_flow::{BatchFlowContext, Prepared, RegistryBatchFlow};
+use crate::workflow::{
+    Applied, Claimed, ClaimedRegistration, Decision, RefusalPolicy, write_decision,
+    write_decision_committing_if_written, write_unasked_move,
 };
 
-use decide::{
-    EnrolmentLookupResult, Resolution, Unaskable, enrolment_criteria, enrolment_lookup,
-    freeze_message, held_in_sisu, read_enrolment_answer, resolve, unsent_duplicate,
-};
-
-const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ResolveEnrolments;
+use answer::{AnsweredLookup, EnrolmentLookupResult};
+use request::{Askable, Unaskable, enrolment_lookup};
+use resolution::{CompetingCredits, resolve, unsent_duplicate};
 
 pub(super) struct ResolveEnrolments;
 
-/// A claimed row and its frozen context: the answer is applied against what was asked, not against
-/// a second read of the database.
-pub(super) struct Resolvable {
-    claim: ClaimedRegistration,
-    context: SubmissionContext,
-    lookup: Lookup,
+/// What a row's lookup was built from: the submission context, and the criteria the lookup's
+/// enrolment must fit. The answer is applied against what was asked, not against a second read of
+/// the database.
+pub(super) struct LookupBasis {
+    submission: SubmissionContext,
+    criteria: EnrolmentCriteria,
 }
 
-impl AsRef<ClaimedRegistration> for Resolvable {
-    fn as_ref(&self) -> &ClaimedRegistration {
-        &self.claim
-    }
-}
+/// A row claimed for its enrolment lookup.
+pub(super) type Resolvable = Claimed<LookupBasis>;
 
 impl RegistryBatchFlow for ResolveEnrolments {
-    type Row = Resolvable;
+    type Extra = LookupBasis;
     type Request = EnrolmentLookup;
-    type Answer = EnrolmentAnswer;
 
-    const ENDPOINT: SuotarEndpoint = ENDPOINT;
-    const MAY_SPLIT: bool = true;
     const ALL_UNAVAILABLE_ERROR: &'static str = "Every item of the batch came back unavailable.";
+    const REFUSAL: RefusalPolicy<LookupBasis> = RefusalPolicy::RequestLevel;
 
     async fn claim(
-        &mut self,
         ctx: &BatchFlowContext<'_>,
         conn: &mut PgConnection,
         limit: usize,
-    ) -> CreditRegistrationResult<Prepared<Self::Row, Self::Request>> {
-        let claimed = claim_due_for_resolve(conn, ctx.scope, limit as i64).await?;
+    ) -> CreditRegistrationResult<Prepared<LookupBasis, EnrolmentLookup>> {
+        let claimed =
+            claim_due_for_resolve(conn, ctx.scope, i64::try_from(limit).unwrap_or(i64::MAX))
+                .await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
 
         let mut prepared = Prepared::new();
-        let mut batched_student_modules = HashSet::new();
         for row in claimed {
-            // Left claimable where it is: once this batch's row for the module is resolving, the
-            // claim holds this one back until that one settles.
-            if !batched_student_modules.insert((row.user_id, row.course_module_id)) {
-                debug!(
-                    credit_registration_id = %row.id,
-                    "Leaving row claimable: another attempt for the same student and module is already in this batch"
-                );
-                continue;
-            }
             let Some(context) = contexts.remove(&row.id) else {
                 warn!(
                     credit_registration_id = %row.id,
                     "Credit registration has no completion or module to submit for"
                 );
                 let claim = ClaimedRegistration::left_in_place(row);
-                write_unasked_outcome(
-                    conn,
-                    &claim,
-                    &missing_context_outcome(&claim.facts(Utc::now())),
-                    "There is no completion or module to submit for.",
-                )
-                .await?;
-                prepared.record_decided(true);
+                let applied =
+                    write_unasked_move(conn, &claim, missing_context(&claim.facts(Utc::now())))
+                        .await?;
+                prepared.record_applied(claim.id(), applied);
                 continue;
             };
             // Left for the next iteration's person lookup rather than frozen without the person.
@@ -113,14 +90,15 @@ impl RegistryBatchFlow for ResolveEnrolments {
                 continue;
             }
             match enrolment_lookup(&context) {
-                Ok(request) => {
-                    let lookup = Lookup::of(&row);
-                    let resolvable = Resolvable {
-                        claim: lookup.claim(row),
-                        context,
-                        lookup,
+                Ok(Askable { request, criteria }) => {
+                    let row = Claimed {
+                        claim: claim_for_lookup(row),
+                        extra: LookupBasis {
+                            submission: context,
+                            criteria,
+                        },
                     };
-                    prepared.send(resolvable, request);
+                    prepared.send(row, request);
                 }
                 Err(problem) => {
                     match &problem {
@@ -138,34 +116,25 @@ impl RegistryBatchFlow for ResolveEnrolments {
                             );
                         }
                     }
-                    transition(conn, row.id, &problem.transition()).await?;
-                    prepared.record_decided(true);
+                    // The claim holds the row's lock, so the guard only confirms the state it read.
+                    let claim = ClaimedRegistration::left_in_place(row);
+                    let applied = write_unasked_move(conn, &claim, problem.unasked_move()).await?;
+                    prepared.record_applied(claim.id(), applied);
                 }
             }
         }
-        hold(
+        hold_in_flight(
             conn,
-            prepared
-                .sendable()
-                .iter()
-                .map(|entry| (entry.registration_id, entry.row.lookup)),
+            prepared.sendable().iter().map(|entry| &entry.row.claim),
         )
         .await?;
         Ok(prepared)
     }
 
-    async fn send<R: StudyRegistry>(
-        registry: &mut R,
-        batch: RequestBatch<Self::Row, Self::Request>,
-    ) -> BatchReply<Self::Row, Self::Request, Self::Answer> {
-        registry.resolve_enrolments(batch).await
-    }
-
-    async fn persist_answer(
-        &self,
+    async fn apply_answer(
         conn: &mut PgConnection,
-        resolvable: &Self::Row,
-        answer: Option<&Self::Answer>,
+        resolvable: &Resolvable,
+        answer: Option<&EnrolmentAnswer>,
         audit: &ExchangeAudit,
     ) -> CreditRegistrationResult<Applied> {
         let claim = &resolvable.claim;
@@ -173,7 +142,7 @@ impl RegistryBatchFlow for ResolveEnrolments {
         let enrolments = answer
             .map(|answer| answer.enrolments.as_slice())
             .unwrap_or_default();
-        let chosen = select_enrolment(enrolments, enrolment_criteria(&resolvable.context));
+        let chosen = select_enrolment(enrolments, resolvable.extra.criteria);
         let check = row
             .enrolment_check_anchor_at
             .is_some()
@@ -183,26 +152,29 @@ impl RegistryBatchFlow for ResolveEnrolments {
                 listed_enrolments: enrolments,
             });
         let Some(answer) = answer else {
-            let outcome = unanswered_item_outcome(ENDPOINT, row.state, &claim.facts(Utc::now()));
+            let outcome = unanswered_item_outcome(
+                EnrolmentLookup::OPERATION,
+                row.state,
+                &claim.facts(Utc::now()),
+            );
             let decision = Decision::new(outcome)
                 .with_message("Sisu did not answer for this item.")
                 .with_enrolment_check(check);
             return write_decision(conn, claim, decision, audit).await;
         };
-        let lookup_result = read_enrolment_answer(answer, enrolments, chosen);
-        persist_enrolment_answer(
-            conn,
+        let lookup = AnsweredLookup::new(
             resolvable,
-            &lookup_result,
+            EnrolmentLookupResult::read(answer, chosen),
             &answer.existing_attainments,
-            check,
-            audit,
-        )
-        .await
+        );
+        apply_enrolment_answer(conn, &lookup, check, audit).await
     }
 
-    fn on_refusal(&self, _resolvable: &Self::Row) -> Refusal {
-        Refusal::RequestLevel
+    async fn keep_in_flight(
+        conn: &mut PgConnection,
+        rows: &[&Resolvable],
+    ) -> CreditRegistrationResult<()> {
+        keep_lookups_in_flight(conn, rows.iter().map(|row| &row.claim)).await
     }
 }
 
@@ -210,77 +182,105 @@ impl RegistryBatchFlow for ResolveEnrolments {
 /// already held, fails it when there is nothing to register against, and otherwise freezes the
 /// payload and queues the row for import.
 ///
-/// What Sisu itself holds is weighed first, before anything is locked: if the attainment exists the
-/// credit does, so sending the student off to re-enrol would be wrong as well as unnecessary. Then,
-/// in one transaction, what we registered from another attempt, which Suotar's copy of Sisu may
-/// predate, and for an enrolment error, the credits our records hold.
-async fn persist_enrolment_answer(
+/// What Sisu itself holds is weighed first: if the attainment exists the credit does, so sending
+/// the student off to re-enrol would be wrong as well as unnecessary.
+async fn apply_enrolment_answer(
     conn: &mut PgConnection,
-    resolvable: &Resolvable,
-    lookup_result: &EnrolmentLookupResult<'_>,
-    existing: &[RegistryAttainment],
+    lookup: &AnsweredLookup<'_>,
     check: Option<EnrolmentCheckAnswer<'_>>,
     audit: &ExchangeAudit,
 ) -> CreditRegistrationResult<Applied> {
-    let claim = &resolvable.claim;
-    let row = claim.registration();
-    let context = &resolvable.context;
-    let grade_scale_id = lookup_result.grade_scale_id(existing);
-    let may_be_held_in_sisu = match lookup_result {
-        EnrolmentLookupResult::Listed { .. } => true,
-        EnrolmentLookupResult::Refused { .. } => lookup_result.is_enrolment_error(),
-    };
     // Before the transaction below: a Sisu attainment must not be written inside one.
-    if may_be_held_in_sisu && let Some(attained) = held_in_sisu(existing, context, grade_scale_id) {
+    if let Some(attained) = lookup.held_in_sisu() {
         let decision = unsent_duplicate(
-            context,
-            grade_scale_id,
+            lookup,
             "Sisu already has an equal or better grade for this course, so nothing was submitted.",
         )
         .with_sisu_attainment(Some(attained))
         .with_enrolment_check(check);
-        return write_decision(conn, claim, decision, audit).await;
+        return write_decision(conn, lookup.claim(), decision, audit).await;
     }
 
+    // Our other attempts' successes are locked in the transaction that freezes the payload, so two
+    // attempts cannot both decide theirs is the grade to send.
     let mut tx = conn.begin().await?;
-    let registered = match lookup_result {
-        EnrolmentLookupResult::Listed { .. } => {
-            lock_live_successes_for_same_module(&mut tx, row.id).await?
+    let competing = CompetingCredits::load(&mut tx, lookup).await?;
+    let decision = resolve(lookup, &competing).with_enrolment_check(check);
+    write_decision_committing_if_written(tx, lookup.claim(), decision, audit).await
+}
+
+#[cfg(test)]
+mod fixtures {
+    use headless_lms_models::credit_registrations::{
+        CreditRegistrationErrorCode, CreditRegistrationState,
+    };
+    use headless_lms_models::library::credit_registration::payload::CompletionFacts;
+    use headless_lms_models::library::credit_registration::study_registry::{
+        CreditRange, RegistryEnrolment,
+    };
+    use headless_lms_models::secret::DbSecret;
+    use uuid::Uuid;
+
+    use super::answer::EnrolmentLookupResult;
+    use super::request::enrolment_lookup;
+    use super::{LookupBasis, Resolvable, SubmissionContext};
+    use crate::test_fixtures::{now, registration};
+    use crate::workflow::{Claimed, ClaimedRegistration};
+
+    pub(super) fn context(grade: Option<i32>) -> SubmissionContext {
+        SubmissionContext {
+            registration_id: Uuid::new_v4(),
+            student_number: Some(DbSecret::new("012345678")),
+            sisu_person_id: Some(DbSecret::new("person-1")),
+            uh_course_code: Some(" TKT10002 ".to_string()),
+            ects_credits: Some(5.0),
+            completion: CompletionFacts {
+                passed: true,
+                grade,
+                completion_date: now(),
+                completion_language: "en".to_string(),
+            },
         }
-        EnrolmentLookupResult::Refused { .. } => Vec::new(),
-    };
-    let recorded = if lookup_result.is_enrolment_error() {
-        get_recorded_credits_for_same_module(&mut tx, row.id).await?
-    } else {
-        Vec::new()
-    };
-    let supersedes: Vec<Uuid> = registered.iter().map(|replaced| replaced.id).collect();
-    let built;
-    let decision = match resolve(
-        lookup_result,
-        context,
-        grade_scale_id,
-        &registered,
-        &recorded,
-        row,
-    ) {
-        Resolution::HeldHere { message } => unsent_duplicate(context, grade_scale_id, message),
-        Resolution::Fail(decision) => decision,
-        Resolution::Freeze(frozen) => {
-            built = frozen;
-            // Only now does the row become claimable by `import`: the payload is frozen and the
-            // event records when the enrolment was resolved.
-            let decision = Decision::new(Outcome::to(CreditRegistrationState::CheckingEnrolment))
-                .with_payload(PayloadChange::Frozen {
-                    snapshot: &built.snapshot,
-                    supersedes: &supersedes,
-                });
-            match freeze_message(&built, !registered.is_empty()) {
-                Some(message) => decision.with_message(message),
-                None => decision,
-            }
+    }
+
+    /// A row on its first resolve, as the claim holds it.
+    pub(super) fn resolvable(context: SubmissionContext) -> Resolvable {
+        let Ok(askable) = enrolment_lookup(&context) else {
+            panic!("fixture context must be askable");
+        };
+        Claimed {
+            claim: ClaimedRegistration::left_in_place(registration(
+                CreditRegistrationState::ResolvingEnrolment,
+            )),
+            extra: LookupBasis {
+                submission: context,
+                criteria: askable.criteria,
+            },
         }
-    };
-    let decision = decision.with_enrolment_check(check);
-    write_decision_committing_if_written(tx, claim, decision, audit).await
+    }
+
+    pub(super) fn enrolment(state: &str) -> RegistryEnrolment {
+        RegistryEnrolment {
+            id: "enrolment-1".to_string(),
+            state: Some(state.to_string()),
+            kind: None,
+            course_unit_realisation_id: None,
+            course_unit_realisation_name: None,
+            activity_period: None,
+            grade_scale_id: Some("sis-0-5".to_string()),
+            credits: Some(CreditRange {
+                min: Some(5.0),
+                max: Some(5.0),
+            }),
+            study_right_validity_period: None,
+            enrolment_date_time: None,
+        }
+    }
+
+    pub(super) fn refused(code: CreditRegistrationErrorCode) -> EnrolmentLookupResult<'static> {
+        EnrolmentLookupResult::Refused {
+            code,
+            error_message: Some("item error"),
+        }
+    }
 }

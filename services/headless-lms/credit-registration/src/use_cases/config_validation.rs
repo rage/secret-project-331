@@ -13,18 +13,19 @@ use headless_lms_models::library::credit_registration::config_validation::{
 use itertools::Itertools;
 use sqlx::PgPool;
 
-use crate::domain::Counts;
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, CourseCodeVerdicts, StudyRegistry};
-use crate::use_cases::contexts::DatabaseContext;
+use crate::workflow::Counts;
+use headless_lms_models::credit_registrations::RegistrationScope;
 
 pub(crate) async fn run<R: StudyRegistry>(
-    ctx: &DatabaseContext<'_>,
+    pool: &PgPool,
+    scope: &RegistrationScope,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
     let modules = {
-        let mut conn = ctx.pool.acquire().await?;
-        get_config_facts_for_enabled_modules(&mut conn, ctx.scope.course_id).await?
+        let mut conn = pool.acquire().await?;
+        get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?
     };
     let course_codes = distinct_course_codes(&modules);
 
@@ -34,7 +35,7 @@ pub(crate) async fn run<R: StudyRegistry>(
     };
 
     let checks = check_modules(&modules, &verdicts);
-    record_checks(ctx.pool, &modules, &checks).await?;
+    record_checks(pool, &modules, &checks).await?;
 
     let with_problems = checks
         .iter()
@@ -68,12 +69,9 @@ fn distinct_course_codes(modules: &[SuotarModuleConfigFacts]) -> Vec<CourseCode>
     modules
         .iter()
         .filter_map(|module| module.uh_course_code.as_deref())
-        .map(str::trim)
-        .filter(|code| !code.is_empty())
-        .map(str::to_string)
+        .filter_map(CourseCode::parse)
         .sorted()
         .dedup()
-        .map(CourseCode::new)
         .collect()
 }
 
@@ -90,7 +88,8 @@ fn check_modules(
             let verdict = module
                 .uh_course_code
                 .as_deref()
-                .and_then(|code| verdicts.get(code.trim()).cloned())
+                .and_then(CourseCode::parse)
+                .and_then(|code| verdicts.get(&code).cloned())
                 .or_else(|| CourseCodeVerdict::stored(module));
             check_module_config(module, verdict.as_ref())
         })
@@ -136,7 +135,7 @@ mod tests {
     fn verdicts(entries: &[(&str, CourseCodeVerdict)]) -> CourseCodeVerdicts {
         entries
             .iter()
-            .map(|(code, verdict)| (CourseCode::new(*code), verdict.clone()))
+            .map(|(code, verdict)| (CourseCode::parse(code).unwrap(), verdict.clone()))
             .collect()
     }
 

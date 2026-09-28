@@ -37,6 +37,7 @@ use crate::apply::{Applied, Decision, Effects, OutcomeEvent, apply_decision};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
 use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
+use crate::error_reporting::report_error;
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::ImportAttainments;
 
@@ -83,6 +84,10 @@ impl SuotarBatchPhase for Import {
                 row.uh_course_code.clone(),
             );
             if !batched_student_courses.insert(student_course) {
+                debug!(
+                    credit_registration_id = %row.id,
+                    "Leaving row claimable: another attempt for the same student and course is already in this batch"
+                );
                 continue;
             }
             // One row's database error must not roll back the whole claim, which would leave the
@@ -100,7 +105,7 @@ impl SuotarBatchPhase for Import {
                 }
                 Err(error) => {
                     savepoint.rollback().await?;
-                    hold_back(conn, &row, &error).await?;
+                    hold_back(it, conn, &row, &error).await?;
                     prepared.decided += 1;
                     prepared.failed += 1;
                 }
@@ -181,6 +186,10 @@ async fn preflight(
     already_registered: &[Uuid],
 ) -> ModelResult<Preflight> {
     if already_registered.contains(&row.course_module_completion_id) {
+        debug!(
+            credit_registration_id = %row.id,
+            "Another registrar already registered this completion; marking duplicate"
+        );
         transition(
             conn,
             row.id,
@@ -234,6 +243,7 @@ async fn preflight(
 /// Parks a row the preflight could not write, flagged for an admin, so the rest of the claim still
 /// goes out.
 async fn hold_back(
+    it: &Iteration<'_>,
     conn: &mut PgConnection,
     row: &CreditRegistration,
     error: &ModelError,
@@ -243,6 +253,15 @@ async fn hold_back(
         error = ?error,
         "Could not prepare credit registration for import; holding it back"
     );
+    report_error(
+        it.ctx.pool,
+        it.ctx.owning_process,
+        it.phase,
+        &error.to_string(),
+        Some(format!("{error:?}")),
+        serde_json::json!({ "credit_registration_id": row.id }),
+    )
+    .await;
     set_needs_admin_attention(conn, row.id, true).await?;
     schedule_next_attempt(conn, row.id, Utc::now() + SUBMIT_MAX_BACKOFF).await?;
     credit_registration_events::insert(

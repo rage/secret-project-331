@@ -84,6 +84,10 @@ impl SuotarBatchPhase for ResolveEnrolments {
             // Left claimable where it is: once this batch's row for the module is resolving, the
             // claim holds this one back until that one settles.
             if !batched_student_modules.insert((row.user_id, row.course_module_id)) {
+                debug!(
+                    credit_registration_id = %row.id,
+                    "Leaving row claimable: another attempt for the same student and module is already in this batch"
+                );
                 continue;
             }
             let Some(context) = contexts.remove(&row.id) else {
@@ -105,6 +109,10 @@ impl SuotarBatchPhase for ResolveEnrolments {
             };
             // Left for the next iteration's person lookup rather than frozen without the person.
             if context.student_number.is_some() && context.sisu_person_id.is_none() {
+                debug!(
+                    credit_registration_id = %row.id,
+                    "Leaving row claimable: waiting for a Sisu person id"
+                );
                 continue;
             }
             match preflight(&context) {
@@ -123,12 +131,20 @@ impl SuotarBatchPhase for ResolveEnrolments {
                     prepared.sendable.push((resolvable, request));
                 }
                 Err(problem) => {
-                    if let Preflight::Config(code) = &problem {
-                        warn!(
-                            credit_registration_id = %row.id,
-                            error_code = ?code,
-                            "Course module is not configured for credit registration"
-                        );
+                    match &problem {
+                        Preflight::Config(code) => {
+                            warn!(
+                                credit_registration_id = %row.id,
+                                error_code = ?code,
+                                "Course module is not configured for credit registration"
+                            );
+                        }
+                        Preflight::NoStudentNumber => {
+                            debug!(
+                                credit_registration_id = %row.id,
+                                "No verified student number; sending back to pending"
+                            );
+                        }
                     }
                     transition(conn, row.id, &problem.transition()).await?;
                     prepared.decided += 1;

@@ -310,6 +310,7 @@ pub async fn admin_pause_phase(
     let phase = require_known_phase(&phase)?;
     let reason = required_reason(&payload.reason)?;
 
+    info!(phase, actor = %user.id, "Admin paused credit registration phase");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::pause(&mut tx, phase, user.id, Some(reason)).await?;
     models::credit_registration_admin_actions::record(
@@ -359,6 +360,7 @@ pub async fn admin_resume_phase(
 
     let phase = require_known_phase(&phase)?;
 
+    info!(phase, actor = %user.id, "Admin resumed credit registration phase");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::resume(&mut tx, phase).await?;
     models::credit_registration_admin_actions::record(
@@ -408,6 +410,7 @@ pub async fn admin_run_phase_now(
 
     let phase = require_known_phase(&phase)?;
 
+    info!(phase, actor = %user.id, "Admin forced credit registration phase to run now");
     let mut tx = conn.begin().await?;
     credit_registration_phase_state::run_now(&mut tx, phase).await?;
     models::credit_registration_admin_actions::record(

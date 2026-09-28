@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::sync::{LazyLock, Mutex, MutexGuard, PoisonError};
+use std::sync::{LazyLock, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 /// A map private to this worker process, for state that is advisory: a poisoned lock is recovered
@@ -15,7 +15,10 @@ impl<K, V> ProcessLocalMap<K, V> {
     }
 
     pub(crate) fn lock(&self) -> MutexGuard<'_, HashMap<K, V>> {
-        self.0.lock().unwrap_or_else(PoisonError::into_inner)
+        self.0.lock().unwrap_or_else(|poisoned| {
+            warn!("Recovered a poisoned breaker/rate-limit lock after a panic elsewhere");
+            poisoned.into_inner()
+        })
     }
 }
 

@@ -31,6 +31,12 @@ pub(crate) async fn run_materialize(it: &mut Iteration<'_>) -> CreditRegistratio
             .await?;
     let re_attempted =
         start_re_attempts_for_improved_grades(&mut conn, it.scope, GRADE_IMPROVEMENT_LIMIT).await?;
+    if created > 0 || re_attempted > 0 {
+        debug!(
+            created,
+            re_attempted, "Materialized credit registration rows"
+        );
+    }
     Ok(Counts::processed(created + re_attempted))
 }
 
@@ -44,6 +50,12 @@ pub(crate) async fn run_legacy_mirror(it: &mut Iteration<'_>) -> CreditRegistrat
     let mut conn = it.ctx.pool.acquire().await?;
     let mirrored =
         mirror_successes_to_legacy_ledger(&mut conn, it.scope, LEGACY_MIRROR_LIMIT).await?;
+    if mirrored > 0 {
+        debug!(
+            mirrored,
+            "Mirrored successful registrations to the legacy ledger"
+        );
+    }
     Ok(Counts::processed(mirrored))
 }
 

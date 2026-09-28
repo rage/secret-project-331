@@ -132,6 +132,13 @@ pub async fn resend_linking_mail(
         suppressed_by_dedup,
         suppressed_by_rate_cap,
     } = claim_linking_mails(&mut conn, &discovered).await?;
+    debug!(
+        course_id = %course_id,
+        claimed,
+        suppressed_by_dedup,
+        suppressed_by_rate_cap,
+        "Linking mail resend claim result"
+    );
     if claimed > 0 {
         return Ok(LinkingMailResendOutcome::Claimed);
     }

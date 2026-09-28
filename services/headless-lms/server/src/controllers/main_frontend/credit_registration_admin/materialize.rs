@@ -56,6 +56,7 @@ pub async fn admin_materialize_credit_registrations(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
+    info!(actor = %user.id, "Admin ran materialize and preconditions now");
     let mut tx = conn.begin().await?;
     let scope = credit_registrations::RegistrationScope::default();
     let created_registration_count =
@@ -63,6 +64,10 @@ pub async fn admin_materialize_credit_registrations(
             .await?;
     let moved_registration_count =
         recompute_preconditions(&mut tx, &scope, PRECONDITIONS_LIMIT).await?;
+    info!(
+        created_registration_count,
+        moved_registration_count, "Admin materialize finished"
+    );
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {

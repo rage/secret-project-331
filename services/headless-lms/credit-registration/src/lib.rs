@@ -12,6 +12,7 @@ mod batch_phase;
 pub mod breaker;
 mod dispatch;
 pub mod error;
+mod error_reporting;
 pub mod linking_mail_resend;
 mod mail_queue;
 mod phase;

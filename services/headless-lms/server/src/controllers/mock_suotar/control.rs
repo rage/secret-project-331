@@ -139,7 +139,9 @@ async fn run_tick(
         suotar_conf: &suotar_conf,
         ..tick_context(&app_conf, &pool, &suotar_client)
     };
+    debug!(phase = phase.as_str(), ?scope, "run-tick requested");
     let result = PhaseTickResult::of(phase, run_phase_once(&ctx, phase, &scope).await?);
+    debug!(phase = phase.as_str(), ?result, "run-tick finished");
     token.authorized_ok(match &result {
         PhaseTickResult::Ran { .. } | PhaseTickResult::Skipped { .. } => {
             HttpResponse::Ok().json(&result)
@@ -163,6 +165,7 @@ async fn run_registrar_tick(
 
     let scope = PhaseScope::default();
     let ctx = tick_context(&app_conf, &pool, &suotar_client);
+    debug!("run-registrar-tick requested");
     let mut phases = Vec::new();
     for phase in CreditRegistrationPhase::REGISTRAR_TICK_SEQUENCE {
         phases.push(PhaseTickResult::of(

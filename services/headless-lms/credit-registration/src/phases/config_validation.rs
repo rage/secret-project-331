@@ -68,6 +68,11 @@ pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Coun
             Ok(response) => response,
             Err(error) => {
                 it.registry.record(ENDPOINT, Exchange::Refused(&error));
+                debug!(
+                    checked = verdicts.len(),
+                    remaining = unchecked.len(),
+                    "Stopped checking Suotar course codes after a refusal"
+                );
                 return Ok(Counts::default());
             }
         };
@@ -105,6 +110,16 @@ pub(crate) async fn run(it: &mut Iteration<'_>) -> CreditRegistrationResult<Coun
         warn!(
             modules_with_problems = with_problems,
             "Suotar-enabled course modules have configuration problems"
+        );
+    }
+    let modules_checked = modules.len();
+    let codes_checked = verdicts.len();
+    if modules_checked > 0 {
+        info!(
+            modules_checked,
+            codes_checked,
+            with_problems,
+            "checked {modules_checked} modules, {codes_checked} course codes"
         );
     }
 

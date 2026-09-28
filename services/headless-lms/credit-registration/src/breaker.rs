@@ -194,21 +194,29 @@ pub fn snapshot(scope: &ScopeKey, target: BreakerTarget) -> BreakerSnapshot {
     }
 }
 
-/// Returns whether this success closed a breaker that had tripped.
-pub fn record_success(scope: &ScopeKey, target: BreakerTarget) -> bool {
+/// Returns the number of times this breaker had tripped, if this success closed it.
+pub fn record_success(scope: &ScopeKey, target: BreakerTarget) -> Option<u32> {
     BREAKERS
         .lock()
         .remove(&(scope.clone(), target))
-        .is_some_and(|state| state.trip_count > 0)
+        .map(|state| state.trip_count)
+        .filter(|&trip_count| trip_count > 0)
 }
 
-/// Returns the cooldown this failure opened the breaker for, if it did. `base_cooldown` is the
-/// first trip's; a failure while half-open trips again at once, for longer.
+/// What one failure that tripped or re-tripped a breaker did, for the caller's log line.
+pub struct BreakerTrip {
+    pub cooldown: Duration,
+    pub consecutive_failures: u32,
+    pub trip_count: u32,
+}
+
+/// Returns what this failure did to the breaker, if it tripped or re-tripped it. `base_cooldown` is
+/// the first trip's; a failure while half-open trips again at once, for longer.
 pub fn record_failure(
     scope: &ScopeKey,
     target: BreakerTarget,
     base_cooldown: Duration,
-) -> Option<Duration> {
+) -> Option<BreakerTrip> {
     let now = Instant::now();
     let mut breakers = BREAKERS.lock();
     breakers.retain(|_, state| state.is_live(now));
@@ -228,7 +236,11 @@ pub fn record_failure(
     state.trip_count = state.trip_count.saturating_add(1);
     let cooldown = base_cooldown * state.trip_count.min(MAX_COOLDOWN_TRIPS);
     state.open_until = Some(now + cooldown);
-    Some(cooldown)
+    Some(BreakerTrip {
+        cooldown,
+        consecutive_failures: state.consecutive_failures,
+        trip_count: state.trip_count,
+    })
 }
 
 #[cfg(test)]

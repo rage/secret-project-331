@@ -129,6 +129,13 @@ async fn write_outcome(
         Transitioned::Written(after) => *after,
         Transitioned::MovedOn { found } => return Ok(Applied::MovedOn { found }),
     };
+    debug!(
+        credit_registration_id = %after.id,
+        from_state = ?registration.state,
+        to_state = ?after.state,
+        next_attempt_at = %after.next_attempt_at,
+        "Credit registration transitioned"
+    );
     if outcome.next == NextAttempt::NextEnrolmentRung {
         enrolment_checks::schedule_next_check(&mut tx, registration.id).await?;
     }

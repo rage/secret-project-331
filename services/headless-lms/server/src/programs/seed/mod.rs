@@ -124,10 +124,7 @@ pub async fn main() -> anyhow::Result<()> {
 
 async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     dotenvy::dotenv().ok();
-    if env::var("RUST_LOG").is_err() {
-        // TODO: Audit that the environment access only happens in single-threaded code.
-        unsafe { env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=info") };
-    }
+    ProgramConfig::ensure_default_rust_log("info,sqlx=warn,headless_lms_models=info");
     setup_tracing()?;
 
     let clean = env::args().any(|a| a == "clean");

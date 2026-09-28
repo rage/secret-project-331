@@ -29,6 +29,7 @@ use crate::apply::{Applied, Decision, Effects, OutcomeEvent, apply_decision};
 use crate::batch_phase::{Prepared, Refusal, SuotarBatchPhase, run_suotar_batch_phase};
 use crate::dispatch::{Counts, Iteration};
 use crate::error::CreditRegistrationResult;
+use crate::error_reporting::report_error;
 
 const ENDPOINT: SuotarEndpoint = SuotarEndpoint::VerifyAttainments;
 
@@ -116,6 +117,15 @@ impl SuotarBatchPhase for VerifyPoll {
                     credit_registration_id = %poll.row.id,
                     "Credit registration is awaiting verification with no submitted attainment id; stuck"
                 );
+                report_error(
+                    it.ctx.pool,
+                    it.ctx.owning_process,
+                    it.phase,
+                    "Credit registration is awaiting verification with no submitted attainment id",
+                    None,
+                    serde_json::json!({ "credit_registration_id": poll.row.id }),
+                )
+                .await;
                 continue;
             };
             let item = VerifyAttainmentRequestItem {
@@ -277,6 +287,10 @@ impl SuotarBatchPhase for UncertainRecovery {
         let mut prepared = Prepared::default();
         for recovery in recoveries {
             let Some(context) = contexts.get(&recovery.row.id) else {
+                debug!(
+                    credit_registration_id = %recovery.row.id,
+                    "No completion or module to recover with; leaving row uncertain"
+                );
                 continue;
             };
             let (Some(student_number), Some(course_code)) = (
@@ -291,6 +305,10 @@ impl SuotarBatchPhase for UncertainRecovery {
                     .clone()
                     .or_else(|| context.uh_course_code.clone()),
             ) else {
+                debug!(
+                    credit_registration_id = %recovery.row.id,
+                    "No student number or course code to recover with; leaving row uncertain"
+                );
                 continue;
             };
             let item = ResolveEnrolmentRequestItem {

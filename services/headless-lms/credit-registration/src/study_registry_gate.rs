@@ -233,32 +233,37 @@ impl StudyRegistryGate {
             Verdict::Idle => {}
             Verdict::Healthy => {
                 record_study_registry_success(key);
-                if submits_to_sisu && breaker::record_success(key, BreakerTarget::SisuSubmissions) {
-                    info!(phase, "Sisu submissions circuit breaker closed");
+                if submits_to_sisu
+                    && let Some(trip_count) =
+                        breaker::record_success(key, BreakerTarget::SisuSubmissions)
+                {
+                    info!(phase, trip_count, "Sisu submissions circuit breaker closed");
                 }
             }
             Verdict::SisuOutage => {
                 record_study_registry_success(key);
-                if let Some(cooldown) =
+                if let Some(trip) =
                     breaker::record_failure(key, BreakerTarget::SisuSubmissions, base_cooldown)
                 {
                     warn!(
                         phase,
-                        cooldown_secs = cooldown.as_secs(),
-                        consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
+                        cooldown_secs = trip.cooldown.as_secs(),
+                        consecutive_failures = trip.consecutive_failures,
+                        trip_count = trip.trip_count,
                         "Pausing phase after consecutive Sisu timeouts"
                     );
                 }
             }
             Verdict::RegistryDown => {
-                if let Some(cooldown) =
+                if let Some(trip) =
                     breaker::record_failure(key, BreakerTarget::StudyRegistry, base_cooldown)
                 {
                     rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
                     warn!(
                         phase,
-                        cooldown_secs = cooldown.as_secs(),
-                        consecutive_failures = breaker::MAX_CONSECUTIVE_SUOTAR_FAILURES,
+                        cooldown_secs = trip.cooldown.as_secs(),
+                        consecutive_failures = trip.consecutive_failures,
+                        trip_count = trip.trip_count,
                         "Pausing study registry phases after consecutive failures"
                     );
                 }
@@ -274,8 +279,8 @@ impl StudyRegistryGate {
 }
 
 fn record_study_registry_success(key: &ScopeKey) {
-    if breaker::record_success(key, BreakerTarget::StudyRegistry) {
+    if let Some(trip_count) = breaker::record_success(key, BreakerTarget::StudyRegistry) {
         rate_limit::drop_to_floor(key, &rate_limit::LIMITED_ENDPOINTS);
-        info!("Study registry circuit breaker closed");
+        info!(trip_count, "Study registry circuit breaker closed");
     }
 }

@@ -11,6 +11,7 @@ use headless_lms_utils::services::suotar::{
 };
 use itertools::izip;
 use sqlx::{Connection, PgConnection};
+use std::time::Instant;
 
 use crate::apply::{Applied, Effects, OutcomeEvent, apply_outcome};
 use crate::dispatch::{Counts, Iteration};
@@ -125,6 +126,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     if limit == 0 {
         return Ok(Counts::default());
     }
+    let started_at = Instant::now();
     let mut conn = ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let prepared = phase.claim(it, &mut tx, limit).await?;
@@ -132,11 +134,15 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
     // Held only for the claim; the Suotar call below can pin it for the whole request timeout.
     drop(conn);
 
+    let claimed = prepared.decided + i32::try_from(prepared.sendable.len()).unwrap_or(i32::MAX);
     let mut counts = Counts {
         processed: prepared.decided,
         failed: prepared.failed,
         finding: None,
     };
+    let mut requests_sent = 0;
+    let mut items_sent = 0;
+    let mut moved_on = 0;
     // The halves a split holds back wait in whatever state the claim left them, which for import is
     // `submitting`: no phase claims that, so none of them can be sent twice meanwhile. Each answered
     // half is written before the next one is sent.
@@ -176,6 +182,8 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
         let call = it
             .call_context()
             .for_registrations(rows.iter().map(|row| row.as_ref().id).collect());
+        requests_sent += 1;
+        items_sent += i32::try_from(rows.len()).unwrap_or(i32::MAX);
         let sent = ctx
             .suotar_client
             .post::<P::Endpoint>(call, items.clone())
@@ -228,7 +236,7 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
                         &send_error,
                     )
                     .await?;
-                    count_applied(applied, row.as_ref(), &mut counts);
+                    count_applied(applied, row.as_ref(), &mut counts, &mut moved_on);
                 }
                 continue;
             }
@@ -254,21 +262,46 @@ pub(crate) async fn run_suotar_batch_phase<P: SuotarBatchPhase>(
             let applied = phase
                 .apply(&mut conn, row, response.item(request_item_id), event)
                 .await?;
-            count_applied(applied, row.as_ref(), &mut counts);
+            count_applied(applied, row.as_ref(), &mut counts, &mut moved_on);
         }
+    }
+    if claimed > 0 {
+        let written = counts.processed;
+        let failed = counts.failed;
+        let duration_ms = started_at.elapsed().as_millis() as u64;
+        info!(
+            phase = it.phase.as_str(),
+            ?endpoint,
+            claimed,
+            requests_sent,
+            items_sent,
+            written,
+            failed,
+            moved_on,
+            duration_ms,
+            "claimed {claimed}, sent {items_sent} in {requests_sent} requests, wrote {written} \
+             ({failed} failed), moved on {moved_on}, took {duration_ms}ms"
+        );
     }
     Ok(counts)
 }
 
-/// Counts one written row, or skips one that had already moved on.
-fn count_applied(applied: Applied, row: &CreditRegistration, counts: &mut Counts) {
+/// Counts one written row, or one that had already moved on, which the batch summary reports and a
+/// study registry outage can make routine, so it is not a warning.
+fn count_applied(
+    applied: Applied,
+    row: &CreditRegistration,
+    counts: &mut Counts,
+    moved_on: &mut i32,
+) {
     match applied {
         Applied::Written { is_failure } => {
             counts.processed += 1;
             counts.failed += i32::from(is_failure);
         }
         Applied::MovedOn { found } => {
-            warn!(
+            *moved_on += 1;
+            debug!(
                 credit_registration_id = %row.id,
                 found_state = ?found,
                 "Credit registration moved on while the study registry answered; leaving it"

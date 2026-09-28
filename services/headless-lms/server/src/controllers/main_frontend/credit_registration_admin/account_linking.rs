@@ -509,6 +509,12 @@ pub async fn admin_resend_account_linking_email(
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
+    info!(
+        actor = %user.id,
+        course_id = %payload.course_id,
+        override_rate_caps = payload.override_rate_caps,
+        "Admin requested a linking mail resend"
+    );
     let rate_cap_override = override_reason.as_deref().map(|reason| RateCapOverride {
         actor_user_id: user.id,
         actor_role: GLOBAL_ADMIN_ROLE,
@@ -519,6 +525,11 @@ pub async fn admin_resend_account_linking_email(
             .await?;
     let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.decision);
+    info!(
+        ?outcome,
+        retired_mail_count = attempt.retired_mail_count,
+        "Admin linking mail resend finished"
+    );
 
     finish_resend(
         &mut conn,
@@ -573,7 +584,12 @@ pub async fn admin_resolve_student_number_for_linking(
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
+    info!(actor = %user.id, "Admin resolving a student number for linking");
     let resolved = resolve_person(&ctx, &student_number).await;
+    debug!(
+        found = resolved.as_ref().is_ok_and(Option::is_some),
+        "Student number resolution result"
+    );
     let mut conn = pool.acquire().await?;
     let existing =
         verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
@@ -692,14 +708,18 @@ pub async fn admin_manually_link_student_number(
     } = manual_link_request(&payload)?;
     let reason = reason.to_string();
 
-    let refused = |outcome| AdminManuallyLinkStudentNumberResult {
-        outcome,
-        verified_student_number_id: None,
-        affected_registration_count: 0,
+    let refused = |outcome: AdminManualLinkOutcome| {
+        debug!(?outcome, "Admin manual link refused");
+        AdminManuallyLinkStudentNumberResult {
+            outcome,
+            verified_student_number_id: None,
+            affected_registration_count: 0,
+        }
     };
     let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
+    info!(actor = %user.id, target_user_id = %payload.user_id, "Admin manually linking a student number");
     let person: ResolvedPerson = match resolve_person(&ctx, &student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {
@@ -797,6 +817,11 @@ pub async fn admin_manually_link_student_number(
     )
     .await?;
     tx.commit().await?;
+    info!(
+        verified_student_number_id = %verified_student_number_id,
+        affected_registration_count,
+        "Admin manual link finished"
+    );
 
     token.authorized_ok(web::Json(AdminManuallyLinkStudentNumberResult {
         outcome: AdminManualLinkOutcome::Linked,

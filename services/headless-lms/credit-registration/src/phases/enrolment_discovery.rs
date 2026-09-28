@@ -224,11 +224,15 @@ async fn list(
 
     let duration_ms = i32::try_from(response.duration.as_millis()).unwrap_or(i32::MAX);
     let mut items_failed = 0;
+    let mut enrolments = 0;
+    let mut new_mails = 0;
     for listing in request {
         match listed_people(&response, listing) {
             Ok(people) => {
-                reconcile(&mut conn, listing, people, is_account_linking_enabled).await?;
+                new_mails +=
+                    reconcile(&mut conn, listing, people, is_account_linking_enabled).await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
+                enrolments += person_count;
                 mark_fetched(&mut conn, &listing.course_code, person_count, duration_ms).await?;
             }
             Err(error) => {
@@ -244,6 +248,14 @@ async fn list(
             }
         }
     }
+    let codes = request.len();
+    info!(
+        codes,
+        enrolments,
+        new_mails,
+        duration_ms,
+        "fetched roster: {enrolments} enrolments for {codes} codes, {new_mails} new"
+    );
     Ok(Counts {
         processed: attempted,
         failed: items_failed,
@@ -318,28 +330,31 @@ async fn record_request_failure(
     Ok(())
 }
 
-/// Wakes and mails for one code's roster, module by module: mails and links are per course.
+/// Wakes and mails for one code's roster, module by module: mails and links are per course. Returns
+/// the linking mails claimed across the listing's modules, for the caller's roster-fetch summary.
 async fn reconcile(
     conn: &mut PgConnection,
     listing: &CodeListing,
     people: &[ListedPerson],
     is_account_linking_enabled: bool,
-) -> CreditRegistrationResult<()> {
+) -> CreditRegistrationResult<i32> {
     let distinct = distinct_people(people);
     let linked = linked_accounts(conn, &distinct).await?;
     let enrolees = roster_enrolees(people, &linked);
+    let mut mailed_count = 0;
     for module in &listing.modules {
         if !enrolees.is_empty() {
             wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
         }
         if is_account_linking_enabled {
             let outcome = claim_linking_mails(conn, module, &distinct, &linked).await?;
+            mailed_count += outcome.mailed_count;
             record_listing_outcome(conn, module.course_module_id, &outcome).await?;
         } else {
             mark_listing_succeeded_without_linking(conn, module.course_module_id).await?;
         }
     }
-    Ok(())
+    Ok(mailed_count)
 }
 
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the

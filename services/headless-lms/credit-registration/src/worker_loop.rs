@@ -3,7 +3,10 @@
 //! The processes differ only in which phases they own and how often they look, so the scheduling
 //! lives here instead of in each of them.
 
-use std::{sync::Arc, time::Duration};
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
@@ -20,9 +23,11 @@ use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker_until,
 };
 
-use crate::dispatch::{PhaseContext, PhaseTick, run_phase_once};
+use crate::dispatch::{PhaseContext, PhaseSkipReason, PhaseTick, run_phase_once};
 use crate::error::{CreditRegistrationError, CreditRegistrationResult};
+use crate::error_reporting::report_error;
 use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
+use crate::process_local::ProcessLocalMap;
 
 /// How often each phase's loop looks whether it is due; each phase's own interval lives in
 /// `credit_registration_phase_state`.
@@ -102,14 +107,20 @@ async fn run_phase_loop(
         },
         shutdown,
         async || {
+            trace!(phase = phase.as_str(), "Checking whether phase is due");
             // Logged and swallowed: the phase-state row already carries the failure for the
             // dashboard, and the loop must keep going.
             if let Err(error) = run_if_due(ctx, phase).await {
-                log_failure(
-                    ctx.caller,
-                    &format!("Credit registration phase {}", phase.as_str()),
-                    &error,
-                );
+                log_failure(ctx.caller, phase.as_str(), &error);
+                report_error(
+                    ctx.pool,
+                    ctx.owning_process,
+                    phase,
+                    &error.cause_chain(),
+                    Some(format!("{error:?}")),
+                    serde_json::json!({}),
+                )
+                .await;
             }
             Ok(())
         },
@@ -151,10 +162,10 @@ async fn run_if_due(
     run_due_phase(ctx, phase, &state).await
 }
 
-fn log_failure(process_name: &str, subject: &str, error: &CreditRegistrationError) {
-    error!(error = %error, "{subject} failed");
+fn log_failure(process_name: &str, phase: &str, error: &CreditRegistrationError) {
+    error!(phase, error = %error, "Credit registration phase iteration failed");
     if error.is_db_disconnect() {
-        info!("{process_name} may have lost its connection to the database");
+        info!(process_name, "May have lost its connection to the database");
     }
 }
 
@@ -175,21 +186,76 @@ async fn run_due_phase(
     .await?;
     drop(conn);
 
+    let started_at = Instant::now();
     // Always unscoped: a worker that narrowed would leave rows nobody sweeps.
-    match run_phase_once(ctx, phase, &PhaseScope::default()).await? {
+    let tick = run_phase_once(ctx, phase, &PhaseScope::default()).await?;
+    let duration_ms = started_at.elapsed().as_millis() as u64;
+    match tick {
         PhaseTick::Ran(outcome) if outcome.items_processed > 0 || outcome.items_failed > 0 => {
+            clear_skip_state(phase);
+            let processed = outcome.items_processed;
+            let failed = outcome.items_failed;
             info!(
                 phase = phase.as_str(),
-                processed = outcome.items_processed,
-                failed = outcome.items_failed,
-                "Credit registration phase finished"
+                processed,
+                failed,
+                duration_ms,
+                "processed {processed} rows ({failed} failed), took {duration_ms}ms"
             );
         }
-        // Nothing to do, paused, or waiting out a cooldown: quiet on purpose, because the heartbeat
-        // is what says the loop is alive.
-        _ => {}
+        PhaseTick::Ran(_) => {
+            clear_skip_state(phase);
+            // Nothing to do this run: too routine to log above debug, or the heartbeat interval
+            // would read as a stream of info lines once a phase catches up with its queue.
+            debug!(
+                phase = phase.as_str(),
+                duration_ms, "Credit registration phase run found nothing to do"
+            );
+        }
+        // Waiting out a cooldown, or turned off: the phase-state row already carries this for the
+        // dashboard, so only the state change is worth a log line, not every retry.
+        PhaseTick::Skipped(reason) => log_skip_if_changed(phase, reason),
+        PhaseTick::ScopeNotSupported => {}
     }
     Ok(())
+}
+
+/// The skip reason last logged for a phase, so a paused phase or an open breaker logs once per
+/// state change instead of on every tick until it clears.
+static LAST_LOGGED_SKIP: ProcessLocalMap<CreditRegistrationPhase, PhaseSkipReason> =
+    ProcessLocalMap::new();
+
+fn log_skip_if_changed(phase: CreditRegistrationPhase, reason: PhaseSkipReason) {
+    let mut last = LAST_LOGGED_SKIP.lock();
+    if last.get(&phase) == Some(&reason) {
+        return;
+    }
+    last.insert(phase, reason);
+    drop(last);
+    match reason {
+        PhaseSkipReason::Paused => {
+            info!(
+                phase = phase.as_str(),
+                "Credit registration phase is paused; skipping"
+            );
+        }
+        PhaseSkipReason::CircuitBreakerOpen => {
+            info!(
+                phase = phase.as_str(),
+                "Credit registration phase skipped: circuit breaker is open"
+            );
+        }
+        PhaseSkipReason::AccountLinkingDisabled => {
+            debug!(
+                phase = phase.as_str(),
+                "Credit registration phase skipped: account linking is disabled"
+            );
+        }
+    }
+}
+
+fn clear_skip_state(phase: CreditRegistrationPhase) {
+    LAST_LOGGED_SKIP.lock().remove(&phase);
 }
 
 /// A phase is due when an admin asked for it, or when its interval has elapsed since it last began.

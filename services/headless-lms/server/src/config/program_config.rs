@@ -27,12 +27,17 @@ impl ProgramConfig {
     }
 
     /// Gives a worker process a quieter default than the web server's (sqlx queries at `warn`
-    /// instead of `info`), without overriding a `RUST_LOG` the operator already set.
-    /// Call after loading `.env`, so a `RUST_LOG` from there counts as already set.
+    /// instead of `info`). See [`Self::ensure_default_rust_log`].
     pub fn ensure_default_rust_log_for_workers() {
+        Self::ensure_default_rust_log("info,actix_web=info,sqlx=warn");
+    }
+
+    /// Sets `RUST_LOG` to `default_filter` unless the operator already set it. Call after loading
+    /// `.env`, so a `RUST_LOG` from there counts as already set.
+    pub fn ensure_default_rust_log(default_filter: &str) {
         if env::var("RUST_LOG").is_err() {
             // TODO: Audit that the environment access only happens in single-threaded code.
-            unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
+            unsafe { env::set_var("RUST_LOG", default_filter) };
         }
     }
 }

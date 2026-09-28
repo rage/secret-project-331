@@ -82,12 +82,16 @@ impl Bucket {
         share
     }
 
-    fn refill(&mut self, rate: EndpointRate, now: Instant) {
+    /// Refills the bucket, returning whether this call is the one that found the ramp back at full
+    /// rate.
+    fn refill(&mut self, rate: EndpointRate, now: Instant) -> bool {
+        let was_reduced = self.floor_started_at.is_some();
         let share = self.share(now);
         let elapsed_minutes = now.duration_since(self.refilled_at).as_secs_f64() / 60.0;
         self.tokens =
             (self.tokens + elapsed_minutes * rate.per_minute * share).min(burst_limit(rate, share));
         self.refilled_at = now;
+        was_reduced && self.floor_started_at.is_none()
     }
 
     /// Whether the bucket is back where a new one starts, so dropping it changes nothing.
@@ -120,7 +124,19 @@ fn with_bucket<T>(
     let bucket = buckets
         .entry(bucket_key)
         .or_insert_with(|| Bucket::new(rate, now));
-    bucket.refill(rate, now);
+    let recovered = bucket.refill(rate, now);
+    trace!(
+        ?endpoint,
+        tokens = bucket.tokens,
+        "Refilled Suotar rate limit bucket"
+    );
+    if recovered {
+        info!(
+            ?endpoint,
+            rate_per_minute = rate.per_minute,
+            "Suotar endpoint rate limit recovered to full rate"
+        );
+    }
     Some(use_bucket(bucket, rate))
 }
 
@@ -155,8 +171,16 @@ pub fn overdraw(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
 pub fn drop_to_floor(key: &ScopeKey, endpoints: &[SuotarEndpoint]) {
     for &endpoint in endpoints {
         with_bucket(key, endpoint, |bucket, rate| {
+            let was_at_floor = bucket.floor_started_at.is_some();
             bucket.floor_started_at = Some(Instant::now());
             bucket.tokens = bucket.tokens.min(burst_limit(rate, FLOOR_SHARE));
+            if !was_at_floor {
+                info!(
+                    ?endpoint,
+                    floor_share = FLOOR_SHARE,
+                    "Suotar endpoint rate limit dropped to floor"
+                );
+            }
         });
     }
 }

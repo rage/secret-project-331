@@ -88,6 +88,7 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     let mut conn = it.ctx.pool.acquire().await?;
     let mut tx = conn.begin().await?;
     let claimed = P::claim(&mut tx, it.scope).await?;
+    let claimed_count = claimed.len();
     let mut templates = TemplateCache::default();
     let mut missing_templates: BTreeSet<String> = BTreeSet::new();
     let mut skipped = 0;
@@ -95,6 +96,11 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
         let template_type = P::template_type(item);
         let language = P::language(item);
         let Some(template_id) = templates.id_for(&mut tx, template_type, &language).await? else {
+            debug!(
+                ?template_type,
+                language = %language,
+                "No email template for mail; skipping"
+            );
             missing_templates.insert(P::missing_template_label(template_type, &language));
             skipped += 1;
             continue;
@@ -103,8 +109,16 @@ pub(crate) async fn run_mail_queue_phase<P: MailQueuePhase>(
     }
     tx.commit().await?;
 
+    if claimed_count > 0 {
+        let claimed = claimed_count;
+        let queued = claimed_count - skipped as usize;
+        info!(
+            claimed,
+            queued, skipped, "queued {queued} mails, skipped {skipped}"
+        );
+    }
     Ok(Counts {
-        processed: i32::try_from(claimed.len()).unwrap_or(i32::MAX),
+        processed: i32::try_from(claimed_count).unwrap_or(i32::MAX),
         failed: skipped,
         finding: (!missing_templates.is_empty()).then(|| {
             format!(

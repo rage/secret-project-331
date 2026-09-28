@@ -14,6 +14,7 @@ use std::time::Duration;
 use tokio_util::sync::CancellationToken;
 
 use crate::error::CreditRegistrationResult;
+use crate::error_reporting::report_error;
 use crate::phase::{CreditRegistrationPhase, PhaseScope, WorkerProcess};
 use crate::phases::{
     config_validation, database_phases, enrolment_discovery, import, link_emails,
@@ -90,6 +91,10 @@ pub(crate) fn worker_name(caller: &str, phase: CreditRegistrationPhase) -> Strin
 }
 
 /// Runs exactly one iteration of one phase.
+#[tracing::instrument(
+    skip_all,
+    fields(phase = phase.as_str(), caller = ctx.caller, scope = ?scope)
+)]
 pub async fn run_phase_once(
     ctx: &PhaseContext<'_>,
     phase: CreditRegistrationPhase,
@@ -112,6 +117,7 @@ pub async fn run_phase_once(
     // skipping the heartbeat through it would raise a critical alert within a tick or two.
     if bookkeeping {
         credit_registration_phase_state::heartbeat(&mut conn, phase.as_str()).await?;
+        trace!(phase = phase.as_str(), "Wrote phase heartbeat");
     }
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
     if phase.spec().is_account_linking_only && !ctx.suotar_conf.account_linking_enabled {
@@ -143,19 +149,42 @@ pub async fn run_phase_once(
         run_body(&mut it).await
     };
     let failure = it.registry.settle();
+    // Only a real `CreditRegistrationError` carries a backtrace and span trace; `failure` and
+    // `counts.finding` are already plain messages.
+    let stack_trace = match &body {
+        Err(error) => Some(format!("{error:?}")),
+        Ok(_) => None,
+    };
     let outcome = match body {
-        Ok(counts) => PhaseRunOutcome {
-            items_processed: counts.processed,
-            items_failed: counts.failed,
-            error: failure.or(counts.finding),
-        },
-        Err(error) => PhaseRunOutcome {
-            error: Some(scrub_text(&error.cause_chain())),
-            ..PhaseRunOutcome::default()
-        },
+        Ok(counts) => {
+            let outcome = PhaseRunOutcome {
+                items_processed: counts.processed,
+                items_failed: counts.failed,
+                error: failure.or(counts.finding),
+            };
+            if let Some(error) = &outcome.error {
+                warn!(phase = phase.as_str(), error = %error, "Credit registration phase iteration recorded a failure");
+            }
+            outcome
+        }
+        Err(error) => {
+            error!(phase = phase.as_str(), error = %error, "Credit registration phase iteration aborted");
+            PhaseRunOutcome {
+                error: Some(scrub_text(&error.cause_chain())),
+                ..PhaseRunOutcome::default()
+            }
+        }
     };
     if let Some(error) = &outcome.error {
-        error!(phase = phase.as_str(), error = %error, "Credit registration phase failed");
+        report_error(
+            ctx.pool,
+            ctx.owning_process,
+            phase,
+            error,
+            stack_trace,
+            serde_json::json!({}),
+        )
+        .await;
     }
     if bookkeeping {
         let mut conn = ctx.pool.acquire().await?;
@@ -246,6 +275,13 @@ async fn record_breakers(
         if !breaker::REPORTED.is_due(&target, &breaker, breaker::BreakerSnapshot::is_same_report) {
             continue;
         }
+        trace!(
+            ?target,
+            consecutive_failures = breaker.consecutive_failures,
+            open = breaker.open,
+            trip_count = breaker.trip_count,
+            "Reporting circuit breaker state to the dashboard"
+        );
         suotar_circuit_breakers::upsert(
             conn,
             &suotar_circuit_breakers::SuotarCircuitBreakerReport {
@@ -276,6 +312,12 @@ async fn record_rate_limits(
         if !rate_limit::REPORTED.is_due(&endpoint, &limiter, PartialEq::eq) {
             continue;
         }
+        trace!(
+            ?endpoint,
+            rate_share = limiter.share,
+            available = limiter.available,
+            "Reporting rate limit state to the dashboard"
+        );
         suotar_endpoint_rate_limits::upsert(
             conn,
             &suotar_endpoint_rate_limits::SuotarEndpointRateLimitReport {
@@ -313,11 +355,11 @@ async fn keep_alive(pool: &PgPool, phase: CreditRegistrationPhase) -> Infallible
                 CreditRegistrationResult::Ok(())
             }
             .await;
-            if let Err(error) = refreshed {
-                warn!(
-                    "Refreshing the heartbeat of credit registration phase {} failed: {error:#}",
-                    phase.as_str()
-                );
+            match refreshed {
+                Ok(()) => trace!(phase = phase.as_str(), "Refreshed phase heartbeat"),
+                Err(error) => {
+                    warn!(phase = phase.as_str(), error = %error, "Failed to refresh phase heartbeat");
+                }
             }
             Ok::<(), Infallible>(())
         },

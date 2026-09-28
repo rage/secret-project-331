@@ -24,7 +24,7 @@ import { Button } from "@/shared-module/components/components/Button"
 export interface FeedbackViewProps {
   courseId: string
   feedback: Feedback
-  setRead: (read: boolean) => void
+  setRead: (read: boolean) => Promise<void>
 }
 
 const ImportantText = styled.div`
@@ -56,13 +56,13 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       method: "POST",
     },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         queryClient.invalidateQueries({
           queryKey: getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
         })
 
         const toggled = !feedback.marked_as_read
-        setRead(toggled)
+        await setRead(toggled)
       },
     },
   )

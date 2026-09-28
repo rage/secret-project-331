@@ -44,7 +44,7 @@ function FeedbackFeedbackLayout({ children }: { children: React.ReactNode }) {
       <RouteTabPageTitle
         tabs={tabs}
         entityName={courseBreadcrumbInfo.data?.course_name}
-        order={20}
+        order={21}
       />
       <RouteTabList tabs={tabs} />
       {children}

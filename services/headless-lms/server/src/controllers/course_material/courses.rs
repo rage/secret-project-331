@@ -809,6 +809,8 @@ pub async fn feedback(
     .await
     .ok();
     let feedback_categories = models::feedback_categories::get_all(&mut conn, *course_id).await?;
+    conn.close().await?;
+
     let mut ids = vec![];
     let mut new = vec![];
     for f in fs {
@@ -838,6 +840,7 @@ pub async fn feedback(
         };
         new.push(new_feedback)
     }
+    let mut conn = pool.acquire().await?;
     let mut tx = conn.begin().await?;
     for f in new {
         let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;

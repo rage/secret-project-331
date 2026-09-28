@@ -81,22 +81,15 @@ const Toggle: React.FC<{ label: string; state: ToggleGroupState }> = ({ label, s
     state,
     ref,
   )
-  const {
-    formAction: _,
-    "aria-pressed": ariaPressed,
-    "aria-checked": ariaChecked,
-    tabIndex,
-    ...buttonProps2
-  } = buttonProps
+  const { formAction: _, "aria-pressed": ariaPressed, tabIndex, ...buttonProps2 } = buttonProps
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
-
+  const theProps = omitUndefined(mergeProps(buttonProps2, hoverProps, focusProps))
   return (
     <Button
-      {...omitUndefined(mergeProps(buttonProps2, hoverProps, focusProps))}
+      {...theProps}
       domProps={omitUndefined({
         "aria-pressed": ariaPressed,
-        "aria-checked": ariaChecked,
         tabIndex,
       })}
       ref={ref}

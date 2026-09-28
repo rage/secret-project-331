@@ -188,8 +188,6 @@ pub async fn get_feedback_for_course(
     } else {
         None
     };
-    // empty string if None
-    println!("AAAAAAAAAAAAAA{category_id:?}");
 
     let res = sqlx::query!(
         r#"

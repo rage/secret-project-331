@@ -64,7 +64,7 @@ pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<SuotarEndpointR
     let res = sqlx::query_as!(
         SuotarEndpointRateLimit,
         r#"
-SELECT endpoint AS "endpoint: SuotarEndpoint",
+SELECT endpoint,
   updated_at,
   rate_share,
   full_rate_per_minute,

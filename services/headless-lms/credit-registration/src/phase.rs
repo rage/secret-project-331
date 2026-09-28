@@ -1,10 +1,9 @@
 //! Which phases exist, which process runs each, and what each may be narrowed on.
 
 use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_utils::services::suotar::SuotarEndpoint;
+use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 use std::time::Duration;
-
-use crate::breaker::BreakerTarget;
 
 /// Which rows one iteration may touch.
 pub use headless_lms_models::credit_registrations::RegistrationScope as PhaseScope;
@@ -227,6 +226,7 @@ impl CreditRegistrationPhase {
         Self::Verify,
     ];
 
+    /// Everything fixed about the phase.
     pub fn spec(self) -> &'static PhaseSpec {
         match self {
             Self::Materialize => &MATERIALIZE,
@@ -244,10 +244,12 @@ impl CreditRegistrationPhase {
         }
     }
 
+    /// The phase's canonical name; see [`CreditRegistrationPhase`].
     pub fn as_str(self) -> &'static str {
         self.spec().name
     }
 
+    /// The phase [`Self::as_str`] names `name`, if any.
     pub fn from_phase_name(name: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|phase| phase.as_str() == name)
     }

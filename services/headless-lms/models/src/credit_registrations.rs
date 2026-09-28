@@ -12,6 +12,7 @@ use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
+use crate::error::missing_model_error;
 use crate::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
@@ -828,12 +829,10 @@ pub async fn transition_unless_moved_on(
     let from_state = lock_for_moves(&mut tx, &[id])
         .await?
         .remove(&id)
-        .ok_or_else(|| {
-            model_err!(
-                RecordNotFound,
-                format!("Credit registration {id} does not exist.")
-            )
-        })?;
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            format!("Credit registration {id} does not exist."),
+        ))?;
     if transition
         .expected_from_state
         .is_some_and(|expected| from_state != expected)
@@ -844,12 +843,10 @@ pub async fn transition_unless_moved_on(
     let after = write_moves(&mut tx, &[(id, from_state, transition)])
         .await?
         .pop()
-        .ok_or_else(|| {
-            model_err!(
-                RecordNotFound,
-                format!("Credit registration {id} does not exist.")
-            )
-        })?;
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            format!("Credit registration {id} does not exist."),
+        ))?;
     tx.commit().await?;
     Ok(Transitioned::Written(Box::new(after)))
 }
@@ -862,7 +859,7 @@ async fn lock_for_moves(
     let locked = sqlx::query!(
         r#"
 SELECT id,
-  state AS "state: CreditRegistrationState"
+  state
 FROM credit_registrations
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -1844,7 +1841,7 @@ SELECT cr.id,
   cr.enrolment_check_requested_at,
   cr.no_usable_enrolment_since,
   cr.enrolment_check_anchor_at,
-  cr.enrolment_check_source AS "enrolment_check_source: EnrolmentCheckSource",
+  cr.enrolment_check_source,
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   COALESCE(
     cr.selected_enrolment_realisation_name->>'fi',

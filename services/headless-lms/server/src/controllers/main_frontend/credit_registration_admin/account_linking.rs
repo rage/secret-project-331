@@ -24,9 +24,8 @@ use utoipa::ToSchema;
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::PhaseContext;
-use headless_lms_credit_registration::linking_mail_resend::{
-    RateCapOverride, ResendOutcome, ResolvePersonError, ResolvedPerson,
+use headless_lms_credit_registration::account_linking::{
+    ManualActionContext, RateCapOverride, ResendOutcome, ResolvePersonError, ResolvedPerson,
     resend_linking_mail_for_target, resolve_person,
 };
 
@@ -44,15 +43,6 @@ const RESOLVE_CALLER: &str = "admin-resolve-person";
 /// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
 /// ledger rows.
 const RESEND_QUIET_PERIOD_SECS: i64 = 60;
-
-fn phase_context<'a>(
-    pool: &'a web::Data<PgPool>,
-    suotar_client: &'a web::Data<headless_lms_utils::services::suotar::SuotarClient>,
-    app_conf: &'a ApplicationConfiguration,
-    caller: &'a str,
-) -> PhaseContext<'a> {
-    PhaseContext::from_app(pool, suotar_client, app_conf, caller)
-}
 
 /// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
 /// whole, the `_in_window` ones from the window: there is no single denominator.
@@ -506,7 +496,7 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(
@@ -550,7 +540,7 @@ student number up in the study registry without changing anything.
 The preview a manual link is gated on. Writes nothing but the call log row every study registry call
 writes.
 */
-#[instrument(skip(pool, payload, app_conf, suotar_client))]
+#[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
     post,
     path = "/account-linking/resolve-person",
@@ -566,7 +556,6 @@ pub async fn admin_resolve_student_number_for_linking(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<AdminResolveStudentNumberPayload>,
-    app_conf: web::Data<ApplicationConfiguration>,
     suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
 ) -> ControllerResult<web::Json<AdminResolveStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
@@ -581,7 +570,7 @@ pub async fn admin_resolve_student_number_for_linking(
 
     let student_number = required_student_number(&payload.student_number)?;
 
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(actor = %user.id, "Admin resolving a student number for linking");
@@ -672,7 +661,7 @@ The last resort, for a student whose mailbox host will not accept our mail at al
 stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
 reason and names the admin.
 */
-#[instrument(skip(pool, payload, app_conf, suotar_client))]
+#[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
     post,
     path = "/account-linking/manual-link",
@@ -688,7 +677,6 @@ pub async fn admin_manually_link_student_number(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<AdminManuallyLinkStudentNumberPayload>,
-    app_conf: web::Data<ApplicationConfiguration>,
     suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
 ) -> ControllerResult<web::Json<AdminManuallyLinkStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
@@ -716,7 +704,7 @@ pub async fn admin_manually_link_student_number(
             affected_registration_count: 0,
         }
     };
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(actor = %user.id, target_user_id = %payload.user_id, "Admin manually linking a student number");

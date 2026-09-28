@@ -78,6 +78,7 @@ import type {
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   creditRegistrationAuditRoute,
@@ -787,6 +788,7 @@ const RegistrationDetailPage: React.FC = () => {
   )
 
   const row = detailsQuery.data?.registration
+  usePageTitle(row ? formatUserName(row) : null)
   const crumbs = useMemo(
     () => [
       {

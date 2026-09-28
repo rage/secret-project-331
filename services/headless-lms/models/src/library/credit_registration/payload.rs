@@ -2,13 +2,13 @@
 //! never rewritten, so a later regrade cannot silently change something already sent.
 
 use headless_lms_utils::helsinki_time::helsinki_date;
-use headless_lms_utils::services::suotar::SuotarEnrolment;
 
 use crate::course_module_completions::CourseModuleCompletion;
 use crate::credit_registrations::{CreditRegistrationErrorCode, PayloadSnapshot};
 use crate::prelude::*;
 
 use super::grade_mapping::{GradeSource, map_grade};
+use super::study_registry::RegistryEnrolment;
 
 /// What the completion contributes to the payload.
 #[derive(Debug, Clone, PartialEq)]
@@ -37,7 +37,7 @@ pub struct PayloadSources<'a> {
     pub sisu_person_id: Option<&'a DbSecret>,
     pub uh_course_code: Option<&'a str>,
     pub ects_credits: Option<f32>,
-    pub enrolment: Option<&'a SuotarEnrolment>,
+    pub enrolment: Option<&'a RegistryEnrolment>,
 }
 
 /// A snapshot and whatever had to be adjusted to make it acceptable.
@@ -100,7 +100,7 @@ pub fn build_payload_snapshot(
     })
 }
 
-fn clamp_credits(credits: f32, enrolment: Option<&SuotarEnrolment>) -> (f32, Option<f32>) {
+fn clamp_credits(credits: f32, enrolment: Option<&RegistryEnrolment>) -> (f32, Option<f32>) {
     let Some((min, max)) = enrolment
         .and_then(|enrolment| enrolment.credits.as_ref())
         .and_then(|range| range.min.zip(range.max))
@@ -132,9 +132,9 @@ mod tests {
     use std::sync::LazyLock;
 
     use chrono::NaiveDate;
-    use headless_lms_utils::services::suotar::{CreditRange, DatePeriod, LocalizedName};
 
     use super::super::grade_mapping::{NUMERIC_GRADE_SCALE_ID, PASS_FAIL_GRADE_SCALE_ID};
+    use super::super::study_registry::{CreditRange, DatePeriod, LocalizedName};
     use super::*;
 
     fn completion(passed: bool, grade: Option<i32>) -> CompletionFacts {
@@ -146,8 +146,8 @@ mod tests {
         }
     }
 
-    fn enrolment(min: f64, max: f64) -> SuotarEnrolment {
-        SuotarEnrolment {
+    fn enrolment(min: f64, max: f64) -> RegistryEnrolment {
+        RegistryEnrolment {
             id: "otm-enrolment".to_string(),
             state: Some("ENROLLED".to_string()),
             kind: Some("degree".to_string()),
@@ -174,7 +174,7 @@ mod tests {
     static STUDENT_NUMBER: LazyLock<DbSecret> = LazyLock::new(|| DbSecret::new("012345678"));
     static SISU_PERSON_ID: LazyLock<DbSecret> = LazyLock::new(|| DbSecret::new("hy-hlo-1"));
 
-    fn sources<'a>(enrolment: Option<&'a SuotarEnrolment>) -> PayloadSources<'a> {
+    fn sources<'a>(enrolment: Option<&'a RegistryEnrolment>) -> PayloadSources<'a> {
         PayloadSources {
             student_number: &STUDENT_NUMBER,
             sisu_person_id: Some(&SISU_PERSON_ID),

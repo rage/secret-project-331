@@ -402,26 +402,6 @@ impl error::ResponseError for ControllerError {
 
                 // Uses the main DB pool intentionally for best-effort reporting; this can amplify outage pressure.
                 actix_web::rt::spawn(async move {
-                    let mut conn = match tokio::time::timeout(
-                        std::time::Duration::from_millis(250),
-                        pool.acquire(),
-                    )
-                    .await
-                    {
-                        Ok(Ok(conn)) => conn,
-                        Ok(Err(err)) => {
-                            warn!(
-                                "internal error reporting skipped: failed to acquire pool connection: {err}"
-                            );
-                            return;
-                        }
-                        Err(_) => {
-                            warn!(
-                                "internal error reporting skipped: timed out acquiring pool connection"
-                            );
-                            return;
-                        }
-                    };
                     let report = headless_lms_models::errors::NewErrorReport {
                         service: "headless-lms".to_string(),
                         error_source: Some(headless_lms_models::errors::ErrorSource::Backend),
@@ -431,11 +411,7 @@ impl error::ResponseError for ControllerError {
                         app_version: None,
                         details: Some(details),
                     };
-                    if let Err(err) =
-                        headless_lms_models::errors::insert(&mut conn, None, &report).await
-                    {
-                        debug!("internal error reporting insert failed: {err}");
-                    }
+                    headless_lms_models::errors::insert_best_effort(&pool, &report).await;
                 });
             }
         }

@@ -432,7 +432,7 @@ SELECT cm.course_id,
   conf.last_suppressed_by_rate_cap_count,
   conf.last_no_address_count,
   conf.last_listing_attempted_at,
-  conf.last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
+  conf.last_listing_error AS "last_listing_error?",
   conf.consecutive_listing_failures
 FROM course_module_suotar_configurations conf
   JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id

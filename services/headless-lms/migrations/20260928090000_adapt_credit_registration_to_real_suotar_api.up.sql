@@ -307,8 +307,7 @@ CREATE TABLE credit_registration_enrolment_check_signals (
   )
 );
 
-CREATE UNIQUE INDEX uq_credit_registration_enrolment_check_signals_completion ON credit_registration_enrolment_check_signals (course_module_completion_id)
-WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_credit_registration_enrolment_check_signals_completion ON credit_registration_enrolment_check_signals (course_module_completion_id, deleted_at) NULLS NOT DISTINCT;
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_enrolment_check_signals FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -352,7 +351,7 @@ CREATE UNIQUE INDEX uq_credit_registration_roster_schedules_course_code ON credi
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_roster_schedules FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE credit_registration_roster_schedules IS 'When enrolment discovery lists each course code''s roster. The tier (three a day while completions keep coming, then daily, and weekly with account linking on) is derived at claim time from the modules on the code, so only what cannot be derived is kept here. Modules sharing a code share its row. The per-module counters on course_module_suotar_configurations still describe what each module did with the roster.';
+COMMENT ON TABLE credit_registration_roster_schedules IS 'When enrolment discovery lists each course code''s roster. The tier (three a day while completions keep coming, then daily, and weekly with account linking on) is derived at claim time from the modules on the code, so only what cannot be derived is kept here. Modules sharing a code share its row. The per-module counters on course_module_suotar_configurations still describe what each module did with the roster. No deleted_at: a row belongs to a course code, not to anything that is deleted, and one no module uses any more is simply never claimed.';
 COMMENT ON COLUMN credit_registration_roster_schedules.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN credit_registration_roster_schedules.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN credit_registration_roster_schedules.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -389,7 +388,7 @@ CREATE TABLE credit_registration_enrolment_check_outcomes (
 CREATE INDEX idx_credit_registration_enrolment_check_outcomes_checked ON credit_registration_enrolment_check_outcomes (checked_at DESC);
 CREATE INDEX idx_credit_registration_enrolment_check_outcomes_registration ON credit_registration_enrolment_check_outcomes (credit_registration_id);
 
-COMMENT ON TABLE credit_registration_enrolment_check_outcomes IS 'One row per answered enrolment check of a row waiting for an enrolment: the data the check schedules are tuned from, offline. Ids and times only, and kept for 400 days, well past the call log''s 90.';
+COMMENT ON TABLE credit_registration_enrolment_check_outcomes IS 'One row per answered enrolment check of a row waiting for an enrolment: the data the check schedules are tuned from, offline. Ids and times only, and kept for 400 days, well past the call log''s 90. Append-only and hard-deleted by the retention sweep, so there is no updated_at or deleted_at.';
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN credit_registration_enrolment_check_outcomes.credit_registration_id IS 'The row that was checked.';
@@ -415,7 +414,7 @@ CREATE TABLE suotar_endpoint_rate_limits (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON suotar_endpoint_rate_limits FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it. The circuit breakers are in suotar_circuit_breakers.';
+COMMENT ON TABLE suotar_endpoint_rate_limits IS 'The last state the worker process''s in-memory limiter reported for each rate-limited Suotar endpoint, so the dashboard in another process can show it. Written by the worker, never read back by it, and overwritten in place, so there is no deleted_at. The circuit breakers are in suotar_circuit_breakers.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.endpoint IS 'The limited endpoint.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN suotar_endpoint_rate_limits.updated_at IS 'Timestamp when the record was last updated, which is when the worker last reported this state. The field is updated automatically by the set_timestamp trigger.';
@@ -441,7 +440,7 @@ CREATE TABLE suotar_circuit_breakers (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON suotar_circuit_breakers FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE suotar_circuit_breakers IS 'The last state each worker process''s in-memory circuit breakers reported, so the dashboard in another process can show them. Written by the worker, never read back by it.';
+COMMENT ON TABLE suotar_circuit_breakers IS 'The last state each worker process''s in-memory circuit breakers reported, so the dashboard in another process can show them. Written by the worker, never read back by it, and overwritten in place, so there is no deleted_at.';
 COMMENT ON COLUMN suotar_circuit_breakers.process_name IS 'The worker process the breaker belongs to, as in credit_registration_phase_state.process_name: each process keeps its own.';
 COMMENT ON COLUMN suotar_circuit_breakers.target IS 'Which phases the breaker pauses.';
 COMMENT ON COLUMN suotar_circuit_breakers.created_at IS 'Timestamp when the record was created.';
@@ -533,8 +532,7 @@ CREATE TABLE study_registry_student_number_conflicts (
   conflicting_verified_student_number_id UUID NOT NULL REFERENCES verified_student_numbers(id)
 );
 
-CREATE UNIQUE INDEX uq_study_registry_student_number_conflicts ON study_registry_student_number_conflicts (user_id, student_number)
-WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_study_registry_student_number_conflicts ON study_registry_student_number_conflicts (user_id, student_number, deleted_at) NULLS NOT DISTINCT;
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON study_registry_student_number_conflicts FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

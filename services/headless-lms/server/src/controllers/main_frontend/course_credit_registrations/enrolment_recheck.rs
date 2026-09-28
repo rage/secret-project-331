@@ -13,6 +13,7 @@ use headless_lms_models::library::credit_registration::enrolment_checks::CheckRe
 use crate::controllers::main_frontend::credit_registrations::{
     RecheckTarget, RequestCreditRegistrationEnrolmentRecheckResult, start_enrolment_recheck,
 };
+use crate::domain::error::missing_controller_error;
 use crate::prelude::*;
 
 /**
@@ -46,7 +47,10 @@ pub async fn recheck_credit_registration_enrolment(
     let id = *credit_registration_id;
     let row = models::credit_registrations::get_teacher_facing_by_id(&mut conn, id)
         .await?
-        .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
+        .ok_or_else(missing_controller_error(
+            ControllerErrorType::NotFound,
+            "Not found.".to_string(),
+        ))?;
     let token =
         super::authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 

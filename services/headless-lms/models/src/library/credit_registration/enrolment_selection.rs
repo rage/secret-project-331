@@ -4,9 +4,6 @@
 //! inside their degree.
 
 use chrono::{DateTime, NaiveDate, Utc};
-use headless_lms_utils::services::suotar::{
-    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, ExistingAttainment, SuotarEnrolment,
-};
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
@@ -15,6 +12,9 @@ pub const FAILED_STATE: &str = "FAILED";
 pub const DEGREE_KIND: &str = "degree";
 
 use super::grade_mapping::same_grade_scale;
+use super::study_registry::{
+    ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, RegistryAttainment, RegistryEnrolment,
+};
 
 /// Why no enrolment could carry the attainment; each variant reads differently to the student.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -60,14 +60,18 @@ pub struct EnrolmentCriteria {
     pub credits: f32,
 }
 
+/// The enrolment to register an attainment against, or why none will do: an accepted one whose
+/// credit range carries `criteria.credits`, preferring one whose study right covers the
+/// attainment date, then a degree study right, then one whose activity period covers it, then
+/// the latest enrolment.
 pub fn select_enrolment(
-    enrolments: &[SuotarEnrolment],
+    enrolments: &[RegistryEnrolment],
     criteria: EnrolmentCriteria,
-) -> Result<&SuotarEnrolment, NoUsableEnrolment> {
+) -> Result<&RegistryEnrolment, NoUsableEnrolment> {
     if enrolments.is_empty() {
         return Err(NoUsableEnrolment::None);
     }
-    let accepted: Vec<&SuotarEnrolment> = enrolments
+    let accepted: Vec<&RegistryEnrolment> = enrolments
         .iter()
         .filter(|enrolment| enrolment.state.as_deref() == Some(ENROLLED_STATE))
         .collect();
@@ -80,7 +84,7 @@ pub fn select_enrolment(
     {
         return Err(NoUsableEnrolment::NoCreditRange);
     }
-    let usable: Vec<&SuotarEnrolment> = accepted
+    let usable: Vec<&RegistryEnrolment> = accepted
         .into_iter()
         .filter(|enrolment| credits_fit(enrolment.credits.as_ref(), criteria.credits))
         .collect();
@@ -129,14 +133,14 @@ fn credits_fit(range: Option<&CreditRange>, credits: f32) -> bool {
 /// Suotar excludes a misregistered entry by a flag this endpoint does not pass through to us, so an
 /// unrecognised `state` counts as a real attainment rather than being whitelisted away: undercounting
 /// here risks a duplicate Sisu registration, which is worse than the reverse.
-pub fn attained_candidates(existing: &[ExistingAttainment]) -> Vec<&ExistingAttainment> {
+pub fn attained_candidates(existing: &[RegistryAttainment]) -> Vec<&RegistryAttainment> {
     existing
         .iter()
         .filter(|attainment| is_valid_attainment(attainment))
         .collect()
 }
 
-fn is_valid_attainment(attainment: &ExistingAttainment) -> bool {
+fn is_valid_attainment(attainment: &RegistryAttainment) -> bool {
     attainment.state.as_deref() != Some(FAILED_STATE)
 }
 
@@ -146,8 +150,8 @@ const RECOVERY_REGISTRATION_WINDOW_DAYS: i64 = 2;
 /// The attainment `sisu_attainment_id` records: the course unit one when there is one, else the
 /// latest.
 pub fn preferred_attainment<'a>(
-    candidates: &[&'a ExistingAttainment],
-) -> Option<&'a ExistingAttainment> {
+    candidates: &[&'a RegistryAttainment],
+) -> Option<&'a RegistryAttainment> {
     candidates.iter().copied().max_by_key(|attainment| {
         (
             attainment.attainment_type == ATTAINMENT_TYPE_COURSE_UNIT,
@@ -163,12 +167,12 @@ pub fn preferred_attainment<'a>(
 /// registered within a couple of days of `submitted_at` matches on its grade alone. The course unit
 /// attainment wins over the assessment item one it is built from.
 pub fn attainment_matching_submission<'a>(
-    existing: &'a [ExistingAttainment],
+    existing: &'a [RegistryAttainment],
     attainment_date: NaiveDate,
     submitted_at: Option<DateTime<Utc>>,
     grade_scale_id: &str,
     grade_id: &str,
-) -> Option<&'a ExistingAttainment> {
+) -> Option<&'a RegistryAttainment> {
     let submitted_on = submitted_at.map(|submitted_at| submitted_at.date_naive());
     existing
         .iter()
@@ -192,8 +196,7 @@ pub fn attainment_matching_submission<'a>(
 
 #[cfg(test)]
 mod tests {
-    use headless_lms_utils::services::suotar::{CreditRange, DatePeriod, LocalizedName};
-
+    use super::super::study_registry::LocalizedName;
     use super::*;
     use crate::prelude::*;
 
@@ -208,8 +211,8 @@ mod tests {
         }
     }
 
-    fn enrolment(id: &str, kind: &str) -> SuotarEnrolment {
-        SuotarEnrolment {
+    fn enrolment(id: &str, kind: &str) -> RegistryEnrolment {
+        RegistryEnrolment {
             id: id.to_string(),
             state: Some(ENROLLED_STATE.to_string()),
             kind: Some(kind.to_string()),
@@ -324,8 +327,8 @@ mod tests {
         assert_eq!(chosen.id, "newer");
     }
 
-    fn attainment(scale: &str, grade: &str, day: u32) -> ExistingAttainment {
-        ExistingAttainment {
+    fn attainment(scale: &str, grade: &str, day: u32) -> RegistryAttainment {
+        RegistryAttainment {
             id: format!("hy-att-{day}"),
             attainment_type: "CourseUnitAttainment".to_string(),
             state: Some("ATTAINED".to_string()),

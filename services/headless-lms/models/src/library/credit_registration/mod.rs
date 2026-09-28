@@ -19,6 +19,7 @@ pub mod preconditions;
 pub mod student_facing_status;
 pub mod student_notifications;
 pub mod student_number_change;
+pub mod study_registry;
 pub mod submission_context;
 
 // Only symbols reached from outside this module in more than one place are hoisted here; everything

@@ -10,7 +10,9 @@ use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
 use chrono::NaiveDate;
-use headless_lms_base::config::{MOCK_SUOTAR_TOKEN, SUOTAR_AUTH_SCHEME, SuotarConfiguration};
+use headless_lms_base::config::{
+    MOCK_SUOTAR_TOKEN, SUOTAR_AUTH_SCHEME, SuotarConfiguration, bool_env_false_by_default,
+};
 use once_cell::sync::Lazy;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
@@ -26,11 +28,24 @@ pub const INTERACTIVE_REQUEST_TIMEOUT: Duration = Duration::from_secs(50);
 /// Separate from `REQWEST_CLIENT` for the keepalive: an import can sit silent on its socket for up
 /// to an hour, which NAT and proxies otherwise drop without telling either end.
 static SUOTAR_HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
-    crate::http::base_client_builder()
-        .tcp_keepalive(Duration::from_secs(30))
+    suotar_client_builder()
         .build()
-        .expect("Failed to build the Suotar client")
+        .expect("Failed to build the Suotar client: safe to crash, it is built at startup")
 });
+
+/// [`SUOTAR_HTTP_CLIENT`] without `https_only`, for a [`SuotarClient`] that allows plain http. The
+/// shared one stays `https_only` outside test mode, which also refuses a redirect to http.
+#[cfg(any(test, feature = "test-support"))]
+static SUOTAR_PLAIN_HTTP_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+    suotar_client_builder()
+        .https_only(false)
+        .build()
+        .expect("Failed to build the plain-http Suotar client")
+});
+
+fn suotar_client_builder() -> reqwest::ClientBuilder {
+    crate::http::base_client_builder().tcp_keepalive(Duration::from_secs(30))
+}
 
 /// Carries `suotar_api_calls.id` so Suotar's log and ours join on one value.
 pub const CORRELATION_ID_HEADER: &str = "X-Correlation-Id";
@@ -264,15 +279,6 @@ pub struct DatePeriod {
     pub start_date: Option<NaiveDate>,
     #[serde(default, deserialize_with = "lenient_date")]
     pub end_date: Option<NaiveDate>,
-}
-
-impl DatePeriod {
-    /// Whether `date` falls in the range; the end date itself is already outside it, and an open
-    /// end contains every date on that side.
-    pub fn contains(&self, date: NaiveDate) -> bool {
-        self.start_date.is_none_or(|start| start <= date)
-            && self.end_date.is_none_or(|end| date < end)
-    }
 }
 
 /// Sisu's credit range. Suotar refuses an import against one missing either bound.
@@ -743,6 +749,7 @@ impl SuotarError {
         }
     }
 
+    /// The error's text without the variant prefix `Display` adds.
     pub fn message(&self) -> &str {
         self.error.message()
     }
@@ -848,25 +855,47 @@ pub struct SuotarClient {
     api_base_url: Url,
     authorization: SecretString,
     audit: Arc<dyn SuotarCallAudit>,
+    /// Whether a plain-http `api_base_url` is sent to rather than refused. Only `TEST_MODE` or the
+    /// test-only `new_allowing_http` sets it: production must never reach Suotar over http.
+    allow_http: bool,
 }
 
 impl SuotarClient {
+    /// The client for the configured Suotar. Build it at startup: it builds the shared HTTP client,
+    /// which panics if it cannot.
     pub fn new(config: &SuotarConfiguration, audit: Arc<dyn SuotarCallAudit>) -> Self {
+        Lazy::force(&SUOTAR_HTTP_CLIENT);
         Self {
             api_base_url: config.api_base_url.clone(),
             authorization: SecretString::new(
                 authorization_header_value(config.api_token.expose_secret()).into(),
             ),
             audit,
+            allow_http: bool_env_false_by_default("TEST_MODE"),
         }
     }
 
+    /// [`Self::new`], but allowing http even without `TEST_MODE`: for tests against a plain-http
+    /// mock server, which a multi-threaded test binary cannot safely set an env var to arrange.
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn new_allowing_http(
+        config: &SuotarConfiguration,
+        audit: Arc<dyn SuotarCallAudit>,
+    ) -> Self {
+        Self {
+            allow_http: true,
+            ..Self::new(config, audit)
+        }
+    }
+
+    /// A client for the mock Suotar this server serves, with no call audit.
     pub fn mock_for_test() -> Self {
         Self {
             api_base_url: Url::parse("http://project-331.local/api/v0/mock-suotar/")
                 .expect("hardcoded url"),
             authorization: SecretString::new(authorization_header_value(MOCK_SUOTAR_TOKEN).into()),
             audit: Arc::new(NoSuotarCallAudit),
+            allow_http: bool_env_false_by_default("TEST_MODE"),
         }
     }
 
@@ -948,8 +977,27 @@ impl SuotarClient {
             )
             .unsent()
         })?;
+        if !self.allow_http && url.scheme() != "https" {
+            return Err(SuotarError::new(
+                SuotarErrorVariant::TransportNotDelivered,
+                format!(
+                    "Refusing to send a {} request over plain http",
+                    endpoint.path()
+                ),
+            )
+            .unsent());
+        }
         let clock = Instant::now();
-        let mut request = SUOTAR_HTTP_CLIENT
+        #[cfg(any(test, feature = "test-support"))]
+        let http_client = if self.allow_http {
+            &*SUOTAR_PLAIN_HTTP_CLIENT
+        } else {
+            &*SUOTAR_HTTP_CLIENT
+        };
+        // `allow_http` comes only from `TEST_MODE` here, where the shared client allows http too.
+        #[cfg(not(any(test, feature = "test-support")))]
+        let http_client = &*SUOTAR_HTTP_CLIENT;
+        let mut request = http_client
             .post(url)
             .timeout(
                 context

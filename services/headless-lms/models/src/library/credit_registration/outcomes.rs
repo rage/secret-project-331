@@ -3,8 +3,6 @@
 //! landed must never be sent again. The one exception is verify's `notRegistered`, which is Suotar
 //! itself saying the submission did not land.
 
-use headless_lms_utils::services::suotar::SuotarErrorVariant;
-
 use crate::credit_registrations::{
     CreditRegistration, CreditRegistrationErrorCode, CreditRegistrationState, Transition,
 };
@@ -20,6 +18,7 @@ use super::backoff::{
 };
 use super::classification::{Retryability, retryability, settled_state};
 use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY;
+use super::study_registry::RegistryErrorKind;
 
 /// The row's scheduling history, which is all these decisions need from it.
 #[derive(Debug, Clone, PartialEq)]
@@ -262,18 +261,18 @@ pub fn uncertain_recheck_outcome(facts: &RowFacts) -> Outcome {
 /// would come back every retry, so it ages out like any other failure.
 pub fn request_level_outcome(
     endpoint: SuotarEndpoint,
-    variant: SuotarErrorVariant,
+    kind: RegistryErrorKind,
     facts: &RowFacts,
 ) -> Outcome {
-    if endpoint.creates_attainments() && variant.outcome_may_have_landed() {
+    if endpoint.creates_attainments() && kind.may_have_been_acted_on() {
         return submission_uncertain();
     }
-    let failure = if variant.is_transient() {
+    let failure = if kind.is_outage() {
         Failure::Transient
     } else {
         Failure::Lasting
     };
-    retry_or_expire(request_level_code(variant), endpoint, facts, failure)
+    retry_or_expire(request_level_code(kind), endpoint, facts, failure)
 }
 
 /// A lookup for a row waiting for an enrolment that failed in transit: the row keeps waiting and
@@ -321,18 +320,18 @@ pub fn unanswered_item_outcome(
 }
 
 /// The ledger error code for a request the study registry rejected, or never answered, as a whole.
-pub fn request_level_code(variant: SuotarErrorVariant) -> CreditRegistrationErrorCode {
-    match variant {
-        SuotarErrorVariant::Unauthorized => CreditRegistrationErrorCode::Unauthorized,
-        SuotarErrorVariant::MalformedRequest => CreditRegistrationErrorCode::MalformedRequest,
-        SuotarErrorVariant::Deserialization | SuotarErrorVariant::RequestLevelError => {
+pub fn request_level_code(kind: RegistryErrorKind) -> CreditRegistrationErrorCode {
+    match kind {
+        RegistryErrorKind::AuthenticationFailure => CreditRegistrationErrorCode::Unauthorized,
+        RegistryErrorKind::MalformedRequest => CreditRegistrationErrorCode::MalformedRequest,
+        RegistryErrorKind::ProtocolViolation | RegistryErrorKind::RejectedRequest => {
             CreditRegistrationErrorCode::UnexpectedResponse
         }
         // A bare 5xx may not be Suotar's unavailability, but a retry is all either one gets.
-        SuotarErrorVariant::ServiceTemporarilyUnavailable | SuotarErrorVariant::ServerError => {
+        RegistryErrorKind::TemporarilyUnavailable | RegistryErrorKind::ServerError => {
             CreditRegistrationErrorCode::ServiceTemporarilyUnavailable
         }
-        SuotarErrorVariant::TransportNotDelivered | SuotarErrorVariant::TransportUnknown => {
+        RegistryErrorKind::NotDelivered | RegistryErrorKind::NoAnswer => {
             CreditRegistrationErrorCode::TransportError
         }
     }
@@ -596,28 +595,28 @@ mod tests {
     #[test]
     fn only_a_request_that_may_have_reached_business_logic_leaves_an_import_batch_uncertain() {
         let facts = facts();
-        for variant in [
-            SuotarErrorVariant::ServerError,
-            SuotarErrorVariant::TransportUnknown,
-            SuotarErrorVariant::Deserialization,
+        for kind in [
+            RegistryErrorKind::ServerError,
+            RegistryErrorKind::NoAnswer,
+            RegistryErrorKind::ProtocolViolation,
         ] {
             assert_eq!(
-                request_level_outcome(SuotarEndpoint::ImportAttainments, variant, &facts).to_state,
+                request_level_outcome(SuotarEndpoint::ImportAttainments, kind, &facts).to_state,
                 State::SubmissionUncertain,
-                "{variant:?}"
+                "{kind:?}"
             );
         }
-        for variant in [
-            SuotarErrorVariant::TransportNotDelivered,
-            SuotarErrorVariant::Unauthorized,
-            SuotarErrorVariant::MalformedRequest,
-            SuotarErrorVariant::RequestLevelError,
-            SuotarErrorVariant::ServiceTemporarilyUnavailable,
+        for kind in [
+            RegistryErrorKind::NotDelivered,
+            RegistryErrorKind::AuthenticationFailure,
+            RegistryErrorKind::MalformedRequest,
+            RegistryErrorKind::RejectedRequest,
+            RegistryErrorKind::TemporarilyUnavailable,
         ] {
             assert_eq!(
-                request_level_outcome(SuotarEndpoint::ImportAttainments, variant, &facts).to_state,
+                request_level_outcome(SuotarEndpoint::ImportAttainments, kind, &facts).to_state,
                 State::FailedRetryable,
-                "{variant:?}"
+                "{kind:?}"
             );
         }
     }
@@ -625,15 +624,15 @@ mod tests {
     #[test]
     fn a_request_level_failure_elsewhere_is_always_a_plain_retry() {
         let facts = facts();
-        for variant in [
-            SuotarErrorVariant::ServerError,
-            SuotarErrorVariant::TransportUnknown,
-            SuotarErrorVariant::Unauthorized,
+        for kind in [
+            RegistryErrorKind::ServerError,
+            RegistryErrorKind::NoAnswer,
+            RegistryErrorKind::AuthenticationFailure,
         ] {
             assert_eq!(
-                request_level_outcome(SuotarEndpoint::ResolveEnrolments, variant, &facts).to_state,
+                request_level_outcome(SuotarEndpoint::ResolveEnrolments, kind, &facts).to_state,
                 State::FailedRetryable,
-                "{variant:?}"
+                "{kind:?}"
             );
         }
     }

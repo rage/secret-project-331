@@ -9,8 +9,8 @@ use chrono::Duration;
 
 use crate::prelude::*;
 use headless_lms_credit_registration::{
-    CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, breaker,
-    rate_limit, run_phase_once,
+    CreditRegistrationPhase, PhaseContext, PhaseScope, PhaseSkipReason, PhaseTick, registry_health,
+    run_phase_once,
 };
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
@@ -383,7 +383,7 @@ async fn make_roster_listings_due(
             &mut conn, course_id,
         )
         .await?;
-    rate_limit::reset(&breaker::ScopeKey::of(&scope));
+    registry_health::reset_rate_limits(&scope);
     token.authorized_ok(HttpResponse::Ok().json(MakeRosterListingsDueResult { made_due_count }))
 }
 

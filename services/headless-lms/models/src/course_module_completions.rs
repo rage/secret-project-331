@@ -3,7 +3,9 @@ use std::collections::{HashMap, HashSet};
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
+use crate::{
+    error::missing_model_error, prelude::*, study_registry_registrars::StudyRegistryRegistrar,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 
@@ -513,12 +515,10 @@ pub async fn get_registration_completion_by_user_and_course_module_id(
 ) -> ModelResult<CourseModuleCompletion> {
     let completions =
         get_all_by_course_module_and_user_ids(conn, course_module_id, user_id).await?;
-    select_registration_completion(completions).ok_or_else(|| {
-        model_err!(
-            RecordNotFound,
-            "The user has no completion for this course module.".to_string()
-        )
-    })
+    select_registration_completion(completions).ok_or_else(missing_model_error(
+        ModelErrorType::RecordNotFound,
+        "The user has no completion for this course module.".to_string(),
+    ))
 }
 
 /// Get the number of students that have completed the course

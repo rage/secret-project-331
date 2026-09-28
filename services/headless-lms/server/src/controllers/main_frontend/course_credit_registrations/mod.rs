@@ -49,9 +49,8 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::PhaseContext;
-use headless_lms_credit_registration::linking_mail_resend::{
-    ResendOutcome, resend_linking_mail_for_target,
+use headless_lms_credit_registration::account_linking::{
+    ManualActionContext, ResendOutcome, resend_linking_mail_for_target,
 };
 use headless_lms_utils::services::suotar::SuotarClient;
 
@@ -713,7 +712,7 @@ pub async fn resend_course_credit_registration_linking_email(
         .await;
     };
 
-    let ctx = PhaseContext::from_app(&pool, &suotar_client, &app_conf, RESEND_CALLER);
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
     // Released first: the call below takes connections of its own and can hold the request for the
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
     drop(conn);

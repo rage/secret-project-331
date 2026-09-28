@@ -29,6 +29,7 @@ pub struct NewEnrolmentCheckOutcome {
     pub enrolled_at: Option<DateTime<Utc>>,
 }
 
+/// Logs one answered enrolment check.
 pub async fn insert(conn: &mut PgConnection, new: &NewEnrolmentCheckOutcome) -> ModelResult<Uuid> {
     let id = sqlx::query_scalar!(
         r#"
@@ -110,7 +111,7 @@ pub async fn get_lateness_since(
     let res = sqlx::query_as!(
         EnrolmentCheckLateness,
         r#"
-SELECT enrolment_check_group AS "enrolment_check_group!: EnrolmentCheckGroup",
+SELECT enrolment_check_group AS "enrolment_check_group!",
   enrolment_check_step AS "enrolment_check_step!",
   COUNT(*) AS "check_count!",
   PERCENTILE_CONT(0.5) WITHIN GROUP (
@@ -169,9 +170,9 @@ pub async fn get_findings_since(
     let res = sqlx::query_as!(
         EnrolmentCheckFindings,
         r#"
-SELECT enrolment_check_group AS "enrolment_check_group!: EnrolmentCheckGroup",
+SELECT enrolment_check_group AS "enrolment_check_group!",
   enrolment_check_step,
-  source AS "source!: EnrolmentCheckSource",
+  source AS "source!",
   COUNT(*) AS "check_count!",
   COUNT(*) FILTER (
     WHERE is_enrolment_found
@@ -220,7 +221,7 @@ pub async fn get_population(conn: &mut PgConnection) -> ModelResult<Vec<Enrolmen
     let res = sqlx::query_as!(
         EnrolmentCheckPopulation,
         r#"
-SELECT enrolment_check_group AS "enrolment_check_group!: EnrolmentCheckGroup",
+SELECT enrolment_check_group AS "enrolment_check_group!",
   enrolment_check_step,
   COUNT(*) AS "row_count!",
   COUNT(*) FILTER (

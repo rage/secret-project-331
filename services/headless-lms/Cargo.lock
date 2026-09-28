@@ -2931,6 +2931,7 @@ dependencies = [
  "headless-lms-models",
  "headless-lms-utils",
  "itertools 0.15.0",
+ "mockito",
  "secrecy",
  "serde",
  "serde_json",

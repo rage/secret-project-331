@@ -20,7 +20,7 @@ use crate::domain::credit_registration::health::{
 };
 use crate::prelude::*;
 use headless_lms_credit_registration::CreditRegistrationPhase;
-use headless_lms_credit_registration::breaker::is_waiting_to_probe;
+use headless_lms_credit_registration::registry_health::is_waiting_to_probe;
 
 use super::authorize_credit_registration_admin;
 

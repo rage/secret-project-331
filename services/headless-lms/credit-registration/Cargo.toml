@@ -42,6 +42,12 @@ tracing-error = "0.2.1"
 # A library to acquire a stack trace (backtrace) at runtime in a Rust program.
 backtrace = "0.3.76"
 
+[dev-dependencies]
+# HTTP mocking for Rust.
+mockito = "1.7.2"
+# Lets the contract tests send to a plain-http mock server.
+headless-lms-utils = { path = "../utils", features = ["test-support"] }
+
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "allow"

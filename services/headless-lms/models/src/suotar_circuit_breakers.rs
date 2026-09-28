@@ -80,7 +80,7 @@ pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<SuotarCircuitBr
         SuotarCircuitBreaker,
         r#"
 SELECT process_name,
-  target AS "target: BreakerTarget",
+  target,
   updated_at,
   consecutive_failures,
   open_until,

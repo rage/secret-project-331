@@ -3,9 +3,9 @@
 
 use chrono::TimeDelta;
 use headless_lms_utils::backoff::{exponential_backoff_secs, window_expired};
-use headless_lms_utils::services::suotar::SuotarEndpoint;
 
 use crate::prelude::*;
+use crate::suotar_api_calls::SuotarEndpoint;
 
 pub const SUBMIT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
 pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
@@ -61,6 +61,7 @@ fn doubling(base: TimeDelta, max: TimeDelta, count: i32) -> TimeDelta {
     ))
 }
 
+/// The wait before the next submit after `retry_count` failed ones.
 pub fn submit_backoff(retry_count: i32) -> TimeDelta {
     doubling(SUBMIT_BASE_BACKOFF, SUBMIT_MAX_BACKOFF, retry_count)
 }
@@ -92,6 +93,8 @@ pub fn verify_window_expired(submitted_at: Option<DateTime<Utc>>, now: DateTime<
     window_expired(submitted_at, now, VERIFY_MAX_AGE.num_seconds())
 }
 
+/// Whether an uncertain submission has waited long enough to be handed to an admin; never without
+/// a submission time.
 pub fn uncertain_needs_admin(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
     window_expired(submitted_at, now, UNCERTAIN_ADMIN_AFTER.num_seconds())
 }

@@ -91,6 +91,10 @@ utoipa.workspace = true
 # is stored in a postgres enum column by the models crate.
 sqlx = { version = "0.9.0", default-features = false, features = ["derive", "postgres"] }
 
+[features]
+# Lets tests send to a plain-http mock server without `TEST_MODE`. Enable only from dev-dependencies.
+test-support = []
+
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"

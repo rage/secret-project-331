@@ -49,6 +49,8 @@ pub enum RosterTier {
 }
 
 impl RosterTier {
+    /// How long after its last fetch a code in this tier is due; `None` when only a trigger makes
+    /// it due.
     pub fn interval_secs(self) -> Option<i64> {
         match self {
             Self::Active => Some(ACTIVE_INTERVAL_SECS),
@@ -69,6 +71,7 @@ pub struct RosterTierFacts {
     pub window_closed_at: Option<DateTime<Utc>>,
 }
 
+/// How often a code's roster is listed, from how recently it had a completion.
 pub fn roster_tier(
     facts: &RosterTierFacts,
     is_account_linking_enabled: bool,
@@ -143,6 +146,7 @@ impl RosterSchedule {
             .min()
     }
 
+    /// Whether the code is to be listed now, failure backoff included.
     pub fn is_due(&self, is_account_linking_enabled: bool, now: DateTime<Utc>) -> bool {
         self.retry_not_before.is_none_or(|retry| retry <= now)
             && self
@@ -150,6 +154,7 @@ impl RosterSchedule {
                 .is_some_and(|due| due <= now)
     }
 
+    /// Whether a booked triggered or follow-up listing is due, whatever the tier and backoff say.
     pub fn is_triggered_due(&self, now: DateTime<Utc>) -> bool {
         self.triggered_due_at().is_some_and(|due| due <= now)
     }
@@ -246,7 +251,7 @@ SELECT c.course_code,
   c.is_fetched_alone,
   c.consecutive_failures,
   c.retry_not_before,
-  c.last_error AS "last_error: CreditRegistrationErrorCode",
+  c.last_error,
   c.window_closed_at,
   COUNT(*) AS "module_count!",
   MAX(facts.last_completion_at) AS last_completion_at,
@@ -577,13 +582,14 @@ pub struct FailingRosterCode {
     pub last_attempted_at: Option<DateTime<Utc>>,
 }
 
+/// The codes whose latest listings failed, most consecutive failures first.
 pub async fn get_failing_codes(conn: &mut PgConnection) -> ModelResult<Vec<FailingRosterCode>> {
     let res = sqlx::query_as!(
         FailingRosterCode,
         r#"
 SELECT course_code,
   consecutive_failures,
-  last_error AS "last_error: CreditRegistrationErrorCode",
+  last_error,
   last_attempted_at
 FROM credit_registration_roster_schedules
 WHERE consecutive_failures > 0

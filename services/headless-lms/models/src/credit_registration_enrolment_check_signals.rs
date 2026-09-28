@@ -25,8 +25,7 @@ recorded AS (
       course_module_completion_id,
       last_visited_at
     )
-  VALUES ($1, now()) ON CONFLICT (course_module_completion_id)
-  WHERE deleted_at IS NULL DO
+  VALUES ($1, now()) ON CONFLICT (course_module_completion_id, deleted_at) DO
   UPDATE
   SET last_visited_at = now()
 )
@@ -55,8 +54,7 @@ INSERT INTO credit_registration_enrolment_check_signals (
     last_check_requested_at,
     check_request_source
   )
-VALUES ($1, now(), $2) ON CONFLICT (course_module_completion_id)
-WHERE deleted_at IS NULL DO
+VALUES ($1, now(), $2) ON CONFLICT (course_module_completion_id, deleted_at) DO
 UPDATE
 SET last_check_requested_at = now(),
   check_request_source = EXCLUDED.check_request_source
@@ -90,8 +88,7 @@ FROM course_module_completions cmc
 WHERE cmc.user_id = $1
   AND cmc.course_id = $2
   AND cmc.register_credits_via_suotar
-  AND cmc.deleted_at IS NULL ON CONFLICT (course_module_completion_id)
-WHERE deleted_at IS NULL DO
+  AND cmc.deleted_at IS NULL ON CONFLICT (course_module_completion_id, deleted_at) DO
 UPDATE
 SET last_check_requested_at = now(),
   check_request_source = EXCLUDED.check_request_source

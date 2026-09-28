@@ -367,7 +367,7 @@ pub async fn get_page(
         SuotarApiCallPageRow,
         r#"
 SELECT id,
-  endpoint AS "endpoint!: SuotarEndpoint",
+  endpoint AS "endpoint!",
   request_item_count,
   http_status,
   duration_ms,
@@ -533,7 +533,7 @@ pub async fn get_daily_costs_since(
         SuotarEndpointDailyCost,
         r#"
 SELECT (started_at AT TIME ZONE 'UTC')::date AS "day!",
-  endpoint AS "endpoint!: SuotarEndpoint",
+  endpoint AS "endpoint!",
   COUNT(*) AS "call_count!",
   COUNT(*) FILTER (
     WHERE NOT succeeded

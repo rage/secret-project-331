@@ -3,8 +3,6 @@
 //! roster and shifting them past a module pause. The ladders are
 //! [`super::enrolment_check_schedule`].
 
-use headless_lms_utils::services::suotar::SuotarEnrolment;
-
 use crate::credit_registration_enrolment_check_outcomes::{self, NewEnrolmentCheckOutcome};
 use crate::credit_registrations::{
     CreditRegistration, CreditRegistrationState, RegistrationScope, is_waiting_for_enrolment,
@@ -18,6 +16,7 @@ use super::enrolment_check_schedule::{
     ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY, VISIT_RESTART_MIN_INTERVAL, first_check,
     never, next_check_after,
 };
+use super::study_registry::RegistryEnrolment;
 
 /// What a check request did to the row.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,6 +33,7 @@ pub enum CheckRequestOutcome {
 }
 
 impl CheckRequestOutcome {
+    /// Whether the request made a check due now.
     pub fn started_check(self) -> bool {
         self == Self::CheckStarted
     }
@@ -55,9 +55,9 @@ async fn lock_schedule(conn: &mut PgConnection, id: Uuid) -> ModelResult<Schedul
     let res = sqlx::query_as!(
         ScheduleFacts,
         r#"
-SELECT state AS "state: CreditRegistrationState",
+SELECT state,
   no_usable_enrolment_since,
-  enrolment_check_group AS "enrolment_check_group: EnrolmentCheckGroup",
+  enrolment_check_group,
   enrolment_check_anchor_at,
   enrolment_checks_stopped_at,
   enrolment_check_requested_at,
@@ -545,8 +545,8 @@ pub struct EnrolmentCheckAnswer<'a> {
     /// The row as it was claimed for the check.
     pub checked: &'a CreditRegistration,
     /// The enrolment the answer had to register against, however the row then settled.
-    pub usable_enrolment: Option<&'a SuotarEnrolment>,
-    pub listed_enrolments: &'a [SuotarEnrolment],
+    pub usable_enrolment: Option<&'a RegistryEnrolment>,
+    pub listed_enrolments: &'a [RegistryEnrolment],
 }
 
 /// Logs what a check found and remembers the enrolments it saw for the roster wake-ups, given the

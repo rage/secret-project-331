@@ -405,9 +405,9 @@ SELECT id,
   frozen_identity_stale AS "frozen_identity_stale!",
   payload_unweighed_against_held_credit AS "payload_unweighed_against_held_credit!",
   starts_enrolment_checks AS "starts_enrolment_checks!",
-  check_group AS "check_group!: EnrolmentCheckGroup",
+  check_group AS "check_group!",
   check_anchor_at AS "check_anchor_at!",
-  check_source AS "check_source!: EnrolmentCheckSource"
+  check_source AS "check_source!"
 FROM facts
 WHERE (
     state = 'submitting'

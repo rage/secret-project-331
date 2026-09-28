@@ -8,7 +8,6 @@
 use std::collections::HashMap;
 
 use chrono::TimeDelta;
-use headless_lms_utils::services::suotar::ListedPerson;
 use secrecy::ExposeSecret;
 
 use crate::credit_registration_account_linking_emails::{
@@ -23,6 +22,8 @@ use crate::prelude::*;
 use crate::student_number_verification_tokens::{
     NewStudentNumberVerificationToken, insert_batch as insert_tokens_batch,
 };
+
+use super::study_registry::RosterPerson;
 
 /// Both the mailed URL and the frontend route that serves it are built from this one value.
 pub const LINK_STUDENT_NUMBER_PATH: &str = "/link-student-number";
@@ -56,7 +57,7 @@ pub struct DiscoveredPerson {
 
 /// Every address the study registry holds for a listed person, in the order it lists them; which
 /// one they read is not something we can know.
-pub fn listed_person_addresses(person: &ListedPerson) -> Vec<DbSecret> {
+pub fn listed_person_addresses(person: &RosterPerson) -> Vec<DbSecret> {
     [&person.primary_email, &person.secondary_email]
         .into_iter()
         .flatten()

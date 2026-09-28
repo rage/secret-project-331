@@ -62,7 +62,7 @@ SELECT c.id,
   vsn.user_id AS conflicting_link_user_id,
   holder.email AS "conflicting_link_user_email?",
   vsn.student_number AS conflicting_link_student_number,
-  vsn.verified_via AS "conflicting_link_verified_via: StudentNumberVerificationMethod"
+  vsn.verified_via AS conflicting_link_verified_via
 FROM study_registry_student_number_conflicts c
   JOIN course_module_completion_registered_to_study_registries r ON r.id = c.registered_completion_id
   JOIN courses co ON co.id = r.course_id

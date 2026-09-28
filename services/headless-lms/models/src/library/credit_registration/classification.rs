@@ -6,7 +6,8 @@ use utoipa::ToSchema;
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
-use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarItemStatus};
+
+use super::study_registry::ItemStatus;
 
 /// What may be done about an error code. The class is the contract's, not the endpoint's: the
 /// import phase is the only place that upgrades a code to [`Retryability::VerifyOnly`].
@@ -160,20 +161,25 @@ pub fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
 
 /// Whether every item of an answer says the registry could not be reached. One good item makes it a
 /// plain answer, because something moved.
-pub fn is_all_unavailable<R>(response: &SuotarBatchResponse<R>) -> bool {
-    !response.items.is_empty()
-        && response.items.iter().all(|item| {
-            item.status == SuotarItemStatus::Error
-                && is_service_unavailable_code(response.endpoint, &item.code)
+pub fn is_all_unavailable<'a>(
+    endpoint: SuotarEndpoint,
+    items: impl IntoIterator<Item = (ItemStatus, &'a str)>,
+) -> bool {
+    let mut items = items.into_iter().peekable();
+    items.peek().is_some()
+        && items.all(|(status, code)| {
+            status == ItemStatus::Error && is_service_unavailable_code(endpoint, code)
         })
 }
 
-/// Whether every item of an answer says Sisu timed out: Suotar itself answered.
-pub fn is_only_sisu_timeouts<R>(response: &SuotarBatchResponse<R>) -> bool {
-    response
-        .items
-        .iter()
-        .all(|item| is_sisu_timeout_code(response.endpoint, &item.code))
+/// Whether every item code of an answer says Sisu timed out: Suotar itself answered.
+pub fn is_only_sisu_timeouts<'a>(
+    endpoint: SuotarEndpoint,
+    codes: impl IntoIterator<Item = &'a str>,
+) -> bool {
+    codes
+        .into_iter()
+        .all(|code| is_sisu_timeout_code(endpoint, code))
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.

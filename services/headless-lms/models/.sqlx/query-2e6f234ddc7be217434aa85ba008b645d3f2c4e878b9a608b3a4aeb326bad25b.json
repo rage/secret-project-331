@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_templates (\n    id,\n    course_id,\n    content,\n    subject,\n    exercise_completions_threshold,\n    points_threshold,\n    language,\n    email_template_type\n  )\nSELECT uuid_generate_v5($1, id::text),\n  $1,\n  content,\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  language,\n  email_template_type\nFROM email_templates\nWHERE course_id = $2\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2e6f234ddc7be217434aa85ba008b645d3f2c4e878b9a608b3a4aeb326bad25b"
+}

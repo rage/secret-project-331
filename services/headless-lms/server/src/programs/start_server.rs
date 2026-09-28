@@ -17,6 +17,7 @@ use dotenvy::dotenv;
 use listenfd::ListenFd;
 use rustls::crypto::ring;
 use secrecy::ExposeSecret;
+use std::time::Duration;
 
 /// The entrypoint to the server.
 pub async fn main() -> anyhow::Result<()> {
@@ -75,7 +76,10 @@ pub async fn main() -> anyhow::Result<()> {
                 )
                 .custom_request_replace("request_line", redacted_request_line),
             )
-    });
+    })
+    // Must outlive ingress-nginx's 60 s upstream keepalive, or nginx reuses a connection we are
+    // closing and answers the (unretried) POST with a 502.
+    .keep_alive(Duration::from_secs(75));
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();

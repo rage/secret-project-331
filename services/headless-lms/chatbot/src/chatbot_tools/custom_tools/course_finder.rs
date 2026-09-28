@@ -137,21 +137,13 @@ impl ChatbotTool for CourseFinderTool {
 
         let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
-            .map(|course| {
-                let organization =
-                    organization_by_id
-                        .get(&course.organization_id)
-                        .ok_or_else(|| {
-                            chatbot_err!(
-                                ToolUseError,
-                                format!(
-                                    "Organization {} not found for course {}",
-                                    course.organization_id, course.id
-                                )
-                            )
-                        })?;
+            .filter_map(|course| {
+                if course.is_draft || course.is_test_mode || course.is_unlisted {
+                    return None;
+                }
+                let organization = organization_by_id.get(&course.organization_id)?;
 
-                Ok(CourseOccurrences {
+                Some(CourseOccurrences {
                     occurrences: counts[&course.id],
                     course_url: build_course_url(
                         &app_config.base_url,
@@ -161,7 +153,7 @@ impl ChatbotTool for CourseFinderTool {
                     course,
                 })
             })
-            .collect::<ChatbotResult<_>>()?;
+            .collect();
 
         course_occurrences.sort_by_key(|b| std::cmp::Reverse(b.occurrences));
 

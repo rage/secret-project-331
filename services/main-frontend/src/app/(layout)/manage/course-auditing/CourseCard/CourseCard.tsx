@@ -314,7 +314,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
               className={css`
                 display: flex;
                 flex-flow: row wrap;
-                align-items: anchor-center;
+                align-items: center;
                 justify-content: start;
                 gap: 1rem;
               `}
@@ -337,7 +337,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   {t("unlisted")}
                 </Badge>
               )}
-
               {courseAuditingData.is_test_mode && (
                 <Badge tone={TONE.SUCCESS} title={t("test-course")}>
                   {t("test-course")}

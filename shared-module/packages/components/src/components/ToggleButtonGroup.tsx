@@ -28,7 +28,13 @@ const groupCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  align-items: anchor-center;
+  align-items: center;
+`
+
+const buttonGroupCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0;
 `
 
 const groupVerticalCss = css`
@@ -63,7 +69,6 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
     rules,
     label,
     selectionMode = "single",
-    selectedKeys,
     defaultSelectedKeys,
     disallowEmptySelection = true,
     isDisabled = false,
@@ -80,7 +85,7 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
 
   const state = useToggleGroupState({
     ...omitUndefined({
-      selectedKeys,
+      selectedKeys: field.value,
       defaultSelectedKeys,
       onSelectionChange: (v: Set<Key>) => {
         field.onChange(v)
@@ -112,7 +117,7 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
       data-orientation={orientation}
     >
       <ToggleButtonGroupContext.Provider value={{ state, fieldSize }}>
-        {children}
+        <div className={buttonGroupCss}>{children}</div>
       </ToggleButtonGroupContext.Provider>
       <span className={checkableLabelCss}>{label}</span>
     </div>

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -147,8 +147,6 @@ const CourseAuditing = () => {
     "is_test_mode",
     "is_joinable_by_code_only",
   ])
-
-  console.log(isUnlisted)
 
   const deferredSearchCourse = useDeferredValue(searchCourse)
 
@@ -303,8 +301,8 @@ const CourseAuditing = () => {
             label={t("draft")}
             defaultSelectedKeys={new Set(["off"])}
           >
-            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
           </ToggleButtonGroup>
           <ToggleButtonGroup
@@ -313,8 +311,8 @@ const CourseAuditing = () => {
             label={t("unlisted")}
             defaultSelectedKeys={new Set(["off"])}
           >
-            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
           </ToggleButtonGroup>
           <ToggleButtonGroup
@@ -323,8 +321,8 @@ const CourseAuditing = () => {
             label={t("test-course")}
             defaultSelectedKeys={new Set(["off"])}
           >
-            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
           </ToggleButtonGroup>
           <ToggleButtonGroup
@@ -333,8 +331,8 @@ const CourseAuditing = () => {
             label={t("joinable-by-code-only")}
             defaultSelectedKeys={new Set(["off"])}
           >
-            <GroupedToggleButton id="off">{t("off")}</GroupedToggleButton>
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
+            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
           </ToggleButtonGroup>
         </div>

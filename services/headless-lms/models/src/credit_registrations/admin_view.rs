@@ -1,6 +1,6 @@
 //! The ledger as the admin explorer and the reconciliation detectors read it, across courses.
 
-use super::registration::CreditRegistration;
+use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use super::teacher_view::search_pattern_of;
 use crate::library::credit_registration::{CreditRegistrationPendingReason, PendingPreconditions};
@@ -56,6 +56,13 @@ pub struct AdminCreditRegistration {
     pub verified_student_number_at: Option<DateTime<Utc>>,
     pub verified_student_number_via: Option<StudentNumberVerificationMethod>,
     pub resubmit_not_before: Option<DateTime<Utc>>,
+    pub partially_registered_at: Option<DateTime<Utc>>,
+    pub not_registered_reimport_count: i32,
+    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
+    pub enrolment_checked_at: Option<DateTime<Utc>>,
+    pub enrolment_check_anchor_at: Option<DateTime<Utc>>,
+    pub enrolment_check_due_at: Option<DateTime<Utc>>,
+    pub enrolment_checks_stopped_at: Option<DateTime<Utc>>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
     pub course_code_allowed: bool,
@@ -73,6 +80,15 @@ impl AdminCreditRegistration {
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
         }
+    }
+
+    /// See [`is_waiting_for_enrolment`].
+    pub fn is_waiting_for_enrolment(&self) -> bool {
+        is_waiting_for_enrolment(
+            self.state,
+            self.enrolment_check_anchor_at,
+            self.no_usable_enrolment_since,
+        )
     }
 
     /// What this row is waiting on, or `None` where it is not waiting at all: outside `pending` the
@@ -194,6 +210,13 @@ SELECT cr.id,
   vsn.verified_at AS "verified_student_number_at?",
   vsn.verified_via AS "verified_student_number_via?",
   cr.resubmit_not_before,
+  cr.partially_registered_at,
+  cr.not_registered_reimport_count,
+  cr.no_usable_enrolment_since,
+  cr.enrolment_checked_at,
+  cr.enrolment_check_anchor_at,
+  cr.enrolment_check_due_at,
+  cr.enrolment_checks_stopped_at,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
   p.course_code_allowed AS "course_code_allowed!",

@@ -17,6 +17,7 @@ import {
   monospaceCss,
   noteCss,
   sectionCss,
+  stackedCellCss,
   subheadingCss,
   subsectionCss,
 } from "../styles"
@@ -54,7 +55,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
       {(detail) => (
         <div className={sectionCss}>
           <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-          {detail.error_message && <p>{detail.error_message}</p>}
+          {detail.error_message && (
+            <p>
+              <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}
+              {detail.error_message}
+            </p>
+          )}
           <Body
             title={t("credit-registration-admin-stored-request")}
             body={detail.request_body_sample}
@@ -101,13 +107,28 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },
                   {
-                    header: t("label-state"),
-                    cell: (row) => <AdminStateLabel state={row.state} />,
-                  },
-                  {
-                    header: t("label-error-code"),
-                    cell: (row) =>
-                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
+                    header: t("credit-registration-admin-column-effect-of-call"),
+                    cell: (row) => {
+                      const effects = detail.events.filter(
+                        (event) => event.credit_registration_id === row.credit_registration_id,
+                      )
+                      if (effects.length === 0) {
+                        return t("credit-registration-admin-no-change")
+                      }
+                      return (
+                        <div className={stackedCellCss}>
+                          {effects.map((event) => (
+                            <div key={event.id}>
+                              {event.to_state ? <AdminStateLabel state={event.to_state} /> : null}
+                              {event.error_code ? (
+                                <ErrorCodeCell errorCode={event.error_code} />
+                              ) : null}
+                              {event.message ? <div>{event.message}</div> : null}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    },
                   },
                 ]}
               />

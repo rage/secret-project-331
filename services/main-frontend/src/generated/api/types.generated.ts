@@ -128,6 +128,16 @@ export type AddPlanMemberRequest = {
   email: string
 }
 
+/**
+ * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
+ */
+export type AdminAttentionThresholds = {
+  not_registered_reimports: number
+  partial_registration_secs: number
+  uncertain_secs: number
+  verify_window_secs: number
+}
+
 export type AdminBulkTransitionPayload = {
   action: AdminCreditRegistrationAction
   credit_registration_ids: Array<string>
@@ -174,6 +184,7 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
+  attention_thresholds: AdminAttentionThresholds
   events: Array<AdminCreditRegistrationEvent>
   /**
    * Every mail addressed to this person, on any course.
@@ -231,18 +242,38 @@ export type AdminCreditRegistrationRow = {
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
+  /**
+   * The next scheduled enrolment check.
+   */
+  enrolment_check_due_at?: string | null
+  enrolment_checked_at?: string | null
+  enrolment_checks_stopped_at?: string | null
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
   id: string
+  is_waiting_for_enrolment: boolean
   last_attempt_at?: string | null
   last_name?: string | null
   needs_admin_attention: boolean
   next_attempt_at: string
+  no_usable_enrolment_since?: string | null
+  /**
+   * How many times Suotar has lost the submission and it was sent again.
+   */
+  not_registered_reimport_count: number
+  /**
+   * When verify first saw only the assessment item attainment.
+   */
+  partially_registered_at?: string | null
   pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
   resubmission_refusal?: null | ResubmissionRefusal
+  /**
+   * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
+   */
+  resubmit_not_before?: string | null
   selected_enrolment_id?: string | null
   sisu_attainment_id?: string | null
   sisu_person_id?: string | null
@@ -4038,18 +4069,38 @@ export type PageAdminCreditRegistrationRow = {
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
+    /**
+     * The next scheduled enrolment check.
+     */
+    enrolment_check_due_at?: string | null
+    enrolment_checked_at?: string | null
+    enrolment_checks_stopped_at?: string | null
     error_code?: null | CreditRegistrationErrorCode
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
     id: string
+    is_waiting_for_enrolment: boolean
     last_attempt_at?: string | null
     last_name?: string | null
     needs_admin_attention: boolean
     next_attempt_at: string
+    no_usable_enrolment_since?: string | null
+    /**
+     * How many times Suotar has lost the submission and it was sent again.
+     */
+    not_registered_reimport_count: number
+    /**
+     * When verify first saw only the assessment item attainment.
+     */
+    partially_registered_at?: string | null
     pending_reason?: null | CreditRegistrationPendingReason
     registered_at?: string | null
     resubmission_refusal?: null | ResubmissionRefusal
+    /**
+     * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
+     */
+    resubmit_not_before?: string | null
     selected_enrolment_id?: string | null
     sisu_attainment_id?: string | null
     sisu_person_id?: string | null
@@ -4795,6 +4846,10 @@ export type SuotarApiCallEvent = {
   from_state?: null | CreditRegistrationState
   id: string
   kind: CreditRegistrationEventKind
+  /**
+   * Our own wording for what the call did to the row.
+   */
+  message?: string | null
   to_state?: null | CreditRegistrationState
 }
 

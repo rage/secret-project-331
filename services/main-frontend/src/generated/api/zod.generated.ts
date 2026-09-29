@@ -153,6 +153,40 @@ export const zAddPlanMemberRequest = z.object({
 })
 
 /**
+ * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
+ */
+export const zAdminAttentionThresholds = z.object({
+  not_registered_reimports: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  partial_registration_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  uncertain_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  verify_window_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
  * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
 export const zAdminCreditRegistrationStateMove = z.enum(["ready_to_submit", "cancelled"])
@@ -4732,18 +4766,29 @@ export const zAdminCreditRegistrationRow = z.object({
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
   email: z.string().nullish(),
+  enrolment_check_due_at: z.iso.datetime().nullish(),
+  enrolment_checked_at: z.iso.datetime().nullish(),
+  enrolment_checks_stopped_at: z.iso.datetime().nullish(),
   error_code: zCreditRegistrationErrorCode.nullish(),
   first_name: z.string().nullish(),
   grade_id: z.string().nullish(),
   grade_scale_id: z.string().nullish(),
   id: z.uuid(),
+  is_waiting_for_enrolment: z.boolean(),
   last_attempt_at: z.iso.datetime().nullish(),
   last_name: z.string().nullish(),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
+  no_usable_enrolment_since: z.iso.datetime().nullish(),
+  not_registered_reimport_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  partially_registered_at: z.iso.datetime().nullish(),
   pending_reason: zCreditRegistrationPendingReason.nullish(),
   registered_at: z.iso.datetime().nullish(),
   resubmission_refusal: zResubmissionRefusal.nullish(),
+  resubmit_not_before: z.iso.datetime().nullish(),
   selected_enrolment_id: z.string().nullish(),
   sisu_attainment_id: z.string().nullish(),
   sisu_person_id: z.string().nullish(),
@@ -4841,18 +4886,29 @@ export const zPageAdminCreditRegistrationRow = z.object({
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
       email: z.string().nullish(),
+      enrolment_check_due_at: z.iso.datetime().nullish(),
+      enrolment_checked_at: z.iso.datetime().nullish(),
+      enrolment_checks_stopped_at: z.iso.datetime().nullish(),
       error_code: zCreditRegistrationErrorCode.nullish(),
       first_name: z.string().nullish(),
       grade_id: z.string().nullish(),
       grade_scale_id: z.string().nullish(),
       id: z.uuid(),
+      is_waiting_for_enrolment: z.boolean(),
       last_attempt_at: z.iso.datetime().nullish(),
       last_name: z.string().nullish(),
       needs_admin_attention: z.boolean(),
       next_attempt_at: z.iso.datetime(),
+      no_usable_enrolment_since: z.iso.datetime().nullish(),
+      not_registered_reimport_count: z
+        .int()
+        .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+        .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+      partially_registered_at: z.iso.datetime().nullish(),
       pending_reason: zCreditRegistrationPendingReason.nullish(),
       registered_at: z.iso.datetime().nullish(),
       resubmission_refusal: zResubmissionRefusal.nullish(),
+      resubmit_not_before: z.iso.datetime().nullish(),
       selected_enrolment_id: z.string().nullish(),
       sisu_attainment_id: z.string().nullish(),
       sisu_person_id: z.string().nullish(),
@@ -5005,6 +5061,7 @@ export const zSuotarApiCallEvent = z.object({
   from_state: zCreditRegistrationState.nullish(),
   id: z.uuid(),
   kind: zCreditRegistrationEventKind,
+  message: z.string().nullish(),
   to_state: zCreditRegistrationState.nullish(),
 })
 
@@ -5076,6 +5133,7 @@ export const zAdminSuotarApiCall = z.object({
 export const zAdminCreditRegistrationDetails = z.object({
   actions: z.array(zCreditRegistrationAdminActionRecord),
   attempts: z.array(zAdminCreditRegistrationRow),
+  attention_thresholds: zAdminAttentionThresholds,
   events: z.array(zAdminCreditRegistrationEvent),
   linking_emails: z.array(zAdminLinkingEmail),
   not_improved_attainment: zNotImprovedAttainment.nullish(),

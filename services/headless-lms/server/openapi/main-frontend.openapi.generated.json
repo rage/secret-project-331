@@ -14402,6 +14402,34 @@
           }
         }
       },
+      "AdminAttentionThresholds": {
+        "type": "object",
+        "description": "The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.",
+        "required": [
+          "partial_registration_secs",
+          "uncertain_secs",
+          "verify_window_secs",
+          "not_registered_reimports"
+        ],
+        "properties": {
+          "not_registered_reimports": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partial_registration_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uncertain_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "verify_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "AdminBulkTransitionPayload": {
         "type": "object",
         "required": ["action", "credit_registration_ids", "reason"],
@@ -14502,6 +14530,7 @@
       "AdminCreditRegistrationDetails": {
         "type": "object",
         "required": [
+          "attention_thresholds",
           "registration",
           "attempts",
           "events",
@@ -14524,6 +14553,9 @@
               "$ref": "#/components/schemas/AdminCreditRegistrationRow"
             },
             "description": "Every attempt for the same completion, newest first, this one included."
+          },
+          "attention_thresholds": {
+            "$ref": "#/components/schemas/AdminAttentionThresholds"
           },
           "events": {
             "type": "array",
@@ -14650,6 +14682,8 @@
           "state_entered_at",
           "needs_admin_attention",
           "next_attempt_at",
+          "not_registered_reimport_count",
+          "is_waiting_for_enrolment",
           "submit_retry_count",
           "verify_attempt_count",
           "attempt_number",
@@ -14698,6 +14732,19 @@
             "type": ["string", "null"],
             "description": "In full: masking it would leave support unable to answer the question they were asked."
           },
+          "enrolment_check_due_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The next scheduled enrolment check."
+          },
+          "enrolment_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "enrolment_checks_stopped_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "error_code": {
             "oneOf": [
               {
@@ -14721,6 +14768,9 @@
             "type": "string",
             "format": "uuid"
           },
+          "is_waiting_for_enrolment": {
+            "type": "boolean"
+          },
           "last_attempt_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -14734,6 +14784,20 @@
           "next_attempt_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "no_usable_enrolment_since": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "not_registered_reimport_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many times Suotar has lost the submission and it was sent again."
+          },
+          "partially_registered_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When verify first saw only the assessment item attainment."
           },
           "pending_reason": {
             "oneOf": [
@@ -14760,6 +14824,11 @@
                 "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
               }
             ]
+          },
+          "resubmit_not_before": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it."
           },
           "selected_enrolment_id": {
             "type": ["string", "null"]
@@ -24767,6 +24836,8 @@
                 "state_entered_at",
                 "needs_admin_attention",
                 "next_attempt_at",
+                "not_registered_reimport_count",
+                "is_waiting_for_enrolment",
                 "submit_retry_count",
                 "verify_attempt_count",
                 "attempt_number",
@@ -24815,6 +24886,19 @@
                   "type": ["string", "null"],
                   "description": "In full: masking it would leave support unable to answer the question they were asked."
                 },
+                "enrolment_check_due_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "The next scheduled enrolment check."
+                },
+                "enrolment_checked_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "enrolment_checks_stopped_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
                 "error_code": {
                   "oneOf": [
                     {
@@ -24838,6 +24922,9 @@
                   "type": "string",
                   "format": "uuid"
                 },
+                "is_waiting_for_enrolment": {
+                  "type": "boolean"
+                },
                 "last_attempt_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
@@ -24851,6 +24938,20 @@
                 "next_attempt_at": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "no_usable_enrolment_since": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "not_registered_reimport_count": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "How many times Suotar has lost the submission and it was sent again."
+                },
+                "partially_registered_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "When verify first saw only the assessment item attainment."
                 },
                 "pending_reason": {
                   "oneOf": [
@@ -24877,6 +24978,11 @@
                       "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
                     }
                   ]
+                },
+                "resubmit_not_before": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it."
                 },
                 "selected_enrolment_id": {
                   "type": ["string", "null"]
@@ -26845,6 +26951,10 @@
           },
           "kind": {
             "$ref": "#/components/schemas/CreditRegistrationEventKind"
+          },
+          "message": {
+            "type": ["string", "null"],
+            "description": "Our own wording for what the call did to the row."
           },
           "to_state": {
             "oneOf": [

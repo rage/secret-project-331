@@ -80,6 +80,8 @@ pub struct SuotarApiCallEvent {
     pub from_state: Option<CreditRegistrationState>,
     pub to_state: Option<CreditRegistrationState>,
     pub error_code: Option<CreditRegistrationErrorCode>,
+    /// Our own wording for what the call did to the row.
+    pub message: Option<String>,
     /// The `{request, response}` pair for this one item, scrubbed at write time.
     pub details: Option<serde_json::Value>,
 }
@@ -213,6 +215,7 @@ pub async fn get_suotar_api_call(
         from_state: event.from_state,
         to_state: event.to_state,
         error_code: event.error_code,
+        message: event.message,
         details: event.details,
     })
     .collect();

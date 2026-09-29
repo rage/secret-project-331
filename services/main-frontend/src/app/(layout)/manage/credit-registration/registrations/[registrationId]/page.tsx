@@ -25,6 +25,10 @@ import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTr
 import ErrorCodeCell from "@/components/credit-registration/admin/ErrorCodeCell"
 import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
 import PayloadBlock from "@/components/credit-registration/admin/PayloadBlock"
+import {
+  attentionReasonLabel,
+  subStateExplanations,
+} from "@/components/credit-registration/admin/registrationSubStates"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
 import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
@@ -219,6 +223,8 @@ const HeaderSection: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const stateLabel = registrationLedgerStateLabel(t, row.state, row.pending_reason)
+  const now = Date.now()
+  const explanations = subStateExplanations(t, row, details.attention_thresholds, now)
   const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
   const errorHelp = registrationErrorAdminHelp(t, row.error_code, {
     studentNumber: row.verified_student_number ?? row.student_number ?? null,
@@ -277,6 +283,21 @@ const HeaderSection: React.FC<{
           {stateLabel}
         </RegistrationStatusHeadline>
       )}
+      {row.needs_admin_attention && !row.superseded && (
+        <div>
+          <Badge
+            tone={TONE.WARNING}
+            description={attentionReasonLabel(t, row, details.attention_thresholds, now)}
+          >
+            {t("credit-registration-admin-needs-attention")}
+          </Badge>
+        </div>
+      )}
+      {explanations.map((line) => (
+        <p key={line} className={proseCss}>
+          {line}
+        </p>
+      ))}
       {errorHelp && (
         <div className={sectionHeaderCss}>
           <p className={proseCss}>{errorHelp}</p>
@@ -310,12 +331,16 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     : []
   // A row that has finished, or that a later attempt replaced, has no next attempt; the stored
   // instant is whatever it was last scheduled for, which reads as a bug under that label.
+  const isChecking = row.state === "awaiting_verification" || row.state === "submission_uncertain"
+  const hidesNextAttempt = row.state === "submitting" || row.state === "resolving_enrolment"
   const nextAttempt: DescriptionListItem[] =
-    row.terminal_at || row.superseded
+    row.terminal_at || row.superseded || hidesNextAttempt
       ? []
       : [
           {
-            label: t("label-credit-registration-next-attempt"),
+            label: isChecking
+              ? t("label-credit-registration-next-check")
+              : t("label-credit-registration-next-attempt"),
             value: <ZonedTimestamp at={row.next_attempt_at} />,
           },
         ]

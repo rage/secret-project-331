@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   AccountLinkingModuleCounters,
@@ -23,7 +24,6 @@ import {
   Menu,
   MeterInline,
   QueryResult,
-  RelativeTime,
   StatTile,
   StatTileList,
   Table,
@@ -40,7 +40,6 @@ import {
   QUIET_REFRESH,
   STACKED,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
@@ -391,7 +390,7 @@ const ModuleBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
             header: t("label-credit-registration-last-listed"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.last_listed_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.last_listed_at} />,
           },
           {
             header: t("credit-registration-admin-funnel-discovered"),
@@ -529,7 +528,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
             header: t("label-credit-registration-last-sent"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.last_sent_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.last_sent_at} />,
           },
           {
             header: t("label-actions"),
@@ -606,7 +605,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             header: t("label-credit-registration-reported-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.created_at} />,
           },
         ]}
       />
@@ -723,9 +722,7 @@ const RecentClaimsBlock: React.FC = () => {
                     header: t("label-time"),
                     minWidth: "8rem",
                     nowrap: true,
-                    cell: (row) => (
-                      <RelativeTime at={row.verified_at} absoluteTime={TIME_COMPACT} />
-                    ),
+                    cell: (row) => <ZonedTimestamp at={row.verified_at} />,
                   },
                   ...reasonColumn,
                   {

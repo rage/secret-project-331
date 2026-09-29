@@ -436,6 +436,7 @@ export type AdminSuotarApiCall = {
   http_status?: number | null
   id: string
   ok_item_count: number
+  pending_item_count: number
   /**
    * Scrubbed and sampled at write time.
    */
@@ -4171,6 +4172,7 @@ export type PageSuotarApiCallRow = {
     http_status?: number | null
     id: string
     ok_item_count: number
+    pending_item_count: number
     request_item_count: number
     /**
      * The registry's own request-level code, an identifier rather than prose.
@@ -4830,6 +4832,7 @@ export type SuotarApiCallRow = {
   http_status?: number | null
   id: string
   ok_item_count: number
+  pending_item_count: number
   request_item_count: number
   /**
    * The registry's own request-level code, an identifier rather than prose.
@@ -4917,6 +4920,7 @@ export type SuotarEndpointWindowStats = {
   ok_item_count: number
   p50_duration_ms?: number | null
   p95_duration_ms?: number | null
+  pending_item_count: number
 }
 
 export type SuotarHealth = {

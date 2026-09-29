@@ -39,7 +39,6 @@ import {
   STACKED,
   STATE_SUPERSEDED,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DATE,
   TIME_IN_TITLE,
   TONE,
@@ -68,6 +67,10 @@ import {
   stateChangeFromCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import {
+  formatZonedTimeRange,
+  ZonedTimestamp,
+} from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationEvent,
@@ -112,7 +115,7 @@ type AdminActionsQuery = ReturnType<typeof useCreditRegistrationAdminActions>
 const timelineEntryCss = css`
   display: grid;
   gap: var(--space-2) var(--space-4);
-  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
 
   @media (max-width: 40rem) {
     grid-template-columns: minmax(0, 1fr);
@@ -313,7 +316,7 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
       : [
           {
             label: t("label-credit-registration-next-attempt"),
-            value: <RelativeTime at={row.next_attempt_at} absoluteTime={TIME_COMPACT} />,
+            value: <ZonedTimestamp at={row.next_attempt_at} />,
           },
         ]
 
@@ -352,17 +355,17 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     },
     {
       label: t("label-credit-registration-time-in-state"),
-      value: <RelativeTime at={row.state_entered_at} absoluteTime={TIME_COMPACT} />,
+      value: <ZonedTimestamp at={row.state_entered_at} />,
     },
     ...nextAttempt,
     {
-      // Failed sends and registry checks, not calls: one Sisu call carries many rows, so the
+      // Failed sends and confirmation checks, not calls: one Sisu call carries many rows, so the
       // call table below counts more than these two do.
       label: t("label-credit-registration-failed-sends"),
       value: row.submit_retry_count,
     },
     {
-      label: t("label-credit-registration-registry-checks"),
+      label: t("label-credit-registration-confirmation-checks"),
       value: row.verify_attempt_count,
     },
   ]
@@ -416,7 +419,7 @@ const AttemptChainSection: React.FC<{
               <AdminStateLabel state={attempt.state} showToken={attempt.id === currentId} />
             </span>
             <span className={noteCss}>
-              <RelativeTime at={attempt.created_at} absoluteTime={TIME_COMPACT} />
+              <ZonedTimestamp at={attempt.created_at} />
             </span>
           </li>
         ))}
@@ -450,14 +453,14 @@ const TimelineEntry: React.FC<{
   return (
     <li className={timelineEntryCss}>
       <span className={noteCss}>
-        <RelativeTime at={event.created_at} absoluteTime={TIME_COMPACT} />
+        <ZonedTimestamp at={event.created_at} />
       </span>
       <span className={timelineBodyCss}>
         <span className={rowCss}>
           <span className={eventKindCss}>{eventKindLabel(t, event.kind)}</span>
           {event.to_state && (
             <>
-              {event.from_state && (
+              {event.from_state && event.from_state !== event.to_state && (
                 <span className={stateChangeFromCss}>
                   <AdminStateLabel state={event.from_state} />
                   <span aria-hidden="true">{ARROW}</span>
@@ -489,6 +492,93 @@ const TimelineEntry: React.FC<{
   )
 }
 
+/** Kinds whose same-state repeats are polls, not news. */
+const COLLAPSIBLE_KINDS: ReadonlySet<AdminCreditRegistrationEvent["kind"]> = new Set([
+  "suotar_response",
+  "retry_scheduled",
+])
+
+interface TimelineRunGroup {
+  oldest: AdminCreditRegistrationEvent
+  newest: AdminCreditRegistrationEvent
+  events: AdminCreditRegistrationEvent[]
+}
+
+const continuesRun = (run: TimelineRunGroup, event: AdminCreditRegistrationEvent) =>
+  COLLAPSIBLE_KINDS.has(event.kind) &&
+  event.from_state === event.to_state &&
+  run.oldest.kind === event.kind &&
+  run.oldest.to_state === event.to_state &&
+  run.oldest.error_code === event.error_code
+
+/** Oldest-first events grouped into runs; only a same-state poll can join the run before it. */
+const groupTimelineRuns = (events: AdminCreditRegistrationEvent[]): TimelineRunGroup[] => {
+  const runs: TimelineRunGroup[] = []
+  for (const event of events) {
+    const last = runs.at(-1)
+    if (last && continuesRun(last, event)) {
+      last.events.push(event)
+      last.newest = event
+    } else {
+      runs.push({ oldest: event, newest: event, events: [event] })
+    }
+  }
+  return runs
+}
+
+const TimelineRun: React.FC<{
+  run: TimelineRunGroup
+  actorNames: Map<string, string>
+}> = ({ run, actorNames }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const [expanded, setExpanded] = useState(false)
+  const { oldest, newest, events } = run
+  const renderEntry = (event: AdminCreditRegistrationEvent) => (
+    <TimelineEntry
+      key={event.id}
+      event={event}
+      actorName={event.actor_user_id ? actorNames.get(event.actor_user_id) : undefined}
+    />
+  )
+  if (events.length === 1) {
+    return renderEntry(newest)
+  }
+  return (
+    <>
+      <li className={timelineEntryCss}>
+        <span className={noteCss}>
+          <ZonedTimestamp at={newest.created_at} />
+        </span>
+        <span className={timelineBodyCss}>
+          <span className={rowCss}>
+            <span className={eventKindCss}>
+              {t("credit-registration-admin-timeline-run", {
+                kind: eventKindLabel(t, newest.kind),
+                count: events.length,
+                range: formatZonedTimeRange(
+                  new Date(oldest.created_at),
+                  new Date(newest.created_at),
+                ),
+              })}
+            </span>
+            {newest.to_state && <AdminStateLabel state={newest.to_state} />}
+            {newest.error_code && <ErrorCodeCell errorCode={newest.error_code} />}
+          </span>
+          {newest.message && <span className={proseCss}>{newest.message}</span>}
+          <span>
+            <Button variant="tertiary" size="small" onClick={() => setExpanded(!expanded)}>
+              {expanded
+                ? t("credit-registration-admin-timeline-run-hide")
+                : t("credit-registration-admin-timeline-run-show", { count: events.length })}
+            </Button>
+          </span>
+        </span>
+      </li>
+      {expanded && events.toReversed().map((event) => renderEntry(event))}
+    </>
+  )
+}
+
 const TimelineSection: React.FC<{
   events: AdminCreditRegistrationEvent[]
   actorNames: Map<string, string>
@@ -501,13 +591,11 @@ const TimelineSection: React.FC<{
       </div>
       {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
       <ol className={dividedListCss} role="list">
-        {events.toReversed().map((event) => (
-          <TimelineEntry
-            key={event.id}
-            event={event}
-            actorName={event.actor_user_id ? actorNames.get(event.actor_user_id) : undefined}
-          />
-        ))}
+        {groupTimelineRuns(events)
+          .toReversed()
+          .map((run) => (
+            <TimelineRun key={run.oldest.id} run={run} actorNames={actorNames} />
+          ))}
       </ol>
     </section>
   )
@@ -538,7 +626,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             header: t("label-time"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (call) => <RelativeTime at={call.started_at} absoluteTime={TIME_COMPACT} />,
+            cell: (call) => <ZonedTimestamp at={call.started_at} />,
           },
           {
             header: t("label-endpoint"),
@@ -568,6 +656,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             cell: (call) =>
               t("credit-registration-admin-ok-error-items", {
                 ok: call.ok_item_count,
+                pending: call.pending_item_count,
                 error: call.error_item_count,
                 total: call.request_item_count,
               }),
@@ -594,7 +683,7 @@ const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_stat
     header: t("label-credit-registration-handed-over"),
     minWidth: "8rem",
     nowrap: true,
-    cell: (mail) => <RelativeTime at={mail.send_status.sent_at} absoluteTime={TIME_COMPACT} />,
+    cell: (mail) => <ZonedTimestamp at={mail.send_status.sent_at} />,
   },
   {
     header: t("label-credit-registration-retries"),
@@ -660,7 +749,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
           nowrap: true,
           cell: (mail) =>
             mail.token_used_at ? (
-              <RelativeTime at={mail.token_used_at} absoluteTime={TIME_COMPACT} />
+              <ZonedTimestamp at={mail.token_used_at} />
             ) : (
               <Badge tone={TONE.NEUTRAL} size="compact">
                 {t("credit-registration-admin-token-unclaimed")}
@@ -723,9 +812,7 @@ const AuditSection: React.FC<{
                 header: t("label-time"),
                 minWidth: "8rem",
                 nowrap: true,
-                cell: (action) => (
-                  <RelativeTime at={action.created_at} absoluteTime={TIME_COMPACT} />
-                ),
+                cell: (action) => <ZonedTimestamp at={action.created_at} />,
               },
               {
                 header: t("label-actor"),

@@ -23,7 +23,6 @@ import {
   LINK_QUIET,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import { registrationErrorShortLabel } from "@/components/credit-registration/creditRegistrationCopy"
@@ -42,8 +41,9 @@ import {
   sectionCardsCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Link, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, Link, QueryResult, Table } from "@/shared-module/components"
 
 const ERROR_CODE_QUERY = "?error_code="
 
@@ -177,7 +177,7 @@ const ErrorCodeSummary: React.FC = () => {
                   header: t("credit-registration-admin-column-last-seen"),
                   minWidth: "8rem",
                   nowrap: true,
-                  cell: (row) => <RelativeTime at={row.last_seen_at} absoluteTime={TIME_COMPACT} />,
+                  cell: (row) => <ZonedTimestamp at={row.last_seen_at} />,
                 },
               ]}
             />

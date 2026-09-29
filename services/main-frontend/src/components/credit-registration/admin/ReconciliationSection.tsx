@@ -4,10 +4,11 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { adminMaterializeCreditRegistrations } from "@/generated/api/sdk.generated"
 import type { CreditRegistrationReconciliation } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, Disclosure, Table } from "@/shared-module/components"
 
 import {
   BADGE_COMPACT,
@@ -15,7 +16,6 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
@@ -151,7 +151,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-completed"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.completion_date} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.completion_date} />,
             },
             {
               header: t("credit-registration-admin-column-why-not-materialised"),
@@ -218,7 +218,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-submitted-at"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.submitted_at} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.submitted_at} />,
             },
           ]}
         />

@@ -31,7 +31,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
@@ -49,6 +48,7 @@ import {
   stackedCellCss,
   statusTriggerCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import {
@@ -59,7 +59,6 @@ import {
   Link,
   MeterInline,
   QueryResult,
-  RelativeTime,
   Select,
   StatTile,
   StatTileList,
@@ -207,7 +206,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
             ) : (
               <>
                 {t("credit-registration-admin-config-checked-at")}{" "}
-                <RelativeTime at={module.config_checked_at} absoluteTime={TIME_COMPACT} />
+                <ZonedTimestamp at={module.config_checked_at} />
               </>
             )}
           </p>

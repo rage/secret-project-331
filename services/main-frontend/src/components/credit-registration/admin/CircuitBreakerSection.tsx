@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { Badge, QueryResult, RelativeTime, Table } from "@/shared-module/components"
 
 import {
@@ -13,7 +14,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
@@ -110,7 +110,7 @@ const CircuitBreakerSection: React.FC = () => {
                 header: t("credit-registration-admin-column-recorded-at"),
                 minWidth: "8rem",
                 nowrap: true,
-                cell: (row) => <RelativeTime at={row.updated_at} absoluteTime={TIME_COMPACT} />,
+                cell: (row) => <ZonedTimestamp at={row.updated_at} />,
               },
             ]}
           />

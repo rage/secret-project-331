@@ -3,6 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   EnrolmentCheckRosterCode,
   SuotarEndpointDailyCost,
@@ -16,7 +17,6 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DATE,
   TONE,
 } from "../constants"
@@ -153,7 +153,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             minWidth: "10rem",
             cell: (row) => (
               <span className={stackedCellCss}>
-                <RelativeTime at={row.last_fetched_at} absoluteTime={TIME_COMPACT} />
+                <ZonedTimestamp at={row.last_fetched_at} />
                 {row.last_fetch_duration_ms !== null &&
                   row.last_fetch_duration_ms !== undefined && (
                     <span className={noteCss}>
@@ -169,7 +169,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
           {
             header: t("credit-registration-admin-column-next-fetch"),
             minWidth: "8rem",
-            cell: (row) => <RelativeTime at={row.next_fetch_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.next_fetch_at} />,
           },
           {
             header: t("credit-registration-admin-column-triggered-today"),
@@ -204,7 +204,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
                   {row.retry_not_before && (
                     <span className={noteCss}>
                       {t("credit-registration-admin-enrolment-checks-backoff-note")}{" "}
-                      <RelativeTime at={row.retry_not_before} absoluteTime={TIME_COMPACT} />
+                      <ZonedTimestamp at={row.retry_not_before} />
                     </span>
                   )}
                 </span>
@@ -263,7 +263,7 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
             header: t("credit-registration-admin-column-recorded-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.updated_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.updated_at} />,
           },
         ]}
       />

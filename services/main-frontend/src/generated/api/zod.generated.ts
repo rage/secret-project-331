@@ -5057,6 +5057,10 @@ export const zAdminSuotarApiCall = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  pending_item_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   request_body_sample: z.unknown().optional(),
   request_item_count: z
     .int()
@@ -5210,6 +5214,10 @@ export const zPageSuotarApiCallRow = z.object({
         .int()
         .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
         .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+      pending_item_count: z
+        .int()
+        .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+        .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
       request_item_count: z
         .int()
         .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -5253,6 +5261,10 @@ export const zSuotarApiCallRow = z.object({
     .nullish(),
   id: z.uuid(),
   ok_item_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  pending_item_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -5460,6 +5472,14 @@ export const zSuotarEndpointWindowStats = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  pending_item_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 export const zSuotarHealthWindow = z.object({

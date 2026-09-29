@@ -5,12 +5,13 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
+import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
   monospaceCss,
@@ -125,7 +126,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                 columns={[
                   {
                     header: t("label-time"),
-                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
                   },
                   {
                     header: t("label-kind"),

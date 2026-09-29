@@ -39,7 +39,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DURATION,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -59,6 +58,7 @@ import {
   stackedCellCss,
   toolbarCheckboxCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
@@ -546,7 +546,7 @@ const RegistrationsPage: React.FC = () => {
                           <span className={stackedCellCss}>
                             <RelativeTime at={at} absoluteTime={TIME_DURATION} />
                             <span className={noteCss}>
-                              <RelativeTime at={at} absoluteTime={TIME_COMPACT} />
+                              <ZonedTimestamp at={at} />
                             </span>
                           </span>
                         )

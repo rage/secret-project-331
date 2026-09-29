@@ -24,7 +24,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
@@ -42,6 +41,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationPhaseList,
   CreditRegistrationPhaseRow,
@@ -50,7 +50,6 @@ import {
   Badge,
   Link,
   QueryResult,
-  RelativeTime,
   StatTile,
   StatTileList,
   Table,
@@ -134,7 +133,7 @@ const PhaseTable: React.FC<{
           header: t("credit-registration-admin-phase-last-run"),
           minWidth: "8rem",
           nowrap: true,
-          cell: (row) => <RelativeTime at={row.last_run_finished_at} absoluteTime={TIME_COMPACT} />,
+          cell: (row) => <ZonedTimestamp at={row.last_run_finished_at} />,
         },
         {
           header: t("credit-registration-admin-column-due"),

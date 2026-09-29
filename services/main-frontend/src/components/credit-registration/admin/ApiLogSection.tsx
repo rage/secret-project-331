@@ -3,16 +3,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { SuotarEndpoint } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import {
-  Pagination,
-  QueryResult,
-  RelativeTime,
-  Select,
-  Table,
-  TextField,
-} from "@/shared-module/components"
+import { Pagination, QueryResult, Select, Table, TextField } from "@/shared-module/components"
 
 import {
   ABSENT,
@@ -21,7 +15,6 @@ import {
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
 } from "../constants"
 import {
   controlCss,
@@ -213,7 +206,7 @@ const ApiLogSection: React.FC = () => {
                   header: t("label-time"),
                   minWidth: "8rem",
                   nowrap: true,
-                  cell: (row) => <RelativeTime at={row.started_at} absoluteTime={TIME_COMPACT} />,
+                  cell: (row) => <ZonedTimestamp at={row.started_at} />,
                 },
                 {
                   header: t("label-endpoint"),

@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationAttentionItem,
   CreditRegistrationAttentionItems,
@@ -41,7 +42,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DURATION,
   TONE,
 } from "../constants"
@@ -174,7 +174,7 @@ const TimeInState: React.FC<{
         />
       )}
       <span className={noteCss}>
-        <RelativeTime at={item.state_entered_at} absoluteTime={TIME_COMPACT} />
+        <ZonedTimestamp at={item.state_entered_at} />
       </span>
     </span>
   )
@@ -536,7 +536,7 @@ const AttentionQueueSection: React.FC = () => {
                   // heading promises that it will be.
                   cell: (row) =>
                     RETRYING_STATES.includes(row.state) ? (
-                      <RelativeTime at={row.next_attempt_at} absoluteTime={TIME_COMPACT} />
+                      <ZonedTimestamp at={row.next_attempt_at} />
                     ) : (
                       <span className={noteCss}>{ABSENT}</span>
                     ),

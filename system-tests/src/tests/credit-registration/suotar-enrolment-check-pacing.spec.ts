@@ -221,7 +221,9 @@ const requestRecheck = async (request: APIRequestContext, registrationId: string
   const first = await request.post(url, { data: {} })
   if (first.status() === 429) {
     const waitSeconds = Number(first.headers()["retry-after"] ?? "15")
-    await new Promise((resolve) => setTimeout(resolve, (waitSeconds + 1) * 1000))
+    await new Promise((resolve) => {
+      setTimeout(resolve, (waitSeconds + 1) * 1000)
+    })
     return postJson<{ recheck_started: boolean }>(request, url, {})
   }
   if (!first.ok()) {

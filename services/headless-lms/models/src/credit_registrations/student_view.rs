@@ -152,9 +152,9 @@ SELECT cr.id,
   p.has_verified_student_number AS "has_verified_student_number!",
   p.course_code_allowed AS "course_code_allowed!"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
 WHERE cr.user_id = $1
   AND cr.deleted_at IS NULL

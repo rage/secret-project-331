@@ -168,7 +168,7 @@ pub async fn ensure_rows(conn: &mut PgConnection, course_id: Option<Uuid>) -> Mo
 INSERT INTO course_module_suotar_configurations (course_module_id)
 SELECT acm.course_module_id
 FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id
+  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
 WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
   AND ($1::uuid IS NULL OR acm.course_id = $1) ON CONFLICT (course_module_id) DO NOTHING
         "#,
@@ -181,7 +181,7 @@ WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
 INSERT INTO credit_registration_roster_schedules (course_code)
 SELECT DISTINCT TRIM(cm.uh_course_code)
 FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id
+  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
 WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
   AND ($1::uuid IS NULL OR acm.course_id = $1) ON CONFLICT (course_code) DO NOTHING
         "#,
@@ -214,7 +214,7 @@ WITH modules AS (
   SELECT acm.course_module_id,
     TRIM(cm.uh_course_code) AS course_code
   FROM credit_registration_active_course_modules acm
-    JOIN course_modules cm ON cm.id = acm.course_module_id
+    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
   WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
     AND ($1::uuid IS NULL OR acm.course_id = $1)
 ),
@@ -339,8 +339,8 @@ SELECT acm.course_module_id AS "course_module_id!",
   TRIM(cm.uh_course_code) AS "uh_course_code!",
   co.language_code AS "course_language_code!"
 FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id
-  JOIN courses co ON co.id = acm.course_id
+  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
+  JOIN courses co ON co.id = acm.course_id AND co.deleted_at IS NULL
 WHERE TRIM(cm.uh_course_code) = ANY($2::text [])
   AND ($1::uuid IS NULL OR acm.course_id = $1)
 ORDER BY cm.id
@@ -595,7 +595,7 @@ SET last_fetched_at = last_fetched_at - ($2::bigint * INTERVAL '1 second'),
 WHERE course_code IN (
     SELECT TRIM(cm.uh_course_code)
     FROM credit_registration_active_course_modules acm
-      JOIN course_modules cm ON cm.id = acm.course_module_id
+      JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
     WHERE acm.course_id = $1
   )
         "#,

@@ -20,8 +20,8 @@ pub(super) enum Exchange<'a> {
     Answered { unavailable: Option<Unavailable> },
     /// Suotar refused the whole request, or it never got there.
     Refused(&'a SuotarError),
-    /// Suotar refused a request only one row or code of ours can be to blame for: that row's own
-    /// fault, which says nothing about Suotar.
+    /// Suotar refused a request that only one row or code of ours can be blamed for — says
+    /// nothing about Suotar's own health.
     RefusedAlone(&'a SuotarError),
 }
 
@@ -75,9 +75,8 @@ struct Tally {
 /// What [`StudyRegistryGate::settle`] makes of a [`Tally`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Verdict {
-    /// Nothing reached Suotar, or nothing that says whether it is up, so it neither counts against
-    /// a breaker nor clears a run of failures: an empty queue is the common case, and counting it
-    /// would reset the run every tick and never let the breaker open during an outage.
+    /// Nothing reached Suotar, or nothing that says whether it's up: counts against no breaker and
+    /// clears no failure run — an empty queue is common, and clearing on it would hide a real outage.
     Idle,
     Healthy,
     /// Suotar answered, and Sisu timed out on every submission.

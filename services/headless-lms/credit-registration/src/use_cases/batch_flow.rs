@@ -34,10 +34,8 @@ pub(crate) struct BatchFlowContext<'a> {
 }
 
 /// A flow whose iteration is "claim rows, decide in one transaction what may be asked, send one
-/// batch, write one answer per row". `import`, `resolve-enrolments`, and each of `verify`'s two
-/// flows; [`run_registry_batch_flow`] is the loop they share, and the only place the transaction
-/// shape, the sending, the splitting, the refusals, the moved-on skipping and the counters are
-/// written down. Implementations hold no state.
+/// batch, write one answer per row": `import`, `resolve-enrolments`, and each of `verify`'s two
+/// flows. [`run_registry_batch_flow`] is the loop they share. Implementations hold no state.
 pub(super) trait RegistryBatchFlow {
     /// What the claim read for each row alongside it, which its answer is applied with.
     type Extra;

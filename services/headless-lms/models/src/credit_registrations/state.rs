@@ -99,9 +99,8 @@ impl CreditRegistrationState {
     ///
     /// The one place the shape of the machine is written down: every edge here is one a phase, the
     /// precondition recompute or the grade-improvement materialiser actually takes, and
-    /// [`transition`](super::transition::transition) refuses anything else. A hand transition also gets
-    /// [`ADMIN_ONLY_TARGETS`], which is why they are not in here: an edge only a human may take
-    /// must stay out of reach of a phase that gets its target wrong.
+    /// [`transition`](super::transition::transition) refuses anything else. Admin-only edges live in
+    /// [`ADMIN_ONLY_TARGETS`] instead, kept out of reach of a phase that could take one by mistake.
     pub fn allowed_targets(self) -> &'static [Self] {
         use CreditRegistrationState as S;
         match self {
@@ -369,12 +368,11 @@ impl ResubmissionFacts {
 
     /// Why a hand transition of the row to `target` is refused, or `None` if it may go ahead.
     ///
-    /// The safety half of the admin path, next to the structural half in [`ADMIN_ONLY_TARGETS`]:
-    /// the edge table says the move exists, this says whether this row may take it. A row whose
-    /// outcome the study registry already holds is refused whatever the target, because `cancelled`
-    /// is a legal step on to `ready_to_submit` and would otherwise launder a second submission for
-    /// a credit Sisu has. Cancelling a `submitting` row is refused too, since its request is still
-    /// in flight. `ready_to_submit` is decided by [`Self::resubmission_refusal`].
+    /// The safety half of the admin path, next to the structural half in [`ADMIN_ONLY_TARGETS`]: the
+    /// edge table says the move exists, this decides whether this row may take it. A success state
+    /// is refused outright, since `cancelled` -> `ready_to_submit` would launder a second submission
+    /// for a credit Sisu already has. Cancelling a `submitting` row is refused too, its request still
+    /// in flight. `ready_to_submit` itself is decided by [`Self::resubmission_refusal`].
     pub fn admin_transition_refusal(
         &self,
         target: CreditRegistrationState,

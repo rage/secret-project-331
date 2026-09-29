@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT proposed_page_edits.id AS \"page_proposal_id!\",\n  proposed_block_edits.id AS \"block_proposal_id!\",\n  page_id as \"page_id!\",\n  user_id,\n  block_id,\n  original_text,\n  changed_text,\n  proposed_page_edits.pending as \"pending!\",\n  block_attribute,\n  proposed_block_edits.status AS \"block_proposal_status\",\n  proposed_page_edits.created_at as \"created_at!\",\n  pages.title as \"page_title!\",\n  pages.url_path as \"page_url_path!\"\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\n  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id\nWHERE proposed_block_edits.deleted_at IS NULL\n",
+  "query": "\nSELECT proposed_page_edits.id AS \"page_proposal_id!\",\n  proposed_block_edits.id AS \"block_proposal_id!\",\n  page_id as \"page_id!\",\n  user_id,\n  block_id AS \"block_id!\",\n  original_text AS \"original_text!\",\n  changed_text AS \"changed_text!\",\n  proposed_page_edits.pending as \"pending!\",\n  block_attribute AS \"block_attribute!\",\n  proposed_block_edits.status AS \"block_proposal_status!\",\n  proposed_page_edits.created_at as \"created_at!\",\n  pages.title as \"page_title!\",\n  pages.url_path as \"page_url_path!\"\nFROM (\n    SELECT id,\n      page_id,\n      user_id,\n      pending,\n      created_at\n    FROM proposed_page_edits\n    WHERE course_id = $1\n      AND pending = $2\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id\n    LIMIT $3 OFFSET $4\n  ) proposed_page_edits\n  LEFT JOIN proposed_block_edits ON proposed_page_edits.id = proposed_block_edits.proposal_id\n  LEFT JOIN pages ON proposed_page_edits.page_id = pages.id\nWHERE proposed_block_edits.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -49,7 +49,7 @@
       },
       {
         "ordinal": 4,
-        "name": "block_id",
+        "name": "block_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "original_text",
+        "name": "original_text!",
         "type_info": "Text",
         "origin": {
           "Table": {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "changed_text",
+        "name": "changed_text!",
         "type_info": "Text",
         "origin": {
           "Table": {
@@ -93,7 +93,7 @@
       },
       {
         "ordinal": 8,
-        "name": "block_attribute",
+        "name": "block_attribute!",
         "type_info": "Text",
         "origin": {
           "Table": {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "block_proposal_status",
+        "name": "block_proposal_status!",
         "type_info": {
           "Custom": {
             "name": "proposal_status",
@@ -167,20 +167,20 @@
       ]
     },
     "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
       true,
       false,
       true,
       true,
       false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
       true,
       true
     ]
   },
-  "hash": "beae25839e96276cc20dc2e4662ee61fe6c3235343dd2002e57cfbd59b897853"
+  "hash": "33b8612e0f3979c584a1d801dc597eb409ab19908cbdf1f4e02a092208eeebc1"
 }

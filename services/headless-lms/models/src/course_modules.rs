@@ -819,8 +819,8 @@ pub async fn get_ids_by_course_slug_or_uh_course_code(
     course_slug_or_code: &str,
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
-        "
-SELECT course_modules.id
+        r#"
+SELECT course_modules.id AS "id!"
 FROM course_modules
   LEFT JOIN courses ON (course_modules.course_id = courses.id)
 WHERE (
@@ -828,7 +828,7 @@ WHERE (
     OR courses.slug = $1
   )
   AND course_modules.deleted_at IS NULL
-        ",
+        "#,
         course_slug_or_code,
     )
     .map(|record| record.id)

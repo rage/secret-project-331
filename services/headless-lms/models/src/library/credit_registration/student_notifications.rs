@@ -87,8 +87,8 @@ SELECT cr.id AS "credit_registration_id!",
   COALESCE(cr.credits, cm.ects_credits) AS "credits?",
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
-  JOIN course_modules cm ON cm.id = cr.course_module_id
+  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
 WHERE cr.deleted_at IS NULL
   AND (

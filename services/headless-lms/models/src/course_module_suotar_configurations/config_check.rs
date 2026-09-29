@@ -70,7 +70,7 @@ pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> Mode
         r#"
 SELECT COUNT(*) AS "count!"
 FROM course_module_suotar_configurations conf
-  JOIN course_modules cm ON cm.id = conf.course_module_id
+  JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL
 WHERE cm.enable_credit_registration_via_suotar
   AND cm.deleted_at IS NULL
   AND conf.deleted_at IS NULL

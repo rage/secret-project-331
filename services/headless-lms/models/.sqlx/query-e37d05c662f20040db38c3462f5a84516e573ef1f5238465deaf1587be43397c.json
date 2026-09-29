@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.course_id,\n  c.name AS course_name,\n  conf.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  conf.last_listed_at,\n  conf.last_listed_person_count,\n  conf.last_already_linked_count,\n  conf.last_mailed_count,\n  conf.last_suppressed_by_dedup_count,\n  conf.last_suppressed_by_rate_cap_count,\n  conf.last_no_address_count,\n  conf.last_listing_attempted_at,\n  conf.last_listing_error AS \"last_listing_error?\",\n  conf.consecutive_listing_failures\nFROM course_module_suotar_configurations conf\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id\n  JOIN course_modules cm ON cm.id = conf.course_module_id\n  JOIN courses c ON c.id = cm.course_id\nWHERE conf.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.course_id,\n  c.name AS course_name,\n  conf.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  conf.last_listed_at,\n  conf.last_listed_person_count,\n  conf.last_already_linked_count,\n  conf.last_mailed_count,\n  conf.last_suppressed_by_dedup_count,\n  conf.last_suppressed_by_rate_cap_count,\n  conf.last_no_address_count,\n  conf.last_listing_attempted_at,\n  conf.last_listing_error AS \"last_listing_error?\",\n  conf.consecutive_listing_failures\nFROM course_module_suotar_configurations conf\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = conf.course_module_id\n  JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL\n  JOIN courses c ON c.id = cm.course_id AND c.deleted_at IS NULL\nWHERE conf.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -221,5 +221,5 @@
       false
     ]
   },
-  "hash": "94d299026437a42b146dbcfe8988b01bd21419d569ba19401ffcd89797dfdda6"
+  "hash": "e37d05c662f20040db38c3462f5a84516e573ef1f5238465deaf1587be43397c"
 }

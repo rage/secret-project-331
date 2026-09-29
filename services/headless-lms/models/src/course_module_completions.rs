@@ -102,7 +102,8 @@ VALUES (
     -- Decided here rather than by the caller: the flag is what keeps the two registration paths
     -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
     (
-      SELECT cm.enable_credit_registration_via_suotar
+      SELECT cm.deleted_at IS NULL
+        AND cm.enable_credit_registration_via_suotar
         AND cm.register_eligible_new_completions_via_suotar
         AND EXISTS (
           SELECT 1
@@ -172,7 +173,8 @@ pub async fn insert_seed_row(
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
             (
-              SELECT cm.enable_credit_registration_via_suotar
+              SELECT cm.deleted_at IS NULL
+                AND cm.enable_credit_registration_via_suotar
                 AND cm.register_eligible_new_completions_via_suotar
                 AND EXISTS (
                   SELECT 1

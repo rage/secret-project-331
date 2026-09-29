@@ -291,7 +291,7 @@ SELECT e.id AS "id!",
   c.language_code AS "course_language_code!"
 FROM credit_registration_account_linking_emails e
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
-  JOIN courses c ON c.id = e.course_id
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
 WHERE e.email_delivery_id IS NULL
   AND e.deleted_at IS NULL
   AND t.deleted_at IS NULL
@@ -436,7 +436,7 @@ SELECT
   ed.first_failed_at AS "first_failed_at?",
   ed.retry_count AS "retry_count?"
 FROM credit_registration_account_linking_emails e
-  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
 WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
         "#,
@@ -507,7 +507,7 @@ pub async fn get_send_failure_domains_since(
         r#"
 SELECT e.emailed_to, ed.retryable, ed.first_failed_at
 FROM credit_registration_account_linking_emails e
-  JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
 WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
   AND position('@' IN e.emailed_to) > 0
@@ -554,7 +554,7 @@ pub async fn count_send_failed_for_course(
         r#"
 SELECT ed.retryable, ed.first_failed_at
 FROM credit_registration_account_linking_emails e
-  JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
 WHERE e.course_id = $1
   AND e.deleted_at IS NULL
   AND NOT ed.sent
@@ -609,7 +609,7 @@ SELECT e.student_number AS "student_number!",
     ORDER BY e.sent_at
   ) AS "addresses!: Vec<DbSecret>"
 FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
 WHERE e.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1

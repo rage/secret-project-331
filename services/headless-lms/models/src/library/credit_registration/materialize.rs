@@ -143,8 +143,8 @@ SELECT rc.course_module_completion_id AS "course_module_completion_id!",
       AND cie.deleted_at IS NULL
   ) AS "missing_enrolment!"
 FROM credit_registration_registrable_completions rc
-  JOIN course_modules cm ON cm.id = rc.course_module_id
-  JOIN courses c ON c.id = rc.course_id
+  JOIN course_modules cm ON cm.id = rc.course_module_id AND cm.deleted_at IS NULL
+  JOIN courses c ON c.id = rc.course_id AND c.deleted_at IS NULL
   LEFT JOIN user_details ud ON ud.user_id = rc.user_id
 WHERE rc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
 ORDER BY rc.created_at

@@ -128,7 +128,7 @@ SELECT cm.id AS "course_module_id!",
       AND cmc.eligible_for_ects
   ) AS "eligible_completion_count!"
 FROM course_modules cm
-  JOIN courses c ON c.id = cm.course_id
+  JOIN courses c ON c.id = cm.course_id AND c.deleted_at IS NULL
   LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id
   AND conf.deleted_at IS NULL
 WHERE cm.enable_credit_registration_via_suotar

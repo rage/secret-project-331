@@ -155,10 +155,9 @@ pub(super) fn take(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
     });
 }
 
-/// Spends `count` even past what [`available`] allows, leaving the bucket in debt that later
-/// refills pay off before [`available`] allows anything again. At most one capacity of debt, so
-/// the limiter is back within one refill of the full burst. Only for a split batch's resent halves,
-/// which must not wait for a later iteration: that would claim and refuse the same batch again.
+/// Spends `count` even past what [`available`] allows, into debt that later refills pay off first,
+/// capped at one capacity so recovery takes at most one refill. Only for a split batch's resent
+/// halves, which must not wait for a later iteration and re-claim the same batch.
 pub(super) fn overdraw(key: &ScopeKey, endpoint: SuotarEndpoint, count: usize) {
     with_bucket(key, endpoint, |bucket, rate| {
         bucket.tokens = (bucket.tokens - count as f64).max(-rate.capacity);

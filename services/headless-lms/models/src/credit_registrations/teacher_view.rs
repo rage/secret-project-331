@@ -270,8 +270,8 @@ SELECT cr.id,
   p.course_code_allowed AS "course_code_allowed!",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id

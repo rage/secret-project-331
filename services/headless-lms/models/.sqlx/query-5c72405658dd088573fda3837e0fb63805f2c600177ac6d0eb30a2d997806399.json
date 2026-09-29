@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -76,13 +76,13 @@
       ]
     },
     "nullable": [
-      true,
-      true,
-      false,
       false,
       true,
-      false
+      true,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "520c08bd5f4477f1a2423d92804f9f0498d5a0f1db79dafe4980d2e394623312"
+  "hash": "5c72405658dd088573fda3837e0fb63805f2c600177ac6d0eb30a2d997806399"
 }

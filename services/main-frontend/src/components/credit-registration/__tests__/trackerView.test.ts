@@ -36,6 +36,7 @@ const registration = (overrides: Partial<MyCreditRegistration> = {}): MyCreditRe
   enrolment_checked_at: null,
   enrolment_realisation_name: null,
   submitted_at: null,
+  is_processing_in_sisu: false,
   enrolment_link: null,
   linking_email: null,
   notification_email: null,

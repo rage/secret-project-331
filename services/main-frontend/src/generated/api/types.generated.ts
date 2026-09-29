@@ -3478,6 +3478,10 @@ export type MyCreditRegistration = {
    */
   grade_scale_id?: string | null
   id: string
+  /**
+   * A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
+   */
+  is_processing_in_sisu: boolean
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus

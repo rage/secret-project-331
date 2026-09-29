@@ -11,6 +11,7 @@ import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS, SISU_URL } from "./constants"
 import {
+  myRegistrationExplanation,
   registrationErrorHelp,
   registrationExplanation,
   registrationStatusState,
@@ -97,7 +98,7 @@ const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ reg
       </p>
     )
   }
-  return <p>{registrationExplanation(t, status)}</p>
+  return <p>{myRegistrationExplanation(t, registration)}</p>
 }
 
 export interface StudentRegistrationExplanationProps {

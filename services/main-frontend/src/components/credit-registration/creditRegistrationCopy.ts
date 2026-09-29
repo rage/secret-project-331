@@ -1,6 +1,7 @@
 import type {
   CreditRegistrationEnrolmentRoute,
   CreditRegistrationErrorCode,
+  MyCreditRegistration,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   StudentFacingCreditRegistrationStatus,
@@ -176,6 +177,18 @@ export const registrationStatusLabel = (
 ): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
 
 /**
+ * `registrationStatusLabel` for the student's own registration, which can say more than its status:
+ * Sisu may have received the completion without having turned it into credits yet.
+ */
+export const myRegistrationStatusLabel = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): string =>
+  registration.is_processing_in_sisu
+    ? t("credit-registration-status-processing-in-sisu")
+    : registrationStatusLabel(t, registration.student_facing_status)
+
+/**
  * The status as a teacher or an administrator reads it: third person, and short enough for a
  * roster column.
  *
@@ -217,6 +230,15 @@ export const registrationExplanation = (
   status: StudentFacingCreditRegistrationStatus,
 ): string =>
   labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
+
+/** `registrationExplanation` for the student's own registration; see `myRegistrationStatusLabel`. */
+export const myRegistrationExplanation = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): string =>
+  registration.is_processing_in_sisu
+    ? t("credit-registration-explanation-processing-in-sisu")
+    : registrationExplanation(t, registration.student_facing_status)
 
 /**
  * What the status means, for a teacher or an administrator looking at somebody else's

@@ -23249,7 +23249,8 @@
           "attempt_number",
           "superseded",
           "can_request_enrolment_recheck",
-          "enrolment_found"
+          "enrolment_found",
+          "is_processing_in_sisu"
         ],
         "properties": {
           "attempt_number": {
@@ -23324,6 +23325,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_processing_in_sisu": {
+            "type": "boolean",
+            "description": "A `waiting_for_sisu` row Sisu has received but not finished processing into credits."
           },
           "linking_email": {
             "oneOf": [

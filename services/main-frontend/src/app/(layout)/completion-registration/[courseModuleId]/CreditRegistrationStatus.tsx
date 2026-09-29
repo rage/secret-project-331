@@ -17,6 +17,7 @@ import {
 import {
   registrationExplanation,
   registrationGradeLabel,
+  myRegistrationStatusLabel,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
@@ -266,7 +267,7 @@ const Tracker: React.FC<TrackerProps> = ({
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
-  const statusLabel = registrationStatusLabel(t, status)
+  const statusLabel = myRegistrationStatusLabel(t, registration)
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
     linkToStatusPage: false,

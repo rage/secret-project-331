@@ -4720,6 +4720,7 @@ export const zMyCreditRegistration = z.object({
   grade_id: z.string().nullish(),
   grade_scale_id: z.string().nullish(),
   id: z.uuid(),
+  is_processing_in_sisu: z.boolean(),
   linking_email: zLinkingEmailStatus.nullish(),
   next_attempt_at: z.iso.datetime(),
   notification_email: zNotificationEmailStatus.nullish(),

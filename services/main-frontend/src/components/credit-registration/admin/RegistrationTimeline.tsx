@@ -8,6 +8,7 @@ import type {
   AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
 } from "@/generated/api/types.generated"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import type { RegistrationStatusState } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
@@ -36,10 +37,10 @@ const STEP_ICON_SIZE = 16
 const entryCss = css`
   display: grid;
   gap: var(--space-2) var(--space-4);
-  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) minmax(0, 16rem);
+  grid-template-columns: minmax(0, 1fr);
 
-  @media (max-width: 40rem) {
-    grid-template-columns: minmax(0, 1fr);
+  ${respondToOrLarger.md} {
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) minmax(0, 16rem);
   }
 `
 

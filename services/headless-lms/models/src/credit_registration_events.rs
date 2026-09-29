@@ -278,7 +278,8 @@ SELECT *
 FROM credit_registration_events
 WHERE credit_registration_id = $1
   AND deleted_at IS NULL
-ORDER BY COALESCE(suotar_answered_at, created_at) DESC
+ORDER BY COALESCE(suotar_answered_at, created_at) DESC,
+  id DESC
         "#,
         credit_registration_id
     )
@@ -300,7 +301,8 @@ SELECT *
 FROM credit_registration_events
 WHERE suotar_api_call_id = $1
   AND deleted_at IS NULL
-ORDER BY COALESCE(suotar_answered_at, created_at)
+ORDER BY COALESCE(suotar_answered_at, created_at),
+  id
         "#,
         suotar_api_call_id
     )
@@ -325,7 +327,8 @@ WHERE credit_registration_id = ANY($1)
   AND request_item_id = ANY($2)
   AND deleted_at IS NULL
 ORDER BY credit_registration_id,
-  COALESCE(suotar_answered_at, created_at)
+  COALESCE(suotar_answered_at, created_at),
+  id
         "#,
         credit_registration_ids,
         request_item_ids,
@@ -364,7 +367,8 @@ WHERE credit_registration_id = $1
   AND to_state = 'not_improved'
   AND details #> '{response,result,previousAttainment}' IS NOT NULL
   AND deleted_at IS NULL
-ORDER BY COALESCE(suotar_answered_at, created_at) DESC
+ORDER BY COALESCE(suotar_answered_at, created_at) DESC,
+  id DESC
 LIMIT 1
         "#,
         credit_registration_id

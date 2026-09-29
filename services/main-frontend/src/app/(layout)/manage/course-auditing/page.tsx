@@ -28,6 +28,10 @@ import {
 import CourseCard from "./CourseCard/CourseCard"
 import CourseDataFilterForm from "./CourseDataFilterForm"
 
+const OFF = "off"
+const INCLUDE = "include"
+const EXCLUDE = "exclude"
+
 export interface CourseFilter {
   search_course: string
   no_default_uh_course_code: boolean
@@ -99,10 +103,10 @@ const CourseAuditing = () => {
       short_description: false,
       no_prerequisites: false,
       no_audiences: false,
-      is_draft: new Set(["off"]),
-      is_unlisted: new Set(["off"]),
-      is_test_mode: new Set(["off"]),
-      is_joinable_by_code_only: new Set(["off"]),
+      is_draft: new Set([OFF]),
+      is_unlisted: new Set([OFF]),
+      is_test_mode: new Set([OFF]),
+      is_joinable_by_code_only: new Set([OFF]),
     },
   })
 
@@ -194,26 +198,26 @@ const CourseAuditing = () => {
           return false
         }
         if (
-          (isDraft.has("include") && !course.is_draft) ||
-          (isDraft.has("exclude") && course.is_draft)
+          (isDraft.has(INCLUDE) && !course.is_draft) ||
+          (isDraft.has(EXCLUDE) && course.is_draft)
         ) {
           return false
         }
         if (
-          (isUnlisted.has("include") && !course.is_unlisted) ||
-          (isUnlisted.has("exclude") && course.is_unlisted)
+          (isUnlisted.has(INCLUDE) && !course.is_unlisted) ||
+          (isUnlisted.has(EXCLUDE) && course.is_unlisted)
         ) {
           return false
         }
         if (
-          (isTestMode.has("include") && !course.is_test_mode) ||
-          (isTestMode.has("exclude") && course.is_test_mode)
+          (isTestMode.has(INCLUDE) && !course.is_test_mode) ||
+          (isTestMode.has(EXCLUDE) && course.is_test_mode)
         ) {
           return false
         }
         if (
-          (isJoinableByCodeOnly.has("include") && !course.is_joinable_by_code_only) ||
-          (isJoinableByCodeOnly.has("exclude") && course.is_joinable_by_code_only)
+          (isJoinableByCodeOnly.has(INCLUDE) && !course.is_joinable_by_code_only) ||
+          (isJoinableByCodeOnly.has(EXCLUDE) && course.is_joinable_by_code_only)
         ) {
           return false
         }
@@ -299,7 +303,7 @@ const CourseAuditing = () => {
             name="is_draft"
             control={control}
             label={t("draft")}
-            defaultSelectedKeys={new Set(["off"])}
+            defaultSelectedKeys={new Set([OFF])}
           >
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
@@ -309,7 +313,7 @@ const CourseAuditing = () => {
             name="is_unlisted"
             control={control}
             label={t("unlisted")}
-            defaultSelectedKeys={new Set(["off"])}
+            defaultSelectedKeys={new Set([OFF])}
           >
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
@@ -319,7 +323,7 @@ const CourseAuditing = () => {
             name="is_test_mode"
             control={control}
             label={t("test-course")}
-            defaultSelectedKeys={new Set(["off"])}
+            defaultSelectedKeys={new Set([OFF])}
           >
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
@@ -329,7 +333,7 @@ const CourseAuditing = () => {
             name="is_joinable_by_code_only"
             control={control}
             label={t("joinable-by-code-only")}
-            defaultSelectedKeys={new Set(["off"])}
+            defaultSelectedKeys={new Set([OFF])}
           >
             <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
             <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>

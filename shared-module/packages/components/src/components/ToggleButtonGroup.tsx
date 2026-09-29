@@ -34,12 +34,6 @@ const groupCss = css`
 const buttonGroupCss = css`
   display: flex;
   flex-wrap: wrap;
-  border-radius: 0;
-`
-
-const groupVerticalCss = css`
-  flex-direction: column;
-  align-items: flex-start;
 `
 
 export type ToggleButtonGroupProps<
@@ -52,7 +46,6 @@ export type ToggleButtonGroupProps<
   defaultSelectedKeys?: Set<Key>
   disallowEmptySelection?: boolean
   isDisabled?: boolean
-  orientation?: "horizontal" | "vertical"
   fieldSize?: ButtonSize
   "aria-label"?: string
   "aria-labelledby"?: string
@@ -72,7 +65,6 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
     defaultSelectedKeys,
     disallowEmptySelection = true,
     isDisabled = false,
-    orientation = "horizontal",
     fieldSize = "small",
     className,
     children,
@@ -104,18 +96,13 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
       }),
       selectionMode,
       isDisabled,
-      orientation,
     },
     state,
     ref,
   )
 
   return (
-    <div
-      {...groupProps}
-      className={cx(groupCss, orientation === "vertical" ? groupVerticalCss : undefined, className)}
-      data-orientation={orientation}
-    >
+    <div {...groupProps} className={cx(groupCss, className)}>
       <ToggleButtonGroupContext.Provider value={{ state, fieldSize }}>
         <div className={buttonGroupCss}>{children}</div>
       </ToggleButtonGroupContext.Provider>

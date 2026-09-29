@@ -1,0 +1,241 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT chapters.id AS \"chapter_id!\",\n  chapters.chapter_number AS \"chapter_number!\",\n  chapters.name AS \"chapter_name!\",\n  pages.id AS \"page_id!\",\n  pages.title AS \"page_title!\",\n  pages.url_path AS \"page_url_path!\",\n  exercises.id AS \"exercise_id!\",\n  exercises.name AS \"exercise_name!\",\n  exercises.score_maximum AS \"score_maximum!\",\n  exercises.limit_number_of_tries AS \"limit_number_of_tries!\",\n  exercises.max_tries_per_slide AS \"max_tries_per_slide?\",\n  CASE\n    WHEN ues.activity_progress IN ('completed', 'submitted') THEN ues.score_given\n  END AS \"score_given?\",\n  ues.activity_progress AS \"activity_progress?: ActivityProgress\",\n  ues.grading_progress AS \"grading_progress?: GradingProgress\",\n  ues.reviewing_stage AS \"reviewing_stage?: ReviewingStage\",\n  (\n    SELECT COUNT(*)\n    FROM exercise_slide_submissions AS ess\n    WHERE ess.exercise_slide_id = ues.selected_exercise_slide_id\n      AND ess.course_id = chapters.course_id\n      AND ess.user_id = $2\n      AND ess.deleted_at IS NULL\n  ) AS \"attempts!\"\nFROM exercises\n  JOIN chapters ON (exercises.chapter_id = chapters.id)\n  JOIN pages ON (exercises.page_id = pages.id)\n  LEFT JOIN user_exercise_states AS ues ON (\n    ues.exercise_id = exercises.id\n    AND ues.course_id = chapters.course_id\n    AND ues.user_id = $2\n    AND ues.deleted_at IS NULL\n  )\nWHERE chapters.course_module_id = $1\n  AND exercises.deleted_at IS NULL\n  AND chapters.deleted_at IS NULL\n  AND pages.deleted_at IS NULL\n  AND (\n    chapters.opens_at < now()\n    OR chapters.opens_at IS NULL\n  )\nORDER BY chapters.chapter_number,\n  pages.order_number,\n  pages.id,\n  exercises.order_number,\n  exercises.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "chapter_number!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "chapter_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "page_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "page_title!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "page_url_path!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "score_maximum!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "score_maximum"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "limit_number_of_tries!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "limit_number_of_tries"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "max_tries_per_slide?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "max_tries_per_slide"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "score_given?",
+        "type_info": "Float4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 12,
+        "name": "activity_progress?: ActivityProgress",
+        "type_info": {
+          "Custom": {
+            "name": "activity_progress",
+            "kind": {
+              "Enum": [
+                "initialized",
+                "started",
+                "in-progress",
+                "submitted",
+                "completed"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "activity_progress"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "grading_progress?: GradingProgress",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "grading_progress"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "reviewing_stage?: ReviewingStage",
+        "type_info": {
+          "Custom": {
+            "name": "reviewing_stage",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "peer_review",
+                "self_review",
+                "waiting_for_peer_reviews",
+                "waiting_for_manual_grading",
+                "reviewed_and_locked",
+                "locked",
+                "not_answered_and_locked"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "reviewing_stage"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "attempts!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      null,
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "ff9c1b6f33c1f1f127b045562788a3b65b33f30f91a2e6690f1e6a97072ef53a"
+}

@@ -497,6 +497,51 @@ export const zExercise = z.object({
   use_course_default_peer_or_self_review_config: z.boolean(),
 })
 
+/**
+ * Where a user's answer to an exercise stands, as far as the student may know.
+ *
+ * Collapses the exercise state into what the exercise block itself tells the student, so the
+ * underlying reviewing and grading stages never reach the client.
+ */
+export const zExercisePointsStatus = z.enum([
+  "NotStarted",
+  "GradingInProgress",
+  "GradingFailed",
+  "PeerReviewToGive",
+  "SelfReviewToGive",
+  "WaitingForPeerReviews",
+  "WaitingForTeacherGrading",
+  "NotAnswered",
+  "Done",
+])
+
+/**
+ * One exercise's row in a points breakdown.
+ */
+export const zExercisePointsBreakdown = z.object({
+  attempts: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  attempts_limit: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  exercise_id: z.uuid(),
+  name: z.string(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  status: zExercisePointsStatus,
+})
+
 export const zExerciseTaskSubmission = z.object({
   answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
@@ -717,6 +762,39 @@ export const zPageChapterAndCourseInformation = z.object({
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
   organization_slug: z.string().nullish(),
+})
+
+/**
+ * A page's exercises in a points breakdown, with their subtotal.
+ */
+export const zPagePointsBreakdown = z.object({
+  exercises: z.array(zExercisePointsBreakdown),
+  page_id: z.uuid(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * A chapter's pages in a points breakdown, with their subtotal.
+ */
+export const zChapterPointsBreakdown = z.object({
+  chapter_id: z.uuid(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+  pages: z.array(zPagePointsBreakdown),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zPageRoutingData = z.object({
@@ -1645,6 +1723,17 @@ export const zGetCourseMaterialCourseModuleCompletionsForUserPath = z.object({
  */
 export const zGetCourseMaterialCourseModuleCompletionsForUserResponse =
   z.array(zCourseModuleCompletion)
+
+export const zGetCourseMaterialCourseModulePointsBreakdownPath = z.object({
+  course_instance_id: z.uuid(),
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The user's points by chapter, page and exercise
+ */
+export const zGetCourseMaterialCourseModulePointsBreakdownResponse =
+  z.array(zChapterPointsBreakdown)
 
 export const zGetCourseMaterialUserModuleCompletionsPath = z.object({
   course_instance_id: z.uuid(),

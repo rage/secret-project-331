@@ -24,9 +24,13 @@ const moduleProgress = (overrides: Partial<UserCourseProgress> = {}): UserCourse
   ...overrides,
 })
 
+const location = { courseInstanceId: "instance-1", organizationSlug: "uh-cs", courseSlug: "basics" }
+
 describe("CourseProgress", () => {
   it("gives each chart its own progressbar and the module's requirements their own region", () => {
-    render(<CourseProgress userCourseProgress={[moduleProgress()]} />)
+    render(
+      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={location} />,
+    )
 
     expect(screen.getByRole("progressbar", { name: "label-points" })).toBeInTheDocument()
     expect(screen.getByRole("progressbar", { name: "exercises-attempted" })).toBeInTheDocument()
@@ -36,8 +40,26 @@ describe("CourseProgress", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2)
   })
 
+  it("offers the points by exercise only when the course instance location is known", () => {
+    const { rerender } = render(
+      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={location} />,
+    )
+    expect(
+      screen.getByRole("button", { name: "button-show-all-exercises-in-course" }),
+    ).toBeInTheDocument()
+    rerender(
+      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={null} />,
+    )
+    expect(screen.queryByRole("button", { name: "button-show-all-exercises-in-course" })).toBeNull()
+  })
+
   it("switches to exam wording when the module requires an exam", () => {
-    render(<CourseProgress userCourseProgress={[moduleProgress({ requires_exam: true })]} />)
+    render(
+      <CourseProgress
+        userCourseProgress={[moduleProgress({ requires_exam: true })]}
+        courseInstanceLocation={location}
+      />,
+    )
 
     expect(screen.getByRole("heading", { name: "heading-exam-requirements" })).toBeInTheDocument()
     expect(screen.getByText("requirements-exam-pending")).toBeInTheDocument()
@@ -53,6 +75,7 @@ describe("CourseProgress", () => {
             attempted_exercises_required: null,
           }),
         ]}
+        courseInstanceLocation={location}
       />,
     )
 

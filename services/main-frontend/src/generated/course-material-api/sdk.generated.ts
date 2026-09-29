@@ -59,6 +59,8 @@ import type {
   GetCourseMaterialCourseInstancesResponses,
   GetCourseMaterialCourseModuleCompletionsForUserData,
   GetCourseMaterialCourseModuleCompletionsForUserResponses,
+  GetCourseMaterialCourseModulePointsBreakdownData,
+  GetCourseMaterialCourseModulePointsBreakdownResponses,
   GetCourseMaterialCoursePageByPathData,
   GetCourseMaterialCoursePageByPathResponses,
   GetCourseMaterialCoursePagesData,
@@ -195,6 +197,7 @@ import {
   zGetCourseMaterialCountryFromIpResponse,
   zGetCourseMaterialCourseInstancesResponse,
   zGetCourseMaterialCourseModuleCompletionsForUserResponse,
+  zGetCourseMaterialCourseModulePointsBreakdownResponse,
   zGetCourseMaterialCoursePageByPathResponse,
   zGetCourseMaterialCoursePagesResponse,
   zGetCourseMaterialCourseResponse,
@@ -652,6 +655,31 @@ export const getCourseMaterialCourseModuleCompletionsForUser = <
       await zGetCourseMaterialCourseModuleCompletionsForUserResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/course-instances/{course_instance_id}/course-module-completions/{user_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
+ */
+export const getCourseMaterialCourseModulePointsBreakdown = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMaterialCourseModulePointsBreakdownData, ThrowOnError>,
+): RequestResult<
+  GetCourseMaterialCourseModulePointsBreakdownResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseMaterialCourseModulePointsBreakdownResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseMaterialCourseModulePointsBreakdownResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
     ...options,
   })
 

@@ -16,6 +16,7 @@ export const progressColors = {
   tick: baseTheme.colors.green[800],
   tooltip: baseTheme.colors.green[900],
   divider: baseTheme.colors.clear[300],
+  error: baseTheme.colors.crimson[700],
   disc: "rgba(0, 0, 0, 0.03)",
   keyStrip: baseTheme.colors.primary[100],
 }

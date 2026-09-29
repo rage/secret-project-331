@@ -302,6 +302,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/jest-axe':
+        specifier: ^3.5.9
+        version: 3.5.9
       '@types/lodash':
         specifier: ^4.17.25
         version: 4.17.25
@@ -329,6 +332,9 @@ importers:
       jest:
         specifier: ^30.4.2
         version: 30.4.2(@types/node@26.3.0)(babel-plugin-macros@3.1.0)(supports-color@10.2.2)
+      jest-axe:
+        specifier: ^11.0.0
+        version: 11.0.0
       jest-environment-jsdom:
         specifier: ^30.4.1
         version: 30.4.1(supports-color@10.2.2)
@@ -2403,6 +2409,9 @@ packages:
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
 
+  '@types/jest-axe@3.5.9':
+    resolution: {integrity: sha512-z98CzR0yVDalCEuhGXXO4/zN4HHuSebAukXDjTLJyjEAgoUf1H1i+sr7SUB/mz8CRS/03/XChsx0dcLjHkndoQ==}
+
   '@types/jest@30.0.0':
     resolution: {integrity: sha512-XTYugzhuwqWjws0CVz8QpM36+T+Dz5mTEBKhNs/esGLnCIlGdRy+Dq78NRjd7ls7r8BC8ZRMOrKlkO1hU0JOwA==}
 
@@ -2788,6 +2797,14 @@ packages:
 
   autolinker@3.14.1:
     resolution: {integrity: sha512-yvsRHIaY51EYDml6MGlbqyJGfl4n7zezGYf+R7gvM8c5LNpRGc4SISkvgAswSS8SWxk/OrGCylKV9mJyVstz7w==}
+
+  axe-core@3.5.6:
+    resolution: {integrity: sha512-LEUDjgmdJoA3LqklSTwKYqkjcZ4HKc4ddIYGSAiSkr46NTjzg2L9RNB+lekO9P7Dlpa87+hBtzc2Fzn/+GUWMQ==}
+    engines: {node: '>=4'}
+
+  axe-core@4.12.1:
+    resolution: {integrity: sha512-s7iGf5GaVMxEG0ENN9x+xTr7GFZCb1ZP/1uATUpCEK2X78nDB3RwbtFCo9pGAf9ru+VwoQ464DkaLEeRM08wJA==}
+    engines: {node: '>=4'}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -3894,6 +3911,10 @@ packages:
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
 
+  jest-axe@11.0.0:
+    resolution: {integrity: sha512-JuLD/QzqDn5QxpFUMkbmf55GiI+sdutpryRD//rIRuyEefYAuMfQbQZ53TsNtZXKV3rjgfD4KKTKPY+2Ga1mGw==}
+    engines: {node: '>= 18.0.0'}
+
   jest-changed-files@30.4.1:
     resolution: {integrity: sha512-IuctmYrxi21iOSOaIXpJWalHyPAsVv0GeBHKDn8C1CA4W5htHn7INL+wdnL4Bo0+olEndvAFkmb++tIQJG+vvg==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -4192,6 +4213,9 @@ packages:
 
   lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
+
+  lodash.merge@4.6.2:
+    resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
   lodash.throttle@4.1.1:
     resolution: {integrity: sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==}
@@ -8190,6 +8214,11 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
 
+  '@types/jest-axe@3.5.9':
+    dependencies:
+      '@types/jest': 30.0.0
+      axe-core: 3.5.6
+
   '@types/jest@30.0.0':
     dependencies:
       expect: 30.4.1
@@ -8458,6 +8487,10 @@ snapshots:
   autolinker@3.14.1:
     dependencies:
       tslib: 1.13.0
+
+  axe-core@3.5.6: {}
+
+  axe-core@4.12.1: {}
 
   babel-jest@29.7.0(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2):
     dependencies:
@@ -9648,6 +9681,13 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
+  jest-axe@11.0.0:
+    dependencies:
+      axe-core: 4.12.1
+      chalk: 4.1.2
+      jest-matcher-utils: 30.4.1
+      lodash.merge: 4.6.2
+
   jest-changed-files@30.4.1:
     dependencies:
       execa: 5.1.1
@@ -10171,6 +10211,8 @@ snapshots:
   lodash.debounce@4.0.8: {}
 
   lodash.memoize@4.1.2: {}
+
+  lodash.merge@4.6.2: {}
 
   lodash.throttle@4.1.1:
     optional: true
@@ -12098,6 +12140,7 @@ time:
   '@tsparticles/engine@4.3.2': '2026-07-10T10:30:52.814Z'
   '@tsparticles/react@4.3.2': '2026-07-10T10:34:27.061Z'
   '@types/highlightjs@9.12.6': '2023-11-21T00:13:13.359Z'
+  '@types/jest-axe@3.5.9': '2023-11-27T11:35:44.204Z'
   '@types/jest@30.0.0': '2025-06-16T07:35:50.850Z'
   '@types/lodash@4.17.25': '2026-08-01T03:45:21.615Z'
   '@types/node@26.3.0': '2026-08-24T19:42:30.879Z'
@@ -12119,6 +12162,7 @@ time:
   http-proxy-middleware@4.2.0: '2026-07-04T21:49:09.221Z'
   i18next@26.4.0: '2026-08-20T09:25:14.621Z'
   immer@11.1.18: '2026-08-19T07:25:22.934Z'
+  jest-axe@11.0.0: '2026-07-26T19:08:15.954Z'
   jest-environment-jsdom@30.4.1: '2026-05-08T08:34:58.404Z'
   jest@30.4.2: '2026-05-09T00:31:21.036Z'
   jotai-family@1.1.0: '2026-07-29T15:19:07.279Z'

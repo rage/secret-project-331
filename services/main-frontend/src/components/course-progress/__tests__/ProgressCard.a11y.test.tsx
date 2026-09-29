@@ -53,6 +53,7 @@ const moduleCard = (
     moduleName="Basics"
     requiresExam={false}
     automaticCompletion
+    pointsBreakdown={null}
     points={points}
     exercises={exercises}
     {...overrides}

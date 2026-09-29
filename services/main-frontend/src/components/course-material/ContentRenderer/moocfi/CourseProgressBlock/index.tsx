@@ -43,13 +43,23 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   if (!courseMaterialState.instance) {
     return <div>{t("select-course-version-to-see-your-progress")}</div>
   }
+  const organizationSlug = courseMaterialState.organization?.slug
+  const courseSlug = courseMaterialState.course?.slug
+  const courseInstanceLocation =
+    organizationSlug && courseSlug
+      ? { courseInstanceId: courseMaterialState.instance.id, organizationSlug, courseSlug }
+      : null
 
   return (
     <QueryResult
       query={getUserCourseProgress}
-      emptyFallback={<CourseProgress userCourseProgress={[]} />}
+      emptyFallback={
+        <CourseProgress userCourseProgress={[]} courseInstanceLocation={courseInstanceLocation} />
+      }
     >
-      {(data) => <CourseProgress userCourseProgress={data} />}
+      {(data) => (
+        <CourseProgress userCourseProgress={data} courseInstanceLocation={courseInstanceLocation} />
+      )}
     </QueryResult>
   )
 }

@@ -54,6 +54,18 @@ export const rootBaseCss = css`
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
+  &:first-child {
+    border-radius: var(--control-radius) 0 0 var(--control-radius);
+    margin-inline-start: 0;
+
+    border-color: rgba(10, 15, 23, 0.12) transparent rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12);
+  }
+
+  &:last-child {
+    border-radius: 0 var(--control-radius) var(--control-radius) 0;
+    border-color: rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12) transparent;
+  }
+
   /* Disabled styles:
      - keep pointer cursor default (better UX for some a11y tooling)
      - show not-allowed only on hover
@@ -79,23 +91,6 @@ export const rootBaseCss = css`
   &[data-pressed="true"] {
     transform: translateY(var(--btn-pressed-offset)) scale(0.98);
     transition: var(--btn-press-transition);
-  }
-
-  /* Subtle loading hint */
-  &[aria-busy="true"] {
-    opacity: var(--btn-loading-opacity);
-  }
-
-  &:first-child {
-    border-radius: var(--control-radius) 0 0 var(--control-radius);
-    margin-inline-start: 0;
-
-    border-color: rgba(10, 15, 23, 0.12) transparent rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12);
-  }
-
-  &:last-child {
-    border-radius: 0 var(--control-radius) var(--control-radius) 0;
-    border-color: rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12) rgba(10, 15, 23, 0.12) transparent;
   }
 `
 

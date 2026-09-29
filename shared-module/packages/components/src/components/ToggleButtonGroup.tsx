@@ -3,9 +3,8 @@
 import { css, cx } from "@emotion/css"
 import { useToggleGroupState } from "@react-stately/toggle"
 import type { ToggleGroupState } from "@react-stately/toggle"
-import type { Key } from "@react-types/shared"
 import React, { useRef } from "react"
-import { useToggleButtonGroup } from "react-aria"
+import { useToggleButtonGroup, type Key } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"

@@ -424,7 +424,7 @@
   "credit-registration-admin-reason-permanent-error": "Failed permanently",
   "credit-registration-admin-reason-retry-window-expired": "Ran out of retry time",
   "credit-registration-admin-reason-stuck-in-state": "Stuck in its state",
-  "credit-registration-admin-reason-too-many-attempts": "Too many attempts",
+  "credit-registration-admin-reason-too-many-attempts": "Sent too many times",
   "credit-registration-admin-reason-unknown": "Unknown reason",
   "credit-registration-admin-reconciliation-in-queue-note": "Attainments removed from Sisu, and submissions whose outcome we do not know, are live rows. They are in the work queue above rather than here. Use its filters to reach them.",
   "credit-registration-admin-registered-by-a-registrar": "A registrar registered it through the old registration system",

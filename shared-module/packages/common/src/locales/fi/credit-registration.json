@@ -424,7 +424,7 @@
   "credit-registration-admin-reason-permanent-error": "Epäonnistui lopullisesti",
   "credit-registration-admin-reason-retry-window-expired": "Uudelleenyritysaika loppui",
   "credit-registration-admin-reason-stuck-in-state": "Jumissa tilassaan",
-  "credit-registration-admin-reason-too-many-attempts": "Liian monta yritystä",
+  "credit-registration-admin-reason-too-many-attempts": "Lähetetty liian monta kertaa",
   "credit-registration-admin-reason-unknown": "Tuntematon syy",
   "credit-registration-admin-reconciliation-in-queue-note": "Sisusta poistetut suoritusmerkinnät ja lähetykset, joiden lopputulosta emme tiedä, ovat eläviä rivejä. Ne ovat yllä olevassa työjonossa eivätkä täällä. Käytä sen suodattimia.",
   "credit-registration-admin-registered-by-a-registrar": "Kirjaaja kirjasi sen vanhan kirjausjärjestelmän kautta",

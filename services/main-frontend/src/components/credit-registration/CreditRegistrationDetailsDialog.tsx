@@ -41,7 +41,7 @@ import {
 import EnrolmentRecheckBlock from "./EnrolmentRecheckBlock"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -114,7 +114,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       label: t("label-verified-student-number"),
       value: registration.student_number ? (
         <span className={rowCss}>
-          <span className={monospaceCss}>{registration.student_number}</span>
+          <span className={codeValueCss}>{registration.student_number}</span>
           {verificationLabel && <Badge tone={TONE.NEUTRAL}>{verificationLabel}</Badge>}
         </span>
       ) : (
@@ -232,7 +232,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
         </QueryResult>
         <Disclosure variant={PLAIN_DISCLOSURE} title={t("credit-registration-heading-for-support")}>
           <div className={supportReferenceRowCss}>
-            <span className={cx(monospaceCss, supportReferenceValueCss)} title={supportReference}>
+            <span className={cx(codeValueCss, supportReferenceValueCss)} title={supportReference}>
               {supportReference}
             </span>
             <CopyButton

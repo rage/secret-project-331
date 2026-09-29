@@ -124,7 +124,6 @@ mod tests {
             course_id: Uuid::new_v4(),
             uh_course_code: code.map(str::to_string),
             ects_credits: Some(5.0),
-            has_enrolment_link: true,
             stored_course_code_allowed,
             stored_course_code_rejection: stored_course_code_allowed
                 .filter(|allowed| !allowed)

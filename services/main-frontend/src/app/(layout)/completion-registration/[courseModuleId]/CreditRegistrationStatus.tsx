@@ -17,6 +17,7 @@ import {
 import {
   registrationExplanation,
   registrationGradeLabel,
+  myRegistrationStatusLabel,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
@@ -265,21 +266,20 @@ const Tracker: React.FC<TrackerProps> = ({
   earlierAttempts,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const status = registration.student_facing_status
-  const statusLabel = registrationStatusLabel(t, status)
+  const statusLabel = myRegistrationStatusLabel(t, registration)
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
     linkToStatusPage: false,
   })
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
-  const announcedStatus = useRef(status)
+  const announcedStatusLabel = useRef(statusLabel)
   useEffect(() => {
-    if (announcedStatus.current !== status) {
-      announcedStatus.current = status
+    if (announcedStatusLabel.current !== statusLabel) {
+      announcedStatusLabel.current = statusLabel
       announce(t("credit-registration-status-is-now", { status: statusLabel }))
     }
-  }, [status, statusLabel, t])
+  }, [statusLabel, t])
 
   const view = { registration, enrolmentRoute }
   const recheckAction =

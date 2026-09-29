@@ -267,7 +267,7 @@ FROM credit_registrations cr
       -- the whole table down with it.
       COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,
       cr.state = 'misregistered' AS misregistered,
-      cr.submit_retry_count + cr.verify_attempt_count >= $3 AS too_many_attempts,
+      cr.submit_retry_count >= $3 AS too_many_attempts,
       cr.state = 'submission_uncertain' AS outcome_uncertain
   ) d
   CROSS JOIN LATERAL (

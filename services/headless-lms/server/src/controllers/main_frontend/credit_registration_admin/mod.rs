@@ -66,8 +66,9 @@ use secrecy::ExposeSecret;
 ))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
-/// Attempts after which retrying is not the answer and the attention queue picks the row up. Shared
-/// so the Overview tile and the Errors queue count the same rows.
+/// Resends after which retrying is not the answer and the attention queue picks the row up. Verify
+/// polls do not count: confirming routinely takes many. Shared so the Overview tile and the Errors
+/// queue count the same rows.
 const ATTENTION_TOO_MANY_ATTEMPTS: i32 = 5;
 
 /// Every handler here gates on the same check; a submodule calls this instead of repeating it.

@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   AccountLinkingModuleCounters,
@@ -23,7 +24,6 @@ import {
   Menu,
   MeterInline,
   QueryResult,
-  RelativeTime,
   StatTile,
   StatTileList,
   Table,
@@ -40,12 +40,11 @@ import {
   QUIET_REFRESH,
   STACKED,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -296,7 +295,11 @@ const SendStatusBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
             rowKey={(row) => row.domain}
             rows={stats.hard_failure_domains}
             columns={[
-              { header: t("label-domain"), grow: true, cell: (row) => <code>{row.domain}</code> },
+              {
+                header: t("label-domain"),
+                grow: true,
+                cell: (row) => <code className={codeValueCss}>{row.domain}</code>,
+              },
               {
                 header: t("label-count"),
                 align: ALIGN_END,
@@ -367,7 +370,7 @@ const ModuleBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
             cell: (row) => (
               <span className={stackedCellCss}>
                 <span>{row.course_name}</span>
-                <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
+                <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
               </span>
             ),
           },
@@ -391,7 +394,7 @@ const ModuleBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
             header: t("label-credit-registration-last-listed"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.last_listed_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.last_listed_at} />,
           },
           {
             header: t("credit-registration-admin-funnel-discovered"),
@@ -512,7 +515,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
             header: t("label-student-number"),
             minWidth: "7rem",
             nowrap: true,
-            cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+            cell: (row) => <span className={codeValueCss}>{row.student_number}</span>,
           },
           {
             header: t("label-course"),
@@ -529,7 +532,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
             header: t("label-credit-registration-last-sent"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.last_sent_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.last_sent_at} />,
           },
           {
             header: t("label-actions"),
@@ -575,7 +578,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             header: t("label-credit-registration-reported-student-number"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <span className={monospaceCss}>{row.reported_student_number}</span>,
+            cell: (row) => <span className={codeValueCss}>{row.reported_student_number}</span>,
           },
           {
             header: t("label-course"),
@@ -588,7 +591,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             minWidth: "12rem",
             cell: (row) => (
               <div className={stackedCellCss}>
-                <span className={monospaceCss}>{row.conflicting_link_student_number}</span>
+                <span className={codeValueCss}>{row.conflicting_link_student_number}</span>
                 <span className={noteCss}>
                   {[
                     row.conflicting_link_user_id === row.user_id
@@ -606,7 +609,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             header: t("label-credit-registration-reported-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+            cell: (row) => <ZonedTimestamp at={row.created_at} />,
           },
         ]}
       />
@@ -691,7 +694,7 @@ const RecentClaimsBlock: React.FC = () => {
                     header: t("label-student-number"),
                     minWidth: "7rem",
                     nowrap: true,
-                    cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+                    cell: (row) => <span className={codeValueCss}>{row.student_number}</span>,
                   },
                   {
                     header: t("label-student"),
@@ -723,9 +726,7 @@ const RecentClaimsBlock: React.FC = () => {
                     header: t("label-time"),
                     minWidth: "8rem",
                     nowrap: true,
-                    cell: (row) => (
-                      <RelativeTime at={row.verified_at} absoluteTime={TIME_COMPACT} />
-                    ),
+                    cell: (row) => <ZonedTimestamp at={row.verified_at} />,
                   },
                   ...reasonColumn,
                   {

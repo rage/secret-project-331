@@ -120,6 +120,8 @@ pub struct MyCreditRegistration {
     /// When the attainment went to the study registry. Ticks the sending step; `registered_at` is
     /// when the registry confirmed it.
     pub submitted_at: Option<DateTime<Utc>>,
+    /// A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
+    pub is_processing_in_sisu: bool,
     /// The open university enrolment page, for a row the study registry has no enrolment for.
     pub enrolment_link: Option<String>,
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
@@ -782,6 +784,8 @@ fn to_my_credit_registration(
         enrolment_checked_at: row.enrolment_checked_at,
         enrolment_realisation_name: row.enrolment_realisation_name,
         submitted_at: row.submitted_at,
+        is_processing_in_sisu: status == StudentFacingCreditRegistrationStatus::WaitingForSisu
+            && row.is_partially_registered,
         enrolment_link,
         linking_email,
         notification_email,

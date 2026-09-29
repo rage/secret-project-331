@@ -11,18 +11,19 @@ import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS, SISU_URL } from "./constants"
 import {
+  myRegistrationExplanation,
   registrationErrorHelp,
   registrationExplanation,
   registrationStatusState,
 } from "./creditRegistrationCopy"
 import { LinkingEmailLine, NotificationEmailLine, sentLinkingEmail } from "./EmailStatusLine"
 import { failureActions } from "./registrationFailures"
-import { monospaceCss, stepsCss, subsectionCss } from "./styles"
+import { codeValueCss, stepsCss, subsectionCss } from "./styles"
 import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 const sisuLink = <TransLink href={SISU_URL} target="_blank" rel="noopener noreferrer" />
 const studentNumberSettingsLink = <TransLink href={userSettingsStudentNumberRoute()} />
-const studentNumberValue = <span className={monospaceCss} />
+const studentNumberValue = <span className={codeValueCss} />
 
 const PERSON_NOT_FOUND = "person_not_found"
 // Its own explanation already covers who acts and what happens next; appending the generic
@@ -97,7 +98,7 @@ const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ reg
       </p>
     )
   }
-  return <p>{registrationExplanation(t, status)}</p>
+  return <p>{myRegistrationExplanation(t, registration)}</p>
 }
 
 export interface StudentRegistrationExplanationProps {

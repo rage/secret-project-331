@@ -36,7 +36,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
@@ -53,6 +52,7 @@ import {
   stackedCellCss,
   stateChangeFromCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationAdminAction,
   CreditRegistrationAdminActionRow,
@@ -72,7 +72,6 @@ import {
   Infobox,
   Link,
   QueryResult,
-  RelativeTime,
   Select,
   Table,
   TextField,
@@ -562,7 +561,7 @@ const AuditPage: React.FC = () => {
                     header: t("label-time"),
                     minWidth: "7rem",
                     nowrap: true,
-                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
                   },
                   {
                     header: t("label-actor"),

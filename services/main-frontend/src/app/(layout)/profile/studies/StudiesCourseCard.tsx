@@ -14,6 +14,7 @@ import {
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
+  myRegistrationStatusLabel,
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
@@ -331,6 +332,9 @@ const ModuleRow: React.FC<{
     registration?.student_facing_status ??
     // oxlint-disable-next-line i18next/no-literal-string -- a status value, not user-facing text
     (module.is_credit_registration_starting ? "sending" : null)
+  const registrationStatusText = registration
+    ? myRegistrationStatusLabel(t, registration)
+    : registrationStatus && registrationStatusLabel(t, registrationStatus)
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
@@ -365,11 +369,11 @@ const ModuleRow: React.FC<{
               className={statusTriggerCss}
               appearance={LINK_INHERIT}
               aria-label={t("credit-registration-status-link-label", {
-                status: registrationStatusLabel(t, registrationStatus),
+                status: registrationStatusText,
               })}
             >
               <RegistrationStatusBadge state={registrationStatusState(registrationStatus)}>
-                {registrationStatusLabel(t, registrationStatus)}
+                {registrationStatusText}
               </RegistrationStatusBadge>
               {/* A pill does not read as a link, and on touch there is no hover to prove it. */}
               <span className={detailsLabelCss}>

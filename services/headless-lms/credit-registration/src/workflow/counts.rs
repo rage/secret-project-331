@@ -6,11 +6,13 @@ use super::decision::Applied;
 
 /// What a phase body did. Composite phases add up their flows' counts with `+=`.
 ///
-/// `failed` never exceeds `processed`: a failure is counted only with the row, or module, it
-/// failed.
+/// `failed` and `waiting` are disjoint parts of `processed`: each is counted only with the row, or
+/// module, it describes.
 #[derive(Debug, Default)]
 pub(crate) struct Counts {
     processed: i32,
+    /// Rows written with an answer that only means "not yet", such as an enrolment not made.
+    waiting: i32,
     failed: i32,
     /// Rows another writer moved on before their answer could be written, which are not processed.
     moved_on: i32,
@@ -49,15 +51,23 @@ impl Counts {
 
     /// One row a decision was written for without asking the registry.
     pub(crate) fn record_decided(&mut self, is_failure: bool) {
+        self.record_verdict(is_failure, false);
+    }
+
+    fn record_verdict(&mut self, is_failure: bool, is_waiting: bool) {
         self.processed += 1;
         self.failed += i32::from(is_failure);
+        self.waiting += i32::from(is_waiting);
     }
 
     /// One answered or refused row's write. A row that had already moved on is only logged at debug:
     /// the batch summary reports it, and a study registry outage can make it routine.
     pub(crate) fn record_applied(&mut self, registration_id: Uuid, applied: Applied) {
         match applied {
-            Applied::Written { is_failure } => self.record_decided(is_failure),
+            Applied::Written {
+                is_failure,
+                is_waiting,
+            } => self.record_verdict(is_failure, is_waiting),
             Applied::MovedOn { found } => {
                 self.moved_on += 1;
                 debug!(
@@ -74,7 +84,12 @@ impl Counts {
         self.processed
     }
 
-    /// How many of the processed ones ended up carrying an error code.
+    /// How many of the processed ones ended up waiting for something, which is no failure.
+    pub(crate) fn waiting_count(&self) -> i32 {
+        self.waiting
+    }
+
+    /// How many of the processed ones ended up carrying an error code other than a waiting one.
     pub(crate) fn failed_count(&self) -> i32 {
         self.failed
     }
@@ -91,6 +106,7 @@ impl Counts {
 impl std::ops::AddAssign for Counts {
     fn add_assign(&mut self, other: Self) {
         self.processed += other.processed;
+        self.waiting += other.waiting;
         self.failed += other.failed;
         self.moved_on += other.moved_on;
         self.finding = self.finding.take().or(other.finding);
@@ -104,7 +120,10 @@ mod tests {
     use super::*;
 
     fn written(is_failure: bool) -> Applied {
-        Applied::Written { is_failure }
+        Applied::Written {
+            is_failure,
+            is_waiting: false,
+        }
     }
 
     const MOVED_ON: Applied = Applied::MovedOn {

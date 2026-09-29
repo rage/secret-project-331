@@ -123,13 +123,20 @@ async fn transition_stamps_state_entered_at_and_writes_an_event() {
     let events = crate::credit_registration_events::get_by_registration_id(tx.as_mut(), id)
         .await
         .unwrap();
-    // The `created` event from insert plus this state change, newest first.
+    // One transaction, so the two share `created_at` and their order is not asserted.
     assert_eq!(events.len(), 2);
-    assert_eq!(events[1].kind, CreditRegistrationEventKind::Created);
-    assert_eq!(events[0].kind, CreditRegistrationEventKind::StateChanged);
-    assert_eq!(events[0].from_state, Some(CreditRegistrationState::Pending));
+    assert!(
+        events
+            .iter()
+            .any(|event| event.kind == CreditRegistrationEventKind::Created)
+    );
+    let change = events
+        .iter()
+        .find(|event| event.kind == CreditRegistrationEventKind::StateChanged)
+        .unwrap();
+    assert_eq!(change.from_state, Some(CreditRegistrationState::Pending));
     assert_eq!(
-        events[0].to_state,
+        change.to_state,
         Some(CreditRegistrationState::ReadyToSubmit)
     );
 }

@@ -10,9 +10,6 @@ pub struct SuotarModuleConfigFacts {
     pub course_id: Uuid,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    /// The module has a completion registration link override, the enrolment link students without
-    /// a usable enrolment are sent to.
-    pub has_enrolment_link: bool,
     /// Suotar's verdict on the current course code from the last check; `None` if there is none or
     /// the code has changed since.
     pub stored_course_code_allowed: Option<bool>,
@@ -33,7 +30,6 @@ SELECT cm.id AS "course_module_id!",
   cm.course_id AS "course_id!",
   cm.uh_course_code,
   cm.ects_credits,
-  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "has_enrolment_link!",
   CASE
     WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed
   END AS "stored_course_code_allowed?",

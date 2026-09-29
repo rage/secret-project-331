@@ -21,7 +21,7 @@ import {
 import {
   dividedListCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -197,7 +197,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("label-student-number"),
               minWidth: "7rem",
               nowrap: true,
-              cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+              cell: (row) => <span className={codeValueCss}>{row.student_number}</span>,
             },
             {
               header: t("label-course"),
@@ -205,7 +205,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               cell: (row) => (
                 <span className={stackedCellCss}>
                   <span>{row.course_name}</span>
-                  <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
+                  <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
                 </span>
               ),
             },

@@ -40,6 +40,7 @@ import {
   TONE,
 } from "../constants"
 import {
+  codeValueCss,
   controlCss,
   controlsCss,
   dialogFormCss,
@@ -291,7 +292,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
                   items={[
                     {
                       label: t("label-credit-registration-person-id"),
-                      value: <code>{preview.sisu_person_id ?? ABSENT}</code>,
+                      value: (
+                        <code className={codeValueCss}>{preview.sisu_person_id ?? ABSENT}</code>
+                      ),
                     },
                     {
                       label: t("label-credit-registration-already-linked-to"),

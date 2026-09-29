@@ -49,7 +49,7 @@ import {
   controlCss,
   controlsCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -488,7 +488,7 @@ const AttentionQueueSection: React.FC = () => {
                         </Link>
                         {errorNote && (
                           <span className={noteCss}>
-                            {errorNote} <code className={monospaceCss}>{row.error_code}</code>
+                            {errorNote} <code className={codeValueCss}>{row.error_code}</code>
                           </span>
                         )}
                       </span>

@@ -17,6 +17,7 @@ import {
   TONE,
 } from "../constants"
 import {
+  codeValueCss,
   headingCss,
   noteCss,
   proseCss,
@@ -104,7 +105,9 @@ const CircuitBreakerSection: React.FC = () => {
                 header: t("credit-registration-admin-column-pauses"),
                 grow: true,
                 minWidth: "12rem",
-                cell: (row) => <code>{row.endpoints.join(MIDDLE_DOT)}</code>,
+                cell: (row) => (
+                  <code className={codeValueCss}>{row.endpoints.join(MIDDLE_DOT)}</code>
+                ),
               },
               {
                 header: t("credit-registration-admin-column-recorded-at"),

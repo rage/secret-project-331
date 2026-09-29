@@ -34,7 +34,7 @@ import {
   controlCss,
   controlsCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   sectionCardCss,
   sectionCardHeaderCss,
@@ -110,7 +110,7 @@ const ErrorCodeSummary: React.FC = () => {
                     >
                       <span className={stackedCellCss}>
                         <span>{registrationErrorShortLabel(t, row.error_code)}</span>
-                        <code className={cx(noteCss, monospaceCss)}>{row.error_code}</code>
+                        <code className={cx(noteCss, codeValueCss)}>{row.error_code}</code>
                       </span>
                     </Link>
                   ),

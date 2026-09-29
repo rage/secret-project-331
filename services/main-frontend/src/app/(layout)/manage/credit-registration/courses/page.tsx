@@ -37,7 +37,7 @@ import {
   controlCss,
   controlsCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -198,7 +198,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
             ))}
           </div>
           {module.check.message && (
-            <p className={cx(noteCss, monospaceCss)}>{module.check.message}</p>
+            <p className={cx(noteCss, codeValueCss)}>{module.check.message}</p>
           )}
           <p className={noteCss}>
             {module.config_checked_at === null ? (
@@ -420,7 +420,7 @@ const CoursesPage: React.FC = () => {
                           >
                             {row.course_name}
                           </Link>
-                          <span className={cx(noteCss, monospaceCss)}>
+                          <span className={cx(noteCss, codeValueCss)}>
                             {moduleSubtitle(row).join(MIDDLE_DOT)}
                           </span>
                         </span>

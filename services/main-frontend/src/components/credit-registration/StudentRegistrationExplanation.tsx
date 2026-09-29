@@ -17,12 +17,12 @@ import {
 } from "./creditRegistrationCopy"
 import { LinkingEmailLine, NotificationEmailLine, sentLinkingEmail } from "./EmailStatusLine"
 import { failureActions } from "./registrationFailures"
-import { monospaceCss, stepsCss, subsectionCss } from "./styles"
+import { codeValueCss, stepsCss, subsectionCss } from "./styles"
 import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 const sisuLink = <TransLink href={SISU_URL} target="_blank" rel="noopener noreferrer" />
 const studentNumberSettingsLink = <TransLink href={userSettingsStudentNumberRoute()} />
-const studentNumberValue = <span className={monospaceCss} />
+const studentNumberValue = <span className={codeValueCss} />
 
 const PERSON_NOT_FOUND = "person_not_found"
 // Its own explanation already covers who acts and what happens next; appending the generic

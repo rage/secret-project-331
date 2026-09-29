@@ -57,7 +57,7 @@ import {
   dividedListCss,
   emptyStateCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   pageTitleCss,
   proseCss,
@@ -200,7 +200,7 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
             label: identifier.label,
             value: (
               <span className={rowCss}>
-                <span className={monospaceCss}>{identifier.value}</span>
+                <span className={codeValueCss}>{identifier.value}</span>
                 <CopyButton
                   value={identifier.value}
                   label={t("credit-registration-admin-copy-identifier", {
@@ -238,10 +238,10 @@ const HeaderSection: React.FC<{
         <span className={rowCss}>
           <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
           {row.course_module_name ? <span>{row.course_module_name}</span> : null}
-          {row.uh_course_code ? <code className={monospaceCss}>{row.uh_course_code}</code> : null}
+          {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
         </span>
         <span className={idRowCss}>
-          <span className={cx(noteCss, monospaceCss)}>{row.id}</span>
+          <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
           <CopyButton
             value={row.id}
             label={t("credit-registration-admin-copy-identifier", {
@@ -305,7 +305,7 @@ const HeaderSection: React.FC<{
           <p className={proseCss}>{errorHelp}</p>
           {/* Untranslated on purpose: this is the identifier an operator quotes. */}
           <p className={noteCss}>
-            <code>{row.error_code}</code>
+            <code className={codeValueCss}>{row.error_code}</code>
           </p>
         </div>
       )}
@@ -357,7 +357,7 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
       label: t("label-student-number"),
       value: studentNumber ? (
         <span className={rowCss}>
-          <span className={monospaceCss}>{studentNumber}</span>
+          <span className={codeValueCss}>{studentNumber}</span>
           {verifiedVia}
         </span>
       ) : (
@@ -659,7 +659,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             header: t("label-endpoint"),
             grow: true,
             minWidth: "10rem",
-            cell: (call) => <code>{call.endpoint}</code>,
+            cell: (call) => <code className={codeValueCss}>{call.endpoint}</code>,
           },
           {
             header: t("label-credit-registration-http-status"),
@@ -672,7 +672,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
                   errorItemCount={call.error_item_count}
                 />
                 {call.request_level_error_code && (
-                  <code className={cx(noteCss, monospaceCss)}>{call.request_level_error_code}</code>
+                  <code className={cx(noteCss, codeValueCss)}>{call.request_level_error_code}</code>
                 )}
               </span>
             ),

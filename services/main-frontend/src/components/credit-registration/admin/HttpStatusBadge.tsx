@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import { Badge } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { monospaceCss } from "../styles"
+import { codeValueCss } from "../styles"
 
 interface Props {
   httpStatus: number | null | undefined
@@ -36,7 +36,7 @@ const HttpStatusBadge: React.FC<Props> = ({ httpStatus, succeeded, errorItemCoun
       : String(httpStatus)
 
   if (succeeded && errorItemCount === 0) {
-    return <span className={cx(monospaceCss, plainStatusCss)}>{label}</span>
+    return <span className={cx(codeValueCss, plainStatusCss)}>{label}</span>
   }
   return (
     <Badge tone={succeeded ? TONE.WARNING : TONE.DANGER} size="compact">

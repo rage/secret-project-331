@@ -50,7 +50,7 @@ import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
   controlsCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -474,7 +474,7 @@ const RegistrationsPage: React.FC = () => {
                             {t("credit-registration-admin-not-linked")}
                           </span>
                         ) : (
-                          <span className={monospaceCss}>{number}</span>
+                          <span className={codeValueCss}>{number}</span>
                         )
                       },
                     },
@@ -526,7 +526,7 @@ const RegistrationsPage: React.FC = () => {
                             </span>
                             {errorNote && (
                               <span className={noteCss}>
-                                {errorNote} <code className={monospaceCss}>{row.error_code}</code>
+                                {errorNote} <code className={codeValueCss}>{row.error_code}</code>
                               </span>
                             )}
                           </span>

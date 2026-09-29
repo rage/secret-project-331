@@ -29,7 +29,7 @@ import {
 import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -76,7 +76,7 @@ const PhaseTable: React.FC<{
           minWidth: "12rem",
           cell: (row) => (
             <span className={rowCss}>
-              <code>{row.phase}</code>
+              <code className={codeValueCss}>{row.phase}</code>
               {row.owned_states.length > 0 && (
                 <Tooltip
                   aria-label={t("credit-registration-admin-owned-states-tooltip-label", {
@@ -122,7 +122,7 @@ const PhaseTable: React.FC<{
                   </span>
                 )}
                 {row.last_error && (
-                  <span className={cx(noteCss, monospaceCss)}>{row.last_error}</span>
+                  <span className={cx(noteCss, codeValueCss)}>{row.last_error}</span>
                 )}
                 {row.pause_reason && <span className={noteCss}>{row.pause_reason}</span>}
               </span>

@@ -16,6 +16,7 @@ import {
 } from "../constants"
 import {
   controlCss,
+  codeValueCss,
   headingCss,
   noteCss,
   sectionCardCss,
@@ -54,7 +55,7 @@ const EndpointSummarySection: React.FC = () => {
               {
                 header: t("label-endpoint"),
                 minWidth: "14rem",
-                cell: (row) => <code>{row.endpoint}</code>,
+                cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
               },
               {
                 header: t("credit-registration-admin-column-calls"),
@@ -92,7 +93,7 @@ const EndpointSummarySection: React.FC = () => {
                     {row.last_request_level_error_code && (
                       <span className={noteCss}>
                         {t("credit-registration-admin-request-error-code-label")}{" "}
-                        <code>{row.last_request_level_error_code}</code>
+                        <code className={codeValueCss}>{row.last_request_level_error_code}</code>
                       </span>
                     )}
                   </span>

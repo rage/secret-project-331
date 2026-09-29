@@ -14,7 +14,7 @@ import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   sectionCss,
   stackedCellCss,
@@ -87,7 +87,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code>{row.request_item_id ?? ABSENT}</code>
+                        <code className={codeValueCss}>{row.request_item_id ?? ABSENT}</code>
                       </Link>
                     ),
                   },
@@ -102,7 +102,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   {
                     header: t("label-student-number"),
                     cell: (row) => (
-                      <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                      <span className={codeValueCss}>{row.student_number ?? ABSENT}</span>
                     ),
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },

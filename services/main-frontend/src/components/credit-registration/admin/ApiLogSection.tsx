@@ -19,6 +19,7 @@ import {
 import {
   controlCss,
   controlsCss,
+  codeValueCss,
   headingCss,
   noteCss,
   sectionCardCss,
@@ -211,7 +212,7 @@ const ApiLogSection: React.FC = () => {
                 {
                   header: t("label-endpoint"),
                   minWidth: "11rem",
-                  cell: (row) => <code>{row.endpoint}</code>,
+                  cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
                 },
                 {
                   header: t("credit-registration-admin-column-caller"),
@@ -221,7 +222,7 @@ const ApiLogSection: React.FC = () => {
                     const { task, process } = splitWorkerName(row.worker_name)
                     return (
                       <span className={stackedCellCss}>
-                        <code>{task}</code>
+                        <code className={codeValueCss}>{task}</code>
                         {process && <span className={noteCss}>{process}</span>}
                       </span>
                     )

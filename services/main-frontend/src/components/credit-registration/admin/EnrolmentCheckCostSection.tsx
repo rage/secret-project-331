@@ -21,6 +21,7 @@ import {
   TONE,
 } from "../constants"
 import {
+  codeValueCss,
   headingCss,
   noteCss,
   sectionCardCss,
@@ -58,7 +59,7 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
           {
             header: t("label-endpoint"),
             minWidth: "12rem",
-            cell: (row) => <code>{row.endpoint}</code>,
+            cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
           },
           {
             header: t("credit-registration-admin-column-calls"),
@@ -134,7 +135,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             minWidth: "10rem",
             cell: (row) => (
               <span className={stackedCellCss}>
-                <code>{row.course_code}</code>
+                <code className={codeValueCss}>{row.course_code}</code>
                 <span className={noteCss}>
                   {t("credit-registration-admin-enrolment-checks-modules-count", {
                     count: row.module_count,
@@ -236,7 +237,7 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
           {
             header: t("label-endpoint"),
             minWidth: "12rem",
-            cell: (row) => <code>{row.endpoint}</code>,
+            cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
           },
           {
             header: t("credit-registration-admin-column-rate-share"),

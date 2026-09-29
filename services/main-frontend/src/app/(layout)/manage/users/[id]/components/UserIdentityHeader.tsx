@@ -6,7 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
-import { monospaceCss, noteCss, pageTitleCss } from "@/components/credit-registration/styles"
+import { codeValueCss, noteCss, pageTitleCss } from "@/components/credit-registration/styles"
 import {
   linkingEmailSentence,
   studentNumberVerificationLabel,
@@ -118,7 +118,7 @@ const StudentNumberValue: React.FC<{ state: StudentNumberState }> = ({ state }) 
     const provenance = studentNumberVerificationLabel(t, state.verifiedVia)
     return (
       <span className={emailValueCss}>
-        <span className={monospaceCss}>{state.studentNumber}</span>
+        <span className={codeValueCss}>{state.studentNumber}</span>
         {/* No leading dot: this can wrap onto its own line, stranding one at the front. */}
         {provenance ? <span className={noteCss}>{provenance}</span> : null}
       </span>

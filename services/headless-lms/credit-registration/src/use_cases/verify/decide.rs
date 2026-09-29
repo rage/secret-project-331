@@ -164,7 +164,7 @@ mod tests {
         for state in [State::AwaitingVerification, State::SubmissionUncertain] {
             let decision = decided(state, None);
             assert_eq!(decision.outcome.to_state, state);
-            assert!(!decision.outcome.carries_error_code());
+            assert!(!decision.outcome.is_failure());
         }
     }
 
@@ -202,7 +202,7 @@ mod tests {
         let answer = answer(VerificationReading::Inconclusive);
         let decision = decided(State::SubmissionUncertain, Some(&answer));
         assert_eq!(decision.outcome.to_state, State::SubmissionUncertain);
-        assert!(!decision.outcome.carries_error_code());
+        assert!(!decision.outcome.is_failure());
     }
 
     #[test]

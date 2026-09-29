@@ -15182,6 +15182,7 @@
           "request_item_count",
           "ok_item_count",
           "error_item_count",
+          "pending_item_count",
           "worker_name",
           "credit_registration_ids"
         ],
@@ -15213,6 +15214,10 @@
             "format": "uuid"
           },
           "ok_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pending_item_count": {
             "type": "integer",
             "format": "int32"
           },
@@ -25179,6 +25184,7 @@
                 "request_item_count",
                 "ok_item_count",
                 "error_item_count",
+                "pending_item_count",
                 "worker_name",
                 "credit_registration_ids"
               ],
@@ -25211,6 +25217,10 @@
                   "format": "uuid"
                 },
                 "ok_item_count": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "pending_item_count": {
                   "type": "integer",
                   "format": "int32"
                 },
@@ -26909,6 +26919,7 @@
           "request_item_count",
           "ok_item_count",
           "error_item_count",
+          "pending_item_count",
           "worker_name",
           "credit_registration_ids"
         ],
@@ -26941,6 +26952,10 @@
             "format": "uuid"
           },
           "ok_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pending_item_count": {
             "type": "integer",
             "format": "int32"
           },
@@ -27100,7 +27115,8 @@
           "failed_call_count",
           "in_flight_count",
           "ok_item_count",
-          "error_item_count"
+          "error_item_count",
+          "pending_item_count"
         ],
         "properties": {
           "call_count": {
@@ -27145,6 +27161,10 @@
           "p95_duration_ms": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "pending_item_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

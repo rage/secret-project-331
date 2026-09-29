@@ -15,6 +15,7 @@ mod rate_limit;
 mod rosters;
 
 pub use breaker::is_waiting_to_probe;
+pub use codes::is_waiting_item;
 pub(super) use health_report::{report_breakers, report_rate_limits};
 
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;

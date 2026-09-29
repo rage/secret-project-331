@@ -36,6 +36,7 @@ pub struct SuotarApiCallRow {
     pub request_item_count: i32,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     /// The registry's own request-level code, an identifier rather than prose.
     pub request_level_error_code: Option<String>,
     pub worker_name: String,
@@ -286,6 +287,7 @@ fn to_call_row(call: SuotarApiCallPageRow) -> SuotarApiCallRow {
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         credit_registration_ids: call.credit_registration_ids,
@@ -304,6 +306,7 @@ fn to_call_row_from_full(call: &SuotarApiCall) -> SuotarApiCallRow {
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code.clone(),
         worker_name: call.worker_name.clone(),
         credit_registration_ids: call.credit_registration_ids.clone(),

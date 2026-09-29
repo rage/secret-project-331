@@ -116,6 +116,7 @@ pub struct AdminSuotarApiCall {
     pub request_item_count: i32,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub worker_name: String,
     /// Scrubbed and sampled at write time.
@@ -968,6 +969,7 @@ fn to_admin_api_call(call: models::suotar_api_calls::SuotarApiCall) -> AdminSuot
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         request_body_sample: call.request_body_sample,

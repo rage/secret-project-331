@@ -61,6 +61,12 @@ pub fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
     )
 }
 
+/// Whether a row carrying `code` only awaits something outside the pipeline, so its answer is no
+/// failure: a submission Suotar cannot find yet, or an enrolment the student has not made.
+pub fn is_waiting_error(code: CreditRegistrationErrorCode) -> bool {
+    code == CreditRegistrationErrorCode::NotRegistered || is_enrolment_error(code)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

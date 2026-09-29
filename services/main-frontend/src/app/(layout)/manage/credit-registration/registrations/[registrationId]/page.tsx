@@ -532,7 +532,8 @@ interface TimelineRunGroup {
 
 const continuesRun = (run: TimelineRunGroup, event: AdminCreditRegistrationEvent) =>
   COLLAPSIBLE_KINDS.has(event.kind) &&
-  event.to_state != null &&
+  event.to_state !== null &&
+  event.to_state !== undefined &&
   event.from_state === event.to_state &&
   run.oldest.kind === event.kind &&
   run.oldest.to_state === event.to_state &&

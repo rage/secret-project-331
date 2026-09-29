@@ -5038,6 +5038,11 @@ export const zStudyRegistryStudentNumberConflict = z.object({
 })
 
 /**
+ * What Suotar did with one row of a request.
+ */
+export const zSuotarAnswer = z.enum(["answered", "unanswered", "refused"])
+
+/**
  * A timeline entry written against this call, one per item the answer moved.
  */
 export const zSuotarApiCallEvent = z.object({
@@ -5089,6 +5094,7 @@ export const zAdminCreditRegistrationEvent = z.object({
   kind: zCreditRegistrationEventKind,
   message: z.string().nullish(),
   request_item_id: z.string().nullish(),
+  suotar_answer: zSuotarAnswer.nullish(),
   suotar_answered_at: z.iso.datetime().nullish(),
   suotar_api_call_id: z.uuid().nullish(),
   suotar_code: z.string().nullish(),

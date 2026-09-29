@@ -297,6 +297,28 @@
             "name": "suotar_answered_at"
           }
         }
+      },
+      {
+        "ordinal": 17,
+        "name": "suotar_answer",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_answer",
+            "kind": {
+              "Enum": [
+                "answered",
+                "unanswered",
+                "refused"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_answer"
+          }
+        }
       }
     ],
     "parameters": {
@@ -317,6 +339,7 @@
       true,
       false,
       false,
+      true,
       true,
       true,
       true,

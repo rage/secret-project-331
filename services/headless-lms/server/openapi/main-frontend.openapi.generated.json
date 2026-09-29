@@ -14650,6 +14650,16 @@
             "type": ["string", "null"],
             "description": "The requestItemId the row went out under in the call behind this event."
           },
+          "suotar_answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SuotarAnswer"
+              }
+            ]
+          },
           "suotar_answered_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -26906,6 +26916,11 @@
             "format": "uuid"
           }
         }
+      },
+      "SuotarAnswer": {
+        "type": "string",
+        "description": "What Suotar did with one row of a request.",
+        "enum": ["answered", "unanswered", "refused"]
       },
       "SuotarApiCallDetails": {
         "type": "object",

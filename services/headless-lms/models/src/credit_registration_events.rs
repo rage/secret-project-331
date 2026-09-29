@@ -28,6 +28,18 @@ pub enum CreditRegistrationEventKind {
     Cancelled,
 }
 
+/// What Suotar did with one row of a request.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
+#[sqlx(type_name = "suotar_answer", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
+pub enum SuotarAnswer {
+    Answered,
+    /// Suotar answered the request but left this row out.
+    Unanswered,
+    /// Suotar refused the whole request, or it never got there.
+    Refused,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationEvent {
     pub id: Uuid,
@@ -50,6 +62,7 @@ pub struct CreditRegistrationEvent {
     pub suotar_requested_at: Option<DateTime<Utc>>,
     /// Orders the timeline where set: events written in one transaction share `created_at`.
     pub suotar_answered_at: Option<DateTime<Utc>>,
+    pub suotar_answer: Option<SuotarAnswer>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -70,6 +83,7 @@ pub struct NewCreditRegistrationEvent {
     pub suotar_endpoint: Option<SuotarEndpoint>,
     pub suotar_requested_at: Option<DateTime<Utc>>,
     pub suotar_answered_at: Option<DateTime<Utc>>,
+    pub suotar_answer: Option<SuotarAnswer>,
 }
 
 impl NewCreditRegistrationEvent {
@@ -88,6 +102,7 @@ impl NewCreditRegistrationEvent {
             suotar_endpoint: None,
             suotar_requested_at: None,
             suotar_answered_at: None,
+            suotar_answer: None,
         }
     }
 }
@@ -113,9 +128,10 @@ INSERT INTO credit_registration_events (
     request_item_id,
     suotar_endpoint,
     suotar_requested_at,
-    suotar_answered_at
+    suotar_answered_at,
+    suotar_answer
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING id
         "#,
         new.credit_registration_id,
@@ -131,6 +147,7 @@ RETURNING id
         new.suotar_endpoint as Option<SuotarEndpoint>,
         new.suotar_requested_at,
         new.suotar_answered_at,
+        new.suotar_answer as Option<SuotarAnswer>,
     )
     .fetch_one(conn)
     .await?;
@@ -165,6 +182,7 @@ pub async fn insert_batch(
         events.iter().map(|e| e.suotar_requested_at).collect();
     let answered_ats: Vec<Option<DateTime<Utc>>> =
         events.iter().map(|e| e.suotar_answered_at).collect();
+    let answers: Vec<Option<SuotarAnswer>> = events.iter().map(|e| e.suotar_answer).collect();
     sqlx::query!(
         r#"
 INSERT INTO credit_registration_events (
@@ -180,7 +198,8 @@ INSERT INTO credit_registration_events (
     request_item_id,
     suotar_endpoint,
     suotar_requested_at,
-    suotar_answered_at
+    suotar_answered_at,
+    suotar_answer
   )
 SELECT *
 FROM UNNEST(
@@ -196,7 +215,8 @@ FROM UNNEST(
     $10::text [],
     $11::suotar_endpoint [],
     $12::timestamptz [],
-    $13::timestamptz []
+    $13::timestamptz [],
+    $14::suotar_answer []
   )
         "#,
         &ids,
@@ -212,6 +232,7 @@ FROM UNNEST(
         &endpoints as &[Option<SuotarEndpoint>],
         &requested_ats as &[Option<DateTime<Utc>>],
         &answered_ats as &[Option<DateTime<Utc>>],
+        &answers as &[Option<SuotarAnswer>],
     )
     .execute(conn)
     .await?;

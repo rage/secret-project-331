@@ -223,6 +223,7 @@ export type AdminCreditRegistrationEvent = {
    * The requestItemId the row went out under in the call behind this event.
    */
   request_item_id?: string | null
+  suotar_answer?: null | SuotarAnswer
   suotar_answered_at?: string | null
   suotar_api_call_id?: string | null
   /**
@@ -4828,6 +4829,11 @@ export type StudyRegistryStudentNumberConflict = {
   user_email?: string | null
   user_id: string
 }
+
+/**
+ * What Suotar did with one row of a request.
+ */
+export type SuotarAnswer = "answered" | "unanswered" | "refused"
 
 export type SuotarApiCallDetails = {
   call: SuotarApiCallRow

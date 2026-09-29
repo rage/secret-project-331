@@ -1,6 +1,7 @@
 //! One batch request to the study registry and what came of it, row by row.
 
 use chrono::{DateTime, Utc};
+use headless_lms_models::credit_registration_events::SuotarAnswer;
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use uuid::Uuid;
 
@@ -89,6 +90,7 @@ pub(crate) struct ExchangeAudit {
     pub requested_at: DateTime<Utc>,
     /// Taken when the answer or refusal arrived.
     pub answered_at: DateTime<Utc>,
+    pub answer: SuotarAnswer,
     /// What the row's item went out under in that request.
     pub request_item_id: String,
     pub request: serde_json::Value,

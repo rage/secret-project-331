@@ -79,9 +79,6 @@ const numberField = (value: unknown, key: string): number | null => {
   return typeof found === "number" && Number.isFinite(found) ? found : null
 }
 
-// Coupled to the backend's message: the one code-less Suotar answer that is not a refusal.
-const UNANSWERED_ITEM_PREFIX = "Sisu did not answer for this item"
-
 const SILENT_CLAIMS: readonly (readonly [CreditRegistrationState, CreditRegistrationState])[] = [
   ["ready_to_submit", "resolving_enrolment"],
   ["checking_enrolment", "submitting"],
@@ -336,13 +333,20 @@ const suotarOutcome = (
   if (step === "suotar_exchange") {
     return fallbackOutcome(t, event)
   }
+  switch (event.suotar_answer) {
+    case "refused":
+      return {
+        result: t("credit-registration-admin-timeline-result-request-refused"),
+        tone: "failed",
+      }
+    case "unanswered":
+      return {
+        result: t("credit-registration-admin-timeline-result-no-answer"),
+        tone: "action-needed",
+      }
+  }
   if (!event.suotar_code) {
-    return event.message?.startsWith(UNANSWERED_ITEM_PREFIX)
-      ? {
-          result: t("credit-registration-admin-timeline-result-no-answer"),
-          tone: "action-needed",
-        }
-      : { result: t("credit-registration-admin-timeline-result-request-refused"), tone: "failed" }
+    return fallbackOutcome(t, event)
   }
   switch (step) {
     case "student_lookup":

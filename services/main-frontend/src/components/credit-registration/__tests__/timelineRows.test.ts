@@ -169,6 +169,7 @@ describe("buildTimeline", () => {
           from_state: "submitting",
           to_state: "failed_retryable",
           error_code: "malformed_request",
+          suotar_answer: "refused",
           message: "Sisu did not accept the whole request.",
         },
         {
@@ -176,6 +177,7 @@ describe("buildTimeline", () => {
           suotar_endpoint: "verify_attainments",
           from_state: "awaiting_verification",
           to_state: "awaiting_verification",
+          suotar_answer: "unanswered",
           message: "Sisu did not answer for this item.",
         },
       ]),

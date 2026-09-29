@@ -162,6 +162,7 @@ pub(crate) async fn write_decision(
         suotar_endpoint: Some(audit.endpoint),
         suotar_requested_at: Some(audit.requested_at),
         suotar_answered_at: Some(audit.answered_at),
+        suotar_answer: Some(audit.answer),
         event_details: Some(suotar_exchange_details(
             Some(&audit.request),
             audit.response.as_ref(),

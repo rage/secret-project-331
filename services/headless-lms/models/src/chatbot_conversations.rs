@@ -224,7 +224,7 @@ SELECT chatbot_conversations.id,
   chatbot_conversations.course_id,
   chatbot_conversations.user_id,
   chatbot_conversations.chatbot_configuration_id,
-  msg_msgs.text AS "conversation_title?"
+  COALESCE(chatbot_conversations.conversation_title, msg_msgs.text) AS "conversation_title?"
 FROM chatbot_conversations
   LEFT JOIN chatbot_conversation_messages AS msgs ON msgs.conversation_id = chatbot_conversations.id
   AND msgs.order_number = 2

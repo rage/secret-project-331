@@ -674,26 +674,25 @@ export const sendChatbotToolResponseMutation = (
   return mutationOptions
 }
 
-export const updateTitleQueryKey = (options: Options<UpdateTitleData>) =>
-  createQueryKey("updateTitle", options)
-
 /**
  *
  * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
  *
  * Updates the title of a chatbot conversation.
  */
-export const updateTitleOptions = (options: Options<UpdateTitleData>) =>
-  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof updateTitleQueryKey>>({
-    queryFn: async ({ queryKey, signal }) =>
+export const updateTitleMutation = (
+  options?: Partial<Options<UpdateTitleData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UpdateTitleData>> => {
+  const mutationOptions: UseMutationOptions<unknown, DefaultError, Options<UpdateTitleData>> = {
+    mutationFn: async (fnOptions) =>
       await updateTitle({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true,
       }),
-    queryKey: updateTitleQueryKey(options),
-  })
+  }
+  return mutationOptions
+}
 
 /**
  *

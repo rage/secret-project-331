@@ -495,7 +495,7 @@
       }
     },
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title": {
-      "get": {
+      "put": {
         "tags": ["course-material-chatbot"],
         "summary": "\nPUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`\n\nUpdates the title of a chatbot conversation.",
         "operationId": "updateTitle",
@@ -523,7 +523,7 @@
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -533,7 +533,7 @@
         },
         "responses": {
           "200": {
-            "description": "Conversation id"
+            "description": "Conversation title updated"
           }
         }
       }

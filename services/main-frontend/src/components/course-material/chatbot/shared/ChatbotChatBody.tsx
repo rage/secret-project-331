@@ -519,6 +519,7 @@ const ChatbotChatBody: React.FC = () => {
     setNewMessage,
     stopTurn,
     chatbotMessageAnnouncement,
+    updateConversationTitle,
   } = useChatbotContext()
 
   const citations = useMemo(() => {
@@ -651,7 +652,11 @@ const ChatbotChatBody: React.FC = () => {
 
   const handleSubmit = useCallback(() => {
     newMessageMutation.mutate(newMessage)
-  }, [newMessageMutation, newMessage])
+    const conversationTitle = currentConversationInfo.data?.current_conversation?.conversation_title
+    if (!conversationTitle) {
+      updateConversationTitle.mutate()
+    }
+  }, [newMessageMutation, newMessage, updateConversationTitle, currentConversationInfo])
 
   const handlePickSuggestion = useCallback(
     (message: string) => {

@@ -579,7 +579,7 @@ PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:co
 Updates the title of a chatbot conversation.
 */
 #[utoipa::path(
-    get,
+    put,
     path = "/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
     operation_id = "updateTitle",
     tag = "course-material-chatbot",
@@ -587,9 +587,9 @@ Updates the title of a chatbot conversation.
         ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
         ("conversation_id" = Uuid, Path, description = "Conversation id")
     ),
-    request_body = String,
+    request_body(content = String, content_type = "application/json"),
     responses(
-        (status = 200, description = "Conversation id")
+        (status = 200, description = "Conversation title updated")
     )
 )]
 #[instrument(skip(pool))]

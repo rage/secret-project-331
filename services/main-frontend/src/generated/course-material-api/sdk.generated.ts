@@ -568,13 +568,12 @@ export const sendChatbotToolResponse = <ThrowOnError extends boolean = true>(
 export const updateTitle = <ThrowOnError extends boolean = true>(
   options: Options<UpdateTitleData, ThrowOnError>,
 ): RequestResult<UpdateTitleResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<UpdateTitleResponses, unknown, ThrowOnError, "data">({
-    bodySerializer: null,
+  (options.client ?? client).put<UpdateTitleResponses, unknown, ThrowOnError, "data">({
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
     ...options,
     headers: {
-      "Content-Type": "text/plain",
+      "Content-Type": "application/json",
       ...options.headers,
     },
   })

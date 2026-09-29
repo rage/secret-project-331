@@ -1697,7 +1697,7 @@ export type UpdateTitleData = {
 
 export type UpdateTitleResponses = {
   /**
-   * Conversation id
+   * Conversation title updated
    */
   200: unknown
 }

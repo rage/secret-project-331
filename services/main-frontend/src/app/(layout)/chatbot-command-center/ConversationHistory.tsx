@@ -55,8 +55,6 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             size="medium"
             variant="icon"
             onClick={() => {
-              console.log(conversation.chatbot_configuration_id)
-
               setConfigurationId(conversation.chatbot_configuration_id)
               setConvId(conversation.id)
               if (menuState) {

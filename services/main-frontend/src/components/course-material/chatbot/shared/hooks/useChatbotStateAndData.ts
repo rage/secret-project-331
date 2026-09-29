@@ -16,6 +16,7 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
 import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
+import useUpdateConversationTitle from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
@@ -71,6 +72,7 @@ export interface ChatbotStateAndData {
   isOpen: boolean
   convId: string | null
   setConvId: React.Dispatch<string>
+  updateConversationTitle: UseMutationResult<unknown, unknown, void, unknown>
 }
 
 /**
@@ -122,7 +124,6 @@ const useChatbotStateAndData = (
         apply(...args)
       }
     }
-
   const anonymousToken = getSavedChatbotAnonymousToken()
 
   const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
@@ -144,6 +145,12 @@ const useChatbotStateAndData = (
     setConvId,
   )
 
+  const updateConversationTitle = useUpdateConversationTitle(
+    chatbotConfigurationId,
+    activeConversationId,
+    newMessage,
+  )
+
   /**
    * Takes the conversation as the ended turn left it and announces what the learner is expected to
    * do next, which is answer a question if the turn suspended on one.
@@ -159,8 +166,6 @@ const useChatbotStateAndData = (
     setChatbotMessageAnnouncement(
       waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
-    // Call new endpoint here that updates the conversation_title
-    // Somehow needs to check if the message is first message sent by user
     if (currentConversationInfo.data?.current_conversation_messages?.length === 1) {
       queryClient.refetchQueries({
         queryKey: allUserConversationsQueryKey(),
@@ -290,8 +295,6 @@ const useChatbotStateAndData = (
           signal,
         )
       }),
-    // Call new endpoint here that updates the conversation_title
-    // Somehow needs to check if the message is first message sent by user
     { notify: false },
     {
       onSuccess: settleFinishedTurn,
@@ -337,6 +340,7 @@ const useChatbotStateAndData = (
     isOpen,
     convId,
     setConvId,
+    updateConversationTitle,
   }
 }
 

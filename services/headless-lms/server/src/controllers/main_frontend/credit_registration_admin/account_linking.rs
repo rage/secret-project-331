@@ -1,9 +1,6 @@
 //! The account-linking funnel, resending and hand-resolving linking mails, and manual links.
 
-use std::future::Future;
-use std::pin::Pin;
-
-use headless_lms_models::course_module_suotar_realisations;
+use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
 };
@@ -14,43 +11,42 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registrations;
 use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
-    LINKING_MAIL_QUIET_PERIOD_SECS, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, retire_capped_mails,
+    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
 };
+use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
-    self, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
+    self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
-use crate::domain::credit_registration_phases::PhaseContext;
-use crate::domain::credit_registration_phases::linking_mail_resend::{
-    ResendOutcome, ResolvedPerson, resend_linking_mail_for_target, resolve_person,
+use crate::domain::credit_registration::linking_mail_resend::{
+    ResendOutcome, ensure_resend_possible,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::account_linking::{
+    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson, look_up_person,
+    resend_linking_mail_for_target,
+};
 
 use super::{
     AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
 };
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
+const STUDY_REGISTRY_CONFLICT_LIMIT: i64 = 200;
 
 /// Marks a manual action's study registry call in the call log as something a person set off.
 const RESEND_CALLER: &str = "admin-resend";
 const RESOLVE_CALLER: &str = "admin-resolve-person";
+const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
 /// ledger rows.
 const RESEND_QUIET_PERIOD_SECS: i64 = 60;
-
-fn phase_context<'a>(
-    pool: &'a web::Data<PgPool>,
-    suotar_client: &'a web::Data<headless_lms_utils::services::suotar::SuotarClient>,
-    app_conf: &'a ApplicationConfiguration,
-    caller: &'a str,
-) -> PhaseContext<'a> {
-    PhaseContext::from_app(pool, suotar_client, app_conf, caller)
-}
 
 /// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
 /// whole, the `_in_window` ones from the window: there is no single denominator.
@@ -66,11 +62,6 @@ pub struct AccountLinkingFunnel {
     pub suppressed_by_dedup_last_run: i64,
     pub suppressed_by_rate_cap_last_run: i64,
     pub no_address_in_study_registry_last_run: i64,
-    /// The branch that skips the mail entirely: discovered persons linked straight away because the
-    /// study registry holds a verified account address for them. A terminal branch off `discovered`,
-    /// not a stage every person passes through.
-    pub fast_tracked_in_window: i64,
-    pub fast_tracked_last_run: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -89,15 +80,13 @@ pub struct AccountLinkingFailureDomain {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingRealisationCounters {
+pub struct AccountLinkingModuleCounters {
     pub course_id: Uuid,
     pub course_name: String,
     pub course_module_id: Uuid,
     pub course_module_name: Option<String>,
-    pub course_unit_realisation_id: String,
-    pub label: Option<String>,
     pub uh_course_code: Option<String>,
-    /// When the counters below were collected. Not the last attempt: a failing realisation keeps the
+    /// When the counters below were collected. Not the last attempt: a failing listing keeps the
     /// last roster that arrived.
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
@@ -113,16 +102,6 @@ pub struct AccountLinkingRealisationCounters {
     pub suppressed_by_rate_cap_count: Option<i32>,
     /// Persons the registry holds no address for: the one population no remedy here can reach.
     pub no_address_count: Option<i32>,
-    pub fast_tracked_count: Option<i32>,
-    pub fast_track_skipped_no_account_count: Option<i32>,
-    /// Matched an account that has never proved the address. The population an email-verification
-    /// campaign would convert.
-    pub fast_track_skipped_unverified_count: Option<i32>,
-    pub fast_track_skipped_stale_verification_count: Option<i32>,
-    /// A rise here is the only early warning of a university address reissued to a different person.
-    pub fast_track_skipped_name_mismatch_count: Option<i32>,
-    pub fast_track_skipped_account_has_number_count: Option<i32>,
-    pub fast_track_skipped_unlinked_before_count: Option<i32>,
 }
 
 /// One mail attempt: the address it went to and what we can say about its delivery.
@@ -146,6 +125,28 @@ pub struct AccountLinkingStaleAddress {
     pub sends: Vec<AccountLinkingSendOutcome>,
 }
 
+/// A student number the study registry reported for an account that another live link kept us from
+/// linking. The existing link stays until someone acts.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct StudyRegistryStudentNumberConflict {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub user_id: Uuid,
+    pub user_email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub reported_student_number: String,
+    /// The course whose registration reported the number.
+    pub course_id: Uuid,
+    pub course_name: String,
+    /// The link in the way: the same account's link to another number, or another account's link to
+    /// the reported one.
+    pub conflicting_link_user_id: Uuid,
+    pub conflicting_link_user_email: Option<String>,
+    pub conflicting_link_student_number: String,
+    pub conflicting_link_verified_via: StudentNumberVerificationMethod,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct VerifiedStudentNumberMethodTotal {
     pub verified_via: StudentNumberVerificationMethod,
@@ -154,11 +155,13 @@ pub struct VerifiedStudentNumberMethodTotal {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingStats {
+    /// When false, no linking mails are sent and resends are refused.
+    pub account_linking_enabled: bool,
     pub window_secs: i64,
     pub funnel: AccountLinkingFunnel,
     pub send_status_totals: AccountLinkingSendStatusTotals,
     pub hard_failure_domains: Vec<AccountLinkingFailureDomain>,
-    pub realisations: Vec<AccountLinkingRealisationCounters>,
+    pub modules: Vec<AccountLinkingModuleCounters>,
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
@@ -166,6 +169,8 @@ pub struct AccountLinkingStats {
     pub waiting_for_student_number_count: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
+    /// Newest first, capped.
+    pub study_registry_conflicts: Vec<StudyRegistryStudentNumberConflict>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -175,7 +180,8 @@ pub struct AccountLinkingStatsQuery {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminResendAccountLinkingEmailPayload {
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
     pub course_id: Uuid,
     /// Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
     pub override_rate_caps: bool,
@@ -195,7 +201,8 @@ pub struct AdminResendAccountLinkingEmailResult {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminResolveStudentNumberPayload {
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
 }
 
 /// The preview a manual link is gated on. No addresses from the registry — `resolve-persons` answers
@@ -211,6 +218,9 @@ pub struct AdminResolveStudentNumberResult {
     /// The registry's own per-item code, an identifier rather than prose.
     pub code: Option<String>,
     pub study_registry_unavailable: bool,
+    /// The registry's per-item code when it answered with an error other than `personNotFound`,
+    /// which leaves it unknown whether the number exists.
+    pub lookup_error_code: Option<String>,
     pub already_linked_to_user_id: Option<Uuid>,
     pub already_linked_to_user_email: Option<String>,
     pub already_linked_via: Option<StudentNumberVerificationMethod>,
@@ -220,10 +230,12 @@ pub struct AdminResolveStudentNumberResult {
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminManuallyLinkStudentNumberPayload {
     pub user_id: Uuid,
-    pub student_number: String,
+    #[schema(value_type = String)]
+    pub student_number: SecretString,
     /// From the preview. Re-resolved on arrival, and a mismatch is refused, so a typo cannot mint a
     /// link to somebody else.
-    pub sisu_person_id: String,
+    #[schema(value_type = String)]
+    pub sisu_person_id: SecretString,
     pub reason: String,
 }
 
@@ -239,6 +251,8 @@ pub enum AdminManualLinkOutcome {
     AlreadyLinkedToAnotherAccount,
     AlreadyLinkedToThisAccount,
     StudyRegistryUnavailable,
+    /// The registry answered with a code we do not know; the preview shows it.
+    UnexpectedStudyRegistryAnswer,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -251,9 +265,9 @@ pub struct AdminManuallyLinkStudentNumberResult {
 
 /**
 GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
-per-realisation counters, the send-status totals and the stale-address list.
+per-module counters, the send-status totals and the stale-address list.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/account-linking",
@@ -268,6 +282,7 @@ pub async fn get_account_linking_stats(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<AccountLinkingStatsQuery>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<AccountLinkingStats>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
@@ -276,16 +291,14 @@ pub async fn get_account_linking_stats(
     let window_secs = window_days * 24 * 60 * 60;
     let since = Utc::now() - chrono::Duration::days(window_days);
 
-    let realisations = course_module_suotar_realisations::get_active_discovery_reports(&mut conn)
+    let modules = course_module_suotar_configurations::get_active_discovery_reports(&mut conn)
         .await?
         .into_iter()
-        .map(|row| AccountLinkingRealisationCounters {
+        .map(|row| AccountLinkingModuleCounters {
             course_id: row.course_id,
             course_name: row.course_name,
             course_module_id: row.course_module_id,
             course_module_name: row.course_module_name,
-            course_unit_realisation_id: row.course_unit_realisation_id,
-            label: row.label,
             uh_course_code: row.uh_course_code,
             last_listed_at: row.last_listed_at,
             last_listing_attempted_at: row.last_listing_attempted_at,
@@ -297,24 +310,10 @@ pub async fn get_account_linking_stats(
             suppressed_by_dedup_count: row.last_suppressed_by_dedup_count,
             suppressed_by_rate_cap_count: row.last_suppressed_by_rate_cap_count,
             no_address_count: row.last_no_address_count,
-            fast_tracked_count: row.last_fast_tracked_count,
-            fast_track_skipped_no_account_count: row.last_fast_track_skipped_no_account_count,
-            fast_track_skipped_unverified_count: row.last_fast_track_skipped_unverified_count,
-            fast_track_skipped_stale_verification_count: row
-                .last_fast_track_skipped_stale_verification_count,
-            fast_track_skipped_name_mismatch_count: row.last_fast_track_skipped_name_mismatch_count,
-            fast_track_skipped_account_has_number_count: row
-                .last_fast_track_skipped_account_has_number_count,
-            fast_track_skipped_unlinked_before_count: row
-                .last_fast_track_skipped_unlinked_before_count,
         })
         .collect::<Vec<_>>();
-    let sum = |pick: fn(&AccountLinkingRealisationCounters) -> Option<i32>| -> i64 {
-        realisations
-            .iter()
-            .filter_map(pick)
-            .map(i64::from)
-            .sum::<i64>()
+    let sum = |pick: fn(&AccountLinkingModuleCounters) -> Option<i32>| -> i64 {
+        modules.iter().filter_map(pick).map(i64::from).sum::<i64>()
     };
 
     let now = Utc::now();
@@ -389,22 +388,48 @@ pub async fn get_account_linking_stats(
         suppressed_by_dedup_last_run: sum(|row| row.suppressed_by_dedup_count),
         suppressed_by_rate_cap_last_run: sum(|row| row.suppressed_by_rate_cap_count),
         no_address_in_study_registry_last_run: sum(|row| row.no_address_count),
-        fast_tracked_in_window: in_window(StudentNumberVerificationMethod::EmailMatchFastTrack),
-        fast_tracked_last_run: sum(|row| row.fast_tracked_count),
     };
 
+    let study_registry_conflicts = study_registry_student_number_conflicts::get_unresolved(
+        &mut conn,
+        STUDY_REGISTRY_CONFLICT_LIMIT,
+    )
+    .await?
+    .into_iter()
+    .map(|row| StudyRegistryStudentNumberConflict {
+        id: row.id,
+        created_at: row.created_at,
+        user_id: row.user_id,
+        user_email: row.user_email,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        reported_student_number: row.reported_student_number.expose_secret().to_owned(),
+        course_id: row.course_id,
+        course_name: row.course_name,
+        conflicting_link_user_id: row.conflicting_link_user_id,
+        conflicting_link_user_email: row.conflicting_link_user_email,
+        conflicting_link_student_number: row
+            .conflicting_link_student_number
+            .expose_secret()
+            .to_owned(),
+        conflicting_link_verified_via: row.conflicting_link_verified_via,
+    })
+    .collect();
+
     token.authorized_ok(web::Json(AccountLinkingStats {
+        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
         window_secs,
         funnel,
         send_status_totals,
         hard_failure_domains,
-        realisations,
+        modules,
         stale_addresses,
         links_total_by_method,
         links_in_window_by_method,
         waiting_for_student_number_count,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
-        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD_SECS,
+        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
+        study_registry_conflicts,
     }))
 }
 
@@ -437,27 +462,9 @@ pub async fn admin_resend_account_linking_email(
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    ensure_resend_possible(&mut conn, &app_conf, payload.course_id).await?;
 
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(
-            &mut conn,
-            payload.course_id,
-        )
-        .await?;
-    if enabled_module_ids.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "This course has no credit registration module configured.".to_string()
-        ));
-    }
-
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
+    let student_number = required_student_number(&payload.student_number)?;
     let override_reason = if payload.override_rate_caps {
         Some(required_reason(payload.reason.as_deref().unwrap_or(""))?.to_string())
     } else {
@@ -477,34 +484,36 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESEND_CALLER);
-    // Boxed so both the no-op and the override branch, which reaches for `conn`, type-check as the
-    // same value; it only runs once the shared helper has confirmed the number is not already linked.
-    let before_send: Pin<Box<dyn Future<Output = anyhow::Result<i64>> + '_>> =
-        match &override_reason {
-            Some(reason) => Box::pin(async {
-                Ok(retire_capped_mails(
-                    &mut conn,
-                    user.id,
-                    GLOBAL_ADMIN_ROLE,
-                    payload.course_id,
-                    student_number,
-                    reason,
-                )
-                .await?)
-            }),
-            None => Box::pin(async { Ok(0) }),
-        };
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    info!(
+        actor = %user.id,
+        course_id = %payload.course_id,
+        override_rate_caps = payload.override_rate_caps,
+        "Admin requested a linking mail resend"
+    );
+    let rate_cap_override = override_reason.as_deref().map(|reason| RateCapOverride {
+        actor_user_id: user.id,
+        actor_role: GLOBAL_ADMIN_ROLE,
+        reason,
+    });
     let attempt =
-        resend_linking_mail_for_target(&ctx, payload.course_id, student_number, before_send)
+        resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, rate_cap_override)
             .await?;
-    let outcome = ResendOutcome::from(attempt.decision);
+    let mut conn = pool.acquire().await?;
+    let outcome = ResendOutcome::from(attempt.outcome);
+    info!(
+        ?outcome,
+        retired_mail_count = attempt.retired_mail_count,
+        "Admin linking mail resend finished"
+    );
 
     finish_resend(
         &mut conn,
         &user,
         &payload,
-        student_number,
+        &student_number,
         outcome,
         attempt.retired_mail_count,
         token,
@@ -519,7 +528,7 @@ student number up in the study registry without changing anything.
 The preview a manual link is gated on. Writes nothing but the call log row every study registry call
 writes.
 */
-#[instrument(skip(pool, payload, app_conf, suotar_client))]
+#[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
     post,
     path = "/account-linking/resolve-person",
@@ -535,7 +544,6 @@ pub async fn admin_resolve_student_number_for_linking(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<AdminResolveStudentNumberPayload>,
-    app_conf: web::Data<ApplicationConfiguration>,
     suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
 ) -> ControllerResult<web::Json<AdminResolveStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
@@ -548,33 +556,46 @@ pub async fn admin_resolve_student_number_for_linking(
         ));
     }
 
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
+    let student_number = required_student_number(&payload.student_number)?;
 
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
-    let resolved = resolve_person(&ctx, student_number).await;
-    let existing = verified_student_numbers::get_by_student_number(&mut conn, student_number)
-        .await?
-        .or(match &resolved {
-            Ok(Some(person)) => verified_student_numbers::get_by_sisu_person_ids(
-                &mut conn,
-                std::slice::from_ref(&person.sisu_person_id),
-            )
+    let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    info!(actor = %user.id, "Admin resolving a student number for linking");
+    let resolved = look_up_person(&ctx, &student_number).await;
+    debug!(
+        found = resolved.as_ref().is_ok_and(Option::is_some),
+        "Student number resolution result"
+    );
+    let mut conn = pool.acquire().await?;
+    let existing =
+        verified_student_numbers::get_by_student_number(&mut conn, student_number.expose_secret())
             .await?
-            .into_iter()
-            .next(),
-            _ => None,
-        });
+            .or(match &resolved {
+                Ok(Some(person)) => verified_student_numbers::get_by_sisu_person_ids(
+                    &mut conn,
+                    &[person.sisu_person_id.expose_secret().to_owned()],
+                )
+                .await?
+                .into_iter()
+                .next(),
+                _ => None,
+            });
     let already_linked_to_user_email = match &existing {
-        Some(link) => models::user_details::get_user_details_by_user_id(&mut conn, link.user_id)
-            .await
-            .ok()
-            .map(|details| details.email),
+        Some(link) => {
+            match models::user_details::get_user_details_by_user_id(&mut conn, link.user_id).await {
+                Ok(details) => Some(details.email),
+                Err(error)
+                    if matches!(
+                        error.error_type(),
+                        models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound
+                    ) =>
+                {
+                    None
+                }
+                Err(error) => return Err(error.into()),
+            }
+        }
         None => None,
     };
 
@@ -582,7 +603,7 @@ pub async fn admin_resolve_student_number_for_linking(
         Ok(Some(person)) => {
             credit_registration_account_linking_emails::get_by_sisu_person_id(
                 &mut conn,
-                &person.sisu_person_id,
+                person.sisu_person_id.expose_secret(),
             )
             .await?
         }
@@ -592,12 +613,13 @@ pub async fn admin_resolve_student_number_for_linking(
 
     let shared = AdminResolveStudentNumberResult {
         found: false,
-        student_number: student_number.to_string(),
+        student_number: student_number.expose_secret().to_owned(),
         sisu_person_id: None,
         first_names: None,
         last_name: None,
         code: None,
         study_registry_unavailable: false,
+        lookup_error_code: None,
         already_linked_to_user_id: existing.as_ref().map(|link| link.user_id),
         already_linked_to_user_email,
         already_linked_via: existing.as_ref().map(|link| link.verified_via),
@@ -606,14 +628,21 @@ pub async fn admin_resolve_student_number_for_linking(
     let result = match resolved {
         Ok(Some(person)) => AdminResolveStudentNumberResult {
             found: true,
-            sisu_person_id: Some(person.sisu_person_id),
-            first_names: Some(person.first_names),
-            last_name: Some(person.last_name),
+            sisu_person_id: Some(person.sisu_person_id.expose_secret().to_owned()),
+            first_names: expose_option(&person.first_names).map(str::to_owned),
+            last_name: expose_option(&person.last_name).map(str::to_owned),
             code: Some(person.code),
             ..shared
         },
         Ok(None) => AdminResolveStudentNumberResult { ..shared },
-        Err(_) => AdminResolveStudentNumberResult {
+        Err(PersonLookupError::UnexpectedAnswer { code }) => AdminResolveStudentNumberResult {
+            lookup_error_code: Some(code),
+            ..shared
+        },
+        Err(
+            PersonLookupError::StudyRegistryUnavailable
+            | PersonLookupError::ItemMissingFromResponse,
+        ) => AdminResolveStudentNumberResult {
             study_registry_unavailable: true,
             ..shared
         },
@@ -630,7 +659,7 @@ The last resort, for a student whose mailbox host will not accept our mail at al
 stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
 reason and names the admin.
 */
-#[instrument(skip(pool, payload, app_conf, suotar_client))]
+#[instrument(skip(pool, payload, suotar_client))]
 #[utoipa::path(
     post,
     path = "/account-linking/manual-link",
@@ -646,7 +675,6 @@ pub async fn admin_manually_link_student_number(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<AdminManuallyLinkStudentNumberPayload>,
-    app_conf: web::Data<ApplicationConfiguration>,
     suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
 ) -> ControllerResult<web::Json<AdminManuallyLinkStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
@@ -666,49 +694,55 @@ pub async fn admin_manually_link_student_number(
     } = manual_link_request(&payload)?;
     let reason = reason.to_string();
 
-    let refused = |outcome| AdminManuallyLinkStudentNumberResult {
-        outcome,
-        verified_student_number_id: None,
-        affected_registration_count: 0,
+    let refused = |outcome: AdminManualLinkOutcome| {
+        debug!(?outcome, "Admin manual link refused");
+        AdminManuallyLinkStudentNumberResult {
+            outcome,
+            verified_student_number_id: None,
+            affected_registration_count: 0,
+        }
     };
-    let ctx = phase_context(&pool, &suotar_client, &app_conf, RESOLVE_CALLER);
-    let person: ResolvedPerson = match resolve_person(&ctx, student_number).await {
+    let ctx = ManualActionContext::new(&pool, &suotar_client, MANUAL_LINK_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    info!(actor = %user.id, target_user_id = %payload.user_id, "Admin manually linking a student number");
+    let person: RegistryPerson = match look_up_person(&ctx, &student_number).await {
         Ok(Some(person)) => person,
         Ok(None) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudentNumberNotFound,
             )));
         }
-        Err(_) => {
+        Err(PersonLookupError::UnexpectedAnswer { .. }) => {
+            return token.authorized_ok(web::Json(refused(
+                AdminManualLinkOutcome::UnexpectedStudyRegistryAnswer,
+            )));
+        }
+        Err(
+            PersonLookupError::StudyRegistryUnavailable
+            | PersonLookupError::ItemMissingFromResponse,
+        ) => {
             return token.authorized_ok(web::Json(refused(
                 AdminManualLinkOutcome::StudyRegistryUnavailable,
             )));
         }
     };
-    if person.sisu_person_id != previewed_person_id {
+    if person.sisu_person_id.expose_secret() != previewed_person_id.expose_secret() {
         return token.authorized_ok(web::Json(refused(AdminManualLinkOutcome::PreviewMismatch)));
     }
+    let mut conn = pool.acquire().await?;
 
-    let holder = verified_student_numbers::get_by_student_number(&mut conn, student_number).await?;
-    if let Some(holder) = &holder {
-        let outcome = if holder.user_id == payload.user_id {
-            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
-        } else {
-            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
-        };
-        return token.authorized_ok(web::Json(refused(outcome)));
-    }
-    // Both unique keys, not just the number: a student who changed programmes keeps their Sisu
-    // person id and gets a new number, so checking the number alone lets this through and then
-    // trips `uq_verified_student_numbers_person` as a bare 500. See `find_conflicting_account` on
-    // the student's own claim path, which this mirrors.
-    let person_holder =
-        verified_student_numbers::get_by_sisu_person_id(&mut conn, &person.sisu_person_id).await?;
-    if let Some(holder) = &person_holder {
-        let outcome = if holder.user_id == payload.user_id {
-            AdminManualLinkOutcome::AlreadyLinkedToThisAccount
-        } else {
-            AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount
+    if let Some(conflict) = verified_student_numbers::find_link_conflict(
+        &mut conn,
+        student_number.expose_secret(),
+        person.sisu_person_id.expose_secret(),
+        payload.user_id,
+    )
+    .await?
+    {
+        let outcome = match conflict {
+            LinkConflict::SameAccount => AdminManualLinkOutcome::AlreadyLinkedToThisAccount,
+            LinkConflict::AnotherAccount => AdminManualLinkOutcome::AlreadyLinkedToAnotherAccount,
         };
         return token.authorized_ok(web::Json(refused(outcome)));
     }
@@ -725,15 +759,13 @@ pub async fn admin_manually_link_student_number(
             current_link_id,
             &NewVerifiedStudentNumber {
                 user_id: payload.user_id,
-                student_number: student_number.to_string(),
-                sisu_person_id: person.sisu_person_id.clone(),
-                first_names: Some(person.first_names.clone()),
-                last_name: Some(person.last_name.clone()),
+                student_number: student_number.clone().into(),
+                sisu_person_id: person.sisu_person_id.clone().into(),
+                first_names: person.first_names.clone().map(Into::into),
+                last_name: person.last_name.clone().map(Into::into),
                 verified_via: StudentNumberVerificationMethod::AdminManual,
                 // No mailbox was proved, so there is no address the proof could rest on.
                 verified_via_email: None,
-                verified_via_email_match_field: None,
-                account_email_verified_at: None,
                 linked_by_user_id: Some(user.id),
                 link_reason: Some(reason.clone()),
                 verified_from_course_id: None,
@@ -750,7 +782,7 @@ pub async fn admin_manually_link_student_number(
             reason: Some(reason),
             details: Some(serde_json::json!({
                 "user_id": payload.user_id,
-                "student_number": student_number,
+                "student_number": student_number.expose_secret(),
             })),
             affected_row_count: Some(
                 i32::try_from(affected_registration_count).unwrap_or(i32::MAX),
@@ -765,6 +797,11 @@ pub async fn admin_manually_link_student_number(
     )
     .await?;
     tx.commit().await?;
+    info!(
+        verified_student_number_id = %verified_student_number_id,
+        affected_registration_count,
+        "Admin manual link finished"
+    );
 
     token.authorized_ok(web::Json(AdminManuallyLinkStudentNumberResult {
         outcome: AdminManualLinkOutcome::Linked,
@@ -776,8 +813,8 @@ pub async fn admin_manually_link_student_number(
 /// The three values a manual link may not be attempted without.
 struct ManualLinkRequest<'a> {
     reason: &'a str,
-    student_number: &'a str,
-    previewed_person_id: &'a str,
+    student_number: SecretString,
+    previewed_person_id: SecretString,
 }
 
 /// Refuses a manual link that skipped the preview or gave no reason, before anything is asked of the
@@ -787,15 +824,9 @@ fn manual_link_request(
     payload: &AdminManuallyLinkStudentNumberPayload,
 ) -> Result<ManualLinkRequest<'_>, ControllerError> {
     let reason = required_reason(&payload.reason)?;
-    let student_number = payload.student_number.trim();
-    if student_number.is_empty() {
-        return Err(controller_err!(
-            BadRequest,
-            "Name a student number.".to_string()
-        ));
-    }
-    let previewed_person_id = payload.sisu_person_id.trim();
-    if previewed_person_id.is_empty() {
+    let student_number = required_student_number(&payload.student_number)?;
+    let previewed_person_id = SecretString::from(payload.sisu_person_id.expose_secret().trim());
+    if previewed_person_id.expose_secret().is_empty() {
         return Err(controller_err!(
             BadRequest,
             "Check the number in the study registry first.".to_string()
@@ -808,12 +839,23 @@ fn manual_link_request(
     })
 }
 
+fn required_student_number(raw: &SecretString) -> Result<SecretString, ControllerError> {
+    let student_number = SecretString::from(raw.expose_secret().trim());
+    if student_number.expose_secret().is_empty() {
+        return Err(controller_err!(
+            BadRequest,
+            "Name a student number.".to_string()
+        ));
+    }
+    Ok(student_number)
+}
+
 /// Audits the resend whatever it did, and reports where this person's mails now stand.
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
     payload: &AdminResendAccountLinkingEmailPayload,
-    student_number: &str,
+    student_number: &SecretString,
     outcome: ResendOutcome,
     retired_mail_count: i64,
     token: crate::domain::authorization::AuthorizationToken,
@@ -821,14 +863,14 @@ async fn finish_resend(
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         payload.course_id,
-        Some(student_number),
+        Some(student_number.expose_secret()),
         user.id,
         GLOBAL_ADMIN_ROLE,
         None,
         payload.reason.clone(),
         serde_json::json!({
             "outcome": outcome,
-            "student_number": student_number,
+            "student_number": student_number.expose_secret(),
             "override_rate_caps": payload.override_rate_caps,
             "retired_mail_count": retired_mail_count,
         }),
@@ -842,7 +884,7 @@ async fn finish_resend(
         linking_emails,
         mails_sent_for_this_course,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
-        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD_SECS,
+        quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
     }))
 }
 
@@ -861,7 +903,7 @@ async fn build_stale_addresses(
                 .iter()
                 .zip(row.addresses)
                 .map(|(id, address)| AccountLinkingSendOutcome {
-                    address,
+                    address: address.expose_secret().to_owned(),
                     send_status: reports
                         .get(id)
                         .map(|report| report.email_send_status)
@@ -870,8 +912,8 @@ async fn build_stale_addresses(
                 .collect();
             AccountLinkingStaleAddress {
                 sends,
-                student_number: row.student_number,
-                sisu_person_id: row.sisu_person_id,
+                student_number: row.student_number.expose_secret().to_owned(),
+                sisu_person_id: row.sisu_person_id.expose_secret().to_owned(),
                 course_id: row.course_id,
                 course_name: row.course_name,
                 mail_count: row.mail_count,
@@ -909,8 +951,8 @@ mod tests {
     ) -> AdminManuallyLinkStudentNumberPayload {
         AdminManuallyLinkStudentNumberPayload {
             user_id: Uuid::new_v4(),
-            student_number: student_number.to_string(),
-            sisu_person_id: sisu_person_id.to_string(),
+            student_number: student_number.into(),
+            sisu_person_id: sisu_person_id.into(),
             reason: reason.to_string(),
         }
     }
@@ -940,7 +982,7 @@ mod tests {
         let allowed = manual_link_request(&payload)
             .expect("a reason, a number and a previewed person id are all there");
         assert_eq!(allowed.reason, "Host bounces our mail.");
-        assert_eq!(allowed.student_number, "012345678");
-        assert_eq!(allowed.previewed_person_id, "hy-hlo-1");
+        assert_eq!(allowed.student_number.expose_secret(), "012345678");
+        assert_eq!(allowed.previewed_person_id.expose_secret(), "hy-hlo-1");
     }
 }

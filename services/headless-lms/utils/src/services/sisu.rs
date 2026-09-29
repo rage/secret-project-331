@@ -143,8 +143,8 @@ impl Additional {
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Credits {
-    pub min: Option<i64>,
-    pub max: Option<i64>,
+    pub min: Option<f32>,
+    pub max: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -160,7 +160,7 @@ pub struct Organisation {
     pub organisation_id: Option<String>,
     pub educational_institution_urn: Option<serde_json::Value>,
     pub role_urn: String,
-    pub share: i64,
+    pub share: f64,
     pub validity_period: Option<OrganisationValidityPeriod>,
 }
 

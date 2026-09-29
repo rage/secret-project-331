@@ -20,7 +20,10 @@ describe("which bulk moves a selection allows", () => {
   test("offers a resend only where sending again could get through", () => {
     expect(isBulkActionAllowed(READY_TO_SUBMIT, row("failed_retryable"))).toBe(true)
     expect(
-      isBulkActionAllowed(READY_TO_SUBMIT, row("failed_permanent", "sisu_temporarily_unavailable")),
+      isBulkActionAllowed(
+        READY_TO_SUBMIT,
+        row("failed_permanent", "service_temporarily_unavailable"),
+      ),
     ).toBe(true)
     expect(isBulkActionAllowed(READY_TO_SUBMIT, row("failed_permanent", "person_not_found"))).toBe(
       false,

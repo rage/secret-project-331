@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH listed AS (\n  SELECT user_id,\n    ARRAY_REMOVE(ARRAY_AGG(enrolment_id), NULL) AS enrolment_ids\n  FROM UNNEST($2::uuid [], $3::text []) AS listing(user_id, enrolment_id)\n  GROUP BY user_id\n)\nUPDATE credit_registrations cr\nSET enrolment_check_source = CASE\n    WHEN cr.next_attempt_at > now() THEN 'roster_listing'\n    ELSE cr.enrolment_check_source\n  END,\n  next_attempt_at = LEAST(cr.next_attempt_at, now()),\n  seen_enrolment_ids = ARRAY(\n    SELECT DISTINCT UNNEST(COALESCE(cr.seen_enrolment_ids, '{}') || listed.enrolment_ids)\n  )\nFROM listed\nWHERE cr.course_module_id = $1\n  AND cr.user_id = listed.user_id\n  AND cr.state = 'no_usable_enrolment'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    cr.seen_enrolment_ids IS NULL\n    OR NOT listed.enrolment_ids <@ cr.seen_enrolment_ids\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations later\n    WHERE later.user_id = cr.user_id\n      AND later.course_module_id = cr.course_module_id\n      AND later.created_at > cr.created_at\n      AND later.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ff294a276f432063e72f1f5ea1549d10446e814e8df0633e90a192be199198ca"
+}

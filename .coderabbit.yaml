@@ -124,6 +124,19 @@ reviews:
         - For `.ok_or_else()` chains, use helper functions: `.ok_or_else(missing_model_error(ModelErrorType::NotFound, "msg".to_string()))?`
         These macros work with `format!()` for dynamic messages: `model_err!(Generic, format!("Failed: {}", detail))`
 
+    - path: "services/headless-lms/**/*.{rs,sql}"
+      instructions: >
+        Course copying (`models/src/library/copying.rs`, used for new language versions and exam copies) must keep up with the schema. Flag changes that break these rules:
+
+        - A new table or column holding course or exam content, configuration or settings must be copied in copying.rs, or the PR must say why not. A column left out of the copy's column list silently falls back to its default.
+        - Never copy learner data: submissions, answers, consent answers, enrollments, progress, points, completions.
+        - Copied rows get the id `uuid_generate_v5(<copy id>, <source id>::text)`. Remap every foreign key to a copied row the same way, so it points to the copy and never to a row of the source course; references to shared rows (file uploads, grade scales, Open University products) keep their id. A missed remap either fails the FK or silently ties the copy to the source.
+        - Copy parents before children. Select only non-deleted source rows, and join to the copied parent so that children of deleted or uncopied parents are skipped instead of failing the FK.
+        - Scope the source rows through the parent (for example the exercise's course), not through a denormalized `course_id` on the row, which can be stale.
+        - Ids, slugs and course URLs embedded in JSON or text (block attributes, exercise specs, instructions, email templates) must be rewritten: block content through `ContentRewrite`, HTML text through `rewrite_html_hrefs`, bare URLs through `rewrite_course_path`.
+        - Stored files (images, audio, certificate backgrounds) are shared by path, never duplicated. Code that deletes or replaces a stored file must first check that no other non-deleted row references the path.
+        - Unique constraints on course-scoped tables must include the course (or a copied parent), or the copy's insert conflicts with the source.
+
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >
         Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.
@@ -160,5 +173,7 @@ reviews:
         Prefer comment quality over comment quantity. Do not add comments that simply restate what the code already says, narrate control flow, or explain obvious syntax — these may help readers unfamiliar with programming, but they hinder developers by adding noise and slowing down code reading. Comments should be concise, factual, and purposeful, and should communicate information that is not immediately obvious from the code itself (e.g., rationale and intent, constraints or invariants, edge cases, surprising behavior, important assumptions, performance or correctness considerations, or things future maintainers must keep in mind).
 
         Require consistent, minimal function documentation. While some simple or self-explanatory functions or components may not strictly need comments, it is generally preferable to include a short, plain-language description of what the function is for, to clarify intent and complement (not repeat) a descriptive function name. Comments should add meaning rather than paraphrasing the name or implementation. Public interfaces should have clearer and more comprehensive documentation, but many private or internal functions also benefit from a brief comment explaining their role, assumptions, or relevant context.
+
+        Email addresses in test code (system tests, unit tests, seeds, mocks, fixtures, test config) must use `example.com` or a subdomain of it, e.g. `student@example.com`. Flag real domains such as `@helsinki.fi` or `@gmail.com`: test data must never be deliverable to a real mailbox.
 
         Protect useful existing comments. Do not remove comments that capture non-obvious rationale, warnings, historical context, or design decisions unless they are clearly outdated or made irrelevant by the change. If a modification invalidates a comment, update it rather than deleting it. When a meaningful comment is removed, reviewers should expect an explicit justification in the PR description or a replacement comment that preserves the lost context.

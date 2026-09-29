@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_task_spec_files (exercise_task_id, file_upload_id, spec_kind)\nSELECT copied_task.id,\n  f.file_upload_id,\n  f.spec_kind\nFROM exercise_task_spec_files f\n  JOIN exercise_tasks t ON t.id = f.exercise_task_id\n  JOIN exercise_slides s ON s.id = t.exercise_slide_id\n  JOIN exercises e ON e.id = s.exercise_id\n  JOIN exercise_tasks copied_task ON copied_task.id = uuid_generate_v5($1, f.exercise_task_id::text)\nWHERE (e.course_id = $2 OR e.exam_id = $2)\n  AND f.deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "691b5252b071ff8b70f437e5eeb36d9a759eb64d43c83ba81a90225aff3e40ad"
+}

@@ -70,8 +70,8 @@
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
-                "chart-spec-generation",
-                "prompt-creation"
+                "prompt-creation",
+                "chart-spec-generation"
               ]
             }
           }
@@ -107,8 +107,8 @@
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
-                "chart-spec-generation",
-                "prompt-creation"
+                "prompt-creation",
+                "chart-spec-generation"
               ]
             }
           }

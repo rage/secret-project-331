@@ -641,6 +641,28 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+/// Whether a live certificate configuration still points at this uploaded file.
+///
+/// Course copies share uploads with their source, so check this before deleting the blob.
+pub async fn file_upload_is_referenced(
+    conn: &mut PgConnection,
+    file_upload_id: Uuid,
+) -> ModelResult<bool> {
+    let referenced = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM certificate_configurations
+  WHERE (background_svg_file_upload_id = $1 OR overlay_svg_file_upload_id = $1)
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        file_upload_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(referenced)
+}
+
 pub async fn get_first_configuration_id(conn: &mut PgConnection) -> ModelResult<Option<Uuid>> {
     let row = sqlx::query!(
         r#"

@@ -17,7 +17,6 @@ pub const PHASES: &[&str] = &[
     "student-notifications",
     "enrolment-discovery",
     "link-emails",
-    "product-token-refresh",
     "config-validation",
     "retention-sweep",
     "ledger-snapshot",
@@ -46,24 +45,13 @@ pub struct CreditRegistrationPhaseState {
     pub pause_reason: Option<String>,
 }
 
+/// What one iteration of a phase did, as its phase-state row records it.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PhaseRunOutcome {
     pub items_processed: i32,
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,
-}
-
-impl PhaseRunOutcome {
-    /// A clean iteration that moved `count` rows; saturating, so an over-large sweep never reaches
-    /// the dashboard as negative throughput.
-    pub fn processed(count: i64) -> Self {
-        Self {
-            items_processed: count.try_into().unwrap_or(i32::MAX),
-            items_failed: 0,
-            error: None,
-        }
-    }
 }
 
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<CreditRegistrationPhaseState>> {
@@ -108,6 +96,23 @@ pub async fn heartbeat(conn: &mut PgConnection, phase: &str) -> ModelResult<()> 
 UPDATE credit_registration_phase_state
 SET last_heartbeat_at = now(),
   last_run_started_at = now()
+WHERE phase = $1
+  AND deleted_at IS NULL
+        "#,
+        phase
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Keeps a long iteration from reading as a dead worker; unlike [`heartbeat`], leaves
+/// `last_run_started_at` at the iteration's start.
+pub async fn keep_alive(conn: &mut PgConnection, phase: &str) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_phase_state
+SET last_heartbeat_at = now()
 WHERE phase = $1
   AND deleted_at IS NULL
         "#,

@@ -19,11 +19,11 @@ import { usePauseResumeAction } from "./usePauseResumeAction"
 interface Props {
   phase: string
   paused: boolean
-  implemented: boolean
+  isKnownPhase: boolean
 }
 
 /** Pause, resume and run-now for one pipeline phase, collapsed into the System tab's row menu. */
-const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
+const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
@@ -51,7 +51,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
     { onSuccess: () => void invalidatePhases() },
   )
 
-  if (!implemented) {
+  if (!isKnownPhase) {
     return null
   }
 

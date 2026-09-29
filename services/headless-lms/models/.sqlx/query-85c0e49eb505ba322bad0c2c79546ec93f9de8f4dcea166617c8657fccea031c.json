@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH previous AS (\n  SELECT last_visited_at\n  FROM credit_registration_enrolment_check_signals\n  WHERE course_module_completion_id = $1\n    AND deleted_at IS NULL\n  FOR UPDATE\n),\nrecorded AS (\n  INSERT INTO credit_registration_enrolment_check_signals (\n      course_module_completion_id,\n      last_visited_at\n    )\n  VALUES ($1, now()) ON CONFLICT (course_module_completion_id, deleted_at) DO\n  UPDATE\n  SET last_visited_at = now()\n)\nSELECT last_visited_at\nFROM previous\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "last_visited_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_check_signals",
+            "name": "last_visited_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "85c0e49eb505ba322bad0c2c79546ec93f9de8f4dcea166617c8657fccea031c"
+}

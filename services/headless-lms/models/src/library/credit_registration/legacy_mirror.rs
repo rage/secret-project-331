@@ -29,9 +29,17 @@ WITH unmirrored AS (
   WHERE cr.deleted_at IS NULL
     AND cr.state = ANY($5::credit_registration_state [])
     AND cr.student_number IS NOT NULL
-    -- A regrade keeps the superseded attempt's success state; only the live attempt may still mirror,
-    -- or a completion with both gets two ledger rows and the teacher's completions list shows it twice.
-    AND cr.superseded_by_id IS NULL
+    -- Only the completion's latest successful attempt mirrors, or a regraded completion gets two
+    -- ledger rows and the teacher's completions list shows it twice. A later attempt in flight or
+    -- failed leaves the earlier one the credit.
+    AND NOT EXISTS (
+      SELECT 1
+      FROM credit_registrations later
+      WHERE later.course_module_completion_id = cr.course_module_completion_id
+        AND later.attempt_number > cr.attempt_number
+        AND later.state = ANY($5::credit_registration_state [])
+        AND later.deleted_at IS NULL
+    )
     AND NOT EXISTS (
       SELECT 1
       FROM course_module_completion_registered_to_study_registries r
@@ -225,12 +233,13 @@ mod tests {
             conn,
             id,
             &PayloadSnapshot {
-                student_number: student_number.to_string(),
-                sisu_person_id: format!("hy-hlo-{student_number}"),
+                student_number: DbSecret::new(student_number),
+                sisu_person_id: Some(DbSecret::new(format!("hy-hlo-{student_number}"))),
                 uh_course_code: "CRS-101".to_string(),
                 selected_enrolment_id: Some("otm-900000101-degree".to_string()),
                 selected_enrolment_kind: Some("degree".to_string()),
                 selected_enrolment_realisation_id: Some("hy-opt-cur-1".to_string()),
+                selected_enrolment_realisation_name: None,
                 attainment_date: Utc::now().date_naive(),
                 attainment_language: "en".to_string(),
                 grade_scale_id: "sis-0-5".to_string(),

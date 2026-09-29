@@ -89,8 +89,8 @@
             "kind": {
               "Enum": [
                 "emailed_link",
-                "email_match_fast_track",
-                "admin_manual"
+                "admin_manual",
+                "study_registry"
               ]
             }
           }
@@ -115,28 +115,6 @@
       },
       {
         "ordinal": 9,
-        "name": "verified_via_email_match_field",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "verified_student_numbers",
-            "name": "verified_via_email_match_field"
-          }
-        }
-      },
-      {
-        "ordinal": 10,
-        "name": "account_email_verified_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "verified_student_numbers",
-            "name": "account_email_verified_at"
-          }
-        }
-      },
-      {
-        "ordinal": 11,
         "name": "linked_by_user_id",
         "type_info": "Uuid",
         "origin": {
@@ -147,7 +125,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 10,
         "name": "link_reason",
         "type_info": "Text",
         "origin": {
@@ -158,7 +136,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 11,
         "name": "verified_from_course_id",
         "type_info": "Uuid",
         "origin": {
@@ -169,7 +147,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 12,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -180,7 +158,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 13,
         "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -191,24 +169,13 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 14,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "verified_student_numbers",
             "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 17,
-        "name": "auto_link_notice_dismissed_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "verified_student_numbers",
-            "name": "auto_link_notice_dismissed_at"
           }
         }
       }
@@ -222,20 +189,17 @@
       false,
       false,
       false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      true,
-      true,
-      true,
       true,
       true,
       true,
       false,
       false,
       true,
+      true,
+      true,
+      true,
+      false,
+      false,
       true
     ]
   },

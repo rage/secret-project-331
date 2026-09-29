@@ -25,7 +25,7 @@ export type PhaseHealth =
  */
 export interface PhaseHealthFields {
   paused_at?: string | null
-  implemented: boolean
+  is_known_phase: boolean
   failing?: boolean
   heartbeat_late: boolean
   last_heartbeat_at?: string | null
@@ -36,7 +36,7 @@ export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   if (phase.paused_at) {
     return "paused"
   }
-  if (!phase.implemented) {
+  if (!phase.is_known_phase) {
     return "not_built"
   }
   if (phase.failing) {

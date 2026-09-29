@@ -1,10 +1,11 @@
 //! Per-request observability for calls to Suotar.
 //!
-//! Bodies must be scrubbed with [`crate::credit_registration_events::scrub_suotar_body`] before
-//! insert; `credit_registration_ids` replaces the removed identifiers for drill-down.
+//! Bodies must be scrubbed with [`crate::library::credit_registration::scrub::scrub_suotar_body`]
+//! before insert; `credit_registration_ids` ties a call to the rows it was for, which the scrubbed
+//! bodies no longer identify.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
-    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
+    REFUSED_BEFORE_SENDING_CODE, SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
 };
 use utoipa::ToSchema;
 
@@ -12,7 +13,7 @@ use utoipa::ToSchema;
 /// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
 pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
+use crate::library::credit_registration::scrub::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
 
 /// How long call rows are kept.
@@ -23,6 +24,8 @@ pub const FULL_BODY_ITEM_LIMIT: usize = 20;
 
 /// Above [`FULL_BODY_ITEM_LIMIT`], only this many items are kept plus a count.
 pub const SAMPLED_BODY_ITEM_COUNT: usize = 5;
+// `sample_body` slices this many off a body longer than the limit.
+const _: () = assert!(SAMPLED_BODY_ITEM_COUNT <= FULL_BODY_ITEM_LIMIT);
 
 /// Hard cap on a stored body, applied after sampling.
 pub const BODY_SAMPLE_MAX_BYTES: usize = 64 * 1024;
@@ -47,6 +50,8 @@ pub struct SuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    /// Every requestItemId the call sent, in request order.
+    pub request_item_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,6 +73,7 @@ pub struct NewSuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    pub request_item_ids: Vec<String>,
 }
 
 pub async fn insert(conn: &mut PgConnection, new: &NewSuotarApiCall) -> ModelResult<Uuid> {
@@ -87,7 +93,8 @@ INSERT INTO suotar_api_calls (
     response_body_sample,
     credit_registration_ids,
     worker_name,
-    started_at
+    started_at,
+    request_item_ids
   )
 VALUES (
     $1,
@@ -103,7 +110,8 @@ VALUES (
     $11,
     $12,
     $13,
-    $14
+    $14,
+    $15
   )
 RETURNING id
         "#,
@@ -121,6 +129,7 @@ RETURNING id
         &new.credit_registration_ids,
         new.worker_name,
         new.started_at,
+        &new.request_item_ids,
     )
     .fetch_one(conn)
     .await?;
@@ -178,7 +187,7 @@ WHERE id = $1
 
 /// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small, then
 /// the leading items plus a count, then nothing but the measurements.
-pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
+fn sample_body(value: &serde_json::Value) -> serde_json::Value {
     let sampled = match value.as_array() {
         Some(items) if items.len() > FULL_BODY_ITEM_LIMIT => serde_json::json!({
             "items": &items[..SAMPLED_BODY_ITEM_COUNT],
@@ -227,6 +236,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             credit_registration_ids: started.credit_registration_ids,
             worker_name: started.worker_name,
             started_at: started.started_at,
+            request_item_ids: started.request_item_ids,
         };
         let mut conn = match self.pool.acquire().await {
             Ok(conn) => conn,
@@ -360,7 +370,7 @@ pub async fn get_page(
         SuotarApiCallPageRow,
         r#"
 SELECT id,
-  endpoint AS "endpoint!: SuotarEndpoint",
+  endpoint AS "endpoint!",
   request_item_count,
   http_status,
   duration_ms,
@@ -504,6 +514,57 @@ GROUP BY w.window_secs,
     Ok(rows)
 }
 
+/// One endpoint's calls on one UTC day: what the enrolment check pacing costs Suotar.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct SuotarEndpointDailyCost {
+    pub day: chrono::NaiveDate,
+    pub endpoint: SuotarEndpoint,
+    pub call_count: i64,
+    pub failed_call_count: i64,
+    pub item_count: i64,
+    pub max_items_per_call: i32,
+    pub p50_duration_ms: Option<i32>,
+    pub p95_duration_ms: Option<i32>,
+}
+
+/// Finished calls per endpoint per UTC day since `since`, latest day first.
+pub async fn get_daily_costs_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<SuotarEndpointDailyCost>> {
+    let rows = sqlx::query_as!(
+        SuotarEndpointDailyCost,
+        r#"
+SELECT (started_at AT TIME ZONE 'UTC')::date AS "day!",
+  endpoint AS "endpoint!",
+  COUNT(*) AS "call_count!",
+  COUNT(*) FILTER (
+    WHERE NOT succeeded
+  ) AS "failed_call_count!",
+  COALESCE(SUM(request_item_count), 0) AS "item_count!",
+  COALESCE(MAX(request_item_count), 0) AS "max_items_per_call!",
+  PERCENTILE_DISC(0.5) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p50_duration_ms,
+  PERCENTILE_DISC(0.95) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p95_duration_ms
+FROM suotar_api_calls
+WHERE started_at >= $1
+  AND duration_ms IS NOT NULL
+  AND deleted_at IS NULL
+GROUP BY 1,
+  2
+ORDER BY 1 DESC,
+  endpoint::text
+        "#,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
 /// Where one endpoint stands right now.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarEndpointStanding {
@@ -594,6 +655,7 @@ WHERE started_at >= $1
 
 /// The unbroken run of "Suotar did not answer usefully" at the end of the window. A transport
 /// failure carries no HTTP status, which is how it is told from a refusal Suotar composed itself.
+/// Calls we refused before sending are left out.
 pub async fn count_unreachable_run_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -616,6 +678,7 @@ WHERE c.started_at >= $1
   AND c.deleted_at IS NULL
   AND c.duration_ms IS NOT NULL
   AND NOT c.succeeded
+  AND c.request_level_error_code IS DISTINCT FROM $2
   AND (
     c.http_status IS NULL
     OR c.http_status >= 500
@@ -626,6 +689,7 @@ WHERE c.started_at >= $1
   )
         "#,
         since,
+        REFUSED_BEFORE_SENDING_CODE,
     )
     .fetch_one(conn)
     .await?;

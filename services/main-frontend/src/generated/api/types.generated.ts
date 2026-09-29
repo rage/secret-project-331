@@ -10892,6 +10892,23 @@ export type GetEmailTemplatesResponses = {
 
 export type GetEmailTemplatesResponse = GetEmailTemplatesResponses[keyof GetEmailTemplatesResponses]
 
+export type CreateEmailTemplateData = {
+  body: EmailTemplateNew
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-templates"
+}
+
+export type CreateEmailTemplateResponses = {
+  /**
+   * Created email template
+   */
+  200: EmailTemplate
+}
+
+export type CreateEmailTemplateResponse =
+  CreateEmailTemplateResponses[keyof CreateEmailTemplateResponses]
+
 export type DeleteEmailTemplateData = {
   body?: never
   path: {

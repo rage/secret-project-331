@@ -8559,6 +8559,13 @@ export const zClaimStudentNumberVerificationTokenResponse =
  */
 export const zGetEmailTemplatesResponse = z.array(zEmailTemplate)
 
+export const zCreateEmailTemplateBody = zEmailTemplateNew
+
+/**
+ * Created email template
+ */
+export const zCreateEmailTemplateResponse = zEmailTemplate
+
 export const zDeleteEmailTemplatePath = z.object({
   email_template_id: z.uuid(),
 })

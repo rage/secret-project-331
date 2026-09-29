@@ -8953,6 +8953,33 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": ["email_templates"],
+        "summary": "\nPOST `/api/v0/main-frontend/email-templates`\n\nCreates a global template; rejects a second live one for the same type and language.",
+        "operationId": "createEmailTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateNew"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created email template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplate"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v0/main-frontend/email-templates/{email_template_id}": {

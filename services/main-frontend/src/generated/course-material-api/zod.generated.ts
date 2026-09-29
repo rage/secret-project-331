@@ -1320,12 +1320,14 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  automatic_completion: z.boolean(),
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()

@@ -5156,9 +5156,17 @@ export type UserCompletionInformation = {
 export type UserCourseProgress = {
   attempted_exercises?: number | null
   attempted_exercises_required?: number | null
+  /**
+   * False when a teacher grades the module, in which case neither threshold applies.
+   */
+  automatic_completion: boolean
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
+  /**
+   * When true, the thresholds only qualify the user to sit an exam that completion also needs.
+   */
+  requires_exam: boolean
   score_given: number
   score_maximum?: number | null
   score_required?: number | null

@@ -6795,7 +6795,9 @@
           "course_module_id",
           "course_module_name",
           "course_module_order_number",
-          "score_given"
+          "score_given",
+          "automatic_completion",
+          "requires_exam"
         ],
         "properties": {
           "attempted_exercises": {
@@ -6805,6 +6807,10 @@
           "attempted_exercises_required": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold applies."
           },
           "course_module_id": {
             "type": "string",
@@ -6816,6 +6822,10 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds only qualify the user to sit an exam that completion also needs."
           },
           "score_given": {
             "type": "number",

@@ -83,7 +83,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getAllByRole("meter")).toHaveLength(2)
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
@@ -230,7 +230,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getAllByRole("meter")).toHaveLength(2)
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
@@ -242,7 +242,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.queryAllByRole("meter")).toHaveLength(0)
+    expect(screen.queryAllByRole("progressbar")).toHaveLength(0)
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
@@ -269,7 +269,7 @@ describe("StudiesCourseCard", () => {
     )
 
     expect(screen.getByText(/note-graded-by-your-teacher/)).toBeInTheDocument()
-    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 
   it("says a whole teacher-graded course is one once, not under each of its modules", () => {
@@ -316,6 +316,6 @@ describe("StudiesCourseCard", () => {
     )
 
     expect(screen.queryByText("x-to-complete-this-course")).not.toBeInTheDocument()
-    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 })

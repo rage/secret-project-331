@@ -38,6 +38,7 @@ import {
   registrationStatusTeacherLabel,
   registrationTeacherExplanation,
 } from "./creditRegistrationCopy"
+import EnrolmentRecheckBlock from "./EnrolmentRecheckBlock"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
   monospaceCss,
@@ -55,6 +56,7 @@ import {
   notificationEmailSentence,
   studentNumberVerificationLabel,
 } from "./teacherCreditRegistrations"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 interface Props {
   registration: CourseCreditRegistration
@@ -87,6 +89,7 @@ const supportReferenceValueCss = css`
 
 const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },
@@ -99,7 +102,9 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   // Why this row is where it is: the failure when there is one, otherwise what the stage means.
   const leadSentence =
     registrationErrorTeacherHelp(t, registration.error_code) ??
-    registrationTeacherExplanation(t, registration.student_facing_status)
+    (registration.student_facing_status === "needs_student_number" && !isAccountLinkingEnabled
+      ? t("credit-registration-teacher-explanation-needs-student-number-linking-off")
+      : registrationTeacherExplanation(t, registration.student_facing_status))
   const verificationLabel = studentNumberVerificationLabel(
     t,
     registration.student_number_verified_via,
@@ -165,10 +170,12 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
           <p className={proseCss}>{leadSentence}</p>
         </div>
         <DescriptionList items={items} layout={STACKED} />
-        {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
-          <ResendLinkingEmailBlock registration={registration} />
-        )}
+        {isAccountLinkingEnabled &&
+          registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
+            <ResendLinkingEmailBlock registration={registration} />
+          )}
         <RetryCreditRegistrationBlock registration={registration} />
+        <EnrolmentRecheckBlock registration={registration} />
         <QueryResult query={detailsQuery}>
           {(details) => (
             <>

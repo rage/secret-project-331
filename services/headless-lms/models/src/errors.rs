@@ -158,6 +158,28 @@ SELECT EXISTS(
     Ok(variant_id)
 }
 
+/// Reports aren't worth adding to the pool pressure of the outage they may be reporting.
+const BEST_EFFORT_ACQUIRE_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(250);
+
+/// [`insert`] for a report that must never affect its caller: a failure to get a connection quickly
+/// or to insert is only logged.
+pub async fn insert_best_effort(pool: &PgPool, report: &NewErrorReport) {
+    let mut conn = match tokio::time::timeout(BEST_EFFORT_ACQUIRE_TIMEOUT, pool.acquire()).await {
+        Ok(Ok(conn)) => conn,
+        Ok(Err(err)) => {
+            warn!(service = %report.service, error = %err, "Error report skipped: could not acquire a connection");
+            return;
+        }
+        Err(_) => {
+            warn!(service = %report.service, "Error report skipped: timed out acquiring a connection");
+            return;
+        }
+    };
+    if let Err(err) = insert(&mut conn, None, report).await {
+        debug!(service = %report.service, error = %err, "Error report insert failed");
+    }
+}
+
 pub async fn get_all_variants(
     conn: &mut PgConnection,
     pagination: Pagination,

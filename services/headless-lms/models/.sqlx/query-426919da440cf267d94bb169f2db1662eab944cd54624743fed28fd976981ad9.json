@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_roster_schedules\nSET last_fetched_at = now(),\n  last_listed_person_count = 0,\n  is_fetched_alone = FALSE,\n  consecutive_failures = 0,\n  retry_not_before = NULL,\n  last_error = NULL,\n  window_closed_at = now(),\n  triggered_fetch_at = NULL,\n  follow_up_fetch_at = NULL\nWHERE course_code = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "426919da440cf267d94bb169f2db1662eab944cd54624743fed28fd976981ad9"
+}

@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO suotar_api_calls (\n    endpoint,\n    request_item_count,\n    http_status,\n    duration_ms,\n    succeeded,\n    ok_item_count,\n    error_item_count,\n    request_level_error_code,\n    error_message,\n    request_body_sample,\n    response_body_sample,\n    credit_registration_ids,\n    worker_name,\n    started_at,\n    request_item_ids\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15\n  )\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Int4",
+        "Int4",
+        "Varchar",
+        "Text",
+        "Jsonb",
+        "Jsonb",
+        "UuidArray",
+        "Varchar",
+        "Timestamptz",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "90648fcaaaecd6fca29d427d71d068faf03c72719e5b28a96e5b83812f4b8578"
+}

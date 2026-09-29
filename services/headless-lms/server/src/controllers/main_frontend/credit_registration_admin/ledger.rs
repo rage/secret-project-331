@@ -16,6 +16,7 @@ use headless_lms_models::credit_registrations::{
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
@@ -25,6 +26,8 @@ use std::collections::{HashMap, HashSet};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 
 use super::{
     AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
@@ -66,7 +69,6 @@ pub struct AdminCreditRegistrationRow {
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
     pub credits: Option<f32>,
-    pub request_item_id: String,
     pub submitted_attainment_id: Option<String>,
     pub sisu_attainment_id: Option<String>,
     pub submit_retry_count: i32,
@@ -99,6 +101,8 @@ pub struct AdminCreditRegistrationEvent {
     /// The `{request, response}` pair, scrubbed at write time: names, student numbers and email
     /// addresses read `[redacted]` while their keys survive. The values we sent are on the row.
     pub details: Option<serde_json::Value>,
+    /// The requestItemId the row went out under in the call behind this event.
+    pub request_item_id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -269,11 +273,11 @@ pub struct ListCreditRegistrationsQuery {
     course_id: Option<Uuid>,
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
-    student_number: Option<String>,
+    student_number: Option<SecretString>,
     needs_admin_attention: Option<bool>,
     submitted_after: Option<DateTime<Utc>>,
     submitted_before: Option<DateTime<Utc>>,
-    search: Option<String>,
+    search: Option<SecretString>,
     include_superseded: Option<bool>,
     sort: Option<String>,
 }
@@ -317,8 +321,8 @@ pub async fn list_credit_registrations_for_admin(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let pagination = parse_pagination(query.page, query.limit, 50)?;
-    let search = non_empty(query.search.as_deref());
-    let student_number = non_empty(query.student_number.as_deref());
+    let search = non_empty(expose_option(&query.search));
+    let student_number = non_empty(expose_option(&query.student_number));
     let filters = AdminCreditRegistrationFilters {
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
@@ -417,6 +421,7 @@ pub async fn get_credit_registration_for_admin(
                 actor_user_id: event.actor_user_id,
                 suotar_api_call_id: event.suotar_api_call_id,
                 details: event.details,
+                request_item_id: event.request_item_id,
             })
             .collect();
     let suotar_api_calls =
@@ -447,12 +452,13 @@ pub async fn get_credit_registration_for_admin(
             registration.user_id,
         )
         .await?
-        .map(|link| link.sisu_person_id),
+        .and_then(|link| link.sisu_person_id),
     };
     let linking_emails = match sisu_person_id {
         Some(person_id) => {
             let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
-                &mut conn, &person_id,
+                &mut conn,
+                person_id.expose_secret(),
             )
             .await?;
             build_linking_emails(&mut conn, mails).await?
@@ -492,7 +498,8 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 - Moves one row by hand.
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
-re-importing could put a second attainment on a real transcript.
+re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+while Suotar still holds its earlier submission open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -530,11 +537,10 @@ pub async fn admin_transition_credit_registration(
     if let Some(state_move) = payload.action.state_move() {
         // `Any`: a human is already looking at this one row, so unlike the bulk transition below it
         // is not refused for being `submission_uncertain`.
-        if let Some(refusal) = row.state.admin_transition_refusal(
-            state_move.to_state(),
-            row.superseded_by_id.is_some(),
-            ResubmissionStrictness::Any,
-        ) {
+        if let Some(refusal) = row
+            .resubmission_facts()
+            .admin_transition_refusal(state_move.to_state(), ResubmissionStrictness::Any)
+        {
             return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
                 outcome: AdminTransitionOutcome::Refused,
                 refusal: Some(refusal),
@@ -545,10 +551,14 @@ pub async fn admin_transition_credit_registration(
     }
 
     let mut tx = conn.begin().await?;
-    let (outcome, after_state, needs_admin_attention, needs_due_now) =
-        apply_transition(&mut tx, &row, payload.action, user.id, reason).await?;
-    if needs_due_now {
-        credit_registrations::make_due_now_batch(&mut tx, &[id]).await?;
+    let applied = apply_transition(&mut tx, &row, payload.action, user.id, reason).await?;
+    if applied.needs_due_now {
+        credit_registrations::make_due_now_batch(
+            &mut tx,
+            &[id],
+            EnrolmentCheckSource::AdminRequest,
+        )
+        .await?;
     }
     models::credit_registration_admin_actions::record(
         &mut tx,
@@ -556,8 +566,8 @@ pub async fn admin_transition_credit_registration(
             target_id: Some(id),
             reason: Some(reason.to_string()),
             before_state: Some(row.state),
-            after_state: Some(after_state),
-            details: Some(serde_json::json!({ "outcome": outcome })),
+            after_state: Some(applied.state),
+            details: Some(serde_json::json!({ "outcome": applied.outcome })),
             affected_row_count: Some(1),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::TransitionItem,
@@ -571,10 +581,10 @@ pub async fn admin_transition_credit_registration(
     tx.commit().await?;
 
     token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
-        outcome,
+        outcome: applied.outcome,
         refusal: None,
-        state: after_state,
-        needs_admin_attention,
+        state: applied.state,
+        needs_admin_attention: applied.needs_admin_attention,
     }))
 }
 
@@ -586,7 +596,7 @@ Resubmitting refuses every row in `submission_uncertain`, whatever the selection
 those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
 looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
 attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
-time.
+time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -638,9 +648,8 @@ pub async fn admin_bulk_transition_credit_registrations(
     let mut skipped: HashMap<ResubmissionRefusal, i64> = HashMap::new();
     for row in &rows {
         let refusal = match state_move {
-            Some(state_move) => row.state.admin_transition_refusal(
+            Some(state_move) => row.resubmission_facts().admin_transition_refusal(
                 state_move.to_state(),
-                row.superseded_by_id.is_some(),
                 ResubmissionStrictness::AnyExceptSubmissionUncertain,
             ),
             // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
@@ -650,9 +659,9 @@ pub async fn admin_bulk_transition_credit_registrations(
         match refusal {
             Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,
             None => {
-                let (_, _, _, needs_due_now) =
+                let applied =
                     apply_transition(&mut tx, row, payload.action, user.id, reason).await?;
-                if needs_due_now {
+                if applied.needs_due_now {
                     due_now_ids.push(row.id);
                 }
                 applied_count += 1;
@@ -661,7 +670,12 @@ pub async fn admin_bulk_transition_credit_registrations(
     }
     // Batched rather than one `UPDATE` per row inside the loop above: the row transition needs its
     // own audit event per row, but making it due now does not.
-    credit_registrations::make_due_now_batch(&mut tx, &due_now_ids).await?;
+    credit_registrations::make_due_now_batch(
+        &mut tx,
+        &due_now_ids,
+        EnrolmentCheckSource::AdminRequest,
+    )
+    .await?;
     let mut skipped: Vec<AdminBulkTransitionSkipCount> = skipped
         .into_iter()
         .map(|(refusal, count)| AdminBulkTransitionSkipCount { refusal, count })
@@ -764,8 +778,17 @@ pub async fn admin_requeue_retryable_credit_registrations(
     }))
 }
 
-/// Applies one hand action in the caller's transaction, returning what it did, where the row ended
-/// up, whether it still asks for a human, and whether the caller must still make it due now.
+/// What one hand action did to its row.
+struct AppliedHandAction {
+    outcome: AdminTransitionOutcome,
+    /// Where the row ended up.
+    state: CreditRegistrationState,
+    needs_admin_attention: bool,
+    /// The caller must still make the row due now.
+    needs_due_now: bool,
+}
+
+/// Applies one hand action in the caller's transaction.
 ///
 /// The caller has already asked `admin_transition_refusal` whether this row may take the move,
 /// because what a refusal is reported as differs per caller. Making the row due is left to the
@@ -777,26 +800,41 @@ async fn apply_transition(
     action: AdminCreditRegistrationAction,
     actor_user_id: Uuid,
     reason: &str,
-) -> Result<(AdminTransitionOutcome, CreditRegistrationState, bool, bool), ControllerError> {
+) -> Result<AppliedHandAction, ControllerError> {
     let id = row.id;
     Ok(match action {
         AdminCreditRegistrationAction::ClearNeedsAdminAttention => {
             if !row.needs_admin_attention {
-                (AdminTransitionOutcome::NoChange, row.state, false, false)
+                AppliedHandAction {
+                    outcome: AdminTransitionOutcome::NoChange,
+                    state: row.state,
+                    needs_admin_attention: false,
+                    needs_due_now: false,
+                }
             } else {
-                credit_registrations::set_needs_admin_attention(tx, id, false).await?;
+                credit_registrations::set_needs_admin_attention(
+                    tx,
+                    id,
+                    credit_registrations::AdminAttention::Clear,
+                )
+                .await?;
                 insert_admin_action_event(tx, id, actor_user_id, reason).await?;
-                (AdminTransitionOutcome::Applied, row.state, false, false)
+                AppliedHandAction {
+                    outcome: AdminTransitionOutcome::Applied,
+                    state: row.state,
+                    needs_admin_attention: false,
+                    needs_due_now: false,
+                }
             }
         }
         AdminCreditRegistrationAction::CheckNow => {
             insert_admin_action_event(tx, id, actor_user_id, reason).await?;
-            (
-                AdminTransitionOutcome::Applied,
-                row.state,
-                row.needs_admin_attention,
-                true,
-            )
+            AppliedHandAction {
+                outcome: AdminTransitionOutcome::Applied,
+                state: row.state,
+                needs_admin_attention: row.needs_admin_attention,
+                needs_due_now: true,
+            }
         }
         AdminCreditRegistrationAction::StateMove { to_state } => {
             let to_state = to_state.to_state();
@@ -804,7 +842,7 @@ async fn apply_transition(
                 tx,
                 id,
                 &Transition {
-                    needs_admin_attention: Some(false),
+                    needs_admin_attention: Some(credit_registrations::AdminAttention::Clear),
                     event_kind: CreditRegistrationEventKind::AdminAction,
                     event_message: Some(reason.to_string()),
                     actor_user_id: Some(actor_user_id),
@@ -818,12 +856,12 @@ async fn apply_transition(
             .await?;
             // Nothing else brings the row forward, so without a due-now the resubmit would sit out
             // the backoff whatever failed last set.
-            (
-                AdminTransitionOutcome::Applied,
-                after.state,
-                after.needs_admin_attention,
-                !after.state.is_terminal(),
-            )
+            AppliedHandAction {
+                outcome: AdminTransitionOutcome::Applied,
+                state: after.state,
+                needs_admin_attention: after.needs_admin_attention,
+                needs_due_now: !after.state.is_terminal(),
+            }
         }
     })
 }
@@ -874,9 +912,8 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
     AdminCreditRegistrationRow {
         superseded: row.superseded_by_id.is_some(),
         pending_reason: row.pending_reason(),
-        resubmission_refusal: row.state.admin_transition_refusal(
+        resubmission_refusal: row.resubmission_facts().admin_transition_refusal(
             CreditRegistrationState::ReadyToSubmit,
-            row.superseded_by_id.is_some(),
             ResubmissionStrictness::Any,
         ),
         id: row.id,
@@ -901,21 +938,20 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         submitted_at: row.submitted_at,
         registered_at: row.registered_at,
         terminal_at: row.terminal_at,
-        student_number: row.student_number,
-        sisu_person_id: row.sisu_person_id,
+        student_number: expose_option(&row.student_number).map(str::to_owned),
+        sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         uh_course_code: row.uh_course_code,
         selected_enrolment_id: row.selected_enrolment_id,
         grade_scale_id: row.grade_scale_id,
         grade_id: row.grade_id,
         credits: row.credits,
-        request_item_id: row.request_item_id,
         submitted_attainment_id: row.submitted_attainment_id,
         sisu_attainment_id: row.sisu_attainment_id,
         submit_retry_count: row.submit_retry_count,
         verify_attempt_count: row.verify_attempt_count,
         attempt_number: row.attempt_number,
         superseded_by_id: row.superseded_by_id,
-        verified_student_number: row.verified_student_number,
+        verified_student_number: expose_option(&row.verified_student_number).map(str::to_owned),
         verified_student_number_at: row.verified_student_number_at,
         verified_student_number_via: row.verified_student_number_via,
     }

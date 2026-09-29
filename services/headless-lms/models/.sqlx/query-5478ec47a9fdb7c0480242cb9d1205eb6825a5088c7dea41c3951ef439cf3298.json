@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_suotar_configurations (\n    course_module_id,\n    config_checked_at,\n    course_code_allowed,\n    config_check_message,\n    checked_course_code,\n    course_code_rejection\n  )\nVALUES ($1, now(), $2, $3, $4, $5) ON CONFLICT (course_module_id) DO\nUPDATE\nSET config_checked_at = now(),\n  course_code_allowed = $2,\n  config_check_message = $3,\n  checked_course_code = $4,\n  course_code_rejection = $5,\n  deleted_at = NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Text",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5478ec47a9fdb7c0480242cb9d1205eb6825a5088c7dea41c3951ef439cf3298"
+}

@@ -1,0 +1,1 @@
+DROP TABLE completion_registration_credit_justifications;

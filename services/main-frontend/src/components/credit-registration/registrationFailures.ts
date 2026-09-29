@@ -63,17 +63,16 @@ export interface FailureActionPlan {
 const FAILURE_REMEDIES = {
   missing_uh_course_code: "module_configuration",
   missing_ects_credits: "module_configuration",
-  no_grade_scale_mapping: "module_configuration",
   course_code_not_found: "module_configuration",
   invalid_credits: "module_configuration",
-  invalid_grade_for_grade_scale: "module_configuration",
 
   person_not_found: "student_number",
   enrolment_not_found: "student_enrolment",
   enrolment_not_accepted: "student_enrolment",
   study_right_not_valid: "student_enrolment",
 
-  sisu_temporarily_unavailable: "retry",
+  service_temporarily_unavailable: "retry",
+  not_registered: "retry",
   transport_error: "retry",
   unexpected_response: "retry",
   retry_window_expired: "retry",
@@ -87,8 +86,11 @@ const FAILURE_REMEDIES = {
   malformed_request: "support",
 
   misregistered: "support",
-  acceptor_not_found: "support",
   course_not_allowed: "support",
+  // The grade scale is always the enrolment's, so nothing in the module settings changes it.
+  no_grade_scale_mapping: "support",
+  invalid_grade_for_grade_scale: "support",
+  grade_scale_mismatch: "support",
   unknown: "support",
 } as const satisfies Record<CreditRegistrationErrorCode, FailureRemedy>
 
@@ -241,7 +243,7 @@ const ACTION_LABEL_KEYS = {
   link_student_number_by_hand: "credit-registration-action-label-link-student-number-by-hand",
   check_own_student_number: "credit-registration-action-label-check-own-student-number",
   enrol: "credit-registration-action-enrol",
-  recheck_enrolment: "credit-registration-action-recheck-enrolment",
+  recheck_enrolment: "credit-registration-action-check-again",
   email_student: "credit-registration-action-label-email-student",
   contact_support: "credit-registration-action-label-contact-support",
 } as const satisfies Record<FailureAction, string>

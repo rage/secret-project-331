@@ -729,14 +729,13 @@ fn recover_or_terminate(
 /// generically, because other messages are built from library errors and can carry
 /// internals such as SQL or endpoint URLs.
 fn tool_failure_output_for_llm(error: &ChatbotError) -> String {
-    let reason = match error.error_type() {
-        ChatbotErrorType::InvalidToolName
-        | ChatbotErrorType::InvalidToolArguments
-        | ChatbotErrorType::ToolUseError => error.message(),
-        _ => "The tool is unavailable.",
+    let message = match error.error_type() {
+        ChatbotErrorType::FailedAzureResponse => "Azure response failed",
+        ChatbotErrorType::AzureAISearchFilterError => "Couldn't create search filter for AI search",
+        _ => error.message(),
     };
     format!(
-        "The tool call failed and returned no data. Reason: {reason} Answer the user without this tool, or tell them what you would need to answer."
+        "The tool call failed and returned no data. Message: {message} Answer the user without this tool, or tell them what you would need to answer."
     )
 }
 

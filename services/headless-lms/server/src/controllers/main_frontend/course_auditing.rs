@@ -58,6 +58,7 @@ async fn update_course_auditing_data(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseAuditingData>> {
     let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
     models::courses::update_course_auditing_data(
         &mut conn,
@@ -68,8 +69,6 @@ async fn update_course_auditing_data(
     .await?;
 
     let updated_course = models::courses::course_auditing_data_by_id(&mut conn, *course_id).await?;
-
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
     token.authorized_ok(web::Json(updated_course))
 }

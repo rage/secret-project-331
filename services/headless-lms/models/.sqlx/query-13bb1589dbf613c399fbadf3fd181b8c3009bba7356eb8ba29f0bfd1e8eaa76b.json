@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM completion_registration_credit_justifications\nWHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "13bb1589dbf613c399fbadf3fd181b8c3009bba7356eb8ba29f0bfd1e8eaa76b"
+}

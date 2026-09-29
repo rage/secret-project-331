@@ -18,10 +18,14 @@ export interface MediaUploadProps {
   onFileChange: (files: Partial<MediaItem>[]) => void
 }
 
-type MediaUploadType = { courseId: string } | { examId: string }
+/** Which resource an uploaded file belongs to. */
+export type MediaUploadType = { courseId: string } | { examId: string }
 
 /** Uploads one file to a CMS media endpoint. */
-const uploadFileFromPage = async (file: File, uploadType: MediaUploadType): Promise<MediaItem> => {
+export const uploadFileFromPage = async (
+  file: File,
+  uploadType: MediaUploadType,
+): Promise<MediaItem> => {
   const data = new FormData()
   data.append("file", file, file.name || "unknown")
 

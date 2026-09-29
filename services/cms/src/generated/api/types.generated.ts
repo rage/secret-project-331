@@ -17,6 +17,19 @@ export type AutomaticCompletionRequirements = {
   requires_exam: boolean
 }
 
+export type ChartSpecGenerationRequest = {
+  current_spec?: string | null
+  data_format?: string | null
+  data_sample?: string | null
+  data_url?: string | null
+  page_id?: string | null
+  prompt: string
+}
+
+export type ChartSpecGenerationResponse = {
+  spec: string
+}
+
 export type ChatbotConfiguration = {
   chatbot_name: string
   course_id?: string | null
@@ -276,7 +289,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "credit_registration_student_number_linked"
 
 export type EmailTemplateUpdate = {
   content: unknown
@@ -516,6 +528,23 @@ export type UploadResult = {
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
+
+export type RequestChartSpecGenerationData = {
+  body: ChartSpecGenerationRequest
+  path?: never
+  query?: never
+  url: "/api/v0/cms/ai-suggestions/chart-spec"
+}
+
+export type RequestChartSpecGenerationResponses = {
+  /**
+   * Generated Vega-Lite chart specification
+   */
+  200: ChartSpecGenerationResponse
+}
+
+export type RequestChartSpecGenerationResponse =
+  RequestChartSpecGenerationResponses[keyof RequestChartSpecGenerationResponses]
 
 export type RequestParagraphSuggestionsData = {
   body: ParagraphSuggestionRequest

@@ -528,6 +528,11 @@ pub async fn update_course_auditing_data(
     course_id: Uuid,
     data_update: CourseAuditingDataUpdate,
 ) -> ModelResult<()> {
+    for module in &data_update.modules {
+        crate::course_modules::validate_completion_registration_link(
+            module.completion_registration_link_override.as_deref(),
+        )?;
+    }
     let (
         module_ids,
         uh_course_codes,
@@ -1691,8 +1696,13 @@ SELECT DISTINCT c.id
 FROM courses c
 CROSS JOIN unnest($2::text[]) AS k(keyword)
 WHERE deleted_at IS NULL
-AND to_tsvector(c.content_search_language::regconfig, c.description)
-@@ websearch_to_tsquery(c.content_search_language::regconfig, k.keyword)
+  AND to_tsvector(
+      c.content_search_language::regconfig,
+      c.name || ' ' || coalesce(c.description, '')
+  ) @@ websearch_to_tsquery(
+      c.content_search_language::regconfig,
+      k.keyword
+  )
         "#,
         &vectors as _,
         &description_keywords

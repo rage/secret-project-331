@@ -1,0 +1,53 @@
+[package]
+name = "headless-lms-credit-registration"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../base" }
+headless-lms-utils = { path = "../utils" }
+headless-lms-models = { path = "../models" }
+
+# An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
+tokio = { workspace = true, features = ["macros", "signal", "time"] }
+# Utilities for working with Tokio.
+tokio-util = "0.7.19"
+# An implementation of futures and streams featuring zero allocations, composability, and itera…
+futures = "0.3.34"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx.workspace = true
+# Date and time library for Rust
+chrono = { version = "0.4.45", features = ["serde"] }
+# A library to generate and parse UUIDs.
+uuid = { version = "1.26.0", features = ["serde"] }
+# A generic serialization/deserialization framework
+serde = "1.0.229"
+# A JSON serialization file format
+serde_json = "1.0.151"
+# Wrapper types (SecretString/SecretBox) for sensitive values such as student numbers.
+secrecy.workspace = true
+# Extra iterator adaptors, iterator methods, free functions, and macros.
+itertools = "0.15.0"
+# Application-level tracing for Rust.
+tracing = "0.1.44"
+# The opaque source carrier of CreditRegistrationError, as in every house error type.
+anyhow = "1.0.104"
+# Utilities for enriching errors with `tracing`.
+tracing-error = "0.2.1"
+# A library to acquire a stack trace (backtrace) at runtime in a Rust program.
+backtrace = "0.3.76"
+
+[dev-dependencies]
+# HTTP mocking for Rust.
+mockito = "1.7.2"
+# Random ids for test rows.
+uuid = { version = "1.26.0", features = ["v4"] }
+# Lets the contract tests send to a plain-http mock server.
+headless-lms-utils = { path = "../utils", features = ["test-support"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "allow"

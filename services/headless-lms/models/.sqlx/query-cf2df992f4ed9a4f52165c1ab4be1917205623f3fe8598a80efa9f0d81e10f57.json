@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_suotar_configurations (course_module_id)\nVALUES ($1) ON CONFLICT (course_module_id) DO\nUPDATE\nSET deleted_at = NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cf2df992f4ed9a4f52165c1ab4be1917205623f3fe8598a80efa9f0d81e10f57"
+}

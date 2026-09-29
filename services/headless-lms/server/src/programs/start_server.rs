@@ -15,7 +15,6 @@ use actix_web::{
 };
 use dotenvy::dotenv;
 use listenfd::ListenFd;
-use rustls::crypto::ring;
 use secrecy::ExposeSecret;
 use std::time::Duration;
 
@@ -23,11 +22,6 @@ use std::time::Duration;
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
-
-    // Required by rustls 0.23 so kube-client can build TLS configs.
-    ring::default_provider()
-        .install_default()
-        .expect("failed to install rustls ring crypto provider");
 
     let runtime_config = ServerRuntimeConfig::try_from_env()?;
     let private_cookie_key = runtime_config.private_cookie_key.clone();

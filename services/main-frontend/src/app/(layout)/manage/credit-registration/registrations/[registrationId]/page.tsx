@@ -25,6 +25,7 @@ import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTr
 import ErrorCodeCell from "@/components/credit-registration/admin/ErrorCodeCell"
 import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
 import PayloadBlock from "@/components/credit-registration/admin/PayloadBlock"
+import RegistrationStepper from "@/components/credit-registration/admin/RegistrationStepper"
 import {
   attentionReasonLabel,
   subStateExplanations,
@@ -257,6 +258,7 @@ const HeaderSection: React.FC<{
           )}
         </span>
       </div>
+      <RegistrationStepper details={details} now={now} />
       {/* A replaced attempt keeps the state it reached, but leading with it reads as news about the
           completion — which the newest attempt, not this one, decides. That nothing can be done to
           it is the Actions section's sentence; a banner here would say it twice. */}

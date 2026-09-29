@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT other.grade_scale_id::text AS \"grade_scale_id?\",\n  other.grade_id::text AS \"grade_id?\",\n  cmc.passed AS \"completion_passed!\",\n  cmc.grade AS \"completion_grade?\"\nFROM credit_registrations cr\n  JOIN credit_registrations other ON other.user_id = cr.user_id\n  AND other.course_module_id = cr.course_module_id\n  AND other.id <> cr.id\n  JOIN course_module_completions cmc ON cmc.id = other.course_module_completion_id\nWHERE cr.id = $1\n  AND other.deleted_at IS NULL\n  AND other.superseded_by_id IS NULL\n  AND other.state = ANY($2::credit_registration_state [])\nUNION ALL\nSELECT NULL::text,\n  NULL::text,\n  cmc.passed,\n  cmc.grade\nFROM credit_registrations cr\n  JOIN course_module_completion_registered_to_study_registries r ON r.user_id = cr.user_id\n  AND r.course_module_id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = r.course_module_completion_id\nWHERE cr.id = $1\n  -- A null registrar is our own mirror of a row the first half already reads.\n  AND r.study_registry_registrar_id IS NOT NULL\n  AND r.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "grade_scale_id?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "grade_id?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "completion_passed!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "completion_grade?",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "8220a97ce74ad6e86666d52f4ebcced3ffb794caf286bb5509955d42082b6ab7"
+}

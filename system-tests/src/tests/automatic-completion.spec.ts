@@ -73,7 +73,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Register completion" })],
   })
 
-  await page.getByText("Go to enrollment form").click()
+  await page.getByText("Go to the enrolment form").click()
   await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
 
   await page.goto("http://project-331.local/organizations")
@@ -125,8 +125,8 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     )
     .waitFor()
 
-  await page.getByText("Use this email address on the enrollment form").first().waitFor()
-  await page.getByText("Go to enrollment form").click()
+  await page.getByText("Use this email address on the enrolment form").first().waitFor()
+  await page.getByText("Go to the enrolment form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })
 })

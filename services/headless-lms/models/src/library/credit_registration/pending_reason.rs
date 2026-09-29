@@ -16,6 +16,8 @@ pub enum CreditRegistrationPendingReason {
     /// The completion is not registrable yet: a prerequisite module, or a suspected-cheating review.
     Completion,
     StudentNumber,
+    /// Suotar does not accept the module's course code; the row moves on once it does.
+    CourseCode,
 }
 
 /// The preconditions a submission waits on, as they stand for one ledger row.
@@ -23,6 +25,7 @@ pub enum CreditRegistrationPendingReason {
 pub struct PendingPreconditions {
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
+    pub course_code_allowed: bool,
 }
 
 impl PendingPreconditions {
@@ -30,6 +33,7 @@ impl PendingPreconditions {
     pub const ALL_MET: Self = Self {
         completion_eligible: true,
         has_verified_student_number: true,
+        course_code_allowed: true,
     };
 
     /// The first unmet precondition, or `None` once all of them are met and the next precondition
@@ -43,14 +47,15 @@ impl PendingPreconditions {
             Some(CreditRegistrationPendingReason::Completion)
         } else if !self.has_verified_student_number {
             Some(CreditRegistrationPendingReason::StudentNumber)
+        } else if !self.course_code_allowed {
+            Some(CreditRegistrationPendingReason::CourseCode)
         } else {
             None
         }
     }
 }
 
-/// Live `pending` rows per blocker, for the surfaces that used to read the three states off the
-/// ledger.
+/// Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, ToSchema)]
 pub struct PendingReasonCounts {
     pub completion_count: i64,
@@ -70,6 +75,7 @@ mod tests {
             PendingPreconditions {
                 completion_eligible: false,
                 has_verified_student_number: false,
+                course_code_allowed: false,
             }
             .reason(),
             Some(Reason::Completion)
@@ -81,6 +87,14 @@ mod tests {
             }
             .reason(),
             Some(Reason::StudentNumber)
+        );
+        assert_eq!(
+            PendingPreconditions {
+                course_code_allowed: false,
+                ..PendingPreconditions::ALL_MET
+            }
+            .reason(),
+            Some(Reason::CourseCode)
         );
     }
 }

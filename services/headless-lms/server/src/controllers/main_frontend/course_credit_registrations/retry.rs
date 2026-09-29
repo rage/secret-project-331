@@ -8,6 +8,7 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
+use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 
@@ -84,10 +85,9 @@ pub async fn retry_credit_registration(
         super::authorize_credit_registration_teacher(&mut conn, user.id, row.course_id).await?;
 
     let reason = non_empty(payload.reason.as_deref());
-    let refusal = row.state.resubmission_refusal(
-        row.superseded_by_id.is_some(),
-        ResubmissionStrictness::OnlyFailedPermanent,
-    );
+    let refusal = row
+        .resubmission_facts()
+        .resubmission_refusal(ResubmissionStrictness::OnlyFailedPermanent);
 
     let mut tx = conn.begin().await?;
     let state = match refusal {
@@ -188,10 +188,9 @@ pub async fn retry_failed_credit_registrations_for_course(
         // Re-judged rather than trusted from the query above, which ran before the lock: the row may
         // have moved on in between. Same precedence as the single-row endpoint, so one row gets one
         // answer whichever way it is asked.
-        let refusal = row.state.resubmission_refusal(
-            row.superseded_by_id.is_some(),
-            ResubmissionStrictness::OnlyFailedPermanent,
-        );
+        let refusal = row
+            .resubmission_facts()
+            .resubmission_refusal(ResubmissionStrictness::OnlyFailedPermanent);
         match refusal {
             Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,
             None => {
@@ -203,7 +202,12 @@ pub async fn retry_failed_credit_registrations_for_course(
     }
     // Batched rather than one `UPDATE` per row inside the loop above: the row transition needs its
     // own audit event per row, but making it due now does not.
-    credit_registrations::make_due_now_batch(&mut tx, &retried_ids).await?;
+    credit_registrations::make_due_now_batch(
+        &mut tx,
+        &retried_ids,
+        EnrolmentCheckSource::TeacherRequest,
+    )
+    .await?;
     let mut skipped: Vec<RetryCreditRegistrationSkip> = skipped
         .into_iter()
         .map(|(refusal, count)| RetryCreditRegistrationSkip { refusal, count })
@@ -255,7 +259,7 @@ async fn transition_to_ready_to_submit(
         tx,
         id,
         &Transition {
-            needs_admin_attention: Some(false),
+            needs_admin_attention: Some(credit_registrations::AdminAttention::Clear),
             event_kind: CreditRegistrationEventKind::AdminAction,
             event_message: Some(
                 reason
@@ -282,7 +286,8 @@ async fn requeue(
     let state = transition_to_ready_to_submit(tx, id, from_state, actor_user_id, reason).await?;
     // Nothing else brings the row forward, so without this the retry sits out whatever backoff the
     // last failure set.
-    credit_registrations::make_due_now_batch(tx, &[id]).await?;
+    credit_registrations::make_due_now_batch(tx, &[id], EnrolmentCheckSource::TeacherRequest)
+        .await?;
     Ok(state)
 }
 

@@ -5,11 +5,11 @@ pub mod program_config;
 use crate::{
     OAuthClient,
     config::program_config::ProgramConfig,
-    controllers::mock_suotar::store::MockSuotarStore,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
     },
+    mock_suotar::store::MockSuotarStore,
 };
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{

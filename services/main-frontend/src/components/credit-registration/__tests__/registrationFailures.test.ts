@@ -13,14 +13,15 @@ const ALL_ERROR_CODES: CreditRegistrationErrorCode[] = [
   "enrolment_not_found",
   "enrolment_not_accepted",
   "invalid_grade_for_grade_scale",
+  "grade_scale_mismatch",
   "course_not_allowed",
   "invalid_credits",
   "study_right_not_valid",
-  "acceptor_not_found",
   "sisu_validation_failed",
   "sisu_timeout",
-  "sisu_temporarily_unavailable",
+  "service_temporarily_unavailable",
   "misregistered",
+  "not_registered",
   "unauthorized",
   "malformed_request",
   "transport_error",
@@ -38,18 +39,17 @@ describe("failure ownership", () => {
     expect(courseSetup.toSorted()).toEqual([
       "course_code_not_found",
       "invalid_credits",
-      "invalid_grade_for_grade_scale",
       "missing_ects_credits",
       "missing_uh_course_code",
-      "no_grade_scale_mapping",
     ])
   })
 
   test("only the transient codes can be retried", () => {
     const retryable = ALL_ERROR_CODES.filter((code) => canRetryFailure(code))
     expect(retryable.toSorted()).toEqual([
+      "not_registered",
       "retry_window_expired",
-      "sisu_temporarily_unavailable",
+      "service_temporarily_unavailable",
       "transport_error",
       "unexpected_response",
     ])

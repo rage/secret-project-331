@@ -2,8 +2,7 @@ use anyhow::{Context, Result};
 
 use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
-    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule,
-    CourseModuleCreditRegistrationEdit, CourseModuleSuotarRealisationEdit, NewCourseModule,
+    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
 };
 use sqlx::PgConnection;
 
@@ -186,17 +185,16 @@ impl CompletionBuilder {
 }
 
 /// Turns `enable_credit_registration_via_suotar` on and writes the module's Suotar configuration.
-/// The realisation ids must be the ones the mock answers `list-by-course` for, so derive them as it
-/// does.
 #[derive(Debug, Clone, Default)]
 pub struct CreditRegistrationSeed {
-    pub open_university_product_id: Option<String>,
-    /// `None` derives the scale from the completion.
-    pub grade_scale_id: Option<String>,
-    pub active_realisation_ids: Vec<String>,
+    /// Stored as the module's `completion_registration_link_override`.
+    pub enrolment_link: Option<String>,
     /// Pauses the module, which every phase's claim query skips: without it the workers running in
     /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
+    /// Sets `register_eligible_new_completions_via_suotar`, so completions seeded for linked
+    /// students go through Suotar.
+    pub register_eligible_new_completions: bool,
 }
 
 /// Builder for course modules that group chapters with ECTS credits and Open University registration.
@@ -321,6 +319,11 @@ impl ModuleBuilder {
                 .set_ects_credits(self.ects)
                 .set_completion_policy(self.completion_policy.clone())
                 .set_uh_course_code(self.uh_course_code)
+                .set_completion_registration_link_override(
+                    self.credit_registration
+                        .as_ref()
+                        .and_then(|seed| seed.enrolment_link.clone()),
+                )
                 .set_enable_credit_registration_via_suotar(self.credit_registration.is_some()),
         )
         .await
@@ -336,27 +339,16 @@ impl ModuleBuilder {
         }
 
         if let Some(credit_registration) = &self.credit_registration {
-            course_modules::set_credit_registration_config(
-                conn,
-                module.id,
-                &CourseModuleCreditRegistrationEdit {
-                    open_university_product_id: credit_registration
-                        .open_university_product_id
-                        .clone(),
-                    grade_scale_id: credit_registration.grade_scale_id.clone(),
-                    realisations: credit_registration
-                        .active_realisation_ids
-                        .iter()
-                        .map(|id| CourseModuleSuotarRealisationEdit {
-                            course_unit_realisation_id: id.clone(),
-                            label: None,
-                            active: true,
-                        })
-                        .collect(),
-                },
-            )
-            .await
-            .context("writing the module's credit registration configuration")?;
+            course_module_suotar_configurations::ensure_exists(conn, module.id)
+                .await
+                .context("writing the module's credit registration configuration")?;
+            if credit_registration.register_eligible_new_completions {
+                course_modules::set_register_eligible_new_completions_via_suotar(
+                    conn, module.id, true,
+                )
+                .await
+                .context("opting the module's new completions into Suotar")?;
+            }
             if let Some(reason) = &credit_registration.paused_reason {
                 course_module_suotar_configurations::set_paused(
                     conn,

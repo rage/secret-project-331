@@ -1,5 +1,3 @@
-use std::env;
-
 use crate::config::program_config::ProgramConfig;
 use crate::{domain::models_requests, setup_tracing};
 use anyhow::Result;
@@ -16,12 +14,8 @@ use tracing::info;
 const N: usize = 10;
 
 pub async fn main() -> anyhow::Result<()> {
-    // Setting the sqlx log level to warn stops sql statements being printed to the console.
-    // This is useful here since this is being run in a loop in background and the sql statements
-    // would create a lot of noise to the log.
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
 
     let database_url = ProgramConfig::database_url_with_default();

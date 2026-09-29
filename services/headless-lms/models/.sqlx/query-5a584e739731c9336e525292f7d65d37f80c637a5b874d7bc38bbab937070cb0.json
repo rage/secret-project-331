@@ -26,8 +26,8 @@
                 "resolve_enrolments",
                 "import_attainments",
                 "verify_attainments",
-                "product_access_tokens",
-                "list_by_course"
+                "list_by_course",
+                "validate_course_codes"
               ]
             }
           }
@@ -214,6 +214,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 18,
+        "name": "request_item_ids",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "request_item_ids"
+          }
+        }
       }
     ],
     "parameters": {
@@ -239,7 +250,8 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "5a584e739731c9336e525292f7d65d37f80c637a5b874d7bc38bbab937070cb0"

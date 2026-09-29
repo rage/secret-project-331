@@ -16,6 +16,7 @@ headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
+headless-lms-credit-registration = { path = "../credit-registration" }
 exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
 doc-macro = { path = "../doc-macro" }
 rustls.workspace = true
@@ -173,6 +174,8 @@ pretty_assertions = "1.4.1"
 mockito = "1.7.2"
 # Random number generators and other randomness functionality.
 rand = "0.10.2"
+# Gives the tests a client for the mock Suotar.
+headless-lms-utils = { path = "../utils", features = ["test-support"] }
 
 [lints.clippy]
 unwrap_used = "deny"

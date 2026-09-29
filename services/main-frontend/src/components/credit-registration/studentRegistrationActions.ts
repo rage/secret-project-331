@@ -3,12 +3,11 @@
 import { useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   completionRegistrationRoute,
-  userSettingsRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { registrationStatusState } from "./creditRegistrationCopy"
@@ -19,8 +18,6 @@ import type { RegistrationCardAction } from "./RegistrationStatusCard"
 
 export interface StudentRegistrationActionsOptions {
   registration: MyCreditRegistration
-  /** From `useCanConfirmEmailAddress`. Adds the fast track when the emailed link is out of reach. */
-  canConfirmEmail: boolean
   /** Set on a list. The registration's own status page has nowhere further to send the reader. */
   linkToStatusPage: boolean
 }
@@ -34,14 +31,10 @@ export interface StudentRegistrationActions {
 /** The one lever the enrolment wait offers, which that band picks out of the plan by key. */
 export const RECHECK_ENROLMENT_ACTION_KEY = "recheck-enrolment"
 
-/** The one lever the linking band offers, which that band picks out of the plan by key. */
-export const CONFIRM_EMAIL_ACTION_KEY = "confirm-email"
-
 const ACTION_KEY = {
   enrol: "enrol",
   recheckEnrolment: RECHECK_ENROLMENT_ACTION_KEY,
   checkStudentNumber: "check-student-number",
-  confirmEmail: CONFIRM_EMAIL_ACTION_KEY,
   details: "details",
 }
 
@@ -54,7 +47,6 @@ const ACTION_KEY = {
  */
 export const useStudentRegistrationActions = ({
   registration,
-  canConfirmEmail,
   linkToStatusPage,
 }: StudentRegistrationActionsOptions): StudentRegistrationActions => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -63,25 +55,23 @@ export const useStudentRegistrationActions = ({
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
 
+  const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
   const enrolAction = (): RegistrationCardAction | null =>
-    registration.enrolment_link
-      ? {
-          key: ACTION_KEY.enrol,
-          label: t("credit-registration-action-enrol"),
-          href: registration.enrolment_link,
-        }
+    enrolmentLink
+      ? { key: ACTION_KEY.enrol, label: t("credit-registration-action-enrol"), href: enrolmentLink }
       : null
 
-  const recheckEnrolmentAction = (): RegistrationCardAction => ({
-    key: ACTION_KEY.recheckEnrolment,
-    label: t("credit-registration-action-look-again"),
-    onAct: () => recheckEnrolment.mutate(registration),
-    isDisabled: !registration.can_request_enrolment_recheck,
-    isLoading: recheckEnrolment.isPending,
-    ...includeIf(!registration.can_request_enrolment_recheck, {
-      disabledReason: t("credit-registration-enrolment-checked-recently"),
-    }),
-  })
+  // Hidden, not disabled, while a check is too recent: a greyed-out button would need its own
+  // explanation, and the page already says we keep checking.
+  const recheckEnrolmentAction = (): RegistrationCardAction | null =>
+    registration.can_request_enrolment_recheck
+      ? {
+          key: ACTION_KEY.recheckEnrolment,
+          label: failureActionLabel(t, "recheck_enrolment"),
+          onAct: () => recheckEnrolment.mutate(registration),
+          isLoading: recheckEnrolment.isPending,
+        }
+      : null
 
   const checkStudentNumberAction = (): RegistrationCardAction => ({
     key: ACTION_KEY.checkStudentNumber,
@@ -89,19 +79,12 @@ export const useStudentRegistrationActions = ({
     href: userSettingsStudentNumberRoute(),
   })
 
-  const confirmEmailAction = (): RegistrationCardAction => ({
-    key: ACTION_KEY.confirmEmail,
-    label: t("button-confirm-your-email-address"),
-    href: userSettingsRoute(),
-  })
-
   const studentLever = (action: FailureAction): RegistrationCardAction | null => {
     switch (action) {
       case "enrol":
         return enrolAction()
       case "recheck_enrolment":
-        // The endpoint only accepts a row parked on a missing enrolment. Anywhere else the button
-        // could only ever render greyed out, under a reason that is not the real one.
+        // The endpoint only accepts a row parked on a missing enrolment.
         return status === "needs_enrolment" ? recheckEnrolmentAction() : null
       case "check_own_student_number":
         return checkStudentNumberAction()
@@ -126,9 +109,10 @@ export const useStudentRegistrationActions = ({
     if (enrol) {
       levers.push(enrol)
     }
-    levers.push(recheckEnrolmentAction())
-  } else if (status === "needs_student_number" && canConfirmEmail) {
-    levers.push(confirmEmailAction())
+    const recheck = recheckEnrolmentAction()
+    if (recheck) {
+      levers.push(recheck)
+    }
   }
 
   if (linkToStatusPage && (state === "failed" || state === "action-needed")) {

@@ -80,7 +80,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code>{row.request_item_id}</code>
+                        <code>{row.request_item_id ?? ABSENT}</code>
                       </Link>
                     ),
                   },

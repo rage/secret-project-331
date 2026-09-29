@@ -15,6 +15,9 @@ use dpop_verifier::error::DpopError;
 use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType};
 use headless_lms_base::error::{backend_error::BackendError, clean_format::ColorChoice};
 use headless_lms_chatbot::prelude::{ChatbotError, ChatbotErrorType};
+use headless_lms_credit_registration::error::{
+    CreditRegistrationError, CreditRegistrationErrorType,
+};
 use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use serde::{Deserialize, Serialize};
@@ -260,6 +263,7 @@ headless_lms_base::impl_clean_debug!(
         ControllerError,
         AuthorizationError,
         ChatbotError,
+        CreditRegistrationError,
         ModelError,
         UtilError
     ]
@@ -398,26 +402,6 @@ impl error::ResponseError for ControllerError {
 
                 // Uses the main DB pool intentionally for best-effort reporting; this can amplify outage pressure.
                 actix_web::rt::spawn(async move {
-                    let mut conn = match tokio::time::timeout(
-                        std::time::Duration::from_millis(250),
-                        pool.acquire(),
-                    )
-                    .await
-                    {
-                        Ok(Ok(conn)) => conn,
-                        Ok(Err(err)) => {
-                            warn!(
-                                "internal error reporting skipped: failed to acquire pool connection: {err}"
-                            );
-                            return;
-                        }
-                        Err(_) => {
-                            warn!(
-                                "internal error reporting skipped: timed out acquiring pool connection"
-                            );
-                            return;
-                        }
-                    };
                     let report = headless_lms_models::errors::NewErrorReport {
                         service: "headless-lms".to_string(),
                         error_source: Some(headless_lms_models::errors::ErrorSource::Backend),
@@ -427,11 +411,7 @@ impl error::ResponseError for ControllerError {
                         app_version: None,
                         details: Some(details),
                     };
-                    if let Err(err) =
-                        headless_lms_models::errors::insert(&mut conn, None, &report).await
-                    {
-                        debug!("internal error reporting insert failed: {err}");
-                    }
+                    headless_lms_models::errors::insert_best_effort(&pool, &report).await;
                 });
             }
         }
@@ -1105,6 +1085,31 @@ impl From<ChatbotError> for ControllerError {
             | ChatbotErrorType::FailedAzureResponse
             | ChatbotErrorType::SisuDescriptionError
             | ChatbotErrorType::ChatbotUtilError => ControllerErrorType::InternalServerError,
+        };
+        let message = err.message().to_string();
+
+        Self::new_with_traces(error_type, message, Some(err.into()), backtrace, span_trace)
+    }
+}
+
+impl From<CreditRegistrationError> for ControllerError {
+    fn from(err: CreditRegistrationError) -> Self {
+        // A failure that came from the models layer is mapped like any other ModelError, so that
+        // e.g. a resend for a deleted course answers 404.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+
+        let backtrace: Backtrace = match BackendError::backtrace(&err) {
+            Some(backtrace) => backtrace.clone(),
+            _ => Backtrace::new(),
+        };
+        let span_trace = err.span_trace().clone();
+        let error_type = match err.error_type() {
+            CreditRegistrationErrorType::Model | CreditRegistrationErrorType::Database => {
+                ControllerErrorType::InternalServerError
+            }
         };
         let message = err.message().to_string();
 

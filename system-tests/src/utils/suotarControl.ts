@@ -31,7 +31,6 @@ export const CREDIT_REGISTRATION_PHASES = [
   "student-notifications",
   "enrolment-discovery",
   "link-emails",
-  "product-token-refresh",
   "config-validation",
   "retention-sweep",
   "ledger-snapshot",
@@ -62,12 +61,27 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, or its circuit breaker is open. Nothing ran this tick. */
-  | { status: "skipped"; phase: CreditRegistrationPhase; reason: "paused" | "circuitBreakerOpen" }
+  /** The phase is paused, its circuit breaker is open, or account linking is off. Nothing ran. */
+  | {
+      status: "skipped"
+      phase: CreditRegistrationPhase
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled"
+    }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
   | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
   | { status: "unresolvedScope"; half: string; value: string }
+
+/** How the tick runs, apart from which rows it may touch. */
+export interface TickOptions {
+  /** Overrides the deployment's account-linking switch for this one tick. */
+  accountLinkingEnabled?: boolean
+}
+
+const optionsQuery = (options?: TickOptions): string =>
+  options?.accountLinkingEnabled === undefined
+    ? ""
+    : `&accountLinkingEnabled=${options.accountLinkingEnabled}`
 
 const scopeQuery = (scope?: TickScope): string => {
   if (!scope) {
@@ -92,9 +106,10 @@ export const runTickUnchecked = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
   scope?: TickScope,
+  options?: TickOptions,
 ): Promise<PhaseTickResult> => {
   const response = await request.post(
-    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}`,
+    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}${optionsQuery(options)}`,
   )
   // 501 is the "no implementation registered yet" answer and 400 covers the unknown phase and the two
   // scope refusals; anything else (notably 404) means the mock is not enabled and the spec is invalid.
@@ -115,8 +130,9 @@ export const runTick = async (
   request: APIRequestContext,
   phase: CreditRegistrationPhase,
   scope?: TickScope,
+  options?: TickOptions,
 ): Promise<RanPhaseTick> => {
-  const result = await runTickUnchecked(request, phase, scope)
+  const result = await runTickUnchecked(request, phase, scope, options)
   if (result.status !== "ran" || result.error !== null) {
     const scoped = scope ? ` scoped to ${JSON.stringify(scope)}` : " unscoped"
     throw new Error(`Ticking ${phase}${scoped} did not run cleanly: ${JSON.stringify(result)}`)
@@ -161,21 +177,13 @@ export const runStudentNotificationsTick = (
 export const runEnrolmentDiscoveryTick = (
   request: APIRequestContext,
   scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope)
+  options?: TickOptions,
+): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope, options)
 
-/**
- * Separate from enrolment discovery because the fast-track specs assert that **no** linking
- * mail was queued, which needs the mailing phase run on its own.
- */
 export const runLinkEmailsTick = (
   request: APIRequestContext,
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "link-emails", scope)
-
-export const runProductTokenRefreshTick = (
-  request: APIRequestContext,
-  scope?: TickScope,
-): Promise<RanPhaseTick> => runTick(request, "product-token-refresh", scope)
 
 export const runConfigValidationTick = (
   request: APIRequestContext,
@@ -187,6 +195,121 @@ export const runRetentionSweepTick = (request: APIRequestContext): Promise<RanPh
 
 export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
   runTick(request, "ledger-snapshot")
+
+/**
+ * Backdates a row's last enrolment check and last check request past the half hour the recheck
+ * buttons wait out, so a spec can press one right after the pipeline looked or the student asked.
+ * `clearRestarts` also forgets the day's schedule restarts, for a spec that needs a press to restart
+ * the schedule again.
+ */
+export const expireEnrolmentRecheckAllowance = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+  options: { clearRestarts?: boolean } = {},
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/expire-enrolment-recheck-allowance`, {
+    data: { creditRegistrationId, clearRestarts: options.clearRestarts ?? false },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `expire-enrolment-recheck-allowance failed with ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
+ * Brings the next enrolment check of every row in `scope` that waits for one forward to now, and
+ * returns how many it moved. The next resolve-enrolments tick checks them. Refuses an empty scope.
+ */
+export const makeEnrolmentChecksDue = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<number> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/make-enrolment-checks-due?${scopeQuery(scope).slice(1)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `make-enrolment-checks-due scoped to ${JSON.stringify(scope)} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return ((await response.json()) as { madeDueCount: number }).madeDueCount
+}
+
+/**
+ * Makes the roster listings of the course `scope` names due now and refills its listing rate, so a
+ * spec can list its codes again without waiting out the tier interval, a failure backoff or the
+ * limiter. Returns how many codes it moved. Refuses a scope without a course.
+ */
+export const makeRosterListingsDue = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<number> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/make-roster-listings-due?${scopeQuery(scope).slice(1)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `make-roster-listings-due scoped to ${JSON.stringify(scope)} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return ((await response.json()) as { madeDueCount: number }).madeDueCount
+}
+
+/** Which ladder a row's enrolment checks follow. Rows only ever move to a later group. */
+export type EnrolmentCheckGroup = "completed" | "visited" | "check_requested"
+
+/** What made the row's next enrolment check run when it does. */
+export type EnrolmentCheckSource =
+  | "schedule"
+  | "student_request"
+  | "teacher_request"
+  | "admin_request"
+  | "roster_listing"
+  | "account_link"
+
+/** A row's enrolment check schedule. Timestamps are ISO strings. */
+export interface EnrolmentCheckSchedule {
+  state: string
+  group: EnrolmentCheckGroup
+  /** What the ladder's rungs are offsets from: the completion, a visit or a check request. */
+  anchorAt: string | null
+  /** The rung the next check is on; `null` once the ladder has run out. */
+  step: number | null
+  dueAt: string | null
+  /** When the pipeline next claims the row, which a batched rung rounds later than `dueAt`. */
+  nextAttemptAt: string
+  isBatched: boolean
+  source: EnrolmentCheckSource
+  stoppedAt: string | null
+  requestedAt: string | null
+  /** Restarts by check requests in the current 24-hour window. */
+  restartCount: number
+  checkedAt: string | null
+  firstFailedAt: string | null
+  submitRetryCount: number
+  errorCode: string | null
+  /** `null` until the row's first answered check or roster listing. */
+  seenEnrolmentIds: string[] | null
+  /** Set while a check of the parked row is out; the row stays `no_usable_enrolment` for it. */
+  claimedUntil: string | null
+}
+
+/** One row's enrolment check schedule, which no product surface shows whole. */
+export const getEnrolmentCheckSchedule = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+): Promise<EnrolmentCheckSchedule> => {
+  const response = await request.get(
+    `${CONTROL_BASE_URL}/enrolment-check-schedule?creditRegistrationId=${creditRegistrationId}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `Reading the enrolment check schedule of ${creditRegistrationId} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as EnrolmentCheckSchedule
+}
 
 /** One mail sitting in our send queue for an account. */
 export interface QueuedEmail {
@@ -259,14 +382,28 @@ export const setTestExclusiveHold = async (
 }
 
 /**
- * Drives a completion as far as a submission, one phase per tick. Each phase claims what
- * the one before it left, so ticking them out of order waits for a state that cannot arrive.
+ * Checks the enrolments of the rows in `scope` now instead of on their schedule: a fresh row waits a
+ * day for its first check. Runs the check for rows already due too.
+ */
+export const runEnrolmentCheckNow = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<void> => {
+  await runPreconditionsTick(request, scope)
+  await makeEnrolmentChecksDue(request, scope)
+  await runResolveEnrolmentsTick(request, scope)
+}
+
+/**
+ * Drives a completion as far as a submission, one phase per tick, with its enrolment check brought
+ * forward. Each phase claims what the one before it left, so ticking them out of order waits for a
+ * state that cannot arrive.
  */
 export const runPhasesUpToSubmission = async (
   request: APIRequestContext,
   scope: TickScope,
 ): Promise<void> => {
-  for (const phase of ["materialize", "preconditions", "resolve-enrolments", "import"] as const) {
-    await runTick(request, phase, scope)
-  }
+  await runMaterializeTick(request, scope)
+  await runEnrolmentCheckNow(request, scope)
+  await runImportSubmissionTick(request, scope)
 }

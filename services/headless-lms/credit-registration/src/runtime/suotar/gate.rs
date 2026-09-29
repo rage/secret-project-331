@@ -163,7 +163,7 @@ impl StudyRegistryGate {
         let limit = endpoint
             .max_batch_size()
             .min(rate_limit::available(&self.key, endpoint));
-        debug!(
+        trace!(
             ?endpoint,
             limit, "Computed the claim limit for a Suotar endpoint"
         );

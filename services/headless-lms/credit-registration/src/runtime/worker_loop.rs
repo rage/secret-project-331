@@ -204,9 +204,9 @@ async fn run_due_phase(
         }
         PhaseTick::Ran(_) => {
             clear_skip_state(phase);
-            // Nothing to do this run: too routine to log above debug, or the heartbeat interval
-            // would read as a stream of info lines once a phase catches up with its queue.
-            debug!(
+            // Nothing to do this run: phases tick every few seconds, so anything above trace buries
+            // the lines that report work.
+            trace!(
                 phase = phase.as_str(),
                 duration_ms, "Credit registration phase run found nothing to do"
             );

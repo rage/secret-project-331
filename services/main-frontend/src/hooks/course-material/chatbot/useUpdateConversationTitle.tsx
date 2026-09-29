@@ -42,7 +42,6 @@ const useUpdateConversationTitle = (
         })
       },
     },
-    // OnSuccess refetch the new updated conversation
   )
 }
 

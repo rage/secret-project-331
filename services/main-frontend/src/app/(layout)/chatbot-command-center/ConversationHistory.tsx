@@ -45,6 +45,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         <div
           className={css`
             padding: 0 1rem;
+            margin-top: 1rem;
           `}
         >
           <Infobox>{t("no-existing-conversations")}</Infobox>
@@ -71,6 +72,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               border-radius: 0;
               &:hover:not(:disabled):not([aria-disabled="true"]) {
                 background: var(--color-green-75);
+                transition: 0.2s;
               }
               color: var(--field-fg);
               background-color: ${conversation.id === convId ? "var(--color-green-75); border-color: var(--color-green-300) !important; box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};

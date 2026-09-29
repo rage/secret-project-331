@@ -166,11 +166,6 @@ const useChatbotStateAndData = (
     setChatbotMessageAnnouncement(
       waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
-    if (currentConversationInfo.data?.current_conversation_messages?.length === 1) {
-      queryClient.refetchQueries({
-        queryKey: allUserConversationsQueryKey(),
-      })
-    }
   }
 
   const requireConversationId = () => {

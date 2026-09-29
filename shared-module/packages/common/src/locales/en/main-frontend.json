@@ -1876,6 +1876,7 @@
   "role-admin": "Admin",
   "role-assistant": "Assistant",
   "role-course-or-exam-creator": "Course or exam creator",
+  "role-credit-registration-admin": "Credit registration admin",
   "role-material-viewer": "Material viewer",
   "role-reviewer": "Reviewer",
   "role-stats-viewer": "Stats viewer",

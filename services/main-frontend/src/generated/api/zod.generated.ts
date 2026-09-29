@@ -6112,6 +6112,7 @@ export const zUserRole = z.enum([
   "MaterialViewer",
   "TeachingAndLearningServices",
   "StatsViewer",
+  "CreditRegistrationAdmin",
 ])
 
 export const zPendingRole = z.object({

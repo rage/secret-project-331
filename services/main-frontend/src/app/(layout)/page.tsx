@@ -117,7 +117,7 @@ const FrontPage = () => {
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
-        action={{ type: "administrate" }}
+        action={{ type: "administrate_credit_registrations" }}
         resource={{ type: "global_permissions" }}
       >
         <div>
@@ -125,6 +125,11 @@ const FrontPage = () => {
             {t("title-credit-registration")}
           </Link>
         </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "administrate" }}
+        resource={{ type: "global_permissions" }}
+      >
         <div>
           <Link href="/manage/email-templates" className={navLinkCss}>
             {t("email-templates-title")}

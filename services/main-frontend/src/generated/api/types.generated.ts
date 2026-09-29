@@ -5332,6 +5332,7 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+  | "CreditRegistrationAdmin"
 
 /**
  * A user's suspected-cheater record in one course, paired with that course's duration threshold.

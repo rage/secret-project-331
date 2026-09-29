@@ -28155,7 +28155,8 @@
           "CourseOrExamCreator",
           "MaterialViewer",
           "TeachingAndLearningServices",
-          "StatsViewer"
+          "StatsViewer",
+          "CreditRegistrationAdmin"
         ]
       },
       "UserSuspectedCheaterInfo": {

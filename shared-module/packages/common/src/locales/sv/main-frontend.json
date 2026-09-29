@@ -1215,6 +1215,7 @@
   "role-admin": "Admin",
   "role-assistant": "Assistent",
   "role-course-or-exam-creator": "Kurs- eller provskapare",
+  "role-credit-registration-admin": "Administratör för studiepoängsregistrering",
   "role-material-viewer": "Materialvisare",
   "role-reviewer": "Granskare",
   "role-stats-viewer": "Statistikvisare",

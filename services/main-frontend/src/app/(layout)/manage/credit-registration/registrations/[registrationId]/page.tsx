@@ -522,7 +522,6 @@ const TimelineEntry: React.FC<{
 /** Kinds whose same-state repeats are polls, not news. */
 const COLLAPSIBLE_KINDS: ReadonlySet<AdminCreditRegistrationEvent["kind"]> = new Set([
   "suotar_response",
-  "retry_scheduled",
 ])
 
 interface TimelineRunGroup {
@@ -533,6 +532,7 @@ interface TimelineRunGroup {
 
 const continuesRun = (run: TimelineRunGroup, event: AdminCreditRegistrationEvent) =>
   COLLAPSIBLE_KINDS.has(event.kind) &&
+  event.to_state != null &&
   event.from_state === event.to_state &&
   run.oldest.kind === event.kind &&
   run.oldest.to_state === event.to_state &&

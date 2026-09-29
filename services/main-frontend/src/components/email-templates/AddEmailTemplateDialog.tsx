@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -46,11 +46,16 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const { control, handleSubmit, reset } = useForm<Fields>({ defaultValues: DEFAULT_VALUES })
+  // `isPending` lags a render behind, and a second Enter would hit the unique index.
+  const isSubmitting = useRef(false)
 
   const mutation = useToastMutationOptions(
     createEmailTemplateMutation(),
     { notify: true, method: "POST" },
     {
+      onError: () => {
+        isSubmitting.current = false
+      },
       onSuccess: async (template) => {
         await queryClient.invalidateQueries({ queryKey: getEmailTemplatesQueryKey() })
         window.location.assign(`/cms/email-templates/${template.id}/edit`)
@@ -65,9 +70,10 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
   }
 
   const submit = handleSubmit((fields) => {
-    if (fields.templateType === "" || mutation.isPending) {
+    if (fields.templateType === "" || isSubmitting.current) {
       return
     }
+    isSubmitting.current = true
     mutation.mutate({
       body: {
         template_type: fields.templateType,

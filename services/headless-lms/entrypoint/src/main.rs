@@ -27,6 +27,11 @@ struct Program {
 }
 
 fn main() -> Result<()> {
+    // Both ring and aws-lc-rs end up in the dependency tree, so rustls can't pick one on its own.
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("failed to install rustls ring crypto provider");
+
     let programs_list = vec![
         Program {
             name: "credit-registrar",

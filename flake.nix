@@ -272,6 +272,8 @@
         ];
 
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
+
+        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_24 ];
       in
       {
         devShells.default = pkgs.mkShell (
@@ -316,6 +318,18 @@
             '';
           }
         );
+
+        # For CI jobs that only need Node: the default shell's closure (Chromium, Rust, clang, …)
+        # takes minutes to fetch on a runner with an empty Nix store.
+        devShells.node = pkgs.mkShell {
+          packages = nodeShellPathPriorityPackages ++ [
+            pkgs.pnpm
+            pkgs.rsync
+          ];
+          shellHook = ''
+            export PATH="${lib.makeBinPath nodeShellPathPriorityPackages}:$PATH"
+          '';
+        };
       }
     );
 }

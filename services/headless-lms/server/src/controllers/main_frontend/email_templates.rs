@@ -3,6 +3,7 @@
 use models::email_templates::{EmailTemplate, EmailTemplateNew};
 use utoipa::OpenApi;
 
+use crate::domain::error::missing_controller_error;
 use crate::prelude::*;
 
 #[derive(OpenApi)]
@@ -74,13 +75,10 @@ async fn create_email_template(
     let created =
         models::email_templates::insert_global_email_template_if_absent(&mut conn, new_template)
             .await?
-            .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "A template of this type and language already exists.".to_string(),
-                    None,
-                )
-            })?;
+            .ok_or_else(missing_controller_error(
+                ControllerErrorType::BadRequest,
+                "A template of this type and language already exists.",
+            ))?;
     token.authorized_ok(web::Json(created))
 }
 

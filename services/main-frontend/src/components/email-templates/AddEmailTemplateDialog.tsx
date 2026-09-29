@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -11,7 +11,9 @@ import {
   getEmailTemplatesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { EmailTemplateType } from "@/generated/api/types.generated"
-import { Button, Dialog, Infobox, Select, TextField, TONE } from "@/shared-module/components"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Button, Dialog, Select, TextField } from "@/shared-module/components"
 
 interface Fields {
   templateType: EmailTemplateType | ""
@@ -45,13 +47,16 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
   const [open, setOpen] = useState(false)
   const { control, handleSubmit, reset } = useForm<Fields>({ defaultValues: DEFAULT_VALUES })
 
-  const mutation = useMutation({
-    ...createEmailTemplateMutation(),
-    onSuccess: async (template) => {
-      await queryClient.invalidateQueries({ queryKey: getEmailTemplatesQueryKey() })
-      window.location.assign(`/cms/email-templates/${template.id}/edit`)
+  const mutation = useToastMutationOptions(
+    createEmailTemplateMutation(),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: async (template) => {
+        await queryClient.invalidateQueries({ queryKey: getEmailTemplatesQueryKey() })
+        window.location.assign(`/cms/email-templates/${template.id}/edit`)
+      },
     },
-  })
+  )
 
   const close = () => {
     setOpen(false)
@@ -60,7 +65,7 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
   }
 
   const submit = handleSubmit((fields) => {
-    if (fields.templateType === "") {
+    if (fields.templateType === "" || mutation.isPending) {
       return
     }
     mutation.mutate({
@@ -111,7 +116,7 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
             }))}
           />
           <TextField name="subject" control={control} label={t("label-email-subject")} />
-          {mutation.isError && <Infobox tone={TONE.DANGER}>{mutation.error.message}</Infobox>}
+          {mutation.isError && <ErrorBanner variant="readOnly" error={mutation.error} />}
         </form>
       </Dialog>
     </>

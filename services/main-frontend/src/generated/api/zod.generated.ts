@@ -1719,20 +1719,6 @@ export const zCreditRegistrationState = z.enum([
   "cancelled",
 ])
 
-export const zAdminCreditRegistrationEvent = z.object({
-  actor_user_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  details: z.unknown().optional(),
-  error_code: zCreditRegistrationErrorCode.nullish(),
-  from_state: zCreditRegistrationState.nullish(),
-  id: z.uuid(),
-  kind: zCreditRegistrationEventKind,
-  message: z.string().nullish(),
-  request_item_id: z.string().nullish(),
-  suotar_api_call_id: z.uuid().nullish(),
-  to_state: zCreditRegistrationState.nullish(),
-})
-
 /**
  * One audited manual action on this course, named rather than keyed: a teacher reads this to find
  * out whether a colleague has already acted.
@@ -5092,6 +5078,24 @@ export const zSuotarEndpoint = z.enum([
   "list_by_course",
   "validate_course_codes",
 ])
+
+export const zAdminCreditRegistrationEvent = z.object({
+  actor_user_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  details: z.unknown().optional(),
+  error_code: zCreditRegistrationErrorCode.nullish(),
+  from_state: zCreditRegistrationState.nullish(),
+  id: z.uuid(),
+  kind: zCreditRegistrationEventKind,
+  message: z.string().nullish(),
+  request_item_id: z.string().nullish(),
+  suotar_answered_at: z.iso.datetime().nullish(),
+  suotar_api_call_id: z.uuid().nullish(),
+  suotar_code: z.string().nullish(),
+  suotar_endpoint: zSuotarEndpoint.nullish(),
+  suotar_requested_at: z.iso.datetime().nullish(),
+  to_state: zCreditRegistrationState.nullish(),
+})
 
 export const zAdminSuotarApiCall = z.object({
   credit_registration_ids: z.array(z.uuid()),

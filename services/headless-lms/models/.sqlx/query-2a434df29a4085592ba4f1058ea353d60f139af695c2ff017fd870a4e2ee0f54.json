@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT ON (credit_registration_id) credit_registration_id,\n  request_item_id AS \"request_item_id!\"\nFROM credit_registration_events\nWHERE credit_registration_id = ANY($1)\n  AND request_item_id = ANY($2)\n  AND deleted_at IS NULL\nORDER BY credit_registration_id,\n  created_at\n        ",
+  "query": "\nSELECT DISTINCT ON (credit_registration_id) credit_registration_id,\n  request_item_id AS \"request_item_id!\"\nFROM credit_registration_events\nWHERE credit_registration_id = ANY($1)\n  AND request_item_id = ANY($2)\n  AND deleted_at IS NULL\nORDER BY credit_registration_id,\n  COALESCE(suotar_answered_at, created_at)\n        ",
   "describe": {
     "columns": [
       {
@@ -37,5 +37,5 @@
       true
     ]
   },
-  "hash": "18182f9be40ba8c4c44af2cb8fb9fa1d89d9653197a402e855dc2666295d0915"
+  "hash": "2a434df29a4085592ba4f1058ea353d60f139af695c2ff017fd870a4e2ee0f54"
 }

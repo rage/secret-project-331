@@ -1,3 +1,10 @@
+ALTER TABLE credit_registration_events
+ALTER COLUMN created_at
+SET DEFAULT clock_timestamp(),
+  DROP COLUMN suotar_endpoint,
+  DROP COLUMN suotar_requested_at,
+  DROP COLUMN suotar_answered_at;
+COMMENT ON COLUMN credit_registration_events.created_at IS 'Timestamp when the record was created, taken from the wall clock rather than the transaction start, so events appended in one transaction stay orderable. This is what the timeline sorts on.';
 DELETE FROM roles
 WHERE role = 'credit_registration_admin';
 DELETE FROM pending_roles

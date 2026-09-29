@@ -1,5 +1,7 @@
 //! One batch request to the study registry and what came of it, row by row.
 
+use chrono::{DateTime, Utc};
+use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use uuid::Uuid;
 
 use super::ids::StudentNumber;
@@ -82,6 +84,11 @@ pub(crate) struct RefusedRow<K> {
 pub(crate) struct ExchangeAudit {
     /// `suotar_api_calls.id`; `None` on a refusal, or when the call row could not be written.
     pub call_id: Option<Uuid>,
+    pub endpoint: SuotarEndpoint,
+    /// Taken just before the request left.
+    pub requested_at: DateTime<Utc>,
+    /// Taken when the answer or refusal arrived.
+    pub answered_at: DateTime<Utc>,
     /// What the row's item went out under in that request.
     pub request_item_id: String,
     pub request: serde_json::Value,

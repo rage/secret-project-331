@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO credit_registration_events (\n    credit_registration_id,\n    kind,\n    from_state,\n    to_state,\n    error_code,\n    message,\n    suotar_api_call_id,\n    actor_user_id,\n    details,\n    request_item_id\n  )\nSELECT *\nFROM UNNEST(\n    $1::uuid [],\n    $2::credit_registration_event_kind [],\n    $3::credit_registration_state [],\n    $4::credit_registration_state [],\n    $5::credit_registration_error_code [],\n    $6::text [],\n    $7::uuid [],\n    $8::uuid [],\n    $9::jsonb [],\n    $10::text []\n  )\n        ",
+  "query": "\nINSERT INTO credit_registration_events (\n    credit_registration_id,\n    kind,\n    from_state,\n    to_state,\n    error_code,\n    message,\n    suotar_api_call_id,\n    actor_user_id,\n    details,\n    request_item_id,\n    suotar_endpoint,\n    suotar_requested_at,\n    suotar_answered_at\n  )\nSELECT *\nFROM UNNEST(\n    $1::uuid [],\n    $2::credit_registration_event_kind [],\n    $3::credit_registration_state [],\n    $4::credit_registration_state [],\n    $5::credit_registration_error_code [],\n    $6::text [],\n    $7::uuid [],\n    $8::uuid [],\n    $9::jsonb [],\n    $10::text [],\n    $11::suotar_endpoint [],\n    $12::timestamptz [],\n    $13::timestamptz []\n  )\n        ",
   "describe": {
     "columns": [],
     "parameters": {
@@ -136,10 +136,34 @@
         "UuidArray",
         "UuidArray",
         "JsonbArray",
-        "TextArray"
+        "TextArray",
+        {
+          "Custom": {
+            "name": "suotar_endpoint[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "suotar_endpoint",
+                  "kind": {
+                    "Enum": [
+                      "resolve_persons",
+                      "resolve_enrolments",
+                      "import_attainments",
+                      "verify_attainments",
+                      "list_by_course",
+                      "validate_course_codes"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TimestamptzArray",
+        "TimestamptzArray"
       ]
     },
     "nullable": []
   },
-  "hash": "a00c154de6e814ee180b7fe92a656abe2ff702f419380cc4e662b1b23ad8013d"
+  "hash": "3e240b306d4c1e960e2d30cc5ece50532008f90288c5479b587ba21e9ea7042c"
 }

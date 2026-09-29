@@ -159,6 +159,9 @@ pub(crate) async fn write_decision(
         event_kind: CreditRegistrationEventKind::SuotarResponse,
         event_message: decision.message.clone(),
         suotar_api_call_id: audit.call_id,
+        suotar_endpoint: Some(audit.endpoint),
+        suotar_requested_at: Some(audit.requested_at),
+        suotar_answered_at: Some(audit.answered_at),
         event_details: Some(suotar_exchange_details(
             Some(&audit.request),
             audit.response.as_ref(),

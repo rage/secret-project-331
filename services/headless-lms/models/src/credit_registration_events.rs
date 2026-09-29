@@ -45,6 +45,11 @@ pub struct CreditRegistrationEvent {
     pub details: Option<Value>,
     /// The requestItemId the row went out under in the call behind this event.
     pub request_item_id: Option<String>,
+    /// Outlives `suotar_api_call_id`, whose call row is swept after 90 days.
+    pub suotar_endpoint: Option<SuotarEndpoint>,
+    pub suotar_requested_at: Option<DateTime<Utc>>,
+    /// Orders the timeline where set: events written in one transaction share `created_at`.
+    pub suotar_answered_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -62,6 +67,9 @@ pub struct NewCreditRegistrationEvent {
     /// so it is scrubbed.
     pub details: Option<Value>,
     pub request_item_id: Option<String>,
+    pub suotar_endpoint: Option<SuotarEndpoint>,
+    pub suotar_requested_at: Option<DateTime<Utc>>,
+    pub suotar_answered_at: Option<DateTime<Utc>>,
 }
 
 impl NewCreditRegistrationEvent {
@@ -77,6 +85,9 @@ impl NewCreditRegistrationEvent {
             actor_user_id: None,
             details: None,
             request_item_id: None,
+            suotar_endpoint: None,
+            suotar_requested_at: None,
+            suotar_answered_at: None,
         }
     }
 }
@@ -99,9 +110,12 @@ INSERT INTO credit_registration_events (
     suotar_api_call_id,
     actor_user_id,
     details,
-    request_item_id
+    request_item_id,
+    suotar_endpoint,
+    suotar_requested_at,
+    suotar_answered_at
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING id
         "#,
         new.credit_registration_id,
@@ -114,6 +128,9 @@ RETURNING id
         new.actor_user_id,
         new.details,
         new.request_item_id,
+        new.suotar_endpoint as Option<SuotarEndpoint>,
+        new.suotar_requested_at,
+        new.suotar_answered_at,
     )
     .fetch_one(conn)
     .await?;
@@ -143,6 +160,11 @@ pub async fn insert_batch(
     let details: Vec<Option<Value>> = events.iter().map(|e| e.details.clone()).collect();
     let request_item_ids: Vec<Option<String>> =
         events.iter().map(|e| e.request_item_id.clone()).collect();
+    let endpoints: Vec<Option<SuotarEndpoint>> = events.iter().map(|e| e.suotar_endpoint).collect();
+    let requested_ats: Vec<Option<DateTime<Utc>>> =
+        events.iter().map(|e| e.suotar_requested_at).collect();
+    let answered_ats: Vec<Option<DateTime<Utc>>> =
+        events.iter().map(|e| e.suotar_answered_at).collect();
     sqlx::query!(
         r#"
 INSERT INTO credit_registration_events (
@@ -155,7 +177,10 @@ INSERT INTO credit_registration_events (
     suotar_api_call_id,
     actor_user_id,
     details,
-    request_item_id
+    request_item_id,
+    suotar_endpoint,
+    suotar_requested_at,
+    suotar_answered_at
   )
 SELECT *
 FROM UNNEST(
@@ -168,7 +193,10 @@ FROM UNNEST(
     $7::uuid [],
     $8::uuid [],
     $9::jsonb [],
-    $10::text []
+    $10::text [],
+    $11::suotar_endpoint [],
+    $12::timestamptz [],
+    $13::timestamptz []
   )
         "#,
         &ids,
@@ -181,6 +209,9 @@ FROM UNNEST(
         &actors as &[Option<Uuid>],
         &details as &[Option<Value>],
         &request_item_ids as &[Option<String>],
+        &endpoints as &[Option<SuotarEndpoint>],
+        &requested_ats as &[Option<DateTime<Utc>>],
+        &answered_ats as &[Option<DateTime<Utc>>],
     )
     .execute(conn)
     .await?;
@@ -226,7 +257,7 @@ SELECT *
 FROM credit_registration_events
 WHERE credit_registration_id = $1
   AND deleted_at IS NULL
-ORDER BY created_at DESC
+ORDER BY COALESCE(suotar_answered_at, created_at) DESC
         "#,
         credit_registration_id
     )
@@ -248,7 +279,7 @@ SELECT *
 FROM credit_registration_events
 WHERE suotar_api_call_id = $1
   AND deleted_at IS NULL
-ORDER BY created_at
+ORDER BY COALESCE(suotar_answered_at, created_at)
         "#,
         suotar_api_call_id
     )
@@ -273,7 +304,7 @@ WHERE credit_registration_id = ANY($1)
   AND request_item_id = ANY($2)
   AND deleted_at IS NULL
 ORDER BY credit_registration_id,
-  created_at
+  COALESCE(suotar_answered_at, created_at)
         "#,
         credit_registration_ids,
         request_item_ids,
@@ -312,7 +343,7 @@ WHERE credit_registration_id = $1
   AND to_state = 'not_improved'
   AND details #> '{response,result,previousAttainment}' IS NOT NULL
   AND deleted_at IS NULL
-ORDER BY created_at DESC
+ORDER BY COALESCE(suotar_answered_at, created_at) DESC
 LIMIT 1
         "#,
         credit_registration_id

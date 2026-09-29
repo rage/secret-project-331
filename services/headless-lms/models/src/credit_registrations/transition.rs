@@ -9,6 +9,7 @@ use super::state::{
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
 use crate::error::missing_model_error;
 use crate::prelude::*;
+use crate::suotar_api_calls::SuotarEndpoint;
 use chrono::TimeDelta;
 use std::collections::HashMap;
 
@@ -38,6 +39,9 @@ pub struct Transition {
     pub event_message: Option<String>,
     pub actor_user_id: Option<Uuid>,
     pub suotar_api_call_id: Option<Uuid>,
+    pub suotar_endpoint: Option<SuotarEndpoint>,
+    pub suotar_requested_at: Option<DateTime<Utc>>,
+    pub suotar_answered_at: Option<DateTime<Utc>>,
     /// Already scrubbed `{request, response}` payload for the event row.
     pub event_details: Option<serde_json::Value>,
     /// The requestItemId the row went out under in the call behind this move.
@@ -94,6 +98,9 @@ impl Transition {
             event_message: None,
             actor_user_id: None,
             suotar_api_call_id: None,
+            suotar_endpoint: None,
+            suotar_requested_at: None,
+            suotar_answered_at: None,
             event_details: None,
             request_item_id: None,
             expected_from_state: None,
@@ -236,6 +243,9 @@ async fn write_moves(
             error_code: transition.error_code,
             message: transition.event_message.clone(),
             suotar_api_call_id: transition.suotar_api_call_id,
+            suotar_endpoint: transition.suotar_endpoint,
+            suotar_requested_at: transition.suotar_requested_at,
+            suotar_answered_at: transition.suotar_answered_at,
             actor_user_id: transition.actor_user_id,
             details: transition.event_details.clone(),
             request_item_id: transition.request_item_id.clone(),

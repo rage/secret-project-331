@@ -223,7 +223,15 @@ export type AdminCreditRegistrationEvent = {
    * The requestItemId the row went out under in the call behind this event.
    */
   request_item_id?: string | null
+  suotar_answered_at?: string | null
   suotar_api_call_id?: string | null
+  /**
+   * Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and
+   * sometimes drops. `None` when no item answer came back.
+   */
+  suotar_code?: string | null
+  suotar_endpoint?: null | SuotarEndpoint
+  suotar_requested_at?: string | null
   to_state?: null | CreditRegistrationState
 }
 

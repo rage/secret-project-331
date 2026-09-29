@@ -1,6 +1,7 @@
-UPDATE email_templates t
-SET deleted_at = NOW()
-FROM (
+CREATE TEMPORARY TABLE seeded_email_templates ON COMMIT DROP AS
+SELECT t.id
+FROM email_templates t
+  JOIN (
   VALUES (
       'credit_registration_action_needed'::email_template_type,
       'en',
@@ -41,10 +42,50 @@ FROM (
         {"type": "core/paragraph", "isValid": true, "clientId": "d6000000-0000-0000-0000-000000000002", "attributes": {"content": "Jos ne oli jo kirjattu, tämä viesti vahvistaa sen. Näet tiedot täältä: {{STATUS_LINK}}", "drop_cap": false}, "innerBlocks": []}
       ]'::jsonb
     )
-  ) AS seed(email_template_type, language, subject, content)
-WHERE t.email_template_type = seed.email_template_type
+  ) AS seed(email_template_type, language, subject, content) ON t.email_template_type = seed.email_template_type
   AND t.language = seed.language
   AND t.subject = seed.subject
   AND t.content = seed.content
-  AND t.course_id IS NULL
+WHERE t.course_id IS NULL
   AND t.deleted_at IS NULL;
+
+CREATE TEMPORARY TABLE seeded_email_deliveries ON COMMIT DROP AS
+SELECT id
+FROM email_deliveries
+WHERE email_template_id IN (
+    SELECT id
+    FROM seeded_email_templates
+  );
+
+UPDATE credit_registrations
+SET action_needed_email_delivery_id = NULL
+WHERE action_needed_email_delivery_id IN (
+    SELECT id
+    FROM seeded_email_deliveries
+  );
+
+UPDATE credit_registrations
+SET registered_email_delivery_id = NULL
+WHERE registered_email_delivery_id IN (
+    SELECT id
+    FROM seeded_email_deliveries
+  );
+
+UPDATE credit_registration_account_linking_emails
+SET email_delivery_id = NULL
+WHERE email_delivery_id IN (
+    SELECT id
+    FROM seeded_email_deliveries
+  );
+
+DELETE FROM email_deliveries
+WHERE id IN (
+    SELECT id
+    FROM seeded_email_deliveries
+  );
+
+DELETE FROM email_templates
+WHERE id IN (
+    SELECT id
+    FROM seeded_email_templates
+  );

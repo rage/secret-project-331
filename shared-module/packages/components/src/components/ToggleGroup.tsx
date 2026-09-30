@@ -43,8 +43,15 @@ const buttonGroupCss = css`
   gap: 0.25rem;
 `
 
+/// The name and identifier for a single toggle in a toggle group. The id is used
+/// in the state to identify which toggles are selected.
+export interface ToggleInfo {
+  id: string
+  name: string
+}
+
 type Props = {
-  labels: string[]
+  toggles: ToggleInfo[]
   groupLabel: string
   state: ToggleGroupState
 } & ToggleButtonGroupProps
@@ -66,18 +73,22 @@ export const ToggleGroup: React.FC<Props> = (props) => {
         data-orientation={orientation}
         aria-labelledby={labelId}
       >
-        {props.labels.map((x, idx) => (
-          <Toggle key={idx} label={x} state={state} />
+        {props.toggles.map((x, idx) => (
+          <Toggle key={idx} id={x.id} label={x.name} state={state} />
         ))}
       </div>
     </>
   )
 }
 
-const Toggle: React.FC<{ label: string; state: ToggleGroupState }> = ({ label, state }) => {
+const Toggle: React.FC<{ id: string; label: string; state: ToggleGroupState }> = ({
+  id,
+  label,
+  state,
+}) => {
   let ref = useRef<HTMLButtonElement>(null)
   let { buttonProps, isSelected, isPressed, isDisabled } = useToggleButtonGroupItem(
-    { id: label },
+    { id },
     state,
     ref,
   )

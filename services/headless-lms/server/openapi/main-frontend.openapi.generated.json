@@ -3725,7 +3725,8 @@
             "description": "Selected category",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],

@@ -175,20 +175,10 @@ pub struct Feedback {
 pub async fn get_feedback_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-    category_filter: Option<String>,
+    category_filter: Option<Uuid>,
     read: bool,
     pagination: Pagination,
 ) -> ModelResult<Vec<Feedback>> {
-    // Filter feedback by category name. When category_filter is None or no category
-    // is found, return all feedback (unfiltered)
-    let category_id = if let Some(cf) = category_filter {
-        feedback_categories::get_by_name(conn, &cf)
-            .await?
-            .map(|x| x.id)
-    } else {
-        None
-    };
-
     let res = sqlx::query!(
         r#"
 SELECT fb.*,
@@ -248,7 +238,7 @@ ORDER BY fb."created_at!" DESC,
         read,
         pagination.limit(),
         pagination.offset(),
-        category_id as Option<Uuid>
+        category_filter as Option<Uuid>
     )
     .map(|r| Feedback {
         id: r.id,

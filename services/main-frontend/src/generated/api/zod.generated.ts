@@ -7146,7 +7146,7 @@ export const zGetCourseFeedbackQuery = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     })
     .optional(),
-  category_filter: z.string().optional(),
+  category_filter: z.uuid().optional(),
 })
 
 /**

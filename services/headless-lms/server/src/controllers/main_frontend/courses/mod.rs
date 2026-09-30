@@ -1157,7 +1157,7 @@ pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
     pagination: Pagination,
-    category_filter: Option<String>,
+    category_filter: Option<Uuid>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1178,7 +1178,7 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
         ("read" = bool, Query, description = "Whether to fetch read feedback"),
         ("page" = Option<i64>, Query, description = "Page number"),
         ("limit" = Option<i64>, Query, description = "Page size"),
-        ("category_filter" = Option<String>, Query, description = "Selected category")
+        ("category_filter" = Option<Uuid>, Query, description = "Selected category")
     ),
     responses(
         (status = 200, description = "Feedback for the course", body = [Feedback])

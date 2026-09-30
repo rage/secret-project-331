@@ -20,10 +20,7 @@ fn the_edge_table_keeps_the_machines_invariants() {
         }
         for &to in from.allowed_targets() {
             assert_ne!(from, to, "{from:?}: staying put is not an edge");
-            if matches!(
-                from,
-                State::Submitting | State::SubmissionUncertain | State::AwaitingVerification
-            ) {
+            if State::IN_FLIGHT_STATES.contains(&from) {
                 assert!(
                     !import_claims.contains(&to),
                     "{from:?} -> {to:?} would let a second request out for a submission the \
@@ -35,12 +32,7 @@ fn the_edge_table_keeps_the_machines_invariants() {
             }
             if to == State::Registered {
                 assert!(
-                    matches!(
-                        from,
-                        State::Submitting
-                            | State::AwaitingVerification
-                            | State::SubmissionUncertain
-                    ),
+                    State::IN_FLIGHT_STATES.contains(&from),
                     "{from:?} -> registered: only an answer about a sent submission registers a \
                      row"
                 );

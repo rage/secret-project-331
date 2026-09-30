@@ -37,6 +37,7 @@ const ENROLMENT_FOUND_STATES: ReadonlySet<CreditRegistrationState> = new Set([
   "submitting",
   "submission_uncertain",
   "awaiting_verification",
+  "partially_registered",
   "registered",
   "duplicate",
   "not_improved",
@@ -81,9 +82,10 @@ const position = (row: AdminCreditRegistrationRow, hasEnrolment: boolean): Posit
     case "ready_to_submit":
     case "submitting":
     case "submission_uncertain":
-      return { index: SENT, kind: "current" }
     case "awaiting_verification":
-      return { index: row.partially_registered_at ? PARTIAL : SENT, kind: "current" }
+      return { index: SENT, kind: "current" }
+    case "partially_registered":
+      return { index: PARTIAL, kind: "current" }
     case "registered":
     case "duplicate":
     case "not_improved":

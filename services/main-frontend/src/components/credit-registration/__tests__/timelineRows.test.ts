@@ -56,10 +56,12 @@ const partialPoll = {
   kind: "suotar_response",
   suotar_endpoint: "verify_attainments",
   suotar_code: "registered",
-  from_state: "awaiting_verification",
-  to_state: "awaiting_verification",
+  from_state: "partially_registered",
+  to_state: "partially_registered",
   message: PARTIAL,
 } as const
+
+const firstPartialPoll = { ...partialPoll, from_state: "awaiting_verification" } as const
 
 describe("buildTimeline", () => {
   test("reads a real registration's log as one line per step", () => {
@@ -119,7 +121,8 @@ describe("buildTimeline", () => {
           from_state: "submitting",
           to_state: "awaiting_verification",
         },
-        ...Array.from({ length: 7 }, () => partialPoll),
+        firstPartialPoll,
+        ...Array.from({ length: 6 }, () => partialPoll),
       ]),
       context,
     )
@@ -132,10 +135,11 @@ describe("buildTimeline", () => {
       "step-enrolment-check-code courseCode=TKT10001: result-no-enrolment-yet",
       "step-enrolment-check-code courseCode=TKT10002: result-enrolment-found",
       "step-submission: result-sent",
-      "step-registration-check: result-partly-registered ×7",
+      "step-registration-check: result-partly-registered",
+      "step-registration-check: result-partly-registered ×6",
     ])
 
-    const [created, , student, person, , found, sent, polls] = groups
+    const [created, , student, person, , found, sent, firstPartial, polls] = groups
     expect(created?.rows[0].description.detail).toBe("Created for an eligible completion.")
     expect(created?.rows[0].changedState).toBe(true)
     expect(student?.rows[0].description.detail).toBeNull()
@@ -146,6 +150,8 @@ describe("buildTimeline", () => {
     )
     expect(found?.rows[0].description.tone).toBe("done")
     expect(sent?.rows[0].changedState).toBe(true)
+    expect(firstPartial?.rows[0].changedState).toBe(true)
+    expect(polls?.rows[0].changedState).toBe(false)
     expect(polls?.rows[0].description.detail).toBe(PARTIAL)
     expect(polls?.rows[0].description.tone).toBe("current")
   })

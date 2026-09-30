@@ -1235,7 +1235,7 @@ async fn insert_registered_attempt(
             uh_course_code: CRS_101.to_string(),
             selected_enrolment_id: Some(format!("otm-{}-degree", STUDENT_6.student_number)),
             selected_enrolment_kind: Some("degree".to_string()),
-            selected_enrolment_realisation_id: Some("hy-opt-cur-900000901".to_string()),
+            selected_enrolment_realisation_id: Some("hy-opt-cur-090009011".to_string()),
             selected_enrolment_realisation_name: Some(serde_json::json!({
                 "fi": "Rekisteröinnin testitoteutus",
                 "en": "Registration test realisation",

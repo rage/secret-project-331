@@ -23,7 +23,7 @@ pub(super) struct EndpointRate {
 }
 
 /// The rate an endpoint is limited to, or `None` for one that is not limited.
-fn endpoint_rate(endpoint: SuotarEndpoint) -> Option<EndpointRate> {
+pub(super) fn endpoint_rate(endpoint: SuotarEndpoint) -> Option<EndpointRate> {
     match endpoint {
         SuotarEndpoint::ResolveEnrolments | SuotarEndpoint::ResolvePersons => Some(EndpointRate {
             per_minute: 500.0,

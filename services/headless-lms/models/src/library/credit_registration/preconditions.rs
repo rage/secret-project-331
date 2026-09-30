@@ -67,9 +67,10 @@ fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
         {
             Target::Move(State::SubmissionUncertain)
         }
-        State::Submitting | State::SubmissionUncertain | State::AwaitingVerification => {
-            Target::Stay
-        }
+        State::Submitting
+        | State::SubmissionUncertain
+        | State::AwaitingVerification
+        | State::PartiallyRegistered => Target::Stay,
         _ if row.completion_deleted => Target::Move(State::Cancelled),
         State::FailedRetryable if !facts.completion_eligible => Target::Move(State::Blocked),
         State::FailedRetryable

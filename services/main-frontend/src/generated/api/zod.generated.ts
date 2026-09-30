@@ -1709,6 +1709,7 @@ export const zCreditRegistrationState = z.enum([
   "submitting",
   "submission_uncertain",
   "awaiting_verification",
+  "partially_registered",
   "registered",
   "duplicate",
   "not_improved",

@@ -106,21 +106,21 @@ impl MockPersonFixture {
 /// `student8`. Kept off every row that asks something of the student:
 /// `suotar-student-profile.spec.ts` asserts its studies page is clean.
 pub const STUDENT_6: MockPersonFixture = MockPersonFixture {
-    student_number: "900000006",
+    student_number: "090000065",
     first_names: "Zzyzx",
     last_name: "Studentsix",
     sisu_email: "zzyzx.studentsix@helsinki.example.com",
     account_email: Some("student6@example.com"),
 };
 pub const STUDENT_7: MockPersonFixture = MockPersonFixture {
-    student_number: "900000007",
+    student_number: "090000078",
     first_names: "Zzyzx",
     last_name: "Studentseven",
     sisu_email: "zzyzx.studentseven@helsinki.example.com",
     account_email: Some("student7@example.com"),
 };
 pub const STUDENT_8: MockPersonFixture = MockPersonFixture {
-    student_number: "900000008",
+    student_number: "090000081",
     first_names: "Zzyzx",
     last_name: "Studenteight",
     sisu_email: "zzyzx.studenteight@helsinki.example.com",
@@ -129,7 +129,7 @@ pub const STUDENT_8: MockPersonFixture = MockPersonFixture {
 
 /// Created and linked to this number by the credit-registration seed, like the four below.
 pub const CREDIT_REGISTRATION_STUDENT_1: MockPersonFixture = MockPersonFixture {
-    student_number: "900000011",
+    student_number: "090000117",
     first_names: "Zzyzx",
     last_name: "Crsone",
     sisu_email: "zzyzx.crsone@helsinki.example.com",
@@ -138,35 +138,35 @@ pub const CREDIT_REGISTRATION_STUDENT_1: MockPersonFixture = MockPersonFixture {
 /// Linked by support by hand rather than by the mailed link, which the teacher view renders
 /// differently.
 pub const CREDIT_REGISTRATION_STUDENT_2: MockPersonFixture = MockPersonFixture {
-    student_number: "900000012",
+    student_number: "090000120",
     first_names: "Zzyzx",
     last_name: "Crstwo",
     sisu_email: "zzyzx.crstwo@helsinki.example.com",
     account_email: Some("credit-registration-student-2@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_3: MockPersonFixture = MockPersonFixture {
-    student_number: "900000013",
+    student_number: "090000133",
     first_names: "Zzyzx",
     last_name: "Crsthree",
     sisu_email: "zzyzx.crsthree@helsinki.example.com",
     account_email: Some("credit-registration-student-3@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_4: MockPersonFixture = MockPersonFixture {
-    student_number: "900000014",
+    student_number: "090000146",
     first_names: "Zzyzx",
     last_name: "Crsfour",
     sisu_email: "zzyzx.crsfour@helsinki.example.com",
     account_email: Some("credit-registration-student-4@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_5: MockPersonFixture = MockPersonFixture {
-    student_number: "900000015",
+    student_number: "090000159",
     first_names: "Zzyzx",
     last_name: "Crsfive",
     sisu_email: "zzyzx.crsfive@helsinki.example.com",
     account_email: Some("credit-registration-student-5@example.com"),
 };
 pub const CREDIT_REGISTRATION_STUDENT_6: MockPersonFixture = MockPersonFixture {
-    student_number: "900000016",
+    student_number: "090000162",
     first_names: "Zzyzx",
     last_name: "Crssix",
     sisu_email: "zzyzx.crssix@helsinki.example.com",
@@ -284,7 +284,7 @@ pub const LANE_COMPLETIONS: [LaneCompletion; 17] = [
 /// Mailed to the cap, never claimed, no account: the stale-address population is the only place the
 /// resend and manual-link actions render.
 pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
-    student_number: "900000903",
+    student_number: "090009037",
     first_names: "Zzyzx",
     last_name: "Deadaddress",
     sisu_email: "zzyzx.deadaddress@helsinki.example.com",
@@ -293,7 +293,7 @@ pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
 /// A second capped person on `ADMIN_STALE`'s course, owned by the teacher specs so a cap-refused
 /// resend cannot race whichever spec is overriding the cap.
 pub const TEACHER_RESEND_CAPPED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000804",
+    student_number: "090008041",
     first_names: "Zzyzx",
     last_name: "Cappedmail",
     sisu_email: "zzyzx.cappedmail@helsinki.example.com",
@@ -308,21 +308,21 @@ pub const MAILED_ADDRESS_SUFFIXES: [&str; 3] = ["", "old.", "older."];
 /// and bind to whoever opens the link.
 pub const LINK_CLAIMER_EMAIL: &str = "credit-registration-link-claimer@example.com";
 pub const LINK_VALID: MockPersonFixture = MockPersonFixture {
-    student_number: "900000201",
+    student_number: "090002018",
     first_names: "Zzyzx",
     last_name: "Linkvalid",
     sisu_email: "zzyzx.linkvalid@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_EXPIRED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000202",
+    student_number: "090002021",
     first_names: "Zzyzx",
     last_name: "Linkexpired",
     sisu_email: "zzyzx.linkexpired@helsinki.example.com",
     account_email: None,
 };
 pub const LINK_USED: MockPersonFixture = MockPersonFixture {
-    student_number: "900000203",
+    student_number: "090002034",
     first_names: "Zzyzx",
     last_name: "Linkused",
     sisu_email: "zzyzx.linkused@helsinki.example.com",

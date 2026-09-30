@@ -169,10 +169,11 @@ fn first_per<K: Eq + std::hash::Hash>(
         .collect()
 }
 
-/// The states verify polls from. Withdrawal moves a row out of both, which is what stops the
+/// The states verify polls from. Withdrawal moves a row out of all of them, which is what stops the
 /// polling without any query having to know about withdrawal.
-const VERIFY_STATES: [CreditRegistrationState; 2] = [
+const VERIFY_STATES: [CreditRegistrationState; 3] = [
     CreditRegistrationState::AwaitingVerification,
+    CreditRegistrationState::PartiallyRegistered,
     CreditRegistrationState::SubmissionUncertain,
 ];
 

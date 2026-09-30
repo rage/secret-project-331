@@ -164,7 +164,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
         data: {
           // Its own capped person, so the admin dashboard spec overriding the cap for a different one
           // cannot turn this refusal into a success.
-          student_number: "900000804",
+          student_number: "090008041",
           // Accepted by the schema and ignored: there is no teacher-side override at all.
           override_rate_caps: true,
           reason: "System test: a teacher may not pass the cap.",

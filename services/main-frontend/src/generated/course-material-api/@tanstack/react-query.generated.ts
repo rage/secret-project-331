@@ -543,7 +543,7 @@ export const getConversationInfoQueryKey = (options: Options<GetConversationInfo
  *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
- * Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
+ * Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
  */
 export const getConversationInfoOptions = (options: Options<GetConversationInfoData>) =>
   queryOptions<

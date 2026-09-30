@@ -291,7 +291,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`\n\nReturns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.",
+        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`\n\nReturns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.",
         "operationId": "getConversationInfo",
         "parameters": [
           {

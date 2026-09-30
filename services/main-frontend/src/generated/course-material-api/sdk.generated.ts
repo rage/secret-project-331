@@ -473,7 +473,7 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
  *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
- * Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
+ * Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
  */
 export const getConversationInfo = <ThrowOnError extends boolean = true>(
   options: Options<GetConversationInfoData, ThrowOnError>,

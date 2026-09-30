@@ -1,8 +1,8 @@
 import type { TFunction } from "i18next"
 
-import { formatPoints, hasThreshold, meetsThreshold } from "@/utils/completionThresholds"
+import { formatPoints, hasThreshold } from "@/utils/completionThresholds"
 
-/** What a progress section counts. */
+/** What a progress chart counts. */
 export type ProgressUnit = "points" | "exercises"
 
 /** Named `ProgressUnit` values, for JSX where literal strings are linted. */
@@ -10,12 +10,6 @@ export const PROGRESS_UNIT = {
   POINTS: "points",
   EXERCISES: "exercises",
 } as const satisfies Record<string, ProgressUnit>
-
-/** Every unit, in the order the card shows them. */
-export const PROGRESS_UNITS: readonly ProgressUnit[] = [
-  PROGRESS_UNIT.POINTS,
-  PROGRESS_UNIT.EXERCISES,
-]
 
 /** One measure of a user's progress; `null` means the course does not define that number. */
 export interface ProgressMeasure {
@@ -30,34 +24,28 @@ export function withoutEmptyThreshold(measure: ProgressMeasure): ProgressMeasure
   return hasThreshold(measure.required) ? measure : { ...measure, required: null }
 }
 
-/** True when the measure has a threshold and `given` reaches it. */
-export function isRequirementMet({ given, required }: ProgressMeasure): boolean {
-  return required !== null && meetsThreshold(required, given ?? 0)
-}
-
 /** A chart only makes sense against a positive maximum. */
 export function hasChartMax(max: number | null): max is number {
   return max !== null && max > 0
 }
 
-/** `value` as a fraction of `max`, clamped to [0, 1]; 0 when `max` is not positive. */
-export function toRatio(value: number, max: number): number {
-  return max > 0 ? Math.min(Math.max(value / max, 0), 1) : 0
+/** Which part of a chart a tooltip line explains, and so which colour its dot has. */
+export type ChartPart = "given" | "required" | "max"
+
+/** One line of a chart's tooltip. */
+export interface ChartExplanation {
+  part: ChartPart
+  text: string
 }
 
-/** Every string one measure shows, so the chart, its key and its tooltip cannot disagree. */
+/** What a chart says to screen readers and in its tooltip, so the two cannot disagree. */
 export interface ProgressText {
-  summary: string
   valueText: string
-  /** `null` when the measure has no threshold. */
-  requiredText: string | null
-  tooltipLines: string[]
-  /** Formatted threshold drawn next to the chart's tick; `null` without one. */
-  tickLabel: string | null
+  explanations: ChartExplanation[]
 }
 
 /**
- * Builds the strings for one measure. `requiresExam` switches the threshold wording to exam
+ * Builds the strings for one chart. `requiresExam` switches the threshold wording to exam
  * eligibility. Plural forms follow `max` (or `given` when there is no maximum).
  */
 export function describeProgress(
@@ -73,50 +61,41 @@ export function describeProgress(
   const max = hasChartMax(measure.max) ? measure.max : null
   const required = measure.required === null ? null : format(measure.required)
 
-  const givenOnly =
+  let valueText =
     unit === "points"
       ? t("progress-points-given", { given, count: givenCount })
       : t("progress-exercises-given", { given, count: givenCount })
-  let summary = givenOnly
-  let valueText = givenOnly
   if (max !== null) {
     const values = { given, max: format(max), count: max }
-    summary =
-      unit === "points"
-        ? t("progress-points-summary", values)
-        : t("progress-exercises-summary", values)
     valueText =
       unit === "points"
         ? t("progress-points-valuetext", values)
         : t("progress-exercises-valuetext", values)
   }
 
-  const tooltipLines = [
-    unit === "points"
-      ? t("progress-your-points", { given })
-      : t("progress-exercises-attempted", { given }),
+  const explanations: ChartExplanation[] = [
+    {
+      part: "given",
+      text:
+        unit === "points"
+          ? t("progress-your-points", { given })
+          : t("progress-exercises-attempted", { given }),
+    },
   ]
   if (required !== null) {
-    tooltipLines.push(
-      requiresExam
+    explanations.push({
+      part: "required",
+      text: requiresExam
         ? t("progress-required-for-exam", { required })
         : t("progress-required-for-completion", { required }),
-    )
+    })
   }
   if (max !== null) {
-    tooltipLines.push(
-      unit === "points"
-        ? t("progress-maximum", { max: format(max) })
-        : t("progress-total", { max: format(max) }),
-    )
+    explanations.push({
+      part: "max",
+      text: t("progress-maximum", { max: format(max) }),
+    })
   }
 
-  let requiredText: string | null = null
-  if (required !== null) {
-    requiredText = requiresExam
-      ? t("progress-required-for-exam", { required })
-      : t("progress-required", { required })
-  }
-
-  return { summary, valueText, requiredText, tooltipLines, tickLabel: required }
+  return { valueText, explanations }
 }

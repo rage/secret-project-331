@@ -3,7 +3,6 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import { Fragment } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -36,8 +35,6 @@ export interface PointsBreakdownScope extends CourseInstanceLocation {
 
 export interface PointsBreakdownDialogProps {
   scope: PointsBreakdownScope
-  /** Shown under the title, so several modules' dialogs stay distinct. */
-  moduleName: string
   /** The module's points as the card states them; the header repeats the total. */
   points: ProgressMeasure
   /** The module's exercises attempted as the card states them; the header repeats the total. */
@@ -57,7 +54,6 @@ export default PointsBreakdownDialog
 
 const OpenPointsBreakdownDialog: React.FC<Omit<PointsBreakdownDialogProps, "open">> = ({
   scope,
-  moduleName,
   points,
   exercises,
   onClose,
@@ -78,9 +74,7 @@ const OpenPointsBreakdownDialog: React.FC<Omit<PointsBreakdownDialogProps, "open
       onClose={onClose}
       isDismissable
       className={cx(query.isPending && loadingDialogCss, dialogCss)}
-      title={
-        <DialogTitle moduleName={moduleName} totals={isEmpty ? null : { points, exercises }} />
-      }
+      title={<DialogTitle totals={isEmpty ? null : { points, exercises }} />}
     >
       <QueryResult
         query={query}
@@ -111,51 +105,50 @@ function fillSlot(text: string, node: React.ReactNode): React.ReactNode {
 }
 
 const DialogTitle: React.FC<{
-  moduleName: string
   totals: { points: ProgressMeasure; exercises: ProgressMeasure } | null
-}> = ({ moduleName, totals }) => {
+}> = ({ totals }) => {
   const { t, i18n } = useTranslation()
-  const summaries: React.ReactNode[] = []
+  let pointsSummary: React.ReactNode = null
+  let exercisesSummary: React.ReactNode = null
   if (totals !== null) {
     const { points, exercises } = totals
     const givenPoints = points.given ?? 0
-    summaries.push(
-      fillSlot(
-        hasChartMax(points.max)
-          ? t("progress-points-summary", {
-              given: SLOT,
-              max: formatPoints(points.max, i18n.language),
-              count: points.max,
-            })
-          : t("progress-points-given", { given: SLOT, count: givenPoints }),
-        <span className={summaryGivenCss}>{formatPoints(givenPoints, i18n.language)}</span>,
-      ),
+    pointsSummary = fillSlot(
+      hasChartMax(points.max)
+        ? t("progress-points-summary", {
+            given: SLOT,
+            max: formatPoints(points.max, i18n.language),
+            count: points.max,
+          })
+        : t("progress-points-given", { given: SLOT, count: givenPoints }),
+      <span className={summaryGivenCss}>{formatPoints(givenPoints, i18n.language)}</span>,
     )
     if (hasChartMax(exercises.max)) {
-      summaries.push(
-        fillSlot(
-          t("points-breakdown-exercises-attempted", {
-            given: SLOT,
-            max: exercises.max,
-            count: exercises.max,
-          }),
-          <span className={summaryGivenCss}>{exercises.given ?? 0}</span>,
-        ),
+      exercisesSummary = fillSlot(
+        t("points-breakdown-exercises-attempted", {
+          given: SLOT,
+          max: exercises.max,
+          count: exercises.max,
+        }),
+        <span className={summaryGivenCss}>{exercises.given ?? 0}</span>,
       )
     }
   }
   return (
     <>
       <span className={titleTextCss}>{t("heading-all-exercises")}</span>
-      <span className={subtitleCss}>
-        <bdi>{moduleName}</bdi>
-        {summaries.map((summary, index) => (
-          <Fragment key={index}>
-            {MIDDLE_DOT_SEPARATOR}
-            <span className={summaryCss}>{summary}</span>
-          </Fragment>
-        ))}
-      </span>
+      {pointsSummary !== null && (
+        <span className={subtitleCss}>
+          <span className={summaryCss}>{pointsSummary}</span>
+          {exercisesSummary !== null && (
+            <>
+              {/* The two figures sit at opposite ends; screen readers get a pause instead. */}
+              <VisuallyHidden elementType={INLINE_ELEMENT}>, </VisuallyHidden>
+              <span className={summaryCss}>{exercisesSummary}</span>
+            </>
+          )}
+        </span>
+      )}
     </>
   )
 }
@@ -387,7 +380,6 @@ const EXERCISE_LINK_APPEARANCE: LinkAppearance = "inherit"
 
 const EN_DASH = "–"
 const MIDDLE_DOT = "·"
-const MIDDLE_DOT_SEPARATOR = ` ${MIDDLE_DOT} `
 
 /** Room for the spinner under the skeleton bars instead of on top of them. */
 const LOADING_MIN_HEIGHT_PX = 240
@@ -416,7 +408,10 @@ const titleTextCss = css`
 `
 
 const subtitleCss = css`
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 1.5rem;
   margin-block-start: 0.25rem;
   font: 400 0.9375rem/1.4 ${secondaryFont};
   color: ${progressColors.mutedText};

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
@@ -61,13 +61,7 @@ test("Changing course instance preserves completions and points", async ({ page 
     await page.getByRole("heading", { name: "Congratulations!" }).click()
     await page.getByRole("heading", { name: "Changing course instance" }).click()
     await page.getByLabel("Grade: Passed").waitFor()
-    await expect(page.getByRole("progressbar", { name: "Points" })).toHaveAttribute(
-      "aria-valuetext",
-      "1 of 1 point",
-    )
-    await expect(page.getByRole("progressbar", { name: "Exercises attempted" })).toHaveAttribute(
-      "aria-valuetext",
-      "1 of 1 exercise",
-    )
+    await page.getByText("1/1Points").waitFor()
+    await page.getByText("1 / 1 Exercises attempted").waitFor()
   })
 })

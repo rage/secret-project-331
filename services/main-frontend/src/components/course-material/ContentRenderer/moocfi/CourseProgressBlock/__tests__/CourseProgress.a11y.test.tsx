@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 
@@ -26,24 +26,53 @@ const moduleProgress = (overrides: Partial<UserCourseProgress> = {}): UserCourse
 
 const location = { courseInstanceId: "instance-1", organizationSlug: "uh-cs", courseSlug: "basics" }
 
-describe("CourseProgress", () => {
-  it("gives each chart its own progressbar and the module's requirements their own region", () => {
-    render(
-      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={location} />,
-    )
+const renderProgress = (overrides: Partial<UserCourseProgress> = {}) =>
+  render(
+    <CourseProgress
+      userCourseProgress={[moduleProgress(overrides)]}
+      courseInstanceLocation={location}
+    />,
+  )
 
-    expect(screen.getByRole("progressbar", { name: "label-points" })).toBeInTheDocument()
+describe("CourseProgress", () => {
+  it("names the donut by its heading and the bar by what it counts", () => {
+    renderProgress()
+    expect(screen.getByRole("heading", { name: "course-progress" })).toBeInTheDocument()
+    expect(screen.getByRole("progressbar", { name: "course-progress" })).toBeInTheDocument()
     expect(screen.getByRole("progressbar", { name: "exercises-attempted" })).toBeInTheDocument()
-    expect(
-      screen.getByRole("region", { name: "label-completion-requirements-for-module" }),
-    ).toBeInTheDocument()
-    expect(screen.getAllByRole("listitem")).toHaveLength(2)
   })
 
-  it("offers the points by exercise only when the course instance location is known", () => {
-    const { rerender } = render(
-      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={location} />,
+  it("explains each chart's colours behind its ? button", async () => {
+    renderProgress()
+    fireEvent.click(screen.getByRole("button", { name: "label-about-points-chart" }))
+    const points = await screen.findByRole("list")
+    expect(points).toHaveTextContent("progress-your-points")
+    expect(points).toHaveTextContent("progress-required-for-completion")
+    expect(points).toHaveTextContent("progress-maximum")
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" })
+    fireEvent.click(screen.getByRole("button", { name: "label-about-exercises-bar" }))
+    expect(await screen.findByText("progress-exercises-attempted")).toBeInTheDocument()
+  })
+
+  it("leaves the threshold out of the explanation without one", async () => {
+    renderProgress({ score_required: null })
+    fireEvent.click(screen.getByRole("button", { name: "label-about-points-chart" }))
+    expect(await screen.findByText("progress-maximum")).toBeInTheDocument()
+    expect(screen.queryByText("progress-required-for-completion")).not.toBeInTheDocument()
+  })
+
+  it("keeps the charts themselves out of the tab order", () => {
+    renderProgress()
+    expect(screen.getByRole("progressbar", { name: "course-progress" })).not.toHaveAttribute(
+      "tabindex",
     )
+    expect(screen.getByRole("progressbar", { name: "exercises-attempted" })).not.toHaveAttribute(
+      "tabindex",
+    )
+  })
+
+  it("offers the list of every exercise only when the course instance location is known", () => {
+    const { rerender } = renderProgress()
     expect(
       screen.getByRole("button", { name: "button-show-all-exercises-in-course" }),
     ).toBeInTheDocument()
@@ -53,33 +82,27 @@ describe("CourseProgress", () => {
     expect(screen.queryByRole("button", { name: "button-show-all-exercises-in-course" })).toBeNull()
   })
 
-  it("switches to exam wording when the module requires an exam", () => {
-    render(
-      <CourseProgress
-        userCourseProgress={[moduleProgress({ requires_exam: true })]}
-        courseInstanceLocation={location}
-      />,
-    )
-
-    expect(screen.getByRole("heading", { name: "heading-exam-requirements" })).toBeInTheDocument()
-    expect(screen.getByText("requirements-exam-pending")).toBeInTheDocument()
+  it("puts the requirements intro behind a ? next to the heading", async () => {
+    renderProgress()
+    expect(
+      screen.getByRole("heading", { name: "heading-completion-requirements" }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText("requirements-intro-complete-many")).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "label-about-completion-requirements" }))
+    expect(await screen.findByText("requirements-intro-complete-many")).toBeInTheDocument()
+    expect(screen.getByText("label-points")).toBeInTheDocument()
+    expect(screen.getByText("attempted-exercises")).toBeInTheDocument()
   })
 
-  it("shows the teacher note instead of thresholds for manual completion", () => {
-    render(
-      <CourseProgress
-        userCourseProgress={[
-          moduleProgress({
-            automatic_completion: false,
-            score_required: null,
-            attempted_exercises_required: null,
-          }),
-        ]}
-        courseInstanceLocation={location}
-      />,
-    )
+  it("words the requirements for the exam in exam courses", async () => {
+    renderProgress({ requires_exam: true, score_required: null })
+    expect(screen.getByRole("heading", { name: "heading-exam-requirements" })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "label-about-exam-requirements" }))
+    expect(await screen.findByText("requirements-intro-exam-one")).toBeInTheDocument()
+  })
 
-    expect(screen.queryByRole("list")).not.toBeInTheDocument()
-    expect(screen.getByText("note-graded-by-your-teacher")).toBeInTheDocument()
+  it("leaves out the requirements without any threshold", () => {
+    renderProgress({ score_required: null, attempted_exercises_required: null })
+    expect(screen.queryByRole("heading", { name: /requirements/ })).not.toBeInTheDocument()
   })
 })

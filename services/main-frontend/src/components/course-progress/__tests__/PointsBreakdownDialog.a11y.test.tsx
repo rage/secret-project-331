@@ -7,8 +7,8 @@ import { axe, toHaveNoViolations } from "jest-axe"
 
 import type { ChapterPointsBreakdown } from "@/generated/course-material-api/types.generated"
 
+import PointsBreakdownButton from "../PointsBreakdownButton"
 import type { PointsBreakdownScope } from "../PointsBreakdownDialog"
-import ProgressCard from "../ProgressCard"
 
 expect.extend(toHaveNoViolations)
 
@@ -137,18 +137,13 @@ const chapters: ChapterPointsBreakdown[] = [
 
 const measure = { given: 10.5, max: 30, required: null }
 
-const renderCard = (pointsBreakdown: PointsBreakdownScope | null = scope) =>
+const renderCard = () =>
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <ProgressCard
-        variant="module"
-        headingLevel={3}
-        moduleName="Introduction"
-        requiresExam={false}
-        automaticCompletion
-        pointsBreakdown={pointsBreakdown}
+      <PointsBreakdownButton
+        scope={scope}
         points={{ ...measure, required: 15 }}
         exercises={{ given: 4, max: 5, required: null }}
       />
@@ -181,19 +176,12 @@ describe("points breakdown", () => {
     )
   })
 
-  it("is left out without a scope", () => {
-    renderCard(null)
-    expect(screen.queryByRole("button", { name: SHOW_ALL })).toBeNull()
-  })
-
-  it("sits between the exercises chart and the completion requirements", () => {
+  it("says that it opens a dialog", () => {
     renderCard()
-    const button = screen.getByRole("button", { name: SHOW_ALL })
-    const exercises = screen.getByRole("heading", { name: "Exercises attempted" })
-    const requirements = screen.getByRole("heading", { name: "Completion requirements" })
-    expect(exercises.compareDocumentPosition(button)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(button.compareDocumentPosition(requirements)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
-    expect(button).toHaveAttribute("aria-haspopup", "dialog")
+    expect(screen.getByRole("button", { name: SHOW_ALL })).toHaveAttribute(
+      "aria-haspopup",
+      "dialog",
+    )
   })
 
   it("nests pages under chapters and states each subtotal in full", async () => {
@@ -203,7 +191,7 @@ describe("points breakdown", () => {
       .getAllByRole("heading")
       .map((heading) => `${heading.tagName} ${heading.textContent}`)
     expect(headings).toEqual([
-      "H2 All exercisesIntroduction · 10.5 / 30 points · 4 of 5 exercises attempted",
+      "H2 All exercises10.5 / 30 points, 4 of 5 exercises attempted",
       "H3 Chapter 1: Basics",
       "H4 Variables",
       "H4 Loops",
@@ -264,7 +252,7 @@ describe("points breakdown", () => {
     renderCard()
     fireEvent.click(screen.getByRole("button", { name: SHOW_ALL }))
     expect(await screen.findByText("No exercises have opened yet.")).toBeInTheDocument()
-    expect(screen.getByRole("dialog", { name: "All exercises Introduction" })).toBeInTheDocument()
+    expect(screen.getByRole("dialog", { name: "All exercises" })).toBeInTheDocument()
   })
 
   it("has no axe violations while open", async () => {

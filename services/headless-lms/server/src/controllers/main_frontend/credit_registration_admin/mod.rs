@@ -78,7 +78,7 @@ async fn authorize_credit_registration_admin(
 ) -> Result<AuthorizationToken, ControllerError> {
     authorize(
         conn,
-        Act::Administrate,
+        Act::AdministrateCreditRegistrations,
         Some(user_id),
         Res::GlobalPermissions,
     )

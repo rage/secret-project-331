@@ -50,8 +50,11 @@ const flushTabListCss = css`
   margin-bottom: 0;
 `
 
-const ADMINISTRATE_GLOBALLY = [
-  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
 ] as const
 
 /** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
@@ -148,7 +151,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const permission = useAuthorizeMultiple([...ADMINISTRATE_GLOBALLY])
+  const permission = useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS])
 
   // Everyone this section is for holds the permission, so a denied banner while the check is still
   // in flight would give the wrong answer to its only readers.

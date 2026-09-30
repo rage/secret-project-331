@@ -18,15 +18,15 @@ import { stateTone } from "./adminCreditRegistrationCopy"
 import { STATE_ICONS } from "./stateIcons"
 
 const SUPERSEDED = "superseded" as const
-const STATE_ICON_SIZE = 16
+export const STATE_ICON_SIZE = 16
 
 /**
- * Ink per tone for the glyph, which is where a flat table's colour now lives.
+ * Ink per tone for state glyphs, and for the timeline's step glyphs and results.
  *
  * `action-needed` takes the rust red rather than an amber: the yellow ramp is not contrast-safe as
  * ink at any step, and rust still reads clearly apart from the deeper crimson a failure gets.
  */
-const TONE_INK: Record<RegistrationStatusState, string> = {
+export const TONE_INK: Record<RegistrationStatusState, string> = {
   done: css`
     color: var(--color-green-700);
   `,

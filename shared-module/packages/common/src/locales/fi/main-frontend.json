@@ -1718,6 +1718,7 @@
   "role-admin": "Ylläpitäjä",
   "role-assistant": "Avustaja",
   "role-course-or-exam-creator": "Kurssien tai kokeiden luoja",
+  "role-credit-registration-admin": "Opintopisteiden kirjauksen ylläpitäjä",
   "role-material-viewer": "Materiaalin katsoja",
   "role-reviewer": "Arvioija",
   "role-stats-viewer": "Tilastojen katsoja",

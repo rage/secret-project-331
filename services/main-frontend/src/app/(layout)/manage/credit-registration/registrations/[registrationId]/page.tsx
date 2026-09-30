@@ -3,13 +3,12 @@
 import { css, cx } from "@emotion/css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   adminActionLabel,
-  eventKindLabel,
   notificationKindLabel,
   registrationErrorAdminHelp,
   sendStatusLabel,
@@ -22,20 +21,18 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import ErrorCodeCell from "@/components/credit-registration/admin/ErrorCodeCell"
 import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
-import PayloadBlock from "@/components/credit-registration/admin/PayloadBlock"
 import RegistrationStepper from "@/components/credit-registration/admin/RegistrationStepper"
 import {
   attentionReasonLabel,
   subStateExplanations,
 } from "@/components/credit-registration/admin/registrationSubStates"
+import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
 import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   ABSENT,
   ALIGN_END,
-  ARROW,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
@@ -69,16 +66,11 @@ import {
   sectionHeaderCss,
   spacedRowCss,
   stackedCellCss,
-  stateChangeFromCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
-import {
-  formatZonedTimeRange,
-  ZonedTimestamp,
-} from "@/components/credit-registration/ZonedTimestamp"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
-  AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
   AdminNotificationEmail,
@@ -97,10 +89,8 @@ import {
 import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
   Badge,
-  Button,
   CopyButton,
   DescriptionList,
-  Dialog,
   Disclosure,
   QueryResult,
   RegistrationStatusHeadline,
@@ -115,27 +105,6 @@ const AUDIT_ROWS = 25
 const NO_ACTIONS: CreditRegistrationAdminActionRow[] = []
 
 type AdminActionsQuery = ReturnType<typeof useCreditRegistrationAdminActions>
-
-/** A left gutter for the timeline's timestamps, so the kind of each entry starts on one line. */
-const timelineEntryCss = css`
-  display: grid;
-  gap: var(--space-2) var(--space-4);
-  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
-
-  @media (max-width: 40rem) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-`
-
-const timelineBodyCss = css`
-  display: grid;
-  gap: var(--space-2);
-`
-
-/** The entry's kind, leading its line as text: a pill here would label every entry. */
-const eventKindCss = css`
-  font-weight: 500;
-`
 
 const idRowCss = cx(
   rowCss,
@@ -456,179 +425,6 @@ const AttemptChainSection: React.FC<{
   )
 }
 
-const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, payload }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
-        {t("credit-registration-admin-show-exchange")}
-      </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} size="wide" title={title}>
-        <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-        <PayloadBlock body={payload} />
-      </Dialog>
-    </>
-  )
-}
-
-const TimelineEntry: React.FC<{
-  event: AdminCreditRegistrationEvent
-  actorName: string | undefined
-}> = ({ event, actorName }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <li className={timelineEntryCss}>
-      <span className={noteCss}>
-        <ZonedTimestamp at={event.created_at} />
-      </span>
-      <span className={timelineBodyCss}>
-        <span className={rowCss}>
-          <span className={eventKindCss}>{eventKindLabel(t, event.kind)}</span>
-          {event.to_state && (
-            <>
-              {event.from_state && event.from_state !== event.to_state && (
-                <span className={stateChangeFromCss}>
-                  <AdminStateLabel state={event.from_state} />
-                  <span aria-hidden="true">{ARROW}</span>
-                </span>
-              )}
-              <AdminStateLabel state={event.to_state} />
-            </>
-          )}
-          {event.error_code && <ErrorCodeCell errorCode={event.error_code} />}
-          {actorName && (
-            <span className={noteCss}>
-              {t("credit-registration-admin-event-actor", { actor: actorName })}
-            </span>
-          )}
-        </span>
-        {event.message && <span className={proseCss}>{event.message}</span>}
-        {event.details !== null && event.details !== undefined && (
-          <span>
-            <PayloadDialog
-              title={t("credit-registration-heading-exchange", {
-                kind: eventKindLabel(t, event.kind),
-              })}
-              payload={event.details}
-            />
-          </span>
-        )}
-      </span>
-    </li>
-  )
-}
-
-/** Kinds whose same-state repeats are polls, not news. */
-const COLLAPSIBLE_KINDS: ReadonlySet<AdminCreditRegistrationEvent["kind"]> = new Set([
-  "suotar_response",
-])
-
-interface TimelineRunGroup {
-  oldest: AdminCreditRegistrationEvent
-  newest: AdminCreditRegistrationEvent
-  events: AdminCreditRegistrationEvent[]
-}
-
-const continuesRun = (run: TimelineRunGroup, event: AdminCreditRegistrationEvent) =>
-  COLLAPSIBLE_KINDS.has(event.kind) &&
-  event.to_state !== null &&
-  event.to_state !== undefined &&
-  event.from_state === event.to_state &&
-  run.oldest.kind === event.kind &&
-  run.oldest.to_state === event.to_state &&
-  run.oldest.error_code === event.error_code
-
-/** Oldest-first events grouped into runs; only a same-state poll can join the run before it. */
-const groupTimelineRuns = (events: AdminCreditRegistrationEvent[]): TimelineRunGroup[] => {
-  const runs: TimelineRunGroup[] = []
-  for (const event of events) {
-    const last = runs.at(-1)
-    if (last && continuesRun(last, event)) {
-      last.events.push(event)
-      last.newest = event
-    } else {
-      runs.push({ oldest: event, newest: event, events: [event] })
-    }
-  }
-  return runs
-}
-
-const TimelineRun: React.FC<{
-  run: TimelineRunGroup
-  actorNames: Map<string, string>
-}> = ({ run, actorNames }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const [expanded, setExpanded] = useState(false)
-  const { oldest, newest, events } = run
-  const renderEntry = (event: AdminCreditRegistrationEvent) => (
-    <TimelineEntry
-      key={event.id}
-      event={event}
-      actorName={event.actor_user_id ? actorNames.get(event.actor_user_id) : undefined}
-    />
-  )
-  if (events.length === 1) {
-    return renderEntry(newest)
-  }
-  return (
-    <>
-      <li className={timelineEntryCss}>
-        <span className={noteCss}>
-          <ZonedTimestamp at={newest.created_at} />
-        </span>
-        <span className={timelineBodyCss}>
-          <span className={rowCss}>
-            <span className={eventKindCss}>
-              {t("credit-registration-admin-timeline-run", {
-                kind: eventKindLabel(t, newest.kind),
-                count: events.length,
-                range: formatZonedTimeRange(
-                  new Date(oldest.created_at),
-                  new Date(newest.created_at),
-                ),
-              })}
-            </span>
-            {newest.to_state && <AdminStateLabel state={newest.to_state} />}
-            {newest.error_code && <ErrorCodeCell errorCode={newest.error_code} />}
-          </span>
-          {newest.message && <span className={proseCss}>{newest.message}</span>}
-          <span>
-            <Button variant="tertiary" size="small" onClick={() => setExpanded(!expanded)}>
-              {expanded
-                ? t("credit-registration-admin-timeline-run-hide")
-                : t("credit-registration-admin-timeline-run-show", { count: events.length })}
-            </Button>
-          </span>
-        </span>
-      </li>
-      {expanded && events.toReversed().map((event) => renderEntry(event))}
-    </>
-  )
-}
-
-const TimelineSection: React.FC<{
-  events: AdminCreditRegistrationEvent[]
-  actorNames: Map<string, string>
-}> = ({ events, actorNames }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
-      </div>
-      {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={dividedListCss} role="list">
-        {groupTimelineRuns(events)
-          .toReversed()
-          .map((run) => (
-            <TimelineRun key={run.oldest.id} run={run} actorNames={actorNames} />
-          ))}
-      </ol>
-    </section>
-  )
-}
-
 const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (calls.length === 0) {
@@ -939,7 +735,11 @@ const RegistrationDetailPage: React.FC = () => {
             <AdminTransitionBlock registration={details.registration} />
           </section>
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
-          <TimelineSection events={details.events} actorNames={actorNames} />
+          <RegistrationTimeline
+            events={details.events}
+            registration={details.registration}
+            actorNames={actorNames}
+          />
           <ApiCallSection calls={details.suotar_api_calls} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />

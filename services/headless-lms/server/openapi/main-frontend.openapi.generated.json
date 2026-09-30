@@ -14650,9 +14650,41 @@
             "type": ["string", "null"],
             "description": "The requestItemId the row went out under in the call behind this event."
           },
+          "suotar_answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SuotarAnswer"
+              }
+            ]
+          },
+          "suotar_answered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "suotar_api_call_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          },
+          "suotar_code": {
+            "type": ["string", "null"],
+            "description": "Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and\nsometimes drops. `None` when no item answer came back."
+          },
+          "suotar_endpoint": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SuotarEndpoint"
+              }
+            ]
+          },
+          "suotar_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "to_state": {
             "oneOf": [
@@ -26885,6 +26917,11 @@
           }
         }
       },
+      "SuotarAnswer": {
+        "type": "string",
+        "description": "What Suotar did with one row of a request.",
+        "enum": ["answered", "unanswered", "refused"]
+      },
       "SuotarApiCallDetails": {
         "type": "object",
         "required": ["call", "ledger_references", "events"],
@@ -28155,7 +28192,8 @@
           "CourseOrExamCreator",
           "MaterialViewer",
           "TeachingAndLearningServices",
-          "StatsViewer"
+          "StatsViewer",
+          "CreditRegistrationAdmin"
         ]
       },
       "UserSuspectedCheaterInfo": {

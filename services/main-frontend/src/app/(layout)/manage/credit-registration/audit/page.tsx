@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -17,7 +18,9 @@ import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
+import AdminStateLabel, {
+  STATE_ICON_SIZE,
+} from "@/components/credit-registration/admin/AdminStateLabel"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
@@ -26,7 +29,6 @@ import {
 import {
   ABSENT,
   ADMIN_PAGE_SIZE_OPTIONS,
-  ARROW,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
@@ -261,7 +263,9 @@ const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ 
       {row.before_state && (
         <span className={stateChangeFromCss}>
           <AdminStateLabel state={row.before_state} />
-          <span aria-hidden="true">{ARROW}</span>
+          <span aria-hidden="true">
+            <ArrowRight size={STATE_ICON_SIZE} />
+          </span>
         </span>
       )}
       {row.after_state ? <AdminStateLabel state={row.after_state} /> : <span>{ABSENT}</span>}

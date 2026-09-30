@@ -7,7 +7,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::{
-    CreditRegistrationEventKind, NotImprovedAttainment,
+    CreditRegistrationEventKind, NotImprovedAttainment, SuotarAnswer,
 };
 use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
@@ -119,6 +119,13 @@ pub struct AdminCreditRegistrationEvent {
     pub details: Option<serde_json::Value>,
     /// The requestItemId the row went out under in the call behind this event.
     pub request_item_id: Option<String>,
+    pub suotar_endpoint: Option<suotar_api_calls::SuotarEndpoint>,
+    pub suotar_requested_at: Option<DateTime<Utc>>,
+    pub suotar_answered_at: Option<DateTime<Utc>>,
+    pub suotar_answer: Option<SuotarAnswer>,
+    /// Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and
+    /// sometimes drops. `None` when no item answer came back.
+    pub suotar_code: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -456,8 +463,18 @@ pub async fn get_credit_registration_for_admin(
                 message: event.message,
                 actor_user_id: event.actor_user_id,
                 suotar_api_call_id: event.suotar_api_call_id,
+                suotar_code: event
+                    .details
+                    .as_ref()
+                    .and_then(|details| details.pointer("/response/code"))
+                    .and_then(|code| code.as_str())
+                    .map(str::to_string),
                 details: event.details,
                 request_item_id: event.request_item_id,
+                suotar_endpoint: event.suotar_endpoint,
+                suotar_requested_at: event.suotar_requested_at,
+                suotar_answered_at: event.suotar_answered_at,
+                suotar_answer: event.suotar_answer,
             })
             .collect();
     let suotar_api_calls =

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM credit_registration_events\nWHERE suotar_api_call_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at\n        ",
+  "query": "\nSELECT *\nFROM credit_registration_events\nWHERE credit_registration_id = $1\n  AND deleted_at IS NULL\nORDER BY COALESCE(suotar_answered_at, created_at) DESC,\n  id DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -250,6 +250,75 @@
             "name": "request_item_id"
           }
         }
+      },
+      {
+        "ordinal": 14,
+        "name": "suotar_endpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "suotar_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "suotar_answered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_answered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "suotar_answer",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_answer",
+            "kind": {
+              "Enum": [
+                "answered",
+                "unanswered",
+                "refused"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_answer"
+          }
+        }
       }
     ],
     "parameters": {
@@ -271,8 +340,12 @@
       false,
       false,
       true,
+      true,
+      true,
+      true,
+      true,
       true
     ]
   },
-  "hash": "78afec599b4b437feb44a92bceefcef16508395e98479c077711526135612541"
+  "hash": "d5cb32abd4a10400729e7c3822518c602cc0ec0d07bc496a7d2bfd8ca3803b29"
 }

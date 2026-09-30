@@ -9,8 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../../lib/types/rhfField"
 import { omitUndefined } from "../../lib/utils/nullability"
-import type { ButtonSize } from "./../primitives/buttonStyles"
-import { checkableLabelCss } from "./../primitives/checkableStyles"
+import type { ButtonSize } from "./toggleButtonStyles"
 
 export type ToggleButtonGroupSelectionMode = "single" | "multiple"
 
@@ -22,6 +21,14 @@ export interface ToggleButtonGroupContextValue {
 export const ToggleButtonGroupContext = React.createContext<ToggleButtonGroupContextValue | null>(
   null,
 )
+
+export const labelCss = css`
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  min-width: 0;
+  overflow-wrap: anywhere;
+`
 
 const groupCss = css`
   display: flex;
@@ -105,7 +112,7 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
       <ToggleButtonGroupContext.Provider value={{ state, fieldSize }}>
         <div className={buttonGroupCss}>{children}</div>
       </ToggleButtonGroupContext.Provider>
-      <span className={checkableLabelCss}>{label}</span>
+      <span className={labelCss}>{label}</span>
     </div>
   )
 }

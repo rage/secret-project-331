@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -21,16 +20,14 @@ import {
   QueryResult,
   Switch,
   TextField,
-  GroupedToggleButton,
-  ToggleButtonGroup,
+  TriStateToggle,
+  OFF,
+  INCLUDE,
+  EXCLUDE,
 } from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
 import CourseDataFilterForm from "./CourseDataFilterForm"
-
-const OFF = "off"
-const INCLUDE = "include"
-const EXCLUDE = "exclude"
 
 export interface CourseFilter {
   search_course: string
@@ -299,46 +296,14 @@ const CourseAuditing = () => {
             control={control}
             label={t("course-auditing-filter-audiences-not-set")}
           />
-          <ToggleButtonGroup
-            name="is_draft"
-            control={control}
-            label={t("draft")}
-            defaultSelectedKeys={new Set([OFF])}
-          >
-            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
-          </ToggleButtonGroup>
-          <ToggleButtonGroup
-            name="is_unlisted"
-            control={control}
-            label={t("unlisted")}
-            defaultSelectedKeys={new Set([OFF])}
-          >
-            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
-          </ToggleButtonGroup>
-          <ToggleButtonGroup
-            name="is_test_mode"
-            control={control}
-            label={t("test-course")}
-            defaultSelectedKeys={new Set([OFF])}
-          >
-            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
-          </ToggleButtonGroup>
-          <ToggleButtonGroup
+          <TriStateToggle name="is_draft" control={control} label={t("draft")} />
+          <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
+          <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
+          <TriStateToggle
             name="is_joinable_by_code_only"
             control={control}
             label={t("joinable-by-code-only")}
-            defaultSelectedKeys={new Set([OFF])}
-          >
-            <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
-            <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
-          </ToggleButtonGroup>
+          />
         </div>
       </FieldSet>
 

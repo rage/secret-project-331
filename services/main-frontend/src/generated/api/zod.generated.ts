@@ -7158,6 +7158,10 @@ export const zGetCourseFeedbackCategoriesPath = z.object({
   course_id: z.uuid(),
 })
 
+export const zGetCourseFeedbackCategoriesQuery = z.object({
+  read: z.boolean(),
+})
+
 /**
  * All feedback categories used in feedback for the course
  */

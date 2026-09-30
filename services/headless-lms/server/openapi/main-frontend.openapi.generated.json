@@ -3761,6 +3761,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "description": "Categories for read/unread status feedback",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {

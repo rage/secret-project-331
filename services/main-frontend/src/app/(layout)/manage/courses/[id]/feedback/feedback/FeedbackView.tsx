@@ -8,6 +8,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  getCourseFeedbackCategoriesQueryKey,
   getCourseFeedbackCountQueryKey,
   markFeedbackAsReadMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -24,6 +25,7 @@ import { Button } from "@/shared-module/components/components/Button"
 export interface FeedbackViewProps {
   courseId: string
   feedback: Feedback
+  read: boolean
   setRead: (read: boolean) => Promise<void>
 }
 
@@ -42,6 +44,7 @@ const TextInformationWrapper = styled.div`
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   courseId,
   feedback,
+  read,
   setRead,
 }) => {
   const { t } = useTranslation()
@@ -58,7 +61,10 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
     {
       onSuccess: async () => {
         queryClient.invalidateQueries({
-          queryKey: getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
+          queryKey: [
+            getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
+            getCourseFeedbackCategoriesQueryKey({ path: { course_id: courseId }, query: { read } }),
+          ],
         })
 
         const toggled = !feedback.marked_as_read

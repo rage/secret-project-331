@@ -7507,7 +7507,12 @@ export type GetCourseFeedbackCategoriesData = {
      */
     course_id: string
   }
-  query?: never
+  query: {
+    /**
+     * Categories for read/unread status feedback
+     */
+    read: boolean
+  }
   url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories"
 }
 

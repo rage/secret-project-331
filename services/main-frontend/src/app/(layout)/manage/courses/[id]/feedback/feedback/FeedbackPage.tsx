@@ -62,6 +62,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
       path: {
         course_id: courseId,
       },
+      query: { read },
     }),
   })
 
@@ -91,6 +92,7 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
                 <FeedbackView
                   courseId={courseId}
                   feedback={f}
+                  read={read}
                   setRead={async () => {
                     await getFeedbackList.refetch()
                     await onChange()

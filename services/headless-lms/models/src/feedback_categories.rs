@@ -80,3 +80,32 @@ WHERE EXISTS (
 
     Ok(res)
 }
+
+pub async fn get_all_read_status(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    read: bool,
+) -> ModelResult<Vec<FeedbackCategory>> {
+    let res = sqlx::query_as!(
+        FeedbackCategory,
+        "
+SELECT fc.*
+FROM feedback_categories AS fc
+WHERE EXISTS (
+    SELECT id
+    FROM feedback AS f
+    WHERE fc.id = f.category_id
+      AND f.deleted_at IS NULL
+      AND f.course_id = $1
+      AND f.marked_as_read = $2
+  )
+  AND fc.deleted_at IS NULL
+        ",
+        course_id,
+        read
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}

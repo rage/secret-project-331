@@ -1160,6 +1160,11 @@ pub struct GetFeedbackQuery {
     category_filter: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct GetFeedbackCategoriesQuery {
+    read: bool,
+}
+
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
@@ -1270,7 +1275,8 @@ GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the fe
     operation_id = "getCourseFeedbackCategories",
     tag = "courses",
     params(
-        ("course_id" = Uuid, Path, description = "Course id")
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("read" = bool, Query, description = "Categories for read/unread status feedback")
     ),
     responses(
         (status = 200, description = "All feedback categories used in feedback for the course", body = Vec<FeedbackCategory>)
@@ -1279,6 +1285,7 @@ GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the fe
 #[instrument(skip(pool))]
 pub async fn get_feedback_categories(
     course_id: web::Path<Uuid>,
+    read: web::Query<GetFeedbackCategoriesQuery>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<FeedbackCategory>>> {
@@ -1290,7 +1297,7 @@ pub async fn get_feedback_categories(
         Res::Course(*course_id),
     )
     .await?;
-    let res = feedback_categories::get_all(&mut conn, *course_id).await?;
+    let res = feedback_categories::get_all_read_status(&mut conn, *course_id, read.read).await?;
 
     token.authorized_ok(web::Json(res))
 }

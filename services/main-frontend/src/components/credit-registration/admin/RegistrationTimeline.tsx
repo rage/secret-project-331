@@ -115,7 +115,7 @@ const TimelineEntry: React.FC<{
       </span>
       <span className={mainCss}>
         <span className={headlineCss}>
-          <span className={cx(iconCss, TONE_INK[description.tone])} aria-hidden="true">
+          <span className={iconCss} aria-hidden="true">
             <StepIcon size={STEP_ICON_SIZE} />
           </span>
           <span>

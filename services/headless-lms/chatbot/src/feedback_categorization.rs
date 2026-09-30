@@ -57,13 +57,19 @@ fn format_category_list(categories: &[FeedbackCategory]) -> String {
 }
 
 fn format_feedback(feedback: &NewFeedback) -> String {
-    let start = "\n\nThe feedback to format: \n<START FEEDBACK>\nFeedback: ".to_string();
-    let end = "\n<END FEEDBACK>";
-    let f = feedback.selected_text.as_ref().map_or("".to_string(), |s| {
+    let start = "\n\nThe feedback to categorize: \n<START>\n".to_string();
+    let end = "\n<END>";
+    let selected_text = feedback.selected_text.as_ref().map_or("".to_string(), |s| {
         format!("\n\nAssociated course material text: {s}\n")
     });
 
-    start + &feedback.feedback_given + &f + end
+    start
+        + &feedback
+            .feedback_given
+            .replace("<END>", "")
+            .replace("<START>", "")
+        + end
+        + &selected_text
 }
 
 /// System prompt instructions for generating suggested next messages
@@ -93,14 +99,21 @@ pub async fn categorize_feedback(
     feedback: &NewFeedback,
     categories: &[FeedbackCategory],
 ) -> ChatbotResult<FeedbackCategorisationResponse> {
-    let prompt =
-        SYSTEM_PROMPT.to_string() + &format_category_list(categories) + &format_feedback(feedback);
-    let input = vec![APIInputMessage {
-        message_type: InputItem::Message {
-            role: MessageRole::System,
-            content: MessageContent::Text(prompt),
+    let prompt = SYSTEM_PROMPT.to_string() + &format_category_list(categories);
+    let input = vec![
+        APIInputMessage {
+            message_type: InputItem::Message {
+                role: MessageRole::System,
+                content: MessageContent::Text(prompt),
+            },
         },
-    }];
+        APIInputMessage {
+            message_type: InputItem::Message {
+                role: MessageRole::User,
+                content: MessageContent::Text(format_feedback(feedback)),
+            },
+        },
+    ];
     let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
         (
             LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),

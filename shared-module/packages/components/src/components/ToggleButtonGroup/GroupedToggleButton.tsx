@@ -2,9 +2,15 @@
 
 import { cx } from "@emotion/css"
 import React, { useContext } from "react"
-import { mergeProps, useFocusRing, useObjectRef, useToggleButtonGroupItem } from "react-aria"
+import {
+  mergeProps,
+  useFocusRing,
+  useHover,
+  useObjectRef,
+  useToggleButtonGroupItem,
+} from "react-aria"
 
-import { omitUndefined } from "../lib/utils/nullability"
+import { omitUndefined } from "../../lib/utils/nullability"
 import { ToggleButtonGroupContext } from "./ToggleButtonGroup"
 import { iconSlotCss, resolveButtonRootCss, type IconPosition } from "./toggleButtonStyles"
 
@@ -52,6 +58,7 @@ export const GroupedToggleButton = React.forwardRef<HTMLButtonElement, GroupedTo
 
     const ref = useObjectRef(forwardedRef)
     const { focusProps, isFocusVisible } = useFocusRing()
+    const { hoverProps, isHovered } = useHover(props)
 
     const { buttonProps, isSelected, isPressed } = useToggleButtonGroupItem(
       {
@@ -74,7 +81,7 @@ export const GroupedToggleButton = React.forwardRef<HTMLButtonElement, GroupedTo
 
     const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 
-    const mergedProps = mergeProps(buttonProps, focusProps, {
+    const mergedProps = mergeProps(buttonProps, focusProps, hoverProps, {
       onClick,
       onKeyDown,
       onKeyUp,
@@ -89,6 +96,7 @@ export const GroupedToggleButton = React.forwardRef<HTMLButtonElement, GroupedTo
         className={rootClassName}
         data-pressed={String(isPressed)}
         data-selected={String(isSelected)}
+        data-hovered={String(isHovered)}
         data-focus-visible={String(isFocusVisible)}
         data-disabled={isDisabled}
         type="button"

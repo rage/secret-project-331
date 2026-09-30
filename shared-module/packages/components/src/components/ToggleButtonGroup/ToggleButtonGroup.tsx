@@ -7,10 +7,10 @@ import React, { useRef } from "react"
 import { useToggleButtonGroup, type Key } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
-import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import { omitUndefined } from "../lib/utils/nullability"
-import type { ButtonSize } from "./primitives/buttonStyles"
-import { checkableLabelCss } from "./primitives/checkableStyles"
+import { type RhfFieldProps, useRhfField } from "../../lib/types/rhfField"
+import { omitUndefined } from "../../lib/utils/nullability"
+import type { ButtonSize } from "./../primitives/buttonStyles"
+import { checkableLabelCss } from "./../primitives/checkableStyles"
 
 export type ToggleButtonGroupSelectionMode = "single" | "multiple"
 
@@ -101,7 +101,7 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
   )
 
   return (
-    <div {...groupProps} className={cx(groupCss, className)}>
+    <div {...groupProps} ref={ref} className={cx(groupCss, className)}>
       <ToggleButtonGroupContext.Provider value={{ state, fieldSize }}>
         <div className={buttonGroupCss}>{children}</div>
       </ToggleButtonGroupContext.Provider>

@@ -13,6 +13,7 @@ use headless_lms_models::email_deliveries::EmailSendStatus;
 use headless_lms_models::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
 };
+use headless_lms_models::library::credit_registration::student_number::parse_student_number;
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
     self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
@@ -556,7 +557,7 @@ pub async fn admin_resolve_student_number_for_linking(
         ));
     }
 
-    let student_number = required_student_number(&payload.student_number)?;
+    let student_number = typed_student_number(&payload.student_number)?;
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
@@ -824,7 +825,7 @@ fn manual_link_request(
     payload: &AdminManuallyLinkStudentNumberPayload,
 ) -> Result<ManualLinkRequest<'_>, ControllerError> {
     let reason = required_reason(&payload.reason)?;
-    let student_number = required_student_number(&payload.student_number)?;
+    let student_number = typed_student_number(&payload.student_number)?;
     let previewed_person_id = SecretString::from(payload.sisu_person_id.expose_secret().trim());
     if previewed_person_id.expose_secret().is_empty() {
         return Err(controller_err!(
@@ -848,6 +849,16 @@ fn required_student_number(raw: &SecretString) -> Result<SecretString, Controlle
         ));
     }
     Ok(student_number)
+}
+
+/// [`required_student_number`] for a number an admin typed to verify a link, which must also pass
+/// [`parse_student_number`]: a typo would otherwise link a stranger's number. Numbers from the
+/// study registry are never held to this, as their format is Sisu's to change.
+fn typed_student_number(raw: &SecretString) -> Result<SecretString, ControllerError> {
+    required_student_number(raw)?;
+    parse_student_number(raw.expose_secret())
+        .map(SecretString::from)
+        .map_err(|invalid| controller_err!(BadRequest, invalid.message().to_string()))
 }
 
 /// Audits the resend whatever it did, and reports where this person's mails now stand.
@@ -958,17 +969,17 @@ mod tests {
     }
 
     #[test]
-    fn a_manual_link_is_refused_without_a_preview_and_without_a_reason() {
+    fn a_manual_link_is_refused_without_a_preview_a_reason_or_a_valid_number() {
         assert!(
             manual_link_request(&manual_link_payload(
                 "Host bounces our mail.",
-                "012345678",
+                "012345672",
                 ""
             ))
             .is_err()
         );
-        assert!(manual_link_request(&manual_link_payload("   ", "012345678", "hy-hlo-1")).is_err());
-        assert!(manual_link_request(&manual_link_payload("", "012345678", "hy-hlo-1")).is_err());
+        assert!(manual_link_request(&manual_link_payload("   ", "012345672", "hy-hlo-1")).is_err());
+        assert!(manual_link_request(&manual_link_payload("", "012345672", "hy-hlo-1")).is_err());
         assert!(
             manual_link_request(&manual_link_payload(
                 "Host bounces our mail.",
@@ -977,12 +988,23 @@ mod tests {
             ))
             .is_err()
         );
+        for mistyped in ["012345678", "12345672", "0123456721"] {
+            assert!(
+                manual_link_request(&manual_link_payload(
+                    "Host bounces our mail.",
+                    mistyped,
+                    "hy-hlo-1"
+                ))
+                .is_err(),
+                "{mistyped}"
+            );
+        }
         let payload =
-            manual_link_payload("  Host bounces our mail.  ", " 012345678 ", " hy-hlo-1 ");
+            manual_link_payload("  Host bounces our mail.  ", " 012345672 ", " hy-hlo-1 ");
         let allowed = manual_link_request(&payload)
             .expect("a reason, a number and a previewed person id are all there");
         assert_eq!(allowed.reason, "Host bounces our mail.");
-        assert_eq!(allowed.student_number.expose_secret(), "012345678");
+        assert_eq!(allowed.student_number.expose_secret(), "012345672");
         assert_eq!(allowed.previewed_person_id.expose_secret(), "hy-hlo-1");
     }
 }

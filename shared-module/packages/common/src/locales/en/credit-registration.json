@@ -899,6 +899,8 @@
   "credit-registration-status-waiting-for-course-setup": "On hold",
   "credit-registration-status-waiting-for-sisu": "Sent to Sisu",
   "credit-registration-student-number-after-confirming": "Once your student number is linked, we register your credits.",
+  "credit-registration-student-number-invalid-check-digit": "The check digit does not match. Check the number for typos.",
+  "credit-registration-student-number-invalid-format": "A student number is nine digits and starts with 0.",
   "credit-registration-student-number-step-open-the-emailed-link": "Open the confirmation link we emailed to {{email}} on {{date}}.",
   "credit-registration-student-number-step-stay-logged-in": "Open it while you are logged in to this account.",
   "credit-registration-student-number-via-admin-manual": "Linked by support",

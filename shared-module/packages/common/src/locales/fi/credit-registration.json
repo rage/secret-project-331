@@ -899,6 +899,8 @@
   "credit-registration-status-waiting-for-course-setup": "Odottaa kurssin korjausta",
   "credit-registration-status-waiting-for-sisu": "Lähetetty Sisuun",
   "credit-registration-student-number-after-confirming": "Kun opiskelijanumerosi on liitetty, kirjaamme opintopisteesi.",
+  "credit-registration-student-number-invalid-check-digit": "Tarkistusnumero ei täsmää. Tarkista numero kirjoitusvirheiden varalta.",
+  "credit-registration-student-number-invalid-format": "Opiskelijanumerossa on yhdeksän numeroa, ja se alkaa nollalla.",
   "credit-registration-student-number-step-open-the-emailed-link": "Avaa vahvistuslinkki, jonka lähetimme osoitteeseen {{email}} {{date}}.",
   "credit-registration-student-number-step-stay-logged-in": "Avaa se tälle tilille kirjautuneena.",
   "credit-registration-student-number-via-admin-manual": "Tuki liitti käsin",

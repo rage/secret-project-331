@@ -1202,7 +1202,7 @@ pub async fn get_feedback(
     let feedback = feedback::get_feedback_for_course(
         &mut conn,
         *course_id,
-        read.category_filter.clone(),
+        read.category_filter,
         read.read,
         read.pagination,
     )

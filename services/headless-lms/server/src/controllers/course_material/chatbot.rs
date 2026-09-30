@@ -455,6 +455,8 @@ async fn conversation_info(
     )
     .await?;
 
+    // A None means no suggestion belongs here at all, which includes a turn suspended on a question
+    // to the learner, so the generation below is skipped for those without a check of its own.
     if chatbot_configuration.suggest_next_messages
         // suggested_messages is None if suggest_next_messages=false
         && let Some(suggested_messages) = &res.suggested_messages

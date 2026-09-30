@@ -20,8 +20,8 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
-import { DisclosureButton } from "./sidebar-disclosure/DisclosureButton"
 import MobileDisclosureOverlay from "./sidebar-disclosure/MobileDisclosureOverlay"
+import { SidebarButton } from "./sidebar-disclosure/SidebarButton"
 import SidebarDisclosure from "./sidebar-disclosure/SidebarDisclosure"
 
 interface SideBarProps {
@@ -54,6 +54,23 @@ const dropdownMenuCss = css`
   text-shadow: none;
 `
 
+const sidebarButtonCss = css`
+  ${respondToOrLarger.md} {
+    display: block;
+    background: none;
+    border: none;
+    box-shadow: none;
+    text-shadow: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    &[data-hovered] {
+      background: ${baseTheme.colors.clear[100]};
+      cursor: pointer;
+    }
+  }
+
+  display: none;
+`
 const Sidebar: React.FC<SideBarProps> = (props) => {
   const { t } = useTranslation()
   const { setChatbotDialog, conversations, setConfigurationId, chatbots, setCreateChatbotVisible } =
@@ -67,24 +84,6 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
   let { buttonProps: pressProps, isPressed } = useButton(buttonProps, buttonRef)
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
-
-  const disclosureButtonCss = css`
-    ${respondToOrLarger.md} {
-      display: block;
-      background: none;
-      border: none;
-      box-shadow: none;
-      text-shadow: none;
-      padding: 12px 16px;
-      border-radius: 12px;
-      &[data-hovered] {
-        background: ${baseTheme.colors.clear[100]};
-        cursor: pointer;
-      }
-    }
-
-    display: none;
-  `
 
   let items: DropdownMenuItem[] = [
     {
@@ -109,18 +108,6 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
 
   return (
     <>
-      {menuState.isOpen && (
-        <OverlayContainer>
-          <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
-            <ConversationHistory
-              menuState={menuState}
-              conversations={conversations}
-              chatbots={chatbots}
-              setConfigurationId={setConfigurationId}
-            />
-          </MobileDisclosureOverlay>
-        </OverlayContainer>
-      )}
       <div className={sideBarContainerCss}>
         <div
           className={css`
@@ -197,7 +184,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
             {...mergeProps(pressProps, hoverProps, focusProps)}
             ref={buttonRef}
             slot="trigger"
-            className={disclosureButtonCss}
+            className={sidebarButtonCss}
             data-pressed={isPressed || undefined}
             data-hovered={isHovered || undefined}
             data-focus-visible={isFocusVisible || undefined}
@@ -206,7 +193,7 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
           >
             <LayoutVertical weight="medium" size={16} />
           </button>
-          <DisclosureButton state={menuState} />
+          <SidebarButton state={menuState} />
         </div>
         <SidebarDisclosure state={state} panelProps={panelProps} panelRef={panelRef}>
           <ConversationHistory
@@ -216,6 +203,18 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
             setConfigurationId={setConfigurationId}
           />
         </SidebarDisclosure>
+        {menuState.isOpen && (
+          <OverlayContainer>
+            <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
+              <ConversationHistory
+                menuState={menuState}
+                conversations={conversations}
+                chatbots={chatbots}
+                setConfigurationId={setConfigurationId}
+              />
+            </MobileDisclosureOverlay>
+          </OverlayContainer>
+        )}
       </div>
     </>
   )

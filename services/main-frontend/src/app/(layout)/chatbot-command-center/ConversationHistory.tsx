@@ -39,80 +39,83 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 }) => {
   const { t } = useTranslation()
   const { setConvId, convId } = useChatbotContext()
+
+  if (conversations.length === 0) {
+    return (
+      <div
+        className={css`
+          padding: 0 1rem;
+          margin-top: 1rem;
+        `}
+      >
+        <Infobox>{t("no-existing-conversations")}</Infobox>
+      </div>
+    )
+  }
+
   return (
     <div>
-      {conversations.length === 0 ? (
-        <div
+      {conversations.map((conversation) => (
+        <Button
+          size="medium"
+          variant="icon"
+          onClick={() => {
+            setConfigurationId(conversation.chatbot_configuration_id)
+            setConvId(conversation.id)
+            if (menuState) {
+              menuState.close()
+            }
+          }}
           className={css`
-            padding: 0 1rem;
-            margin-top: 1rem;
-          `}
-        >
-          <Infobox>{t("no-existing-conversations")}</Infobox>
-        </div>
-      ) : (
-        conversations.map((conversation) => (
-          <Button
-            size="medium"
-            variant="icon"
-            onClick={() => {
-              setConfigurationId(conversation.chatbot_configuration_id)
-              setConvId(conversation.id)
-              if (menuState) {
-                menuState.close()
-              }
-            }}
-            className={css`
-              width: calc(100%);
-              justify-content: flex-start;
-              border-bottom: 1px solid ${baseTheme.colors.gray[75]};
-              padding: 2rem 1rem;
-              transition: background-color 0.2s;
+            width: calc(100%);
+            justify-content: flex-start;
+            border-bottom: 1px solid ${baseTheme.colors.gray[75]};
+            padding: 2rem 1rem;
+            transition: background-color 0.2s;
 
-              border-radius: 0;
-              &:hover:not(:disabled):not([aria-disabled="true"]) {
-                background: var(--color-green-75);
-                transition: 0.2s;
-              }
-              color: var(--field-fg);
-              background-color: ${conversation.id === convId ? "var(--color-green-75); border-color: var(--color-green-300) !important; box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
+            border-radius: 0;
+            &:hover:not(:disabled):not([aria-disabled="true"]) {
+              background: var(--color-green-75);
+              transition: 0.2s;
+            }
+            color: var(--field-fg);
+            background-color: ${conversation.id === convId ? "var(--color-green-75); border-color: var(--color-green-300) !important; box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
+          `}
+          key={conversation.id}
+          aria-label={t("conversation-title", {
+            title: conversation.conversation_title ?? t("untitled-conversation"),
+          })}
+        >
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              font-size: 14px;
+              font-weight: 500;
             `}
-            key={conversation.id}
-            aria-label={t("conversation-title", {
-              title: conversation.conversation_title ?? t("untitled-conversation"),
-            })}
           >
             <div
               className={css`
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                font-size: 14px;
-                font-weight: 500;
+                white-space: nowrap;
+                /* 400px is the width of the sidebar */
+                max-width: calc(400px - 2.1rem);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding-bottom: 5px;
               `}
             >
-              <div
-                className={css`
-                  white-space: nowrap;
-                  /* 400px is the width of the sidebar */
-                  max-width: calc(400px - 2.1rem);
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                  padding-bottom: 5px;
-                `}
-              >
-                {conversation.conversation_title ?? t("untitled-conversation")}
-              </div>
-              <span className={chatbotLabelCss}>
-                {
-                  chatbots.find((chatbot) => chatbot.id === conversation.chatbot_configuration_id)
-                    ?.chatbot_name
-                }
-              </span>
+              {conversation.conversation_title ?? t("untitled-conversation")}
             </div>
-          </Button>
-        ))
-      )}
+            <span className={chatbotLabelCss}>
+              {
+                chatbots.find((chatbot) => chatbot.id === conversation.chatbot_configuration_id)
+                  ?.chatbot_name
+              }
+            </span>
+          </div>
+        </Button>
+      ))}
     </div>
   )
 }

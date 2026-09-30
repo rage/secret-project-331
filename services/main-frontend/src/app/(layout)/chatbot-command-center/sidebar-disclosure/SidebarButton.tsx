@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
-interface DisclosureButtonProps {
+interface SidebarButtonProps {
   state: OverlayTriggerState
 }
 
-const disclosureButton = css`
+const sidebarButtonCss = css`
   background: none;
   border: none;
   box-shadow: none;
@@ -25,7 +25,7 @@ const disclosureButton = css`
   }
 `
 
-export const DisclosureButton: React.FC<DisclosureButtonProps> = ({ state }) => {
+export const SidebarButton: React.FC<SidebarButtonProps> = ({ state }) => {
   const { t } = useTranslation()
   const buttonRef = useRef<HTMLButtonElement>(null)
   const { buttonProps } = useButton(
@@ -38,7 +38,7 @@ export const DisclosureButton: React.FC<DisclosureButtonProps> = ({ state }) => 
   )
 
   return (
-    <button {...buttonProps} ref={buttonRef} className={disclosureButton}>
+    <button {...buttonProps} ref={buttonRef} className={sidebarButtonCss}>
       <LayoutVertical weight="medium" size={16} />
     </button>
   )

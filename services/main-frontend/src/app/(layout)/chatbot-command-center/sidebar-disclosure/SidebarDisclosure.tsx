@@ -50,23 +50,6 @@ const SidebarDisclosure: React.FC<DisclosureProps> = ({
 }) => {
   return (
     <div className={reactAriaDisclosure} data-expanded={state.isExpanded || undefined}>
-      <div
-        className={css`
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-
-          flex-direction: ${!state.isExpanded ? "column-reverse" : "row"};
-        `}
-      >
-        <div
-          className={css`
-            display: flex;
-            flex-direction: ${!state.isExpanded ? "column" : "row"};
-            align-items: center;
-          `}
-        ></div>
-      </div>
       <div {...panelProps} ref={panelRef} className={reactAriaDisclosurePanel}>
         <div>{children}</div>
       </div>

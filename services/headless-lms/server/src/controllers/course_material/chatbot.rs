@@ -407,7 +407,7 @@ async fn all_user_conversations(
 /**
 GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
 
-Returns chatbot conversation for the user. If conversation_id is not provided then latest conversation is returned.
+Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
 */
 #[utoipa::path(
     get,
@@ -449,7 +449,7 @@ async fn conversation_info(
     let res = chatbot_conversations::get_conversation_info(
         &mut conn,
         user.map(|u| u.id),
-        anonymous_token.clone(),
+        anonymous_token.as_ref().map(|a| a.to_owned()),
         chatbot_configuration.id,
         conversation_id,
     )
@@ -516,7 +516,7 @@ async fn conversation_info(
         let res = chatbot_conversations::get_conversation_info(
             &mut conn,
             user.map(|u| u.id),
-            anonymous_token.clone(),
+            anonymous_token,
             chatbot_configuration.id,
             conversation_id,
         )

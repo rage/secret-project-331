@@ -646,7 +646,7 @@ const ChatbotChatBody: React.FC = () => {
 
   useEffect(() => {
     scrollToBottomIfFollowing()
-  }, [scrollToBottomIfFollowing, classifiedFetched])
+  }, [scrollToBottomIfFollowing, classifiedFetched, messageState.messages])
 
   const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
 

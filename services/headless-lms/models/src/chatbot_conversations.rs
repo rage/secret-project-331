@@ -197,7 +197,6 @@ WHERE (
   AND chatbot_configuration_id = $3
   AND id = $4
   AND deleted_at IS NULL
-ORDER BY created_at DESC
         "#,
         user_id,
         anonymous_token,
@@ -220,7 +219,7 @@ SELECT *
 FROM chatbot_conversations
 WHERE user_id = $1
   AND deleted_at IS NULL
-ORDER BY created_at DESC;
+ORDER BY created_at DESC
         "#,
         user_id,
     )

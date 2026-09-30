@@ -114,50 +114,50 @@ export const CRS_GRADED_101 = "CRS-GRADED-101"
 /** Seeded accounts with a linked student number. Must match `mock_suotar::fixtures`. */
 export const STUDENT_6 = {
   email: "student6@example.com",
-  studentNumber: "900000006",
+  studentNumber: "090000065",
   lastName: "Studentsix",
 } as const
 export const STUDENT_7 = {
   email: "student7@example.com",
-  studentNumber: "900000007",
+  studentNumber: "090000078",
   lastName: "Studentseven",
 } as const
 export const STUDENT_8 = {
   email: "student8@example.com",
-  studentNumber: "900000008",
+  studentNumber: "090000081",
   lastName: "Studenteight",
 } as const
 export const CREDIT_REGISTRATION_STUDENT_1 = {
   email: "credit-registration-student-1@example.com",
-  studentNumber: "900000011",
+  studentNumber: "090000117",
   lastName: "Crsone",
 } as const
 /** Linked by support by hand rather than by the mailed link. */
 export const CREDIT_REGISTRATION_STUDENT_2 = {
   email: "credit-registration-student-2@example.com",
-  studentNumber: "900000012",
+  studentNumber: "090000120",
   lastName: "Crstwo",
 } as const
 export const CREDIT_REGISTRATION_STUDENT_3 = {
   email: "credit-registration-student-3@example.com",
-  studentNumber: "900000013",
+  studentNumber: "090000133",
   lastName: "Crsthree",
 } as const
 /** Derived by the seed from the address, so stable across reseeds. */
 export const CREDIT_REGISTRATION_STUDENT_3_USER_ID = "02df8948-d804-5e37-af84-1776c1050516"
 export const CREDIT_REGISTRATION_STUDENT_4 = {
   email: "credit-registration-student-4@example.com",
-  studentNumber: "900000014",
+  studentNumber: "090000146",
   lastName: "Crsfour",
 } as const
 export const CREDIT_REGISTRATION_STUDENT_5 = {
   email: "credit-registration-student-5@example.com",
-  studentNumber: "900000015",
+  studentNumber: "090000159",
   lastName: "Crsfive",
 } as const
 export const CREDIT_REGISTRATION_STUDENT_6 = {
   email: "credit-registration-student-6@example.com",
-  studentNumber: "900000016",
+  studentNumber: "090000162",
   lastName: "Crssix",
 } as const
 

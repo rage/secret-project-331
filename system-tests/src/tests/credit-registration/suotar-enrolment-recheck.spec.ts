@@ -34,7 +34,7 @@ import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * Owns `credit-registration-student-6` on `via-suotar-b`, and the unlinked roster person
- * `900000971` on its course code.
+ * `090009710` on its course code.
  *
  * Serial and order-dependent: the teacher's recheck leaves the row parked again, which the discovery
  * test then wakes. `retries: 0` because the row does not come back from being registered.
@@ -47,7 +47,7 @@ const STUDENT = CREDIT_REGISTRATION_STUDENT_6
 const COMPLETIONS_URL = `${ORIGIN}/manage/courses/${SUOTAR_B_COURSE_ID}/students/completions`
 /** The control surface's ceiling; renewed before each step that needs the live worker kept off. */
 const HOLD_SECS = 120
-const UNLINKED_STUDENT_NUMBER = "900000971"
+const UNLINKED_STUDENT_NUMBER = "090009710"
 const NOT_YET_SENT_STATES = ["pending", "ready_to_submit", "no_usable_enrolment"]
 
 interface TeacherRegistration {

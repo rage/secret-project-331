@@ -88,7 +88,7 @@ describe("useStudentRegistrationActions", () => {
 
   test("sends a wrong student number to the settings page that can change it", () => {
     const { primaryAction } = actionsFor(
-      registration("failed", { error_code: "person_not_found", student_number: "900000101" }),
+      registration("failed", { error_code: "person_not_found", student_number: "090001019" }),
     )
 
     expect(primaryAction?.label).toBe("credit-registration-action-label-check-own-student-number")

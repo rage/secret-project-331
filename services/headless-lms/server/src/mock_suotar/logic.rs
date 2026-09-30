@@ -766,7 +766,7 @@ mod tests {
     };
     use super::*;
 
-    const STUDENT_NUMBER: &str = "900000101";
+    const STUDENT_NUMBER: &str = "090001019";
     const COURSE_CODE: &str = "CRS-101";
 
     fn world() -> WorkingSet {

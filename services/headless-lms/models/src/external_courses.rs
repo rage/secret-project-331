@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use headless_lms_utils::azure_embedding::create_embeddings;
 use pgvector::Vector;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -18,13 +19,85 @@ pub struct ExternalCourse {
     pub description_embedding: Option<Vector>,
 }
 
-#[derive(Debug, Serialize)]
-pub struct ExternalCourseOutput {
-    id: Uuid,
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+pub struct NewExternalCourse {
     name: String,
     description: Option<String>,
     url: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct ExternalCourseOutput {
+    pub id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
+    pub url: String,
+}
+pub async fn create_external_course(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    new: NewExternalCourse,
+) -> ModelResult<ExternalCourseOutput> {
+    let name_embedding = create_embeddings(app_config, vec![new.name.clone()])
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(|| model_err!(Generic, "The embedding API returned no title embedding."))
+        .map(Vector::from)?;
+
+    let description_embedding = if let Some(description) = &new.description {
+        Some(
+            create_embeddings(app_config, vec![description.to_owned()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(
+                        Generic,
+                        "The embedding API returned no description embedding."
+                    )
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+
+    let res = sqlx::query_as!(
+        ExternalCourseOutput,
+        "
+INSERT INTO external_courses(
+    name,
+    description,
+    url,
+    name_embedding,
+    description_embedding
+    )
+VALUES(
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+    )
+RETURNING
+    id,
+    name,
+    description,
+    url
+        ",
+        new.name,
+        new.description,
+        new.url,
+        name_embedding,
+        description_embedding
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(res)
+}
+
 /**
 Searches for external courses with a list of given keywords, with both matching its embedding vector to embeddings of external course name and description,
 and doing a keyword search to concatenated name and description tsvector.

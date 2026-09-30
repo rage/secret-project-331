@@ -86,7 +86,7 @@ test.describe("A submission the study registry has not answered yet", () => {
       ).toBeGreaterThan(pollsBefore)
       expect(
         (await myRegistrationOnCourse(page.request, adminApi, SUOTAR_B_COURSE_SLUG)).state,
-      ).toBe("awaiting_verification")
+      ).toBe("partially_registered")
     })
 
     await transitionMockSuotarSubmissionsFor(

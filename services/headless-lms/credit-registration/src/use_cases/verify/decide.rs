@@ -187,7 +187,11 @@ mod tests {
 
     #[test]
     fn an_unanswered_poll_keeps_polling_in_place() {
-        for state in [State::AwaitingVerification, State::SubmissionUncertain] {
+        for state in [
+            State::AwaitingVerification,
+            State::PartiallyRegistered,
+            State::SubmissionUncertain,
+        ] {
             let decision = decided(state, None);
             assert_eq!(decision.outcome.to_state, state);
             assert!(!decision.outcome.is_failure());
@@ -248,7 +252,7 @@ mod tests {
     #[test]
     fn a_partial_registration_waits_for_the_course_unit_attainment() {
         let decision = partially_registered_decision(&facts(), now());
-        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.to_state, State::PartiallyRegistered);
         assert_eq!(decision.outcome.needs_admin_attention, None);
     }
 
@@ -256,7 +260,7 @@ mod tests {
     fn a_long_partial_registration_asks_for_an_admin() {
         let decision =
             partially_registered_decision(&facts(), now() - PARTIAL_REGISTRATION_ADMIN_AFTER);
-        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.to_state, State::PartiallyRegistered);
         assert_eq!(
             decision.outcome.needs_admin_attention,
             Some(AdminAttention::Raise)

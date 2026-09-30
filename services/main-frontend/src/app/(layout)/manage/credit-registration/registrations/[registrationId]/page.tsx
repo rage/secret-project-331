@@ -302,7 +302,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     : []
   // A row that has finished, or that a later attempt replaced, has no next attempt; the stored
   // instant is whatever it was last scheduled for, which reads as a bug under that label.
-  const isChecking = row.state === "awaiting_verification" || row.state === "submission_uncertain"
+  const isChecking =
+    row.state === "awaiting_verification" ||
+    row.state === "partially_registered" ||
+    row.state === "submission_uncertain"
   const hidesNextAttempt = row.state === "submitting" || row.state === "resolving_enrolment"
   const nextAttempt: DescriptionListItem[] =
     row.terminal_at || row.superseded || hidesNextAttempt

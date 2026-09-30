@@ -229,7 +229,7 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
 /// uncertain row stops being uncertain, but the row is not registered until the course unit
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
-    let outcome = Outcome::to(CreditRegistrationState::AwaitingVerification)
+    let outcome = Outcome::to(CreditRegistrationState::PartiallyRegistered)
         .after(verify_backoff(facts.verify_attempt_count));
     if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()

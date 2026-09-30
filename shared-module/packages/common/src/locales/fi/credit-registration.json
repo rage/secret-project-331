@@ -782,6 +782,7 @@
   "credit-registration-ledger-state-misregistered": "Poistettu Sisusta",
   "credit-registration-ledger-state-no-usable-enrolment": "Voimassa olevaa ilmoittautumista ei löytynyt",
   "credit-registration-ledger-state-not-improved": "Sisussa on jo sama tai parempi arvosana",
+  "credit-registration-ledger-state-partially-registered": "Osittain Sisussa",
   "credit-registration-ledger-state-pending": "Odottaa aloitusta",
   "credit-registration-ledger-state-pending-completion": "Odottaa suoritusta",
   "credit-registration-ledger-state-pending-course-code": "Odottaa, että Sisu hyväksyy kurssikoodin",

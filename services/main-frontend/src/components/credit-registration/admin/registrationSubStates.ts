@@ -16,7 +16,9 @@ const durationLabel = (t: CreditRegistrationTFunction, secs: number): string =>
   t("credit-registration-admin-duration-days", { count: Math.round(secs / SECONDS_PER_DAY) })
 
 const isPolling = (row: AdminCreditRegistrationRow): boolean =>
-  row.state === "awaiting_verification" || row.state === "submission_uncertain"
+  row.state === "awaiting_verification" ||
+  row.state === "partially_registered" ||
+  row.state === "submission_uncertain"
 
 /** One sentence per sub-situation the state alone does not explain. */
 export const subStateExplanations = (
@@ -29,7 +31,7 @@ export const subStateExplanations = (
     return []
   }
   const lines: string[] = []
-  if (row.state === "awaiting_verification" && row.partially_registered_at) {
+  if (row.state === "partially_registered" && row.partially_registered_at) {
     lines.push(
       t("credit-registration-admin-substate-partial", {
         since: timestamp(row.partially_registered_at),
@@ -108,7 +110,7 @@ export const attentionReasonLabel = (
 ): string => {
   const submittedFor = row.submitted_at ? elapsedSecs(row.submitted_at, now) : 0
   if (
-    row.state === "awaiting_verification" &&
+    row.state === "partially_registered" &&
     row.partially_registered_at &&
     elapsedSecs(row.partially_registered_at, now) >= thresholds.partial_registration_secs
   ) {

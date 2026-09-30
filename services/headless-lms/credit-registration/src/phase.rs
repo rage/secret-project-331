@@ -146,6 +146,7 @@ const VERIFY: PhaseSpec = PhaseSpec {
     breakers: STUDY_REGISTRY,
     owned_states: &[
         CreditRegistrationState::AwaitingVerification,
+        CreditRegistrationState::PartiallyRegistered,
         CreditRegistrationState::SubmissionUncertain,
     ],
     ..DEFAULTS

@@ -782,6 +782,7 @@
   "credit-registration-ledger-state-misregistered": "Removed from Sisu",
   "credit-registration-ledger-state-no-usable-enrolment": "No valid enrolment found",
   "credit-registration-ledger-state-not-improved": "Sisu already has the same or a better grade",
+  "credit-registration-ledger-state-partially-registered": "Partly in Sisu",
   "credit-registration-ledger-state-pending": "Waiting to start",
   "credit-registration-ledger-state-pending-completion": "Waiting for the completion",
   "credit-registration-ledger-state-pending-course-code": "Waiting for Sisu to accept the course code",

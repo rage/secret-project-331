@@ -53,6 +53,7 @@ const STATE_TONES = {
   submitting: "current",
   submission_uncertain: "action-needed",
   awaiting_verification: "current",
+  partially_registered: "current",
   registered: "done",
   duplicate: "done",
   not_improved: "done",

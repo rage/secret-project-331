@@ -315,6 +315,7 @@ const LEDGER_STATE_KEYS = {
   submitting: "credit-registration-ledger-state-submitting",
   submission_uncertain: "credit-registration-ledger-state-submission-uncertain",
   awaiting_verification: "credit-registration-ledger-state-awaiting-verification",
+  partially_registered: "credit-registration-ledger-state-partially-registered",
   registered: "credit-registration-ledger-state-registered",
   duplicate: "credit-registration-ledger-state-duplicate",
   not_improved: "credit-registration-ledger-state-not-improved",

@@ -10,6 +10,7 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
 
 interface MobileDisclosureOverlayProps {
   state: OverlayTriggerState
@@ -35,7 +36,7 @@ const dialogCss = css`
   left: 0;
   bottom: 0;
   width: 100%;
-  max-width: 400px;
+  max-width: ${SIDEBAR_WIDTH_PX};
   background: #ffffff;
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
   overflow-y: auto;

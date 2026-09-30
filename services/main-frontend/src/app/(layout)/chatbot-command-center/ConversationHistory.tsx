@@ -9,6 +9,7 @@ import { useChatbotContext } from "@/components/course-material/chatbot/shared/C
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
 import { Button, Infobox } from "@/shared-module/components"
 
 interface ConversationHistoryProps {
@@ -23,7 +24,7 @@ const chatbotLabelCss = css`
   font-size: 10px;
   white-space: nowrap;
   overflow: hidden;
-  max-width: calc(400px - 2.1rem);
+  max-width: calc(${SIDEBAR_WIDTH_PX} - 2.1rem);
   text-overflow: ellipsis;
   text-align: left;
   border: 1px solid ${baseTheme.colors.green[300]};
@@ -98,8 +99,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             <div
               className={css`
                 white-space: nowrap;
-                /* 400px is the width of the sidebar */
-                max-width: calc(400px - 2.1rem);
+                max-width: calc(${SIDEBAR_WIDTH_PX}px - 2.1rem);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 padding-bottom: 5px;

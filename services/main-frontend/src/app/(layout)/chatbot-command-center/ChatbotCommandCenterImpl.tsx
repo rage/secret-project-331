@@ -8,6 +8,7 @@ import type { ChatbotConfiguration, Course } from "@/generated/api/types.generat
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
 
 import NewConversationDialog from "./NewConversationDialog"
 import Sidebar from "./Sidebar"
@@ -21,7 +22,7 @@ const gridContainer = css`
   takes width of its elements
   */
   ${respondToOrLarger.md} {
-    grid-template-columns: 400px minmax(0, 1fr);
+    grid-template-columns: ${SIDEBAR_WIDTH_PX} minmax(0, 1fr);
   }
 
   grid-template-columns: auto minmax(0, 1fr);

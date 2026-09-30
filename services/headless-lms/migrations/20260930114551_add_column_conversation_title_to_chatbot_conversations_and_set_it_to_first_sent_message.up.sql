@@ -1,3 +1,6 @@
+ALTER TABLE chatbot_conversations
+ADD COLUMN conversation_title VARCHAR(131072);
+
 UPDATE chatbot_conversations AS cc
 SET conversation_title = msg_msgs.text
 FROM chatbot_conversation_messages AS msgs

@@ -6,3 +6,5 @@ WHERE msgs.conversation_id = cc.id
   AND msgs.order_number = 2
   AND cc.conversation_title IS NULL
   AND cc.deleted_at IS NULL;
+
+ALTER TABLE chatbot_conversations DROP COLUMN conversation_title;

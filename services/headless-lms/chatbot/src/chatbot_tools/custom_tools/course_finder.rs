@@ -138,7 +138,11 @@ impl ChatbotTool for CourseFinderTool {
         let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
             .filter_map(|course| {
-                if course.is_draft || course.is_test_mode || course.is_unlisted {
+                if course.is_draft
+                    || course.is_test_mode
+                    || course.is_unlisted
+                    || course.is_closed()
+                {
                     return None;
                 }
                 let organization = organization_by_id.get(&course.organization_id)?;

@@ -1631,6 +1631,8 @@
   "points-breakdown-attempts_one": "{{count}} yritys",
   "points-breakdown-attempts_other": "{{count}} yritystä",
   "points-breakdown-empty": "Yhtään tehtävää ei ole vielä avautunut.",
+  "points-breakdown-exercises-attempted_one": "Tehtäviä yritetty {{given}}/{{max}}",
+  "points-breakdown-exercises-attempted_other": "Tehtäviä yritetty {{given}}/{{max}}",
   "points-breakdown-points-pending_one": "Ei vielä arvosteltu, enintään {{max}} piste",
   "points-breakdown-points-pending_other": "Ei vielä arvosteltu, enintään {{max}} pistettä",
   "points-breakdown-status-closed": "Suljettu",

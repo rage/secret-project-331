@@ -81,6 +81,7 @@ const ProgressCard: React.FC<ProgressCardProps> = (props) => {
           scope={props.pointsBreakdown}
           moduleName={props.moduleName}
           points={points}
+          exercises={exercises}
         />
       )}
       {props.variant === "module" && (
@@ -103,7 +104,8 @@ const PointsBreakdownTrigger: React.FC<{
   scope: PointsBreakdownScope
   moduleName: string
   points: ProgressMeasure
-}> = ({ scope, moduleName, points }) => {
+  exercises: ProgressMeasure
+}> = ({ scope, moduleName, points, exercises }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   return (
@@ -121,6 +123,7 @@ const PointsBreakdownTrigger: React.FC<{
         scope={scope}
         moduleName={moduleName}
         points={points}
+        exercises={exercises}
         open={isOpen}
         onClose={() => setIsOpen(false)}
       />

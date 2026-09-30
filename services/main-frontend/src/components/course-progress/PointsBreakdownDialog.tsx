@@ -3,6 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
+import { Fragment } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -13,7 +14,7 @@ import type {
   ExercisePointsStatus,
   PagePointsBreakdown,
 } from "@/generated/course-material-api/types.generated"
-import { headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { Dialog, Link, type LinkAppearance, QueryResult } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 import { coursePageSectionRoute } from "@/utils/course-material/routing"
@@ -39,6 +40,8 @@ export interface PointsBreakdownDialogProps {
   moduleName: string
   /** The module's points as the card states them; the header repeats the total. */
   points: ProgressMeasure
+  /** The module's exercises attempted as the card states them; the header repeats the total. */
+  exercises: ProgressMeasure
   open: boolean
   onClose: () => void
 }
@@ -56,6 +59,7 @@ const OpenPointsBreakdownDialog: React.FC<Omit<PointsBreakdownDialogProps, "open
   scope,
   moduleName,
   points,
+  exercises,
   onClose,
 }) => {
   const { t } = useTranslation()
@@ -74,7 +78,9 @@ const OpenPointsBreakdownDialog: React.FC<Omit<PointsBreakdownDialogProps, "open
       onClose={onClose}
       isDismissable
       className={cx(query.isPending && loadingDialogCss, dialogCss)}
-      title={<DialogTitle moduleName={moduleName} points={isEmpty ? null : points} />}
+      title={
+        <DialogTitle moduleName={moduleName} totals={isEmpty ? null : { points, exercises }} />
+      }
     >
       <QueryResult
         query={query}
@@ -104,35 +110,51 @@ function fillSlot(text: string, node: React.ReactNode): React.ReactNode {
   )
 }
 
-const DialogTitle: React.FC<{ moduleName: string; points: ProgressMeasure | null }> = ({
-  moduleName,
-  points,
-}) => {
+const DialogTitle: React.FC<{
+  moduleName: string
+  totals: { points: ProgressMeasure; exercises: ProgressMeasure } | null
+}> = ({ moduleName, totals }) => {
   const { t, i18n } = useTranslation()
-  let summary: React.ReactNode = null
-  if (points !== null) {
-    const givenCount = points.given ?? 0
-    const given = <span className={summaryGivenCss}>{formatPoints(givenCount, i18n.language)}</span>
-    const text = hasChartMax(points.max)
-      ? t("progress-points-summary", {
-          given: SLOT,
-          max: formatPoints(points.max, i18n.language),
-          count: points.max,
-        })
-      : t("progress-points-given", { given: SLOT, count: givenCount })
-    summary = fillSlot(text, given)
+  const summaries: React.ReactNode[] = []
+  if (totals !== null) {
+    const { points, exercises } = totals
+    const givenPoints = points.given ?? 0
+    summaries.push(
+      fillSlot(
+        hasChartMax(points.max)
+          ? t("progress-points-summary", {
+              given: SLOT,
+              max: formatPoints(points.max, i18n.language),
+              count: points.max,
+            })
+          : t("progress-points-given", { given: SLOT, count: givenPoints }),
+        <span className={summaryGivenCss}>{formatPoints(givenPoints, i18n.language)}</span>,
+      ),
+    )
+    if (hasChartMax(exercises.max)) {
+      summaries.push(
+        fillSlot(
+          t("points-breakdown-exercises-attempted", {
+            given: SLOT,
+            max: exercises.max,
+            count: exercises.max,
+          }),
+          <span className={summaryGivenCss}>{exercises.given ?? 0}</span>,
+        ),
+      )
+    }
   }
   return (
     <>
       <span className={titleTextCss}>{t("heading-all-exercises")}</span>
       <span className={subtitleCss}>
         <bdi>{moduleName}</bdi>
-        {summary !== null && (
-          <>
+        {summaries.map((summary, index) => (
+          <Fragment key={index}>
             {MIDDLE_DOT_SEPARATOR}
             <span className={summaryCss}>{summary}</span>
-          </>
-        )}
+          </Fragment>
+        ))}
       </span>
     </>
   )
@@ -155,27 +177,20 @@ const PointsBreakdownList: React.FC<PointsBreakdownListProps> = ({
       {chapters.map((chapter) => (
         <section key={chapter.chapter_id} className={chapterCss}>
           <div className={chapterHeadCss}>
-            <div className={chapterTitleRowCss}>
-              <h3 className={chapterHeadingCss}>
-                {fillSlot(
-                  t("chapter-chapter-number-chapter-name", {
-                    chapterNumber: chapter.chapter_number,
-                    chapterName: SLOT,
-                  }),
-                  <bdi>{chapter.name}</bdi>,
-                )}
-              </h3>
-              <Points
-                given={chapter.score_given}
-                max={chapter.score_maximum}
-                level={POINTS_LEVEL.CHAPTER}
-              />
-            </div>
-            <div className={columnLabelsCss} aria-hidden="true">
-              <span className={statusLabelCss}>{t("status")}</span>
-              <span className={attemptsLabelCss}>{t("attempts")}</span>
-              <span className={pointsLabelCss}>{t("label-points")}</span>
-            </div>
+            <h3 className={chapterHeadingCss}>
+              {fillSlot(
+                t("chapter-chapter-number-chapter-name", {
+                  chapterNumber: chapter.chapter_number,
+                  chapterName: SLOT,
+                }),
+                <bdi>{chapter.name}</bdi>,
+              )}
+            </h3>
+            <Points
+              given={chapter.score_given}
+              max={chapter.score_maximum}
+              level={POINTS_LEVEL.CHAPTER}
+            />
           </div>
           {chapter.pages.map((page) => (
             <PageSection
@@ -203,11 +218,12 @@ const PageSection: React.FC<{
       </h4>
       <Points given={page.score_given} max={page.score_maximum} level={POINTS_LEVEL.PAGE} />
     </div>
-    <ul className={exerciseListCss}>
-      {page.exercises.map((exercise) => (
+    <ol className={exerciseListCss}>
+      {page.exercises.map((exercise, index) => (
         <ExerciseRow
           key={exercise.exercise_id}
           exercise={exercise}
+          position={index + 1}
           href={coursePageSectionRoute(
             location.organizationSlug,
             location.courseSlug,
@@ -217,35 +233,52 @@ const PageSection: React.FC<{
           onNavigate={onNavigate}
         />
       ))}
-    </ul>
+    </ol>
   </div>
 )
 
 const ExerciseRow: React.FC<{
   exercise: ExercisePointsBreakdown
+  /** 1-based place on its page, as the page's own exercise list numbers it. */
+  position: number
   href: string
   onNavigate: () => void
-}> = ({ exercise, href, onNavigate }) => {
+}> = ({ exercise, position, href, onNavigate }) => {
   const { t } = useTranslation()
   const status = STATUS_PRESENTATION[exercise.status]
+  const isFullPoints = exercise.score_maximum > 0 && exercise.score_given >= exercise.score_maximum
   return (
     <li className={exerciseRowCss}>
-      <Link
-        href={href}
-        appearance={EXERCISE_LINK_APPEARANCE}
-        className={exerciseNameCss}
-        onClick={onNavigate}
-      >
-        <bdi>{exercise.name}</bdi>
-      </Link>
-      <span className={exerciseMetaCss}>
-        <span className={statusToneCss[status.tone]}>{status.label(t)}</span>
-        {exercise.attempts > 0 && (
-          <>
-            <ListSeparator />
-            <Attempts used={exercise.attempts} limit={exercise.attempts_limit ?? null} />
-          </>
-        )}
+      <span className={cx(positionCss, isFullPoints && fullPointsPositionCss)} aria-hidden="true">
+        {position}
+      </span>
+      <span className={exerciseTextCss}>
+        <Link
+          href={href}
+          appearance={EXERCISE_LINK_APPEARANCE}
+          className={exerciseLinkCss}
+          onClick={onNavigate}
+        >
+          <bdi>{exercise.name}</bdi>
+        </Link>
+        <VisuallyHidden elementType={INLINE_ELEMENT}>, </VisuallyHidden>
+        <span className={exerciseMetaCss}>
+          <span className={statusToneCss[status.tone]}>{status.label(t)}</span>
+          {exercise.attempts > 0 && (
+            <>
+              <VisuallyHidden elementType={INLINE_ELEMENT}>, </VisuallyHidden>
+              <span className={attemptsCss}>
+                <span aria-hidden="true">{MIDDLE_DOT} </span>
+                {(exercise.attempts_limit ?? null) === null
+                  ? t("points-breakdown-attempts", { count: exercise.attempts })
+                  : t("points-breakdown-attempts-of-limit", {
+                      used: exercise.attempts,
+                      count: exercise.attempts_limit,
+                    })}
+              </span>
+            </>
+          )}
+        </span>
       </span>
       <VisuallyHidden elementType={INLINE_ELEMENT}>, </VisuallyHidden>
       <Points
@@ -257,37 +290,9 @@ const ExerciseRow: React.FC<{
   )
 }
 
-/** A pause for screen readers, and on narrow screens a visible dot between status and attempts. */
-const ListSeparator: React.FC = () => (
-  <>
-    <VisuallyHidden elementType={INLINE_ELEMENT}>, </VisuallyHidden>
-    <span className={metaDotCss} aria-hidden="true">
-      {MIDDLE_DOT}
-    </span>
-  </>
-)
-
-/** Columns show "used / limit"; the stacked layout and screen readers get the phrase. */
-const Attempts: React.FC<{ used: number; limit: number | null }> = ({ used, limit }) => {
-  const { t } = useTranslation()
-  const phrase =
-    limit === null
-      ? t("points-breakdown-attempts", { count: used })
-      : t("points-breakdown-attempts-of-limit", { used, count: limit })
-  return (
-    <span className={attemptsCss}>
-      <span className={attemptsFractionCss} aria-hidden="true">
-        <span className={attemptsUsedCss}>{used}</span>
-        {limit !== null && <span className={attemptsLimitCss}>/ {limit}</span>}
-      </span>
-      <span className={attemptsPhraseCss}>{phrase}</span>
-    </span>
-  )
-}
-
 /**
- * "given / max" as two cells of the list's shared points columns, so every slash lines up, with the
- * full phrase for screen readers. `given` is `null` while the points are not final.
+ * "given / max" with the slash at the same place on every row, and the full phrase for screen
+ * readers. `given` is `null` while the points are not final.
  */
 const Points: React.FC<{ given: number | null; max: number; level: PointsLevel }> = ({
   given,
@@ -299,10 +304,7 @@ const Points: React.FC<{ given: number | null; max: number; level: PointsLevel }
   const hasPoints = given !== null && given > 0
   return (
     <span className={cx(pointsCss, pointsLevelCss[level])}>
-      <span
-        className={cx(pointsGivenCss, hasPoints ? earnedPointsCss[level] : noPointsCss)}
-        aria-hidden="true"
-      >
+      <span className={cx(pointsGivenCss, !hasPoints && noPointsCss)} aria-hidden="true">
         {given === null ? EN_DASH : formatPoints(given, i18n.language)}
       </span>
       <span className={pointsMaxCss} aria-hidden="true">
@@ -321,7 +323,7 @@ const Points: React.FC<{ given: number | null; max: number; level: PointsLevel }
   )
 }
 
-/** Where a points figure sits, which sets its size and how much its given value stands out. */
+/** Where a points figure sits, which sets its size and weight. */
 type PointsLevel = "chapter" | "page" | "exercise"
 
 const POINTS_LEVEL = {
@@ -380,21 +382,18 @@ const STATUS_PRESENTATION: Record<ExercisePointsStatus, StatusPresentation> = {
   Done: { tone: "quiet", label: (t) => t("points-breakdown-status-done"), isFinal: true },
 }
 
-// A row per exercise; underlining every name would be the loudest thing in the dialog.
-const EXERCISE_LINK_APPEARANCE: LinkAppearance = "quiet"
+// The row draws the link's hover and focus, so the name carries no link colour of its own.
+const EXERCISE_LINK_APPEARANCE: LinkAppearance = "inherit"
 
-const EN_DASH = "\u2013"
-const MIDDLE_DOT = "\u00B7"
+const EN_DASH = "–"
+const MIDDLE_DOT = "·"
 const MIDDLE_DOT_SEPARATOR = ` ${MIDDLE_DOT} `
 
 /** Room for the spinner under the skeleton bars instead of on top of them. */
 const LOADING_MIN_HEIGHT_PX = 240
 
-/** From this width the rows are a table of columns; below it status and attempts go under the name. */
-const COLUMNS_FROM = "@media (min-width: 46.5rem)"
-
 const dialogCss = css`
-  --dialog-width-cap: 52rem;
+  --dialog-width-cap: 46rem;
 
   @media (max-width: 30rem) {
     width: 100vw;
@@ -440,308 +439,203 @@ const emptyCss = css`
   color: ${progressColors.mutedText};
 `
 
-/*
-  Every level of the list is a subgrid of one grid, so the points columns are as wide as the widest
-  value anywhere and each slash lines up down the whole dialog. The given and max tracks swap in
-  RTL so the fraction still reads "given / max" left to right.
-*/
-const SUBGRID = `
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-`
-
-// Only on the innermost rows: Chrome misplaces a whole subtree when nested subgrids all align to
-// baselines.
-const ROW_BASELINES = `
-  align-items: baseline;
-`
-
 const rootCss = css`
-  --points-tracks: [points-start given] auto [max] auto [points-end];
+  --row-padding-inline: 1rem;
+  --row-inset: 2px;
 
-  display: grid;
-  /* Cancels the body's top padding, so a chapter head rests where it sticks and never jumps. */
-  margin-block-start: calc(-1 * var(--space-4));
-  grid-template-columns: [name-start] minmax(0, 1fr) [name-end attempts-end] 1rem var(
-      --points-tracks
-    );
+  padding-block: 0.5rem 0.75rem;
   font-family: ${secondaryFont};
   color: ${progressColors.text};
-
-  &:dir(rtl) {
-    --points-tracks: [points-start max] auto [given] auto [points-end];
-  }
-
-  ${COLUMNS_FROM} {
-    grid-template-columns:
-      [name-start] minmax(0, 1fr) [name-end] 1.5rem [status-start] 11rem [status-end] 1.5rem
-      [attempts-start] 4.5rem [attempts-end] 1.5rem var(--points-tracks);
-  }
 `
 
 const chapterCss = css`
-  ${SUBGRID}
-
   & + & {
-    margin-block-start: 1.5rem;
+    margin-block-start: 2.25rem;
   }
+`
+
+// Head, page head and row all end in the same points column, so the slashes line up down the list.
+const TRAILING_POINTS_ROW = `
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
 `
 
 const chapterHeadCss = css`
-  ${SUBGRID}
-  padding-block: 1.25rem 0.5rem;
-  /* Under the column labels, so rows scrolling under a stuck head vanish at a rule. */
-  border-block-end: 3px solid ${progressColors.rule};
-  background: var(--color-clear-50);
-
-  ${COLUMNS_FROM} {
-    position: sticky;
-    /* The dialog body's top padding; without it the head would stop that far below the edge. */
-    top: calc(-1 * var(--space-4));
-    z-index: 1;
-  }
-`
-
-const chapterTitleRowCss = css`
-  ${SUBGRID}
-  ${ROW_BASELINES}
-`
-
-const headingSpanCss = `
-  grid-column: name-start / attempts-end;
-  min-width: 0;
-  margin: 0;
+  ${TRAILING_POINTS_ROW}
+  margin-block-end: 0.75rem;
+  padding-inline-end: var(--row-padding-inline);
 `
 
 const chapterHeadingCss = css`
-  ${headingSpanCss}
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font: 500 1.25rem/1.3 ${headingFont};
   color: ${progressColors.heading};
 `
 
-const columnLabelsCss = css`
-  display: none;
-
-  ${COLUMNS_FROM} {
-    ${SUBGRID}
-    ${ROW_BASELINES}
-    padding-block-start: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    line-height: 1.3;
-    color: ${progressColors.mutedText};
-  }
-`
-
-const statusLabelCss = css`
-  grid-column: status-start;
-`
-
-const attemptsLabelCss = css`
-  grid-column: attempts-start;
-  text-align: center;
-`
-
-const pointsLabelCss = css`
-  grid-column: points-start / points-end;
-  text-align: center;
-`
-
 const pageCss = css`
-  ${SUBGRID}
-  margin-block-start: 0.75rem;
+  border-radius: 0.5rem;
+  background: ${progressColors.panel};
+  overflow: hidden;
 
   & + & {
-    margin-block-start: 1.5rem;
+    margin-block-start: 0.75rem;
   }
 `
 
 const pageHeadCss = css`
-  ${SUBGRID}
-  ${ROW_BASELINES}
-  padding-block-end: 0.125rem;
+  ${TRAILING_POINTS_ROW}
+  padding: 0.75rem var(--row-padding-inline) 0.5rem;
 `
 
 const pageHeadingCss = css`
-  ${headingSpanCss}
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font: 600 0.9375rem/1.35 ${headingFont};
-  color: ${progressColors.text};
+  color: ${baseTheme.colors.gray[600]};
 `
 
 const exerciseListCss = css`
-  ${SUBGRID}
+  display: grid;
+  gap: var(--row-inset);
   margin: 0;
-  padding: 0;
+  padding: 0 var(--row-inset) var(--row-inset);
   list-style: none;
 `
 
 const exerciseRowCss = css`
-  ${SUBGRID}
-  ${ROW_BASELINES}
-  padding-block: 0.625rem;
+  ${TRAILING_POINTS_ROW}
+  position: relative;
+  /* Less the inset, so the points column lines up with the page head's. */
+  padding: 0.75rem calc(var(--row-padding-inline) - var(--row-inset));
+  border-radius: 0.375rem;
+  background: var(--color-clear-50);
 
-  & + & {
-    border-block-start: 1px solid ${progressColors.divider};
+  &:hover {
+    background: ${baseTheme.colors.blue[75]};
+  }
+
+  &:has(a:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: -2px;
+  }
+
+  @media (forced-colors: active) {
+    border: 1px solid CanvasText;
   }
 `
 
-const exerciseNameCss = css`
-  grid-column: name-start / name-end;
-  justify-self: start;
+const positionCss = css`
+  flex: none;
+  align-self: flex-start;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: ${baseTheme.colors.blue[100]};
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: ${baseTheme.colors.gray[600]};
+`
+
+const fullPointsPositionCss = css`
+  background: ${progressColors.fill};
+  color: var(--color-clear-50);
+`
+
+const exerciseTextCss = css`
+  flex: 1;
   min-width: 0;
+`
+
+// The name is the row's only link; its hit area stretches over the whole row.
+const exerciseLinkCss = css`
+  display: block;
   overflow-wrap: anywhere;
-  font-weight: 400;
+  font-size: 1rem;
   line-height: 1.4;
+  color: ${progressColors.text};
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
 `
 
 const exerciseMetaCss = css`
-  grid-area: 2 / name-start / auto / points-end;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.125rem 0.5rem;
-  margin-block-start: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.3;
-
-  ${COLUMNS_FROM} {
-    display: contents;
-  }
+  column-gap: 0.25rem;
+  margin-block-start: 0.125rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: ${progressColors.mutedText};
 `
 
-const statusBaseCss = css`
-  ${COLUMNS_FROM} {
-    grid-column: status-start;
-  }
+// The dot travels with the attempts, so a wrapped line never ends in one.
+const attemptsCss = css`
+  white-space: nowrap;
 `
 
-const statusToneCss: Record<StatusTone, string> = {
-  quiet: cx(
-    statusBaseCss,
-    css`
-      color: ${progressColors.mutedText};
-    `,
-  ),
-  action: cx(
-    statusBaseCss,
-    css`
-      font-weight: 600;
-      color: ${progressColors.text};
-    `,
-  ),
-  error: cx(
-    statusBaseCss,
-    css`
-      font-weight: 600;
-      color: ${progressColors.error};
-    `,
-  ),
+const statusToneCss: Record<StatusTone, string | undefined> = {
+  quiet: undefined,
+  action: css`
+    font-weight: 600;
+    color: ${progressColors.heading};
+  `,
+  error: css`
+    font-weight: 600;
+    color: ${progressColors.error};
+  `,
 }
 
-const metaDotCss = css`
-  color: ${progressColors.mutedText};
-
-  ${COLUMNS_FROM} {
-    display: none;
-  }
-`
-
-const attemptsCss = css`
-  color: ${progressColors.mutedText};
-
-  ${COLUMNS_FROM} {
-    grid-column: attempts-start;
-  }
-`
-
-const attemptsFractionCss = css`
-  display: none;
-
-  ${COLUMNS_FROM} {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    direction: ltr;
-    font-variant-numeric: tabular-nums;
-  }
-`
-
-const attemptsPhraseCss = css`
-  ${COLUMNS_FROM} {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-`
-
+// Physical order pinned: in RTL too the fraction reads "given / max" left to right.
 const pointsCss = css`
-  display: contents;
-`
-
-const fractionGivenCss = `
-  text-align: right;
-  white-space: nowrap;
-`
-
-// Physical left, with the direction pinned: in RTL too the slash leads, next to the given value.
-const fractionMaxCss = `
-  padding-left: 0.3rem;
+  flex: none;
+  display: inline-grid;
+  grid-template-columns: 2.75rem 2.25rem;
   direction: ltr;
   unicode-bidi: isolate;
-  text-align: left;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: ${progressColors.mutedText};
 `
 
-// Rows pinned: in RTL the max track comes first, and auto-placement would push it to a new row.
 const pointsGivenCss = css`
-  grid-area: 1 / given;
-  ${fractionGivenCss}
-  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-weight: 600;
+  color: ${progressColors.text};
 `
 
 const noPointsCss = css`
+  font-weight: 400;
   color: ${progressColors.mutedText};
 `
 
 const pointsMaxCss = css`
-  grid-area: 1 / max;
-  ${fractionMaxCss}
-  font-variant-numeric: tabular-nums;
-`
-
-const attemptsUsedCss = css`
-  ${fractionGivenCss}
-`
-
-const attemptsLimitCss = css`
-  ${fractionMaxCss}
+  padding-left: 0.3rem;
+  text-align: left;
+  color: ${progressColors.mutedText};
 `
 
 const pointsLevelCss: Record<PointsLevel, string> = {
   chapter: css`
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
   `,
   page: css`
+    font-size: 0.875rem;
+  `,
+  exercise: css`
     font-size: 0.9375rem;
-  `,
-  exercise: css`
-    font-size: 1rem;
-  `,
-}
-
-// The chapter's matches its heading; 600 at that size would outweigh the chapter name.
-const earnedPointsCss: Record<PointsLevel, string> = {
-  chapter: css`
-    font-weight: 500;
-  `,
-  page: css`
-    font-weight: 600;
-  `,
-  exercise: css`
-    font-weight: 400;
   `,
 }

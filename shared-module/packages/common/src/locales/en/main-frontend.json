@@ -1787,6 +1787,8 @@
   "points-breakdown-attempts_one": "{{count}} attempt",
   "points-breakdown-attempts_other": "{{count}} attempts",
   "points-breakdown-empty": "No exercises have opened yet.",
+  "points-breakdown-exercises-attempted_one": "{{given}} of {{max}} exercise attempted",
+  "points-breakdown-exercises-attempted_other": "{{given}} of {{max}} exercises attempted",
   "points-breakdown-points-pending_one": "Not graded yet, up to {{max}} point",
   "points-breakdown-points-pending_other": "Not graded yet, up to {{max}} points",
   "points-breakdown-status-closed": "Closed",

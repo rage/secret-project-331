@@ -150,7 +150,7 @@ const renderCard = (pointsBreakdown: PointsBreakdownScope | null = scope) =>
         automaticCompletion
         pointsBreakdown={pointsBreakdown}
         points={{ ...measure, required: 15 }}
-        exercises={measure}
+        exercises={{ given: 4, max: 5, required: null }}
       />
     </QueryClientProvider>,
   )
@@ -203,7 +203,7 @@ describe("points breakdown", () => {
       .getAllByRole("heading")
       .map((heading) => `${heading.tagName} ${heading.textContent}`)
     expect(headings).toEqual([
-      "H2 All exercisesIntroduction · 10.5 / 30 points",
+      "H2 All exercisesIntroduction · 10.5 / 30 points · 4 of 5 exercises attempted",
       "H3 Chapter 1: Basics",
       "H4 Variables",
       "H4 Loops",

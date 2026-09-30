@@ -466,6 +466,17 @@
           },
           {
             "type": "object",
+            "description": "Operating the credit registration pipeline across all courses from the admin dashboard.\nSeparate from `Administrate` so it can be handed out without the rest of global admin.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["administrate_credit_registrations"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["type"],
             "properties": {
               "type": {
@@ -1001,7 +1012,8 @@
           "CourseOrExamCreator",
           "MaterialViewer",
           "TeachingAndLearningServices",
-          "StatsViewer"
+          "StatsViewer",
+          "CreditRegistrationAdmin"
         ]
       },
       "VerifyEmailRequest": {

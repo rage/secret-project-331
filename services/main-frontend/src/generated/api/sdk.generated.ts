@@ -110,6 +110,8 @@ import type {
   CreateCourseReferencesData,
   CreateCourseReferencesResponses,
   CreateCourseResponses,
+  CreateEmailTemplateData,
+  CreateEmailTemplateResponses,
   CreateExerciseRepositoryData,
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
@@ -184,8 +186,6 @@ import type {
   DismissCreditRegistrationEnrolmentBannerData,
   DismissCreditRegistrationEnrolmentBannerErrors,
   DismissCreditRegistrationEnrolmentBannerResponses,
-  DismissMyAutoLinkNoticeData,
-  DismissMyAutoLinkNoticeResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
   DownloadExerciseAnswerFilesData,
@@ -409,6 +409,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEnrolmentChecksData,
+  GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
   GetCreditRegistrationErrorsByCodeResponses,
   GetCreditRegistrationForAdminData,
@@ -420,6 +422,8 @@ import type {
   GetCreditRegistrationPipelineHistoryResponses,
   GetCreditRegistrationReconciliationData,
   GetCreditRegistrationReconciliationResponses,
+  GetCreditRegistrationSettingsData,
+  GetCreditRegistrationSettingsResponses,
   GetCreditRegistrationStatsByCourseData,
   GetCreditRegistrationStatsByCourseResponses,
   GetCreditRegistrationThresholdsData,
@@ -683,6 +687,12 @@ import type {
   ProcessEditProposalResponses,
   ReceivePlaygroundGradingData,
   ReceivePlaygroundGradingResponses,
+  RecheckCreditRegistrationEnrolmentData,
+  RecheckCreditRegistrationEnrolmentErrors,
+  RecheckCreditRegistrationEnrolmentResponses,
+  RecordMyEnrolmentPageVisitData,
+  RecordMyEnrolmentPageVisitErrors,
+  RecordMyEnrolmentPageVisitResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -775,6 +785,7 @@ import type {
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponses,
   UpdateCourseModulesData,
+  UpdateCourseModulesErrors,
   UpdateCourseModulesResponses,
   UpdateCoursePageOrderingData,
   UpdateCoursePageOrderingResponses,
@@ -851,6 +862,7 @@ import {
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
   zCreateCourseResponse,
+  zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
   zCreatePageAudioFileResponse,
@@ -972,11 +984,13 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
   zGetCreditRegistrationOverviewResponse,
   zGetCreditRegistrationPipelineHistoryResponse,
   zGetCreditRegistrationReconciliationResponse,
+  zGetCreditRegistrationSettingsResponse,
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
@@ -1095,6 +1109,7 @@ import {
   zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
+  zRecheckCreditRegistrationEnrolmentResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
   zRequestCreditRegistrationEnrolmentRecheckResponse,
@@ -1980,6 +1995,37 @@ export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zGetCreditRegistrationDetailsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
+ * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
+ * none.
+ *
+ * Shares the student's limit on asking, so between them they cannot start more than one check in 30
+ * minutes. Authorized on the row's own course, like the retry.
+ */
+export const recheckCreditRegistrationEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<RecheckCreditRegistrationEnrolmentData, ThrowOnError>,
+): RequestResult<
+  RecheckCreditRegistrationEnrolmentResponses,
+  RecheckCreditRegistrationEnrolmentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecheckCreditRegistrationEnrolmentResponses,
+    RecheckCreditRegistrationEnrolmentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRecheckCreditRegistrationEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment",
     ...options,
   })
 
@@ -2890,8 +2936,13 @@ export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean =
 
 export const updateCourseModules = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCourseModulesData, ThrowOnError>,
-): RequestResult<UpdateCourseModulesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<UpdateCourseModulesResponses, unknown, ThrowOnError, "data">({
+): RequestResult<UpdateCourseModulesResponses, UpdateCourseModulesErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UpdateCourseModulesResponses,
+    UpdateCourseModulesErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/course-modules",
     ...options,
@@ -4857,7 +4908,7 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-realisation counters, the send-status totals and the stale-address list.
+ * per-module counters, the send-status totals and the stale-address list.
  */
 export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
@@ -5101,6 +5152,27 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
+ * and findings of the enrolment checks, and the roster schedule per course code.
+ */
+export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationEnrolmentChecksData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEnrolmentChecksResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationEnrolmentChecksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEnrolmentChecksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/enrolment-checks",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
  * window and the window before it, with the terminal verdicts of the same window beside them.
  *
@@ -5128,9 +5200,9 @@ export const getCreditRegistrationErrorsByCode = <ThrowOnError extends boolean =
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
- * Runs the two database-only steps directly rather than through the phase dispatcher, because the
- * phase-state row describes the worker loops: an admin pressing a button must not make a dead worker look
- * alive.
+ * Runs the `materialize` phase's body and the precondition recompute directly rather than through the
+ * phase dispatcher, because the phase-state row describes the worker loops: an admin pressing a button
+ * must not make a dead worker look alive.
  */
 export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean = true>(
   options: Options<AdminMaterializeCreditRegistrationsData, ThrowOnError>,
@@ -5176,7 +5248,7 @@ export const getCreditRegistrationOverview = <ThrowOnError extends boolean = tru
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
- * and the queue it is responsible for.
+ * and the queue it is responsible for, and the workers' circuit breakers.
  */
 export const listCreditRegistrationPhases = <ThrowOnError extends boolean = true>(
   options?: Options<ListCreditRegistrationPhasesData, ThrowOnError>,
@@ -5337,7 +5409,7 @@ export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = t
  * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
  * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
  * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
- * time.
+ * time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
  */
 export const adminBulkTransitionCreditRegistrations = <ThrowOnError extends boolean = true>(
   options: Options<AdminBulkTransitionCreditRegistrationsData, ThrowOnError>,
@@ -5430,7 +5502,8 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
  * - Moves one row by hand.
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
- * re-importing could put a second attainment on a real transcript.
+ * re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+ * while Suotar still holds its earlier submission open (`submission_pending`).
  */
 export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
   options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
@@ -5650,6 +5723,35 @@ export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
+ * - The caller opened the registration page after completing, and it is showing them how to enrol.
+ *
+ * Moves a waiting registration onto the schedule for students who have looked, or restarts that
+ * schedule at most once a day. Recorded against the completion too, so a visit before there is a
+ * registration, or before a student number is linked, still counts once there is. Idempotent enough
+ * to call on every page load; the page sends it once per load.
+ */
+export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
+  options: Options<RecordMyEnrolmentPageVisitData, ThrowOnError>,
+): RequestResult<
+  RecordMyEnrolmentPageVisitResponses,
+  RecordMyEnrolmentPageVisitErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecordMyEnrolmentPageVisitResponses,
+    RecordMyEnrolmentPageVisitErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
  * - What the caller said about where they enrol this module.
  */
@@ -5708,8 +5810,10 @@ export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = t
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller says they have enrolled.
  *
- * Advisory: the pipeline was already looking. Beyond recording the click this only brings the next
- * enrolment check forward, and only when the hourly allowance the manual button spends is free.
+ * Counts as a check request: a waiting registration restarts its checks on the check-requested
+ * schedule, under the limit every check request shares. Recorded against the completion too, so a
+ * registration that starts waiting later starts on that schedule. With account linking on, a caller
+ * with no linked student number books a roster listing of the course code instead.
  */
 export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
   options: Options<ConfirmMyEnrolmentData, ThrowOnError>,
@@ -5786,24 +5890,6 @@ export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice` - Puts
- * away the notice saying the pipeline linked this student number without asking.
- *
- * Dismissing only hides the notice; the number stays linked and the unlink endpoint stays available.
- */
-export const dismissMyAutoLinkNotice = <ThrowOnError extends boolean = true>(
-  options?: Options<DismissMyAutoLinkNoticeData, ThrowOnError>,
-): RequestResult<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).post<DismissMyAutoLinkNoticeResponses, unknown, ThrowOnError, "data">(
-    {
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/credit-registrations/my/student-number/dismiss-auto-link-notice",
-      ...options,
-    },
-  )
-
-/**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -5851,6 +5937,27 @@ export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends b
       await zRequestCreditRegistrationEnrolmentRecheckResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+ * switches.
+ */
+export const getCreditRegistrationSettings = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationSettingsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationSettingsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/settings",
     ...options,
   })
 
@@ -5923,6 +6030,26 @@ export const getEmailTemplates = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/email-templates",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-templates`
+ *
+ * Creates a global template; rejects a second live one for the same type and language.
+ */
+export const createEmailTemplate = <ThrowOnError extends boolean = true>(
+  options: Options<CreateEmailTemplateData, ThrowOnError>,
+): RequestResult<CreateEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateEmailTemplateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateEmailTemplateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-templates",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

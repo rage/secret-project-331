@@ -25,7 +25,6 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
-import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -91,10 +90,8 @@ const AttentionSection: React.FC<{
 const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
-  const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
-    canConfirmEmail,
     linkToStatusPage: true,
   })
 

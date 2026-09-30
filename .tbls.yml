@@ -20,8 +20,7 @@ viewpoints:
       - email_templates
       - user_details
       - course_modules
-      - course_module_suotar_realisations
-      - open_university_product_access_tokens
+      - course_module_suotar_configurations
       - credit_registration_phase_state
       - credit_registration_admin_actions
       - suotar_api_calls
@@ -64,13 +63,11 @@ viewpoints:
           - user_details
       - name: Per-module configuration
         desc: >-
-          The per-module opt-in and the Sisu-side identifiers it needs: the course unit realisations
-          enrolment discovery polls, and the open university product access tokens that enrolment
-          links are built from.
+          The per-module opt-in, the configuration check's verdict and the last discovery run's
+          counters. The enrolment link is the module's completion registration link override.
         tables:
           - course_modules
-          - course_module_suotar_realisations
-          - open_university_product_access_tokens
+          - course_module_suotar_configurations
       - name: Pipeline operation
         desc: >-
           What an operator reads and acts on: per-phase scheduling, heartbeats and pauses, the

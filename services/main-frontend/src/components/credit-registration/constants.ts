@@ -17,8 +17,8 @@ export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_N
 /** How much of a uuid an operator needs to recognise a row in a chip or a target label. */
 export const ID_PREFIX_LENGTH = 8
 
-/** Separates a from-state and a to-state in a transition. */
-export const ARROW = " → "
+/** Between a timeline step and its result, which are styled apart and so cannot share one string. */
+export const STEP_RESULT_SEPARATOR = ": "
 
 export const STACKED = "stacked" as const
 
@@ -116,7 +116,7 @@ const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI =
 const OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN =
   "https://www.helsinki.fi/en/admissions-and-education/open-university/enrollment-and-study-fees"
 
-/** How the Open University explains enrolling, for a module that names no product of its own. */
+/** How the Open University explains enrolling, for a module with no enrolment link of its own. */
 export const openUniversityEnrolmentInfoUrl = (language: string): string =>
   /^fi(?:-|$)/.test(language)
     ? OPEN_UNIVERSITY_ENROLMENT_INFO_URL_FI

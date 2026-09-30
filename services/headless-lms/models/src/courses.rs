@@ -528,6 +528,11 @@ pub async fn update_course_auditing_data(
     course_id: Uuid,
     data_update: CourseAuditingDataUpdate,
 ) -> ModelResult<()> {
+    for module in &data_update.modules {
+        crate::course_modules::validate_completion_registration_link(
+            module.completion_registration_link_override.as_deref(),
+        )?;
+    }
     let (
         module_ids,
         uh_course_codes,

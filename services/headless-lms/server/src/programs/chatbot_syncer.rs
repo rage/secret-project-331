@@ -1,6 +1,5 @@
 use std::{
     collections::{HashMap, HashSet},
-    env,
     time::Duration,
 };
 
@@ -11,8 +10,10 @@ use url::Url;
 use uuid::Uuid;
 
 use crate::config::program_config::ProgramConfig;
-use crate::programs::periodic_worker::{PeriodicWorkerConfig, run_periodic_worker};
 use crate::setup_tracing;
+use headless_lms_utils::periodic_worker::{
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
+};
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_chatbot::{
@@ -72,9 +73,11 @@ pub async fn main() -> anyhow::Result<()> {
     run_periodic_worker(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(SYNC_INTERVAL_SECS),
-            still_running_every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
-            still_running_message: "Still syncing for chatbot.",
-            initial_ticks: 0,
+            still_running: Some(StillRunningLog {
+                every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
+                message: "Still syncing for chatbot.",
+                initial_ticks: 0,
+            }),
             delay_missed_ticks: false,
         },
         async || {
@@ -102,9 +105,8 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 fn initialize_environment() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     Ok(())
 }

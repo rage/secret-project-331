@@ -1203,6 +1203,7 @@
   "role-admin": "Admin",
   "role-assistant": "Assistent",
   "role-course-or-exam-creator": "Kurs- eller eksamenoppretter",
+  "role-credit-registration-admin": "Administrator for studiepoengregistrering",
   "role-material-viewer": "Materialevisning",
   "role-reviewer": "Anmelder",
   "role-stats-viewer": "Statistikkvisning",

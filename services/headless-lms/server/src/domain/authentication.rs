@@ -81,6 +81,16 @@ impl AuthUser {
     }
 }
 
+/// The id of the user the session is signed in as, without checking the user still exists. For
+/// keying things like rate limits; use the [`AuthUser`] extractor to authenticate.
+pub fn session_user_id(session: &Session) -> Option<Uuid> {
+    session
+        .get::<AuthUser>(SESSION_KEY)
+        .ok()
+        .flatten()
+        .map(|user| user.id)
+}
+
 impl FromRequest for AuthUser {
     type Error = ControllerError;
     type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;

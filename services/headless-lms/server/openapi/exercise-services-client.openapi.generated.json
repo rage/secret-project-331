@@ -1039,6 +1039,7 @@
       "ApiErrorResponse": {
         "type": "object",
         "description": "Canonical API error envelope returned for controlled application errors.",
+        "required": ["type", "message_key", "message"],
         "properties": {
           "errors": {
             "type": "array",
@@ -1047,14 +1048,14 @@
             }
           },
           "message": {
-            "type": ["string", "null"]
+            "type": "string"
           },
           "message_key": {
-            "type": ["string", "null"]
+            "type": "string"
           },
           "metadata": {},
           "type": {
-            "type": ["string", "null"]
+            "type": "string"
           }
         }
       },

@@ -38,6 +38,7 @@ import {
 } from "../registrationFailures"
 import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss, proseCss, rowCss, subsectionCss } from "../styles"
+import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { AdminActionDialog } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
@@ -92,6 +93,7 @@ interface Fields {
 
 const SUBMISSION_UNCERTAIN = "submission_uncertain"
 const AWAITING_VERIFICATION = "awaiting_verification"
+const PARTIALLY_REGISTERED = "partially_registered"
 const ADMIN_AUDIENCE = "admin" as const
 const RETRY = "retry" as const
 const RECHECK_REGISTRY = "recheck_registry" as const
@@ -195,7 +197,11 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
  * own remedy plan does, so a resend is never the first thing offered for a failure it cannot clear.
  */
 const offeredActions = (registration: AdminCreditRegistrationRow): readonly FailureAction[] => {
-  if (registration.state === SUBMISSION_UNCERTAIN || registration.state === AWAITING_VERIFICATION) {
+  if (
+    registration.state === SUBMISSION_UNCERTAIN ||
+    registration.state === AWAITING_VERIFICATION ||
+    registration.state === PARTIALLY_REGISTERED
+  ) {
     return [RECHECK_REGISTRY]
   }
   const plan = failureActions(registration.error_code, ADMIN_AUDIENCE)
@@ -213,6 +219,7 @@ const offeredActions = (registration: AdminCreditRegistrationRow): readonly Fail
  */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
 
   if (registration.superseded) {
     return <p className={noteCss}>{t("credit-registration-admin-superseded-no-actions")}</p>
@@ -279,7 +286,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
           />
         ) : null
       case "resend_student_number_link":
-        return studentNumber ? (
+        return isAccountLinkingEnabled && studentNumber ? (
           <AdminResendLinkingEmailButton
             key={action}
             studentNumber={studentNumber}

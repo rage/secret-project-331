@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
+import CircuitBreakerSection from "@/components/credit-registration/admin/CircuitBreakerSection"
 import EndpointSummarySection from "@/components/credit-registration/admin/EndpointSummarySection"
 import {
   countPhasesByHealth,
@@ -23,13 +24,12 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -41,6 +41,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationPhaseList,
   CreditRegistrationPhaseRow,
@@ -49,7 +50,6 @@ import {
   Badge,
   Link,
   QueryResult,
-  RelativeTime,
   StatTile,
   StatTileList,
   Table,
@@ -76,7 +76,7 @@ const PhaseTable: React.FC<{
           minWidth: "12rem",
           cell: (row) => (
             <span className={rowCss}>
-              <code>{row.phase}</code>
+              <code className={codeValueCss}>{row.phase}</code>
               {row.owned_states.length > 0 && (
                 <Tooltip
                   aria-label={t("credit-registration-admin-owned-states-tooltip-label", {
@@ -122,7 +122,7 @@ const PhaseTable: React.FC<{
                   </span>
                 )}
                 {row.last_error && (
-                  <span className={cx(noteCss, monospaceCss)}>{row.last_error}</span>
+                  <span className={cx(noteCss, codeValueCss)}>{row.last_error}</span>
                 )}
                 {row.pause_reason && <span className={noteCss}>{row.pause_reason}</span>}
               </span>
@@ -133,7 +133,7 @@ const PhaseTable: React.FC<{
           header: t("credit-registration-admin-phase-last-run"),
           minWidth: "8rem",
           nowrap: true,
-          cell: (row) => <RelativeTime at={row.last_run_finished_at} absoluteTime={TIME_COMPACT} />,
+          cell: (row) => <ZonedTimestamp at={row.last_run_finished_at} />,
         },
         {
           header: t("credit-registration-admin-column-due"),
@@ -166,7 +166,7 @@ const PhaseTable: React.FC<{
             <AdminPhaseActions
               phase={row.phase}
               paused={row.paused_at !== null}
-              implemented={row.implemented}
+              isKnownPhase={row.is_known_phase}
             />
           ),
         },
@@ -244,6 +244,7 @@ const SystemPage: React.FC = () => {
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
+      <CircuitBreakerSection />
       <EndpointSummarySection />
       <ApiLogSection />
     </div>

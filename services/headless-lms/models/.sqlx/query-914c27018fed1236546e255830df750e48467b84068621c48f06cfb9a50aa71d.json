@@ -18,7 +18,8 @@
                 "course_or_exam_creator",
                 "material_viewer",
                 "teaching_and_learning_services",
-                "stats_viewer"
+                "stats_viewer",
+                "credit_registration_admin"
               ]
             }
           }

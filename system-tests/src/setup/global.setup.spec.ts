@@ -42,7 +42,8 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
-    // Seeded by `seed_credit_registration.rs`, which hashes the address's local part as the password.
+    // The password is the address's local part, for `seed_credit_registration.rs`'s accounts and
+    // the general `studentN` ones alike.
     ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
       email,
       password: email.replace(/@.*$/, ""),

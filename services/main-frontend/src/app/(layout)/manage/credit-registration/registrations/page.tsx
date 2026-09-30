@@ -39,7 +39,6 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DURATION,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -51,7 +50,7 @@ import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
   controlsCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -59,6 +58,7 @@ import {
   stackedCellCss,
   toolbarCheckboxCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
@@ -474,7 +474,7 @@ const RegistrationsPage: React.FC = () => {
                             {t("credit-registration-admin-not-linked")}
                           </span>
                         ) : (
-                          <span className={monospaceCss}>{number}</span>
+                          <span className={codeValueCss}>{number}</span>
                         )
                       },
                     },
@@ -526,7 +526,7 @@ const RegistrationsPage: React.FC = () => {
                             </span>
                             {errorNote && (
                               <span className={noteCss}>
-                                {errorNote} <code className={monospaceCss}>{row.error_code}</code>
+                                {errorNote} <code className={codeValueCss}>{row.error_code}</code>
                               </span>
                             )}
                           </span>
@@ -546,7 +546,7 @@ const RegistrationsPage: React.FC = () => {
                           <span className={stackedCellCss}>
                             <RelativeTime at={at} absoluteTime={TIME_DURATION} />
                             <span className={noteCss}>
-                              <RelativeTime at={at} absoluteTime={TIME_COMPACT} />
+                              <ZonedTimestamp at={at} />
                             </span>
                           </span>
                         )

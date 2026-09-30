@@ -13,7 +13,6 @@ pub enum EmailTemplateType {
     VerifyEmailAddress,
     CreditRegistrationActionNeeded,
     CreditRegistrationRegistered,
-    CreditRegistrationStudentNumberLinked,
 }
 
 impl EmailTemplateType {
@@ -25,7 +24,6 @@ impl EmailTemplateType {
             Self::CreditRegistrationAccountLinking
                 | Self::CreditRegistrationActionNeeded
                 | Self::CreditRegistrationRegistered
-                | Self::CreditRegistrationStudentNumberLinked
         )
     }
 }
@@ -192,6 +190,36 @@ RETURNING *
         email_template.content,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Inserts a global template, or returns `None` if a live one of the same type and language exists.
+/// Unlike [`insert_email_template`], never overwrites the existing row.
+pub async fn insert_global_email_template_if_absent(
+    conn: &mut PgConnection,
+    email_template: EmailTemplateNew,
+) -> ModelResult<Option<EmailTemplate>> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+INSERT INTO email_templates (
+    email_template_type,
+    subject,
+    language,
+    content
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (email_template_type, language, deleted_at)
+WHERE course_id IS NULL
+  AND deleted_at IS NULL DO NOTHING
+RETURNING *
+        "#,
+        email_template.template_type as EmailTemplateType,
+        email_template.subject,
+        email_template.language,
+        email_template.content,
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

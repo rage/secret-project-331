@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT paused_at\nFROM course_module_suotar_configurations\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\nFOR UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "paused_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "43a9def88adbf2c51ee9c50fee51f289266bca1b8210069666b452af7fa28ddb"
+}

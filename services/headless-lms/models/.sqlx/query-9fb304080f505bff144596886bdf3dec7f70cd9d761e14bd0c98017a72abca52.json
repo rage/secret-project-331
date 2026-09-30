@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\nWHERE cr.state = 'no_usable_enrolment'\n  AND cr.next_attempt_at <= now()\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    cmc.register_credits_via_suotar\n    OR cr.submitted_at IS NOT NULL\n  )\n  AND (\n    cr.enrolment_check_claimed_until IS NULL\n    OR cr.enrolment_check_claimed_until <= now()\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registration_test_exclusive_holds h\n    WHERE h.user_id = cr.user_id\n      AND (\n        h.course_id IS NULL\n        OR h.course_id = cr.course_id\n      )\n      AND h.held_until > now()\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "9fb304080f505bff144596886bdf3dec7f70cd9d761e14bd0c98017a72abca52"
+}

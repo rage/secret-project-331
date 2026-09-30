@@ -128,7 +128,7 @@ describe("isLargePaste", () => {
 
   it("still counts an unbroken block that contains an embedded email or URL", () => {
     const half = "宇".repeat(LARGE_PASTE_CHAR_THRESHOLD / 2)
-    expect(isLargePaste(`${half}a@b.fi${half}`)).toBe(true)
+    expect(isLargePaste(`${half}a@example.com${half}`)).toBe(true)
     expect(isLargePaste(`www.${"宇".repeat(LARGE_PASTE_CHAR_THRESHOLD * 2)}`)).toBe(true)
   })
 

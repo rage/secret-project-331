@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_modules.id AS \"id!\"\nFROM course_modules\n  LEFT JOIN courses ON (course_modules.course_id = courses.id)\nWHERE (\n    course_modules.uh_course_code = $1\n    OR courses.slug = $1\n  )\n  AND course_modules.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "99ebd272f78f57e5b445b6d8626bdf489ac3c8e2fcd475a6589da1fab564b17a"
+}

@@ -10,13 +10,17 @@ use headless_lms_models::credit_registration_phase_state::{
     self, CreditRegistrationPhaseState as PhaseStateRow,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationState};
+use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use headless_lms_models::suotar_circuit_breakers::{self, BreakerTarget, SuotarCircuitBreaker};
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
     PHASE_CONSECUTIVE_FAILURE_LIMIT, PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
+    is_phase_failing,
 };
-use crate::domain::credit_registration_phases::CreditRegistrationPhase;
 use crate::prelude::*;
+use headless_lms_credit_registration::CreditRegistrationPhase;
+use headless_lms_credit_registration::registry_health::{endpoints_paused_by, is_waiting_to_probe};
 
 use super::authorize_credit_registration_admin;
 
@@ -44,21 +48,51 @@ pub struct CreditRegistrationPhaseRow {
     pub paused_at: Option<DateTime<Utc>>,
     pub paused_by_user_id: Option<Uuid>,
     pub pause_reason: Option<String>,
-    /// No implementation is registered for the phase yet, so it has never reported and will not.
-    pub implemented: bool,
+    /// False only for a phase-state row whose name is no `CreditRegistrationPhase`, which no worker
+    /// runs or reports for.
+    pub is_known_phase: bool,
     /// Computed server-side: a page comparing its own clock against a server timestamp misjudges
     /// this on a skewed client.
     pub seconds_since_heartbeat: Option<i64>,
     pub last_run_duration_secs: Option<i64>,
     /// Always `false` while paused or never heartbeated.
     pub heartbeat_late: bool,
+    /// The same verdict the `PhaseFailing` alert reaches; see `is_phase_failing`.
     pub failing: bool,
     /// The ledger states nothing but this phase moves a row out of. Empty for the phases whose work
     /// is not a ledger state: `materialize` waits on completions, the syncer's phases on modules.
     pub owned_states: Vec<CreditRegistrationState>,
-    /// Live rows in `owned_states`, or `None` where there are none to own — which is not the same
-    /// as an empty queue.
+    /// Live rows in `owned_states` waiting on this phase, of `no_usable_enrolment` only those due a
+    /// check, or `None` where there are none to own — which is not the same as an empty queue.
     pub queue_depth: Option<i64>,
+}
+
+/// Where one circuit breaker stands, as its worker last reported it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CircuitBreakerStatus {
+    Closed,
+    /// In its cooldown: the phases it pauses skip their iterations.
+    Open,
+    /// Past its cooldown, and the next iteration sends a single-item probe that closes it only if
+    /// it succeeds.
+    WaitingToProbe,
+}
+
+/// One worker process's circuit breaker, as the worker last reported it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationCircuitBreakerState {
+    pub process_name: String,
+    pub target: BreakerTarget,
+    /// The endpoints whose phases the breaker pauses.
+    pub endpoints: Vec<SuotarEndpoint>,
+    pub status: CircuitBreakerStatus,
+    pub consecutive_failures: i64,
+    /// How much of the cooldown is left. Computed server-side, like `seconds_since_heartbeat`.
+    pub open_for_secs: Option<i64>,
+    pub trip_count: i64,
+    /// When the worker last reported the state.
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -69,11 +103,12 @@ pub struct CreditRegistrationPhaseList {
     pub consecutive_failure_limit: i32,
     /// Every phase is stopped, which is what the kill switch does.
     pub paused_globally: bool,
+    pub circuit_breakers: Vec<CreditRegistrationCircuitBreakerState>,
 }
 
 /**
 GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
-and the queue it is responsible for.
+and the queue it is responsible for, and the workers' circuit breakers.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -82,7 +117,7 @@ and the queue it is responsible for.
     operation_id = "listCreditRegistrationPhases",
     tag = "credit-registration-admin",
     responses(
-        (status = 200, description = "One row per pipeline phase", body = CreditRegistrationPhaseList)
+        (status = 200, description = "One row per pipeline phase, and the workers' circuit breakers", body = CreditRegistrationPhaseList)
     )
 )]
 pub async fn list_credit_registration_phases(
@@ -97,31 +132,33 @@ pub async fn list_credit_registration_phases(
             .await?
             .into_iter()
             .collect();
+    let due_enrolment_checks = credit_registrations::count_due_enrolment_checks(&mut conn).await?;
     let now = Utc::now();
     let mut phases: Vec<CreditRegistrationPhaseRow> =
         credit_registration_phase_state::get_all(&mut conn)
             .await?
             .into_iter()
-            .map(|row| to_phase_row(row, now, &depths))
+            .map(|row| to_phase_row(row, now, &depths, due_enrolment_checks))
             .collect();
     phases.sort_by_key(|row| {
         (
             row.process_name.clone(),
             CreditRegistrationPhase::from_phase_name(&row.phase)
-                .and_then(|phase| {
-                    CreditRegistrationPhase::ALL
-                        .iter()
-                        .position(|p| *p == phase)
-                })
-                .unwrap_or(usize::MAX),
+                .map_or(usize::MAX, CreditRegistrationPhase::pipeline_index),
         )
     });
+    let circuit_breakers = suotar_circuit_breakers::get_all(&mut conn)
+        .await?
+        .into_iter()
+        .map(|breaker| to_circuit_breaker_state(breaker, now))
+        .collect();
 
     token.authorized_ok(web::Json(CreditRegistrationPhaseList {
         paused_globally: !phases.is_empty() && phases.iter().all(|row| row.paused_at.is_some()),
         phases,
         heartbeat_interval_multiplier: PHASE_HEARTBEAT_INTERVAL_MULTIPLIER,
         consecutive_failure_limit: PHASE_CONSECUTIVE_FAILURE_LIMIT,
+        circuit_breakers,
     }))
 }
 
@@ -129,6 +166,7 @@ fn to_phase_row(
     row: PhaseStateRow,
     now: DateTime<Utc>,
     depths: &HashMap<CreditRegistrationState, i64>,
+    due_enrolment_checks: i64,
 ) -> CreditRegistrationPhaseRow {
     let known = CreditRegistrationPhase::from_phase_name(&row.phase);
     let owned_states: Vec<CreditRegistrationState> = known
@@ -141,19 +179,17 @@ fn to_phase_row(
         row.paused_at,
         now,
     );
+    let depth_of = |state| depths.get(&state).copied().unwrap_or(0);
+    let failing = is_phase_failing(&row, now, depth_of, due_enrolment_checks);
     CreditRegistrationPhaseRow {
-        implemented: known.is_some(),
-        queue_depth: (!owned_states.is_empty()).then(|| {
-            owned_states
-                .iter()
-                .map(|state| depths.get(state).copied().unwrap_or(0))
-                .sum()
-        }),
+        is_known_phase: known.is_some(),
+        queue_depth: known
+            .filter(|_| !owned_states.is_empty())
+            .map(|phase| phase.queue_depth(depth_of, due_enrolment_checks)),
         owned_states,
         seconds_since_heartbeat,
         heartbeat_late,
-        failing: row.paused_at.is_none()
-            && row.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT,
+        failing,
         last_run_duration_secs: row
             .last_run_started_at
             .zip(row.last_run_finished_at)
@@ -178,4 +214,33 @@ fn to_phase_row(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/phases", web::get().to(list_credit_registration_phases));
+}
+
+fn to_circuit_breaker_state(
+    breaker: SuotarCircuitBreaker,
+    now: DateTime<Utc>,
+) -> CreditRegistrationCircuitBreakerState {
+    let open_for_secs = breaker
+        .open_until
+        .map(|until| (until - now).num_seconds())
+        .filter(|&secs| secs > 0);
+    let consecutive_failures = u32::try_from(breaker.consecutive_failures).unwrap_or_default();
+    let status = if breaker.open_until.is_some_and(|until| now < until) {
+        CircuitBreakerStatus::Open
+    } else if is_waiting_to_probe(consecutive_failures, breaker.open_until, now) {
+        CircuitBreakerStatus::WaitingToProbe
+    } else {
+        CircuitBreakerStatus::Closed
+    };
+    let endpoints = endpoints_paused_by(&breaker.process_name, breaker.target);
+    CreditRegistrationCircuitBreakerState {
+        process_name: breaker.process_name,
+        target: breaker.target,
+        endpoints,
+        status,
+        consecutive_failures: i64::from(breaker.consecutive_failures),
+        open_for_secs,
+        trip_count: i64::from(breaker.trip_count),
+        updated_at: breaker.updated_at,
+    }
 }

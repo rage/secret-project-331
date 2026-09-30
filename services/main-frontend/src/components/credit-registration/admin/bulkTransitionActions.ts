@@ -36,7 +36,11 @@ export const isBulkActionAllowed = (action: TransitionChoice, row: BulkTransitio
         (row.state === "failed_permanent" && canRetryFailure(row.error_code))
       )
     case CHECK_NOW:
-      return row.state === "submission_uncertain" || row.state === "awaiting_verification"
+      return (
+        row.state === "submission_uncertain" ||
+        row.state === "awaiting_verification" ||
+        row.state === "partially_registered"
+      )
     case CANCELLED:
       // May already hold credits in Sisu. The server does not refuse this, so the client
       // withholds it.

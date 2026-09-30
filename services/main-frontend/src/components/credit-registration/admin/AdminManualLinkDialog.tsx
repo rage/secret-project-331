@@ -39,7 +39,9 @@ import {
   STACKED,
   TONE,
 } from "../constants"
+import { validateStudentNumber } from "../studentNumber"
 import {
+  codeValueCss,
   controlCss,
   controlsCss,
   dialogFormCss,
@@ -79,6 +81,7 @@ interface Fields {
 const LINKED = "linked"
 /** Enough to recognise the right person; a longer list means the search was too vague to trust. */
 const MAX_ACCOUNT_MATCHES = 8
+const STUDENT_NUMBER_FIELD = "student_number" as const
 
 /** The name Sisu holds beside the name on the account, which is the comparison being asserted. */
 const identityMatchCss = css`
@@ -182,7 +185,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const [chosenAccount, setChosenAccount] = useState<ManualLinkAccount | null>(account ?? null)
-  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
+  const { control, handleSubmit, watch, trigger } = useReasonRequiredForm<Fields>({
     student_number: studentNumber ?? "",
     resending_cannot_work: false,
     reason: "",
@@ -250,13 +253,19 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
             control={control}
             className={controlCss}
             label={t("label-student-number")}
+            rules={{ required: t("required-field"), validate: validateStudentNumber(t) }}
           />
           <Button
             // A wizard reads top to bottom: this is the first thing to do until it is done.
             variant={preview?.found === true ? BUTTON_SECONDARY : BUTTON_PRIMARY}
             size="medium"
             disabled={previewMutation.isPending}
-            onClick={() => previewMutation.mutate(fields.student_number.trim())}
+            onClick={async () => {
+              // A mistyped number is caught here rather than looked up in Sisu.
+              if (await trigger(STUDENT_NUMBER_FIELD)) {
+                previewMutation.mutate(fields.student_number.trim())
+              }
+            }}
           >
             {t("button-text-credit-registration-check-in-study-registry")}
           </Button>
@@ -265,6 +274,10 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
           <Infobox tone={preview.found ? TONE.INFO : TONE.WARNING}>
             {preview.study_registry_unavailable ? (
               t("credit-registration-admin-manual-link-registry-unavailable")
+            ) : preview.lookup_error_code ? (
+              t("credit-registration-admin-manual-link-lookup-error", {
+                code: preview.lookup_error_code,
+              })
             ) : preview.found ? (
               <div className={dialogFormCss}>
                 <div className={identityMatchCss}>
@@ -287,7 +300,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
                   items={[
                     {
                       label: t("label-credit-registration-person-id"),
-                      value: <code>{preview.sisu_person_id ?? ABSENT}</code>,
+                      value: (
+                        <code className={codeValueCss}>{preview.sisu_person_id ?? ABSENT}</code>
+                      ),
                     },
                     {
                       label: t("label-credit-registration-already-linked-to"),

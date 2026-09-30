@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET enrolment_checked_at = enrolment_checked_at - $2::interval,\n  enrolment_check_requested_at = enrolment_check_requested_at - $2::interval,\n  enrolment_check_restart_count = CASE\n    WHEN $3 THEN 0\n    ELSE enrolment_check_restart_count\n  END\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "82ec2ad66a3987158157cf426a24d7191cc9b8ad533b12e6be6e8e0abec20b77"
+}

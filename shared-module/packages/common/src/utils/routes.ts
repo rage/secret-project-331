@@ -371,6 +371,10 @@ export function creditRegistrationSystemRoute() {
   return "/manage/credit-registration/system"
 }
 
+export function creditRegistrationEnrolmentChecksRoute() {
+  return "/manage/credit-registration/enrolment-checks"
+}
+
 export function creditRegistrationAuditRoute() {
   return "/manage/credit-registration/audit"
 }

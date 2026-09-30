@@ -11,6 +11,7 @@ mod api_log;
 mod audit;
 mod courses;
 mod dashboard;
+mod enrolment_checks;
 mod errors;
 mod history;
 mod ledger;
@@ -28,6 +29,7 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::authorization::AuthorizationToken;
 use crate::prelude::*;
+use secrecy::ExposeSecret;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -53,6 +55,7 @@ use crate::prelude::*;
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
     history::get_credit_registration_pipeline_history,
+    enrolment_checks::get_credit_registration_enrolment_checks,
     account_linking::get_account_linking_stats,
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
@@ -63,8 +66,9 @@ use crate::prelude::*;
 ))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
-/// Attempts after which retrying is not the answer and the attention queue picks the row up. Shared
-/// so the Overview tile and the Errors queue count the same rows.
+/// Resends after which retrying is not the answer and the attention queue picks the row up. Verify
+/// polls do not count: confirming routinely takes many. Shared so the Overview tile and the Errors
+/// queue count the same rows.
 const ATTENTION_TOO_MANY_ATTEMPTS: i32 = 5;
 
 /// Every handler here gates on the same check; a submodule calls this instead of repeating it.
@@ -74,7 +78,7 @@ async fn authorize_credit_registration_admin(
 ) -> Result<AuthorizationToken, ControllerError> {
     authorize(
         conn,
-        Act::Administrate,
+        Act::AdministrateCreditRegistrations,
         Some(user_id),
         Res::GlobalPermissions,
     )
@@ -135,9 +139,9 @@ async fn build_linking_emails(
                 ),
                 id: mail.id,
                 course_id: mail.course_id,
-                student_number: mail.student_number,
-                sisu_person_id: mail.sisu_person_id,
-                emailed_to: mail.emailed_to,
+                student_number: mail.student_number.expose_secret().to_owned(),
+                sisu_person_id: mail.sisu_person_id.expose_secret().to_owned(),
+                emailed_to: mail.emailed_to.expose_secret().to_owned(),
                 claimed_at: mail.sent_at,
                 token_claimed_by_user_id: token.and_then(|row| row.claimed_by_user_id),
                 token_used_at: token.and_then(|row| row.used_at),
@@ -157,6 +161,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     reconciliation::_add_routes(cfg);
     audit::_add_routes(cfg);
     history::_add_routes(cfg);
+    enrolment_checks::_add_routes(cfg);
     account_linking::_add_routes(cfg);
     student_numbers::_add_routes(cfg);
     materialize::_add_routes(cfg);

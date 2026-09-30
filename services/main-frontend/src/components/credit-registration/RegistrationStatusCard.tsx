@@ -16,7 +16,7 @@ import {
 } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, CREDIT_REGISTRATION_NS } from "./constants"
-import { noteCss, rowCss, sectionCss, spacedRowCss, subheadingCss, subsectionCss } from "./styles"
+import { rowCss, sectionCss, spacedRowCss, subheadingCss, subsectionCss } from "./styles"
 
 export interface RegistrationCardAction {
   key: string
@@ -24,15 +24,7 @@ export interface RegistrationCardAction {
   /** Where it goes. Pass exactly one of `href` and `onAct`. */
   href?: string
   onAct?: () => void
-  isDisabled?: boolean
   isLoading?: boolean
-  /**
-   * Why it cannot be used, rendered as visible text under the row.
-   *
-   * Not a `title`: a disabled button whose reason lives in a tooltip tells a touch reader nothing,
-   * and "why is this greyed out" is the whole question.
-   */
-  disabledReason?: string
 }
 
 export interface RegistrationStatusCardProps {
@@ -61,7 +53,7 @@ const ActionButton: React.FC<{ action: RegistrationCardAction; isPrimary: boolea
   isPrimary,
 }) => {
   const variant = isPrimary ? BUTTON_PRIMARY : BUTTON_SECONDARY
-  if (action.href && !action.isDisabled) {
+  if (action.href) {
     return (
       <Link href={action.href} styledAsButton variant={variant} size="medium">
         {action.label}
@@ -72,7 +64,6 @@ const ActionButton: React.FC<{ action: RegistrationCardAction; isPrimary: boolea
     <Button
       variant={variant}
       size="medium"
-      disabled={action.isDisabled ?? false}
       isLoading={action.isLoading ?? false}
       {...includeIf(action.onAct, { onClick: action.onAct })}
     >
@@ -87,7 +78,7 @@ export interface RegistrationActionsProps {
 }
 
 /**
- * The levers for one registration, with the reason under any that cannot be used.
+ * The levers for one registration.
  *
  * Its own component so the card and the step list draw a state's actions the same way; a lever
  * that reads as a button on one surface and a link on the other is two states to the reader.
@@ -97,23 +88,15 @@ export const RegistrationActions: React.FC<RegistrationActionsProps> = ({
   secondaryActions = [],
 }) => {
   const actions = [...(primaryAction ? [primaryAction] : []), ...secondaryActions]
-  const reasons = actions.filter((action) => action.isDisabled && action.disabledReason)
   if (actions.length === 0) {
     return null
   }
   return (
-    <>
-      <div className={rowCss}>
-        {actions.map((action) => (
-          <ActionButton key={action.key} action={action} isPrimary={action === primaryAction} />
-        ))}
-      </div>
-      {reasons.map((action) => (
-        <p key={action.key} className={noteCss}>
-          {action.disabledReason}
-        </p>
+    <div className={rowCss}>
+      {actions.map((action) => (
+        <ActionButton key={action.key} action={action} isPrimary={action === primaryAction} />
       ))}
-    </>
+    </div>
   )
 }
 

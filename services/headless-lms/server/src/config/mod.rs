@@ -5,11 +5,11 @@ pub mod program_config;
 use crate::{
     OAuthClient,
     config::program_config::ProgramConfig,
-    controllers::mock_suotar::store::MockSuotarStore,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
     },
+    mock_suotar::store::MockSuotarStore,
 };
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
@@ -19,6 +19,7 @@ use actix_web::{
 };
 use anyhow::Context;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::is_waiting_item;
 use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
@@ -275,7 +276,10 @@ impl ServerConfigBuilder {
         // Built here rather than in `from_runtime_config` because auditing every call needs the pool.
         let suotar_client = Data::new(SuotarClient::new(
             &app_conf.suotar_configuration,
-            Arc::new(PgSuotarCallAudit::new(db_pool.as_ref().clone())),
+            Arc::new(PgSuotarCallAudit::new(
+                db_pool.as_ref().clone(),
+                is_waiting_item,
+            )),
         ));
 
         let config = ServerConfig {

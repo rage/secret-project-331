@@ -3,13 +3,12 @@
 import { css, cx } from "@emotion/css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   adminActionLabel,
-  eventKindLabel,
   notificationKindLabel,
   registrationErrorAdminHelp,
   sendStatusLabel,
@@ -22,15 +21,18 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import ErrorCodeCell from "@/components/credit-registration/admin/ErrorCodeCell"
 import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
-import PayloadBlock from "@/components/credit-registration/admin/PayloadBlock"
+import RegistrationStepper from "@/components/credit-registration/admin/RegistrationStepper"
+import {
+  attentionReasonLabel,
+  subStateExplanations,
+} from "@/components/credit-registration/admin/registrationSubStates"
+import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
 import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   ABSENT,
   ALIGN_END,
-  ARROW,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
@@ -39,7 +41,6 @@ import {
   STACKED,
   STATE_SUPERSEDED,
   TABLE_STACK,
-  TIME_COMPACT,
   TIME_DATE,
   TIME_IN_TITLE,
   TONE,
@@ -53,7 +54,7 @@ import {
   dividedListCss,
   emptyStateCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   pageTitleCss,
   proseCss,
@@ -65,12 +66,11 @@ import {
   sectionHeaderCss,
   spacedRowCss,
   stackedCellCss,
-  stateChangeFromCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
-  AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
   AdminNotificationEmail,
@@ -78,6 +78,7 @@ import type {
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   creditRegistrationAuditRoute,
@@ -88,10 +89,8 @@ import {
 import type { DescriptionListItem, TableColumn } from "@/shared-module/components"
 import {
   Badge,
-  Button,
   CopyButton,
   DescriptionList,
-  Dialog,
   Disclosure,
   QueryResult,
   RegistrationStatusHeadline,
@@ -106,27 +105,6 @@ const AUDIT_ROWS = 25
 const NO_ACTIONS: CreditRegistrationAdminActionRow[] = []
 
 type AdminActionsQuery = ReturnType<typeof useCreditRegistrationAdminActions>
-
-/** A left gutter for the timeline's timestamps, so the kind of each entry starts on one line. */
-const timelineEntryCss = css`
-  display: grid;
-  gap: var(--space-2) var(--space-4);
-  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
-
-  @media (max-width: 40rem) {
-    grid-template-columns: minmax(0, 1fr);
-  }
-`
-
-const timelineBodyCss = css`
-  display: grid;
-  gap: var(--space-2);
-`
-
-/** The entry's kind, leading its line as text: a pill here would label every entry. */
-const eventKindCss = css`
-  font-weight: 500;
-`
 
 const idRowCss = cx(
   rowCss,
@@ -156,7 +134,6 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
       label: t("label-credit-registration-completion-id"),
       value: row.course_module_completion_id,
     },
-    { label: t("label-credit-registration-request-item-id"), value: row.request_item_id },
     { label: t("label-credit-registration-enrolment"), value: row.selected_enrolment_id },
     {
       label: t("credit-registration-admin-submitted-attainment-id"),
@@ -192,7 +169,7 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
             label: identifier.label,
             value: (
               <span className={rowCss}>
-                <span className={monospaceCss}>{identifier.value}</span>
+                <span className={codeValueCss}>{identifier.value}</span>
                 <CopyButton
                   value={identifier.value}
                   label={t("credit-registration-admin-copy-identifier", {
@@ -216,6 +193,8 @@ const HeaderSection: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const stateLabel = registrationLedgerStateLabel(t, row.state, row.pending_reason)
+  const now = Date.now()
+  const explanations = subStateExplanations(t, row, details.attention_thresholds, now)
   const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
   const errorHelp = registrationErrorAdminHelp(t, row.error_code, {
     studentNumber: row.verified_student_number ?? row.student_number ?? null,
@@ -228,10 +207,10 @@ const HeaderSection: React.FC<{
         <span className={rowCss}>
           <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
           {row.course_module_name ? <span>{row.course_module_name}</span> : null}
-          {row.uh_course_code ? <code className={monospaceCss}>{row.uh_course_code}</code> : null}
+          {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
         </span>
         <span className={idRowCss}>
-          <span className={cx(noteCss, monospaceCss)}>{row.id}</span>
+          <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
           <CopyButton
             value={row.id}
             label={t("credit-registration-admin-copy-identifier", {
@@ -248,6 +227,7 @@ const HeaderSection: React.FC<{
           )}
         </span>
       </div>
+      <RegistrationStepper details={details} now={now} />
       {/* A replaced attempt keeps the state it reached, but leading with it reads as news about the
           completion — which the newest attempt, not this one, decides. That nothing can be done to
           it is the Actions section's sentence; a banner here would say it twice. */}
@@ -274,12 +254,27 @@ const HeaderSection: React.FC<{
           {stateLabel}
         </RegistrationStatusHeadline>
       )}
+      {row.needs_admin_attention && !row.superseded && (
+        <div>
+          <Badge
+            tone={TONE.WARNING}
+            description={attentionReasonLabel(t, row, details.attention_thresholds, now)}
+          >
+            {t("credit-registration-admin-needs-attention")}
+          </Badge>
+        </div>
+      )}
+      {explanations.map((line) => (
+        <p key={line} className={proseCss}>
+          {line}
+        </p>
+      ))}
       {errorHelp && (
         <div className={sectionHeaderCss}>
           <p className={proseCss}>{errorHelp}</p>
           {/* Untranslated on purpose: this is the identifier an operator quotes. */}
           <p className={noteCss}>
-            <code>{row.error_code}</code>
+            <code className={codeValueCss}>{row.error_code}</code>
           </p>
         </div>
       )}
@@ -307,13 +302,20 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     : []
   // A row that has finished, or that a later attempt replaced, has no next attempt; the stored
   // instant is whatever it was last scheduled for, which reads as a bug under that label.
+  const isChecking =
+    row.state === "awaiting_verification" ||
+    row.state === "partially_registered" ||
+    row.state === "submission_uncertain"
+  const hidesNextAttempt = row.state === "submitting" || row.state === "resolving_enrolment"
   const nextAttempt: DescriptionListItem[] =
-    row.terminal_at || row.superseded
+    row.terminal_at || row.superseded || hidesNextAttempt
       ? []
       : [
           {
-            label: t("label-credit-registration-next-attempt"),
-            value: <RelativeTime at={row.next_attempt_at} absoluteTime={TIME_COMPACT} />,
+            label: isChecking
+              ? t("label-credit-registration-next-check")
+              : t("label-credit-registration-next-attempt"),
+            value: <ZonedTimestamp at={row.next_attempt_at} />,
           },
         ]
 
@@ -327,7 +329,7 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
       label: t("label-student-number"),
       value: studentNumber ? (
         <span className={rowCss}>
-          <span className={monospaceCss}>{studentNumber}</span>
+          <span className={codeValueCss}>{studentNumber}</span>
           {verifiedVia}
         </span>
       ) : (
@@ -352,17 +354,17 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     },
     {
       label: t("label-credit-registration-time-in-state"),
-      value: <RelativeTime at={row.state_entered_at} absoluteTime={TIME_COMPACT} />,
+      value: <ZonedTimestamp at={row.state_entered_at} />,
     },
     ...nextAttempt,
     {
-      // Failed sends and registry checks, not calls: one Sisu call carries many rows, so the
+      // Failed sends and confirmation checks, not calls: one Sisu call carries many rows, so the
       // call table below counts more than these two do.
       label: t("label-credit-registration-failed-sends"),
       value: row.submit_retry_count,
     },
     {
-      label: t("label-credit-registration-registry-checks"),
+      label: t("label-credit-registration-confirmation-checks"),
       value: row.verify_attempt_count,
     },
   ]
@@ -416,99 +418,12 @@ const AttemptChainSection: React.FC<{
               <AdminStateLabel state={attempt.state} showToken={attempt.id === currentId} />
             </span>
             <span className={noteCss}>
-              <RelativeTime at={attempt.created_at} absoluteTime={TIME_COMPACT} />
+              <ZonedTimestamp at={attempt.created_at} />
             </span>
           </li>
         ))}
       </ol>
       <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-attempt-chain-note")}</p>
-    </section>
-  )
-}
-
-const PayloadDialog: React.FC<{ title: string; payload: unknown }> = ({ title, payload }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const [open, setOpen] = useState(false)
-  return (
-    <>
-      <Button variant="tertiary" size="small" onClick={() => setOpen(true)}>
-        {t("credit-registration-admin-show-exchange")}
-      </Button>
-      <Dialog open={open} onClose={() => setOpen(false)} size="wide" title={title}>
-        <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-        <PayloadBlock body={payload} />
-      </Dialog>
-    </>
-  )
-}
-
-const TimelineEntry: React.FC<{
-  event: AdminCreditRegistrationEvent
-  actorName: string | undefined
-}> = ({ event, actorName }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <li className={timelineEntryCss}>
-      <span className={noteCss}>
-        <RelativeTime at={event.created_at} absoluteTime={TIME_COMPACT} />
-      </span>
-      <span className={timelineBodyCss}>
-        <span className={rowCss}>
-          <span className={eventKindCss}>{eventKindLabel(t, event.kind)}</span>
-          {event.to_state && (
-            <>
-              {event.from_state && (
-                <span className={stateChangeFromCss}>
-                  <AdminStateLabel state={event.from_state} />
-                  <span aria-hidden="true">{ARROW}</span>
-                </span>
-              )}
-              <AdminStateLabel state={event.to_state} />
-            </>
-          )}
-          {event.error_code && <ErrorCodeCell errorCode={event.error_code} />}
-          {actorName && (
-            <span className={noteCss}>
-              {t("credit-registration-admin-event-actor", { actor: actorName })}
-            </span>
-          )}
-        </span>
-        {event.message && <span className={proseCss}>{event.message}</span>}
-        {event.details !== null && event.details !== undefined && (
-          <span>
-            <PayloadDialog
-              title={t("credit-registration-heading-exchange", {
-                kind: eventKindLabel(t, event.kind),
-              })}
-              payload={event.details}
-            />
-          </span>
-        )}
-      </span>
-    </li>
-  )
-}
-
-const TimelineSection: React.FC<{
-  events: AdminCreditRegistrationEvent[]
-  actorNames: Map<string, string>
-}> = ({ events, actorNames }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
-      </div>
-      {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={dividedListCss} role="list">
-        {events.toReversed().map((event) => (
-          <TimelineEntry
-            key={event.id}
-            event={event}
-            actorName={event.actor_user_id ? actorNames.get(event.actor_user_id) : undefined}
-          />
-        ))}
-      </ol>
     </section>
   )
 }
@@ -538,13 +453,13 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             header: t("label-time"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (call) => <RelativeTime at={call.started_at} absoluteTime={TIME_COMPACT} />,
+            cell: (call) => <ZonedTimestamp at={call.started_at} />,
           },
           {
             header: t("label-endpoint"),
             grow: true,
             minWidth: "10rem",
-            cell: (call) => <code>{call.endpoint}</code>,
+            cell: (call) => <code className={codeValueCss}>{call.endpoint}</code>,
           },
           {
             header: t("label-credit-registration-http-status"),
@@ -557,7 +472,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
                   errorItemCount={call.error_item_count}
                 />
                 {call.request_level_error_code && (
-                  <code className={cx(noteCss, monospaceCss)}>{call.request_level_error_code}</code>
+                  <code className={cx(noteCss, codeValueCss)}>{call.request_level_error_code}</code>
                 )}
               </span>
             ),
@@ -568,6 +483,7 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             cell: (call) =>
               t("credit-registration-admin-ok-error-items", {
                 ok: call.ok_item_count,
+                pending: call.pending_item_count,
                 error: call.error_item_count,
                 total: call.request_item_count,
               }),
@@ -594,7 +510,7 @@ const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_stat
     header: t("label-credit-registration-handed-over"),
     minWidth: "8rem",
     nowrap: true,
-    cell: (mail) => <RelativeTime at={mail.send_status.sent_at} absoluteTime={TIME_COMPACT} />,
+    cell: (mail) => <ZonedTimestamp at={mail.send_status.sent_at} />,
   },
   {
     header: t("label-credit-registration-retries"),
@@ -660,7 +576,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
           nowrap: true,
           cell: (mail) =>
             mail.token_used_at ? (
-              <RelativeTime at={mail.token_used_at} absoluteTime={TIME_COMPACT} />
+              <ZonedTimestamp at={mail.token_used_at} />
             ) : (
               <Badge tone={TONE.NEUTRAL} size="compact">
                 {t("credit-registration-admin-token-unclaimed")}
@@ -723,9 +639,7 @@ const AuditSection: React.FC<{
                 header: t("label-time"),
                 minWidth: "8rem",
                 nowrap: true,
-                cell: (action) => (
-                  <RelativeTime at={action.created_at} absoluteTime={TIME_COMPACT} />
-                ),
+                cell: (action) => <ZonedTimestamp at={action.created_at} />,
               },
               {
                 header: t("label-actor"),
@@ -788,6 +702,7 @@ const RegistrationDetailPage: React.FC = () => {
   )
 
   const row = detailsQuery.data?.registration
+  usePageTitle(row ? formatUserName(row) : null)
   const crumbs = useMemo(
     () => [
       {
@@ -823,7 +738,11 @@ const RegistrationDetailPage: React.FC = () => {
             <AdminTransitionBlock registration={details.registration} />
           </section>
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
-          <TimelineSection events={details.events} actorNames={actorNames} />
+          <RegistrationTimeline
+            events={details.events}
+            registration={details.registration}
+            actorNames={actorNames}
+          />
           <ApiCallSection calls={details.suotar_api_calls} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />

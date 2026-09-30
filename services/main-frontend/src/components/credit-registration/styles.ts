@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 
-import { monospaceFont } from "@/shared-module/common/styles"
+import { monospaceFont, primaryFont } from "@/shared-module/common/styles"
 
 /** Page shell for the standalone student pages. */
 export const narrowPageCss = css`
@@ -337,9 +337,10 @@ export const stateChangeFromCss = css`
   white-space: nowrap;
 `
 
-/** Any code-like value: identifiers, error codes, student numbers. */
-export const monospaceCss = css`
-  font-family: ${monospaceFont};
+/** A code-like value (identifier, error code, student number) in the body font; `<code>` and `<pre>` are monospace globally. */
+export const codeValueCss = css`
+  font-family: ${primaryFont};
+  font-feature-settings: normal;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 `
@@ -352,18 +353,18 @@ export const studentNumberCss = css`
   font-variant-numeric: tabular-nums;
 `
 
-/** A stored request or response body in a `<pre>`. */
-export const payloadCss = cx(
-  monospaceCss,
-  css`
-    margin: 0;
-    padding: var(--space-3);
-    max-height: 20rem;
-    overflow: auto;
-    border: 1px solid var(--color-clear-300);
-    border-radius: var(--surface-radius);
-    background: var(--color-gray-50);
-    font-size: var(--font-size-1);
-    white-space: pre-wrap;
-  `,
-)
+/** A stored request or response body in a `<pre>`: JSON, so it stays monospace. */
+export const payloadCss = css`
+  font-family: ${monospaceFont};
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  margin: 0;
+  padding: var(--space-3);
+  max-height: 20rem;
+  overflow: auto;
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+  background: var(--color-gray-50);
+  font-size: var(--font-size-1);
+  white-space: pre-wrap;
+`

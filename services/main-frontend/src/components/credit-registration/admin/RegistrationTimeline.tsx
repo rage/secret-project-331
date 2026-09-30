@@ -60,6 +60,7 @@ const iconCss = css`
   flex: none;
   align-self: center;
   display: inline-flex;
+  color: var(--color-gray-500);
 `
 
 const stepCss = css`

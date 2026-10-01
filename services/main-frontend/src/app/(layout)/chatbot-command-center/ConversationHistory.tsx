@@ -82,9 +82,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             background-color: ${conversation.id === convId ? "var(--color-green-75); border: 1px solid var(--color-green-300); box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
           `}
           key={conversation.id}
-          aria-label={t("conversation-title", {
-            title: conversation.conversation_title ?? t("untitled-conversation"),
-          })}
+          aria-label={conversation.conversation_title ?? t("untitled-conversation")}
         >
           <div
             className={css`

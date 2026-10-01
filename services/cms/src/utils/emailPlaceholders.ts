@@ -36,22 +36,25 @@ export function extractPlaceholders(blocks: BlockInstance[]): string[] {
   const placeholders = new Set<string>()
   const placeholderRegex = /\{\{(\w+)\}\}/g
 
-  function extractFromBlock(block: BlockInstance) {
-    if (block.name === "core/paragraph" && block.attributes?.content) {
-      const content = String(block.attributes.content)
-      let match
-      while ((match = placeholderRegex.exec(content)) !== null) {
-        // regex has a single required capture group, present when match !== null
+  // Every attribute, not just paragraph text: the sender fills placeholders anywhere, e.g. a button URL.
+  function extractFromValue(value: unknown) {
+    if (typeof value === "string") {
+      for (const match of value.matchAll(placeholderRegex)) {
         const captured = match[1]
         if (captured !== undefined) {
           placeholders.add(captured)
         }
       }
+    } else if (Array.isArray(value)) {
+      value.forEach((element) => extractFromValue(element))
+    } else if (value !== null && typeof value === "object") {
+      Object.values(value).forEach((field) => extractFromValue(field))
     }
+  }
 
-    if (block.innerBlocks) {
-      block.innerBlocks.forEach(extractFromBlock)
-    }
+  function extractFromBlock(block: BlockInstance) {
+    extractFromValue(block.attributes)
+    block.innerBlocks?.forEach((innerBlock) => extractFromBlock(innerBlock))
   }
 
   blocks.forEach((block) => extractFromBlock(block))

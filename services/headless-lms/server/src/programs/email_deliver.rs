@@ -16,7 +16,7 @@ use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
-use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
+use headless_lms_utils::email_processor::{self, EmailGutenbergBlock, EmailLayoutFields};
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{
@@ -161,8 +161,12 @@ pub async fn send_message(
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
     let msg_as_html = email_processor::wrap_in_layout(
         layout_html,
-        email.subject.as_deref().unwrap_or_default(),
-        &email_processor::process_content_to_html(&email_block),
+        &EmailLayoutFields {
+            content_html: &email_processor::process_content_to_html(&email_block),
+            subject: email.subject.as_deref().unwrap_or_default(),
+            preheader: &email_processor::preheader(&email_block),
+            language: email.language.as_deref().unwrap_or_default(),
+        },
     );
 
     let msg = match build_email_message(&email, attempt, msg_as_plaintext, msg_as_html) {
@@ -251,7 +255,7 @@ async fn apply_email_template_replacements(
     email_id: Uuid,
     user_id: Option<Uuid>,
     placeholders: Option<&serde_json::Value>,
-    blocks: Vec<EmailGutenbergBlock>,
+    mut blocks: Vec<EmailGutenbergBlock>,
     attempt: i32,
 ) -> anyhow::Result<TemplateApplyResult> {
     let mut replacements = HashMap::new();
@@ -262,10 +266,8 @@ async fn apply_email_template_replacements(
 
     if template_type.uses_placeholder_bag() {
         let replacements = placeholder_bag_replacements(placeholders);
-        return Ok(TemplateApplyResult::Ready(insert_placeholders(
-            blocks,
-            &replacements,
-        )));
+        email_processor::fill_placeholders(&mut blocks, &replacements);
+        return Ok(TemplateApplyResult::Ready(blocks));
     }
 
     // Every remaining template derives its values from an account.
@@ -357,10 +359,8 @@ async fn apply_email_template_replacements(
         | EmailTemplateType::CreditRegistrationRegistered => {}
     }
 
-    Ok(TemplateApplyResult::Ready(insert_placeholders(
-        blocks,
-        &replacements,
-    )))
+    email_processor::fill_placeholders(&mut blocks, &replacements);
+    Ok(TemplateApplyResult::Ready(blocks))
 }
 
 /// Turns a delivery's placeholder bag into `{{ KEY }}` substitutions. Nested objects and arrays are
@@ -380,34 +380,6 @@ fn placeholder_bag_replacements(
                 _ => return None,
             };
             Some((key.clone(), rendered))
-        })
-        .collect()
-}
-
-fn insert_placeholders(
-    blocks: Vec<EmailGutenbergBlock>,
-    replacements: &HashMap<String, String>,
-) -> Vec<EmailGutenbergBlock> {
-    blocks
-        .into_iter()
-        .map(|mut block| {
-            if let BlockAttributes::Paragraph {
-                content,
-                drop_cap,
-                rest,
-            } = block.attributes
-            {
-                let replaced_content = replacements.iter().fold(content, |acc, (key, value)| {
-                    acc.replace(&format!("{{{{{}}}}}", key), value)
-                });
-
-                block.attributes = BlockAttributes::Paragraph {
-                    content: replaced_content,
-                    drop_cap,
-                    rest,
-                };
-            }
-            block
         })
         .collect()
 }

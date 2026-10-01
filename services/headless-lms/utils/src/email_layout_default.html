@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="{{LANGUAGE}}" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,6 +20,13 @@ body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adju
 .email-content ul, .email-content ol { margin: 0 0 16px; padding-left: 24px; }
 .email-content li { margin: 0 0 6px; }
 .email-content img { display: block; max-width: 100%; height: auto; border: 0; margin: 0 0 16px; }
+.email-content table { border-collapse: collapse; margin: 0 0 16px; }
+.email-content th, .email-content td { padding: 8px 12px; border: 1px solid #e3e6ea; text-align: left; vertical-align: top; }
+.email-content th { background-color: #f6f7f9; font-weight: 600; }
+.email-content caption { padding-bottom: 8px; text-align: left; color: #57606a; font-size: 14px; }
+.email-content .email-buttons { margin: 24px 0; }
+.email-content .email-button { margin: 0 0 8px; }
+.email-content .email-button td { padding: 0; border: 0; }
 @media (max-width: 480px) {
   .email-outer { padding: 12px 8px !important; }
   .email-content { padding: 24px 20px !important; }
@@ -27,6 +34,7 @@ body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adju
 </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f5f7;">
+<div style="display: none; max-height: 0; overflow: hidden; opacity: 0; mso-hide: all; font-size: 1px; line-height: 1px; color: #f4f5f7;">{{PREHEADER}}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f5f7" style="width: 100%; background-color: #f4f5f7;">
 <tr>
 <td class="email-outer" align="center" style="padding: 40px 12px;">

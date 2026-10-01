@@ -47,6 +47,8 @@ pub struct Email {
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
     pub template_type: Option<EmailTemplateType>,
+    /// The template's language, else its course's; `None` for a global template without one.
+    pub language: Option<String>,
     /// Substitutions carried on the delivery row, so a mail to a raw address needs no user lookup.
     pub placeholders: Option<serde_json::Value>,
     /// Number of failed send attempts recorded so far.
@@ -236,6 +238,7 @@ SELECT
     et.subject AS subject,
     et.content AS body,
     et.email_template_type AS "template_type",
+    COALESCE(et.language, co.language_code) AS language,
     c.placeholders AS placeholders,
     c.retry_count AS retry_count,
     c.next_retry_at AS next_retry_at,
@@ -244,6 +247,7 @@ SELECT
     c.last_attempt_at AS last_attempt_at
 FROM claimed c
 JOIN email_templates et ON et.id = c.email_template_id
+LEFT JOIN courses co ON co.id = et.course_id
 LEFT JOIN user_details ud ON ud.user_id = c.user_id
 ORDER BY c.last_attempt_at ASC;
         "#,

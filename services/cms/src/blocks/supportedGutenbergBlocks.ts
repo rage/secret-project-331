@@ -57,6 +57,7 @@ export const allowedBlockVariants: Record<string, string[]> = {
   ],
 }
 
+/** Must match `EmailBlockName` in headless-lms `email_processor.rs`, which refuses to send any other block. */
 export const allowedEmailCoreBlocks: string[] = [
   "core/paragraph",
   "core/image",
@@ -64,6 +65,8 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/list",
   "core/list-item",
   "core/table",
+  "core/buttons",
+  "core/button",
 ]
 
 export const allowedPartnerCoreBlocks: string[] = ["core/image"]

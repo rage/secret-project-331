@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 
 import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
@@ -38,24 +38,11 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
 
-  const normalizeBlocks = useCallback((blocks: unknown[]): BlockInstance[] => {
-    return blocks.map((block) => {
-      const blockObj = block as Record<string, unknown>
-      const normalized = { ...blockObj }
-      if (blockObj.type && !blockObj.name) {
-        normalized.name = blockObj.type
-        delete normalized.type
-      }
-      if (normalized.innerBlocks && Array.isArray(normalized.innerBlocks)) {
-        normalized.innerBlocks = normalizeBlocks(normalized.innerBlocks)
-      }
-      return normalized as unknown as BlockInstance
-    })
-  }, [])
-
   const [content, setContent] = useState<BlockInstance[]>(() => {
-    const normalizedBlocks = normalizeBlocks((data.content ?? []) as unknown[])
-    const initialContent = modifyBlocks(normalizedBlocks, allowedEmailCoreBlocks) as BlockInstance[]
+    const initialContent = modifyBlocks(
+      (data.content ?? []) as BlockInstance[],
+      allowedEmailCoreBlocks,
+    ) as BlockInstance[]
     return initialContent
   })
   const [templateType, setTemplateType] = useState<unknown>(
@@ -94,10 +81,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   )
 
   useEffect(() => {
-    const contentToUse = data.content ?? []
-    const normalizedBlocks = normalizeBlocks(contentToUse as unknown[])
     const modifiedContent = modifyBlocks(
-      normalizedBlocks,
+      (data.content ?? []) as BlockInstance[],
       allowedEmailCoreBlocks,
     ) as BlockInstance[]
     setContent(modifiedContent)
@@ -110,7 +95,6 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     data.subject,
     data.content,
     setNeedToRunMigrationsAndValidations,
-    normalizeBlocks,
   ])
 
   useEffect(() => {

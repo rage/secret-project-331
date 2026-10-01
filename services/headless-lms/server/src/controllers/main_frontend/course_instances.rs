@@ -20,6 +20,7 @@ use models::{
 use utoipa::OpenApi;
 
 use crate::{
+    controllers::cms::email_templates::parse_email_content,
     domain::csv_export::{
         course_instance_export::CompletionsExportOperation, general_export,
         points::PointExportOperation,
@@ -112,6 +113,9 @@ async fn post_new_email_template(
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let new_email_template = payload.0;
+    if let Some(content) = &new_email_template.content {
+        parse_email_content(content)?;
+    }
     let email_template = models::email_templates::insert_email_template(
         &mut conn,
         Some(course_instance.course_id),

@@ -25,6 +25,21 @@ COMMENT ON COLUMN email_layouts.html IS 'A complete HTML document. {{CONTENT}} i
 COMMENT ON COLUMN email_layouts.button_background_color IS 'Button background as #RRGGBB, written inline into each button, because Outlook desktop and clients that strip <style> ignore the shell''s CSS for it.';
 COMMENT ON COLUMN email_layouts.button_text_color IS 'Button label colour as #RRGGBB, written inline like button_background_color.';
 
+ALTER TABLE email_deliveries
+ADD COLUMN test_subject TEXT,
+ADD COLUMN test_content JSONB,
+ADD CONSTRAINT email_deliveries_test_send_complete CHECK ((test_subject IS NULL) = (test_content IS NULL)),
+ADD CONSTRAINT email_deliveries_test_send_to_account CHECK (
+    test_content IS NULL
+    OR user_id IS NOT NULL
+  );
+
+CREATE INDEX email_deliveries_test_sends_idx ON email_deliveries (user_id, created_at)
+WHERE test_content IS NOT NULL;
+
+COMMENT ON COLUMN email_deliveries.test_subject IS 'Subject of a test send from the email editor, set together with test_content; null for every other delivery. A test send is rendered from these and the sample values in placeholders instead of the template''s saved subject and content and the values derived from the recipient''s account.';
+COMMENT ON COLUMN email_deliveries.test_content IS 'Body of a test send from the email editor, in the format of email_templates.content. See test_subject.';
+
 -- Email bodies from the seed and early hand-loaded templates use an older block shape ("type",
 -- "drop_cap", lists as a "values" HTML string). The sender reads only the shape the CMS email editor
 -- saves, so convert them.

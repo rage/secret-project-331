@@ -4,10 +4,14 @@ import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 
-import type { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
+import type {
+  EmailTemplate,
+  EmailTemplatePreviewRequest,
+  EmailTemplateUpdate,
+} from "@/generated/api"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { Button, Infobox, TONE } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -16,9 +20,17 @@ import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import { mediaUploadBuilder } from "../../services/mediaUpload"
 import type { MediaUploadProps } from "../../services/mediaUpload"
+import { stripProtocolBeforePlaceholderLinks } from "../../utils/emailPlaceholderLinks"
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
+import {
+  emailEditorAllowedFormats,
+  emailEditorRootLayout,
+  emailEditorSettings,
+} from "../../utils/Gutenberg/emailEditorSettings"
+import { findImagesNeedingAltText } from "../../utils/Gutenberg/imageAltWarning"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+import EmailPreviewDialog from "../email/EmailPreviewDialog"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
@@ -34,6 +46,13 @@ const allowedEmailBlocks = [
   ...allowedEmailCoreBlocks,
   ...blockTypeMapForEmails.map(([blockName]) => blockName),
 ]
+
+const imageFileName = (url: unknown): string | null => {
+  if (typeof url !== "string") {
+    return null
+  }
+  return url.split(/[?#]/)[0]?.split("/").pop() || null
+}
 
 const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   data,
@@ -56,6 +75,11 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         { name: "default", label: t("block-style-default"), isDefault: true },
         { name: "arrow", label: t("email-block-style-arrow") },
       ],
+      // Their stock variations only add CSS classes the renderer ignores.
+      "core/image": [],
+      "core/table": [],
+      "core/quote": [],
+      "core/separator": [],
     }),
     [t],
   )
@@ -73,6 +97,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     (data as { template_type?: unknown }).template_type ?? "generic",
   )
   const [subject, setSubject] = useState(data.subject ?? "")
+  const [previewDraft, setPreviewDraft] = useState<EmailTemplatePreviewRequest | null>(null)
 
   const templateTypeString = useMemo(() => {
     if (typeof templateType === "string") {
@@ -81,7 +106,10 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     return templateType as unknown as string
   }, [templateType])
 
-  const detectedPlaceholders = useMemo(() => extractPlaceholders(content), [content])
+  const detectedPlaceholders = useMemo(
+    () => extractPlaceholders(content, subject),
+    [content, subject],
+  )
   const placeholderValidation = useMemo(() => {
     if (templateTypeString === "generic") {
       return {
@@ -95,6 +123,9 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     }
     return validatePlaceholders(templateTypeString, detectedPlaceholders)
   }, [templateTypeString, detectedPlaceholders])
+
+  const imagesNeedingAltText = useMemo(() => findImagesNeedingAltText(content), [content])
+  const canSave = placeholderValidation.valid && imagesNeedingAltText.length === 0
 
   const dataContentString = useMemo(() => JSON.stringify(data.content), [data.content])
   const dataTemplateType = useMemo(
@@ -132,8 +163,11 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     }
   }, [saveMutation.isSuccess, saveMutation.data])
 
+  const normalizedContent = () =>
+    stripProtocolBeforePlaceholderLinks(removeUnsupportedBlockType(content))
+
   const handleOnSave = () => {
-    if (!placeholderValidation.valid) {
+    if (!canSave) {
       return
     }
 
@@ -141,7 +175,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       {
         subject,
         template_type: templateType,
-        content: removeUnsupportedBlockType(content),
+        content: normalizedContent(),
         exercise_completions_threshold: null,
         points_threshold: null,
       } as unknown as EmailTemplateUpdate,
@@ -160,7 +194,9 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     <div
       className={css`
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
         background: #f5f6f7;
         padding: 1rem;
       `}
@@ -168,15 +204,36 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       <Button
         variant="primary"
         size="medium"
-        className={css`
-          border: 1px black solid;
-          pointer-events: auto;
-        `}
         onClick={handleOnSave}
-        disabled={saveMutation.isPending || !placeholderValidation.valid}
+        disabled={!canSave}
+        isLoading={saveMutation.isPending}
       >
         {t("save")}
       </Button>
+      <Button
+        variant="secondary"
+        size="medium"
+        onClick={() => setPreviewDraft({ subject, content: normalizedContent() })}
+      >
+        {t("preview")}
+      </Button>
+      {imagesNeedingAltText.length > 0 && (
+        <Infobox tone={TONE.WARNING} heading={t("email-images-need-alt-text")}>
+          <ul
+            className={css`
+              margin: 0;
+              padding-left: 1.25rem;
+              overflow-wrap: anywhere;
+            `}
+          >
+            {imagesNeedingAltText.map((image) => (
+              <li key={image.clientId}>
+                {imageFileName(image.attributes?.url) ?? t("email-image-without-file")}
+              </li>
+            ))}
+          </ul>
+        </Infobox>
+      )}
     </div>
   )
 
@@ -208,6 +265,9 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         allowedBlocks={allowedEmailCoreBlocks}
         customBlocks={blockTypeMapForEmails}
         blockStyles={emailBlockStyles}
+        allowedFormats={emailEditorAllowedFormats}
+        settingsOverrides={emailEditorSettings}
+        rootLayout={emailEditorRootLayout}
         mediaUpload={
           courseId
             ? mediaUploadBuilder({ courseId: courseId })
@@ -222,6 +282,11 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         inspectorButtons={saveButton}
         needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
         setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+      />
+      <EmailPreviewDialog
+        emailTemplateId={data.id}
+        draft={previewDraft}
+        onClose={() => setPreviewDraft(null)}
       />
     </>
   )

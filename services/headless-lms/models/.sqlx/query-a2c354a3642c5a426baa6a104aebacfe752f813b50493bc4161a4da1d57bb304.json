@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  language,\n  html,\n  button_background_color,\n  button_text_color\nFROM email_layouts\nWHERE deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  updated_at,\n  language,\n  html,\n  button_background_color,\n  button_text_color\nFROM email_layouts\nWHERE deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -16,6 +16,17 @@
       },
       {
         "ordinal": 1,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_layouts",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "language",
         "type_info": "Text",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "html",
         "type_info": "Text",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "button_background_color",
         "type_info": "Text",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "button_text_color",
         "type_info": "Text",
         "origin": {
@@ -64,11 +75,12 @@
     },
     "nullable": [
       false,
+      false,
       true,
       false,
       false,
       false
     ]
   },
-  "hash": "e0d0ce4d308163670c0a32769caacbdb95856d112113e6ec4e6941ea9fe76fbc"
+  "hash": "a2c354a3642c5a426baa6a104aebacfe752f813b50493bc4161a4da1d57bb304"
 }

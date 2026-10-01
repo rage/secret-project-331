@@ -280,6 +280,26 @@ export type EmailTemplate = {
   updated_at: string
 }
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export type EmailTemplatePreview = {
+  /**
+   * The complete HTML document, layout included.
+   */
+  html: string
+  plain_text: string
+  subject: string
+}
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export type EmailTemplatePreviewRequest = {
+  content: unknown
+  subject: string
+}
+
 export type EmailTemplateType =
   | "reset_password_email"
   | "delete_user_email"
@@ -1019,6 +1039,50 @@ export type UpdateCmsEmailTemplateResponses = {
 
 export type UpdateCmsEmailTemplateResponse =
   UpdateCmsEmailTemplateResponses[keyof UpdateCmsEmailTemplateResponses]
+
+export type PreviewCmsEmailTemplateData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/preview"
+}
+
+export type PreviewCmsEmailTemplateResponses = {
+  /**
+   * Rendered email
+   */
+  200: EmailTemplatePreview
+}
+
+export type PreviewCmsEmailTemplateResponse =
+  PreviewCmsEmailTemplateResponses[keyof PreviewCmsEmailTemplateResponses]
+
+export type SendCmsEmailTemplateTestData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/send-test"
+}
+
+export type SendCmsEmailTemplateTestResponses = {
+  /**
+   * Id of the queued test delivery
+   */
+  200: string
+}
+
+export type SendCmsEmailTemplateTestResponse =
+  SendCmsEmailTemplateTestResponses[keyof SendCmsEmailTemplateTestResponses]
 
 export type GetCmsExamInstructionsData = {
   body?: never

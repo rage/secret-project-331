@@ -1,11 +1,14 @@
 //! The HTML shells outgoing emails are wrapped in. See `email_processor::wrap_in_layout`.
 
+use headless_lms_utils::email_processor::{self, DEFAULT_EMAIL_THEME, EmailTheme};
+
 use crate::prelude::*;
 
 /// A configured shell, as opposed to the default bundled in the code.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EmailLayout {
     pub id: Uuid,
+    pub updated_at: DateTime<Utc>,
     /// `None` for the fallback shell.
     pub language: Option<String>,
     pub html: String,
@@ -21,6 +24,7 @@ pub async fn get_all_live(conn: &mut PgConnection) -> ModelResult<Vec<EmailLayou
         EmailLayout,
         r#"
 SELECT id,
+  updated_at,
   language,
   html,
   button_background_color,
@@ -60,4 +64,31 @@ pub fn find_for_language<'a>(
             })
         })
         .or_else(|| layouts.iter().find(|layout| layout.language.is_none()))
+}
+
+/// The shell an email is rendered with and the colours its buttons get: a live layout, or the
+/// bundled default.
+#[derive(Debug, Clone, Copy)]
+pub struct ResolvedLayout<'a> {
+    pub html: &'a str,
+    pub theme: EmailTheme<'a>,
+}
+
+impl<'a> ResolvedLayout<'a> {
+    /// The live layout for `language` (see [`find_for_language`]), else the bundled default.
+    pub fn for_language(layouts: &'a [EmailLayout], language: Option<&str>) -> Self {
+        match find_for_language(layouts, language) {
+            Some(layout) => Self {
+                html: &layout.html,
+                theme: EmailTheme {
+                    button_background_color: &layout.button_background_color,
+                    button_text_color: &layout.button_text_color,
+                },
+            },
+            None => Self {
+                html: email_processor::DEFAULT_EMAIL_LAYOUT,
+                theme: DEFAULT_EMAIL_THEME,
+            },
+        }
+    }
 }

@@ -1,7 +1,8 @@
 //! Renders email bodies, stored as the Gutenberg blocks the CMS email editor saves, into the HTML and
 //! plain-text parts of a message.
 
-use std::collections::HashMap;
+use std::borrow::Cow;
+use std::collections::{BTreeSet, HashMap, HashSet};
 
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
@@ -26,6 +27,38 @@ static IMG_TAG_REGEX: Lazy<Regex> =
 static SRC_ATTRIBUTE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r#"(?is)\ssrc\s*=\s*["']?([^"'\s>]*)"#).expect("invalid src_attribute regex")
 });
+static HREFLESS_LINK_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?s)<a>(.*?)</a>").expect("invalid hrefless_link regex"));
+
+/// The inline formatting Gutenberg's rich text produces that email clients render.
+const RICH_TEXT_TAGS: [&str; 12] = [
+    "a", "strong", "b", "em", "i", "s", "sub", "sup", "code", "kbd", "br", "mark",
+];
+const LINK_SCHEMES: [&str; 3] = ["https", "http", "mailto"];
+const IMAGE_SCHEMES: [&str; 2] = ["https", "http"];
+
+static RICH_TEXT_SANITIZER: Lazy<ammonia::Builder<'static>> =
+    Lazy::new(|| rich_text_sanitizer(&[]));
+/// For the `value` of quotes saved before quotes held inner blocks, which is a run of `<p>`s.
+static QUOTE_VALUE_SANITIZER: Lazy<ammonia::Builder<'static>> =
+    Lazy::new(|| rich_text_sanitizer(&["p"]));
+
+static CSS_INLINER: Lazy<css_inline::CSSInliner<'static>> = Lazy::new(|| {
+    // The style tags stay for the clients that read them: media queries cannot be inlined, and
+    // their `!important` rules still beat the inlined desktop values.
+    css_inline::CSSInliner::options()
+        .keep_style_tags(true)
+        .keep_link_tags(true)
+        .load_remote_stylesheets(false)
+        .build()
+});
+
+/// What the CMS stores as an image's alt text until the author writes one. Must match
+/// `ALT_TEXT_NOT_CHANGED_PLACEHOLDER` in `services/cms/src/services/altTextPlaceholder.ts`.
+const UNCHANGED_ALT_TEXT: &str = "Add alt";
+
+/// The width of the content column of the shells: 640px minus 40px padding on both sides.
+const MAX_IMAGE_WIDTH_PX: f64 = 560.0;
 
 /// The shell used when no `email_layouts` row applies.
 pub const DEFAULT_EMAIL_LAYOUT: &str = include_str!("email_layout_default.html");
@@ -87,8 +120,8 @@ pub enum EmailBlockName {
 const DEFAULT_SPACER_HEIGHT_PX: u32 = 32;
 const MAX_SPACER_HEIGHT_PX: f64 = 160.0;
 
-/// One block of an email body. String attributes holding rich text (`content`, `text`, `caption`,
-/// table cells) are HTML; `url` and `href` are plain.
+/// One block of an email body. Rich-text attributes (see `EmailBlockName::is_rich_text_attribute`)
+/// are HTML, sanitized when rendered; every other attribute is plain.
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EmailGutenbergBlock {
@@ -99,12 +132,42 @@ pub struct EmailGutenbergBlock {
     pub inner_blocks: Vec<EmailGutenbergBlock>,
 }
 
+impl EmailBlockName {
+    /// Table sections count as rich text because their cells' `content` is.
+    fn is_rich_text_attribute(self, key: &str) -> bool {
+        match self {
+            Self::Paragraph | Self::Heading | Self::ListItem | Self::Code => key == "content",
+            Self::Image => key == "caption",
+            Self::Table => matches!(key, "caption" | "head" | "body" | "foot"),
+            Self::Button => key == "text",
+            Self::Quote => matches!(key, "value" | "citation"),
+            Self::Callout => key == "title",
+            Self::List | Self::Buttons | Self::Separator | Self::Spacer => false,
+        }
+    }
+}
+
+struct TableCell<'a> {
+    tag: &'static str,
+    content: &'a str,
+    colspan: Option<u32>,
+    rowspan: Option<u32>,
+}
+
 impl EmailGutenbergBlock {
     fn str_attribute(&self, key: &str) -> &str {
         self.attributes
             .get(key)
             .and_then(Value::as_str)
             .unwrap_or_default()
+    }
+
+    fn rich_text(&self, key: &str) -> String {
+        sanitize_rich_text(self.str_attribute(key), &RICH_TEXT_SANITIZER)
+    }
+
+    fn rich_text_as_text(&self, key: &str) -> String {
+        html_to_text(&self.rich_text(key))
     }
 
     /// Whether the author picked the block style `name`, which Gutenberg records in `className`.
@@ -114,22 +177,50 @@ impl EmailGutenbergBlock {
             .any(|class| class.strip_prefix("is-style-") == Some(name))
     }
 
-    /// Spacer height in px; Gutenberg stores it as a string like "100px", old content as a number.
-    fn spacer_height_px(&self) -> u32 {
-        let height = match self.attributes.get("height") {
+    /// A length in px; Gutenberg stores it as a string like "100px", old content as a number.
+    fn px_attribute(&self, key: &str) -> Option<f64> {
+        let px = match self.attributes.get(key) {
             Some(Value::Number(number)) => number.as_f64(),
             Some(Value::String(text)) => text.trim().trim_end_matches("px").trim().parse().ok(),
             _ => None,
         };
-        height
-            .filter(|height| height.is_finite())
+        px.filter(|px| px.is_finite())
+    }
+
+    fn spacer_height_px(&self) -> u32 {
+        self.px_attribute("height")
             .map(|height| height.clamp(0.0, MAX_SPACER_HEIGHT_PX).round() as u32)
             .unwrap_or(DEFAULT_SPACER_HEIGHT_PX)
     }
 
-    fn table_rows(&self, section: &str) -> Vec<Vec<(&str, &str)>> {
+    /// The width an image is shown at: the author's, but never wider than the content column.
+    /// Without one the image fills the column.
+    fn image_width_px(&self) -> u32 {
+        self.px_attribute("width")
+            .filter(|width| *width >= 1.0)
+            .unwrap_or(MAX_IMAGE_WIDTH_PX)
+            .min(MAX_IMAGE_WIDTH_PX)
+            .round() as u32
+    }
+
+    fn image_alt(&self) -> &str {
+        match self.str_attribute("alt").trim() {
+            UNCHANGED_ALT_TEXT => "",
+            alt => alt,
+        }
+    }
+
+    fn table_rows(&self, section: &str) -> Vec<Vec<TableCell<'_>>> {
         let Some(Value::Array(rows)) = self.attributes.get(section) else {
             return vec![];
+        };
+        let span = |cell: &Value, key: &str| {
+            let span = match cell.get(key)? {
+                Value::Number(number) => number.as_u64(),
+                Value::String(text) => text.trim().parse().ok(),
+                _ => None,
+            }?;
+            u32::try_from(span).ok().filter(|span| *span > 1)
         };
         rows.iter()
             .map(|row| {
@@ -138,16 +229,17 @@ impl EmailGutenbergBlock {
                     .map(|cells| {
                         cells
                             .iter()
-                            .map(|cell| {
-                                let content = cell
-                                    .get("content")
-                                    .and_then(Value::as_str)
-                                    .unwrap_or_default();
-                                let tag = match cell.get("tag").and_then(Value::as_str) {
+                            .map(|cell| TableCell {
+                                tag: match cell.get("tag").and_then(Value::as_str) {
                                     Some("th") => "th",
                                     _ => "td",
-                                };
-                                (tag, content)
+                                },
+                                content: cell
+                                    .get("content")
+                                    .and_then(Value::as_str)
+                                    .unwrap_or_default(),
+                                colspan: span(cell, "colspan"),
+                                rowspan: span(cell, "rowspan"),
                             })
                             .collect()
                     })
@@ -155,49 +247,134 @@ impl EmailGutenbergBlock {
             })
             .collect()
     }
+
+    /// Its items' numbers if ordered, honouring `start` and `reversed` like a browser does.
+    fn list_item_numbers(&self) -> impl Iterator<Item = i64> + '_ {
+        let count = self.inner_blocks.len() as i64;
+        let is_reversed = self.is_reversed();
+        let start = self
+            .attributes
+            .get("start")
+            .and_then(Value::as_i64)
+            .unwrap_or(if is_reversed { count } else { 1 });
+        (0..count).map(move |index| {
+            if is_reversed {
+                start - index
+            } else {
+                start + index
+            }
+        })
+    }
+
+    fn is_ordered(&self) -> bool {
+        self.attributes
+            .get("ordered")
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+    }
+
+    fn is_reversed(&self) -> bool {
+        self.attributes
+            .get("reversed")
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+    }
 }
 
-/// Replaces `{{KEY}}` in every string attribute, nested blocks included. Values are HTML-escaped
-/// except in `url` and `href`, which are plain text.
+fn rich_text_sanitizer(extra_tags: &[&'static str]) -> ammonia::Builder<'static> {
+    let mut sanitizer = ammonia::Builder::empty();
+    sanitizer
+        .tags(RICH_TEXT_TAGS.iter().chain(extra_tags).copied().collect())
+        .generic_attributes(HashSet::new())
+        .tag_attributes(HashMap::from([("a", HashSet::from(["href"]))]))
+        .url_schemes(HashSet::from(LINK_SCHEMES))
+        .url_relative(ammonia::UrlRelative::Deny)
+        .link_rel(None);
+    sanitizer
+}
+
+fn sanitize_rich_text(html: &str, sanitizer: &ammonia::Builder) -> String {
+    let sanitized = sanitizer.clean(html).to_string();
+    // A link whose target was rejected loses only its href; unwrap it so it does not look like one.
+    HREFLESS_LINK_REGEX
+        .replace_all(&sanitized, "$1")
+        .into_owned()
+}
+
+/// `url` trimmed, if it is absolute with one of `schemes`.
+fn url_with_scheme<'a>(url: &'a str, schemes: &[&str]) -> Option<&'a str> {
+    let url = url.trim();
+    let (scheme, _) = url.split_once(':')?;
+    schemes
+        .iter()
+        .any(|allowed| scheme.eq_ignore_ascii_case(allowed))
+        .then_some(url)
+}
+
+/// Replaces `{{KEY}}` in every attribute, nested blocks included. Values are HTML-escaped in rich
+/// text and inserted as is elsewhere. Returns the keys found that `replacements` has no value for;
+/// those are left in place.
 pub fn fill_placeholders(
     blocks: &mut [EmailGutenbergBlock],
     replacements: &HashMap<String, String>,
+) -> BTreeSet<String> {
+    let mut unfilled = BTreeSet::new();
+    fill_placeholders_in_blocks(blocks, replacements, &mut unfilled);
+    unfilled
+}
+
+fn fill_placeholders_in_blocks(
+    blocks: &mut [EmailGutenbergBlock],
+    replacements: &HashMap<String, String>,
+    unfilled: &mut BTreeSet<String>,
 ) {
     for block in blocks {
         for (key, value) in block.attributes.iter_mut() {
-            let is_plain = key == "url" || key == "href";
-            fill_placeholders_in_value(value, replacements, is_plain);
+            let is_html = block.name.is_rich_text_attribute(key);
+            fill_placeholders_in_value(value, replacements, is_html, unfilled);
         }
-        fill_placeholders(&mut block.inner_blocks, replacements);
+        fill_placeholders_in_blocks(&mut block.inner_blocks, replacements, unfilled);
     }
 }
 
 fn fill_placeholders_in_value(
     value: &mut Value,
     replacements: &HashMap<String, String>,
-    is_plain: bool,
+    is_html: bool,
+    unfilled: &mut BTreeSet<String>,
 ) {
     match value {
         Value::String(text) => {
-            let filled = PLACEHOLDER_REGEX.replace_all(text, |caps: &Captures| match replacements
-                .get(&caps[1])
+            if let Cow::Owned(filled) =
+                fill_placeholders_in_text(text, replacements, is_html, unfilled)
             {
-                Some(replacement) if is_plain => replacement.clone(),
-                Some(replacement) => escape_html(replacement),
-                None => caps[0].to_string(),
-            });
-            if let std::borrow::Cow::Owned(filled) = filled {
                 *text = filled;
             }
         }
         Value::Array(values) => values
             .iter_mut()
-            .for_each(|v| fill_placeholders_in_value(v, replacements, is_plain)),
+            .for_each(|v| fill_placeholders_in_value(v, replacements, is_html, unfilled)),
         Value::Object(fields) => fields
             .values_mut()
-            .for_each(|v| fill_placeholders_in_value(v, replacements, is_plain)),
+            .for_each(|v| fill_placeholders_in_value(v, replacements, is_html, unfilled)),
         _ => {}
     }
+}
+
+fn fill_placeholders_in_text<'a>(
+    text: &'a str,
+    replacements: &HashMap<String, String>,
+    is_html: bool,
+    unfilled: &mut BTreeSet<String>,
+) -> Cow<'a, str> {
+    PLACEHOLDER_REGEX.replace_all(text, |caps: &Captures| match replacements.get(&caps[1]) {
+        Some(replacement) if is_html => escape_html(replacement),
+        Some(replacement) => replacement.clone(),
+        None => {
+            unfilled.insert(caps[1].to_string());
+            caps[0].to_string()
+        }
+    })
 }
 
 /// Renders a body into the HTML a shell's `{{CONTENT}}` is replaced with.
@@ -213,9 +390,9 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
         // Inline, not `h1 + p` in the shell: Gmail and Outlook ignore sibling selectors.
         EmailBlockName::Paragraph if block.has_style("lead") => format!(
             r#"<p class="email-lead" style="font-size: 18px; line-height: 28px;">{}</p>"#,
-            block.str_attribute("content")
+            block.rich_text("content")
         ),
-        EmailBlockName::Paragraph => format!("<p>{}</p>", block.str_attribute("content")),
+        EmailBlockName::Paragraph => format!("<p>{}</p>", block.rich_text("content")),
         EmailBlockName::Heading => {
             let level = block
                 .attributes
@@ -223,19 +400,28 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                 .and_then(Value::as_u64)
                 .filter(|level| (1..=6).contains(level))
                 .unwrap_or(2);
-            format!("<h{level}>{}</h{level}>", block.str_attribute("content"))
+            format!("<h{level}>{}</h{level}>", block.rich_text("content"))
         }
         EmailBlockName::Image => {
-            let img = format!(
-                r#"<img src="{}" alt="{}">"#,
-                escape_html(block.str_attribute("url")),
-                escape_html(block.str_attribute("alt"))
-            );
-            let img = match block.str_attribute("href") {
-                "" => img,
-                href => format!(r#"<a href="{}">{img}</a>"#, escape_html(href)),
+            // The width attribute is for Outlook desktop, which ignores CSS widths on images.
+            let img = match url_with_scheme(block.str_attribute("url"), &IMAGE_SCHEMES) {
+                Some(src) => {
+                    let width = block.image_width_px();
+                    format!(
+                        r#"<img src="{}" alt="{}" width="{width}" style="width: 100%; max-width: {width}px; height: auto;">"#,
+                        escape_html(src),
+                        escape_html(block.image_alt())
+                    )
+                }
+                None => String::new(),
             };
-            match block.str_attribute("caption") {
+            let img = match url_with_scheme(block.str_attribute("href"), &LINK_SCHEMES) {
+                Some(href) if !img.is_empty() => {
+                    format!(r#"<a href="{}">{img}</a>"#, escape_html(href))
+                }
+                _ => img,
+            };
+            match block.rich_text("caption").as_str() {
                 "" => img,
                 caption => format!(
                     r#"<div class="email-image">{img}<p class="email-image-caption">{caption}</p></div>"#
@@ -243,15 +429,20 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             }
         }
         EmailBlockName::List => {
-            let tag = if is_ordered(block) { "ol" } else { "ul" };
-            format!(
-                "<{tag}>{}</{tag}>",
-                process_content_to_html(&block.inner_blocks, theme)
-            )
+            let items = process_content_to_html(&block.inner_blocks, theme);
+            if !block.is_ordered() {
+                return format!("<ul>{items}</ul>");
+            }
+            let start = match block.attributes.get("start").and_then(Value::as_i64) {
+                Some(start) => format!(r#" start="{start}""#),
+                None => String::new(),
+            };
+            let reversed = if block.is_reversed() { " reversed" } else { "" };
+            format!("<ol{start}{reversed}>{items}</ol>")
         }
         EmailBlockName::ListItem => format!(
             "<li>{}{}</li>",
-            block.str_attribute("content"),
+            block.rich_text("content"),
             process_content_to_html(&block.inner_blocks, theme)
         ),
         EmailBlockName::Table => {
@@ -265,8 +456,19 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                     .map(|cells| {
                         let cells: String = cells
                             .iter()
-                            .map(|(cell_tag, content)| {
-                                format!("<{cell_tag}>{content}</{cell_tag}>")
+                            .map(|cell| {
+                                let mut spans = String::new();
+                                if let Some(colspan) = cell.colspan {
+                                    spans.push_str(&format!(r#" colspan="{colspan}""#));
+                                }
+                                if let Some(rowspan) = cell.rowspan {
+                                    spans.push_str(&format!(r#" rowspan="{rowspan}""#));
+                                }
+                                format!(
+                                    "<{tag}{spans}>{}</{tag}>",
+                                    sanitize_rich_text(cell.content, &RICH_TEXT_SANITIZER),
+                                    tag = cell.tag
+                                )
                             })
                             .collect();
                         format!("<tr>{cells}</tr>")
@@ -274,7 +476,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                     .collect();
                 format!("<{tag}>{rows}</{tag}>")
             };
-            let caption = match block.str_attribute("caption") {
+            let caption = match block.rich_text("caption").as_str() {
                 "" => String::new(),
                 caption => format!("<caption>{caption}</caption>"),
             };
@@ -291,32 +493,35 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
         ),
         // A table cell with bgcolor, not a styled link alone: Outlook desktop drops padding and
         // background on <a>. The arrow is text because Gmail and Outlook drop CSS `::after`.
-        EmailBlockName::Button => format!(
-            r#"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="{background}" style="background-color: {background}; border-radius: 6px;"><a class="email-button-link" href="{}" style="display: inline-block; padding: 14px 26px; font-size: 16px; line-height: 20px; font-weight: 600; color: {text}; text-decoration: none;">{}{}</a></td></tr></table>"#,
-            escape_html(block.str_attribute("url")),
-            block.str_attribute("text"),
-            if block.has_style("arrow") {
-                "&nbsp;&rarr;"
-            } else {
-                ""
-            },
-            background = escape_html(theme.button_background_color),
-            text = escape_html(theme.button_text_color),
-        ),
+        EmailBlockName::Button => {
+            let (open_tag, close_tag) =
+                match url_with_scheme(block.str_attribute("url"), &LINK_SCHEMES) {
+                    Some(url) => (format!(r#"a href="{}""#, escape_html(url)), "a"),
+                    None => ("span".to_string(), "span"),
+                };
+            format!(
+                r#"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="{background}" style="background-color: {background}; border-radius: 6px;"><{open_tag} class="email-button-link" style="display: inline-block; padding: 14px 26px; font-size: 16px; line-height: 20px; font-weight: 600; color: {text}; text-decoration: none;">{}{}</{close_tag}></td></tr></table>"#,
+                block.rich_text("text"),
+                if block.has_style("arrow") {
+                    "&nbsp;&rarr;"
+                } else {
+                    ""
+                },
+                background = escape_html(theme.button_background_color),
+                text = escape_html(theme.button_text_color),
+            )
+        }
         EmailBlockName::Quote => {
-            let citation = match block.str_attribute("citation") {
+            let citation = match block.rich_text("citation").as_str() {
                 "" => String::new(),
                 citation => format!("<cite>{citation}</cite>"),
             };
-            format!(
-                "<blockquote>{}{}{citation}</blockquote>",
-                process_content_to_html(&block.inner_blocks, theme),
-                if block.inner_blocks.is_empty() {
-                    block.str_attribute("value")
-                } else {
-                    ""
-                }
-            )
+            let body = if block.inner_blocks.is_empty() {
+                sanitize_rich_text(block.str_attribute("value"), &QUOTE_VALUE_SANITIZER)
+            } else {
+                process_content_to_html(&block.inner_blocks, theme)
+            };
+            format!("<blockquote>{body}{citation}</blockquote>")
         }
         // Tables, not <hr> or a sized <div>: Outlook desktop ignores their borders, heights and margins.
         EmailBlockName::Separator => r##"<table role="presentation" class="email-separator" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="height: 1px; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; border-top: 1px solid #DDDEE0;">&nbsp;</td></tr></table>"##.to_string(),
@@ -328,7 +533,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
         }
         EmailBlockName::Code => format!(
             "<pre class=\"email-code\"><code>{}</code></pre>",
-            block.str_attribute("content").replace("<br>", "\n")
+            block.rich_text("content").replace("<br>", "\n")
         ),
         EmailBlockName::Callout => {
             let icon_cell = match callout_icon_file(block.str_attribute("icon")) {
@@ -342,7 +547,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             } else {
                 "20px 20px 20px 14px"
             };
-            let title = match block.str_attribute("title") {
+            let title = match block.rich_text("title").as_str() {
                 "" => String::new(),
                 title => format!(
                     r#"<p class="email-callout-title" style="margin: 0 0 6px;"><strong>{title}</strong></p>"#
@@ -378,21 +583,28 @@ pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
 
 fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
     match block.name {
-        EmailBlockName::Paragraph | EmailBlockName::Heading => {
-            html_to_text(block.str_attribute("content"))
-        }
+        EmailBlockName::Paragraph | EmailBlockName::Heading => block.rich_text_as_text("content"),
         EmailBlockName::Image => {
-            let alt = block.str_attribute("alt").replace('"', "");
-            let image = format!("\"{}\", <{}>", alt, block.str_attribute("url"));
-            match html_to_text(block.str_attribute("caption")).as_str() {
-                "" => image,
-                caption => format!("{image}\n{caption}"),
-            }
+            let image =
+                url_with_scheme(block.str_attribute("url"), &IMAGE_SCHEMES).map(|url| match block
+                    .image_alt()
+                    .replace('"', "")
+                    .as_str()
+                {
+                    "" => format!("<{url}>"),
+                    alt => format!("\"{alt}\", <{url}>"),
+                });
+            let caption = Some(block.rich_text_as_text("caption")).filter(|text| !text.is_empty());
+            image
+                .into_iter()
+                .chain(caption)
+                .collect::<Vec<_>>()
+                .join("\n")
         }
         EmailBlockName::List | EmailBlockName::ListItem => list_to_plaintext(block, 0),
         EmailBlockName::Table => {
             let mut lines = vec![];
-            let caption = html_to_text(block.str_attribute("caption"));
+            let caption = block.rich_text_as_text("caption");
             if !caption.is_empty() {
                 lines.push(caption);
             }
@@ -400,7 +612,9 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
                 for cells in block.table_rows(section) {
                     let cells: Vec<String> = cells
                         .iter()
-                        .map(|(_, content)| html_to_text(content))
+                        .map(|cell| {
+                            html_to_text(&sanitize_rich_text(cell.content, &RICH_TEXT_SANITIZER))
+                        })
                         .collect();
                     lines.push(cells.join(" | "));
                 }
@@ -413,14 +627,18 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
             .map(block_to_plaintext)
             .collect::<Vec<_>>()
             .join("\n"),
-        EmailBlockName::Button => format!(
-            "{}: {}",
-            html_to_text(block.str_attribute("text")),
-            block.str_attribute("url")
-        ),
+        EmailBlockName::Button => {
+            let text = block.rich_text_as_text("text");
+            match url_with_scheme(block.str_attribute("url"), &LINK_SCHEMES) {
+                Some(url) => format!("{text}: {url}"),
+                None => text,
+            }
+        }
         EmailBlockName::Quote => {
             let body = if block.inner_blocks.is_empty() {
-                html_to_text(&block.str_attribute("value").replace("</p>", "\n"))
+                let value =
+                    sanitize_rich_text(block.str_attribute("value"), &QUOTE_VALUE_SANITIZER);
+                html_to_text(&value.replace("</p>", "\n"))
             } else {
                 process_content_to_plaintext(&block.inner_blocks)
             };
@@ -428,7 +646,7 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
                 .lines()
                 .map(|line| format!("> {line}").trim_end().to_string())
                 .collect();
-            let citation = html_to_text(block.str_attribute("citation"));
+            let citation = block.rich_text_as_text("citation");
             if !citation.is_empty() {
                 lines.push(format!("— {citation}"));
             }
@@ -436,13 +654,14 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
         }
         EmailBlockName::Separator => "---".to_string(),
         EmailBlockName::Spacer => String::new(),
-        EmailBlockName::Code => html_to_text(block.str_attribute("content"))
+        EmailBlockName::Code => block
+            .rich_text_as_text("content")
             .lines()
             .map(|line| format!("    {line}").trim_end().to_string())
             .collect::<Vec<_>>()
             .join("\n"),
         EmailBlockName::Callout => [
-            html_to_text(block.str_attribute("title")),
+            block.rich_text_as_text("title"),
             process_content_to_plaintext(&block.inner_blocks),
         ]
         .into_iter()
@@ -454,17 +673,18 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
 
 fn list_to_plaintext(list: &EmailGutenbergBlock, depth: usize) -> String {
     let indent = "  ".repeat(depth);
-    let is_ordered = is_ordered(list);
+    let mut numbers = list.list_item_numbers();
+    let is_ordered = list.is_ordered();
     let mut lines = vec![];
-    for (index, item) in list.inner_blocks.iter().enumerate() {
-        let marker = if is_ordered {
-            format!("{}.", index + 1)
-        } else {
-            "*".to_string()
+    for item in &list.inner_blocks {
+        let number = numbers.next();
+        let marker = match number {
+            Some(number) if is_ordered => format!("{number}."),
+            _ => "*".to_string(),
         };
         lines.push(format!(
             "{indent}{marker} {}",
-            html_to_text(item.str_attribute("content"))
+            item.rich_text_as_text("content")
         ));
         for nested in &item.inner_blocks {
             lines.push(list_to_plaintext(nested, depth + 1));
@@ -473,20 +693,13 @@ fn list_to_plaintext(list: &EmailGutenbergBlock, depth: usize) -> String {
     lines.join("\n")
 }
 
-fn is_ordered(list: &EmailGutenbergBlock) -> bool {
-    list.attributes
-        .get("ordered")
-        .and_then(Value::as_bool)
-        .unwrap_or(false)
-}
-
 /// The inbox preview: the first paragraph as one line of text, or empty when there is none.
 pub fn preheader(blocks: &[EmailGutenbergBlock]) -> String {
     blocks
         .iter()
         .find(|block| block.name == EmailBlockName::Paragraph)
         .map(|block| {
-            let text = html_to_text(block.str_attribute("content"));
+            let text = block.rich_text_as_text("content");
             WHITESPACE_REGEX.replace_all(&text, " ").into_owned()
         })
         .unwrap_or_default()
@@ -540,6 +753,72 @@ pub fn wrap_in_layout(layout_html: &str, fields: &EmailLayoutFields) -> String {
             _ => escape_html(fields.language),
         })
         .into_owned()
+}
+
+/// What a message is rendered from: a body and subject with `{{KEY}}` placeholders, and the layout
+/// it is wrapped in.
+pub struct EmailRenderInput<'a> {
+    pub layout_html: &'a str,
+    pub theme: EmailTheme<'a>,
+    pub subject: &'a str,
+    pub body: Vec<EmailGutenbergBlock>,
+    /// BCP 47 tag for `lang`; empty when unknown.
+    pub language: &'a str,
+    pub replacements: &'a HashMap<String, String>,
+}
+
+/// A message ready to hand to the mail relay.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RenderedEmail {
+    pub subject: String,
+    pub html: String,
+    pub plain_text: String,
+    /// Placeholders in the subject or body that `replacements` had no value for, left as typed.
+    pub unfilled_placeholders: BTreeSet<String>,
+}
+
+/// Renders a whole message. The one path both sending and previewing go through, so a preview shows
+/// what is sent.
+pub fn render_email(input: EmailRenderInput) -> RenderedEmail {
+    let EmailRenderInput {
+        layout_html,
+        theme,
+        subject,
+        mut body,
+        language,
+        replacements,
+    } = input;
+    let mut unfilled_placeholders = fill_placeholders(&mut body, replacements);
+    // Not escaped: the subject header is not HTML, and `wrap_in_layout` escapes it for the shell.
+    let subject =
+        fill_placeholders_in_text(subject, replacements, false, &mut unfilled_placeholders)
+            .into_owned();
+    let html = wrap_in_layout(
+        layout_html,
+        &EmailLayoutFields {
+            content_html: &process_content_to_html(&body, theme),
+            subject: &subject,
+            preheader: &preheader(&body),
+            language,
+        },
+    );
+    RenderedEmail {
+        html: inline_css(html),
+        plain_text: process_content_to_plaintext(&body),
+        subject,
+        unfilled_placeholders,
+    }
+}
+
+/// Copies the `<style>` rules onto the elements they match, for clients that drop `<style>`.
+fn inline_css(html: String) -> String {
+    match CSS_INLINER.inline(&html) {
+        Ok(inlined) => inlined,
+        Err(err) => {
+            tracing::warn!("Could not inline the CSS of an email, sending it as is: {err}");
+            html
+        }
+    }
 }
 
 /// Problems that make a shell render badly: a missing `{{SUBJECT}}`, `{{PREHEADER}}` or
@@ -626,10 +905,10 @@ mod email_processor_tests {
     #[test]
     fn it_converts_image_containing_double_quotes_correctly_to_plain_text() {
         let input = blocks(
-            json!([{ "name": "core/image", "attributes": { "alt": r#""Alternative title""#, "url": "URL -of an image" } }]),
+            json!([{ "name": "core/image", "attributes": { "alt": r#""Alternative title""#, "url": "https://example.com/a.png" } }]),
         );
         assert_eq!(
-            "\"Alternative title\", <URL -of an image>",
+            "\"Alternative title\", <https://example.com/a.png>",
             process_content_to_plaintext(&input)
         );
     }
@@ -678,7 +957,7 @@ mod email_processor_tests {
             json!([{ "name": "core/image", "attributes": { "alt": "A \"title\"", "url": "https://example.com/a.png" } }]),
         );
         assert_eq!(
-            r#"<img src="https://example.com/a.png" alt="A &quot;title&quot;">"#,
+            r#"<img src="https://example.com/a.png" alt="A &quot;title&quot;" width="560" style="width: 100%; max-width: 560px; height: auto;">"#,
             process_content_to_html(&input, DEFAULT_EMAIL_THEME)
         );
     }

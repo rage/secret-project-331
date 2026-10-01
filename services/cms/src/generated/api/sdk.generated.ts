@@ -57,10 +57,14 @@ import type {
   GetCmsRepositoryExercisesForCourseResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
+  PreviewCmsEmailTemplateData,
+  PreviewCmsEmailTemplateResponses,
   RequestChartSpecGenerationData,
   RequestChartSpecGenerationResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponses,
+  SendCmsEmailTemplateTestData,
+  SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
@@ -105,8 +109,10 @@ import {
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
+  zPreviewCmsEmailTemplateResponse,
   zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
+  zSendCmsEmailTemplateTestResponse,
   zUpdateCmsCourseDefaultPeerReviewResponse,
   zUpdateCmsEmailTemplateResponse,
   zUpdateCmsExamInstructionsResponse,
@@ -573,6 +579,49 @@ export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
       ...options.headers,
     },
   })
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/preview`
+ *
+ * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
+ */
+export const previewCmsEmailTemplate = <ThrowOnError extends boolean = true>(
+  options: Options<PreviewCmsEmailTemplateData, ThrowOnError>,
+): RequestResult<PreviewCmsEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PreviewCmsEmailTemplateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zPreviewCmsEmailTemplateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/email-templates/{email_template_id}/preview",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/send-test`
+ *
+ * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
+ * address. Returns the id of the queued delivery.
+ */
+export const sendCmsEmailTemplateTest = <ThrowOnError extends boolean = true>(
+  options: Options<SendCmsEmailTemplateTestData, ThrowOnError>,
+): RequestResult<SendCmsEmailTemplateTestResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendCmsEmailTemplateTestResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zSendCmsEmailTemplateTestResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/email-templates/{email_template_id}/send-test",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
 
 /**
  *

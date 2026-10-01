@@ -10,7 +10,7 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
-import { Button, Infobox } from "@/shared-module/components"
+import { Infobox } from "@/shared-module/components"
 
 interface ConversationHistoryProps {
   conversations: ChatbotConversation[]
@@ -57,9 +57,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   return (
     <div>
       {conversations.map((conversation) => (
-        <Button
-          size="medium"
-          variant="icon"
+        <button
           onClick={() => {
             setConfigurationId(conversation.chatbot_configuration_id)
             setConvId(conversation.id)
@@ -68,19 +66,20 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             }
           }}
           className={css`
+            padding: 0.5rem 1rem;
+            border: none;
             width: calc(100%);
             justify-content: flex-start;
             border-bottom: 1px solid ${baseTheme.colors.gray[75]};
-            padding: 2rem 1rem;
             transition: background-color 0.2s;
 
-            border-radius: 0;
             &:hover:not(:disabled):not([aria-disabled="true"]) {
               background: var(--color-green-75);
               transition: 0.2s;
+              cursor: pointer;
             }
             color: var(--field-fg);
-            background-color: ${conversation.id === convId ? "var(--color-green-75); border-color: var(--color-green-300) !important; box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
+            background-color: ${conversation.id === convId ? "var(--color-green-75); border: 1px solid var(--color-green-300); box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
           `}
           key={conversation.id}
           aria-label={t("conversation-title", {
@@ -99,7 +98,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             <div
               className={css`
                 white-space: nowrap;
-                max-width: calc(${SIDEBAR_WIDTH_PX}px - 2.1rem);
+                max-width: calc(${SIDEBAR_WIDTH_PX} - 2.1rem);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 padding-bottom: 5px;
@@ -114,7 +113,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               }
             </span>
           </div>
-        </Button>
+        </button>
       ))}
     </div>
   )

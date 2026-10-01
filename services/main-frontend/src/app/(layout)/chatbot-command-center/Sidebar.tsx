@@ -21,9 +21,9 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
-import MobileDisclosureOverlay from "./sidebar-disclosure/MobileDisclosureOverlay"
-import { SidebarButton } from "./sidebar-disclosure/SidebarButton"
-import SidebarDisclosure from "./sidebar-disclosure/SidebarDisclosure"
+import DesktopSidebar from "./sidebar/DesktopSidebar"
+import { MobileSidebarButton } from "./sidebar/MobileSidebarButton"
+import MobileSidebarOverlay from "./sidebar/MobileSidebarOverlay"
 
 interface SideBarProps {
   setChatbotDialog: React.Dispatch<boolean>
@@ -208,29 +208,29 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
           </button>
         </VisibleOnDesktop>
         <VisibleOnMobile>
-          <SidebarButton state={menuState} />
+          <MobileSidebarButton state={menuState} />
         </VisibleOnMobile>
       </div>
       <VisibleOnDesktop>
-        <SidebarDisclosure state={state} panelProps={panelProps} panelRef={panelRef}>
+        <DesktopSidebar state={state} panelProps={panelProps} panelRef={panelRef}>
           <ConversationHistory
             menuState={menuState}
             conversations={conversations}
             chatbots={chatbots}
             setConfigurationId={setConfigurationId}
           />
-        </SidebarDisclosure>
+        </DesktopSidebar>
       </VisibleOnDesktop>
       <VisibleOnMobile>
         {menuState.isOpen && (
-          <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
+          <MobileSidebarOverlay state={menuState} onClose={menuState.close}>
             <ConversationHistory
               menuState={menuState}
               conversations={conversations}
               chatbots={chatbots}
               setConfigurationId={setConfigurationId}
             />
-          </MobileDisclosureOverlay>
+          </MobileSidebarOverlay>
         )}
       </VisibleOnMobile>
     </div>

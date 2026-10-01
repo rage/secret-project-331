@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 
 import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
 
-interface MobileDisclosureOverlayProps {
+interface MobileSidebarOverlayProps {
   state: OverlayTriggerState
   onClose?: () => void
   children?: ReactNode
@@ -71,7 +71,7 @@ const closeButtonCss = css`
   }
 `
 
-const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlayProps> = ({
+const MobileSidebarOverlay: React.FC<MobileSidebarOverlayProps> = ({
   state,
   onClose,
   children,
@@ -143,4 +143,4 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlayProps> = ({
   )
 }
 
-export default MobileDisclosureOverlay
+export default MobileSidebarOverlay

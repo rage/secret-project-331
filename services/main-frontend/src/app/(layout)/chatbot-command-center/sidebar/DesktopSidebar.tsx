@@ -33,12 +33,7 @@ const reactAriaDisclosurePanel = css`
   }
 `
 
-const SidebarDisclosure: React.FC<DisclosureProps> = ({
-  state,
-  panelProps,
-  panelRef,
-  children,
-}) => {
+const DesktopSidebar: React.FC<DisclosureProps> = ({ state, panelProps, panelRef, children }) => {
   return (
     <div data-expanded={state.isExpanded || undefined}>
       <div {...panelProps} ref={panelRef} className={reactAriaDisclosurePanel}>
@@ -48,4 +43,4 @@ const SidebarDisclosure: React.FC<DisclosureProps> = ({
   )
 }
 
-export default SidebarDisclosure
+export default DesktopSidebar

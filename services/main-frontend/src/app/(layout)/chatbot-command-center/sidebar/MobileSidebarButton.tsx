@@ -7,11 +7,11 @@ import { useButton } from "react-aria"
 import type { OverlayTriggerState } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-interface SidebarButtonProps {
+interface MobileSidebarButtonProps {
   state: OverlayTriggerState
 }
 
-const sidebarButtonCss = css`
+const mobileSidebarButtonCss = css`
   background: none;
   border: none;
   box-shadow: none;
@@ -19,7 +19,7 @@ const sidebarButtonCss = css`
   padding: 12px 16px;
 `
 
-export const SidebarButton: React.FC<SidebarButtonProps> = ({ state }) => {
+export const MobileSidebarButton: React.FC<MobileSidebarButtonProps> = ({ state }) => {
   const { t } = useTranslation()
   const buttonRef = useRef<HTMLButtonElement>(null)
   const { buttonProps } = useButton(
@@ -32,7 +32,7 @@ export const SidebarButton: React.FC<SidebarButtonProps> = ({ state }) => {
   )
 
   return (
-    <button {...buttonProps} ref={buttonRef} className={sidebarButtonCss}>
+    <button {...buttonProps} ref={buttonRef} className={mobileSidebarButtonCss}>
       <LayoutVertical weight="medium" size={16} />
     </button>
   )

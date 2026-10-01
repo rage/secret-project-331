@@ -35,7 +35,14 @@ import {
   completionRegistrationRoute,
   navigateToCourseRoute,
 } from "@/shared-module/common/utils/routes"
-import { Link, Meter, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
+import {
+  Link,
+  Meter,
+  METER_KIND,
+  RegistrationStatusBadge,
+  RelativeTime,
+} from "@/shared-module/components"
+import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
@@ -179,12 +186,6 @@ const completionHeading = (
 }
 
 const STATUS_ARROW_SIZE = 16
-const POINTS_FRACTION_DIGITS = 2
-
-/** Points are stored to two decimals, so a whole score must not render as "5.00". */
-const formatPoints = (points: number, locale: string): string =>
-  points.toLocaleString(locale, { maximumFractionDigits: POINTS_FRACTION_DIGITS })
-
 const completionResultLabel = (
   t: CreditRegistrationTFunction,
   completion: MyStudiesCompletion,
@@ -570,6 +571,7 @@ const ModuleDimension: React.FC<{
 }> = ({ label, value, maxValue, valueLabel, threshold, showBar }) =>
   showBar ? (
     <Meter
+      kind={METER_KIND.PROGRESS}
       label={label}
       value={value}
       maxValue={maxValue}

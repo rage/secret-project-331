@@ -59,14 +59,20 @@ test.describe("Students should be able to give extra peer reviews to receive pri
 
     await Promise.all([context2.close(), context3.close(), context4.close(), context5.close()])
     await fillPeerReview(student1Page, ["Agree", "Agree"])
-    await student1Page.getByText("1 / 3 Peer reviews given").waitFor()
+    await expect(
+      student1Page.getByRole("progressbar", { name: "Peer reviews given" }),
+    ).toHaveAttribute("aria-valuetext", "1 / 3")
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
-    await student1Page.getByText("2 / 3 Peer reviews given").waitFor()
+    await expect(
+      student1Page.getByRole("progressbar", { name: "Peer reviews given" }),
+    ).toHaveAttribute("aria-valuetext", "2 / 3")
     await fillPeerReview(student1Page, ["Agree", "Agree"], false)
 
     await test.step("User should be able to give an extra peer review to speed up the process", async () => {
       await student1Page.getByRole("button", { name: "Give extra peer review" }).click()
-      await student1Page.getByText("3 / 3 Peer reviews given").waitFor()
+      await expect(
+        student1Page.getByRole("progressbar", { name: "Peer reviews given" }),
+      ).toHaveAttribute("aria-valuetext", "3 / 3")
       await fillPeerReview(student1Page, ["Agree", "Agree"], false)
       await student1Page.getByRole("button", { name: "Give extra peer review" }).click()
       await student1Page.getByText("No answers available to peer review yet").waitFor()

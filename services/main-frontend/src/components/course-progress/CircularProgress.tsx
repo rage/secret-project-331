@@ -2,14 +2,18 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useSpring } from "@react-spring/web"
-import { useLayoutEffect, useState } from "react"
+import { useId } from "react"
+import { useProgressBar } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { CircularProgressExtraProps } from "."
-import { baseTheme, headingFont, secondaryFont } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../utils/constants"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import { Tooltip } from "@/shared-module/components"
+
+import ChartExplanationList from "./ChartExplanationList"
+import type { ChartExplanation, ChartPart } from "./progressText"
+import { helpButtonCss, progressColors } from "./progressTheme"
 
 const StyledSVG = styled.div`
   position: relative;
@@ -39,7 +43,7 @@ const StyledSVG = styled.div`
   }
 
   svg circle:nth-of-type(2) {
-    stroke: #b4cdcb;
+    stroke: ${progressColors.required};
   }
 
   svg circle:nth-of-type(3) {
@@ -76,45 +80,52 @@ const StyledSVG = styled.div`
     }
   }
 `
-const CircularProgress: React.FC<CircularProgressExtraProps> = ({
+export interface CircularProgressProps {
+  /** The heading above the donut, which also names it. */
+  label: string
+  given: number | null
+  max: number | null
+  /** Drawn in yellow under the points; leave out when there is no threshold. */
+  required?: number
+  valueText: string
+  explanations: ChartExplanation[]
+}
+
+/** The points donut under its h2, which is listed in the heading navigation. */
+const CircularProgress: React.FC<CircularProgressProps> = ({
   label,
   given,
   max,
   required,
+  valueText,
+  explanations,
 }) => {
-  const [willAnimate, setWillAnimate] = useState(false)
   const { t } = useTranslation()
+  const headingId = useId()
 
   const givenScore = given ?? 0
   const maximum = max ?? 0
 
   const radius = 160
   const circumference = 2 * Math.PI * radius
-  const receivedPointsRatio = givenScore / maximum
+  const receivedPointsRatio = maximum > 0 ? givenScore / maximum : 0
   const requiredForCompletionRatio = required && required > 0 && max && max > 0 ? required / max : 0
 
   const receivedPointsStrokeDashOffset = (1 - receivedPointsRatio) * circumference
   const requiredForCompletionStrokeDashOffset = (1 - requiredForCompletionRatio) * circumference
 
-  useLayoutEffect(() => {
-    const onScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight
-      if (scrollPosition > 1700) {
-        setWillAnimate(true)
-      }
-    }
-
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
-  useSpring({
-    number: !willAnimate ? 0 : givenScore,
-    config: { duration: 1000 },
+  const { progressBarProps } = useProgressBar({
+    value: givenScore,
+    minValue: 0,
+    maxValue: maximum > 0 ? maximum : Math.max(givenScore, 1),
+    valueLabel: valueText,
+    "aria-labelledby": headingId,
   })
+
   return (
     <>
       <h2
+        id={headingId}
         className={cx(
           INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
           css`
@@ -129,7 +140,13 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
         {label}
       </h2>
       <StyledSVG>
-        <svg xmlns="http://www.w3.org/2000/svg" width="497" height="497" viewBox="0 0 497 497">
+        <svg
+          {...progressBarProps}
+          xmlns="http://www.w3.org/2000/svg"
+          width="497"
+          height="497"
+          viewBox="0 0 497 497"
+        >
           <g id="Group_11" transform="translate(-712 -7629)">
             <g id="Ellipse_2" transform="translate(712 7629)" fill="#edf2f4">
               <path
@@ -171,16 +188,48 @@ const CircularProgress: React.FC<CircularProgressExtraProps> = ({
             </g>
           </g>
         </svg>
-        <p>
+        <p aria-hidden="true">
           {givenScore}
           {"/"}
           <span>{maximum}</span>
           <br />
           <span className="points">{t("points")}</span>
         </p>
+        <div className={helpSlotCss}>
+          <Tooltip
+            aria-label={t("label-about-points-chart")}
+            placement={BELOW}
+            className={helpButtonCss}
+          >
+            <ChartExplanationList explanations={explanations} colors={DONUT_COLORS} />
+          </Tooltip>
+        </div>
       </StyledSVG>
     </>
   )
 }
 
 export default CircularProgress
+
+// Above, it would cover the score it explains.
+const BELOW = "bottom" as const
+
+const DONUT_COLORS: Record<ChartPart, string> = {
+  given: progressColors.fill,
+  required: progressColors.required,
+  max: progressColors.track,
+}
+
+// Midway between the score's bottom and the ring's inner edge: the score is two lines of 1.1 × its
+// font size, and the hole's radius is 140 of the 497-unit viewBox at the donut's width.
+const helpSlotCss = css`
+  position: absolute;
+  top: calc(50% + (2.2rem + 16rem * 140 / 497) / 2);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 0;
+
+  ${respondToOrLarger.sm} {
+    top: calc(50% + (3.3rem + 25rem * 140 / 497) / 2);
+  }
+`

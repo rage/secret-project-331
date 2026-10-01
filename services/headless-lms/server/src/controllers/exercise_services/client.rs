@@ -23,8 +23,9 @@ use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use std::collections::HashSet;
+use std::collections::HashMap;
 use std::future::{Ready, ready};
+use url::Url;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -141,15 +142,26 @@ fn client_tasks_from_slide(
         .collect()
 }
 
-/// Ids of the course's currently open chapters. Shared by the exercise list and progress views
+/// The course's currently open chapters by id. Shared by the exercise list and progress views
 /// so their visibility rules cannot drift apart.
-async fn open_chapter_ids(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<HashSet<Uuid>> {
+async fn open_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, DatabaseChapter>> {
     Ok(models::chapters::get_course_chapters(conn, course_id)
         .await?
         .into_iter()
         .filter(DatabaseChapter::has_opened)
-        .map(|c| c.id)
+        .map(|c| (c.id, c))
         .collect())
+}
+
+fn exercise_chapter(chapter: &DatabaseChapter) -> api::ExerciseChapter {
+    api::ExerciseChapter {
+        id: chapter.id,
+        name: chapter.name.clone(),
+        chapter_number: chapter.chapter_number,
+    }
 }
 
 /// Extractor guarding every client route: reads `X-Client-Version` and rejects obsolete
@@ -312,16 +324,24 @@ async fn get_course_exercises(
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
-    let open_chapter_ids = open_chapter_ids(&mut conn, *course).await?;
+    let open_chapters = open_chapters(&mut conn, *course).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
+    let organization =
+        models::organizations::get_organization(&mut conn, course.organization_id).await?;
+    let page_url_paths: HashMap<Uuid, String> =
+        models::pages::get_pages_by_course_id(&mut conn, course.id)
+            .await?
+            .into_iter()
+            .map(|page| (page.id, page.url_path))
+            .collect();
     let open_chapter_exercises =
         models::exercises::get_exercises_by_course_id(&mut conn, course.id)
             .await?
             .into_iter()
             .filter(|e| {
                 e.chapter_id
-                    .map(|ci| open_chapter_ids.contains(&ci))
+                    .map(|ci| open_chapters.contains_key(&ci))
                     .unwrap_or_default()
             });
     for open_exercise in open_chapter_exercises {
@@ -346,11 +366,40 @@ async fn get_course_exercises(
                 exercise_order_number: open_exercise.order_number,
                 deadline: open_exercise.deadline,
                 tasks,
+                page_url: page_url_paths
+                    .get(&open_exercise.page_id)
+                    .and_then(|url_path| {
+                        course_page_url(
+                            &app_conf.base_url,
+                            &organization.slug,
+                            &course.slug,
+                            url_path,
+                        )
+                    }),
+                chapter: open_exercise
+                    .chapter_id
+                    .and_then(|id| open_chapters.get(&id))
+                    .map(exercise_chapter),
             });
         }
     }
 
     token.authorized_ok(web::Json(slides))
+}
+
+/// The public URL of a course material page, or `None` when `base_url` is not a valid URL.
+fn course_page_url(
+    base_url: &str,
+    organization_slug: &str,
+    course_slug: &str,
+    page_url_path: &str,
+) -> Option<String> {
+    let mut url = Url::parse(base_url).ok()?;
+    // `set_path` percent-encodes, which the stored path needs: it keeps non-ASCII verbatim.
+    url.set_path(&format!(
+        "/org/{organization_slug}/courses/{course_slug}{page_url_path}"
+    ));
+    Some(url.to_string())
 }
 
 /// Derives the client-facing per-exercise progress from an exercise's maximum score and
@@ -422,7 +471,7 @@ async fn get_course_progress(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
-    let open_chapter_ids = open_chapter_ids(&mut conn, course.id).await?;
+    let open_chapters = open_chapters(&mut conn, course.id).await?;
 
     // One read for the whole course instead of a query per exercise.
     let states = models::user_exercise_states::get_all_for_user_and_course_or_exam(
@@ -441,7 +490,7 @@ async fn get_course_progress(
         .into_iter()
         .filter(|e| {
             e.chapter_id
-                .map(|ci| open_chapter_ids.contains(&ci))
+                .map(|ci| open_chapters.contains_key(&ci))
                 .unwrap_or_default()
         })
         .map(|e| {
@@ -565,6 +614,14 @@ async fn get_exercise(
         ));
     }
 
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+    let organization =
+        models::organizations::get_organization(&mut conn, course.organization_id).await?;
+    let page = models::pages::get_page(&mut conn, exercise.page_id).await?;
+    let chapter = match exercise.chapter_id {
+        Some(chapter_id) => Some(models::chapters::get_chapter(&mut conn, chapter_id).await?),
+        None => None,
+    };
     token.authorized_ok(web::Json(api::ExerciseSlide {
         slide_id: exercise_slide.id,
         exercise_id: exercise.id,
@@ -573,6 +630,13 @@ async fn get_exercise(
         exercise_order_number: exercise.order_number,
         deadline: exercise.deadline,
         tasks,
+        page_url: course_page_url(
+            &app_conf.base_url,
+            &organization.slug,
+            &course.slug,
+            &page.url_path,
+        ),
+        chapter: chapter.as_ref().map(exercise_chapter),
     }))
 }
 
@@ -968,6 +1032,25 @@ async fn get_submission_grading(
         *submission_id,
     )
     .await?;
+    let exercise_progress = match slide_submission.course_id {
+        Some(course_id) => {
+            let exercise =
+                models::exercises::get_by_id(&mut conn, slide_submission.exercise_id).await?;
+            let state = models::user_exercise_states::get_user_exercise_state_if_exists(
+                &mut conn,
+                user.id,
+                exercise.id,
+                CourseOrExamId::Course(course_id),
+            )
+            .await?;
+            Some(derive_exercise_progress(
+                exercise.id,
+                exercise.score_maximum,
+                state.as_ref(),
+            ))
+        }
+        None => None,
+    };
     let status = match grading {
         Some(grading) => api::ExerciseTaskSubmissionStatus::Grading {
             grading_progress: map_grading_progress(grading.grading_progress),
@@ -976,6 +1059,7 @@ async fn get_submission_grading(
             grading_completed_at: grading.grading_completed_at,
             feedback_json: grading.feedback_json,
             feedback_text: grading.feedback_text,
+            exercise_progress,
         },
         None => api::ExerciseTaskSubmissionStatus::NoGradingYet,
     };
@@ -1266,6 +1350,25 @@ mod tests {
             reviewing_stage: ReviewingStage::NotStarted,
             selected_exercise_slide_id: None,
         }
+    }
+
+    #[test]
+    fn course_page_url_percent_encodes_the_stored_path() {
+        assert_eq!(
+            course_page_url(
+                "https://courses.mooc.fi",
+                "uh-cs",
+                "java",
+                "/chapter-1/tehtävä"
+            )
+            .as_deref(),
+            Some("https://courses.mooc.fi/org/uh-cs/courses/java/chapter-1/teht%C3%A4v%C3%A4")
+        );
+    }
+
+    #[test]
+    fn course_page_url_needs_a_valid_base_url() {
+        assert_eq!(course_page_url("not a url", "org", "course", "/"), None);
     }
 
     #[test]
@@ -3340,5 +3443,128 @@ mod route_tests {
         let app = client_api_app!();
         let body = download(&app, &fixture.token, from_iframe).await;
         assert_eq!(body, serde_json::json!({ "data_files": [] }));
+    }
+
+    /// A committed exercise whose only task is client-servable, so reading it reaches no exercise
+    /// service. Returned with its page URL under the test `base_url`, and its chapter.
+    async fn servable_exercise_fixture() -> (Fixture, String, DatabaseChapter) {
+        insert_data!(:tx, user: user, org: org, course: course, instance: instance, :course_module, chapter: chapter, page: page, exercise: exercise, slide: slide);
+        let task = insert_client_capable_task(tx.as_mut(), slide, None).await;
+        models::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            models::course_instance_enrollments::NewCourseInstanceEnrollment {
+                course_id: course,
+                user_id: user,
+                course_instance_id: instance.id,
+            },
+        )
+        .await
+        .expect("enrollment");
+        let token = issue_token(tx.as_mut(), user).await;
+        let organization = models::organizations::get_organization(tx.as_mut(), org)
+            .await
+            .expect("organization");
+        let course_slug = models::courses::get_course(tx.as_mut(), course)
+            .await
+            .expect("course")
+            .slug;
+        let url_path = models::pages::get_page(tx.as_mut(), page)
+            .await
+            .expect("page")
+            .url_path;
+        let chapter = models::chapters::get_chapter(tx.as_mut(), chapter)
+            .await
+            .expect("chapter");
+        tx.commit().await;
+        let fixture = Fixture {
+            user,
+            course,
+            exercise,
+            slide,
+            task,
+            unservable_task: task,
+            token,
+        };
+        open_exercise(&fixture).await;
+        let page_url = format!(
+            "http://project-331.local/org/{}/courses/{course_slug}{url_path}",
+            organization.slug
+        );
+        (fixture, page_url, chapter)
+    }
+
+    #[actix_web::test]
+    async fn an_exercise_names_its_page_and_chapter() {
+        let (fixture, expected, chapter) = servable_exercise_fixture().await;
+        let app = client_api_app!();
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/exercises/{}", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let slide: api::ExerciseSlide = test::read_body_json(response).await;
+        assert_eq!(slide.page_url.as_deref(), Some(expected.as_str()));
+        assert_eq!(slide.chapter.as_ref().map(|c| c.id), Some(chapter.id));
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/courses/{}/exercises", fixture.course))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let slides: Vec<api::ExerciseSlide> = test::read_body_json(response).await;
+        let listed = slides
+            .iter()
+            .find(|slide| slide.exercise_id == fixture.exercise)
+            .expect("the fixture exercise is listed");
+        assert_eq!(listed.page_url.as_deref(), Some(expected.as_str()));
+        let listed_chapter = listed
+            .chapter
+            .as_ref()
+            .expect("the exercise is in a chapter");
+        assert_eq!(listed_chapter.id, chapter.id);
+        assert_eq!(listed_chapter.name, chapter.name);
+        assert_eq!(listed_chapter.chapter_number, chapter.chapter_number);
+    }
+
+    /// Grading carries the exercise's own completion, so a client never has to infer it from the
+    /// score.
+    #[actix_web::test]
+    async fn grading_reports_the_exercises_progress() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let (fixture, ids) = fixture_with_stub(state).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let submitted: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let request = test::TestRequest::get()
+            .uri(&format!(
+                "/submissions/{}/grading",
+                submitted.task_submission_id
+            ))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let status: api::ExerciseTaskSubmissionStatus = test::read_body_json(response).await;
+        let api::ExerciseTaskSubmissionStatus::Grading {
+            exercise_progress: Some(progress),
+            ..
+        } = status
+        else {
+            panic!("expected a grading with exercise progress, got {status:?}");
+        };
+        assert_eq!(progress.exercise_id, fixture.exercise);
+        assert!(progress.completed);
+        assert!(progress.attempted);
     }
 }

@@ -52,6 +52,7 @@ use utoipa::OpenApi;
         api::SubmissionFiles,
         api::CourseProgress,
         api::ExerciseProgress,
+        api::ExerciseStanding,
         api::PasteResult,
         crate::domain::error::ApiErrorResponse
     ))
@@ -402,22 +403,69 @@ fn course_page_url(
     Some(url.to_string())
 }
 
-/// Derives the client-facing per-exercise progress from an exercise's maximum score and
-/// the user's exercise state (absent when the user has never touched the exercise).
+/// The user's progress on an exercise of the given course, with `state` their exercise state
+/// (absent when they have never touched the exercise). Reads the try counts only when they can
+/// decide the standing.
+async fn exercise_progress(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &models::exercises::Exercise,
+    course_id: Uuid,
+    state: Option<&UserExerciseState>,
+) -> models::ModelResult<api::ExerciseProgress> {
+    let is_out_of_tries =
+        !has_received_full_points(state.and_then(|s| s.score_given), exercise.score_maximum)
+            && domain::exercises::is_out_of_tries(
+                conn,
+                user_id,
+                exercise,
+                CourseOrExamId::Course(course_id),
+            )
+            .await?;
+    Ok(derive_exercise_progress(
+        exercise.id,
+        exercise.score_maximum,
+        state,
+        is_out_of_tries,
+    ))
+}
+
+/// Derives the client-facing per-exercise progress from an exercise's maximum score and the
+/// user's exercise state.
 fn derive_exercise_progress(
     exercise_id: Uuid,
     score_maximum: i32,
     state: Option<&UserExerciseState>,
+    is_out_of_tries: bool,
 ) -> api::ExerciseProgress {
-    let score_given = state.and_then(|s| s.score_given).unwrap_or(0.0);
+    let score_given = state.and_then(|s| s.score_given);
     let activity_progress = state.map(|s| s.activity_progress).unwrap_or_default();
+    let attempted = activity_progress != ActivityProgress::Initialized;
+    let standing = if has_received_full_points(score_given, score_maximum) {
+        api::ExerciseStanding::Passed
+    } else if is_out_of_tries {
+        api::ExerciseStanding::OutOfTries
+    } else if attempted {
+        api::ExerciseStanding::Attempted
+    } else {
+        api::ExerciseStanding::NotAttempted
+    };
     api::ExerciseProgress {
         exercise_id,
-        score_given,
+        score_given: score_given.unwrap_or(0.0),
         score_maximum,
         completed: activity_progress == ActivityProgress::Completed,
-        attempted: activity_progress != ActivityProgress::Initialized,
+        attempted,
+        standing: Some(standing),
     }
+}
+
+/// Full points as the course material judges them, tolerating float rounding. `None` (never
+/// graded) is not full points even when the exercise is worth 0.
+fn has_received_full_points(score_given: Option<f32>, score_maximum: i32) -> bool {
+    score_given.is_some_and(|score| {
+        score >= score_maximum as f32 || (score - score_maximum as f32).abs() < 0.0001
+    })
 }
 
 /// Mirrors the project-wide "solved" reveal rule (`controllers/course_material/exercises.rs`,
@@ -427,11 +475,9 @@ fn model_solution_should_be_revealed(
     score_given: f32,
     slide_submission_count: i64,
 ) -> bool {
-    let has_received_full_points = score_given >= exercise.score_maximum as f32
-        || (score_given - exercise.score_maximum as f32).abs() < 0.0001;
     let out_of_tries = exercise.limit_number_of_tries
         && slide_submission_count >= exercise.max_tries_per_slide.unwrap_or(i32::MAX) as i64;
-    has_received_full_points || out_of_tries
+    has_received_full_points(Some(score_given), exercise.score_maximum) || out_of_tries
 }
 
 /**
@@ -439,8 +485,8 @@ fn model_solution_should_be_revealed(
  *
  * Returns the current user's progress on every exercise of the course that lives in an
  * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum
- * points and completed/attempted signals. One round-trip; course totals are derivable by
- * summing the returned entries.
+ * points, completed/attempted signals and standing. One round-trip; course totals are
+ * derivable by summing the returned entries.
  */
 #[utoipa::path(
     get,
@@ -485,18 +531,27 @@ async fn get_course_progress(
         state_by_exercise.insert(state.exercise_id, state);
     }
 
-    let exercises = models::exercises::get_exercises_by_course_id(&mut conn, course.id)
+    let mut exercises = Vec::new();
+    for exercise in models::exercises::get_exercises_by_course_id(&mut conn, course.id)
         .await?
-        .into_iter()
+        .iter()
         .filter(|e| {
             e.chapter_id
                 .map(|ci| open_chapters.contains_key(&ci))
                 .unwrap_or_default()
         })
-        .map(|e| {
-            derive_exercise_progress(e.id, e.score_maximum, state_by_exercise.get(&e.id).copied())
-        })
-        .collect();
+    {
+        exercises.push(
+            exercise_progress(
+                &mut conn,
+                user.id,
+                exercise,
+                course.id,
+                state_by_exercise.get(&exercise.id).copied(),
+            )
+            .await?,
+        );
+    }
 
     token.authorized_ok(web::Json(api::CourseProgress {
         course_id: course.id,
@@ -1043,11 +1098,7 @@ async fn get_submission_grading(
                 CourseOrExamId::Course(course_id),
             )
             .await?;
-            Some(derive_exercise_progress(
-                exercise.id,
-                exercise.score_maximum,
-                state.as_ref(),
-            ))
+            Some(exercise_progress(&mut conn, user.id, &exercise, course_id, state.as_ref()).await?)
         }
         None => None,
     };
@@ -1373,7 +1424,7 @@ mod tests {
 
     #[test]
     fn progress_without_state_is_zero_and_untouched() {
-        let p = derive_exercise_progress(Uuid::nil(), 5, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false);
         assert_eq!(p.score_given, 0.0);
         assert_eq!(p.score_maximum, 5);
         assert!(!p.completed);
@@ -1383,7 +1434,7 @@ mod tests {
     #[test]
     fn progress_started_is_attempted_not_completed() {
         let state = state_with(Some(0.0), ActivityProgress::Started);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
         assert!(p.attempted);
         assert!(!p.completed);
     }
@@ -1391,16 +1442,51 @@ mod tests {
     #[test]
     fn progress_completed_reports_points_and_flags() {
         let state = state_with(Some(5.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
         assert_eq!(p.score_given, 5.0);
         assert!(p.completed);
         assert!(p.attempted);
     }
 
     #[test]
+    fn standing_passes_only_at_full_points() {
+        let partial = state_with(Some(4.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&partial), false);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
+
+        let full = state_with(Some(4.99995), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), false);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
+    }
+
+    #[test]
+    fn standing_is_out_of_tries_below_full_points_only() {
+        let zero = state_with(Some(0.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&zero), true);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
+
+        let full = state_with(Some(5.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+    }
+
+    #[test]
+    fn a_zero_point_exercise_passes_once_graded() {
+        let p = derive_exercise_progress(Uuid::nil(), 0, None, false);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
+
+        let graded = state_with(Some(0.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 0, Some(&graded), false);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+    }
+
+    #[test]
     fn progress_initialized_state_is_not_attempted() {
         let state = state_with(None, ActivityProgress::Initialized);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state));
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
         assert_eq!(p.score_given, 0.0);
         assert!(!p.attempted);
         assert!(!p.completed);
@@ -3529,7 +3615,7 @@ mod route_tests {
         assert_eq!(listed_chapter.chapter_number, chapter.chapter_number);
     }
 
-    /// Grading carries the exercise's own completion, so a client never has to infer it from the
+    /// Grading carries the exercise's own standing, so a client never has to infer it from the
     /// score.
     #[actix_web::test]
     async fn grading_reports_the_exercises_progress() {
@@ -3566,5 +3652,79 @@ mod route_tests {
         assert_eq!(progress.exercise_id, fixture.exercise);
         assert!(progress.completed);
         assert!(progress.attempted);
+        // The stub grades one of the slide's two tasks: completed, but half points is no pass.
+        assert_eq!(progress.score_given, 0.5);
+        assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+    }
+
+    /// A graded submission below full points that uses the last try is final, and both the grading
+    /// and the course progress say so.
+    #[actix_web::test]
+    async fn the_last_try_below_full_points_is_out_of_tries() {
+        let mut zero_points = stub_grading();
+        zero_points.score_given = 0.0;
+        let state = Arc::new(StubState::new(StubGrading::Graded(zero_points)));
+        let (fixture, ids) = fixture_with_stub(state).await;
+        {
+            let mut conn = Conn::init().await;
+            let mut tx = conn.begin().await;
+            models::exercises::set_try_limit(tx.as_mut(), fixture.exercise, true, Some(1))
+                .await
+                .expect("try limit");
+            tx.commit().await;
+        }
+        let app = client_api_app!();
+        let progress_request = || {
+            test::TestRequest::get()
+                .uri(&format!("/courses/{}/progress", fixture.course))
+                .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+                .to_request()
+        };
+        let response = test::call_service(&app, progress_request()).await;
+        let before: api::CourseProgress = test::read_body_json(response).await;
+        let before = before
+            .exercises
+            .iter()
+            .find(|p| p.exercise_id == fixture.exercise)
+            .expect("the fixture exercise has progress");
+        assert_eq!(before.standing, Some(api::ExerciseStanding::NotAttempted));
+
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let submitted: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let request = test::TestRequest::get()
+            .uri(&format!(
+                "/submissions/{}/grading",
+                submitted.task_submission_id
+            ))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        let status: api::ExerciseTaskSubmissionStatus = test::read_body_json(response).await;
+        let api::ExerciseTaskSubmissionStatus::Grading {
+            exercise_progress: Some(progress),
+            ..
+        } = status
+        else {
+            panic!("expected a grading with exercise progress, got {status:?}");
+        };
+        assert_eq!(progress.standing, Some(api::ExerciseStanding::OutOfTries));
+
+        let response = test::call_service(&app, progress_request()).await;
+        let after: api::CourseProgress = test::read_body_json(response).await;
+        let after = after
+            .exercises
+            .iter()
+            .find(|p| p.exercise_id == fixture.exercise)
+            .expect("the fixture exercise has progress");
+        assert_eq!(after.standing, Some(api::ExerciseStanding::OutOfTries));
+        assert_eq!(after.score_given, 0.0);
     }
 }

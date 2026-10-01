@@ -223,10 +223,9 @@ pub struct CourseProgress {
 
 /// The current user's progress on a single exercise.
 ///
-/// A client derives a boolean "passed" from these fields. The authoritative signal is
-/// `completed` (the exercise reached the `Completed` activity stage). A client that
-/// instead treats "full points" as passing can use `score_given >= score_maximum` when
-/// `score_maximum > 0`.
+/// `standing` is the client's passed/failed signal. `completed` is the activity stage, which
+/// an exercise without peer or self review reaches on any graded submission, even one
+/// worth 0 points.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseProgress {
@@ -235,12 +234,29 @@ pub struct ExerciseProgress {
     pub score_given: f32,
     /// The maximum points obtainable from the exercise.
     pub score_maximum: i32,
-    /// `true` once the exercise has reached the `Completed` activity stage. The primary
-    /// "passed" signal.
+    /// `true` once the exercise has reached the `Completed` activity stage.
     pub completed: bool,
     /// `true` once the user has started or submitted the exercise (any activity stage past
     /// the initial one), regardless of whether it is completed.
     pub attempted: bool,
+    /// Absent only from a host that predates the field.
+    #[serde(default)]
+    pub standing: Option<ExerciseStanding>,
+}
+
+/// Where the user stands on an exercise, decided by the host so every client agrees.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub enum ExerciseStanding {
+    /// No graded submission and no try used.
+    NotAttempted,
+    /// Below full points with tries left, or still being graded.
+    Attempted,
+    /// A grading awarded full points. An exercise worth 0 points passes on its first grading.
+    Passed,
+    /// Below full points (0 included) and the try limit is used up on every slide, so the
+    /// score is final.
+    OutOfTries,
 }
 
 /// A shareable URL for a submission.
@@ -279,6 +295,7 @@ mod test {
                 score_maximum: 1,
                 completed: true,
                 attempted: true,
+                standing: Some(ExerciseStanding::Passed),
             }),
         };
         assert_eq!(
@@ -297,6 +314,7 @@ mod test {
                         "score_maximum": 1,
                         "completed": true,
                         "attempted": true,
+                        "standing": "Passed",
                     },
                 }
             }),
@@ -469,6 +487,7 @@ mod test {
                 score_maximum: 3,
                 completed: false,
                 attempted: true,
+                standing: Some(ExerciseStanding::OutOfTries),
             }],
         })
         .unwrap();
@@ -480,6 +499,21 @@ mod test {
         assert_eq!(ex["score_maximum"], json!(3));
         assert_eq!(ex["completed"], json!(false));
         assert_eq!(ex["attempted"], json!(true));
+        assert_eq!(ex["standing"], json!("OutOfTries"));
+    }
+
+    /// A newer client must still read a host that predates `standing`.
+    #[test]
+    fn progress_without_standing_still_parses() {
+        let progress: ExerciseProgress = serde_json::from_value(json!({
+            "exercise_id": Uuid::nil(),
+            "score_given": 0.0,
+            "score_maximum": 1,
+            "completed": false,
+            "attempted": false,
+        }))
+        .unwrap();
+        assert_eq!(progress.standing, None);
     }
 
     #[test]

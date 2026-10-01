@@ -16,6 +16,7 @@ import {
   withoutEmptyThreshold,
 } from "@/components/course-progress/progressText"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
@@ -79,7 +80,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
         >
           <CircularProgress
             max={points.max}
-            {...(points.required !== null && { required: points.required })}
+            {...omitUndefined({ required: points.required ?? undefined })}
             given={points.given}
             label={t("course-progress")}
             valueText={pointsText.valueText}
@@ -88,7 +89,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
           <ProgressBar
             exercisesAttempted={exercises.given}
             exercisesTotal={exercises.max}
-            {...(exercises.required !== null && { required: exercises.required })}
+            {...omitUndefined({ required: exercises.required ?? undefined })}
             label={t("exercises-attempted")}
             valueText={exercisesText.valueText}
             explanations={exercisesText.explanations}

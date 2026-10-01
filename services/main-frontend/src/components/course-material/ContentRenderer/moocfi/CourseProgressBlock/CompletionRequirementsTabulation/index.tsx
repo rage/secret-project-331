@@ -107,11 +107,11 @@ const headingHelpCss = css`
 const headingCss = css`
   display: inline;
   margin: 0;
-  font: 500 1.3rem ${headingFont};
+  font: 500 1.2rem ${headingFont};
   color: ${progressColors.heading};
 
-  @media (max-width: 22rem) {
-    font-size: 1.2rem;
+  ${respondToOrLarger.xxs} {
+    font-size: 1.3rem;
   }
 
   ${respondToOrLarger.sm} {

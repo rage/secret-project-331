@@ -10,6 +10,7 @@ import ProgressBar from "@/components/course-progress/ProgressBar"
 import { describeProgress, PROGRESS_UNIT } from "@/components/course-progress/progressText"
 import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseInstanceChapterProgress } from "@/generated/course-material-api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
 
@@ -59,7 +60,7 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
                 text-align: center;
                 padding: 1em 0 2em 0;
                 margin: 5em auto;
-                background: rgba(242, 245, 247, 0.8);
+                background: ${baseTheme.colors.blue[50]}CC;
               `}
             >
               <CircularProgress

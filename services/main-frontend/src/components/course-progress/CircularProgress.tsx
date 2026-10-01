@@ -108,7 +108,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
 
   const radius = 160
   const circumference = 2 * Math.PI * radius
-  const receivedPointsRatio = givenScore / maximum
+  const receivedPointsRatio = maximum > 0 ? givenScore / maximum : 0
   const requiredForCompletionRatio = required && required > 0 && max && max > 0 ? required / max : 0
 
   const receivedPointsStrokeDashOffset = (1 - receivedPointsRatio) * circumference

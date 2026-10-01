@@ -36,8 +36,15 @@ import {
 } from "@wordpress/block-editor"
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
+import {
+  type BlockStyle,
+  store as blocksStore,
+  registerBlockStyle,
+  unregisterBlockStyle,
+} from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
+import { select } from "@wordpress/data"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
@@ -95,6 +102,11 @@ interface GutenbergEditorProps {
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: CustomBlockDefinition[]
+  /**
+   * Style choices that replace a block type's registered ones while this editor is mounted. The
+   * block registry is global, so registering them for good would offer them in every editor.
+   */
+  blockStyles?: Record<string, BlockStyle[]>
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: React.JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
@@ -151,6 +163,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   allowedBlockVariations,
   allowedBlocks,
   customBlocks,
+  blockStyles,
   mediaUpload,
   inspectorButtons,
   needToRunMigrationsAndValidations,
@@ -174,6 +187,27 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     ensureStandaloneGutenbergBootstrap({ allowedBlockVariations, customBlocks })
     setIsGutenbergBootstrapped(true)
   }, [allowedBlockVariations, customBlocks])
+
+  // Declared after the bootstrap effect so it runs after the bootstrap registers the global styles.
+  useEffect(() => {
+    if (!blockStyles) {
+      return
+    }
+    const replacedStyles = Object.entries(blockStyles).map(([blockName, styles]) => {
+      const previousStyles: BlockStyle[] = select(blocksStore).getBlockStyles(blockName) ?? []
+      previousStyles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+      registerBlockStyle(blockName, styles)
+      return { blockName, styles, previousStyles }
+    })
+    return () => {
+      replacedStyles.forEach(({ blockName, styles, previousStyles }) => {
+        styles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+        if (previousStyles.length > 0) {
+          registerBlockStyle(blockName, previousStyles)
+        }
+      })
+    }
+  }, [blockStyles])
 
   const allowedBlockTypes = useMemo(() => {
     if (!allowedBlocks && !customBlocks) {

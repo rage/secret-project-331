@@ -21,12 +21,39 @@ static LAYOUT_PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\{\{(CONTENT|SUBJECT|PREHEADER|LANGUAGE)\}\}")
         .expect("invalid layout_placeholder regex")
 });
+static IMG_TAG_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?is)<img\b[^>]*>").expect("invalid img_tag regex"));
+static SRC_ATTRIBUTE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(?is)\ssrc\s*=\s*["']?([^"'\s>]*)"#).expect("invalid src_attribute regex")
+});
 
-/// The shell used when no `email_layouts` row is live.
+/// The shell used when no `email_layouts` row applies.
 pub const DEFAULT_EMAIL_LAYOUT: &str = include_str!("email_layout_default.html");
 
-/// Block types an email body may contain; must match `allowedEmailCoreBlocks` in the CMS. Any other
-/// type fails deserialization, so a body is never sent with a block silently left out.
+/// Colours the renderer writes inline, as `#RRGGBB`. Outlook desktop and clients that strip
+/// `<style>` read only these, so a shell's CSS alone cannot rebrand them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct EmailTheme<'a> {
+    pub button_background_color: &'a str,
+    pub button_text_color: &'a str,
+}
+
+/// The theme of `DEFAULT_EMAIL_LAYOUT`. Must match the column defaults of `email_layouts`.
+pub const DEFAULT_EMAIL_THEME: EmailTheme<'static> = EmailTheme {
+    button_background_color: "#1F6964",
+    button_text_color: "#FFFFFF",
+};
+
+/// Where the images the renderer links to are served from: `services/main-frontend/public/static/email`.
+/// Sent emails keep linking to these files, so they must never be renamed or removed.
+const EMAIL_ASSET_BASE_URL: &str = "https://courses.mooc.fi/static/email";
+
+const CALLOUT_BACKGROUND_COLOR: &str = "#EDF3F2";
+const CALLOUT_BORDER_COLOR: &str = "#DAE6E5";
+
+/// Block types an email body may contain; must match `allowedEmailCoreBlocks` and
+/// `blockTypeMapForEmails` in the CMS. Any other type fails deserialization, so a body is never sent
+/// with a block silently left out.
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone, Copy)]
 pub enum EmailBlockName {
     #[serde(rename = "core/paragraph")]
@@ -53,6 +80,8 @@ pub enum EmailBlockName {
     Spacer,
     #[serde(rename = "core/code")]
     Code,
+    #[serde(rename = "moocfi/email-callout")]
+    Callout,
 }
 
 const DEFAULT_SPACER_HEIGHT_PX: u32 = 32;
@@ -76,6 +105,13 @@ impl EmailGutenbergBlock {
             .get(key)
             .and_then(Value::as_str)
             .unwrap_or_default()
+    }
+
+    /// Whether the author picked the block style `name`, which Gutenberg records in `className`.
+    fn has_style(&self, name: &str) -> bool {
+        self.str_attribute("className")
+            .split_whitespace()
+            .any(|class| class.strip_prefix("is-style-") == Some(name))
     }
 
     /// Spacer height in px; Gutenberg stores it as a string like "100px", old content as a number.
@@ -164,12 +200,21 @@ fn fill_placeholders_in_value(
     }
 }
 
-pub fn process_content_to_html(blocks: &[EmailGutenbergBlock]) -> String {
-    blocks.iter().map(block_to_html).collect()
+/// Renders a body into the HTML a shell's `{{CONTENT}}` is replaced with.
+pub fn process_content_to_html(blocks: &[EmailGutenbergBlock], theme: EmailTheme) -> String {
+    blocks
+        .iter()
+        .map(|block| block_to_html(block, theme))
+        .collect()
 }
 
-fn block_to_html(block: &EmailGutenbergBlock) -> String {
+fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
     match block.name {
+        // Inline, not `h1 + p` in the shell: Gmail and Outlook ignore sibling selectors.
+        EmailBlockName::Paragraph if block.has_style("lead") => format!(
+            r#"<p class="email-lead" style="font-size: 18px; line-height: 28px;">{}</p>"#,
+            block.str_attribute("content")
+        ),
         EmailBlockName::Paragraph => format!("<p>{}</p>", block.str_attribute("content")),
         EmailBlockName::Heading => {
             let level = block
@@ -201,13 +246,13 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
             let tag = if is_ordered(block) { "ol" } else { "ul" };
             format!(
                 "<{tag}>{}</{tag}>",
-                process_content_to_html(&block.inner_blocks)
+                process_content_to_html(&block.inner_blocks, theme)
             )
         }
         EmailBlockName::ListItem => format!(
             "<li>{}{}</li>",
             block.str_attribute("content"),
-            process_content_to_html(&block.inner_blocks)
+            process_content_to_html(&block.inner_blocks, theme)
         ),
         EmailBlockName::Table => {
             let section = |name: &str, tag: &str| {
@@ -242,15 +287,21 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
         }
         EmailBlockName::Buttons => format!(
             r#"<div class="email-buttons">{}</div>"#,
-            process_content_to_html(&block.inner_blocks)
+            process_content_to_html(&block.inner_blocks, theme)
         ),
         // A table cell with bgcolor, not a styled link alone: Outlook desktop drops padding and
-        // background on <a>. The inline colours are the fallback for clients that strip <style>; a
-        // shell restyles the button by targeting these classes with !important.
+        // background on <a>. The arrow is text because Gmail and Outlook drop CSS `::after`.
         EmailBlockName::Button => format!(
-            r##"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="#1d4ed8" style="border-radius: 6px;"><a class="email-button-link" href="{}" style="display: inline-block; padding: 12px 24px; font-weight: 600; color: #ffffff; text-decoration: none;">{}</a></td></tr></table>"##,
+            r#"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="{background}" style="background-color: {background}; border-radius: 6px;"><a class="email-button-link" href="{}" style="display: inline-block; padding: 14px 26px; font-size: 16px; line-height: 20px; font-weight: 600; color: {text}; text-decoration: none;">{}{}</a></td></tr></table>"#,
             escape_html(block.str_attribute("url")),
-            block.str_attribute("text")
+            block.str_attribute("text"),
+            if block.has_style("arrow") {
+                "&nbsp;&rarr;"
+            } else {
+                ""
+            },
+            background = escape_html(theme.button_background_color),
+            text = escape_html(theme.button_text_color),
         ),
         EmailBlockName::Quote => {
             let citation = match block.str_attribute("citation") {
@@ -259,7 +310,7 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
             };
             format!(
                 "<blockquote>{}{}{citation}</blockquote>",
-                process_content_to_html(&block.inner_blocks),
+                process_content_to_html(&block.inner_blocks, theme),
                 if block.inner_blocks.is_empty() {
                     block.str_attribute("value")
                 } else {
@@ -268,7 +319,7 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
             )
         }
         // Tables, not <hr> or a sized <div>: Outlook desktop ignores their borders, heights and margins.
-        EmailBlockName::Separator => r##"<table role="presentation" class="email-separator" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="height: 1px; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; border-top: 1px solid #d0d7de;">&nbsp;</td></tr></table>"##.to_string(),
+        EmailBlockName::Separator => r##"<table role="presentation" class="email-separator" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="height: 1px; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; border-top: 1px solid #DDDEE0;">&nbsp;</td></tr></table>"##.to_string(),
         EmailBlockName::Spacer => {
             let height = block.spacer_height_px();
             format!(
@@ -279,6 +330,40 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
             "<pre class=\"email-code\"><code>{}</code></pre>",
             block.str_attribute("content").replace("<br>", "\n")
         ),
+        EmailBlockName::Callout => {
+            let icon_cell = match callout_icon_file(block.str_attribute("icon")) {
+                Some(file) => format!(
+                    r#"<td class="email-callout-icon" width="24" valign="top" style="width: 24px; padding: 20px 0 20px 20px; border: 0;"><img src="{EMAIL_ASSET_BASE_URL}/{file}" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px; margin: 1px 0 0; border: 0; border-radius: 0;"></td>"#
+                ),
+                None => String::new(),
+            };
+            let body_padding = if icon_cell.is_empty() {
+                "20px"
+            } else {
+                "20px 20px 20px 14px"
+            };
+            let title = match block.str_attribute("title") {
+                "" => String::new(),
+                title => format!(
+                    r#"<p class="email-callout-title" style="margin: 0 0 6px;"><strong>{title}</strong></p>"#
+                ),
+            };
+            format!(
+                r#"<table role="presentation" class="email-callout" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{CALLOUT_BACKGROUND_COLOR}" style="width: 100%; background-color: {CALLOUT_BACKGROUND_COLOR}; border: 1px solid {CALLOUT_BORDER_COLOR}; border-radius: 8px; border-collapse: separate;"><tr>{icon_cell}<td class="email-callout-body" valign="top" style="padding: {body_padding}; border: 0;">{title}{}</td></tr></table>"#,
+                process_content_to_html(&block.inner_blocks, theme)
+            )
+        }
+    }
+}
+
+/// The hosted PNG for a callout's `icon` attribute; `None` for "none" and unknown values.
+fn callout_icon_file(icon: &str) -> Option<&'static str> {
+    match icon {
+        "info" => Some("icon-info.png"),
+        "calendar" => Some("icon-calendar.png"),
+        "warning" => Some("icon-warning.png"),
+        "check" => Some("icon-check.png"),
+        _ => None,
     }
 }
 
@@ -356,6 +441,14 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
             .map(|line| format!("    {line}").trim_end().to_string())
             .collect::<Vec<_>>()
             .join("\n"),
+        EmailBlockName::Callout => [
+            html_to_text(block.str_attribute("title")),
+            process_content_to_plaintext(&block.inner_blocks),
+        ]
+        .into_iter()
+        .filter(|text| !text.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n"),
     }
 }
 
@@ -447,6 +540,27 @@ pub fn wrap_in_layout(layout_html: &str, fields: &EmailLayoutFields) -> String {
             _ => escape_html(fields.language),
         })
         .into_owned()
+}
+
+/// Problems that make a shell render badly: a missing `{{SUBJECT}}`, `{{PREHEADER}}` or
+/// `{{LANGUAGE}}`, or an image not loaded over https, which clients block or warn about. Empty when
+/// none is found; a heuristic, not validation.
+pub fn layout_warnings(layout_html: &str) -> Vec<String> {
+    let mut warnings: Vec<String> = ["{{SUBJECT}}", "{{PREHEADER}}", "{{LANGUAGE}}"]
+        .into_iter()
+        .filter(|placeholder| !layout_html.contains(placeholder))
+        .map(|placeholder| format!("missing {placeholder}"))
+        .collect();
+    for img in IMG_TAG_REGEX.find_iter(layout_html) {
+        let src = SRC_ATTRIBUTE_REGEX
+            .captures(img.as_str())
+            .map(|caps| caps[1].to_string())
+            .unwrap_or_default();
+        if !src.to_ascii_lowercase().starts_with("https://") {
+            warnings.push(format!("image source is not https: {src:?}"));
+        }
+    }
+    warnings
 }
 
 fn escape_html(text: &str) -> String {
@@ -541,7 +655,10 @@ mod email_processor_tests {
     #[test]
     fn it_converts_paragraph_correctly_to_html() {
         let input = blocks(json!([paragraph("testi paragraph.")]));
-        assert_eq!("<p>testi paragraph.</p>", process_content_to_html(&input));
+        assert_eq!(
+            "<p>testi paragraph.</p>",
+            process_content_to_html(&input, DEFAULT_EMAIL_THEME)
+        );
     }
 
     #[test]
@@ -549,7 +666,10 @@ mod email_processor_tests {
         let input = blocks(
             json!([{ "name": "core/heading", "attributes": { "content": "Email heading", "level": 3 } }]),
         );
-        assert_eq!("<h3>Email heading</h3>", process_content_to_html(&input));
+        assert_eq!(
+            "<h3>Email heading</h3>",
+            process_content_to_html(&input, DEFAULT_EMAIL_THEME)
+        );
     }
 
     #[test]
@@ -559,7 +679,7 @@ mod email_processor_tests {
         );
         assert_eq!(
             r#"<img src="https://example.com/a.png" alt="A &quot;title&quot;">"#,
-            process_content_to_html(&input)
+            process_content_to_html(&input, DEFAULT_EMAIL_THEME)
         );
     }
 
@@ -571,7 +691,7 @@ mod email_processor_tests {
         ]));
         assert_eq!(
             "<ul><li><code>1</code></li><li>2</li></ul><ol><li>first</li><li>second</li></ol>",
-            process_content_to_html(&input)
+            process_content_to_html(&input, DEFAULT_EMAIL_THEME)
         );
     }
 }

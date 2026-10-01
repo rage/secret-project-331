@@ -11,12 +11,14 @@ use headless_lms_models::email_deliveries::{
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
     insert_email_delivery_error, mark_as_sent, maybe_purge_expired_recipient_addresses,
 };
-use headless_lms_models::email_layouts;
+use headless_lms_models::email_layouts::{self, EmailLayout};
 use headless_lms_models::email_templates::EmailTemplateType;
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
-use headless_lms_utils::email_processor::{self, EmailGutenbergBlock, EmailLayoutFields};
+use headless_lms_utils::email_processor::{
+    self, DEFAULT_EMAIL_THEME, EmailGutenbergBlock, EmailLayoutFields, EmailTheme,
+};
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{
@@ -78,15 +80,23 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
 
     let emails = fetch_emails(&mut conn).await?;
     // Read per batch so a replaced layout takes effect without restarting the sender.
-    let layout_html = email_layouts::get_live_html(&mut conn).await?;
-    let layout_html = layout_html
-        .as_deref()
-        .unwrap_or(email_processor::DEFAULT_EMAIL_LAYOUT);
+    let layouts = email_layouts::get_all_live(&mut conn).await?;
+    for layout in &layouts {
+        for warning in email_processor::layout_warnings(&layout.html) {
+            tracing::warn!(
+                "Email layout {} (language {:?}): {}",
+                layout.id,
+                layout.language,
+                warning
+            );
+        }
+    }
 
     let mut futures = tokio_stream::iter(emails)
         .map(|email| {
             let email_id = email.id;
-            send_message(email, mailer, pool.clone(), layout_html).inspect(move |r| {
+            let shell = EmailShell::for_language(&layouts, email.language.as_deref());
+            send_message(email, mailer, pool.clone(), shell).inspect(move |r| {
                 if let Err(err) = r {
                     tracing::error!("Failed to send email {}: {}", email_id, err)
                 }
@@ -99,11 +109,38 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
     Ok(())
 }
 
+/// The shell an email is wrapped in, with the colours its buttons get.
+#[derive(Debug, Clone, Copy)]
+pub struct EmailShell<'a> {
+    pub html: &'a str,
+    pub theme: EmailTheme<'a>,
+}
+
+impl<'a> EmailShell<'a> {
+    /// The live layout for `language` (see `email_layouts::find_for_language`), else the bundled
+    /// default.
+    pub fn for_language(layouts: &'a [EmailLayout], language: Option<&str>) -> Self {
+        match email_layouts::find_for_language(layouts, language) {
+            Some(layout) => Self {
+                html: &layout.html,
+                theme: EmailTheme {
+                    button_background_color: &layout.button_background_color,
+                    button_text_color: &layout.button_text_color,
+                },
+            },
+            None => Self {
+                html: email_processor::DEFAULT_EMAIL_LAYOUT,
+                theme: DEFAULT_EMAIL_THEME,
+            },
+        }
+    }
+}
+
 pub async fn send_message(
     email: Email,
     mailer: &SmtpTransport,
     pool: PgPool,
-    layout_html: &str,
+    shell: EmailShell<'_>,
 ) -> Result<()> {
     let mut conn = pool.acquire().await?;
     tracing::info!("Email send messages...");
@@ -160,9 +197,9 @@ pub async fn send_message(
 
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
     let msg_as_html = email_processor::wrap_in_layout(
-        layout_html,
+        shell.html,
         &EmailLayoutFields {
-            content_html: &email_processor::process_content_to_html(&email_block),
+            content_html: &email_processor::process_content_to_html(&email_block, shell.theme),
             subject: email.subject.as_deref().unwrap_or_default(),
             preheader: &email_processor::preheader(&email_block),
             language: email.language.as_deref().unwrap_or_default(),

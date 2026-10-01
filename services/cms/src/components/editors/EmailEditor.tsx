@@ -11,6 +11,7 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
+import { blockTypeMapForEmails } from "../../blocks"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import { mediaUploadBuilder } from "../../services/mediaUpload"
@@ -29,6 +30,11 @@ interface EmailEditorProps {
 
 const EmailGutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
+const allowedEmailBlocks = [
+  ...allowedEmailCoreBlocks,
+  ...blockTypeMapForEmails.map(([blockName]) => blockName),
+]
+
 const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   data,
   saveMutation,
@@ -38,10 +44,27 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
 
+  // The renderer in headless-lms `email_processor.rs` reads these style names.
+  /* oxlint-disable i18next/no-literal-string */
+  const emailBlockStyles = useMemo(
+    () => ({
+      "core/paragraph": [
+        { name: "default", label: t("block-style-default"), isDefault: true },
+        { name: "lead", label: t("email-block-style-lead") },
+      ],
+      "core/button": [
+        { name: "default", label: t("block-style-default"), isDefault: true },
+        { name: "arrow", label: t("email-block-style-arrow") },
+      ],
+    }),
+    [t],
+  )
+  /* oxlint-enable i18next/no-literal-string */
+
   const [content, setContent] = useState<BlockInstance[]>(() => {
     const initialContent = modifyBlocks(
       (data.content ?? []) as BlockInstance[],
-      allowedEmailCoreBlocks,
+      allowedEmailBlocks,
     ) as BlockInstance[]
     return initialContent
   })
@@ -83,7 +106,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   useEffect(() => {
     const modifiedContent = modifyBlocks(
       (data.content ?? []) as BlockInstance[],
-      allowedEmailCoreBlocks,
+      allowedEmailBlocks,
     ) as BlockInstance[]
     setContent(modifiedContent)
     setTemplateType(dataTemplateType)
@@ -183,6 +206,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         content={content}
         onContentChange={setContent}
         allowedBlocks={allowedEmailCoreBlocks}
+        customBlocks={blockTypeMapForEmails}
+        blockStyles={emailBlockStyles}
         mediaUpload={
           courseId
             ? mediaUploadBuilder({ courseId: courseId })

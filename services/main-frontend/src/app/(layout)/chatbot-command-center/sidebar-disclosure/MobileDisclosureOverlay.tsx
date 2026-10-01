@@ -6,10 +6,9 @@ import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import type { OverlayTriggerState } from "@react-stately/overlays"
 import React, { useRef, type ReactNode } from "react"
-import { VisuallyHidden } from "react-aria"
+import { OverlayContainer, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
 
 interface MobileDisclosureOverlayProps {
@@ -25,9 +24,6 @@ const underlayCss = css`
   right: 0;
   bottom: 0;
   z-index: 1000;
-  ${respondToOrLarger.md} {
-    display: none !important;
-  }
 `
 
 const dialogCss = css`
@@ -45,9 +41,6 @@ const dialogCss = css`
   z-index: 1001;
   transform: translateX(0);
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  ${respondToOrLarger.md} {
-    display: none !important;
-  }
 `
 
 const closeButtonCss = css`
@@ -109,42 +102,44 @@ const MobileDisclosureOverlay: React.FC<MobileDisclosureOverlayProps> = ({
   )
 
   return (
-    <div {...underlayProps} className={underlayCss}>
-      <div {...modalProps} ref={overlayRef} className={dialogCss}>
-        <div
-          {...mergeProps(dialogProps)}
-          ref={dialogRef}
-          className={css`
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-          `}
-        >
-          {/* Helps screen reader users dismiss easily when tabbing */}
-          <DismissButton onDismiss={handleClose} />
+    <OverlayContainer>
+      <div {...underlayProps} className={underlayCss}>
+        <div {...modalProps} ref={overlayRef} className={dialogCss}>
+          <div
+            {...mergeProps(dialogProps)}
+            ref={dialogRef}
+            className={css`
+              display: flex;
+              flex-direction: column;
+              height: 100%;
+            `}
+          >
+            {/* Helps screen reader users dismiss easily when tabbing */}
+            <DismissButton onDismiss={handleClose} />
 
-          <VisuallyHidden>
-            <h2 {...titleProps}>{t("navigation-menu")}</h2>
-          </VisuallyHidden>
-          <button className={closeButtonCss} onClick={handleClose} aria-label={t("close")}>
-            <span
-              className={css`
-                font-size: 20px;
-                line-height: 1;
-              `}
-              aria-hidden="true"
-            >
-              {/* oxlint-disable-next-line i18next/no-literal-string */}
-              {"×"}
-            </span>
-          </button>
-          <div>{children}</div>
+            <VisuallyHidden>
+              <h2 {...titleProps}>{t("navigation-menu")}</h2>
+            </VisuallyHidden>
+            <button className={closeButtonCss} onClick={handleClose} aria-label={t("close")}>
+              <span
+                className={css`
+                  font-size: 20px;
+                  line-height: 1;
+                `}
+                aria-hidden="true"
+              >
+                {/* oxlint-disable-next-line i18next/no-literal-string */}
+                {"×"}
+              </span>
+            </button>
+            <div>{children}</div>
 
-          {/* Helps screen reader users dismiss easily when tabbing */}
-          <DismissButton onDismiss={handleClose} />
+            {/* Helps screen reader users dismiss easily when tabbing */}
+            <DismissButton onDismiss={handleClose} />
+          </div>
         </div>
       </div>
-    </div>
+    </OverlayContainer>
   )
 }
 

@@ -1,12 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useDisclosureState } from "@react-stately/disclosure"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import { AddMessage, LayoutVertical, PlusCircle } from "@vectopus/atlas-icons-react"
 import type React from "react"
 import { useRef } from "react"
-import { mergeProps, OverlayContainer, useButton, useFocusRing, useHover } from "react-aria"
+import { mergeProps, useButton, useFocusRing, useHover } from "react-aria"
 import { useDisclosure } from "react-aria/useDisclosure"
 import { useTranslation } from "react-i18next"
 
@@ -56,7 +57,6 @@ const dropdownMenuCss = css`
 
 const sidebarButtonCss = css`
   ${respondToOrLarger.md} {
-    display: block;
     background: none;
     border: none;
     box-shadow: none;
@@ -68,9 +68,22 @@ const sidebarButtonCss = css`
       cursor: pointer;
     }
   }
+`
 
+const VisibleOnMobile = styled.div`
+  ${respondToOrLarger.md} {
+    display: none;
+  }
+  display: block;
+`
+
+const VisibleOnDesktop = styled.div`
+  ${respondToOrLarger.md} {
+    display: block;
+  }
   display: none;
 `
+
 const Sidebar: React.FC<SideBarProps> = (props) => {
   const { t } = useTranslation()
   const { setChatbotDialog, conversations, setConfigurationId, chatbots, setCreateChatbotVisible } =
@@ -107,79 +120,79 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
   ]
 
   return (
-    <>
-      <div className={sideBarContainerCss}>
+    <div className={sideBarContainerCss}>
+      <div
+        className={css`
+          display: flex;
+
+          ${respondToOrLarger.md} {
+            align-items: baseline;
+            justify-content: space-between;
+            flex-direction: ${state.isExpanded ? "row" : "column-reverse"};
+            border-bottom: ${state.isExpanded ? `1px solid ${baseTheme.colors.gray[75]}` : "none"};
+          }
+
+          flex-direction: column-reverse;
+        `}
+      >
         <div
           className={css`
             display: flex;
-
             ${respondToOrLarger.md} {
-              align-items: baseline;
-              justify-content: space-between;
-              flex-direction: ${state.isExpanded ? "row" : "column-reverse"};
-              border-bottom: ${state.isExpanded ? `1px solid ${baseTheme.colors.gray[75]}` : "none"};
+              flex-direction: ${!state.isExpanded ? "column" : "row"};
+              align-items: center;
             }
-
-            flex-direction: column-reverse;
+            flex-direction: column;
           `}
         >
-          <div
-            className={css`
-              display: flex;
-              ${respondToOrLarger.md} {
-                flex-direction: ${!state.isExpanded ? "column" : "row"};
-                align-items: center;
-              }
-              flex-direction: column;
-            `}
+          <OnlyRenderIfPermissions
+            action={{ type: "edit" }}
+            resource={{ type: "global_permissions" }}
           >
-            <OnlyRenderIfPermissions
-              action={{ type: "edit" }}
-              resource={{ type: "global_permissions" }}
-            >
-              <DropdownMenu
-                // oxlint-disable-next-line i18next/no-literal-string
-                menuTestId="chatbot-header-menu"
-                // oxlint-disable-next-line i18next/no-literal-string
-                menuButtonTestId="sidebar-header-menu-button"
-                controlButtonClassName={dropdownMenuCss}
-                controlButtonIconColor={`${baseTheme.colors.green[700]}`}
-                controlButtonAriaLabel={t("label-actions")}
-                controlButtonTooltipText={t("label-actions")}
-                controlButtonIconWidth={16}
-                items={items}
-              />
-              <Button
-                className={css`
-                  color: var(--field-fg);
-                  text-wrap: nowrap;
-                  padding: 0;
+            <DropdownMenu
+              // oxlint-disable-next-line i18next/no-literal-string
+              menuTestId="chatbot-header-menu"
+              // oxlint-disable-next-line i18next/no-literal-string
+              menuButtonTestId="sidebar-header-menu-button"
+              controlButtonClassName={dropdownMenuCss}
+              controlButtonIconColor={`${baseTheme.colors.green[700]}`}
+              controlButtonAriaLabel={t("label-actions")}
+              controlButtonTooltipText={t("label-actions")}
+              controlButtonIconWidth={16}
+              items={items}
+            />
+            <Button
+              className={css`
+                color: var(--field-fg);
+                text-wrap: nowrap;
+                padding: 0;
 
-                  /* Hide button text when disclosure collapsed and when on mobile */
-                  & span[id]:last-of-type {
-                    ${respondToOrLarger.md} {
-                      display: ${!state.isExpanded ? "none" : "block"};
-                    }
-                    display: none;
+                /* Hide button text when disclosure collapsed and when on mobile */
+                & span[id]:last-of-type {
+                  ${respondToOrLarger.md} {
+                    display: ${!state.isExpanded ? "none" : "block"};
                   }
-                `}
-                icon={
-                  <AddMessage
-                    className={css`
-                      color: ${baseTheme.colors.green[700]};
-                    `}
-                  />
+                  display: none;
                 }
-                // oxlint-disable-next-line i18next/no-literal-string
-                iconPosition="start"
-                size="medium"
-                variant="icon"
-                onClick={() => setChatbotDialog(true)}
-              >
-                {t("new-conversation")}
-              </Button>
-            </OnlyRenderIfPermissions>
-          </div>
+              `}
+              icon={
+                <AddMessage
+                  className={css`
+                    color: ${baseTheme.colors.green[700]};
+                  `}
+                />
+              }
+              // oxlint-disable-next-line i18next/no-literal-string
+              iconPosition="start"
+              size="medium"
+              variant="icon"
+              onClick={() => setChatbotDialog(true)}
+            >
+              {t("new-conversation")}
+            </Button>
+          </OnlyRenderIfPermissions>
+        </div>
+        <VisibleOnDesktop>
           <button
             {...mergeProps(pressProps, hoverProps, focusProps)}
             ref={buttonRef}
@@ -193,8 +206,12 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
           >
             <LayoutVertical weight="medium" size={16} />
           </button>
+        </VisibleOnDesktop>
+        <VisibleOnMobile>
           <SidebarButton state={menuState} />
-        </div>
+        </VisibleOnMobile>
+      </div>
+      <VisibleOnDesktop>
         <SidebarDisclosure state={state} panelProps={panelProps} panelRef={panelRef}>
           <ConversationHistory
             menuState={menuState}
@@ -203,20 +220,20 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
             setConfigurationId={setConfigurationId}
           />
         </SidebarDisclosure>
+      </VisibleOnDesktop>
+      <VisibleOnMobile>
         {menuState.isOpen && (
-          <OverlayContainer>
-            <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
-              <ConversationHistory
-                menuState={menuState}
-                conversations={conversations}
-                chatbots={chatbots}
-                setConfigurationId={setConfigurationId}
-              />
-            </MobileDisclosureOverlay>
-          </OverlayContainer>
+          <MobileDisclosureOverlay state={menuState} onClose={menuState.close}>
+            <ConversationHistory
+              menuState={menuState}
+              conversations={conversations}
+              chatbots={chatbots}
+              setConfigurationId={setConfigurationId}
+            />
+          </MobileDisclosureOverlay>
         )}
-      </div>
-    </>
+      </VisibleOnMobile>
+    </div>
   )
 }
 

@@ -6,21 +6,12 @@ import React from "react"
 import type { ReactNode } from "react"
 import type { AriaDisclosureProps } from "react-aria"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
 interface DisclosureProps extends AriaDisclosureProps {
   children?: ReactNode
   state: DisclosureState
   panelProps: React.HTMLAttributes<HTMLElement>
   panelRef: React.RefObject<HTMLDivElement | null>
 }
-
-const reactAriaDisclosure = css`
-  ${respondToOrLarger.md} {
-    display: block;
-  }
-  display: none;
-`
 
 const reactAriaDisclosurePanel = css`
   display: grid;
@@ -49,7 +40,7 @@ const SidebarDisclosure: React.FC<DisclosureProps> = ({
   children,
 }) => {
   return (
-    <div className={reactAriaDisclosure} data-expanded={state.isExpanded || undefined}>
+    <div data-expanded={state.isExpanded || undefined}>
       <div {...panelProps} ref={panelRef} className={reactAriaDisclosurePanel}>
         <div>{children}</div>
       </div>

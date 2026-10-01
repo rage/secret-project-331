@@ -7,8 +7,6 @@ import { useButton } from "react-aria"
 import type { OverlayTriggerState } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
 interface SidebarButtonProps {
   state: OverlayTriggerState
 }
@@ -19,10 +17,6 @@ const sidebarButtonCss = css`
   box-shadow: none;
   text-shadow: none;
   padding: 12px 16px;
-
-  ${respondToOrLarger.md} {
-    display: none;
-  }
 `
 
 export const SidebarButton: React.FC<SidebarButtonProps> = ({ state }) => {

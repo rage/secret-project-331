@@ -14,6 +14,7 @@ import type {
   PagePointsBreakdown,
 } from "@/generated/course-material-api/types.generated"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Dialog, Link, type LinkAppearance, QueryResult } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 import { coursePageSectionRoute } from "@/utils/course-material/routing"
@@ -73,7 +74,7 @@ const OpenPointsBreakdownDialog: React.FC<Omit<PointsBreakdownDialogProps, "open
       open
       onClose={onClose}
       isDismissable
-      className={cx(query.isPending && loadingDialogCss, dialogCss)}
+      className={cx(dialogCss, query.isPending && loadingDialogCss)}
       title={<DialogTitle totals={isEmpty ? null : { points, exercises }} />}
     >
       <QueryResult
@@ -387,18 +388,25 @@ const LOADING_MIN_HEIGHT_PX = 240
 const dialogCss = css`
   --dialog-width-cap: 46rem;
 
-  @media (max-width: 30rem) {
-    width: 100vw;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+
+  ${respondToOrLarger.xs} {
+    width: min(95vw, var(--dialog-width-cap));
+    height: auto;
+    max-height: 90vh;
+    border-radius: var(--surface-radius);
   }
 `
 
 // Most modules list more exercises than fit, so loading at full height spares them a jump. Comes
-// before `dialogCss` in `cx`, so the full-screen phone height still wins.
+// after `dialogCss` in `cx` so it overrides the auto height.
 const loadingDialogCss = css`
-  height: 90vh;
+  ${respondToOrLarger.xs} {
+    height: 90vh;
+  }
 `
 
 const titleTextCss = css`

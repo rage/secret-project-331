@@ -200,7 +200,9 @@ ORDER BY chapters.chapter_number,
                 pages: Vec::new(),
             });
         }
-        let chapter = chapters.last_mut().expect("a chapter was just ensured");
+        let Some(chapter) = chapters.last_mut() else {
+            continue;
+        };
         if chapter
             .pages
             .last()
@@ -215,7 +217,9 @@ ORDER BY chapters.chapter_number,
                 exercises: Vec::new(),
             });
         }
-        let page = chapter.pages.last_mut().expect("a page was just ensured");
+        let Some(page) = chapter.pages.last_mut() else {
+            continue;
+        };
         page.score_given = f32_to_two_decimals(page.score_given + exercise.score_given);
         page.score_maximum += exercise.score_maximum;
         chapter.score_given = f32_to_two_decimals(chapter.score_given + exercise.score_given);

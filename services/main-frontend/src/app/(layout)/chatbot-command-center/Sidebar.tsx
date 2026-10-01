@@ -21,7 +21,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button } from "@/shared-module/components"
 
 import ConversationHistory from "./ConversationHistory"
-import DesktopSidebar from "./sidebar/DesktopSidebar"
 import { MobileSidebarButton } from "./sidebar/MobileSidebarButton"
 import MobileSidebarOverlay from "./sidebar/MobileSidebarOverlay"
 
@@ -67,6 +66,26 @@ const sidebarButtonCss = css`
       background: ${baseTheme.colors.clear[100]};
       cursor: pointer;
     }
+  }
+`
+
+const sidebarCss = css`
+  display: grid;
+  grid-template-columns: 1fr;
+  opacity: 1;
+  visibility: visible;
+  overflow: hidden;
+  transition:
+    grid-template-columns 0.2s linear,
+    opacity 0.2s linear,
+    visibility 0.2s linear allow-discrete;
+
+  &[aria-hidden="true"] {
+    grid-template-columns: 0fr;
+    opacity: 0;
+    visibility: hidden;
+
+    transition: none;
   }
 `
 
@@ -212,14 +231,16 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
         </VisibleOnMobile>
       </div>
       <VisibleOnDesktop>
-        <DesktopSidebar state={state} panelProps={panelProps} panelRef={panelRef}>
-          <ConversationHistory
-            menuState={menuState}
-            conversations={conversations}
-            chatbots={chatbots}
-            setConfigurationId={setConfigurationId}
-          />
-        </DesktopSidebar>
+        <div data-expanded={state.isExpanded || undefined}>
+          <div {...panelProps} ref={panelRef} className={sidebarCss}>
+            <ConversationHistory
+              menuState={menuState}
+              conversations={conversations}
+              chatbots={chatbots}
+              setConfigurationId={setConfigurationId}
+            />
+          </div>
+        </div>
       </VisibleOnDesktop>
       <VisibleOnMobile>
         {menuState.isOpen && (

@@ -55,7 +55,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }
 
   return (
-    <div>
+    <>
       {conversations.map((conversation) => (
         <button
           onClick={() => {
@@ -115,7 +115,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           </div>
         </button>
       ))}
-    </div>
+    </>
   )
 }
 

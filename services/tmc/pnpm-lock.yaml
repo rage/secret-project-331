@@ -137,9 +137,6 @@ importers:
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.4.0)
-      form-data:
-        specifier: ^4.0.6
-        version: 4.0.6
       i18next:
         specifier: ^26.4.0
         version: 26.4.0(@typescript/typescript6@6.0.2)
@@ -1587,7 +1584,7 @@ packages:
     hasBin: true
 
   '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
+    resolution: {gitHosted: true, integrity: sha512-M4060i7pOgrNXUzkDGdwr6hNj/G9jnWk+n2/lpievbXL72d0FEh89nPkt4YhauVE3ru+D3EbAf3x9DMjowBlAQ==, tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
     version: 0.0.10
 
   '@vitejs/plugin-react@6.1.0':
@@ -8520,7 +8517,6 @@ time:
   '@vitejs/plugin-react@6.1.0': '2026-08-20T02:49:46.306Z'
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   date-fns@4.4.0: '2026-05-29T23:23:42.628Z'
-  form-data@4.0.6: '2026-06-12T17:37:53.689Z'
   i18next@26.4.0: '2026-08-20T09:25:14.621Z'
   immer@11.1.18: '2026-08-19T07:25:22.934Z'
   jotai-family@1.1.0: '2026-07-29T15:19:07.279Z'

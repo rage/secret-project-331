@@ -66,8 +66,10 @@ test("Changing course instance preserves completions and points", async ({ page 
   })
 
   await test.step("Explain the points chart and list every exercise", async () => {
-    await page.getByRole("button", { name: "About the points chart" }).click()
-    await expect(page.getByText("Your points: 1")).toBeVisible()
+    await expect(async () => {
+      await page.getByRole("button", { name: "About the points chart" }).click()
+      await expect(page.getByText("Your points: 1")).toBeVisible({ timeout: 1000 })
+    }).toPass()
     await expect(page.getByText("Maximum: 1")).toBeVisible()
     await page.keyboard.press("Escape")
 

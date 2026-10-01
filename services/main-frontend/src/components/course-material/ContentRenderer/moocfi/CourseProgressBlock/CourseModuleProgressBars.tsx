@@ -5,15 +5,24 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import CircularProgress from "@/components/course-progress/CircularProgress"
+import PointsBreakdownButton from "@/components/course-progress/PointsBreakdownButton"
+import type { CourseInstanceLocation } from "@/components/course-progress/PointsBreakdownDialog"
+import ProgressBar from "@/components/course-progress/ProgressBar"
+import {
+  describeProgress,
+  PROGRESS_UNIT,
+  type ProgressMeasure,
+  withoutEmptyThreshold,
+} from "@/components/course-progress/progressText"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
-import Progress from "@/shared-module/common/components/CourseProgress"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 
-import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
 export interface CourseModuleProgressBarsProps {
   courseModuleProgress: UserCourseProgress
+  /** `null` leaves out the button that lists every exercise. */
+  courseInstanceLocation: CourseInstanceLocation | null
 }
 
 const Wrapper = styled.div`
@@ -27,11 +36,31 @@ const TotalWrapper = styled.div`
   padding: 0.8rem 3rem 0 3rem;
 `
 
-/** Shared by the course-material progress block and the profile's studies tab. */
+/** One module's progress inside the course-material progress block's accordion. */
 const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   courseModuleProgress,
+  courseInstanceLocation,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const requiresExam = courseModuleProgress.requires_exam
+  const points: ProgressMeasure = withoutEmptyThreshold({
+    given: courseModuleProgress.score_given,
+    max: courseModuleProgress.score_maximum ?? null,
+    required: courseModuleProgress.score_required ?? null,
+  })
+  const exercises: ProgressMeasure = withoutEmptyThreshold({
+    given: courseModuleProgress.attempted_exercises ?? null,
+    max: courseModuleProgress.total_exercises ?? null,
+    required: courseModuleProgress.attempted_exercises_required ?? null,
+  })
+  const pointsText = describeProgress(PROGRESS_UNIT.POINTS, points, t, i18n.language, requiresExam)
+  const exercisesText = describeProgress(
+    PROGRESS_UNIT.EXERCISES,
+    exercises,
+    t,
+    i18n.language,
+    requiresExam,
+  )
 
   return (
     <>
@@ -48,50 +77,39 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
             overflow: hidden;
           `}
         >
-          {/* TODO: Verify how it looks when score_given is a floating number */}
-          <Progress
-            variant={"circle"}
-            max={courseModuleProgress.score_maximum ?? null}
-            {...includeIf(
-              courseModuleProgress.score_required !== null &&
-                courseModuleProgress.score_required !== undefined,
-              { required: courseModuleProgress.score_required },
-            )}
-            given={courseModuleProgress.score_given ?? null}
-            label={t("total-points")}
+          <CircularProgress
+            max={points.max}
+            {...(points.required !== null && { required: points.required })}
+            given={points.given}
+            label={t("course-progress")}
+            valueText={pointsText.valueText}
+            explanations={pointsText.explanations}
           />
-          <Progress
-            variant={"bar"}
-            showAsPercentage={false}
-            exercisesAttempted={courseModuleProgress.attempted_exercises ?? null}
-            exercisesTotal={courseModuleProgress.total_exercises ?? null}
-            {...includeIf(
-              courseModuleProgress.attempted_exercises_required !== null &&
-                courseModuleProgress.attempted_exercises_required !== undefined,
-              { required: courseModuleProgress.attempted_exercises_required },
-            )}
+          <ProgressBar
+            exercisesAttempted={exercises.given}
+            exercisesTotal={exercises.max}
+            {...(exercises.required !== null && { required: exercises.required })}
             label={t("exercises-attempted")}
+            valueText={exercisesText.valueText}
+            explanations={exercisesText.explanations}
           />
-          <ColorsIdentifier
-            studentPoints={courseModuleProgress.score_given ?? null}
-            requiredPoints={courseModuleProgress.score_required ?? null}
-            maxPoints={courseModuleProgress.score_maximum ?? null}
-            // The exercises bar above also draws a required marker, from attempted_exercises_required.
-            showRequiredLegend={
-              (courseModuleProgress.score_required !== null &&
-                courseModuleProgress.score_required !== undefined) ||
-              (courseModuleProgress.attempted_exercises_required !== null &&
-                courseModuleProgress.attempted_exercises_required !== undefined)
-            }
-          />
+          {courseInstanceLocation && (
+            <PointsBreakdownButton
+              scope={{
+                ...courseInstanceLocation,
+                courseModuleId: courseModuleProgress.course_module_id,
+              }}
+              points={points}
+              exercises={exercises}
+            />
+          )}
         </div>
       </TotalWrapper>
       <Wrapper>
         <CompletionRequirementsTabulation
-          attemptedExercisesRequiredForCompletion={
-            courseModuleProgress.attempted_exercises_required ?? null
-          }
-          pointsRequiredForCompletion={courseModuleProgress.score_required ?? null}
+          attemptedExercisesRequiredForCompletion={exercises.required}
+          pointsRequiredForCompletion={points.required}
+          requiresExam={requiresExam}
         />
       </Wrapper>
     </>

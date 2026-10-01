@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "export": "next export",
     "postinstall": "mkdir -p public && cp -r ./node_modules/monaco-editor/min ./public/monaco-editor",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+    "test": "jest"
   },
   "dependencies": {
     "@citation-js/plugin-bibtex": "^0.8.2",

@@ -61,8 +61,10 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
     {
       onSuccess: async () => {
         queryClient.invalidateQueries({
+          queryKey: [getCourseFeedbackCountQueryKey({ path: { course_id: courseId } })],
+        })
+        queryClient.invalidateQueries({
           queryKey: [
-            getCourseFeedbackCountQueryKey({ path: { course_id: courseId } }),
             getCourseFeedbackCategoriesQueryKey({ path: { course_id: courseId }, query: { read } }),
           ],
         })

@@ -463,6 +463,18 @@ export const zBulkUserDetailsRequest = z.object({
   user_ids: z.array(z.uuid()),
 })
 
+export const zCategoryFeedbackCount = z.object({
+  category_id: z.uuid(),
+  read_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  unread_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zCertificateAllRequirements = z.object({
   certificate_configuration_id: z.uuid(),
   course_module_ids: z.array(z.uuid()),
@@ -2968,6 +2980,7 @@ export const zFeedbackCategory = z.object({
 })
 
 export const zFeedbackEditProposalCounts = z.object({
+  feedback_categories_counts: z.array(zCategoryFeedbackCount),
   handled_edits: z
     .int()
     .gte(0)

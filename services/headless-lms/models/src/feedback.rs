@@ -276,12 +276,51 @@ ORDER BY fb."created_at!" DESC,
 pub struct FeedbackCount {
     pub read: u32,
     pub unread: u32,
+    pub categories: Vec<CategoryFeedbackCount>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CategoryFeedbackCount {
+    pub category_id: Uuid,
+    pub read_feedback: u32,
+    pub unread_feedback: u32,
 }
 
 pub async fn get_feedback_count_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<FeedbackCount> {
+    let res1 = sqlx::query!(
+        r#"
+SELECT COUNT(*) filter (
+    WHERE marked_as_read
+  ) AS READ,
+  COUNT(*) filter (
+    WHERE NOT(marked_as_read)
+  ) AS unread,
+  category_id AS "category_id!"
+FROM feedback
+WHERE course_id = $1
+  AND deleted_at IS NULL
+  AND category_id IS NOT NULL
+GROUP BY category_id
+        "#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let c: Vec<CategoryFeedbackCount> = res1
+        .iter()
+        .filter_map(|x| {
+            Some(CategoryFeedbackCount {
+                category_id: x.category_id,
+                read_feedback: x.read.unwrap_or_default().try_into().ok()?,
+                unread_feedback: x.unread.unwrap_or_default().try_into().ok()?,
+            })
+        })
+        .collect();
+
     let res = sqlx::query!(
         "
 SELECT COUNT(*) filter (
@@ -301,5 +340,6 @@ WHERE course_id = $1
     Ok(FeedbackCount {
         read: res.read.unwrap_or_default().try_into()?,
         unread: res.unread.unwrap_or_default().try_into()?,
+        categories: c,
     })
 }

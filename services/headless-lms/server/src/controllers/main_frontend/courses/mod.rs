@@ -12,6 +12,7 @@ use headless_lms_models::{
     course_audiences::CourseAudience,
     course_prerequisites::CoursePrerequisite,
     courses::CompleteCourseMetadata,
+    feedback::CategoryFeedbackCount,
     partner_block::PartnersBlock,
     proposed_page_edits,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
@@ -1215,6 +1216,7 @@ pub async fn get_feedback(
 pub struct FeedbackEditProposalCounts {
     pub read_feedback: u32,
     pub unread_feedback: u32,
+    pub feedback_categories_counts: Vec<CategoryFeedbackCount>,
     pub pending_edits: u32,
     pub handled_edits: u32,
     /// pending edits + unread feedback
@@ -1261,6 +1263,7 @@ pub async fn get_feedback_edit_proposals_count(
         pending_edits: edit_proposal_count.pending,
         handled_edits: edit_proposal_count.handled,
         total_waiting: feedback_count.unread + edit_proposal_count.pending,
+        feedback_categories_counts: feedback_count.categories,
     };
 
     token.authorized_ok(web::Json(res))

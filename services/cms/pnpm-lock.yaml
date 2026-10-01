@@ -104,6 +104,9 @@ importers:
       '@react-types/dialog':
         specifier: ^3.6.0
         version: 3.6.0(@react-spectrum/provider@3.11.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@react-types/shared':
+        specifier: ^3.36.1
+        version: 3.36.1(react@19.2.8)
       '@tanstack/react-query':
         specifier: ^5.102.3
         version: 5.102.3(react@19.2.8)
@@ -3900,12 +3903,14 @@ packages:
   '@wordpress/jest-console@9.1.0':
     resolution: {integrity: sha512-DvIDCckbQq3G4DZVktLmAQNGRsptkUSW5JeTbDAtr5L3ZtoV1fXYnryiDG9QP3ELgzIHcFX0Qa7TZmymb6SXxg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       jest: '>=30'
 
   '@wordpress/jest-preset-default@14.0.0':
     resolution: {integrity: sha512-ao/QFpjiVs56/WL7w/ZglLrIHmGPqiAKTNMakAZ/DQsjfEybaaHblzlpCHRCQ5qUGllYeUbQ7lsT9PrNLOe6zQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       '@babel/core': '>=7'
       jest: '>=30'
@@ -21915,6 +21920,7 @@ time:
   '@react-stately/overlays@3.7.1': '2026-05-28T17:28:35.658Z'
   '@react-stately/slider@3.8.1': '2026-05-28T17:28:36.194Z'
   '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'
+  '@react-types/shared@3.36.1': '2026-07-31T15:25:07.075Z'
   '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
   '@tanstack/react-query@5.102.3': '2026-08-24T19:26:18.951Z'
   '@testing-library/react@16.3.2': '2026-01-19T10:59:08.185Z'

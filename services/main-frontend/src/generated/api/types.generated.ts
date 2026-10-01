@@ -704,6 +704,12 @@ export type BulkUserDetailsRequest = {
   user_ids: Array<string>
 }
 
+export type CategoryFeedbackCount = {
+  category_id: string
+  read_feedback: number
+  unread_feedback: number
+}
+
 export type CertificateAllRequirements = {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -3262,6 +3268,7 @@ export type FeedbackCategory = {
 }
 
 export type FeedbackEditProposalCounts = {
+  feedback_categories_counts: Array<CategoryFeedbackCount>
   handled_edits: number
   pending_edits: number
   read_feedback: number

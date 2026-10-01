@@ -15919,6 +15919,26 @@
           }
         }
       },
+      "CategoryFeedbackCount": {
+        "type": "object",
+        "required": ["category_id", "read_feedback", "unread_feedback"],
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "unread_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "CertificateAllRequirements": {
         "type": "object",
         "required": ["certificate_configuration_id", "course_module_ids"],
@@ -22707,11 +22727,18 @@
         "required": [
           "read_feedback",
           "unread_feedback",
+          "feedback_categories_counts",
           "pending_edits",
           "handled_edits",
           "total_waiting"
         ],
         "properties": {
+          "feedback_categories_counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryFeedbackCount"
+            }
+          },
           "handled_edits": {
             "type": "integer",
             "format": "int32",

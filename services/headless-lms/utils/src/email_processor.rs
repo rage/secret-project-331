@@ -12,6 +12,12 @@ static ALL_TAG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"<.+?>").expect("invalid all_tags regex"));
 static DOUBLE_QUOTE_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"""#).expect("invalid double_quote regex"));
+static LAYOUT_PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\{\{(CONTENT|SUBJECT)\}\}").expect("invalid layout_placeholder regex")
+});
+
+/// The shell used when no `email_layouts` row is live.
+pub const DEFAULT_EMAIL_LAYOUT: &str = include_str!("email_layout_default.html");
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Clone)]
 #[serde(tag = "type", content = "attributes")]
@@ -125,6 +131,32 @@ pub fn process_content_to_html(blocks: &[EmailGutenbergBlock]) -> String {
         })
         .collect();
     contents.join("")
+}
+
+/// Wraps a rendered HTML body in an email shell, filling `{{CONTENT}}` with `content_html` as is and
+/// `{{SUBJECT}}` with the escaped subject. One pass, so placeholders inside the body are never expanded.
+pub fn wrap_in_layout(layout_html: &str, subject: &str, content_html: &str) -> String {
+    LAYOUT_PLACEHOLDER_REGEX
+        .replace_all(layout_html, |caps: &Captures| match &caps[1] {
+            "CONTENT" => content_html.to_string(),
+            _ => escape_html(subject),
+        })
+        .into_owned()
+}
+
+fn escape_html(text: &str) -> String {
+    let mut escaped = String::with_capacity(text.len());
+    for c in text.chars() {
+        match c {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            '\'' => escaped.push_str("&#39;"),
+            _ => escaped.push(c),
+        }
+    }
+    escaped
 }
 
 #[cfg(test)]

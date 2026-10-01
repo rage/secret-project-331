@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT html\nFROM email_layouts\nWHERE deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "html",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_layouts",
+            "name": "html"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c49c079788861526cf5df90085ac6e630e56eb90d77ba1c6139a78ccd694236f"
+}

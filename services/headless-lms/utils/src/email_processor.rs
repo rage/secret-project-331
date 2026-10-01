@@ -45,7 +45,18 @@ pub enum EmailBlockName {
     Buttons,
     #[serde(rename = "core/button")]
     Button,
+    #[serde(rename = "core/quote")]
+    Quote,
+    #[serde(rename = "core/separator")]
+    Separator,
+    #[serde(rename = "core/spacer")]
+    Spacer,
+    #[serde(rename = "core/code")]
+    Code,
 }
+
+const DEFAULT_SPACER_HEIGHT_PX: u32 = 32;
+const MAX_SPACER_HEIGHT_PX: f64 = 160.0;
 
 /// One block of an email body. String attributes holding rich text (`content`, `text`, `caption`,
 /// table cells) are HTML; `url` and `href` are plain.
@@ -65,6 +76,19 @@ impl EmailGutenbergBlock {
             .get(key)
             .and_then(Value::as_str)
             .unwrap_or_default()
+    }
+
+    /// Spacer height in px; Gutenberg stores it as a string like "100px", old content as a number.
+    fn spacer_height_px(&self) -> u32 {
+        let height = match self.attributes.get("height") {
+            Some(Value::Number(number)) => number.as_f64(),
+            Some(Value::String(text)) => text.trim().trim_end_matches("px").trim().parse().ok(),
+            _ => None,
+        };
+        height
+            .filter(|height| height.is_finite())
+            .map(|height| height.clamp(0.0, MAX_SPACER_HEIGHT_PX).round() as u32)
+            .unwrap_or(DEFAULT_SPACER_HEIGHT_PX)
     }
 
     fn table_rows(&self, section: &str) -> Vec<Vec<(&str, &str)>> {
@@ -162,9 +186,15 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
                 escape_html(block.str_attribute("url")),
                 escape_html(block.str_attribute("alt"))
             );
-            match block.str_attribute("href") {
+            let img = match block.str_attribute("href") {
                 "" => img,
                 href => format!(r#"<a href="{}">{img}</a>"#, escape_html(href)),
+            };
+            match block.str_attribute("caption") {
+                "" => img,
+                caption => format!(
+                    r#"<div class="email-image">{img}<p class="email-image-caption">{caption}</p></div>"#
+                ),
             }
         }
         EmailBlockName::List => {
@@ -222,6 +252,33 @@ fn block_to_html(block: &EmailGutenbergBlock) -> String {
             escape_html(block.str_attribute("url")),
             block.str_attribute("text")
         ),
+        EmailBlockName::Quote => {
+            let citation = match block.str_attribute("citation") {
+                "" => String::new(),
+                citation => format!("<cite>{citation}</cite>"),
+            };
+            format!(
+                "<blockquote>{}{}{citation}</blockquote>",
+                process_content_to_html(&block.inner_blocks),
+                if block.inner_blocks.is_empty() {
+                    block.str_attribute("value")
+                } else {
+                    ""
+                }
+            )
+        }
+        // Tables, not <hr> or a sized <div>: Outlook desktop ignores their borders, heights and margins.
+        EmailBlockName::Separator => r##"<table role="presentation" class="email-separator" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="height: 1px; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; border-top: 1px solid #d0d7de;">&nbsp;</td></tr></table>"##.to_string(),
+        EmailBlockName::Spacer => {
+            let height = block.spacer_height_px();
+            format!(
+                r#"<table role="presentation" class="email-spacer" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="{height}" style="height: {height}px; font-size: {height}px; line-height: {height}px; mso-line-height-rule: exactly; padding: 0; border: 0;">&nbsp;</td></tr></table>"#
+            )
+        }
+        EmailBlockName::Code => format!(
+            "<pre class=\"email-code\"><code>{}</code></pre>",
+            block.str_attribute("content").replace("<br>", "\n")
+        ),
     }
 }
 
@@ -241,7 +298,11 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
         }
         EmailBlockName::Image => {
             let alt = block.str_attribute("alt").replace('"', "");
-            format!("\"{}\", <{}>", alt, block.str_attribute("url"))
+            let image = format!("\"{}\", <{}>", alt, block.str_attribute("url"));
+            match html_to_text(block.str_attribute("caption")).as_str() {
+                "" => image,
+                caption => format!("{image}\n{caption}"),
+            }
         }
         EmailBlockName::List | EmailBlockName::ListItem => list_to_plaintext(block, 0),
         EmailBlockName::Table => {
@@ -272,6 +333,29 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
             html_to_text(block.str_attribute("text")),
             block.str_attribute("url")
         ),
+        EmailBlockName::Quote => {
+            let body = if block.inner_blocks.is_empty() {
+                html_to_text(&block.str_attribute("value").replace("</p>", "\n"))
+            } else {
+                process_content_to_plaintext(&block.inner_blocks)
+            };
+            let mut lines: Vec<String> = body
+                .lines()
+                .map(|line| format!("> {line}").trim_end().to_string())
+                .collect();
+            let citation = html_to_text(block.str_attribute("citation"));
+            if !citation.is_empty() {
+                lines.push(format!("— {citation}"));
+            }
+            lines.join("\n")
+        }
+        EmailBlockName::Separator => "---".to_string(),
+        EmailBlockName::Spacer => String::new(),
+        EmailBlockName::Code => html_to_text(block.str_attribute("content"))
+            .lines()
+            .map(|line| format!("    {line}").trim_end().to_string())
+            .collect::<Vec<_>>()
+            .join("\n"),
     }
 }
 

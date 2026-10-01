@@ -67,6 +67,10 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/table",
   "core/buttons",
   "core/button",
+  "core/quote",
+  "core/separator",
+  "core/spacer",
+  "core/code",
 ]
 
 export const allowedPartnerCoreBlocks: string[] = ["core/image"]

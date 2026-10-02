@@ -90,7 +90,7 @@ export const matrixShape = (
 /** Positions inside the shape that the author left blank; a student can never reproduce these. */
 export const blankCellsInsideShape = (
   matrix: readonly (readonly unknown[])[] | null | undefined,
-  shape: MatrixShape,
+  shape: MatrixShape = matrixShape(matrix),
 ): { row: number; column: number }[] => {
   const holes: { row: number; column: number }[] = []
   for (let row = 0; row < shape.rows; row++) {

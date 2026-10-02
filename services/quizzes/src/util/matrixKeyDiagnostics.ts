@@ -1,5 +1,6 @@
 /** Matrix key problems the editor warns about. Only gaps also block saving. */
 import {
+  cellsMatch,
   isBlankCell,
   isMalformedNumberCell,
   looksLikeThousandsSeparator,
@@ -52,10 +53,9 @@ export const matrixKeyDiagnostics = (
       const value = parseCellNumber(cell)
       if (value !== null) {
         numericValues.push(value)
-        // Same clamp as cellsMatch, so a negative tolerance still counts exact zeros
-        if (Math.abs(value) <= Math.max(tolerance, 0)) {
-          zeroCells++
-        }
+      }
+      if (cellsMatch(cell, "0", tolerance)) {
+        zeroCells++
       }
     }
   }

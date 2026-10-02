@@ -30,7 +30,7 @@ export const compareMatrices = (
   }
 
   const keyShape = matrixShape(keyMatrix)
-  if (keyShape.rows === 0 || keyShape.columns === 0) {
+  if (keyShape.rows === 0) {
     throw new Error("Matrix item has no correct answer configured")
   }
   const studentShape = matrixShape(studentMatrix)

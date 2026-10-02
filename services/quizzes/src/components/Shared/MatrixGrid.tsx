@@ -1,11 +1,16 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import type React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+import {
+  blankCellsInsideShape,
+  MATRIX_GRID_SIZE,
+  type MatrixShape,
+  matrixShape,
+} from "@/util/matrix"
 
 /** Grid look shared by the student answer view and the exercise editor. */
 export const MatrixTable = styled.table`
@@ -20,7 +25,7 @@ export const MatrixTable = styled.table`
 `
 
 /** True while focus is inside the grid, so gaps aren't flagged in a row that is still being typed. */
-export const useIsEditingGrid = () => {
+const useIsEditingGrid = () => {
   const [isEditing, setIsEditing] = useState(false)
   const handlers = {
     onFocus: () => setIsEditing(true),
@@ -33,29 +38,78 @@ export const useIsEditingGrid = () => {
   return [isEditing, handlers] as const
 }
 
+/** Shape and gaps of an editable grid; gaps are hidden while focus is inside it. */
+export const useMatrixGrid = (matrix: string[][]) => {
+  const [isEditing, editingHandlers] = useIsEditingGrid()
+  const shape = matrixShape(matrix)
+  const gaps = isEditing ? [] : blankCellsInsideShape(matrix, shape)
+  return { shape, gaps, editingHandlers }
+}
+
+const GRID_INDICES = Array.from({ length: MATRIX_GRID_SIZE }, (_unused, index) => index)
+
+interface MatrixInputGridProps extends React.HTMLAttributes<HTMLTableElement> {
+  matrix: string[][]
+  shape: MatrixShape
+  gaps: { row: number; column: number }[]
+  onMatrixChange: (matrix: string[][]) => void
+}
+
+/** The 6x6 input grid shared by the student answer view and the exercise editor. */
+export const MatrixInputGrid: React.FC<MatrixInputGridProps> = ({
+  matrix,
+  shape,
+  gaps,
+  onMatrixChange,
+  ...tableProps
+}) => {
+  // An empty grid still frames its first cell
+  const frame = { rows: Math.max(1, shape.rows), columns: Math.max(1, shape.columns) }
+  const handleChange = (text: string, column: number, row: number) =>
+    onMatrixChange(
+      matrix.map((rowArray, rowIndex) =>
+        rowArray.map((cell, columnIndex) =>
+          rowIndex === row && columnIndex === column ? text : cell,
+        ),
+      ),
+    )
+  return (
+    <MatrixTable {...tableProps}>
+      <tbody>
+        {GRID_INDICES.map((row) => (
+          <tr key={row}>
+            {GRID_INDICES.map((column) => (
+              <MatrixGridCell
+                key={column}
+                row={row}
+                column={column}
+                cellText={matrix[row]?.[column] ?? ""}
+                onChange={handleChange}
+                frame={frame}
+                isGap={gaps.some((gap) => gap.row === row && gap.column === column)}
+              />
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </MatrixTable>
+  )
+}
+
 interface CellInputStyleProps {
   row: number
   column: number
   cellText: string
-  matrixSize: number[]
+  frame: MatrixShape
   isGap: boolean
 }
 
-const cellBackground = (
-  column: number,
-  row: number,
-  cellText: string,
-  matrixSize: number[],
-  isGap: boolean,
-) => {
+const cellBackground = ({ column, row, cellText, frame, isGap }: CellInputStyleProps) => {
   if (isGap) {
     // Strongest red tint that keeps 3:1 against the grid lines and focus outline
     return "#FFF4F4"
   }
-  if (
-    cellText === "" &&
-    (column > (matrixSize[1] ?? Number.NaN) || row > (matrixSize[0] ?? Number.NaN))
-  ) {
+  if (cellText === "" && (column >= frame.columns || row >= frame.rows)) {
     return "#F5F6F7"
   }
   return "#FFFFFF"
@@ -64,10 +118,9 @@ const cellBackground = (
 // Red inner border makes a gap read as an error even though its tint has to stay pale
 const GAP_BORDER = `box-shadow: inset 0 0 0 2px ${baseTheme.colors.red[600]};`
 
-const cellInputStyle = ({ column, row, cellText, matrixSize, isGap }: CellInputStyleProps) =>
+const cellInputStyle = (props: CellInputStyleProps) =>
   `
     position: relative;
-    font-size: 2.8vw;
     font-size: 1.375rem;
     color: #313947;
     font-family: ${primaryFont};
@@ -85,29 +138,29 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isGap }: CellInputS
     }
 
     resize: none;
-    background: ${cellBackground(column, row, cellText, matrixSize, isGap)};
-    ${isGap ? GAP_BORDER : ""}
+    background: ${cellBackground(props)};
+    ${props.isGap ? GAP_BORDER : ""}
   `
 
 const CellInputContainer = styled.input<CellInputStyleProps>`
   ${cellInputStyle}
 `
 
-export interface MatrixGridCellProps {
+interface MatrixGridCellProps {
   row: number
   column: number
   cellText: string
   onChange: (text: string, column: number, row: number) => void
-  matrixSize: number[]
+  frame: MatrixShape
   isGap: boolean
 }
 
-export const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
+const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
   row,
   column,
   cellText,
   onChange,
-  matrixSize,
+  frame,
   isGap,
 }) => {
   const { t } = useTranslation()
@@ -116,7 +169,6 @@ export const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
     <td
       className={css`
         padding: 0;
-        font-size: 2.8vw;
         font-size: 1.375rem;
         font-weight: 600;
         font-family: ${primaryFont};
@@ -129,7 +181,7 @@ export const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
           position: relative;
         `}
       >
-        <MatrixFrame column={column} row={row} matrixSize={matrixSize} />
+        <MatrixFrame column={column} row={row} frame={frame} />
         <CellInputContainer
           // 1-based so the label matches how screen readers announce the table cells (WCAG 1.3.1)
           aria-label={t("matrix-cell-aria-label", { row: row + 1, column: column + 1 })}
@@ -137,11 +189,11 @@ export const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
           data-testid="matrix-cell"
           row={row}
           name={cellText}
-          matrixSize={matrixSize}
+          frame={frame}
           cellText={cellText}
           isGap={isGap}
           aria-invalid={isGap || undefined}
-          value={cellText ?? ""}
+          value={cellText}
           type="text"
           onChange={(event) => onChange(event.target.value, column, row)}
         ></CellInputContainer>
@@ -160,79 +212,56 @@ const BORDER_CONSTANT = `3px solid ${baseTheme.colors.green[600]}`
 interface MatrixFrameProps {
   column: number
   row: number
-  matrixSize: number[]
+  frame: MatrixShape
 }
 
-/** Bracket pieces for one cell; draws the frame around `matrixSize` (last row and column index). */
-export const MatrixFrame: React.FC<MatrixFrameProps> = ({ column, row, matrixSize }) => {
+/** Bracket pieces for one cell: a vertical bar on the frame's outer columns, hooks at its corners. */
+export const MatrixFrame: React.FC<MatrixFrameProps> = ({ column, row, frame }) => {
+  if (row >= frame.rows) {
+    return null
+  }
+  // A one-column frame gets both brackets in the same cell
+  // oxlint-disable-next-line i18next/no-literal-string -- CSS side names
+  const sides = (["left", "right"] as const).filter((side) =>
+    side === "left" ? column === 0 : column === frame.columns - 1,
+  )
   return (
     <>
-      {column === 0 && row === 0 ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-top: ${BORDER_CONSTANT};
-            left: -3px;
-            top: -4px;
-            width: 14px;
-          `}
-        ></div>
-      ) : null}
-      {column === matrixSize[1] && row === 0 ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-top: ${BORDER_CONSTANT};
-            right: -3px;
-            top: -4px;
-            width: 14px;
-          `}
-        ></div>
-      ) : null}
-      {column === 0 && row <= (matrixSize[0] ?? Number.NaN) ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-left: ${BORDER_CONSTANT};
-            top: -4px;
-            bottom: -4px;
-            left: -4px;
-          `}
-        ></div>
-      ) : null}
-      {column === matrixSize[1] && row <= (matrixSize[0] ?? Number.NaN) ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-right: ${BORDER_CONSTANT};
-            top: -4px;
-            bottom: -4px;
-            right: -4px;
-          `}
-        ></div>
-      ) : null}
-      {column === 0 && row === matrixSize[0] ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-bottom: ${BORDER_CONSTANT};
-            left: -3px;
-            width: 14px;
-            bottom: -4px;
-          `}
-        ></div>
-      ) : null}
-      {column === matrixSize[1] && row === matrixSize[0] ? (
-        <div
-          className={css`
-            ${BORDER_STYLES}
-            border-bottom: ${BORDER_CONSTANT};
-            right: -3px;
-            width: 14px;
-            bottom: -4px;
-          `}
-        ></div>
-      ) : null}
+      {sides.map((side) => (
+        <React.Fragment key={side}>
+          <div
+            className={css`
+              ${BORDER_STYLES}
+              border-${side}: ${BORDER_CONSTANT};
+              ${side}: -4px;
+              top: -4px;
+              bottom: -4px;
+            `}
+          />
+          {row === 0 && (
+            <div
+              className={css`
+                ${BORDER_STYLES}
+                border-top: ${BORDER_CONSTANT};
+                ${side}: -3px;
+                top: -4px;
+                width: 14px;
+              `}
+            />
+          )}
+          {row === frame.rows - 1 && (
+            <div
+              className={css`
+                ${BORDER_STYLES}
+                border-bottom: ${BORDER_CONSTANT};
+                ${side}: -3px;
+                bottom: -4px;
+                width: 14px;
+              `}
+            />
+          )}
+        </React.Fragment>
+      ))}
     </>
   )
 }

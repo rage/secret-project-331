@@ -1,4 +1,4 @@
-import { blankCellsInsideShape, matrixShape } from "@/util/matrix"
+import { blankCellsInsideShape } from "@/util/matrix"
 
 import type { UserAnswer } from "../../../../types/quizTypes/answer"
 
@@ -31,10 +31,7 @@ export function getQuizValidityMessages(
       item.type === "timeline" ? item.timelineChoices.map((choice) => choice.chosenEventId) : []
     if (item.type === "timeline" && chosenEventIds.length !== new Set(chosenEventIds).size) {
       messages.push(t("timeline-duplicate-answer-error"))
-    } else if (
-      item.type === "matrix" &&
-      blankCellsInsideShape(item.matrix, matrixShape(item.matrix)).length > 0
-    ) {
+    } else if (item.type === "matrix" && blankCellsInsideShape(item.matrix).length > 0) {
       messages.push(t("matrix-fill-empty-cells"))
     } else {
       messages.push(t("check-your-answer"))

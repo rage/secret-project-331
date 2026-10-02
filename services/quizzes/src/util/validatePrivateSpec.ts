@@ -3,7 +3,7 @@ import type {
   PrivateSpecQuizItemClosedEndedQuestion,
   PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
-import { blankCellsInsideShape, matrixShape } from "./matrix"
+import { isFilledRectangle } from "./matrix"
 
 /**
  * Whether a private spec can be saved and graded; the host gates saving on it. Only closed-ended
@@ -77,16 +77,8 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
 }
 
 // The grader refuses an empty key or one with a gap, and a negative tolerance is meaningless.
-const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean => {
-  const shape = matrixShape(item.optionCells)
-  return (
-    shape.rows > 0 &&
-    shape.columns > 0 &&
-    Number.isFinite(item.tolerance) &&
-    item.tolerance >= 0 &&
-    blankCellsInsideShape(item.optionCells, shape).length === 0
-  )
-}
+const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
+  isFilledRectangle(item.optionCells) && Number.isFinite(item.tolerance) && item.tolerance >= 0
 
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {

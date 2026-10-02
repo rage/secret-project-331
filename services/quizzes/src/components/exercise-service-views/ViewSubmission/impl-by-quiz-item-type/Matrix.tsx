@@ -21,30 +21,45 @@ const SubmissionMatrixTable = styled(MatrixTable)`
   margin-top: 1rem;
 `
 
-// Pale tints so the colored icon carries the verdict; every icon keeps over 5:1 on its tint
-const VERDICT_BACKGROUNDS: Record<MatrixCellVerdict, string> = {
-  correct: baseTheme.colors.green[75],
-  incorrect: baseTheme.colors.red[75],
-  missing: baseTheme.colors.gray[75],
-  extra: baseTheme.colors.yellow[100],
-}
-
-const VERDICT_ICON_COLORS: Record<MatrixCellVerdict, string> = {
-  correct: baseTheme.colors.green[600],
-  incorrect: baseTheme.colors.red[600],
-  missing: baseTheme.colors.gray[500],
-  extra: baseTheme.colors.red[600],
-}
-
+// Pale tints so the colored icon carries the verdict; every icon keeps over 5:1 on its tint.
 // An icon per verdict so color isn't the only signal; `title` alone isn't announced or shown on touch.
-const VERDICT_ICONS: Record<
+const VERDICTS: Record<
   MatrixCellVerdict,
-  React.ComponentType<{ size?: number; className?: string; color?: string }>
+  {
+    background: string
+    iconColor: string
+    Icon: React.ComponentType<{ size?: number; className?: string; color?: string }>
+    labelKey:
+      | "matrix-cell-verdict-correct"
+      | "matrix-cell-verdict-incorrect"
+      | "matrix-cell-verdict-missing"
+      | "matrix-cell-verdict-extra"
+  }
 > = {
-  correct: CheckCircle,
-  incorrect: XmarkCircle,
-  missing: MinusCircle,
-  extra: PlusCircle,
+  correct: {
+    background: baseTheme.colors.green[75],
+    iconColor: baseTheme.colors.green[600],
+    Icon: CheckCircle,
+    labelKey: "matrix-cell-verdict-correct",
+  },
+  incorrect: {
+    background: baseTheme.colors.red[75],
+    iconColor: baseTheme.colors.red[600],
+    Icon: XmarkCircle,
+    labelKey: "matrix-cell-verdict-incorrect",
+  },
+  missing: {
+    background: baseTheme.colors.gray[75],
+    iconColor: baseTheme.colors.gray[500],
+    Icon: MinusCircle,
+    labelKey: "matrix-cell-verdict-missing",
+  },
+  extra: {
+    background: baseTheme.colors.yellow[100],
+    iconColor: baseTheme.colors.red[600],
+    Icon: PlusCircle,
+    labelKey: "matrix-cell-verdict-extra",
+  },
 }
 
 interface RenderedCell {
@@ -88,6 +103,14 @@ const MatrixSubmission: React.FC<
     breakdown !== null &&
     breakdown.missingCells + breakdown.extraCells > 0 &&
     modelSolution?.partialCreditForWrongShape === false
+  let scoreNote: string | null = null
+  if (breakdown && modelSolution?.gradingPolicy === "whole-matrix") {
+    scoreNote = t("matrix-score-breakdown-whole-matrix-note")
+  } else if (breakdown && modelSolution?.gradingPolicy === "per-cell") {
+    scoreNote = wrongShapeScoredZero
+      ? t("matrix-score-breakdown-wrong-shape-note")
+      : t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })
+  }
 
   const answerWasFullyCorrect = quiz_item_answer_feedback?.correctnessCoefficient === 1
   const modelSolutionCells = answerWasFullyCorrect ? null : (modelSolution?.optionCells ?? null)
@@ -150,17 +173,7 @@ const MatrixSubmission: React.FC<
               extra: breakdown.extraCells,
             })}
           </span>
-          {modelSolution?.gradingPolicy === "per-cell" && wrongShapeScoredZero && (
-            <span className={noteLine}>{t("matrix-score-breakdown-wrong-shape-note")}</span>
-          )}
-          {modelSolution?.gradingPolicy === "per-cell" && !wrongShapeScoredZero && (
-            <span className={noteLine}>
-              {t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })}
-            </span>
-          )}
-          {modelSolution?.gradingPolicy === "whole-matrix" && (
-            <span className={noteLine}>{t("matrix-score-breakdown-whole-matrix-note")}</span>
-          )}
+          {scoreNote && <span className={noteLine}>{scoreNote}</span>}
         </p>
       )}
     </div>
@@ -193,13 +206,6 @@ interface MatrixGridProps {
 
 const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt }) => {
   const { t } = useTranslation()
-  const verdictLabels: Record<MatrixCellVerdict, string> = {
-    correct: t("matrix-cell-verdict-correct"),
-    incorrect: t("matrix-cell-verdict-incorrect"),
-    missing: t("matrix-cell-verdict-missing"),
-    extra: t("matrix-cell-verdict-extra"),
-  }
-
   return (
     <SubmissionMatrixTable>
       <tbody>
@@ -207,7 +213,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt })
           <tr key={`row${row}`}>
             {Array.from({ length: columns }, (_unusedCell, column) => {
               const cell = cellAt(row, column)
-              const VerdictIcon = cell.verdict ? VERDICT_ICONS[cell.verdict] : null
+              const verdict = cell.verdict ? VERDICTS[cell.verdict] : null
               return (
                 // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
                 <td
@@ -220,7 +226,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt })
                   `}
                 >
                   <div
-                    title={cell.verdict ? verdictLabels[cell.verdict] : undefined}
+                    title={verdict ? t(verdict.labelKey) : undefined}
                     className={css`
                       position: relative;
                       display: flex;
@@ -229,35 +235,29 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt })
                       width: 3.125rem;
                       height: 3.125rem;
                       /* Nudge the value left of the verdict icon so they don't overlap */
-                      padding-right: ${cell.verdict ? "0.5rem" : "0"};
+                      padding-right: ${verdict ? "0.5rem" : "0"};
                       box-sizing: border-box;
                       text-align: center;
                       color: ${baseTheme.colors.gray[600]};
-                      background-color: ${
-                        cell.verdict ? VERDICT_BACKGROUNDS[cell.verdict] : "#FFFFFF"
-                      };
+                      background-color: ${verdict?.background ?? "#FFFFFF"};
                     `}
                   >
-                    <MatrixFrame
-                      column={column}
-                      row={row}
-                      matrixSize={[frame.rows - 1, frame.columns - 1]}
-                    />
+                    <MatrixFrame column={column} row={row} frame={frame} />
                     {cell.text}
-                    {cell.verdict && VerdictIcon && (
+                    {verdict && (
                       <>
                         <span aria-hidden="true">
-                          <VerdictIcon
+                          <verdict.Icon
                             className={css`
                               position: absolute;
                               top: 0.1875rem;
                               right: 0.1875rem;
                             `}
-                            color={VERDICT_ICON_COLORS[cell.verdict]}
+                            color={verdict.iconColor}
                             size={14}
                           />
                         </span>
-                        <VisuallyHidden>{verdictLabels[cell.verdict]}</VisuallyHidden>
+                        <VisuallyHidden>{t(verdict.labelKey)}</VisuallyHidden>
                       </>
                     )}
                   </div>

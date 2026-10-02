@@ -84,7 +84,7 @@ export function getMatrixDimensions(matrix: string[][] | null | undefined): {
   const shape = matrixShape(
     matrix?.slice(0, MATRIX_GRID_SIZE).map((row) => row?.slice(0, MATRIX_GRID_SIZE)),
   )
-  if (shape.rows === 0 || shape.columns === 0) {
+  if (shape.rows === 0) {
     return { rowCount: null, columnCount: null }
   }
   return { rowCount: shape.rows, columnCount: shape.columns }

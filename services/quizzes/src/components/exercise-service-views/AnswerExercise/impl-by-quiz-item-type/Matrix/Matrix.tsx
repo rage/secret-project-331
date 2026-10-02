@@ -1,30 +1,22 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { MatrixGridCell, MatrixTable, useIsEditingGrid } from "@/components/Shared/MatrixGrid"
+import { MatrixInputGrid, useMatrixGrid } from "@/components/Shared/MatrixGrid"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
-  blankCellsInsideShape,
   emptyMatrixGrid,
   isFilledRectangle,
   isMalformedNumberCell,
   looksLikeThousandsSeparator,
-  MATRIX_GRID_SIZE,
-  matrixShape,
   parseCellNumber,
 } from "@/util/matrix"
 
 import type { QuizItemComponentProps } from ".."
 import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
-
-const AnswerMatrixTable = styled(MatrixTable)`
-  margin-top: 1rem;
-`
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -36,8 +28,6 @@ const Matrix: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
-  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
-  const [isEditing, editingHandlers] = useIsEditingGrid()
   const matrixVariable = useMemo(() => {
     const res = quizItemAnswerState?.matrix
     if (res !== null && res !== undefined && Array.isArray(res)) {
@@ -45,56 +35,22 @@ const Matrix: React.FunctionComponent<
     }
     return emptyMatrixGrid()
   }, [quizItemAnswerState?.matrix])
-  // The frame is drawn from the last non-blank row and column, so it is expressed as indices while
-  // `matrixShape` counts cells.
-  const handleSizeChange = useCallback((matrix: string[][]) => {
-    const shape = matrixShape(matrix)
-    const sizeOfTheMatrix = [Math.max(0, shape.rows - 1), Math.max(0, shape.columns - 1)]
-    setMatrixActiveSize(sizeOfTheMatrix)
-    return sizeOfTheMatrix
-  }, [])
+  // Gaps are flagged only once focus leaves the grid, so a row typed in order doesn't flash red
+  const { shape, gaps, editingHandlers } = useMatrixGrid(matrixVariable)
 
-  useEffect(() => {
-    handleSizeChange(matrixVariable)
-  }, [handleSizeChange, matrixVariable])
-
-  const handleOptionSelect = (text: string, column: number, row: number) => {
-    const newMatrix = matrixVariable.map((rowArray, rowIndex) => {
-      return rowArray.map((cell, columnIndex) => {
-        if (column === columnIndex && row === rowIndex) {
-          return text
-        }
-        return cell
-      })
-    })
-    handleSizeChange(newMatrix)
-    let newOptionCells: string[][] = [[]]
-    if (newMatrix) {
-      newOptionCells = newMatrix
-    } else if (quizItemAnswerState?.matrix) {
-      newOptionCells = quizItemAnswerState?.matrix
-    }
+  const handleMatrixChange = (newMatrix: string[][]) => {
     // Unparseable numbers stay submittable: the grader compares them as text, and the key may hold the same text
-    const isValid = isFilledRectangle(newOptionCells)
+    const isValid = isFilledRectangle(newMatrix)
     if (!quizItemAnswerState) {
       setQuizItemAnswerState({
         quizItemId: quizItem.id,
         type: "matrix",
-        matrix: newOptionCells,
+        matrix: newMatrix,
         valid: isValid,
       })
       return
     }
-    const newItemAnswer: UserItemAnswerMatrix = {
-      ...quizItemAnswerState,
-      matrix: newOptionCells,
-      valid: isValid,
-    }
-    setQuizItemAnswerState(newItemAnswer)
-  }
-
-  const findOptionText = (column: number, row: number): string => {
-    return matrixVariable[row]?.[column] ?? ""
+    setQuizItemAnswerState({ ...quizItemAnswerState, matrix: newMatrix, valid: isValid })
   }
 
   const cellsWithPosition = matrixVariable.flatMap((row, rowIndex) =>
@@ -103,45 +59,22 @@ const Matrix: React.FunctionComponent<
   const malformedCells = cellsWithPosition.filter(({ cell }) => isMalformedNumberCell(cell))
   const commaCells = cellsWithPosition.filter(({ cell }) => looksLikeThousandsSeparator(cell))
 
-  const shape = matrixShape(matrixVariable)
-  // Gaps are flagged only once focus leaves the grid, so a row typed in order doesn't flash red
-  const gaps = isEditing ? [] : blankCellsInsideShape(matrixVariable, shape)
-  const isGap = (row: number, column: number) =>
-    gaps.some((gap) => gap.row === row && gap.column === column)
   // The frame is only visual, so screen reader users hear the size here instead
   const shapeStatus =
     shape.rows === 0 ? "" : t("matrix-size-status", { rows: shape.rows, columns: shape.columns })
 
-  const tempArray = Array.from({ length: MATRIX_GRID_SIZE }, (_unused, index) => index)
   return (
     <>
-      <AnswerMatrixTable {...editingHandlers}>
-        <tbody>
-          {tempArray.map((rowIndex) => {
-            return (
-              <tr key={`row${rowIndex}`}>
-                {tempArray.map((columnIndex) => {
-                  const cellText = findOptionText(columnIndex, rowIndex)
-                  if (cellText !== null) {
-                    return (
-                      <MatrixGridCell
-                        key={`${columnIndex} ${rowIndex}`}
-                        column={columnIndex}
-                        row={rowIndex}
-                        cellText={cellText}
-                        onChange={handleOptionSelect}
-                        matrixSize={matrixActiveSize}
-                        isGap={isGap(rowIndex, columnIndex)}
-                      ></MatrixGridCell>
-                    )
-                  }
-                  return null
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </AnswerMatrixTable>
+      <MatrixInputGrid
+        className={css`
+          margin-top: 1rem;
+        `}
+        matrix={matrixVariable}
+        shape={shape}
+        gaps={gaps}
+        onMatrixChange={handleMatrixChange}
+        {...editingHandlers}
+      />
       <VisuallyHidden>
         {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics */}
         <div role="status" aria-live="polite">

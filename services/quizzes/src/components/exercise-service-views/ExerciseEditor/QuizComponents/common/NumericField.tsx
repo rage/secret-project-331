@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { stringToNumberOrNull } from "@/shared-module/components/lib/utils/rhfAdapters"
 
 interface NumericFieldProps {
   value: number
@@ -20,8 +21,8 @@ const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min
       name={label}
       onChangeByValue={(next) => {
         setText(next)
-        const parsed = Number(next.trim().replace(",", "."))
-        if (next.trim() !== "" && Number.isFinite(parsed)) {
+        const parsed = stringToNumberOrNull(next)
+        if (parsed !== null) {
           onCommit(min === undefined ? parsed : Math.max(min, parsed))
         }
       }}

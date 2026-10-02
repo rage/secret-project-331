@@ -31,6 +31,13 @@ const describeCells = (cells: MatrixCellPosition[]): string =>
 const formatTolerance = (limit: number | null): string =>
   limit === null ? "" : String(Number(limit.toPrecision(6)))
 
+const descriptionStyle = css`
+  color: #414246;
+  font-size: 14px;
+  font-family: ${primaryFont};
+  display: block;
+`
+
 const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
@@ -44,7 +51,15 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
     return null
   }
 
-  const gradesPerCell = effectiveMatrixGradingPolicy(selected) === PER_CELL
+  const update = (recipe: (draft: PrivateSpecQuizItemMatrix) => void) =>
+    updateState((draft) => {
+      if (draft) {
+        recipe(draft)
+      }
+    })
+
+  const policy = effectiveMatrixGradingPolicy(selected)
+  const gradesPerCell = policy === PER_CELL
   const diagnostics = matrixKeyDiagnostics(selected.optionCells, selected.tolerance)
   const toleranceIsNegative = selected.tolerance < 0
   const toleranceTooLarge =
@@ -69,29 +84,19 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
           width: 100%;
         `}
         label={t("matrix-grading-policy")}
-        value={effectiveMatrixGradingPolicy(selected)}
+        value={policy}
         disabled={selected.fogOfWar}
         options={[
           { value: WHOLE_MATRIX, label: t("matrix-grading-policy-whole-matrix") },
           { value: PER_CELL, label: t("matrix-grading-policy-per-cell") },
         ]}
-        onChangeByValue={(value) => {
-          updateState((draft) => {
-            if (!draft) {
-              return
-            }
+        onChangeByValue={(value) =>
+          update((draft) => {
             draft.gradingPolicy = value === PER_CELL ? PER_CELL : WHOLE_MATRIX
           })
-        }}
+        }
       />
-      <span
-        className={css`
-          color: #414246;
-          font-size: 14px;
-          font-family: ${primaryFont};
-          display: block;
-        `}
-      >
+      <span className={descriptionStyle}>
         {gradesPerCell
           ? t("matrix-grading-policy-per-cell-description")
           : t("matrix-grading-policy-whole-matrix-description")}
@@ -106,51 +111,33 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
         description={t("matrix-partial-credit-for-wrong-shape-description")}
         disabled={!gradesPerCell}
         state={selected.partialCreditForWrongShape}
-        onChange={(partialCreditForWrongShape) => {
-          updateState((draft) => {
-            if (!draft) {
-              return
-            }
+        onChange={(partialCreditForWrongShape) =>
+          update((draft) => {
             draft.partialCreditForWrongShape = partialCreditForWrongShape
           })
-        }}
+        }
       />
       <ToggleCard
         title={t("fog-of-war")}
         description={t("matrix-fog-of-war-description")}
         state={selected.fogOfWar}
-        onChange={(fogOfWar) => {
-          updateState((draft) => {
-            if (!draft) {
-              return
-            }
+        onChange={(fogOfWar) =>
+          update((draft) => {
             draft.fogOfWar = fogOfWar
           })
-        }}
+        }
       />
       <NumericField
         value={selected.tolerance}
         label={t("numeric-tolerance")}
         min={0}
-        onCommit={(tolerance) => {
-          updateState((draft) => {
-            if (!draft) {
-              return
-            }
+        onCommit={(tolerance) =>
+          update((draft) => {
             draft.tolerance = tolerance
           })
-        }}
+        }
       />
-      <span
-        className={css`
-          color: #414246;
-          font-size: 14px;
-          font-family: ${primaryFont};
-          display: block;
-        `}
-      >
-        {t("matrix-tolerance-description")}
-      </span>
+      <span className={descriptionStyle}>{t("matrix-tolerance-description")}</span>
       {toleranceIsNegative && (
         <WarningInfobox>{t("matrix-warning-tolerance-negative")}</WarningInfobox>
       )}

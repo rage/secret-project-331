@@ -1,33 +1,16 @@
-import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 
-import { emptyMatrixGrid, MATRIX_GRID_SIZE, matrixShape } from "@/util/matrix"
+import { MatrixGridCell, MatrixTable, useIsEditingGrid } from "@/components/Shared/MatrixGrid"
+import {
+  blankCellsInsideShape,
+  emptyMatrixGrid,
+  MATRIX_GRID_SIZE,
+  matrixShape,
+} from "@/util/matrix"
 
 import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
-import TableCellContent from "./TableCellContent"
-
-const MatrixTableContainer = styled.table`
-  margin: auto;
-  background-color: #f5f6f7;
-  border-collapse: collapse;
-  td {
-    border: 2px solid #e1e1e199;
-  }
-  &tr:first-child td {
-    border-top: 4px;
-  }
-  &tr td:first-child {
-    border-left: 4px;
-  }
-  &tr:last-child td {
-    border-bottom: 4px;
-  }
-  &tr td:last-child {
-    border-right: 4px;
-  }
-`
 
 interface TableContentProps {
   quizItemId: string // PrivateSpecQuizItemMatrix
@@ -41,6 +24,7 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     },
   )
   const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
+  const [isEditing, editingHandlers] = useIsEditingGrid()
   const [matrixVariable, setMatrixVariable] = useState<string[][]>(() => {
     if (selected && selected.optionCells) {
       return selected.optionCells
@@ -78,29 +62,32 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     })
   }
 
+  // The key-gap warning in MatrixGradingSettings explains these; the grid only marks them
+  const gaps = isEditing ? [] : blankCellsInsideShape(matrixVariable, matrixShape(matrixVariable))
+  const isGap = (row: number, column: number) =>
+    gaps.some((gap) => gap.row === row && gap.column === column)
+
   const tempArray = Array.from({ length: MATRIX_GRID_SIZE }, (_unused, index) => index)
   return (
-    <MatrixTableContainer>
+    <MatrixTable {...editingHandlers}>
       <tbody>
         {tempArray.map((rowIndex) => (
           <tr key={`row ${rowIndex}`}>
-            {tempArray.map((columnIndex) => {
-              const checkNeighbour = checkNeighbourCells(columnIndex, rowIndex)
-              return checkNeighbour !== null ? (
-                <TableCellContent
-                  key={`row ${rowIndex} column: ${columnIndex}`}
-                  matrixSize={matrixActiveSize}
-                  cellText={checkNeighbour}
-                  columnLoop={columnIndex}
-                  rowLoop={rowIndex}
-                  handleTextarea={handleTextarea}
-                />
-              ) : null
-            })}
+            {tempArray.map((columnIndex) => (
+              <MatrixGridCell
+                key={`row ${rowIndex} column: ${columnIndex}`}
+                matrixSize={matrixActiveSize}
+                cellText={checkNeighbourCells(columnIndex, rowIndex)}
+                column={columnIndex}
+                row={rowIndex}
+                onChange={handleTextarea}
+                isGap={isGap(rowIndex, columnIndex)}
+              />
+            ))}
           </tr>
         ))}
       </tbody>
-    </MatrixTableContainer>
+    </MatrixTable>
   )
 }
 

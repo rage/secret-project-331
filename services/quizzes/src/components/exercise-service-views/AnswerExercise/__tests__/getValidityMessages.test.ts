@@ -44,6 +44,24 @@ describe("getQuizValidityMessages", () => {
     expect(getQuizValidityMessages(state, 1, t)).toContain("check-your-answer")
   })
 
+  it("asks for the empty cells inside a gapped matrix to be filled in", () => {
+    const state: UserAnswer = {
+      version: "5",
+      itemAnswers: [
+        {
+          type: "matrix",
+          quizItemId: "x1",
+          valid: false,
+          matrix: [
+            ["1", ""],
+            ["", "4"],
+          ],
+        },
+      ],
+    }
+    expect(getQuizValidityMessages(state, 1, t)).toEqual(["matrix-fill-empty-cells"])
+  })
+
   it("de-duplicates repeated reasons", () => {
     const state: UserAnswer = {
       version: "5",

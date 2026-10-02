@@ -5,7 +5,7 @@ import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithS
 
 /**
  * The client tool this UI answers, matching `UpdateCertificateTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/update_certificate.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/action_tools/update_certificate.rs`.
  */
 export const UPDATE_CERTIFICATE_TOOL: ClientToolName = "update_certificate"
 

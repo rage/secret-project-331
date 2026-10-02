@@ -6,11 +6,11 @@ It is **not** a statement of formal certification status; it is engineering docu
 
 ## Where the code lives
 
-| Area                                              | Location                                                            |
-| ------------------------------------------------- | ------------------------------------------------------------------- |
-| HTTP controllers (endpoints)                      | `services/headless-lms/server/src/controllers/main_frontend/oauth/` |
-| Core logic (validation, tokens, JWKS helpers)     | `services/headless-lms/server/src/domain/oauth/`                    |
-| Persistence (clients, codes, tokens, DPoP proofs) | `services/headless-lms/models/src/oauth_*.rs`                       |
+| Area                                              | Location                                                                           |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| HTTP controllers (endpoints)                      | `services/headless-lms/crates/backend/server/src/controllers/main_frontend/oauth/` |
+| Core logic (validation, tokens, JWKS helpers)     | `services/headless-lms/crates/backend/server/src/domain/oauth/`                    |
+| Persistence (clients, codes, tokens, DPoP proofs) | `services/headless-lms/crates/models/src/oauth_*.rs`                               |
 
 Routes are mounted under the main-frontend API prefix, for example:
 

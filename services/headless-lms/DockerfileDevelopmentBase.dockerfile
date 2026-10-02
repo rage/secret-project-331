@@ -28,7 +28,7 @@ RUN location update \
 
 FROM rust:bookworm AS icu4x-builder
 
-# Keep in sync with the icu version in certificates/Cargo.toml: the generated blob only
+# Keep in sync with the icu version in crates/features/certificates/Cargo.toml: the generated blob only
 # contains the data markers datagen knows about, and a newer icu loads markers that an
 # older datagen never emitted.
 RUN cargo install icu4x-datagen --version 2.3.0 --locked

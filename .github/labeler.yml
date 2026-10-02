@@ -28,7 +28,7 @@ headless-lms:
 
 seed:
   - changed-files:
-      - any-glob-to-any-file: "services/headless-lms/server/src/programs/seed/**/*"
+      - any-glob-to-any-file: "services/headless-lms/crates/backend/server/src/programs/seed/**/*"
 
 db-migrations:
   - changed-files:
@@ -48,7 +48,7 @@ tmc:
 
 sqlx-data:
   - changed-files:
-      - any-glob-to-any-file: "services/headless-lms/models/sqlx-data.json"
+      - any-glob-to-any-file: "services/headless-lms/crates/models/sqlx-data.json"
 
 deployments:
   - changed-files:

@@ -7,9 +7,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-headless-lms-base = { path = "../base" }
-headless-lms-utils = { path = "../utils" }
-headless-lms-models = { path = "../models" }
+headless-lms-base = { path = "../../shared/base" }
+headless-lms-utils = { path = "../../shared/utils" }
+headless-lms-models = { path = "../../models" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { workspace = true, features = ["macros", "signal", "time"] }
@@ -46,7 +46,7 @@ mockito = "1.7.2"
 # Random ids for test rows.
 uuid = { version = "1.26.0", features = ["v4"] }
 # Lets the contract tests send to a plain-http mock server.
-headless-lms-utils = { path = "../utils", features = ["test-support"] }
+headless-lms-utils = { path = "../../shared/utils", features = ["test-support"] }
 
 [lints.clippy]
 unwrap_used = "deny"

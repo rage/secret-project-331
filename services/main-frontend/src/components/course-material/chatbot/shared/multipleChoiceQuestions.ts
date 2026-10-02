@@ -9,7 +9,7 @@ import { zChatbotConversationMessageToolCall } from "@/generated/course-material
 
 /**
  * The client tool this UI answers, generated from `ClientToolName` in
- * `services/headless-lms/chatbot/src/chatbot_tools/mod.rs`. A drift between the two is a compile
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/mod.rs`. A drift between the two is a compile
  * error here rather than a call that silently renders as an anonymous tool status line.
  */
 export const ASK_MULTIPLE_CHOICE_QUESTION_TOOL: ClientToolName = "ask_multiple_choice_question"
@@ -105,7 +105,7 @@ export const questionOf = (message: ChatbotConversationMessage): MultipleChoiceQ
  * the list they were offered.
  *
  * The wire shape `AskMultipleChoiceQuestionTool` deserializes, in
- * `services/headless-lms/chatbot/src/chatbot_tools/client_tools/ask_multiple_choice_question.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/client_tools/ask_multiple_choice_question.rs`.
  * `ClientToolAnswer["data"]["result"]` is generated as an open record, so this schema is the only
  * thing keeping the key from drifting away from the backend.
  */

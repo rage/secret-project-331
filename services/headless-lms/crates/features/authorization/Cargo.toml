@@ -9,9 +9,9 @@ license.workspace = true
 # Deliberately free of any web-framework dependency so that every crate above `models` can
 # evaluate authorization; the actix response plumbing lives in the server crate.
 [dependencies]
-headless-lms-base = { path = "../base" }
-headless-lms-utils = { path = "../utils" }
-headless-lms-models = { path = "../models" }
+headless-lms-base = { path = "../../shared/base" }
+headless-lms-utils = { path = "../../shared/utils" }
+headless-lms-models = { path = "../../models" }
 
 serde = { version = "1.0.229", features = ["derive"] }
 sqlx.workspace = true

@@ -1,16 +1,16 @@
 [workspace]
 members = [
-  "authorization",
-  "base",
-  "entrypoint",
-  "server",
-  "models",
-  "utils",
-  "doc-macro",
-  "certificates",
-  "chatbot",
-  "credit-registration",
-  "exercise-services-api",
+  "crates/features/authorization",
+  "crates/shared/base",
+  "crates/backend/entrypoint",
+  "crates/backend/server",
+  "crates/models",
+  "crates/shared/utils",
+  "crates/doc-macro",
+  "crates/features/certificates",
+  "crates/features/chatbot",
+  "crates/features/credit-registration",
+  "crates/exercise-services-api",
 ]
 
 resolver = "2"

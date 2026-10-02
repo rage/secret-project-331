@@ -2,7 +2,7 @@
 
 # Only meant to be ran against the database in minikube when running system tests with bin/test.
 # This works faster than bin/setup-system-test-db because it reuses the database template from the previous run but we cannot use this by default because our seed script creates timestamps that are relative to the current time and our system tests don't like it if those timestamps are not close to the current time.
-# To find the problematic code, search for "now()" in the folder "services/headless-lms/server/src/programs/seed".
+# To find the problematic code, search for "now()" in the folder "services/headless-lms/crates/backend/server/src/programs/seed".
 set -euo pipefail
 source "$(dirname "$0")/.common"
 

@@ -167,7 +167,7 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
         let token =
             user_passwords::insert_password_reset_token(conn, user.id, Uuid::new_v4()).await?;
 
-        // Must match the RESET_LINK substitution in server/src/programs/email_deliver.rs exactly,
+        // Must match the RESET_LINK substitution in crates/backend/server/src/programs/email_deliver.rs exactly,
         // or the link this hands the admin will not resolve.
         let reset_url = format!(
             "{}/reset-user-password/{}",

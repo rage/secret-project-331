@@ -5,7 +5,7 @@ import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithS
 
 /**
  * The client tool this UI answers, matching `GeneratePasswordResetLinkTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/generate_password_reset_link.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/action_tools/generate_password_reset_link.rs`.
  */
 export const GENERATE_PASSWORD_RESET_LINK_TOOL: ClientToolName = "generate_password_reset_link"
 

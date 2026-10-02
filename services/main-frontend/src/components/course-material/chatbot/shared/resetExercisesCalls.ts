@@ -5,7 +5,7 @@ import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithS
 
 /**
  * The client tool this UI answers, matching `ResetExercisesTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/reset_exercises.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/action_tools/reset_exercises.rs`.
  */
 export const RESET_EXERCISES_TOOL: ClientToolName = "reset_exercises"
 

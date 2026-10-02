@@ -13,7 +13,7 @@ const resolveFromConfig = (relativePath: string) => path.resolve(configDir, rela
 
 export default {
   input: resolveFromConfig(
-    "../../services/headless-lms/server/openapi/auth.openapi.generated.json",
+    "../../services/headless-lms/crates/backend/server/openapi/auth.openapi.generated.json",
   ),
   output: {
     clean: true,

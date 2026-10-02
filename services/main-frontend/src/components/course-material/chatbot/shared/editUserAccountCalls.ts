@@ -5,7 +5,7 @@ import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithS
 
 /**
  * The client tool this UI answers, matching `EditUserAccountTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/edit_user_account.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/action_tools/edit_user_account.rs`.
  */
 export const EDIT_USER_ACCOUNT_TOOL: ClientToolName = "edit_user_account"
 

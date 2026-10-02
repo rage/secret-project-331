@@ -7,9 +7,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-headless-lms-base = { path = "../base" }
-headless-lms-utils = { path = "../utils" }
-headless-lms-models = { path = "../models" }
+headless-lms-base = { path = "../../shared/base" }
+headless-lms-utils = { path = "../../shared/utils" }
+headless-lms-models = { path = "../../models" }
 rust-i18n = "4.2.1"
 
 # An SVG rendering library.

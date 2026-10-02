@@ -147,7 +147,7 @@ B service is not synced by default and its vendored copy would go stale. Then ru
 
 ## Step 6 (Track B) — Register in the backend seed
 
-`services/headless-lms/server/src/programs/seed/seed_exercise_services.rs`: add an
+`services/headless-lms/crates/backend/server/src/programs/seed/seed_exercise_services.rs`: add an
 `ExerciseServiceNewOrUpdate { name, slug, public_url, internal_url,
 max_reprocessing_submissions_at_once }`:
 

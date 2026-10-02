@@ -10,15 +10,15 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
-headless-lms-authorization = { path = "../authorization" }
-headless-lms-base = { path = "../base" }
-headless-lms-certificates = { path = "../certificates" }
-headless-lms-models = { path = "../models" }
-headless-lms-utils = { path = "../utils" }
-headless-lms-chatbot = { path = "../chatbot" }
-headless-lms-credit-registration = { path = "../credit-registration" }
-exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
-doc-macro = { path = "../doc-macro" }
+headless-lms-authorization = { path = "../../features/authorization" }
+headless-lms-base = { path = "../../shared/base" }
+headless-lms-certificates = { path = "../../features/certificates" }
+headless-lms-models = { path = "../../models" }
+headless-lms-utils = { path = "../../shared/utils" }
+headless-lms-chatbot = { path = "../../features/chatbot" }
+headless-lms-credit-registration = { path = "../../features/credit-registration" }
+exercise-services-api = { path = "../../exercise-services-api", features = ["openapi"] }
+doc-macro = { path = "../../doc-macro" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.15.0"
@@ -174,7 +174,7 @@ mockito = "1.7.2"
 # Random number generators and other randomness functionality.
 rand = "0.10.2"
 # Gives the tests a client for the mock Suotar.
-headless-lms-utils = { path = "../utils", features = ["test-support"] }
+headless-lms-utils = { path = "../../shared/utils", features = ["test-support"] }
 
 [lints.clippy]
 unwrap_used = "deny"

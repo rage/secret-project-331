@@ -16,7 +16,7 @@ run_command cd "$RELATIVE_PATH" || exit
 run_command env SQLX_OFFLINE=1 cargo run --bin headless-lms-entrypoint -- doc-file-generator
 
 # Sort the keys alphabetically so that the output is deterministic. Rust HashMaps use random order by default.
-run_command find server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M {} \;
+run_command find crates/backend/server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M {} \;
 
 # Fix formatting
 run_command env CI=true pnpm run format:generated-docs

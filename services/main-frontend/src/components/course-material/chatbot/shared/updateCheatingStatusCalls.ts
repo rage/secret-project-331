@@ -5,7 +5,7 @@ import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithS
 
 /**
  * The client tool this UI answers, matching `UpdateCheatingStatusTool::NAME` in
- * `services/headless-lms/chatbot/src/chatbot_tools/action_tools/update_cheating_status.rs`.
+ * `services/headless-lms/crates/features/chatbot/src/chatbot_tools/action_tools/update_cheating_status.rs`.
  */
 export const UPDATE_CHEATING_STATUS_TOOL: ClientToolName = "update_cheating_status"
 

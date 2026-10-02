@@ -83,9 +83,9 @@ NODE_DOCKER_IGNORE = [
 HEADLESS_LMS_DOCKER_IGNORE = [
     ".env",
     "dbdoc",
-    "models/.env",
+    "crates/models/.env",
     "requests.rest",
-    "server/generated-docs",
+    "crates/backend/server/generated-docs",
     "target",
     "**/target",
     "uploads",
@@ -103,16 +103,17 @@ HEADLESS_LMS_REBUILD_FILES = [
     "Cargo.lock",
     "Cargo.toml",
     "Dockerfile",
-    "authorization/Cargo.toml",
-    "base/Cargo.toml",
-    "certificates/Cargo.toml",
-    "chatbot/Cargo.toml",
-    "doc-macro/Cargo.toml",
-    "entrypoint/Cargo.toml",
-    "langs-api/Cargo.toml",
-    "models/Cargo.toml",
-    "server/Cargo.toml",
-    "utils/Cargo.toml",
+    "crates/features/authorization/Cargo.toml",
+    "crates/shared/base/Cargo.toml",
+    "crates/features/certificates/Cargo.toml",
+    "crates/features/chatbot/Cargo.toml",
+    "crates/doc-macro/Cargo.toml",
+    "crates/backend/entrypoint/Cargo.toml",
+    "crates/models/Cargo.toml",
+    "crates/backend/server/Cargo.toml",
+    "crates/shared/utils/Cargo.toml",
+    "crates/features/credit-registration/Cargo.toml",
+    "crates/exercise-services-api/Cargo.toml",
 ]
 
 NODE_REBUILD_DEPS = [
@@ -130,8 +131,8 @@ WARM_ROUTE_DEPS = (
     + NODE_REBUILD_DEPS
     + HEADLESS_LMS_REBUILD_DEPS
     + [
-        "services/headless-lms/models/src",
-        "services/headless-lms/server/src",
+        "services/headless-lms/crates/models/src",
+        "services/headless-lms/crates/backend/server/src",
     ]
 )
 
@@ -468,16 +469,18 @@ if mode == "dev":
     headless_lms_live_update = [
         fall_back_on(path) for path in HEADLESS_LMS_REBUILD_DEPS
     ] + [
-        headless_lms_sync("base/src"),
-        headless_lms_sync("certificates/src"),
-        headless_lms_sync("chatbot/src"),
-        headless_lms_sync("doc-macro/src"),
-        headless_lms_sync("entrypoint/src"),
-        headless_lms_sync("langs-api/src"),
-        headless_lms_sync("models/src"),
-        headless_lms_sync("server/src"),
-        headless_lms_sync("server/tests"),
-        headless_lms_sync("utils/src"),
+        headless_lms_sync("crates/shared/base/src"),
+        headless_lms_sync("crates/features/certificates/src"),
+        headless_lms_sync("crates/features/chatbot/src"),
+        headless_lms_sync("crates/doc-macro/src"),
+        headless_lms_sync("crates/backend/entrypoint/src"),
+        headless_lms_sync("crates/models/src"),
+        headless_lms_sync("crates/backend/server/src"),
+        headless_lms_sync("crates/backend/server/tests"),
+        headless_lms_sync("crates/shared/utils/src"),
+        headless_lms_sync("crates/features/authorization/src"),
+        headless_lms_sync("crates/features/credit-registration/src"),
+        headless_lms_sync("crates/exercise-services-api/src"),
         headless_lms_sync("migrations"),
         headless_lms_sync("shared-module"),
     ]

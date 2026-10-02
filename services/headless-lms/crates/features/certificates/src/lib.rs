@@ -513,7 +513,7 @@ mod tests {
     fn all_certificate_fonts() -> fontdb::Database {
         let dir = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../server/src/programs/seed/data"
+            "/../../backend/server/src/programs/seed/data"
         );
         let mut db = fontdb::Database::new();
         for entry in std::fs::read_dir(dir).expect("seed data dir must exist") {

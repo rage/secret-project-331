@@ -10,3 +10,4 @@ export const SHOW_TOASTS_NORMALLY_IN_SYSTEM_TESTS_EVENT = "show-toas-duration-in
 export const LANGUAGE_COOKIE_KEY = "selected-language"
 export const LOADING_SPINNER_TEST_ID = "loading-spinner-component"
 export const OUTDATED_BROWSER_WARNING_SCRIPT = `alert("Your browser is so old that it won't work with this page. We recommend switching to Firefox.");`
+export const SIDEBAR_WIDTH_PX = "400px"

@@ -5,7 +5,8 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import type { ReactNode } from "react"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
+import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import { streamOf } from "../../../__fixtures__/chatbotResponseStream"
@@ -20,7 +21,11 @@ import useChatbotStateAndData from "../useChatbotStateAndData"
 jest.mock("@/generated/course-material-api/client.generated", () => ({
   client: { post: jest.fn() },
 }))
-jest.mock("@/hooks/course-material/chatbot/useCurrentConversationInfo", () => ({
+jest.mock("@/hooks/course-material/chatbot/useConversationInfo", () => ({
+  __esModule: true,
+  default: jest.fn(),
+}))
+jest.mock("@/hooks/course-material/chatbot/useCurrentConversationId", () => ({
   __esModule: true,
   default: jest.fn(),
 }))
@@ -34,7 +39,8 @@ const CONVERSATION_ID = "22222222-2222-4222-8222-222222222222"
 const TOOL_CALL_ID = "33333333-3333-4333-8333-333333333333"
 
 const post = courseMaterialClient.post as unknown as jest.Mock
-const currentConversationInfo = useCurrentConversationInfo as unknown as jest.Mock
+const conversationInfo = useConversationInfo as unknown as jest.Mock
+const currentConversationId = useCurrentConversationId as unknown as jest.Mock
 
 /** A stream that ends at once, standing for a turn the server finished on its own. */
 const emptyStream = () => streamOf([]).stream
@@ -76,7 +82,7 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, undefined, null), { wrapper })
+  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, null), { wrapper })
 
 /** The signal the pending turn was sent with, once the request has gone out. */
 const sentSignal = async (): Promise<AbortSignal> => {
@@ -87,7 +93,7 @@ const sentSignal = async (): Promise<AbortSignal> => {
 /** Mocks the conversation query. With no conversation a turn throws before its request goes out. */
 const mockConversationInfo = ({ hasConversation }: { hasConversation: boolean }) => {
   const refetch = jest.fn().mockResolvedValue({ data: { current_conversation_messages: [] } })
-  currentConversationInfo.mockReturnValue({
+  conversationInfo.mockReturnValue({
     data: {
       ...includeIf(hasConversation, { current_conversation: { id: CONVERSATION_ID } }),
       current_conversation_messages: [],
@@ -97,12 +103,20 @@ const mockConversationInfo = ({ hasConversation }: { hasConversation: boolean })
   return refetch
 }
 
+const mockCurrentConversationId = () => {
+  currentConversationId.mockReturnValue({
+    isLoading: false,
+    data: CONVERSATION_ID,
+  })
+}
+
 /** Refetched whenever a turn settles, so it shows the hook still acting on a finished turn. */
 let refetchConversationInfo: jest.Mock
 
 beforeEach(() => {
   jest.clearAllMocks()
   refetchConversationInfo = mockConversationInfo({ hasConversation: true })
+  mockCurrentConversationId()
 })
 
 describe("Starting a chatbot turn", () => {

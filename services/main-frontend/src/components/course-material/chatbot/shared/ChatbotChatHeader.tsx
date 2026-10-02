@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, ArrowDownToBracket, Pencil } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/navigation"
 import type { DOMAttributes } from "react"
@@ -11,10 +10,6 @@ import { useTranslation } from "react-i18next"
 
 import type { DropdownMenuItem } from "@/components/DropdownMenu"
 import DropdownMenu from "@/components/DropdownMenu"
-import type {
-  ChatbotConversation,
-  ChatbotConversationInfo,
-} from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -27,21 +22,19 @@ import { createChatbotTranscript } from "@/utils/course-material/createChatbotTr
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
 import ClarificationTooltip from "../../../ClarificationTooltip"
+import { useChatbotContext } from "./ChatbotContext"
 
 interface ChatbotDialogHeaderProps {
-  isCourseMaterialBlock: false
+  isAlwaysOpen: false
   closeChatbot: () => void
   titleProps: DOMAttributes<Element>
 }
 
 interface ChatbotNoDialogHeaderProps {
-  isCourseMaterialBlock: true
+  isAlwaysOpen: true
 }
 
-type ChatbotChatHeaderProps = {
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-} & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)
+type ChatbotChatHeaderProps = ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps
 
 const headerContainerStyle = css`
   display: flex;
@@ -100,7 +93,10 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
+  const { isAlwaysOpen } = props
+
+  const { currentConversationInfo, newConversationMutation } = useChatbotContext()
+
   const router = useRouter()
   const createTranscript = useToastMutation(
     // oxlint-disable-next-line require-await -- async for the mutation Promise contract
@@ -243,11 +239,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <Heading
-        slot="title"
-        className={titleStyle}
-        {...(isCourseMaterialBlock ? {} : props.titleProps)}
-      >
+      <Heading slot="title" className={titleStyle} {...(isAlwaysOpen ? {} : props.titleProps)}>
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
@@ -263,7 +255,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           controlButtonIconWidth={24}
           items={items}
         />
-        {!isCourseMaterialBlock && (
+        {!isAlwaysOpen && (
           <ClarificationTooltip text={t("close")}>
             <Button
               slot="close"

@@ -114,6 +114,11 @@ export const makeChatBodyProps = ({
     isPending: false,
   } as unknown as UseMutationResult<void, unknown, string, unknown>
 
+  const updateConversationTitle = {
+    mutate: jest.fn(),
+    isPending: false,
+  } as unknown as UseMutationResult<unknown, unknown, void, unknown>
+
   const toolResponseMutation = {
     mutate: answer,
     isPending: false,
@@ -132,6 +137,11 @@ export const makeChatBodyProps = ({
     toolResponseMutation,
     isTurnInFlight,
     stopTurn,
+    setIsOpen: jest.fn(),
+    isOpen: true,
+    convId: null,
+    setConvId: jest.fn(),
+    updateConversationTitle,
   }
 
   return { props, sendMessage, answer, stopTurn }

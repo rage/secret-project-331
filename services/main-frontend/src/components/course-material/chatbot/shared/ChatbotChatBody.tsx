@@ -20,13 +20,13 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
+import { useChatbotContext } from "./ChatbotContext"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import { hasStreamedAssistantContent } from "./chatbotReducer"
 import ChatbotStatusRow from "./ChatbotStatusRow"
 import type { ClosedClientToolAnswer } from "./clientToolRegistry"
 import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
-import type { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
 import type { MessageClassification } from "./messageClassification"
 import {
@@ -502,22 +502,25 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   )
 }
 
-const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
-  currentConversationInfo,
-  newConversationMutation,
-  newMessage,
-  setNewMessage,
-  error,
-  messageState,
-  chatbotMessageAnnouncement,
-  newMessageMutation,
-  toolResponseMutation,
-  isTurnInFlight,
-  stopTurn,
-}) => {
+const ChatbotChatBody: React.FC = () => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const { t } = useTranslation()
+
+  const {
+    currentConversationInfo,
+    newConversationMutation,
+    messageState,
+    toolResponseMutation,
+    newMessage,
+    newMessageMutation,
+    isTurnInFlight,
+    error,
+    setNewMessage,
+    stopTurn,
+    chatbotMessageAnnouncement,
+    updateConversationTitle,
+  } = useChatbotContext()
 
   const citations = useMemo(() => {
     const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()
@@ -649,7 +652,11 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   const handleSubmit = useCallback(() => {
     newMessageMutation.mutate(newMessage)
-  }, [newMessageMutation, newMessage])
+    const conversationTitle = currentConversationInfo.data?.current_conversation?.conversation_title
+    if (!conversationTitle) {
+      updateConversationTitle.mutate()
+    }
+  }, [newMessageMutation, newMessage, updateConversationTitle, currentConversationInfo])
 
   const handlePickSuggestion = useCallback(
     (message: string) => {

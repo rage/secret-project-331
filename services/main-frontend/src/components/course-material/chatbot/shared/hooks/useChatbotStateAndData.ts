@@ -1,5 +1,5 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
@@ -13,7 +13,9 @@ import type {
   SendChatbotToolResponseData,
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
+import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
+import useUpdateConversationTitle from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -64,6 +66,11 @@ export interface ChatbotStateAndData {
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
   stopTurn: () => void
+  setIsOpen: React.Dispatch<boolean>
+  isOpen: boolean
+  convId: string | null
+  setConvId: React.Dispatch<string>
+  updateConversationTitle: UseMutationResult<unknown, unknown, void, unknown>
 }
 
 /**
@@ -76,18 +83,20 @@ export interface ChatbotStateAndData {
  * is otherwise null there anyway.
  */
 const useChatbotStateAndData = (
-  chatbotConfigurationId: string,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
+  chatbotConfigurationId: string | null,
   pageId: string | null,
-) => {
+): ChatbotStateAndData => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
+  // TODO: disable this when the chatbot is not openable
+  const [isOpen, setIsOpen] = useState(false)
   const [messageState, dispatch] = useReducer(chatbotReducer, {
     messages: [],
     executionPayloadByToolCallId: {},
   })
+  const [convId, setConvId] = useState<null | string>(null)
 
   const turnAbortControllerRef = useRef<AbortController | null>(null)
   // Kept in sync with the ref, at the two points the ref is armed and released.
@@ -113,15 +122,31 @@ const useChatbotStateAndData = (
         apply(...args)
       }
     }
-
   const anonymousToken = getSavedChatbotAnonymousToken()
 
-  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
+  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
+
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (convId ?? currentConversationIdQuery.data)
+
+  const currentConversationInfo = useConversationInfo(
+    chatbotConfigurationId,
+    activeConversationId,
+    anonymousToken,
+  )
+
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
-    currentConversationInfo,
     setNewMessage,
     setError,
+    setConvId,
+  )
+
+  const updateConversationTitle = useUpdateConversationTitle(
+    chatbotConfigurationId,
+    activeConversationId,
+    newMessage,
   )
 
   /**
@@ -304,6 +329,11 @@ const useChatbotStateAndData = (
     chatbotMessageAnnouncement,
     isTurnInFlight,
     stopTurn,
+    setIsOpen,
+    isOpen,
+    convId,
+    setConvId,
+    updateConversationTitle,
   }
 }
 

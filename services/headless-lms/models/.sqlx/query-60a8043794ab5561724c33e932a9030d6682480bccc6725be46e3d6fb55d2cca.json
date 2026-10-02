@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversations\nSET conversation_title = $1\nWHERE id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "60a8043794ab5561724c33e932a9030d6682480bccc6725be46e3d6fb55d2cca"
+}

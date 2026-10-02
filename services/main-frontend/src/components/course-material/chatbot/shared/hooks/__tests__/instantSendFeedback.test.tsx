@@ -5,7 +5,8 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import type { ReactNode } from "react"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
+import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
 
 import { hasStreamedAssistantContent } from "../../chatbotReducer"
 import {
@@ -19,7 +20,11 @@ import useChatbotStateAndData from "../useChatbotStateAndData"
 jest.mock("@/generated/course-material-api/client.generated", () => ({
   client: { post: jest.fn() },
 }))
-jest.mock("@/hooks/course-material/chatbot/useCurrentConversationInfo", () => ({
+jest.mock("@/hooks/course-material/chatbot/useConversationInfo", () => ({
+  __esModule: true,
+  default: jest.fn(),
+}))
+jest.mock("@/hooks/course-material/chatbot/useCurrentConversationId", () => ({
   __esModule: true,
   default: jest.fn(),
 }))
@@ -31,7 +36,8 @@ jest.mock("@/hooks/course-material/chatbot/newConversationMutation", () => ({
 const CONVERSATION_ID = "22222222-2222-4222-8222-222222222222"
 
 const post = courseMaterialClient.post as unknown as jest.Mock
-const currentConversationInfo = useCurrentConversationInfo as unknown as jest.Mock
+const conversationInfo = useConversationInfo as unknown as jest.Mock
+const currentConversationId = useCurrentConversationId as unknown as jest.Mock
 
 /** Makes `post` hang forever, so nothing about the assertions below can depend on it resolving. */
 const postForever = () => {
@@ -44,21 +50,23 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(
-    () => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", undefined, null),
-    {
-      wrapper,
-    },
-  )
+  renderHook(() => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", null), {
+    wrapper,
+  })
 
 beforeEach(() => {
   jest.clearAllMocks()
-  currentConversationInfo.mockReturnValue({
+  conversationInfo.mockReturnValue({
     data: {
       current_conversation: { id: CONVERSATION_ID },
       current_conversation_messages: [],
     },
+
     refetch: jest.fn().mockResolvedValue({ data: { current_conversation_messages: [] } }),
+  })
+  currentConversationId.mockReturnValue({
+    isLoading: false,
+    data: CONVERSATION_ID,
   })
 })
 

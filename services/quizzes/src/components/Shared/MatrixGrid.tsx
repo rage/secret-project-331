@@ -23,17 +23,17 @@ export const MatrixTable = styled.table`
     border: 1px solid #8b8f96;
   }
   /* Only inner lines, so the grid has no outer edge */
-  tr:first-child td {
-    border-top: none;
-  }
-  tr:last-child td {
-    border-bottom: none;
-  }
   td:first-child {
     border-left: none;
   }
   td:last-child {
     border-right: none;
+  }
+  tr:first-child td {
+    border-top: none;
+  }
+  tr:last-child td {
+    border-bottom: none;
   }
 `
 

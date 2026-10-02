@@ -90,7 +90,8 @@ use utoipa::OpenApi;
         (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
         (path = "/time", api = time::MainFrontendTimeApiDoc),
         (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
-        (path = "/users", api = users::MainFrontendUsersApiDoc)
+        (path = "/users", api = users::MainFrontendUsersApiDoc),
+        (path = "/external-courses", api = external_courses::MainFrontendExternalCoursesApiDoc)
     )
 )]
 pub struct MainFrontendRoutesApiDoc;

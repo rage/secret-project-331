@@ -16,12 +16,20 @@ const NewExternalCourseDialog: React.FC<NewExternalCourseDialogProps> = ({ open,
   const { t } = useTranslation()
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-course")}>
-      <NewExternalCourseForm
-        onSuccess={() => {
-          onClose()
-        }}
-      />
+    <StandardDialog
+      open={open}
+      onClose={onClose}
+      title={t("new-course")}
+      buttons={[
+        {
+          children: t("button-text-create"),
+          variant: "primary",
+          // oxlint-disable-next-line i18next/no-literal-string
+          form: "new-external-course-form",
+        },
+      ]}
+    >
+      <NewExternalCourseForm onSuccess={onClose} />
     </StandardDialog>
   )
 }

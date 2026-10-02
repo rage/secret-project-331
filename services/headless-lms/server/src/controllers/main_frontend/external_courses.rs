@@ -1,12 +1,14 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/external_courses`.
 
-use models::external_courses::{ExternalCourseOutput, NewExternalCourse, create_external_course};
+use models::external_courses::{
+    ExternalCourseOutput, NewExternalCourse, create_external_course, get_all_external_courses,
+};
 use utoipa::OpenApi;
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::prelude::*;
 
 #[derive(OpenApi)]
-#[openapi(paths(insert_external_course))]
+#[openapi(paths(insert_external_course, get_external_courses))]
 pub(crate) struct MainFrontendExternalCoursesApiDoc;
 
 /**
@@ -40,6 +42,34 @@ async fn insert_external_course(
 }
 
 /**
+GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+ */
+#[utoipa::path(
+    get,
+    path = "/all",
+    operation_id = "getExternalCourses",
+    tag = "externalCourses",
+    responses(
+        (
+            status = 200,
+            description = "All external courses",
+            body = Vec<ExternalCourseOutput>
+        )
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_external_courses(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<ExternalCourseOutput>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
+
+    let external_courses = get_all_external_courses(&mut conn).await?;
+    token.authorized_ok(web::Json(external_courses))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -47,5 +77,6 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/{new}", web::post().to(insert_external_course));
+    cfg.route("/new", web::post().to(insert_external_course))
+        .route("/all", web::get().to(get_external_courses));
 }

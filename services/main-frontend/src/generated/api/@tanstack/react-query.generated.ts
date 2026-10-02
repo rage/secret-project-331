@@ -57,6 +57,7 @@ import {
   createEmailTemplate,
   createExerciseRepository,
   createExerciseService,
+  createExternalCourse,
   createOrganization,
   createOrganizationExam,
   createPage,
@@ -229,6 +230,7 @@ import {
   getExerciseSlideSubmissionInfo,
   getExerciseSubmissions,
   getExerciseSubmissionsForUser,
+  getExternalCourses,
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
@@ -483,6 +485,8 @@ import type {
   CreateExerciseRepositoryResponse,
   CreateExerciseServiceData,
   CreateExerciseServiceResponse,
+  CreateExternalCourseData,
+  CreateExternalCourseResponse,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreatePageAudioFileData,
@@ -803,6 +807,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponse,
   GetExerciseSubmissionsResponse,
+  GetExternalCoursesData,
+  GetExternalCoursesResponse,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponse,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -9014,6 +9020,56 @@ export const getExerciseSubmissionsForUserOptions = (
       }),
     queryKey: getExerciseSubmissionsForUserQueryKey(options),
   })
+
+export const getExternalCoursesQueryKey = (options?: Options<GetExternalCoursesData>) =>
+  createQueryKey("getExternalCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+ */
+export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesData>) =>
+  queryOptions<
+    GetExternalCoursesResponse,
+    DefaultError,
+    GetExternalCoursesResponse,
+    ReturnType<typeof getExternalCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getExternalCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getExternalCoursesQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
+ */
+export const createExternalCourseMutation = (
+  options?: Partial<Options<CreateExternalCourseData>>,
+): UseMutationOptions<
+  CreateExternalCourseResponse,
+  DefaultError,
+  Options<CreateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateExternalCourseResponse,
+    DefaultError,
+    Options<CreateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

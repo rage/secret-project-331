@@ -10413,6 +10413,57 @@
         }
       }
     },
+    "/api/v0/main-frontend/external-courses/all": {
+      "get": {
+        "tags": ["externalCourses"],
+        "summary": "\nGET `/api/v0/main-frontend/external-course/all` - Gets all external courses.",
+        "operationId": "getExternalCourses",
+        "responses": {
+          "200": {
+            "description": "All external courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalCourseOutput"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/external-courses/new": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-course/new` - Creates new external course.",
+        "operationId": "createExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewExternalCourse"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/feedback/{feedback_id}": {
       "post": {
         "tags": ["feedback"],
@@ -22575,6 +22626,25 @@
           }
         }
       },
+      "ExternalCourseOutput": {
+        "type": "object",
+        "required": ["id", "name", "url"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "Feedback": {
         "type": "object",
         "required": [
@@ -24093,6 +24163,21 @@
           },
           "public_key": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "NewExternalCourse": {
+        "type": "object",
+        "required": ["name", "url"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
           }
         }
       },

@@ -99,6 +99,28 @@ RETURNING
 }
 
 /**
+Gets all the external courses added to the database
+*/
+pub async fn get_all_external_courses(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ExternalCourseOutput>> {
+    let res = sqlx::query_as!(
+        ExternalCourseOutput,
+        r#"
+SELECT
+    id,
+    name,
+    description,
+    url
+FROM external_courses
+        "#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/**
 Searches for external courses with a list of given keywords, with both matching its embedding vector to embeddings of external course name and description,
 and doing a keyword search to concatenated name and description tsvector.
 */
@@ -147,4 +169,40 @@ AND to_tsvector(
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/**
+Delete external course based on id
+*/
+async fn delete_by_id(
+    conn: &mut PgConnection,
+    external_course_id: Uuid,
+) -> ModelResult<ExternalCourseOutput> {
+    let res = sqlx::query_as!(
+        ExternalCourseOutput,
+        r#"
+UPDATE external_courses
+SET deleted_at = now()
+WHERE id = $1
+AND deleted_at IS NULL
+RETURNING
+    id,
+    name,
+    description,
+    url
+        "#,
+        external_course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/**
+Edit external course information
+*/
+async fn udpate_external_course(
+    conn: &mut PgConnection,
+    update: ExternalCourseOutput,
+) -> ModelResult<ExternalCourseOutput> {
 }

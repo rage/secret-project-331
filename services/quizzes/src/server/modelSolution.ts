@@ -1,3 +1,4 @@
+import { effectiveMatrixGradingPolicy } from "@/grading/assessment/matrix"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { revealableCorrectAnswers } from "@/util/converter"
 import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
@@ -139,18 +140,11 @@ function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
       } satisfies ModelSolutionQuizItemClosedEndedQuestion
     }
     if (quizItem.type === "matrix") {
-      // Grading config, not answer data, but still not for students: excluded explicitly, since
-      // spreading `...rest` into a typed return only hides excess properties from the type
-      // checker, it does not drop them from the actual response.
-      const {
-        feedbackMessages,
-        tolerance: _tolerance,
-        partialCreditForWrongShape: _partialCreditForWrongShape,
-        fogOfWar: _fogOfWar,
-        ...rest
-      } = quizItem
+      // Excluded explicitly: `satisfies` does not strip extra properties from the response.
+      const { feedbackMessages, tolerance: _tolerance, fogOfWar: _fogOfWar, ...rest } = quizItem
       return {
         ...rest,
+        gradingPolicy: effectiveMatrixGradingPolicy(quizItem),
         messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
       } satisfies ModelSolutionQuizItemMatrix
     }

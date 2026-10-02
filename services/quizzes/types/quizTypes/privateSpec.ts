@@ -64,15 +64,7 @@ export type multipleChoiceMultipleOptionsGradingPolicy =
   | "points-off-unselected-options"
   | "some-correct-none-incorrect"
 
-/**
- * How a matrix answer's score is derived from the number of cells that differ from the key.
- *
- * * `whole-matrix` - full marks only when nothing differs.
- * * `per-cell` - each differing cell costs one cell's share of the key.
- *
- * @see {@link PrivateSpecQuizItemMatrix.partialCreditForWrongShape} for what happens when the
- * student's dimensions differ from the key's.
- */
+/** `whole-matrix`: full marks only when nothing differs. `per-cell`: each differing cell costs one cell's share. */
 export type MatrixGradingPolicy = "whole-matrix" | "per-cell"
 
 export type PrivateSpecQuizItem =
@@ -201,13 +193,9 @@ export interface PrivateSpecQuizItemMatrix {
   gradingPolicy: MatrixGradingPolicy
   /** Absolute tolerance for numeric cells; 0 means the value must match exactly. Never applies to text cells. */
   tolerance: number
-  /**
-   * Whether an answer whose dimensions differ from the key's can still earn credit, with each
-   * missing and each extra cell counting as one differing cell. Inert under `whole-matrix`, where
-   * differing dimensions already imply a differing cell.
-   */
+  /** Let a wrongly sized answer earn per-cell credit, each missing or extra cell counting as wrong. */
   partialCreditForWrongShape: boolean
-  /** Withhold per-cell verdicts from the student, so repeated attempts cannot resolve the key one cell at a time. */
+  /** Hide per-cell verdicts and force `whole-matrix`, so retries can't reveal the key cell by cell. */
   fogOfWar: boolean
 }
 

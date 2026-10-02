@@ -111,20 +111,7 @@ describe("matrix feedback", () => {
     expect(feedback?.correctnessCoefficient).toBe(0.5)
   })
 
-  test("collapses the exact fraction under fog of war too, so retries can't bisect the key", () => {
-    const matrix = [
-      ["1", "9"],
-      ["3", "4"],
-    ]
-    // Different fractions of correctness must not be distinguishable from one another; only
-    // whether the answer was wrong, partial, or fully correct survives.
-    expect(feedbackFor(matrix, { fogOfWar: true }, 0.25)?.correctnessCoefficient).toBe(0.5)
-    expect(feedbackFor(matrix, { fogOfWar: true }, 0.75)?.correctnessCoefficient).toBe(0.5)
-    expect(feedbackFor(matrix, { fogOfWar: true }, 0)?.correctnessCoefficient).toBe(0)
-    expect(feedbackFor(matrix, { fogOfWar: true }, 1)?.correctnessCoefficient).toBe(1)
-  })
-
-  test("reveals the exact fraction when fog of war is off", () => {
+  test("passes the grader's coefficient through", () => {
     const matrix = [
       ["1", "9"],
       ["3", "4"],

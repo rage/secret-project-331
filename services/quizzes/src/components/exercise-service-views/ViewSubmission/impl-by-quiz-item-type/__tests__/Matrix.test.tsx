@@ -94,4 +94,22 @@ describe("Matrix submission score breakdown", () => {
     expect(screen.queryByText("matrix-score-breakdown-per-cell-note")).not.toBeInTheDocument()
     expect(screen.queryByText("matrix-score-breakdown-whole-matrix-note")).not.toBeInTheDocument()
   })
+
+  it("says a wrongly sized answer scored 0 when the item gives no credit for the wrong size", () => {
+    renderSubmission(modelSolution({ partialCreditForWrongShape: false }), {
+      ...breakdown,
+      missingCells: 2,
+    })
+    expect(screen.getByText("matrix-score-breakdown-wrong-shape-note")).toBeInTheDocument()
+    expect(screen.queryByText("matrix-score-breakdown-per-cell-note")).not.toBeInTheDocument()
+  })
+
+  it("keeps the per-entry note for a wrongly sized answer when the wrong size earns credit", () => {
+    renderSubmission(modelSolution({ partialCreditForWrongShape: true }), {
+      ...breakdown,
+      missingCells: 2,
+    })
+    expect(screen.getByText("matrix-score-breakdown-per-cell-note")).toBeInTheDocument()
+    expect(screen.queryByText("matrix-score-breakdown-wrong-shape-note")).not.toBeInTheDocument()
+  })
 })

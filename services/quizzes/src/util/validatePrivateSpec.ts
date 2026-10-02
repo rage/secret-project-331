@@ -6,11 +6,8 @@ import type {
 import { blankCellsInsideShape, matrixShape } from "./matrix"
 
 /**
- * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
- * live; the editor reports the result as the `valid` flag in `current-state` and the host uses it to
- * gate saving. Half-finished specs are still representable (parseable) — validity is a separate
- * judgement. Closed-ended and matrix items have type-specific checks; other item types are treated
- * as valid until their invariants are encoded too. Feedback messages are checked at every scope.
+ * Whether a private spec can be saved and graded; the host gates saving on it. Only closed-ended
+ * and matrix items have item-specific checks so far.
  */
 
 // Allowed visibility tags per scope. Checked at runtime (blobs are untrusted, not just typed).
@@ -79,12 +76,7 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
   }
 }
 
-// A gap inside the key's own frame makes the item ungradeable (compareMatrices refuses to grade
-// against it), so it blocks saving the same way an unset closed-ended grading strategy does. A
-// tolerance outside [0, inf) is not a half-finished state either: it would make every numeric
-// comparison meaningless, and migration never produces one. An empty key defines no correct
-// answer at all (assessMatrixQuiz gives every answer zero), the same "accept anything" problem
-// a null closed-ended grading strategy has.
+// The grader refuses an empty key or one with a gap, and a negative tolerance is meaningless.
 const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean => {
   const shape = matrixShape(item.optionCells)
   return (

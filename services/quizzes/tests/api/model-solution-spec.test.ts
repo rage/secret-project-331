@@ -10,7 +10,7 @@ import type {
   ModelSolutionQuizItemMatrix,
   ModelSolutionQuizItemMultiplechoice,
 } from "../../types/quizTypes/modelSolutionSpec"
-import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
+import type { PrivateSpecQuiz, PrivateSpecQuizItemMatrix } from "../../types/quizTypes/privateSpec"
 import testClient from "./utils/appRouterTestClient"
 import {
   AFTER_ANSWER_AND_ACCEPTANCE_CANARIES,
@@ -87,9 +87,19 @@ describe("Model solution spec generation", () => {
     // @ts-expect-error: property that should not exist on the model solution
     expect(item.tolerance).toBeUndefined()
     // @ts-expect-error: property that should not exist on the model solution
-    expect(item.partialCreditForWrongShape).toBeUndefined()
-    // @ts-expect-error: property that should not exist on the model solution
     expect(item.fogOfWar).toBeUndefined()
+  })
+
+  it("reports the effective grading policy, which fog of war forces to all-or-nothing", async () => {
+    const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
+    const matrix = privateSpec.items[0] as PrivateSpecQuizItemMatrix
+    matrix.gradingPolicy = "per-cell"
+    matrix.fogOfWar = true
+    const modelSolution = await generateModelSolution(privateSpec)
+
+    expect((modelSolution.items[0] as ModelSolutionQuizItemMatrix).gradingPolicy).toBe(
+      "whole-matrix",
+    )
   })
 })
 

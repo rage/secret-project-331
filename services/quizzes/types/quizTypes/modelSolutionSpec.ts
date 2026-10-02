@@ -125,6 +125,8 @@ export interface ModelSolutionQuizItemMatrix {
   messagesOnModelSolution: string[]
   /** Carried so the submission view can phrase the score the same way the grader computed it. */
   gradingPolicy: MatrixGradingPolicy
+  /** Optional because model solutions generated before this field existed lack it. */
+  partialCreditForWrongShape?: boolean
 }
 
 export interface ModelSolutionQuizItemTimelineItem {

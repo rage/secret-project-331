@@ -9,7 +9,7 @@ import { MatrixFrame, MatrixTable } from "@/components/Shared/MatrixGrid"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
-import { matrixShape } from "@/util/matrix"
+import { type MatrixShape, matrixShape } from "@/util/matrix"
 
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
@@ -36,9 +36,7 @@ const VERDICT_ICON_COLORS: Record<MatrixCellVerdict, string> = {
   extra: baseTheme.colors.red[600],
 }
 
-// A shape per verdict, not just a background color, so the verdict survives for color-blind
-// students and doesn't depend on `title` (screen readers don't reliably announce it, touch
-// devices don't show it at all).
+// An icon per verdict so color isn't the only signal; `title` alone isn't announced or shown on touch.
 const VERDICT_ICONS: Record<
   MatrixCellVerdict,
   React.ComponentType<{ size?: number; className?: string; color?: string }>
@@ -69,9 +67,7 @@ const MatrixSubmission: React.FC<
   const breakdown = quiz_item_answer_feedback?.matrix_score_breakdown ?? null
   const studentShape = matrixShape(studentAnswer)
 
-  // Correctness comes from the grader alone. Comparing here would contradict it the moment a
-  // student writes `0,5` against a `0.5` key; no verdicts means an older submission or fog of war,
-  // and the cells then render unmarked.
+  // Verdicts come only from the grader; without them (fog of war, old submissions) cells render unmarked.
   const verdictByPosition = new Map<string, MatrixCellVerdict>()
   cellFeedbacks?.forEach(({ row, column, verdict }) => {
     verdictByPosition.set(`${row},${column}`, verdict)
@@ -87,6 +83,11 @@ const MatrixSubmission: React.FC<
     text: studentAnswer[row]?.[column] ?? "",
     verdict: verdictByPosition.get(`${row},${column}`) ?? null,
   })
+
+  const wrongShapeScoredZero =
+    breakdown !== null &&
+    breakdown.missingCells + breakdown.extraCells > 0 &&
+    modelSolution?.partialCreditForWrongShape === false
 
   const answerWasFullyCorrect = quiz_item_answer_feedback?.correctnessCoefficient === 1
   const modelSolutionCells = answerWasFullyCorrect ? null : (modelSolution?.optionCells ?? null)
@@ -110,7 +111,7 @@ const MatrixSubmission: React.FC<
         `}
       >
         <div>
-          <MatrixGrid rows={rows} columns={columns} cellAt={cellAt} />
+          <MatrixGrid rows={rows} columns={columns} frame={studentShape} cellAt={cellAt} />
           <Caption>{t("matrix-your-answer")}</Caption>
         </div>
         {modelSolutionCells && modelSolutionShape.rows > 0 && (
@@ -118,6 +119,7 @@ const MatrixSubmission: React.FC<
             <MatrixGrid
               rows={modelSolutionShape.rows}
               columns={modelSolutionShape.columns}
+              frame={modelSolutionShape}
               cellAt={(row, column) => ({
                 text: modelSolutionCells[row]?.[column] ?? "",
                 verdict: null,
@@ -148,7 +150,10 @@ const MatrixSubmission: React.FC<
               extra: breakdown.extraCells,
             })}
           </span>
-          {modelSolution?.gradingPolicy === "per-cell" && (
+          {modelSolution?.gradingPolicy === "per-cell" && wrongShapeScoredZero && (
+            <span className={noteLine}>{t("matrix-score-breakdown-wrong-shape-note")}</span>
+          )}
+          {modelSolution?.gradingPolicy === "per-cell" && !wrongShapeScoredZero && (
             <span className={noteLine}>
               {t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })}
             </span>
@@ -181,10 +186,12 @@ const Caption = styled.div`
 interface MatrixGridProps {
   rows: number
   columns: number
+  /** The submitted shape, which can be smaller than the grid when key cells are shown as missing. */
+  frame: MatrixShape
   cellAt: (row: number, column: number) => RenderedCell
 }
 
-const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
+const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt }) => {
   const { t } = useTranslation()
   const verdictLabels: Record<MatrixCellVerdict, string> = {
     correct: t("matrix-cell-verdict-correct"),
@@ -231,7 +238,11 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                       };
                     `}
                   >
-                    <MatrixFrame column={column} row={row} matrixSize={[rows - 1, columns - 1]} />
+                    <MatrixFrame
+                      column={column}
+                      row={row}
+                      matrixSize={[frame.rows - 1, frame.columns - 1]}
+                    />
                     {cell.text}
                     {cell.verdict && VerdictIcon && (
                       <>

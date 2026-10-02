@@ -1,6 +1,8 @@
 /* oxlint-disable i18next/no-literal-string */
 import { v4 } from "uuid"
 
+import { emptyMatrixGrid } from "@/util/matrix"
+
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -41,18 +43,6 @@ const findQuizItem = <T,>(
   }
 
   return null
-}
-
-const createEmptyMatrix = () => {
-  const emptyMatrix: string[][] = []
-  for (let i = 0; i < 6; i++) {
-    const columnArray: string[] = []
-    for (let j = 0; j < 6; j++) {
-      columnArray.push("")
-    }
-    emptyMatrix.push(columnArray)
-  }
-  return emptyMatrix
 }
 
 const createEmptyQuizItem = (type: QuizItemType) => {
@@ -103,7 +93,7 @@ const createEmptyQuizItem = (type: QuizItemType) => {
       return {
         type,
         id: v4(),
-        optionCells: createEmptyMatrix(),
+        optionCells: emptyMatrixGrid(),
         order: 0,
         feedbackMessages: [],
         gradingPolicy: "whole-matrix",

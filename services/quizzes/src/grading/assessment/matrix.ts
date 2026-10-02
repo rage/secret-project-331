@@ -1,8 +1,16 @@
 import type { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
 import type { MatrixDifference, QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import type { PrivateSpecQuizItemMatrix } from "../../../types/quizTypes/privateSpec"
+import type {
+  MatrixGradingPolicy,
+  PrivateSpecQuizItemMatrix,
+} from "../../../types/quizTypes/privateSpec"
 import { clamp01 } from "../utils/math"
 import { compareMatrices } from "../utils/matrixDifference"
+
+/** Fog of war forces all-or-nothing: per-cell points would reveal which cells changed between attempts. */
+export const effectiveMatrixGradingPolicy = (
+  quizItem: Pick<PrivateSpecQuizItemMatrix, "gradingPolicy" | "fogOfWar">,
+): MatrixGradingPolicy => (quizItem.fogOfWar ? "whole-matrix" : quizItem.gradingPolicy)
 
 const assessMatrixQuiz = (
   quizItemAnswer: UserItemAnswerMatrix,
@@ -32,7 +40,7 @@ const matrixCorrectnessCoefficient = (
   // compareMatrices already refuses a key with no cells, so keyCells is a safe divisor here.
   const { incorrectCells, missingCells, extraCells, keyCells } = difference.breakdown
   const differingCells = incorrectCells + missingCells + extraCells
-  if (quizItem.gradingPolicy === "whole-matrix") {
+  if (effectiveMatrixGradingPolicy(quizItem) === "whole-matrix") {
     return differingCells === 0 ? 1 : 0
   }
   const shapesMatch = missingCells === 0 && extraCells === 0

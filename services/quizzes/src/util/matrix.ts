@@ -1,17 +1,9 @@
-/**
- * Shared meaning of a matrix cell: what counts as blank, what counts as a number, and how two
- * cells compare. The answer UI, the editor and the grader all import from here, because a frame
- * the student sees and a frame the grader computes must never disagree.
- */
+/** What counts as a blank cell, a number and a match; shared by the UI and the grader so their frames agree. */
 
 /** Dashes a keyboard, a phone or a word processor may produce where the student meant a minus. */
 const DASH_CHARACTERS = /[‐‑‒–—−－]/g
 
-/**
- * Sign, then digits with at most one decimal separator, digits on at least one side. Whitespace is
- * tolerated only between the sign and the digits, so `- 1` is a number while `1 000` is not: a
- * space must not become a thousands separator when `1,234` is deliberately read as 1.234.
- */
+/** Optional sign, then digits with one optional decimal separator. `- 1` is a number, `1 000` is not. */
 const NUMERIC_CELL = /^[+-]?\s*(?:\d+(?:[.,]\d*)?|[.,]\d+)$/
 
 /** A comma that reads as a thousands separator: a nonzero integer part and exactly three decimals. */
@@ -29,21 +21,15 @@ export interface MatrixShape {
   columns: number
 }
 
-/**
- * Fold away differences that carry no mathematical meaning: composed characters, the dash family,
- * and surrounding whitespace. Does not remove inner whitespace, which `cellsMatch` handles per branch.
- */
+/** Normalizes Unicode composition and dashes and trims; inner whitespace is left to `cellsMatch`. */
 export const normalizeCell = (raw: string): string =>
   raw.normalize("NFC").replaceAll(DASH_CHARACTERS, "-").trim()
 
-export const isBlankCell = (raw: string | undefined): boolean =>
-  raw === undefined || normalizeCell(raw) === ""
+/** Non-strings count as blank: stored answers are client-supplied and may hold null or numbers. */
+export const isBlankCell = (raw: unknown): boolean =>
+  typeof raw !== "string" || normalizeCell(raw) === ""
 
-/**
- * The value of a numeric cell, or null when the cell is symbolic, malformed or blank. Rejects
- * everything `Number()` would quietly accept but a hand-typed matrix entry never means: scientific
- * notation, hexadecimal, and `Infinity`.
- */
+/** The cell's numeric value, or null. Unlike `Number()`, rejects exponents, hex and `Infinity`. */
 export const parseCellNumber = (raw: string): number | null => {
   const normalized = normalizeCell(raw)
   if (!NUMERIC_CELL.test(normalized)) {
@@ -67,18 +53,14 @@ export const looksLikeThousandsSeparator = (raw: string): boolean =>
   COMMA_AS_THOUSANDS_SEPARATOR.test(normalizeCell(raw))
 
 /**
- * Whether two cells hold the same entry. Numeric cells compare by value within `tolerance`;
- * anything else compares as text with inner whitespace removed (`- 1` and `-1`, `2 x` and `2x`)
- * and case preserved, since `x` and `X` are different variables. A cell that reads as a number
- * never matches one that does not, so two differently-malformed numbers (`1 000` vs `1,5`) can
- * only match by being identical text, not by both losing to text normalization.
+ * Numbers match within `tolerance`; other cells match as case-sensitive text ignoring whitespace.
+ * A number never matches a non-number.
  */
 export const cellsMatch = (a: string, b: string, tolerance: number): boolean => {
   const numberA = parseCellNumber(a)
   const numberB = parseCellNumber(b)
   if (numberA !== null && numberB !== null) {
-    // A negative tolerance would reject even an exact match; clamp so it can only ever widen
-    // what counts as equal, never narrow it below exact equality.
+    // A negative tolerance would reject even exact matches
     return Math.abs(numberA - numberB) <= Math.max(tolerance, 0)
   }
   if ((numberA === null) !== (numberB === null)) {
@@ -87,12 +69,9 @@ export const cellsMatch = (a: string, b: string, tolerance: number): boolean => 
   return normalizeCell(a).replaceAll(/\s+/g, "") === normalizeCell(b).replaceAll(/\s+/g, "")
 }
 
-/**
- * The rectangle anchored at the top-left that contains every non-blank cell — the frame the UI
- * draws while the student types, so the shape they see is the shape they are graded on.
- */
+/** The top-left-anchored bounding box of the non-blank cells: the frame the UI draws and the grader uses. */
 export const matrixShape = (
-  matrix: readonly (readonly string[])[] | null | undefined,
+  matrix: readonly (readonly unknown[])[] | null | undefined,
 ): MatrixShape => {
   let rows = 0
   let columns = 0
@@ -110,7 +89,7 @@ export const matrixShape = (
 
 /** Positions inside the shape that the author left blank; a student can never reproduce these. */
 export const blankCellsInsideShape = (
-  matrix: readonly (readonly string[])[] | null | undefined,
+  matrix: readonly (readonly unknown[])[] | null | undefined,
   shape: MatrixShape,
 ): { row: number; column: number }[] => {
   const holes: { row: number; column: number }[] = []
@@ -124,6 +103,12 @@ export const blankCellsInsideShape = (
   return holes
 }
 
-/** A blank grid of the size both editors render, used when a key has to be reset to something well-formed. */
+/** A completely filled rectangle anchored at the top-left, the only shape a student can submit. */
+export const isFilledRectangle = (matrix: readonly (readonly unknown[])[] | null | undefined) => {
+  const shape = matrixShape(matrix)
+  return shape.rows > 0 && blankCellsInsideShape(matrix, shape).length === 0
+}
+
+/** A blank grid of the size both editors render. */
 export const emptyMatrixGrid = (): string[][] =>
   Array.from({ length: MATRIX_GRID_SIZE }, () => Array.from({ length: MATRIX_GRID_SIZE }, () => ""))

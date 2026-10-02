@@ -1,3 +1,4 @@
+import { assessAnswers } from "../../src/grading/assessment"
 import { assessMatrixQuiz } from "../../src/grading/assessment/matrix"
 import { MATRIX_GRID_SIZE } from "../../src/util/matrix"
 import type { UserItemAnswerMatrix } from "../../types/quizTypes/answer"
@@ -300,5 +301,62 @@ describe("matrix grading: keys and answers that should not exist", () => {
         },
       ),
     ).toBeCloseTo(2 / 4)
+  })
+})
+
+describe("matrix grading: fog of war", () => {
+  test("forces all-or-nothing, so the points can't reveal which cells changed", () => {
+    const oneWrong = [
+      ["1", "2", "3"],
+      ["4", "5", "6"],
+      ["7", "8", "0"],
+    ]
+    expect(score(oneWrong, { ...perCell(true), fogOfWar: true })).toBe(0)
+    expect(score(KEY_3X3, { ...perCell(true), fogOfWar: true })).toBe(1)
+  })
+})
+
+describe("matrix grading: failures", () => {
+  const assess = (item: PrivateSpecQuizItemMatrix, matrix: unknown) =>
+    assessAnswers(
+      {
+        version: "5",
+        itemAnswers: [{ ...answer([]), matrix: matrix as string[][] }],
+      },
+      {
+        version: "5",
+        awardPointsEvenIfWrong: false,
+        grantPointsPolicy: "grant_whenever_possible",
+        title: null,
+        body: null,
+        quizItemDisplayDirection: "vertical",
+        feedbackMessages: [],
+        items: [item],
+      },
+    )[0]
+
+  test("a key with a gap is reported as failed instead of scoring 0 as graded", () => {
+    const item = matrixItem({
+      optionCells: [
+        ["1", ""],
+        ["3", "4"],
+      ],
+    })
+    expect(assess(item, KEY_3X3)).toMatchObject({ correctnessCoefficient: 0, gradingFailed: true })
+  })
+
+  test("a well-formed key grades normally", () => {
+    expect(assess(matrixItem(), KEY_3X3)?.gradingFailed).toBeUndefined()
+  })
+
+  test("non-string cells in a crafted answer count as blank instead of crashing", () => {
+    const matrix = [
+      [1, null, "3"],
+      ["4", "5", "6"],
+      ["7", "8", "9"],
+    ]
+    expect(assess(matrixItem(perCell(true)), matrix)).toMatchObject({
+      correctnessCoefficient: 7 / 9,
+    })
   })
 })

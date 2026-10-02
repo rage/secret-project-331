@@ -32,9 +32,7 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
     return emptyMatrixGrid()
   })
 
-  // The frame is drawn from the last non-blank row and column, so it is expressed as indices while
-  // `matrixShape` counts cells. It must agree with the grader, or the teacher sees a frame that is
-  // not the one their students are graded against.
+  // Same frame as the grader's; the frame is drawn from indices while `matrixShape` counts cells.
   useEffect(() => {
     const shape = matrixShape(matrixVariable)
     setMatrixActiveSize([Math.max(0, shape.rows - 1), Math.max(0, shape.columns - 1)])

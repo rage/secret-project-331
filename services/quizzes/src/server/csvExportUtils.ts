@@ -1,4 +1,4 @@
-import { matrixShape } from "@/util/matrix"
+import { isBlankCell, MATRIX_GRID_SIZE, matrixShape } from "@/util/matrix"
 
 import type { UserItemAnswer } from "../../types/quizTypes/answer"
 import type {
@@ -15,8 +15,6 @@ export interface CsvExportColumn {
   key: string
   header: string
 }
-
-export const MATRIX_MAX_SIZE = 6
 
 function getOptions(quizItem: PrivateSpecQuizItem | null): QuizItemOption[] | null {
   if (!quizItem) {
@@ -43,10 +41,6 @@ export function joinValues(values: string[]): string | null {
     return null
   }
   return values.join(" | ")
-}
-
-function isNonEmptyMatrixCell(value: string | null | undefined): value is string {
-  return typeof value === "string" && value.trim() !== ""
 }
 
 /** Returns unique quiz item types in order of first appearance. */
@@ -81,12 +75,15 @@ export function mergeColumns(columnSets: CsvExportColumn[][]): CsvExportColumn[]
   return mergedColumns
 }
 
-/** Returns non-empty row/column counts or null if matrix empty. */
+/** Returns non-empty row/column counts within the grid, or null if matrix empty. */
 export function getMatrixDimensions(matrix: string[][] | null | undefined): {
   rowCount: number | null
   columnCount: number | null
 } {
-  const shape = matrixShape(matrix)
+  // Cropped to the grid so the summary agrees with the per-cell columns
+  const shape = matrixShape(
+    matrix?.slice(0, MATRIX_GRID_SIZE).map((row) => row?.slice(0, MATRIX_GRID_SIZE)),
+  )
   if (shape.rows === 0 || shape.columns === 0) {
     return { rowCount: null, columnCount: null }
   }
@@ -99,19 +96,19 @@ export function getMatrixCellValue(
   rowIndex: number,
   columnIndex: number,
 ): string | null {
-  const value = matrix?.[rowIndex]?.[columnIndex]
-  if (!isNonEmptyMatrixCell(value)) {
+  const value: unknown = matrix?.[rowIndex]?.[columnIndex]
+  if (typeof value !== "string" || isBlankCell(value)) {
     return null
   }
   return value.trim()
 }
 
-/** Returns column definitions for all matrix cells up to MATRIX_MAX_SIZE. */
+/** Returns column definitions for all matrix cells up to MATRIX_GRID_SIZE. */
 export function getMatrixCellColumns(prefix = "matrix"): CsvExportColumn[] {
   const columns: CsvExportColumn[] = []
 
-  for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
-    for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
+  for (let rowIndex = 0; rowIndex < MATRIX_GRID_SIZE; rowIndex += 1) {
+    for (let columnIndex = 0; columnIndex < MATRIX_GRID_SIZE; columnIndex += 1) {
       const rowNumber = rowIndex + 1
       const columnNumber = columnIndex + 1
       columns.push({

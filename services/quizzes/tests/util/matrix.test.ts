@@ -1,3 +1,4 @@
+import { getMatrixDimensions, matrixToHumanReadable } from "../../src/server/csvExportUtils"
 import {
   cellsMatch,
   isBlankCell,
@@ -155,5 +156,17 @@ describe("matrix cell warnings", () => {
   test("flags a number-like cell that fails to parse even with no more than one separator", () => {
     expect(isMalformedNumberCell("1 000")).toBe(true)
     expect(isMalformedNumberCell("1 5")).toBe(true)
+  })
+})
+
+describe("matrix CSV export", () => {
+  test("skips non-string cells instead of throwing", () => {
+    const matrix = [["1", null, 3]] as unknown as string[][]
+    expect(matrixToHumanReadable(matrix)).toBe("1")
+  })
+
+  test("crops the summary to the grid the per-cell columns cover", () => {
+    const matrix = [["1", "", "", "", "", "", "7"]]
+    expect(getMatrixDimensions(matrix)).toEqual({ rowCount: 1, columnCount: 1 })
   })
 })

@@ -81,9 +81,7 @@ const submissionFeedback = (
         }
 
         const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
-        // Same leak the matrix branch below guards against: the raw coefficient moves by
-        // 1/optionCount per selection under partial-credit policies, so leaving it unquantized
-        // would let a student bisect the answer key across retries even with fog of war on.
+        // Under partial credit the exact coefficient would reveal which selections changed.
         const correctnessCoefficient = applyFogOfWar(itemGrading.correctnessCoefficient, fogOfWar)
 
         return {
@@ -157,22 +155,10 @@ const submissionFeedback = (
 
       if (item.type === "matrix") {
         const matrixQuizItem = item as PrivateSpecQuizItemMatrix
-        // Reuses the comparison assessMatrixQuiz already made for the same item in the same
-        // request, rather than redoing it here; null only if that grading call itself failed.
+        // Null only if grading this item failed.
         const difference = itemGrading.matrixDifference ?? null
-        // Fog of war withholds the per-cell verdicts, which would otherwise let a student with
-        // repeated attempts resolve the key one cell at a time.
+        // Fog of war withholds per-cell verdicts; the grader already forces it to all-or-nothing.
         const revealCells = !matrixQuizItem.fogOfWar
-        // The exact fraction is the same leak in a different shape: under per-cell grading it
-        // moves by 1/keyCells per cell, so a student could still bisect the key across retries by
-        // watching it change. Collapse it to the same three-way signal every other item type
-        // already exposes (wrong / partial / fully correct) so the actually-awarded points (which
-        // come from the separate, full-precision QuizItemAnswerGrading, not this feedback object)
-        // are unaffected.
-        const correctnessCoefficient = applyFogOfWar(
-          itemGrading.correctnessCoefficient,
-          !revealCells,
-        )
 
         return {
           quiz_item_id: matrixQuizItem.id,
@@ -181,7 +167,7 @@ const submissionFeedback = (
           timeline_item_feedbacks: null,
           matrix_cell_feedbacks: revealCells ? (difference?.cellFeedbacks ?? null) : null,
           matrix_score_breakdown: revealCells ? (difference?.breakdown ?? null) : null,
-          correctnessCoefficient,
+          correctnessCoefficient: itemGrading.correctnessCoefficient,
         }
       }
 

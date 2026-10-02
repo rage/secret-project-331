@@ -1,9 +1,4 @@
-/**
- * Problems a teacher can create in a matrix key that only surface when a student answers.
- *
- * Nothing here blocks saving; the editor shows these so the teacher can fix the key before anyone
- * is graded against it. The one exception is a key with gaps, which the grader refuses outright.
- */
+/** Matrix key problems the editor warns about. Only gaps also block saving. */
 import {
   isBlankCell,
   isMalformedNumberCell,
@@ -24,16 +19,9 @@ export interface MatrixKeyDiagnostics {
   commaAsThousandsSeparator: MatrixCellPosition[]
   /** Cells that look like a number but cannot be read as one, so they only ever match the same text. */
   malformedNumbers: MatrixCellPosition[]
-  /**
-   * What an answer of all zeros would score under per-cell grading, as a fraction of the points.
-   * High on sparse keys (an identity, a diagonal) where most entries are predictable, which is the
-   * signal that all-or-nothing is the better policy. Null when the key has no cells.
-   */
+  /** The per-cell score of an all-zeros answer; high on sparse keys. Null when the key is empty. */
   zeroMatrixScore: number | null
-  /**
-   * The largest tolerance that still tells every distinct value in the key apart and keeps zero
-   * distinguishable from the smallest nonzero entry. Null when the key holds no numbers.
-   */
+  /** The largest tolerance that keeps every key value, and zero, distinct. Null without numbers. */
   largestSafeTolerance: number | null
 }
 
@@ -64,7 +52,8 @@ export const matrixKeyDiagnostics = (
       const value = parseCellNumber(cell)
       if (value !== null) {
         numericValues.push(value)
-        if (Math.abs(value) <= tolerance) {
+        // Same clamp as cellsMatch, so a negative tolerance still counts exact zeros
+        if (Math.abs(value) <= Math.max(tolerance, 0)) {
           zeroCells++
         }
       }
@@ -81,11 +70,7 @@ export const matrixKeyDiagnostics = (
   }
 }
 
-/**
- * Strictly below half the smallest distance between any two distinct values in the key, and below
- * half the smallest nonzero magnitude. At exactly half, `cellsMatch`'s inclusive `<=` accepts both
- * neighboring values (and zero in place of a nonzero entry), so the limit itself is not safe.
- */
+/** Just under half the smallest gap between values (zero included): `cellsMatch`'s `<=` makes exactly half unsafe. */
 const largestSafeTolerance = (values: number[]): number | null => {
   if (values.length === 0) {
     return null

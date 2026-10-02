@@ -9,7 +9,8 @@ import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   blankCellsInsideShape,
-  isBlankCell,
+  emptyMatrixGrid,
+  isFilledRectangle,
   isMalformedNumberCell,
   looksLikeThousandsSeparator,
   MATRIX_GRID_SIZE,
@@ -24,28 +25,6 @@ import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes
 const AnswerMatrixTable = styled(MatrixTable)`
   margin-top: 1rem;
 `
-
-/**
- * A submittable answer is a completely filled rectangle anchored at the top-left, because the shape
- * the student types is their claim about the shape of the answer. A number nobody can parse, say
- * `1,234,567`, is still submittable: the grader falls back to comparing it as exact text, and the
- * key can legitimately contain the same unparseable text (blocking it here would make a published
- * key using that exact text unanswerable).
- */
-const isSubmittable = (matrix: string[][]): boolean => {
-  const shape = matrixShape(matrix)
-  if (shape.rows === 0 || shape.columns === 0) {
-    return false
-  }
-  for (let row = 0; row < shape.rows; row++) {
-    for (let column = 0; column < shape.columns; column++) {
-      if (isBlankCell(matrix[row]?.[column])) {
-        return false
-      }
-    }
-  }
-  return true
-}
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -64,16 +43,7 @@ const Matrix: React.FunctionComponent<
     if (res !== null && res !== undefined && Array.isArray(res)) {
       return res
     }
-    // Initialize a new empty answer
-    const newAnswerMatrix: string[][] = []
-    for (let i = 0; i < 6; i++) {
-      const columnArray: string[] = []
-      for (let j = 0; j < 6; j++) {
-        columnArray.push("")
-      }
-      newAnswerMatrix.push(columnArray)
-    }
-    return newAnswerMatrix
+    return emptyMatrixGrid()
   }, [quizItemAnswerState?.matrix])
   // The frame is drawn from the last non-blank row and column, so it is expressed as indices while
   // `matrixShape` counts cells.
@@ -104,7 +74,8 @@ const Matrix: React.FunctionComponent<
     } else if (quizItemAnswerState?.matrix) {
       newOptionCells = quizItemAnswerState?.matrix
     }
-    const isValid = isSubmittable(newOptionCells)
+    // Unparseable numbers stay submittable: the grader compares them as text, and the key may hold the same text
+    const isValid = isFilledRectangle(newOptionCells)
     if (!quizItemAnswerState) {
       setQuizItemAnswerState({
         quizItemId: quizItem.id,

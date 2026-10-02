@@ -26,10 +26,7 @@ export interface MatrixCellFeedback {
   verdict: MatrixCellVerdict
 }
 
-/**
- * The arithmetic behind a matrix item's score, so the student can check it by counting cells
- * rather than trusting the number.
- */
+/** The cell counts behind a matrix score, so the student can check it. */
 export interface MatrixScoreBreakdown {
   correctCells: number
   incorrectCells: number
@@ -84,4 +81,6 @@ export interface QuizItemAnswerGrading {
   quizItemId: string
   /** Set only for matrix items; lets feedback rendering reuse the grader's comparison instead of redoing it. */
   matrixDifference?: MatrixDifference
+  /** The item could not be graded, e.g. a broken key; the submission is reported as Failed. */
+  gradingFailed?: boolean
 }

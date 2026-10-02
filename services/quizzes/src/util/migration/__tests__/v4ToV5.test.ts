@@ -35,6 +35,9 @@ const migrateMatrixItem = (
 ): PrivateSpecQuizItemMatrix =>
   migratePrivateSpecV4ToV5(v4Quiz(v4Matrix(overrides))).items[0] as PrivateSpecQuizItemMatrix
 
+const emptyRows = (rows: number, columns: number): string[][] =>
+  Array.from({ length: rows }, () => Array.from({ length: columns }, () => ""))
+
 /** The v4 grader: every cell of the fixed grid had to be the same string. */
 const gradedCorrectlyUnderV4 = (answer: string[][], key: string[][]): boolean => {
   for (let row = 0; row < 6; row++) {
@@ -78,14 +81,33 @@ describe("v4 -> v5 matrix migration", () => {
     expect(migrateMatrixItem().optionCells?.[0]?.[0]).toBe("1")
   })
 
-  test("pads every row to the same column count, so a ragged legacy matrix migrates to a rectangle", () => {
+  test("migrates a ragged or oversized legacy key to the 6x6 grid v4 graded", () => {
     const migrated = migrateMatrixItem({
-      optionCells: [["1", "2", "3", "4", "5", "6", "7", "8"], ["9"]],
+      optionCells: [["1", "2", "3", "4", "5", "6", "7", "8"], ["9"], ...emptyRows(6, 1)],
     })
-    const columnCounts = new Set(migrated.optionCells?.map((row) => row.length))
-    expect(columnCounts.size).toBe(1)
-    expect(migrated.optionCells?.[0]).toHaveLength(8)
-    expect(migrated.optionCells?.[1]).toHaveLength(8)
+    expect(migrated.optionCells).toHaveLength(6)
+    expect(migrated.optionCells?.every((row) => row.length === 6)).toBe(true)
+    expect(migrated.optionCells?.[0]).toEqual(["1", "2", "3", "4", "5", "6"])
+  })
+
+  test("an oversized legacy key stays gradeable", () => {
+    const item = migrateMatrixItem({
+      optionCells: [
+        ["1", "2", "", "", "", "", "", ""],
+        ["3", "4", "", "", "", "", "", ""],
+        ...emptyRows(6, 8),
+      ],
+    })
+    const answer: UserItemAnswerMatrix = {
+      type: "matrix",
+      valid: true,
+      quizItemId: "matrix-item",
+      matrix: [
+        ["1", "2"],
+        ["3", "4"],
+      ],
+    }
+    expect(assessMatrixQuiz(answer, item).correctnessCoefficient).toBe(1)
   })
 })
 

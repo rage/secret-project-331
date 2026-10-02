@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { effectiveMatrixGradingPolicy } from "@/grading/assessment/matrix"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
@@ -26,6 +27,10 @@ interface MatrixGradingSettingsProps {
 const describeCells = (cells: MatrixCellPosition[]): string =>
   cells.map(({ row, column }) => `(${row + 1}, ${column + 1})`).join(", ")
 
+// The safe limit sits just under the exact bound; show the bound, e.g. 0.5 not 0.49999999950000004
+const formatTolerance = (limit: number | null): string =>
+  limit === null ? "" : String(Number(limit.toPrecision(6)))
+
 const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
@@ -39,7 +44,7 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
     return null
   }
 
-  const gradesPerCell = selected.gradingPolicy === PER_CELL
+  const gradesPerCell = effectiveMatrixGradingPolicy(selected) === PER_CELL
   const diagnostics = matrixKeyDiagnostics(selected.optionCells, selected.tolerance)
   const toleranceIsNegative = selected.tolerance < 0
   const toleranceTooLarge =
@@ -64,7 +69,8 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
           width: 100%;
         `}
         label={t("matrix-grading-policy")}
-        defaultValue={selected.gradingPolicy}
+        value={effectiveMatrixGradingPolicy(selected)}
+        disabled={selected.fogOfWar}
         options={[
           { value: WHOLE_MATRIX, label: t("matrix-grading-policy-whole-matrix") },
           { value: PER_CELL, label: t("matrix-grading-policy-per-cell") },
@@ -150,7 +156,9 @@ const MatrixGradingSettings: React.FC<MatrixGradingSettingsProps> = ({ quizItemI
       )}
       {toleranceTooLarge && (
         <WarningInfobox>
-          {t("matrix-warning-tolerance-too-large", { limit: diagnostics.largestSafeTolerance })}
+          {t("matrix-warning-tolerance-too-large", {
+            limit: formatTolerance(diagnostics.largestSafeTolerance),
+          })}
         </WarningInfobox>
       )}
       {diagnostics.gaps.length > 0 && (

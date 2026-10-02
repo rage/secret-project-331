@@ -10,11 +10,7 @@ interface NumericFieldProps {
   min?: number
 }
 
-/**
- * Number input backed by local text state, so intermediate entries ("1.", "-", "") are not snapped
- * by a String()/Number() round-trip mid-keystroke. Only parseable values reach the spec, and the
- * field normalizes back to the committed value on blur.
- */
+/** Keeps partial input like "1." or "-" as text; only parseable values are committed, and blur resets to the committed value. */
 const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min }) => {
   const [text, setText] = useState(String(value))
   return (

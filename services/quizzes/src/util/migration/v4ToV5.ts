@@ -2,16 +2,14 @@
  * v4 -> v5 migration.
  *
  * v5 gives the matrix item a grading policy, a numeric tolerance, a wrong-shape switch and a fog of
- * war flag. Every existing item lands on `whole-matrix` with a zero tolerance, which is the closest
- * policy to v4's raw string comparison and can only ever raise a stored score: an answer that
- * matched v4's byte-for-byte comparison necessarily has the same dimensions and the same value in
- * every cell, so it still scores 1 here.
+ * war flag. Every existing item lands on `whole-matrix` with a zero tolerance, the closest policy to
+ * v4's raw string comparison.
  *
- * Cells holding only whitespace become empty, so the frame the grader computes matches the frame
- * the editor drew. A key that is null or has nothing in it becomes a well-formed empty grid: the
- * item still cannot be answered correctly, but it fails as a wrong answer instead of a 500.
+ * The key is cropped to the 6x6 grid v4 graded, and whitespace-only cells become empty so the
+ * grader's frame matches the editor's. A whitespace cell inside the frame leaves a gap, which the
+ * grader reports as a failed grading until the teacher fills it.
  */
-import { emptyMatrixGrid, MATRIX_GRID_SIZE } from "@/util/matrix"
+import { emptyMatrixGrid } from "@/util/matrix"
 
 import type { UserAnswer } from "../../../types/quizTypes/answer"
 import type {
@@ -29,23 +27,13 @@ import type {
   UserAnswerV4,
 } from "../../../types/quizTypes/v4"
 
-const migrateOptionCells = (optionCells: string[][] | null): string[][] => {
-  const normalized = (optionCells ?? []).map((row) =>
-    (row ?? []).map((cell) => (typeof cell === "string" && cell.trim() !== "" ? cell : "")),
+const migrateOptionCells = (optionCells: string[][] | null): string[][] =>
+  emptyMatrixGrid().map((row, rowIndex) =>
+    row.map((_unusedCell, columnIndex) => {
+      const cell: unknown = optionCells?.[rowIndex]?.[columnIndex]
+      return typeof cell === "string" && cell.trim() !== "" ? cell : ""
+    }),
   )
-  const hasContent = normalized.some((row) => row.some((cell) => cell !== ""))
-  if (!hasContent) {
-    return emptyMatrixGrid()
-  }
-  const rows = Math.max(MATRIX_GRID_SIZE, normalized.length)
-  // One column count for the whole grid, or a legacy matrix whose rows had different lengths
-  // would migrate into a result that is still ragged.
-  const columns = Math.max(MATRIX_GRID_SIZE, ...normalized.map((row) => row.length))
-  return Array.from({ length: rows }, (_unusedRow, rowIndex) => {
-    const row = normalized[rowIndex] ?? []
-    return Array.from({ length: columns }, (_unusedCell, columnIndex) => row[columnIndex] ?? "")
-  })
-}
 
 const migratePrivateSpecItem = (item: PrivateSpecQuizItemV4): PrivateSpecQuizItem => {
   if (item.type !== "matrix") {

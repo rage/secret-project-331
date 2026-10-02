@@ -13,25 +13,15 @@ const isOversized = (matrix: readonly (readonly string[])[] | null | undefined):
   (matrix?.some((row) => (row?.length ?? 0) > MATRIX_GRID_SIZE) ?? false)
 
 /**
- * Compare a student's matrix with the key, cell by cell, over the positions either of them covers.
- *
- * Positions are fixed: row i column j is only ever compared with row i column j, so the count of
- * differing cells is both the minimum number of single-cell edits between the two matrices and
- * something a student can verify by counting.
- *
- * Throws when the key has a blank cell inside its own frame. Such a key is unanswerable — the
- * answer UI forbids submitting a blank inside the frame — so failing loudly beats grading everyone
- * against a matrix nobody can reproduce.
+ * Compares the matrices position by position over the cells either covers. Throws on an oversized
+ * matrix or a key that is empty or has a gap, since no student can reproduce such a key.
  */
 export const compareMatrices = (
   studentMatrix: readonly (readonly string[])[] | null | undefined,
   keyMatrix: readonly (readonly string[])[] | null | undefined,
   tolerance: number,
 ): MatrixDifference => {
-  // The student answer is attacker-controlled and reaches this endpoint directly, not just through
-  // the 6x6 answer UI. The key is admin-controlled but nothing upstream bounds it either (migration
-  // only pads a key up to size, never shrinks one down). Without this, either side can turn
-  // matrixShape's scan and the comparison loop below into an unbounded Cartesian product.
+  // Answers can bypass the 6x6 UI; bounding both sides keeps the scan below cheap.
   if (isOversized(studentMatrix)) {
     throw new Error(`Matrix answer exceeds the ${MATRIX_GRID_SIZE}x${MATRIX_GRID_SIZE} grid`)
   }
@@ -40,8 +30,6 @@ export const compareMatrices = (
   }
 
   const keyShape = matrixShape(keyMatrix)
-  // An empty key defines no correct answer, which the editor blocks saving; a key that reaches
-  // grading in this state is a data bug worth surfacing rather than silently scoring everyone 0.
   if (keyShape.rows === 0 || keyShape.columns === 0) {
     throw new Error("Matrix item has no correct answer configured")
   }
@@ -77,9 +65,7 @@ export const compareMatrices = (
         continue
       }
       if (!inKey && inStudentAnswer) {
-        // studentShape is the bounding box of the student's non-blank cells, not a filled
-        // rectangle: a position inside it can still be blank (e.g. a stray cell far from the
-        // rest of the answer widens the box without filling it), and a blank cell is not "extra".
+        // The student's shape is a bounding box, so a position inside it can still be blank.
         if (isBlankCell(studentMatrix?.[row]?.[column])) {
           continue
         }

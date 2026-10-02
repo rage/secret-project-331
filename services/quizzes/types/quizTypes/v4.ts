@@ -1,14 +1,6 @@
 /**
- * Frozen snapshot of the quiz spec types at version "4".
- *
- * Old data is stored forever in a database we cannot migrate, so the shapes an old version was
- * saved in are permanent. These types let the earlier migrators keep producing exactly the v4 shape
- * and let the v4->v5 step consume it, even as the current (latest) types evolve.
- *
- * v5 only adds grading fields to the matrix item, so just that item is frozen here, in the private
- * spec and the model solution spec. Every other item type, the public spec and the answer are
- * re-used from the current modules; when a FUTURE version changes one of those, snapshot its v4
- * shape here at that time.
+ * Frozen v4 types for the migrators. Only the matrix item changed in v5, so only it is snapshotted;
+ * snapshot other types here when a later version changes them.
  */
 import type { UserItemAnswer } from "./answer"
 import type {

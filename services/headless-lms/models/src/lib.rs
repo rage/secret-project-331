@@ -57,6 +57,7 @@ pub mod credit_registration_phase_state;
 pub mod credit_registration_roster_schedules;
 pub mod credit_registrations;
 pub mod email_deliveries;
+pub mod email_layouts;
 pub mod email_templates;
 pub mod email_verification_tokens;
 pub mod ended_processed_exams;

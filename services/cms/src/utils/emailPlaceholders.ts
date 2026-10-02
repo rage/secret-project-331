@@ -2,12 +2,31 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export const PLACEHOLDER_RESET_LINK = "RESET_LINK"
 export const PLACEHOLDER_CODE = "CODE"
+export const PLACEHOLDER_LINK = "LINK"
+export const PLACEHOLDER_NAME = "NAME"
+export const PLACEHOLDER_STUDENT_NUMBER = "STUDENT_NUMBER"
+export const PLACEHOLDER_COURSE_NAME = "COURSE_NAME"
+export const PLACEHOLDER_MODULE_NAME = "MODULE_NAME"
+export const PLACEHOLDER_CREDITS = "CREDITS"
+export const PLACEHOLDER_STATUS_LINK = "STATUS_LINK"
 
 export interface PlaceholderConfig {
   required: string[]
   available: string[]
 }
 
+const CREDIT_REGISTRATION_NOTIFICATION_PLACEHOLDERS = [
+  PLACEHOLDER_NAME,
+  PLACEHOLDER_COURSE_NAME,
+  PLACEHOLDER_MODULE_NAME,
+  PLACEHOLDER_CREDITS,
+  PLACEHOLDER_STATUS_LINK,
+]
+
+/**
+ * Must match what headless-lms fills in: `email_deliver.rs` for account-based templates, and the
+ * placeholder bags in credit-registration's `link_emails.rs` and `student_notifications.rs`.
+ */
 export const TEMPLATE_PLACEHOLDER_CONFIG: Record<string, PlaceholderConfig> = {
   reset_password_email: {
     required: [PLACEHOLDER_RESET_LINK],
@@ -21,6 +40,27 @@ export const TEMPLATE_PLACEHOLDER_CONFIG: Record<string, PlaceholderConfig> = {
     required: [PLACEHOLDER_CODE],
     available: [PLACEHOLDER_CODE],
   },
+  verify_email_address: {
+    required: [PLACEHOLDER_CODE],
+    available: [PLACEHOLDER_CODE],
+  },
+  credit_registration_account_linking: {
+    required: [PLACEHOLDER_LINK],
+    available: [
+      PLACEHOLDER_LINK,
+      PLACEHOLDER_NAME,
+      PLACEHOLDER_STUDENT_NUMBER,
+      PLACEHOLDER_COURSE_NAME,
+    ],
+  },
+  credit_registration_action_needed: {
+    required: [PLACEHOLDER_STATUS_LINK],
+    available: CREDIT_REGISTRATION_NOTIFICATION_PLACEHOLDERS,
+  },
+  credit_registration_registered: {
+    required: [],
+    available: CREDIT_REGISTRATION_NOTIFICATION_PLACEHOLDERS,
+  },
 }
 
 export interface PlaceholderValidationResult {
@@ -32,29 +72,34 @@ export interface PlaceholderValidationResult {
   invalidPlaceholders: string[]
 }
 
-export function extractPlaceholders(blocks: BlockInstance[]): string[] {
+/** Placeholder keys used in the body or the subject, which the sender fills in both. */
+export function extractPlaceholders(blocks: BlockInstance[], subject: string): string[] {
   const placeholders = new Set<string>()
   const placeholderRegex = /\{\{(\w+)\}\}/g
 
-  function extractFromBlock(block: BlockInstance) {
-    if (block.name === "core/paragraph" && block.attributes?.content) {
-      const content = String(block.attributes.content)
-      let match
-      while ((match = placeholderRegex.exec(content)) !== null) {
-        // regex has a single required capture group, present when match !== null
+  // Every attribute, not just paragraph text: the sender fills placeholders anywhere, e.g. a button URL.
+  function extractFromValue(value: unknown) {
+    if (typeof value === "string") {
+      for (const match of value.matchAll(placeholderRegex)) {
         const captured = match[1]
         if (captured !== undefined) {
           placeholders.add(captured)
         }
       }
-    }
-
-    if (block.innerBlocks) {
-      block.innerBlocks.forEach(extractFromBlock)
+    } else if (Array.isArray(value)) {
+      value.forEach((element) => extractFromValue(element))
+    } else if (value !== null && typeof value === "object") {
+      Object.values(value).forEach((field) => extractFromValue(field))
     }
   }
 
+  function extractFromBlock(block: BlockInstance) {
+    extractFromValue(block.attributes)
+    block.innerBlocks?.forEach((innerBlock) => extractFromBlock(innerBlock))
+  }
+
   blocks.forEach((block) => extractFromBlock(block))
+  extractFromValue(subject)
   return Array.from(placeholders)
 }
 

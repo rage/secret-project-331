@@ -19,32 +19,32 @@ pub async fn seed_generic_emails(
     let english_subject = Some("Reset password request");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "95acea49-1c92-4d54-9854-707e1bfee010",
             "attributes": {
                 "content": "Hello, it seems you requested a password reset.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "ceac591d-b291-40b2-8da7-6f437a6a8fce",
             "attributes": {
                 "content": "You can reset your password here: {{RESET_LINK}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "6a4165a1-38e1-4a17-b364-5f265afc7d23",
             "attributes": {
                 "content": "If you did not request a password reset, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -62,32 +62,32 @@ pub async fn seed_generic_emails(
     let finnish_subject = Some("Salasanan palautuspyyntö");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "a9de49ff-919f-44b4-a085-9210ce0da94b",
             "attributes": {
                 "content": "Hei, olet pyytänyt salasanan palautusta.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "c145bae4-9ff5-4194-8913-50f8900c20c8",
             "attributes": {
                 "content": "Voit palauttaa salasanasi tästä: {{RESET_LINK}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "ebd0d430-0ae3-4b85-9e8e-96481660ded4",
             "attributes": {
                 "content": "Jos et pyytänyt salasanan palautusta, voit jättää tämän viestin huomiotta.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -116,32 +116,32 @@ pub async fn seed_generic_emails(
     let delete_subject = Some("Account deletion code");
     let delete_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "11111111-1111-1111-1111-111111111111",
             "attributes": {
                 "content": "Hello, it seems you requested a code for deleting your account",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "22222222-2222-2222-2222-222222222222",
             "attributes": {
                 "content": "Use this verification code to delete your account: {{CODE}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "33333333-3333-3333-3333-333333333333",
             "attributes": {
                 "content": "If you did not request a code, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -161,32 +161,32 @@ pub async fn seed_generic_emails(
     let confirm_subject = Some("Email verification code");
     let confirm_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "44444444-4444-4444-4444-444444444444",
             "attributes": {
                 "content": "Hello, please use this code to verify your email address",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "55555555-5555-5555-5555-555555555555",
             "attributes": {
                 "content": "Your verification code is: {{CODE}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "66666666-6666-6666-6666-666666666666",
             "attributes": {
                 "content": "If you did not request this code, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -218,32 +218,32 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     let english_subject = Some("Link your student number to register your credits");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000001",
             "attributes": {
                 "content": "Hello {{NAME}}, we can see your enrolment on {{COURSE_NAME}}. To register your credits in Sisu, we need to link your student number to your account on courses.mooc.fi.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
                 "content": "Log in to courses.mooc.fi with the account you use for the course. Then open this confirmation link to link student number {{STUDENT_NUMBER}} to it: {{LINK}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000003",
             "attributes": {
                 "content": "The link works for 14 days and only once. You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If this was not you, you can ignore this email.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -265,32 +265,32 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     let finnish_subject = Some("Liitä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000001",
             "attributes": {
                 "content": "Hei {{NAME}}, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata opintopisteesi Sisuun, meidän pitää liittää opiskelijanumerosi courses.mooc.fi-tiliisi.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
                 "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Avaa sitten tämä vahvistuslinkki, niin opiskelijanumero {{STUDENT_NUMBER}} liitetään tiliisi: {{LINK}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000003",
             "attributes": {
                 "content": "Linkki toimii 14 päivää ja vain kerran. Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos et ole ilmoittautunut, voit jättää viestin huomiotta.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -325,32 +325,32 @@ async fn seed_email_ownership_verification_templates(
     let english_subject = Some("Confirm your email address");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "77777777-7777-7777-7777-777777777777",
             "attributes": {
                 "content": "Hello, please use this code to confirm the email address on your account.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "88888888-8888-8888-8888-888888888888",
             "attributes": {
                 "content": "Your confirmation code is: {{CODE}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "99999999-9999-9999-9999-999999999999",
             "attributes": {
                 "content": "If you did not request this, you can ignore this message. Nothing changes until the code is entered.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -372,32 +372,32 @@ async fn seed_email_ownership_verification_templates(
     let finnish_subject = Some("Vahvista sähköpostiosoitteesi");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "aaaaaaaa-7777-7777-7777-777777777777",
             "attributes": {
                 "content": "Hei, vahvista tilisi sähköpostiosoite tällä koodilla.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "bbbbbbbb-8888-8888-8888-888888888888",
             "attributes": {
                 "content": "Vahvistuskoodisi on: {{CODE}}",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "cccccccc-9999-9999-9999-999999999999",
             "attributes": {
                 "content": "Jos et pyytänyt tätä, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin koodi syötetään.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -479,7 +479,7 @@ async fn seed_credit_registration_status_templates(
             .enumerate()
             .map(|(paragraph_index, content)| {
                 json!({
-                    "type": "core/paragraph",
+                    "name": "core/paragraph",
                     "isValid": true,
                     "clientId": format!(
                         "d{}000000-0000-0000-0000-{:012}",
@@ -488,7 +488,7 @@ async fn seed_credit_registration_status_templates(
                     ),
                     "attributes": {
                         "content": content,
-                        "drop_cap": false
+                        "dropCap": false
                     },
                     "innerBlocks": []
                 })

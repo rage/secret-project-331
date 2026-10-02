@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM email_deliveries\nWHERE user_id = $1\n  AND test_content IS NOT NULL\n  AND created_at > now() - interval '1 minute'\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1c4032afa164def29b124f152978dd2bb82471b6b42cc1fbcb5f5ef4ca3b37c8"
+}

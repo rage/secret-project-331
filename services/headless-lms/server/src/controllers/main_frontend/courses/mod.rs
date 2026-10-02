@@ -12,11 +12,13 @@ use headless_lms_models::{
     course_audiences::CourseAudience,
     course_prerequisites::CoursePrerequisite,
     courses::CompleteCourseMetadata,
+    feedback::CategoryFeedbackCount,
     partner_block::PartnersBlock,
+    proposed_page_edits,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
@@ -33,7 +35,8 @@ use models::{
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
     },
     exercises::{Exercise, ExerciseStatusSummaryForUser},
-    feedback::{self, Feedback, FeedbackCount},
+    feedback::{self, Feedback},
+    feedback_categories::{self, FeedbackCategory},
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
@@ -87,7 +90,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_submission_counts_by_exercise,
         get_course_instances,
         get_feedback,
-        get_feedback_count,
+        get_feedback_categories,
+        get_feedback_edit_proposals_count,
         new_course_instance,
         glossary,
         new_glossary_term,
@@ -1154,6 +1158,12 @@ pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
     pagination: Pagination,
+    category_filter: Option<Uuid>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetFeedbackCategoriesQuery {
+    read: bool,
 }
 
 /**
@@ -1168,7 +1178,8 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
         ("course_id" = String, Path, description = "Course id"),
         ("read" = bool, Query, description = "Whether to fetch read feedback"),
         ("page" = Option<i64>, Query, description = "Page number"),
-        ("limit" = Option<i64>, Query, description = "Page size")
+        ("limit" = Option<i64>, Query, description = "Page size"),
+        ("category_filter" = Option<Uuid>, Query, description = "Selected category")
     ),
     responses(
         (status = 200, description = "Feedback for the course", body = [Feedback])
@@ -1189,11 +1200,27 @@ pub async fn get_feedback(
         Res::Course(*course_id),
     )
     .await?;
-    let feedback =
-        feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
-            .await?;
+    let feedback = feedback::get_feedback_for_course(
+        &mut conn,
+        *course_id,
+        read.category_filter,
+        read.read,
+        read.pagination,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(feedback))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct FeedbackEditProposalCounts {
+    pub read_feedback: u32,
+    pub unread_feedback: u32,
+    pub feedback_categories_counts: Vec<CategoryFeedbackCount>,
+    pub pending_edits: u32,
+    pub handled_edits: u32,
+    /// pending edits + unread feedback
+    pub total_waiting: u32,
 }
 
 /**
@@ -1208,15 +1235,15 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Feedback counts for the course", body = FeedbackCount)
+        (status = 200, description = "Feedback and edit proposal counts for the course", body = FeedbackEditProposalCounts)
     )
 )]
 #[instrument(skip(pool))]
-pub async fn get_feedback_count(
+pub async fn get_feedback_edit_proposals_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<FeedbackCount>> {
+) -> ControllerResult<web::Json<FeedbackEditProposalCounts>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -1227,8 +1254,55 @@ pub async fn get_feedback_count(
     .await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
+    let edit_proposal_count =
+        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
 
-    token.authorized_ok(web::Json(feedback_count))
+    let res = FeedbackEditProposalCounts {
+        read_feedback: feedback_count.read,
+        unread_feedback: feedback_count.unread,
+        pending_edits: edit_proposal_count.pending,
+        handled_edits: edit_proposal_count.handled,
+        total_waiting: feedback_count.unread + edit_proposal_count.pending,
+        feedback_categories_counts: feedback_count.categories,
+    };
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback-categories",
+    operation_id = "getCourseFeedbackCategories",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("read" = bool, Query, description = "Categories for read/unread status feedback")
+    ),
+    responses(
+        (status = 200, description = "All feedback categories used in feedback for the course", body = Vec<FeedbackCategory>)
+    )
+)]
+#[instrument(skip(pool))]
+pub async fn get_feedback_categories(
+    course_id: web::Path<Uuid>,
+    read: web::Query<GetFeedbackCategoriesQuery>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<FeedbackCategory>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res = feedback_categories::get_all_read_status(&mut conn, *course_id, read.read).await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -2932,7 +3006,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{course_id}/feedback", web::get().to(get_feedback))
         .route(
             "/{course_id}/feedback-count",
-            web::get().to(get_feedback_count),
+            web::get().to(get_feedback_edit_proposals_count),
+        )
+        .route(
+            "/{course_id}/feedback-categories",
+            web::get().to(get_feedback_categories),
         )
         .route(
             "/{course_id}/new-course-instance",

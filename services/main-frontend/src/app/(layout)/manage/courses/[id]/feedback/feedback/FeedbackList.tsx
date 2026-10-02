@@ -3,29 +3,24 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { getEditProposalCountOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
-import EditProposalPage from "./EditProposalPage"
+import FeedbackPage from "../feedback/FeedbackPage"
 
 interface Props {
   courseId: string
-  pending: boolean
-  perPage: number
+  read: boolean
 }
 
-const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
-  courseId,
-  pending,
-  perPage,
-}) => {
+const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getEditProposalCount = useQuery({
-    ...getEditProposalCountOptions({
+  const getFeedbackCount = useQuery({
+    ...getCourseFeedbackCountOptions({
       path: {
         course_id: courseId,
       },
@@ -33,23 +28,21 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   })
 
   return (
-    <QueryResult query={getEditProposalCount}>
+    <QueryResult query={getFeedbackCount}>
       {(data) => {
-        const items = pending ? data.pending : data.handled
+        const items = read ? data.read_feedback : data.unread_feedback
         if (items <= 0) {
-          return <div>{t("no-change-requests")}</div>
+          return <div>{t("no-feedback")}</div>
         }
-
-        const pageCount = Math.ceil(items / perPage)
-
+        const pageCount = Math.ceil(items / paginationInfo.limit)
         return (
           <div>
-            <EditProposalPage
+            <FeedbackPage
               courseId={courseId}
               page={paginationInfo.page}
-              pending={pending}
-              limit={perPage}
-              onChange={getEditProposalCount.refetch}
+              read={read}
+              paginationInfo={paginationInfo}
+              onChange={getFeedbackCount.refetch}
             />
             <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
           </div>
@@ -59,4 +52,4 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   )
 }
 
-export default EditProposalList
+export default FeedbackList

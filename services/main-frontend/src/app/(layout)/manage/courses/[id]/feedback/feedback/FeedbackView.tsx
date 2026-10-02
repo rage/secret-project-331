@@ -2,24 +2,31 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQueryClient } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseFeedbackCategoriesQueryKey,
+  getCourseFeedbackCountQueryKey,
+  markFeedbackAsReadMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import Accordion from "@/shared-module/common/components/Accordion"
-import Button from "@/shared-module/common/components/Button"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { Button } from "@/shared-module/components/components/Button"
 
 export interface FeedbackViewProps {
+  courseId: string
   feedback: Feedback
-  setRead: (read: boolean) => void
+  read: boolean
+  setRead: (read: boolean) => Promise<void>
 }
 
 const ImportantText = styled.div`
@@ -35,10 +42,13 @@ const TextInformationWrapper = styled.div`
 `
 
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
+  courseId,
   feedback,
+  read,
   setRead,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
 
@@ -50,6 +60,15 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
     },
     {
       onSuccess: async () => {
+        queryClient.invalidateQueries({
+          queryKey: [getCourseFeedbackCountQueryKey({ path: { course_id: courseId } })],
+        })
+        queryClient.invalidateQueries({
+          queryKey: [
+            getCourseFeedbackCategoriesQueryKey({ path: { course_id: courseId }, query: { read } }),
+          ],
+        })
+
         const toggled = !feedback.marked_as_read
         await setRead(toggled)
       },
@@ -110,6 +129,12 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           />
         </div>
       </TextInformationWrapper>
+      {feedback.feedback_category_name && (
+        <TextInformationWrapper>
+          {t("assigned-feedback-category")}
+          <i>{feedback.feedback_category_name}</i>
+        </TextInformationWrapper>
+      )}
 
       <TextInformationWrapper>
         {t("feedback-given")}

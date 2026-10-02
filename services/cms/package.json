@@ -35,6 +35,7 @@
     "@react-stately/overlays": "^3.7.1",
     "@react-stately/slider": "^3.8.1",
     "@react-types/dialog": "^3.6.0",
+    "@react-types/shared": "^3.36.1",
     "@tanstack/react-query": "^5.102.3",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "@wordpress/base-styles": "^12.1.0",

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
+use models::proposed_page_edits::{self, EditProposalInfo, PageProposal};
 use utoipa::OpenApi;
 
 use crate::{
@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(OpenApi)]
-#[openapi(paths(get_edit_proposals, get_edit_proposal_count, process_edit_proposal))]
+#[openapi(paths(get_edit_proposals, process_edit_proposal))]
 pub(crate) struct MainFrontendProposedEditsApiDoc;
 
 #[derive(Debug, Deserialize)]
@@ -66,42 +66,6 @@ pub async fn get_edit_proposals(
     )
     .await?;
     token.authorized_ok(web::Json(feedback))
-}
-
-/**
-GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
-*/
-#[instrument(skip(pool))]
-#[utoipa::path(
-    get,
-    path = "/course/{course_id}/count",
-    operation_id = "getEditProposalCount",
-    tag = "proposed_edits",
-    params(
-        ("course_id" = Uuid, Path, description = "Course id")
-    ),
-    responses(
-        (status = 200, description = "Edit proposal counts", body = ProposalCount)
-    )
-)]
-pub async fn get_edit_proposal_count(
-    course_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<ProposalCount>> {
-    let mut conn = pool.acquire().await?;
-
-    let edit_proposal_count =
-        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
-
-    let token = authorize(
-        &mut conn,
-        Act::Teach,
-        Some(user.id),
-        Res::Course(*course_id),
-    )
-    .await?;
-    token.authorized_ok(web::Json(edit_proposal_count))
 }
 
 /**
@@ -173,10 +137,6 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/course/{course_id}", web::get().to(get_edit_proposals))
-        .route(
-            "/course/{course_id}/count",
-            web::get().to(get_edit_proposal_count),
-        )
         .route(
             "/process-edit-proposal",
             web::post().to(process_edit_proposal),

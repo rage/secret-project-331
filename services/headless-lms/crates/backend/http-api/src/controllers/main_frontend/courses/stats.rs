@@ -2,10 +2,10 @@
 
 use crate::{domain::authorization::authorize, prelude::*};
 use headless_lms_models::ModelError;
-use headless_lms_models::library::TimeGranularity;
-use headless_lms_models::library::course_stats::StudentsByCountryTotalsResult;
+use headless_lms_data_operations::library::TimeGranularity;
+use headless_lms_data_operations::library::course_stats::StudentsByCountryTotalsResult;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
-use models::library::course_stats::{AverageMetric, CohortActivity, CountResult};
+use headless_lms_data_operations::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use std::collections::HashMap;
 use std::time::Duration;
 use utoipa::OpenApi;
@@ -124,7 +124,7 @@ async fn get_total_users_started_course(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
+            headless_lms_data_operations::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
                 .await
         },
     )
@@ -165,7 +165,7 @@ async fn get_total_users_completed_course(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_completed_course(&mut conn, *course_id)
+            headless_lms_data_operations::library::course_stats::get_total_users_completed_course(&mut conn, *course_id)
                 .await
         },
     )
@@ -206,7 +206,7 @@ async fn get_total_users_returned_at_least_one_exercise(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_returned_at_least_one_exercise(
+            headless_lms_data_operations::library::course_stats::get_total_users_returned_at_least_one_exercise(
                 &mut conn, *course_id,
             )
             .await
@@ -262,7 +262,7 @@ async fn get_avg_time_to_first_submission_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::avg_time_to_first_submission_history(
+            headless_lms_data_operations::library::course_stats::avg_time_to_first_submission_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -317,7 +317,7 @@ async fn get_cohort_activity_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_cohort_activity_history(
+            headless_lms_data_operations::library::course_stats::get_cohort_activity_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -368,7 +368,7 @@ async fn get_total_users_started_all_language_versions(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_started_all_language_versions_of_a_course(
+            headless_lms_data_operations::library::course_stats::get_total_users_started_all_language_versions_of_a_course(
                 &mut conn,
                 language_group_id,
             )
@@ -429,7 +429,7 @@ async fn get_unique_users_starting_history_all_language_versions(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::unique_users_starting_history_all_language_versions(
+            headless_lms_data_operations::library::course_stats::unique_users_starting_history_all_language_versions(
                 &mut conn,
                 language_group_id,
                 granularity,
@@ -492,7 +492,7 @@ async fn get_course_completions_history_all_language_versions(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::course_completions_history_all_language_versions(
+            headless_lms_data_operations::library::course_stats::course_completions_history_all_language_versions(
                 &mut conn,
                 language_group_id,
                 granularity,
@@ -549,7 +549,7 @@ async fn get_course_completions_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::course_completions_history(
+            headless_lms_data_operations::library::course_stats::course_completions_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -605,7 +605,7 @@ async fn get_users_returning_exercises_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::users_returning_exercises_history(
+            headless_lms_data_operations::library::course_stats::users_returning_exercises_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -661,7 +661,7 @@ async fn get_first_exercise_submissions_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::first_exercise_submissions_history(
+            headless_lms_data_operations::library::course_stats::first_exercise_submissions_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -717,7 +717,7 @@ async fn get_unique_users_starting_history(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::unique_users_starting_history(
+            headless_lms_data_operations::library::course_stats::unique_users_starting_history(
                 &mut conn,
                 course_id,
                 granularity,
@@ -763,7 +763,7 @@ async fn get_total_users_started_course_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_started_course_by_instance(
+            headless_lms_data_operations::library::course_stats::get_total_users_started_course_by_instance(
                 &mut conn, *course_id,
             )
             .await
@@ -806,7 +806,7 @@ async fn get_total_users_completed_course_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_completed_course_by_instance(
+            headless_lms_data_operations::library::course_stats::get_total_users_completed_course_by_instance(
                 &mut conn, *course_id,
             )
             .await
@@ -849,7 +849,7 @@ async fn get_total_users_returned_at_least_one_exercise_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_returned_at_least_one_exercise_by_instance(
+            headless_lms_data_operations::library::course_stats::get_total_users_returned_at_least_one_exercise_by_instance(
                 &mut conn, *course_id,
             )
             .await
@@ -902,7 +902,7 @@ async fn get_course_completions_history_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::course_completions_history_by_instance(
+            headless_lms_data_operations::library::course_stats::course_completions_history_by_instance(
                 &mut conn,
                 course_id,
                 granularity,
@@ -958,7 +958,7 @@ async fn get_unique_users_starting_history_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::unique_users_starting_history_by_instance(
+            headless_lms_data_operations::library::course_stats::unique_users_starting_history_by_instance(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1017,7 +1017,7 @@ async fn get_first_exercise_submissions_history_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::first_exercise_submissions_history_by_instance(
+            headless_lms_data_operations::library::course_stats::first_exercise_submissions_history_by_instance(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1076,7 +1076,7 @@ async fn get_users_returning_exercises_history_by_instance(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::users_returning_exercises_history_by_instance(
+            headless_lms_data_operations::library::course_stats::users_returning_exercises_history_by_instance(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1138,7 +1138,7 @@ async fn get_student_enrollments_by_country(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::student_enrollments_by_country(
+            headless_lms_data_operations::library::course_stats::student_enrollments_by_country(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1201,7 +1201,7 @@ async fn get_student_completions_by_country(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::student_completions_by_country(
+            headless_lms_data_operations::library::course_stats::student_completions_by_country(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1254,7 +1254,7 @@ async fn get_students_by_country_totals(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::students_by_country_totals(&mut conn, course_id).await
+            headless_lms_data_operations::library::course_stats::students_by_country_totals(&mut conn, course_id).await
         },
     )
     .await?;
@@ -1310,7 +1310,7 @@ async fn get_first_exercise_submissions_by_module(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::first_exercise_submissions_by_module(
+            headless_lms_data_operations::library::course_stats::first_exercise_submissions_by_module(
                 &mut conn,
                 course_id,
                 granularity,
@@ -1369,7 +1369,7 @@ async fn get_course_completions_history_by_custom_time_period(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::course_completions_history_by_custom_time_period(
+            headless_lms_data_operations::library::course_stats::course_completions_history_by_custom_time_period(
                 &mut conn,
                 course_id,
                 &start_date,
@@ -1423,7 +1423,7 @@ async fn get_unique_users_starting_history_custom_time_period(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::unique_users_starting_history_by_custom_time_period(
+            headless_lms_data_operations::library::course_stats::unique_users_starting_history_by_custom_time_period(
                 &mut conn,
                 course_id,
                 &start_date,
@@ -1475,7 +1475,7 @@ async fn get_total_users_started_course_custom_time_period(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_started_course_custom_time_period(
+            headless_lms_data_operations::library::course_stats::get_total_users_started_course_custom_time_period(
                 &mut conn,
                 course_id,
                 &start_date,
@@ -1527,7 +1527,7 @@ async fn get_total_users_completed_course_custom_time_period(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_completed_course_custom_time_period(
+            headless_lms_data_operations::library::course_stats::get_total_users_completed_course_custom_time_period(
                 &mut conn,
                 course_id,
                 &start_date,
@@ -1579,7 +1579,7 @@ async fn get_total_users_returned_exercises_custom_time_period(
         None,
         CACHE_DURATION,
         || async {
-            models::library::course_stats::get_total_users_returned_exercises_custom_time_period(
+            headless_lms_data_operations::library::course_stats::get_total_users_returned_exercises_custom_time_period(
                 &mut conn,
                 course_id,
                 &start_date,

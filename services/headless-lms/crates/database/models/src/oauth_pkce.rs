@@ -2,7 +2,7 @@
 //!
 //! This module provides the minimal `PkceMethod` enum needed for sqlx database queries.
 //! The full PKCE implementation (CodeVerifier, CodeChallenge, etc.) has been moved to
-//! `headless_lms_server::domain::oauth::pkce`.
+//! `headless_lms_use_cases::domain::oauth::pkce`.
 
 use serde::{Deserialize, Serialize};
 use sqlx::Type;
@@ -10,7 +10,7 @@ use sqlx::Type;
 /// PKCE method (RFC 7636 §4.3). Mirrors Postgres enum: `pkce_method = ('plain','S256')`.
 ///
 /// This type is kept in models for sqlx compatibility. The full implementation
-/// including validation logic is in `headless_lms_server::domain::oauth::pkce`.
+/// including validation logic is in `headless_lms_use_cases::domain::oauth::pkce`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[sqlx(type_name = "pkce_method")]
 pub enum PkceMethod {

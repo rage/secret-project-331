@@ -1,0 +1,28 @@
+[package]
+name = "headless-lms-external-service-clients"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+actix-http = "3.13.3"
+actix-web = "4.15.0"
+base64 = "0.23"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+futures = "0.3.34"
+jsonwebtoken = { workspace = true }
+reqwest = { version = "0.13.4", features = [ "brotli", "gzip", "json", "http2", "rustls", "stream" ] }
+secrecy = { workspace = true }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+tracing = "0.1.44"
+url = "2.5.8"
+
+[dev-dependencies]
+headless-lms-http-api = { path = "../../backend/http-api" }
+headless-lms-use-cases = { path = "../../backend/use-cases" }

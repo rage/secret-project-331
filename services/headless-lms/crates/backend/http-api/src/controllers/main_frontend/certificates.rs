@@ -3,7 +3,8 @@ use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_models::generated_certificates::CertificateUpdateRequest;
-use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
+use headless_lms_file_store::file_store::file_utils;
+use headless_lms_utils::icu4x::Icu4xBlob;
 use utoipa::{OpenApi, ToSchema};
 
 use models::{

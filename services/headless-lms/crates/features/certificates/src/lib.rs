@@ -12,7 +12,7 @@ use date_utils::get_date_as_localized_string;
 use futures::future::OptionFuture;
 use headless_lms_models::certificate_configurations::{CertificateTextAnchor, PaperSize};
 use headless_lms_models::generated_certificates::GeneratedCertificate;
-use headless_lms_utils::file_store::FileStore;
+use headless_lms_file_store::file_store::FileStore;
 use headless_lms_utils::icu4x::Icu4xBlob;
 
 use resvg::tiny_skia;
@@ -513,7 +513,7 @@ mod tests {
     fn all_certificate_fonts() -> fontdb::Database {
         let dir = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/../../backend/server/src/programs/seed/data"
+            "/../../backend/seed/src/seed/data"
         );
         let mut db = fontdb::Database::new();
         for entry in std::fs::read_dir(dir).expect("seed data dir must exist") {

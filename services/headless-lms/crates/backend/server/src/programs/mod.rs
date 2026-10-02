@@ -1,20 +1,18 @@
-/*!
-Executable programs that can be started. Contains for example the server program, background services, and utility programs.
-*/
-pub mod calculate_page_visit_stats;
-pub mod chatbot_syncer;
-pub mod credit_registration_workers;
-pub mod doc_file_generator;
-pub mod email_deliver;
-pub mod ended_exams_processor;
-pub mod exercise_answer_upload_reaper;
-pub mod exercise_spec_upload_reaper;
-pub mod mailchimp_syncer;
-pub mod open_university_registration_link_fetcher;
-pub mod peer_review_updater;
-pub mod regrader;
-pub mod seed;
-pub mod service_info_fetcher;
-pub mod sorter;
+//! The sole binary dispatches to these operational packages.
+pub use headless_lms_cli_tools::programs::{doc_file_generator, sorter};
+pub use headless_lms_credit_registration_workers::programs::credit_registration_workers;
+pub use headless_lms_email_delivery_workers::programs::email_deliver;
+pub use headless_lms_integration_sync_commands::programs::{
+    open_university_registration_link_fetcher, sync_tmc_users,
+};
+pub use headless_lms_integration_sync_workers::programs::{
+    chatbot_syncer, mailchimp_syncer, service_info_fetcher,
+};
+pub use headless_lms_learning_commands::programs::peer_review_updater;
+pub use headless_lms_learning_workers::programs::regrader;
+pub use headless_lms_maintenance_commands::programs::{
+    calculate_page_visit_stats, ended_exams_processor, exercise_answer_upload_reaper,
+    exercise_spec_upload_reaper,
+};
+pub use headless_lms_seed::seed;
 pub mod start_server;
-pub mod sync_tmc_users;

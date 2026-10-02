@@ -1,0 +1,20 @@
+[package]
+name = "headless-lms-mock-azure-ai"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-chatbot = { path = "../../features/chatbot" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../../backend/use-cases" }
+headless-lms-mock-chatbot-documents = { path = "../mock-chatbot-documents" }
+actix-web = "4.15.0"
+regex = "1.13.1"
+serde_json = "1.0.151"
+tracing = "0.1.44"

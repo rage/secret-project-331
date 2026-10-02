@@ -8,7 +8,7 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 

@@ -5,7 +5,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations;
-use headless_lms_models::library::credit_registration::preconditions::{
+use headless_lms_data_operations::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
 use utoipa::ToSchema;

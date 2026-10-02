@@ -6,11 +6,11 @@ use headless_lms_base::jwt::JwtKey;
 use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models as models;
 use headless_lms_utils::error::is_db_disconnect;
-use headless_lms_utils::file_store::runtime::FileStoreRuntimeConfig;
+use headless_lms_gcs_file_store::runtime::FileStoreRuntimeConfig;
 use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
 };
-use models::library::regrading;
+use headless_lms_data_operations::library::regrading;
 use sqlx::PgPool;
 
 /**
@@ -23,7 +23,7 @@ pub async fn main() -> anyhow::Result<()> {
     let db_url = ProgramConfig::database_url_with_default();
     let app_conf = ApplicationConfiguration::try_from_env()?;
     let jwt_key = Arc::new(JwtKey::new(&app_conf.jwt_password)?);
-    let file_store = headless_lms_utils::file_store::runtime::setup_file_store(
+    let file_store = headless_lms_gcs_file_store::runtime::setup_file_store(
         &FileStoreRuntimeConfig::try_from_env()?,
         &app_conf.base_url,
     )

@@ -18,7 +18,7 @@
     "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "format:generated-docs": "oxfmt services/headless-lms/crates/backend/server/generated-docs/",
+    "format:generated-docs": "oxfmt services/headless-lms/crates/backend/http-api/generated-docs/",
     "lint": "oxlint --fix",
     "lint:ci": "oxlint --max-warnings=0",
     "lint:css": "stylelint '**/*.tsx'",

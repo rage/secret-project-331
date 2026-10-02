@@ -15,20 +15,22 @@ pub use crate::domain::authorization::{
     Action as Act, AuthorizedOk, Resource as Res, authorize, authorize_access_to_course_material,
     skip_authorize,
 };
-pub(crate) use crate::domain::error::controller_err;
 pub use crate::domain::{
     self,
     error::{ControllerError, ControllerErrorType, ControllerResult},
     request_id::RequestId,
 };
+pub(crate) use crate::error_macros::controller_err;
 pub use crate::generated_docs;
 pub use actix_multipart::Multipart;
 pub use actix_web::web::{self, ServiceConfig};
 pub use actix_web::{HttpRequest, HttpResponse};
 pub use headless_lms_base::prelude_base_and_re_exports::*;
+pub use headless_lms_cache::cache::Cache;
+pub use headless_lms_file_store::file_store::FileStore;
 pub use headless_lms_models as models;
 pub use headless_lms_models::re_exports::*;
+pub use headless_lms_utils::pagination::Pagination;
 pub use headless_lms_utils::prelude::*;
-pub use headless_lms_utils::{cache::Cache, file_store::FileStore, pagination::Pagination};
 pub use rand::Rng;
 pub use rand::RngExt;

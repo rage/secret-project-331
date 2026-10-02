@@ -1,7 +1,7 @@
 //! What a row of a request the study registry refused as a whole is written as.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     Outcome, isolated_malformed_request_outcome, request_level_outcome,
 };
 
@@ -63,7 +63,7 @@ mod tests {
     use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
     use headless_lms_models::credit_registrations::CreditRegistrationState as State;
     use headless_lms_models::credit_registrations::{AdminAttention, CreditRegistration};
-    use headless_lms_models::library::credit_registration::study_registry::RegistryErrorKind as Kind;
+    use headless_lms_data_operations::library::credit_registration::study_registry::RegistryErrorKind as Kind;
 
     use super::*;
     use crate::test_fixtures::{now, registration};

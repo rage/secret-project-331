@@ -15,13 +15,13 @@ use headless_lms_models::credit_registrations::{
     ResubmissionStrictness, Transition,
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
-use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
-use headless_lms_models::library::credit_registration::backoff::{
+use headless_lms_data_operations::library::credit_registration::CreditRegistrationPendingReason;
+use headless_lms_data_operations::library::credit_registration::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER,
     UNCERTAIN_ADMIN_AFTER, VERIFY_MAX_AGE,
 };
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
-use headless_lms_models::library::credit_registration::student_notifications::{
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
 use headless_lms_models::suotar_api_calls;

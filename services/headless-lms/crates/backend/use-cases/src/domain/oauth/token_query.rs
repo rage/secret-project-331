@@ -1,7 +1,7 @@
 use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
 use domain::error::{OAuthErrorCode, OAuthErrorData};
-use models::library::oauth::GrantTypeName;
+use headless_lms_data_operations::library::oauth::GrantTypeName;
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use std::collections::HashMap;

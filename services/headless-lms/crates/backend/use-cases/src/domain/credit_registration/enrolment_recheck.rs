@@ -5,8 +5,8 @@ use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NewCreditRegistrationEvent,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
-use headless_lms_models::library::credit_registration::enrolment_checks::{
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::{
     self, CheckRequestOutcome,
 };
 

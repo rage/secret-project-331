@@ -1,0 +1,20 @@
+[package]
+name = "headless-lms-learning-workers"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-gcs-file-store = { path = "../../../infrastructure/file-storage/gcs-file-store" }
+headless-lms-base = { path = "../../../foundation/base" }
+headless-lms-utils = { path = "../../../foundation/utils" }
+headless-lms-models = { path = "../../../database/models" }
+headless-lms-data-operations = { path = "../../../database/data-operations" }
+headless-lms-use-cases = { path = "../../use-cases" }
+headless-lms-external-service-clients = { path = "../../../infrastructure/external-service-clients" }
+anyhow = "1.0.104"
+dotenvy = "0.15"
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tracing = "0.1.44"

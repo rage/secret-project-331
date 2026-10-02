@@ -8,7 +8,7 @@ re-derived here.
 
 use std::collections::HashMap;
 
-use headless_lms_models::{
+use headless_lms_data_operations::{
     completion_registration_credit_justifications,
     course_module_completions::CourseModuleCompletion,
     credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
@@ -29,13 +29,13 @@ use headless_lms_models::{
         VerifiedStudentNumber,
     },
 };
-use headless_lms_models::{
+use headless_lms_data_operations::{
     credit_registration_enrolment_check_signals,
     library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource,
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
-use models::library::credit_registration::student_number_change;
+use headless_lms_data_operations::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 
@@ -657,7 +657,7 @@ pub async fn claim_student_number_verification_token(
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
     let (_, newly_unblocked_registration_count) =
-        headless_lms_models::library::credit_registration::student_number_change::replace_verified_student_number(
+        headless_lms_data_operations::library::credit_registration::student_number_change::replace_verified_student_number(
             &mut tx,
             current_link.map(|link| link.id),
             &NewVerifiedStudentNumber {

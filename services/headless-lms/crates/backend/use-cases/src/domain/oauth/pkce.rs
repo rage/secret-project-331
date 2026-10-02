@@ -6,7 +6,7 @@ use crate::domain::oauth::helpers::oauth_invalid_request;
 use headless_lms_models::oauth_client::OAuthClient;
 
 /// Re-export PkceMethod from models (it's used in SQL queries, so must stay in models crate)
-pub use headless_lms_models::library::oauth::pkce::PkceMethod;
+pub use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
 
 /// RFC 7636: code_verifier length MUST be between 43 and 128 characters.
 pub const VERIFIER_MIN_LEN: usize = 43;

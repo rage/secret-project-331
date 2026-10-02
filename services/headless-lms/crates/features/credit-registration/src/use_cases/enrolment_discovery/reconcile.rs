@@ -7,13 +7,13 @@ use headless_lms_models::course_module_suotar_configurations::{
     ModuleListingOutcome, ModuleToList, mark_listing_succeeded_without_linking,
     record_listing_outcome,
 };
-use headless_lms_models::library::credit_registration::account_linking::{
+use headless_lms_data_operations::library::credit_registration::account_linking::{
     DiscoveredPerson, claim_linking_mails_batch,
 };
-use headless_lms_models::library::credit_registration::enrolment_checks::{
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
 };
-use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
+use headless_lms_data_operations::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::verified_student_numbers::{self, VerifiedStudentNumber};
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
@@ -218,7 +218,7 @@ fn linking_candidates(
 #[cfg(test)]
 mod tests {
     use chrono::{TimeDelta, Utc};
-    use headless_lms_models::library::credit_registration::study_registry::RosterEnrolment;
+    use headless_lms_data_operations::library::credit_registration::study_registry::RosterEnrolment;
     use headless_lms_models::secret::DbSecret;
     use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
     use secrecy::SecretString;

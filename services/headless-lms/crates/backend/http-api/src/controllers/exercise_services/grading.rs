@@ -92,7 +92,7 @@ async fn apply_grading_update(
     let grading = models::exercise_task_gradings::get_by_id(conn, grading_id).await?;
     let exercise = models::exercises::get_by_id(conn, slide.exercise_id).await?;
     let mut tx = conn.begin().await?;
-    models::library::grading::apply_grading_update(
+    headless_lms_data_operations::library::grading::apply_grading_update(
         &mut tx,
         &exercise,
         &submission,
@@ -351,7 +351,7 @@ mod tests {
             slide_submission.id,
             slide,
             task,
-            &models::library::grading::SubmittedAnswer::Json {
+            &headless_lms_data_operations::library::grading::SubmittedAnswer::Json {
                 data: serde_json::Value::Null,
             },
         )

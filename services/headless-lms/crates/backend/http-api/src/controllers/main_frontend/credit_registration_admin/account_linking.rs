@@ -10,10 +10,10 @@ use headless_lms_models::credit_registration_admin_actions::{
 };
 use headless_lms_models::credit_registrations;
 use headless_lms_models::email_deliveries::EmailSendStatus;
-use headless_lms_models::library::credit_registration::account_linking::{
+use headless_lms_data_operations::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
 };
-use headless_lms_models::library::credit_registration::student_number::parse_student_number;
+use headless_lms_data_operations::library::credit_registration::student_number::parse_student_number;
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
     self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
@@ -755,7 +755,7 @@ pub async fn admin_manually_link_student_number(
         .await?
         .map(|current| current.id);
     let (verified_student_number_id, affected_registration_count) =
-        headless_lms_models::library::credit_registration::student_number_change::replace_verified_student_number(
+        headless_lms_data_operations::library::credit_registration::student_number_change::replace_verified_student_number(
             &mut tx,
             current_link_id,
             &NewVerifiedStudentNumber {

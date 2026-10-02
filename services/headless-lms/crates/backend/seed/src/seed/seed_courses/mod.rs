@@ -25,7 +25,7 @@ pub use seed_switching_course_instances_course::seed_switching_course_instances_
 
 use std::sync::Arc;
 
-use crate::service_clients::exercise_service_requests;
+use headless_lms_external_service_clients::service_clients::exercise_service_requests;
 
 use crate::programs::seed::seed_helpers::{
     ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,
@@ -34,7 +34,7 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::{
+use headless_lms_data_operations::{
     PKeyPolicy, certificate_configuration_to_requirements, certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
@@ -106,8 +106,8 @@ pub async fn seed_sample_course(
         base_url: _base_url,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
-    let file_store = headless_lms_utils::file_store::runtime::setup_file_store(
-        &headless_lms_utils::file_store::runtime::FileStoreRuntimeConfig::try_from_env()?,
+    let file_store = headless_lms_gcs_file_store::runtime::setup_file_store(
+        &headless_lms_gcs_file_store::runtime::FileStoreRuntimeConfig::try_from_env()?,
         &app_config.base_url,
     )
     .await;

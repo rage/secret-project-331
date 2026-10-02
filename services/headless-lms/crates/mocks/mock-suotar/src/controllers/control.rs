@@ -13,7 +13,7 @@ use headless_lms_credit_registration::{
     run_phase_once,
 };
 use headless_lms_models::credit_registrations::RegistrationScope;
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::{
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
 use headless_lms_utils::services::suotar::SuotarClient;

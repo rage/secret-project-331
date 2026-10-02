@@ -13,9 +13,9 @@ use futures::{StreamExt, stream};
 use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_base::tracing::setup_tracing;
 use headless_lms_models::{self as models, error::TryToOptional};
-use headless_lms_utils::file_store::FileStore;
-use headless_lms_utils::file_store::runtime::FileStoreRuntimeConfig;
-use headless_lms_utils::file_store::runtime::setup_file_store;
+use headless_lms_file_store::file_store::FileStore;
+use headless_lms_gcs_file_store::runtime::FileStoreRuntimeConfig;
+use headless_lms_gcs_file_store::runtime::setup_file_store;
 use sqlx::{PgConnection, PgPool};
 
 const MAX_CONCURRENT_REAPS: usize = 8;
@@ -134,7 +134,7 @@ mod tests {
         async fn upload_stream(
             &self,
             _path: &Path,
-            _contents: headless_lms_utils::file_store::GenericPayload,
+            _contents: headless_lms_file_store::file_store::GenericPayload,
             _mime: &str,
         ) -> UtilResult<()> {
             unimplemented!("not reached by the reaper")
@@ -398,7 +398,7 @@ mod tests {
         async fn upload_stream(
             &self,
             _path: &Path,
-            _contents: headless_lms_utils::file_store::GenericPayload,
+            _contents: headless_lms_file_store::file_store::GenericPayload,
             _mime: &str,
         ) -> UtilResult<()> {
             unimplemented!("not reached by the reaper")
@@ -592,7 +592,7 @@ mod tests {
                 slide_submission.id,
                 slide,
                 task,
-                &models::library::grading::SubmittedAnswer::Json {
+                &headless_lms_data_operations::library::grading::SubmittedAnswer::Json {
                     data: serde_json::json!({ "opaque": "plugin owned" }),
                 },
             )

@@ -1035,7 +1035,7 @@ async fn get_exercise_answers_requiring_attention(
             authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
         }
     };
-    let res = models::library::grading::get_paginated_answers_requiring_attention_for_exercise(
+    let res = headless_lms_data_operations::library::grading::get_paginated_answers_requiring_attention_for_exercise(
         &mut conn,
         *exercise_id,
         *pagination,
@@ -1227,7 +1227,7 @@ mod answer_file_download_tests {
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
     use async_zip::base::read::mem::ZipFileReader;
-    use models::library::grading::SubmittedAnswer;
+    use headless_lms_data_operations::library::grading::SubmittedAnswer;
     use models::roles::{RoleDomain, UserRole};
     use std::sync::Arc;
 

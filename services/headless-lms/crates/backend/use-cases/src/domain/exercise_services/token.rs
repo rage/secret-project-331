@@ -5,7 +5,7 @@ use crate::{
 use actix_web::{FromRequest, http::header};
 use chrono::{DateTime, Utc};
 use futures_util::{FutureExt, future::LocalBoxFuture};
-use headless_lms_utils::cache::Cache;
+use headless_lms_cache::cache::Cache;
 use models::{
     library::oauth::{Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256},
     oauth_access_token::{OAuthAccessToken, TokenType},
@@ -341,8 +341,8 @@ mod tests {
     use actix_web::ResponseError;
     use actix_web::http::StatusCode;
     use chrono::{Duration as ChronoDuration, Utc};
-    use headless_lms_models::library::oauth::pkce::PkceMethod;
-    use headless_lms_models::library::oauth::{GrantTypeName, generate_access_token};
+    use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
+    use headless_lms_data_operations::library::oauth::{GrantTypeName, generate_access_token};
     use headless_lms_models::oauth_access_token::NewAccessTokenParams;
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
@@ -699,7 +699,7 @@ mod tests {
     /// since those need a `PgPool`/running `App` this crate's tests don't set up.
     ///
     /// Needs a real Redis; a no-op (not a failure) when `REDIS_URL` isn't set,
-    /// matching `headless_lms_utils::cache`'s own test convention.
+    /// matching `headless_lms_cache::cache`'s own test convention.
     #[actix_web::test]
     async fn revoking_an_access_token_evicts_its_cached_user() {
         let Some(cache) = connected_test_cache().await else {
@@ -910,7 +910,7 @@ mod tests {
     }
 
     /// A Redis-backed `Cache` that has completed its initial connection, or `None` when
-    /// `REDIS_URL` isn't set (matching `headless_lms_utils::cache`'s own test convention).
+    /// `REDIS_URL` isn't set (matching `headless_lms_cache::cache`'s own test convention).
     async fn connected_test_cache() -> Option<Cache> {
         let redis_url = test_redis_url()?;
         let cache = Cache::new(&redis_url).expect("failed to construct Redis cache client");

@@ -8,7 +8,7 @@ mod claim;
 mod decide;
 
 use headless_lms_models::credit_registrations::restamp_submitting;
-use headless_lms_models::library::credit_registration::outcomes::released_unsent_split_half;
+use headless_lms_data_operations::library::credit_registration::outcomes::released_unsent_split_half;
 use headless_lms_utils::prelude::Utc;
 use sqlx::PgConnection;
 

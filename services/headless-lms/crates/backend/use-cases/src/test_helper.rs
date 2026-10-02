@@ -1,16 +1,13 @@
-use crate::{
-    config::{ServerConfig, ServerConfigBuilder},
-    setup_tracing,
-};
+use headless_lms_base::tracing::setup_tracing;
 use headless_lms_base::config::ApplicationConfiguration;
 
+use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
 use headless_lms_utils::{
-    file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
+    services::sisu::SisuClient,
     services::tmc::TmcClient,
 };
-use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
-use std::{env, sync::Arc};
+use std::env;
 use tokio::sync::Mutex;
 
 /// Returns true if the current process appears to run inside Kubernetes.
@@ -46,32 +43,6 @@ pub fn init_file_store() -> LocalFileStore {
         base_url: "http://localhost:3000".to_string(),
         cache_files_path: env::temp_dir(),
     }
-}
-
-pub async fn test_config() -> ServerConfig {
-    let database_url = env::var("DATABASE_URL_TEST")
-        .or_else(|_| env::var("DATABASE_URL"))
-        .unwrap_or_else(|_| default_database_url_for_tests());
-    ServerConfigBuilder {
-        database_url: SecretString::new(database_url.into()),
-        oauth_application_id: "some-id".to_string(),
-        oauth_secret: SecretString::new("some-secret".into()),
-        auth_url: "http://example.com".parse().unwrap(),
-        token_url: "http://example.com/token".parse().unwrap(),
-        icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
-        file_store: Arc::new(
-            LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-                .expect("Failed to initialize test file store"),
-        ),
-        app_conf: init_app_conf().expect("Failed to initialize mock app configuration"),
-        redis_url: SecretString::new("redis://example.com".into()),
-        mock_suotar_redis_db_index: 2,
-        tmc_client: TmcClient::mock_for_test(),
-        sisu_client: SisuClient::mock_for_test(),
-    }
-    .build()
-    .await
-    .unwrap()
 }
 
 /// The Redis URL for tests that need a real Redis, or `None` when it isn't configured (such tests
@@ -174,7 +145,7 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
 pub struct TempFileStore(pub tempfile::TempDir);
 
 #[async_trait::async_trait(?Send)]
-impl headless_lms_utils::file_store::FileStore for TempFileStore {
+impl headless_lms_file_store::file_store::FileStore for TempFileStore {
     async fn upload(
         &self,
         path: &std::path::Path,
@@ -192,7 +163,7 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
     async fn upload_stream(
         &self,
         path: &std::path::Path,
-        mut contents: headless_lms_utils::file_store::GenericPayload,
+        mut contents: headless_lms_file_store::file_store::GenericPayload,
         mime_type: &str,
     ) -> headless_lms_utils::prelude::UtilResult<()> {
         use futures::StreamExt;
@@ -338,7 +309,7 @@ macro_rules! insert_data {
             8,
         );
         let app_config = init_app_conf().expect("Application Configuration initialization failed");
-        let $course = headless_lms_models::library::content_management::create_new_course(
+        let $course = headless_lms_data_operations::library::content_management::create_new_course(
             $tx.as_mut(),
             &app_config,
             headless_lms_models::PKeyPolicy::Generate,
@@ -389,7 +360,7 @@ macro_rules! insert_data {
         let $course_module = headless_lms_models::course_modules::insert($tx.as_mut(), headless_lms_models::PKeyPolicy::Generate, &headless_lms_models::course_modules::NewCourseModule::new($course, Some("extra module".to_string()), 999)).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
-        let $chapter = headless_lms_models::library::content_management::create_new_chapter(
+        let $chapter = headless_lms_data_operations::library::content_management::create_new_chapter(
             $tx.as_mut(),
             headless_lms_models::PKeyPolicy::Generate,
             &headless_lms_models::chapters::NewChapter {

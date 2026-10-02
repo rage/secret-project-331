@@ -1,0 +1,22 @@
+[package]
+name = "headless-lms-integration-sync-commands"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-external-service-clients = { path = "../../../infrastructure/external-service-clients" }
+headless-lms-base = { path = "../../../foundation/base" }
+headless-lms-models = { path = "../../../database/models" }
+headless-lms-cache = { path = "../../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../../use-cases" }
+anyhow = "1.0.104"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+dotenvy = "0.15"
+reqwest = { version = "0.13.4", features = [ "brotli", "gzip", "json", "http2", "rustls", "stream" ] }
+secrecy = { workspace = true }
+serde = { version = "1.0.229", features = [ "derive" ] }
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tracing = "0.1.44"

@@ -3,7 +3,7 @@
 
 use chrono::TimeDelta;
 use headless_lms_models::credit_registration_phase_state::{self, PhaseRunOutcome};
-use headless_lms_models::library::credit_registration::scrub::scrub_text;
+use headless_lms_data_operations::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::services::suotar::SuotarClient;
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;

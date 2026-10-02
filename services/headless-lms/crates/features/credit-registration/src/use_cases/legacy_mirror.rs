@@ -1,6 +1,6 @@
 //! The `legacy-mirror` phase: copying successful registrations to the legacy ledger.
 
-use headless_lms_models::library::credit_registration::legacy_mirror::{
+use headless_lms_data_operations::library::credit_registration::legacy_mirror::{
     LEGACY_MIRROR_LIMIT, mirror_successes_to_legacy_ledger,
 };
 use sqlx::PgPool;

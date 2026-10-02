@@ -10,8 +10,9 @@ use crate::{
     prelude::*,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_file_store::file_store::FileStore;
 use headless_lms_utils::{
-    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
+    numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
 };
 use utoipa::ToSchema;
 
@@ -1145,7 +1146,7 @@ pub async fn unlock_next_chapters_for_user(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::library::chapter_exercise_review::move_chapter_exercises_to_manual_review;
+    use headless_lms_data_operations::library::chapter_exercise_review::move_chapter_exercises_to_manual_review;
 
     mod move_chapter_exercises_to_manual_review {
         use super::*;

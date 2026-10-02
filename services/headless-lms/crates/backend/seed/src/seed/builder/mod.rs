@@ -7,7 +7,7 @@
 //! use sqlx::Connection;
 //! use headless_lms_base::config::ApplicationConfiguration;
 //!
-//! use headless_lms_server::programs::seed::builder::{
+//! use headless_lms_seed::seed::builder::{
 //!     course::CourseBuilder,
 //!     module::ModuleBuilder,
 //!     chapter::ChapterBuilder,

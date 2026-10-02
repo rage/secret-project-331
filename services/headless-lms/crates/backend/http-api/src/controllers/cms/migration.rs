@@ -66,7 +66,7 @@ async fn create_page(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    let result = models::library::migration::create_page(
+    let result = headless_lms_data_operations::library::migration::create_page(
         &mut conn,
         *course_id,
         cms_update_json.into_inner(),

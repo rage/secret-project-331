@@ -46,7 +46,7 @@ async fn process_course_instance(
 
                     for peer_review_queue_entry in should_be_added_to_manual_review {
                         if let Err(err) =
-                            models::library::peer_or_self_reviewing::remove_from_queue_and_add_to_manual_review(
+                            headless_lms_data_operations::library::peer_or_self_reviewing::remove_from_queue_and_add_to_manual_review(
                                 conn,
                                 &peer_review_queue_entry,
                             )
@@ -77,7 +77,7 @@ async fn process_course_instance(
         info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?}. The teacher has not reviewed the answers manually after 3 months. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
         for peer_review_queue_entry in should_pass {
             if let Err(err) =
-                models::library::peer_or_self_reviewing::remove_from_queue_and_give_full_points(
+                headless_lms_data_operations::library::peer_or_self_reviewing::remove_from_queue_and_give_full_points(
                     conn,
                     &peer_review_queue_entry,
                 )

@@ -149,7 +149,7 @@ pnpm install
 bin/pnpm-install-all
 bin/tmc-langs-setup
 bin/copy-and-check-shared-module
-cp services/headless-lms/crates/models/.env.example services/headless-lms/crates/models/.env
+cp services/headless-lms/crates/database/models/.env.example services/headless-lms/crates/database/models/.env
 ```
 
 ## 3. Check for environment problems
@@ -253,7 +253,7 @@ bin/seed
 
 ## Logging in
 
-Default accounts are defined in `services/headless-lms/crates/backend/server/src/programs/seed`.
+Default accounts are defined in `services/headless-lms/crates/backend/seed/src/seed`.
 
 ## Editor setup
 

@@ -140,7 +140,7 @@ pub async fn regrade(
                 continue;
             }
         };
-        models::library::grading::update_grading_with_single_regrading_result(
+        crate::library::grading::update_grading_with_single_regrading_result(
             conn,
             &exercise,
             &regrading_submission,

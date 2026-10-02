@@ -1,4 +1,4 @@
-// These limits must match the limits in services/headless-lms/crates/backend/server/src/controllers/helpers/file_uploading.rs
+// These limits must match the limits in services/headless-lms/crates/backend/http-api/src/controllers/helpers/file_uploading.rs
 // If you modify these, update the Rust file as well.
 // Note: The nginx ingress also has a limit on max request size (see kubernetes/base/ingress.yml). That one should not be increased too much.
 export const FILE_SIZE_LIMITS = {

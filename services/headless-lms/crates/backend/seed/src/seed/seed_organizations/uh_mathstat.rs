@@ -2,7 +2,7 @@ use headless_lms_base::jwt::JwtKey;
 use std::sync::Arc;
 
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},

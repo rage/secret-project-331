@@ -1,0 +1,22 @@
+[package]
+name = "headless-lms-gcs-file-store"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-file-store = { path = "../file-store" }
+headless-lms-utils = { path = "../../../foundation/utils" }
+headless-lms-base = { path = "../../../foundation/base" }
+anyhow = "1.0.104"
+async-stream = "0.3.6"
+async-trait = "0.1.92"
+bytes = "1.12.1"
+futures = "0.3.34"
+google-cloud-auth = "1.16.0"
+google-cloud-storage = "1.18.0"
+serde_json = "1.0.151"
+tokio = { workspace = true, features = [ "macros", "time" ] }
+tracing = "0.1.44"

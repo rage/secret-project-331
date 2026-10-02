@@ -7,7 +7,7 @@ use anyhow::Context;
 use headless_lms_base::config::OAuthServerConfiguration;
 use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_base::tracing::setup_tracing;
-use headless_lms_utils::cache::Cache;
+use headless_lms_cache::cache::Cache;
 use secrecy::SecretString;
 
 use chrono::DateTime;

@@ -1,0 +1,64 @@
+[package]
+name = "headless-lms-http-api"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../use-cases" }
+headless-lms-external-service-clients = { path = "../../infrastructure/external-service-clients" }
+headless-lms-mock-azure-ai = { path = "../../mocks/mock-azure-ai" }
+headless-lms-mock-chatbot-documents = { path = "../../mocks/mock-chatbot-documents" }
+headless-lms-mock-sisu = { path = "../../mocks/mock-sisu" }
+headless-lms-mock-suotar = { path = "../../mocks/mock-suotar" }
+headless-lms-chatbot = { path = "../../features/chatbot" }
+headless-lms-certificates = { path = "../../features/certificates" }
+headless-lms-authorization = { path = "../../features/authorization" }
+headless-lms-credit-registration = { path = "../../features/credit-registration" }
+exercise-services-api = { path = "../../exercise-services-api" }
+doc-macro = { path = "../../doc-macro" }
+actix = "0.13.5"
+actix-files = "0.7.0"
+actix-http = "3.13.3"
+actix-multipart = "0.8.1"
+actix-session = { version = "0.11.0", features = [ "cookie-session" ] }
+actix-web = "4.15.0"
+actix-web-actors = "4.3.1"
+anyhow = "1.0.104"
+async_zip = { version = "0.0.18", features = [ "tokio", "deflate" ] }
+bytes = "1.12.1"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+csv = "1.4.0"
+dpop-verifier = { version = "4.4.0", features = [ "actix-web" ] }
+futures = "0.3.34"
+futures-util = "0.3.34"
+isbot = "0.1.3"
+itertools = "0.15.0"
+mime = "0.3.17"
+once_cell = "1.21.4"
+rand = "0.10.2"
+reqwest = { version = "0.13.4", features = [ "brotli", "gzip", "json", "http2", "rustls", "stream" ] }
+secrecy = { workspace = true }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tempfile = "3.27.0"
+tokio = { workspace = true, features = [ "macros", "time" ] }
+tokio-stream = { workspace = true }
+tracing = "0.1.44"
+tracing-log = "0.2.0"
+url = "2.5.8"
+utoipa = { version = "5.5.0", features = [ "chrono", "uuid" ], optional = true }
+uuid = { version = "1.26.0", features = [ "serde" ] }
+woothee = "0.13.0"
+
+[dev-dependencies]
+headless-lms-use-cases = { path = "../use-cases", features = ["test-support"] }

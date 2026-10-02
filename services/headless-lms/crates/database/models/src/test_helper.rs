@@ -1,5 +1,5 @@
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::file_store::local_file_store::LocalFileStore;
+use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;
@@ -181,7 +181,7 @@ macro_rules! insert_data {
             8,
         );
         let app_config = init_app_conf().expect("Application Configuration initialization failed");
-        let $course = $crate::library::content_management::create_new_course(
+        let $course = headless_lms_data_operations::library::content_management::create_new_course(
             $tx.as_mut(),
             &app_config,
             $crate::PKeyPolicy::Generate,
@@ -232,7 +232,7 @@ macro_rules! insert_data {
         let $course_module = $crate::course_modules::insert($tx.as_mut(), $crate::PKeyPolicy::Generate, &$crate::course_modules::NewCourseModule::new($course, Some("extra module".to_string()), 999)).await.unwrap();
     };
     (@inner tx: $tx:ident, user: $user:ident, org: $org:ident, course: $course: ident, instance: $instance:ident, course_module: $course_module:ident; chapter: $chapter:ident) => {
-        let $chapter = $crate::library::content_management::create_new_chapter(
+        let $chapter = headless_lms_data_operations::library::content_management::create_new_chapter(
             $tx.as_mut(),
             $crate::PKeyPolicy::Generate,
             &$crate::chapters::NewChapter {

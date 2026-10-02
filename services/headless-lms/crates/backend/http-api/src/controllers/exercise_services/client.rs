@@ -22,7 +22,7 @@ use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::exercise_task_submissions::AnswerKind;
-use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
+use headless_lms_data_operations::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::HashSet;
 use std::future::{Ready, ready};
 use utoipa::OpenApi;
@@ -1707,7 +1707,7 @@ mod upload_tests {
             slide_submission.id,
             slide_id,
             task_id,
-            &models::library::grading::SubmittedAnswer::Json {
+            &headless_lms_data_operations::library::grading::SubmittedAnswer::Json {
                 data: serde_json::json!({ "opaque": "plugin owned" }),
             },
         )
@@ -2145,8 +2145,8 @@ mod route_tests {
     use actix_web::{App, test};
     use chrono::Duration as ChronoDuration;
     use chrono::Utc;
-    use headless_lms_models::library::oauth::pkce::PkceMethod;
-    use headless_lms_models::library::oauth::{
+    use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
+    use headless_lms_data_operations::library::oauth::{
         EXERCISE_SERVICES_SCOPE, GrantTypeName, generate_access_token, token_digest_sha256,
     };
     use headless_lms_models::oauth_access_token::{
@@ -2155,8 +2155,8 @@ mod route_tests {
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
-    use headless_lms_utils::cache::Cache;
-    use headless_lms_utils::file_store::FileStore;
+    use headless_lms_cache::cache::Cache;
+    use headless_lms_file_store::file_store::FileStore;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
     use sqlx::Connection;
     use std::sync::{Arc, Mutex};

@@ -17,7 +17,7 @@ use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::cache::Cache;
+use headless_lms_cache::cache::Cache;
 use models::oauth_access_token::TokenType;
 use sqlx::PgPool;
 use utoipa::OpenApi;

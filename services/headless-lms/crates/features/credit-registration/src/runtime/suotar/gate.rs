@@ -2,7 +2,7 @@
 //! request is spent through the gate and recorded in it, and [`StudyRegistryGate::settle`] turns
 //! the records into the breaker and limiter effects.
 
-use headless_lms_models::library::credit_registration::scrub::scrub_text;
+use headless_lms_data_operations::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::services::suotar::{SuotarBatchResponse, SuotarEndpoint, SuotarError};
 
 use super::breaker::{self, BreakerTarget};

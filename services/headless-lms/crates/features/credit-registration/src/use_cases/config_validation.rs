@@ -7,7 +7,7 @@ use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_enabled_modules,
     record_config_check,
 };
-use headless_lms_models::library::credit_registration::config_validation::{
+use headless_lms_data_operations::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config,
 };
 use itertools::Itertools;

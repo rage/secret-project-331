@@ -1,7 +1,7 @@
 //! The HS256 signing key and the claims that are minted below the server crate.
 //!
 //! Lives here rather than beside the rest of the claim machinery in
-//! `headless_lms_server::service_clients::exercise_service_requests` because the answer readers that mint download
+//! `headless_lms_external_service_clients::service_clients::exercise_service_requests` because the answer readers that mint download
 //! URLs sit in `headless-lms-models`, under the server crate.
 
 use chrono::{Duration, Utc};

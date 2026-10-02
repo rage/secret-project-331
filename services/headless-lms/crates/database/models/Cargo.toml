@@ -10,8 +10,9 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
-headless-lms-base = { path = "../shared/base" }
-headless-lms-utils = { path = "../shared/utils" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { workspace = true, features = ["time"] }
@@ -95,6 +96,7 @@ unicode-normalization = "0.1.25"
 test-helpers = []
 
 [dev-dependencies]
+headless-lms-data-operations = { path = "../data-operations" }
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
 # HTTP mocking for Rust.

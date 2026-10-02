@@ -102,7 +102,7 @@ pub async fn enroll(
         // This check should probably be handled in the authorize function but I'm not sure of
         // the proper action type.
         let can_start =
-            models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id).await?;
+            headless_lms_data_operations::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id).await?;
         if !can_start {
             return Err(ControllerError::new(
                 ControllerErrorType::Forbidden,
@@ -346,7 +346,7 @@ pub async fn fetch_exam_for_user(
             // user has not started the exam
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             let can_enroll =
-                models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
+                headless_lms_data_operations::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
                     .await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
@@ -426,7 +426,7 @@ pub async fn fetch_exam_for_testing(
             // user has not started the exam
             let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
             let can_enroll =
-                models::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
+                headless_lms_data_operations::library::progressing::user_can_take_exam(&mut conn, *exam_id, user.id)
                     .await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,

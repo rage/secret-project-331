@@ -5,9 +5,8 @@ use std::{env, sync::Arc};
 use anyhow::Context;
 use headless_lms_base::program_config::ProgramConfig;
 
-use super::{
-    FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
-};
+use crate::google_cloud_file_store::GoogleCloudFileStore;
+use headless_lms_file_store::file_store::{FileStore, local_file_store::LocalFileStore};
 
 #[derive(Clone)]
 pub struct FileStoreRuntimeConfig {

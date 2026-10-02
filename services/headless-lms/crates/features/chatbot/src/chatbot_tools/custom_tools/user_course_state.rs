@@ -5,7 +5,7 @@ use std::str::FromStr;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     certificate_configurations, course_module_completion_registered_to_study_registries,
     course_module_completions::{self, CourseModuleCompletion},
     course_modules, exercise_reset_logs,

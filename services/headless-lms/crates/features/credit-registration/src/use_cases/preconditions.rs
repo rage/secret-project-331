@@ -1,7 +1,7 @@
 //! The `preconditions` phase: moving rows along, or out of, the chain of things that must be true
 //! before we submit.
 
-use headless_lms_models::library::credit_registration::preconditions::{
+use headless_lms_data_operations::library::credit_registration::preconditions::{
     PRECONDITIONS_LIMIT, recompute_preconditions,
 };
 use sqlx::PgPool;

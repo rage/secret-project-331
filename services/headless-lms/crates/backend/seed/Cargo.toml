@@ -1,0 +1,30 @@
+[package]
+name = "headless-lms-seed"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-use-cases = { path = "../use-cases" }
+headless-lms-external-service-clients = { path = "../../infrastructure/external-service-clients" }
+headless-lms-mock-suotar = { path = "../../mocks/mock-suotar" }
+headless-lms-gcs-file-store = { path = "../../infrastructure/file-storage/gcs-file-store" }
+anyhow = "1.0.104"
+base64 = "0.23"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+dotenvy = "0.15"
+futures = "0.3.34"
+once_cell = "1.21.4"
+secrecy = { workspace = true }
+serde_json = "1.0.151"
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tempfile = "3.27.0"
+tracing = "0.1.44"
+uuid = { version = "1.26.0", features = [ "serde" ] }

@@ -6,17 +6,17 @@ use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, PayloadSnapshot, Transition, Transitioned,
     set_resubmit_not_before, set_sisu_attainment_if_unclaimed, set_submitted_attainment,
 };
-use headless_lms_models::library::credit_registration::enrolment_checks::{
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::{
     self, EnrolmentCheckAnswer, record_enrolment_check,
 };
-use headless_lms_models::library::credit_registration::grade_mapping::MappedGrade;
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::grade_mapping::MappedGrade;
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     NextAttempt, Outcome, UnaskedMove,
 };
-use headless_lms_models::library::credit_registration::scrub::{
+use headless_lms_data_operations::library::credit_registration::scrub::{
     scrub_text, suotar_exchange_details,
 };
-use headless_lms_models::library::credit_registration::study_registry::RegistryAttainment;
+use headless_lms_data_operations::library::credit_registration::study_registry::RegistryAttainment;
 use headless_lms_models::verified_student_numbers;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};

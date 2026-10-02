@@ -287,7 +287,7 @@ async fn duplicate_exam(
 
     let mut tx = conn.begin().await?;
     let new_exam =
-        models::library::copying::copy_exam(&mut tx, &exam_id, &new_exam, user.id).await?;
+        headless_lms_data_operations::library::copying::copy_exam(&mut tx, &exam_id, &new_exam, user.id).await?;
 
     models::roles::insert(
         &mut tx,

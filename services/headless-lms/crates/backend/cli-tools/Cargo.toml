@@ -1,0 +1,18 @@
+[package]
+name = "headless-lms-cli-tools"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+doc-macro = { path = "../../doc-macro" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-http-api = { path = "../http-api" }
+anyhow = "1.0.104"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+tracing = "0.1.44"
+uuid = { version = "1.26.0", features = [ "serde" ] }

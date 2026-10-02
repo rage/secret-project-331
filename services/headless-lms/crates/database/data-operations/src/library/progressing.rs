@@ -1,3 +1,4 @@
+use crate::error_macros::model_err;
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};

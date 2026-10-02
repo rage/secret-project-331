@@ -174,7 +174,7 @@ async fn get_peer_review_for_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
     let course_material_peer_or_self_review_data =
-        models::library::peer_or_self_reviewing::select_course_material_peer_or_self_review_data(
+        headless_lms_data_operations::library::peer_or_self_reviewing::select_course_material_peer_or_self_review_data(
             &mut conn,
             user.id,
             *exercise_id,
@@ -415,7 +415,7 @@ async fn start_peer_or_self_review(
         Res::Exercise(*exercise_id),
     )
     .await?;
-    models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
+    headless_lms_data_operations::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
         &mut conn,
         user_exercise_state,
         &exercise,
@@ -536,7 +536,7 @@ async fn submit_peer_or_self_review(
         if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {
             let mut tx = conn.begin().await?;
 
-            models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
+            headless_lms_data_operations::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
                 &mut tx,
                 &exercise,
                 giver_user_exercise_state,
@@ -561,7 +561,7 @@ async fn submit_peer_or_self_review(
                 )
             })?;
 
-            let _ = models::library::peer_or_self_reviewing::reset_exercise_if_needed_if_zero_points_from_review(
+            let _ = headless_lms_data_operations::library::peer_or_self_reviewing::reset_exercise_if_needed_if_zero_points_from_review(
                 &mut tx,
                 &peer_or_self_review_config,
                 &updated_receiver_state,

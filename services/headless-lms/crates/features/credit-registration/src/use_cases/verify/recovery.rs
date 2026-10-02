@@ -2,10 +2,10 @@
 
 use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::VerifyFlow;
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     Outcome, uncertain_recheck_outcome,
 };
-use headless_lms_models::library::credit_registration::submission_context::get_submission_contexts;
+use headless_lms_data_operations::library::credit_registration::submission_context::get_submission_contexts;
 use sqlx::PgConnection;
 
 use super::decide::decide_recovery;

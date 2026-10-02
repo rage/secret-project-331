@@ -17,8 +17,9 @@ use headless_lms_server::{
     service_clients::exercise_service_requests::JwtKey,
     setup_tracing,
 };
+use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
 use headless_lms_utils::{
-    file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
+    services::sisu::SisuClient,
     services::tmc::TmcClient,
 };
 use secrecy::SecretString;
@@ -65,7 +66,7 @@ pub async fn init_db() -> String {
     let mut conn = PgConnection::connect(&db)
         .await
         .expect("failed to connect to test db");
-    sqlx::migrate!("../migrations")
+    sqlx::migrate!("../../../migrations")
         .run(&mut conn)
         .await
         .expect("failed to run migrations");

@@ -1,0 +1,29 @@
+[package]
+name = "headless-lms-mock-suotar"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../../backend/use-cases" }
+headless-lms-credit-registration = { path = "../../features/credit-registration" }
+actix-web = "4.15.0"
+anyhow = "1.0.104"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+futures = "0.3.34"
+itertools = "0.15.0"
+redis = { version = "1.6.0", features = [ "aio", "tokio-comp", "connection-manager" ] }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tokio = { workspace = true, features = [ "macros", "time" ] }
+tracing = "0.1.44"
+uuid = { version = "1.26.0", features = [ "serde" ] }

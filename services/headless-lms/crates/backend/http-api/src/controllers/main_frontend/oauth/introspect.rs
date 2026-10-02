@@ -295,7 +295,7 @@ mod tests {
     use super::*;
     use crate::domain::oauth::introspect_query::IntrospectParams;
     use crate::test_helper::*;
-    use headless_lms_models::{
+    use headless_lms_data_operations::{
         library::oauth::{GrantTypeName, generate_access_token, token_digest_sha256},
         oauth_client::{ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod},
     };

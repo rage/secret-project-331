@@ -1,5 +1,5 @@
 //! Database rows for the credit-registration (Suotar) system tests. The identities they are built
-//! from, and the matching registry world, are in [`crate::mock_suotar::fixtures`].
+//! from, and the matching registry world, are in [`headless_lms_mock_suotar::mock_suotar::fixtures`].
 //!
 //! The workers tick every phase unscoped every few seconds in the test deployment, so a fixture row
 //! nothing may move has to sit on a paused module — that is what the states course is for.
@@ -11,7 +11,7 @@ use chrono::{Duration, Utc};
 use headless_lms_base::config::{
     ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
 };
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::{
     PKeyPolicy,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
@@ -43,7 +43,7 @@ use sqlx::{Connection, PgConnection};
 use tracing::info;
 use uuid::Uuid;
 
-use crate::mock_suotar::fixtures::*;
+use headless_lms_mock_suotar::mock_suotar::fixtures::*;
 use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,

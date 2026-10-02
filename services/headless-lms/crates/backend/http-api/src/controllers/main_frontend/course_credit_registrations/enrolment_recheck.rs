@@ -7,8 +7,8 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 
-use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
-use headless_lms_models::library::credit_registration::enrolment_checks::CheckRequestOutcome;
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::CheckRequestOutcome;
 
 use crate::controllers::main_frontend::credit_registrations::RequestCreditRegistrationEnrolmentRecheckResult;
 use crate::domain::credit_registration::enrolment_recheck::{

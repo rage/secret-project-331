@@ -1,0 +1,31 @@
+[package]
+name = "headless-lms-data-operations"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-models = { path = "../models" }
+headless-lms-utils = { path = "../../foundation/utils" }
+anyhow = "1.0.104"
+backtrace = "0.3.76"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+futures = "0.3.34"
+hmac = { workspace = true }
+itertools = "0.15.0"
+rand = "0.10.2"
+secrecy = { workspace = true }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+sha2 = { workspace = true }
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+tokio = { workspace = true, features = [ "macros", "time" ] }
+tracing = "0.1.44"
+url = "2.5.8"
+utoipa = { version = "5.5.0", features = [ "chrono", "uuid" ], optional = true }
+uuid = { version = "1.26.0", features = [ "serde" ] }
+
+[dev-dependencies]
+headless-lms-models = { path = "../models", features = ["test-helpers"] }

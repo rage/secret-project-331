@@ -5,8 +5,8 @@ use git2::{
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{exercise_repositories, repository_exercises};
+use headless_lms_file_store::file_store::{self, FileStore};
 use headless_lms_utils::{
-    file_store::{self, FileStore},
     folder_checksum,
 };
 use secrecy::{ExposeSecret, SecretString};

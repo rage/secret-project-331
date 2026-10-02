@@ -2,8 +2,8 @@
 
 use crate::{domain::authorization::authorize, prelude::*};
 
-use models::library::TimeGranularity;
-use models::library::global_stats::{
+use headless_lms_data_operations::library::TimeGranularity;
+use headless_lms_data_operations::library::global_stats::{
     CourseCompletionStats, DomainCompletionStats, GlobalCourseModuleStatEntry, GlobalStatEntry,
 };
 use std::collections::HashMap;
@@ -62,7 +62,7 @@ async fn get_number_of_people_completed_a_course(
         .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
         .unwrap_or(TimeGranularity::Year);
 
-    let res = models::library::global_stats::get_number_of_people_completed_a_course(
+    let res = headless_lms_data_operations::library::global_stats::get_number_of_people_completed_a_course(
         &mut conn,
         granularity,
     )
@@ -109,7 +109,7 @@ async fn get_number_of_people_registered_completion_to_study_registry(
         .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
         .unwrap_or(TimeGranularity::Year);
 
-    let res = models::library::global_stats::get_number_of_people_registered_completion_to_study_registry(&mut conn, granularity).await?;
+    let res = headless_lms_data_operations::library::global_stats::get_number_of_people_registered_completion_to_study_registry(&mut conn, granularity).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -152,7 +152,7 @@ async fn get_number_of_people_done_at_least_one_exercise(
         .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
         .unwrap_or(TimeGranularity::Year);
 
-    let res = models::library::global_stats::get_number_of_people_done_at_least_one_exercise(
+    let res = headless_lms_data_operations::library::global_stats::get_number_of_people_done_at_least_one_exercise(
         &mut conn,
         granularity,
     )
@@ -200,7 +200,7 @@ async fn get_number_of_people_started_course(
         .unwrap_or(TimeGranularity::Year);
 
     let res =
-        models::library::global_stats::get_number_of_people_started_course(&mut conn, granularity)
+        headless_lms_data_operations::library::global_stats::get_number_of_people_started_course(&mut conn, granularity)
             .await?;
 
     token.authorized_ok(web::Json(res))
@@ -248,7 +248,7 @@ async fn get_course_module_stats_by_completions_registered_to_study_registry(
         .map(|s| s.parse().unwrap_or(TimeGranularity::Year))
         .unwrap_or(TimeGranularity::Year);
 
-    let res = models::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(&mut conn, granularity).await?;
+    let res = headless_lms_data_operations::library::global_stats::get_course_module_stats_by_completions_registered_to_study_registry(&mut conn, granularity).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -292,7 +292,7 @@ async fn get_completion_stats_by_email_domain(
 
     let year = query.get("year").and_then(|y| y.parse::<i32>().ok());
 
-    let res = models::library::global_stats::get_completion_stats_by_email_domain(&mut conn, year)
+    let res = headless_lms_data_operations::library::global_stats::get_completion_stats_by_email_domain(&mut conn, year)
         .await?;
 
     token.authorized_ok(web::Json(res))
@@ -350,7 +350,7 @@ async fn get_course_completion_stats_for_email_domain(
 
     let year = query.get("year").and_then(|y| y.parse::<i32>().ok());
 
-    let res = models::library::global_stats::get_course_completion_stats_for_email_domain(
+    let res = headless_lms_data_operations::library::global_stats::get_course_completion_stats_for_email_domain(
         &mut conn,
         email_domain,
         year,

@@ -5,10 +5,10 @@ use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
     CreditRegistrationState,
 };
-use headless_lms_models::library::credit_registration::legacy_mirror::{
+use headless_lms_data_operations::library::credit_registration::legacy_mirror::{
     self, LegacyLedgerDivergence,
 };
-use headless_lms_models::library::credit_registration::materialize::{
+use headless_lms_data_operations::library::credit_registration::materialize::{
     UnmaterialisedCompletion, get_unmaterialised_eligible_completions,
 };
 use utoipa::ToSchema;

@@ -21,7 +21,7 @@ use headless_lms_models::credit_registrations::{
     BatchMove, CreditRegistration, CreditRegistrationState, claim_enrolment_checks,
     restamp_resolving_enrolment, transition_batch,
 };
-use headless_lms_models::library::credit_registration::outcomes::resolving_enrolment;
+use headless_lms_data_operations::library::credit_registration::outcomes::resolving_enrolment;
 use headless_lms_utils::prelude::Utc;
 use sqlx::PgConnection;
 use uuid::Uuid;

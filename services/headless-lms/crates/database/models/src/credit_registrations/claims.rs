@@ -92,7 +92,7 @@ pub async fn claim_due_for_resolve_after_pull_forward(
 /// [`RESOLVING_RECOVERY_GRACE`](crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE).
 /// A no-op for a row in any other state.
 pub async fn claim_enrolment_checks(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
-    use crate::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE;
+    use headless_lms_data_operations::library::credit_registration::backoff::RESOLVING_RECOVERY_GRACE;
     if ids.is_empty() {
         return Ok(());
     }

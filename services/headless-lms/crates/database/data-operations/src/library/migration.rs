@@ -1,3 +1,4 @@
+use crate::error_macros::model_err;
 use futures::future::BoxFuture;
 use headless_lms_utils::document_schema_processor::{
     GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,

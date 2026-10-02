@@ -586,7 +586,7 @@ async fn get_my_studies(
         // Only worth the queries when a module's requirements hinge on an exam.
         let exam_passed = if modules.iter().any(|module| module.requires_exam) {
             Some(
-                models::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
+                headless_lms_data_operations::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
                     &mut conn,
                     user.id,
                     enrollment.course_id,

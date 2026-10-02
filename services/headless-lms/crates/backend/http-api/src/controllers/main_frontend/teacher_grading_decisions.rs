@@ -136,7 +136,7 @@ async fn create_teacher_grading_decision(
     .await?;
 
     let new_user_exercise_state =
-        models::library::user_exercise_state_updater::recalculate_by_id_and_exercise_id(
+        headless_lms_data_operations::library::user_exercise_state_updater::recalculate_by_id_and_exercise_id(
             &mut conn,
             user_exercise_state_id,
             student_state.exercise_id,

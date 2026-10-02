@@ -164,7 +164,7 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
     if clean {
         let mut conn = db_pool.acquire().await?;
         info!("running migrations");
-        sqlx::migrate!("../migrations").run(&mut conn).await?;
+        sqlx::migrate!("../../../migrations").run(&mut conn).await?;
     }
     Ok(db_pool)
 }

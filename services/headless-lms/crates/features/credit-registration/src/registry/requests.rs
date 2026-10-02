@@ -1,7 +1,7 @@
 //! What one item of a request to the study registry asks.
 
 use chrono::NaiveDate;
-use headless_lms_models::library::credit_registration::grade_mapping::MappedGrade;
+use headless_lms_data_operations::library::credit_registration::grade_mapping::MappedGrade;
 
 use super::answers::{EnrolmentAnswer, ImportAnswer, PersonAnswer, VerificationAnswer};
 use super::batch::{BatchEntry, BatchOptions, BatchReply, BatchRequest};

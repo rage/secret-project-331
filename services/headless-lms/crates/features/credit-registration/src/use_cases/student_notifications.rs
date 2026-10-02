@@ -6,7 +6,7 @@
 //! the student's own decision, and the linking mail already covers a missing student number.
 
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
-use headless_lms_models::library::credit_registration::student_notifications::{
+use headless_lms_data_operations::library::credit_registration::student_notifications::{
     STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue, claim_unnotified, set_email_delivery_id,
 };
 use serde_json::json;

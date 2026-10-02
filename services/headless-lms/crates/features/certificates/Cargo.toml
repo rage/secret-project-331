@@ -7,9 +7,11 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-headless-lms-base = { path = "../../shared/base" }
-headless-lms-utils = { path = "../../shared/utils" }
-headless-lms-models = { path = "../../models" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
 rust-i18n = "4.2.1"
 
 # An SVG rendering library.

@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use headless_lms_utils::file_store::FileStore;
+use headless_lms_file_store::file_store::FileStore;
 use tracing::log::warn;
 use usvg::fontdb;
 

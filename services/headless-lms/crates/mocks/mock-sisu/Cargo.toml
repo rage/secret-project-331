@@ -1,0 +1,18 @@
+[package]
+name = "headless-lms-mock-sisu"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../../backend/use-cases" }
+actix-web = "4.15.0"
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+tracing = "0.1.44"

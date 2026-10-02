@@ -7,7 +7,7 @@
 use headless_lms_models::credit_registrations::{
     CreditRegistrationState, StuckRegistrationCount, StuckThresholds,
 };
-use headless_lms_models::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
+use headless_lms_data_operations::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     course_module_suotar_configurations, credit_registration_account_linking_emails,
@@ -44,13 +44,13 @@ const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
 
 const _: () = assert!(
     STUCK_THRESHOLDS.stuck_failed_retryable_secs
-        < headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE
+        < headless_lms_data_operations::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE
             .num_seconds(),
     "a row must be considered stuck before backoff gives up retrying it"
 );
 const _: () = assert!(
     STUCK_THRESHOLDS.stuck_submitting_secs
-        > headless_lms_models::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE
+        > headless_lms_data_operations::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE
             .num_seconds(),
     "the stuck threshold must outlast the grace period that lets a submit recover on its own"
 );

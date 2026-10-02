@@ -50,7 +50,7 @@ const createConfig = (input: string, outputPath: string) =>
 
 export default createConfig(
   resolveFromConfig(
-    "../../services/headless-lms/crates/backend/server/openapi/cms.openapi.generated.json",
+    "../../services/headless-lms/crates/backend/http-api/openapi/cms.openapi.generated.json",
   ),
   resolveFromConfig("../../services/cms/src/generated/api"),
 )

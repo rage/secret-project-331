@@ -475,7 +475,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::controllers::exercise_services::claims::*;
+    use headless_lms_http_api::controllers::exercise_services::claims::*;
     use actix_http::Payload;
     use actix_web::http::StatusCode;
     use actix_web::http::header::{HeaderName, HeaderValue};

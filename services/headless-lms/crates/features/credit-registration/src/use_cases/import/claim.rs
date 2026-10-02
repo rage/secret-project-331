@@ -9,15 +9,15 @@ use headless_lms_models::credit_registrations::{
     AdminAttention, CreditRegistration, CreditRegistrationState, claim_due_for_import,
     schedule_next_attempt, set_needs_admin_attention,
 };
-use headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF;
-use headless_lms_models::library::credit_registration::grade_mapping::{
+use headless_lms_data_operations::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF;
+use headless_lms_data_operations::library::credit_registration::grade_mapping::{
     MappedGrade, is_known_grade,
 };
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     UnaskedMove, duplicate_of_other_registrar, incomplete_payload, invalid_payload_field,
     submitting, unknown_grade,
 };
-use headless_lms_models::library::credit_registration::scrub::scrub_text;
+use headless_lms_data_operations::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::prelude::Utc;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection};

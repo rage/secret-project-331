@@ -1,0 +1,75 @@
+[package]
+name = "headless-lms-use-cases"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+dotenvy = "0.15"
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-gcs-file-store = { path = "../../infrastructure/file-storage/gcs-file-store" }
+headless-lms-authorization = { path = "../../features/authorization" }
+headless-lms-chatbot = { path = "../../features/chatbot" }
+headless-lms-credit-registration = { path = "../../features/credit-registration" }
+actix-http = "3.13.3"
+actix-multipart = "0.8.1"
+actix-session = { version = "0.11.0", features = [ "cookie-session" ] }
+actix-web = "4.15.0"
+anyhow = "1.0.104"
+async-trait = "0.1.92"
+async_zip = { version = "0.0.18", features = [ "tokio", "deflate" ] }
+backtrace = "0.3.76"
+base64 = "0.23"
+blake3 = "1.8.7"
+bytes = "1.12.1"
+chrono = { version = "0.4.45", features = [ "serde" ] }
+csv = "1.4.0"
+derive_more = { version = "2.1.1", features = [ "full" ] }
+dpop-verifier = { version = "4.4.0", features = [ "actix-web" ] }
+futures = "0.3.34"
+futures-util = "0.3.34"
+git2 = { version = "0.21.0", features = [ "https", "ssh" ] }
+governor = "0.10.4"
+hmac = { workspace = true }
+itertools = "0.15.0"
+jsonwebtoken = { workspace = true }
+k8s-openapi = { version = "0.28.0", features = [ "v1_35" ] }
+kube = { version = "4.0.0", features = [ "runtime", "derive", "client" ] }
+oauth2 = "5.0.0"
+pkcs8 = "0.11"
+rand = "0.10.2"
+reqwest = { version = "0.13.4", features = [ "brotli", "gzip", "json", "http2", "rustls", "stream" ] }
+rsa = { version = "0.9", features = [ "pem" ] }
+secrecy = { workspace = true }
+serde = { version = "1.0.229", features = [ "derive" ] }
+serde_json = "1.0.151"
+sha2 = { workspace = true }
+sqlx = { version = "0.9.0", default-features = false, features = [ "derive", "postgres" ] }
+subtle = "2.6.1"
+tar = "0.4.46"
+tempfile = "3.27.0"
+thiserror = "2.0.20"
+tokio = { workspace = true, features = [ "macros", "time" ] }
+tokio-stream = { workspace = true }
+tokio-util = { version = "0.7.19", features = [ "io" ] }
+tracing = "0.1.44"
+tracing-error = "0.2.1"
+tracing-log = "0.2.0"
+url = "2.5.8"
+utoipa = { version = "5.5.0", features = [ "chrono", "uuid" ], optional = true }
+uuid = { version = "1.26.0", features = [ "serde" ] }
+walkdir = "2.5.0"
+zstd = "0.13.3"
+
+[dev-dependencies]
+headless-lms-external-service-clients = { path = "../../infrastructure/external-service-clients" }
+
+[features]
+test-support = []

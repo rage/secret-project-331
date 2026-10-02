@@ -2,13 +2,11 @@
 
 pub mod azure_embedding;
 pub mod backoff;
-pub mod cache;
 pub mod course_url;
 pub mod document_schema_processor;
 pub mod email_processor;
 pub mod error;
 pub mod error_identifier;
-pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;
 pub mod helsinki_time;

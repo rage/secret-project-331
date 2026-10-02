@@ -4,7 +4,7 @@ use headless_lms_models::course_instances;
 
 use async_trait::async_trait;
 use itertools::Itertools;
-use models::library::progressing;
+use headless_lms_data_operations::library::progressing;
 
 use crate::domain::csv_export::CsvWriter;
 

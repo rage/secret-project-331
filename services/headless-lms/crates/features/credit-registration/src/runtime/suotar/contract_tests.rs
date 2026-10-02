@@ -8,8 +8,8 @@ use std::time::{Duration, Instant};
 use chrono::{DateTime, Utc};
 use headless_lms_base::config::SuotarConfiguration;
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
-use headless_lms_models::library::credit_registration::config_validation::CourseCodeVerdict;
-use headless_lms_models::library::credit_registration::study_registry::RegistryErrorKind as Kind;
+use headless_lms_data_operations::library::credit_registration::config_validation::CourseCodeVerdict;
+use headless_lms_data_operations::library::credit_registration::study_registry::RegistryErrorKind as Kind;
 use headless_lms_utils::services::suotar::{NoSuotarCallAudit, SuotarClient};
 use mockito::{Mock, ServerGuard};
 use secrecy::ExposeSecret;
@@ -18,7 +18,7 @@ use uuid::Uuid;
 
 use super::breaker::{self, BreakerTarget};
 use super::*;
-use headless_lms_models::library::credit_registration::grade_mapping::MappedGrade;
+use headless_lms_data_operations::library::credit_registration::grade_mapping::MappedGrade;
 
 use crate::registry::{
     AnsweredRow, AttainmentId, BatchEntry, Credits, EnrolmentReading, HeldCredit, PersonReading,

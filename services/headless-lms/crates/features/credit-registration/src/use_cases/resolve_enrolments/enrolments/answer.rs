@@ -2,17 +2,17 @@
 //! lists, or the error it gave, and the grade scale our grade would go out on.
 
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
-use headless_lms_models::library::credit_registration::classification::is_enrolment_error;
-use headless_lms_models::library::credit_registration::enrolment_selection::{
+use headless_lms_data_operations::library::credit_registration::classification::is_enrolment_error;
+use headless_lms_data_operations::library::credit_registration::enrolment_selection::{
     NoUsableEnrolment, attained_candidates, preferred_attainment,
 };
-use headless_lms_models::library::credit_registration::grade_mapping::{
+use headless_lms_data_operations::library::credit_registration::grade_mapping::{
     GradeSource, improves_on_all,
 };
-use headless_lms_models::library::credit_registration::study_registry::{
+use headless_lms_data_operations::library::credit_registration::study_registry::{
     RegistryAttainment, RegistryEnrolment,
 };
-use headless_lms_models::library::credit_registration::submission_context::SubmissionContext;
+use headless_lms_data_operations::library::credit_registration::submission_context::SubmissionContext;
 
 use super::Resolvable;
 use crate::registry::{EnrolmentAnswer, EnrolmentReading};

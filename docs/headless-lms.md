@@ -56,11 +56,11 @@ If you want to reset the database, run `bin/sqlx-database-reset` followed by `bi
 
 ### Using postgres enums in SQLx queries
 
-Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/crates/models/sqlx.toml`](services/headless-lms/crates/models/sqlx.toml) under `[macros.type-overrides]`. Non-enum custom column types and enum-array columns live under `[macros.table-overrides.'table']`, which lets single-table `query!` / `query_as!` calls use `SELECT *` / `RETURNING *` without per-query `AS "col: Type"` hints.
+Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/crates/database/models/sqlx.toml`](services/headless-lms/crates/database/models/sqlx.toml) under `[macros.type-overrides]`. Non-enum custom column types and enum-array columns live under `[macros.table-overrides.'table']`, which lets single-table `query!` / `query_as!` calls use `SELECT *` / `RETURNING *` without per-query `AS "col: Type"` hints.
 
 A struct that models a table should contain all of that table's columns. If a table-backed query struct is missing columns and the query is otherwise a plain single-table projection, prefer completing the struct over keeping an explicit projection. Completing serialized API types is acceptable unless the missing column is a genuinely dangerous secret that should not be newly exposed through an external API.
 
-When you add a new Postgres enum or custom column type, define the Rust type and add the appropriate entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/crates/models/.env`; copy from `.env.example`).
+When you add a new Postgres enum or custom column type, define the Rust type and add the appropriate entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/crates/database/models/.env`; copy from `.env.example`).
 
 Example Rust enum:
 
@@ -184,7 +184,7 @@ To ensure endpoints are included in generated clients:
 
 1. Add `#[utoipa::path(...)]` to each endpoint handler with correct method, path, params, request body, and response types.
 2. Ensure all request/response DTOs used by the endpoint derive the OpenAPI schema traits (for example `ToSchema`), including nested DTOs.
-3. Register the endpoint in the correct OpenAPI document in `services/headless-lms/crates/backend/server/src/openapi.rs` under the matching `paths(...)` section.
+3. Register the endpoint in the correct OpenAPI document in `services/headless-lms/crates/backend/http-api/src/openapi.rs` under the matching `paths(...)` section.
 4. Register any schemas that are not auto-collected into the same document's `components(schemas(...))` section.
 5. Run `bin/generate-bindings` after changes.
 

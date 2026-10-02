@@ -361,7 +361,7 @@ impl CourseBuilder {
             course_front_page,
             cx.teacher,
             get_seed_spec_fetcher(),
-            crate::service_clients::exercise_service_requests::fetch_service_info,
+            headless_lms_external_service_clients::service_clients::exercise_service_requests::fetch_service_info,
         )
         .await
         .context("inserting course front page")?;

@@ -10,11 +10,31 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-use-cases = { path = "../use-cases" }
+headless-lms-external-service-clients = { path = "../../infrastructure/external-service-clients" }
+headless-lms-mock-azure-ai = { path = "../../mocks/mock-azure-ai" }
+headless-lms-mock-chatbot-documents = { path = "../../mocks/mock-chatbot-documents" }
+headless-lms-mock-sisu = { path = "../../mocks/mock-sisu" }
+headless-lms-mock-suotar = { path = "../../mocks/mock-suotar" }
+headless-lms-gcs-file-store = { path = "../../infrastructure/file-storage/gcs-file-store" }
+headless-lms-http-api = { path = "../http-api" }
+headless-lms-seed = { path = "../seed" }
+headless-lms-cli-tools = { path = "../cli-tools" }
+headless-lms-credit-registration-workers = { path = "../workers/credit-registration" }
+headless-lms-email-delivery-workers = { path = "../workers/email-delivery" }
+headless-lms-integration-sync-workers = { path = "../workers/integration-sync" }
+headless-lms-learning-workers = { path = "../workers/learning" }
+headless-lms-maintenance-commands = { path = "../commands/maintenance" }
+headless-lms-integration-sync-commands = { path = "../commands/integration-sync" }
+headless-lms-learning-commands = { path = "../commands/learning" }
 headless-lms-authorization = { path = "../../features/authorization" }
-headless-lms-base = { path = "../../shared/base" }
+headless-lms-base = { path = "../../foundation/base" }
 headless-lms-certificates = { path = "../../features/certificates" }
-headless-lms-models = { path = "../../models" }
-headless-lms-utils = { path = "../../shared/utils" }
+headless-lms-models = { path = "../../database/models" }
+headless-lms-utils = { path = "../../foundation/utils" }
 headless-lms-chatbot = { path = "../../features/chatbot" }
 headless-lms-credit-registration = { path = "../../features/credit-registration" }
 exercise-services-api = { path = "../../exercise-services-api", features = ["openapi"] }
@@ -174,7 +194,7 @@ mockito = "1.7.2"
 # Random number generators and other randomness functionality.
 rand = "0.10.2"
 # Gives the tests a client for the mock Suotar.
-headless-lms-utils = { path = "../../shared/utils", features = ["test-support"] }
+headless-lms-utils = { path = "../../foundation/utils", features = ["test-support"] }
 
 [lints.clippy]
 unwrap_used = "deny"

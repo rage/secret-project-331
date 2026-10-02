@@ -7,9 +7,12 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-headless-lms-base = { path = "../../shared/base" }
-headless-lms-utils = { path = "../../shared/utils" }
-headless-lms-models = { path = "../../models" }
+headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
+headless-lms-cache = { path = "../../infrastructure/cache" }
+headless-lms-data-operations = { path = "../../database/data-operations" }
+headless-lms-base = { path = "../../foundation/base" }
+headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-models = { path = "../../database/models" }
 # Evaluates the permission a client tool requires, both when offering it and when applying an answer.
 headless-lms-authorization = { path = "../authorization" }
 
@@ -73,7 +76,7 @@ jsonschema = { version = "0.47.0", default-features = false }
 # `#[tokio::test]`, for the tool permission tests, which need a database connection.
 tokio = { workspace = true, features = ["macros"] }
 # Repeats the dependency above only to switch on `test_helper` and its `insert_data!` macro.
-headless-lms-models = { path = "../../models", features = ["test-helpers"] }
+headless-lms-models = { path = "../../database/models", features = ["test-helpers"] }
 
 [lints.clippy]
 unwrap_used = "deny"

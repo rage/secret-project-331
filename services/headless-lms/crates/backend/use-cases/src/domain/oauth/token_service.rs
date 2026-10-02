@@ -7,10 +7,10 @@ use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::split_and_validate_scopes;
 use crate::domain::oauth::pkce::verify_token_pkce;
-use headless_lms_utils::cache::Cache;
+use headless_lms_cache::cache::Cache;
 
-use headless_lms_models::library::oauth::Digest;
-use headless_lms_models::library::oauth::tokens::token_digest_sha256;
+use headless_lms_data_operations::library::oauth::Digest;
+use headless_lms_data_operations::library::oauth::tokens::token_digest_sha256;
 use headless_lms_models::oauth_access_token::TokenType;
 use headless_lms_models::oauth_auth_code::OAuthAuthCode;
 use headless_lms_models::oauth_client::OAuthClient;
@@ -50,8 +50,8 @@ fn resolve_refresh_scopes(
 
 /// Generate a new token pair (access token and refresh token) with their digests.
 pub fn generate_token_pair(key: &SecretString) -> TokenPair {
-    let access_token = headless_lms_models::library::oauth::tokens::generate_access_token();
-    let refresh_token = headless_lms_models::library::oauth::tokens::generate_access_token();
+    let access_token = headless_lms_data_operations::library::oauth::tokens::generate_access_token();
+    let refresh_token = headless_lms_data_operations::library::oauth::tokens::generate_access_token();
     TokenPair {
         access_token: access_token.clone(),
         refresh_token: refresh_token.clone(),
@@ -414,8 +414,8 @@ mod tests {
     use super::*;
     use crate::test_helper::*;
     use headless_lms_models::PKeyPolicy;
-    use headless_lms_models::library::oauth::pkce::PkceMethod;
-    use headless_lms_models::library::oauth::{
+    use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
+    use headless_lms_data_operations::library::oauth::{
         GrantTypeName, generate_access_token, generate_user_code,
     };
     use headless_lms_models::oauth_access_token::OAuthAccessToken;

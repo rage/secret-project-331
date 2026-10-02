@@ -51,13 +51,13 @@ const createConfig = (input: string, outputPath: string) =>
 export default [
   createConfig(
     resolveFromConfig(
-      "../../services/headless-lms/crates/backend/server/openapi/main-frontend.openapi.generated.json",
+      "../../services/headless-lms/crates/backend/http-api/openapi/main-frontend.openapi.generated.json",
     ),
     resolveFromConfig("../../services/main-frontend/src/generated/api"),
   ),
   createConfig(
     resolveFromConfig(
-      "../../services/headless-lms/crates/backend/server/openapi/course-material.openapi.generated.json",
+      "../../services/headless-lms/crates/backend/http-api/openapi/course-material.openapi.generated.json",
     ),
     resolveFromConfig("../../services/main-frontend/src/generated/course-material-api"),
   ),

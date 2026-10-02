@@ -17,10 +17,6 @@ pub mod files;
 pub mod health;
 pub mod helpers;
 pub mod main_frontend;
-pub mod mock_azure;
-pub mod mock_document_storage;
-pub mod mock_sisu;
-pub mod mock_suotar;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -74,16 +70,22 @@ pub fn configure_controllers(
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
     if app_conf.test_chatbot && app_conf.test_mode {
-        cfg.service(web::scope("/mock-azure").configure(mock_azure::_add_routes))
-            .service(
-                web::scope("/mock-document-storage").configure(mock_document_storage::_add_routes),
-            );
+        cfg.service(
+            web::scope("/mock-azure")
+                .configure(headless_lms_mock_azure_ai::mock_azure::_add_routes),
+        )
+        .service(
+            web::scope("/mock-document-storage")
+                .configure(headless_lms_mock_chatbot_documents::mock_document_storage::_add_routes),
+        );
     }
     if app_conf.test_sisu && app_conf.test_mode {
-        cfg.service(web::scope("/mock-sisu").configure(mock_sisu::_add_routes));
+        cfg.service(
+            web::scope("/mock-sisu").configure(headless_lms_mock_sisu::mock_sisu::_add_routes),
+        );
     }
     if app_conf.test_suotar && app_conf.test_mode {
-        cfg.service(mock_suotar::scope());
+        cfg.service(headless_lms_mock_suotar::controllers::scope());
     }
 }
 

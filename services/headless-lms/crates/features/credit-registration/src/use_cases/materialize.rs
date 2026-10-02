@@ -1,7 +1,7 @@
 //! The `materialize` phase: the ledger rows for completions that became eligible, and for grades
 //! that improved on a registered one.
 
-use headless_lms_models::library::credit_registration::materialize::{
+use headless_lms_data_operations::library::credit_registration::materialize::{
     GRADE_IMPROVEMENT_LIMIT, MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
     start_re_attempts_for_improved_grades,
 };

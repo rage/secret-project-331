@@ -527,8 +527,8 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
 mod tests {
     use super::*;
     use crate::test_helper::*;
-    use headless_lms_models::library::oauth::GrantTypeName;
-    use headless_lms_models::library::oauth::pkce::PkceMethod;
+    use headless_lms_data_operations::library::oauth::GrantTypeName;
+    use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
@@ -859,7 +859,7 @@ mod tests {
             TokenGrantRequest, generate_token_pair, process_token_grant,
         };
         use headless_lms_models::oauth_access_token::TokenType;
-        use headless_lms_utils::cache::Cache;
+        use headless_lms_cache::cache::Cache;
 
         insert_data!(:tx, :user);
         let client = insert_client(

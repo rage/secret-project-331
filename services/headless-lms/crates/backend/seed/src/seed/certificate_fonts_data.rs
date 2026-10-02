@@ -124,7 +124,7 @@ const _: () = {
                 CERTIFICATE_FONTS[i].2,
                 [0x00, 0x01, 0x00, 0x00, ..] | [b'O', b'T', b'T', b'O', ..]
             ),
-            "certificate font is not a valid font file (likely an unhydrated git-lfs pointer); run: git lfs pull --include=\"services/headless-lms/crates/backend/server/src/programs/seed/data\""
+            "certificate font is not a valid font file (likely an unhydrated git-lfs pointer); run: git lfs pull --include=\"services/headless-lms/crates/backend/seed/src/seed/data\""
         );
         i += 1;
     }
@@ -139,7 +139,7 @@ mod tests {
     /// pass those tests without ever reaching seeded environments.
     #[test]
     fn every_font_file_in_data_dir_is_seeded() {
-        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/src/programs/seed/data");
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/src/seed/data");
         let font_file_count = std::fs::read_dir(dir)
             .expect("seed data dir must exist")
             .filter(|entry| {

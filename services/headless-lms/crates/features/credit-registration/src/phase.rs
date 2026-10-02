@@ -2,7 +2,7 @@
 
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 use headless_lms_models::credit_registrations::RegistrationScope;
-use headless_lms_models::library::credit_registration::study_registry::RegistryOperation;
+use headless_lms_data_operations::library::credit_registration::study_registry::RegistryOperation;
 use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 
 /// A pipeline phase. [`CreditRegistrationPhase::as_str`] is canonical: it is

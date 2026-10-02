@@ -2,7 +2,7 @@ use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     PKeyPolicy, SpecFetcher, course_exams,
     exams::{self, NewExam},
     exercise_slide_submissions,
@@ -19,10 +19,10 @@ use headless_lms_models::{
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states,
 };
+use headless_lms_file_store::file_store::FileStore;
 use headless_lms_utils::{
     attributes,
     document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
-    file_store::FileStore,
 };
 use once_cell::sync::OnceCell;
 use serde_json::Value;
@@ -31,7 +31,7 @@ use std::sync::Arc;
 use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
-use crate::service_clients::exercise_service_requests;
+use headless_lms_external_service_clients::service_clients::exercise_service_requests;
 
 // Static holder for our cached spec fetcher
 static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();
@@ -582,7 +582,7 @@ pub async fn submit_and_grade(
         score_maximum: 100,
         set_user_variables: Some(HashMap::new()),
     };
-    headless_lms_models::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
+    headless_lms_data_operations::library::grading::propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         &exercise,
         &grading,

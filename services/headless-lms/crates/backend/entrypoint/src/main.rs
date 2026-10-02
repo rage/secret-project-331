@@ -175,7 +175,7 @@ where
 
 /// Generates OpenAPI JSON files for all frontend consumers.
 fn export_openapi_specs() -> Result<()> {
-    let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../server/openapi");
+    let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../http-api/openapi");
     std::fs::create_dir_all(&output_dir)?;
     write_spec(
         &output_dir.join("main-frontend.openapi.generated.json"),

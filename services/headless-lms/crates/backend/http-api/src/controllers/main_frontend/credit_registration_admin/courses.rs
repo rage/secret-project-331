@@ -10,7 +10,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
-use headless_lms_models::library::credit_registration::config_validation::{
+use headless_lms_data_operations::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config,
 };
 use utoipa::ToSchema;
@@ -192,11 +192,11 @@ pub async fn admin_pause_course_module_credit_registration(
     require_suotar_configuration(&mut conn, module_id).await?;
 
     let mut tx = conn.begin().await?;
-    headless_lms_models::library::credit_registration::module_pause::set_paused(
+    headless_lms_data_operations::library::credit_registration::module_pause::set_paused(
         &mut tx,
         module_id,
         Some(
-            headless_lms_models::library::credit_registration::module_pause::SuotarPause {
+            headless_lms_data_operations::library::credit_registration::module_pause::SuotarPause {
                 paused_at: Utc::now(),
                 paused_by_user_id: user.id,
                 reason: Some(reason),
@@ -247,7 +247,7 @@ pub async fn admin_resume_course_module_credit_registration(
     require_suotar_configuration(&mut conn, module_id).await?;
 
     let mut tx = conn.begin().await?;
-    headless_lms_models::library::credit_registration::module_pause::set_paused(
+    headless_lms_data_operations::library::credit_registration::module_pause::set_paused(
         &mut tx, module_id, None,
     )
     .await?;

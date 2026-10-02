@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::{
     VerifyFlow, claim_due_for_verify, increment_verify_attempt_counts, schedule_next_attempts,
 };
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     RowFacts, verify_poll_lease_until,
 };
 use sqlx::PgConnection;

@@ -2,7 +2,7 @@ target
 **/target
 .env
 .playwright-cli
-crates/models/.env
+crates/database/models/.env
 uploads
 requests.rest
 dbdoc
@@ -10,4 +10,4 @@ dbdoc
 shared-module
 Dockerfile
 *.dockerfile
-crates/backend/server/generated-docs
+crates/backend/http-api/generated-docs

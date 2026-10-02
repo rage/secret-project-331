@@ -9,15 +9,15 @@ mod answer;
 mod request;
 mod resolution;
 
-use headless_lms_models::library::credit_registration::enrolment_checks::EnrolmentCheckAnswer;
-use headless_lms_models::library::credit_registration::enrolment_checks::claim_due_for_resolve;
-use headless_lms_models::library::credit_registration::enrolment_selection::{
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::EnrolmentCheckAnswer;
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::claim_due_for_resolve;
+use headless_lms_data_operations::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, select_enrolment,
 };
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     missing_context, unanswered_item_outcome,
 };
-use headless_lms_models::library::credit_registration::submission_context::{
+use headless_lms_data_operations::library::credit_registration::submission_context::{
     SubmissionContext, get_submission_contexts,
 };
 use headless_lms_utils::prelude::Utc;
@@ -214,8 +214,8 @@ mod fixtures {
     use headless_lms_models::credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState,
     };
-    use headless_lms_models::library::credit_registration::payload::CompletionFacts;
-    use headless_lms_models::library::credit_registration::study_registry::{
+    use headless_lms_data_operations::library::credit_registration::payload::CompletionFacts;
+    use headless_lms_data_operations::library::credit_registration::study_registry::{
         CreditRange, RegistryEnrolment,
     };
     use headless_lms_models::secret::DbSecret;

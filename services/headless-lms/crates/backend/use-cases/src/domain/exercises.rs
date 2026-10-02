@@ -153,7 +153,7 @@ async fn grade_submission(
     })?;
 
     let mut exercise_with_user_state = ExerciseWithUserState::new(exercise, user_exercise_state)?;
-    let mut result = models::library::grading::grade_user_submission(
+    let mut result = headless_lms_data_operations::library::grading::grade_user_submission(
         conn,
         &mut exercise_with_user_state,
         submission,
@@ -408,7 +408,7 @@ mod tests {
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
     use models::exercise_task_submissions::{AnswerFile, AnswerKind};
     use models::exercises::GradingProgress;
-    use models::library::grading::StudentExerciseTaskSubmission;
+    use headless_lms_data_operations::library::grading::StudentExerciseTaskSubmission;
     use sqlx::Connection;
     use std::sync::{Arc, Mutex};
 
@@ -547,7 +547,7 @@ mod tests {
         fixture: &Fixture,
         answer: StudentExerciseTaskSubmission,
         file_store: &dyn FileStore,
-    ) -> Result<models::library::grading::StudentExerciseSlideSubmissionResult, ControllerError>
+    ) -> Result<headless_lms_data_operations::library::grading::StudentExerciseSlideSubmissionResult, ControllerError>
     {
         let exercise = models::exercises::get_by_id(conn, fixture.exercise)
             .await
@@ -560,7 +560,7 @@ mod tests {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![answer],
             },
-            Arc::new(crate::service_clients::exercise_service_requests::JwtKey::test_key()),
+            Arc::new(headless_lms_base::jwt::JwtKey::test_key()),
             file_store,
             &init_app_conf().expect("app conf"),
         )
@@ -792,7 +792,7 @@ mod tests {
                     file_answer(other_task, vec![file]),
                 ],
             },
-            Arc::new(crate::service_clients::exercise_service_requests::JwtKey::test_key()),
+            Arc::new(headless_lms_base::jwt::JwtKey::test_key()),
             &store,
             &init_app_conf().expect("app conf"),
         )

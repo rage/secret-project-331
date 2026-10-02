@@ -114,7 +114,7 @@ jobs:
             eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
             cargo build --verbose --tests
 
-      # OpenAPI drift gate: re-export the specs under crates/backend/server/openapi and fail if they
+      # OpenAPI drift gate: re-export the specs under crates/backend/http-api/openapi and fail if they
       # differ from what is committed.
       - name: Export OpenAPI specs
         env:
@@ -139,10 +139,10 @@ jobs:
       # The committed specs are oxfmt-formatted; the raw export is not, so format it
       # before diffing.
       - name: Format exported OpenAPI specs
-        run: pnpm exec oxfmt services/headless-lms/crates/backend/server/openapi/*.json
+        run: pnpm exec oxfmt services/headless-lms/crates/backend/http-api/openapi/*.json
 
       - name: Assert committed OpenAPI specs are up to date
-        run: git diff --exit-code services/headless-lms/crates/backend/server/openapi/
+        run: git diff --exit-code services/headless-lms/crates/backend/http-api/openapi/
 
       - name: Set up unit test database
         env:

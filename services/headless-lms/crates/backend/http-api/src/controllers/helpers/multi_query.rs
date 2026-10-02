@@ -13,7 +13,8 @@ use url::form_urlencoded;
 
 use headless_lms_base::prelude_base_and_re_exports::BackendError;
 
-use crate::domain::error::{ControllerError, ControllerErrorType, controller_err};
+use crate::domain::error::{ControllerError, ControllerErrorType};
+use crate::error_macros::controller_err;
 
 /// A handler's query parameters, where a parameter given more than once reads as a list.
 ///

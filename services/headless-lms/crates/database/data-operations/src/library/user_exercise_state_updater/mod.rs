@@ -130,7 +130,7 @@ Allows you to pass some data that `update_user_exercise_state` fetches to avoid 
 Usage:
 
 ```no_run
-# use headless_lms_models::library::user_exercise_state_updater::{update_user_exercise_state_with_some_already_loaded_data, UserExerciseStateUpdateAlreadyLoadedRequiredData};
+# use headless_lms_data_operations::library::user_exercise_state_updater::{update_user_exercise_state_with_some_already_loaded_data, UserExerciseStateUpdateAlreadyLoadedRequiredData};
 # use headless_lms_models::ModelResult;
 #
 # async fn example_function() -> ModelResult<()> {

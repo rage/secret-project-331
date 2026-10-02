@@ -190,9 +190,8 @@ All the information in the error is meant to be seen by the user. The type of er
 ### Usage without source error
 
 ```no_run
-# use headless_lms_server::prelude::*;
+# use headless_lms_use_cases::prelude::*;
 # fn random_function() -> ControllerResult<web::Json<()>> {
-#    let token = skip_authorize();
 #    let erroneous_condition = 1 == 1;
 if erroneous_condition {
     return Err(ControllerError::new(
@@ -201,7 +200,7 @@ if erroneous_condition {
         None,
     ));
 }
-# token.authorized_ok(web::Json(()))
+# Ok(web::Json(()))
 # }
 ```
 
@@ -210,7 +209,7 @@ if erroneous_condition {
 Used when calling a function that returns an error that cannot be automatically converted to an ControllerError. (See `impl From<X>` implementations on this struct.)
 
 ```no_run
-# use headless_lms_server::prelude::*;
+# use headless_lms_use_cases::prelude::*;
 # fn some_function_returning_an_error() -> ControllerResult<web::Json<()>> {
 #    return Err(ControllerError::new(
 #         ControllerErrorType::BadRequest,
@@ -220,7 +219,6 @@ Used when calling a function that returns an error that cannot be automatically 
 # }
 #
 # fn random_function() -> ControllerResult<web::Json<()>> {
-#    let token = skip_authorize();
 #    let erroneous_condition = 1 == 1;
 some_function_returning_an_error().map_err(|original_error| {
     ControllerError::new(
@@ -229,7 +227,7 @@ some_function_returning_an_error().map_err(|original_error| {
         Some(original_error.into()),
     )
 })?;
-# token.authorized_ok(web::Json(()))
+# Ok(web::Json(()))
 # }
 ```
 

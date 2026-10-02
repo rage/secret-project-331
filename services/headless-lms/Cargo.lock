@@ -2827,6 +2827,7 @@ dependencies = [
  "anyhow",
  "backtrace",
  "headless-lms-base",
+ "headless-lms-data-operations",
  "headless-lms-models",
  "headless-lms-utils",
  "serde",
@@ -2859,6 +2860,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-cache"
+version = "0.1.0"
+dependencies = [
+ "headless-lms-utils",
+ "redis",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "headless-lms-certificates"
 version = "0.1.0"
 dependencies = [
@@ -2866,6 +2880,8 @@ dependencies = [
  "chrono",
  "futures",
  "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-file-store",
  "headless-lms-models",
  "headless-lms-utils",
  "icu",
@@ -2901,6 +2917,9 @@ dependencies = [
  "futures-util",
  "headless-lms-authorization",
  "headless-lms-base",
+ "headless-lms-cache",
+ "headless-lms-data-operations",
+ "headless-lms-file-store",
  "headless-lms-models",
  "headless-lms-utils",
  "indexmap 2.14.1",
@@ -2923,6 +2942,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-cli-tools"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "doc-macro",
+ "headless-lms-data-operations",
+ "headless-lms-http-api",
+ "serde",
+ "serde_json",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-credit-registration"
 version = "0.1.0"
 dependencies = [
@@ -2931,6 +2965,8 @@ dependencies = [
  "chrono",
  "futures",
  "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-file-store",
  "headless-lms-models",
  "headless-lms-utils",
  "itertools 0.15.0",
@@ -2943,6 +2979,69 @@ dependencies = [
  "tokio-util",
  "tracing",
  "tracing-error",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-credit-registration-workers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dotenvy",
+ "headless-lms-base",
+ "headless-lms-credit-registration",
+ "headless-lms-external-service-clients",
+ "headless-lms-use-cases",
+ "sqlx",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-data-operations"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "backtrace",
+ "chrono",
+ "futures",
+ "headless-lms-models",
+ "headless-lms-utils",
+ "hmac 0.13.0",
+ "itertools 0.15.0",
+ "rand 0.10.2",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "url",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-email-delivery-workers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dotenvy",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-external-service-clients",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "lettre",
+ "once_cell",
+ "secrecy",
+ "serde_json",
+ "sqlx",
+ "tokio",
+ "tokio-stream",
+ "tracing",
  "uuid",
 ]
 
@@ -2962,6 +3061,303 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-external-service-clients"
+version = "0.1.0"
+dependencies = [
+ "actix-http",
+ "actix-web",
+ "base64 0.23.1",
+ "chrono",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-http-api",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "jsonwebtoken",
+ "reqwest 0.13.4",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "headless-lms-file-store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "blake3",
+ "bytes",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-utils",
+ "rand 0.10.2",
+ "tempfile",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-gcs-file-store"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-stream",
+ "async-trait",
+ "bytes",
+ "futures",
+ "google-cloud-auth",
+ "google-cloud-storage",
+ "headless-lms-base",
+ "headless-lms-file-store",
+ "headless-lms-utils",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-http-api"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-files",
+ "actix-http",
+ "actix-multipart",
+ "actix-session",
+ "actix-web",
+ "actix-web-actors",
+ "anyhow",
+ "async_zip",
+ "bytes",
+ "chrono",
+ "csv",
+ "doc-macro",
+ "dpop-verifier",
+ "exercise-services-api",
+ "futures",
+ "futures-util",
+ "headless-lms-authorization",
+ "headless-lms-base",
+ "headless-lms-cache",
+ "headless-lms-certificates",
+ "headless-lms-chatbot",
+ "headless-lms-credit-registration",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-file-store",
+ "headless-lms-mock-azure-ai",
+ "headless-lms-mock-chatbot-documents",
+ "headless-lms-mock-sisu",
+ "headless-lms-mock-suotar",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "isbot",
+ "itertools 0.15.0",
+ "mime",
+ "once_cell",
+ "rand 0.10.2",
+ "reqwest 0.13.4",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "tracing-log",
+ "url",
+ "utoipa",
+ "uuid",
+ "woothee",
+]
+
+[[package]]
+name = "headless-lms-integration-sync-commands"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dotenvy",
+ "headless-lms-base",
+ "headless-lms-cache",
+ "headless-lms-external-service-clients",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "reqwest 0.13.4",
+ "secrecy",
+ "serde",
+ "sqlx",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-integration-sync-workers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dotenvy",
+ "flate2",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-chatbot",
+ "headless-lms-external-service-clients",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "reqwest 0.13.4",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tar",
+ "tokio",
+ "tracing",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-learning-commands"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "dotenvy",
+ "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "sqlx",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-learning-workers"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dotenvy",
+ "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-gcs-file-store",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "sqlx",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-maintenance-commands"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "chrono",
+ "dotenvy",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-file-store",
+ "headless-lms-gcs-file-store",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "serde_json",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "headless-lms-mock-azure-ai"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "headless-lms-cache",
+ "headless-lms-chatbot",
+ "headless-lms-file-store",
+ "headless-lms-mock-chatbot-documents",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "regex",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-mock-chatbot-documents"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "headless-lms-cache",
+ "headless-lms-chatbot",
+ "headless-lms-file-store",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-mock-sisu"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "headless-lms-cache",
+ "headless-lms-file-store",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "serde",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
+name = "headless-lms-mock-suotar"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "anyhow",
+ "chrono",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-cache",
+ "headless-lms-credit-registration",
+ "headless-lms-data-operations",
+ "headless-lms-file-store",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "itertools 0.15.0",
+ "redis",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-models"
 version = "0.1.0"
 dependencies = [
@@ -2975,6 +3371,8 @@ dependencies = [
  "dotenvy",
  "futures",
  "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-file-store",
  "headless-lms-utils",
  "hex",
  "hmac 0.13.0",
@@ -3005,6 +3403,33 @@ dependencies = [
  "utoipa",
  "uuid",
  "zeroize",
+]
+
+[[package]]
+name = "headless-lms-seed"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "base64 0.23.1",
+ "chrono",
+ "dotenvy",
+ "futures",
+ "headless-lms-base",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-file-store",
+ "headless-lms-gcs-file-store",
+ "headless-lms-mock-suotar",
+ "headless-lms-models",
+ "headless-lms-use-cases",
+ "headless-lms-utils",
+ "once_cell",
+ "secrecy",
+ "serde_json",
+ "sqlx",
+ "tempfile",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -3042,10 +3467,30 @@ dependencies = [
  "governor",
  "headless-lms-authorization",
  "headless-lms-base",
+ "headless-lms-cache",
  "headless-lms-certificates",
  "headless-lms-chatbot",
+ "headless-lms-cli-tools",
  "headless-lms-credit-registration",
+ "headless-lms-credit-registration-workers",
+ "headless-lms-data-operations",
+ "headless-lms-email-delivery-workers",
+ "headless-lms-external-service-clients",
+ "headless-lms-file-store",
+ "headless-lms-gcs-file-store",
+ "headless-lms-http-api",
+ "headless-lms-integration-sync-commands",
+ "headless-lms-integration-sync-workers",
+ "headless-lms-learning-commands",
+ "headless-lms-learning-workers",
+ "headless-lms-maintenance-commands",
+ "headless-lms-mock-azure-ai",
+ "headless-lms-mock-chatbot-documents",
+ "headless-lms-mock-sisu",
+ "headless-lms-mock-suotar",
  "headless-lms-models",
+ "headless-lms-seed",
+ "headless-lms-use-cases",
  "headless-lms-utils",
  "hmac 0.13.0",
  "isbot",
@@ -3090,6 +3535,73 @@ dependencies = [
  "uuid",
  "walkdir",
  "woothee",
+ "zstd",
+]
+
+[[package]]
+name = "headless-lms-use-cases"
+version = "0.1.0"
+dependencies = [
+ "actix-http",
+ "actix-multipart",
+ "actix-session",
+ "actix-web",
+ "anyhow",
+ "async-trait",
+ "async_zip",
+ "backtrace",
+ "base64 0.23.1",
+ "blake3",
+ "bytes",
+ "chrono",
+ "csv",
+ "derive_more",
+ "dotenvy",
+ "dpop-verifier",
+ "futures",
+ "futures-util",
+ "git2",
+ "governor",
+ "headless-lms-authorization",
+ "headless-lms-base",
+ "headless-lms-cache",
+ "headless-lms-chatbot",
+ "headless-lms-credit-registration",
+ "headless-lms-data-operations",
+ "headless-lms-external-service-clients",
+ "headless-lms-file-store",
+ "headless-lms-gcs-file-store",
+ "headless-lms-models",
+ "headless-lms-utils",
+ "hmac 0.13.0",
+ "itertools 0.15.0",
+ "jsonwebtoken",
+ "k8s-openapi",
+ "kube",
+ "oauth2",
+ "pkcs8 0.11.0",
+ "rand 0.10.2",
+ "reqwest 0.13.4",
+ "rsa",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "sqlx",
+ "subtle",
+ "tar",
+ "tempfile",
+ "thiserror 2.0.20",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+ "tracing-error",
+ "tracing-log",
+ "url",
+ "utoipa",
+ "uuid",
+ "walkdir",
  "zstd",
 ]
 

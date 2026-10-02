@@ -4,7 +4,7 @@ use std::sync::Arc;
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},

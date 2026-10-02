@@ -2,7 +2,7 @@ use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::cache::Cache;
+use headless_lms_cache::cache::Cache;
 use models::oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes};
 use sqlx::PgPool;
 use utoipa::OpenApi;

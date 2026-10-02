@@ -4,7 +4,7 @@
 use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState,
 };
-use headless_lms_models::library::credit_registration::classification::{
+use headless_lms_data_operations::library::credit_registration::classification::{
     Retryability, is_waiting_error, retryability,
 };
 use headless_lms_utils::services::suotar::{SuotarEndpoint, SuotarItemStatus};

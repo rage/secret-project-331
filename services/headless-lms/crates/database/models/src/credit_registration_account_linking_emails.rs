@@ -662,7 +662,7 @@ mod tests {
     use super::*;
     use crate::email_deliveries::insert_email_delivery_to_address;
     use crate::email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template};
-    use crate::library::credit_registration::account_linking::{
+    use headless_lms_data_operations::library::credit_registration::account_linking::{
         DiscoveredPerson, claim_linking_mails,
     };
     use crate::test_helper::*;

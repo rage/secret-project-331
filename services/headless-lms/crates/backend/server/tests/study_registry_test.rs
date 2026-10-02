@@ -8,7 +8,7 @@ use actix_http::{Method, body};
 use actix_web::test;
 use chrono::{TimeZone, Utc};
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     PKeyPolicy,
     course_module_completion_registered_to_study_registries::RegisteredCompletion,
     course_module_completions::{
@@ -157,7 +157,7 @@ async fn insert_data(
     .await
     .unwrap();
     let (course, _, _instance, course_module) =
-        headless_lms_models::library::content_management::create_new_course(
+        headless_lms_data_operations::library::content_management::create_new_course(
             conn,
             app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {

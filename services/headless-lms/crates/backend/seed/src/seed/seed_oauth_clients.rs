@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use headless_lms_models::{
+use headless_lms_data_operations::{
     library::oauth::{Digest, GrantTypeName, pkce},
     oauth_client,
 };
@@ -226,7 +226,7 @@ mod tests {
     use std::{fs, path::Path, str::FromStr};
 
     use base64::{Engine, prelude::BASE64_STANDARD};
-    use headless_lms_models::library::oauth::{Digest, token_digest_sha256};
+    use headless_lms_data_operations::library::oauth::{Digest, token_digest_sha256};
     use secrecy::SecretString;
 
     use super::{
@@ -236,8 +236,8 @@ mod tests {
     /// The dev/CI env manifests whose `OAUTH_TOKEN_HMAC_KEY` the seeded digests must agree with,
     /// relative to this crate's manifest directory.
     const DEV_ENV_MANIFESTS: [&str; 2] = [
-        "../../../kubernetes/dev/headless-lms/env.yml",
-        "../../../kubernetes/test/headless-lms/env.yml",
+        "../../../../../kubernetes/dev/headless-lms/env.yml",
+        "../../../../../kubernetes/test/headless-lms/env.yml",
     ];
 
     /// Reads `OAUTH_TOKEN_HMAC_KEY` out of a `kind: Secret` manifest the way Kubernetes does:

@@ -9,8 +9,8 @@ use headless_lms_models::credit_registration_account_linking_emails::{
 use headless_lms_models::credit_registrations::{
     ResubmissionRefusal, ResubmissionStrictness, TeacherCreditRegistration,
 };
-use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
-use headless_lms_models::library::credit_registration::student_notifications;
+use headless_lms_data_operations::library::credit_registration::StudentFacingCreditRegistrationStatus;
+use headless_lms_data_operations::library::credit_registration::student_notifications;
 use headless_lms_models::verified_student_numbers;
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;

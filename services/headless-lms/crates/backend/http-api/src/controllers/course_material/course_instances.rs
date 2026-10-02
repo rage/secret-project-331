@@ -243,7 +243,7 @@ async fn get_module_completions_for_course_instance(
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, *course_instance_id).await?;
     let mut module_completion_statuses =
-        models::library::progressing::get_user_module_completion_statuses_for_course(
+        headless_lms_data_operations::library::progressing::get_user_module_completion_statuses_for_course(
             &mut conn,
             user.id,
             course_instance.course_id,
@@ -290,7 +290,7 @@ async fn save_course_settings(
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
 
-    let enrollment = models::library::course_instances::enroll(
+    let enrollment = headless_lms_data_operations::library::course_instances::enroll(
         &mut conn,
         user.id,
         *course_instance_id,

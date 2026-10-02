@@ -3,8 +3,8 @@
 use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState,
 };
-use headless_lms_models::library::credit_registration::config_validation::CourseCodeVerdict;
-use headless_lms_models::library::credit_registration::study_registry::{
+use headless_lms_data_operations::library::credit_registration::config_validation::CourseCodeVerdict;
+use headless_lms_data_operations::library::credit_registration::study_registry::{
     ATTAINMENT_TYPE_COURSE_UNIT, CreditRange, DatePeriod, LocalizedName, RegistryAttainment,
     RegistryEnrolment, RegistryErrorKind, RosterEnrolment, RosterPerson,
 };

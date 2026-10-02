@@ -316,7 +316,7 @@ mod tests {
     #[test]
     fn is_infra_path_matches_error_files_but_not_macros() {
         assert!(is_infra_path(
-            "services/headless-lms/crates/shared/base/src/error/backend_error.rs"
+            "services/headless-lms/crates/foundation/base/src/error/backend_error.rs"
         ));
         assert!(is_infra_path("chatbot/src/chatbot_error.rs"));
         assert!(is_infra_path("server/src/domain/error.rs"));

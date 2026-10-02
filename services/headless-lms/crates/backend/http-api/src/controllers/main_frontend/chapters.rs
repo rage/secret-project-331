@@ -74,7 +74,7 @@ async fn post_new_chapter(
     )
     .await?;
     let new_chapter = payload.0;
-    let (database_chapter, ..) = models::library::content_management::create_new_chapter(
+    let (database_chapter, ..) = headless_lms_data_operations::library::content_management::create_new_chapter(
         &mut conn,
         PKeyPolicy::Generate,
         &new_chapter,

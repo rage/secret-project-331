@@ -30,8 +30,8 @@ use headless_lms_models::credit_registrations::{
     CourseModuleStateCount, CreditRegistrationErrorCode, CreditRegistrationState,
     ResubmissionRefusal, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
 };
-use headless_lms_models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
-use headless_lms_models::library::credit_registration::{
+use headless_lms_data_operations::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
+use headless_lms_data_operations::library::credit_registration::{
     PendingPreconditions, StudentFacingCreditRegistrationStatus,
 };
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;

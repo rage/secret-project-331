@@ -9,8 +9,8 @@ To make this process more convenient, two macros are provided:
 ## example!
 Accepts a struct or enum literal, such as
 ```no_run
-# use headless_lms_server::doc;
-# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use headless_lms_cli_tools::doc;
+# use headless_lms_cli_tools::programs::doc_file_generator::example::Example;
 # use doc_macro::example;
 # struct SomeStruct { first_field: u32, second_field: u32 }
 example!(SomeStruct {
@@ -20,7 +20,7 @@ example!(SomeStruct {
 ```
 and implements the Example trait for the given type:
 ```
-# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use headless_lms_cli_tools::programs::doc_file_generator::example::Example;
 # struct SomeStruct { first_field: u32, second_field: u32 }
 impl Example for SomeStruct {
     fn example() -> Self {
@@ -45,8 +45,8 @@ This macro can be used in two primary ways:
 With a struct/enum literal, the doc! macro generates an Example implementation for the type using the example! macro
 and then uses it to write the JSON docs.
 ```no_run
-# use headless_lms_server::doc;
-# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use headless_lms_cli_tools::doc;
+# use headless_lms_cli_tools::programs::doc_file_generator::example::Example;
 # #[derive(serde::Serialize)]
 # struct SomeStruct { first_field: u32, second_field: u32 }
 doc!(SomeStruct {
@@ -63,8 +63,8 @@ Note that they must be in the order T, Option, Vec, though you can leave any (or
 
 For example,
 ```no_run
-# use headless_lms_server::doc;
-# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use headless_lms_cli_tools::doc;
+# use headless_lms_cli_tools::programs::doc_file_generator::example::Example;
 # #[derive(serde::Serialize)]
 # struct SomeStruct { first_field: u32, second_field: u32 }
 doc!(
@@ -80,8 +80,8 @@ will create docs for `SomeStruct` and `Vec<SomeStruct>`.
 
 With a type and expression, the doc! macro simply uses the expression to write the JSON docs for the given type without involving the Example trait or example! macro.
 ```no_run
-# use headless_lms_server::doc;
-# use headless_lms_server::programs::doc_file_generator::example::Example;
+# use headless_lms_cli_tools::doc;
+# use headless_lms_cli_tools::programs::doc_file_generator::example::Example;
 # #[derive(serde::Serialize)]
 # struct SomeStruct { first_field: u32, second_field: u32 }
 doc!(
@@ -111,7 +111,7 @@ pub mod example;
 
 use chrono::{TimeZone, Utc};
 use example::Example;
-use headless_lms_models::{
+use headless_lms_data_operations::{
     course_background_question_answers::CourseBackgroundQuestionAnswer,
     course_background_questions::{
         CourseBackgroundQuestion, CourseBackgroundQuestionType, CourseBackgroundQuestionsAndAnswers,
@@ -167,7 +167,7 @@ macro_rules! doc_path {
 
         let mut s = String::new();
         s.push_str(env!("CARGO_MANIFEST_DIR"));
-        s.push_str("/generated-docs/");
+        s.push_str("/../http-api/generated-docs/");
         s.push_str(windows_safe_filename.as_str());
         s.push_str($extension);
         s
@@ -249,7 +249,7 @@ macro_rules! doc {
 
 pub async fn main() -> anyhow::Result<()> {
     // clear previous results
-    fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/generated-docs/"))
+    fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../http-api/generated-docs/"))
         .map_err(|e| anyhow::anyhow!("Failed to read generated-docs directory: {}", e))?
         .filter_map(|file| {
             file.ok().filter(|f| {

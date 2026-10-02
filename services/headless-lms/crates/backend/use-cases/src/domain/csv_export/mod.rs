@@ -269,10 +269,10 @@ pub async fn general_export(
 
 #[cfg(test)]
 mod test {
-    use crate::service_clients::exercise_service_requests::{self, JwtKey};
+    use headless_lms_external_service_clients::service_clients::exercise_service_requests::{self, JwtKey};
     use std::{collections::HashMap, io::Cursor};
 
-    use headless_lms_models::{
+    use headless_lms_data_operations::{
         course_instance_enrollments, exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
@@ -438,7 +438,7 @@ mod test {
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
         let jwt_key = Arc::new(JwtKey::test_key());
         let app_conf = crate::test_helper::init_app_conf().expect("app conf");
-        headless_lms_models::library::grading::grade_user_submission(
+        headless_lms_data_operations::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
             &StudentExerciseSlideSubmission {

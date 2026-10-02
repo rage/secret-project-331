@@ -1,8 +1,6 @@
 //! Allows storing files to a file storage backend.
 pub mod file_utils;
-pub mod google_cloud_file_store;
 pub mod local_file_store;
-pub mod runtime;
 
 use std::{
     os::unix::prelude::OsStrExt,
@@ -69,10 +67,10 @@ pub trait FileStore: Send + Sync {
         app_conf: &ApplicationConfiguration,
     ) -> UtilResult<String> {
         let jwt_key = JwtKey::new(&app_conf.jwt_password).map_err(|err| {
-            util_err!(
-                Other,
+            UtilError::new(
+                UtilErrorType::Other,
                 "Failed to build the JWT signing key.".to_string(),
-                err
+                Some(err.into()),
             )
         })?;
         claimed_file_url(
@@ -81,10 +79,10 @@ pub trait FileStore: Send + Sync {
             DownloadClaim::expiring_in_1_hour(file_upload_id),
         )
         .map_err(|err| {
-            util_err!(
-                Other,
+            UtilError::new(
+                UtilErrorType::Other,
                 "Failed to sign a file download claim.".to_string(),
-                err
+                Some(err.into()),
             )
         })
     }
@@ -122,7 +120,7 @@ pub trait FileStore: Send + Sync {
     }
 }
 
-fn generate_cache_folder_dir() -> UtilResult<PathBuf> {
+pub fn generate_cache_folder_dir() -> UtilResult<PathBuf> {
     let cache_files_path =
         std::env::var("HEADLESS_LMS_CACHE_FILES_PATH").map_err(|original_error| {
             UtilError::new(
@@ -139,7 +137,7 @@ fn generate_cache_folder_dir() -> UtilResult<PathBuf> {
     Ok(path)
 }
 
-fn path_to_str(path: &Path) -> UtilResult<&str> {
+pub fn path_to_str(path: &Path) -> UtilResult<&str> {
     let str = path.to_str();
     match str {
         Some(s) => Ok(s),

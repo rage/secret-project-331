@@ -2,11 +2,11 @@
 //! enrolment.
 
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
-use headless_lms_models::library::credit_registration::enrolment_selection::EnrolmentCriteria;
-use headless_lms_models::library::credit_registration::outcomes::{
+use headless_lms_data_operations::library::credit_registration::enrolment_selection::EnrolmentCriteria;
+use headless_lms_data_operations::library::credit_registration::outcomes::{
     UnaskedMove, module_not_configured, no_verified_student_number,
 };
-use headless_lms_models::library::credit_registration::submission_context::SubmissionContext;
+use headless_lms_data_operations::library::credit_registration::submission_context::SubmissionContext;
 
 use crate::registry::{CourseCode, EnrolmentLookup, StudentNumber};
 

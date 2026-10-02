@@ -370,7 +370,7 @@ async fn post_reprocess_module_completions(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    models::library::progressing::process_all_course_completions(&mut conn, *course_id).await?;
+    headless_lms_data_operations::library::progressing::process_all_course_completions(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(true))
 }
 
@@ -905,11 +905,11 @@ pub async fn create_course_copy(
 
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
-            models::library::copying::copy_course(&mut tx, *course_id, &new_course, false, user.id)
+            headless_lms_data_operations::library::copying::copy_course(&mut tx, *course_id, &new_course, false, user.id)
                 .await?
         }
         CopyCourseMode::SameLanguageGroup => {
-            models::library::copying::copy_course(&mut tx, *course_id, &new_course, true, user.id)
+            headless_lms_data_operations::library::copying::copy_course(&mut tx, *course_id, &new_course, true, user.id)
                 .await?
         }
         CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
@@ -922,7 +922,7 @@ pub async fn create_course_copy(
                 Res::Course(*target_course_id),
             )
             .await?;
-            models::library::copying::copy_course_with_language_group(
+            headless_lms_data_operations::library::copying::copy_course_with_language_group(
                 &mut tx,
                 *course_id,
                 target_course.course_language_group_id,
@@ -938,7 +938,7 @@ pub async fn create_course_copy(
                 new_course.slug.as_str(),
             )
             .await?;
-            models::library::copying::copy_course_with_language_group(
+            headless_lms_data_operations::library::copying::copy_course_with_language_group(
                 &mut tx,
                 *course_id,
                 new_clg_id,
@@ -1677,7 +1677,7 @@ async fn post_update_peer_review_queue_reviews_received(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    models::library::peer_or_self_reviewing::update_peer_review_queue_reviews_received(
+    headless_lms_data_operations::library::peer_or_self_reviewing::update_peer_review_queue_reviews_received(
         &mut conn, *course_id,
     )
     .await?;

@@ -442,7 +442,7 @@ WHERE exercise_id = $1
     Ok(res)
 }
 
-pub(crate) async fn remove_from_queue(
+pub async fn remove_from_queue(
     conn: &mut PgConnection,
     peer_review_queue_entry: &PeerReviewQueueEntry,
 ) -> ModelResult<PeerReviewQueueEntry> {

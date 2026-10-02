@@ -3,9 +3,9 @@ Handlers for HTTP requests to `/api/v0/files`.
 
 */
 use super::helpers::file_uploading;
+pub use crate::controllers::exercise_services::claims::UploadClaim;
 pub use crate::domain::authorization::AuthorizationToken;
 use crate::prelude::*;
-pub use crate::service_clients::exercise_service_requests::UploadClaim;
 use crate::service_clients::exercise_service_requests::{DownloadClaim, JwtKey};
 use actix_files::NamedFile;
 use std::path::{Component, Path};

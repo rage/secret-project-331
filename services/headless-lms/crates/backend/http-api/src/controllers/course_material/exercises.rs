@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
+use crate::controllers::exercise_services::claims::ClaimValidation;
 use crate::service_clients::exercise_service_requests::{self, GivePeerReviewClaim, JwtKey};
 use crate::{
     domain::{authorization::skip_authorize, exercises::process_submission},

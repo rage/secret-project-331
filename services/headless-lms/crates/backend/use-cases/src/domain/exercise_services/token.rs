@@ -6,8 +6,10 @@ use actix_web::{FromRequest, http::header};
 use chrono::{DateTime, Utc};
 use futures_util::{FutureExt, future::LocalBoxFuture};
 use headless_lms_cache::cache::Cache;
+use headless_lms_data_operations::library::oauth::{
+    Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256,
+};
 use models::{
-    library::oauth::{Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256},
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_client::OAuthClient,
     users::User,
@@ -294,11 +296,7 @@ pub async fn load_user(
 ///
 /// Entries written before this keying scheme shipped are unreachable and only age out
 /// within `MAX_CACHE_TTL`.
-pub(crate) async fn invalidate_cached_user(
-    cache: &Cache,
-    digest: &Digest,
-    token_hmac_key: &SecretString,
-) {
+pub async fn invalidate_cached_user(cache: &Cache, digest: &Digest, token_hmac_key: &SecretString) {
     cache
         .invalidate(digest_to_cache_key(digest, token_hmac_key))
         .await;
@@ -307,7 +305,7 @@ pub(crate) async fn invalidate_cached_user(
 /// Evicts every mapping a batch revocation invalidated — a refresh family, a withdrawn consent, a
 /// deleted user. Same contract as `invalidate_cached_user`, for the callers that revoke more than
 /// one token at a time.
-pub(crate) async fn invalidate_cached_users(
+pub async fn invalidate_cached_users(
     cache: &Cache,
     digests: &[Digest],
     token_hmac_key: &SecretString,

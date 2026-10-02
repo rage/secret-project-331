@@ -4,10 +4,10 @@
 //! written for an integrator and is not translated, so the frontend renders one key per alert id
 //! with these values interpolated. The thresholds travel with the alerts, not hardcoded twice.
 
+use headless_lms_data_operations::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
 use headless_lms_models::credit_registrations::{
     CreditRegistrationState, StuckRegistrationCount, StuckThresholds,
 };
-use headless_lms_data_operations::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
 use headless_lms_models::{ModelResult, prelude::*};
 use headless_lms_models::{
     course_module_suotar_configurations, credit_registration_account_linking_emails,
@@ -58,9 +58,9 @@ const _: () = assert!(
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW: TimeDelta = TimeDelta::days(7);
 /// A phase is late once this many of its own intervals have passed without a heartbeat.
-pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
+pub const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 /// Failures in a row before a phase counts as broken rather than unlucky.
-pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
+pub const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
 /// A phase that owns a nonempty queue and has not succeeded within this many of its own intervals
 /// is running without getting anywhere, which no failure count catches. Never less than its
 /// slowest possible iteration plus [`PHASE_SUCCESS_CALL_MARGIN`], or one slow call would look
@@ -156,7 +156,7 @@ pub fn stuck_thresholds() -> StuckThresholds {
 /// A phase counts as late once more than [`PHASE_HEARTBEAT_INTERVAL_MULTIPLIER`] of its own
 /// interval has passed since its last heartbeat. A paused phase is never late: it is not expected
 /// to be heartbeating at all.
-pub(crate) fn is_heartbeat_late(
+pub fn is_heartbeat_late(
     last_heartbeat_at: Option<DateTime<Utc>>,
     expected_interval_secs: i32,
     paused_at: Option<DateTime<Utc>>,
@@ -175,7 +175,7 @@ pub(crate) fn is_heartbeat_late(
 ///
 /// `depth_of` is the live count of a state; `due_enrolment_checks` as for
 /// [`CreditRegistrationPhase::queue_depth`].
-pub(crate) fn is_phase_failing(
+pub fn is_phase_failing(
     phase: &CreditRegistrationPhaseState,
     now: DateTime<Utc>,
     depth_of: impl Fn(CreditRegistrationState) -> i64,

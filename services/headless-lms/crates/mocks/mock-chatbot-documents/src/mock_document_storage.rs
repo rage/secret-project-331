@@ -5,17 +5,17 @@ use crate::prelude::*;
 const DOCUMENT_3_CHUNK: &str = r#"More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long."#;
 
 /// One document the mock storage serves.
-pub(crate) struct MockDocument {
+pub struct MockDocument {
     /// The last path segment of the url the chatbot fetches the document from.
-    pub(crate) id: &'static str,
-    pub(crate) chunk_id: &'static str,
-    pub(crate) title: &'static str,
-    pub(crate) chunk: &'static str,
+    pub id: &'static str,
+    pub chunk_id: &'static str,
+    pub title: &'static str,
+    pub chunk: &'static str,
 }
 
 /// The whole course material the mock chatbot cites. The mock Azure API builds its search results
 /// from these, so every document it points the chatbot at is one this endpoint serves.
-pub(crate) static MOCK_DOCUMENTS: [MockDocument; 3] = [
+pub static MOCK_DOCUMENTS: [MockDocument; 3] = [
     MockDocument {
         id: "document1",
         chunk_id: "1",

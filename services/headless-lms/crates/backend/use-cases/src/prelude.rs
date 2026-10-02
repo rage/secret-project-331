@@ -1,4 +1,9 @@
 #![allow(unused_imports)]
+pub use crate::domain::authorization::{
+    Action as Act, AuthorizedOk, Resource as Res, authorize, authorize_access_to_course_material,
+    skip_authorize,
+};
+pub(crate) use crate::domain::error::controller_err;
 pub use crate::domain::{
     self,
     error::{ControllerError, ControllerErrorType, ControllerResult},

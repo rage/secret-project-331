@@ -24,18 +24,18 @@
 'credit_registration_state' = "crate::credit_registrations::CreditRegistrationState"
 'device_code_status' = "crate::oauth_device_codes::DeviceCodeStatus"
 'email_template_type' = "crate::email_templates::EmailTemplateType"
-'enrolment_check_group' = "crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup"
-'enrolment_check_source' = "crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource"
+'enrolment_check_group' = "crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckGroup"
+'enrolment_check_source' = "crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckSource"
 'email_verification_method' = "crate::user_details::EmailVerificationMethod"
 'error_source' = "crate::errors::ErrorSource"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
-'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"
+'grant_type' = "crate::oauth_grant_type::GrantTypeName"
 'grading_progress' = "crate::exercises::GradingProgress"
 'history_change_reason' = "crate::page_history::HistoryChangeReason"
 'message_role' = "crate::chatbot_conversation_messages::MessageRole"
 'peer_review_processing_strategy' = "crate::peer_or_self_review_configs::PeerReviewProcessingStrategy"
 'peer_review_question_type' = "crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType"
-'pkce_method' = "crate::library::oauth::pkce::PkceMethod"
+'pkce_method' = "crate::oauth_pkce::PkceMethod"
 'proposal_status' = "crate::proposed_block_edits::ProposalStatus"
 'reasoning_effort_level' = "crate::chatbot_configurations::ReasoningEffortLevel"
 'report_reason' = "crate::flagged_answers::ReportReason"
@@ -94,22 +94,22 @@
 'code' = "crate::secret::OutboundSecret"
 
 [macros.table-overrides.'oauth_clients']
-'client_secret' = "crate::library::oauth::Digest"
-'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"
-'pkce_methods_allowed' = "Vec<crate::library::oauth::pkce::PkceMethod>"
+'client_secret' = "crate::oauth_digest::Digest"
+'allowed_grant_types' = "Vec<crate::oauth_grant_type::GrantTypeName>"
+'pkce_methods_allowed' = "Vec<crate::oauth_pkce::PkceMethod>"
 
 [macros.table-overrides.'oauth_auth_codes']
-'digest' = "crate::library::oauth::Digest"
+'digest' = "crate::oauth_digest::Digest"
 
 [macros.table-overrides.'oauth_device_codes']
-'device_code_digest' = "crate::library::oauth::Digest"
+'device_code_digest' = "crate::oauth_digest::Digest"
 
 [macros.table-overrides.'oauth_access_tokens']
-'digest' = "crate::library::oauth::Digest"
+'digest' = "crate::oauth_digest::Digest"
 
 [macros.table-overrides.'oauth_refresh_tokens']
-'digest' = "crate::library::oauth::Digest"
-'rotated_from' = "crate::library::oauth::Digest"
+'digest' = "crate::oauth_digest::Digest"
+'rotated_from' = "crate::oauth_digest::Digest"
 
 [macros.table-overrides.'oauth_dpop_proofs']
-'jti_hash' = "crate::library::oauth::Digest"
+'jti_hash' = "crate::oauth_digest::Digest"

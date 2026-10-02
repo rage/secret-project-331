@@ -1,20 +1,16 @@
 use std::sync::Arc;
 
-use crate::{
-    domain::exercise_services::answer_uploads,
-    prelude::*,
-    service_clients::exercise_service_requests::{self, JwtKey},
-};
+use crate::{domain::exercise_services::answer_uploads, prelude::*};
 use chrono::{Duration, Utc};
 use futures_util::future::OptionFuture;
-use models::{
-    exercises::Exercise,
-    library::grading::{
-        GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
-        SubmittedAnswer,
-    },
-    user_exercise_states::ExerciseWithUserState,
+use headless_lms_data_operations::library::grading::{
+    GradingPolicy, StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult,
+    SubmittedAnswer,
 };
+use headless_lms_external_service_clients::service_clients::exercise_service_requests::{
+    self, JwtKey,
+};
+use models::{exercises::Exercise, user_exercise_states::ExerciseWithUserState};
 
 /// Records and grades one slide submission, having established that its answers may claim the
 /// uploads they name.
@@ -404,11 +400,11 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
 mod tests {
     use super::*;
     use crate::test_helper::*;
+    use headless_lms_data_operations::library::grading::StudentExerciseTaskSubmission;
     use models::exercise_answer_uploads::AnswerUploadOrigin;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
     use models::exercise_task_submissions::{AnswerFile, AnswerKind};
     use models::exercises::GradingProgress;
-    use headless_lms_data_operations::library::grading::StudentExerciseTaskSubmission;
     use sqlx::Connection;
     use std::sync::{Arc, Mutex};
 
@@ -547,8 +543,10 @@ mod tests {
         fixture: &Fixture,
         answer: StudentExerciseTaskSubmission,
         file_store: &dyn FileStore,
-    ) -> Result<headless_lms_data_operations::library::grading::StudentExerciseSlideSubmissionResult, ControllerError>
-    {
+    ) -> Result<
+        headless_lms_data_operations::library::grading::StudentExerciseSlideSubmissionResult,
+        ControllerError,
+    > {
         let exercise = models::exercises::get_by_id(conn, fixture.exercise)
             .await
             .expect("exercise");

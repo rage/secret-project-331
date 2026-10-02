@@ -1,8 +1,9 @@
 //! Seed-only spec cache around the exercise-service request adapter.
 
-use headless_lms_external_service_clients::service_clients::exercise_service_requests::make_spec_fetcher;
 use futures::FutureExt;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_base::jwt::JwtKey;
+use headless_lms_external_service_clients::service_clients::exercise_service_requests::make_spec_fetcher;
 use headless_lms_models::{ModelError, ModelErrorType, SpecFetcher};
 use std::{
     collections::HashMap,

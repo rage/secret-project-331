@@ -10,6 +10,7 @@ license.workspace = true
 dotenvy = "0.15"
 headless-lms-base = { path = "../../foundation/base" }
 headless-lms-utils = { path = "../../foundation/utils" }
+headless-lms-external-service-clients = { path = "../../infrastructure/external-service-clients" }
 headless-lms-models = { path = "../../database/models" }
 headless-lms-data-operations = { path = "../../database/data-operations" }
 headless-lms-file-store = { path = "../../infrastructure/file-storage/file-store" }
@@ -63,7 +64,7 @@ tracing = "0.1.44"
 tracing-error = "0.2.1"
 tracing-log = "0.2.0"
 url = "2.5.8"
-utoipa = { version = "5.5.0", features = [ "chrono", "uuid" ], optional = true }
+utoipa = { version = "5.5.0", features = [ "chrono", "uuid" ] }
 uuid = { version = "1.26.0", features = [ "serde" ] }
 walkdir = "2.5.0"
 zstd = "0.13.3"

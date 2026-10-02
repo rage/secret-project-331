@@ -3,7 +3,9 @@
 use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use super::teacher_view::search_pattern_of;
-use crate::credit_registration_policy::{CreditRegistrationPendingReason, PendingPreconditions};
+use crate::credit_registration_policy::pending_reason::{
+    CreditRegistrationPendingReason, PendingPreconditions,
+};
 use crate::prelude::*;
 use crate::verified_student_numbers::StudentNumberVerificationMethod;
 

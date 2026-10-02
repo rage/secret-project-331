@@ -3,10 +3,10 @@ use chrono::{DateTime, Utc};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
+use headless_lms_data_operations::library;
 use headless_lms_models::{
     PKeyPolicy,
     chapters::{self, NewChapter},
-    library,
 };
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 

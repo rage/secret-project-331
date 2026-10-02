@@ -209,7 +209,7 @@ fn percent_escape_byte_at(chars: &[char], i: usize) -> Option<u8> {
 /// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
 /// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
 /// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
-pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
+pub fn normalize_url_path_for_storage(url_path: &str) -> String {
     decode_percent_runs(url_path)
         .split('/')
         .map(clean_url_path_segment)

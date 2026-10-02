@@ -1,6 +1,7 @@
 use crate::domain::error::{OAuthErrorCode, OAuthErrorData};
 use crate::prelude::*;
-use models::{library::oauth::token_digest_sha256, oauth_client::OAuthClient};
+use headless_lms_data_operations::library::oauth::token_digest_sha256;
+use models::oauth_client::OAuthClient;
 use secrecy::{ExposeSecret, SecretString};
 
 pub fn oauth_error(

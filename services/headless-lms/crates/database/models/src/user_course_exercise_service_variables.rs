@@ -19,7 +19,7 @@ pub struct UserCourseExerciseServiceVariable {
     pub variable_value: serde_json::Value,
 }
 
-pub(crate) async fn get_all_variables_for_user_and_course_or_exam(
+pub async fn get_all_variables_for_user_and_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     instance_or_exam_id: CourseOrExamId,

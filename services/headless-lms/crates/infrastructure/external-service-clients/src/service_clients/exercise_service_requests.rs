@@ -22,9 +22,9 @@ use std::sync::Arc;
 use url::Url;
 
 // keep in sync with the shared-module constants
-pub(crate) const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str =
+pub const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str =
     "exercise-service-grading-update-claim";
-pub(crate) const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
+pub const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -475,7 +475,6 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use headless_lms_http_api::controllers::exercise_services::claims::*;
     use actix_http::Payload;
     use actix_web::http::StatusCode;
     use actix_web::http::header::{HeaderName, HeaderValue};
@@ -483,6 +482,7 @@ mod tests {
     use actix_web::{FromRequest, ResponseError};
     use base64::Engine;
     use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use headless_lms_http_api::controllers::exercise_services::claims::*;
     use secrecy::SecretString;
     use serde_json::json;
 

@@ -1,6 +1,6 @@
 use models::exercise_task_gradings::ExerciseTaskGradingResult;
 
-use crate::{prelude::*, service_clients::exercise_service_requests::GradingUpdateClaim};
+use crate::{controllers::exercise_services::claims::GradingUpdateClaim, prelude::*};
 
 /**
 POST `/api/v0/exercise-services/grading/grading-update/:submission_id`

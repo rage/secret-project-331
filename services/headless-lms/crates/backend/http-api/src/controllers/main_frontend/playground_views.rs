@@ -1,8 +1,11 @@
 //! Handles playground-views-related functionality, in particular the websocket connections used to update the grading for services like tmc.
 
 use crate::{
+    controllers::exercise_services::claims::PlaygroundGradingCallbackClaim,
     prelude::*,
-    service_clients::exercise_service_requests::{JwtKey, PlaygroundGradingCallbackClaim},
+    service_clients::exercise_service_requests::{
+        JwtKey, PlaygroundGradingCallbackClaim as ServicePlaygroundGradingCallbackClaim,
+    },
 };
 use actix::{
     Actor, ActorContext, Addr, AsyncContext, Handler, Message, SpawnHandle, StreamHandler,
@@ -194,7 +197,7 @@ async fn websocket(
 ) -> Result<HttpResponse, ControllerError> {
     let client_id = Uuid::new_v4();
     let playground_grading_callback_claim =
-        PlaygroundGradingCallbackClaim::expiring_in_1_day(client_id)
+        ServicePlaygroundGradingCallbackClaim::expiring_in_1_day(client_id)
             .sign(jwt_key.as_ref())
             .map_err(|err| {
                 controller_err!(

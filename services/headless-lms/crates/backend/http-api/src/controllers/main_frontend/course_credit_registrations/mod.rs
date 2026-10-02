@@ -18,6 +18,10 @@ mod enrolment_recheck;
 mod export;
 mod retry;
 
+use headless_lms_data_operations::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
+use headless_lms_data_operations::library::credit_registration::{
+    PendingPreconditions, StudentFacingCreditRegistrationStatus,
+};
 use headless_lms_models::course_modules::CourseModuleCreditRegistrationConfig;
 use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
@@ -29,10 +33,6 @@ use headless_lms_models::credit_registration_events::{
 use headless_lms_models::credit_registrations::{
     CourseModuleStateCount, CreditRegistrationErrorCode, CreditRegistrationState,
     ResubmissionRefusal, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
-};
-use headless_lms_data_operations::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
-use headless_lms_data_operations::library::credit_registration::{
-    PendingPreconditions, StudentFacingCreditRegistrationStatus,
 };
 use headless_lms_models::verified_student_numbers::StudentNumberVerificationMethod;
 use headless_lms_models::{
@@ -55,10 +55,10 @@ use headless_lms_credit_registration::account_linking::{
 use headless_lms_utils::services::suotar::SuotarClient;
 
 use crate::domain::credit_registration::enrolment_recheck::can_request_enrolment_recheck;
+use crate::domain::credit_registration::mail_status::linking_email_status_of;
 use crate::domain::credit_registration::mail_status::{
     NotificationEmailStatus, TeacherLinkingEmailStatus,
 };
-use crate::domain::credit_registration::teacher_view::linking_email_status_of;
 
 /// Every handler here that names a student gates on this; see the module doc for why
 /// `ViewAndManageCreditRegistrations` and not a broader course permission.

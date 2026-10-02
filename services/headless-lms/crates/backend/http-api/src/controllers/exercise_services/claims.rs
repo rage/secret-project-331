@@ -3,9 +3,41 @@
 use crate::domain::error::{ControllerError, ControllerErrorType};
 use crate::prelude::*;
 use crate::service_clients::exercise_service_requests::*;
+use crate::service_clients::exercise_service_requests::{
+    GradingUpdateClaim as ServiceGradingUpdateClaim,
+    PlaygroundGradingCallbackClaim as ServicePlaygroundGradingCallbackClaim,
+    UploadClaim as ServiceUploadClaim,
+};
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
 use futures::future::{Ready, ready};
+use std::ops::Deref;
+
+#[derive(Debug)]
+pub struct UploadClaim(ServiceUploadClaim);
+#[derive(Debug)]
+pub struct GradingUpdateClaim(ServiceGradingUpdateClaim);
+#[derive(Debug)]
+pub struct PlaygroundGradingCallbackClaim(ServicePlaygroundGradingCallbackClaim);
+
+impl Deref for UploadClaim {
+    type Target = ServiceUploadClaim;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for GradingUpdateClaim {
+    type Target = ServiceGradingUpdateClaim;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl Deref for PlaygroundGradingCallbackClaim {
+    type Target = ServicePlaygroundGradingCallbackClaim;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 use headless_lms_base::jwt::validate_hs256_claim;
 
 impl FromRequest for UploadClaim {
@@ -122,30 +154,36 @@ impl FromRequest for PlaygroundGradingCallbackClaim {
 
 impl UploadClaim {
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_claim(token, key)
+        validate_claim(token, key).map(Self)
     }
 }
 
 impl GradingUpdateClaim {
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_claim(token, key)
+        validate_claim(token, key).map(Self)
     }
 }
 
 impl PlaygroundGradingCallbackClaim {
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim::<Self>(token, key).map_err(|err| {
-            controller_err!(
-                BadRequest,
-                format!("Invalid playground grading callback claim: {}", err),
-                err
-            )
-        })
+        validate_hs256_claim::<ServicePlaygroundGradingCallbackClaim>(token, key)
+            .map(Self)
+            .map_err(|err| {
+                controller_err!(
+                    BadRequest,
+                    format!("Invalid playground grading callback claim: {}", err),
+                    err
+                )
+            })
     }
 }
 
-impl GivePeerReviewClaim {
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+pub trait ClaimValidation: Sized {
+    fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError>;
+}
+
+impl ClaimValidation for GivePeerReviewClaim {
+    fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
         validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,

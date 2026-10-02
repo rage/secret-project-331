@@ -1,7 +1,7 @@
 //! Handles playground-views-related functionality, in particular the websocket connections used to update the grading for services like tmc.
 
 use crate::{
-    domain::models_requests::{JwtKey, PlaygroundGradingCallbackClaim},
+    domain::exercise_service_requests::{JwtKey, PlaygroundGradingCallbackClaim},
     prelude::*,
 };
 use actix::{

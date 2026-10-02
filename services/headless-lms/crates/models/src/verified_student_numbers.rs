@@ -363,7 +363,7 @@ pub async fn get_admin_page(
     let search_pattern = search
         .map(str::trim)
         .filter(|s| !s.is_empty())
-        .map(|s| crate::library::students_view::escape_like_pattern(&s.to_lowercase()));
+        .map(|s| crate::like_pattern::escape_like_pattern(&s.to_lowercase()));
     let rows = sqlx::query_as!(
         AdminPageRow,
         r#"

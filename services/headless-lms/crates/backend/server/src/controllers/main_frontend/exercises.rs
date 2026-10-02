@@ -16,7 +16,7 @@ use models::{
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{
-    domain::{answer_files_archive, models_requests},
+    domain::{answer_files_archive, exercise_service_requests},
     prelude::*,
 };
 
@@ -143,7 +143,7 @@ async fn fetch_exercise_service_and_info(
         },
         None => public_url.parse()?,
     };
-    let service_info = models_requests::fetch_service_info_fast(service_info_url).await?;
+    let service_info = exercise_service_requests::fetch_service_info_fast(service_info_url).await?;
     Ok((exercise_service, service_info))
 }
 
@@ -180,7 +180,7 @@ fn get_selected_task(
 /// Merges base and service columns ensuring unique keys and mapping; errors on duplicate original service keys or final name collisions.
 fn build_final_columns(
     base_columns: &[CsvColumnDefinition],
-    service_columns: &[models_requests::ExerciseServiceCsvExportColumn],
+    service_columns: &[exercise_service_requests::ExerciseServiceCsvExportColumn],
 ) -> Result<(Vec<CsvColumnDefinition>, HashMap<String, String>), ControllerError> {
     let mut final_columns = base_columns.to_vec();
     let mut used_keys = base_columns
@@ -621,9 +621,11 @@ async fn export_exercise_task_definitions_csv(
     let request_items = vec![ExerciseDefinitionsCsvExportRequestItem {
         private_spec: &selected_task.private_spec,
     }];
-    let response =
-        models_requests::post_exercise_service_csv_export_request(endpoint_url, &request_items)
-            .await?;
+    let response = exercise_service_requests::post_exercise_service_csv_export_request(
+        endpoint_url,
+        &request_items,
+    )
+    .await?;
     if response.results.len() != request_items.len() {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -769,8 +771,9 @@ async fn export_exercise_task_answers_csv(
     ];
 
     let mut writer = csv::Writer::from_writer(Vec::new());
-    let mut expected_service_columns: Option<Vec<models_requests::ExerciseServiceCsvExportColumn>> =
-        None;
+    let mut expected_service_columns: Option<
+        Vec<exercise_service_requests::ExerciseServiceCsvExportColumn>,
+    > = None;
     let mut final_columns: Option<Vec<CsvColumnDefinition>> = None;
     let mut column_index_map = HashMap::new();
     let mut service_key_to_final_key = HashMap::new();
@@ -811,7 +814,7 @@ async fn export_exercise_task_answers_csv(
             base_rows.push(base_row);
         }
 
-        let response = models_requests::post_exercise_service_csv_export_request(
+        let response = exercise_service_requests::post_exercise_service_csv_export_request(
             endpoint_url.clone(),
             &request_items,
         )
@@ -1040,7 +1043,7 @@ async fn get_exercise_answers_requiring_attention(
         *exercise_id,
         *pagination,
         user.id,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
         file_store.as_ref(),
         app_conf.as_ref(),
     )

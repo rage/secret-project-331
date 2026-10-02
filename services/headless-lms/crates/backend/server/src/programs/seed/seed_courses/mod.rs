@@ -25,7 +25,7 @@ pub use seed_switching_course_instances_course::seed_switching_course_instances_
 
 use std::sync::Arc;
 
-use crate::domain::models_requests;
+use crate::domain::exercise_service_requests;
 
 use crate::programs::seed::seed_helpers::{
     ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,
@@ -145,7 +145,7 @@ pub async fn seed_sample_course(
             new_course,
             teacher_user_id,
             &spec_fetcher,
-            models_requests::fetch_service_info,
+            exercise_service_requests::fetch_service_info,
         )
         .await?;
     // Seeded courses are completed in seconds by system tests, which would flag every seeded user
@@ -198,7 +198,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
@@ -221,7 +221,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -249,7 +249,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -277,7 +277,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(
@@ -314,7 +314,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -336,7 +336,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     let module = course_modules::insert(
@@ -365,7 +365,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     let new_chapter = NewChapter {
@@ -387,7 +387,7 @@ pub async fn seed_sample_course(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
 
@@ -2108,7 +2108,7 @@ pub async fn seed_cs_course_material(
             new_course,
             teacher_user_id,
             &spec_fetcher,
-            models_requests::fetch_service_info,
+            exercise_service_requests::fetch_service_info,
         )
         .await?;
     courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
@@ -2404,7 +2404,7 @@ pub async fn seed_cs_course_material(
             is_exam_page: false
         },
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     // FAQ, we should add card/accordion block to visualize here.
@@ -2436,7 +2436,7 @@ pub async fn seed_cs_course_material(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_1.id, Utc::now()).await?;
@@ -2468,7 +2468,7 @@ pub async fn seed_cs_course_material(
             is_exam_page: false
         },
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
 
@@ -2605,7 +2605,7 @@ pub async fn seed_cs_course_material(
         &new_chapter_2,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     chapters::set_opens_at(&mut conn, chapter_2.id, Utc::now()).await?;
@@ -2637,7 +2637,7 @@ pub async fn seed_cs_course_material(
             is_exam_page: false
         },
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     // /chapter-2/user-research
@@ -3015,7 +3015,7 @@ pub async fn seed_peer_review_course_without_submissions(
         new_course,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
@@ -3062,7 +3062,7 @@ pub async fn seed_peer_review_course_without_submissions(
         &new_chapter,
         teacher_user_id,
         &spec_fetcher,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
 

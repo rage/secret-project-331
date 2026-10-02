@@ -30,15 +30,11 @@ use crate::{
     user_exercise_task_states,
 };
 
+pub use crate::submission_types::{
+    StudentExerciseSlideSubmission, StudentExerciseTaskSubmission, SubmittedAnswer,
+};
+
 use super::user_exercise_state_updater;
-
-/// Contains data sent by the student when they make a submission for an exercise slide.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct StudentExerciseSlideSubmission {
-    pub exercise_slide_id: Uuid,
-    pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
@@ -66,99 +62,6 @@ impl StudentExerciseSlideSubmissionResult {
                 result.model_solution_spec = None;
             })
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct StudentExerciseTaskSubmission {
-    pub exercise_task_id: Uuid,
-    /// Absent means `json`, so a client that only ever answers with JSON never sends it.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub answer_kind: Option<AnswerKind>,
-    /// The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the
-    /// files for a `file` one.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data_json: Option<serde_json::Value>,
-    /// The uploads that are the answer, in the order they are to be graded and displayed. Every id
-    /// must be an upload this user made for this exercise.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data_files: Option<Vec<Uuid>>,
-}
-
-impl StudentExerciseTaskSubmission {
-    /// A JSON answer, the shape a submit takes when no files are involved.
-    pub fn json(exercise_task_id: Uuid, data: serde_json::Value) -> Self {
-        Self {
-            exercise_task_id,
-            answer_kind: Some(AnswerKind::Json),
-            data_json: Some(data),
-            data_files: None,
-        }
-    }
-
-    /// A file answer naming host-stored uploads, in the order they are to be graded and displayed.
-    pub fn files(
-        exercise_task_id: Uuid,
-        data_files: Vec<Uuid>,
-        data_json: Option<serde_json::Value>,
-    ) -> Self {
-        Self {
-            exercise_task_id,
-            answer_kind: Some(AnswerKind::File),
-            data_json,
-            data_files: Some(data_files),
-        }
-    }
-
-    /// The uploads this answer names, empty unless it is a file answer.
-    pub fn named_file_ids(&self) -> &[Uuid] {
-        match self.answer_kind {
-            Some(AnswerKind::File) => self.data_files.as_deref().unwrap_or_default(),
-            _ => &[],
-        }
-    }
-
-    /// The internal form of the answer, rejecting the one combination the flat fields allow but the
-    /// answer model does not: a JSON answer that also names files, which would silently drop them.
-    pub fn to_submitted_answer(&self) -> ModelResult<SubmittedAnswer> {
-        match self.answer_kind.unwrap_or(AnswerKind::Json) {
-            AnswerKind::Json => {
-                if self.data_files.as_ref().is_some_and(|ids| !ids.is_empty()) {
-                    return Err(model_err!(
-                        InvalidRequest,
-                        "A json answer cannot name uploaded files. Send answer_kind 'file' to submit files.".to_string()
-                    ));
-                }
-                Ok(SubmittedAnswer::Json {
-                    data: self.data_json.clone().unwrap_or(serde_json::Value::Null),
-                })
-            }
-            AnswerKind::File => Ok(SubmittedAnswer::File {
-                file_upload_ids: self.data_files.clone().unwrap_or_default(),
-                metadata: self.data_json.clone(),
-            }),
-        }
-    }
-}
-
-/// The answer a student submits for one exercise task, as either JSON or a set of host-stored
-/// files.
-///
-/// Internal: [`StudentExerciseTaskSubmission`] is what a client sends, and converting it here is
-/// what validates the combination of its flat fields.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
-pub enum SubmittedAnswer {
-    Json {
-        data: serde_json::Value,
-    },
-    File {
-        /// Ordered; the order is part of the answer (exercise-file-submission grades by position).
-        /// Every id must be an upload this user made for this exercise.
-        file_upload_ids: Vec<Uuid>,
-        /// The plugin's own JSON about the files. `None` for a plugin whose answer is the files.
-        metadata: Option<serde_json::Value>,
-    },
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -451,14 +354,15 @@ pub async fn grade_user_submission(
                         tx.rollback().await?;
                         let mut tx = conn.begin().await?;
 
-                        let _ = crate::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
+                        let _ = insert_rejected_exercise_slide_submission(
                             &mut tx,
                             user_exercise_slide_submission,
                             user_exercise_state.user_id,
                             http_status_code,
                             error_message,
                             response_body,
-                        ).await;
+                        )
+                        .await;
 
                         tx.commit().await?;
 
@@ -810,4 +714,112 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         data: answers,
         total_pages: pagination.total_pages(answer_requiring_attention_count),
     })
+}
+
+pub async fn insert_rejected_exercise_slide_submission(
+    conn: &mut PgConnection,
+    rejected_submission: &StudentExerciseSlideSubmission,
+    user_id: Uuid,
+    http_status_code: Option<i32>,
+    error_message: Option<String>,
+    response_body: Option<String>,
+) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+    let res = sqlx::query!(
+        "
+INSERT INTO rejected_exercise_slide_submissions (
+    user_id,
+    exercise_slide_id,
+    http_status_code,
+    error_message,
+    response_body
+  )
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id
+        ",
+        user_id,
+        rejected_submission.exercise_slide_id,
+        http_status_code,
+        error_message,
+        response_body,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    for task in &rejected_submission.exercise_task_submissions {
+        insert_rejected_exercise_task_submission(&mut tx, task, res.id).await?;
+    }
+
+    tx.commit().await?;
+    Ok(res.id)
+}
+
+/// Used internally only by the `insert_rejected_exercise_slide_submission` function.
+async fn insert_rejected_exercise_task_submission(
+    conn: &mut PgConnection,
+    rejected_submission: &StudentExerciseTaskSubmission,
+    exercise_slide_submission_id: Uuid,
+) -> ModelResult<Uuid> {
+    let answer = rejected_submission.to_submitted_answer()?;
+    let (answer_kind, answer_json, file_upload_ids) = match &answer {
+        SubmittedAnswer::Json { data } => (AnswerKind::Json, Some(data), None),
+        SubmittedAnswer::File {
+            metadata,
+            file_upload_ids,
+        } => (AnswerKind::File, metadata.as_ref(), Some(file_upload_ids)),
+    };
+    let res = sqlx::query!(
+        "
+INSERT INTO rejected_exercise_task_submissions (
+    rejected_exercise_slide_submission_id,
+    data_json,
+    answer_kind
+  )
+VALUES ($1, $2, $3)
+RETURNING id
+        ",
+        exercise_slide_submission_id,
+        answer_json,
+        answer_kind,
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    if let Some(file_upload_ids) = file_upload_ids {
+        insert_rejected_exercise_task_submission_files(conn, res.id, file_upload_ids).await?;
+    }
+    Ok(res.id)
+}
+
+/// Records which files a rejected file answer named.
+///
+/// The files themselves are not spared from the exercise_answer_uploads reaper, so this is what a
+/// later diagnosis has to work from: the ids still resolve to soft-deleted file_uploads rows
+/// carrying each file's name, type and size.
+///
+/// `order_number` must stay encoded exactly as
+/// [`exercise_task_submission_files::insert_many`](crate::exercise_task_submission_files::insert_many)
+/// encodes it, so a rejection can be compared against an accepted answer.
+async fn insert_rejected_exercise_task_submission_files(
+    conn: &mut PgConnection,
+    rejected_exercise_task_submission_id: Uuid,
+    file_upload_ids: &[Uuid],
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO rejected_exercise_task_submission_files (
+    rejected_exercise_task_submission_id,
+    file_upload_id,
+    order_number
+  )
+SELECT $1,
+  file_upload_id,
+  (ordinality - 1)::integer
+FROM UNNEST($2::uuid []) WITH ORDINALITY AS t(file_upload_id, ordinality)
+",
+        rejected_exercise_task_submission_id,
+        file_upload_ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

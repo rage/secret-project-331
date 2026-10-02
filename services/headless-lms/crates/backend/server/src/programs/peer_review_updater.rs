@@ -2,7 +2,6 @@ use crate::setup_tracing;
 use dotenvy::dotenv;
 use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models::error::TryToOptional;
-use headless_lms_models::peer_review_queue_entries;
 use sqlx::{Connection, PgConnection};
 
 async fn process_course_instance(
@@ -47,7 +46,7 @@ async fn process_course_instance(
 
                     for peer_review_queue_entry in should_be_added_to_manual_review {
                         if let Err(err) =
-                            peer_review_queue_entries::remove_from_queue_and_add_to_manual_review(
+                            models::library::peer_or_self_reviewing::remove_from_queue_and_add_to_manual_review(
                                 conn,
                                 &peer_review_queue_entry,
                             )
@@ -77,11 +76,12 @@ async fn process_course_instance(
     if !should_pass.is_empty() {
         info!(course_instance_id = ?course_instance.id, "Found {:?} answers that have been added to the peer review queue before {:?}. The teacher has not reviewed the answers manually after 3 months. Giving them full points.", should_pass.len(), pass_automatically_cutoff);
         for peer_review_queue_entry in should_pass {
-            if let Err(err) = peer_review_queue_entries::remove_from_queue_and_give_full_points(
-                conn,
-                &peer_review_queue_entry,
-            )
-            .await
+            if let Err(err) =
+                models::library::peer_or_self_reviewing::remove_from_queue_and_give_full_points(
+                    conn,
+                    &peer_review_queue_entry,
+                )
+                .await
             {
                 error!(
                     peer_review_queue_entry = ?peer_review_queue_entry,

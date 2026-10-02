@@ -1,10 +1,4 @@
-use crate::{
-    exercises,
-    library::user_exercise_state_updater,
-    prelude::*,
-    teacher_grading_decisions,
-    user_exercise_states::{self, ReviewingStage},
-};
+use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -448,66 +442,7 @@ WHERE exercise_id = $1
     Ok(res)
 }
 
-pub async fn remove_from_queue_and_add_to_manual_review(
-    conn: &mut PgConnection,
-    peer_review_queue_entry: &PeerReviewQueueEntry,
-) -> ModelResult<PeerReviewQueueEntry> {
-    let mut tx = conn.begin().await?;
-    let res = remove_from_queue(&mut tx, peer_review_queue_entry).await?;
-
-    let _ues = user_exercise_states::update_reviewing_stage(
-        &mut tx,
-        peer_review_queue_entry.user_id,
-        CourseOrExamId::Course(peer_review_queue_entry.course_id),
-        peer_review_queue_entry.exercise_id,
-        ReviewingStage::WaitingForManualGrading,
-    )
-    .await?;
-    tx.commit().await?;
-    Ok(res)
-}
-
-pub async fn remove_from_queue_and_give_full_points(
-    conn: &mut PgConnection,
-    peer_review_queue_entry: &PeerReviewQueueEntry,
-) -> ModelResult<PeerReviewQueueEntry> {
-    let mut tx = conn.begin().await?;
-    let res = remove_from_queue(&mut tx, peer_review_queue_entry).await?;
-    let exercise = exercises::get_by_id(&mut tx, peer_review_queue_entry.exercise_id).await?;
-    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
-        &mut tx,
-        peer_review_queue_entry.user_id,
-        peer_review_queue_entry.exercise_id,
-        CourseOrExamId::Course(peer_review_queue_entry.course_id),
-    )
-    .await?;
-    if let Some(user_exercise_state) = user_exercise_state {
-        teacher_grading_decisions::add_teacher_grading_decision(
-            &mut tx,
-            user_exercise_state.id,
-            teacher_grading_decisions::TeacherDecisionType::FullPoints,
-            exercise.score_maximum as f32,
-            // Giver is none because the system made the decision
-            None,
-            None,
-            false,
-        )
-        .await?;
-        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)
-            .await?;
-    } else {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "User exercise state not found".to_string(),
-            None,
-        ));
-    }
-
-    tx.commit().await?;
-    Ok(res)
-}
-
-async fn remove_from_queue(
+pub(crate) async fn remove_from_queue(
     conn: &mut PgConnection,
     peer_review_queue_entry: &PeerReviewQueueEntry,
 ) -> ModelResult<PeerReviewQueueEntry> {

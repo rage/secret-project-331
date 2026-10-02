@@ -1,7 +1,7 @@
 //! The dashboard's and the health alerts' counts over the whole ledger.
 
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState};
-use crate::library::credit_registration::PendingReasonCounts;
+use crate::credit_registration_policy::pending_reason::PendingReasonCounts;
 use crate::prelude::*;
 use utoipa::ToSchema;
 

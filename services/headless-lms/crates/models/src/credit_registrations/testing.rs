@@ -90,7 +90,7 @@ pub async fn expire_enrolment_recheck_allowance_for_testing(
     id: Uuid,
     clear_restarts: bool,
 ) -> ModelResult<()> {
-    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL;
+    use crate::credit_registration_policy::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL;
     sqlx::query!(
         "
 UPDATE credit_registrations

@@ -5,7 +5,7 @@ use utoipa::OpenApi;
 
 use crate::{
     domain::{
-        models_requests::{self, JwtKey},
+        exercise_service_requests::{self, JwtKey},
         request_id::RequestId,
     },
     prelude::*,
@@ -152,12 +152,12 @@ pub async fn process_edit_proposal(
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::make_spec_fetcher(
+        exercise_service_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
             Arc::clone(&jwt_key),
         ),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
 

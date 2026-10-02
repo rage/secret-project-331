@@ -1,7 +1,7 @@
 //! The other credits of a student's module that a new attempt is weighed against before it is sent.
 
 use super::state::CreditRegistrationState;
-use crate::library::credit_registration::grade_mapping::{GradeSource, MappedGrade, map_grade};
+use crate::credit_registration_policy::grade_mapping::{GradeSource, MappedGrade, map_grade};
 use crate::prelude::*;
 
 /// Another live attempt, of any completion of the same student and module, that the study registry

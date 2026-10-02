@@ -1,13 +1,8 @@
 //! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
 
 use crate::prelude::*;
-use actix_http::Payload;
-use actix_web::{FromRequest, HttpRequest};
 use chrono::{Duration, Utc};
-use futures::{
-    FutureExt,
-    future::{BoxFuture, Ready, ready},
-};
+use futures::{FutureExt, future::BoxFuture};
 use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
@@ -18,24 +13,19 @@ use headless_lms_models::{
     exercise_tasks::ExerciseTask,
 };
 
-use headless_lms_base::error::backend_error::BackendError;
 pub use headless_lms_base::jwt::{DOWNLOAD_CLAIM_PARAM, DownloadClaim, JwtKey};
-use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim, validate_hs256_claim};
+use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim};
 use models::SpecFetcher;
 use std::collections::HashMap;
 use std::fmt::Debug;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use url::Url;
 
-use super::error::{ControllerError, ControllerErrorType};
-
 // keep in sync with the shared-module constants
-const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
-const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
+pub(crate) const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str =
+    "exercise-service-grading-update-claim";
+pub(crate) const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
-
-/// A type for caching the spec fetching (only for the seed)
-type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UploadClaim {
@@ -61,50 +51,6 @@ impl UploadClaim {
 
     pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
         sign_hs256_claim(&self, key)
-    }
-
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_claim(token, key)
-    }
-}
-
-impl FromRequest for UploadClaim {
-    type Error = ControllerError;
-    type Future = Ready<Result<Self, Self::Error>>;
-
-    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let try_from_request = move || {
-            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Missing JwtKey in app data - server configuration error".to_string(),
-                    None,
-                )
-            })?;
-            let header = req
-                .headers()
-                .get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-                .ok_or_else(|| {
-                    ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        format!("Missing header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER}",),
-                        None,
-                    )
-                })?;
-            let header = std::str::from_utf8(header.as_bytes()).map_err(|err| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    format!(
-                        "Invalid header {EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER} = {}",
-                        String::from_utf8_lossy(header.as_bytes())
-                    ),
-                    Some(err.into()),
-                )
-            })?;
-            let claim = UploadClaim::validate(header, jwt_key)?;
-            Result::<_, Self::Error>::Ok(claim)
-        };
-        ready(try_from_request())
     }
 }
 
@@ -133,50 +79,6 @@ impl GradingUpdateClaim {
     pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
         sign_hs256_claim(&self, key)
     }
-
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_claim(token, key)
-    }
-}
-
-impl FromRequest for GradingUpdateClaim {
-    type Error = ControllerError;
-    type Future = Ready<Result<Self, Self::Error>>;
-
-    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let try_from_request = move || {
-            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Missing JwtKey in app data - server configuration error".to_string(),
-                    None,
-                )
-            })?;
-            let header = req
-                .headers()
-                .get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
-                .ok_or_else(|| {
-                    ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        format!("Missing header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER}",),
-                        None,
-                    )
-                })?;
-            let header = std::str::from_utf8(header.as_bytes()).map_err(|err| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    format!(
-                        "Invalid header {EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER} = {}",
-                        String::from_utf8_lossy(header.as_bytes())
-                    ),
-                    Some(err.into()),
-                )
-            })?;
-            let claim = GradingUpdateClaim::validate(header, jwt_key)?;
-            Result::<_, Self::Error>::Ok(claim)
-        };
-        ready(try_from_request())
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -203,48 +105,6 @@ impl PlaygroundGradingCallbackClaim {
 
     pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
         sign_hs256_claim(&self, key)
-    }
-
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim::<Self>(token, key).map_err(|err| {
-            controller_err!(
-                BadRequest,
-                format!("Invalid playground grading callback claim: {}", err),
-                err
-            )
-        })
-    }
-}
-
-impl FromRequest for PlaygroundGradingCallbackClaim {
-    type Error = ControllerError;
-    type Future = Ready<Result<Self, Self::Error>>;
-
-    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        let try_from_request = move || {
-            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
-                controller_err!(
-                    InternalServerError,
-                    "Missing JwtKey in app data - server configuration error".to_string()
-                )
-            })?;
-            let query_claim = url::form_urlencoded::parse(req.query_string().as_bytes())
-                .find(|(key, _)| key == PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
-                .map(|(_, value)| value.into_owned());
-            let header_claim = req
-                .headers()
-                .get(PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
-                .and_then(|header| std::str::from_utf8(header.as_bytes()).ok())
-                .map(ToString::to_string);
-            let claim = header_claim.or(query_claim).ok_or_else(|| {
-                controller_err!(
-                    BadRequest,
-                    format!("Missing {PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM}")
-                )
-            })?;
-            PlaygroundGradingCallbackClaim::validate(&claim, jwt_key)
-        };
-        ready(try_from_request())
     }
 }
 
@@ -583,90 +443,12 @@ impl GivePeerReviewClaim {
     pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
         sign_hs256_claim(&self, key)
     }
-
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        validate_hs256_claim(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid claim: {}", err),
-                Some(err.into()),
-            )
-        })
-    }
 }
 
 /// Decodes a claim, reporting a bad token as a request error rather than a JWT one.
 ///
 /// [`validate_hs256_claim`] is the raw form that leaves the `jsonwebtoken` error unmapped, for the
 /// claims that report it differently.
-fn validate_claim<T: serde::de::DeserializeOwned>(
-    token: &str,
-    key: &JwtKey,
-) -> Result<T, ControllerError> {
-    validate_hs256_claim(token, key)
-        .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
-}
-
-/// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
-/// (url, exercise_service_slug, private_spec) is requested. Since this is only used during seeding,
-/// there is no cache eviction.
-pub fn make_seed_spec_fetcher_with_cache(
-    base_url: String,
-    request_id: Uuid,
-    jwt_key: Arc<JwtKey>,
-) -> impl SpecFetcher {
-    // Cache key: (url, exercise_service_slug, private_spec serialized)
-    let cache: Arc<Mutex<SpecCache>> = Arc::new(Mutex::new(HashMap::new()));
-
-    // Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
-    let base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
-
-    move |url, exercise_service_slug, private_spec| {
-        let url_str = url.to_string();
-        let service_slug = exercise_service_slug.to_string();
-        // Convert private_spec to string for cache key if present
-        let private_spec_str =
-            private_spec.map(|spec| serde_json::to_string(&spec).unwrap_or_default());
-        let key = (url_str.clone(), service_slug.clone(), private_spec_str);
-        let cache = Arc::clone(&cache);
-        let base_fetcher = Arc::clone(&base_fetcher);
-
-        async move {
-            // Try to get from cache first
-            let cached_spec = {
-                let cache_guard = cache.lock().map_err(|err| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        format!("Seed spec fetcher cache lock poisoned: {err}"),
-                        None::<anyhow::Error>,
-                    )
-                })?;
-                cache_guard.get(&key).cloned()
-            };
-            if let Some(cached_spec) = cached_spec {
-                return Ok(cached_spec.clone());
-            }
-
-            // Not in cache - fetch using base fetcher
-            let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
-
-            // Store in cache
-            {
-                let mut cache_guard = cache.lock().map_err(|err| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        format!("Seed spec fetcher cache lock poisoned: {err}"),
-                        None::<anyhow::Error>,
-                    )
-                })?;
-                cache_guard.insert(key, fetched_spec.clone());
-            }
-
-            Ok(fetched_spec)
-        }
-        .boxed()
-    }
-}
 
 /// Safely parses a response body as JSON, capturing the actual response body in error cases
 async fn parse_response_json<T>(response: reqwest::Response) -> ModelResult<T>
@@ -693,10 +475,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::ResponseError;
+    use crate::controllers::exercise_services::claims::*;
+    use actix_http::Payload;
     use actix_web::http::StatusCode;
     use actix_web::http::header::{HeaderName, HeaderValue};
     use actix_web::test::TestRequest;
+    use actix_web::{FromRequest, ResponseError};
     use base64::Engine;
     use base64::engine::general_purpose::URL_SAFE_NO_PAD;
     use secrecy::SecretString;

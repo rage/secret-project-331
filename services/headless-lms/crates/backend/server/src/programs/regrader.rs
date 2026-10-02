@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
-use crate::domain::models_requests;
+use crate::domain::exercise_service_requests;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
 use headless_lms_base::program_config::ProgramConfig;
@@ -44,14 +44,14 @@ pub async fn main() -> anyhow::Result<()> {
             let exercise_services_by_type =
                 models::exercise_service_info::get_upsert_all_exercise_services_by_type(
                     &mut conn,
-                    models_requests::fetch_service_info,
+                    exercise_service_requests::fetch_service_info,
                 )
                 .await?;
             // do not stop the thread on error, report it and try again next tick
             if let Err(err) = regrading::regrade(
                 &mut conn,
                 &exercise_services_by_type,
-                models_requests::make_grading_request_sender(
+                exercise_service_requests::make_grading_request_sender(
                     Arc::clone(&jwt_key),
                     app_conf.base_url.clone(),
                 ),

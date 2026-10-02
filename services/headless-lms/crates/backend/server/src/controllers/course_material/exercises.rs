@@ -3,8 +3,8 @@
 use crate::{
     domain::{
         authorization::skip_authorize,
+        exercise_service_requests::{self, GivePeerReviewClaim, JwtKey},
         exercises::process_submission,
-        models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
     prelude::*,
 };
@@ -77,7 +77,7 @@ async fn get_exercise(
         &mut conn,
         user_id,
         *exercise_id,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
         file_store.as_ref(),
         app_conf.as_ref(),
     )
@@ -177,11 +177,11 @@ async fn get_peer_review_for_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
     let course_material_peer_or_self_review_data =
-        models::peer_or_self_review_configs::get_course_material_peer_or_self_review_data(
+        models::library::peer_or_self_reviewing::select_course_material_peer_or_self_review_data(
             &mut conn,
             user.id,
             *exercise_id,
-            models_requests::fetch_service_info,
+            exercise_service_requests::fetch_service_info,
             file_store.as_ref(),
             app_conf.as_ref(),
         )

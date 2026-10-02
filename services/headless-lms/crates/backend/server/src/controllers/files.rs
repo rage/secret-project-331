@@ -3,8 +3,10 @@ Handlers for HTTP requests to `/api/v0/files`.
 
 */
 use super::helpers::file_uploading;
-use crate::domain::models_requests::{DownloadClaim, JwtKey};
-pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
+use crate::domain::exercise_service_requests::{DownloadClaim, JwtKey};
+pub use crate::domain::{
+    authorization::AuthorizationToken, exercise_service_requests::UploadClaim,
+};
 use crate::prelude::*;
 use actix_files::NamedFile;
 use std::path::{Component, Path};
@@ -491,7 +493,7 @@ mod tests {
 #[cfg(test)]
 mod answer_upload_tests {
     use super::*;
-    use crate::domain::models_requests::JwtKey;
+    use crate::domain::exercise_service_requests::JwtKey;
     use crate::test_helper::*;
     use actix_session::{SessionMiddleware, storage::CookieSessionStore};
     use actix_web::cookie::{Cookie, Key, SameSite};
@@ -837,7 +839,7 @@ mod answer_upload_tests {
 #[cfg(test)]
 mod claimed_file_tests {
     use super::*;
-    use crate::domain::models_requests::DOWNLOAD_CLAIM_PARAM;
+    use crate::domain::exercise_service_requests::DOWNLOAD_CLAIM_PARAM;
     use crate::test_helper::*;
     use actix_web::http::StatusCode;
     use actix_web::{App, test};

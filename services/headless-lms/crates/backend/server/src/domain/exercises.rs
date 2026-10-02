@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
+    domain::exercise_service_requests::{self, JwtKey},
     domain::exercise_services::answer_uploads,
-    domain::models_requests::{self, JwtKey},
     prelude::*,
 };
 use chrono::{Duration, Utc};
@@ -158,8 +158,8 @@ async fn grade_submission(
         &mut exercise_with_user_state,
         submission,
         GradingPolicy::Default,
-        models_requests::fetch_service_info,
-        models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
+        exercise_service_requests::fetch_service_info,
+        exercise_service_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
         file_store,
         app_conf,
     )
@@ -560,7 +560,7 @@ mod tests {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![answer],
             },
-            Arc::new(crate::domain::models_requests::JwtKey::test_key()),
+            Arc::new(crate::domain::exercise_service_requests::JwtKey::test_key()),
             file_store,
             &init_app_conf().expect("app conf"),
         )
@@ -792,7 +792,7 @@ mod tests {
                     file_answer(other_task, vec![file]),
                 ],
             },
-            Arc::new(crate::domain::models_requests::JwtKey::test_key()),
+            Arc::new(crate::domain::exercise_service_requests::JwtKey::test_key()),
             &store,
             &init_app_conf().expect("app conf"),
         )

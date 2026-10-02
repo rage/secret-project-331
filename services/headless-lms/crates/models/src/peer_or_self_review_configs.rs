@@ -1,18 +1,13 @@
-use futures::future::BoxFuture;
-use url::Url;
 use utoipa::ToSchema;
 
 use crate::{
-    exercise_service_info::ExerciseServiceInfoApi,
-    exercises::{self, Exercise},
-    library::{self, peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewData},
+    exercises::Exercise,
     peer_or_self_review_questions::{
         CmsPeerOrSelfReviewQuestion,
         delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids,
         upsert_multiple_peer_or_self_review_questions,
     },
     prelude::*,
-    user_exercise_states::{self, ReviewingStage},
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -248,83 +243,6 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res.id)
-}
-
-pub async fn get_course_material_peer_or_self_review_data(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    exercise_id: Uuid,
-    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
-    let exercise = exercises::get_by_id(conn, exercise_id).await?;
-    let (_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
-        &mut *conn,
-        Some(user_id),
-        &exercise,
-        &fetch_service_info,
-        file_store,
-        app_conf,
-    )
-    .await?;
-
-    let user_exercise_state = match instance_or_exam_id {
-        Some(course_or_exam_id) => {
-            user_exercise_states::get_user_exercise_state_if_exists(
-                conn,
-                user_id,
-                exercise.id,
-                course_or_exam_id,
-            )
-            .await?
-        }
-        _ => None,
-    };
-
-    match user_exercise_state {
-        Some(ref user_exercise_state) => {
-            if matches!(
-                user_exercise_state.reviewing_stage,
-                ReviewingStage::PeerReview | ReviewingStage::WaitingForPeerReviews
-            ) {
-                // Calling library inside a model function. Maybe should be refactored by moving
-                // complicated logic to own library file?
-                let res = library::peer_or_self_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
-                    conn,
-                    &exercise,
-                    user_exercise_state,
-                    &fetch_service_info,
-                    file_store,
-                    app_conf,
-                )
-                .await?;
-                Ok(res)
-            } else if user_exercise_state.reviewing_stage == ReviewingStage::SelfReview {
-                let res = library::peer_or_self_reviewing::select_own_submission_for_self_review(
-                    conn,
-                    &exercise,
-                    user_exercise_state,
-                    &fetch_service_info,
-                    file_store,
-                    app_conf,
-                )
-                .await?;
-                Ok(res)
-            } else {
-                Err(ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    "You cannot peer review yet".to_string(),
-                    None,
-                ))
-            }
-        }
-        None => Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "You haven't answered this exercise".to_string(),
-            None,
-        )),
-    }
 }
 
 pub async fn get_peer_reviews_by_page_id(

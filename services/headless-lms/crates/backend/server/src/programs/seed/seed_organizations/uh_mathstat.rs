@@ -17,7 +17,7 @@ use uuid::Uuid;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    domain::models_requests,
+    domain::exercise_service_requests,
     programs::seed::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
@@ -127,7 +127,7 @@ pub async fn seed_organization_uh_mathstat(
         new_course,
         teacher_user_id,
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     courses::set_cheater_detection_enabled(&mut conn, statistics_course.id, false).await?;
@@ -175,7 +175,7 @@ pub async fn seed_organization_uh_mathstat(
         draft_course,
         teacher_user_id,
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     courses::set_cheater_detection_enabled(&mut conn, draft_course_created.id, false).await?;
@@ -209,7 +209,7 @@ pub async fn seed_organization_uh_mathstat(
         },
         teacher_user_id,
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     courses::set_cheater_detection_enabled(&mut conn, cody_only_course.id, false).await?;

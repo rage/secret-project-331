@@ -3,7 +3,7 @@
 //! enrolment takes its group from these; see
 //! [`crate::library::credit_registration::preconditions`].
 
-use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckSource;
 use crate::prelude::*;
 
 /// Records a visit and returns when the one before it was, if any.

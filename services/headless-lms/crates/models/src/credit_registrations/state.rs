@@ -307,10 +307,10 @@ impl CreditRegistrationState {
     /// one: a phase that forgot to defer would otherwise spin on the row, since every claim orders
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
     pub(super) fn default_attempt_delay(self) -> TimeDelta {
+        use crate::credit_registration_policy::enrolment_check_schedule::REGISTRY_LAG;
         use crate::library::credit_registration::backoff::{
             SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY,
         };
-        use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
             Self::AwaitingVerification | Self::PartiallyRegistered => VERIFY_FIRST_DELAY,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK,

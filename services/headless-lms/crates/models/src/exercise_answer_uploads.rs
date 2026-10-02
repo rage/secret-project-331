@@ -340,7 +340,7 @@ pub async fn backdate(
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::library::grading::SubmittedAnswer;
+    use crate::submission_types::SubmittedAnswer;
     use crate::test_helper::*;
     use chrono::Duration;
 

@@ -4,7 +4,7 @@ use headless_lms_models::{ModelError, exercise_service_info::fetch_and_upsert_se
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{domain::exercise_service_requests, prelude::*};
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
@@ -184,7 +184,7 @@ async fn try_to_get_exercise_service_info(
     let service_info_error = if let Err(err) = fetch_and_upsert_service_info(
         conn,
         &exercise_service,
-        models_requests::fetch_service_info_fast,
+        exercise_service_requests::fetch_service_info_fast,
     )
     .await
     {

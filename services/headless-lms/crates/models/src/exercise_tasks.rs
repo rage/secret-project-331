@@ -8,12 +8,12 @@ use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
+    exercise_custom_views::CustomViewExerciseTaskSpec,
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services,
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
-    library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
     user_exercise_states,
 };

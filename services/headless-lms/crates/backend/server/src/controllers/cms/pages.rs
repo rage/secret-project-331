@@ -11,7 +11,7 @@ use models::{
 
 use crate::{
     domain::{
-        models_requests::{self, JwtKey},
+        exercise_service_requests::{self, JwtKey},
         request_id::RequestId,
     },
     prelude::*,
@@ -156,12 +156,12 @@ async fn update_page(
         },
         expected_course_id,
         expected_exam_id,
-        models_requests::make_spec_fetcher(
+        exercise_service_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
             jwt_key.into_inner(),
         ),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     token.authorized_ok(web::Json(saved))

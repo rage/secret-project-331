@@ -7,12 +7,12 @@ use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, exams,
+    exercise_custom_views::CustomViewExerciseTaskGrading,
     exercise_service_info::{ExerciseServiceInfoApi, get_service_info_by_exercise_type},
     exercise_services::{get_exercise_service_by_exercise_type, get_internal_grade_url},
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, GradingProgress},
-    library::custom_view_exercises::CustomViewExerciseTaskGrading,
     prelude::*,
     user_exercise_states::UserExerciseState,
 };

@@ -17,7 +17,7 @@ use headless_lms_models::{
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
 };
-use headless_lms_server::domain::models_requests::{self, JwtKey};
+use headless_lms_server::domain::exercise_service_requests::{self, JwtKey};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
@@ -184,12 +184,12 @@ async fn insert_data(
                 can_add_chatbot: false,
             },
             user_1,
-            models_requests::make_spec_fetcher(
+            exercise_service_requests::make_spec_fetcher(
                 base_url.clone(),
                 Uuid::new_v4(),
                 Arc::clone(&jwt_key),
             ),
-            models_requests::fetch_service_info,
+            exercise_service_requests::fetch_service_info,
         )
         .await
         .unwrap();

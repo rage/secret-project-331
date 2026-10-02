@@ -1,4 +1,4 @@
-use crate::library::oauth::Digest;
+use crate::oauth_digest::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

@@ -21,7 +21,7 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::{
-    domain::models_requests,
+    domain::exercise_service_requests,
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
@@ -567,7 +567,7 @@ pub async fn seed_organization_uh_cs(
             new_course,
             teacher_user_id,
             get_seed_spec_fetcher(),
-            models_requests::fetch_service_info,
+            exercise_service_requests::fetch_service_info,
         )
         .await?;
     courses::set_cheater_detection_enabled(&mut conn, cs_course.id, false).await?;

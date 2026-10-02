@@ -31,14 +31,14 @@ use std::sync::Arc;
 use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
-use crate::domain::models_requests;
+use crate::domain::exercise_service_requests;
 
 // Static holder for our cached spec fetcher
 static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();
 
 /// Initialize the global spec fetcher for seeding. Must be called once before any seeding operations.
 pub fn init_seed_spec_fetcher(base_url: String, jwt_key: Arc<JwtKey>) -> Result<()> {
-    let fetcher = Box::new(models_requests::make_seed_spec_fetcher_with_cache(
+    let fetcher = Box::new(super::spec_fetcher::make_seed_spec_fetcher_with_cache(
         base_url,
         Uuid::new_v4(),
         jwt_key,
@@ -85,7 +85,7 @@ pub async fn create_page(
         new_page,
         author,
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     pages::update_page(
@@ -108,7 +108,7 @@ pub async fn create_page(
             is_exam_page: false,
         },
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     Ok(page.id)
@@ -690,7 +690,7 @@ pub async fn create_exam(
         },
         teacher,
         get_seed_spec_fetcher(),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     course_exams::upsert(conn, new_exam_id, course_id).await?;

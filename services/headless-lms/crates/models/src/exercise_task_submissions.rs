@@ -7,15 +7,15 @@ use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
+    exercise_custom_views::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services, exercise_slide_submissions, exercise_task_submission_files,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
-    library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
-    library::grading::SubmittedAnswer,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::*,
+    submission_types::SubmittedAnswer,
 };
 
 /// Which of a submission's two answer representations is the answer: the opaque blob in

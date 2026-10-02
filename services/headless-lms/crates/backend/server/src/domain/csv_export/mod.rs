@@ -290,7 +290,7 @@ mod test {
     use crate::{
         domain::{
             csv_export::points::export_course_instance_points,
-            models_requests::{self, JwtKey},
+            exercise_service_requests::{self, JwtKey},
         },
         test_helper::*,
     };
@@ -464,8 +464,11 @@ mod test {
                     set_user_variables: Some(HashMap::new()),
                 },
             )])),
-            models_requests::fetch_service_info,
-            models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
+            exercise_service_requests::fetch_service_info,
+            exercise_service_requests::make_grading_request_sender(
+                jwt_key,
+                app_conf.base_url.clone(),
+            ),
             &crate::test_helper::init_file_store(),
             &app_conf,
         )

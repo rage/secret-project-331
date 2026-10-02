@@ -2,10 +2,10 @@
 
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use crate::credit_registration_events::{CreditRegistrationEventKind, NewCreditRegistrationEvent};
-use crate::library::credit_registration::enrolment_check_schedule::{
+use crate::credit_registration_policy::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
-use crate::library::credit_registration::grade_mapping::MappedGrade;
+use crate::credit_registration_policy::grade_mapping::MappedGrade;
 use crate::prelude::*;
 use chrono::NaiveDate;
 

@@ -11,13 +11,14 @@ use crate::{
     exercise_slide_submissions::{self, ExerciseSlideSubmission},
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::Exercise,
+    exercises::{self, Exercise},
     peer_or_self_review_configs::{self, PeerOrSelfReviewConfig, PeerReviewProcessingStrategy},
     peer_or_self_review_question_submissions,
     peer_or_self_review_questions::{self, PeerOrSelfReviewQuestion},
     peer_or_self_review_submissions,
     peer_review_queue_entries::{self, PeerReviewQueueEntry},
     prelude::*,
+    teacher_grading_decisions,
     user_exercise_states::{self, ReviewingStage, UserExerciseState},
 };
 
@@ -890,5 +891,141 @@ mod tests {
                 number_data: None,
             }
         }
+    }
+}
+
+pub async fn remove_from_queue_and_add_to_manual_review(
+    conn: &mut PgConnection,
+    peer_review_queue_entry: &PeerReviewQueueEntry,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let mut tx = conn.begin().await?;
+    let res =
+        peer_review_queue_entries::remove_from_queue(&mut tx, peer_review_queue_entry).await?;
+
+    let _ues = user_exercise_states::update_reviewing_stage(
+        &mut tx,
+        peer_review_queue_entry.user_id,
+        CourseOrExamId::Course(peer_review_queue_entry.course_id),
+        peer_review_queue_entry.exercise_id,
+        ReviewingStage::WaitingForManualGrading,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(res)
+}
+
+pub async fn remove_from_queue_and_give_full_points(
+    conn: &mut PgConnection,
+    peer_review_queue_entry: &PeerReviewQueueEntry,
+) -> ModelResult<PeerReviewQueueEntry> {
+    let mut tx = conn.begin().await?;
+    let res =
+        peer_review_queue_entries::remove_from_queue(&mut tx, peer_review_queue_entry).await?;
+    let exercise = exercises::get_by_id(&mut tx, peer_review_queue_entry.exercise_id).await?;
+    let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+        &mut tx,
+        peer_review_queue_entry.user_id,
+        peer_review_queue_entry.exercise_id,
+        CourseOrExamId::Course(peer_review_queue_entry.course_id),
+    )
+    .await?;
+    if let Some(user_exercise_state) = user_exercise_state {
+        teacher_grading_decisions::add_teacher_grading_decision(
+            &mut tx,
+            user_exercise_state.id,
+            teacher_grading_decisions::TeacherDecisionType::FullPoints,
+            exercise.score_maximum as f32,
+            // Giver is none because the system made the decision
+            None,
+            None,
+            false,
+        )
+        .await?;
+        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)
+            .await?;
+    } else {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "User exercise state not found".to_string(),
+            None,
+        ));
+    }
+
+    tx.commit().await?;
+    Ok(res)
+}
+
+pub async fn select_course_material_peer_or_self_review_data(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let (_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
+        &mut *conn,
+        Some(user_id),
+        &exercise,
+        &fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
+
+    let user_exercise_state = match instance_or_exam_id {
+        Some(course_or_exam_id) => {
+            user_exercise_states::get_user_exercise_state_if_exists(
+                conn,
+                user_id,
+                exercise.id,
+                course_or_exam_id,
+            )
+            .await?
+        }
+        _ => None,
+    };
+
+    match user_exercise_state {
+        Some(ref user_exercise_state) => {
+            if matches!(
+                user_exercise_state.reviewing_stage,
+                ReviewingStage::PeerReview | ReviewingStage::WaitingForPeerReviews
+            ) {
+                let res = try_to_select_exercise_slide_submission_for_peer_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                    &fetch_service_info,
+                    file_store,
+                    app_conf,
+                )
+                .await?;
+                Ok(res)
+            } else if user_exercise_state.reviewing_stage == ReviewingStage::SelfReview {
+                let res = select_own_submission_for_self_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                    &fetch_service_info,
+                    file_store,
+                    app_conf,
+                )
+                .await?;
+                Ok(res)
+            } else {
+                Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "You cannot peer review yet".to_string(),
+                    None,
+                ))
+            }
+        }
+        None => Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "You haven't answered this exercise".to_string(),
+            None,
+        )),
     }
 }

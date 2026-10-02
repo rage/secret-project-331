@@ -1,4 +1,4 @@
-use crate::{domain::models_requests, prelude::*};
+use crate::{domain::exercise_service_requests, prelude::*};
 use headless_lms_models::exercise_slide_submission_shares::ExerciseSlideSubmissionShare;
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use utoipa::OpenApi;
@@ -54,7 +54,7 @@ async fn get_shared_submission_info(
         &mut conn,
         share.exercise_slide_submission_id,
         submission.user_id,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
         true,
         file_store.as_ref(),
         app_conf.as_ref(),

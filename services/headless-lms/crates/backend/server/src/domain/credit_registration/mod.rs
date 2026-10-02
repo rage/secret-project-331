@@ -4,3 +4,4 @@ pub mod enrolment_recheck;
 pub mod health;
 pub mod linking_mail_resend;
 pub mod mail_status;
+pub mod teacher_view;

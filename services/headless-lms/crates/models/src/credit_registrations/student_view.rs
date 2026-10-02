@@ -2,8 +2,8 @@
 
 use super::registration::is_waiting_for_enrolment;
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState};
-use crate::library::credit_registration::PendingPreconditions;
-use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckSource;
+use crate::credit_registration_policy::pending_reason::PendingPreconditions;
 use crate::prelude::*;
 
 /// One ledger row with the course, module and enrolment facts every student view needs, so a status

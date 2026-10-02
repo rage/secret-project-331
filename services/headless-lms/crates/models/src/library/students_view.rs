@@ -30,14 +30,7 @@ pub struct StudentsListPage {
     pub total_pages: u32,
 }
 
-/// Escapes the `LIKE`/`ILIKE` metacharacters `\`, `%` and `_` so a search string is matched
-/// literally (used together with `ESCAPE '\'` in the query).
-pub fn escape_like_pattern(input: &str) -> String {
-    input
-        .replace('\\', "\\\\")
-        .replace('%', "\\%")
-        .replace('_', "\\_")
-}
+pub use crate::like_pattern::escape_like_pattern;
 
 /// Grade filter values accepted by [`get_course_students_page`], beyond a literal numeric grade
 /// string (the sis-0-5 scale, `"0"`..`"5"`).

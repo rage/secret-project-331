@@ -28,12 +28,9 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registrations::{
     CourseModuleStateCount, CreditRegistrationErrorCode, CreditRegistrationState,
-    ResubmissionRefusal, ResubmissionStrictness, TeacherCreditRegistration,
-    TeacherCreditRegistrationFilters,
+    ResubmissionRefusal, TeacherCreditRegistration, TeacherCreditRegistrationFilters,
 };
-use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
-use headless_lms_models::library::credit_registration::student_notifications;
 use headless_lms_models::library::credit_registration::{
     PendingPreconditions, StudentFacingCreditRegistrationStatus,
 };
@@ -58,7 +55,10 @@ use headless_lms_credit_registration::account_linking::{
 use headless_lms_utils::services::suotar::SuotarClient;
 
 use crate::domain::credit_registration::enrolment_recheck::can_request_enrolment_recheck;
-use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, mask_email};
+use crate::domain::credit_registration::mail_status::{
+    NotificationEmailStatus, TeacherLinkingEmailStatus,
+};
+use crate::domain::credit_registration::teacher_view::linking_email_status_of;
 
 /// Every handler here that names a student gates on this; see the module doc for why
 /// `ViewAndManageCreditRegistrations` and not a broader course permission.
@@ -107,17 +107,6 @@ const MAX_ROWS_PER_REQUEST: i64 = 2_000;
     export::export_course_credit_registrations
 ))]
 pub(crate) struct MainFrontendCourseCreditRegistrationsApiDoc;
-
-/// What we can honestly say about a linking mail: our send status and the address's domain.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct TeacherLinkingEmailStatus {
-    pub email_send_status: EmailSendStatus,
-    pub sent_at: Option<DateTime<Utc>>,
-    pub last_attempt_at: Option<DateTime<Utc>>,
-    pub retry_count: i32,
-    pub next_retry_at: Option<DateTime<Utc>>,
-    pub emailed_to_masked: String,
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseCreditRegistration {
@@ -848,91 +837,6 @@ async fn latest_linking_email_status(
         .map(|report| linking_email_status_of(report, mail)))
 }
 
-fn linking_email_status_of(
-    report: &EmailSendStatusReport,
-    mail: &CreditRegistrationAccountLinkingEmail,
-) -> TeacherLinkingEmailStatus {
-    TeacherLinkingEmailStatus {
-        email_send_status: report.email_send_status,
-        sent_at: report.sent_at,
-        last_attempt_at: report.last_attempt_at,
-        retry_count: report.retry_count,
-        next_retry_at: report.next_retry_at,
-        emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
-    }
-}
-
-/// The newest linking mail's send status for each row waiting for a number, by row id. A fixed number
-/// of queries whatever the page holds, because only the listed people are looked up.
-async fn linking_email_statuses(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    waiting: &[&TeacherCreditRegistration],
-) -> Result<HashMap<Uuid, TeacherLinkingEmailStatus>, ControllerError> {
-    if waiting.is_empty() {
-        return Ok(HashMap::new());
-    }
-    let need_lookup: Vec<Uuid> = waiting
-        .iter()
-        .filter(|row| row.sisu_person_id.is_none())
-        .map(|row| row.user_id)
-        .collect();
-    let latest_links: HashMap<Uuid, String> = if need_lookup.is_empty() {
-        HashMap::new()
-    } else {
-        verified_student_numbers::get_latest_including_deleted_by_user_ids(conn, &need_lookup)
-            .await?
-            .into_iter()
-            .filter_map(|link| {
-                let person_id = link.sisu_person_id?.expose_secret().to_owned();
-                Some((link.user_id, person_id))
-            })
-            .collect()
-    };
-    let per_row: Vec<(Uuid, String)> = waiting
-        .iter()
-        .filter_map(|row| {
-            let person_id = row
-                .sisu_person_id
-                .as_ref()
-                .map(|id| id.expose_secret().to_owned())
-                .or_else(|| latest_links.get(&row.user_id).cloned())?;
-            Some((row.id, person_id))
-        })
-        .collect();
-    if per_row.is_empty() {
-        return Ok(HashMap::new());
-    }
-    let person_ids: Vec<String> = per_row
-        .iter()
-        .map(|(_, person_id)| person_id.clone())
-        .collect();
-    let mails = credit_registration_account_linking_emails::get_latest_by_course_and_persons(
-        conn,
-        course_id,
-        &person_ids,
-    )
-    .await?;
-    let matched: Vec<(Uuid, &CreditRegistrationAccountLinkingEmail)> = per_row
-        .iter()
-        .filter_map(|(row_id, person_id)| Some((*row_id, mails.get(person_id)?)))
-        .collect();
-    if matched.is_empty() {
-        return Ok(HashMap::new());
-    }
-    let mail_ids: Vec<Uuid> = matched.iter().map(|(_, mail)| mail.id).collect();
-    let reports =
-        credit_registration_account_linking_emails::get_send_status_reports(conn, &mail_ids)
-            .await?;
-    Ok(matched
-        .into_iter()
-        .filter_map(|(row_id, mail)| {
-            let report = reports.get(&mail.id)?;
-            Some((row_id, linking_email_status_of(report, mail)))
-        })
-        .collect())
-}
-
 /// Enriches the ledger rows with the linking-mail status. A row only gets one when the account holds —
 /// or once held — a link, because the mail is addressed to a Sisu person.
 ///
@@ -943,35 +847,19 @@ pub(crate) async fn build_teacher_registrations(
     course_id: Uuid,
     rows: Vec<TeacherCreditRegistration>,
 ) -> Result<Vec<CourseCreditRegistration>, ControllerError> {
-    let waiting: Vec<&TeacherCreditRegistration> = rows
-        .iter()
-        .filter(|row| {
-            StudentFacingCreditRegistrationStatus::of(
-                row.state,
-                row.preconditions(),
-                row.enrolment_resolved,
-            ) == StudentFacingCreditRegistrationStatus::NeedsStudentNumber
-        })
-        .collect();
-    let mut statuses = linking_email_statuses(conn, course_id, &waiting).await?;
-    let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
-    let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
-    Ok(rows
+    let enriched =
+        crate::domain::credit_registration::teacher_view::build_teacher_registration_views(
+            conn, course_id, rows,
+        )
+        .await?;
+    Ok(enriched
         .into_iter()
-        .map(|row| {
-            let linking_email = statuses.remove(&row.id);
-            // The teacher's own retry strictness, so the row says exactly what that button would do.
-            let resubmission_refusal = row
-                .resubmission_facts()
-                .resubmission_refusal(ResubmissionStrictness::OnlyFailedPermanent);
-            let state = row.state;
-            let base = CourseCreditRegistration::from(row);
-            let notification_email =
-                NotificationEmailStatus::for_state(state, base.id, &notification_mails);
+        .map(|view| {
+            let base = CourseCreditRegistration::from(view.row);
             CourseCreditRegistration {
-                linking_email,
-                notification_email,
-                resubmission_refusal,
+                linking_email: view.linking_email,
+                notification_email: view.notification_email,
+                resubmission_refusal: view.resubmission_refusal,
                 ..base
             }
         })

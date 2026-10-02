@@ -2,7 +2,7 @@
 //! writes: the frozen payload, what the study registry answered, the schedule, the counters and the flags.
 
 use super::transition::AdminAttention;
-use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckSource;
 use crate::prelude::*;
 use chrono::NaiveDate;
 use headless_lms_utils::secret_string::expose_option;

@@ -16,6 +16,7 @@ pub mod seed_playground_examples;
 pub mod seed_roles;
 mod seed_user_research_consents;
 pub mod seed_users;
+pub mod spec_fetcher;
 
 use headless_lms_base::jwt::JwtKey;
 use headless_lms_base::program_config::ProgramConfig;

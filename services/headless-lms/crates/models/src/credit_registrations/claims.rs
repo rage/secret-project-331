@@ -52,7 +52,7 @@ const LOOKUP_STATES: [CreditRegistrationState; 2] = [
 ];
 
 /// Claims, for the person lookup that precedes resolve-enrolments, the rows
-/// [`claim_due_for_resolve_after_pull_forward`] would take, the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first.
+/// [`claim_due_for_resolve_after_pull_forward`] would take, the later [`EnrolmentCheckGroup`](crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckGroup) first.
 pub async fn claim_due_for_person_lookup(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -62,7 +62,7 @@ pub async fn claim_due_for_person_lookup(
 }
 
 /// Claims, for resolve-enrolments, `ready_to_submit` rows and parked rows due an enrolment check,
-/// the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first, minus any whose student already has another live row
+/// the later [`EnrolmentCheckGroup`](crate::credit_registration_policy::enrolment_check_schedule::EnrolmentCheckGroup) first, minus any whose student already has another live row
 /// for the module somewhere between resolving and a known outcome. The caller first pulls slow
 /// checks due soon into the batch; see
 /// [`crate::library::credit_registration::enrolment_checks::claim_due_for_resolve`].

@@ -2,13 +2,14 @@ use anyhow::Result;
 use async_trait::async_trait;
 use bytes::Bytes;
 use headless_lms_models::credit_registrations::TeacherCreditRegistrationFilters;
+use secrecy::ExposeSecret;
 use serde::Serialize;
 use sqlx::PgConnection;
 use std::io::Write;
 use tokio::sync::mpsc::UnboundedSender;
 use uuid::Uuid;
 
-use crate::controllers::main_frontend::course_credit_registrations::build_teacher_registrations;
+use crate::domain::credit_registration::teacher_view::build_teacher_registration_views;
 use crate::domain::csv_export::CsvWriter;
 use crate::prelude::*;
 
@@ -97,7 +98,11 @@ where
         let page_len = rows.len() as i64;
         // The same read model the teacher's table renders, so the file and the screen cannot disagree
         // about a student's status or about how much of an address is shown.
-        for row in build_teacher_registrations(conn, course_id, rows).await? {
+        for view in build_teacher_registration_views(conn, course_id, rows).await? {
+            let row = view.row;
+            let student_facing_status = headless_lms_models::credit_registration_policy::student_facing_status::StudentFacingCreditRegistrationStatus::of(
+                row.state, row.preconditions(), row.enrolment_resolved,
+            );
             writer.write_record(vec![
                 row.user_id.to_string(),
                 row.first_name.unwrap_or_default(),
@@ -106,12 +111,15 @@ where
                 row.course_module_name.unwrap_or_default(),
                 row.completion_date.to_rfc3339(),
                 wire_value(&row.state),
-                wire_value(&row.student_facing_status),
+                wire_value(&student_facing_status),
                 wire_value(&row.error_code),
                 row.needs_admin_attention.to_string(),
                 row.attempt_number.to_string(),
-                row.superseded.to_string(),
-                row.student_number.unwrap_or_default(),
+                row.superseded_by_id.is_some().to_string(),
+                row.student_number
+                    .as_ref()
+                    .map(|number| number.expose_secret().to_owned())
+                    .unwrap_or_default(),
                 optional_time(row.student_number_verified_at),
                 wire_value(&row.student_number_verified_via),
                 row.enrolment_realisation_name.unwrap_or_default(),
@@ -119,16 +127,16 @@ where
                 row.credits.map(|c| c.to_string()).unwrap_or_default(),
                 optional_time(row.registered_at),
                 row.sisu_attainment_id.unwrap_or_default(),
-                row.linking_email
+                view.linking_email
                     .as_ref()
                     .map(|mail| wire_value(&mail.email_send_status))
                     .unwrap_or_default(),
-                row.linking_email
+                view.linking_email
                     .as_ref()
                     .and_then(|mail| mail.sent_at)
                     .map(|sent_at| sent_at.to_rfc3339())
                     .unwrap_or_default(),
-                row.linking_email
+                view.linking_email
                     .map(|mail| mail.emailed_to_masked)
                     .unwrap_or_default(),
             ]);

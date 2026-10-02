@@ -6,7 +6,7 @@ use headless_lms_base::program_config::ProgramConfig;
 use crate::{
     OAuthClient,
     domain::{
-        models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
+        exercise_service_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
     },
     mock_suotar::store::MockSuotarStore,

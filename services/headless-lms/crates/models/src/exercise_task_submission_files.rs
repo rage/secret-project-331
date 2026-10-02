@@ -218,7 +218,7 @@ mod test {
         NewExerciseSlideSubmission, insert_exercise_slide_submission,
     };
     use crate::exercise_task_gradings::UserPointsUpdateStrategy;
-    use crate::library::grading::SubmittedAnswer;
+    use crate::submission_types::SubmittedAnswer;
     use crate::test_helper::*;
 
     async fn insert_task_submission(

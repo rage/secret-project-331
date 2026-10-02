@@ -8,7 +8,7 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::{
-        models_requests::{self, JwtKey},
+        exercise_service_requests::{self, JwtKey},
         request_id::RequestId,
     },
     prelude::*,
@@ -84,12 +84,12 @@ async fn post_new_chapter(
         PKeyPolicy::Generate,
         &new_chapter,
         user.id,
-        models_requests::make_spec_fetcher(
+        exercise_service_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
             Arc::clone(&jwt_key),
         ),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(

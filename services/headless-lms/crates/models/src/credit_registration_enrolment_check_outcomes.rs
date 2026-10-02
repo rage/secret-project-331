@@ -3,7 +3,7 @@
 
 use utoipa::ToSchema;
 
-use crate::library::credit_registration::enrolment_check_schedule::{
+use crate::credit_registration_policy::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
 use crate::prelude::*;

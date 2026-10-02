@@ -1,10 +1,10 @@
-use crate::{library::oauth::Digest, prelude::*};
+use crate::{oauth_digest::Digest, prelude::*};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgConnection};
 use uuid::Uuid;
 
-use crate::library::oauth::pkce::PkceMethod;
+use crate::oauth_pkce::PkceMethod;
 
 /// **INTERNAL/DATABASE-ONLY MODEL - DO NOT EXPOSE TO CLIENTS**
 ///

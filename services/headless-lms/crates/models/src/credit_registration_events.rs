@@ -1,7 +1,7 @@
 //! Append-only audit trail for the credit registration ledger.
 //!
 //! No retention sweep touches this table, so every Suotar payload must go through
-//! [`scrub_suotar_body`](crate::library::credit_registration::scrub::scrub_suotar_body) at the
+//! [`scrub_suotar_body`](crate::credit_registration_policy::scrub::scrub_suotar_body) at the
 //! write site — redacting on read would leave the raw values on disk.
 use std::collections::HashMap;
 
@@ -76,7 +76,7 @@ pub struct NewCreditRegistrationEvent {
     pub suotar_api_call_id: Option<Uuid>,
     pub actor_user_id: Option<Uuid>,
     /// Build with
-    /// [`suotar_exchange_details`](crate::library::credit_registration::scrub::suotar_exchange_details)
+    /// [`suotar_exchange_details`](crate::credit_registration_policy::scrub::suotar_exchange_details)
     /// so it is scrubbed.
     pub details: Option<Value>,
     pub request_item_id: Option<String>,

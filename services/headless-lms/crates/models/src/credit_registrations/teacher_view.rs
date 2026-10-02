@@ -1,10 +1,10 @@
 //! The ledger as a course's teacher surfaces show it, and what a teacher's bulk retry may move.
 
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
-use crate::library::credit_registration::{
+use crate::credit_registration_policy::{
     PendingPreconditions, StageMatch, StudentFacingCreditRegistrationStatus,
 };
-use crate::library::students_view::escape_like_pattern;
+use crate::like_pattern::escape_like_pattern;
 use crate::prelude::*;
 use crate::verified_student_numbers::StudentNumberVerificationMethod;
 

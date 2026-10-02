@@ -1,4 +1,4 @@
-use crate::{domain::models_requests, prelude::*};
+use crate::{domain::exercise_service_requests, prelude::*};
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     teacher_grading_decisions::{
@@ -54,7 +54,7 @@ async fn get_submission_info(
         &mut conn,
         submission_id_uuid,
         submission.user_id,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
         true,
         file_store.as_ref(),
         app_conf.as_ref(),

@@ -1,6 +1,6 @@
 //! Per-request observability for calls to Suotar.
 //!
-//! Bodies must be scrubbed with [`crate::library::credit_registration::scrub::scrub_suotar_body`]
+//! Bodies must be scrubbed with [`crate::credit_registration_policy::scrub::scrub_suotar_body`]
 //! before insert; `credit_registration_ids` ties a call to the rows it was for, which the scrubbed
 //! bodies no longer identify.
 use async_trait::async_trait;
@@ -13,7 +13,7 @@ use utoipa::ToSchema;
 /// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
 pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use crate::library::credit_registration::scrub::{scrub_suotar_body, scrub_text};
+use crate::credit_registration_policy::scrub::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
 
 /// How long call rows are kept.

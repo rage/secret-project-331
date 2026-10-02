@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/migration`.
 
-use crate::domain::models_requests;
-use crate::domain::models_requests::JwtKey;
+use crate::domain::exercise_service_requests;
+use crate::domain::exercise_service_requests::JwtKey;
 use models::pages::CmsPageUpdate;
 
 use crate::{domain::request_id::RequestId, prelude::*};
@@ -71,12 +71,12 @@ async fn create_page(
         *course_id,
         cms_update_json.into_inner(),
         user.id,
-        models_requests::make_spec_fetcher(
+        exercise_service_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
             jwt_key.into_inner(),
         ),
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?;
 

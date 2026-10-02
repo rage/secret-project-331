@@ -1,10 +1,12 @@
 //! How the student and teacher views show the mails a registration row sent.
 
+use headless_lms_models::credit_registration_account_linking_emails::CreditRegistrationAccountLinkingEmail;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_models::email_deliveries::EmailSendStatus;
+use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::student_notifications::{
     CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
+use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -45,5 +47,30 @@ pub fn mask_email(email: &str) -> String {
     match email.split_once('@') {
         Some((_, domain)) => format!("...@{domain}"),
         None => "...".to_string(),
+    }
+}
+
+/// What we can honestly say about a linking mail: our send status and the address's domain.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct TeacherLinkingEmailStatus {
+    pub email_send_status: EmailSendStatus,
+    pub sent_at: Option<DateTime<Utc>>,
+    pub last_attempt_at: Option<DateTime<Utc>>,
+    pub retry_count: i32,
+    pub next_retry_at: Option<DateTime<Utc>>,
+    pub emailed_to_masked: String,
+}
+
+pub fn linking_email_status_of(
+    report: &EmailSendStatusReport,
+    mail: &CreditRegistrationAccountLinkingEmail,
+) -> TeacherLinkingEmailStatus {
+    TeacherLinkingEmailStatus {
+        email_send_status: report.email_send_status,
+        sent_at: report.sent_at,
+        last_attempt_at: report.last_attempt_at,
+        retry_count: report.retry_count,
+        next_retry_at: report.next_retry_at,
+        emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
     }
 }

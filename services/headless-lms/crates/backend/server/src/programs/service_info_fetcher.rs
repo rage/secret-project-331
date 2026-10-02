@@ -1,4 +1,4 @@
-use crate::{domain::models_requests, setup_tracing};
+use crate::{domain::exercise_service_requests, setup_tracing};
 use anyhow::Result;
 use dotenvy::dotenv;
 use futures::stream::{self, StreamExt};
@@ -54,7 +54,7 @@ pub async fn do_fetch_and_upsert_service_info(
     Ok(fetch_and_upsert_service_info(
         &mut conn,
         exercise_service,
-        models_requests::fetch_service_info,
+        exercise_service_requests::fetch_service_info,
     )
     .await?)
 }

@@ -101,6 +101,29 @@ pub async fn update_user_exercise_state(
     .await
 }
 
+/// Validates that the state belongs to the requested exercise, then recalculates it.
+pub async fn recalculate_by_id_and_exercise_id(
+    conn: &mut PgConnection,
+    state_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<UserExerciseState> {
+    sqlx::query!(
+        r#"
+SELECT id
+FROM user_exercise_states
+WHERE id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        state_id,
+        exercise_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    update_user_exercise_state(conn, state_id).await
+}
+
 /**
 Allows you to pass some data that `update_user_exercise_state` fetches to avoid repeating SQL queries for performance. Note that the caller must be careful that it passes correct data to the function. A good rule of thumb is that this function expects unmodified data directly from the database.
 

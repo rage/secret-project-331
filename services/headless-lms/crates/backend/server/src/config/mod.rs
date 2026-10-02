@@ -1,10 +1,10 @@
 //! Functionality for configuring the server
 pub mod open_university_config;
-pub mod program_config;
+
+use headless_lms_base::program_config::ProgramConfig;
 
 use crate::{
     OAuthClient,
-    config::program_config::ProgramConfig,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,

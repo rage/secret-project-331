@@ -1,10 +1,10 @@
 use std::{sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
-use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models as models;
 use headless_lms_utils::error::is_db_disconnect;
 use headless_lms_utils::periodic_worker::{

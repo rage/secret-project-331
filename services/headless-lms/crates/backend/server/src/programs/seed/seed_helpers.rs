@@ -1,6 +1,7 @@
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::jwt::JwtKey;
 use headless_lms_models::{
     PKeyPolicy, SpecFetcher, course_exams,
     exams::{self, NewExam},
@@ -30,7 +31,7 @@ use std::sync::Arc;
 use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
-use crate::domain::models_requests::{self, JwtKey};
+use crate::domain::models_requests;
 
 // Static holder for our cached spec fetcher
 static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();

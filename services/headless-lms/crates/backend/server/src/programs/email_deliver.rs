@@ -1,11 +1,11 @@
 use std::{error::Error as StdError, time::Duration};
 
-use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use crate::setup_tracing;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use futures::{FutureExt, StreamExt};
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models::email_deliveries::{
     Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,

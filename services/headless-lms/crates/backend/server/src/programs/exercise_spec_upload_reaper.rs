@@ -12,10 +12,11 @@
 
 use std::path::Path;
 
-use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
+use crate::config::FileStoreRuntimeConfig;
 use crate::{setup_file_store, setup_tracing};
 use dotenvy::dotenv;
 use futures::{StreamExt, stream};
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models::{self as models, error::TryToOptional};
 use headless_lms_utils::file_store::FileStore;
 use sqlx::{PgConnection, PgPool};

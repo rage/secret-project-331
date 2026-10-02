@@ -9,8 +9,8 @@ mod answer;
 mod request;
 mod resolution;
 
-use headless_lms_models::credit_registrations::claim_due_for_resolve;
 use headless_lms_models::library::credit_registration::enrolment_checks::EnrolmentCheckAnswer;
+use headless_lms_models::library::credit_registration::enrolment_checks::claim_due_for_resolve;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
     EnrolmentCriteria, select_enrolment,
 };

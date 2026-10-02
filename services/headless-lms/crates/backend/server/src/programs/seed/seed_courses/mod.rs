@@ -1,3 +1,4 @@
+use headless_lms_base::jwt::JwtKey;
 pub mod seed_accessibility_course;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
@@ -24,7 +25,7 @@ pub use seed_switching_course_instances_course::seed_switching_course_instances_
 
 use std::sync::Arc;
 
-use crate::domain::models_requests::{self, JwtKey};
+use crate::domain::models_requests;
 
 use crate::programs::seed::seed_helpers::{
     ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,

@@ -52,7 +52,7 @@ const LOOKUP_STATES: [CreditRegistrationState; 2] = [
 ];
 
 /// Claims, for the person lookup that precedes resolve-enrolments, the rows
-/// [`claim_due_for_resolve`] would take, the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first.
+/// [`claim_due_for_resolve_after_pull_forward`] would take, the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first.
 pub async fn claim_due_for_person_lookup(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -63,9 +63,9 @@ pub async fn claim_due_for_person_lookup(
 
 /// Claims, for resolve-enrolments, `ready_to_submit` rows and parked rows due an enrolment check,
 /// the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first, minus any whose student already has another live row
-/// for the module somewhere between resolving and a known outcome. First pulls slow checks due soon
-/// into the batch; see
-/// [`crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks`].
+/// for the module somewhere between resolving and a known outcome. The caller first pulls slow
+/// checks due soon into the batch; see
+/// [`crate::library::credit_registration::enrolment_checks::claim_due_for_resolve`].
 ///
 /// Only one completion per student and module goes past resolve at a time, so each is weighed
 /// against the outcome of the one before it rather than racing it to the registry; see
@@ -73,13 +73,11 @@ pub async fn claim_due_for_person_lookup(
 /// rows claimed together only the first comes back; the other stays claimable where it is. A parked
 /// row sent for a check must be marked with [`claim_enrolment_checks`] before the claim's
 /// transaction commits.
-pub async fn claim_due_for_resolve(
+pub async fn claim_due_for_resolve_after_pull_forward(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
 ) -> ModelResult<Vec<CreditRegistration>> {
-    crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks(conn, scope)
-        .await?;
     let claimed = claim(conn, &LOOKUP_STATES, scope, limit, ClaimKind::Resolve).await?;
     Ok(first_per(
         claimed,
@@ -206,7 +204,7 @@ enum ClaimKind {
     Verify(VerifyFlow),
     /// See [`claim_due_for_person_lookup`].
     PersonLookup,
-    /// See [`claim_due_for_resolve`].
+    /// See [`claim_due_for_resolve_after_pull_forward`].
     Resolve,
     /// See [`claim_due_for_import`].
     Import,

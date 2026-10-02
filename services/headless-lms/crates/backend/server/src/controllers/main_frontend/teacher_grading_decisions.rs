@@ -135,12 +135,13 @@ async fn create_teacher_grading_decision(
     )
     .await?;
 
-    let new_user_exercise_state = models::user_exercise_states::recalculate_by_id_and_exercise_id(
-        &mut conn,
-        user_exercise_state_id,
-        student_state.exercise_id,
-    )
-    .await?;
+    let new_user_exercise_state =
+        models::library::user_exercise_state_updater::recalculate_by_id_and_exercise_id(
+            &mut conn,
+            user_exercise_state_id,
+            student_state.exercise_id,
+        )
+        .await?;
 
     if let Some(course_id) = new_user_exercise_state.course_id {
         // Since the teacher just reviewed the submission we should mark possible peer review queue entries so that they won't be given to others to review. Receiving peer reviews for this answer now would not make much sense.

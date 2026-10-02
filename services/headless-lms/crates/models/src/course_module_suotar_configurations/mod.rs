@@ -5,9 +5,7 @@
 mod config_check;
 mod configuration;
 mod listing;
-mod pause;
 
 pub use config_check::*;
 pub use configuration::*;
 pub use listing::*;
-pub use pause::*;

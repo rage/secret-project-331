@@ -657,7 +657,7 @@ pub async fn claim_student_number_verification_token(
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
     let (_, newly_unblocked_registration_count) =
-        verified_student_numbers::replace_verified_student_number(
+        headless_lms_models::library::credit_registration::student_number_change::replace_verified_student_number(
             &mut tx,
             current_link.map(|link| link.id),
             &NewVerifiedStudentNumber {

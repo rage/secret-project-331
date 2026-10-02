@@ -3,9 +3,9 @@
 
 use sqlx::postgres::PgPoolOptions;
 
-use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_credit_registration::{WorkerProcess, worker_loop};
 
 /// Runs the worker that owns the credit registration ledger.

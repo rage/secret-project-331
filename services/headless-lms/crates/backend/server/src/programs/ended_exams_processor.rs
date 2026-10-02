@@ -1,10 +1,10 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models::{self as models, ModelError, ModelErrorType};
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;

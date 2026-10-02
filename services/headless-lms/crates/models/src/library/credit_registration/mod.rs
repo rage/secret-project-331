@@ -16,6 +16,7 @@ pub mod enrolment_selection;
 pub mod grade_mapping;
 pub mod legacy_mirror;
 pub mod materialize;
+pub mod module_pause;
 pub mod outcomes;
 pub mod payload;
 pub mod pending_reason;

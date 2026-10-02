@@ -1,4 +1,4 @@
-use crate::config::program_config::ProgramConfig;
+use headless_lms_base::program_config::ProgramConfig;
 
 pub const OPEN_UNIVERSITY_COURSE_URL: &str = "OPEN_UNIVERSITY_COURSE_URL";
 pub const OPEN_UNIVERSITY_TOKEN: &str = "OPEN_UNIVERSITY_TOKEN";

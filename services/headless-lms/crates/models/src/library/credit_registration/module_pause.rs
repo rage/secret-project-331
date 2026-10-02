@@ -56,7 +56,7 @@ WHERE course_module_id = $1
     if pause.is_none()
         && let Some(paused_at) = previously_paused_at
     {
-        crate::library::credit_registration::enrolment_checks::shift_past_pause(
+        super::enrolment_checks::shift_past_pause(
             &mut tx,
             course_module_id,
             // Whole seconds: Postgres intervals hold no nanoseconds, which the clock has.

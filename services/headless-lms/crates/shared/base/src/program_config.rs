@@ -1,5 +1,5 @@
+use crate::config::bool_env_false_by_default;
 use anyhow::Context;
-use headless_lms_base::config::bool_env_false_by_default;
 use std::env;
 
 pub struct ProgramConfig;

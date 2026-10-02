@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use utoipa::ToSchema;
 
+pub mod chapter_exercise_review;
 pub mod content_management;
 pub mod copying;
 pub mod course_instances;

@@ -192,14 +192,16 @@ pub async fn admin_pause_course_module_credit_registration(
     require_suotar_configuration(&mut conn, module_id).await?;
 
     let mut tx = conn.begin().await?;
-    course_module_suotar_configurations::set_paused(
+    headless_lms_models::library::credit_registration::module_pause::set_paused(
         &mut tx,
         module_id,
-        Some(course_module_suotar_configurations::SuotarPause {
-            paused_at: Utc::now(),
-            paused_by_user_id: user.id,
-            reason: Some(reason),
-        }),
+        Some(
+            headless_lms_models::library::credit_registration::module_pause::SuotarPause {
+                paused_at: Utc::now(),
+                paused_by_user_id: user.id,
+                reason: Some(reason),
+            },
+        ),
     )
     .await?;
     record_module_action(
@@ -245,7 +247,10 @@ pub async fn admin_resume_course_module_credit_registration(
     require_suotar_configuration(&mut conn, module_id).await?;
 
     let mut tx = conn.begin().await?;
-    course_module_suotar_configurations::set_paused(&mut tx, module_id, None).await?;
+    headless_lms_models::library::credit_registration::module_pause::set_paused(
+        &mut tx, module_id, None,
+    )
+    .await?;
     record_module_action(
         &mut tx,
         CreditRegistrationAdminAction::ResumeCourseModule,

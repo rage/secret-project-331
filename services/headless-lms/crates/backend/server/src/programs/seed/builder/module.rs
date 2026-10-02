@@ -1,9 +1,10 @@
 use anyhow::{Context, Result};
 
-use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
+use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::course_modules::{
     self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
 };
+use headless_lms_models::library::credit_registration::module_pause::SuotarPause;
 use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};
@@ -350,7 +351,7 @@ impl ModuleBuilder {
                 .context("opting the module's new completions into Suotar")?;
             }
             if let Some(reason) = &credit_registration.paused_reason {
-                course_module_suotar_configurations::set_paused(
+                headless_lms_models::library::credit_registration::module_pause::set_paused(
                     conn,
                     module.id,
                     Some(SuotarPause {

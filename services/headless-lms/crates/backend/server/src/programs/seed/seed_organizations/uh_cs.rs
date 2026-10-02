@@ -1,3 +1,4 @@
+use headless_lms_base::jwt::JwtKey;
 use std::sync::Arc;
 
 use chrono::{Duration, TimeZone, Utc};
@@ -20,7 +21,7 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::models_requests,
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,

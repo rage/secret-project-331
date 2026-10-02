@@ -798,28 +798,6 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn recalculate_by_id_and_exercise_id(
-    conn: &mut PgConnection,
-    state_id: Uuid,
-    exercise_id: Uuid,
-) -> ModelResult<UserExerciseState> {
-    sqlx::query!(
-        r#"
-SELECT id
-FROM user_exercise_states
-WHERE id = $1
-  AND exercise_id = $2
-  AND deleted_at IS NULL
-        "#,
-        state_id,
-        exercise_id
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-
-    crate::library::user_exercise_state_updater::update_user_exercise_state(conn, state_id).await
-}
-
 pub async fn get_by_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],

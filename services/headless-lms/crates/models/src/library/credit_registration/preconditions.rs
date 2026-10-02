@@ -606,14 +606,16 @@ mod tests {
         crate::course_module_suotar_configurations::ensure_exists(conn, course_module_id)
             .await
             .unwrap();
-        crate::course_module_suotar_configurations::set_paused(
+        crate::library::credit_registration::module_pause::set_paused(
             conn,
             course_module_id,
-            Some(crate::course_module_suotar_configurations::SuotarPause {
-                paused_at: Utc::now(),
-                paused_by_user_id: user_id,
-                reason: None,
-            }),
+            Some(
+                crate::library::credit_registration::module_pause::SuotarPause {
+                    paused_at: Utc::now(),
+                    paused_by_user_id: user_id,
+                    reason: None,
+                },
+            ),
         )
         .await
         .unwrap();
@@ -878,10 +880,12 @@ mod tests {
             ..RegistrationScope::default()
         };
         let claim = async |conn: &mut PgConnection| {
-            crate::credit_registrations::claim_due_for_resolve(conn, &scope, 10)
-                .await
-                .unwrap()
-                .len()
+            crate::library::credit_registration::enrolment_checks::claim_due_for_resolve(
+                conn, &scope, 10,
+            )
+            .await
+            .unwrap()
+            .len()
         };
         assert_eq!(claim(tx.as_mut()).await, 0);
 

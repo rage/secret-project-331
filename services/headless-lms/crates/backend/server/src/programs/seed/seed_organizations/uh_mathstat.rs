@@ -1,3 +1,4 @@
+use headless_lms_base::jwt::JwtKey;
 use std::sync::Arc;
 
 use headless_lms_base::config::ApplicationConfiguration;
@@ -16,7 +17,7 @@ use uuid::Uuid;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    domain::models_requests::{self, JwtKey},
+    domain::models_requests,
     programs::seed::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{

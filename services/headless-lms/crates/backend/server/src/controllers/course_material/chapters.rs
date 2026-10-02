@@ -319,7 +319,7 @@ async fn lock_chapter(
         }
     }
 
-    models::chapters::move_chapter_exercises_to_manual_review(
+    models::library::chapter_exercise_review::move_chapter_exercises_to_manual_review(
         &mut tx,
         *chapter_id,
         user.id,

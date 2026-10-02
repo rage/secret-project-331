@@ -4,18 +4,16 @@
 use std::sync::Arc;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::jwt::JwtKey;
 use headless_lms_models::{PKeyPolicy, organizations};
 use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use crate::{
-    domain::models_requests::JwtKey,
-    programs::seed::{
-        seed_courses::{CommonCourseData, seed_credit_registration},
-        seed_file_storage::SeedFileStorageResult,
-        seed_users::SeedUsersResult,
-    },
+use crate::programs::seed::{
+    seed_courses::{CommonCourseData, seed_credit_registration},
+    seed_file_storage::SeedFileStorageResult,
+    seed_users::SeedUsersResult,
 };
 
 pub const CREDIT_REGISTRATION_ORGANIZATION_ID: Uuid =

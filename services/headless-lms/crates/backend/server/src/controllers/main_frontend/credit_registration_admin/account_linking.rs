@@ -755,7 +755,7 @@ pub async fn admin_manually_link_student_number(
         .await?
         .map(|current| current.id);
     let (verified_student_number_id, affected_registration_count) =
-        verified_student_numbers::replace_verified_student_number(
+        headless_lms_models::library::credit_registration::student_number_change::replace_verified_student_number(
             &mut tx,
             current_link_id,
             &NewVerifiedStudentNumber {

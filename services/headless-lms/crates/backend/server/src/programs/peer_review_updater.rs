@@ -1,6 +1,6 @@
-use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use dotenvy::dotenv;
+use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_models::error::TryToOptional;
 use headless_lms_models::peer_review_queue_entries;
 use sqlx::{Connection, PgConnection};

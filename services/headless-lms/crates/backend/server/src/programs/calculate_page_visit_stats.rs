@@ -1,5 +1,5 @@
-use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
+use headless_lms_base::program_config::ProgramConfig;
 
 use dotenvy::dotenv;
 use headless_lms_models as models;

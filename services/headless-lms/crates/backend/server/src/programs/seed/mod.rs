@@ -17,11 +17,11 @@ pub mod seed_roles;
 mod seed_user_research_consents;
 pub mod seed_users;
 
+use headless_lms_base::jwt::JwtKey;
+use headless_lms_base::program_config::ProgramConfig;
 use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{
-    config::program_config::ProgramConfig,
-    domain::models_requests::JwtKey,
     programs::seed::{
         seed_application_task_llms::seed_application_task_llms,
         seed_oauth_clients::seed_oauth_clients,

@@ -81,40 +81,40 @@ const Matrix: React.FunctionComponent<
           {shapeStatus}
         </div>
       </VisuallyHidden>
-      {/* Always mounted so screen readers announce messages as they appear */}
-      <ul
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics
-        role="status"
-        aria-live="polite"
-        className={css`
-          list-style: none;
-          margin: 0.5rem auto 0;
-          padding: 0;
-          max-width: 28rem;
-          font-size: 0.875rem;
-          color: ${baseTheme.colors.gray[600]};
-          text-align: center;
-        `}
-      >
-        {gaps.length > 0 && (
-          <li
-            className={css`
-              color: ${baseTheme.colors.red[700]};
-              font-weight: 600;
-            `}
-          >
-            {t("matrix-fill-empty-cells")}
-          </li>
-        )}
-        {malformedCells.map(({ rowIndex, columnIndex }) => (
-          <li key={`malformed-${rowIndex}-${columnIndex}`}>{t("matrix-cell-invalid-number")}</li>
-        ))}
-        {commaCells.map(({ cell, rowIndex, columnIndex }) => (
-          <li key={`comma-${rowIndex}-${columnIndex}`}>
-            {t("matrix-cell-comma-warning", { value: parseCellNumber(cell) ?? cell })}
-          </li>
-        ))}
-      </ul>
+      {/* Always mounted so screen readers announce messages as they appear; role=status isn't allowed on <ul> */}
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics */}
+      <div role="status" aria-live="polite">
+        <ul
+          className={css`
+            list-style: none;
+            margin: 0.5rem auto 0;
+            padding: 0;
+            max-width: 28rem;
+            font-size: 0.875rem;
+            color: ${baseTheme.colors.gray[600]};
+            text-align: center;
+          `}
+        >
+          {gaps.length > 0 && (
+            <li
+              className={css`
+                color: ${baseTheme.colors.red[700]};
+                font-weight: 600;
+              `}
+            >
+              {t("matrix-fill-empty-cells")}
+            </li>
+          )}
+          {malformedCells.map(({ rowIndex, columnIndex }) => (
+            <li key={`malformed-${rowIndex}-${columnIndex}`}>{t("matrix-cell-invalid-number")}</li>
+          ))}
+          {commaCells.map(({ cell, rowIndex, columnIndex }) => (
+            <li key={`comma-${rowIndex}-${columnIndex}`}>
+              {t("matrix-cell-comma-warning", { value: parseCellNumber(cell) ?? cell })}
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   )
 }

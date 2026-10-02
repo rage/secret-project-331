@@ -1,4 +1,5 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { MATRIX_GRID_SIZE } from "@/util/matrix"
 import {
   migratePrivateSpecToLatest,
   migrateUserAnswerToLatest,
@@ -22,7 +23,6 @@ import {
   getSelectedOptionIds,
   getSelectedOptionTitles,
   getSortedTimelineItems,
-  MATRIX_MAX_SIZE,
   mergeColumns,
 } from "./csvExportUtils"
 
@@ -234,8 +234,8 @@ function buildAnswerRow(
     case "matrix": {
       const row: Record<string, CsvScalar> = { ...baseRow }
 
-      for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
-        for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
+      for (let rowIndex = 0; rowIndex < MATRIX_GRID_SIZE; rowIndex += 1) {
+        for (let columnIndex = 0; columnIndex < MATRIX_GRID_SIZE; columnIndex += 1) {
           row[`matrix_row_${rowIndex + 1}_column_${columnIndex + 1}`] = getMatrixCellValue(
             itemAnswer.matrix,
             rowIndex,

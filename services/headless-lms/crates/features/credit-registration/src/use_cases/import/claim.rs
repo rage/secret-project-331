@@ -1,14 +1,6 @@
 //! Claiming the rows an import iteration sends: which of them may go out, and the submission each
 //! one carries.
 
-use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
-use headless_lms_models::credit_registration_events::{
-    self, CreditRegistrationEventKind, NewCreditRegistrationEvent,
-};
-use headless_lms_models::credit_registrations::{
-    AdminAttention, CreditRegistration, CreditRegistrationState, claim_due_for_import,
-    schedule_next_attempt, set_needs_admin_attention,
-};
 use headless_lms_data_operations::library::credit_registration::backoff::SUBMIT_MAX_BACKOFF;
 use headless_lms_data_operations::library::credit_registration::grade_mapping::{
     MappedGrade, is_known_grade,
@@ -18,6 +10,14 @@ use headless_lms_data_operations::library::credit_registration::outcomes::{
     submitting, unknown_grade,
 };
 use headless_lms_data_operations::library::credit_registration::scrub::scrub_text;
+use headless_lms_models::course_module_completion_registered_to_study_registries::completion_ids_registered_by_a_registrar;
+use headless_lms_models::credit_registration_events::{
+    self, CreditRegistrationEventKind, NewCreditRegistrationEvent,
+};
+use headless_lms_models::credit_registrations::{
+    AdminAttention, CreditRegistration, CreditRegistrationState, claim_due_for_import,
+    schedule_next_attempt, set_needs_admin_attention,
+};
 use headless_lms_utils::prelude::Utc;
 use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection};

@@ -269,7 +269,9 @@ pub async fn general_export(
 
 #[cfg(test)]
 mod test {
-    use headless_lms_external_service_clients::service_clients::exercise_service_requests::{self, JwtKey};
+    use headless_lms_external_service_clients::service_clients::exercise_service_requests::{
+        self, JwtKey,
+    };
     use std::{collections::HashMap, io::Cursor};
 
     use headless_lms_data_operations::{

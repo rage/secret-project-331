@@ -12,10 +12,10 @@ use dotenvy::dotenv;
 use futures::{StreamExt, stream};
 use headless_lms_base::program_config::ProgramConfig;
 use headless_lms_base::tracing::setup_tracing;
-use headless_lms_models::{self as models, error::TryToOptional};
 use headless_lms_file_store::file_store::FileStore;
 use headless_lms_gcs_file_store::runtime::FileStoreRuntimeConfig;
 use headless_lms_gcs_file_store::runtime::setup_file_store;
+use headless_lms_models::{self as models, error::TryToOptional};
 use sqlx::{PgConnection, PgPool};
 
 const MAX_CONCURRENT_REAPS: usize = 8;

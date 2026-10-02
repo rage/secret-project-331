@@ -74,19 +74,20 @@ async fn post_new_chapter(
     )
     .await?;
     let new_chapter = payload.0;
-    let (database_chapter, ..) = headless_lms_data_operations::library::content_management::create_new_chapter(
-        &mut conn,
-        PKeyPolicy::Generate,
-        &new_chapter,
-        user.id,
-        exercise_service_requests::make_spec_fetcher(
-            app_conf.base_url.clone(),
-            request_id.0,
-            Arc::clone(&jwt_key),
-        ),
-        exercise_service_requests::fetch_service_info,
-    )
-    .await?;
+    let (database_chapter, ..) =
+        headless_lms_data_operations::library::content_management::create_new_chapter(
+            &mut conn,
+            PKeyPolicy::Generate,
+            &new_chapter,
+            user.id,
+            exercise_service_requests::make_spec_fetcher(
+                app_conf.base_url.clone(),
+                request_id.0,
+                Arc::clone(&jwt_key),
+            ),
+            exercise_service_requests::fetch_service_info,
+        )
+        .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &database_chapter,
         file_store.as_ref(),

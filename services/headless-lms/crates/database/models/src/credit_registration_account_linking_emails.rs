@@ -662,10 +662,10 @@ mod tests {
     use super::*;
     use crate::email_deliveries::insert_email_delivery_to_address;
     use crate::email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template};
+    use crate::test_helper::*;
     use headless_lms_data_operations::library::credit_registration::account_linking::{
         DiscoveredPerson, claim_linking_mails,
     };
-    use crate::test_helper::*;
 
     async fn claim_a_mail(conn: &mut PgConnection, course_id: Uuid) -> Uuid {
         claim_linking_mails(

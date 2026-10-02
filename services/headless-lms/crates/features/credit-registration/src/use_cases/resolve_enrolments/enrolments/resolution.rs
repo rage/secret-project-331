@@ -1,16 +1,18 @@
 //! Given everything known once the lookup answered, what happens to the registration: settled as a
 //! duplicate of a credit already held, failed, or its payload frozen for import.
 
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationState, LiveSuccessForModule, RecordedCredit,
-    get_recorded_credits_for_same_module, lock_live_successes_for_same_module,
-};
 use headless_lms_data_operations::library::credit_registration::grade_mapping::{
     improves_on_all, map_grade,
 };
-use headless_lms_data_operations::library::credit_registration::outcomes::{Outcome, submit_error_outcome};
+use headless_lms_data_operations::library::credit_registration::outcomes::{
+    Outcome, submit_error_outcome,
+};
 use headless_lms_data_operations::library::credit_registration::payload::{
     BuiltPayload, PayloadSources, build_payload_snapshot,
+};
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationState, LiveSuccessForModule, RecordedCredit,
+    get_recorded_credits_for_same_module, lock_live_successes_for_same_module,
 };
 use headless_lms_models::secret::DbSecret;
 use headless_lms_utils::prelude::Utc;
@@ -206,15 +208,15 @@ fn freeze_message(built: &BuiltPayload, supersedes: &[Uuid]) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
-    use headless_lms_models::credit_registrations::CreditRegistrationState as State;
-    use headless_lms_models::credit_registrations::PayloadSnapshot;
     use headless_lms_data_operations::library::credit_registration::enrolment_selection::NoUsableEnrolment;
     use headless_lms_data_operations::library::credit_registration::payload::CompletionFacts;
     use headless_lms_data_operations::library::credit_registration::study_registry::{
         RegistryAttainment, RegistryEnrolment,
     };
     use headless_lms_data_operations::library::credit_registration::submission_context::SubmissionContext;
+    use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
+    use headless_lms_models::credit_registrations::CreditRegistrationState as State;
+    use headless_lms_models::credit_registrations::PayloadSnapshot;
 
     use super::super::Resolvable;
     use super::super::fixtures::{context, enrolment, refused, resolvable};

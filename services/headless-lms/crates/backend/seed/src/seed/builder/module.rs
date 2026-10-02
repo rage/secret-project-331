@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
 
+use headless_lms_data_operations::library::credit_registration::module_pause::SuotarPause;
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::course_modules::{
     self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
 };
-use headless_lms_data_operations::library::credit_registration::module_pause::SuotarPause;
 use sqlx::PgConnection;
 
 use crate::programs::seed::builder::{chapter::ChapterBuilder, context::SeedContext};

@@ -1,11 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/stats`.
 
 use crate::{domain::authorization::authorize, prelude::*};
-use headless_lms_models::ModelError;
 use headless_lms_data_operations::library::TimeGranularity;
 use headless_lms_data_operations::library::course_stats::StudentsByCountryTotalsResult;
+use headless_lms_data_operations::library::course_stats::{
+    AverageMetric, CohortActivity, CountResult,
+};
+use headless_lms_models::ModelError;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType};
-use headless_lms_data_operations::library::course_stats::{AverageMetric, CohortActivity, CountResult};
 use std::collections::HashMap;
 use std::time::Duration;
 use utoipa::OpenApi;
@@ -124,8 +126,10 @@ async fn get_total_users_started_course(
         None,
         CACHE_DURATION,
         || async {
-            headless_lms_data_operations::library::course_stats::get_total_users_started_course(&mut conn, *course_id)
-                .await
+            headless_lms_data_operations::library::course_stats::get_total_users_started_course(
+                &mut conn, *course_id,
+            )
+            .await
         },
     )
     .await?;
@@ -165,8 +169,10 @@ async fn get_total_users_completed_course(
         None,
         CACHE_DURATION,
         || async {
-            headless_lms_data_operations::library::course_stats::get_total_users_completed_course(&mut conn, *course_id)
-                .await
+            headless_lms_data_operations::library::course_stats::get_total_users_completed_course(
+                &mut conn, *course_id,
+            )
+            .await
         },
     )
     .await?;
@@ -1254,7 +1260,10 @@ async fn get_students_by_country_totals(
         None,
         CACHE_DURATION,
         || async {
-            headless_lms_data_operations::library::course_stats::students_by_country_totals(&mut conn, course_id).await
+            headless_lms_data_operations::library::course_stats::students_by_country_totals(
+                &mut conn, course_id,
+            )
+            .await
         },
     )
     .await?;

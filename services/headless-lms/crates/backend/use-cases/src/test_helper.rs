@@ -1,11 +1,8 @@
-use headless_lms_base::tracing::setup_tracing;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::tracing::setup_tracing;
 
 use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
-use headless_lms_utils::{
-    services::sisu::SisuClient,
-    services::tmc::TmcClient,
-};
+use headless_lms_utils::{services::sisu::SisuClient, services::tmc::TmcClient};
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
 use tokio::sync::Mutex;

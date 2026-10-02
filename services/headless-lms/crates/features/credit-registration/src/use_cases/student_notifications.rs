@@ -5,10 +5,10 @@
 //! `failed_permanent` row is a configuration problem the student cannot act on, a withdrawn one was
 //! the student's own decision, and the linking mail already covers a missing student number.
 
-use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_data_operations::library::credit_registration::student_notifications::{
     STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue, claim_unnotified, set_email_delivery_id,
 };
+use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use serde_json::json;
 use sqlx::{Connection, PgPool};
 use uuid::Uuid;

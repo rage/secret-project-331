@@ -1,8 +1,8 @@
 //! A row a phase claimed, and the state its answer's write expects to find it in.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use headless_lms_data_operations::library::credit_registration::outcomes::RowFacts;
+use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use uuid::Uuid;
 
 /// A claimed row. Every answer and refusal is written against it, and lands only if the row is

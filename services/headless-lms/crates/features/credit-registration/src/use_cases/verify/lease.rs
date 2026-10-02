@@ -1,11 +1,11 @@
 //! Leasing the rows a verify iteration asks about, so no concurrent iteration asks about them too.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registrations::{
-    VerifyFlow, claim_due_for_verify, increment_verify_attempt_counts, schedule_next_attempts,
-};
 use headless_lms_data_operations::library::credit_registration::outcomes::{
     RowFacts, verify_poll_lease_until,
+};
+use headless_lms_models::credit_registrations::{
+    VerifyFlow, claim_due_for_verify, increment_verify_attempt_counts, schedule_next_attempts,
 };
 use sqlx::PgConnection;
 

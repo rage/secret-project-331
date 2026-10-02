@@ -89,12 +89,13 @@ async fn get_course_module_completion_information_for_user(
         Res::Course(course_module.course_id),
     )
     .await?;
-    let information = headless_lms_data_operations::library::progressing::get_user_completion_information(
-        &mut conn,
-        user.id,
-        &course_module,
-    )
-    .await?;
+    let information =
+        headless_lms_data_operations::library::progressing::get_user_completion_information(
+            &mut conn,
+            user.id,
+            &course_module,
+        )
+        .await?;
     token.authorized_ok(web::Json(information))
 }
 

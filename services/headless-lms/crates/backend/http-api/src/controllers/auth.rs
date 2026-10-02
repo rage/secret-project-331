@@ -17,12 +17,12 @@ use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
+use headless_lms_cache::cache::Cache;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
     user_email_codes::UserEmailCodePurpose, user_passwords, users,
 };
-use headless_lms_cache::cache::Cache;
 use headless_lms_utils::{
     prelude::{UtilError, UtilErrorType},
     services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},

@@ -1,11 +1,11 @@
 //! How the student and teacher views show the mails a registration row sent.
 
-use headless_lms_models::credit_registration_account_linking_emails::CreditRegistrationAccountLinkingEmail;
-use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_data_operations::library::credit_registration::student_notifications::{
     CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
+use headless_lms_models::credit_registration_account_linking_emails::CreditRegistrationAccountLinkingEmail;
+use headless_lms_models::credit_registrations::CreditRegistrationState;
+use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 

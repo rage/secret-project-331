@@ -4,7 +4,6 @@ use std::str::FromStr;
 
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_data_operations::{
     certificate_configurations, course_module_completion_registered_to_study_registries,
     course_module_completions::{self, CourseModuleCompletion},
@@ -18,6 +17,7 @@ use headless_lms_data_operations::{
     user_details, user_exercise_states,
     user_exercise_states::{ReviewingStage, UserCourseProgress},
 };
+use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_utils::json_schema_types::{
     JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property,
 };

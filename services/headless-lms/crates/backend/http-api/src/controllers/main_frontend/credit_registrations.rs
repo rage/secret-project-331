@@ -8,6 +8,7 @@ re-derived here.
 
 use std::collections::HashMap;
 
+use headless_lms_data_operations::library::credit_registration::student_number_change;
 use headless_lms_data_operations::{
     completion_registration_credit_justifications,
     course_module_completions::CourseModuleCompletion,
@@ -35,7 +36,6 @@ use headless_lms_data_operations::{
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
-use headless_lms_data_operations::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 

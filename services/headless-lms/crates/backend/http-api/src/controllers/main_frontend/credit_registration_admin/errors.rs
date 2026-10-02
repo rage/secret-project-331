@@ -1,12 +1,12 @@
 //! The Errors & stuck tab: what is going wrong by error code, and which rows want a human.
 
+use headless_lms_data_operations::library::credit_registration::classification::{
+    Retryability, retryability,
+};
 use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
     self, AttentionReason, AttentionRegistration, AttentionSort, CreditRegistrationErrorCode,
     CreditRegistrationState, StuckThresholds,
-};
-use headless_lms_data_operations::library::credit_registration::classification::{
-    Retryability, retryability,
 };
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use utoipa::ToSchema;

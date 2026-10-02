@@ -3,8 +3,8 @@ use bytes::Bytes;
 use headless_lms_models::course_instances;
 
 use async_trait::async_trait;
-use itertools::Itertools;
 use headless_lms_data_operations::library::progressing;
+use itertools::Itertools;
 
 use crate::domain::csv_export::CsvWriter;
 

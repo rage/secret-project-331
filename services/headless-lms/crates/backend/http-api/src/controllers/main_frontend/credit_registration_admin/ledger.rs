@@ -1,5 +1,14 @@
 //! Viewing and hand-transitioning rows of the credit registration ledger.
 
+use headless_lms_data_operations::library::credit_registration::CreditRegistrationPendingReason;
+use headless_lms_data_operations::library::credit_registration::backoff::{
+    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER,
+    UNCERTAIN_ADMIN_AFTER, VERIFY_MAX_AGE,
+};
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::student_notifications::{
+    self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
+};
 use headless_lms_models::credit_registration_account_linking_emails;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionFilters,
@@ -15,15 +24,6 @@ use headless_lms_models::credit_registrations::{
     ResubmissionStrictness, Transition,
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
-use headless_lms_data_operations::library::credit_registration::CreditRegistrationPendingReason;
-use headless_lms_data_operations::library::credit_registration::backoff::{
-    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER,
-    UNCERTAIN_ADMIN_AFTER, VERIFY_MAX_AGE,
-};
-use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
-use headless_lms_data_operations::library::credit_registration::student_notifications::{
-    self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
-};
 use headless_lms_models::suotar_api_calls;
 use headless_lms_models::verified_student_numbers::{self, StudentNumberVerificationMethod};
 use std::collections::{HashMap, HashSet};

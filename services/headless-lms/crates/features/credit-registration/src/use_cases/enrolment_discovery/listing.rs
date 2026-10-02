@@ -1,12 +1,12 @@
 //! Sending one listing request, and recording what its rosters, or its failure, say about each
 //! code.
 
+use headless_lms_data_operations::library::credit_registration::outcomes::request_level_code;
 use headless_lms_models::course_module_suotar_configurations::mark_listing_failed;
 use headless_lms_models::credit_registration_roster_schedules::{
     mark_alone_failed, mark_attempted, mark_batch_failed, mark_fetched, mark_window_closed,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
-use headless_lms_data_operations::library::credit_registration::outcomes::request_level_code;
 use sqlx::{PgConnection, PgPool};
 
 use super::CodeListing;

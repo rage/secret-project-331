@@ -1,9 +1,6 @@
 //! What a verify answer does to its row.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registrations::{
-    AdminAttention, CreditRegistration, CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::backoff::{
     VERIFY_MAX_AGE, verify_window_expired,
 };
@@ -11,6 +8,9 @@ use headless_lms_data_operations::library::credit_registration::enrolment_select
 use headless_lms_data_operations::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
     verify_inconclusive_outcome, verify_not_registered_outcome, verify_partial_outcome,
+};
+use headless_lms_models::credit_registrations::{
+    AdminAttention, CreditRegistration, CreditRegistrationState,
 };
 
 use crate::registry::{EnrolmentAnswer, VerificationAnswer, VerificationReading};
@@ -139,13 +139,13 @@ pub(super) fn decide_recovery<'a>(
 #[cfg(test)]
 mod tests {
     use chrono::TimeDelta;
-    use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
-    use headless_lms_models::credit_registrations::CreditRegistrationState as State;
     use headless_lms_data_operations::library::credit_registration::backoff::{
         NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER,
     };
     use headless_lms_data_operations::library::credit_registration::outcomes::NextAttempt;
     use headless_lms_data_operations::library::credit_registration::study_registry::RegistryAttainment;
+    use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
+    use headless_lms_models::credit_registrations::CreditRegistrationState as State;
 
     use super::*;
     use crate::registry::EnrolmentReading;

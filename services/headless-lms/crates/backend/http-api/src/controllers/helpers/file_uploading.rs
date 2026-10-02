@@ -7,11 +7,9 @@ use actix_multipart as mp;
 use actix_multipart::Field;
 use actix_web::http::header;
 use futures::{StreamExt, TryStreamExt};
-use headless_lms_file_store::file_store::{FileStore, GenericPayload};
 use headless_lms_file_store::file_store::file_utils::get_extension_from_filename;
-use headless_lms_utils::{
-    strings::generate_random_string,
-};
+use headless_lms_file_store::file_store::{FileStore, GenericPayload};
+use headless_lms_utils::strings::generate_random_string;
 use models::organizations::DatabaseOrganization;
 use rand::distr::Alphanumeric;
 use rand::distr::SampleString;

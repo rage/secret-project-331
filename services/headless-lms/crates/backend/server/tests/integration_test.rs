@@ -8,6 +8,7 @@ use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -17,11 +18,7 @@ use headless_lms_server::{
     service_clients::exercise_service_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_file_store::file_store::local_file_store::LocalFileStore;
-use headless_lms_utils::{
-    services::sisu::SisuClient,
-    services::tmc::TmcClient,
-};
+use headless_lms_utils::{services::sisu::SisuClient, services::tmc::TmcClient};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;

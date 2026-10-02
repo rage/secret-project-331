@@ -1,11 +1,11 @@
 //! What a Suotar per-item `code` means: the one place the wire vocabulary is spelled out. What may
 //! be done about the ledger error code it maps to is models' `classification::retryability`.
 
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::classification::{
     Retryability, is_waiting_error, retryability,
+};
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationErrorCode, CreditRegistrationState,
 };
 use headless_lms_utils::services::suotar::{SuotarEndpoint, SuotarItemStatus};
 

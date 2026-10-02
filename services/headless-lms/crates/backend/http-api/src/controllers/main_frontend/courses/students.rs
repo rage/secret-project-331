@@ -1,13 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses/{course_id}/students`.
 use crate::prelude::*;
 
-use headless_lms_models::chapter_lock_action_logs;
 use headless_lms_data_operations::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use headless_lms_data_operations::library::students_view::{
     CertificateGridRow, CompletionGridRow, CourseStudentsProgressStructure,
     CourseStudentsProgressUsers, GRADE_FILTER_FAILED, GRADE_FILTER_NOT_COMPLETED,
     GRADE_FILTER_PASSED, StudentsListPage,
 };
+use headless_lms_models::chapter_lock_action_logs;
 use headless_lms_models::user_chapter_locking_statuses::{
     ChapterLockingStatus, UserChapterLockingStatus,
 };
@@ -103,9 +103,10 @@ async fn get_progress_structure(
         Res::Course(*course_id),
     )
     .await?;
-    let res =
-        headless_lms_data_operations::library::students_view::get_progress_structure(&mut conn, *course_id)
-            .await?;
+    let res = headless_lms_data_operations::library::students_view::get_progress_structure(
+        &mut conn, *course_id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -298,12 +299,13 @@ async fn get_completions(
         Res::Course(*course_id),
     )
     .await?;
-    let rows = headless_lms_data_operations::library::students_view::get_completions_grid_for_users(
-        &mut conn,
-        *course_id,
-        &payload.user_ids,
-    )
-    .await?;
+    let rows =
+        headless_lms_data_operations::library::students_view::get_completions_grid_for_users(
+            &mut conn,
+            *course_id,
+            &payload.user_ids,
+        )
+        .await?;
 
     token.authorized_ok(web::Json(rows))
 }
@@ -337,12 +339,13 @@ async fn get_certificates(
         Res::Course(*course_id),
     )
     .await?;
-    let rows = headless_lms_data_operations::library::students_view::get_certificates_grid_for_users(
-        &mut conn,
-        *course_id,
-        &payload.user_ids,
-    )
-    .await?;
+    let rows =
+        headless_lms_data_operations::library::students_view::get_certificates_grid_for_users(
+            &mut conn,
+            *course_id,
+            &payload.user_ids,
+        )
+        .await?;
 
     token.authorized_ok(web::Json(rows))
 }

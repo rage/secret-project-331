@@ -4,12 +4,12 @@
 //! and an unreachable Sisu are different problems. The caps and the dedup guard applied when the
 //! slot was claimed, so this phase retries until the message is queued rather than deciding again.
 
+use headless_lms_data_operations::library::credit_registration::account_linking::link_student_number_url;
 use headless_lms_models::credit_registration_account_linking_emails::{
     LinkingMailToQueue, claim_unqueued, set_email_delivery_id,
 };
 use headless_lms_models::email_deliveries::insert_email_delivery_to_address;
 use headless_lms_models::email_templates::EmailTemplateType;
-use headless_lms_data_operations::library::credit_registration::account_linking::link_student_number_url;
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use serde_json::json;

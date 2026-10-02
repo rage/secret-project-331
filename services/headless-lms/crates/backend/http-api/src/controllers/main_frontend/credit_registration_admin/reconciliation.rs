@@ -1,15 +1,15 @@
 //! The Reconciliation tab: the failures defined by an absence, which no error count can catch.
 
-use headless_lms_models::credit_registration_events;
-use headless_lms_models::credit_registrations::{
-    self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
-    CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::legacy_mirror::{
     self, LegacyLedgerDivergence,
 };
 use headless_lms_data_operations::library::credit_registration::materialize::{
     UnmaterialisedCompletion, get_unmaterialised_eligible_completions,
+};
+use headless_lms_models::credit_registration_events;
+use headless_lms_models::credit_registrations::{
+    self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
+    CreditRegistrationState,
 };
 use utoipa::ToSchema;
 

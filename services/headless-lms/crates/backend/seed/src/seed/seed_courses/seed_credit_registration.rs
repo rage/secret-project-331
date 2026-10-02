@@ -43,7 +43,6 @@ use sqlx::{Connection, PgConnection};
 use tracing::info;
 use uuid::Uuid;
 
-use headless_lms_mock_suotar::mock_suotar::fixtures::*;
 use crate::programs::seed::builder::{
     chapter::ChapterBuilder,
     context::SeedContext,
@@ -55,6 +54,7 @@ use crate::programs::seed::builder::{
 };
 use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
+use headless_lms_mock_suotar::mock_suotar::fixtures::*;
 
 /// The certificate detour's own course. Not in `mock_suotar::fixtures` with the others: this one
 /// never reaches Suotar, so the mock registry knows nothing about it.

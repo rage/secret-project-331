@@ -1,5 +1,6 @@
 //! Putting a course's failed registrations back on the pipeline, one row or a whole course at a time.
 
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
@@ -8,7 +9,6 @@ use headless_lms_models::credit_registration_events::CreditRegistrationEventKind
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
-use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 

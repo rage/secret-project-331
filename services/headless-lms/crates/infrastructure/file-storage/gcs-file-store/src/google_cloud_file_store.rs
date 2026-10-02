@@ -14,7 +14,9 @@ use google_cloud_storage::client::{Storage, StorageControl};
 use serde_json::Value;
 use std::{env, io};
 
-use headless_lms_file_store::file_store::{FileStore, GenericPayload, generate_cache_folder_dir, path_to_str};
+use headless_lms_file_store::file_store::{
+    FileStore, GenericPayload, generate_cache_folder_dir, path_to_str,
+};
 
 pub struct GoogleCloudFileStore {
     bucket_name: String,

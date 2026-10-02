@@ -200,8 +200,11 @@ async fn get_number_of_people_started_course(
         .unwrap_or(TimeGranularity::Year);
 
     let res =
-        headless_lms_data_operations::library::global_stats::get_number_of_people_started_course(&mut conn, granularity)
-            .await?;
+        headless_lms_data_operations::library::global_stats::get_number_of_people_started_course(
+            &mut conn,
+            granularity,
+        )
+        .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -292,7 +295,10 @@ async fn get_completion_stats_by_email_domain(
 
     let year = query.get("year").and_then(|y| y.parse::<i32>().ok());
 
-    let res = headless_lms_data_operations::library::global_stats::get_completion_stats_by_email_domain(&mut conn, year)
+    let res =
+        headless_lms_data_operations::library::global_stats::get_completion_stats_by_email_domain(
+            &mut conn, year,
+        )
         .await?;
 
     token.authorized_ok(web::Json(res))

@@ -59,8 +59,10 @@ async fn process_ended_exam(
         if already_processed_courses.contains(&course_id) {
             continue;
         } else {
-            headless_lms_data_operations::library::progressing::process_all_course_completions(&mut tx, course_id)
-                .await?;
+            headless_lms_data_operations::library::progressing::process_all_course_completions(
+                &mut tx, course_id,
+            )
+            .await?;
             already_processed_courses.insert(course_id);
         }
     }

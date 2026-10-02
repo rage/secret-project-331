@@ -2,6 +2,9 @@
 
 use std::collections::HashMap;
 
+use headless_lms_data_operations::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_enabled_modules,
 };
@@ -10,9 +13,6 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
-use headless_lms_data_operations::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config,
-};
 use utoipa::ToSchema;
 
 use crate::prelude::*;

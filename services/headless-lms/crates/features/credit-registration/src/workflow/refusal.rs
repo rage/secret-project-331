@@ -60,10 +60,10 @@ impl<Extra> RefusalPolicy<Extra> {
 #[cfg(test)]
 mod tests {
     use chrono::TimeDelta;
+    use headless_lms_data_operations::library::credit_registration::study_registry::RegistryErrorKind as Kind;
     use headless_lms_models::credit_registrations::CreditRegistrationErrorCode as Code;
     use headless_lms_models::credit_registrations::CreditRegistrationState as State;
     use headless_lms_models::credit_registrations::{AdminAttention, CreditRegistration};
-    use headless_lms_data_operations::library::credit_registration::study_registry::RegistryErrorKind as Kind;
 
     use super::*;
     use crate::test_fixtures::{now, registration};

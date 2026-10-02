@@ -3,12 +3,12 @@
 //! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
 //! reads the database.
 
+use headless_lms_data_operations::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
 use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_enabled_modules,
     record_config_check,
-};
-use headless_lms_data_operations::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config,
 };
 use itertools::Itertools;
 use sqlx::PgPool;

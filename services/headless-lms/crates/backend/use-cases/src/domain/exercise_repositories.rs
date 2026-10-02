@@ -4,11 +4,9 @@ use git2::{
     CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder,
 };
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{exercise_repositories, repository_exercises};
 use headless_lms_file_store::file_store::{self, FileStore};
-use headless_lms_utils::{
-    folder_checksum,
-};
+use headless_lms_models::{exercise_repositories, repository_exercises};
+use headless_lms_utils::folder_checksum;
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Acquire, PgConnection};
 use std::{

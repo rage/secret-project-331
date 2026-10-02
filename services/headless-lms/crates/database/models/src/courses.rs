@@ -14,8 +14,8 @@ use crate::{
 };
 use headless_lms_file_store::file_store::FileStore;
 use headless_lms_utils::{
-    azure_embedding::create_embeddings,
-    language_tag_to_name::LANGUAGE_TAG_TO_NAME, strings::non_empty_trimmed,
+    azure_embedding::create_embeddings, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
+    strings::non_empty_trimmed,
 };
 use itertools::multiunzip;
 use pgvector::Vector;

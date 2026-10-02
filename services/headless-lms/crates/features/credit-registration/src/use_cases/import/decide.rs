@@ -1,13 +1,13 @@
 //! What an import answer does to its row.
 
-use headless_lms_models::credit_registrations::{
-    AdminAttention, CreditRegistration, CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::outcomes::{
     Outcome, RowFacts, import_success_outcome, submission_uncertain, submit_error_outcome,
     unanswered_item_outcome,
 };
 use headless_lms_data_operations::library::credit_registration::study_registry::RegistryAttainment;
+use headless_lms_models::credit_registrations::{
+    AdminAttention, CreditRegistration, CreditRegistrationState,
+};
 
 use crate::registry::{AttainmentSubmission, BatchRequest, HeldCredit, ImportAnswer};
 use crate::workflow::Decision;

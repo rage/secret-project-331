@@ -858,8 +858,8 @@ mod tests {
         use crate::domain::oauth::token_service::{
             TokenGrantRequest, generate_token_pair, process_token_grant,
         };
-        use headless_lms_models::oauth_access_token::TokenType;
         use headless_lms_cache::cache::Cache;
+        use headless_lms_models::oauth_access_token::TokenType;
 
         insert_data!(:tx, :user);
         let client = insert_client(

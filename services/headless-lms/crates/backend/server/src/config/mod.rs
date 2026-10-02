@@ -11,22 +11,17 @@ use actix_web::{
 };
 use anyhow::Context;
 use headless_lms_base::{config::ApplicationConfiguration, jwt::JwtKey};
-use headless_lms_credit_registration::is_waiting_item;
-use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_cache::cache::Cache;
+use headless_lms_credit_registration::is_waiting_item;
 use headless_lms_file_store::file_store::FileStore;
 use headless_lms_gcs_file_store::runtime::setup_file_store;
-use headless_lms_mock_suotar::mock_suotar::store::MockSuotarStore;
-use headless_lms_use_cases::domain;
 use headless_lms_http_api::controllers;
+use headless_lms_mock_suotar::mock_suotar::store::MockSuotarStore;
+use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
+use headless_lms_use_cases::domain;
 use headless_lms_utils::{
-
-
-    icu4x::Icu4xBlob,
-    ip_to_country::IpToCountryMapper,
-    services::sisu::SisuClient,
-    services::suotar::SuotarClient,
-    services::tmc::TmcClient,
+    icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper, services::sisu::SisuClient,
+    services::suotar::SuotarClient, services::tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
@@ -37,7 +32,9 @@ use std::{
 };
 use url::Url;
 
-pub use headless_lms_use_cases::config::{ServerRuntimeConfig, set_server_runtime_config, server_runtime_config};
+pub use headless_lms_use_cases::config::{
+    ServerRuntimeConfig, server_runtime_config, set_server_runtime_config,
+};
 
 pub struct ServerConfigBuilder {
     pub database_url: SecretString,

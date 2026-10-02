@@ -17,12 +17,14 @@ use crate::prelude::*;
 use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use actix_web::FromRequest;
 use exercise_services_api as api;
+use headless_lms_data_operations::library::grading::{
+    StudentExerciseSlideSubmission, StudentExerciseTaskSubmission,
+};
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::exercise_task_submissions::AnswerKind;
-use headless_lms_data_operations::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::HashSet;
 use std::future::{Ready, ready};
 use utoipa::OpenApi;
@@ -2145,18 +2147,18 @@ mod route_tests {
     use actix_web::{App, test};
     use chrono::Duration as ChronoDuration;
     use chrono::Utc;
+    use headless_lms_cache::cache::Cache;
     use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
     use headless_lms_data_operations::library::oauth::{
         EXERCISE_SERVICES_SCOPE, GrantTypeName, generate_access_token, token_digest_sha256,
     };
+    use headless_lms_file_store::file_store::FileStore;
     use headless_lms_models::oauth_access_token::{
         NewAccessTokenParams, OAuthAccessToken, TokenType,
     };
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
-    use headless_lms_cache::cache::Cache;
-    use headless_lms_file_store::file_store::FileStore;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
     use sqlx::Connection;
     use std::sync::{Arc, Mutex};

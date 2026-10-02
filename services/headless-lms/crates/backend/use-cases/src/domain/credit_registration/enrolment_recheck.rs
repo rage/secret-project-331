@@ -1,14 +1,14 @@
 //! Asking for an enrolment check of a row waiting for one, from the student's or a teacher's view.
 
+use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use headless_lms_data_operations::library::credit_registration::enrolment_checks::{
+    self, CheckRequestOutcome,
+};
 use headless_lms_models::credit_registration_enrolment_check_signals;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NewCreditRegistrationEvent,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationState;
-use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
-use headless_lms_data_operations::library::credit_registration::enrolment_checks::{
-    self, CheckRequestOutcome,
-};
 
 use crate::prelude::*;
 

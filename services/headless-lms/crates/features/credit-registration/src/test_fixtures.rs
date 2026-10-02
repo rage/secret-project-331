@@ -1,13 +1,13 @@
 //! Rows and registry records for the pure decision tests.
 
 use chrono::{DateTime, NaiveDate, TimeZone, Utc};
-use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use headless_lms_data_operations::library::credit_registration::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource,
 };
 use headless_lms_data_operations::library::credit_registration::study_registry::{
     ATTAINMENT_TYPE_COURSE_UNIT, RegistryAttainment,
 };
+use headless_lms_models::credit_registrations::{CreditRegistration, CreditRegistrationState};
 use uuid::Uuid;
 
 pub(crate) fn now() -> DateTime<Utc> {

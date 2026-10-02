@@ -211,12 +211,12 @@ async fn apply_enrolment_answer(
 
 #[cfg(test)]
 mod fixtures {
-    use headless_lms_models::credit_registrations::{
-        CreditRegistrationErrorCode, CreditRegistrationState,
-    };
     use headless_lms_data_operations::library::credit_registration::payload::CompletionFacts;
     use headless_lms_data_operations::library::credit_registration::study_registry::{
         CreditRange, RegistryEnrolment,
+    };
+    use headless_lms_models::credit_registrations::{
+        CreditRegistrationErrorCode, CreditRegistrationState,
     };
     use headless_lms_models::secret::DbSecret;
     use uuid::Uuid;

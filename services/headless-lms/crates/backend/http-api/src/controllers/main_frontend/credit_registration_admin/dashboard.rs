@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use headless_lms_data_operations::library::credit_registration::PendingReasonCounts;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
@@ -11,7 +12,6 @@ use headless_lms_models::credit_registrations::{
     self, CreditRegistrationErrorCode, CreditRegistrationErrorCodeCount, CreditRegistrationState,
     OldestNonTerminalRegistration, StuckRegistrationCount,
 };
-use headless_lms_data_operations::library::credit_registration::PendingReasonCounts;
 use headless_lms_models::suotar_api_calls::{
     self, SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow,
     SuotarEndpointStatsForWindow,

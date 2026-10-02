@@ -4,12 +4,12 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::config_validation::CourseCodeVerdict;
 use headless_lms_data_operations::library::credit_registration::study_registry::{
     RegistryAttainment, RegistryEnrolment, RosterPerson,
+};
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationErrorCode, CreditRegistrationState,
 };
 use secrecy::SecretString;
 

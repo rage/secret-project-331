@@ -249,20 +249,23 @@ macro_rules! doc {
 
 pub async fn main() -> anyhow::Result<()> {
     // clear previous results
-    fs::read_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../http-api/generated-docs/"))
-        .map_err(|e| anyhow::anyhow!("Failed to read generated-docs directory: {}", e))?
-        .filter_map(|file| {
-            file.ok().filter(|f| {
-                f.file_name()
-                    .to_str()
-                    .is_some_and(|n| n.ends_with(".json") || n.ends_with(".ts"))
-            })
+    fs::read_dir(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../http-api/generated-docs/"
+    ))
+    .map_err(|e| anyhow::anyhow!("Failed to read generated-docs directory: {}", e))?
+    .filter_map(|file| {
+        file.ok().filter(|f| {
+            f.file_name()
+                .to_str()
+                .is_some_and(|n| n.ends_with(".json") || n.ends_with(".ts"))
         })
-        .try_for_each(|f| -> anyhow::Result<()> {
-            fs::remove_file(f.path())
-                .map_err(|e| anyhow::anyhow!("Failed to remove file {:?}: {}", f.path(), e))?;
-            Ok(())
-        })?;
+    })
+    .try_for_each(|f| -> anyhow::Result<()> {
+        fs::remove_file(f.path())
+            .map_err(|e| anyhow::anyhow!("Failed to remove file {:?}: {}", f.path(), e))?;
+        Ok(())
+    })?;
 
     // write docs
     controllers();

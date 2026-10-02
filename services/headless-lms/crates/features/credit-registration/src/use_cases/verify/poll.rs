@@ -1,12 +1,12 @@
 //! Polling what became of the submissions that have an attainment id to poll by.
 
 use chrono::{DateTime, Utc};
+use headless_lms_data_operations::library::credit_registration::outcomes::{
+    Outcome, verify_inconclusive_outcome,
+};
 use headless_lms_models::credit_registrations::{
     AdminAttention, VerifyFlow, mark_partially_registered, reset_for_resubmission,
     set_needs_admin_attention,
-};
-use headless_lms_data_operations::library::credit_registration::outcomes::{
-    Outcome, verify_inconclusive_outcome,
 };
 use sqlx::{Connection, PgConnection};
 

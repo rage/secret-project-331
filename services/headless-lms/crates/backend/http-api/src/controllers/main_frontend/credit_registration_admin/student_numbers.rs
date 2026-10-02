@@ -1,11 +1,11 @@
 //! Listing and unlinking verified student numbers, for spot-checking and support.
 
+use headless_lms_data_operations::library::credit_registration::student_number_change::unlink_verified_student_number;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
-use headless_lms_data_operations::library::credit_registration::student_number_change::unlink_verified_student_number;
 use headless_lms_models::verified_student_numbers::{
     self, AdminVerifiedStudentNumber, StudentNumberVerificationMethod,
 };

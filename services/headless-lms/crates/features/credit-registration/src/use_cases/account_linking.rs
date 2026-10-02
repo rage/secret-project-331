@@ -7,10 +7,10 @@
 
 use secrecy::{ExposeSecret, SecretString};
 
-use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_data_operations::library::credit_registration::account_linking::{
     ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, retire_capped_mails,
 };
+use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::verified_student_numbers;
 use sqlx::{Connection, PgPool};
 use std::collections::BTreeSet;

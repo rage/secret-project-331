@@ -370,7 +370,10 @@ async fn post_reprocess_module_completions(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    headless_lms_data_operations::library::progressing::process_all_course_completions(&mut conn, *course_id).await?;
+    headless_lms_data_operations::library::progressing::process_all_course_completions(
+        &mut conn, *course_id,
+    )
+    .await?;
     token.authorized_ok(web::Json(true))
 }
 
@@ -905,12 +908,24 @@ pub async fn create_course_copy(
 
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
-            headless_lms_data_operations::library::copying::copy_course(&mut tx, *course_id, &new_course, false, user.id)
-                .await?
+            headless_lms_data_operations::library::copying::copy_course(
+                &mut tx,
+                *course_id,
+                &new_course,
+                false,
+                user.id,
+            )
+            .await?
         }
         CopyCourseMode::SameLanguageGroup => {
-            headless_lms_data_operations::library::copying::copy_course(&mut tx, *course_id, &new_course, true, user.id)
-                .await?
+            headless_lms_data_operations::library::copying::copy_course(
+                &mut tx,
+                *course_id,
+                &new_course,
+                true,
+                user.id,
+            )
+            .await?
         }
         CopyCourseMode::ExistingLanguageGroup { target_course_id } => {
             let target_course = models::courses::get_course(&mut tx, *target_course_id).await?;

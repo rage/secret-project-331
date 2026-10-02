@@ -50,8 +50,10 @@ fn resolve_refresh_scopes(
 
 /// Generate a new token pair (access token and refresh token) with their digests.
 pub fn generate_token_pair(key: &SecretString) -> TokenPair {
-    let access_token = headless_lms_data_operations::library::oauth::tokens::generate_access_token();
-    let refresh_token = headless_lms_data_operations::library::oauth::tokens::generate_access_token();
+    let access_token =
+        headless_lms_data_operations::library::oauth::tokens::generate_access_token();
+    let refresh_token =
+        headless_lms_data_operations::library::oauth::tokens::generate_access_token();
     TokenPair {
         access_token: access_token.clone(),
         refresh_token: refresh_token.clone(),
@@ -413,11 +415,11 @@ async fn process_device_code_grant(
 mod tests {
     use super::*;
     use crate::test_helper::*;
-    use headless_lms_models::PKeyPolicy;
     use headless_lms_data_operations::library::oauth::pkce::PkceMethod;
     use headless_lms_data_operations::library::oauth::{
         GrantTypeName, generate_access_token, generate_user_code,
     };
+    use headless_lms_models::PKeyPolicy;
     use headless_lms_models::oauth_access_token::OAuthAccessToken;
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,

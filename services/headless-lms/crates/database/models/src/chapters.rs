@@ -11,9 +11,7 @@ use crate::{
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_file_store::file_store::FileStore;
-use headless_lms_utils::{
-    numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
-};
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

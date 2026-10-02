@@ -1,7 +1,6 @@
 //! What the study registry's answer to an enrolment lookup means for the row: the enrolment it
 //! lists, or the error it gave, and the grade scale our grade would go out on.
 
-use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_data_operations::library::credit_registration::classification::is_enrolment_error;
 use headless_lms_data_operations::library::credit_registration::enrolment_selection::{
     NoUsableEnrolment, attained_candidates, preferred_attainment,
@@ -13,6 +12,7 @@ use headless_lms_data_operations::library::credit_registration::study_registry::
     RegistryAttainment, RegistryEnrolment,
 };
 use headless_lms_data_operations::library::credit_registration::submission_context::SubmissionContext;
+use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 
 use super::Resolvable;
 use crate::registry::{EnrolmentAnswer, EnrolmentReading};

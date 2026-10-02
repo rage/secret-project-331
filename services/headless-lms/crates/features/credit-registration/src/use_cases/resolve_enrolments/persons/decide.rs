@@ -1,10 +1,10 @@
 //! What a person lookup's answer does to its row.
 
-use headless_lms_models::credit_registrations::{
-    CreditRegistrationErrorCode, CreditRegistrationState,
-};
 use headless_lms_data_operations::library::credit_registration::outcomes::{
     NextAttempt, Outcome, RowFacts, submit_error_outcome, unanswered_item_outcome,
+};
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationErrorCode, CreditRegistrationState,
 };
 
 use crate::registry::{BatchRequest, PersonLookup};

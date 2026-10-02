@@ -66,9 +66,6 @@ const Matrix: React.FunctionComponent<
   return (
     <>
       <MatrixInputGrid
-        className={css`
-          margin-top: 1rem;
-        `}
         matrix={matrixVariable}
         shape={shape}
         gaps={gaps}

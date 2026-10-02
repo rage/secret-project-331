@@ -14,13 +14,26 @@ import {
 
 /** Grid look shared by the student answer view and the exercise editor. */
 export const MatrixTable = styled.table`
-  margin: auto;
+  /* Room for the frame brackets, which overhang the grid by 4px and would be clipped by the iframe */
+  margin: 4px auto;
   background-color: #e2e4e6;
   border-collapse: collapse;
-  /* Lightest gray with 3:1 against both cell backgrounds (WCAG 1.4.11); kept 1px so the frame dominates */
-  border: 1px solid #8b8f96;
   td {
+    /* Lightest gray with 3:1 against both cell backgrounds (WCAG 1.4.11); kept 1px so the frame dominates */
     border: 1px solid #8b8f96;
+  }
+  /* Only inner lines, so the grid has no outer edge */
+  tr:first-child td {
+    border-top: none;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  td:first-child {
+    border-left: none;
+  }
+  td:last-child {
+    border-right: none;
   }
 `
 

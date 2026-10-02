@@ -5,6 +5,7 @@ import React from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import { MatrixFrame, MatrixTable } from "@/components/Shared/MatrixGrid"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
@@ -16,23 +17,23 @@ import type { MatrixCellVerdict } from "../../../../../types/quizTypes/grading"
 import type { ModelSolutionQuizItemMatrix } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
-const MatrixTableContainer = styled.table`
-  margin: auto;
+const SubmissionMatrixTable = styled(MatrixTable)`
   margin-top: 1rem;
-  border-collapse: collapse;
-
-  tbody {
-    border-left: 0.125rem solid #718dbf;
-    border-right: 0.125rem solid #718dbf;
-    position: relative;
-  }
 `
 
+// Pale tints so the colored icon carries the verdict; every icon keeps over 5:1 on its tint
 const VERDICT_BACKGROUNDS: Record<MatrixCellVerdict, string> = {
-  correct: baseTheme.colors.green[100],
-  incorrect: baseTheme.colors.red[100],
-  missing: baseTheme.colors.gray[200],
+  correct: baseTheme.colors.green[75],
+  incorrect: baseTheme.colors.red[75],
+  missing: baseTheme.colors.gray[75],
   extra: baseTheme.colors.yellow[100],
+}
+
+const VERDICT_ICON_COLORS: Record<MatrixCellVerdict, string> = {
+  correct: baseTheme.colors.green[600],
+  incorrect: baseTheme.colors.red[600],
+  missing: baseTheme.colors.gray[500],
+  extra: baseTheme.colors.red[600],
 }
 
 // A shape per verdict, not just a background color, so the verdict survives for color-blind
@@ -40,7 +41,7 @@ const VERDICT_BACKGROUNDS: Record<MatrixCellVerdict, string> = {
 // devices don't show it at all).
 const VERDICT_ICONS: Record<
   MatrixCellVerdict,
-  React.ComponentType<{ size?: number; className?: string }>
+  React.ComponentType<{ size?: number; className?: string; color?: string }>
 > = {
   correct: CheckCircle,
   incorrect: XmarkCircle,
@@ -146,20 +147,24 @@ const MatrixSubmission: React.FC<
               missing: breakdown.missingCells,
               extra: breakdown.extraCells,
             })}
-          </span>{" "}
+          </span>
           {modelSolution?.gradingPolicy === "per-cell" && (
-            <span>
+            <span className={noteLine}>
               {t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })}
             </span>
           )}
           {modelSolution?.gradingPolicy === "whole-matrix" && (
-            <span>{t("matrix-score-breakdown-whole-matrix-note")}</span>
+            <span className={noteLine}>{t("matrix-score-breakdown-whole-matrix-note")}</span>
           )}
         </p>
       )}
     </div>
   )
 }
+
+const noteLine = css`
+  display: block;
+`
 
 const Caption = styled.div`
   display: flex;
@@ -189,7 +194,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
   }
 
   return (
-    <MatrixTableContainer>
+    <SubmissionMatrixTable>
       <tbody>
         {Array.from({ length: rows }, (_unusedRow, row) => (
           <tr key={`row${row}`}>
@@ -203,6 +208,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                   className={css`
                     padding: 0;
                     font-size: 1.375rem;
+                    font-weight: 600;
                     font-family: ${primaryFont};
                   `}
                 >
@@ -215,15 +221,17 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                       justify-content: center;
                       width: 3.125rem;
                       height: 3.125rem;
+                      /* Nudge the value left of the verdict icon so they don't overlap */
+                      padding-right: ${cell.verdict ? "0.5rem" : "0"};
+                      box-sizing: border-box;
                       text-align: center;
-                      color: ${baseTheme.colors.gray[700]};
+                      color: ${baseTheme.colors.gray[600]};
                       background-color: ${
-                        cell.verdict
-                          ? VERDICT_BACKGROUNDS[cell.verdict]
-                          : baseTheme.colors.clear[200]
+                        cell.verdict ? VERDICT_BACKGROUNDS[cell.verdict] : "#FFFFFF"
                       };
                     `}
                   >
+                    <MatrixFrame column={column} row={row} matrixSize={[rows - 1, columns - 1]} />
                     {cell.text}
                     {cell.verdict && VerdictIcon && (
                       <>
@@ -231,9 +239,10 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
                           <VerdictIcon
                             className={css`
                               position: absolute;
-                              top: 0.125rem;
-                              right: 0.125rem;
+                              top: 0.1875rem;
+                              right: 0.1875rem;
                             `}
+                            color={VERDICT_ICON_COLORS[cell.verdict]}
                             size={14}
                           />
                         </span>
@@ -247,7 +256,7 @@ const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, cellAt }) => {
           </tr>
         ))}
       </tbody>
-    </MatrixTableContainer>
+    </SubmissionMatrixTable>
   )
 }
 

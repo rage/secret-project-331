@@ -129,7 +129,7 @@ export const MatrixGridCell: React.FC<MatrixGridCellProps> = ({
           position: relative;
         `}
       >
-        <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
+        <MatrixFrame column={column} row={row} matrixSize={matrixSize} />
         <CellInputContainer
           // 1-based so the label matches how screen readers announce the table cells (WCAG 1.3.1)
           aria-label={t("matrix-cell-aria-label", { row: row + 1, column: column + 1 })}
@@ -157,17 +157,14 @@ const BORDER_STYLES = `
 // green[600] is ~6:1 against the cell background, so the frame stands out from the grid
 const BORDER_CONSTANT = `3px solid ${baseTheme.colors.green[600]}`
 
-interface BorderDivProps {
+interface MatrixFrameProps {
   column: number
   row: number
   matrixSize: number[]
 }
 
-const BorderDiv: React.FC<React.PropsWithChildren<BorderDivProps>> = ({
-  column,
-  row,
-  matrixSize,
-}) => {
+/** Bracket pieces for one cell; draws the frame around `matrixSize` (last row and column index). */
+export const MatrixFrame: React.FC<MatrixFrameProps> = ({ column, row, matrixSize }) => {
   return (
     <>
       {column === 0 && row === 0 ? (

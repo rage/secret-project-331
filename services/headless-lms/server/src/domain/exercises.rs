@@ -223,16 +223,36 @@ pub async fn verify_user_can_answer_exercise(
     verify_any_slide_has_tries_left(conn, user_id, exercise, course_or_exam_id).await
 }
 
-/// Rejects a user who has used up the try limit on every slide of the exercise. A slide nobody has
-/// submitted to has all its tries left.
+/// Rejects a user who has used up the try limit on every slide of the exercise.
 async fn verify_any_slide_has_tries_left(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &Exercise,
     course_or_exam_id: CourseOrExamId,
 ) -> Result<(), ControllerError> {
-    let Some(max_tries_per_slide) = try_limit(exercise) else {
+    if !is_out_of_tries(conn, user_id, exercise, course_or_exam_id).await? {
         return Ok(());
+    }
+    tracing::error!(
+        user_id = %user_id,
+        exercise_id = %exercise.id,
+        course_or_exam_id = ?course_or_exam_id,
+        "User has run out of tries on every slide of the exercise"
+    );
+    Err(out_of_tries_error())
+}
+
+/// Whether the user has used up the try limit on every slide of the exercise, so no further
+/// submission is accepted. Always `false` for an exercise without a try limit; a slide nobody has
+/// submitted to has all its tries left.
+pub async fn is_out_of_tries(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+    course_or_exam_id: CourseOrExamId,
+) -> models::ModelResult<bool> {
+    let Some(max_tries_per_slide) = try_limit(exercise) else {
+        return Ok(false);
     };
     let submission_counts =
         models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
@@ -244,20 +264,9 @@ async fn verify_any_slide_has_tries_left(
         .await?;
     let slides =
         models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise.id).await?;
-    if slides
+    Ok(slides
         .iter()
-        .any(|slide| submission_counts.get(&slide.id).unwrap_or(&0) < &max_tries_per_slide)
-    {
-        return Ok(());
-    }
-    tracing::error!(
-        user_id = %user_id,
-        exercise_id = %exercise.id,
-        course_or_exam_id = ?course_or_exam_id,
-        max_tries_per_slide = %max_tries_per_slide,
-        "User has run out of tries on every slide of the exercise"
-    );
-    Err(out_of_tries_error())
+        .all(|slide| submission_counts.get(&slide.id).unwrap_or(&0) >= &max_tries_per_slide))
 }
 
 /// The rejection both try-limit checks report, kept in one place because the message reaches the

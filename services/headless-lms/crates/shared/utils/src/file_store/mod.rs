@@ -2,6 +2,7 @@
 pub mod file_utils;
 pub mod google_cloud_file_store;
 pub mod local_file_store;
+pub mod runtime;
 
 use std::{
     os::unix::prelude::OsStrExt,

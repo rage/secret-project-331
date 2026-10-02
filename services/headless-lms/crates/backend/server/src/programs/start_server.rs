@@ -1,7 +1,4 @@
-use crate::{
-    config::{self, ServerConfigBuilder, ServerRuntimeConfig, set_server_runtime_config},
-    setup_tracing,
-};
+use crate::config::{self, ServerConfigBuilder, ServerRuntimeConfig, set_server_runtime_config};
 use actix_session::{
     SessionMiddleware,
     config::{CookieContentSecurity, PersistentSession, SessionLifecycle, TtlExtensionPolicy},
@@ -14,6 +11,7 @@ use actix_web::{
     middleware::Logger,
 };
 use dotenvy::dotenv;
+use headless_lms_base::tracing::setup_tracing;
 use listenfd::ListenFd;
 use secrecy::ExposeSecret;
 use std::time::Duration;

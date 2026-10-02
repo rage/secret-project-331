@@ -109,7 +109,7 @@ impl ChapterBuilder {
                     &new_chapter,
                     cx.teacher,
                     spec,
-                    crate::domain::exercise_service_requests::fetch_service_info,
+                    crate::service_clients::exercise_service_requests::fetch_service_info,
                     self.front_page_content,
                 )
                 .await
@@ -121,7 +121,7 @@ impl ChapterBuilder {
                 &new_chapter,
                 cx.teacher,
                 spec,
-                crate::domain::exercise_service_requests::fetch_service_info,
+                crate::service_clients::exercise_service_requests::fetch_service_info,
                 self.front_page_content,
             )
             .await

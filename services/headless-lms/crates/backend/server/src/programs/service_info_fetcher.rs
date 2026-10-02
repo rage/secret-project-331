@@ -1,8 +1,9 @@
-use crate::{domain::exercise_service_requests, setup_tracing};
+use crate::service_clients::exercise_service_requests;
 use anyhow::Result;
 use dotenvy::dotenv;
 use futures::stream::{self, StreamExt};
 use headless_lms_base::program_config::ProgramConfig;
+use headless_lms_base::tracing::setup_tracing;
 use headless_lms_models::{
     exercise_service_info::{ExerciseServiceInfo, fetch_and_upsert_service_info},
     exercise_services::ExerciseService,

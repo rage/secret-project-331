@@ -3,10 +3,10 @@ use std::env;
 use crate::config::open_university_config::{
     OPEN_UNIVERSITY_COURSE_URL, OPEN_UNIVERSITY_TOKEN, OpenUniversityConfig,
 };
-use crate::setup_tracing;
 use anyhow::Context;
 use chrono::{NaiveDateTime, Utc};
 use dotenvy::dotenv;
+use headless_lms_base::tracing::setup_tracing;
 use headless_lms_models as models;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};

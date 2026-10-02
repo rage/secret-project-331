@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/cms/pages`.
 
+use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use models::{
     CourseOrExamId,
     page_history::HistoryChangeReason,
@@ -9,13 +10,7 @@ use models::{
     },
 };
 
-use crate::{
-    domain::{
-        exercise_service_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
-    prelude::*,
-};
+use crate::{domain::request_id::RequestId, prelude::*};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

@@ -1,5 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/pages`.
 
+use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use std::sync::Arc;
 
 use models::{
@@ -9,13 +10,7 @@ use models::{
 };
 use utoipa::OpenApi;
 
-use crate::{
-    domain::{
-        exercise_service_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
-    prelude::*,
-};
+use crate::{domain::request_id::RequestId, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(

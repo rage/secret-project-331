@@ -12,9 +12,9 @@ capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
-use crate::domain::exercise_service_requests::{self, JwtKey};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::prelude::*;
+use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use actix_web::FromRequest;
 use exercise_services_api as api;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
@@ -1595,8 +1595,8 @@ mod tests {
 #[cfg(test)]
 mod upload_tests {
     use super::*;
-    use crate::domain::exercise_service_requests::{DOWNLOAD_CLAIM_PARAM, DownloadClaim};
     use crate::domain::exercise_services::answer_uploads;
+    use crate::service_clients::exercise_service_requests::{DOWNLOAD_CLAIM_PARAM, DownloadClaim};
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
     use headless_lms_base::config::{

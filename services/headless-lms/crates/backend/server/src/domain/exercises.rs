@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use crate::{
-    domain::exercise_service_requests::{self, JwtKey},
     domain::exercise_services::answer_uploads,
     prelude::*,
+    service_clients::exercise_service_requests::{self, JwtKey},
 };
 use chrono::{Duration, Utc};
 use futures_util::future::OptionFuture;
@@ -560,7 +560,7 @@ mod tests {
                 exercise_slide_id: fixture.slide,
                 exercise_task_submissions: vec![answer],
             },
-            Arc::new(crate::domain::exercise_service_requests::JwtKey::test_key()),
+            Arc::new(crate::service_clients::exercise_service_requests::JwtKey::test_key()),
             file_store,
             &init_app_conf().expect("app conf"),
         )
@@ -792,7 +792,7 @@ mod tests {
                     file_answer(other_task, vec![file]),
                 ],
             },
-            Arc::new(crate::domain::exercise_service_requests::JwtKey::test_key()),
+            Arc::new(crate::service_clients::exercise_service_requests::JwtKey::test_key()),
             &store,
             &init_app_conf().expect("app conf"),
         )

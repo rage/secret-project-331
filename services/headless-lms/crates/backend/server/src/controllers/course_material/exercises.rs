@@ -1,11 +1,8 @@
 //! Controllers for requests starting with `/api/v0/course-material/exercises`.
 
+use crate::service_clients::exercise_service_requests::{self, GivePeerReviewClaim, JwtKey};
 use crate::{
-    domain::{
-        authorization::skip_authorize,
-        exercise_service_requests::{self, GivePeerReviewClaim, JwtKey},
-        exercises::process_submission,
-    },
+    domain::{authorization::skip_authorize, exercises::process_submission},
     prelude::*,
 };
 use headless_lms_models::{

@@ -4,7 +4,7 @@ use headless_lms_models::{ModelError, exercise_service_info::fetch_and_upsert_se
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::exercise_service_requests, prelude::*};
+use crate::{prelude::*, service_clients::exercise_service_requests};
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`

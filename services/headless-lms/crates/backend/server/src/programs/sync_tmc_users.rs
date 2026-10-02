@@ -3,10 +3,10 @@ Syncs tmc users
 */
 use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
 use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
-use crate::setup_tracing;
 use anyhow::Context;
 use headless_lms_base::config::OAuthServerConfiguration;
 use headless_lms_base::program_config::ProgramConfig;
+use headless_lms_base::tracing::setup_tracing;
 use headless_lms_utils::cache::Cache;
 use secrecy::SecretString;
 

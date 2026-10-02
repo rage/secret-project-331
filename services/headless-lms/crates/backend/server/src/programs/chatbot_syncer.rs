@@ -9,8 +9,8 @@ use sqlx::{PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;
 
-use crate::setup_tracing;
 use headless_lms_base::program_config::ProgramConfig;
+use headless_lms_base::tracing::setup_tracing;
 use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
 };

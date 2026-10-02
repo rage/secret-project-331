@@ -3,14 +3,7 @@ pub mod open_university_config;
 
 use headless_lms_base::program_config::ProgramConfig;
 
-use crate::{
-    OAuthClient,
-    domain::{
-        exercise_service_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
-        request_span_middleware::RequestSpan,
-    },
-    mock_suotar::store::MockSuotarStore,
-};
+use crate::{OAuthClient, mock_suotar::store::MockSuotarStore};
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
     HttpResponse,
@@ -18,12 +11,20 @@ use actix_web::{
     web::{self, Data, PayloadConfig, ServiceConfig},
 };
 use anyhow::Context;
-use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::{config::ApplicationConfiguration, jwt::JwtKey};
 use headless_lms_credit_registration::is_waiting_item;
 use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::{
-    cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
-    services::sisu::SisuClient, services::suotar::SuotarClient, services::tmc::TmcClient,
+    cache::Cache,
+    file_store::{
+        FileStore,
+        runtime::{FileStoreRuntimeConfig, setup_file_store},
+    },
+    icu4x::Icu4xBlob,
+    ip_to_country::IpToCountryMapper,
+    services::sisu::SisuClient,
+    services::suotar::SuotarClient,
+    services::tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
@@ -35,32 +36,6 @@ use std::{
 use url::Url;
 
 static SERVER_RUNTIME_CONFIG: OnceLock<ServerRuntimeConfig> = OnceLock::new();
-
-#[derive(Clone)]
-pub struct FileStoreRuntimeConfig {
-    pub use_google_cloud_storage: bool,
-    pub google_cloud_storage_bucket_name: Option<String>,
-}
-
-impl FileStoreRuntimeConfig {
-    /// Loads the file store configuration from environment variables.
-    pub fn try_from_env() -> anyhow::Result<Self> {
-        let use_google_cloud_storage =
-            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
-        let google_cloud_storage_bucket_name = if use_google_cloud_storage {
-            Some(
-                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
-                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
-            )
-        } else {
-            None
-        };
-        Ok(Self {
-            use_google_cloud_storage,
-            google_cloud_storage_bucket_name,
-        })
-    }
-}
 
 #[derive(Clone)]
 pub struct ServerRuntimeConfig {
@@ -196,7 +171,7 @@ impl ServerConfigBuilder {
                 .parse()
                 .context("Failed to parse token url")?,
             icu4x_postcard_path: runtime_config.icu4x_postcard_path.clone(),
-            file_store: crate::setup_file_store(
+            file_store: setup_file_store(
                 &runtime_config.file_store,
                 &runtime_config.app_conf.base_url,
             )
@@ -338,7 +313,6 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         suotar_client,
         mock_suotar_store,
     } = server_config;
-    let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     let file_store = Data::from(file_store as Arc<dyn FileStore>);
@@ -359,10 +333,5 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .app_data(sisu_client)
         .app_data(suotar_client)
-        .service(
-            web::scope("/api/v0")
-                .wrap(RateLimit::new(api_rate_limit_config))
-                .wrap(RequestSpan)
-                .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
-        );
+        .configure(|cfg| crate::controllers::configure_api(cfg, app_conf));
 }

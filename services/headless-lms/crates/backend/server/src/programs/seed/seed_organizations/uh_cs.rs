@@ -21,7 +21,6 @@ use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use crate::{
-    domain::exercise_service_requests,
     programs::seed::{
         seed_courses::{
             CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
@@ -30,6 +29,7 @@ use crate::{
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
     },
+    service_clients::exercise_service_requests,
 };
 
 use super::super::seed_users::SeedUsersResult;

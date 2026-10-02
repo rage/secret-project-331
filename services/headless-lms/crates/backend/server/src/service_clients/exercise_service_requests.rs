@@ -1,4 +1,4 @@
-//! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
+//! Exercise-service requests and claim types shared by HTTP handlers, seed, and workers.
 
 use crate::prelude::*;
 use chrono::{Duration, Utc};

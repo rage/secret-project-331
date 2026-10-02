@@ -1,4 +1,4 @@
-use crate::{domain::exercise_service_requests, prelude::*};
+use crate::{prelude::*, service_clients::exercise_service_requests};
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
     teacher_grading_decisions::{

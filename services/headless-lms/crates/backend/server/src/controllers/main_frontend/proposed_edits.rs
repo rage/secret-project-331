@@ -1,15 +1,10 @@
+use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use std::sync::Arc;
 
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
 use utoipa::OpenApi;
 
-use crate::{
-    domain::{
-        exercise_service_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
-    prelude::*,
-};
+use crate::{domain::request_id::RequestId, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(get_edit_proposals, get_edit_proposal_count, process_edit_proposal))]

@@ -1,5 +1,7 @@
 #![allow(clippy::unwrap_used)]
 
+use headless_lms_base::tracing::setup_tracing;
+
 pub mod builder;
 pub mod certificate_fonts_data;
 pub mod seed_application_task_llms;
@@ -22,12 +24,8 @@ use headless_lms_base::jwt::JwtKey;
 use headless_lms_base::program_config::ProgramConfig;
 use std::{env, process::Command, sync::Arc, time::Duration};
 
-use crate::{
-    programs::seed::{
-        seed_application_task_llms::seed_application_task_llms,
-        seed_oauth_clients::seed_oauth_clients,
-    },
-    setup_tracing,
+use crate::programs::seed::{
+    seed_application_task_llms::seed_application_task_llms, seed_oauth_clients::seed_oauth_clients,
 };
 
 use futures::try_join;

@@ -17,7 +17,6 @@ use uuid::Uuid;
 use sqlx::{Pool, Postgres};
 
 use crate::{
-    domain::exercise_service_requests,
     programs::seed::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
@@ -33,6 +32,7 @@ use crate::{
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
     },
+    service_clients::exercise_service_requests,
 };
 
 use super::super::seed_users::SeedUsersResult;

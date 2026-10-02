@@ -31,7 +31,7 @@ use std::sync::Arc;
 use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
-use crate::domain::exercise_service_requests;
+use crate::service_clients::exercise_service_requests;
 
 // Static holder for our cached spec fetcher
 static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();

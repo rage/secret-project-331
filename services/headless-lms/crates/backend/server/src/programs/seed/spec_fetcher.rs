@@ -1,6 +1,6 @@
 //! Seed-only spec cache around the exercise-service request adapter.
 
-use crate::domain::exercise_service_requests::make_spec_fetcher;
+use crate::service_clients::exercise_service_requests::make_spec_fetcher;
 use futures::FutureExt;
 use headless_lms_base::jwt::JwtKey;
 use headless_lms_models::{ModelError, ModelErrorType, SpecFetcher};

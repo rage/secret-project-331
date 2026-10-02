@@ -49,8 +49,8 @@ use models::{
 };
 
 use crate::{
-    domain::exercise_service_requests::{self, JwtKey},
     prelude::*,
+    service_clients::exercise_service_requests::{self, JwtKey},
 };
 
 use headless_lms_models::course_language_groups;

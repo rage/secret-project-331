@@ -17,7 +17,7 @@ use headless_lms_models::{
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
 };
-use headless_lms_server::domain::exercise_service_requests::{self, JwtKey};
+use headless_lms_server::service_clients::exercise_service_requests::{self, JwtKey};
 use sqlx::PgConnection;
 use uuid::Uuid;
 

@@ -25,6 +25,9 @@ pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
 use crate::domain::error::{ControllerError, ControllerErrorType};
+use crate::domain::{
+    rate_limit_middleware_builder::RateLimit, request_span_middleware::RequestSpan,
+};
 use actix_web::{
     HttpRequest, HttpResponse, ResponseError,
     web::{self, ServiceConfig},
@@ -38,6 +41,17 @@ use utoipa::ToSchema;
 
 pub struct UploadResult {
     pub url: String,
+}
+
+/// Owns the public API scope, its middleware, and its route registration.
+pub fn configure_api(cfg: &mut ServiceConfig, app_conf: web::Data<ApplicationConfiguration>) {
+    let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
+    cfg.service(
+        web::scope("/api/v0")
+            .wrap(RateLimit::new(api_rate_limit_config))
+            .wrap(RequestSpan)
+            .configure(|cfg| configure_controllers(cfg, app_conf)),
+    );
 }
 
 /// Add controllers from all the submodules.

@@ -14,7 +14,7 @@ use headless_lms_models::{
 };
 use headless_lms_server::{
     config::{ServerConfig, ServerConfigBuilder},
-    domain::exercise_service_requests::JwtKey,
+    service_clients::exercise_service_requests::JwtKey,
     setup_tracing,
 };
 use headless_lms_utils::{

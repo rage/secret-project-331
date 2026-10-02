@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/cms/migration`.
 
-use crate::domain::exercise_service_requests;
-use crate::domain::exercise_service_requests::JwtKey;
+use crate::service_clients::exercise_service_requests;
+use crate::service_clients::exercise_service_requests::JwtKey;
 use models::pages::CmsPageUpdate;
 
 use crate::{domain::request_id::RequestId, prelude::*};

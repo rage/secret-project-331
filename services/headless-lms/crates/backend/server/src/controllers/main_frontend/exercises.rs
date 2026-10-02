@@ -15,10 +15,7 @@ use models::{
 };
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{
-    domain::{answer_files_archive, exercise_service_requests},
-    prelude::*,
-};
+use crate::{domain::answer_files_archive, prelude::*, service_clients::exercise_service_requests};
 
 const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 

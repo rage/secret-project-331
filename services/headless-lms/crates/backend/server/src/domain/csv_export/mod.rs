@@ -269,6 +269,7 @@ pub async fn general_export(
 
 #[cfg(test)]
 mod test {
+    use crate::service_clients::exercise_service_requests::{self, JwtKey};
     use std::{collections::HashMap, io::Cursor};
 
     use headless_lms_models::{
@@ -287,13 +288,7 @@ mod test {
     use serde_json::Value;
 
     use super::*;
-    use crate::{
-        domain::{
-            csv_export::points::export_course_instance_points,
-            exercise_service_requests::{self, JwtKey},
-        },
-        test_helper::*,
-    };
+    use crate::{domain::csv_export::points::export_course_instance_points, test_helper::*};
 
     #[actix_web::test]
     async fn exports() {

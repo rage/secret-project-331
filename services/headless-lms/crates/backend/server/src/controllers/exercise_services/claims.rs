@@ -1,8 +1,8 @@
 //! Actix adapters for exercise-service JWT claims.
 
 use crate::domain::error::{ControllerError, ControllerErrorType};
-use crate::domain::exercise_service_requests::*;
 use crate::prelude::*;
+use crate::service_clients::exercise_service_requests::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
 use futures::future::{Ready, ready};

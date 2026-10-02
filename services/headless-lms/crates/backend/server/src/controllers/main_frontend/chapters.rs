@@ -1,18 +1,13 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chapters`.
 
+use crate::service_clients::exercise_service_requests::{self, JwtKey};
 use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use headless_lms_models::chapters::DatabaseChapter;
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{
-    domain::{
-        exercise_service_requests::{self, JwtKey},
-        request_id::RequestId,
-    },
-    prelude::*,
-};
+use crate::{domain::request_id::RequestId, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(

@@ -10,7 +10,6 @@ pub mod csv_export;
 pub mod email_ownership_verification;
 pub mod error;
 pub mod exercise_repositories;
-pub mod exercise_service_requests;
 pub mod exercise_services;
 pub mod exercises;
 pub mod internal_error_reporting;

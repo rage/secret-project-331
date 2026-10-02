@@ -25,7 +25,7 @@ pub use seed_switching_course_instances_course::seed_switching_course_instances_
 
 use std::sync::Arc;
 
-use crate::domain::exercise_service_requests;
+use crate::service_clients::exercise_service_requests;
 
 use crate::programs::seed::seed_helpers::{
     ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,
@@ -106,8 +106,8 @@ pub async fn seed_sample_course(
         base_url: _base_url,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
-    let file_store = crate::setup_file_store(
-        &crate::config::FileStoreRuntimeConfig::try_from_env()?,
+    let file_store = headless_lms_utils::file_store::runtime::setup_file_store(
+        &headless_lms_utils::file_store::runtime::FileStoreRuntimeConfig::try_from_env()?,
         &app_config.base_url,
     )
     .await;

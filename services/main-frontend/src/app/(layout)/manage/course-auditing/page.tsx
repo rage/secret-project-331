@@ -80,10 +80,9 @@ export const contentRowStyles = css`
   gap: 1rem;
 `
 
-export const formButtonGridStyles = css`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  margin: 0.5rem 0;
+export const formButtonColumnStyles = css`
+  display: flex;
+  flex-flow: column;
   gap: 0.5rem;
 `
 
@@ -271,40 +270,52 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div className={formButtonGridStyles}>
-          <Switch
-            name="no_default_uh_course_code"
-            control={control}
-            label={t("course-auditing-filter-uh-course-code-not-set")}
-          />
-          <Switch
-            name="not_closed"
-            control={control}
-            label={t("course-auditing-filter-not-closed")}
-          />
-          <Switch
-            name="short_description"
-            control={control}
-            label={t("course-auditing-filter-short-description")}
-          />
-          <Switch
-            name="no_prerequisites"
-            control={control}
-            label={t("course-auditing-filter-prerequisites-not-set")}
-          />
-          <Switch
-            name="no_audiences"
-            control={control}
-            label={t("course-auditing-filter-audiences-not-set")}
-          />
-          <TriStateToggle name="is_draft" control={control} label={t("draft")} />
-          <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
-          <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
-          <TriStateToggle
-            name="is_joinable_by_code_only"
-            control={control}
-            label={t("joinable-by-code-only")}
-          />
+        <div className={contentRowStyles}>
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+              margin: 0.5rem 0;
+              gap: 0.5rem;
+              flex-grow: 1;
+            `}
+          >
+            <Switch
+              name="no_default_uh_course_code"
+              control={control}
+              label={t("course-auditing-filter-uh-course-code-not-set")}
+            />
+            <Switch
+              name="not_closed"
+              control={control}
+              label={t("course-auditing-filter-not-closed")}
+            />
+            <Switch
+              name="short_description"
+              control={control}
+              label={t("course-auditing-filter-short-description")}
+            />
+            <Switch
+              name="no_prerequisites"
+              control={control}
+              label={t("course-auditing-filter-prerequisites-not-set")}
+            />
+            <Switch
+              name="no_audiences"
+              control={control}
+              label={t("course-auditing-filter-audiences-not-set")}
+            />
+          </div>
+          <div className={formButtonColumnStyles}>
+            <TriStateToggle name="is_draft" control={control} label={t("draft")} />
+            <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
+            <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
+            <TriStateToggle
+              name="is_joinable_by_code_only"
+              control={control}
+              label={t("joinable-by-code-only")}
+            />
+          </div>
         </div>
       </FieldSet>
 

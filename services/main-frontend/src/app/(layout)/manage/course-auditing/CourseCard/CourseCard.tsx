@@ -327,25 +327,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
               >
                 {courseAuditingData.name}
               </h1>
-              {courseAuditingData.is_draft && (
-                <Badge tone={TONE.INFO} title={t("draft")}>
-                  {t("draft")}
-                </Badge>
-              )}
-              {courseAuditingData.is_unlisted && (
-                <Badge tone={TONE.WARNING} title={t("unlisted")}>
-                  {t("unlisted")}
-                </Badge>
-              )}
+              {courseAuditingData.is_draft && <Badge tone={TONE.INFO}>{t("draft")}</Badge>}
+              {courseAuditingData.is_unlisted && <Badge tone={TONE.WARNING}>{t("unlisted")}</Badge>}
               {courseAuditingData.is_test_mode && (
-                <Badge tone={TONE.SUCCESS} title={t("test-course")}>
-                  {t("test-course")}
-                </Badge>
+                <Badge tone={TONE.SUCCESS}>{t("test-course")}</Badge>
               )}
               {courseAuditingData.is_joinable_by_code_only && (
-                <Badge tone={TONE.DANGER} title={t("joinable-by-code-only")}>
-                  {t("joinable-by-code-only")}
-                </Badge>
+                <Badge tone={TONE.DANGER}>{t("joinable-by-code-only")}</Badge>
               )}
             </div>
             <div

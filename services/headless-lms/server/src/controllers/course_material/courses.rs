@@ -804,7 +804,7 @@ pub async fn feedback(
 
     let task_llm = models::application_task_default_language_models::get_for_task(
         &mut conn,
-        ApplicationTask::MessageSuggestion,
+        ApplicationTask::FeedbackCategorization,
     )
     .await
     .ok();

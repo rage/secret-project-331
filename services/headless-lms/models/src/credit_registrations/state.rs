@@ -308,11 +308,12 @@ impl CreditRegistrationState {
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
     pub(super) fn default_attempt_delay(self) -> TimeDelta {
         use crate::library::credit_registration::backoff::{
-            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY,
+            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY, VERIFY_WINDOW_INTERVAL,
         };
         use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
-            Self::AwaitingVerification | Self::PartiallyRegistered => VERIFY_FIRST_DELAY,
+            Self::AwaitingVerification => VERIFY_FIRST_DELAY,
+            Self::PartiallyRegistered => VERIFY_WINDOW_INTERVAL,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK,
             Self::NoUsableEnrolment => REGISTRY_LAG,
             Self::FailedRetryable => SUBMIT_BASE_BACKOFF,

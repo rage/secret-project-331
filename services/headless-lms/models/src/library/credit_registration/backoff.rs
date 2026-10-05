@@ -11,9 +11,15 @@ pub const SUBMIT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
 pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this long in failure a row stops being retried and becomes a support case.
 pub const SUBMIT_MAX_RETRY_AGE: TimeDelta = TimeDelta::days(7);
-/// Sisu needs a few minutes before a submitted attainment shows up, so the first poll waits.
-pub const VERIFY_FIRST_DELAY: TimeDelta = TimeDelta::minutes(2);
-pub const VERIFY_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(5);
+/// Sisu has registered no submission within 5 hours, so the first poll waits.
+pub const VERIFY_FIRST_DELAY: TimeDelta = TimeDelta::minutes(270);
+/// Registrations land between 5 and 29 hours after the submission, so polls are close together
+/// through that window and back off only after it.
+pub const VERIFY_WINDOW_INTERVAL: TimeDelta = TimeDelta::minutes(30);
+const VERIFY_LATE_WINDOW_INTERVAL: TimeDelta = TimeDelta::hours(1);
+const VERIFY_WINDOW_POLLS: i32 = 12;
+const VERIFY_LATE_WINDOW_POLLS: i32 = 18;
+pub const VERIFY_BASE_BACKOFF: TimeDelta = TimeDelta::hours(2);
 pub const VERIFY_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this, polling drops to daily and a human looks. Never a failure: the attainment may exist,
 /// and calling it failed would invite a second submission.
@@ -66,13 +72,19 @@ pub fn submit_backoff(retry_count: i32) -> TimeDelta {
     doubling(SUBMIT_BASE_BACKOFF, SUBMIT_MAX_BACKOFF, retry_count)
 }
 
-/// The import phase schedules the first poll, so one prior attempt still means the base delay.
+/// The wait after poll number `attempt_count`; the import phase schedules the first poll.
 pub fn verify_backoff(attempt_count: i32) -> TimeDelta {
-    doubling(
-        VERIFY_BASE_BACKOFF,
-        VERIFY_MAX_BACKOFF,
-        attempt_count.saturating_sub(1),
-    )
+    if attempt_count <= VERIFY_WINDOW_POLLS {
+        VERIFY_WINDOW_INTERVAL
+    } else if attempt_count <= VERIFY_WINDOW_POLLS + VERIFY_LATE_WINDOW_POLLS {
+        VERIFY_LATE_WINDOW_INTERVAL
+    } else {
+        doubling(
+            VERIFY_BASE_BACKOFF,
+            VERIFY_MAX_BACKOFF,
+            attempt_count - VERIFY_WINDOW_POLLS - VERIFY_LATE_WINDOW_POLLS - 1,
+        )
+    }
 }
 
 /// `lookup_count` counts the look just made, so the wait after the first one is already doubled.
@@ -113,9 +125,13 @@ mod tests {
     }
 
     #[test]
-    fn verify_backoff_starts_at_the_base_after_the_first_poll() {
-        assert_eq!(verify_backoff(1), VERIFY_BASE_BACKOFF);
-        assert_eq!(verify_backoff(2), VERIFY_BASE_BACKOFF * 2);
+    fn verify_polls_are_close_together_through_the_landing_window_and_back_off_after_it() {
+        assert_eq!(verify_backoff(1), VERIFY_WINDOW_INTERVAL);
+        assert_eq!(verify_backoff(12), VERIFY_WINDOW_INTERVAL);
+        assert_eq!(verify_backoff(13), VERIFY_LATE_WINDOW_INTERVAL);
+        assert_eq!(verify_backoff(30), VERIFY_LATE_WINDOW_INTERVAL);
+        assert_eq!(verify_backoff(31), VERIFY_BASE_BACKOFF);
+        assert_eq!(verify_backoff(32), VERIFY_BASE_BACKOFF * 2);
         assert_eq!(verify_backoff(100), VERIFY_MAX_BACKOFF);
     }
 

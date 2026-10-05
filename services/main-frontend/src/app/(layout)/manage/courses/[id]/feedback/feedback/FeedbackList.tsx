@@ -19,7 +19,7 @@ interface Props {
 
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo(3)
+  const paginationInfo = usePaginationInfo()
   const allButtonId = useId()
   const [categoryFilter, setCategoryFilter] = useState<string>(allButtonId)
   let toggleState = useToggleGroupState({

@@ -248,9 +248,9 @@ pub fn resolve_import_item(
     }
 
     let adjusted_attainment_date = match &enrolment.study_right {
-        Some(study_right) => clamp_into_study_right(item.attainment_date, study_right),
+        Some(study_right) => clamp_into_study_right(item.attainment_date(), study_right),
         None if person.behaviour.study_right_unresolvable => return error("studyRightNotValid"),
-        None => item.attainment_date,
+        None => item.attainment_date(),
     };
 
     ImportResolution::Write(Box::new(MockSubmission {
@@ -263,7 +263,7 @@ pub fn resolve_import_item(
         person_id: person.person_id.clone(),
         course_unit_id: course_unit.course_unit_id.clone(),
         assessment_item_id: realisation.assessment_item_id.clone(),
-        attainment_date: item.attainment_date,
+        attainment_date: item.attainment_date(),
         adjusted_attainment_date,
         attainment_language: item.attainment_language.clone(),
         grade_scale_id: item.grade_scale_id.clone(),
@@ -639,7 +639,7 @@ fn is_identical(
         IncomingGrade::Fail => !is_passed(attainment, working),
     };
     same_grade
-        && attainment.attainment_date == item.attainment_date
+        && attainment.attainment_date == item.attainment_date()
         && credits_of(attainment, item) == item.credits
 }
 
@@ -653,7 +653,7 @@ fn beats(
 ) -> bool {
     let credits = credits_of(attainment, item);
     let later_than =
-        |days: i64| item.attainment_date - Duration::days(days) > attainment.attainment_date;
+        |days: i64| item.attainment_date() - Duration::days(days) > attainment.attainment_date;
     let tie_break = |days: i64| {
         if credits != item.credits {
             credits < item.credits
@@ -851,7 +851,7 @@ mod tests {
             student_number: STUDENT_NUMBER.to_string(),
             course_code: COURSE_CODE.to_string(),
             enrolment_id: ids::enrolment_id(STUDENT_NUMBER, COURSE_CODE, RealisationKind::Degree),
-            attainment_date: Utc::now().date_naive(),
+            attained_at: Utc::now(),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-hyl-hyv".to_string(),
             grade_id: "1".to_string(),

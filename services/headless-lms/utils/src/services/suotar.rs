@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
-use chrono::NaiveDate;
+use chrono::{DateTime, NaiveDate};
 #[cfg(any(test, feature = "test-support"))]
 use headless_lms_base::config::MOCK_SUOTAR_TOKEN;
 use headless_lms_base::config::{
@@ -223,7 +223,8 @@ pub struct ImportAttainmentRequestItem {
     pub student_number: SecretString,
     pub course_code: String,
     pub enrolment_id: String,
-    pub attainment_date: NaiveDate,
+    /// An instant rather than a date, so the registry derives the date in the zone it validates in.
+    pub attainment_date: DateTime<Utc>,
     pub attainment_language: String,
     pub grade_scale_id: String,
     pub grade_id: String,
@@ -1440,7 +1441,7 @@ mod tests {
             student_number: "012345678".into(),
             course_code: "TKT10001".to_string(),
             enrolment_id: "selected-enrolment-id".to_string(),
-            attainment_date: NaiveDate::from_ymd_opt(2026, 5, 22).expect("valid date"),
+            attainment_date: "2026-05-22T09:00:00Z".parse().expect("valid instant"),
             attainment_language: "fi".to_string(),
             grade_scale_id: "sis-hyl-hyv".to_string(),
             grade_id: "1".to_string(),
@@ -1453,7 +1454,7 @@ mod tests {
                 "studentNumber": "012345678",
                 "courseCode": "TKT10001",
                 "enrolmentId": "selected-enrolment-id",
-                "attainmentDate": "2026-05-22",
+                "attainmentDate": "2026-05-22T09:00:00Z",
                 "attainmentLanguage": "fi",
                 "gradeScaleId": "sis-hyl-hyv",
                 "gradeId": "1",

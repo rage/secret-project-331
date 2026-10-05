@@ -1,1 +1,0 @@
-COMMENT ON TABLE study_registry_student_number_conflicts IS 'Student numbers a registrar reported for an account that could not become its study_registry link because a live link already stood in the way. The existing link is kept; a row stops mattering once the account holds the reported number.';

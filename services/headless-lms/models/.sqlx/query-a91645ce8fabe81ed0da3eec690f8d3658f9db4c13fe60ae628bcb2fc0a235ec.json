@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (reported.student_number) reported.user_id AS \"user_id!\",\n  reported.student_number AS \"student_number!\",\n  holder.id AS \"holder_link_id?\",\n  holder.user_id AS \"holder_user_id?\"\nFROM study_registry_reported_student_numbers reported\n  JOIN course_module_completion_registered_to_study_registries report ON report.id = reported.registered_completion_id\n  LEFT JOIN verified_student_numbers holder ON holder.student_number = reported.student_number\n  AND holder.deleted_at IS NULL\nWHERE reported.user_id = ANY($1::uuid [])\n  AND reported.student_number ~ '^[0-9]{6,12}$'\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers own\n    WHERE own.user_id = reported.user_id\n      AND own.deleted_at IS NULL\n  )\n  AND (\n    holder.id IS NULL\n    OR holder.verified_via = 'study_registry'\n  )\nORDER BY reported.student_number,\n  report.created_at DESC,\n  reported.user_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "study_registry_reported_student_numbers",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "student_number!",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "study_registry_reported_student_numbers",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "holder_link_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "holder_user_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "a91645ce8fabe81ed0da3eec690f8d3658f9db4c13fe60ae628bcb2fc0a235ec"
+}

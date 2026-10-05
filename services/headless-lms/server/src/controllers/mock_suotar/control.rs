@@ -303,8 +303,8 @@ pub struct ExpireEnrolmentRecheckAllowancePayload {
     pub clear_restarts: bool,
 }
 
-/// Lets a spec press a recheck button right after the last check or request, instead of waiting
-/// out the limit on asking.
+/// Lets a spec press a recheck button right after the last check or request, or on a new row,
+/// instead of waiting out the limit on asking or the student's first-hour wait.
 async fn expire_enrolment_recheck_allowance(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,

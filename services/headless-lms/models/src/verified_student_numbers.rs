@@ -3,7 +3,9 @@ use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::credit_registration_events::CreditRegistrationEventKind;
-use crate::library::credit_registration::student_number_change::record_student_number_change;
+use crate::library::credit_registration::student_number_change::{
+    record_student_number_change, unlink_verified_student_number,
+};
 use crate::prelude::*;
 
 /// How a student number was proven to belong to an account.
@@ -597,64 +599,78 @@ WHERE vsn.id IS NULL
 
 /// Links each of `user_ids` to the student number a registrar last reported for them, as a
 /// [`StudentNumberVerificationMethod::StudyRegistry`] link, and records a conflict wherever a live
-/// link already stands in the way. A link someone made by hand (the student or an admin) always
-/// wins, but another account's earlier study-registry link on the reported number is retired in
-/// favour of the account reported now: a student with two accounts gets the number on the later
-/// one. A retired link does not block: the registrar's report is authoritative, so a number the
-/// student or an admin unlinked, or one resolve-person-ids dropped over a conflict, is linked
-/// again. Returns how many links were made.
+/// link still stands in the way. A link someone made by hand (the student or an admin) always wins,
+/// but another account's study-registry link on the reported number moves to the account reported
+/// most recently: a student with two accounts gets the number on the later one. A retired link does
+/// not block: the registrar's report is authoritative, so a number the student or an admin unlinked,
+/// or one resolve-person-ids dropped over a conflict, is linked again. Returns how many links were
+/// made.
 pub async fn link_numbers_reported_by_study_registry(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
 ) -> ModelResult<u64> {
-    sqlx::query!(
+    // Chosen before anything is retired, so a holder that is itself in `user_ids` cannot win its
+    // number back.
+    let links = sqlx::query!(
         r#"
-UPDATE verified_student_numbers blocker
-SET deleted_at = now()
+SELECT DISTINCT ON (reported.student_number) reported.user_id AS "user_id!",
+  reported.student_number AS "student_number!",
+  holder.id AS "holder_link_id?",
+  holder.user_id AS "holder_user_id?"
 FROM study_registry_reported_student_numbers reported
+  JOIN course_module_completion_registered_to_study_registries report ON report.id = reported.registered_completion_id
+  LEFT JOIN verified_student_numbers holder ON holder.student_number = reported.student_number
+  AND holder.deleted_at IS NULL
 WHERE reported.user_id = ANY($1::uuid [])
   AND reported.student_number ~ '^[0-9]{6,12}$'
-  AND blocker.student_number = reported.student_number
-  AND blocker.user_id <> reported.user_id
-  AND blocker.verified_via = 'study_registry'
-  AND blocker.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM verified_student_numbers own
     WHERE own.user_id = reported.user_id
       AND own.deleted_at IS NULL
   )
+  AND (
+    holder.id IS NULL
+    OR holder.verified_via = 'study_registry'
+  )
+ORDER BY reported.student_number,
+  report.created_at DESC,
+  reported.user_id
         "#,
         user_ids,
     )
-    .execute(&mut *conn)
+    .fetch_all(&mut *conn)
     .await?;
+    for link in &links {
+        if let (Some(holder_link_id), Some(holder_user_id)) =
+            (link.holder_link_id, link.holder_user_id)
+        {
+            unlink_verified_student_number(
+                conn,
+                holder_link_id,
+                holder_user_id,
+                None,
+                CreditRegistrationEventKind::StateChanged,
+                "A registrar reported this student number for another account, so it moved there.",
+            )
+            .await?;
+        }
+    }
+    let (linked_user_ids, linked_numbers): (Vec<Uuid>, Vec<String>) = links
+        .into_iter()
+        .map(|link| (link.user_id, link.student_number))
+        .unzip();
     let linked = sqlx::query!(
         r#"
 INSERT INTO verified_student_numbers (user_id, student_number, verified_via)
-SELECT DISTINCT ON (reported.student_number) reported.user_id,
-  reported.student_number,
+SELECT user_id,
+  student_number,
   'study_registry'
-FROM study_registry_reported_student_numbers reported
-WHERE reported.user_id = ANY($1::uuid [])
-  AND reported.student_number ~ '^[0-9]{6,12}$'
-  AND NOT EXISTS (
-    SELECT 1
-    FROM verified_student_numbers vsn
-    WHERE vsn.user_id = reported.user_id
-      AND vsn.deleted_at IS NULL
-  )
-  AND NOT EXISTS (
-    SELECT 1
-    FROM verified_student_numbers vsn
-    WHERE vsn.student_number = reported.student_number
-      AND vsn.deleted_at IS NULL
-  )
-ORDER BY reported.student_number,
-  reported.user_id
+FROM UNNEST($1::uuid [], $2::text []) AS link(user_id, student_number)
 ON CONFLICT DO NOTHING
         "#,
-        user_ids,
+        &linked_user_ids,
+        &linked_numbers,
     )
     .execute(&mut *conn)
     .await?

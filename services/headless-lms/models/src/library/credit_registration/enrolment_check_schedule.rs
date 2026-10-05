@@ -76,10 +76,6 @@ pub const BATCH_PULL_FORWARD: TimeDelta = TimeDelta::minutes(15);
 /// A rung at least this far after the one before it is a slow one.
 const SLOW_GAP: TimeDelta = TimeDelta::days(1);
 
-/// How soon the check follows a request made right after the row was checked: the request still
-/// gets its check, not the ladder's first rung.
-pub const RECHECK_AFTER_RECENT_CHECK: TimeDelta = TimeDelta::seconds(30);
-
 /// How long a check that failed in transit waits before the same rung is tried again.
 pub const TRANSIENT_FAILURE_RETRY: TimeDelta = TimeDelta::minutes(5);
 
@@ -185,8 +181,8 @@ fn resolve(
     })
 }
 
-/// The first rung of a ladder started at `anchor`: seconds away for a check request, later for the
-/// other groups.
+/// The first rung of a ladder started at `anchor`. A check request's own check runs before it, at
+/// once.
 pub fn first_check(
     group: EnrolmentCheckGroup,
     anchor: DateTime<Utc>,

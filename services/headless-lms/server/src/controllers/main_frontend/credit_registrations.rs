@@ -31,9 +31,7 @@ use headless_lms_models::{
 };
 use headless_lms_models::{
     credit_registration_enrolment_check_signals,
-    library::credit_registration::enrolment_check_schedule::{
-        EnrolmentCheckSource, STUDENT_CHECK_REQUEST_MIN_ROW_AGE,
-    },
+    library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource,
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
@@ -42,7 +40,7 @@ use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration::enrolment_recheck::{
-    RecheckTarget, can_student_request_enrolment_recheck, start_enrolment_recheck,
+    RecheckTarget, can_student_request_enrolment_recheck, start_student_enrolment_recheck,
 };
 use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, mask_email};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
@@ -402,22 +400,15 @@ pub async fn request_credit_registration_enrolment_recheck(
             "This registration is not waiting for an enrolment.".to_string()
         ));
     }
-    if Utc::now() - registration.created_at < STUDENT_CHECK_REQUEST_MIN_ROW_AGE {
-        return Err(controller_err!(
-            BadRequest,
-            "A new enrolment takes a while to show up; try again in a little while.".to_string()
-        ));
-    }
 
-    let outcome = start_enrolment_recheck(
+    let outcome = start_student_enrolment_recheck(
         &mut conn,
         user.id,
         RecheckTarget {
             registration_id: registration.id,
             course_module_completion_id: registration.course_module_completion_id,
         },
-        EnrolmentCheckSource::StudentRequest,
-        CreditRegistrationEventKind::StudentAction,
+        registration.created_at,
         "The student asked us to check for an enrolment again.",
     )
     .await?;
@@ -1142,15 +1133,14 @@ pub async fn confirm_my_enrolment(
     .await?;
     match registration {
         Some(registration) if registration.is_waiting_for_enrolment() => {
-            start_enrolment_recheck(
+            start_student_enrolment_recheck(
                 &mut conn,
                 user.id,
                 RecheckTarget {
                     registration_id: registration.id,
                     course_module_completion_id: current.course_module_completion_id,
                 },
-                EnrolmentCheckSource::StudentRequest,
-                CreditRegistrationEventKind::StudentAction,
+                registration.created_at,
                 "The student said they had enrolled.",
             )
             .await?;

@@ -5,8 +5,8 @@ import React from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { GroupedToggleButton } from "./GroupedToggleButton"
 import { ToggleButtonGroup } from "./ToggleButtonGroup"
+import { ToggleButtonGroupButton } from "./ToggleButtonGroupButton"
 
 export interface TriStateToggleProps<T extends FieldValues, N extends Path<T> = Path<T>> {
   name: N
@@ -33,15 +33,15 @@ export function TriStateToggle<T extends FieldValues, N extends Path<T> = Path<T
       label={label}
       defaultSelectedKeys={new Set([NOT_SET])}
     >
-      <GroupedToggleButton id={INCLUDE} aria-label={t("label-include")}>
+      <ToggleButtonGroupButton id={INCLUDE} aria-label={t("label-include")}>
         {<CheckCircle />}
-      </GroupedToggleButton>
-      <GroupedToggleButton id={NOT_SET} aria-label={t("label-null")}>
+      </ToggleButtonGroupButton>
+      <ToggleButtonGroupButton id={NOT_SET} aria-label={t("label-null")}>
         {<MinusCircle />}
-      </GroupedToggleButton>
-      <GroupedToggleButton id={EXCLUDE} aria-label={t("label-exclude")}>
+      </ToggleButtonGroupButton>
+      <ToggleButtonGroupButton id={EXCLUDE} aria-label={t("label-exclude")}>
         {<XmarkCircle />}
-      </GroupedToggleButton>
+      </ToggleButtonGroupButton>
     </ToggleButtonGroup>
   )
 }

@@ -36,8 +36,8 @@ export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
 export { ToggleButtonGroup } from "./components/ToggleButtonGroup/ToggleButtonGroup"
 export type { ToggleButtonGroupProps } from "./components/ToggleButtonGroup/ToggleButtonGroup"
-export { GroupedToggleButton } from "./components/ToggleButtonGroup/GroupedToggleButton"
-export type { GroupedToggleButtonProps } from "./components/ToggleButtonGroup/GroupedToggleButton"
+export { ToggleButtonGroupButton } from "./components/ToggleButtonGroup/ToggleButtonGroupButton"
+export type { ToggleButtonGroupButtonProps } from "./components/ToggleButtonGroup/ToggleButtonGroupButton"
 export {
   TriStateToggle,
   type TriStateToggleStates,

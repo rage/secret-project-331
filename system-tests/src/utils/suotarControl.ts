@@ -198,7 +198,8 @@ export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPh
 
 /**
  * Backdates a row's last enrolment check and last check request past the half hour the recheck
- * buttons wait out, so a spec can press one right after the pipeline looked or the student asked.
+ * buttons wait out, and the row past the hour a student waits after completing, so a spec can press
+ * one right after the pipeline looked, the student asked or the row was created.
  * `clearRestarts` also forgets the day's schedule restarts, for a spec that needs a press to restart
  * the schedule again.
  */

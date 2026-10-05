@@ -27,6 +27,18 @@ pub fn can_request_enrolment_recheck(
         )
 }
 
+/// Whether the row's student may ask for a check right now: [`can_request_enrolment_recheck`], and
+/// the row is not [too new](enrolment_checks::is_too_new_for_student_check_request).
+pub fn can_student_request_enrolment_recheck(
+    state: CreditRegistrationState,
+    row_created_at: DateTime<Utc>,
+    enrolment_check_requested_at: Option<DateTime<Utc>>,
+    enrolment_checked_at: Option<DateTime<Utc>>,
+) -> bool {
+    !enrolment_checks::is_too_new_for_student_check_request(row_created_at, Utc::now())
+        && can_request_enrolment_recheck(state, enrolment_check_requested_at, enrolment_checked_at)
+}
+
 /// A row waiting for an enrolment to check, and the completion it registers.
 #[derive(Debug, Clone, Copy)]
 pub struct RecheckTarget {
@@ -39,7 +51,8 @@ pub struct RecheckTarget {
 /// Shared by the student's recheck button, pressing Done and the teacher's recheck, which differ in
 /// `source` and the event. Every kind shares one limit on asking; see
 /// [`enrolment_checks::request_check`]. The completion's check signal is recorded unless the row
-/// turned out not to be waiting, even for a request refused as too soon.
+/// turned out not to be waiting, even for a request refused as too soon. A student asks through
+/// [`start_student_enrolment_recheck`] instead.
 pub async fn start_enrolment_recheck(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
@@ -48,10 +61,57 @@ pub async fn start_enrolment_recheck(
     event_kind: CreditRegistrationEventKind,
     message: &str,
 ) -> Result<CheckRequestOutcome, ControllerError> {
+    start_recheck(
+        conn,
+        actor_user_id,
+        target,
+        source,
+        event_kind,
+        message,
+        false,
+    )
+    .await
+}
+
+/// [`start_enrolment_recheck`] for the row's own student, which is refused as too soon while the
+/// row is [too new](enrolment_checks::is_too_new_for_student_check_request).
+pub async fn start_student_enrolment_recheck(
+    conn: &mut PgConnection,
+    student_user_id: Uuid,
+    target: RecheckTarget,
+    registration_created_at: DateTime<Utc>,
+    message: &str,
+) -> Result<CheckRequestOutcome, ControllerError> {
+    let is_too_new =
+        enrolment_checks::is_too_new_for_student_check_request(registration_created_at, Utc::now());
+    start_recheck(
+        conn,
+        student_user_id,
+        target,
+        EnrolmentCheckSource::StudentRequest,
+        CreditRegistrationEventKind::StudentAction,
+        message,
+        is_too_new,
+    )
+    .await
+}
+
+async fn start_recheck(
+    conn: &mut PgConnection,
+    actor_user_id: Uuid,
+    target: RecheckTarget,
+    source: EnrolmentCheckSource,
+    event_kind: CreditRegistrationEventKind,
+    message: &str,
+    is_refused_as_too_soon: bool,
+) -> Result<CheckRequestOutcome, ControllerError> {
     let registration_id = target.registration_id;
     let mut tx = conn.begin().await?;
-    let outcome =
-        enrolment_checks::request_check(&mut tx, registration_id, source, Utc::now()).await?;
+    let outcome = if is_refused_as_too_soon {
+        CheckRequestOutcome::TooSoon
+    } else {
+        enrolment_checks::request_check(&mut tx, registration_id, source, Utc::now()).await?
+    };
     if outcome == CheckRequestOutcome::NotWaiting {
         tx.commit().await?;
         return Ok(outcome);

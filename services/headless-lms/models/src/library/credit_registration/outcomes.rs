@@ -13,9 +13,8 @@ use chrono::TimeDelta;
 
 use super::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER, UNCERTAIN_RECHECK,
-    VERIFY_FIRST_DELAY, VERIFY_GIVE_UP_POLL, next_attempt_at, submit_backoff,
-    submit_window_expired, uncertain_needs_admin, uncertain_recheck_delay, verify_backoff,
-    verify_window_expired,
+    VERIFY_GIVE_UP_POLL, next_attempt_at, submit_backoff, submit_window_expired,
+    uncertain_needs_admin, uncertain_recheck_delay, verify_delay, verify_window_expired,
 };
 use super::classification::{Retryability, is_waiting_error, retryability};
 use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY;
@@ -216,7 +215,7 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
     let outcome = Outcome::to(state).after(if expired {
         VERIFY_GIVE_UP_POLL
     } else {
-        verify_backoff(facts.verify_attempt_count)
+        verify_delay(facts.submitted_at, facts.now)
     });
     if expired {
         outcome.needing_admin()
@@ -230,7 +229,7 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
     let outcome = Outcome::to(CreditRegistrationState::PartiallyRegistered)
-        .after(verify_backoff(facts.verify_attempt_count));
+        .after(verify_delay(facts.submitted_at, facts.now));
     if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()
     } else {
@@ -377,7 +376,7 @@ fn retry_or_expire(
             .needing_admin();
     }
     let delay = if operation == RegistryOperation::VerifyAttainments {
-        verify_backoff(facts.verify_attempt_count)
+        verify_delay(facts.submitted_at, facts.now)
     } else {
         submit_backoff(facts.submit_retry_count)
     };
@@ -391,10 +390,10 @@ fn retry_or_expire(
 
 /// What an `import` answer that settled the row does to it, including the wait Sisu needs before
 /// the first verify poll can find anything.
-pub fn import_success_outcome(state: CreditRegistrationState) -> Outcome {
+pub fn import_success_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
     let outcome = Outcome::to(state);
     if state == CreditRegistrationState::AwaitingVerification {
-        return outcome.after(VERIFY_FIRST_DELAY);
+        return outcome.after(verify_delay(facts.submitted_at, facts.now));
     }
     outcome
 }
@@ -404,12 +403,12 @@ pub fn import_success_outcome(state: CreditRegistrationState) -> Outcome {
 /// the iteration's registry calls may take together: the poll and the recovery lookup after it.
 pub fn verify_poll_lease_until(
     now: DateTime<Utc>,
-    attempt: i32,
+    submitted_at: Option<DateTime<Utc>>,
     calls: TimeDelta,
 ) -> DateTime<Utc> {
     next_attempt_at(
         now,
-        verify_backoff(attempt).max(calls + TimeDelta::minutes(5)),
+        verify_delay(submitted_at, now).max(calls + TimeDelta::minutes(5)),
     )
 }
 

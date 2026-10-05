@@ -82,19 +82,23 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
-/// Backdates the row's last enrolment check and last check request past the limit on asking, so a
-/// spec can press a recheck button without waiting it out. With `clear_restarts`, also forgets the
-/// day's restarts. Exists only for test setup.
+/// Backdates the row's last enrolment check and last check request past the limit on asking, and the
+/// row itself past the student's first-hour wait, so a spec can press a recheck button without
+/// waiting either out. With `clear_restarts`, also forgets the day's restarts. Exists only for test
+/// setup.
 pub async fn expire_enrolment_recheck_allowance_for_testing(
     conn: &mut PgConnection,
     id: Uuid,
     clear_restarts: bool,
 ) -> ModelResult<()> {
-    use crate::library::credit_registration::enrolment_check_schedule::CHECK_REQUEST_MIN_INTERVAL;
+    use crate::library::credit_registration::enrolment_check_schedule::{
+        CHECK_REQUEST_MIN_INTERVAL, STUDENT_CHECK_REQUEST_MIN_ROW_AGE,
+    };
     sqlx::query!(
         "
 UPDATE credit_registrations
-SET enrolment_checked_at = enrolment_checked_at - $2::interval,
+SET created_at = LEAST(created_at, now() - $4::interval),
+  enrolment_checked_at = enrolment_checked_at - $2::interval,
   enrolment_check_requested_at = enrolment_check_requested_at - $2::interval,
   enrolment_check_restart_count = CASE
     WHEN $3 THEN 0
@@ -105,6 +109,7 @@ WHERE id = $1
         id,
         CHECK_REQUEST_MIN_INTERVAL as TimeDelta,
         clear_restarts,
+        STUDENT_CHECK_REQUEST_MIN_ROW_AGE as TimeDelta,
     )
     .execute(conn)
     .await?;

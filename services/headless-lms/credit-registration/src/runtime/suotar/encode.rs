@@ -1,5 +1,6 @@
 //! Requests into Suotar's wire items, each under the requestItemId it goes out with.
 
+use chrono::SubsecRound;
 use headless_lms_utils::services::suotar::{
     ImportAttainmentRequestItem, ListByCourseRequestItem, ResolveEnrolmentRequestItem,
     ResolvePersonRequestItem, ValidateCourseCodeRequestItem, VerifyAttainmentRequestItem,
@@ -47,7 +48,7 @@ pub(super) fn import_item(
         student_number: submission.student_number.as_secret().clone(),
         course_code: submission.course_code.as_str().to_string(),
         enrolment_id: submission.enrolment_id.clone(),
-        attainment_date: submission.attainment_date,
+        attainment_date: submission.attained_at.trunc_subsecs(0),
         attainment_language: submission.attainment_language.clone(),
         grade_scale_id: submission.grade.grade_scale_id.clone(),
         grade_id: submission.grade.grade_id.clone(),

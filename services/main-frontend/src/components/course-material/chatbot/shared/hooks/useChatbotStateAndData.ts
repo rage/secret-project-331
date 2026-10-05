@@ -15,7 +15,7 @@ import type {
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
 import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
-import useUpdateConversationTitle from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
+import useUpdateConversationTitleMutation from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -70,7 +70,14 @@ export interface ChatbotStateAndData {
   isOpen: boolean
   convId: string | null
   setConvId: React.Dispatch<string>
-  updateConversationTitle: UseMutationResult<unknown, unknown, void, unknown>
+  updateConversationTitleMutation: UseMutationResult<
+    unknown,
+    unknown,
+    string | null | undefined,
+    unknown
+  >
+  handlePickSuggestionMutation: UseMutationResult<void, unknown, string, unknown>
+  handleSubmitMutation: UseMutationResult<void, unknown, string, unknown>
 }
 
 /**
@@ -143,10 +150,10 @@ const useChatbotStateAndData = (
     setConvId,
   )
 
-  const updateConversationTitle = useUpdateConversationTitle(
+  // .mutate call takes as an argument a string that is to be used as the conversation title
+  const updateConversationTitleMutation = useUpdateConversationTitleMutation(
     chatbotConfigurationId,
     activeConversationId,
-    newMessage,
   )
 
   /**
@@ -295,6 +302,26 @@ const useChatbotStateAndData = (
     },
   )
 
+  const handleSubmitMutation = useToastMutation(
+    async (message: string) => {
+      const titleIsMissing = !currentConversationInfo.data?.current_conversation?.conversation_title
+
+      await newMessageMutation.mutateAsync(message)
+
+      if (titleIsMissing) {
+        updateConversationTitleMutation.mutate(message)
+      }
+    },
+    { notify: false },
+  )
+
+  const handlePickSuggestionMutation = useToastMutation(
+    async (message: string) => {
+      return await newMessageMutation.mutateAsync(message)
+    },
+    { notify: false },
+  )
+
   const toolResponseMutation = useToastMutation(
     async ({ toolCallId, toolName, answer }: ClientToolResponse) => {
       await runTurn(async (signal) => {
@@ -333,7 +360,9 @@ const useChatbotStateAndData = (
     isOpen,
     convId,
     setConvId,
-    updateConversationTitle,
+    updateConversationTitleMutation,
+    handlePickSuggestionMutation,
+    handleSubmitMutation,
   }
 }
 

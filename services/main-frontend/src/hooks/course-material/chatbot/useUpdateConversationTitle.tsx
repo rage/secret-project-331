@@ -6,15 +6,14 @@ import { allUserConversationsQueryKey } from "@/generated/course-material-api/@t
 import { updateTitle } from "@/generated/course-material-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
-const useUpdateConversationTitle = (
+const useUpdateConversationTitleMutation = (
   chatbotConfigurationId: string | null,
   conversationId: string | null | undefined,
-  conversationTitle: string | null | undefined,
 ) => {
   const queryClient = useQueryClient()
 
   return useToastMutation(
-    () => {
+    (conversationTitle: string | null | undefined) => {
       if (!chatbotConfigurationId) {
         throw new Error("useUpdateConversationTitle called with no chatbot configuration id")
       }
@@ -45,4 +44,4 @@ const useUpdateConversationTitle = (
   )
 }
 
-export default useUpdateConversationTitle
+export default useUpdateConversationTitleMutation

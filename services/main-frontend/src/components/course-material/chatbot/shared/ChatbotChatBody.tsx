@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -380,13 +381,13 @@ interface ChatbotConversationViewProps {
   hasStreamedAssistantContent: boolean
   suggestedMessages: { id: string; message: string }[]
   isSuggestionsLoading: boolean
-  onPickSuggestion: (message: string) => void
+  onPickSuggestion: UseMutationResult<void, unknown, string, unknown>
   scrollContainerRef: React.RefObject<HTMLUListElement | null>
   onScroll: () => void
   error: unknown
   newMessage: string
   setNewMessage: (message: string) => void
-  onSubmit: () => void
+  onSubmit: UseMutationResult<void, unknown, string, unknown>
   onStop: () => void
   canSubmit: boolean
   composerRef: React.RefObject<HTMLTextAreaElement | null>
@@ -453,7 +454,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
                 key={m.id}
                 isLoading={isSuggestionsLoading}
                 message={m.message}
-                handleClick={() => onPickSuggestion(m.message)}
+                handleClick={() => onPickSuggestion.mutate(m.message)}
               />
             ))}
         </li>
@@ -469,7 +470,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
               if (canSubmit) {
-                onSubmit()
+                onSubmit.mutate(newMessage)
               }
             }
           }}
@@ -490,7 +491,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
             if (isTurnInFlight) {
               onStop()
             } else {
-              onSubmit()
+              onSubmit.mutate(newMessage)
             }
           }}
         >
@@ -513,13 +514,13 @@ const ChatbotChatBody: React.FC = () => {
     messageState,
     toolResponseMutation,
     newMessage,
-    newMessageMutation,
     isTurnInFlight,
     error,
     setNewMessage,
     stopTurn,
     chatbotMessageAnnouncement,
-    updateConversationTitle,
+    handlePickSuggestionMutation,
+    handleSubmitMutation,
   } = useChatbotContext()
 
   const citations = useMemo(() => {
@@ -650,21 +651,6 @@ const ChatbotChatBody: React.FC = () => {
 
   const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
 
-  const handleSubmit = useCallback(() => {
-    newMessageMutation.mutate(newMessage)
-    const conversationTitle = currentConversationInfo.data?.current_conversation?.conversation_title
-    if (!conversationTitle) {
-      updateConversationTitle.mutate()
-    }
-  }, [newMessageMutation, newMessage, updateConversationTitle, currentConversationInfo])
-
-  const handlePickSuggestion = useCallback(
-    (message: string) => {
-      newMessageMutation.mutate(message)
-    },
-    [newMessageMutation],
-  )
-
   return (
     <>
       {/* A live region has to already be mounted when its text changes, or the change is never
@@ -716,13 +702,13 @@ const ChatbotChatBody: React.FC = () => {
           hasStreamedAssistantContent={hasStreamedAssistantContent(messageState.messages)}
           suggestedMessages={currentConversationInfo.data.suggested_messages ?? []}
           isSuggestionsLoading={currentConversationInfo.isRefetching}
-          onPickSuggestion={handlePickSuggestion}
+          onPickSuggestion={handlePickSuggestionMutation}
           scrollContainerRef={scrollContainerRef}
           onScroll={handleScroll}
           error={error}
           newMessage={newMessage}
           setNewMessage={setNewMessage}
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmitMutation}
           onStop={stopTurn}
           canSubmit={canSubmit}
           composerRef={composerRef}

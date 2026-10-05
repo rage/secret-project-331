@@ -192,16 +192,41 @@ VALUES ($1, $2, $3, $4)
     Ok(id)
 }
 
-/// Queues a test send of an unsaved template body to the account's own address. `placeholders`
-/// must hold every substitution: the sender derives none for a test send.
-pub async fn insert_test_email_delivery(
+/// Queues a test send of an unsaved template body to the account's own address, unless the
+/// account already queued `max_per_minute` in the last minute, in which case returns `None`.
+/// `placeholders` must hold every substitution: the sender derives none for a test send.
+pub async fn insert_test_email_delivery_within_limit(
     conn: &mut PgConnection,
     user_id: Uuid,
     email_template_id: Uuid,
     subject: &str,
     content: &serde_json::Value,
     placeholders: &serde_json::Value,
-) -> ModelResult<Uuid> {
+    max_per_minute: i64,
+) -> ModelResult<Option<Uuid>> {
+    let mut tx = conn.begin().await?;
+    // Serializes concurrent sends of one user, so the count below cannot go stale before the insert.
+    sqlx::query!(
+        "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+        user_id.to_string()
+    )
+    .execute(&mut *tx)
+    .await?;
+    let recent = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM email_deliveries
+WHERE user_id = $1
+  AND test_content IS NOT NULL
+  AND created_at > now() - interval '1 minute'
+        "#,
+        user_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if recent >= max_per_minute {
+        return Ok(None);
+    }
     let id = Uuid::new_v4();
     sqlx::query!(
         r#"
@@ -222,29 +247,10 @@ VALUES ($1, $2, $3, $4, $5, $6)
         subject,
         content,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
-    Ok(id)
-}
-
-/// How many test sends `user_id` has queued in the last minute.
-pub async fn count_test_deliveries_in_last_minute(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM email_deliveries
-WHERE user_id = $1
-  AND test_content IS NOT NULL
-  AND created_at > now() - interval '1 minute'
-        "#,
-        user_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
+    tx.commit().await?;
+    Ok(Some(id))
 }
 
 pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {

@@ -2,8 +2,8 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 // Gutenberg's link inputs prepend a protocol to anything that does not look like a URL, which turns
 // `{{LINK}}` into `https://{{LINK}}` and the sent link into `https://https://...`.
-const PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER = /^https?:\/\/(?=\{\{\w+\}\})/
-const PREPENDED_PROTOCOL_IN_HREF = /(<a\s[^>]*?href=")https?:\/\/(?=\{\{\w+\}\})/g
+const PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER = /^https?:\/\/(?=\{\{\w+\}\}$)/
+const PREPENDED_PROTOCOL_IN_HREF = /(<a\s[^>]*?href=")https?:\/\/(?=\{\{\w+\}\}")/g
 
 function normalizeValue(value: unknown, isPlainUrl: boolean): unknown {
   if (typeof value === "string") {

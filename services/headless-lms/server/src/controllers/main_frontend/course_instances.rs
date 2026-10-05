@@ -20,7 +20,7 @@ use models::{
 use utoipa::OpenApi;
 
 use crate::{
-    controllers::cms::email_templates::parse_email_content,
+    controllers::helpers::email_content::parse_email_content,
     domain::csv_export::{
         course_instance_export::CompletionsExportOperation, general_export,
         points::PointExportOperation,

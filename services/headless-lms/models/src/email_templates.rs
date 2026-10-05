@@ -58,6 +58,7 @@ impl EmailTemplateType {
                 ("COURSE_NAME", "Introduction to Programming".to_string()),
                 ("MODULE_NAME", "Part 2".to_string()),
                 ("CREDITS", "5".to_string()),
+                ("ENROLMENT_LINK", "https://example.com/enrol".to_string()),
                 (
                     "STATUS_LINK",
                     format!("{base_url}/completion-registration/{sample_id}"),
@@ -352,7 +353,21 @@ RETURNING *
   "#,
         email_template_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
+    .await?;
+    // The sender claims only deliveries of live templates, so unsent test sends would stay queued forever.
+    sqlx::query!(
+        "
+UPDATE email_deliveries
+SET deleted_at = NOW()
+WHERE email_template_id = $1
+  AND test_content IS NOT NULL
+  AND sent = FALSE
+  AND deleted_at IS NULL
+        ",
+        email_template_id
+    )
+    .execute(conn)
     .await?;
     Ok(deleted)
 }

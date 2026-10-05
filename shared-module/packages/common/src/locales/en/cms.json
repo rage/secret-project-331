@@ -284,6 +284,7 @@
   "placeholder-module-name-description": "The name of the completed course module.",
   "placeholder-name-description": "The recipient's first name.",
   "placeholder-reset-link-description": "The password reset link that users can click to reset their password.",
+  "placeholder-enrolment-link-description": "The link where the student can enrol on the course. Empty when the course module has none.",
   "placeholder-status-link-description": "A link to the page where the student can see the registration status and the next steps.",
   "placeholder-student-number-description": "The student number that will be linked to the account.",
   "please-select-exercise-type": "Please select an exercise type:",

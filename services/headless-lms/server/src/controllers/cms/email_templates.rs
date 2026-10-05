@@ -1,10 +1,11 @@
 //! Controllers for requests starting with `/api/v0/cms/email-templates`.
 
-use headless_lms_utils::email_processor::{self, EmailGutenbergBlock, EmailRenderInput};
+use headless_lms_utils::email_processor::{self, EmailRenderInput};
 use models::email_layouts::{self, ResolvedLayout};
 use models::email_templates::{EmailTemplate, EmailTemplateUpdate};
 use utoipa::{OpenApi, ToSchema};
 
+use crate::controllers::helpers::email_content::parse_email_content;
 use crate::domain::authorization::AuthorizationToken;
 use crate::prelude::*;
 
@@ -60,19 +61,6 @@ async fn authorize_template_edit(
     Ok(token)
 }
 
-/// Parses an email body the way the sender will, so a body it cannot send is rejected on save.
-pub(crate) fn parse_email_content(
-    content: &serde_json::Value,
-) -> Result<Vec<EmailGutenbergBlock>, ControllerError> {
-    serde_json::from_value(content.clone()).map_err(|err| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            format!("The email content cannot be sent: {err}"),
-            None,
-        )
-    })
-}
-
 /**
 GET `/api/v0/cms/email-templates/:id`
 */
@@ -97,17 +85,7 @@ async fn get_email_template(
     let mut conn = pool.acquire().await?;
     let email_templates =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
-    let token = if let Some(course_id) = email_templates.course_id {
-        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
-    } else {
-        authorize(
-            &mut conn,
-            Act::Administrate,
-            Some(user.id),
-            Res::GlobalPermissions,
-        )
-        .await?
-    };
+    let token = authorize_template_edit(&mut conn, &user, &email_templates).await?;
     token.authorized_ok(web::Json(email_templates))
 }
 
@@ -137,17 +115,7 @@ async fn update_email_template(
     let mut conn = pool.acquire().await?;
     let template =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
-    let token = if let Some(course_id) = template.course_id {
-        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
-    } else {
-        authorize(
-            &mut conn,
-            Act::Administrate,
-            Some(user.id),
-            Res::GlobalPermissions,
-        )
-        .await?
-    };
+    let token = authorize_template_edit(&mut conn, &user, &template).await?;
     let request_update_template = payload.0;
     parse_email_content(&request_update_template.content)?;
     let updated_template = models::email_templates::update_email_template(
@@ -183,17 +151,7 @@ async fn delete_email_template(
     let mut conn = pool.acquire().await?;
     let template =
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
-    let token = if let Some(course_id) = template.course_id {
-        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
-    } else {
-        authorize(
-            &mut conn,
-            Act::Administrate,
-            Some(user.id),
-            Res::GlobalPermissions,
-        )
-        .await?
-    };
+    let token = authorize_template_edit(&mut conn, &user, &template).await?;
     let deleted =
         models::email_templates::delete_email_template(&mut conn, *email_template_id).await?;
     token.authorized_ok(web::Json(deleted))
@@ -283,29 +241,28 @@ async fn send_test_email(
         models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
     let token = authorize_template_edit(&mut conn, &user, &template).await?;
     parse_email_content(&payload.content)?;
-    let recent_test_sends =
-        models::email_deliveries::count_test_deliveries_in_last_minute(&mut conn, user.id).await?;
-    if recent_test_sends >= MAX_TEST_SENDS_PER_MINUTE {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Too many test emails sent in the last minute. Try again shortly.".to_string(),
-            None,
-        ));
-    }
     let placeholders = serde_json::to_value(
         template
             .email_template_type
             .sample_placeholders(&app_conf.base_url),
     )?;
-    let delivery_id = models::email_deliveries::insert_test_email_delivery(
+    let delivery_id = models::email_deliveries::insert_test_email_delivery_within_limit(
         &mut conn,
         user.id,
         template.id,
         &payload.subject,
         &payload.content,
         &placeholders,
+        MAX_TEST_SENDS_PER_MINUTE,
     )
-    .await?;
+    .await?
+    .ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Too many test emails sent in the last minute. Try again shortly.".to_string(),
+            None,
+        )
+    })?;
     token.authorized_ok(web::Json(delivery_id))
 }
 

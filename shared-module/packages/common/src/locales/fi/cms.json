@@ -269,6 +269,7 @@
   "placeholder-module-name-description": "Suoritetun kurssimoduulin nimi.",
   "placeholder-name-description": "Vastaanottajan etunimi.",
   "placeholder-reset-link-description": "Salasanan palautuslinkki, jota käyttäjä voi napsauttaa palauttaakseen salasanansa.",
+  "placeholder-enrolment-link-description": "Linkki, josta opiskelija voi ilmoittautua kurssille. Tyhjä, jos kurssimoduulilla ei ole sitä.",
   "placeholder-status-link-description": "Linkki sivulle, jolla opiskelija näkee kirjauksen tilan ja seuraavat vaiheet.",
   "placeholder-student-number-description": "Opiskelijanumero, joka liitetään tiliin.",
   "please-select-exercise-type": "Ole hyvä ja valitse harjoitustyyppi:",

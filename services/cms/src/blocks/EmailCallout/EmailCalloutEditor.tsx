@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 
 import { Select } from "@/shared-module/components"
@@ -20,12 +20,20 @@ const EmailCalloutEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<EmailCalloutAttributes>>
 > = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
-  const { control, watch } = useForm<{ icon: EmailCalloutIcon }>({
+  const { control, watch, setValue } = useForm<{ icon: EmailCalloutIcon }>({
     defaultValues: { icon: attributes.icon },
   })
   const selectedIcon = watch("icon")
+  const savedIcon = useRef(attributes.icon)
   useEffect(() => {
-    setAttributes({ icon: selectedIcon })
+    savedIcon.current = attributes.icon
+    // Undo, redo and other outside changes reach the Select this way.
+    setValue("icon", attributes.icon)
+  }, [attributes.icon, setValue])
+  useEffect(() => {
+    if (selectedIcon !== savedIcon.current) {
+      setAttributes({ icon: selectedIcon })
+    }
   }, [selectedIcon, setAttributes])
   const iconOptions = useMemo(
     () =>

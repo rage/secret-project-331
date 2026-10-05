@@ -3,7 +3,7 @@
 use models::email_templates::{EmailTemplate, EmailTemplateNew};
 use utoipa::OpenApi;
 
-use crate::controllers::cms::email_templates::parse_email_content;
+use crate::controllers::helpers::email_content::parse_email_content;
 use crate::domain::error::missing_controller_error;
 use crate::prelude::*;
 

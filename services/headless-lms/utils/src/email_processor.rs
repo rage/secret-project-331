@@ -259,9 +259,9 @@ impl EmailGutenbergBlock {
             .unwrap_or(if is_reversed { count } else { 1 });
         (0..count).map(move |index| {
             if is_reversed {
-                start - index
+                start.saturating_sub(index)
             } else {
-                start + index
+                start.saturating_add(index)
             }
         })
     }

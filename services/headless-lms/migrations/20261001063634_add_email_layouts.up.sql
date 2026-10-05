@@ -48,19 +48,21 @@ DECLARE converted JSONB;
 BEGIN
 SELECT COALESCE(
     jsonb_agg(
-      (b - 'type' - 'attributes' - 'innerBlocks') || jsonb_build_object(
+      CASE
+      WHEN jsonb_typeof(b) <> 'object' THEN b
+      ELSE (b - 'type' - 'attributes' - 'innerBlocks') || jsonb_build_object(
         'name',
         COALESCE(b->'name', b->'type'),
         'attributes',
         CASE
-          WHEN b->'attributes' ? 'drop_cap' THEN ((b->'attributes') - 'drop_cap') || jsonb_build_object('dropCap', b->'attributes'->'drop_cap')
-          ELSE COALESCE(b->'attributes', '{}'::jsonb) - 'values'
+          WHEN attrs ? 'drop_cap' THEN (attrs - 'drop_cap' - 'values') || jsonb_build_object('dropCap', attrs->'drop_cap')
+          ELSE attrs - 'values'
         END,
         'innerBlocks',
         CASE
           WHEN COALESCE(b->>'name', b->>'type') = 'core/list'
-          AND b->'attributes' ? 'values'
-          AND COALESCE(jsonb_array_length(b->'innerBlocks'), 0) = 0 THEN (
+          AND attrs ? 'values'
+          AND jsonb_array_length(child_blocks) = 0 THEN (
             SELECT COALESCE(
                 jsonb_agg(
                   jsonb_build_object(
@@ -78,16 +80,28 @@ SELECT COALESCE(
                 ),
                 '[]'::jsonb
               )
-            FROM regexp_matches(b->'attributes'->>'values', '<li>(.*?)</li>', 'g') AS item
+            FROM regexp_matches(attrs->>'values', '<li>(.*?)</li>', 'g') AS item
           )
-          ELSE pg_temp.to_current_gutenberg_blocks(COALESCE(b->'innerBlocks', '[]'::jsonb))
+          ELSE pg_temp.to_current_gutenberg_blocks(child_blocks)
         END
       )
+      END
       ORDER BY ord
     ),
     '[]'::jsonb
   ) INTO converted
-FROM jsonb_array_elements(blocks) WITH ORDINALITY AS t(b, ord);
+FROM jsonb_array_elements(blocks) WITH ORDINALITY AS t(b, ord)
+  CROSS JOIN LATERAL (
+    SELECT CASE
+        WHEN jsonb_typeof(b) = 'object'
+        AND jsonb_typeof(b->'innerBlocks') = 'array' THEN b->'innerBlocks'
+        ELSE '[]'::jsonb
+      END AS child_blocks,
+      CASE
+        WHEN jsonb_typeof(b->'attributes') = 'object' THEN b->'attributes'
+        ELSE '{}'::jsonb
+      END AS attrs
+  ) AS lateral_inner;
 RETURN converted;
 END;
 $$;

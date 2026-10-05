@@ -13,8 +13,8 @@ use chrono::TimeDelta;
 use super::enrolment_check_schedule::{
     BATCH_INTERVAL, BATCH_PULL_FORWARD, CHECK_REQUEST_MIN_INTERVAL, CHECK_REQUEST_RESTART_WINDOW,
     EnrolmentCheckGroup, EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY,
-    ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY, VISIT_RESTART_MIN_INTERVAL, first_check,
-    never, next_check_after,
+    RECHECK_AFTER_RECENT_CHECK, ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY,
+    VISIT_RESTART_MIN_INTERVAL, first_check, never, next_check_after,
 };
 use super::study_registry::RegistryEnrolment;
 
@@ -142,7 +142,7 @@ WHERE id = $1
 /// check-requested ladder with its immediate check.
 ///
 /// Shares one 30-minute limit between every kind of request. The immediate check is skipped when
-/// the row was checked within that limit, and past the daily restart cap a request gets its
+/// the row was checked within that limit, and follows after [`RECHECK_AFTER_RECENT_CHECK`] instead, and past the daily restart cap a request gets its
 /// immediate check without restarting the ladder.
 pub async fn request_check(
     conn: &mut PgConnection,
@@ -203,11 +203,10 @@ WHERE id = $1
             .enrolment_check_group
             .max(EnrolmentCheckGroup::CheckRequested);
         let (scheduled, source, next_attempt_at, outcome) = if checked_recently {
-            let scheduled = next_check_after(group, now, now);
             (
-                scheduled,
+                next_check_after(group, now, now),
                 EnrolmentCheckSource::Schedule,
-                scheduled.map_or_else(never, |scheduled| scheduled.release_at()),
+                now + RECHECK_AFTER_RECENT_CHECK,
                 CheckRequestOutcome::Rescheduled,
             )
         } else {

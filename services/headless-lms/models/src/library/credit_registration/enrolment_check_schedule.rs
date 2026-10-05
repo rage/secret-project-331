@@ -53,13 +53,16 @@ impl EnrolmentCheckSource {
     }
 }
 
-/// Suotar's copy of Sisu is usually about an hour behind, so a check sooner than this after an
-/// enrolment usually cannot see it. The check-requested ladder tries earlier anyway.
+/// Suotar's copy of Sisu shows a new enrolment after 15 to 60 minutes, so a check sooner than this
+/// after an enrolment usually cannot see it.
 pub const REGISTRY_LAG: TimeDelta = TimeDelta::hours(1);
 
 /// How soon after a check request, or after the last check, another request may start one. Shared
 /// by the student's recheck, Done and the teacher's button.
 pub const CHECK_REQUEST_MIN_INTERVAL: TimeDelta = TimeDelta::minutes(30);
+/// How old a row must be before its student may ask for a check: a new enrolment takes 15 to 60
+/// minutes to show, so an earlier request only finds nothing and spends the allowance.
+pub const STUDENT_CHECK_REQUEST_MIN_ROW_AGE: TimeDelta = TimeDelta::hours(1);
 /// How many check requests a day may restart the ladder. Past it a request gets one check only.
 pub const MAX_CHECK_REQUEST_RESTARTS_PER_DAY: i32 = 4;
 pub const CHECK_REQUEST_RESTART_WINDOW: TimeDelta = TimeDelta::days(1);
@@ -72,6 +75,10 @@ pub const BATCH_INTERVAL: TimeDelta = TimeDelta::minutes(5);
 pub const BATCH_PULL_FORWARD: TimeDelta = TimeDelta::minutes(15);
 /// A rung at least this far after the one before it is a slow one.
 const SLOW_GAP: TimeDelta = TimeDelta::days(1);
+
+/// How soon the check follows a request made right after the row was checked: the request still
+/// gets its check, not the ladder's first rung.
+pub const RECHECK_AFTER_RECENT_CHECK: TimeDelta = TimeDelta::seconds(30);
 
 /// How long a check that failed in transit waits before the same rung is tried again.
 pub const TRANSIENT_FAILURE_RETRY: TimeDelta = TimeDelta::minutes(5);
@@ -116,40 +123,28 @@ impl ScheduledEnrolmentCheck {
 
 /// The group's ladder, as offsets from the anchor, ascending.
 fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
-    const HOUR: TimeDelta = TimeDelta::hours(1);
     const DAY: TimeDelta = TimeDelta::days(1);
     const WEEK: TimeDelta = TimeDelta::weeks(1);
     static COMPLETED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = (1..=7).map(TimeDelta::days).collect();
-        offsets.extend([TimeDelta::days(10), TimeDelta::days(13)]);
-        extend_by(&mut offsets, WEEK, TimeDelta::days(90));
-        offsets
+        [1, 3, 7, 14, 30, 60, 90]
+            .into_iter()
+            .map(TimeDelta::days)
+            .collect()
     });
     static VISITED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = [1, 2, 4, 7, 11, 17, 25, 37, 55, 79]
+        let mut offsets: Vec<TimeDelta> = [60, 75, 120, 240, 480]
             .into_iter()
-            .map(TimeDelta::hours)
+            .map(TimeDelta::minutes)
             .collect();
         extend_by(&mut offsets, DAY, TimeDelta::days(14));
         extend_by(&mut offsets, WEEK, TimeDelta::days(90));
         offsets
     });
     static CHECK_REQUESTED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets = vec![
-            TimeDelta::seconds(30),
-            TimeDelta::minutes(1),
-            TimeDelta::minutes(5),
-            TimeDelta::minutes(15),
-            REGISTRY_LAG,
-        ];
-        let mut gap = TimeDelta::minutes(30);
-        while gap <= HOUR * 5 {
-            push_after(&mut offsets, gap);
-            gap += TimeDelta::minutes(30);
-        }
-        for hours in [6, 8, 12, 24] {
-            push_after(&mut offsets, TimeDelta::hours(hours));
-        }
+        let mut offsets: Vec<TimeDelta> = [15, 50, 60, 75, 120, 180, 360, 720, 1440]
+            .into_iter()
+            .map(TimeDelta::minutes)
+            .collect();
         extend_by(&mut offsets, DAY, TimeDelta::days(28));
         extend_by(&mut offsets, WEEK, TimeDelta::days(180));
         offsets
@@ -234,43 +229,26 @@ mod tests {
     #[test]
     fn the_ladders_follow_the_plan() {
         let completed = offsets_hours(EnrolmentCheckGroup::Completed);
-        assert_eq!(
-            completed[..10],
-            [
-                24.0, 48.0, 72.0, 96.0, 120.0, 144.0, 168.0, 240.0, 312.0, 480.0
-            ]
-        );
-        assert_eq!(completed.last(), Some(&(90.0 * 24.0)));
+        assert_eq!(completed, [24.0, 72.0, 168.0, 336.0, 720.0, 1440.0, 2160.0]);
 
         let visited = offsets_hours(EnrolmentCheckGroup::Visited);
-        assert_eq!(
-            visited[..11],
-            [
-                1.0, 2.0, 4.0, 7.0, 11.0, 17.0, 25.0, 37.0, 55.0, 79.0, 103.0
-            ]
-        );
+        assert_eq!(visited[..6], [1.0, 1.25, 2.0, 4.0, 8.0, 32.0]);
         assert!(visited.last().unwrap() <= &(90.0 * 24.0));
 
         let requested = offsets_hours(EnrolmentCheckGroup::CheckRequested);
         assert_eq!(
-            requested[..16],
+            requested[..10],
             [
-                30.0 / 3600.0,
-                60.0 / 3600.0,
-                300.0 / 3600.0,
-                900.0 / 3600.0,
+                0.25,
+                50.0 / 60.0,
                 1.0,
-                1.5,
-                2.5,
-                4.0,
+                1.25,
+                2.0,
+                3.0,
                 6.0,
-                8.5,
-                11.5,
-                15.0,
-                19.0,
-                23.5,
-                28.5,
-                34.5
+                12.0,
+                24.0,
+                48.0
             ]
         );
         assert!(requested.last().unwrap() <= &(180.0 * 24.0));
@@ -289,17 +267,14 @@ mod tests {
         let requested = EnrolmentCheckGroup::CheckRequested;
         assert_eq!(
             first_check(requested, anchor).unwrap().due_at,
-            at(TimeDelta::seconds(30))
+            at(TimeDelta::minutes(15))
         );
-        let after_first = next_check_after(requested, anchor, at(TimeDelta::seconds(30))).unwrap();
+        let after_first = next_check_after(requested, anchor, at(TimeDelta::minutes(15))).unwrap();
         assert_eq!(after_first.step, 1);
-        assert_eq!(after_first.due_at, at(TimeDelta::minutes(1)));
+        assert_eq!(after_first.due_at, at(TimeDelta::minutes(50)));
         // A row that sat out several rungs gets one catch-up, not one per rung.
-        let late = next_check_after(requested, anchor, at(TimeDelta::hours(10))).unwrap();
-        assert_eq!(
-            late.due_at,
-            at(TimeDelta::hours(11) + TimeDelta::minutes(30))
-        );
+        let late = next_check_after(requested, anchor, at(TimeDelta::hours(4))).unwrap();
+        assert_eq!(late.due_at, at(TimeDelta::hours(6)));
         assert_eq!(
             next_check_after(
                 EnrolmentCheckGroup::Completed,

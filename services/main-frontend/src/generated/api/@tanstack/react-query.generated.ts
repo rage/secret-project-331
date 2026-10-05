@@ -80,6 +80,7 @@ import {
   deleteEmailTemplate,
   deleteExerciseRepository,
   deleteExerciseService,
+  deleteExternalCourse,
   deleteGlossaryTerm,
   deleteOauthAuthorizedClient,
   deleteOrganizationImage,
@@ -390,6 +391,7 @@ import {
   updateCourseReference,
   updateExerciseRepository,
   updateExerciseService,
+  updateExternalCourse,
   updateGeneratedCertificate,
   updateGlossaryTerm,
   updateMetadata,
@@ -521,6 +523,8 @@ import type {
   DeleteExerciseRepositoryResponse,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponse,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
   DeleteOauthAuthorizedClientData,
   DeleteOauthAuthorizedClientResponse,
@@ -1102,6 +1106,8 @@ import type {
   UpdateExerciseRepositoryResponse,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponse,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponse,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponse,
   UpdateGlossaryTermData,
@@ -9047,6 +9053,32 @@ export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesDa
 
 /**
  *
+ * POST `/api/v0/main-frontend/external-course/delete` - Deletes external course.
+ */
+export const deleteExternalCourseMutation = (
+  options?: Partial<Options<DeleteExternalCourseData>>,
+): UseMutationOptions<
+  DeleteExternalCourseResponse,
+  DefaultError,
+  Options<DeleteExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteExternalCourseResponse,
+    DefaultError,
+    Options<DeleteExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
  * POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
  */
 export const createExternalCourseMutation = (
@@ -9063,6 +9095,32 @@ export const createExternalCourseMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await createExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-course/update` - Updates external course.
+ */
+export const updateExternalCourseMutation = (
+  options?: Partial<Options<UpdateExternalCourseData>>,
+): UseMutationOptions<
+  UpdateExternalCourseResponse,
+  DefaultError,
+  Options<UpdateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateExternalCourseResponse,
+    DefaultError,
+    Options<UpdateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateExternalCourse({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -9099,12 +9099,26 @@ export const zGetExerciseSubmissionsForUserResponse = z.array(zExerciseSlideSubm
  */
 export const zGetExternalCoursesResponse = z.array(zExternalCourseOutput)
 
+export const zDeleteExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Deleted external course
+ */
+export const zDeleteExternalCourseResponse = zExternalCourseOutput
+
 export const zCreateExternalCourseBody = zNewExternalCourse
 
 /**
  * Created external course
  */
 export const zCreateExternalCourseResponse = zExternalCourseOutput
+
+export const zUpdateExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Updated external course
+ */
+export const zUpdateExternalCourseResponse = zExternalCourseOutput
 
 export const zMarkFeedbackAsReadBody = zMarkAsRead
 

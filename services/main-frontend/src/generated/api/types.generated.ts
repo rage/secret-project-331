@@ -11930,6 +11930,23 @@ export type GetExternalCoursesResponses = {
 export type GetExternalCoursesResponse =
   GetExternalCoursesResponses[keyof GetExternalCoursesResponses]
 
+export type DeleteExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/delete"
+}
+
+export type DeleteExternalCourseResponses = {
+  /**
+   * Deleted external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type DeleteExternalCourseResponse =
+  DeleteExternalCourseResponses[keyof DeleteExternalCourseResponses]
+
 export type CreateExternalCourseData = {
   body: NewExternalCourse
   path?: never
@@ -11946,6 +11963,23 @@ export type CreateExternalCourseResponses = {
 
 export type CreateExternalCourseResponse =
   CreateExternalCourseResponses[keyof CreateExternalCourseResponses]
+
+export type UpdateExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/update"
+}
+
+export type UpdateExternalCourseResponses = {
+  /**
+   * Updated external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type UpdateExternalCourseResponse =
+  UpdateExternalCourseResponses[keyof UpdateExternalCourseResponses]
 
 export type MarkFeedbackAsReadData = {
   body: MarkAsRead

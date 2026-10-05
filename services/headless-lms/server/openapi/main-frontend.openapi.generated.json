@@ -10435,6 +10435,35 @@
         }
       }
     },
+    "/api/v0/main-frontend/external-courses/delete": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-course/delete` - Deletes external course.",
+        "operationId": "deleteExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalCourseOutput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/external-courses/new": {
       "post": {
         "tags": ["externalCourses"],
@@ -10453,6 +10482,35 @@
         "responses": {
           "200": {
             "description": "Created external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/external-courses/update": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-course/update` - Updates external course.",
+        "operationId": "updateExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalCourseOutput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated external course",
             "content": {
               "application/json": {
                 "schema": {

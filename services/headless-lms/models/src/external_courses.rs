@@ -113,9 +113,33 @@ SELECT
     description,
     url
 FROM external_courses
+WHERE deleted_at IS NULL
         "#
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_external_course_by_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExternalCourseOutput> {
+    let res = sqlx::query_as!(
+        ExternalCourseOutput,
+        r#"
+SELECT
+    id,
+    name,
+    description,
+    url
+FROM external_courses
+WHERE id = $1
+AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -174,7 +198,7 @@ AND to_tsvector(
 /**
 Delete external course based on id
 */
-async fn delete_by_id(
+pub async fn delete_by_id(
     conn: &mut PgConnection,
     external_course_id: Uuid,
 ) -> ModelResult<ExternalCourseOutput> {
@@ -201,8 +225,76 @@ RETURNING
 /**
 Edit external course information
 */
-async fn udpate_external_course(
+pub async fn udpate_by_id(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     update: ExternalCourseOutput,
 ) -> ModelResult<ExternalCourseOutput> {
+    let old = get_external_course_by_id(conn, update.id).await?;
+    let name_embedding = if old.name != update.name {
+        Some(
+            create_embeddings(app_config, vec![update.name.clone()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(
+                        Generic,
+                        "The embedding API returned no description embedding."
+                    )
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+    let description_embedding = if old.description != update.description {
+        if let Some(description) = &update.description {
+            Some(
+                create_embeddings(app_config, vec![description.clone()])
+                    .await?
+                    .into_iter()
+                    .next()
+                    .ok_or_else(|| {
+                        model_err!(
+                            Generic,
+                            "The embedding API returned no description embedding."
+                        )
+                    })
+                    .map(Vector::from)?,
+            )
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let res = sqlx::query_as!(
+        ExternalCourseOutput,
+        r#"
+UPDATE external_courses
+SET name = $1,
+    description = $2,
+    url = $3,
+    name_embedding = COALESCE($4, name_embedding),
+    description_embedding = COALESCE($5, description_embedding)
+WHERE id = $6 AND deleted_at IS NULL
+RETURNING
+        id,
+        name,
+        description,
+        url
+        "#,
+        update.name,
+        update.description,
+        update.url,
+        name_embedding,
+        description_embedding,
+        update.id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
 }

@@ -15,18 +15,30 @@ pub struct NewFeedbackCategory {
     pub name: String,
 }
 
-pub async fn insert(conn: &mut PgConnection, category: NewFeedbackCategory) -> ModelResult<Uuid> {
+pub async fn insert_or_get_by_name(
+    conn: &mut PgConnection,
+    category: NewFeedbackCategory,
+) -> ModelResult<Uuid> {
     if let Some(c) = get_by_name(conn, &category.name).await? {
         return Ok(c.id);
     };
 
-    let res = sqlx::query_as!(
-        FeedbackCategory,
-        "
-INSERT INTO feedback_categories (name)
-VALUES ($1)
-RETURNING *
-        ",
+    let res = sqlx::query!(
+        r#"
+WITH inserted AS (
+  INSERT INTO feedback_categories (name)
+  VALUES ($1)
+  ON CONFLICT DO NOTHING
+  RETURNING *
+)
+SELECT id AS "id!"
+FROM inserted
+WHERE id IS NOT NULL
+UNION
+SELECT id AS "id!"
+FROM feedback_categories
+WHERE name = $1
+        "#,
         category.name,
     )
     .fetch_one(conn)

@@ -45,17 +45,18 @@ pub async fn insert(
     course_id: Uuid,
     new_feedback: NewFeedback,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
     let category_id = if let Some(category) = new_feedback.category {
         // if inserting the category fails for some reason, let's still try to insert
         // the feedback.
-        feedback_categories::insert(&mut tx, category)
+        feedback_categories::insert_or_get_by_name(&mut *conn, category)
             .await
             .inspect_err(|e| error!("Error while inserting new feedback cateogry: {e}"))
             .ok()
     } else {
         None
     };
+    let mut tx = conn.begin().await?;
+
     let res = sqlx::query!(
         "
 INSERT INTO feedback(

@@ -809,7 +809,7 @@ pub async fn feedback(
     .await
     .ok();
     let feedback_categories = models::feedback_categories::get_all(&mut conn, *course_id).await?;
-    conn.close().await?;
+    drop(conn);
 
     let mut ids = vec![];
     let mut new = vec![];

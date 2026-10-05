@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH inserted AS (\n  INSERT INTO feedback_categories (name)\n  VALUES ($1)\n  ON CONFLICT DO NOTHING\n  RETURNING *\n)\nSELECT id AS \"id!\"\nFROM inserted\nWHERE id IS NOT NULL\nUNION\nSELECT id AS \"id!\"\nFROM feedback_categories\nWHERE name = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d58d9e2aeb0913bb0b1f71fe299074b4b45511e1ef2c1b878db24f86a1ffd75c"
+}

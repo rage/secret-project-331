@@ -3,10 +3,16 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useEffect, useState } from "react"
+import { useProgressBar } from "react-aria"
+import { useTranslation } from "react-i18next"
 
-import type { ProgressBarExtraProps } from "."
-import { baseTheme, headingFont } from "../../styles"
-import { respondToOrLarger } from "../../styles/respond"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Tooltip } from "@/shared-module/components"
+
+import ChartExplanationList from "./ChartExplanationList"
+import type { ChartExplanation, ChartPart } from "./progressText"
+import { helpButtonCss } from "./progressTheme"
 
 const LinearProgress = styled.div<LinearProgressProps>`
   display: flex;
@@ -57,27 +63,50 @@ const Label = styled.div`
   text-align: center;
   padding-left: 10px;
 
-  span:first-of-type {
+  > span:first-of-type {
     font-size: 0.8em;
     font-weight: 500;
     font-family: ${headingFont};
     color: #313947;
   }
   ${respondToOrLarger.sm} {
-    span:first-of-type {
+    > span:first-of-type {
       font-size: 1.1em;
     }
   }
 `
 
-const ProgressBar: React.FC<React.PropsWithChildren<ProgressBarExtraProps>> = ({
-  showAsPercentage = false,
+export interface ProgressBarProps {
+  exercisesAttempted: number | null
+  exercisesTotal: number | null
+  /** Names the bar, and follows the count above it. */
+  label: string
+  /** Drawn in yellow under the fill; leave out when there is no threshold. */
+  required?: number
+  valueText: string
+  explanations: ChartExplanation[]
+}
+
+const BAR_HEIGHT = "medium"
+
+/** The exercises-attempted bar with its count above it. */
+const ProgressBar: React.FC<ProgressBarProps> = ({
   exercisesAttempted,
   exercisesTotal,
-  height = "medium",
   label,
   required,
+  valueText,
+  explanations,
 }) => {
+  const { t } = useTranslation()
+  const height = BAR_HEIGHT
+  const { progressBarProps } = useProgressBar({
+    value: exercisesAttempted ?? 0,
+    minValue: 0,
+    maxValue: Math.max(exercisesTotal ?? 0, 1),
+    valueLabel: valueText,
+    "aria-label": label,
+  })
   const ratio = (exercisesTotal ?? 0) > 0 ? (exercisesAttempted ?? 0) / (exercisesTotal ?? 0) : 0
   const requiredRatio = (exercisesTotal ?? 0) > 0 ? (required ?? 0) / (exercisesTotal ?? 0) : 0
 
@@ -101,16 +130,17 @@ const ProgressBar: React.FC<React.PropsWithChildren<ProgressBarExtraProps>> = ({
         text-transform: lowercase;
       `}
     >
-      {label && (
-        <Label>
-          <span>
-            {showAsPercentage
-              ? `${percentage}% ${label}`
-              : `${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${label}`}
+      <Label>
+        <span className={helpAnchorCss}>
+          <span aria-hidden="true">{`${exercisesAttempted ?? 0} / ${exercisesTotal ?? 0} ${label}`}</span>
+          <span className={helpSlotCss}>
+            <Tooltip aria-label={t("label-about-exercises-bar")} className={helpButtonCss}>
+              <ChartExplanationList explanations={explanations} colors={BAR_COLORS} />
+            </Tooltip>
           </span>
-        </Label>
-      )}
-      <LinearProgress height={height}>
+        </span>
+      </Label>
+      <LinearProgress {...progressBarProps} height={height}>
         <div
           className={css`
             width: 100%;
@@ -127,3 +157,23 @@ const ProgressBar: React.FC<React.PropsWithChildren<ProgressBarExtraProps>> = ({
 }
 
 export default ProgressBar
+
+const BAR_COLORS: Record<ChartPart, string> = {
+  given: baseTheme.colors.green[600],
+  required: baseTheme.colors.yellow[200],
+  max: baseTheme.colors.green[100],
+}
+
+// The ? hangs after the count, so the count itself stays centred over the bar.
+const helpAnchorCss = css`
+  position: relative;
+`
+
+const helpSlotCss = css`
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-left: 0.4rem;
+  transform: translateY(-50%);
+  line-height: 0;
+`

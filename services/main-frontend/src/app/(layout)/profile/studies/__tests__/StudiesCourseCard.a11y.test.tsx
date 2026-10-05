@@ -92,16 +92,16 @@ describe("StudiesCourseCard accessibility", () => {
     expect(screen.getByText("x-to-complete-this-module")).toBeInTheDocument()
   })
 
-  it("labels each meter and states its value in text", () => {
+  it("labels each progress bar and states its value in text", () => {
     renderCard()
 
-    const [points, exercises] = screen.getAllByRole("meter")
+    const [points, exercises] = screen.getAllByRole("progressbar")
     expect(points).toHaveAccessibleName("label-points")
     expect(exercises).toHaveAccessibleName("exercises-attempted")
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
-  it("names what the meters are measured for, so the numbers are not read bare", () => {
+  it("names what the progress bars are measured for, so the numbers are not read bare", () => {
     renderCard()
 
     expect(

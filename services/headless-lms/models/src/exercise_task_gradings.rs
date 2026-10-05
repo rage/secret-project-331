@@ -371,13 +371,9 @@ pub async fn update_grading(
         exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &[exercise_slide_id])
             .await?
             .len() as f32;
-    let correctness_coefficient =
-        grading_result.score_given / (grading_result.score_maximum as f32);
-    // ensure the score doesn't go over the maximum
-    let score_given_with_all_decimals = f32::min(
-        (exercise.score_maximum as f32) * correctness_coefficient / exercise_task_count,
-        exercise.score_maximum as f32 / exercise_task_count,
-    );
+    let score_given_with_all_decimals = (exercise.score_maximum as f32)
+        * correctness_coefficient(grading_result.score_given, grading_result.score_maximum)
+        / exercise_task_count;
     // Scores are rounded to two decimals
     let score_given_rounded = f32_to_three_decimals(score_given_with_all_decimals);
     let grading = sqlx::query_as!(
@@ -407,6 +403,17 @@ RETURNING *
     .await?;
 
     Ok(grading)
+}
+
+/// The share of a task's points a grading result earns, in `0.0..=1.0`.
+///
+/// A result with no positive maximum earns nothing, since the tmc service reports a failed grading
+/// as 0 of 0 points.
+fn correctness_coefficient(score_given: f32, score_maximum: i32) -> f32 {
+    if score_maximum <= 0 || !score_given.is_finite() {
+        return 0.0;
+    }
+    (score_given / score_maximum as f32).clamp(0.0, 1.0)
 }
 
 /// Fetches the grading for the student, but hides the result in some circumstances.
@@ -574,4 +581,26 @@ WHERE etg.deleted_at IS NULL
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_zero_maximum_earns_nothing() {
+        assert_eq!(correctness_coefficient(0.0, 0), 0.0);
+        assert_eq!(correctness_coefficient(3.0, 0), 0.0);
+    }
+
+    #[test]
+    fn a_partial_score_earns_its_share() {
+        assert_eq!(correctness_coefficient(1.0, 4), 0.25);
+    }
+
+    #[test]
+    fn the_share_stays_between_nothing_and_everything() {
+        assert_eq!(correctness_coefficient(5.0, 4), 1.0);
+        assert_eq!(correctness_coefficient(-1.0, 4), 0.0);
+    }
 }

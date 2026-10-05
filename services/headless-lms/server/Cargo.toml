@@ -113,7 +113,7 @@ isbot = "0.1.3"
 # user-agent strings parser
 woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
-git2 = "0.21.0"
+git2 = { version = "0.21.0", features = ["https", "ssh"] }
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 #  Binding for the zstd compression library.

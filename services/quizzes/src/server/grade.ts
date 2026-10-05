@@ -49,7 +49,9 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
   const responseJson: ExerciseTaskGradingResult = {
     feedback_json: feedbacks,
     feedback_text: null,
-    grading_progress: "FullyGraded",
+    grading_progress: assessedAnswers.some((grading) => grading.gradingFailed)
+      ? "Failed"
+      : "FullyGraded",
     score_given: score,
     score_maximum: scoreMaximum,
   }

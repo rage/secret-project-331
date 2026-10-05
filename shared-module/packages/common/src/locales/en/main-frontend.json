@@ -296,7 +296,7 @@
   "chatbot-reset-exercises-reason-row": "Reason: {{reason}}",
   "chatbot-reset-exercises-title": "Reset exercises?",
   "chatbot-reset-exercises-user-row": "User: {{email}}",
-  "chatbot-search-placeholder": "Search chatbot",
+  "chatbot-search-placeholder": "Search chatbots",
   "chatbot-status-asked-a-question": "Asked a question",
   "chatbot-status-course-finder-finished": "Searched for courses",
   "chatbot-status-course-material-search": "Searched course material",

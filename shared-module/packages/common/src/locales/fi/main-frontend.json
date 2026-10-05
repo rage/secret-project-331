@@ -265,6 +265,7 @@
   "chatbot-question-closed": "Tämä kysymys ei enää odota vastausta.",
   "chatbot-question-pick-an-answer": "Valitse vastaus tai jätä kysymys huomiotta ja jatka kirjoittamista.",
   "chatbot-question-your-answer": "Vastauksesi",
+  "chatbot-search-placeholder": "Hae keskustelurobotteja",
   "chatbot-status-asked-a-question": "Kysyi kysymyksen",
   "chatbot-status-course-finder-finished": "Etsittiin kursseja",
   "chatbot-status-course-material-search": "Haettiin tietoa kurssimateriaalista",

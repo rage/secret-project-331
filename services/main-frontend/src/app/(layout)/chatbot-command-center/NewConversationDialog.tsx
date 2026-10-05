@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useAutocompleteState } from "@react-stately/autocomplete"
 import { useSearchFieldState } from "@react-stately/searchfield"
-import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { ArrowRight, MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import { useMemo, useRef, useState } from "react"
 import { useAutocomplete, useFilter, useSearchField } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import { Button } from "@/shared-module/components"
+import { baseTheme } from "@/shared-module/common/styles"
 import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
 
 interface NewConversationDialogProps {
@@ -28,7 +28,7 @@ const sectionCss = css`
 `
 
 const sectionHeadingCss = css`
-  padding: var(--space-2) var(--space-3) 0;
+  padding: 0;
   color: var(--field-label-color);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -42,6 +42,7 @@ const sectionGroupCss = css`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 7px;
 `
 
 const searchfieldCss = css`
@@ -68,8 +69,18 @@ const buttonCss = css`
   &:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--color-green-75);
     border-color: var(--color-green-300);
+    cursor: pointer;
   }
   color: var(--field-fg);
+  border: 1px solid ${baseTheme.colors.gray[100]};
+  text-align: left;
+  background: none;
+  border-radius: 7px;
+  padding: 0.5rem 12px;
+  transition: 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
@@ -164,10 +175,12 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
     autoCompleteState,
   )
 
-  // oxlint-disable-next-line i18next/no-literal-string
   const { inputProps } = useSearchField(
-    // oxlint-disable-next-line i18next/no-literal-string
-    { ...autoCompleteInputProps, placeholder: t("search"), "aria-label": "search" },
+    {
+      ...autoCompleteInputProps,
+      placeholder: t("chatbot-search-placeholder"),
+      "aria-label": t("chatbot-search-placeholder"),
+    },
     searchFieldState,
     searchRef,
   )
@@ -183,14 +196,14 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
       <div
         className={css`
           position: relative;
-          padding: 0 6px;
+          padding: 0;
         `}
       >
         <span
           className={css`
             display: inline-block;
             position: absolute;
-            left: 1rem;
+            left: 12px;
             top: 1.125rem;
           `}
         >
@@ -203,6 +216,9 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           padding: 0;
           height: 400px;
           overflow: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
         `}
         aria-label={t("chatbot-list")}
       >
@@ -216,14 +232,13 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
               <span className={sectionHeadingCss}>{category.label}</span>
               <ul className={sectionGroupCss}>
                 {category.options.map((option) => (
-                  <Button
+                  <button
                     key={option.value}
                     onClick={() => {
                       setConfigurationId(option.value)
                       newConversationMutation.mutate()
                       onClose()
                     }}
-                    variant="icon"
                     className={buttonCss}
                     aria-label={option.label}
                   >
@@ -236,7 +251,8 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
                         {option.label}
                       </span>
                     </li>
-                  </Button>
+                    <ArrowRight size={14} />
+                  </button>
                 ))}
               </ul>
             </li>

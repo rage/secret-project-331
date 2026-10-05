@@ -13,9 +13,8 @@ use chrono::TimeDelta;
 
 use super::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER, UNCERTAIN_RECHECK,
-    VERIFY_GIVE_UP_POLL, VERIFY_WINDOW_START, next_attempt_at, submit_backoff,
-    submit_window_expired, uncertain_needs_admin, uncertain_recheck_delay, verify_delay,
-    verify_window_expired,
+    VERIFY_GIVE_UP_POLL, next_attempt_at, submit_backoff, submit_window_expired,
+    uncertain_needs_admin, uncertain_recheck_delay, verify_delay, verify_window_expired,
 };
 use super::classification::{Retryability, is_waiting_error, retryability};
 use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY;
@@ -391,10 +390,10 @@ fn retry_or_expire(
 
 /// What an `import` answer that settled the row does to it, including the wait Sisu needs before
 /// the first verify poll can find anything.
-pub fn import_success_outcome(state: CreditRegistrationState) -> Outcome {
+pub fn import_success_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
     let outcome = Outcome::to(state);
     if state == CreditRegistrationState::AwaitingVerification {
-        return outcome.after(VERIFY_WINDOW_START);
+        return outcome.after(verify_delay(facts.submitted_at, facts.now));
     }
     outcome
 }

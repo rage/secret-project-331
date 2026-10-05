@@ -601,7 +601,8 @@ WHERE vsn.id IS NULL
 /// [`StudentNumberVerificationMethod::StudyRegistry`] link, and records a conflict wherever a live
 /// link still stands in the way. A link someone made by hand (the student or an admin) always wins,
 /// but another account's study-registry link on the reported number moves to the account reported
-/// most recently: a student with two accounts gets the number on the later one. A retired link does
+/// most recently, unless the holder's own report of it is newer: a student with two accounts gets
+/// the number on the later one. A retired link does
 /// not block: the registrar's report is authoritative, so a number the student or an admin unlinked,
 /// or one resolve-person-ids dropped over a conflict, is linked again. Returns how many links were
 /// made.
@@ -621,6 +622,9 @@ FROM study_registry_reported_student_numbers reported
   JOIN course_module_completion_registered_to_study_registries report ON report.id = reported.registered_completion_id
   LEFT JOIN verified_student_numbers holder ON holder.student_number = reported.student_number
   AND holder.deleted_at IS NULL
+  LEFT JOIN study_registry_reported_student_numbers holder_reported ON holder_reported.user_id = holder.user_id
+  AND holder_reported.student_number = reported.student_number
+  LEFT JOIN course_module_completion_registered_to_study_registries holder_report ON holder_report.id = holder_reported.registered_completion_id
 WHERE reported.user_id = ANY($1::uuid [])
   AND reported.student_number ~ '^[0-9]{6,12}$'
   AND NOT EXISTS (
@@ -631,7 +635,13 @@ WHERE reported.user_id = ANY($1::uuid [])
   )
   AND (
     holder.id IS NULL
-    OR holder.verified_via = 'study_registry'
+    OR (
+      holder.verified_via = 'study_registry'
+      AND (
+        holder_report.id IS NULL
+        OR holder_report.created_at < report.created_at
+      )
+    )
   )
 ORDER BY reported.student_number,
   report.created_at DESC,

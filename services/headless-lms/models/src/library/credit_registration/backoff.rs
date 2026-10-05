@@ -13,7 +13,7 @@ pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 pub const SUBMIT_MAX_RETRY_AGE: TimeDelta = TimeDelta::days(7);
 /// Registrations land between about 5 and 29 hours after the submission, most of them in the first
 /// half: polls start shortly before, are close together through the dense part, and back off after.
-pub const VERIFY_WINDOW_START: TimeDelta = TimeDelta::minutes(270);
+const VERIFY_WINDOW_START: TimeDelta = TimeDelta::minutes(270);
 const VERIFY_DENSE_WINDOW_END: TimeDelta = TimeDelta::minutes(630);
 const VERIFY_WINDOW_END: TimeDelta = TimeDelta::hours(29);
 pub const VERIFY_WINDOW_INTERVAL: TimeDelta = TimeDelta::minutes(30);

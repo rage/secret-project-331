@@ -3,6 +3,7 @@
 import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { GroupedToggleButton } from "./GroupedToggleButton"
 import { ToggleButtonGroup } from "./ToggleButtonGroup"
@@ -13,13 +14,16 @@ export interface TriStateToggleProps<T extends FieldValues, N extends Path<T> = 
   label: React.ReactNode
 }
 
-export const OFF = "off"
+export const NOT_SET = "not_set"
 export const INCLUDE = "include"
 export const EXCLUDE = "exclude"
+
+export type TriStateToggleStates = "not_set" | "include" | "exclude"
 
 export function TriStateToggle<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: TriStateToggleProps<T, N>,
 ) {
+  const { t } = useTranslation()
   const { name, control, label } = props
 
   return (
@@ -27,11 +31,17 @@ export function TriStateToggle<T extends FieldValues, N extends Path<T> = Path<T
       name={name}
       control={control}
       label={label}
-      defaultSelectedKeys={new Set([OFF])}
+      defaultSelectedKeys={new Set([NOT_SET])}
     >
-      <GroupedToggleButton id="include">{<CheckCircle />}</GroupedToggleButton>
-      <GroupedToggleButton id="off">{<MinusCircle />}</GroupedToggleButton>
-      <GroupedToggleButton id="exclude">{<XmarkCircle />}</GroupedToggleButton>
+      <GroupedToggleButton id={INCLUDE} aria-label={t("label-include")}>
+        {<CheckCircle />}
+      </GroupedToggleButton>
+      <GroupedToggleButton id={NOT_SET} aria-label={t("label-null")}>
+        {<MinusCircle />}
+      </GroupedToggleButton>
+      <GroupedToggleButton id={EXCLUDE} aria-label={t("label-exclude")}>
+        {<XmarkCircle />}
+      </GroupedToggleButton>
     </ToggleButtonGroup>
   )
 }

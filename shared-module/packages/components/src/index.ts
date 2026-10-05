@@ -40,7 +40,8 @@ export { GroupedToggleButton } from "./components/ToggleButtonGroup/GroupedToggl
 export type { GroupedToggleButtonProps } from "./components/ToggleButtonGroup/GroupedToggleButton"
 export {
   TriStateToggle,
-  OFF,
+  type TriStateToggleStates,
+  NOT_SET,
   INCLUDE,
   EXCLUDE,
 } from "./components/ToggleButtonGroup/TriStateToggle"

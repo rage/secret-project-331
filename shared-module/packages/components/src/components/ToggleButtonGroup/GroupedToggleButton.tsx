@@ -24,8 +24,6 @@ export interface GroupedToggleButtonProps {
   onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
   onFocus?: React.FocusEventHandler<HTMLButtonElement>
   onBlur?: React.FocusEventHandler<HTMLButtonElement>
-  "aria-describedby"?: string
-  "aria-labelledby"?: string
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
@@ -39,9 +37,7 @@ export const GroupedToggleButton = React.forwardRef<HTMLButtonElement, GroupedTo
       iconPosition = "start",
       isDisabled = false,
       children,
-      "aria-describedby": ariaDescribedByProp,
-      "aria-labelledby": ariaLabelledByProp,
-      "aria-label": ariaLabelProp,
+      "aria-label": ariaLabel,
       onClick,
       onKeyDown,
       onKeyUp,
@@ -65,9 +61,7 @@ export const GroupedToggleButton = React.forwardRef<HTMLButtonElement, GroupedTo
         id,
         isDisabled,
         ...omitUndefined({
-          "aria-label": ariaLabelProp,
-          "aria-labelledby": ariaLabelledByProp,
-          "aria-describedby": ariaDescribedByProp,
+          "aria-label": ariaLabel,
         }),
       },
       group.state,

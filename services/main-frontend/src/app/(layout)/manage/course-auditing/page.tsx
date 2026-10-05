@@ -21,9 +21,10 @@ import {
   Switch,
   TextField,
   TriStateToggle,
-  OFF,
+  NOT_SET,
   INCLUDE,
   EXCLUDE,
+  type TriStateToggleStates,
 } from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
@@ -36,10 +37,10 @@ export interface CourseFilter {
   short_description: boolean
   no_prerequisites: boolean
   no_audiences: boolean
-  is_draft: Set<"off" | "include" | "exclude">
-  is_unlisted: Set<"off" | "include" | "exclude">
-  is_test_mode: Set<"off" | "include" | "exclude">
-  is_joinable_by_code_only: Set<"off" | "include" | "exclude">
+  is_draft: Set<TriStateToggleStates>
+  is_unlisted: Set<TriStateToggleStates>
+  is_test_mode: Set<TriStateToggleStates>
+  is_joinable_by_code_only: Set<TriStateToggleStates>
 }
 
 export interface CourseDataFilter {
@@ -100,10 +101,10 @@ const CourseAuditing = () => {
       short_description: false,
       no_prerequisites: false,
       no_audiences: false,
-      is_draft: new Set([OFF]),
-      is_unlisted: new Set([OFF]),
-      is_test_mode: new Set([OFF]),
-      is_joinable_by_code_only: new Set([OFF]),
+      is_draft: new Set([NOT_SET]),
+      is_unlisted: new Set([NOT_SET]),
+      is_test_mode: new Set([NOT_SET]),
+      is_joinable_by_code_only: new Set([NOT_SET]),
     },
   })
 

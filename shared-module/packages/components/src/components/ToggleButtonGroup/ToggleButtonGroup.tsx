@@ -74,12 +74,17 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
     fieldSize = "small",
     className,
     children,
-    "aria-label": ariaLabel,
-    "aria-labelledby": ariaLabelledBy,
+    "aria-label": ariaLabelProp,
+    "aria-labelledby": labelledByProp,
   } = props
 
   const { field } = useRhfField({ name, control, rules })
   let ref = useRef<HTMLDivElement>(null)
+
+  const labelId = React.useId()
+  const userAriaLabel = ariaLabelProp
+  const userLabelledBy = labelledByProp
+  const labelledBy = userAriaLabel ? undefined : (userLabelledBy ?? labelId)
 
   const state = useToggleGroupState({
     ...omitUndefined({
@@ -97,8 +102,8 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
   const { groupProps } = useToggleButtonGroup(
     {
       ...omitUndefined({
-        "aria-label": ariaLabel,
-        "aria-labelledby": ariaLabelledBy,
+        "aria-label": userAriaLabel,
+        "aria-labelledby": labelledBy,
       }),
       selectionMode,
       isDisabled,
@@ -112,7 +117,9 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
       <ToggleButtonGroupContext.Provider value={{ state, fieldSize }}>
         <div className={buttonGroupCss}>{children}</div>
       </ToggleButtonGroupContext.Provider>
-      <span className={labelCss}>{label}</span>
+      <span id={labelId} className={labelCss}>
+        {label}
+      </span>
     </div>
   )
 }

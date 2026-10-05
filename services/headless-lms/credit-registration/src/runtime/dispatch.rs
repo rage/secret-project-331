@@ -178,6 +178,7 @@ pub async fn run_phase_once(
         Ok(counts) => {
             let outcome = PhaseRunOutcome {
                 items_processed: counts.processed_count(),
+                items_waiting: counts.waiting_count(),
                 items_failed: counts.failed_count(),
                 error: failure.or(counts.into_finding()),
             };

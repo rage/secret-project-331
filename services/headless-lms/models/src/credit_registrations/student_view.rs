@@ -49,6 +49,8 @@ pub struct StudentCreditRegistration {
     /// The name of the realisation we submitted against, not a Sisu id.
     pub enrolment_realisation_name: Option<String>,
     pub submitted_at: Option<DateTime<Utc>>,
+    /// Sisu holds the assessment item attainment but not yet the course unit attainment.
+    pub is_partially_registered: bool,
     /// Where a student with no usable enrolment is sent to enrol.
     pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
@@ -147,6 +149,7 @@ SELECT cr.id,
     cr.selected_enrolment_realisation_name->>'sv'
   ) AS "enrolment_realisation_name?",
   cr.submitted_at,
+  cr.partially_registered_at IS NOT NULL AS "is_partially_registered!",
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",

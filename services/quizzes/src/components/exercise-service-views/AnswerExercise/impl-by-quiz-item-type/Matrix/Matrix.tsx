@@ -1,40 +1,22 @@
-import styled from "@emotion/styled"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { css } from "@emotion/css"
+import React, { useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
+import { useTranslation } from "react-i18next"
 
+import { MatrixInputGrid, useMatrixGrid } from "@/components/Shared/MatrixGrid"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  emptyMatrixGrid,
+  isFilledRectangle,
+  isMalformedNumberCell,
+  looksLikeThousandsSeparator,
+  parseCellNumber,
+} from "@/util/matrix"
 
 import type { QuizItemComponentProps } from ".."
 import type { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
 import type { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
-import MatrixCell from "./MatrixCell"
-
-const MatrixTableContainer = styled.table`
-  margin: auto;
-  margin-top: 1rem;
-  background-color: #e2e4e6;
-  border-collapse: collapse;
-  td {
-    /* gray[400] for sufficient contrast against the cell background */
-    border: 0.125rem solid ${baseTheme.colors.gray[400]};
-  }
-
-  td {
-    border-top: none;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  tr td:last-child {
-    border-right: none;
-  }
-
-  tr td:first-child {
-    border-left: none;
-  }
-`
 
 export interface LeftBorderedDivProps {
   correct: boolean | undefined
@@ -45,121 +27,92 @@ export interface LeftBorderedDivProps {
 const Matrix: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
-  const [matrixActiveSize, setMatrixActiveSize] = useState<number[]>([]) // [row, column]
+  const { t } = useTranslation()
   const matrixVariable = useMemo(() => {
     const res = quizItemAnswerState?.matrix
     if (res !== null && res !== undefined && Array.isArray(res)) {
       return res
     }
-    // Initialize a new empty answer
-    const newAnswerMatrix: string[][] = []
-    for (let i = 0; i < 6; i++) {
-      const columnArray: string[] = []
-      for (let j = 0; j < 6; j++) {
-        columnArray.push("")
-      }
-      newAnswerMatrix.push(columnArray)
-    }
-    return newAnswerMatrix
+    return emptyMatrixGrid()
   }, [quizItemAnswerState?.matrix])
-  const handleSizeChange = useCallback((matrix: string[][]) => {
-    const sizeOfTheMatrix = [0, 0]
-    for (let i = 0; i < 6; i++) {
-      for (let j = 0; j < 6; j++) {
-        // safe: matrix is a fixed 6x6 grid, so indices 0..5 are always present
-        if (matrix[i]?.[j] !== "" && (sizeOfTheMatrix[0] ?? Number.NaN) < i) {
-          sizeOfTheMatrix[0] = i
-        }
-        if (matrix[i]?.[j] !== "" && (sizeOfTheMatrix[1] ?? Number.NaN) < j) {
-          sizeOfTheMatrix[1] = j
-        }
-      }
-    }
-    setMatrixActiveSize(sizeOfTheMatrix)
-    return sizeOfTheMatrix
-  }, [])
+  // Gaps are flagged only once focus leaves the grid, so a row typed in order doesn't flash red
+  const { shape, gaps, editingHandlers } = useMatrixGrid(matrixVariable)
 
-  useEffect(() => {
-    handleSizeChange(matrixVariable)
-  }, [handleSizeChange, matrixVariable])
-
-  const handleOptionSelect = (text: string, column: number, row: number) => {
-    const newMatrix = matrixVariable.map((rowArray, rowIndex) => {
-      return rowArray.map((cell, columnIndex) => {
-        if (column === columnIndex && row === rowIndex) {
-          return text
-        }
-        return cell
-      })
-    })
-    const tempMatrixActiveSize = handleSizeChange(newMatrix)
-    let newOptionCells: string[][] = [[]]
-    if (newMatrix) {
-      newOptionCells = newMatrix
-    } else if (quizItemAnswerState?.matrix) {
-      newOptionCells = quizItemAnswerState?.matrix
-    }
-    let isValid = null
-    for (let i = 0; i <= (tempMatrixActiveSize[0] ?? Number.NaN); i++) {
-      for (let j = 0; j <= (tempMatrixActiveSize[1] ?? Number.NaN); j++) {
-        // safe: newOptionCells is a fixed 6x6 grid, so indices 0..5 are always present
-        if (newOptionCells[i]?.[j] === "") {
-          isValid = false
-        }
-      }
-    }
-    if (isValid === null) {
-      isValid = true
-    }
+  const handleMatrixChange = (newMatrix: string[][]) => {
+    // Unparseable numbers stay submittable: the grader compares them as text, and the key may hold the same text
+    const isValid = isFilledRectangle(newMatrix)
     if (!quizItemAnswerState) {
       setQuizItemAnswerState({
         quizItemId: quizItem.id,
         type: "matrix",
-        matrix: newOptionCells,
+        matrix: newMatrix,
         valid: isValid,
       })
       return
     }
-    const newItemAnswer: UserItemAnswerMatrix = {
-      ...quizItemAnswerState,
-      matrix: newOptionCells,
-      valid: isValid,
-    }
-    setQuizItemAnswerState(newItemAnswer)
+    setQuizItemAnswerState({ ...quizItemAnswerState, matrix: newMatrix, valid: isValid })
   }
 
-  const findOptionText = (column: number, row: number): string => {
-    return matrixVariable[row]?.[column] ?? ""
-  }
+  const cellsWithPosition = matrixVariable.flatMap((row, rowIndex) =>
+    row.map((cell, columnIndex) => ({ cell, rowIndex, columnIndex })),
+  )
+  const malformedCells = cellsWithPosition.filter(({ cell }) => isMalformedNumberCell(cell))
+  const commaCells = cellsWithPosition.filter(({ cell }) => looksLikeThousandsSeparator(cell))
 
-  const tempArray = [0, 1, 2, 3, 4, 5]
+  // The frame is only visual, so screen reader users hear the size here instead
+  const shapeStatus =
+    shape.rows === 0 ? "" : t("matrix-size-status", { rows: shape.rows, columns: shape.columns })
+
   return (
-    <MatrixTableContainer>
-      <tbody>
-        {tempArray.map((rowIndex) => {
-          return (
-            <tr key={`row${rowIndex}`}>
-              {tempArray.map((columnIndex) => {
-                const cellText = findOptionText(columnIndex, rowIndex)
-                if (cellText !== null) {
-                  return (
-                    <MatrixCell
-                      key={`${columnIndex} ${rowIndex}`}
-                      column={columnIndex}
-                      row={rowIndex}
-                      cellText={cellText}
-                      handleOptionSelect={handleOptionSelect}
-                      matrixSize={matrixActiveSize}
-                    ></MatrixCell>
-                  )
-                }
-                return null
-              })}
-            </tr>
-          )
-        })}
-      </tbody>
-    </MatrixTableContainer>
+    <>
+      <MatrixInputGrid
+        matrix={matrixVariable}
+        shape={shape}
+        gaps={gaps}
+        onMatrixChange={handleMatrixChange}
+        {...editingHandlers}
+      />
+      <VisuallyHidden>
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics */}
+        <div role="status" aria-live="polite">
+          {shapeStatus}
+        </div>
+      </VisuallyHidden>
+      {/* Always mounted so screen readers announce messages as they appear; role=status isn't allowed on <ul> */}
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> changes styling/semantics */}
+      <div role="status" aria-live="polite">
+        <ul
+          className={css`
+            list-style: none;
+            margin: 0.5rem auto 0;
+            padding: 0;
+            max-width: 28rem;
+            font-size: 0.875rem;
+            color: ${baseTheme.colors.gray[600]};
+            text-align: center;
+          `}
+        >
+          {gaps.length > 0 && (
+            <li
+              className={css`
+                color: ${baseTheme.colors.red[700]};
+                font-weight: 600;
+              `}
+            >
+              {t("matrix-fill-empty-cells")}
+            </li>
+          )}
+          {malformedCells.map(({ rowIndex, columnIndex }) => (
+            <li key={`malformed-${rowIndex}-${columnIndex}`}>{t("matrix-cell-invalid-number")}</li>
+          ))}
+          {commaCells.map(({ cell, rowIndex, columnIndex }) => (
+            <li key={`comma-${rowIndex}-${columnIndex}`}>
+              {t("matrix-cell-comma-warning", { value: parseCellNumber(cell) ?? cell })}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   )
 }
 

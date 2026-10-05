@@ -733,6 +733,10 @@ pub struct SuotarCallFinished {
     pub succeeded: bool,
     pub ok_item_count: usize,
     pub error_item_count: usize,
+    /// The `code` of each error item, for the audit to split off the ones that only mean "not yet".
+    pub error_item_codes: Vec<String>,
+    /// `None` for a call that never left.
+    pub endpoint: Option<SuotarEndpoint>,
     pub request_level_error_code: Option<String>,
     pub error_message: Option<String>,
     /// Unscrubbed; the implementation scrubs before it persists anything.
@@ -1102,6 +1106,13 @@ impl SuotarClient {
                 .iter()
                 .filter(|item| item.status == SuotarItemStatus::Error)
                 .count(),
+            error_item_codes: response
+                .items
+                .iter()
+                .filter(|item| item.status == SuotarItemStatus::Error)
+                .map(|item| item.code.clone())
+                .collect(),
+            endpoint: Some(endpoint),
             request_level_error_code: None,
             error_message: None,
             response_body: Some(Arc::clone(&response.raw_response)),
@@ -1128,6 +1139,8 @@ fn failed<R>(
         succeeded: false,
         ok_item_count: 0,
         error_item_count: 0,
+        error_item_codes: Vec::new(),
+        endpoint: None,
         request_level_error_code,
         error_message: Some(error.message().to_string()),
         response_body,

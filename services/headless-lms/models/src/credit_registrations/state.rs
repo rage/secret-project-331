@@ -20,6 +20,9 @@ pub enum CreditRegistrationState {
     Submitting,
     SubmissionUncertain,
     AwaitingVerification,
+    /// Sisu holds the assessment item attainment, and verify keeps polling for the course unit
+    /// attainment that makes the credit count.
+    PartiallyRegistered,
     Registered,
     Duplicate,
     NotImproved,
@@ -32,7 +35,7 @@ pub enum CreditRegistrationState {
 
 impl CreditRegistrationState {
     /// Every state, so a classification can be proven exhaustive at runtime too.
-    pub const ALL: [Self; 16] = [
+    pub const ALL: [Self; 17] = [
         Self::Pending,
         Self::ReadyToSubmit,
         Self::ResolvingEnrolment,
@@ -41,6 +44,7 @@ impl CreditRegistrationState {
         Self::Submitting,
         Self::SubmissionUncertain,
         Self::AwaitingVerification,
+        Self::PartiallyRegistered,
         Self::Registered,
         Self::Duplicate,
         Self::NotImproved,
@@ -85,10 +89,11 @@ impl CreditRegistrationState {
 
     /// The states of a row whose submission may be in Sisu with its outcome not yet known: a
     /// request may be out, or its answer is still to be verified.
-    pub const IN_FLIGHT_STATES: [Self; 3] = [
+    pub const IN_FLIGHT_STATES: [Self; 4] = [
         Self::Submitting,
         Self::SubmissionUncertain,
         Self::AwaitingVerification,
+        Self::PartiallyRegistered,
     ];
 
     /// The two states a "failed" count means across the admin reports: a permanent submit failure
@@ -171,17 +176,26 @@ impl CreditRegistrationState {
                 S::FailedRetryable,
                 S::FailedPermanent,
             ],
-            // Both poller states: verify is the only path to `registered`. `failed_retryable` leads
+            // The poller states: verify is the only path to `registered`. `failed_retryable` leads
             // back to import, and only Suotar's own `notRegistered` may take it.
             S::AwaitingVerification => &[
+                S::PartiallyRegistered,
                 S::Registered,
                 S::Duplicate,
                 S::Misregistered,
                 S::FailedRetryable,
             ],
-            // `awaiting_verification` once verify finds evidence that the submission landed.
+            S::PartiallyRegistered => &[
+                S::Registered,
+                S::Duplicate,
+                S::Misregistered,
+                S::FailedRetryable,
+            ],
+            // `awaiting_verification` or `partially_registered` once verify finds evidence that the
+            // submission landed.
             S::SubmissionUncertain => &[
                 S::AwaitingVerification,
+                S::PartiallyRegistered,
                 S::Registered,
                 S::Duplicate,
                 S::Misregistered,
@@ -235,6 +249,7 @@ impl CreditRegistrationState {
             // `cancelled` may be a hand cancellation of a row still awaiting verification.
             Self::Submitting
             | Self::AwaitingVerification
+            | Self::PartiallyRegistered
             | Self::Registered
             | Self::Duplicate
             | Self::NotImproved
@@ -255,6 +270,7 @@ impl CreditRegistrationState {
             | Self::Submitting
             | Self::SubmissionUncertain
             | Self::AwaitingVerification
+            | Self::PartiallyRegistered
             | Self::FailedRetryable
             | Self::NotImproved => Effect::Keep,
             // Nothing of this attempt is in Sisu, and it goes through resolve-enrolments again,
@@ -296,7 +312,7 @@ impl CreditRegistrationState {
         };
         use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
-            Self::AwaitingVerification => VERIFY_FIRST_DELAY,
+            Self::AwaitingVerification | Self::PartiallyRegistered => VERIFY_FIRST_DELAY,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK,
             Self::NoUsableEnrolment => REGISTRY_LAG,
             Self::FailedRetryable => SUBMIT_BASE_BACKOFF,
@@ -343,7 +359,10 @@ impl ResubmissionFacts {
         if state.is_success() {
             return Some(ResubmissionRefusal::AlreadySucceeded);
         }
-        if matches!(state, State::Submitting | State::AwaitingVerification) {
+        if matches!(
+            state,
+            State::Submitting | State::AwaitingVerification | State::PartiallyRegistered
+        ) {
             return Some(ResubmissionRefusal::AlreadySubmitted);
         }
         if strictness != ResubmissionStrictness::Any && state == State::SubmissionUncertain {

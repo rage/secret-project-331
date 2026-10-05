@@ -153,6 +153,40 @@ export const zAddPlanMemberRequest = z.object({
 })
 
 /**
+ * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
+ */
+export const zAdminAttentionThresholds = z.object({
+  not_registered_reimports: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  partial_registration_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  uncertain_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  verify_window_secs: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
  * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
 export const zAdminCreditRegistrationStateMove = z.enum(["ready_to_submit", "cancelled"])
@@ -1675,6 +1709,7 @@ export const zCreditRegistrationState = z.enum([
   "submitting",
   "submission_uncertain",
   "awaiting_verification",
+  "partially_registered",
   "registered",
   "duplicate",
   "not_improved",
@@ -1684,20 +1719,6 @@ export const zCreditRegistrationState = z.enum([
   "blocked",
   "cancelled",
 ])
-
-export const zAdminCreditRegistrationEvent = z.object({
-  actor_user_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  details: z.unknown().optional(),
-  error_code: zCreditRegistrationErrorCode.nullish(),
-  from_state: zCreditRegistrationState.nullish(),
-  id: z.uuid(),
-  kind: zCreditRegistrationEventKind,
-  message: z.string().nullish(),
-  request_item_id: z.string().nullish(),
-  suotar_api_call_id: z.uuid().nullish(),
-  to_state: zCreditRegistrationState.nullish(),
-})
 
 /**
  * One audited manual action on this course, named rather than keyed: a teacher reads this to find
@@ -4694,6 +4715,7 @@ export const zMyCreditRegistration = z.object({
   grade_id: z.string().nullish(),
   grade_scale_id: z.string().nullish(),
   id: z.uuid(),
+  is_processing_in_sisu: z.boolean(),
   linking_email: zLinkingEmailStatus.nullish(),
   next_attempt_at: z.iso.datetime(),
   notification_email: zNotificationEmailStatus.nullish(),
@@ -4740,18 +4762,29 @@ export const zAdminCreditRegistrationRow = z.object({
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
   email: z.string().nullish(),
+  enrolment_check_due_at: z.iso.datetime().nullish(),
+  enrolment_checked_at: z.iso.datetime().nullish(),
+  enrolment_checks_stopped_at: z.iso.datetime().nullish(),
   error_code: zCreditRegistrationErrorCode.nullish(),
   first_name: z.string().nullish(),
   grade_id: z.string().nullish(),
   grade_scale_id: z.string().nullish(),
   id: z.uuid(),
+  is_waiting_for_enrolment: z.boolean(),
   last_attempt_at: z.iso.datetime().nullish(),
   last_name: z.string().nullish(),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
+  no_usable_enrolment_since: z.iso.datetime().nullish(),
+  not_registered_reimport_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  partially_registered_at: z.iso.datetime().nullish(),
   pending_reason: zCreditRegistrationPendingReason.nullish(),
   registered_at: z.iso.datetime().nullish(),
   resubmission_refusal: zResubmissionRefusal.nullish(),
+  resubmit_not_before: z.iso.datetime().nullish(),
   selected_enrolment_id: z.string().nullish(),
   sisu_attainment_id: z.string().nullish(),
   sisu_person_id: z.string().nullish(),
@@ -4849,18 +4882,29 @@ export const zPageAdminCreditRegistrationRow = z.object({
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
       email: z.string().nullish(),
+      enrolment_check_due_at: z.iso.datetime().nullish(),
+      enrolment_checked_at: z.iso.datetime().nullish(),
+      enrolment_checks_stopped_at: z.iso.datetime().nullish(),
       error_code: zCreditRegistrationErrorCode.nullish(),
       first_name: z.string().nullish(),
       grade_id: z.string().nullish(),
       grade_scale_id: z.string().nullish(),
       id: z.uuid(),
+      is_waiting_for_enrolment: z.boolean(),
       last_attempt_at: z.iso.datetime().nullish(),
       last_name: z.string().nullish(),
       needs_admin_attention: z.boolean(),
       next_attempt_at: z.iso.datetime(),
+      no_usable_enrolment_since: z.iso.datetime().nullish(),
+      not_registered_reimport_count: z
+        .int()
+        .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+        .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+      partially_registered_at: z.iso.datetime().nullish(),
       pending_reason: zCreditRegistrationPendingReason.nullish(),
       registered_at: z.iso.datetime().nullish(),
       resubmission_refusal: zResubmissionRefusal.nullish(),
+      resubmit_not_before: z.iso.datetime().nullish(),
       selected_enrolment_id: z.string().nullish(),
       sisu_attainment_id: z.string().nullish(),
       sisu_person_id: z.string().nullish(),
@@ -5003,6 +5047,11 @@ export const zStudyRegistryStudentNumberConflict = z.object({
 })
 
 /**
+ * What Suotar did with one row of a request.
+ */
+export const zSuotarAnswer = z.enum(["answered", "unanswered", "refused"])
+
+/**
  * A timeline entry written against this call, one per item the answer moved.
  */
 export const zSuotarApiCallEvent = z.object({
@@ -5013,6 +5062,7 @@ export const zSuotarApiCallEvent = z.object({
   from_state: zCreditRegistrationState.nullish(),
   id: z.uuid(),
   kind: zCreditRegistrationEventKind,
+  message: z.string().nullish(),
   to_state: zCreditRegistrationState.nullish(),
 })
 
@@ -5043,6 +5093,25 @@ export const zSuotarEndpoint = z.enum([
   "validate_course_codes",
 ])
 
+export const zAdminCreditRegistrationEvent = z.object({
+  actor_user_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  details: z.unknown().optional(),
+  error_code: zCreditRegistrationErrorCode.nullish(),
+  from_state: zCreditRegistrationState.nullish(),
+  id: z.uuid(),
+  kind: zCreditRegistrationEventKind,
+  message: z.string().nullish(),
+  request_item_id: z.string().nullish(),
+  suotar_answer: zSuotarAnswer.nullish(),
+  suotar_answered_at: z.iso.datetime().nullish(),
+  suotar_api_call_id: z.uuid().nullish(),
+  suotar_code: z.string().nullish(),
+  suotar_endpoint: zSuotarEndpoint.nullish(),
+  suotar_requested_at: z.iso.datetime().nullish(),
+  to_state: zCreditRegistrationState.nullish(),
+})
+
 export const zAdminSuotarApiCall = z.object({
   credit_registration_ids: z.array(z.uuid()),
   duration_ms: z
@@ -5065,6 +5134,10 @@ export const zAdminSuotarApiCall = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  pending_item_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   request_body_sample: z.unknown().optional(),
   request_item_count: z
     .int()
@@ -5080,6 +5153,7 @@ export const zAdminSuotarApiCall = z.object({
 export const zAdminCreditRegistrationDetails = z.object({
   actions: z.array(zCreditRegistrationAdminActionRecord),
   attempts: z.array(zAdminCreditRegistrationRow),
+  attention_thresholds: zAdminAttentionThresholds,
   events: z.array(zAdminCreditRegistrationEvent),
   linking_emails: z.array(zAdminLinkingEmail),
   not_improved_attainment: zNotImprovedAttainment.nullish(),
@@ -5218,6 +5292,10 @@ export const zPageSuotarApiCallRow = z.object({
         .int()
         .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
         .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+      pending_item_count: z
+        .int()
+        .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+        .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
       request_item_count: z
         .int()
         .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -5261,6 +5339,10 @@ export const zSuotarApiCallRow = z.object({
     .nullish(),
   id: z.uuid(),
   ok_item_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  pending_item_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -5468,6 +5550,14 @@ export const zSuotarEndpointWindowStats = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  pending_item_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 export const zSuotarHealthWindow = z.object({
@@ -5812,12 +5902,14 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  automatic_completion: z.boolean(),
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -6041,6 +6133,7 @@ export const zUserRole = z.enum([
   "MaterialViewer",
   "TeachingAndLearningServices",
   "StatsViewer",
+  "CreditRegistrationAdmin",
 ])
 
 export const zPendingRole = z.object({
@@ -8566,6 +8659,13 @@ export const zClaimStudentNumberVerificationTokenResponse =
  * Email templates
  */
 export const zGetEmailTemplatesResponse = z.array(zEmailTemplate)
+
+export const zCreateEmailTemplateBody = zEmailTemplateNew
+
+/**
+ * Created email template
+ */
+export const zCreateEmailTemplateResponse = zEmailTemplate
 
 export const zDeleteEmailTemplatePath = z.object({
   email_template_id: z.uuid(),

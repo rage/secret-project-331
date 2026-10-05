@@ -312,7 +312,7 @@ pub async fn record_visit(
 
 /// Schedules the next check of a row an answer just parked in `no_usable_enrolment`: the first
 /// rung after now, or stopped once the ladder has run out. A row with no schedule yet, such as one
-/// import sent back, starts one now, past its immediate rung.
+/// import sent back, starts one now.
 ///
 /// Reads the schedule under lock rather than from the snapshot the answer was decided on, so a
 /// request that restarted the row while the check was out is kept.

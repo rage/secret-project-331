@@ -65,7 +65,9 @@ impl StudentFacingCreditRegistrationStatus {
                 }
             }
             State::NoUsableEnrolment => Self::NeedsEnrolment,
-            State::SubmissionUncertain | State::AwaitingVerification => Self::WaitingForSisu,
+            State::SubmissionUncertain
+            | State::AwaitingVerification
+            | State::PartiallyRegistered => Self::WaitingForSisu,
             // not_improved means Sisu holds an equal or better attainment, so the credit exists.
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
@@ -175,6 +177,7 @@ mod tests {
             State::FailedRetryable,
             State::SubmissionUncertain,
             State::AwaitingVerification,
+            State::PartiallyRegistered,
         ];
         for state in CreditRegistrationState::ALL {
             for enrolment_resolved in [false, true] {

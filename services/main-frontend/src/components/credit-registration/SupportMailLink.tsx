@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import { CopyButton, Link } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
-import { monospaceCss, noteCss, rowCss } from "./styles"
+import { codeValueCss, noteCss, rowCss } from "./styles"
 
 export interface SupportMailLinkProps {
   /** What the mail is about, in the reader's words: the course, the module, the status. */
@@ -53,7 +53,7 @@ const ReferenceLine: React.FC<{ reference: string }> = ({ reference }) => {
   return (
     <p className={referenceLineCss}>
       {t("label-credit-registration-support-reference")}{" "}
-      <span className={monospaceCss}>{reference}</span>{" "}
+      <span className={codeValueCss}>{reference}</span>{" "}
       <CopyButton
         value={reference}
         label={t("button-text-copy-credit-registration-support-reference")}

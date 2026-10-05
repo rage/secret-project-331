@@ -2,7 +2,7 @@ name: Setup Nix environment
 description: Install Nix, restore the pnpm cache, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
 inputs:
   dev-shell:
-    description: flake.nix devShell to export; `node` is a much smaller download for jobs that only need Node and pnpm
+    description: flake.nix devShell to export; `node` (Node and pnpm) and `cluster` (plus the Kubernetes and image tooling) are much smaller downloads than `default`
     default: default
 runs:
   using: composite

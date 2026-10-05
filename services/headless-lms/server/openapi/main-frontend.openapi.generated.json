@@ -8953,6 +8953,33 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": ["email_templates"],
+        "summary": "\nPOST `/api/v0/main-frontend/email-templates`\n\nCreates a global template; rejects a second live one for the same type and language.",
+        "operationId": "createEmailTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateNew"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created email template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplate"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v0/main-frontend/email-templates/{email_template_id}": {
@@ -14375,6 +14402,34 @@
           }
         }
       },
+      "AdminAttentionThresholds": {
+        "type": "object",
+        "description": "The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.",
+        "required": [
+          "partial_registration_secs",
+          "uncertain_secs",
+          "verify_window_secs",
+          "not_registered_reimports"
+        ],
+        "properties": {
+          "not_registered_reimports": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "partial_registration_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uncertain_secs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "verify_window_secs": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "AdminBulkTransitionPayload": {
         "type": "object",
         "required": ["action", "credit_registration_ids", "reason"],
@@ -14475,6 +14530,7 @@
       "AdminCreditRegistrationDetails": {
         "type": "object",
         "required": [
+          "attention_thresholds",
           "registration",
           "attempts",
           "events",
@@ -14497,6 +14553,9 @@
               "$ref": "#/components/schemas/AdminCreditRegistrationRow"
             },
             "description": "Every attempt for the same completion, newest first, this one included."
+          },
+          "attention_thresholds": {
+            "$ref": "#/components/schemas/AdminAttentionThresholds"
           },
           "events": {
             "type": "array",
@@ -14591,9 +14650,41 @@
             "type": ["string", "null"],
             "description": "The requestItemId the row went out under in the call behind this event."
           },
+          "suotar_answer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SuotarAnswer"
+              }
+            ]
+          },
+          "suotar_answered_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "suotar_api_call_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          },
+          "suotar_code": {
+            "type": ["string", "null"],
+            "description": "Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and\nsometimes drops. `None` when no item answer came back."
+          },
+          "suotar_endpoint": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SuotarEndpoint"
+              }
+            ]
+          },
+          "suotar_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "to_state": {
             "oneOf": [
@@ -14623,6 +14714,8 @@
           "state_entered_at",
           "needs_admin_attention",
           "next_attempt_at",
+          "not_registered_reimport_count",
+          "is_waiting_for_enrolment",
           "submit_retry_count",
           "verify_attempt_count",
           "attempt_number",
@@ -14671,6 +14764,19 @@
             "type": ["string", "null"],
             "description": "In full: masking it would leave support unable to answer the question they were asked."
           },
+          "enrolment_check_due_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The next scheduled enrolment check."
+          },
+          "enrolment_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "enrolment_checks_stopped_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "error_code": {
             "oneOf": [
               {
@@ -14694,6 +14800,9 @@
             "type": "string",
             "format": "uuid"
           },
+          "is_waiting_for_enrolment": {
+            "type": "boolean"
+          },
           "last_attempt_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -14707,6 +14816,20 @@
           "next_attempt_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "no_usable_enrolment_since": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "not_registered_reimport_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many times Suotar has lost the submission and it was sent again."
+          },
+          "partially_registered_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When verify first saw only the assessment item attainment."
           },
           "pending_reason": {
             "oneOf": [
@@ -14733,6 +14856,11 @@
                 "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
               }
             ]
+          },
+          "resubmit_not_before": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it."
           },
           "selected_enrolment_id": {
             "type": ["string", "null"]
@@ -15155,6 +15283,7 @@
           "request_item_count",
           "ok_item_count",
           "error_item_count",
+          "pending_item_count",
           "worker_name",
           "credit_registration_ids"
         ],
@@ -15186,6 +15315,10 @@
             "format": "uuid"
           },
           "ok_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pending_item_count": {
             "type": "integer",
             "format": "int32"
           },
@@ -20476,6 +20609,7 @@
           "submitting",
           "submission_uncertain",
           "awaiting_verification",
+          "partially_registered",
           "registered",
           "duplicate",
           "not_improved",
@@ -23184,7 +23318,8 @@
           "attempt_number",
           "superseded",
           "can_request_enrolment_recheck",
-          "enrolment_found"
+          "enrolment_found",
+          "is_processing_in_sisu"
         ],
         "properties": {
           "attempt_number": {
@@ -23259,6 +23394,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_processing_in_sisu": {
+            "type": "boolean",
+            "description": "A `waiting_for_sisu` row Sisu has received but not finished processing into credits."
           },
           "linking_email": {
             "oneOf": [
@@ -24771,6 +24910,8 @@
                 "state_entered_at",
                 "needs_admin_attention",
                 "next_attempt_at",
+                "not_registered_reimport_count",
+                "is_waiting_for_enrolment",
                 "submit_retry_count",
                 "verify_attempt_count",
                 "attempt_number",
@@ -24819,6 +24960,19 @@
                   "type": ["string", "null"],
                   "description": "In full: masking it would leave support unable to answer the question they were asked."
                 },
+                "enrolment_check_due_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "The next scheduled enrolment check."
+                },
+                "enrolment_checked_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "enrolment_checks_stopped_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
                 "error_code": {
                   "oneOf": [
                     {
@@ -24842,6 +24996,9 @@
                   "type": "string",
                   "format": "uuid"
                 },
+                "is_waiting_for_enrolment": {
+                  "type": "boolean"
+                },
                 "last_attempt_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
@@ -24855,6 +25012,20 @@
                 "next_attempt_at": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "no_usable_enrolment_since": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "not_registered_reimport_count": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "How many times Suotar has lost the submission and it was sent again."
+                },
+                "partially_registered_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "When verify first saw only the assessment item attainment."
                 },
                 "pending_reason": {
                   "oneOf": [
@@ -24881,6 +25052,11 @@
                       "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
                     }
                   ]
+                },
+                "resubmit_not_before": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it."
                 },
                 "selected_enrolment_id": {
                   "type": ["string", "null"]
@@ -25188,6 +25364,7 @@
                 "request_item_count",
                 "ok_item_count",
                 "error_item_count",
+                "pending_item_count",
                 "worker_name",
                 "credit_registration_ids"
               ],
@@ -25220,6 +25397,10 @@
                   "format": "uuid"
                 },
                 "ok_item_count": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "pending_item_count": {
                   "type": "integer",
                   "format": "int32"
                 },
@@ -26773,6 +26954,11 @@
           }
         }
       },
+      "SuotarAnswer": {
+        "type": "string",
+        "description": "What Suotar did with one row of a request.",
+        "enum": ["answered", "unanswered", "refused"]
+      },
       "SuotarApiCallDetails": {
         "type": "object",
         "required": ["call", "ledger_references", "events"],
@@ -26844,6 +27030,10 @@
           },
           "kind": {
             "$ref": "#/components/schemas/CreditRegistrationEventKind"
+          },
+          "message": {
+            "type": ["string", "null"],
+            "description": "Our own wording for what the call did to the row."
           },
           "to_state": {
             "oneOf": [
@@ -26918,6 +27108,7 @@
           "request_item_count",
           "ok_item_count",
           "error_item_count",
+          "pending_item_count",
           "worker_name",
           "credit_registration_ids"
         ],
@@ -26950,6 +27141,10 @@
             "format": "uuid"
           },
           "ok_item_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pending_item_count": {
             "type": "integer",
             "format": "int32"
           },
@@ -27109,7 +27304,8 @@
           "failed_call_count",
           "in_flight_count",
           "ok_item_count",
-          "error_item_count"
+          "error_item_count",
+          "pending_item_count"
         ],
         "properties": {
           "call_count": {
@@ -27154,6 +27350,10 @@
           "p95_duration_ms": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "pending_item_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -27711,7 +27911,9 @@
           "course_module_id",
           "course_module_name",
           "course_module_order_number",
-          "score_given"
+          "score_given",
+          "automatic_completion",
+          "requires_exam"
         ],
         "properties": {
           "attempted_exercises": {
@@ -27721,6 +27923,10 @@
           "attempted_exercises_required": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold applies."
           },
           "course_module_id": {
             "type": "string",
@@ -27732,6 +27938,10 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds only qualify the user to sit an exam that completion also needs."
           },
           "score_given": {
             "type": "number",
@@ -28029,7 +28239,8 @@
           "CourseOrExamCreator",
           "MaterialViewer",
           "TeachingAndLearningServices",
-          "StatsViewer"
+          "StatsViewer",
+          "CreditRegistrationAdmin"
         ]
       },
       "UserSuspectedCheaterInfo": {

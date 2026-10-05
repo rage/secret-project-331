@@ -541,7 +541,8 @@ async fn terminal_outcome_alerts(
     }
 
     let queued = depth_of(depths, CreditRegistrationState::ReadyToSubmit)
-        + depth_of(depths, CreditRegistrationState::AwaitingVerification);
+        + depth_of(depths, CreditRegistrationState::AwaitingVerification)
+        + depth_of(depths, CreditRegistrationState::PartiallyRegistered);
     if totals.total_count == 0 && queued > IDLE_QUEUE_DEPTH {
         alerts.push(CreditRegistrationAlert {
             id: CreditRegistrationAlertId::PipelineIdle,

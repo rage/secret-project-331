@@ -23,6 +23,7 @@ export const BUCKET_OF_STATE = {
   checking_enrolment: "in_progress",
   submitting: "in_progress",
   awaiting_verification: "in_progress",
+  partially_registered: "in_progress",
   blocked: "failed_or_blocked",
   no_usable_enrolment: "failed_or_blocked",
   submission_uncertain: "failed_or_blocked",

@@ -1,6 +1,8 @@
 //! Sending one batch of a worker flow: fresh request ids, the limiter, the call, the gate record,
 //! and pairing each row with its answer and audit.
 
+use chrono::Utc;
+use headless_lms_models::credit_registration_events::SuotarAnswer;
 use headless_lms_utils::services::suotar::{
     BatchEndpoint, SuotarErrorVariant, SuotarRequestItem, SuotarResponseItem, new_request_item_id,
 };
@@ -47,11 +49,13 @@ pub(super) async fn send_batch<E: BatchEndpoint, K, R, A>(
     if options.is_resent_half {
         span.record("resent_half", true);
     }
+    let requested_at = Utc::now();
     let sent = registry
         .client
         .post::<E>(context, items)
         .instrument(span)
         .await;
+    let answered_at = Utc::now();
     let response = match sent {
         Ok(response) => response,
         Err(error) => {
@@ -83,6 +87,10 @@ pub(super) async fn send_batch<E: BatchEndpoint, K, R, A>(
                     row: entry.row,
                     audit: ExchangeAudit {
                         call_id: None,
+                        endpoint,
+                        requested_at,
+                        answered_at,
+                        answer: SuotarAnswer::Refused,
                         request_item_id: sent.request_item_id,
                         request,
                         response: None,
@@ -107,11 +115,20 @@ pub(super) async fn send_batch<E: BatchEndpoint, K, R, A>(
         .zip(requests)
         .map(|((entry, sent), request)| {
             let request_item_id = sent.request_item_id;
+            let item = response.item(&request_item_id);
             AnsweredRow {
                 row: entry.row,
-                answer: response.item(&request_item_id).map(&decode),
+                answer: item.map(&decode),
                 audit: ExchangeAudit {
                     call_id: response.call_id,
+                    endpoint,
+                    requested_at,
+                    answered_at,
+                    answer: if item.is_some() {
+                        SuotarAnswer::Answered
+                    } else {
+                        SuotarAnswer::Unanswered
+                    },
                     response: response_item_json(&response.raw_response, &request_item_id),
                     request_item_id,
                     request,

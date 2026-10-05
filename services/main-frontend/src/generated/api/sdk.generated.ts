@@ -110,6 +110,8 @@ import type {
   CreateCourseReferencesData,
   CreateCourseReferencesResponses,
   CreateCourseResponses,
+  CreateEmailTemplateData,
+  CreateEmailTemplateResponses,
   CreateExerciseRepositoryData,
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
@@ -860,6 +862,7 @@ import {
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
   zCreateCourseResponse,
+  zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
   zCreatePageAudioFileResponse,
@@ -6008,6 +6011,26 @@ export const getEmailTemplates = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/email-templates",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-templates`
+ *
+ * Creates a global template; rejects a second live one for the same type and language.
+ */
+export const createEmailTemplate = <ThrowOnError extends boolean = true>(
+  options: Options<CreateEmailTemplateData, ThrowOnError>,
+): RequestResult<CreateEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateEmailTemplateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateEmailTemplateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-templates",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

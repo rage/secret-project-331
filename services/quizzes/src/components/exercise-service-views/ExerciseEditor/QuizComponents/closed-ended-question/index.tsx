@@ -23,6 +23,7 @@ import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
+import NumericField from "../common/NumericField"
 import ParsedTextField from "../common/ParsedTextField"
 
 interface ClosedEndedQuestionEditorProps {
@@ -145,34 +146,6 @@ const AddNewRowContainer = styled.div`
   align-items: center;
   gap: 6px;
 `
-
-interface NumericFieldProps {
-  value: number
-  label: string
-  onCommit: (value: number) => void
-}
-
-// Numeric input backed by local text state so intermediate entries ("1.", "-", "") aren't snapped
-// by a String()/Number() round-trip mid-keystroke; only parseable values reach the spec, and the
-// field normalizes back to the committed value on blur.
-const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit }) => {
-  const [text, setText] = useState(String(value))
-  return (
-    <TextField
-      value={text}
-      label={label}
-      name={label}
-      onChangeByValue={(next) => {
-        setText(next)
-        const parsed = Number(next.trim().replace(",", "."))
-        if (next.trim() !== "" && Number.isFinite(parsed)) {
-          onCommit(parsed)
-        }
-      }}
-      onBlur={() => setText(String(value))}
-    />
-  )
-}
 
 const formatMatches = (formatRegex: string | null, value: string): boolean => {
   if (!formatRegex) {

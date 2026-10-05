@@ -3,7 +3,7 @@
 
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use chrono::{DateTime, Utc};
 use headless_lms_base::config::SuotarConfiguration;
@@ -805,6 +805,7 @@ async fn a_malformed_request_comes_back_for_splitting_until_the_row_it_refuses_i
     let (_mock, sent) = replying(&mut server, SuotarEndpoint::ResolvePersons, 400, MALFORMED).await;
     let (mut registry, key) = gated(&client, CreditRegistrationPhase::ResolveEnrolments);
     let full = registry.allowance(RegistryOperation::ResolvePersons);
+    let started = Instant::now();
 
     let mut first = refused_as_malformed(
         registry
@@ -837,7 +838,17 @@ async fn a_malformed_request_comes_back_for_splitting_until_the_row_it_refuses_i
         .collect();
     assert_eq!(ids.len(), 6);
     let spent = full - registry.allowance(RegistryOperation::ResolvePersons);
-    assert!((5..=6).contains(&spent), "spent {spent}");
+    // The bucket refills while the test runs, by as much as a slow runner takes; one more for the
+    // allowance rounding down.
+    let per_second = rate_limit::endpoint_rate(SuotarEndpoint::ResolvePersons)
+        .expect("resolve-persons is rate limited")
+        .per_minute
+        / 60.0;
+    let refilled_at_most = (per_second * started.elapsed().as_secs_f64()).ceil() as usize + 1;
+    assert!(
+        spent <= 6 && spent + refilled_at_most >= 6,
+        "spent {spent}, refilled at most {refilled_at_most}"
+    );
 
     assert!(registry.finish().is_some());
     assert_eq!(failures(&key, BreakerTarget::StudyRegistry), 0);

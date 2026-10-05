@@ -5,17 +5,19 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
+import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   sectionCss,
+  stackedCellCss,
   subheadingCss,
   subsectionCss,
 } from "../styles"
@@ -53,7 +55,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
       {(detail) => (
         <div className={sectionCss}>
           <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-          {detail.error_message && <p>{detail.error_message}</p>}
+          {detail.error_message && (
+            <p>
+              <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}
+              {detail.error_message}
+            </p>
+          )}
           <Body
             title={t("credit-registration-admin-stored-request")}
             body={detail.request_body_sample}
@@ -80,7 +87,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code>{row.request_item_id ?? ABSENT}</code>
+                        <code className={codeValueCss}>{row.request_item_id ?? ABSENT}</code>
                       </Link>
                     ),
                   },
@@ -95,18 +102,33 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   {
                     header: t("label-student-number"),
                     cell: (row) => (
-                      <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                      <span className={codeValueCss}>{row.student_number ?? ABSENT}</span>
                     ),
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },
                   {
-                    header: t("label-state"),
-                    cell: (row) => <AdminStateLabel state={row.state} />,
-                  },
-                  {
-                    header: t("label-error-code"),
-                    cell: (row) =>
-                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
+                    header: t("credit-registration-admin-column-effect-of-call"),
+                    cell: (row) => {
+                      const effects = detail.events.filter(
+                        (event) => event.credit_registration_id === row.credit_registration_id,
+                      )
+                      if (effects.length === 0) {
+                        return t("credit-registration-admin-no-change")
+                      }
+                      return (
+                        <div className={stackedCellCss}>
+                          {effects.map((event) => (
+                            <div key={event.id}>
+                              {event.to_state ? <AdminStateLabel state={event.to_state} /> : null}
+                              {event.error_code ? (
+                                <ErrorCodeCell errorCode={event.error_code} />
+                              ) : null}
+                              {event.message ? <div>{event.message}</div> : null}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    },
                   },
                 ]}
               />
@@ -125,7 +147,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                 columns={[
                   {
                     header: t("label-time"),
-                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
+                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
                   },
                   {
                     header: t("label-kind"),

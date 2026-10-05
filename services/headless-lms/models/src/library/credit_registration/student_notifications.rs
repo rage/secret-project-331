@@ -61,8 +61,6 @@ pub struct StudentNotificationToQueue {
     /// The credits frozen on the row, which may have been clamped to the enrolment's range, else the
     /// module's.
     pub credits: Option<f32>,
-    /// Where the action-needed mail sends the student to enrol.
-    pub enrolment_link: Option<String>,
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
@@ -84,8 +82,7 @@ SELECT cr.id AS "credit_registration_id!",
   c.language_code AS "course_language_code!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
-  COALESCE(cr.credits, cm.ects_credits) AS "credits?",
-  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
+  COALESCE(cr.credits, cm.ects_credits) AS "credits?"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
   JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
@@ -150,7 +147,6 @@ LIMIT $1
             course_module_name: row.course_module_name,
             first_name: row.first_name,
             credits: row.credits,
-            enrolment_link: row.enrolment_link,
         })
         .collect())
 }

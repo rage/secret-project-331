@@ -14,6 +14,7 @@ import {
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
+  myRegistrationStatusLabel,
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
@@ -34,7 +35,14 @@ import {
   completionRegistrationRoute,
   navigateToCourseRoute,
 } from "@/shared-module/common/utils/routes"
-import { Link, Meter, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
+import {
+  Link,
+  Meter,
+  METER_KIND,
+  RegistrationStatusBadge,
+  RelativeTime,
+} from "@/shared-module/components"
+import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
@@ -178,12 +186,6 @@ const completionHeading = (
 }
 
 const STATUS_ARROW_SIZE = 16
-const POINTS_FRACTION_DIGITS = 2
-
-/** Points are stored to two decimals, so a whole score must not render as "5.00". */
-const formatPoints = (points: number, locale: string): string =>
-  points.toLocaleString(locale, { maximumFractionDigits: POINTS_FRACTION_DIGITS })
-
 const completionResultLabel = (
   t: CreditRegistrationTFunction,
   completion: MyStudiesCompletion,
@@ -331,6 +333,9 @@ const ModuleRow: React.FC<{
     registration?.student_facing_status ??
     // oxlint-disable-next-line i18next/no-literal-string -- a status value, not user-facing text
     (module.is_credit_registration_starting ? "sending" : null)
+  const registrationStatusText = registration
+    ? myRegistrationStatusLabel(t, registration)
+    : registrationStatus && registrationStatusLabel(t, registrationStatus)
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
@@ -365,11 +370,11 @@ const ModuleRow: React.FC<{
               className={statusTriggerCss}
               appearance={LINK_INHERIT}
               aria-label={t("credit-registration-status-link-label", {
-                status: registrationStatusLabel(t, registrationStatus),
+                status: registrationStatusText,
               })}
             >
               <RegistrationStatusBadge state={registrationStatusState(registrationStatus)}>
-                {registrationStatusLabel(t, registrationStatus)}
+                {registrationStatusText}
               </RegistrationStatusBadge>
               {/* A pill does not read as a link, and on touch there is no hover to prove it. */}
               <span className={detailsLabelCss}>
@@ -566,6 +571,7 @@ const ModuleDimension: React.FC<{
 }> = ({ label, value, maxValue, valueLabel, threshold, showBar }) =>
   showBar ? (
     <Meter
+      kind={METER_KIND.PROGRESS}
       label={label}
       value={value}
       maxValue={maxValue}

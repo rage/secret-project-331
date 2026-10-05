@@ -7,9 +7,9 @@ import {
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
 /**
- * Owns student numbers `9000002xx` and the four fixed tokens the seed writes rather than mails.
+ * Owns student numbers `0900020xx` and the four fixed tokens the seed writes rather than mails.
  *
- * Serial and order-dependent: the first test links `900000201` to the claiming account, which is
+ * Serial and order-dependent: the first test links `090002018` to the claiming account, which is
  * what makes the conflict case below a conflict.
  * `retries: 0` follows: a retry replays the group from that first test, whose token is single-use and
  * by then spent, so retrying only turns one failure into three.
@@ -39,7 +39,7 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   await expect(confirm).toBeVisible()
   // The token carries no account, so this display is all that stands between a forwarded email and
   // the wrong account.
-  await expect(page.getByText("900000201")).toBeVisible()
+  await expect(page.getByText("090002018")).toBeVisible()
   await expect(page.getByText("Zzyzx Linkvalid")).toHaveCount(0)
   await expect(page.getByText(CLAIMER_EMAIL)).toBeVisible()
   await accessibilityCheck(page, "Student number linking confirmation")
@@ -55,7 +55,7 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   await expect(response).toBeOK()
   const link = await response.json()
   expect(link).toMatchObject({
-    student_number: "900000201",
+    student_number: "090002018",
     verified_via: "emailed_link",
   })
   expect(link).not.toHaveProperty("first_names")

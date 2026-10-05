@@ -203,6 +203,7 @@ pub async fn seed_generic_emails(
 
     seed_email_ownership_verification_templates(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
+    seed_credit_registration_status_templates(&mut conn).await?;
 
     Ok(())
 }
@@ -414,6 +415,99 @@ async fn seed_email_ownership_verification_templates(
         finnish_subject,
     )
     .await?;
+
+    Ok(())
+}
+
+/// The credit registration student mails. Their only link is the status page, since students enrol
+/// in different ways.
+async fn seed_credit_registration_status_templates(
+    conn: &mut sqlx::PgConnection,
+) -> anyhow::Result<()> {
+    info!("inserting credit registration status emails");
+
+    let templates: [(EmailTemplateType, &str, &str, &[&str]); 4] = [
+        (
+            EmailTemplateType::CreditRegistrationActionNeeded,
+            "en",
+            "One more step to get your credits registered",
+            &[
+                "Hello, congratulations on completing {{COURSE_NAME}}! You have earned {{CREDITS}} credits.",
+                "To get the credits registered in Sisu, you need to be enrolled on the course. You can see how to enrol here: {{STATUS_LINK}}",
+                "After that you do not need to do anything else: we check your enrolment regularly and register your credits automatically. If you have already enrolled, you can ignore this message.",
+                "Best regards,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationActionNeeded,
+            "fi",
+            "Vielä yksi vaihe opintopisteiden kirjaamiseen",
+            &[
+                "Hei, onnittelut kurssin {{COURSE_NAME}} suorittamisesta! Olet ansainnut {{CREDITS}} op.",
+                "Jotta opintopisteet voidaan kirjata Sisuun, sinun pitää olla ilmoittautunut kurssille. Näet ilmoittautumisohjeet täältä: {{STATUS_LINK}}",
+                "Sen jälkeen sinun ei tarvitse tehdä muuta: tarkistamme ilmoittautumisesi säännöllisesti ja kirjaamme opintopisteesi automaattisesti. Jos olet jo ilmoittautunut, voit jättää tämän viestin huomiotta.",
+                "Terveisin,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationRegistered,
+            "en",
+            "Your credits have been registered",
+            &[
+                "Hello, your {{CREDITS}} credits for {{COURSE_NAME}} are now registered in Sisu.",
+                "You do not need to do anything else. You can see the details here: {{STATUS_LINK}}",
+                "Best regards,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationRegistered,
+            "fi",
+            "Opintopisteesi on kirjattu",
+            &[
+                "Hei, kurssin {{COURSE_NAME}} opintopisteesi ({{CREDITS}} op) on nyt kirjattu Sisuun.",
+                "Sinun ei tarvitse tehdä muuta. Näet tiedot täältä: {{STATUS_LINK}}",
+                "Terveisin,<br>MOOC.fi",
+            ],
+        ),
+    ];
+
+    for (template_index, (template_type, language, subject, paragraphs)) in
+        templates.into_iter().enumerate()
+    {
+        let blocks: Vec<_> = paragraphs
+            .iter()
+            .enumerate()
+            .map(|(paragraph_index, content)| {
+                json!({
+                    "type": "core/paragraph",
+                    "isValid": true,
+                    "clientId": format!(
+                        "d{}000000-0000-0000-0000-{:012}",
+                        template_index + 3,
+                        paragraph_index + 1
+                    ),
+                    "attributes": {
+                        "content": content,
+                        "drop_cap": false
+                    },
+                    "innerBlocks": []
+                })
+            })
+            .collect();
+
+        insert_email_template(
+            conn,
+            None,
+            EmailTemplateNew {
+                template_type,
+                language: Some(language.to_string()),
+                content: Some(json!(blocks)),
+                subject: Some(subject.to_string()),
+            },
+            Some(subject),
+        )
+        .await?;
+    }
 
     Ok(())
 }

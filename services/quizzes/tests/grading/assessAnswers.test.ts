@@ -3,7 +3,7 @@ import type { UserAnswer } from "../../types/quizTypes/answer"
 import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 const multipleChoiceQuiz = (): PrivateSpecQuiz => ({
-  version: "4",
+  version: "5",
   awardPointsEvenIfWrong: false,
   grantPointsPolicy: "grant_whenever_possible",
   title: null,
@@ -34,7 +34,7 @@ describe("assessAnswers answer/item type-mismatch guard", () => {
   test("throws instead of scoring when the answer type differs from the quiz item type", () => {
     // A crafted 'scale' answer used to hit the always-correct scale branch on a multiple-choice item.
     const answer = {
-      version: "4",
+      version: "5",
       itemAnswers: [{ type: "scale", quizItemId: "item-1", valid: true, scaleValue: 1 }],
     } as unknown as UserAnswer
 
@@ -45,7 +45,7 @@ describe("assessAnswers answer/item type-mismatch guard", () => {
 
   test("a matching answer type is assessed normally", () => {
     const answer = {
-      version: "4",
+      version: "5",
       itemAnswers: [
         {
           type: "multiple-choice",

@@ -137,8 +137,9 @@ pub(crate) enum PayloadChange {
 /// What writing one answer did to its row.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Applied {
-    /// `is_failure` when the row now carries an error code, which is what `items_failed` counts.
-    Written { is_failure: bool },
+    /// `is_failure` when the row now carries an error code that is no waiting answer, which is what
+    /// `items_failed` counts; `is_waiting` when it carries one that is.
+    Written { is_failure: bool, is_waiting: bool },
     /// Another writer moved the row since it was read, so the row is theirs and nothing was
     /// written. The rest of the batch carries on: aborting would leave it in the state the phase's
     /// own preflight wrote, which no phase claims again.
@@ -158,6 +159,10 @@ pub(crate) async fn write_decision(
         event_kind: CreditRegistrationEventKind::SuotarResponse,
         event_message: decision.message.clone(),
         suotar_api_call_id: audit.call_id,
+        suotar_endpoint: Some(audit.endpoint),
+        suotar_requested_at: Some(audit.requested_at),
+        suotar_answered_at: Some(audit.answered_at),
+        suotar_answer: Some(audit.answer),
         event_details: Some(suotar_exchange_details(
             Some(&audit.request),
             audit.response.as_ref(),
@@ -265,7 +270,8 @@ async fn write_outcome(
         );
     }
     Ok(Applied::Written {
-        is_failure: outcome.carries_error_code(),
+        is_failure: outcome.is_failure(),
+        is_waiting: outcome.is_waiting(),
     })
 }
 

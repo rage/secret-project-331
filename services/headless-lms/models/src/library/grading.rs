@@ -287,6 +287,55 @@ pub async fn update_grading_with_single_regrading_result(
         task_submission.exercise_slide_submission_id,
     )
     .await?;
+    let regrading = regradings::get_by_id(&mut *conn, regrading_submission.regrading_id).await?;
+    apply_grading_result_to_user_state(
+        conn,
+        exercise,
+        &slide_submission,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        regrading.user_points_update_strategy,
+    )
+    .await?;
+    Ok(())
+}
+
+/// Applies a grading result that an exercise service sent after answering the grading request, to
+/// both the grading and the student's exercise state.
+///
+/// Points follow the submission's own [`UserPointsUpdateStrategy`], as they would have had the
+/// service graded synchronously. For a regrading, use [`update_grading_with_single_regrading_result`].
+pub async fn apply_grading_update(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    task_submission: &ExerciseTaskSubmission,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+) -> ModelResult<UserExerciseState> {
+    let slide_submission = exercise_slide_submissions::get_by_id(
+        &mut *conn,
+        task_submission.exercise_slide_submission_id,
+    )
+    .await?;
+    apply_grading_result_to_user_state(
+        conn,
+        exercise,
+        &slide_submission,
+        exercise_task_grading,
+        exercise_task_grading_result,
+        slide_submission.user_points_update_strategy,
+    )
+    .await
+}
+
+async fn apply_grading_result_to_user_state(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    slide_submission: &ExerciseSlideSubmission,
+    exercise_task_grading: &ExerciseTaskGrading,
+    exercise_task_grading_result: &ExerciseTaskGradingResult,
+    user_points_update_strategy: UserPointsUpdateStrategy,
+) -> ModelResult<UserExerciseState> {
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         slide_submission.user_id,
@@ -301,17 +350,15 @@ pub async fn update_grading_with_single_regrading_result(
         slide_submission.exercise_slide_id,
     )
     .await?;
-    let regrading = regradings::get_by_id(&mut *conn, regrading_submission.regrading_id).await?;
     propagate_user_exercise_state_update_from_exercise_task_grading_result(
         conn,
         exercise,
         exercise_task_grading,
         exercise_task_grading_result,
         user_exercise_slide_state,
-        regrading.user_points_update_strategy,
+        user_points_update_strategy,
     )
-    .await?;
-    Ok(())
+    .await
 }
 
 pub enum GradingPolicy {

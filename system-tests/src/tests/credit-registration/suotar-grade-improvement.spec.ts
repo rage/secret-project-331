@@ -439,7 +439,7 @@ test("A better grade given as a new completion is sent, and the registered one s
       ),
     ).toBeGreaterThan(pollsBefore)
     expect((await adminRegistrationDetails(adminApi, reversedId)).registration.state).toBe(
-      "awaiting_verification",
+      "partially_registered",
     )
     await expectRegisteredGradeHeld(adminApi)
   })

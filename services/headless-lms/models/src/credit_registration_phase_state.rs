@@ -49,6 +49,9 @@ pub struct CreditRegistrationPhaseState {
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PhaseRunOutcome {
     pub items_processed: i32,
+    /// Processed rows that only await something outside the pipeline; not in `items_failed`, and
+    /// not stored.
+    pub items_waiting: i32,
     pub items_failed: i32,
     /// `None` on success. Scrub before passing.
     pub error: Option<String>,

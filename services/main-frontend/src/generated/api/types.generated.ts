@@ -128,6 +128,16 @@ export type AddPlanMemberRequest = {
   email: string
 }
 
+/**
+ * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
+ */
+export type AdminAttentionThresholds = {
+  not_registered_reimports: number
+  partial_registration_secs: number
+  uncertain_secs: number
+  verify_window_secs: number
+}
+
 export type AdminBulkTransitionPayload = {
   action: AdminCreditRegistrationAction
   credit_registration_ids: Array<string>
@@ -174,6 +184,7 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
+  attention_thresholds: AdminAttentionThresholds
   events: Array<AdminCreditRegistrationEvent>
   /**
    * Every mail addressed to this person, on any course.
@@ -212,7 +223,16 @@ export type AdminCreditRegistrationEvent = {
    * The requestItemId the row went out under in the call behind this event.
    */
   request_item_id?: string | null
+  suotar_answer?: null | SuotarAnswer
+  suotar_answered_at?: string | null
   suotar_api_call_id?: string | null
+  /**
+   * Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and
+   * sometimes drops. `None` when no item answer came back.
+   */
+  suotar_code?: string | null
+  suotar_endpoint?: null | SuotarEndpoint
+  suotar_requested_at?: string | null
   to_state?: null | CreditRegistrationState
 }
 
@@ -231,18 +251,38 @@ export type AdminCreditRegistrationRow = {
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
+  /**
+   * The next scheduled enrolment check.
+   */
+  enrolment_check_due_at?: string | null
+  enrolment_checked_at?: string | null
+  enrolment_checks_stopped_at?: string | null
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
   id: string
+  is_waiting_for_enrolment: boolean
   last_attempt_at?: string | null
   last_name?: string | null
   needs_admin_attention: boolean
   next_attempt_at: string
+  no_usable_enrolment_since?: string | null
+  /**
+   * How many times Suotar has lost the submission and it was sent again.
+   */
+  not_registered_reimport_count: number
+  /**
+   * When verify first saw only the assessment item attainment.
+   */
+  partially_registered_at?: string | null
   pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
   resubmission_refusal?: null | ResubmissionRefusal
+  /**
+   * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
+   */
+  resubmit_not_before?: string | null
   selected_enrolment_id?: string | null
   sisu_attainment_id?: string | null
   sisu_person_id?: string | null
@@ -436,6 +476,7 @@ export type AdminSuotarApiCall = {
   http_status?: number | null
   id: string
   ok_item_count: number
+  pending_item_count: number
   /**
    * Scrubbed and sampled at write time.
    */
@@ -2477,6 +2518,7 @@ export type CreditRegistrationState =
   | "submitting"
   | "submission_uncertain"
   | "awaiting_verification"
+  | "partially_registered"
   | "registered"
   | "duplicate"
   | "not_improved"
@@ -3454,6 +3496,10 @@ export type MyCreditRegistration = {
    */
   grade_scale_id?: string | null
   id: string
+  /**
+   * A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
+   */
+  is_processing_in_sisu: boolean
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
@@ -4045,18 +4091,38 @@ export type PageAdminCreditRegistrationRow = {
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
+    /**
+     * The next scheduled enrolment check.
+     */
+    enrolment_check_due_at?: string | null
+    enrolment_checked_at?: string | null
+    enrolment_checks_stopped_at?: string | null
     error_code?: null | CreditRegistrationErrorCode
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
     id: string
+    is_waiting_for_enrolment: boolean
     last_attempt_at?: string | null
     last_name?: string | null
     needs_admin_attention: boolean
     next_attempt_at: string
+    no_usable_enrolment_since?: string | null
+    /**
+     * How many times Suotar has lost the submission and it was sent again.
+     */
+    not_registered_reimport_count: number
+    /**
+     * When verify first saw only the assessment item attainment.
+     */
+    partially_registered_at?: string | null
     pending_reason?: null | CreditRegistrationPendingReason
     registered_at?: string | null
     resubmission_refusal?: null | ResubmissionRefusal
+    /**
+     * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
+     */
+    resubmit_not_before?: string | null
     selected_enrolment_id?: string | null
     sisu_attainment_id?: string | null
     sisu_person_id?: string | null
@@ -4179,6 +4245,7 @@ export type PageSuotarApiCallRow = {
     http_status?: number | null
     id: string
     ok_item_count: number
+    pending_item_count: number
     request_item_count: number
     /**
      * The registry's own request-level code, an identifier rather than prose.
@@ -4772,6 +4839,11 @@ export type StudyRegistryStudentNumberConflict = {
   user_id: string
 }
 
+/**
+ * What Suotar did with one row of a request.
+ */
+export type SuotarAnswer = "answered" | "unanswered" | "refused"
+
 export type SuotarApiCallDetails = {
   call: SuotarApiCallRow
   /**
@@ -4801,6 +4873,10 @@ export type SuotarApiCallEvent = {
   from_state?: null | CreditRegistrationState
   id: string
   kind: CreditRegistrationEventKind
+  /**
+   * Our own wording for what the call did to the row.
+   */
+  message?: string | null
   to_state?: null | CreditRegistrationState
 }
 
@@ -4838,6 +4914,7 @@ export type SuotarApiCallRow = {
   http_status?: number | null
   id: string
   ok_item_count: number
+  pending_item_count: number
   request_item_count: number
   /**
    * The registry's own request-level code, an identifier rather than prose.
@@ -4925,6 +5002,7 @@ export type SuotarEndpointWindowStats = {
   ok_item_count: number
   p50_duration_ms?: number | null
   p95_duration_ms?: number | null
+  pending_item_count: number
 }
 
 export type SuotarHealth = {
@@ -5164,9 +5242,17 @@ export type UserCompletionInformation = {
 export type UserCourseProgress = {
   attempted_exercises?: number | null
   attempted_exercises_required?: number | null
+  /**
+   * False when a teacher grades the module, in which case neither threshold applies.
+   */
+  automatic_completion: boolean
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
+  /**
+   * When true, the thresholds only qualify the user to sit an exam that completion also needs.
+   */
+  requires_exam: boolean
   score_given: number
   score_maximum?: number | null
   score_required?: number | null
@@ -5277,6 +5363,7 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+  | "CreditRegistrationAdmin"
 
 /**
  * A user's suspected-cheater record in one course, paired with that course's duration threshold.
@@ -10899,6 +10986,23 @@ export type GetEmailTemplatesResponses = {
 }
 
 export type GetEmailTemplatesResponse = GetEmailTemplatesResponses[keyof GetEmailTemplatesResponses]
+
+export type CreateEmailTemplateData = {
+  body: EmailTemplateNew
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-templates"
+}
+
+export type CreateEmailTemplateResponses = {
+  /**
+   * Created email template
+   */
+  200: EmailTemplate
+}
+
+export type CreateEmailTemplateResponse =
+  CreateEmailTemplateResponses[keyof CreateEmailTemplateResponses]
 
 export type DeleteEmailTemplateData = {
   body?: never

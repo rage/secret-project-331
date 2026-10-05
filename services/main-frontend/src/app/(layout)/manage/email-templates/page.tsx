@@ -6,9 +6,11 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import AddEmailTemplateDialog from "@/components/email-templates/AddEmailTemplateDialog"
 import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
 import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
+import { zEmailTemplateType } from "@/generated/api/zod.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -25,6 +27,8 @@ interface GroupedTemplates {
     templates: EmailTemplate[]
   }[]
 }
+
+const TEMPLATE_TYPES = zEmailTemplateType.options
 
 const formatDate = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date
@@ -85,18 +89,7 @@ const EmailTemplatesList: React.FC = () => {
     const templates = templatesQuery.data
     const courseMap = coursesQueries.data || new Map<string, Course>()
 
-    const templateTypes: EmailTemplateType[] = [
-      // oxlint-disable-next-line i18next/no-literal-string
-      "reset_password_email",
-      // oxlint-disable-next-line i18next/no-literal-string
-      "delete_user_email",
-      // oxlint-disable-next-line i18next/no-literal-string
-      "confirm_email_code",
-      // oxlint-disable-next-line i18next/no-literal-string
-      "generic",
-    ]
-
-    return templateTypes.map((templateType) => {
+    return TEMPLATE_TYPES.map((templateType) => {
       const typeTemplates = templates.filter((template) => template.template_type === templateType)
 
       const global = typeTemplates.filter((template) => !template.course_id)
@@ -145,16 +138,22 @@ const EmailTemplatesList: React.FC = () => {
           return t("email-template-type-confirm-email-code")
         case "generic":
           return t("email-template-type-generic")
-        // Automation-only types, never offered by this page. Listed rather than
-        // defaulted so a new template type fails to compile here.
         case "credit_registration_account_linking":
+          return t("email-template-type-credit-registration-account-linking")
         case "verify_email_address":
+          return t("email-template-type-verify-email-address")
         case "credit_registration_action_needed":
+          return t("email-template-type-credit-registration-action-needed")
         case "credit_registration_registered":
-          return type
+          return t("email-template-type-credit-registration-registered")
       }
     },
     [t],
+  )
+
+  const templateTypeOptions = useMemo(
+    () => TEMPLATE_TYPES.map((value) => ({ value, label: getTemplateTypeLabel(value) })),
+    [getTemplateTypeLabel],
   )
 
   const allTemplates = useMemo(() => {
@@ -219,6 +218,8 @@ const EmailTemplatesList: React.FC = () => {
       >
         {t("email-templates-title")}
       </h1>
+
+      <AddEmailTemplateDialog templateTypeOptions={templateTypeOptions} />
 
       <div
         className={css`

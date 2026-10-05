@@ -17,7 +17,7 @@ use super::backoff::{
     submit_window_expired, uncertain_needs_admin, uncertain_recheck_delay, verify_backoff,
     verify_window_expired,
 };
-use super::classification::{Retryability, retryability};
+use super::classification::{Retryability, is_waiting_error, retryability};
 use super::enrolment_check_schedule::TRANSIENT_FAILURE_RETRY;
 use super::study_registry::{RegistryErrorKind, RegistryOperation};
 
@@ -92,11 +92,17 @@ impl Outcome {
         }
     }
 
-    /// Whether the row counts against the iteration's `items_failed`: an error code is a failed
-    /// item, so a verify poll that is still waiting is not one. Not the same question as
+    /// Whether the row counts against the iteration's `items_failed`: an error code that is no
+    /// waiting answer, so a verify poll that is still waiting is not one. Not the same question as
     /// [`CreditRegistrationState::is_failed_state`].
-    pub fn carries_error_code(&self) -> bool {
-        self.error_code.is_some()
+    pub fn is_failure(&self) -> bool {
+        self.error_code.is_some_and(|code| !is_waiting_error(code))
+    }
+
+    /// Whether the row only awaits something outside the pipeline, such as the student's
+    /// enrolment: counted apart from failures.
+    pub fn is_waiting(&self) -> bool {
+        self.error_code.is_some_and(is_waiting_error)
     }
 
     /// The ledger write this outcome asks for, without the audit fields of the exchange behind it.
@@ -223,7 +229,7 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
 /// uncertain row stops being uncertain, but the row is not registered until the course unit
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
-    let outcome = Outcome::to(CreditRegistrationState::AwaitingVerification)
+    let outcome = Outcome::to(CreditRegistrationState::PartiallyRegistered)
         .after(verify_backoff(facts.verify_attempt_count));
     if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()

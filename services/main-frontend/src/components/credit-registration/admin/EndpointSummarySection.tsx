@@ -3,7 +3,8 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import { QueryResult, Table } from "@/shared-module/components"
 
 import {
   ABSENT,
@@ -12,10 +13,10 @@ import {
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
 } from "../constants"
 import {
   controlCss,
+  codeValueCss,
   headingCss,
   noteCss,
   sectionCardCss,
@@ -54,7 +55,7 @@ const EndpointSummarySection: React.FC = () => {
               {
                 header: t("label-endpoint"),
                 minWidth: "14rem",
-                cell: (row) => <code>{row.endpoint}</code>,
+                cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
               },
               {
                 header: t("credit-registration-admin-column-calls"),
@@ -88,11 +89,11 @@ const EndpointSummarySection: React.FC = () => {
                 minWidth: "9rem",
                 cell: (row) => (
                   <span className={stackedCellCss}>
-                    <RelativeTime at={row.last_failure_at} absoluteTime={TIME_COMPACT} />
+                    <ZonedTimestamp at={row.last_failure_at} />
                     {row.last_request_level_error_code && (
                       <span className={noteCss}>
                         {t("credit-registration-admin-request-error-code-label")}{" "}
-                        <code>{row.last_request_level_error_code}</code>
+                        <code className={codeValueCss}>{row.last_request_level_error_code}</code>
                       </span>
                     )}
                   </span>

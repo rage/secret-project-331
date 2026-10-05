@@ -7,7 +7,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::{
-    CreditRegistrationEventKind, NotImprovedAttainment,
+    CreditRegistrationEventKind, NotImprovedAttainment, SuotarAnswer,
 };
 use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
@@ -16,6 +16,10 @@ use headless_lms_models::credit_registrations::{
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
+use headless_lms_models::library::credit_registration::backoff::{
+    NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER,
+    UNCERTAIN_ADMIN_AFTER, VERIFY_MAX_AGE,
+};
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
@@ -61,6 +65,18 @@ pub struct AdminCreditRegistrationRow {
     pub submitted_at: Option<DateTime<Utc>>,
     pub registered_at: Option<DateTime<Utc>>,
     pub terminal_at: Option<DateTime<Utc>>,
+    /// When verify first saw only the assessment item attainment.
+    pub partially_registered_at: Option<DateTime<Utc>>,
+    /// Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
+    pub resubmit_not_before: Option<DateTime<Utc>>,
+    /// How many times Suotar has lost the submission and it was sent again.
+    pub not_registered_reimport_count: i32,
+    pub is_waiting_for_enrolment: bool,
+    pub no_usable_enrolment_since: Option<DateTime<Utc>>,
+    pub enrolment_checked_at: Option<DateTime<Utc>>,
+    /// The next scheduled enrolment check.
+    pub enrolment_check_due_at: Option<DateTime<Utc>>,
+    pub enrolment_checks_stopped_at: Option<DateTime<Utc>>,
     /// Frozen on the row before it was sent, so it is what we actually submitted.
     pub student_number: Option<String>,
     pub sisu_person_id: Option<String>,
@@ -103,6 +119,13 @@ pub struct AdminCreditRegistrationEvent {
     pub details: Option<serde_json::Value>,
     /// The requestItemId the row went out under in the call behind this event.
     pub request_item_id: Option<String>,
+    pub suotar_endpoint: Option<suotar_api_calls::SuotarEndpoint>,
+    pub suotar_requested_at: Option<DateTime<Utc>>,
+    pub suotar_answered_at: Option<DateTime<Utc>>,
+    pub suotar_answer: Option<SuotarAnswer>,
+    /// Suotar's own per-item code, e.g. `enrolmentNotFound`, which `error_code` classifies and
+    /// sometimes drops. `None` when no item answer came back.
+    pub suotar_code: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -116,6 +139,7 @@ pub struct AdminSuotarApiCall {
     pub request_item_count: i32,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub worker_name: String,
     /// Scrubbed and sampled at write time.
@@ -135,8 +159,27 @@ pub struct AdminNotificationEmail {
     pub send_status: EmailSendStatusReport,
 }
 
+/// The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+pub struct AdminAttentionThresholds {
+    pub partial_registration_secs: i64,
+    pub uncertain_secs: i64,
+    pub verify_window_secs: i64,
+    pub not_registered_reimports: i32,
+}
+
+impl AdminAttentionThresholds {
+    pub const CURRENT: Self = Self {
+        partial_registration_secs: PARTIAL_REGISTRATION_ADMIN_AFTER.num_seconds(),
+        uncertain_secs: UNCERTAIN_ADMIN_AFTER.num_seconds(),
+        verify_window_secs: VERIFY_MAX_AGE.num_seconds(),
+        not_registered_reimports: NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD,
+    };
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationDetails {
+    pub attention_thresholds: AdminAttentionThresholds,
     pub registration: AdminCreditRegistrationRow,
     /// Every attempt for the same completion, newest first, this one included.
     pub attempts: Vec<AdminCreditRegistrationRow>,
@@ -420,8 +463,18 @@ pub async fn get_credit_registration_for_admin(
                 message: event.message,
                 actor_user_id: event.actor_user_id,
                 suotar_api_call_id: event.suotar_api_call_id,
+                suotar_code: event
+                    .details
+                    .as_ref()
+                    .and_then(|details| details.pointer("/response/code"))
+                    .and_then(|code| code.as_str())
+                    .map(str::to_string),
                 details: event.details,
                 request_item_id: event.request_item_id,
+                suotar_endpoint: event.suotar_endpoint,
+                suotar_requested_at: event.suotar_requested_at,
+                suotar_answered_at: event.suotar_answered_at,
+                suotar_answer: event.suotar_answer,
             })
             .collect();
     let suotar_api_calls =
@@ -482,6 +535,7 @@ pub async fn get_credit_registration_for_admin(
         models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
 
     token.authorized_ok(web::Json(AdminCreditRegistrationDetails {
+        attention_thresholds: AdminAttentionThresholds::CURRENT,
         registration: to_admin_row(registration),
         attempts,
         events,
@@ -911,6 +965,7 @@ async fn one_admin_row(
 fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
     AdminCreditRegistrationRow {
         superseded: row.superseded_by_id.is_some(),
+        is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
         pending_reason: row.pending_reason(),
         resubmission_refusal: row.resubmission_facts().admin_transition_refusal(
             CreditRegistrationState::ReadyToSubmit,
@@ -938,6 +993,13 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         submitted_at: row.submitted_at,
         registered_at: row.registered_at,
         terminal_at: row.terminal_at,
+        partially_registered_at: row.partially_registered_at,
+        resubmit_not_before: row.resubmit_not_before,
+        not_registered_reimport_count: row.not_registered_reimport_count,
+        no_usable_enrolment_since: row.no_usable_enrolment_since,
+        enrolment_checked_at: row.enrolment_checked_at,
+        enrolment_check_due_at: row.enrolment_check_due_at,
+        enrolment_checks_stopped_at: row.enrolment_checks_stopped_at,
         student_number: expose_option(&row.student_number).map(str::to_owned),
         sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         uh_course_code: row.uh_course_code,
@@ -968,6 +1030,7 @@ fn to_admin_api_call(call: models::suotar_api_calls::SuotarApiCall) -> AdminSuot
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         request_body_sample: call.request_body_sample,

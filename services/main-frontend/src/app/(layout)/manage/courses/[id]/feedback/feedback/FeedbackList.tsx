@@ -1,6 +1,8 @@
 "use client"
 
+import { useToggleGroupState } from "@react-stately/toggle"
 import { useQuery } from "@tanstack/react-query"
+import { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -17,7 +19,20 @@ interface Props {
 
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo()
+  const paginationInfo = usePaginationInfo(3)
+  const allButtonId = useId()
+  const [categoryFilter, setCategoryFilter] = useState<string>(allButtonId)
+  let toggleState = useToggleGroupState({
+    // oxlint-disable-next-line i18next/no-literal-string
+    selectionMode: "single",
+    disallowEmptySelection: true,
+    defaultSelectedKeys: new Set([allButtonId]),
+  })
+  let selectedCategory = toggleState.selectedKeys.keys().next().value?.toString()
+  if (selectedCategory && selectedCategory !== categoryFilter) {
+    paginationInfo.setPage(1)
+    setCategoryFilter(selectedCategory)
+  }
 
   const getFeedbackCount = useQuery({
     ...getCourseFeedbackCountOptions({
@@ -30,7 +45,12 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   return (
     <QueryResult query={getFeedbackCount}>
       {(data) => {
-        const items = read ? data.read_feedback : data.unread_feedback
+        let y =
+          categoryFilter !== allButtonId
+            ? (data.feedback_categories_counts.find((x) => x.category_id === categoryFilter) ??
+              data)
+            : data
+        const items = read ? y.read_feedback : y.unread_feedback
         if (items <= 0) {
           return <div>{t("no-feedback")}</div>
         }
@@ -39,10 +59,12 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
           <div>
             <FeedbackPage
               courseId={courseId}
+              allButtonId={allButtonId}
               page={paginationInfo.page}
               read={read}
               paginationInfo={paginationInfo}
               onChange={getFeedbackCount.refetch}
+              state={toggleState}
             />
             <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
           </div>

@@ -1,9 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useToggleGroupState } from "@react-stately/toggle"
+import type { ToggleGroupState } from "@react-stately/toggle"
 import { useQuery } from "@tanstack/react-query"
-import React, { useId, useMemo } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -24,33 +24,29 @@ const listCss = css`
 
 interface Props {
   courseId: string
+  allButtonId: string
   page: number
   paginationInfo: PaginationInfo
   read: boolean
   onChange: () => Promise<unknown>
+  state: ToggleGroupState
 }
 
 const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   courseId,
+  allButtonId,
   page,
   paginationInfo,
   read,
   onChange,
+  state,
 }) => {
   const { t } = useTranslation()
-  const allButtonId = useId()
   const allToggleInfo = { id: allButtonId, name: t("all") }
-  let state = useToggleGroupState({
-    // oxlint-disable-next-line i18next/no-literal-string
-    selectionMode: "single",
-    disallowEmptySelection: true,
-    defaultSelectedKeys: new Set([allButtonId]),
-  })
   const limit = paginationInfo.limit
-  let category_filter = useMemo(() => {
-    let selected_filter = state.selectedKeys.keys().next().value?.toString()
-    return selected_filter === allButtonId ? undefined : selected_filter
-  }, [state.selectedKeys, allButtonId])
+
+  let selectedCategory = state.selectedKeys.keys().next().value?.toString()
+  let category_filter = selectedCategory === allButtonId ? undefined : selectedCategory
 
   const getFeedbackList = useQuery({
     ...getCourseFeedbackOptions({

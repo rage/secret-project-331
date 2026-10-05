@@ -597,13 +597,38 @@ WHERE vsn.id IS NULL
 
 /// Links each of `user_ids` to the student number a registrar last reported for them, as a
 /// [`StudentNumberVerificationMethod::StudyRegistry`] link, and records a conflict wherever a live
-/// link already stands in the way. The existing link always wins. A retired link does not block:
-/// the registrar's report is authoritative, so a number the student or an admin unlinked, or one
-/// resolve-person-ids dropped over a conflict, is linked again. Returns how many links were made.
+/// link already stands in the way. A link someone made by hand (the student or an admin) always
+/// wins, but another account's earlier study-registry link on the reported number is retired in
+/// favour of the account reported now: a student with two accounts gets the number on the later
+/// one. A retired link does not block: the registrar's report is authoritative, so a number the
+/// student or an admin unlinked, or one resolve-person-ids dropped over a conflict, is linked
+/// again. Returns how many links were made.
 pub async fn link_numbers_reported_by_study_registry(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
 ) -> ModelResult<u64> {
+    sqlx::query!(
+        r#"
+UPDATE verified_student_numbers blocker
+SET deleted_at = now()
+FROM study_registry_reported_student_numbers reported
+WHERE reported.user_id = ANY($1::uuid [])
+  AND reported.student_number ~ '^[0-9]{6,12}$'
+  AND blocker.student_number = reported.student_number
+  AND blocker.user_id <> reported.user_id
+  AND blocker.verified_via = 'study_registry'
+  AND blocker.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM verified_student_numbers own
+    WHERE own.user_id = reported.user_id
+      AND own.deleted_at IS NULL
+  )
+        "#,
+        user_ids,
+    )
+    .execute(&mut *conn)
+    .await?;
     let linked = sqlx::query!(
         r#"
 INSERT INTO verified_student_numbers (user_id, student_number, verified_via)

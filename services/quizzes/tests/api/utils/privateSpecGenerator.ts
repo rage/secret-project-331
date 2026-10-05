@@ -82,7 +82,7 @@ const quizFeedbackMessages = (): QuizFeedbackMessage[] => [
 
 export function generateEmptyPrivateSpecQuiz(): PrivateSpecQuiz {
   return {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [],
@@ -210,6 +210,10 @@ export function generatePrivateSpecWithOneMatrixQuizItem(): PrivateSpecQuiz {
       ["1", "2"],
       ["3", OPTION_CELLS_CANARY_FOR_TESTS],
     ],
+    gradingPolicy: "whole-matrix",
+    tolerance: 0,
+    partialCreditForWrongShape: false,
+    fogOfWar: false,
   }
 
   return { ...emptyQuiz, items: [matrixQuizItem] }
@@ -363,7 +367,7 @@ export function generateMultipleChoiceGradingRequest(
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [multipleChoiceItem],
@@ -381,7 +385,7 @@ export function generateMultipleChoiceGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "4",
+    version: "5",
     itemAnswers: [userItemAnswer],
   }
 
@@ -407,7 +411,7 @@ export function generateChooseNGradingRequest(
   }
 
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -436,7 +440,7 @@ export function generateChooseNGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "4",
+    version: "5",
     itemAnswers: [userItemAnswer],
   }
 
@@ -453,7 +457,7 @@ export function generateTimelineGradingRequest(
   timelineChoices: { timelineItemId: string; chosenEventId: string }[],
 ) {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -480,7 +484,7 @@ export function generateTimelineGradingRequest(
   }
 
   const userAnswer: UserAnswer = {
-    version: "4",
+    version: "5",
     itemAnswers: [userItemAnswer],
   }
 
@@ -489,7 +493,7 @@ export function generateTimelineGradingRequest(
 
 export function generateUnknownItemTypeGradingRequest() {
   const privateSpecQuiz: PrivateSpecQuiz = {
-    version: "4",
+    version: "5",
     awardPointsEvenIfWrong: false,
     grantPointsPolicy: "grant_whenever_possible",
     items: [
@@ -531,7 +535,7 @@ export function generateUnknownItemTypeGradingRequest() {
   }
 
   const userAnswer = {
-    version: "4",
+    version: "5",
     itemAnswers: [userItemAnswer],
   } as UserAnswer
 

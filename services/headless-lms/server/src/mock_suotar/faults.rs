@@ -571,7 +571,7 @@ mod tests {
         let unresolvable = vec![
             Predicate::Endpoint(Endpoint::ListByCourse),
             Predicate::Stage(Stage::Resolve),
-            Predicate::StudentNumber("900000101".to_string()),
+            Predicate::StudentNumber("090001019".to_string()),
         ];
         let problem = validate(&unresolvable, &transient(false), false)
             .expect_err("list-by-course carries no student number");

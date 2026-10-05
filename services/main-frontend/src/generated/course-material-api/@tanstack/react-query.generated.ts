@@ -35,6 +35,7 @@ import {
   getCourseMaterialCourse,
   getCourseMaterialCourseInstances,
   getCourseMaterialCourseModuleCompletionsForUser,
+  getCourseMaterialCourseModulePointsBreakdown,
   getCourseMaterialCoursePageByPath,
   getCourseMaterialCoursePages,
   getCourseMaterialCustomPrivacyPolicyCheckboxTexts,
@@ -147,6 +148,8 @@ import type {
   GetCourseMaterialCourseInstancesResponse,
   GetCourseMaterialCourseModuleCompletionsForUserData,
   GetCourseMaterialCourseModuleCompletionsForUserResponse,
+  GetCourseMaterialCourseModulePointsBreakdownData,
+  GetCourseMaterialCourseModulePointsBreakdownResponse,
   GetCourseMaterialCoursePageByPathData,
   GetCourseMaterialCoursePageByPathResponse,
   GetCourseMaterialCoursePagesData,
@@ -850,6 +853,33 @@ export const getCourseMaterialCourseModuleCompletionsForUserOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseMaterialCourseModuleCompletionsForUserQueryKey(options),
+  })
+
+export const getCourseMaterialCourseModulePointsBreakdownQueryKey = (
+  options: Options<GetCourseMaterialCourseModulePointsBreakdownData>,
+) => createQueryKey("getCourseMaterialCourseModulePointsBreakdown", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
+ */
+export const getCourseMaterialCourseModulePointsBreakdownOptions = (
+  options: Options<GetCourseMaterialCourseModulePointsBreakdownData>,
+) =>
+  queryOptions<
+    GetCourseMaterialCourseModulePointsBreakdownResponse,
+    DefaultError,
+    GetCourseMaterialCourseModulePointsBreakdownResponse,
+    ReturnType<typeof getCourseMaterialCourseModulePointsBreakdownQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseMaterialCourseModulePointsBreakdown({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseMaterialCourseModulePointsBreakdownQueryKey(options),
   })
 
 export const getCourseMaterialUserModuleCompletionsQueryKey = (

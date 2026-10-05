@@ -274,6 +274,8 @@
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
 
         nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_24 ];
+        clusterShellPathPriorityPackages =
+          nodeShellPathPriorityPackages ++ projectCliPackages ++ [ pkgs.minikube ];
       in
       {
         devShells.default = pkgs.mkShell (
@@ -328,6 +330,24 @@
           ];
           shellHook = ''
             export PATH="${lib.makeBinPath nodeShellPathPriorityPackages}:$PATH"
+          '';
+        };
+
+        # For CI jobs that build images and drive a cluster: the build runs inside Docker, so
+        # they skip the default shell's Rust, clang and Chromium.
+        devShells.cluster = pkgs.mkShell {
+          packages =
+            clusterShellPathPriorityPackages
+            ++ [
+              pkgs.bc
+              pkgs.git-lfs
+              pkgs.jq
+              pkgs.moreutils
+              pkgs.pnpm
+              pkgs.rsync
+            ];
+          shellHook = ''
+            export PATH="${lib.makeBinPath clusterShellPathPriorityPackages}:$PATH"
           '';
         };
       }

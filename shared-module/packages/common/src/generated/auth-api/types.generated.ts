@@ -64,6 +64,9 @@ export type Action =
       type: "administrate_user_account"
     }
   | {
+      type: "administrate_credit_registrations"
+    }
+  | {
       type: "administrate"
     }
 
@@ -253,6 +256,7 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+  | "CreditRegistrationAdmin"
 
 export type VerifyEmailRequest = {
   code: string

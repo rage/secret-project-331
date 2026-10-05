@@ -193,6 +193,7 @@ pub(super) async fn run_registry_batch_flow<F: RegistryBatchFlow, R: StudyRegist
     drained?;
     if claimed > 0 {
         let written = counts.processed_count();
+        let waiting = counts.waiting_count();
         let failed = counts.failed_count();
         let moved_on = counts.moved_on_count();
         let SentTally {
@@ -207,11 +208,12 @@ pub(super) async fn run_registry_batch_flow<F: RegistryBatchFlow, R: StudyRegist
             requests_sent,
             items_sent,
             written,
+            waiting,
             failed,
             moved_on,
             duration_ms,
             "claimed {claimed}, sent {items_sent} in {requests_sent} requests, wrote {written} \
-             ({failed} failed), moved on {moved_on}, took {duration_ms}ms"
+             ({waiting} waiting, {failed} failed), moved on {moved_on}, took {duration_ms}ms"
         );
     }
     Ok(counts)
@@ -391,7 +393,13 @@ mod tests {
         prepared.send(first, "first");
         prepared.record_failed();
         prepared.send(second, "second");
-        prepared.record_applied(Uuid::new_v4(), Applied::Written { is_failure: false });
+        prepared.record_applied(
+            Uuid::new_v4(),
+            Applied::Written {
+                is_failure: false,
+                is_waiting: false,
+            },
+        );
         assert_eq!(prepared.sendable().len(), 2);
         let (sendable, decided) = prepared.into_parts();
         let sent: Vec<_> = sendable

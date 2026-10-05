@@ -38,7 +38,7 @@ import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { LinkingEmailLine, sentLinkingEmail } from "./EmailStatusLine"
 import {
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   sectionCss,
   sectionHeaderCss,
@@ -270,7 +270,7 @@ const LinkedSummary: React.FC<{ studentNumber: string }> = ({ studentNumber }) =
         t={t}
         i18nKey="student-number-summary-linked"
         values={{ studentNumber }}
-        components={{ number: <span className={monospaceCss} /> }}
+        components={{ number: <span className={codeValueCss} /> }}
       />{" "}
       <Link href={userSettingsStudentNumberRoute()}>{t("student-number-summary-change-link")}</Link>
     </p>

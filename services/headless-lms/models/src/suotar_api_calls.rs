@@ -43,6 +43,7 @@ pub struct SuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub error_message: Option<String>,
     pub request_body_sample: Option<serde_json::Value>,
@@ -63,6 +64,7 @@ pub struct NewSuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
@@ -87,6 +89,7 @@ INSERT INTO suotar_api_calls (
     succeeded,
     ok_item_count,
     error_item_count,
+    pending_item_count,
     request_level_error_code,
     error_message,
     request_body_sample,
@@ -111,7 +114,8 @@ VALUES (
     $12,
     $13,
     $14,
-    $15
+    $15,
+    $16
   )
 RETURNING id
         "#,
@@ -122,6 +126,7 @@ RETURNING id
         new.succeeded,
         new.ok_item_count,
         new.error_item_count,
+        new.pending_item_count,
         new.request_level_error_code,
         new.error_message,
         new.request_body_sample,
@@ -144,6 +149,7 @@ pub struct FinishedSuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
@@ -164,9 +170,10 @@ SET http_status = $2,
   succeeded = $4,
   ok_item_count = $5,
   error_item_count = $6,
-  request_level_error_code = $7,
-  error_message = $8,
-  response_body_sample = $9,
+  pending_item_count = $7,
+  request_level_error_code = $8,
+  error_message = $9,
+  response_body_sample = $10,
   updated_at = now()
 WHERE id = $1
         "#,
@@ -176,6 +183,7 @@ WHERE id = $1
         finished.succeeded,
         finished.ok_item_count,
         finished.error_item_count,
+        finished.pending_item_count,
         finished.request_level_error_code,
         finished.error_message,
         finished.response_body_sample,
@@ -210,11 +218,17 @@ fn sample_body(value: &serde_json::Value) -> serde_json::Value {
 /// request is in flight and must survive whatever the caller's transaction does next.
 pub struct PgSuotarCallAudit {
     pool: PgPool,
+    is_waiting_item: fn(SuotarEndpoint, &str) -> bool,
 }
 
 impl PgSuotarCallAudit {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+    /// `is_waiting_item` says whether an error item's `code` only means "not yet", which is logged
+    /// as pending rather than as an error.
+    pub fn new(pool: PgPool, is_waiting_item: fn(SuotarEndpoint, &str) -> bool) -> Self {
+        Self {
+            pool,
+            is_waiting_item,
+        }
     }
 }
 
@@ -229,6 +243,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             succeeded: false,
             ok_item_count: 0,
             error_item_count: 0,
+            pending_item_count: 0,
             request_level_error_code: None,
             error_message: None,
             request_body_sample: Some(sample_body(&scrub_suotar_body(&started.request_body))),
@@ -255,12 +270,24 @@ impl SuotarCallAudit for PgSuotarCallAudit {
     }
 
     async fn finished(&self, call_id: Uuid, finished: SuotarCallFinished) {
+        let pending_item_count = finished.endpoint.map_or(0, |endpoint| {
+            finished
+                .error_item_codes
+                .iter()
+                .filter(|code| (self.is_waiting_item)(endpoint, code))
+                .count()
+        });
         let finished = FinishedSuotarApiCall {
             http_status: finished.http_status.map(i32::from),
             duration_ms: Some(finished.duration.as_millis().try_into().unwrap_or(i32::MAX)),
             succeeded: finished.succeeded,
             ok_item_count: finished.ok_item_count.try_into().unwrap_or(i32::MAX),
-            error_item_count: finished.error_item_count.try_into().unwrap_or(i32::MAX),
+            error_item_count: finished
+                .error_item_count
+                .saturating_sub(pending_item_count)
+                .try_into()
+                .unwrap_or(i32::MAX),
+            pending_item_count: pending_item_count.try_into().unwrap_or(i32::MAX),
             request_level_error_code: finished.request_level_error_code,
             error_message: finished.error_message.map(|message| scrub_text(&message)),
             response_body_sample: finished
@@ -352,6 +379,7 @@ pub struct SuotarApiCallPageRow {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
@@ -377,6 +405,7 @@ SELECT id,
   succeeded,
   ok_item_count,
   error_item_count,
+  pending_item_count,
   request_level_error_code,
   credit_registration_ids,
   worker_name,
@@ -444,6 +473,7 @@ pub struct SuotarEndpointStatsForWindow {
     pub in_flight_count: i64,
     pub ok_item_count: i64,
     pub error_item_count: i64,
+    pub pending_item_count: i64,
     pub p50_duration_ms: Option<i32>,
     pub p95_duration_ms: Option<i32>,
     pub last_success_at: Option<DateTime<Utc>>,
@@ -479,6 +509,7 @@ SELECT w.window_secs AS "window_secs!",
   COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS "in_flight_count!",
   COALESCE(SUM(c.ok_item_count), 0) AS "ok_item_count!",
   COALESCE(SUM(c.error_item_count), 0) AS "error_item_count!",
+  COALESCE(SUM(c.pending_item_count), 0) AS "pending_item_count!",
   PERCENTILE_DISC(0.5) WITHIN GROUP (
     ORDER BY c.duration_ms
   ) AS "p50_duration_ms",

@@ -5,7 +5,7 @@ use headless_lms_models::credit_registrations::{
     CreditRegistrationErrorCode, CreditRegistrationState,
 };
 use headless_lms_models::library::credit_registration::classification::{
-    Retryability, retryability,
+    Retryability, is_waiting_error, retryability,
 };
 use headless_lms_utils::services::suotar::{SuotarEndpoint, SuotarItemStatus};
 
@@ -127,6 +127,17 @@ pub(super) fn is_only_sisu_timeouts<'a>(
     codes
         .into_iter()
         .all(|code| is_sisu_timeout_code(endpoint, code))
+}
+
+/// Whether an error item's `code` only says "not yet, check again later", so the call log counts it
+/// as pending rather than as an error: `submissionPending`, verify's `notRegistered`, and resolve's
+/// `enrolmentNotFound` and `enrolmentNotAccepted`.
+pub fn is_waiting_item(endpoint: SuotarEndpoint, code: &str) -> bool {
+    match outcome_of(endpoint, code) {
+        WireOutcome::Unsettled => true,
+        WireOutcome::Failure(code) => is_waiting_error(code),
+        WireOutcome::Settled(_) => false,
+    }
 }
 
 /// Suotar's per-item `code` as a ledger error code, hardened for the endpoint it arrived on.
@@ -361,6 +372,30 @@ mod tests {
                 None,
                 "{code}"
             );
+        }
+    }
+
+    #[test]
+    fn only_not_yet_answers_count_as_waiting() {
+        for (endpoint, code) in [
+            (SuotarEndpoint::VerifyAttainments, "submissionPending"),
+            (SuotarEndpoint::VerifyAttainments, "notRegistered"),
+            (SuotarEndpoint::ResolveEnrolments, "enrolmentNotFound"),
+            (SuotarEndpoint::ResolveEnrolments, "enrolmentNotAccepted"),
+        ] {
+            assert!(is_waiting_item(endpoint, code), "{code} on {endpoint:?}");
+        }
+        for (endpoint, code) in [
+            (SuotarEndpoint::ImportAttainments, "notRegistered"),
+            (SuotarEndpoint::VerifyAttainments, "misregistered"),
+            (SuotarEndpoint::ResolvePersons, "personNotFound"),
+            (SuotarEndpoint::ImportAttainments, "duplicateRequestItem"),
+            (
+                SuotarEndpoint::VerifyAttainments,
+                "somethingSuotarAddedLater",
+            ),
+        ] {
+            assert!(!is_waiting_item(endpoint, code), "{code} on {endpoint:?}");
         }
     }
 

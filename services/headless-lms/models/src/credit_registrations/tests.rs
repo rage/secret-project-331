@@ -20,10 +20,7 @@ fn the_edge_table_keeps_the_machines_invariants() {
         }
         for &to in from.allowed_targets() {
             assert_ne!(from, to, "{from:?}: staying put is not an edge");
-            if matches!(
-                from,
-                State::Submitting | State::SubmissionUncertain | State::AwaitingVerification
-            ) {
+            if State::IN_FLIGHT_STATES.contains(&from) {
                 assert!(
                     !import_claims.contains(&to),
                     "{from:?} -> {to:?} would let a second request out for a submission the \
@@ -35,12 +32,7 @@ fn the_edge_table_keeps_the_machines_invariants() {
             }
             if to == State::Registered {
                 assert!(
-                    matches!(
-                        from,
-                        State::Submitting
-                            | State::AwaitingVerification
-                            | State::SubmissionUncertain
-                    ),
+                    State::IN_FLIGHT_STATES.contains(&from),
                     "{from:?} -> registered: only an answer about a sent submission registers a \
                      row"
                 );
@@ -123,13 +115,20 @@ async fn transition_stamps_state_entered_at_and_writes_an_event() {
     let events = crate::credit_registration_events::get_by_registration_id(tx.as_mut(), id)
         .await
         .unwrap();
-    // The `created` event from insert plus this state change, newest first.
+    // One transaction, so the two share `created_at` and their order is not asserted.
     assert_eq!(events.len(), 2);
-    assert_eq!(events[1].kind, CreditRegistrationEventKind::Created);
-    assert_eq!(events[0].kind, CreditRegistrationEventKind::StateChanged);
-    assert_eq!(events[0].from_state, Some(CreditRegistrationState::Pending));
+    assert!(
+        events
+            .iter()
+            .any(|event| event.kind == CreditRegistrationEventKind::Created)
+    );
+    let change = events
+        .iter()
+        .find(|event| event.kind == CreditRegistrationEventKind::StateChanged)
+        .unwrap();
+    assert_eq!(change.from_state, Some(CreditRegistrationState::Pending));
     assert_eq!(
-        events[0].to_state,
+        change.to_state,
         Some(CreditRegistrationState::ReadyToSubmit)
     );
 }

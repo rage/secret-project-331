@@ -54,6 +54,7 @@ import {
   createCourseInstanceEmailTemplate,
   createCourseModuleThreshold,
   createCourseReferences,
+  createEmailTemplate,
   createExerciseRepository,
   createExerciseService,
   createOrganization,
@@ -476,6 +477,8 @@ import type {
   CreateCourseModuleThresholdData,
   CreateCourseReferencesData,
   CreateCourseResponse,
+  CreateEmailTemplateData,
+  CreateEmailTemplateResponse,
   CreateExerciseRepositoryData,
   CreateExerciseRepositoryResponse,
   CreateExerciseServiceData,
@@ -7780,6 +7783,34 @@ export const getEmailTemplatesOptions = (options?: Options<GetEmailTemplatesData
       }),
     queryKey: getEmailTemplatesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-templates`
+ *
+ * Creates a global template; rejects a second live one for the same type and language.
+ */
+export const createEmailTemplateMutation = (
+  options?: Partial<Options<CreateEmailTemplateData>>,
+): UseMutationOptions<
+  CreateEmailTemplateResponse,
+  DefaultError,
+  Options<CreateEmailTemplateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateEmailTemplateResponse,
+    DefaultError,
+    Options<CreateEmailTemplateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createEmailTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

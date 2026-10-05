@@ -19,6 +19,8 @@ use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::services::suotar::SuotarClient;
 use tokio_util::sync::CancellationToken;
 
+use super::is_waiting_item;
+
 use headless_lms_utils::periodic_worker::{
     PeriodicWorkerConfig, StillRunningLog, run_periodic_worker_until,
 };
@@ -48,7 +50,7 @@ pub async fn run(
 ) -> CreditRegistrationResult<()> {
     let suotar_client = SuotarClient::new(
         &app_configuration.suotar_configuration,
-        Arc::new(PgSuotarCallAudit::new(db_pool.clone())),
+        Arc::new(PgSuotarCallAudit::new(db_pool.clone(), is_waiting_item)),
     );
     let shutdown = CancellationToken::new();
     tokio::spawn(cancel_on_termination_signal(shutdown.clone()));
@@ -190,23 +192,29 @@ async fn run_due_phase(
     let tick = run_phase_once(ctx, phase, &RegistrationScope::default()).await?;
     let duration_ms = started_at.elapsed().as_millis() as u64;
     match tick {
-        PhaseTick::Ran(outcome) if outcome.items_processed > 0 || outcome.items_failed > 0 => {
+        PhaseTick::Ran(outcome)
+            if outcome.items_processed > 0
+                || outcome.items_waiting > 0
+                || outcome.items_failed > 0 =>
+        {
             clear_skip_state(phase);
             let processed = outcome.items_processed;
+            let waiting = outcome.items_waiting;
             let failed = outcome.items_failed;
             info!(
                 phase = phase.as_str(),
                 processed,
+                waiting,
                 failed,
                 duration_ms,
-                "processed {processed} rows ({failed} failed), took {duration_ms}ms"
+                "processed {processed} rows ({waiting} waiting, {failed} failed), took {duration_ms}ms"
             );
         }
         PhaseTick::Ran(_) => {
             clear_skip_state(phase);
-            // Nothing to do this run: too routine to log above debug, or the heartbeat interval
-            // would read as a stream of info lines once a phase catches up with its queue.
-            debug!(
+            // Nothing to do this run: phases tick every few seconds, so anything above trace buries
+            // the lines that report work.
+            trace!(
                 phase = phase.as_str(),
                 duration_ms, "Credit registration phase run found nothing to do"
             );

@@ -1,8 +1,6 @@
 import { randomUUID } from "crypto"
 import * as nodeFs from "fs"
 
-import FormData from "form-data"
-
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 
 const ARCHIVE_UPLOAD_TIMEOUT_MS = 10 * 60 * 1000
@@ -35,16 +33,18 @@ export async function uploadArchive({
   uploadClaim,
 }: UploadArchiveOptions): Promise<UploadedArchive> {
   const uploadId = randomUUID()
+  // Native FormData only: fetch does not recognise the `form-data` package's stream and sends it as
+  // the string "[object FormData]" under a multipart content type.
   const form = new FormData()
-  form.append(uploadId, nodeFs.createReadStream(archivePath), archiveName)
+  form.append(uploadId, await nodeFs.openAsBlob(archivePath), archiveName)
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
   const res = await fetch(uploadUrl, {
     method: "POST",
-    headers: { ...headers, ...form.getHeaders() },
-    body: form as unknown as Exclude<RequestInit["body"], undefined>,
+    headers,
+    body: form,
     signal: AbortSignal.timeout(ARCHIVE_UPLOAD_TIMEOUT_MS),
   })
   if (!res.ok) {

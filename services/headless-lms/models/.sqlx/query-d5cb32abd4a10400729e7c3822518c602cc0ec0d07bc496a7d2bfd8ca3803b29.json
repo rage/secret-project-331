@@ -1,0 +1,353 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM credit_registration_events\nWHERE credit_registration_id = $1\n  AND deleted_at IS NULL\nORDER BY COALESCE(suotar_answered_at, created_at) DESC,\n  id DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "credit_registration_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "kind",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_event_kind",
+            "kind": {
+              "Enum": [
+                "created",
+                "state_changed",
+                "suotar_response",
+                "retry_scheduled",
+                "admin_action",
+                "student_action",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "kind"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "from_state",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "partially_registered",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "from_state"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "to_state",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_state",
+            "kind": {
+              "Enum": [
+                "pending",
+                "ready_to_submit",
+                "resolving_enrolment",
+                "checking_enrolment",
+                "no_usable_enrolment",
+                "submitting",
+                "submission_uncertain",
+                "awaiting_verification",
+                "partially_registered",
+                "registered",
+                "duplicate",
+                "not_improved",
+                "misregistered",
+                "failed_retryable",
+                "failed_permanent",
+                "blocked",
+                "cancelled"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "to_state"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "error_code",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
+                "misregistered",
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "message"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "suotar_api_call_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_api_call_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "actor_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "actor_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "details",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "details"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "request_item_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "request_item_id"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "suotar_endpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "suotar_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "suotar_answered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_answered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "suotar_answer",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_answer",
+            "kind": {
+              "Enum": [
+                "answered",
+                "unanswered",
+                "refused"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "suotar_answer"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "d5cb32abd4a10400729e7c3822518c602cc0ec0d07bc496a7d2bfd8ca3803b29"
+}

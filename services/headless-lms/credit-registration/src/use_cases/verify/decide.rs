@@ -4,6 +4,9 @@ use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::{
     AdminAttention, CreditRegistration, CreditRegistrationState,
 };
+use headless_lms_models::library::credit_registration::backoff::{
+    VERIFY_MAX_AGE, verify_window_expired,
+};
 use headless_lms_models::library::credit_registration::enrolment_selection::attainment_matching_submission;
 use headless_lms_models::library::credit_registration::outcomes::{
     Outcome, RowFacts, uncertain_recheck_outcome, verify_error_outcome,
@@ -31,9 +34,7 @@ pub(super) fn decide_poll<'a>(
     facts: &RowFacts,
 ) -> PollAnswer<'a> {
     let Some(answer) = answer else {
-        return PollAnswer::Decided(Box::new(Decision::new(verify_inconclusive_outcome(
-            state, facts,
-        ))));
+        return PollAnswer::Decided(Box::new(still_polling_decision(state, facts, None)));
     };
     let decision = match &answer.reading {
         VerificationReading::Registered { attainment } => Decision::new(Outcome {
@@ -47,17 +48,39 @@ pub(super) fn decide_poll<'a>(
         // before `retryAfter`, which only bounds when a resubmission becomes safe.
         VerificationReading::Pending {
             resubmit_not_before,
-        } => Decision::new(verify_inconclusive_outcome(state, facts))
-            .with_resubmit_not_before(*resubmit_not_before),
+        } => still_polling_decision(
+            state,
+            facts,
+            Some("Sisu is still processing the submission."),
+        )
+        .with_resubmit_not_before(*resubmit_not_before),
         VerificationReading::NotRegistered => return PollAnswer::NotRegistered,
         VerificationReading::Failed { code } => {
             Decision::new(verify_error_outcome(state, *code, facts))
         }
-        VerificationReading::Inconclusive => {
-            Decision::new(verify_inconclusive_outcome(state, facts))
-        }
+        VerificationReading::Inconclusive => still_polling_decision(state, facts, None),
     };
     PollAnswer::Decided(Box::new(decision))
+}
+
+/// Keeps polling in place; past the verify window the expiry is the news, so it replaces
+/// `message`.
+fn still_polling_decision<'a>(
+    state: CreditRegistrationState,
+    facts: &RowFacts,
+    message: Option<&'static str>,
+) -> Decision<'a> {
+    let decision = Decision::new(verify_inconclusive_outcome(state, facts));
+    if verify_window_expired(facts.submitted_at, facts.now) {
+        decision.with_message(format!(
+            "Not confirmed within {} days of sending; now checked once a day.",
+            VERIFY_MAX_AGE.num_days()
+        ))
+    } else if let Some(message) = message {
+        decision.with_message(message)
+    } else {
+        decision
+    }
 }
 
 /// A poll that found only the assessment item attainment, which a poll first saw at
@@ -66,7 +89,10 @@ pub(super) fn partially_registered_decision(
     facts: &RowFacts,
     partially_registered_at: DateTime<Utc>,
 ) -> Decision<'static> {
-    Decision::new(verify_partial_outcome(facts, partially_registered_at))
+    Decision::new(verify_partial_outcome(facts, partially_registered_at)).with_message(
+        "Sisu has the assessment item attainment; waiting for the course unit attainment before \
+         counting it registered.",
+    )
 }
 
 /// A poll that found no trace of the submission.
@@ -161,10 +187,14 @@ mod tests {
 
     #[test]
     fn an_unanswered_poll_keeps_polling_in_place() {
-        for state in [State::AwaitingVerification, State::SubmissionUncertain] {
+        for state in [
+            State::AwaitingVerification,
+            State::PartiallyRegistered,
+            State::SubmissionUncertain,
+        ] {
             let decision = decided(state, None);
             assert_eq!(decision.outcome.to_state, state);
-            assert!(!decision.outcome.carries_error_code());
+            assert!(!decision.outcome.is_failure());
         }
     }
 
@@ -202,7 +232,7 @@ mod tests {
         let answer = answer(VerificationReading::Inconclusive);
         let decision = decided(State::SubmissionUncertain, Some(&answer));
         assert_eq!(decision.outcome.to_state, State::SubmissionUncertain);
-        assert!(!decision.outcome.carries_error_code());
+        assert!(!decision.outcome.is_failure());
     }
 
     #[test]
@@ -222,7 +252,7 @@ mod tests {
     #[test]
     fn a_partial_registration_waits_for_the_course_unit_attainment() {
         let decision = partially_registered_decision(&facts(), now());
-        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.to_state, State::PartiallyRegistered);
         assert_eq!(decision.outcome.needs_admin_attention, None);
     }
 
@@ -230,7 +260,7 @@ mod tests {
     fn a_long_partial_registration_asks_for_an_admin() {
         let decision =
             partially_registered_decision(&facts(), now() - PARTIAL_REGISTRATION_ADMIN_AFTER);
-        assert_eq!(decision.outcome.to_state, State::AwaitingVerification);
+        assert_eq!(decision.outcome.to_state, State::PartiallyRegistered);
         assert_eq!(
             decision.outcome.needs_admin_attention,
             Some(AdminAttention::Raise)

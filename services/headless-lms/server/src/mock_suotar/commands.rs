@@ -1317,7 +1317,7 @@ mod tests {
         let pushed: MockSuotarCommand = serde_json::from_value(json!({
             "command": "pushWorld",
             "persons": [{
-                "studentNumber": "900000101",
+                "studentNumber": "090001019",
                 "firstNames": "Zzyzx",
                 "lastName": "Happypath",
                 "primaryEmail": "zzyzx.happypath@helsinki.example.com",
@@ -1334,7 +1334,7 @@ mod tests {
                 }]
             }],
             "enrolments": [{
-                "studentNumber": "900000101",
+                "studentNumber": "090001019",
                 "courseCode": "CRS-101",
                 "state": "ENROLLED",
                 "studyRightId": null
@@ -1345,7 +1345,7 @@ mod tests {
 
         let reset: MockSuotarCommand = serde_json::from_value(json!({
             "command": "reset",
-            "scope": { "persons": { "studentNumbers": ["900000101"] } }
+            "scope": { "persons": { "studentNumbers": ["090001019"] } }
         }))
         .expect("reset persons");
         assert_eq!(reset.name(), "reset");

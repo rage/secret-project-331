@@ -113,6 +113,10 @@ pub struct UserCourseProgress {
     pub total_exercises: Option<u32>,
     pub attempted_exercises: Option<i32>,
     pub attempted_exercises_required: Option<i32>,
+    /// False when a teacher grades the module, in which case neither threshold applies.
+    pub automatic_completion: bool,
+    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
+    pub requires_exam: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -581,6 +585,8 @@ fn merge_modules_with_metrics(
                     .transpose()?,
                 attempted_exercises_required: requirements
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
+                automatic_completion: requirements.is_some(),
+                requires_exam: requirements.is_some_and(|x| x.requires_exam),
             };
             Ok(progress)
         })

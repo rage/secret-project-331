@@ -53,8 +53,8 @@ impl EnrolmentCheckSource {
     }
 }
 
-/// Suotar's copy of Sisu is about an hour old, so a check sooner than this after an enrolment
-/// cannot see it.
+/// Suotar's copy of Sisu is usually about an hour behind, so a check sooner than this after an
+/// enrolment usually cannot see it. The check-requested ladder tries earlier anyway.
 pub const REGISTRY_LAG: TimeDelta = TimeDelta::hours(1);
 
 /// How soon after a check request, or after the last check, another request may start one. Shared
@@ -135,7 +135,13 @@ fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
         offsets
     });
     static CHECK_REQUESTED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets = vec![TimeDelta::zero(), REGISTRY_LAG];
+        let mut offsets = vec![
+            TimeDelta::seconds(30),
+            TimeDelta::minutes(1),
+            TimeDelta::minutes(5),
+            TimeDelta::minutes(15),
+            REGISTRY_LAG,
+        ];
         let mut gap = TimeDelta::minutes(30);
         while gap <= HOUR * 5 {
             push_after(&mut offsets, gap);
@@ -184,7 +190,7 @@ fn resolve(
     })
 }
 
-/// The first rung of a ladder started at `anchor`: immediate for a check request, later for the
+/// The first rung of a ladder started at `anchor`: seconds away for a check request, later for the
 /// other groups.
 pub fn first_check(
     group: EnrolmentCheckGroup,
@@ -249,8 +255,22 @@ mod tests {
         assert_eq!(
             requested[..16],
             [
-                0.0, 1.0, 1.5, 2.5, 4.0, 6.0, 8.5, 11.5, 15.0, 19.0, 23.5, 28.5, 34.5, 42.5, 54.5,
-                78.5
+                30.0 / 3600.0,
+                60.0 / 3600.0,
+                300.0 / 3600.0,
+                900.0 / 3600.0,
+                1.0,
+                1.5,
+                2.5,
+                4.0,
+                6.0,
+                8.5,
+                11.5,
+                15.0,
+                19.0,
+                23.5,
+                28.5,
+                34.5
             ]
         );
         assert!(requested.last().unwrap() <= &(180.0 * 24.0));
@@ -267,10 +287,13 @@ mod tests {
     fn the_next_check_is_the_first_rung_after_now() {
         let anchor = at(TimeDelta::zero());
         let requested = EnrolmentCheckGroup::CheckRequested;
-        assert_eq!(first_check(requested, anchor).unwrap().due_at, anchor);
-        let after_immediate = next_check_after(requested, anchor, anchor).unwrap();
-        assert_eq!(after_immediate.step, 1);
-        assert_eq!(after_immediate.due_at, at(TimeDelta::hours(1)));
+        assert_eq!(
+            first_check(requested, anchor).unwrap().due_at,
+            at(TimeDelta::seconds(30))
+        );
+        let after_first = next_check_after(requested, anchor, at(TimeDelta::seconds(30))).unwrap();
+        assert_eq!(after_first.step, 1);
+        assert_eq!(after_first.due_at, at(TimeDelta::minutes(1)));
         // A row that sat out several rungs gets one catch-up, not one per rung.
         let late = next_check_after(requested, anchor, at(TimeDelta::hours(10))).unwrap();
         assert_eq!(

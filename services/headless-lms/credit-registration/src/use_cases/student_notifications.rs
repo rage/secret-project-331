@@ -7,8 +7,7 @@
 
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_models::library::credit_registration::student_notifications::{
-    CreditRegistrationNotificationKind, STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue,
-    claim_unnotified, set_email_delivery_id,
+    STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue, claim_unnotified, set_email_delivery_id,
 };
 use serde_json::json;
 use sqlx::{Connection, PgPool};
@@ -61,21 +60,11 @@ pub(crate) async fn run(
 }
 
 /// Stored on the delivery row, so the sender needs no lookup of its own.
-///
-/// `ENROLMENT_LINK` is empty when the module has no enrolment link; the template's sentence has to
-/// read correctly without it, because a mail that only says "enrol in Sisu" is all the student gets
-/// in that case.
 fn placeholders(
     base_url: &str,
     notification: &StudentNotificationToQueue,
     language: &str,
 ) -> serde_json::Value {
-    let enrolment_link = match notification.kind {
-        CreditRegistrationNotificationKind::ActionNeeded => {
-            notification.enrolment_link.as_deref().unwrap_or_default()
-        }
-        CreditRegistrationNotificationKind::Registered => "",
-    };
     json!({
         "NAME": notification.first_name.as_deref().unwrap_or_default(),
         "COURSE_NAME": notification.course_name,
@@ -85,7 +74,6 @@ fn placeholders(
             .map(|credits| format_credits(credits, language))
             .unwrap_or_default(),
         "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
-        "ENROLMENT_LINK": enrolment_link,
     })
 }
 

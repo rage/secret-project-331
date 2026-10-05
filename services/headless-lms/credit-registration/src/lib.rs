@@ -58,7 +58,9 @@ mod use_cases;
 mod workflow;
 
 pub use phase::{CreditRegistrationPhase, PhaseSpec, ScopeSupport, WorkerProcess};
-pub use runtime::{PhaseContext, PhaseSkipReason, PhaseTick, Runner, run_phase_once, worker_loop};
+pub use runtime::{
+    PhaseContext, PhaseSkipReason, PhaseTick, Runner, is_waiting_item, run_phase_once, worker_loop,
+};
 pub use use_cases::materialize::{Materialized, materialize_now};
 
 /// The account-linking actions an admin or a teacher sets off by hand, what they answer, and the

@@ -760,6 +760,50 @@
         }
       }
     },
+    "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.",
+        "operationId": "getCourseMaterialCourseModulePointsBreakdown",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's points by chapter, page and exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChapterPointsBreakdown"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/course-instances/{course_instance_id}/module-completions": {
       "get": {
         "tags": ["course-material-course-instances"],
@@ -3107,6 +3151,45 @@
         "type": "string",
         "enum": ["unlocked", "completed_and_locked", "not_unlocked_yet"]
       },
+      "ChapterPointsBreakdown": {
+        "type": "object",
+        "description": "A chapter's pages in a points breakdown, with their subtotal.",
+        "required": [
+          "chapter_id",
+          "chapter_number",
+          "name",
+          "score_given",
+          "score_maximum",
+          "pages"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PagePointsBreakdown"
+            }
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ChapterStatus": {
         "type": "string",
         "enum": ["open", "closed"]
@@ -5292,6 +5375,57 @@
           }
         }
       },
+      "ExercisePointsBreakdown": {
+        "type": "object",
+        "description": "One exercise's row in a points breakdown.",
+        "required": ["exercise_id", "name", "status", "score_given", "score_maximum", "attempts"],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Submissions to the slide the user was given, which is what the attempt limit counts."
+          },
+          "attempts_limit": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` when the exercise allows unlimited attempts."
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Rounded to two decimals; 0 until the answer counts towards the module's points."
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ExercisePointsStatus"
+          }
+        }
+      },
+      "ExercisePointsStatus": {
+        "type": "string",
+        "description": "Where a user's answer to an exercise stands, as far as the student may know.\n\nCollapses the exercise state into what the exercise block itself tells the student, so the\nunderlying reviewing and grading stages never reach the client.",
+        "enum": [
+          "NotStarted",
+          "GradingInProgress",
+          "GradingFailed",
+          "PeerReviewToGive",
+          "SelfReviewToGive",
+          "WaitingForPeerReviews",
+          "WaitingForTeacherGrading",
+          "NotAnswered",
+          "Done"
+        ]
+      },
       "ExerciseSlideSubmission": {
         "type": "object",
         "required": [
@@ -5962,6 +6096,38 @@
                 "$ref": "#/components/schemas/PageRoutingData"
               }
             ]
+          }
+        }
+      },
+      "PagePointsBreakdown": {
+        "type": "object",
+        "description": "A page's exercises in a points breakdown, with their subtotal.",
+        "required": ["page_id", "title", "url_path", "score_given", "score_maximum", "exercises"],
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExercisePointsBreakdown"
+            }
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string",
+            "description": "Path within the course; the exercise's block is anchored on the page by its exercise id."
           }
         }
       },
@@ -6906,7 +7072,9 @@
           "course_module_id",
           "course_module_name",
           "course_module_order_number",
-          "score_given"
+          "score_given",
+          "automatic_completion",
+          "requires_exam"
         ],
         "properties": {
           "attempted_exercises": {
@@ -6916,6 +7084,10 @@
           "attempted_exercises_required": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold applies."
           },
           "course_module_id": {
             "type": "string",
@@ -6927,6 +7099,10 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds only qualify the user to sit an exam that completion also needs."
           },
           "score_given": {
             "type": "number",

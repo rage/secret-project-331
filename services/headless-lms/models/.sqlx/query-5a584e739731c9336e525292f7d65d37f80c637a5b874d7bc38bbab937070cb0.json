@@ -225,6 +225,17 @@
             "name": "request_item_ids"
           }
         }
+      },
+      {
+        "ordinal": 19,
+        "name": "pending_item_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_api_calls",
+            "name": "pending_item_count"
+          }
+        }
       }
     ],
     "parameters": {
@@ -251,6 +262,7 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },

@@ -47,7 +47,7 @@ import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * Owns the `credit-registration-admin` course, with `credit-registration-student-1` on it, and the
- * stale-address fixture `900000903`. The admin course is the only course this file ticks: discovery
+ * stale-address fixture `090009037`. The admin course is the only course this file ticks: discovery
  * and the linking mails scope by course alone, so ticking them anywhere else would sweep another
  * spec's students.
  *
@@ -80,7 +80,7 @@ const SUPERSEDED_ATTEMPT_2_ID = "c5ed17ea-0902-4a5e-9e6e-c0de00000902"
 
 const SUPERSEDED_STUDENT_NUMBER = STUDENT_6.studentNumber
 
-const STALE_STUDENT_NUMBER = "900000903"
+const STALE_STUDENT_NUMBER = "090009037"
 const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example.com"
 // Anchored: "old." and "older." variants of the same address also carry STALE_ADDRESS as a
 // substring, so a plain text match resolves to all three list items instead of just this one.
@@ -331,7 +331,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
   // the reason is the only record of why support went around the mailed link.
   await expect(confirm).toBeDisabled()
 
-  await test.step("The API refuses the same two ways", async () => {
+  await test.step("The API refuses the same two ways, and a mistyped number", async () => {
     const withoutPreview = await postAdminManualLink(page.request, {
       user_id: "00000000-0000-0000-0000-000000000000",
       student_number: STALE_STUDENT_NUMBER,
@@ -347,6 +347,14 @@ test("Manual link is refused without a preview and without a reason", async ({ p
       reason: "   ",
     })
     expect(withoutReason.status()).toBe(422)
+
+    const mistyped = await postAdminManualLink(page.request, {
+      user_id: "00000000-0000-0000-0000-000000000000",
+      student_number: "090009038",
+      sisu_person_id: `hy-hlo-${STALE_STUDENT_NUMBER}`,
+      reason: "System test: the last digit is a typo.",
+    })
+    expect(mistyped.status()).toBe(422)
   })
 
   await test.step("A preview naming a different person is refused as a mismatch", async () => {
@@ -584,7 +592,7 @@ test("A lookup Suotar answers with an unexpected error reads as an error, not as
   page,
   adminApi,
 }) => {
-  const studentNumber = "900000950"
+  const studentNumber = "090009503"
   const faultId = "admin-dashboard-resolve-person-error"
   await armMockSuotarFault(page.request, {
     id: faultId,

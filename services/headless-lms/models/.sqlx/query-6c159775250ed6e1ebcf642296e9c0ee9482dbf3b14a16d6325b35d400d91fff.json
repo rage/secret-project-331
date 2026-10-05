@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_source,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  cr.partially_registered_at IS NOT NULL AS \"is_partially_registered!\",\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cr.created_at,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_source,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  cr.partially_registered_at IS NOT NULL AS \"is_partially_registered!\",\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -104,6 +104,17 @@
       },
       {
         "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
         "name": "completion_date",
         "type_info": "Timestamptz",
         "origin": {
@@ -114,7 +125,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "state",
         "type_info": {
           "Custom": {
@@ -150,7 +161,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "error_code?",
         "type_info": {
           "Custom": {
@@ -192,7 +203,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "next_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -203,7 +214,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "registered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -214,7 +225,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "sisu_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -225,7 +236,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "student_number",
         "type_info": "Varchar",
         "origin": {
@@ -236,7 +247,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "credits",
         "type_info": "Float4",
         "origin": {
@@ -247,7 +258,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "grade_id",
         "type_info": "Varchar",
         "origin": {
@@ -258,7 +269,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "grade_scale_id",
         "type_info": "Varchar",
         "origin": {
@@ -269,7 +280,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "attempt_number",
         "type_info": "Int4",
         "origin": {
@@ -280,7 +291,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "superseded_by_id",
         "type_info": "Uuid",
         "origin": {
@@ -291,7 +302,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "superseded_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -302,7 +313,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "enrolment_checked_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -313,7 +324,7 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "enrolment_check_requested_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -324,7 +335,7 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "no_usable_enrolment_since",
         "type_info": "Timestamptz",
         "origin": {
@@ -335,7 +346,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 26,
         "name": "enrolment_check_anchor_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -346,7 +357,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "enrolment_check_source",
         "type_info": {
           "Custom": {
@@ -371,19 +382,19 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 28,
         "name": "enrolment_resolved!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 28,
+        "ordinal": 29,
         "name": "enrolment_realisation_name?",
         "type_info": "Text",
         "origin": "Expression"
       },
       {
-        "ordinal": 29,
+        "ordinal": 30,
         "name": "submitted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -394,19 +405,19 @@
         }
       },
       {
-        "ordinal": 30,
+        "ordinal": 31,
         "name": "is_partially_registered!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 31,
+        "ordinal": 32,
         "name": "enrolment_link?",
         "type_info": "Text",
         "origin": "Expression"
       },
       {
-        "ordinal": 32,
+        "ordinal": 33,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -417,7 +428,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "has_verified_student_number!",
         "type_info": "Bool",
         "origin": {
@@ -428,7 +439,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 35,
         "name": "course_code_allowed!",
         "type_info": "Bool",
         "origin": {
@@ -459,6 +470,7 @@
       false,
       false,
       false,
+      false,
       true,
       false,
       true,
@@ -485,5 +497,5 @@
       true
     ]
   },
-  "hash": "87cd0b7364eba72364f0c09d15ddc070e89fae1dd78fc2e416fb10544810d4bf"
+  "hash": "6c159775250ed6e1ebcf642296e9c0ee9482dbf3b14a16d6325b35d400d91fff"
 }

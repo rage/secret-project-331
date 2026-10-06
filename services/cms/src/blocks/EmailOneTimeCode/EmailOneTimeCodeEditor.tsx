@@ -34,7 +34,6 @@ const EmailOneTimeCodeEditor: React.FC<
           letter-spacing: 4px;
           color: #1a2333;
           overflow-wrap: anywhere;
-          word-break: break-word;
           margin: 0 0 18px;
         `}
         value={attributes.code}

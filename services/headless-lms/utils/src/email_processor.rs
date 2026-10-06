@@ -422,6 +422,10 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             r#"<p class="email-lead" style="font-size: 18px; line-height: 28px;">{}</p>"#,
             block.rich_text("content")
         ),
+        EmailBlockName::Paragraph if block.has_style("code") => format!(
+            r##"<p class="email-one-time-code" style="padding: 16px; background-color: #F7F8F9; border: 1px solid #DDDEE0; border-radius: 6px; text-align: center; font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: 6px; color: #1A2333;">{}</p>"##,
+            block.rich_text("content")
+        ),
         EmailBlockName::Paragraph => format!("<p>{}</p>", block.rich_text("content")),
         EmailBlockName::Heading => {
             let level = block

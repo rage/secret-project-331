@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
+import { HeadingAnchorsContext } from "@/contexts/course-material/HeadingAnchorsContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
 import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
@@ -23,6 +24,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
+import { buildHeadingAnchorIds } from "@/shared-module/common/utils/headingAnchors"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
@@ -72,6 +74,9 @@ const AudioNotification = styled.div`
 
 const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
   query.isSuccess || query.isError
+
+/** Inline `[]` here would hand the memo below a new value on every render. */
+const NO_BLOCKS: Block<unknown>[] = []
 
 const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizationSlug }) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -212,6 +217,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   // Fetch glossary for each page seperately
   const glossary = useGlossary(courseId, courseMaterialState.examData, isMaterialPage)
 
+  const pageContent =
+    (courseMaterialState.page?.content as Block<unknown>[] | undefined) ?? NO_BLOCKS
+  const headingAnchorIds = useMemo(
+    () => (isMaterialPage ? buildHeadingAnchorIds(pageContent) : new Map<string, string>()),
+    [isMaterialPage, pageContent],
+  )
+
   if (glossary.isLoading) {
     return <Spinner variant={"small"} />
   }
@@ -347,11 +359,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         <div id="maincontent">
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
-            <ContentRenderer
-              data={(courseMaterialState.page?.content as Block<unknown>[]) ?? []}
-              isExam={courseMaterialState.examData !== null}
-              dontAllowBlockToBeWiderThanContainerWidth={false}
-            />
+            <HeadingAnchorsContext.Provider value={headingAnchorIds}>
+              <ContentRenderer
+                data={pageContent}
+                isExam={courseMaterialState.examData !== null}
+                dontAllowBlockToBeWiderThanContainerWidth={false}
+              />
+            </HeadingAnchorsContext.Provider>
           </div>
         </div>
         {courseMaterialState.page?.chapter_id && <NavigationContainer />}

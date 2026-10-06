@@ -3,15 +3,19 @@
 /* oxlint-disable jsx-a11y/heading-has-content */
 import { css, cx } from "@emotion/css"
 import type { DetailedHTMLProps, HTMLAttributes } from "react"
+import { useContext } from "react"
 
 import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
+import { HeadingAnchorsContext } from "@/contexts/course-material/HeadingAnchorsContext"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import { headingTextFromHtml } from "@/shared-module/common/utils/headingAnchors"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
+import HeadingAnchorLink, { HEADING_ANCHOR_LINK_CLASS } from "./HeadingAnchorLink"
 
 interface ExtraAttributes {
   textAlign?: string
@@ -21,11 +25,18 @@ const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
 > = ({ data }) => {
   const { content, level, fontSize, textAlign, fitText } = data.attributes
+  const anchorId = useContext(HeadingAnchorsContext).get(data.clientId)
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
-    dangerouslySetInnerHTML: {
-      __html: sanitizeCourseMaterialHtml(content),
-    },
+    id: anchorId,
+    children: (
+      <>
+        <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
+        {anchorId && (
+          <HeadingAnchorLink anchorId={anchorId} headingText={headingTextFromHtml(content)} />
+        )}
+      </>
+    ),
     className: cx(
       level < 4 && INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
       css`
@@ -38,6 +49,10 @@ const HeadingBlock: React.FC<
           fitText && `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`
         }
         ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+
+        &:hover .${HEADING_ANCHOR_LINK_CLASS}, &:focus-within .${HEADING_ANCHOR_LINK_CLASS} {
+          opacity: 1;
+        }
       `,
     ),
   }

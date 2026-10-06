@@ -409,6 +409,7 @@
   "copied-course-is-a-language-version": "Copied course is a language version",
   "copy-email": "Copy email",
   "copy-exercise-id": "Copy exercise ID",
+  "copy-link-to-section": "Copy link to section: {{heading}}",
   "copy-the-email-address": "Copy the email address",
   "copy-to-clipboard": "Copy to clipboard",
   "copy-user-id": "Copy user ID",

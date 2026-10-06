@@ -339,14 +339,44 @@ const CourseAuditing = () => {
                   {t("course-auditing-filter-course-status-title")}
                 </p>
                 <Tooltip aria-label={t("tri-state-toggle-tooltip-label")}>
-                  <CheckCircle />
-                  {t("tri-state-toggle-tooltip-body-check")}
-                  {<br />}
-                  <MinusCircle />
-                  {t("tri-state-toggle-tooltip-body-dash")}
-                  {<br />}
-                  <XmarkCircle />
-                  {t("tri-state-toggle-tooltip-body-x")}
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-direction: column;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    <div
+                      className={css`
+                        display: flex;
+                        align-items: center;
+                      `}
+                    >
+                      <CheckCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-check")}
+                    </div>
+                    <div
+                      className={css`
+                        display: flex;
+                        align-items: center;
+                      `}
+                    >
+                      <MinusCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-dash")}
+                    </div>
+                    <div
+                      className={css`
+                        display: flex;
+                        align-items: center;
+                      `}
+                    >
+                      <XmarkCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-x")}
+                    </div>
+                  </div>
                 </Tooltip>
               </div>
               <TriStateToggle name="is_draft" control={control} label={t("draft")} />

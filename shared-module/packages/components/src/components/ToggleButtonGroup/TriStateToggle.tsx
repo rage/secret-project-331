@@ -1,7 +1,7 @@
 "use client"
 
 import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React from "react"
+import type { ReactNode } from "react"
 import type { Control, FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,7 @@ import { ToggleButtonGroupButton } from "./ToggleButtonGroupButton"
 export interface TriStateToggleProps<T extends FieldValues, N extends Path<T> = Path<T>> {
   name: N
   control: Control<T>
-  label: React.ReactNode
+  label: ReactNode
 }
 
 export const NOT_SET = "not_set"

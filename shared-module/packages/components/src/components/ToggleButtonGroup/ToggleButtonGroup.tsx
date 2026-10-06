@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useToggleGroupState } from "@react-stately/toggle"
 import type { ToggleGroupState } from "@react-stately/toggle"
-import React, { useRef } from "react"
+import { createContext, useId, useRef, type ReactNode } from "react"
 import { useToggleButtonGroup, type Key } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
@@ -18,9 +18,7 @@ export interface ToggleButtonGroupContextValue {
   fieldSize: ButtonSize
 }
 
-export const ToggleButtonGroupContext = React.createContext<ToggleButtonGroupContextValue | null>(
-  null,
-)
+export const ToggleButtonGroupContext = createContext<ToggleButtonGroupContextValue | null>(null)
 
 export const labelCss = css`
   font-size: 1rem;
@@ -46,9 +44,8 @@ export type ToggleButtonGroupProps<
   T extends FieldValues,
   N extends Path<T> = Path<T>,
 > = RhfFieldProps<T, N> & {
-  label: React.ReactNode
+  label: ReactNode
   selectionMode?: ToggleButtonGroupSelectionMode
-  selectedKeys?: Set<Key>
   defaultSelectedKeys?: Set<Key>
   disallowEmptySelection?: boolean
   isDisabled?: boolean
@@ -56,7 +53,7 @@ export type ToggleButtonGroupProps<
   "aria-label"?: string
   "aria-labelledby"?: string
   className?: string
-  children?: React.ReactNode
+  children?: ReactNode
 }
 
 /**
@@ -92,7 +89,7 @@ export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Pat
   const { field } = useRhfField({ name, control, rules })
   let ref = useRef<HTMLDivElement>(null)
 
-  const labelId = React.useId()
+  const labelId = useId()
   const userAriaLabel = ariaLabelProp
   const userLabelledBy = labelledByProp
   const labelledBy = userAriaLabel ? undefined : (userLabelledBy ?? labelId)

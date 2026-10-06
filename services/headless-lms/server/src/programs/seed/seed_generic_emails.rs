@@ -33,10 +33,28 @@ pub async fn seed_generic_emails(
             "isValid": true,
             "clientId": "ceac591d-b291-40b2-8da7-6f437a6a8fce",
             "attributes": {
-                "content": "You can reset your password here: {{RESET_LINK}}",
+                "content": "Click the button below to choose a new password.",
                 "dropCap": false
             },
             "innerBlocks": []
+        },
+        {
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e1000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e1000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Reset password",
+                        "url": "{{RESET_LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
         },
         {
             "name": "core/paragraph",
@@ -76,10 +94,28 @@ pub async fn seed_generic_emails(
             "isValid": true,
             "clientId": "c145bae4-9ff5-4194-8913-50f8900c20c8",
             "attributes": {
-                "content": "Voit palauttaa salasanasi tästä: {{RESET_LINK}}",
+                "content": "Valitse uusi salasana alla olevasta painikkeesta.",
                 "dropCap": false
             },
             "innerBlocks": []
+        },
+        {
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e2000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e2000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Palauta salasana",
+                        "url": "{{RESET_LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
         },
         {
             "name": "core/paragraph",
@@ -130,7 +166,18 @@ pub async fn seed_generic_emails(
             "isValid": true,
             "clientId": "22222222-2222-2222-2222-222222222222",
             "attributes": {
-                "content": "Use this verification code to delete your account: {{CODE}}",
+                "content": "Use this verification code to delete your account:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "content": "{{CODE}}",
+                "className": "is-style-code",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -175,7 +222,18 @@ pub async fn seed_generic_emails(
             "isValid": true,
             "clientId": "55555555-5555-5555-5555-555555555555",
             "attributes": {
-                "content": "Your verification code is: {{CODE}}",
+                "content": "Your verification code is:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "content": "{{CODE}}",
+                "className": "is-style-code",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -232,10 +290,28 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Log in to courses.mooc.fi with the account you use for the course. Then open this confirmation link to link student number {{STUDENT_NUMBER}} to it: {{LINK}}",
+                "content": "Log in to courses.mooc.fi with the account you use for the course. Then use the button below to link student number {{STUDENT_NUMBER}} to it.",
                 "dropCap": false
             },
             "innerBlocks": []
+        },
+        {
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e4000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Link student number",
+                        "url": "{{LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
         },
         {
             "name": "core/paragraph",
@@ -279,10 +355,28 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Avaa sitten tämä vahvistuslinkki, niin opiskelijanumero {{STUDENT_NUMBER}} liitetään tiliisi: {{LINK}}",
+                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Liitä sitten opiskelijanumero {{STUDENT_NUMBER}} tiliisi alla olevasta painikkeesta.",
                 "dropCap": false
             },
             "innerBlocks": []
+        },
+        {
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e5000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Liitä opiskelijanumero",
+                        "url": "{{LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
         },
         {
             "name": "core/paragraph",
@@ -339,7 +433,18 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "88888888-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Your confirmation code is: {{CODE}}",
+                "content": "Your confirmation code is:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "content": "{{CODE}}",
+                "className": "is-style-code",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -386,7 +491,18 @@ async fn seed_email_ownership_verification_templates(
             "isValid": true,
             "clientId": "bbbbbbbb-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Vahvistuskoodisi on: {{CODE}}",
+                "content": "Vahvistuskoodisi on:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "{{CODE}}",
+                "className": "is-style-code",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -426,14 +542,17 @@ async fn seed_credit_registration_status_templates(
 ) -> anyhow::Result<()> {
     info!("inserting credit registration status emails");
 
-    let templates: [(EmailTemplateType, &str, &str, &[&str]); 4] = [
+    const BUTTON_AFTER_PARAGRAPH: usize = 2;
+
+    let templates: [(EmailTemplateType, &str, &str, &str, &[&str]); 4] = [
         (
             EmailTemplateType::CreditRegistrationActionNeeded,
             "en",
             "One more step to get your credits registered",
+            "See how to enrol",
             &[
                 "Hello, congratulations on completing {{COURSE_NAME}}! You have earned {{CREDITS}} credits.",
-                "To get the credits registered in Sisu, you need to be enrolled on the course. You can see how to enrol here: {{STATUS_LINK}}",
+                "To get the credits registered in Sisu, you need to be enrolled on the course. See how to enrol with the button below.",
                 "After that you do not need to do anything else: we check your enrolment regularly and register your credits automatically. If you have already enrolled, you can ignore this message.",
                 "Best regards,<br>MOOC.fi",
             ],
@@ -442,9 +561,10 @@ async fn seed_credit_registration_status_templates(
             EmailTemplateType::CreditRegistrationActionNeeded,
             "fi",
             "Vielä yksi vaihe opintopisteiden kirjaamiseen",
+            "Katso ilmoittautumisohjeet",
             &[
                 "Hei, onnittelut kurssin {{COURSE_NAME}} suorittamisesta! Olet ansainnut {{CREDITS}} op.",
-                "Jotta opintopisteet voidaan kirjata Sisuun, sinun pitää olla ilmoittautunut kurssille. Näet ilmoittautumisohjeet täältä: {{STATUS_LINK}}",
+                "Jotta opintopisteet voidaan kirjata Sisuun, sinun pitää olla ilmoittautunut kurssille. Ilmoittautumisohjeet näet alla olevasta painikkeesta.",
                 "Sen jälkeen sinun ei tarvitse tehdä muuta: tarkistamme ilmoittautumisesi säännöllisesti ja kirjaamme opintopisteesi automaattisesti. Jos olet jo ilmoittautunut, voit jättää tämän viestin huomiotta.",
                 "Terveisin,<br>MOOC.fi",
             ],
@@ -453,9 +573,10 @@ async fn seed_credit_registration_status_templates(
             EmailTemplateType::CreditRegistrationRegistered,
             "en",
             "Your credits have been registered",
+            "See the details",
             &[
                 "Hello, your {{CREDITS}} credits for {{COURSE_NAME}} are now registered in Sisu.",
-                "You do not need to do anything else. You can see the details here: {{STATUS_LINK}}",
+                "You do not need to do anything else.",
                 "Best regards,<br>MOOC.fi",
             ],
         ),
@@ -463,18 +584,19 @@ async fn seed_credit_registration_status_templates(
             EmailTemplateType::CreditRegistrationRegistered,
             "fi",
             "Opintopisteesi on kirjattu",
+            "Katso tiedot",
             &[
                 "Hei, kurssin {{COURSE_NAME}} opintopisteesi ({{CREDITS}} op) on nyt kirjattu Sisuun.",
-                "Sinun ei tarvitse tehdä muuta. Näet tiedot täältä: {{STATUS_LINK}}",
+                "Sinun ei tarvitse tehdä muuta.",
                 "Terveisin,<br>MOOC.fi",
             ],
         ),
     ];
 
-    for (template_index, (template_type, language, subject, paragraphs)) in
+    for (template_index, (template_type, language, subject, button_label, paragraphs)) in
         templates.into_iter().enumerate()
     {
-        let blocks: Vec<_> = paragraphs
+        let mut blocks: Vec<_> = paragraphs
             .iter()
             .enumerate()
             .map(|(paragraph_index, content)| {
@@ -494,6 +616,22 @@ async fn seed_credit_registration_status_templates(
                 })
             })
             .collect();
+        blocks.insert(
+            BUTTON_AFTER_PARAGRAPH,
+            json!({
+                "name": "core/buttons",
+                "isValid": true,
+                "clientId": format!("d{}000000-0000-0000-0000-{:012}", template_index + 3, 100),
+                "attributes": {},
+                "innerBlocks": [{
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": format!("d{}000000-0000-0000-0000-{:012}", template_index + 3, 101),
+                    "attributes": { "text": button_label, "url": "{{STATUS_LINK}}" },
+                    "innerBlocks": []
+                }]
+            }),
+        );
 
         insert_email_template(
             conn,

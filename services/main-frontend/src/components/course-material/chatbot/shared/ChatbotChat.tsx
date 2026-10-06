@@ -36,7 +36,7 @@ const ChatbotChat: React.FC<ChatbotChatProps> = ({
   pageId,
   children,
 }) => {
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, pageId)
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, pageId, isAlwaysOpen)
 
   useSynchronizeDefaultChatbotCommunicationChannel(
     isAlwaysOpen,

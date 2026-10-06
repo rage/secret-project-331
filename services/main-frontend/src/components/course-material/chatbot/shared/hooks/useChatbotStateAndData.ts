@@ -66,7 +66,7 @@ export interface ChatbotStateAndData {
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
   stopTurn: () => void
-  setIsOpen: React.Dispatch<boolean>
+  setDialogOpen: React.Dispatch<boolean> | undefined
   isOpen: boolean
   convId: string | null
   setConvId: React.Dispatch<string>
@@ -92,13 +92,21 @@ export interface ChatbotStateAndData {
 const useChatbotStateAndData = (
   chatbotConfigurationId: string | null,
   pageId: string | null,
+  isAlwaysOpen: boolean,
 ): ChatbotStateAndData => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  // TODO: disable this when the chatbot is not openable
-  const [isOpen, setIsOpen] = useState(false)
+
+  let [isOpen, setIsOpen] = useState(false)
+  let setDialogOpen: React.Dispatch<boolean> | undefined = setIsOpen
+
+  if (isAlwaysOpen) {
+    isOpen = true
+    setDialogOpen = undefined
+  }
+
   const [messageState, dispatch] = useReducer(chatbotReducer, {
     messages: [],
     executionPayloadByToolCallId: {},
@@ -356,7 +364,7 @@ const useChatbotStateAndData = (
     chatbotMessageAnnouncement,
     isTurnInFlight,
     stopTurn,
-    setIsOpen,
+    setDialogOpen,
     isOpen,
     convId,
     setConvId,

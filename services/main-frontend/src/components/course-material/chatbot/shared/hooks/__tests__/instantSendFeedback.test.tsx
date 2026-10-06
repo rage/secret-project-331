@@ -50,7 +50,7 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", null), {
+  renderHook(() => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", null, true), {
     wrapper,
   })
 

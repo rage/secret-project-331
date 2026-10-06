@@ -147,7 +147,7 @@ export const makeChatBodyProps = ({
     toolResponseMutation,
     isTurnInFlight,
     stopTurn,
-    setIsOpen: jest.fn(),
+    setDialogOpen: jest.fn(),
     isOpen: true,
     convId: null,
     setConvId: jest.fn(),

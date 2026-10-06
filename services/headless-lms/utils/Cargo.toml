@@ -69,7 +69,7 @@ regex = "1.13.1"
 once_cell = "1.21.4"
 # HTML Sanitization
 ammonia = "4.2.0"
-# High-performance library for inlining CSS into HTML 'style' attributes
+# Moves email shells' CSS into style attributes, since many email clients drop <style>
 css-inline = { version = "0.21.2", default-features = false }
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"

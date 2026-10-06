@@ -304,7 +304,7 @@ SELECT
     COALESCE(c.test_subject, et.subject) AS subject,
     COALESCE(c.test_content, et.content) AS body,
     et.email_template_type AS "template_type",
-    COALESCE(et.language, co.language_code) AS language,
+    email_template_language(et) AS language,
     c.placeholders AS placeholders,
     c.test_content IS NOT NULL AS "is_test!",
     c.retry_count AS retry_count,
@@ -314,7 +314,6 @@ SELECT
     c.last_attempt_at AS last_attempt_at
 FROM claimed c
 JOIN email_templates et ON et.id = c.email_template_id
-LEFT JOIN courses co ON co.id = et.course_id
 LEFT JOIN user_details ud ON ud.user_id = c.user_id
 ORDER BY c.last_attempt_at ASC;
         "#,

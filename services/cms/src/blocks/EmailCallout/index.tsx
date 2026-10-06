@@ -11,8 +11,10 @@ import EmailCalloutSave from "./EmailCalloutSave"
 /** Must match `callout_icon_file` in headless-lms `email_processor.rs`. */
 export const EMAIL_CALLOUT_ICONS = ["none", "info", "calendar", "warning", "check"] as const
 
+/** The icon shown before a callout's title; `"none"` shows no icon. */
 export type EmailCalloutIcon = (typeof EMAIL_CALLOUT_ICONS)[number]
 
+/** What an email callout block stores. Its body is the block's inner blocks. */
 export interface EmailCalloutAttributes {
   icon: EmailCalloutIcon
   /** Rich text HTML. */

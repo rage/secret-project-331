@@ -288,16 +288,15 @@ WHERE id = $1
 }
 
 /// The language a template's mails are rendered in: its own, else its course's. `None` for a global
-/// template without one. Must agree with the language `email_deliveries::fetch_emails` resolves.
+/// template without one.
 pub async fn get_language(
     conn: &mut PgConnection,
     email_template_id: Uuid,
 ) -> ModelResult<Option<String>> {
     let res = sqlx::query_scalar!(
         r#"
-SELECT COALESCE(et.language, co.language_code) AS language
+SELECT email_template_language(et) AS language
 FROM email_templates et
-  LEFT JOIN courses co ON co.id = et.course_id
 WHERE et.id = $1
   AND et.deleted_at IS NULL
         "#,
@@ -355,13 +354,12 @@ RETURNING *
     )
     .fetch_one(&mut *conn)
     .await?;
-    // The sender claims only deliveries of live templates, so unsent test sends would stay queued forever.
+    // The sender claims only deliveries of live templates, so unsent ones would stay queued forever.
     sqlx::query!(
         "
 UPDATE email_deliveries
 SET deleted_at = NOW()
 WHERE email_template_id = $1
-  AND test_content IS NOT NULL
   AND sent = FALSE
   AND deleted_at IS NULL
         ",

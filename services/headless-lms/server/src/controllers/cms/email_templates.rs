@@ -258,7 +258,7 @@ async fn send_test_email(
     .await?
     .ok_or_else(|| {
         ControllerError::new(
-            ControllerErrorType::BadRequest,
+            ControllerErrorType::TooManyRequests,
             "Too many test emails sent in the last minute. Try again shortly.".to_string(),
             None,
         )

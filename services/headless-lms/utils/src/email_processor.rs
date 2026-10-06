@@ -18,6 +18,15 @@ static WHITESPACE_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\s+").expect("invalid whitespace regex"));
 static PLACEHOLDER_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"\{\{(\w+)\}\}").expect("invalid placeholder regex"));
+// Gutenberg's link inputs turn `{{LINK}}` into `https://{{LINK}}`. The CMS strips this on save, but
+// templates saved before it did still have it.
+static PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"^https?://(\{\{\w+\}\})$").expect("invalid prepended_protocol regex")
+});
+static PREPENDED_PROTOCOL_IN_HREF_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"(<a\s[^>]*?href=")https?://(\{\{\w+\}\}")"#)
+        .expect("invalid prepended_protocol_in_href regex")
+});
 static LAYOUT_PLACEHOLDER_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\{\{(CONTENT|SUBJECT|PREHEADER|LANGUAGE)\}\}")
         .expect("invalid layout_placeholder regex")
@@ -30,9 +39,10 @@ static SRC_ATTRIBUTE_REGEX: Lazy<Regex> = Lazy::new(|| {
 static HREFLESS_LINK_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"(?s)<a>(.*?)</a>").expect("invalid hrefless_link regex"));
 
-/// The inline formatting Gutenberg's rich text produces that email clients render.
-const RICH_TEXT_TAGS: [&str; 12] = [
-    "a", "strong", "b", "em", "i", "s", "sub", "sup", "code", "kbd", "br", "mark",
+/// The inline formatting Gutenberg's rich text produces that email clients render. Not `mark`: old
+/// highlights lose their colour styles to the sanitizer, and a bare `mark` is painted yellow.
+const RICH_TEXT_TAGS: [&str; 11] = [
+    "a", "strong", "b", "em", "i", "s", "sub", "sup", "code", "kbd", "br",
 ];
 const LINK_SCHEMES: [&str; 3] = ["https", "http", "mailto"];
 const IMAGE_SCHEMES: [&str; 2] = ["https", "http"];
@@ -312,7 +322,8 @@ fn url_with_scheme<'a>(url: &'a str, schemes: &[&str]) -> Option<&'a str> {
 }
 
 /// Replaces `{{KEY}}` in every attribute, nested blocks included. Values are HTML-escaped in rich
-/// text and inserted as is elsewhere. Returns the keys found that `replacements` has no value for;
+/// text and inserted as is elsewhere; a protocol Gutenberg prepended to a link whose whole target is
+/// a placeholder is dropped. Returns the keys found that `replacements` has no value for;
 /// those are left in place.
 pub fn fill_placeholders(
     blocks: &mut [EmailGutenbergBlock],
@@ -362,6 +373,25 @@ fn fill_placeholders_in_value(
 }
 
 fn fill_placeholders_in_text<'a>(
+    text: &'a str,
+    replacements: &HashMap<String, String>,
+    is_html: bool,
+    unfilled: &mut BTreeSet<String>,
+) -> Cow<'a, str> {
+    let unprefixed = if is_html {
+        PREPENDED_PROTOCOL_IN_HREF_REGEX.replace_all(text, "$1$2")
+    } else {
+        PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER_REGEX.replace(text, "$1")
+    };
+    match unprefixed {
+        Cow::Borrowed(text) => replace_placeholders(text, replacements, is_html, unfilled),
+        Cow::Owned(text) => {
+            Cow::Owned(replace_placeholders(&text, replacements, is_html, unfilled).into_owned())
+        }
+    }
+}
+
+fn replace_placeholders<'a>(
     text: &'a str,
     replacements: &HashMap<String, String>,
     is_html: bool,
@@ -572,6 +602,7 @@ fn callout_icon_file(icon: &str) -> Option<&'static str> {
     }
 }
 
+/// Renders a body into the plain-text part of a message. Links keep their targets in the text.
 pub fn process_content_to_plaintext(blocks: &[EmailGutenbergBlock]) -> String {
     blocks
         .iter()
@@ -585,14 +616,18 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
     match block.name {
         EmailBlockName::Paragraph | EmailBlockName::Heading => block.rich_text_as_text("content"),
         EmailBlockName::Image => {
+            let alt = block.image_alt().replace('"', "");
             let image =
-                url_with_scheme(block.str_attribute("url"), &IMAGE_SCHEMES).map(|url| match block
-                    .image_alt()
-                    .replace('"', "")
-                    .as_str()
-                {
-                    "" => format!("<{url}>"),
-                    alt => format!("\"{alt}\", <{url}>"),
+                url_with_scheme(block.str_attribute("url"), &IMAGE_SCHEMES).map(|url| {
+                    match (
+                        url_with_scheme(block.str_attribute("href"), &LINK_SCHEMES),
+                        alt.as_str(),
+                    ) {
+                        (Some(href), "") => href.to_string(),
+                        (Some(href), alt) => format!("{alt}: {href}"),
+                        (None, "") => format!("<{url}>"),
+                        (None, alt) => format!("\"{alt}\", <{url}>"),
+                    }
                 });
             let caption = Some(block.rich_text_as_text("caption")).filter(|text| !text.is_empty());
             image
@@ -654,8 +689,7 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
         }
         EmailBlockName::Separator => "---".to_string(),
         EmailBlockName::Spacer => String::new(),
-        EmailBlockName::Code => block
-            .rich_text_as_text("content")
+        EmailBlockName::Code => html_to_preformatted_text(&block.rich_text("content"))
             .lines()
             .map(|line| format!("    {line}").trim_end().to_string())
             .collect::<Vec<_>>()
@@ -708,6 +742,11 @@ pub fn preheader(blocks: &[EmailGutenbergBlock]) -> String {
 /// Rich text to plain text. A link keeps its target, since the plain-text part has no other way to
 /// show it.
 fn html_to_text(html: &str) -> String {
+    html_to_preformatted_text(html).trim().to_string()
+}
+
+/// Like [`html_to_text`], but keeps the first line's indentation.
+fn html_to_preformatted_text(html: &str) -> String {
     let with_links = LINK_REGEX.replace_all(html, |caps: &Captures| {
         let href = &caps[1];
         let text = ALL_TAG_REGEX.replace_all(&caps[2], "");
@@ -719,7 +758,10 @@ fn html_to_text(html: &str) -> String {
     });
     let with_breaks = with_links.replace("<br>", "\n");
     let text = ALL_TAG_REGEX.replace_all(&with_breaks, "");
-    decode_html_entities(&text).trim().to_string()
+    decode_html_entities(&text)
+        .trim_start_matches(['\r', '\n'])
+        .trim_end()
+        .to_string()
 }
 
 fn decode_html_entities(text: &str) -> String {

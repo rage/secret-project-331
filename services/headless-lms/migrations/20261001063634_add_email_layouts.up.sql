@@ -40,6 +40,19 @@ WHERE test_content IS NOT NULL;
 COMMENT ON COLUMN email_deliveries.test_subject IS 'Subject of a test send from the email editor, set together with test_content; null for every other delivery. A test send is rendered from these and the sample values in placeholders instead of the template''s saved subject and content and the values derived from the recipient''s account.';
 COMMENT ON COLUMN email_deliveries.test_content IS 'Body of a test send from the email editor, in the format of email_templates.content. See test_subject.';
 
+CREATE FUNCTION email_template_language(template email_templates) RETURNS TEXT LANGUAGE sql STABLE AS $$
+SELECT COALESCE(
+    template.language,
+    (
+      SELECT language_code
+      FROM courses
+      WHERE id = template.course_id
+    )
+  )
+$$;
+
+COMMENT ON FUNCTION email_template_language(email_templates) IS 'The language a template''s emails are rendered in, which picks their email_layouts row and fills {{LANGUAGE}}: the template''s own, else its course''s. Null for a global template without one.';
+
 -- Email bodies from the seed and early hand-loaded templates use an older block shape ("type",
 -- "drop_cap", lists as a "values" HTML string). The sender reads only the shape the CMS email editor
 -- saves, so convert them.

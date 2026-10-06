@@ -678,7 +678,7 @@ impl SisuClient {
                 .filter(|text| text.chars().any(char::is_alphanumeric));
             let person = match &info.person_id {
                 Some(person_id) => {
-                    if !seen_person_ids.insert(person_id.clone()) {
+                    if seen_person_ids.contains(person_id) {
                         continue;
                     }
                     self.get_person(person_id).await?
@@ -687,6 +687,9 @@ impl SisuClient {
             };
             if person.is_none() && note.is_none() {
                 continue;
+            }
+            if let Some(person_id) = &info.person_id {
+                seen_person_ids.insert(person_id.clone());
             }
             contacts.push(SisuCourseContact {
                 name: person.as_ref().and_then(|p| {

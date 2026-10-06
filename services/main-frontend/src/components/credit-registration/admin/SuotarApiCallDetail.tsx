@@ -30,7 +30,7 @@ interface Props {
 
 interface BodiesProps extends Props {
   /** Set when shown for one registration: its own `{request, response}` pair from the call. */
-  registrationItem?: { exchange: unknown }
+  registrationItem?: { exchange: unknown } | undefined
 }
 
 const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (

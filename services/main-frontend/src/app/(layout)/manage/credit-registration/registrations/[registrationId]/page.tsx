@@ -485,7 +485,7 @@ const ApiCallSection: React.FC<{
           return (
             <SuotarApiCallBodies
               suotarApiCallId={call.id}
-              registrationItem={{ exchange: event?.details }}
+              registrationItem={event && { exchange: event.details }}
             />
           )
         }}

@@ -945,10 +945,13 @@ async fn staff_facet(
         .collect();
     uh_course_codes.sort();
     uh_course_codes.dedup();
-    let mut sisu_contacts = Vec::with_capacity(uh_course_codes.len());
-    for code in &uh_course_codes {
-        sisu_contacts.push(sisu_lookup(app_config, cache, code).await);
-    }
+    // Concurrent so that an unreachable Sisu costs one timeout, not one per course code.
+    let sisu_contacts = futures::future::join_all(
+        uh_course_codes
+            .iter()
+            .map(|code| sisu_lookup(app_config, cache, code)),
+    )
+    .await;
 
     Ok(StaffInfo {
         role_based_staff: role_based,

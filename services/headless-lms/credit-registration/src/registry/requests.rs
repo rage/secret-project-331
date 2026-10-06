@@ -1,6 +1,6 @@
 //! What one item of a request to the study registry asks.
 
-use chrono::NaiveDate;
+use chrono::{DateTime, Utc};
 use headless_lms_models::library::credit_registration::grade_mapping::MappedGrade;
 
 use super::answers::{EnrolmentAnswer, ImportAnswer, PersonAnswer, VerificationAnswer};
@@ -50,7 +50,7 @@ pub(crate) struct AttainmentSubmission {
     pub student_number: StudentNumber,
     pub course_code: CourseCode,
     pub enrolment_id: String,
-    pub attainment_date: NaiveDate,
+    pub attained_at: DateTime<Utc>,
     pub attainment_language: String,
     pub grade: MappedGrade,
     pub credits: Credits,

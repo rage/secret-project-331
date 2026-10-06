@@ -49,11 +49,16 @@ const FrontPage = () => {
       <div>
         <a href="https://www.mooc.fi">{t("link-text-find-more-courses")}</a>
       </div>
-      <div>
-        <Link href="/manage/course-plans" className={navLinkCss}>
-          {t("link-text-course-plans")}
-        </Link>
-      </div>
+      <OnlyRenderIfPermissions
+        action={{ type: "create_courses_or_exams" }}
+        resource={{ type: "any_course" }}
+      >
+        <div>
+          <Link href="/manage/course-plans" className={navLinkCss}>
+            {t("link-text-course-plans")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
       <div>
         <Link href={allOrganizationsRoute()} className={navLinkCss}>
           {t("link-text-all-organizations")}

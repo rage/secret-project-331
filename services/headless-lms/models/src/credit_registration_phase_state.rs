@@ -161,6 +161,25 @@ WHERE phase = $1
     Ok(())
 }
 
+/// Closes out an iteration that sent nothing on purpose, counting it as productive so a held-back
+/// queue does not read as wedged. Unlike [`record_run`], leaves the failure streak and last error
+/// as they were.
+pub async fn record_deliberate_idle_run(conn: &mut PgConnection, phase: &str) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_phase_state
+SET last_run_finished_at = now(),
+  last_success_at = now()
+WHERE phase = $1
+  AND deleted_at IS NULL
+        "#,
+        phase
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn is_paused(conn: &mut PgConnection, phase: &str) -> ModelResult<bool> {
     let paused = sqlx::query_scalar!(
         r#"

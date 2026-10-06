@@ -1,314 +1,273 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { CheckCircle, MinusCircle, PlusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import { MatrixFrame, MatrixTable } from "@/components/Shared/MatrixGrid"
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { type MatrixShape, matrixShape } from "@/util/matrix"
 
 import type { QuizItemSubmissionComponentProps } from "."
 import type { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
+import type { MatrixCellVerdict } from "../../../../../types/quizTypes/grading"
+import type { ModelSolutionQuizItemMatrix } from "../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
 
-const MatrixTableContainer = styled.table`
-  margin: auto;
+const SubmissionMatrixTable = styled(MatrixTable)`
   margin-top: 1rem;
-  border-collapse: collapse;
-
-  td {
-    border-top: none;
-  }
-
-  tr:last-child td {
-    border-bottom: none;
-  }
-
-  tr td:last-child {
-    border-right: none;
-  }
-
-  tr td:first-child {
-    border-left: none;
-  }
-
-  tbody {
-    border-left: 0.125rem solid #718dbf;
-    border-right: 0.125rem solid #718dbf;
-    position: relative;
-  }
-
-  .top-left:before {
-    position: absolute;
-    content: "";
-    width: 0.938rem;
-    border-top: 0.125rem solid #718dbf;
-    top: 0%;
-    left: -0.8%;
-  }
-
-  .top-right:before {
-    position: absolute;
-    content: "";
-    width: 0.938rem;
-    border-top: 0.125rem solid #718dbf;
-    top: 0%;
-    right: -0.6%;
-  }
-
-  .bottom-left:before {
-    position: absolute;
-    content: "";
-    width: 0.938rem;
-    border-bottom: 0.125rem solid #718dbf;
-    bottom: 0%;
-    left: -0.8%;
-  }
-
-  .bottom-right {
-    position: absolute;
-    content: "";
-    width: 0.938rem;
-    border-bottom: 0.125rem solid #718dbf;
-    bottom: 0%;
-    right: -0.6%;
-  }
 `
 
-interface isCellCorrectObject {
-  text: string
-  correct: boolean | null
+// Pale tints so the colored icon carries the verdict; every icon keeps over 5:1 on its tint.
+// An icon per verdict so color isn't the only signal; `title` alone isn't announced or shown on touch.
+const VERDICTS: Record<
+  MatrixCellVerdict,
+  {
+    background: string
+    iconColor: string
+    Icon: React.ComponentType<{ size?: number; className?: string; color?: string }>
+    labelKey:
+      | "matrix-cell-verdict-correct"
+      | "matrix-cell-verdict-incorrect"
+      | "matrix-cell-verdict-missing"
+      | "matrix-cell-verdict-extra"
+  }
+> = {
+  correct: {
+    background: baseTheme.colors.green[75],
+    iconColor: baseTheme.colors.green[600],
+    Icon: CheckCircle,
+    labelKey: "matrix-cell-verdict-correct",
+  },
+  incorrect: {
+    background: baseTheme.colors.red[75],
+    iconColor: baseTheme.colors.red[600],
+    Icon: XmarkCircle,
+    labelKey: "matrix-cell-verdict-incorrect",
+  },
+  missing: {
+    background: baseTheme.colors.gray[75],
+    iconColor: baseTheme.colors.gray[500],
+    Icon: MinusCircle,
+    labelKey: "matrix-cell-verdict-missing",
+  },
+  extra: {
+    background: baseTheme.colors.yellow[100],
+    iconColor: baseTheme.colors.red[600],
+    Icon: PlusCircle,
+    labelKey: "matrix-cell-verdict-extra",
+  },
 }
 
-const containsNonEmptyString = (arr: string[]): boolean =>
-  arr.some((item) => typeof item === "string" && item.trim() !== "")
+interface RenderedCell {
+  text: string
+  verdict: MatrixCellVerdict | null
+}
 
 const MatrixSubmission: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemMatrix, UserItemAnswerMatrix>
 > = ({ quiz_item_model_solution, user_quiz_item_answer, quiz_item_answer_feedback }) => {
-  const modelSolution = quiz_item_model_solution as UserItemAnswerMatrix | null
-  const correctAnswers = modelSolution?.matrix
-  const studentAnswers = user_quiz_item_answer.matrix
   const { t } = useTranslation()
+  const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMatrix | null
+  const studentAnswer = user_quiz_item_answer.matrix
 
-  if (!studentAnswers) {
+  if (!studentAnswer) {
     throw new Error("No student answers")
   }
 
-  const isIncorrect = quiz_item_answer_feedback?.correctnessCoefficient !== 1
+  const cellFeedbacks = quiz_item_answer_feedback?.matrix_cell_feedbacks ?? null
+  const breakdown = quiz_item_answer_feedback?.matrix_score_breakdown ?? null
+  const studentShape = matrixShape(studentAnswer)
 
-  const findOptionText = (
-    column: number,
-    row: number,
-    isStudentsAnswer: boolean,
-  ): isCellCorrectObject => {
-    if (!correctAnswers) {
-      if (!isStudentsAnswer && modelSolution?.optionCells) {
-        return {
-          text: modelSolution.optionCells[row]?.[column] ?? "",
-          correct: null,
-        }
-      }
-      return {
-        text: studentAnswers[row]?.[column] ?? "",
-        correct: null,
-      }
-    }
-    let correct = studentAnswers[row]?.[column] === correctAnswers[row]?.[column]
-    let text = studentAnswers[row]?.[column] ?? ""
-    if (!isStudentsAnswer) {
-      correct = true
-      text = correctAnswers[row]?.[column] ?? ""
-    }
-    return {
-      text: text,
-      correct: correct,
-    }
-  }
-  const rowsCountArray: number[] = []
-  const columnsCountArray: number[] = []
+  // Verdicts come only from the grader; without them (fog of war, old submissions) cells render unmarked.
+  const verdictByPosition = new Map<string, MatrixCellVerdict>()
+  cellFeedbacks?.forEach(({ row, column, verdict }) => {
+    verdictByPosition.set(`${row},${column}`, verdict)
+  })
 
-  const modelSolutionRowsCountArray: number[] = []
-  const modelSolutionColumnsCountArray: number[] = []
-
-  const modelSolutionMatrix = modelSolution?.optionCells
-
-  const populateRowsAndColumns = (
-    matrixArr: string[][] | undefined,
-    column: number[],
-    row: number[],
-  ) => {
-    let countRows = 0
-    let countColumns = 0
-    return matrixArr?.forEach((answer, index) => {
-      if (containsNonEmptyString(answer)) {
-        column.push(countRows)
-        countRows += 1
-        if (index === 0) {
-          answer?.forEach((item) => {
-            if (item !== "") {
-              row.push(countColumns)
-              countColumns += 1
-            }
-          })
-        }
-      }
-    })
-  }
-
-  populateRowsAndColumns(studentAnswers, columnsCountArray, rowsCountArray)
-  populateRowsAndColumns(
-    modelSolutionMatrix,
-    modelSolutionColumnsCountArray,
-    modelSolutionRowsCountArray,
+  const rows = Math.max(studentShape.rows, ...(cellFeedbacks?.map(({ row }) => row + 1) ?? [0]))
+  const columns = Math.max(
+    studentShape.columns,
+    ...(cellFeedbacks?.map(({ column }) => column + 1) ?? [0]),
   )
 
-  if (isIncorrect) {
-    return (
+  const cellAt = (row: number, column: number): RenderedCell => ({
+    text: studentAnswer[row]?.[column] ?? "",
+    verdict: verdictByPosition.get(`${row},${column}`) ?? null,
+  })
+
+  const wrongShapeScoredZero =
+    breakdown !== null &&
+    breakdown.missingCells + breakdown.extraCells > 0 &&
+    modelSolution?.partialCreditForWrongShape === false
+  let scoreNote: string | null = null
+  if (breakdown && modelSolution?.gradingPolicy === "whole-matrix") {
+    scoreNote = t("matrix-score-breakdown-whole-matrix-note")
+  } else if (breakdown && modelSolution?.gradingPolicy === "per-cell") {
+    scoreNote = wrongShapeScoredZero
+      ? t("matrix-score-breakdown-wrong-shape-note")
+      : t("matrix-score-breakdown-per-cell-note", { keyCells: breakdown.keyCells })
+  }
+
+  const answerWasFullyCorrect = quiz_item_answer_feedback?.correctnessCoefficient === 1
+  const modelSolutionCells = answerWasFullyCorrect ? null : (modelSolution?.optionCells ?? null)
+  const modelSolutionShape = matrixShape(modelSolutionCells)
+
+  return (
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      `}
+    >
       <div
         aria-label={t("matrix-answer-and-solution")}
         className={css`
           display: flex;
           justify-content: space-evenly;
+          gap: 2rem;
+          flex-wrap: wrap;
         `}
       >
         <div>
-          <MatrixTable
-            isStudentsAnswer={true}
-            rowsCountArray={rowsCountArray}
-            columnsCountArray={columnsCountArray}
-            findOptionText={findOptionText}
-          ></MatrixTable>
-          {correctAnswers && <XmarkCircle color="#D75861" size={20} />}
+          <MatrixGrid rows={rows} columns={columns} frame={studentShape} cellAt={cellAt} />
+          <Caption>{t("matrix-your-answer")}</Caption>
         </div>
-        {modelSolutionMatrix && (
+        {modelSolutionCells && modelSolutionShape.rows > 0 && (
           <div>
-            <MatrixTable
-              rowsCountArray={modelSolutionRowsCountArray}
-              columnsCountArray={modelSolutionColumnsCountArray}
-              findOptionText={findOptionText}
-            ></MatrixTable>
-            <div
-              className={css`
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin-top: 0.563rem;
-
-                p {
-                  font-family: ${primaryFont};
-                  color: #4c5868;
-                  font-weight: 500;
-                  font-size: 1rem;
-                  margin-left: 0.3rem;
-                }
-              `}
-            >
-              <CheckCircle color="#69AF8A" size={18} />
-              <p>{t("correct-option-tag")}</p>
-            </div>
+            <MatrixGrid
+              rows={modelSolutionShape.rows}
+              columns={modelSolutionShape.columns}
+              frame={modelSolutionShape}
+              cellAt={(row, column) => ({
+                text: modelSolutionCells[row]?.[column] ?? "",
+                verdict: null,
+              })}
+            />
+            <Caption>
+              <CheckCircle color={baseTheme.colors.green[600]} size={18} />
+              <span>{t("correct-option-tag")}</span>
+            </Caption>
           </div>
         )}
       </div>
-    )
-  }
-  return (
-    <MatrixTable
-      aria-label={t("matrix-fully-correct")}
-      rowsCountArray={rowsCountArray}
-      columnsCountArray={columnsCountArray}
-      findOptionText={findOptionText}
-    ></MatrixTable>
+      {breakdown && (
+        <p
+          className={css`
+            margin-top: 0.75rem;
+            font-family: ${primaryFont};
+            font-size: 0.875rem;
+            color: ${baseTheme.colors.gray[600]};
+            text-align: center;
+          `}
+        >
+          <span>
+            {t("matrix-score-breakdown", {
+              correct: breakdown.correctCells,
+              incorrect: breakdown.incorrectCells,
+              missing: breakdown.missingCells,
+              extra: breakdown.extraCells,
+            })}
+          </span>
+          {scoreNote && <span className={noteLine}>{scoreNote}</span>}
+        </p>
+      )}
+    </div>
   )
 }
 
-interface MatrixTableProps {
-  rowsCountArray: number[]
-  columnsCountArray: number[]
-  findOptionText: (column: number, row: number, isStudentsAnswer: boolean) => isCellCorrectObject
-  isStudentsAnswer?: boolean
+const noteLine = css`
+  display: block;
+`
+
+const Caption = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.563rem;
+  font-family: ${primaryFont};
+  color: ${baseTheme.colors.gray[600]};
+  font-weight: 500;
+  font-size: 1rem;
+`
+
+interface MatrixGridProps {
+  rows: number
+  columns: number
+  /** The submitted shape, which can be smaller than the grid when key cells are shown as missing. */
+  frame: MatrixShape
+  cellAt: (row: number, column: number) => RenderedCell
 }
 
-const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
-  rowsCountArray,
-  columnsCountArray,
-  findOptionText,
-  isStudentsAnswer = false,
-}) => {
+const MatrixGrid: React.FC<MatrixGridProps> = ({ rows, columns, frame, cellAt }) => {
+  const { t } = useTranslation()
   return (
-    <MatrixTableContainer>
+    <SubmissionMatrixTable>
       <tbody>
-        <div className="top-left"></div>
-        <div className="top-right"></div>
-        <div className="bottom-left"></div>
-        <div className="bottom-right"></div>
-        {rowsCountArray.map((row) => {
-          return (
-            <tr key={`row${row}`}>
-              {columnsCountArray.map((column) => {
-                const cell = findOptionText(column, row, isStudentsAnswer)
-                if (cell !== null) {
-                  return (
-                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
-                    <td
-                      key={`cell ${row} ${column}`}
-                      className={css`
-                        padding: 0;
-                        font-size: 2.8vw;
-                        font-size: 1.375rem;
-                        font-family: ${primaryFont};
-                      `}
-                    >
-                      <div
-                        className={css`
-                          display: flex;
-                          align-items: center;
-                          justify-content: center;
-                          width: 3.125rem;
-                          height: 3.125rem;
-                          border: 0;
-                          outline: none;
-                          text-align: center;
-                          resize: none;
-                          ${
-                            cell.text.length === 0 &&
-                            `
-                              background-color: #f5f6f7;
-                            `
-                          }
-                          ${
-                            cell.text !== "" &&
-                            `
-                                background-color: #f9f9f9;
-                                color: #4C5868;
-                                `
-                          }
-                          ${
-                            cell.correct === false &&
-                            `background-color: #bfbec6;
-                                `
-                          }
-                        `}
-                      >
-                        <p
-                          className={css`
-                            position: relative;
-                            bottom: -0.188rem;
-                          `}
-                        >
-                          {cell.text}
-                        </p>
-                      </div>
-                    </td>
-                  )
-                }
-                return null
-              })}
-            </tr>
-          )
-        })}
+        {Array.from({ length: rows }, (_unusedRow, row) => (
+          <tr key={`row${row}`}>
+            {Array.from({ length: columns }, (_unusedCell, column) => {
+              const cell = cellAt(row, column)
+              const verdict = cell.verdict ? VERDICTS[cell.verdict] : null
+              return (
+                // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- table cell renders dynamic text, not an interactive control
+                <td
+                  key={`cell ${row} ${column}`}
+                  className={css`
+                    padding: 0;
+                    font-size: 1.375rem;
+                    font-weight: 600;
+                    font-family: ${primaryFont};
+                  `}
+                >
+                  <div
+                    title={verdict ? t(verdict.labelKey) : undefined}
+                    className={css`
+                      position: relative;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      width: 3.125rem;
+                      height: 3.125rem;
+                      /* Nudge the value left of the verdict icon so they don't overlap */
+                      padding-right: ${verdict ? "0.5rem" : "0"};
+                      box-sizing: border-box;
+                      text-align: center;
+                      color: ${baseTheme.colors.gray[600]};
+                      background-color: ${verdict?.background ?? "#FFFFFF"};
+                    `}
+                  >
+                    <MatrixFrame column={column} row={row} frame={frame} />
+                    {cell.text}
+                    {verdict && (
+                      <>
+                        <span aria-hidden="true">
+                          <verdict.Icon
+                            className={css`
+                              position: absolute;
+                              top: 0.1875rem;
+                              right: 0.1875rem;
+                            `}
+                            color={verdict.iconColor}
+                            size={14}
+                          />
+                        </span>
+                        <VisuallyHidden>{t(verdict.labelKey)}</VisuallyHidden>
+                      </>
+                    )}
+                  </div>
+                </td>
+              )
+            })}
+          </tr>
+        ))}
       </tbody>
-    </MatrixTableContainer>
+    </SubmissionMatrixTable>
   )
 }
 

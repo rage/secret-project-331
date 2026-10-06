@@ -4,13 +4,14 @@ import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItem,
   PrivateSpecQuizItemClosedEndedQuestion,
+  PrivateSpecQuizItemMatrix,
   QuizFeedbackMessage,
   QuizOptionFeedbackMessage,
 } from "../../types/quizTypes/privateSpec"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "../api/utils/privateSpecGenerator"
 
 const baseQuiz = (items: PrivateSpecQuizItem[]): PrivateSpecQuiz => ({
-  version: "4",
+  version: "5",
   awardPointsEvenIfWrong: false,
   grantPointsPolicy: "grant_whenever_possible",
   title: null,
@@ -32,6 +33,25 @@ const closedEndedItem = (
   title: "Q",
   body: null,
   feedbackMessages: [],
+})
+
+const matrixItem = (
+  overrides: Partial<PrivateSpecQuizItemMatrix> = {},
+): PrivateSpecQuizItemMatrix => ({
+  type: "matrix",
+  id: "matrix-1",
+  order: 0,
+  title: null,
+  optionCells: [
+    ["1", "2"],
+    ["3", "4"],
+  ],
+  feedbackMessages: [],
+  gradingPolicy: "whole-matrix",
+  tolerance: 0,
+  partialCreditForWrongShape: false,
+  fogOfWar: false,
+  ...overrides,
 })
 
 const validClosed = baseQuiz([
@@ -167,6 +187,40 @@ describe("validatePrivateSpec: closed-ended invariants", () => {
             },
             "(",
           ),
+        ]),
+      ),
+    ).toBe(false)
+  })
+})
+
+describe("validatePrivateSpec: matrix invariants", () => {
+  test("a well-formed key is valid", () => {
+    expect(validatePrivateSpec(baseQuiz([matrixItem()]))).toBe(true)
+  })
+
+  test("a key with a gap inside its own frame is invalid, since no student can reproduce it", () => {
+    const gappedKey = [
+      ["1", ""],
+      ["", "4"],
+    ]
+    expect(validatePrivateSpec(baseQuiz([matrixItem({ optionCells: gappedKey })]))).toBe(false)
+  })
+
+  test("a negative tolerance is invalid", () => {
+    expect(validatePrivateSpec(baseQuiz([matrixItem({ tolerance: -1 })]))).toBe(false)
+  })
+
+  test("a key with no cells at all is invalid, since it can never be answered correctly", () => {
+    expect(validatePrivateSpec(baseQuiz([matrixItem({ optionCells: null })]))).toBe(false)
+    expect(
+      validatePrivateSpec(
+        baseQuiz([
+          matrixItem({
+            optionCells: [
+              ["", ""],
+              ["", ""],
+            ],
+          }),
         ]),
       ),
     ).toBe(false)

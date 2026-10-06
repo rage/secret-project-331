@@ -4,7 +4,6 @@
 use super::transition::AdminAttention;
 use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use crate::prelude::*;
-use chrono::NaiveDate;
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use std::collections::HashMap;
@@ -21,7 +20,7 @@ pub struct PayloadSnapshot {
     pub selected_enrolment_realisation_id: Option<String>,
     /// Localized `{fi, sv, en}` realisation name, as Suotar reported it.
     pub selected_enrolment_realisation_name: Option<serde_json::Value>,
-    pub attainment_date: NaiveDate,
+    pub attained_at: DateTime<Utc>,
     pub attainment_language: String,
     pub grade_scale_id: String,
     pub grade_id: String,
@@ -42,7 +41,7 @@ SET student_number = $2,
   selected_enrolment_id = $5,
   selected_enrolment_kind = $6,
   selected_enrolment_realisation_id = $7,
-  attainment_date = $8,
+  attained_at = $8,
   attainment_language = $9,
   grade_scale_id = $10,
   grade_id = $11,
@@ -58,7 +57,7 @@ WHERE id = $1
         snapshot.selected_enrolment_id,
         snapshot.selected_enrolment_kind,
         snapshot.selected_enrolment_realisation_id,
-        snapshot.attainment_date,
+        snapshot.attained_at,
         snapshot.attainment_language,
         snapshot.grade_scale_id,
         snapshot.grade_id,

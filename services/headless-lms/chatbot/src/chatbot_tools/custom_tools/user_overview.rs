@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::cache::Cache;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -252,6 +253,7 @@ impl ChatbotTool for UserOverviewTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {

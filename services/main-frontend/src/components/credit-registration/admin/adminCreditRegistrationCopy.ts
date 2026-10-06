@@ -15,6 +15,7 @@ import type {
   Retryability,
   RosterTier,
   StudentNumberVerificationMethod,
+  SuotarEndpoint,
 } from "@/generated/api/types.generated"
 import type { BadgeTone, RegistrationStatusState } from "@/shared-module/components"
 
@@ -177,6 +178,24 @@ export const eventKindLabel = (
   t: CreditRegistrationTFunction,
   kind: CreditRegistrationEventKind,
 ): string => labelFrom(t, EVENT_KIND_KEYS, kind, EVENT_KIND_UNKNOWN_KEY)
+
+const SUOTAR_ENDPOINT_KEYS = {
+  resolve_persons: "credit-registration-admin-endpoint-resolve-persons",
+  resolve_enrolments: "credit-registration-admin-endpoint-resolve-enrolments",
+  import_attainments: "credit-registration-admin-endpoint-import-attainments",
+  verify_attainments: "credit-registration-admin-endpoint-verify-attainments",
+  list_by_course: "credit-registration-admin-endpoint-list-by-course",
+  validate_course_codes: "credit-registration-admin-endpoint-validate-course-codes",
+} as const satisfies Record<SuotarEndpoint, string>
+
+/** What a Suotar endpoint does, in plain words; the wire name for one we have no wording for. */
+export const suotarEndpointLabel = (
+  t: CreditRegistrationTFunction,
+  endpoint: SuotarEndpoint,
+): string => {
+  const key = widenedLookup(SUOTAR_ENDPOINT_KEYS, endpoint)
+  return key ? translateKey(t, key) : endpoint
+}
 
 export const COURSE_TEACHER_ROLE = "course_teacher"
 export const GLOBAL_ADMIN_ROLE = "global_admin"

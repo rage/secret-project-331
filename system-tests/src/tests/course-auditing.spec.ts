@@ -56,6 +56,8 @@ test.describe("Course auditing", () => {
       .getByRole("textbox", { name: "Prerequisite 2" })
       .fill("Global permissions")
 
+    await auditingCourseCard.getByRole("checkbox", { name: "Test course" }).check()
+    await auditingCourseCard.getByRole("checkbox", { name: "Joinable by code only" }).check()
     await auditingCourseCard.getByRole("checkbox", { name: "Set course closed at" }).check()
     await auditingCourseCard.getByRole("spinbutton", { name: "year, Closed at" }).click()
     await page.keyboard.type("202606060606")
@@ -113,6 +115,11 @@ test.describe("Course auditing", () => {
       },
       "Course edited successfully",
     )
+
+    await expect(auditingCourseCard.getByText("Test course", { exact: true })).toBeVisible()
+    await expect(
+      auditingCourseCard.getByText("Joinable by code only", { exact: true }),
+    ).toBeVisible()
 
     await expect(
       descriptionBox.getByText("Replaced description for Introduction to course auditing.", {
@@ -294,5 +301,36 @@ test.describe("Course auditing", () => {
         .filter({ hasText: "University of Helsinki course code" })
         .getByText("TEST001"),
     ).toBeVisible()
+  })
+
+  test("Filtering courses by status", async ({ page }) => {
+    await page.goto("http://project-331.local/")
+    await page.getByRole("link", { name: "Course auditing" }).click()
+    await expect(page.getByRole("heading", { name: "Course auditing" })).toBeVisible()
+    await page.getByRole("switch", { name: "Not closed" }).click()
+
+    await page
+      .getByRole("radiogroup", { name: "Joinable by code only" })
+      .getByLabel("Include", { exact: true })
+      .click()
+
+    await expect(
+      page.getByRole("heading", { name: "Introduction to course auditing", exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "Joinable by code only", exact: true }),
+    ).toBeVisible()
+
+    await page.getByRole("radiogroup", { name: "Test course" }).getByLabel("Include").click()
+
+    await expect(
+      page.getByRole("heading", { name: "Joinable by code only", exact: true }),
+    ).toBeHidden()
+
+    await page.getByRole("radiogroup", { name: "Test course" }).getByLabel("Exclude").click()
+
+    await expect(
+      page.getByRole("heading", { name: "Introduction to course auditing", exact: true }),
+    ).toBeHidden()
   })
 })

@@ -5,6 +5,7 @@ mod cancellation;
 mod round;
 mod text_response;
 
+use headless_lms_utils::cache::Cache;
 use std::pin::Pin;
 use std::sync::{
     Arc,
@@ -49,9 +50,11 @@ use text_response::parse_text_response;
 const MAX_TOOL_CALL_ROUNDS_PER_TURN: u32 = 15;
 
 /// Starts a turn for a new user message, and streams its NDJSON events to the client.
+#[allow(clippy::too_many_arguments)]
 pub async fn send_chat_request_and_parse_stream(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
+    cache: Cache,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     message: &str,
@@ -61,6 +64,7 @@ pub async fn send_chat_request_and_parse_stream(
     begin_turn(
         pool,
         app_configuration,
+        cache,
         conversation_id,
         user_context,
         TurnStart::NewUserMessage {
@@ -80,9 +84,11 @@ pub async fn send_chat_request_and_parse_stream(
 /// way. `tool_call_id` must be a client-answered call of `conversation_id` that has no answer yet
 /// and `answer` must fit what that call offered, or this fails with
 /// [ChatbotErrorType::InvalidToolAnswer] and writes nothing.
+#[allow(clippy::too_many_arguments)]
 pub async fn answer_tool_call_and_resume_stream(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
+    cache: Cache,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     tool_call_id: &str,
@@ -92,6 +98,7 @@ pub async fn answer_tool_call_and_resume_stream(
     begin_turn(
         pool,
         app_configuration,
+        cache,
         conversation_id,
         user_context,
         TurnStart::ResumedFromToolAnswer {
@@ -130,6 +137,7 @@ enum TurnStart<'a> {
 async fn begin_turn(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
+    cache: Cache,
     conversation_id: Uuid,
     user_context: ChatbotTurnContext,
     start: TurnStart<'_>,
@@ -235,6 +243,7 @@ async fn begin_turn(
                     futures::stream::once(async move { Ok(line) }).chain(stream_turn(
                         pool,
                         app_config,
+                        cache,
                         conversation_id,
                         chat_request,
                         user_context,
@@ -249,6 +258,7 @@ async fn begin_turn(
     Ok(stream_turn(
         pool,
         app_config,
+        cache,
         conversation_id,
         chat_request,
         user_context,
@@ -379,6 +389,7 @@ async fn recover_and_summarize(
 fn stream_turn(
     pool: PgPool,
     app_config: ApplicationConfiguration,
+    cache: Cache,
     conversation_id: Uuid,
     mut chat_request: LLMRequest,
     user_context: ChatbotTurnContext,
@@ -491,7 +502,7 @@ fn stream_turn(
             let (mut final_stream, text_message_id) = match typed_response_stream {
                 ResponseStreamType::ToolCall(stream) => {
                     // The round writes a row per call as it goes, so it keeps the connection.
-                    (parse_tool(conn, &app_config, stream, conversation_id, received_response_id, &user_context, calls_from_classification).await, None)
+                    (parse_tool(conn, &app_config, &cache, stream, conversation_id, received_response_id, &user_context, calls_from_classification).await, None)
                 }
                 ResponseStreamType::TextResponse(stream) => {
                     let response_message = models::chatbot_conversation_messages::insert(

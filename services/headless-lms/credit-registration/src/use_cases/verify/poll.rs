@@ -51,7 +51,7 @@ impl RegistryBatchFlow for VerifyPoll {
         for poll in claim_and_lease(ctx, conn, VerifyFlow::Poll, limit).await? {
             let row = poll.claim.registration();
             let Some(submitted_attainment_id) = row.submitted_attainment_id.clone() else {
-                // Reported on every lease, which backs off with the attempt count; the admin flag
+                // Reported on every lease, which backs off as the submission ages; the admin flag
                 // can't mark it as reported, since an earlier move may already have raised it.
                 error!(
                     credit_registration_id = %row.id,

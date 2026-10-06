@@ -42,7 +42,8 @@ pub(super) fn decide_import_answer<'a>(
                 return Decision::new(submission_uncertain())
                     .with_message("The submission was accepted without an id to verify it by.");
             };
-            let outcome = import_success_outcome(CreditRegistrationState::AwaitingVerification);
+            let outcome =
+                import_success_outcome(CreditRegistrationState::AwaitingVerification, facts);
             if !*is_repeat_in_batch {
                 return Decision::new(outcome).with_submitted_attainment(Some(submission));
             }
@@ -62,7 +63,7 @@ pub(super) fn decide_import_answer<'a>(
         }
         ImportAnswer::Settled { held, attainment } => {
             let attainment = attainment.as_ref();
-            Decision::new(import_success_outcome(held.state()))
+            Decision::new(import_success_outcome(held.state(), facts))
                 .with_sisu_attainment(attainment)
                 .with_message(settled_message(*held, attainment))
         }

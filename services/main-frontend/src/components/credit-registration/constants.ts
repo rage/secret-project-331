@@ -17,9 +17,6 @@ export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_N
 /** How much of a uuid an operator needs to recognise a row in a chip or a target label. */
 export const ID_PREFIX_LENGTH = 8
 
-/** Between a timeline step and its result, which are styled apart and so cannot share one string. */
-export const STEP_RESULT_SEPARATOR = ": "
-
 export const STACKED = "stacked" as const
 
 /** `TableColumn.align` for numeric columns. */

@@ -1,10 +1,14 @@
 "use client"
 
-import type { UseQueryResult } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  allUserConversationsQueryKey,
+  getCurrentConversationIdQueryKey,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
-import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import {
   errorNotificationMessage,
   showErrorNotification,
@@ -13,26 +17,44 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 const useNewConversationMutation = (
-  chatbotConfigurationId: string,
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
+  chatbotConfigurationId: string | null,
   setNewMessage: React.Dispatch<React.SetStateAction<string>>,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
+  setConvId: React.Dispatch<string | null>,
 ) => {
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
   return useToastMutation(
-    () =>
-      newChatbotConversation({
+    () => {
+      if (!chatbotConfigurationId) {
+        throw new Error("NewConversationMutation called with no chatbot configuration id")
+      }
+      return newChatbotConversation({
         path: {
           chatbot_configuration_id: chatbotConfigurationId,
         },
-      }),
+      })
+    },
     { notify: false },
     {
       onSuccess: (res) => {
+        if (!chatbotConfigurationId) {
+          throw new Error("NewConversationMutation called with no chatbot configuration id")
+        }
         const anonymousToken = res.anonymous_token
         saveChatbotAnonymousToken(anonymousToken)
-        currentConversationInfo.refetch()
+        queryClient.refetchQueries({
+          queryKey: getCurrentConversationIdQueryKey({
+            path: {
+              chatbot_configuration_id: chatbotConfigurationId,
+            },
+          }),
+        })
+        queryClient.refetchQueries({
+          queryKey: allUserConversationsQueryKey(),
+        })
         setNewMessage("")
+        setConvId(null)
         setError(null) // Clear any existing errors when starting a new conversation
       },
       // A toast, not the chat's own error area: a conversation started from the text selection

@@ -40,7 +40,7 @@ use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration::enrolment_recheck::{
-    RecheckTarget, can_request_enrolment_recheck, start_enrolment_recheck,
+    RecheckTarget, can_student_request_enrolment_recheck, start_student_enrolment_recheck,
 };
 use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, mask_email};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
@@ -401,15 +401,14 @@ pub async fn request_credit_registration_enrolment_recheck(
         ));
     }
 
-    let outcome = start_enrolment_recheck(
+    let outcome = start_student_enrolment_recheck(
         &mut conn,
         user.id,
         RecheckTarget {
             registration_id: registration.id,
             course_module_completion_id: registration.course_module_completion_id,
         },
-        EnrolmentCheckSource::StudentRequest,
-        CreditRegistrationEventKind::StudentAction,
+        registration.created_at,
         "The student asked us to check for an enrolment again.",
     )
     .await?;
@@ -751,8 +750,9 @@ fn to_my_credit_registration(
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
     let enrolment_found = row.has_usable_enrolment();
-    let can_request_enrolment_recheck = can_request_enrolment_recheck(
+    let can_request_enrolment_recheck = can_student_request_enrolment_recheck(
         row.state,
+        row.created_at,
         row.enrolment_check_requested_at,
         row.enrolment_checked_at,
     );
@@ -1133,15 +1133,14 @@ pub async fn confirm_my_enrolment(
     .await?;
     match registration {
         Some(registration) if registration.is_waiting_for_enrolment() => {
-            start_enrolment_recheck(
+            start_student_enrolment_recheck(
                 &mut conn,
                 user.id,
                 RecheckTarget {
                     registration_id: registration.id,
                     course_module_completion_id: current.course_module_completion_id,
                 },
-                EnrolmentCheckSource::StudentRequest,
-                CreditRegistrationEventKind::StudentAction,
+                registration.created_at,
                 "The student said they had enrolled.",
             )
             .await?;

@@ -1,3 +1,4 @@
+use headless_lms_utils::cache::Cache;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -132,6 +133,7 @@ impl ChatbotTool for DocumentLookupTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {

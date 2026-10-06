@@ -23,6 +23,7 @@ use crate::{
     user_context::ChatbotTurnContext,
 };
 use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_utils::cache::Cache;
 use headless_lms_utils::json_schema_types::Schema;
 use indexmap::IndexMap;
 use serde::de::DeserializeOwned;
@@ -100,6 +101,7 @@ pub trait ChatbotTool: ChatbotToolDeclaration {
     fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        cache: &Cache,
         arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> impl std::future::Future<Output = ChatbotResult<Self>> + Send
@@ -410,6 +412,7 @@ macro_rules! chatbot_tool_registry {
         pub async fn call_chatbot_tool(
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
+            cache: &Cache,
             fn_name: &str,
             fn_args: &str,
             user_context: &ChatbotTurnContext,
@@ -435,7 +438,7 @@ macro_rules! chatbot_tool_registry {
                             format!("The caller is not allowed to use the tool {fn_name}")
                         ));
                     }
-                    let tool = <$server_tool as ChatbotTool>::from_db_and_arguments(&mut *conn, app_config, arguments, user_context).await?;
+                    let tool = <$server_tool as ChatbotTool>::from_db_and_arguments(&mut *conn, app_config, cache, arguments, user_context).await?;
                     return Ok(ChatbotToolCallResult {
                         arguments: fn_args.to_owned(),
                         output: tool.get_tool_output(),

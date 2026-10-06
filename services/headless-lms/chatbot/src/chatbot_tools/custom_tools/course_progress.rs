@@ -9,6 +9,7 @@ use crate::{
 };
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::user_exercise_states::UserCourseProgress;
+use headless_lms_utils::cache::Cache;
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState>;
 
@@ -52,6 +53,7 @@ impl ChatbotTool for CourseProgressTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         _arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {

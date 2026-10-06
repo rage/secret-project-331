@@ -583,7 +583,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             }
             // The extra left padding offsets the letter-spacing trailing the last character.
             format!(
-                r#"<table role="presentation" class="email-one-time-code" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{ONE_TIME_CODE_BACKGROUND_COLOR}" style="width: 100%; margin: 0 0 18px; background-color: {ONE_TIME_CODE_BACKGROUND_COLOR}; border: 1px solid {ONE_TIME_CODE_BORDER_COLOR}; border-radius: 6px; border-collapse: separate;"><tr><td align="center" style="padding: 16px 16px 16px 22px; font-family: {ONE_TIME_CODE_FONT_FAMILY}; font-size: 28px; line-height: 36px; mso-line-height-rule: exactly; font-weight: 600; letter-spacing: 6px; color: {ONE_TIME_CODE_TEXT_COLOR}; user-select: all;">{}</td></tr></table>"#,
+                r#"<table role="presentation" class="email-one-time-code" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{ONE_TIME_CODE_BACKGROUND_COLOR}" style="width: 100%; margin: 0 0 18px; background-color: {ONE_TIME_CODE_BACKGROUND_COLOR}; border: 1px solid {ONE_TIME_CODE_BORDER_COLOR}; border-radius: 6px; border-collapse: separate;"><tr><td align="center" style="padding: 16px 16px 16px 20px; border: 0; text-align: center; font-family: {ONE_TIME_CODE_FONT_FAMILY}; font-size: 22px; line-height: 30px; mso-line-height-rule: exactly; font-weight: 600; letter-spacing: 4px; color: {ONE_TIME_CODE_TEXT_COLOR}; user-select: all;">{}</td></tr></table>"#,
                 escape_html(code)
             )
         }

@@ -28,10 +28,10 @@ const EmailOneTimeCodeEditor: React.FC<
           border-radius: 6px;
           text-align: center;
           font-family: SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
-          font-size: 28px;
-          line-height: 36px;
+          font-size: 22px;
+          line-height: 30px;
           font-weight: 600;
-          letter-spacing: 6px;
+          letter-spacing: 4px;
           color: #1a2333;
           margin: 0 0 18px;
         `}

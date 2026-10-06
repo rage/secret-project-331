@@ -94,6 +94,12 @@ const EMAIL_ASSET_BASE_URL: &str = "https://courses.mooc.fi/static/email";
 const CALLOUT_BACKGROUND_COLOR: &str = "#EDF3F2";
 const CALLOUT_BORDER_COLOR: &str = "#DAE6E5";
 
+const ONE_TIME_CODE_BACKGROUND_COLOR: &str = "#F7F8F9";
+const ONE_TIME_CODE_BORDER_COLOR: &str = "#DDDEE0";
+const ONE_TIME_CODE_TEXT_COLOR: &str = "#1A2333";
+const ONE_TIME_CODE_FONT_FAMILY: &str =
+    "SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace";
+
 /// Block types an email body may contain; must match `allowedEmailCoreBlocks` and
 /// `blockTypeMapForEmails` in the CMS. Any other type fails deserialization, so a body is never sent
 /// with a block silently left out.
@@ -125,6 +131,8 @@ pub enum EmailBlockName {
     Code,
     #[serde(rename = "moocfi/email-callout")]
     Callout,
+    #[serde(rename = "moocfi/email-one-time-code")]
+    OneTimeCode,
 }
 
 const DEFAULT_SPACER_HEIGHT_PX: u32 = 32;
@@ -152,7 +160,9 @@ impl EmailBlockName {
             Self::Button => key == "text",
             Self::Quote => matches!(key, "value" | "citation"),
             Self::Callout => key == "title",
-            Self::List | Self::Buttons | Self::Separator | Self::Spacer => false,
+            Self::List | Self::Buttons | Self::Separator | Self::Spacer | Self::OneTimeCode => {
+                false
+            }
         }
     }
 }
@@ -422,10 +432,6 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             r#"<p class="email-lead" style="font-size: 18px; line-height: 28px;">{}</p>"#,
             block.rich_text("content")
         ),
-        EmailBlockName::Paragraph if block.has_style("code") => format!(
-            r##"<p class="email-one-time-code" style="padding: 16px; background-color: #F7F8F9; border: 1px solid #DDDEE0; border-radius: 6px; text-align: center; font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: 6px; color: #1A2333;">{}</p>"##,
-            block.rich_text("content")
-        ),
         EmailBlockName::Paragraph => format!("<p>{}</p>", block.rich_text("content")),
         EmailBlockName::Heading => {
             let level = block
@@ -570,6 +576,17 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             "<pre class=\"email-code\"><code>{}</code></pre>",
             block.rich_text("content").replace("<br>", "\n")
         ),
+        EmailBlockName::OneTimeCode => {
+            let code = block.str_attribute("code").trim();
+            if code.is_empty() {
+                return String::new();
+            }
+            // The extra left padding offsets the letter-spacing trailing the last character.
+            format!(
+                r#"<table role="presentation" class="email-one-time-code" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{ONE_TIME_CODE_BACKGROUND_COLOR}" style="width: 100%; margin: 0 0 18px; background-color: {ONE_TIME_CODE_BACKGROUND_COLOR}; border: 1px solid {ONE_TIME_CODE_BORDER_COLOR}; border-radius: 6px; border-collapse: separate;"><tr><td align="center" style="padding: 16px 16px 16px 22px; font-family: {ONE_TIME_CODE_FONT_FAMILY}; font-size: 28px; line-height: 36px; mso-line-height-rule: exactly; font-weight: 600; letter-spacing: 6px; color: {ONE_TIME_CODE_TEXT_COLOR}; user-select: all;">{}</td></tr></table>"#,
+                escape_html(code)
+            )
+        }
         EmailBlockName::Callout => {
             let icon_cell = match callout_icon_file(block.str_attribute("icon")) {
                 Some(file) => format!(
@@ -699,6 +716,7 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
             .map(|line| format!("    {line}").trim_end().to_string())
             .collect::<Vec<_>>()
             .join("\n"),
+        EmailBlockName::OneTimeCode => block.str_attribute("code").trim().to_string(),
         EmailBlockName::Callout => [
             block.rich_text_as_text("title"),
             process_content_to_plaintext(&block.inner_blocks),

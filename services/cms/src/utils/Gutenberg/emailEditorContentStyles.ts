@@ -34,19 +34,6 @@ ${ROOT} > :last-child { margin-bottom: 0 !important; }
 
 ${ROOT} p { margin: 0 0 18px; font-size: 16px; line-height: 26px; overflow-wrap: anywhere; }
 ${ROOT} p.is-style-lead { font-size: 18px; line-height: 28px; }
-${ROOT} p.is-style-code {
-  padding: 16px;
-  background-color: #F7F8F9;
-  border: 1px solid #DDDEE0;
-  border-radius: 6px;
-  text-align: center;
-  font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  font-size: 28px;
-  line-height: 36px;
-  font-weight: 600;
-  letter-spacing: 6px;
-  color: #1A2333;
-}
 ${ROOT} strong, ${ROOT} b { color: #1A2333; font-weight: 700; }
 
 ${ROOT} h1, ${ROOT} h2, ${ROOT} h3, ${ROOT} h4, ${ROOT} h5, ${ROOT} h6 {

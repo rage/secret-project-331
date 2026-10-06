@@ -172,13 +172,11 @@ pub async fn seed_generic_emails(
             "innerBlocks": []
         },
         {
-            "name": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
             "isValid": true,
             "clientId": "e3000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "{{CODE}}",
-                "className": "is-style-code",
-                "dropCap": false
+                "code": "{{CODE}}"
             },
             "innerBlocks": []
         },
@@ -228,13 +226,11 @@ pub async fn seed_generic_emails(
             "innerBlocks": []
         },
         {
-            "name": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
             "isValid": true,
             "clientId": "e3000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "{{CODE}}",
-                "className": "is-style-code",
-                "dropCap": false
+                "code": "{{CODE}}"
             },
             "innerBlocks": []
         },
@@ -439,13 +435,11 @@ async fn seed_email_ownership_verification_templates(
             "innerBlocks": []
         },
         {
-            "name": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
             "isValid": true,
             "clientId": "e3000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "{{CODE}}",
-                "className": "is-style-code",
-                "dropCap": false
+                "code": "{{CODE}}"
             },
             "innerBlocks": []
         },
@@ -497,13 +491,11 @@ async fn seed_email_ownership_verification_templates(
             "innerBlocks": []
         },
         {
-            "name": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
             "isValid": true,
             "clientId": "e3000000-0000-0000-0000-000000000004",
             "attributes": {
-                "content": "{{CODE}}",
-                "className": "is-style-code",
-                "dropCap": false
+                "code": "{{CODE}}"
             },
             "innerBlocks": []
         },

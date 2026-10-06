@@ -70,7 +70,6 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       "core/paragraph": [
         { name: "default", label: t("block-style-default"), isDefault: true },
         { name: "lead", label: t("email-block-style-lead") },
-        { name: "code", label: t("email-block-style-code") },
       ],
       "core/button": [
         { name: "default", label: t("block-style-default"), isDefault: true },

@@ -23,7 +23,7 @@ export type TriStateToggleStates = "not_set" | "include" | "exclude"
 export function TriStateToggle<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: TriStateToggleProps<T, N>,
 ) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const { name, control, label } = props
 
   return (

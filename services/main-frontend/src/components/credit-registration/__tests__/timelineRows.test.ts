@@ -13,7 +13,10 @@ const t = ((key: string, params?: Record<string, unknown>) =>
     key.replace(PREFIX, ""),
   )) as unknown as CreditRegistrationTFunction
 
-const context: TimelineContext = { actorName: () => "Ada Admin" }
+const context: TimelineContext = {
+  actorName: () => "Ada Admin",
+  selectedEnrolmentId: "enrolment-2",
+}
 
 const START = Date.parse("2026-09-01T10:00:00Z")
 const MINUTE_MS = 60_000
@@ -118,6 +121,9 @@ describe("buildTimeline", () => {
       "result-partly-registered",
       "waited-for-confirmation count=6",
     ])
+    expect(entries[1]?.tone).toBe("current")
+    expect(entries[1]?.state).toBe("no_usable_enrolment")
+    expect(entries[3]?.state).toBeNull()
     const checks = entries[3]
     expect(checks?.at).toBe(new Date(START + 4 * MINUTE_MS).toISOString())
     expect(checks?.until).toBe(new Date(START + 7 * MINUTE_MS).toISOString())
@@ -219,11 +225,93 @@ describe("buildTimeline", () => {
     )
     expect(sentences(entries)).toEqual([
       "by-actor action=moved-to state=credit-registration-ledger-state-submitting actor=Ada Admin",
-      "by-actor-with-reason action=moved-to state=credit-registration-ledger-state-ready-to-submit actor=Ada Admin reason=Student asked",
-      "by-actor-with-reason action=credit-registration-admin-event-admin-action actor=Ada Admin reason=Checked by hand",
-      "by-actor-with-reason action=credit-registration-admin-event-admin-action actor=Ada Admin reason=Checked by hand",
+      "by-actor action=moved-to state=credit-registration-ledger-state-ready-to-submit actor=Ada Admin",
+      "by-actor action=credit-registration-admin-event-admin-action actor=Ada Admin",
+      "by-actor action=credit-registration-admin-event-admin-action actor=Ada Admin",
       "by-actor action=credit-registration-ledger-state-cancelled actor=Ada Admin",
     ])
+    expect(entries.map((entry) => entry.detail)).toEqual([
+      null,
+      "Student asked",
+      "Checked by hand",
+      "Checked by hand",
+      null,
+    ])
+  })
+
+  test("gives a rejection Sisu's code and what it means, and a found enrolment its name", () => {
+    const entries = buildTimeline(
+      t,
+      log([
+        {
+          kind: "suotar_response",
+          suotar_endpoint: "resolve_enrolments",
+          suotar_code: "enrolmentFound",
+          from_state: "no_usable_enrolment",
+          to_state: "checking_enrolment",
+          details: {
+            response: {
+              result: {
+                enrolments: [
+                  { id: "enrolment-1", courseUnitRealisationName: { en: "Spring" } },
+                  {
+                    id: "enrolment-2",
+                    courseUnitRealisationName: { fi: "Syksy" },
+                    credits: { min: 5, max: 5 },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        {
+          kind: "suotar_response",
+          suotar_endpoint: "import_attainments",
+          suotar_code: "sisuValidationFailed",
+          suotar_answer: "answered",
+          error_code: "sisu_validation_failed",
+          from_state: "submitting",
+          to_state: "failed_permanent",
+        },
+      ]),
+      context,
+    )
+    expect(sentences(entries)).toEqual(["result-enrolment-found", "result-rejected"])
+    expect(entries.map((entry) => entry.detail)).toEqual([
+      "Syksy · credit-registration-credits credits=5",
+      expect.stringMatching(
+        /^sisuValidationFailed · credit-registration-admin-error-sisu-validation-failed/,
+      ),
+    ])
+    expect(entries.map((entry) => entry.state)).toEqual(["checking_enrolment", "failed_permanent"])
+    expect(entries[1]?.tone).toBe("failed")
+  })
+
+  test("names no enrolment when several came back and none is the selected one", () => {
+    const entries = buildTimeline(
+      t,
+      log([
+        {
+          kind: "suotar_response",
+          suotar_endpoint: "resolve_enrolments",
+          suotar_code: "enrolmentFound",
+          from_state: "no_usable_enrolment",
+          to_state: "checking_enrolment",
+          details: {
+            response: {
+              result: {
+                enrolments: [
+                  { id: "enrolment-1", courseUnitRealisationName: { en: "Spring" } },
+                  { id: "enrolment-3", courseUnitRealisationName: { en: "Autumn" } },
+                ],
+              },
+            },
+          },
+        },
+      ]),
+      context,
+    )
+    expect(entries[0]?.detail).toBeNull()
   })
 
   test("drops silent claims and resumes", () => {

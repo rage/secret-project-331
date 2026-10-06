@@ -67,8 +67,9 @@ const REFUSED = "refused" as const
 const RISK_FIELD = "riskUnderstood" as const
 
 /**
- * Button on the left, what it does on the right, from `md` up; stacked below that. A subgrid keeps
- * every row's explanation on one edge whatever its button's width.
+ * Button on the left, what it does on the right, from `md` up; stacked below that. One grid holds
+ * both groups and each row is a subgrid, so every explanation starts on one edge whatever its
+ * button's width.
  */
 const actionListCss = css`
   display: grid;
@@ -83,18 +84,21 @@ const actionListCss = css`
   }
 `
 
+/** Only `row-gap`: a subgrid's own column gap would replace the list's. */
 const actionRowCss = css`
   display: grid;
-  gap: var(--space-2);
+  row-gap: var(--space-2);
   align-items: start;
 
   ${respondToOrLarger.md} {
     grid-column: 1 / -1;
     grid-template-columns: subgrid;
+    /* Lines the explanation's first line up with the button's label. */
+    align-items: baseline;
   }
 `
 
-const housekeepingListCss = css`
+const housekeepingStartCss = css`
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-clear-300);
 `
@@ -233,11 +237,12 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
 
 const prose = (text: React.ReactNode) => <p className={proseCss}>{text}</p>
 
-const ActionRow: React.FC<{ control: React.ReactNode; explanation: React.ReactNode }> = ({
-  control,
-  explanation,
-}) => (
-  <li className={actionRowCss}>
+const ActionRow: React.FC<{
+  control: React.ReactNode
+  explanation: React.ReactNode
+  className?: string | undefined
+}> = ({ control, explanation, className }) => (
+  <li className={cx(actionRowCss, className)}>
     <div>{control}</div>
     <div className={explanationCss}>{explanation}</div>
   </li>
@@ -438,11 +443,15 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const clearAttentionExplanation = prose(
     t("credit-registration-admin-clear-attention-description"),
   )
+  const remedies = rows.filter((row) => row !== null)
+  // The rule between the groups sits on the first housekeeping row, so the list holds only actions.
+  const housekeepingStart = remedies.length > 0 ? housekeepingStartCss : undefined
   const housekeeping: React.ReactNode[] = []
   if (registration.needs_admin_attention) {
     housekeeping.push(
       <ActionRow
         key={CLEAR_ATTENTION}
+        className={housekeepingStart}
         control={
           <TransitionAction
             registration={registration}
@@ -462,6 +471,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
     housekeeping.push(
       <ActionRow
         key={CANCELLED}
+        className={housekeeping.length === 0 ? housekeepingStart : undefined}
         control={
           <TransitionAction
             registration={registration}
@@ -478,7 +488,6 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
       />,
     )
   }
-  const remedies = rows.filter((row) => row !== null)
 
   return (
     <div className={subsectionCss}>
@@ -490,9 +499,9 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
       {remedies.length === 0 && housekeeping.length === 0 && (
         <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
       )}
-      {remedies.length > 0 && <ul className={actionListCss}>{remedies}</ul>}
-      {housekeeping.length > 0 && (
-        <ul className={cx(actionListCss, remedies.length > 0 && housekeepingListCss)}>
+      {(remedies.length > 0 || housekeeping.length > 0) && (
+        <ul className={actionListCss}>
+          {remedies}
           {housekeeping}
         </ul>
       )}

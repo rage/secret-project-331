@@ -64,16 +64,22 @@ pub(super) async fn claim_import_candidates(
             Ok(applied) => {
                 savepoint.commit().await?;
                 match (submission, applied) {
-                    (Some(submission), Applied::Written { .. }) => prepared.send(
-                        Claimed {
-                            claim: ClaimedRegistration::moved_to(
-                                claim.into_registration(),
-                                CreditRegistrationState::Submitting,
-                            ),
-                            extra: (),
-                        },
-                        submission,
-                    ),
+                    (Some(submission), Applied::Written { .. }) => {
+                        let mut registration = claim.into_registration();
+                        // The move just restamped it in the database; the answer's first verify
+                        // poll is timed from this send, not from an earlier one.
+                        registration.submitted_at = Some(Utc::now());
+                        prepared.send(
+                            Claimed {
+                                claim: ClaimedRegistration::moved_to(
+                                    registration,
+                                    CreditRegistrationState::Submitting,
+                                ),
+                                extra: (),
+                            },
+                            submission,
+                        )
+                    }
                     (_, applied) => prepared.record_applied(claim.id(), applied),
                 }
             }

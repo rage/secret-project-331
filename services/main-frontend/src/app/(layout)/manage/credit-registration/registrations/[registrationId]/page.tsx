@@ -440,6 +440,12 @@ const AttemptChainSection: React.FC<{
 }
 
 /** This registration's own answer within one call: Suotar's per-item code, or why there was none. */
+/** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
+const unbrokenCodeCss = css`
+  white-space: nowrap;
+  overflow-wrap: normal;
+`
+
 const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> = ({ event }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   switch (event?.suotar_answer) {
@@ -448,7 +454,11 @@ const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> 
     case "unanswered":
       return t("credit-registration-admin-timeline-result-no-answer")
   }
-  return event?.suotar_code ? <code className={codeValueCss}>{event.suotar_code}</code> : ABSENT
+  return event?.suotar_code ? (
+    <code className={cx(codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+  ) : (
+    ABSENT
+  )
 }
 
 const ApiCallSection: React.FC<{
@@ -764,7 +774,11 @@ const RegistrationDetailPage: React.FC = () => {
             <AdminTransitionBlock registration={details.registration} />
           </section>
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
-          <RegistrationTimeline events={details.events} actorNames={actorNames} />
+          <RegistrationTimeline
+            events={details.events}
+            actorNames={actorNames}
+            selectedEnrolmentId={details.registration.selected_enrolment_id ?? null}
+          />
           <ApiCallSection calls={details.suotar_api_calls} events={details.events} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />

@@ -1586,7 +1586,7 @@
   "open-page-in-new-tab": "Avaa sivu uudessa välilehdessä",
   "open-quick-actions-menu": "Avaa pikatoimintojen valikko",
   "open-sidebar": "Avaa sivupalkki",
-  "open-university-credits-registered-through-ou-explanation": "Tämän kurssin opintopisteet kirjataan Helsingin yliopiston avoimen yliopiston kautta. Täytä avoimen yliopiston ilmoittautumislomake. Käytä siinä sähköpostiosoitetta <strong>{{email}}</strong>. Ilmoittautuminen edellyttää vahvaa tunnistautumista. Katso lisätietoja <openUniversityInfoLink>avoimen yliopiston ilmoittautumissivulta</openUniversityInfoLink>.",
+  "open-university-credits-registered-through-ou-explanation": "Tämän kurssin opintopisteet kirjataan Helsingin yliopiston avoimen yliopiston kautta. Täytä avoimen yliopiston ilmoittautumislomake. Käytä siinä sähköpostiosoitetta <strong>{{email}}</strong>. Ilmoittautuminen vaatii vahvan tunnistautumisen. Katso lisätietoja <openUniversityInfoLink>avoimen yliopiston ilmoittautumissivulta</openUniversityInfoLink>.",
   "open-university-students-and-everyone-else-select-no": "Avoimen yliopiston opiskelijat ja kaikki muut: valitse Ei.",
   "opening-time": "Avautumisaika",
   "opens-in-time": "Avautuu {{ relative-time }}",

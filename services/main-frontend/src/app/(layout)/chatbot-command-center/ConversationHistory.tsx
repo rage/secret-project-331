@@ -10,6 +10,7 @@ import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import type { ChatbotConversation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { SIDEBAR_WIDTH_PX } from "@/shared-module/common/utils/constants"
+import { emptyStringIfNull } from "@/shared-module/common/utils/strings"
 import { Infobox } from "@/shared-module/components"
 
 interface ConversationHistoryProps {
@@ -79,7 +80,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               cursor: pointer;
             }
             color: var(--field-fg);
-            background-color: ${conversation.id === convId ? "var(--color-green-75); border: 1px solid var(--color-green-300); box-shadow: var(--btn-icon-shadow-hover);" : "transparent"};
+
+            background-color: ${conversation.id === convId ? "var(--color-green-75)" : "transparent"};
+            ${emptyStringIfNull(conversation.id === convId && "border: 1px solid var(--color-green-300);")}
+            ${emptyStringIfNull(conversation.id === convId && "box-shadow: var(--btn-icon-shadow-hover);")}
           `}
           key={conversation.id}
           aria-label={conversation.conversation_title ?? t("untitled-conversation")}

@@ -1739,7 +1739,7 @@
   "open-page-in-new-tab": "Open page in new tab",
   "open-quick-actions-menu": "Open quick actions menu",
   "open-sidebar": "Open sidebar",
-  "open-university-credits-registered-through-ou-explanation": "Credits for this course are registered through the Open University of the University of Helsinki. Fill in the Open University enrollment form. Use <strong>{{email}}</strong> as your email address there. Enrollment requires strong authentication, see the <openUniversityInfoLink>open university enrollment page</openUniversityInfoLink> for details.",
+  "open-university-credits-registered-through-ou-explanation": "Credits for this course are registered through the Open University of the University of Helsinki. Fill in the Open University enrolment form. Use <strong>{{email}}</strong> as your email address there. Enrolling requires strong identification. See the <openUniversityInfoLink>Open University enrolment page</openUniversityInfoLink> for details.",
   "open-university-students-and-everyone-else-select-no": "Open University students and everyone else: select No.",
   "opening-time": "Opening time",
   "opens-in-time": "Opens in {{ relative-time }}",

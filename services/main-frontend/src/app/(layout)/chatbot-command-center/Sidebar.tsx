@@ -7,7 +7,7 @@ import { useOverlayTriggerState } from "@react-stately/overlays"
 import { AddMessage, LayoutVertical, PlusCircle } from "@vectopus/atlas-icons-react"
 import type React from "react"
 import { useRef } from "react"
-import { mergeProps, useButton, useFocusRing, useHover } from "react-aria"
+import { mergeProps, useButton } from "react-aria"
 import { useDisclosure } from "react-aria/useDisclosure"
 import { useTranslation } from "react-i18next"
 
@@ -54,17 +54,15 @@ const dropdownMenuCss = css`
 `
 
 const sidebarButtonCss = css`
-  ${respondToOrLarger.md} {
-    background: none;
-    border: none;
-    box-shadow: none;
-    text-shadow: none;
-    padding: 12px 16px;
-    border-radius: 12px;
-    &[data-hovered] {
-      background: ${baseTheme.colors.clear[100]};
-      cursor: pointer;
-    }
+  background: none;
+  border: none;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  &:hover {
+    background: ${baseTheme.colors.clear[100]};
+    cursor: pointer;
   }
 `
 
@@ -113,8 +111,6 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
   let state = useDisclosureState({ defaultExpanded: true })
   let { buttonProps, panelProps } = useDisclosure({}, state, panelRef)
   let { buttonProps: pressProps, isPressed } = useButton(buttonProps, buttonRef)
-  let { hoverProps, isHovered } = useHover({})
-  let { focusProps, isFocusVisible } = useFocusRing()
 
   let items: DropdownMenuItem[] = [
     {
@@ -212,13 +208,11 @@ const Sidebar: React.FC<SideBarProps> = (props) => {
         </div>
         <VisibleOnDesktop>
           <button
-            {...mergeProps(pressProps, hoverProps, focusProps)}
+            {...mergeProps(pressProps)}
             ref={buttonRef}
             slot="trigger"
             className={sidebarButtonCss}
             data-pressed={isPressed || undefined}
-            data-hovered={isHovered || undefined}
-            data-focus-visible={isFocusVisible || undefined}
             data-disabled={undefined}
             aria-label={state.isExpanded ? t("close-sidebar") : t("open-sidebar")}
           >

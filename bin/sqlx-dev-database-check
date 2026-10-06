@@ -1,0 +1,75 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Checks that the dev database the sqlx scripts use is reachable and its migrations match this branch's,
+# so bin/sqlx-prepare-check fails on real query problems instead of a stale or missing database.
+
+ensure_program_in_path psql
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+MIGRATIONS_PATH="$BASEDIR/../services/headless-lms/migrations"
+DATABASE_PORT=54328
+DATABASE_URL="postgres://headless-lms@localhost:$DATABASE_PORT/headless_lms_dev"
+
+function fail() {
+  echo -e "${RED}$*${RESET_EVERYTHING}"
+  exit 1
+}
+
+if ! psql "$DATABASE_URL?connect_timeout=3" -Atc 'SELECT 1' > /dev/null 2>&1; then
+  PORT_HOLDER=$(ss -ltnpH "sport = :$DATABASE_PORT" 2> /dev/null | grep -o 'users:.*' || true)
+  # Skaffold forwards to another port when the usual one is taken, and the sqlx scripts cannot follow.
+  OTHER_FORWARD=$(pgrep -af 'port-forward.*statefulset/postgres' | grep -o ' [0-9]*:5432$' | grep -v " $DATABASE_PORT:5432" | awk 'NR == 1 { print $1 }' || true)
+  if [ -n "$OTHER_FORWARD" ]; then
+    fail "The dev database is forwarded to localhost:${OTHER_FORWARD%%:*} instead of localhost:$DATABASE_PORT, which the sqlx scripts use. Free port $DATABASE_PORT${PORT_HOLDER:+ (held by $PORT_HOLDER)} and restart bin/dev or bin/dev-only-db."
+  elif [ -n "$PORT_HOLDER" ]; then
+    fail "Port $DATABASE_PORT is held by $PORT_HOLDER, which is not answering as the dev database. Stop it and restart bin/dev or bin/dev-only-db."
+  else
+    fail "The dev database is not reachable at localhost:$DATABASE_PORT. Start it with bin/dev or bin/dev-only-db."
+  fi
+fi
+
+# sqlx stores each applied migration's version with a SHA-384 checksum of its up file.
+APPLIED=""
+if [ "$(psql "$DATABASE_URL" -Atc "SELECT to_regclass('public._sqlx_migrations') IS NOT NULL")" = "t" ]; then
+  APPLIED=$(psql "$DATABASE_URL" -Atc "SELECT version || ' ' || encode(checksum, 'hex') || ' ' || success FROM _sqlx_migrations ORDER BY version")
+fi
+LOCAL=$(
+  for MIGRATION in "$MIGRATIONS_PATH"/*.up.sql; do
+    NAME=$(basename "$MIGRATION")
+    echo "${NAME%%_*} $(sha384sum < "$MIGRATION" | cut -d ' ' -f 1)"
+  done
+)
+
+APPLIED_VERSIONS=$(cut -d ' ' -f 1 <<< "$APPLIED")
+LOCAL_VERSIONS=$(cut -d ' ' -f 1 <<< "$LOCAL")
+MISSING=$(comm -23 <(sort <<< "$APPLIED_VERSIONS") <(sort <<< "$LOCAL_VERSIONS"))
+PENDING=$(comm -13 <(sort <<< "$APPLIED_VERSIONS") <(sort <<< "$LOCAL_VERSIONS"))
+FAILED=$(awk '$3 == "f" { print $1 }' <<< "$APPLIED")
+CHANGED=$(join <(cut -d ' ' -f 1,2 <<< "$APPLIED" | sort) <(sort <<< "$LOCAL") | awk '$2 != $3 { print $1 }')
+
+PROBLEMS=()
+if [ -n "$MISSING" ]; then
+  PROBLEMS+=("Applied to the dev database but not on this branch, probably from another branch (revert them there with bin/sqlx-migrate-revert):"$'\n'"$MISSING")
+fi
+if [ -n "$FAILED" ]; then
+  PROBLEMS+=("Failed partway in the dev database (fix the database by hand or reset it with bin/sqlx-database-reset):"$'\n'"$FAILED")
+fi
+if [ -n "$CHANGED" ]; then
+  PROBLEMS+=("Edited after they were applied to the dev database (revert them, then run them again):"$'\n'"$CHANGED")
+fi
+if [ -n "$PENDING" ]; then
+  PROBLEMS+=("Not yet applied to the dev database (run bin/sqlx-migrate-run):"$'\n'"$PENDING")
+fi
+
+if [ ${#PROBLEMS[@]} -gt 0 ]; then
+  echo -e "${RED}The dev database's migrations do not match this branch.${RESET_EVERYTHING}"
+  for PROBLEM in "${PROBLEMS[@]}"; do
+    echo ""
+    echo "$PROBLEM"
+  done
+  exit 1
+fi
+
+echo -e "${GREEN}The dev database is reachable and its migrations match this branch.${RESET_EVERYTHING}"

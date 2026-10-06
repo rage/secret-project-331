@@ -38,6 +38,8 @@ export interface TimelineContext {
   actorName: (userId: string) => string | undefined
   /** The enrolment the registration went with, picked out of an answer that listed several. */
   selectedEnrolmentId: string | null
+  /** The UI language, for picking a realisation name Sisu gives in several. */
+  language: string
 }
 
 type Event = AdminCreditRegistrationEvent
@@ -79,7 +81,7 @@ const numberField = (value: unknown, key: string): number | null => {
 const enrolmentSummary = (
   t: CreditRegistrationTFunction,
   event: Event,
-  selectedEnrolmentId: string | null,
+  { selectedEnrolmentId, language }: TimelineContext,
 ): string | null => {
   const enrolments = field(field(field(event.details, "response"), "result"), "enrolments")
   if (!Array.isArray(enrolments) || enrolments.length === 0) {
@@ -89,12 +91,19 @@ const enrolmentSummary = (
   const enrolment: unknown =
     enrolments.length === 1
       ? enrolments[0]
-      : enrolments.find((candidate) => stringField(candidate, "id") === selectedEnrolmentId)
+      : enrolments.find(
+          (candidate) =>
+            selectedEnrolmentId !== null && stringField(candidate, "id") === selectedEnrolmentId,
+        )
   if (enrolment === undefined) {
     return null
   }
   const name = field(enrolment, "courseUnitRealisationName")
-  const realisation = stringField(name, "en") ?? stringField(name, "fi") ?? stringField(name, "sv")
+  const realisation =
+    stringField(name, language.slice(0, 2)) ??
+    stringField(name, "en") ??
+    stringField(name, "fi") ??
+    stringField(name, "sv")
   const creditRange = field(enrolment, "credits")
   const min = numberField(creditRange, "min")
   const max = numberField(creditRange, "max")
@@ -108,11 +117,15 @@ const enrolmentSummary = (
 }
 
 /** Sisu's own code, then what it means for the administrator. */
-const rejectionDetail = (t: CreditRegistrationTFunction, event: Event): string | null => {
-  const parts = [event.suotar_code ?? null, registrationErrorAdminHelp(t, event.error_code)].filter(
-    (part): part is string => Boolean(part),
-  )
-  return parts.length > 0 ? parts.join(MIDDLE_DOT) : null
+const rejectionDetail = (t: CreditRegistrationTFunction, event: Event): string => {
+  const parts = [
+    event.suotar_code ?? null,
+    registrationErrorAdminHelp(t, event.error_code) ??
+      registrationErrorShortLabel(t, event.error_code),
+  ].filter((part): part is string => Boolean(part))
+  return parts.length > 0
+    ? parts.join(MIDDLE_DOT)
+    : t("credit-registration-admin-timeline-result-no-clear-answer")
 }
 
 const eventTime = (event: Event): string => event.suotar_answered_at ?? event.created_at
@@ -166,7 +179,7 @@ const enrolmentCheckOutcome = (
         ? {
             sentence: t("credit-registration-admin-timeline-result-enrolment-found"),
             tone: "done",
-            detail: enrolmentSummary(t, event, context.selectedEnrolmentId),
+            detail: enrolmentSummary(t, event, context),
           }
         : fallbackOutcome(t, event)
     case "enrolmentNotFound":

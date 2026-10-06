@@ -43,15 +43,18 @@ const detailCss = css`
 const isProblem = (tone: RegistrationStatusState): boolean =>
   tone === "action-needed" || tone === "failed"
 
-const EventCell: React.FC<{ entry: TimelineEntry }> = ({ entry }) => (
-  <div className={eventCellCss}>
-    <span aria-hidden className={isProblem(entry.tone) ? TONE_INK[entry.tone] : undefined}>
-      {isProblem(entry.tone) && <span className={dotCss} />}
-    </span>
-    <span>{entry.sentence}</span>
-    {entry.detail && <p className={cx(noteCss, detailCss)}>{entry.detail}</p>}
-  </div>
-)
+const EventCell: React.FC<{ entry: TimelineEntry }> = ({ entry }) => {
+  const isProblemEntry = isProblem(entry.tone)
+  return (
+    <div className={eventCellCss}>
+      <span aria-hidden className={isProblemEntry ? TONE_INK[entry.tone] : undefined}>
+        {isProblemEntry && <span className={dotCss} />}
+      </span>
+      <span>{entry.sentence}</span>
+      {entry.detail && <p className={cx(noteCss, detailCss)}>{entry.detail}</p>}
+    </div>
+  )
+}
 
 /** The registration's story in plain words, oldest first; the Suotar calls table has the detail. */
 const RegistrationTimeline: React.FC<{
@@ -59,10 +62,11 @@ const RegistrationTimeline: React.FC<{
   actorNames: Map<string, string>
   selectedEnrolmentId: string | null
 }> = ({ events, actorNames, selectedEnrolmentId }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const entries = buildTimeline(t, events, {
     actorName: (userId) => actorNames.get(userId),
     selectedEnrolmentId,
+    language: i18n.language,
   })
   return (
     <section className={sectionCardCss}>

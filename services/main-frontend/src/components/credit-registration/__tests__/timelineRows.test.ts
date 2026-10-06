@@ -16,6 +16,7 @@ const t = ((key: string, params?: Record<string, unknown>) =>
 const context: TimelineContext = {
   actorName: () => "Ada Admin",
   selectedEnrolmentId: "enrolment-2",
+  language: "en",
 }
 
 const START = Date.parse("2026-09-01T10:00:00Z")

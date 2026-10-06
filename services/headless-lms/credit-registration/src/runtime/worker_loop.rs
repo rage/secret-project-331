@@ -256,6 +256,12 @@ fn log_skip_if_changed(phase: CreditRegistrationPhase, reason: PhaseSkipReason) 
                 "Credit registration phase skipped: account linking is disabled"
             );
         }
+        PhaseSkipReason::SisuDayGap => {
+            info!(
+                phase = phase.as_str(),
+                "Credit registration phase skipped: Sisu is still on the previous day"
+            );
+        }
     }
 }
 

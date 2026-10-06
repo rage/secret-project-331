@@ -291,7 +291,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const studentNumber = row.verified_student_number ?? row.student_number
-  const verifiedVia = verificationMethodLabel(t, row.verified_student_number_via)
+  const verifiedVia =
+    row.verified_student_number_via === "study_registry"
+      ? null
+      : verificationMethodLabel(t, row.verified_student_number_via)
   // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
   const heldGrade: DescriptionListItem[] = details.not_improved_attainment
     ? [
@@ -439,13 +442,13 @@ const AttemptChainSection: React.FC<{
   )
 }
 
-/** This registration's own answer within one call: Suotar's per-item code, or why there was none. */
 /** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
 const unbrokenCodeCss = css`
   white-space: nowrap;
   overflow-wrap: normal;
 `
 
+/** This registration's own answer within one call: Suotar's per-item code, or why there was none. */
 const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> = ({ event }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   switch (event?.suotar_answer) {

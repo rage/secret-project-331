@@ -254,7 +254,7 @@
   "credit-registration-admin-duration-days_other": "{{count}} days",
   "credit-registration-admin-edit-module-configuration": "Edit the module configuration",
   "credit-registration-admin-email-student-description": "Opens a message to {{email}} in your mail app.",
-  "credit-registration-admin-endpoint-import-attainments": "Send credits",
+  "credit-registration-admin-endpoint-import-attainments": "Send completion",
   "credit-registration-admin-endpoint-list-by-course": "Course listing",
   "credit-registration-admin-endpoint-resolve-enrolments": "Enrolment lookup",
   "credit-registration-admin-endpoint-resolve-persons": "Student lookup",

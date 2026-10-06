@@ -114,10 +114,25 @@ export const makeChatBodyProps = ({
     isPending: false,
   } as unknown as UseMutationResult<void, unknown, string, unknown>
 
+  const updateConversationTitleMutation = {
+    mutate: jest.fn(),
+    isPending: false,
+  } as unknown as UseMutationResult<unknown, unknown, string | null | undefined, unknown>
+
   const toolResponseMutation = {
     mutate: answer,
     isPending: false,
   } as unknown as UseMutationResult<void, unknown, ClientToolResponse, unknown>
+
+  const handlePickSuggestionMutation = {
+    mutate: jest.fn(),
+    isPending: false,
+  } as unknown as UseMutationResult<void, unknown, string, unknown>
+
+  const handleSubmitMutation = {
+    mutate: sendMessage,
+    isPending: false,
+  } as unknown as UseMutationResult<void, unknown, string, unknown>
 
   const props: ChatbotStateAndData = {
     currentConversationInfo,
@@ -132,6 +147,13 @@ export const makeChatBodyProps = ({
     toolResponseMutation,
     isTurnInFlight,
     stopTurn,
+    setDialogOpen: jest.fn(),
+    isOpen: true,
+    convId: null,
+    setConvId: jest.fn(),
+    updateConversationTitleMutation,
+    handlePickSuggestionMutation,
+    handleSubmitMutation,
   }
 
   return { props, sendMessage, answer, stopTurn }

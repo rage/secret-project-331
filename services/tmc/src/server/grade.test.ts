@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
+import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
+
 import { handleGrade } from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
@@ -8,10 +10,14 @@ vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
 
 // Grading shells out to tmc-langs-cli and a Kubernetes sandbox pod; unit tests cover request
 // validation, system tests cover the full flow.
-function post(body: unknown): Request {
+function post(body: unknown, gradingUpdateClaim: string | null = "claim"): Request {
+  const headers: Record<string, string> = { "content-type": "application/json" }
+  if (gradingUpdateClaim) {
+    headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
+  }
   return new Request("http://localhost/api/grade", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers,
     body: typeof body === "string" ? body : JSON.stringify(body),
   })
 }
@@ -103,24 +109,50 @@ describe("POST /api/grade", () => {
 
   // The host sends null for a file stored before it recorded sizes, and tmc has no size limit of
   // its own, so an unknown size must not keep an answer from being graded.
-  it("grades from the request's download url even when the file size is unknown", async () => {
+  it("answers pending, then reports the grading even when the file size is unknown", async () => {
+    const gradingUpdateUrl = "http://host/api/v0/exercise-services/grading/grading-update/1"
     const downloads: string[] = []
+    const updates: { claim: string | null; body: unknown }[] = []
     vi.stubGlobal(
       "fetch",
-      vi.fn((url: string) => {
+      vi.fn((url: string, init?: RequestInit) => {
+        if (url === gradingUpdateUrl) {
+          const headers = new Headers(init?.headers)
+          updates.push({
+            claim: headers.get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER),
+            body: JSON.parse(String(init?.body)),
+          })
+          return Promise.resolve(Response.json(null))
+        }
         downloads.push(url)
         return Promise.reject(new Error("download stopped by the test"))
       }),
     )
-    await expect(
-      handleGrade(
-        post({
-          grading_update_url: "http://x",
+
+    const res = await handleGrade(
+      post(
+        {
+          grading_update_url: gradingUpdateUrl,
           exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
           submission_files: [{ ...SUBMISSION_FILE, size_bytes: null }],
-        }),
+        },
+        "signed-claim",
       ),
-    ).rejects.toThrow("download stopped by the test")
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ grading_progress: "Pending", score_given: 0 })
+
+    await vi.waitFor(() => {
+      expect(updates).toHaveLength(1)
+    })
     expect(downloads).toEqual([SUBMISSION_FILE.download_url])
+    expect(updates[0]).toEqual({
+      claim: "signed-claim",
+      body: expect.objectContaining({
+        grading_progress: "Failed",
+        score_given: 0,
+        feedback_text: expect.stringContaining("download stopped by the test"),
+      }),
+    })
   })
 })

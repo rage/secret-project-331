@@ -1,9 +1,12 @@
-use std::collections::HashMap;
+use std::borrow::Borrow;
+use std::collections::{HashMap, HashSet};
 
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
+use crate::{
+    error::missing_model_error, prelude::*, study_registry_registrars::StudyRegistryRegistrar,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 
@@ -25,7 +28,7 @@ pub struct CourseModuleCompletion {
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
     pub needs_to_be_reviewed: bool,
-    /// Whether the push path owns this completion. See the column comment; decided at insert.
+    /// Whether the push path owns this completion. See the column comment.
     pub register_credits_via_suotar: bool,
 }
 
@@ -98,10 +101,16 @@ VALUES (
     $12,
     -- Decided here rather than by the caller: the flag is what keeps the two registration paths
     -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
-    -- The module alone decides it: a student with no linked number yet is what the registration
-    -- page's first step and the pipeline's student_number precondition are for.
     (
-      SELECT cm.enable_credit_registration_via_suotar
+      SELECT cm.deleted_at IS NULL
+        AND cm.enable_credit_registration_via_suotar
+        AND cm.register_eligible_new_completions_via_suotar
+        AND EXISTS (
+          SELECT 1
+          FROM verified_student_numbers vsn
+          WHERE vsn.user_id = $4
+            AND vsn.deleted_at IS NULL
+        )
       FROM course_modules cm
       WHERE cm.id = $3
     )
@@ -164,7 +173,15 @@ pub async fn insert_seed_row(
         VALUES (
             $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
             (
-              SELECT cm.enable_credit_registration_via_suotar
+              SELECT cm.deleted_at IS NULL
+                AND cm.enable_credit_registration_via_suotar
+                AND cm.register_eligible_new_completions_via_suotar
+                AND EXISTS (
+                  SELECT 1
+                  FROM verified_student_numbers vsn
+                  WHERE vsn.user_id = $3
+                    AND vsn.deleted_at IS NULL
+                )
               FROM course_modules cm
               WHERE cm.id = $2
             )
@@ -438,14 +455,15 @@ WHERE user_id = $1
 }
 
 /// Finds the best grade
-pub fn select_best_completion(
-    completions: Vec<CourseModuleCompletion>,
-) -> Option<CourseModuleCompletion> {
+pub fn select_best_completion<C: Borrow<CourseModuleCompletion>>(
+    completions: impl IntoIterator<Item = C>,
+) -> Option<C> {
     // Passed outranks not passed before grades are compared: ranking by grade alone let a failed
     // graded completion beat a passed pass/fail one, so a failure was reported as the best result.
     // `created_at` and `id` only break ties, so two equally good completions resolve to the newest
     // one instead of to whichever order the caller's query happened to return.
     completions.into_iter().max_by_key(|completion| {
+        let completion = completion.borrow();
         (
             completion.passed,
             completion.grade.unwrap_or(0),
@@ -453,6 +471,59 @@ pub fn select_best_completion(
             completion.id,
         )
     })
+}
+
+/// Which of `ids` the push path will create a credit registration for, now or on its next
+/// materialise tick: those in `credit_registration_eligible_completions`.
+pub async fn get_credit_registration_expected_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<HashSet<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT course_module_completion_id AS "course_module_completion_id!"
+FROM credit_registration_eligible_completions
+WHERE course_module_completion_id = ANY($1)
+        "#,
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.into_iter().collect())
+}
+
+/// The completion that decides which credit registration flow a student gets for one module: one
+/// opted in to `register_credits_via_suotar` outranks the rest, then the newest wins. While the push
+/// path owns a completion, the student must not be sent to the old flow for another.
+///
+/// Pass completions awaiting review too: leaving them out could switch the flow and so reveal the
+/// flag. Not [`select_best_completion`], which picks the result shown to the student.
+pub fn select_registration_completion<C: Borrow<CourseModuleCompletion>>(
+    completions: impl IntoIterator<Item = C>,
+) -> Option<C> {
+    completions.into_iter().max_by_key(|completion| {
+        let completion = completion.borrow();
+        (
+            completion.register_credits_via_suotar,
+            completion.created_at,
+            completion.id,
+        )
+    })
+}
+
+/// [`select_registration_completion`] over the user's completions of the module. Errors with
+/// `RecordNotFound` if there are none.
+pub async fn get_registration_completion_by_user_and_course_module_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<CourseModuleCompletion> {
+    let completions =
+        get_all_by_course_module_and_user_ids(conn, course_module_id, user_id).await?;
+    select_registration_completion(completions).ok_or_else(missing_model_error(
+        ModelErrorType::RecordNotFound,
+        "The user has no completion for this course module.".to_string(),
+    ))
 }
 
 /// Get the number of students that have completed the course
@@ -790,15 +861,25 @@ WHERE course_module_id = ANY($1)
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
   -- Completions on the push path are registered by us; letting the registry pull them too would put
-  -- a second attainment on the student's transcript. Per completion, not per module: a module can
-  -- be switched on while completions made before that stay the pull path's to register.
-  AND NOT course_module_completions.register_credits_via_suotar
-  -- Belt and braces behind the flag above: anything the push path already sent stays out for
-  -- good, since re-registering it would double the attainment on a real transcript.
+  -- a second attainment on the student's transcript. Per student and module, not per module: a
+  -- module can be switched on while students with no flagged completion stay the pull path's, and
+  -- a flagged completion takes its siblings along, since any of them registers the same credit.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_module_completions sibling
+    WHERE sibling.user_id = course_module_completions.user_id
+      AND sibling.course_module_id = course_module_completions.course_module_id
+      AND sibling.register_credits_via_suotar
+      AND sibling.deleted_at IS NULL
+  )
+  -- Belt and braces behind the flag above: once the push path has sent anything for the student and
+  -- module, it stays out for good, since re-registering would double the attainment on a real
+  -- transcript.
   AND NOT EXISTS (
     SELECT 1
     FROM credit_registrations cr
-    WHERE cr.course_module_completion_id = course_module_completions.id
+    WHERE cr.user_id = course_module_completions.user_id
+      AND cr.course_module_id = course_module_completions.course_module_id
       AND cr.submitted_at IS NOT NULL
       AND cr.deleted_at IS NULL
   )

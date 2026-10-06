@@ -8,7 +8,7 @@ const timelineAnswer = (
   choices: { timelineItemId: string; chosenEventId: string }[],
   valid: boolean,
 ): UserAnswer => ({
-  version: "4",
+  version: "5",
   itemAnswers: [{ type: "timeline", quizItemId: "t1", valid, timelineChoices: choices }],
 })
 
@@ -19,7 +19,7 @@ describe("getQuizValidityMessages", () => {
   })
 
   it("asks the student to answer all parts when some items are unanswered", () => {
-    const state: UserAnswer = { version: "4", itemAnswers: [] }
+    const state: UserAnswer = { version: "5", itemAnswers: [] }
     expect(getQuizValidityMessages(state, 2, t)).toContain("answer-all-parts-of-the-exercise")
   })
 
@@ -36,7 +36,7 @@ describe("getQuizValidityMessages", () => {
 
   it("falls back to a generic reason for other invalid answers", () => {
     const state: UserAnswer = {
-      version: "4",
+      version: "5",
       itemAnswers: [
         { type: "multiple-choice", quizItemId: "m1", valid: false, selectedOptionIds: [] },
       ],
@@ -44,9 +44,27 @@ describe("getQuizValidityMessages", () => {
     expect(getQuizValidityMessages(state, 1, t)).toContain("check-your-answer")
   })
 
+  it("asks for the empty cells inside a gapped matrix to be filled in", () => {
+    const state: UserAnswer = {
+      version: "5",
+      itemAnswers: [
+        {
+          type: "matrix",
+          quizItemId: "x1",
+          valid: false,
+          matrix: [
+            ["1", ""],
+            ["", "4"],
+          ],
+        },
+      ],
+    }
+    expect(getQuizValidityMessages(state, 1, t)).toEqual(["matrix-fill-empty-cells"])
+  })
+
   it("de-duplicates repeated reasons", () => {
     const state: UserAnswer = {
-      version: "4",
+      version: "5",
       itemAnswers: [
         { type: "multiple-choice", quizItemId: "m1", valid: false, selectedOptionIds: [] },
         { type: "multiple-choice", quizItemId: "m2", valid: false, selectedOptionIds: [] },

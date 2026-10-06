@@ -84,6 +84,11 @@ const surfaceCss = css`
   color: var(--color-gray-700);
   border-radius: var(--surface-radius);
   outline: none;
+
+  /* Forced colours paint the surface and the page behind it the same Canvas; this is the edge. */
+  @media (forced-colors: active) {
+    border: 1px solid CanvasText;
+  }
 `
 
 const sizeCss: Record<DialogSize, string> = {
@@ -129,7 +134,8 @@ const closeButtonCss = css`
   justify-content: center;
   width: var(--space-6);
   height: var(--space-6);
-  margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) 0 0;
+  margin-block-start: calc(var(--space-3) * -1);
+  margin-inline-end: calc(var(--space-3) * -1);
   padding: 0;
   border: none;
   border-radius: 50%;

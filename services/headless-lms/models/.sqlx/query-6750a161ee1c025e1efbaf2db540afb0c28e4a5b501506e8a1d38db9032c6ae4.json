@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM credit_registration_enrolment_check_outcomes\nWHERE id IN (\n    SELECT id\n    FROM credit_registration_enrolment_check_outcomes\n    WHERE checked_at < $1\n    ORDER BY checked_at\n    LIMIT $2\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6750a161ee1c025e1efbaf2db540afb0c28e4a5b501506e8a1d38db9032c6ae4"
+}

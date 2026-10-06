@@ -29,7 +29,7 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   )
   const structureQuery = useCourseStructure(courseId)
 
-  const configs = configsQuery.data?.modules ?? []
+  const configs = configsQuery.data ?? []
   const enabled = configs.filter((config) => config.enable_credit_registration_via_suotar)
 
   if (enabled.length === 0) {

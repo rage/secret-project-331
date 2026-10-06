@@ -31,14 +31,13 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
   controlCss,
   controlsCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -49,6 +48,7 @@ import {
   stackedCellCss,
   statusTriggerCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
 import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
 import {
@@ -59,7 +59,6 @@ import {
   Link,
   MeterInline,
   QueryResult,
-  RelativeTime,
   Select,
   StatTile,
   StatTileList,
@@ -153,27 +152,23 @@ const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({
 }
 
 const CONFIG_FAILURE_BANNER_KEYS = {
-  product_token: "credit-registration-admin-config-failure-banner-product-token",
   course_code: "credit-registration-admin-config-failure-banner-course-code",
+  enrolment_link: "credit-registration-admin-config-failure-banner-enrolment-link",
 } as const
 
-/** Which of the four configuration checks passed, in a dialog so the row stays one line high. */
+/** Which of the configuration checks passed, in a dialog so the row stays one line high. */
 const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
   const checks: { label: string; value: boolean | null }[] = [
     {
       label: t("credit-registration-admin-check-course-code"),
-      value: module.check.course_code_resolves ?? null,
-    },
-    {
-      label: t("credit-registration-admin-check-product-token"),
-      value: module.check.product_token_found ?? null,
+      value: module.check.course_code_allowed ?? null,
     },
     { label: t("credit-registration-admin-check-ects"), value: module.ects_credits !== null },
     {
-      label: t("credit-registration-admin-check-realisation-pinned"),
-      value: module.active_realisation_count > 0,
+      label: t("credit-registration-admin-check-enrolment-link"),
+      value: Boolean(module.enrolment_link),
     },
   ]
   return (
@@ -203,7 +198,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
             ))}
           </div>
           {module.check.message && (
-            <p className={cx(noteCss, monospaceCss)}>{module.check.message}</p>
+            <p className={cx(noteCss, codeValueCss)}>{module.check.message}</p>
           )}
           <p className={noteCss}>
             {module.config_checked_at === null ? (
@@ -211,7 +206,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
             ) : (
               <>
                 {t("credit-registration-admin-config-checked-at")}{" "}
-                <RelativeTime at={module.config_checked_at} absoluteTime={TIME_COMPACT} />
+                <ZonedTimestamp at={module.config_checked_at} />
               </>
             )}
           </p>
@@ -425,7 +420,7 @@ const CoursesPage: React.FC = () => {
                           >
                             {row.course_name}
                           </Link>
-                          <span className={cx(noteCss, monospaceCss)}>
+                          <span className={cx(noteCss, codeValueCss)}>
                             {moduleSubtitle(row).join(MIDDLE_DOT)}
                           </span>
                         </span>

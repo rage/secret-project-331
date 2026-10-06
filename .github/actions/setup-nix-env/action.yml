@@ -1,11 +1,17 @@
 name: Setup Nix environment
 description: Install Nix, restore the pnpm cache, and export this repo's flake devShell (kubectl, kustomize, skaffold, minikube, node, pnpm, the pinned Rust toolchain, actionlint, zizmor, etc.) to subsequent steps
+inputs:
+  dev-shell:
+    description: flake.nix devShell to export; `node` (Node and pnpm) and `cluster` (plus the Kubernetes and image tooling) are much smaller downloads than `default`
+    default: default
 runs:
   using: composite
   steps:
     - uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
     - name: Export flake devShell environment
       shell: bash
+      env:
+        DEV_SHELL: ${{ inputs.dev-shell }}
       run: | # zizmor: ignore[github-env] every value written here comes from the pinned Nix flake or local repo files, never PR/issue-controlled input
         set -euo pipefail
         cd "$GITHUB_WORKSPACE"
@@ -16,7 +22,7 @@ runs:
         # is caught by `set -e` instead of being masked by the process substitution.
         # The dumped script already ends with `eval "$shellHook"`, so sourcing it runs the
         # hook once; evaluating it again here would duplicate its PATH/PKG_CONFIG_PATH exports.
-        nix print-dev-env > /tmp/nix-dev-env.sh
+        nix print-dev-env ".#$DEV_SHELL" > /tmp/nix-dev-env.sh
         source /tmp/nix-dev-env.sh
 
         # Keeps CI on the exact Node version package.json declares instead of silently
@@ -30,18 +36,12 @@ runs:
 
         # Keep this list in sync with flake.nix's devShells.default mkShell attrs and
         # shellHook exports — a new export added there needs a matching line here, or it
-        # reaches `nix develop` locally but never reaches CI steps after this one.
-        {
-          echo "PATH=$PATH"
-          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
-          echo "OPENSSL_INCLUDE_DIR=$OPENSSL_INCLUDE_DIR"
-          echo "OPENSSL_LIB_DIR=$OPENSSL_LIB_DIR"
-          echo "LIBCLANG_PATH=$LIBCLANG_PATH"
-          echo "RUSTUP_TOOLCHAIN=$RUSTUP_TOOLCHAIN"
-          echo "TILT_DISABLE_ANALYTICS=$TILT_DISABLE_ANALYTICS"
-          if [ -n "${RUSTFLAGS:-}" ]; then echo "RUSTFLAGS=$RUSTFLAGS"; fi
-          if [ -n "${SKAFFOLD_PLATFORM:-}" ]; then echo "SKAFFOLD_PLATFORM=$SKAFFOLD_PLATFORM"; fi
-        } >> "$GITHUB_ENV"
+        # reaches `nix develop` locally but never reaches CI steps after this one. Unset
+        # names are skipped because the node devShell sets only PATH.
+        for name in PATH PKG_CONFIG_PATH OPENSSL_INCLUDE_DIR OPENSSL_LIB_DIR LIBCLANG_PATH \
+          RUSTUP_TOOLCHAIN TILT_DISABLE_ANALYTICS RUSTFLAGS SKAFFOLD_PLATFORM; do
+          if [ -n "${!name:-}" ]; then echo "$name=${!name}"; fi
+        done >> "$GITHUB_ENV"
 
         echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
 

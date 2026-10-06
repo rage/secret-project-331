@@ -13,9 +13,29 @@ import type {
 } from "../../types/quizTypes/grading"
 import type {
   PrivateSpecQuiz,
+  PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
+
+/** Collapses the coefficient to wrong/partial/fully-correct when fog of war is on, leaves it exact otherwise. */
+const applyFogOfWar = (correctnessCoefficient: number, fogOfWar: boolean): number => {
+  if (!fogOfWar) {
+    return correctnessCoefficient
+  }
+  if (correctnessCoefficient <= 0) {
+    return 0
+  }
+  return correctnessCoefficient >= 1 ? 1 : 0.5
+}
+
+/** Item-type-specific fields; each branch overrides only its own. */
+const NO_TYPE_SPECIFIC_FEEDBACK = {
+  quiz_item_option_feedbacks: null,
+  timeline_item_feedbacks: null,
+  matrix_cell_feedbacks: null,
+  matrix_score_breakdown: null,
+}
 
 const submissionFeedback = (
   submission: UserAnswer,
@@ -32,8 +52,7 @@ const submissionFeedback = (
         return {
           quiz_item_id: null,
           quiz_item_feedback: null,
-          quiz_item_option_feedbacks: null,
-          timeline_item_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           correctnessCoefficient: 1,
         }
       }
@@ -55,19 +74,20 @@ const submissionFeedback = (
           return {
             quiz_item_id: null,
             quiz_item_feedback: null,
-            quiz_item_option_feedbacks: null,
-            timeline_item_feedbacks: null,
+            ...NO_TYPE_SPECIFIC_FEEDBACK,
             correctnessCoefficient: 1,
           }
         }
 
         const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+        // Under partial credit the exact coefficient would reveal which selections changed.
+        const correctnessCoefficient = applyFogOfWar(itemGrading.correctnessCoefficient, fogOfWar)
 
         return {
-          timeline_item_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           quiz_item_id: multipleChoiceQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          correctnessCoefficient: itemGrading.correctnessCoefficient,
+          correctnessCoefficient,
           quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
             (optionId): OptionAnswerFeedback => {
               const option =
@@ -105,7 +125,7 @@ const submissionFeedback = (
         return {
           quiz_item_id: timelineQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          quiz_item_option_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           correctnessCoefficient: itemGrading.correctnessCoefficient,
           timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
             (timelineChoice) => {
@@ -128,11 +148,27 @@ const submissionFeedback = (
         }
       }
 
+      if (item.type === "matrix") {
+        const matrixQuizItem = item as PrivateSpecQuizItemMatrix
+        // Null only if grading this item failed.
+        const difference = itemGrading.matrixDifference
+        // Fog of war withholds per-cell verdicts; the grader already forces it to all-or-nothing.
+        const revealCells = !matrixQuizItem.fogOfWar
+
+        return {
+          quiz_item_id: matrixQuizItem.id,
+          quiz_item_feedback: quizItemFeedback,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
+          matrix_cell_feedbacks: revealCells ? (difference?.cellFeedbacks ?? null) : null,
+          matrix_score_breakdown: revealCells ? (difference?.breakdown ?? null) : null,
+          correctnessCoefficient: itemGrading.correctnessCoefficient,
+        }
+      }
+
       return {
         quiz_item_id: item.id,
         quiz_item_feedback: quizItemFeedback,
-        quiz_item_option_feedbacks: null,
-        timeline_item_feedbacks: null,
+        ...NO_TYPE_SPECIFIC_FEEDBACK,
         correctnessCoefficient: itemGrading.correctnessCoefficient,
       }
     },
@@ -145,8 +181,7 @@ const submissionFeedback = (
     itemFeedbacks.push({
       quiz_item_id: null,
       quiz_item_feedback: quizLevelFeedback,
-      quiz_item_option_feedbacks: null,
-      timeline_item_feedbacks: null,
+      ...NO_TYPE_SPECIFIC_FEEDBACK,
       correctnessCoefficient: 1,
     })
   }

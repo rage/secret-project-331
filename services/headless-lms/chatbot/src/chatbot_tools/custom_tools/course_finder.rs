@@ -1,3 +1,4 @@
+use headless_lms_utils::cache::Cache;
 use std::collections::HashMap;
 
 use indexmap::IndexMap;
@@ -64,6 +65,7 @@ impl ChatbotTool for CourseFinderTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {

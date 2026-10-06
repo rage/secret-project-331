@@ -10,7 +10,9 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
-use headless_lms_models::library::credit_registration::config_validation::check_module_config;
+use headless_lms_models::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -22,14 +24,14 @@ use super::{authorize_credit_registration_admin, required_reason};
 const COURSES_LIMIT: i64 = 2_000;
 
 /// What the configuration check concluded about one module, freshly derived from the same facts and
-/// the same rule the `config-validation` phase uses.
+/// the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+/// phase.
 ///
-/// `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
-/// same as checked and failed, and the two must not render alike.
+/// `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+/// never checked is not the same as checked and failed, and the two must not render alike.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseConfigCheck {
-    pub course_code_resolves: Option<bool>,
-    pub product_token_found: Option<bool>,
+    pub course_code_allowed: Option<bool>,
     /// Every problem found, in one line. `None` means the module is fine.
     pub message: Option<String>,
 }
@@ -42,14 +44,10 @@ pub struct CreditRegistrationCourseStats {
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
-    /// The module's override; `None` means the scale is derived from the completion.
-    pub grade_scale_id: Option<String>,
-    /// The old pull path is on as well, which would register the same completion twice.
-    pub old_flow_also_enabled: bool,
+    /// Where a student with no usable enrolment is sent to enrol.
+    pub enrolment_link: Option<String>,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
-    pub active_realisation_count: i64,
     pub last_listed_at: Option<DateTime<Utc>>,
     /// What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
     /// longer shows as broken.
@@ -118,12 +116,11 @@ pub async fn get_credit_registration_stats_by_course(
             .await?
             .into_iter()
             .map(|facts| {
-                let check = check_module_config(&facts);
+                let check = check_module_config(&facts, CourseCodeVerdict::stored(&facts).as_ref());
                 (
                     facts.course_module_id,
                     CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: check.course_code_resolves,
-                        product_token_found: check.product_token_found,
+                        course_code_allowed: check.course_code_allowed,
                         message: check.message,
                     },
                 )
@@ -144,8 +141,7 @@ pub async fn get_credit_registration_stats_by_course(
                 checks
                     .remove(&module_id)
                     .unwrap_or(CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: None,
-                        product_token_found: None,
+                        course_code_allowed: None,
                         message: None,
                     }),
                 totals.remove(&module_id),
@@ -314,12 +310,9 @@ fn to_course_stats(
         course_module_name: overview.course_module_name,
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
-        open_university_product_id: overview.open_university_product_id,
-        grade_scale_id: overview.grade_scale_id,
-        old_flow_also_enabled: overview.old_flow_also_enabled,
+        enrolment_link: overview.enrolment_link,
         paused_at: overview.paused_at,
         pause_reason: overview.pause_reason,
-        active_realisation_count: overview.active_realisation_count,
         last_listed_at: overview.last_listed_at,
         check,
         config_checked_at: overview.config_checked_at,

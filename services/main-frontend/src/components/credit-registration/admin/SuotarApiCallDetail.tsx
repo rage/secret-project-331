@@ -7,19 +7,22 @@ import { useTranslation } from "react-i18next"
 
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import {
+  creditRegistrationItemRoute,
+  creditRegistrationSuotarApiCallRoute,
+} from "@/shared-module/common/utils/routes"
+import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TIME_COMPACT } from "../constants"
+import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   sectionCss,
+  stackedCellCss,
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import { eventKindLabel } from "./adminCreditRegistrationCopy"
 import AdminStateLabel from "./AdminStateLabel"
 import ErrorCodeCell from "./ErrorCodeCell"
 import PayloadBlock from "./PayloadBlock"
@@ -34,6 +37,30 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
     <PayloadBlock body={body} />
   </div>
 )
+
+/**
+ * One registration's own part of a call: its `{request, response}` item pair, or null when none was
+ * kept. The rest of the batch belongs to other students, so it is behind a link to the whole call.
+ */
+export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
+  suotarApiCallId,
+  exchange,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <div className={sectionCss}>
+      <p className={noteCss}>{t("credit-registration-admin-item-scrubbing-note")}</p>
+      {exchange === null || exchange === undefined ? (
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-registration-item")}</p>
+      ) : (
+        <Body title={t("credit-registration-heading-registration-item")} body={exchange} />
+      )}
+      <Link href={creditRegistrationSuotarApiCallRoute(suotarApiCallId)} prefetch={false}>
+        {t("credit-registration-admin-show-whole-call")}
+      </Link>
+    </div>
+  )
+}
 
 /**
  * The stored request and response of one call, with the ledger rows it carried beside them.
@@ -53,7 +80,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
       {(detail) => (
         <div className={sectionCss}>
           <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-          {detail.error_message && <p>{detail.error_message}</p>}
+          {detail.error_message && (
+            <p>
+              <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}
+              {detail.error_message}
+            </p>
+          )}
           <Body
             title={t("credit-registration-admin-stored-request")}
             body={detail.request_body_sample}
@@ -80,7 +112,7 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code>{row.request_item_id}</code>
+                        <code className={codeValueCss}>{row.request_item_id ?? ABSENT}</code>
                       </Link>
                     ),
                   },
@@ -95,62 +127,33 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   {
                     header: t("label-student-number"),
                     cell: (row) => (
-                      <span className={monospaceCss}>{row.student_number ?? ABSENT}</span>
+                      <span className={codeValueCss}>{row.student_number ?? ABSENT}</span>
                     ),
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },
                   {
-                    header: t("label-state"),
-                    cell: (row) => <AdminStateLabel state={row.state} />,
-                  },
-                  {
-                    header: t("label-error-code"),
-                    cell: (row) =>
-                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
-                  },
-                ]}
-              />
-            )}
-          </div>
-          <div className={subsectionCss}>
-            <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
-            {detail.events.length === 0 ? (
-              <p className={emptyStateCss}>{t("credit-registration-admin-no-events-for-call")}</p>
-            ) : (
-              <Table
-                caption={t("credit-registration-heading-timeline")}
-                density={DENSITY_COMPACT}
-                rowKey={(row) => row.id}
-                rows={detail.events}
-                columns={[
-                  {
-                    header: t("label-time"),
-                    cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_COMPACT} />,
-                  },
-                  {
-                    header: t("label-kind"),
-                    cell: (row) => eventKindLabel(t, row.kind),
-                  },
-                  {
-                    header: t("label-state"),
-                    cell: (row) =>
-                      row.to_state ? <AdminStateLabel state={row.to_state} /> : ABSENT,
-                  },
-                  {
-                    header: t("label-error-code"),
-                    cell: (row) =>
-                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
-                  },
-                  {
-                    header: t("label-credit-registration-registration"),
-                    cell: (row) => (
-                      <Link
-                        href={creditRegistrationItemRoute(row.credit_registration_id)}
-                        prefetch={false}
-                      >
-                        {t("credit-registration-admin-open-registration")}
-                      </Link>
-                    ),
+                    header: t("credit-registration-admin-column-effect-of-call"),
+                    cell: (row) => {
+                      const effects = detail.events.filter(
+                        (event) => event.credit_registration_id === row.credit_registration_id,
+                      )
+                      if (effects.length === 0) {
+                        return t("credit-registration-admin-no-change")
+                      }
+                      return (
+                        <div className={stackedCellCss}>
+                          {effects.map((event) => (
+                            <div key={event.id}>
+                              {event.to_state ? <AdminStateLabel state={event.to_state} /> : null}
+                              {event.error_code ? (
+                                <ErrorCodeCell errorCode={event.error_code} />
+                              ) : null}
+                              {event.message ? <div>{event.message}</div> : null}
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    },
                   },
                 ]}
               />

@@ -21,6 +21,14 @@ interface ExtraAttributes {
   textAlign?: string
 }
 
+/* Some heading content is wrapped in a block element, which would push the anchor link below the text.
+   Only the last one is made inline, so any earlier line breaks stay. */
+const contentStyles = css`
+  & > :is(div, p):last-child {
+    display: inline;
+  }
+`
+
 const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
 > = ({ data }) => {
@@ -31,7 +39,10 @@ const HeadingBlock: React.FC<
     id: anchorId,
     children: (
       <>
-        <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
+        <span
+          className={contentStyles}
+          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }}
+        />
         {anchorId && (
           <HeadingAnchorLink anchorId={anchorId} headingText={headingTextFromHtml(content)} />
         )}

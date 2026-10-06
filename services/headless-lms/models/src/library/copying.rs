@@ -234,7 +234,6 @@ RETURNING id,
     content_rewrite.chatbot_configuration_ids =
         copy_chatbot_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_cheater_thresholds(&mut tx, copied_course.id, src_course_id).await?;
-    copy_course_module_suotar_configurations(&mut tx, copied_course.id, src_course_id).await?;
     copy_course_custom_privacy_policy_checkbox_texts(&mut tx, copied_course.id, src_course_id)
         .await?;
     copy_exercise_repositories(&mut tx, copied_course.id, src_course_id).await?;
@@ -1771,44 +1770,6 @@ FROM cheater_thresholds ct
   JOIN course_modules copied_module ON copied_module.id = uuid_generate_v5($1, ct.course_module_id::text)
 WHERE cm.course_id = $2
   AND ct.deleted_at IS NULL;
-        ",
-        new_course_id,
-        old_course_id
-    )
-    .execute(&mut *tx)
-    .await?;
-    Ok(())
-}
-
-/// Copies what a teacher typed, matching the `uh_course_code` and `ects_credits` that
-/// `copy_course_modules` already carries over. The pause record and the config-check verdict are
-/// dropped on purpose: they describe the source course. Realisations are per-term and not copied.
-async fn copy_course_module_suotar_configurations(
-    tx: &mut PgConnection,
-    new_course_id: Uuid,
-    old_course_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-INSERT INTO course_module_suotar_configurations (
-    id,
-    course_module_id,
-    open_university_product_id,
-    grade_scale_id
-  )
-SELECT uuid_generate_v5($1, cmsc.id::text),
-  uuid_generate_v5($1, cmsc.course_module_id::text),
-  cmsc.open_university_product_id,
-  cmsc.grade_scale_id
-FROM course_module_suotar_configurations cmsc
-  JOIN course_modules cm ON cm.id = cmsc.course_module_id
-WHERE cm.course_id = $2
-  AND cmsc.deleted_at IS NULL
-  AND cm.deleted_at IS NULL
-  AND (
-    cmsc.open_university_product_id IS NOT NULL
-    OR cmsc.grade_scale_id IS NOT NULL
-  );
         ",
         new_course_id,
         old_course_id

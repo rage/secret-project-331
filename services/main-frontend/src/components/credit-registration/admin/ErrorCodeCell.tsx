@@ -8,7 +8,7 @@ import type { CreditRegistrationErrorCode } from "@/generated/api/types.generate
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { registrationErrorShortLabel } from "../creditRegistrationCopy"
-import { monospaceCss, noteCss, stackedCellCss } from "../styles"
+import { codeValueCss, noteCss, stackedCellCss } from "../styles"
 
 /**
  * One failure as a table cell: the short reason first, the wire code under it.
@@ -21,7 +21,7 @@ const ErrorCodeCell: React.FC<{ errorCode: CreditRegistrationErrorCode }> = ({ e
   return (
     <span className={stackedCellCss}>
       <span>{registrationErrorShortLabel(t, errorCode)}</span>
-      <code className={cx(noteCss, monospaceCss)}>{errorCode}</code>
+      <code className={cx(noteCss, codeValueCss)}>{errorCode}</code>
     </span>
   )
 }

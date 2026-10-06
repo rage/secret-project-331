@@ -4,10 +4,11 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { adminMaterializeCreditRegistrations } from "@/generated/api/sdk.generated"
 import type { CreditRegistrationReconciliation } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, Disclosure, Table } from "@/shared-module/components"
 
 import {
   BADGE_COMPACT,
@@ -15,13 +16,12 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
   dividedListCss,
   headingCss,
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -151,7 +151,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-completed"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.completion_date} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.completion_date} />,
             },
             {
               header: t("credit-registration-admin-column-why-not-materialised"),
@@ -197,7 +197,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("label-student-number"),
               minWidth: "7rem",
               nowrap: true,
-              cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+              cell: (row) => <span className={codeValueCss}>{row.student_number}</span>,
             },
             {
               header: t("label-course"),
@@ -205,7 +205,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               cell: (row) => (
                 <span className={stackedCellCss}>
                   <span>{row.course_name}</span>
-                  <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
+                  <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
                 </span>
               ),
             },
@@ -218,7 +218,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-submitted-at"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.submitted_at} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.submitted_at} />,
             },
           ]}
         />

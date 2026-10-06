@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   useCreditRegistrationAttentionCount,
+  useCreditRegistrationFailingRosterCodeCount,
   useCreditRegistrationLinkingFailureCount,
   useCreditRegistrationMisconfiguredCourseCount,
   useCreditRegistrationUnhealthyPhaseCount,
@@ -26,6 +27,7 @@ import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMulti
 import {
   creditRegistrationAuditRoute,
   creditRegistrationCoursesRoute,
+  creditRegistrationEnrolmentChecksRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
@@ -40,6 +42,7 @@ const KEY_ERRORS = "errors"
 const KEY_COURSES = "courses"
 const KEY_LINKING = "linking"
 const KEY_SYSTEM = "system"
+const KEY_ENROLMENT_CHECKS = "enrolment-checks"
 const KEY_AUDIT = "audit"
 
 // The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
@@ -47,8 +50,11 @@ const flushTabListCss = css`
   margin-bottom: 0;
 `
 
-const ADMINISTRATE_GLOBALLY = [
-  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
 ] as const
 
 /** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
@@ -110,6 +116,14 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         countTone: "danger",
       },
       {
+        key: KEY_ENROLMENT_CHECKS,
+        title: t("credit-registration-tab-enrolment-checks"),
+        href: creditRegistrationEnrolmentChecksRoute(),
+        countHook: useCreditRegistrationFailingRosterCodeCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
+      },
+      {
         key: KEY_AUDIT,
         title: t("credit-registration-tab-audit"),
         href: creditRegistrationAuditRoute(),
@@ -137,7 +151,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
 const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const permission = useAuthorizeMultiple([...ADMINISTRATE_GLOBALLY])
+  const permission = useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS])
 
   // Everyone this section is for holds the permission, so a denied banner while the check is still
   // in flight would give the wrong answer to its only readers.

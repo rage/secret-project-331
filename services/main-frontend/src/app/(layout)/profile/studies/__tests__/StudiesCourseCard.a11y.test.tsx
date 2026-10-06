@@ -26,6 +26,7 @@ const course: MyStudiesCourse = {
       order_number: 0,
       ects_credits: 5,
       supports_credit_registration: false,
+      is_credit_registration_starting: false,
       score_given: 12,
       score_maximum: 20,
       score_required: 16,
@@ -48,6 +49,7 @@ const course: MyStudiesCourse = {
       order_number: 1,
       ects_credits: null,
       supports_credit_registration: false,
+      is_credit_registration_starting: false,
       score_given: 9,
       score_maximum: 15,
       score_required: 10,
@@ -90,16 +92,16 @@ describe("StudiesCourseCard accessibility", () => {
     expect(screen.getByText("x-to-complete-this-module")).toBeInTheDocument()
   })
 
-  it("labels each meter and states its value in text", () => {
+  it("labels each progress bar and states its value in text", () => {
     renderCard()
 
-    const [points, exercises] = screen.getAllByRole("meter")
+    const [points, exercises] = screen.getAllByRole("progressbar")
     expect(points).toHaveAccessibleName("label-points")
     expect(exercises).toHaveAccessibleName("exercises-attempted")
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
-  it("names what the meters are measured for, so the numbers are not read bare", () => {
+  it("names what the progress bars are measured for, so the numbers are not read bare", () => {
     renderCard()
 
     expect(

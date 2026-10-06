@@ -28,12 +28,15 @@ import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
+import {
+  exerciseAnswerFilesHref,
+  exerciseAnswersCsvHref,
+  exerciseDefinitionsCsvHref,
+} from "@/utils/exportDownloadUrls"
 
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
-
-const ANSWER_FILES_DOWNLOAD_PATH = "download-answer-files"
 
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -130,12 +133,10 @@ const SubmissionsPage: React.FC = () => {
 
   const exportHref =
     exportMode === "definitions"
-      ? // oxlint-disable-next-line i18next/no-literal-string
-        `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
-      : // oxlint-disable-next-line i18next/no-literal-string
-        `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
+      ? exerciseDefinitionsCsvHref(id, selectedTaskId)
+      : exerciseAnswersCsvHref(id, selectedTaskId, onlyLatestPerUser)
 
-  const answerFilesHref = `/api/v0/main-frontend/exercises/${id}/${ANSWER_FILES_DOWNLOAD_PATH}`
+  const answerFilesHref = exerciseAnswerFilesHref(id)
 
   return (
     <div>

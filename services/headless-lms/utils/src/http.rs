@@ -26,7 +26,7 @@ fn in_http_test_mode() -> bool {
 }
 
 /// The settings both clients share, timeouts other than the connect one left to the caller.
-fn base_client_builder() -> reqwest::ClientBuilder {
+pub(crate) fn base_client_builder() -> reqwest::ClientBuilder {
     reqwest::Client::builder()
         .use_rustls_tls()
         .https_only(!in_http_test_mode())

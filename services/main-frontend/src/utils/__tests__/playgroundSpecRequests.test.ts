@@ -14,7 +14,7 @@ const derive = (declaresSpecFiles: boolean) =>
   fetchDerivedSpec({
     endpointUrl: "http://plugin.test/api/public-spec",
     privateSpec: { items: [] },
-    uploadUrl: "http://host.test/api/v0/files/playground",
+    uploadUrl: "http://host.test/upload",
     declaresSpecFiles,
     specDescription: "public spec",
   })

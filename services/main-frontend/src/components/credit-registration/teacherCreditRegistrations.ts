@@ -97,7 +97,7 @@ export const useCourseHasStudyRegistryModules = (courseId: string | null): boole
       build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
     }),
   )
-  return (query.data?.modules ?? []).some((module) => module.enable_credit_registration_via_suotar)
+  return (query.data ?? []).some((module) => module.enable_credit_registration_via_suotar)
 }
 
 /**
@@ -242,21 +242,36 @@ const EMPTY_CREDIT_REGISTRATIONS: CreditRegistrationIndex = new Map()
 
 export const creditRegistrationKey = (userId: string, moduleId: string) => `${userId}:${moduleId}`
 
-const indexLiveRegistrations = (rows: CourseCreditRegistration[]): CreditRegistrationIndex => {
+const isHeldCredit = (row: CourseCreditRegistration) => row.student_facing_status === "registered"
+
+/**
+ * One live row per student and module: the newest the registry holds the credit for, else the
+ * newest. A later completion's better grade leaves the registered row live until it is registered
+ * itself.
+ *
+ * Expects newest completion first, as the course credit registration endpoints return them.
+ */
+export const indexLiveRegistrations = (
+  rows: CourseCreditRegistration[],
+): CreditRegistrationIndex => {
   const index: CreditRegistrationIndex = new Map()
   for (const row of rows) {
     if (row.superseded) {
       continue
     }
-    index.set(creditRegistrationKey(row.user_id, row.course_module_id), row)
+    const key = creditRegistrationKey(row.user_id, row.course_module_id)
+    const chosen = index.get(key)
+    if (!chosen || (!isHeldCredit(chosen) && isHeldCredit(row))) {
+      index.set(key, row)
+    }
   }
   return index
 }
 
 const VERIFICATION_METHOD_KEYS = {
   emailed_link: "credit-registration-student-number-via-emailed-link",
-  email_match_fast_track: "credit-registration-student-number-via-email-match",
   admin_manual: "credit-registration-student-number-via-admin-manual",
+  study_registry: "credit-registration-student-number-via-study-registry",
 } as const satisfies Record<StudentNumberVerificationMethod, string>
 
 export const studentNumberVerificationLabel = (

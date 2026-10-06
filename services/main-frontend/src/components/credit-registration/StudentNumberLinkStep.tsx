@@ -7,19 +7,13 @@ import type { MyCreditRegistration, MyVerifiedStudentNumber } from "@/generated/
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
-import { RegistrationActions, type RegistrationCardAction } from "./RegistrationStatusCard"
 import { bandCss, noteCss, stepsCss, subheadingCss } from "./styles"
 import { studentNumberLinkBand } from "./trackerView"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 export interface StudentNumberLinkStepProps {
   registration: MyCreditRegistration
   verifiedNumber: MyVerifiedStudentNumber | null
-  /**
-   * The fast track out of the whole mail step: an address this account has proved it controls can
-   * match the one the registry holds. Only offered before a mail has gone out, by which point it
-   * has already missed.
-   */
-  confirmEmailAction: RegistrationCardAction | null
 }
 
 /**
@@ -33,10 +27,10 @@ export interface StudentNumberLinkStepProps {
 export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   registration,
   verifiedNumber,
-  confirmEmailAction,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
-  const band = studentNumberLinkBand(registration, verifiedNumber)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const band = studentNumberLinkBand(registration, verifiedNumber, { isAccountLinkingEnabled })
   if (band === null) {
     return null
   }
@@ -67,6 +61,15 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
     )
   }
 
+  if (band.kind === "staff-links") {
+    return (
+      <section className={bandCss}>
+        <h2 className={subheadingCss}>{t("credit-registration-link-heading-not-connected")}</h2>
+        <p>{t("credit-registration-link-staff-links-body")}</p>
+      </section>
+    )
+  }
+
   if (band.kind === "mailing") {
     return (
       <section className={bandCss}>
@@ -87,7 +90,11 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
             date: humanReadableDate(band.sentAt, i18n.language),
           })}
         </p>
-        <p className={noteCss}>{t("credit-registration-link-mailed-note")}</p>
+        <p className={noteCss}>
+          {isAccountLinkingEnabled
+            ? t("credit-registration-link-mailed-note")
+            : t("credit-registration-link-mailed-note-no-resend")}
+        </p>
       </section>
     )
   }
@@ -102,12 +109,6 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
         <li>{t("credit-registration-link-step-open")}</li>
       </ol>
       <p className={noteCss}>{t("credit-registration-link-only-once")}</p>
-      {confirmEmailAction ? (
-        <>
-          <p>{t("credit-registration-link-fast-track-offer")}</p>
-          <RegistrationActions primaryAction={confirmEmailAction} />
-        </>
-      ) : null}
     </section>
   )
 }

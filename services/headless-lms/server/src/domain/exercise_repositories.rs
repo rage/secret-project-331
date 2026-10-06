@@ -567,6 +567,15 @@ mod test {
         assert_eq!(&paths[2].name, "01_exercise");
     }
 
+    // git2 builds libgit2 without any network transport unless asked, so a dependency bump that
+    // drops these features only shows up when a repository fails to clone.
+    #[test]
+    fn libgit2_can_clone_over_https_and_ssh() {
+        let version = git2::Version::get();
+        assert!(version.https(), "git2 is missing its `https` feature");
+        assert!(version.ssh(), "git2 is missing its `ssh` feature");
+    }
+
     #[test]
     fn filters_git() {
         assert!(is_in_git_dir(Path::new("something/.git/something")));

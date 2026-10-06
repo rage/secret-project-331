@@ -4,6 +4,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
@@ -13,7 +14,19 @@ import { runInSandboxPod } from "@/util/podExecution"
 import type { GradeRequest } from "./requestSchemas"
 import { gradeRequestSchema } from "./requestSchemas"
 
-const { log, debug } = createLogger("grade")
+const { log, debug, error } = createLogger("grade")
+
+/** What /grade answers with: grading runs in a sandbox pod for longer than a client waits on a request. */
+const PENDING_RESULT: ExerciseTaskGradingResult = {
+  grading_progress: "Pending",
+  score_given: 0,
+  score_maximum: 0,
+  feedback_text: null,
+  feedback_json: null,
+}
+
+const GRADING_UPDATE_ATTEMPTS = 5
+const GRADING_UPDATE_RETRY_DELAY_MS = 2000
 
 /** tmc-langs' naive submission extraction, which a project archive never needs. */
 const EXTRACT_SUBMISSION_NAIVELY = false
@@ -80,29 +93,94 @@ async function postImpl(request: Request): Promise<Response> {
       .join("; ")
     return badRequest(`Invalid grading request (${issues})`)
   }
-  return await processGrading(parsed.data)
+  const req = parsed.data
+  const [answerArchive, ...extraFiles] = req.submission_files
+  if (!answerArchive) {
+    return badRequest("A submission to grade needs an archive in submission_files")
+  }
+  if (extraFiles.length > 0) {
+    return badRequest(
+      `A tmc answer is exactly one archive, got ${req.submission_files.length.toString()} files`,
+    )
+  }
+  // The playground authorises its grading update URL itself and sends no claim header.
+  const gradingUpdateClaim = request.headers.get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
+  void gradeAndReport(req, answerArchive.download_url, gradingUpdateClaim)
+  return jsonOk(PENDING_RESULT)
 }
 
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
-const processGrading = async (req: GradeRequest): Promise<Response> => {
+/** Grades an answer after /grade has answered, and sends the result to the host's grading-update URL. */
+async function gradeAndReport(
+  req: GradeRequest,
+  answerArchiveUrl: string,
+  gradingUpdateClaim: string | null,
+): Promise<void> {
+  let result: ExerciseTaskGradingResult
+  try {
+    result = await gradeAnswer(req, answerArchiveUrl)
+  } catch (e) {
+    error(`Failed to grade: ${String(e)}`)
+    result = {
+      ...PENDING_RESULT,
+      grading_progress: "Failed",
+      feedback_text: `Something went wrong: ${String(e)}`,
+    }
+  }
+  await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
+}
+
+/**
+ * Posts a grading result to the host, retrying because the host commits the pending grading only
+ * after /grade has answered, so an early update can find no grading to update.
+ */
+async function sendGradingUpdate(
+  url: string,
+  gradingUpdateClaim: string | null,
+  result: ExerciseTaskGradingResult,
+): Promise<void> {
+  const headers: Record<string, string> = { "content-type": "application/json" }
+  if (gradingUpdateClaim) {
+    headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
+  }
+  for (let attempt = 1; attempt <= GRADING_UPDATE_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(result),
+      })
+      if (res.ok) {
+        return
+      }
+      error(
+        `Grading update attempt ${attempt.toString()} failed: ${res.status.toString()} ${await res.text()}`,
+      )
+    } catch (e) {
+      error(`Grading update attempt ${attempt.toString()} failed: ${String(e)}`)
+    }
+    if (attempt < GRADING_UPDATE_ATTEMPTS) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, GRADING_UPDATE_RETRY_DELAY_MS * attempt)
+      })
+    }
+  }
+  error(`Gave up sending a grading update to ${url}`)
+}
+
+const gradeAnswer = async (
+  req: GradeRequest,
+  answerArchiveUrl: string,
+): Promise<ExerciseTaskGradingResult> => {
   const tempPaths: string[] = []
   try {
-    const { exercise_spec, submission_files } = req
-    const [answerArchive, ...extraFiles] = submission_files
-    if (!answerArchive) {
-      return badRequest("A submission to grade needs an archive in submission_files")
-    }
-    if (extraFiles.length > 0) {
-      return badRequest(
-        `A tmc answer is exactly one archive, got ${submission_files.length.toString()} files`,
-      )
-    }
+    const { exercise_spec } = req
 
     debug("downloading the submitted archive")
     const submissionArchivePath = temporaryFile()
     tempPaths.push(submissionArchivePath)
-    await downloadStream(answerArchive.download_url, submissionArchivePath)
+    await downloadStream(answerArchiveUrl, submissionArchivePath)
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
@@ -127,8 +205,8 @@ const processGrading = async (req: GradeRequest): Promise<Response> => {
 
     log("grading in pod")
     const gradingResult = await gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
-    log("grading finished, returning result")
-    return jsonOk(gradingResult)
+    log("grading finished")
+    return gradingResult
   } finally {
     await Promise.allSettled(tempPaths.map((p) => fs.rm(p, { recursive: true, force: true })))
   }

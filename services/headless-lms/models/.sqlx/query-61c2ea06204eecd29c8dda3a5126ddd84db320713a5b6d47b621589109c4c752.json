@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_roster_schedules\nSET last_attempted_at = now()\nWHERE course_code = ANY($1::text [])\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "61c2ea06204eecd29c8dda3a5126ddd84db320713a5b6d47b621589109c4c752"
+}

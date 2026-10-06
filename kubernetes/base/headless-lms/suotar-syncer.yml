@@ -7,9 +7,12 @@ metadata:
     deploymentType: with-init-container
     needs-db: "true"
 spec:
-  # A second replica would race for the same linking-mail slots and double-count the per-realisation
+  # A second replica would race for the same linking-mail slots and double-count the per-module
   # counters.
   replicas: 1
+  # Also one pod during a rollout: the new one starts only once the old one has finished its calls.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: suotar-syncer
@@ -20,6 +23,8 @@ spec:
       labels:
         app: suotar-syncer
     spec:
+      # Lets an enrolment listing or course-code check already running finish on shutdown.
+      terminationGracePeriodSeconds: 1800
       containers:
         - name: suotar-syncer
           image: headless-lms

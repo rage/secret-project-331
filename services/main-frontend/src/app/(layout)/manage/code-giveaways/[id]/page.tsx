@@ -15,6 +15,7 @@ import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
+import { codeGiveawayCodesCsvHref } from "@/utils/exportDownloadUrls"
 
 import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"
@@ -64,7 +65,7 @@ const CodeGiveawayPage = () => {
         <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
           {t(revealCodes ? "hide" : "reveal")}
         </Button>
-        <a href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`} download>
+        <a href={codeGiveawayCodesCsvHref(id)} download>
           <Button
             size="medium"
             variant="primary"

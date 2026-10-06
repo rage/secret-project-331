@@ -57,6 +57,9 @@ pub enum Action {
     /// held by teachers and assistants on their own courses, and account administration is not a
     /// course-scoped power.
     AdministrateUserAccount,
+    /// Operating the credit registration pipeline across all courses from the admin dashboard.
+    /// Separate from `Administrate` so it can be handed out without the rest of global admin.
+    AdministrateCreditRegistrations,
     Administrate,
 }
 
@@ -667,5 +670,6 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
             )
         }
         StatsViewer => matches!(action, ViewStats),
+        CreditRegistrationAdmin => matches!(action, AdministrateCreditRegistrations),
     }
 }

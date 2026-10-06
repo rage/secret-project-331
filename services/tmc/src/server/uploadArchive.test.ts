@@ -1,7 +1,10 @@
+// @vitest-environment node
+// jsdom replaces FormData and Blob with its own, which reject the Blob that fs.openAsBlob returns.
 import { promises as fsPromises } from "fs"
+import * as http from "http"
+import type { AddressInfo } from "net"
 import * as os from "os"
 import * as path from "path"
-import { PassThrough } from "stream"
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -9,20 +12,17 @@ import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-p
 
 import { uploadArchive } from "./uploadArchive"
 
-/** Reads a `form-data` request body and returns the multipart part name (the upload id). */
+/** Reads the multipart part name (the upload id) from a request body the way the host would. */
 async function readUploadId(body: unknown): Promise<string> {
-  // `form-data` is an old-style stream, not async-iterable; pipe it into a PassThrough to read it.
-  const sink = new PassThrough()
-  ;(body as NodeJS.ReadableStream).pipe(sink)
-  const chunks: Buffer[] = []
-  for await (const chunk of sink) {
-    chunks.push(Buffer.from(chunk as Buffer))
+  const form = await new Request("http://upload", {
+    method: "POST",
+    body: body as BodyInit,
+  }).formData()
+  const [name] = [...form.keys()]
+  if (!name) {
+    throw new Error("no multipart part in the request body")
   }
-  const match = /name="([^"]+)"/.exec(Buffer.concat(chunks).toString("utf8"))
-  if (!match?.[1]) {
-    throw new Error("no multipart part name in the request body")
-  }
-  return match[1]
+  return name
 }
 
 /** Reads the headers the mocked fetch was last called with. */
@@ -64,8 +64,11 @@ describe("uploadArchive", () => {
     }) as unknown as typeof global.fetch
   }
 
+  const realFetch = global.fetch
+
   beforeEach(async () => {
     vi.clearAllMocks()
+    global.fetch = realFetch
     archivePath = path.join(
       await fsPromises.mkdtemp(path.join(os.tmpdir(), "upload-")),
       "a.tar.zst",
@@ -80,6 +83,47 @@ describe("uploadArchive", () => {
   function upload(uploadClaim: string | null = null): Promise<{ id: string; url: string }> {
     return uploadArchive({ archivePath, archiveName, uploadUrl, uploadClaim })
   }
+
+  it("sends the archive as a multipart file part over the real fetch", async () => {
+    let received: { contentType: string | undefined; body: Buffer } | null = null
+    const server = http.createServer((req, res) => {
+      const chunks: Buffer[] = []
+      req.on("data", (chunk: Buffer) => chunks.push(chunk))
+      req.on("end", () => {
+        received = { contentType: req.headers["content-type"], body: Buffer.concat(chunks) }
+        res.setHeader("content-type", "application/json")
+        res.end(
+          JSON.stringify([{ id: "3f1a6c2e-8f6b-4c5b-9d0e-1a2b3c4d5e6f", url: "http://files/a" }]),
+        )
+      })
+    })
+    await new Promise<void>((resolve) => {
+      server.listen(0, "127.0.0.1", resolve)
+    })
+    try {
+      const { port } = server.address() as AddressInfo
+      await uploadArchive({
+        archivePath,
+        archiveName,
+        uploadUrl: `http://127.0.0.1:${port}/api/v0/files/tmc`,
+        uploadClaim: null,
+      })
+    } finally {
+      server.close()
+    }
+
+    const { contentType, body } = received ?? { contentType: undefined, body: Buffer.alloc(0) }
+    const form = await new Request("http://upload", {
+      method: "POST",
+      headers: { "content-type": contentType ?? "" },
+      body,
+    }).formData()
+    const parts = [...form.values()]
+    expect(parts).toHaveLength(1)
+    const file = parts[0] as File
+    expect(file.name).toBe(archiveName)
+    expect(await file.text()).toBe("archive contents")
+  })
 
   it("returns the file id and URL the endpoint reported", async () => {
     mockResponse([

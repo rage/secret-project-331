@@ -16,7 +16,13 @@ import type { WithReason } from "./ReasonConfirmDialog"
 // A field's floating-label band eats into the grid gap above it, so the description reads closer
 // to the field than the form's other gaps; this makes up the difference.
 const descriptionCss = css`
+  display: grid;
+  gap: var(--space-2);
   margin-bottom: var(--space-2);
+
+  > p {
+    margin: 0;
+  }
 `
 
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
@@ -25,7 +31,7 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   /** Lower it to `tertiary` where the action must not read as the row's obvious next step. */
   triggerVariant?: ButtonVariant
   dialogTitle: string
-  /** One sentence saying what confirming does, above the fields. */
+  /** What confirming does, above the fields. */
   description: React.ReactNode
   /** Verb phrase naming the action, e.g. "Send to Sisu again". */
   confirmLabel: string
@@ -35,7 +41,8 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   mutationFn: (fields: Fields) => Promise<Result>
   onSuccess?: (result: Result) => void
   renderFields: (control: Control<Fields>) => React.ReactNode
-  renderResult: (result: Result) => React.ReactNode
+  /** Under the trigger. Omit it where the caller reports the result elsewhere, from `onSuccess`. */
+  renderResult?: (result: Result) => React.ReactNode
 }
 
 /**
@@ -85,10 +92,10 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
       >
         {triggerLabel}
       </Button>
-      {result && renderResult(result)}
+      {result && renderResult?.(result)}
       <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle} actions={actions}>
         <form className={dialogFormCss} onSubmit={submit}>
-          <p className={cx(proseCss, descriptionCss)}>{description}</p>
+          <div className={cx(proseCss, descriptionCss)}>{description}</div>
           {renderFields(control)}
         </form>
       </Dialog>

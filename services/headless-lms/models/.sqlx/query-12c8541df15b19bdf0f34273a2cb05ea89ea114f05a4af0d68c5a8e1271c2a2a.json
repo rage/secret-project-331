@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_roster_schedules\nSET last_fetched_at = now(),\n  last_fetch_duration_ms = $3,\n  last_listed_person_count = $2,\n  is_fetched_alone = FALSE,\n  consecutive_failures = 0,\n  retry_not_before = NULL,\n  last_error = NULL,\n  window_closed_at = NULL,\n  triggered_fetch_count = CASE\n    WHEN LEAST(triggered_fetch_at, follow_up_fetch_at) > now()\n    OR COALESCE(triggered_fetch_at, follow_up_fetch_at) IS NULL THEN triggered_fetch_count\n    WHEN triggered_fetch_day = (now() AT TIME ZONE 'UTC')::date THEN triggered_fetch_count + 1\n    ELSE 1\n  END,\n  triggered_fetch_day = CASE\n    WHEN LEAST(triggered_fetch_at, follow_up_fetch_at) <= now() THEN (now() AT TIME ZONE 'UTC')::date\n    ELSE triggered_fetch_day\n  END,\n  triggered_fetch_at = CASE\n    WHEN triggered_fetch_at <= now() THEN NULL\n    ELSE triggered_fetch_at\n  END,\n  follow_up_fetch_at = CASE\n    WHEN follow_up_fetch_at <= now() THEN NULL\n    ELSE follow_up_fetch_at\n  END\nWHERE course_code = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "12c8541df15b19bdf0f34273a2cb05ea89ea114f05a4af0d68c5a8e1271c2a2a"
+}

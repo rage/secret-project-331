@@ -6,7 +6,7 @@
 //! binding row is soft-deleted rather than removed so that a submit naming a reaped file can
 //! still answer `upload_expired` instead of the misleading `unknown_upload`.
 
-use std::{env, path::Path};
+use std::path::Path;
 
 use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
 use crate::{setup_file_store, setup_tracing};
@@ -19,9 +19,8 @@ use sqlx::{PgConnection, PgPool};
 const MAX_CONCURRENT_REAPS: usize = 8;
 
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
     let base_url = ProgramConfig::required("BASE_URL")?;

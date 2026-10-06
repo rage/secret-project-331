@@ -1,5 +1,3 @@
-use std::env;
-
 use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 
@@ -8,9 +6,8 @@ use headless_lms_models as models;
 use sqlx::PgPool;
 
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;

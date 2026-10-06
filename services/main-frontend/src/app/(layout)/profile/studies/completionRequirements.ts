@@ -1,5 +1,6 @@
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import type { MyStudiesCourseModule } from "@/generated/api/types.generated"
+import { hasThreshold, meetsThreshold } from "@/utils/completionThresholds"
 
 /** Whether the student has passed every module there is, which is what completes a course. */
 export const everyModulePassed = (modules: MyStudiesCourseModule[]): boolean =>
@@ -13,11 +14,10 @@ export interface RemainingRequirements {
 
 /** Rounds away the float noise two decimals of stored points leave behind in a subtraction. */
 const shortfall = (required: number | null, current: number): number | null => {
-  if (required === null) {
+  if (!hasThreshold(required) || meetsThreshold(required, current)) {
     return null
   }
-  const remaining = Math.round((required - current) * 100) / 100
-  return remaining > 0 ? remaining : null
+  return Math.round((required - current) * 100) / 100
 }
 
 export const remainingRequirements = (

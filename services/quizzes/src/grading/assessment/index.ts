@@ -68,7 +68,17 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
       case "essay":
         return assessEssay(itemAnswer, quizItem as PrivateSpecQuizItemEssay)
       case "matrix":
-        return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        // Marked failed rather than thrown, so the other items still get graded and this one can be regraded.
+        try {
+          return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        } catch (error) {
+          console.error(`Failed to grade matrix item ${quizItem.id}:`, error)
+          return {
+            quizItemId: itemAnswer.quizItemId,
+            correctnessCoefficient: 0,
+            gradingFailed: true,
+          }
+        }
       case "checkbox":
       case "scale":
         return {

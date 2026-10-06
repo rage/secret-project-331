@@ -95,7 +95,7 @@ describe("TextField - floating label behavior (DOM state)", () => {
   test("starts floated when defaultValues has a value", () => {
     const { container } = renderStringField(
       (control) => <TextField name="f" control={control} label="Email" />,
-      "a@b.com",
+      "a@example.com",
     )
     const controlEl = container.firstChild?.firstChild as HTMLElement
     expect(controlEl).toHaveAttribute("data-filled", "true")
@@ -104,7 +104,7 @@ describe("TextField - floating label behavior (DOM state)", () => {
 
   test("controlled value: floats when non-empty, returns to rest when empty (remount)", () => {
     const { container, rerender } = render(
-      <FormHarness<StringFieldForm> key="filled" defaultValues={{ f: "a@b.com" }}>
+      <FormHarness<StringFieldForm> key="filled" defaultValues={{ f: "a@example.com" }}>
         {(c) => <TextField name="f" control={c} label="Email" />}
       </FormHarness>,
     )

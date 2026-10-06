@@ -187,7 +187,6 @@ export const rowStyle = css`
 
 export const tdStyle = css`
   color: var(--color-gray-700);
-  opacity: 0.8;
   font-weight: 400;
   font-size: 12px;
   line-height: 140%;

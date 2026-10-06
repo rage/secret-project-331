@@ -8,6 +8,7 @@ use models::{
     course_instance_enrollments::CourseInstanceEnrollment,
     course_module_completions::CourseModuleCompletion,
     library::progressing::UserModuleCompletionStatus,
+    points_breakdowns::ChapterPointsBreakdown,
     user_exercise_states::{UserCourseChapterExerciseProgress, UserCourseProgress},
 };
 use utoipa::{OpenApi, ToSchema};
@@ -22,6 +23,7 @@ use crate::{
     get_user_progress_for_course_instance,
     get_user_progress_for_course_instance_chapter,
     get_user_progress_for_course_instance_chapter_exercises,
+    get_user_points_breakdown_for_course_module,
     get_module_completions_for_course_instance,
     save_course_settings,
     get_all_get_all_course_module_completions_for_user_by_course_instance_id,
@@ -167,6 +169,51 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
             })
             .collect();
     token.authorized_ok(web::Json(rounded_score_given_instances))
+}
+
+/**
+GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
+    operation_id = "getCourseMaterialCourseModulePointsBreakdown",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "The user's points by chapter, page and exercise", body = Vec<ChapterPointsBreakdown>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_user_points_breakdown_for_course_module(
+    user: AuthUser,
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ChapterPointsBreakdown>>> {
+    let mut conn = pool.acquire().await?;
+    let (course_instance_id, course_module_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let course_module = models::course_modules::get_by_id(&mut conn, course_module_id).await?;
+    if course_module.course_id != course_instance.course_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Course module does not belong to the requested course instance".to_string()
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
+    let breakdown = models::points_breakdowns::get_user_course_module_points_breakdown(
+        &mut conn,
+        course_module_id,
+        user.id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(breakdown))
 }
 
 /**
@@ -349,6 +396,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",
         web::get().to(get_user_progress_for_course_instance_chapter),
+    )
+    .route(
+        "/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
+        web::get().to(get_user_points_breakdown_for_course_module),
     )
     .route(
         "/{course_instance_id}/module-completions",

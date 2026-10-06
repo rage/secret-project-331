@@ -1,10 +1,11 @@
 //! Per-request observability for calls to Suotar.
 //!
-//! Bodies must be scrubbed with [`crate::credit_registration_events::scrub_suotar_body`] before
-//! insert; `credit_registration_ids` replaces the removed identifiers for drill-down.
+//! Bodies must be scrubbed with [`crate::library::credit_registration::scrub::scrub_suotar_body`]
+//! before insert; `credit_registration_ids` ties a call to the rows it was for, which the scrubbed
+//! bodies no longer identify.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
-    SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
+    REFUSED_BEFORE_SENDING_CODE, SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
 };
 use utoipa::ToSchema;
 
@@ -12,7 +13,7 @@ use utoipa::ToSchema;
 /// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
 pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use crate::credit_registration_events::{scrub_suotar_body, scrub_text};
+use crate::library::credit_registration::scrub::{scrub_suotar_body, scrub_text};
 use crate::prelude::*;
 
 /// How long call rows are kept.
@@ -23,6 +24,8 @@ pub const FULL_BODY_ITEM_LIMIT: usize = 20;
 
 /// Above [`FULL_BODY_ITEM_LIMIT`], only this many items are kept plus a count.
 pub const SAMPLED_BODY_ITEM_COUNT: usize = 5;
+// `sample_body` slices this many off a body longer than the limit.
+const _: () = assert!(SAMPLED_BODY_ITEM_COUNT <= FULL_BODY_ITEM_LIMIT);
 
 /// Hard cap on a stored body, applied after sampling.
 pub const BODY_SAMPLE_MAX_BYTES: usize = 64 * 1024;
@@ -40,6 +43,7 @@ pub struct SuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub error_message: Option<String>,
     pub request_body_sample: Option<serde_json::Value>,
@@ -47,6 +51,8 @@ pub struct SuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    /// Every requestItemId the call sent, in request order.
+    pub request_item_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -58,6 +64,7 @@ pub struct NewSuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
@@ -68,6 +75,7 @@ pub struct NewSuotarApiCall {
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
     pub started_at: DateTime<Utc>,
+    pub request_item_ids: Vec<String>,
 }
 
 pub async fn insert(conn: &mut PgConnection, new: &NewSuotarApiCall) -> ModelResult<Uuid> {
@@ -81,13 +89,15 @@ INSERT INTO suotar_api_calls (
     succeeded,
     ok_item_count,
     error_item_count,
+    pending_item_count,
     request_level_error_code,
     error_message,
     request_body_sample,
     response_body_sample,
     credit_registration_ids,
     worker_name,
-    started_at
+    started_at,
+    request_item_ids
   )
 VALUES (
     $1,
@@ -103,7 +113,9 @@ VALUES (
     $11,
     $12,
     $13,
-    $14
+    $14,
+    $15,
+    $16
   )
 RETURNING id
         "#,
@@ -114,6 +126,7 @@ RETURNING id
         new.succeeded,
         new.ok_item_count,
         new.error_item_count,
+        new.pending_item_count,
         new.request_level_error_code,
         new.error_message,
         new.request_body_sample,
@@ -121,6 +134,7 @@ RETURNING id
         &new.credit_registration_ids,
         new.worker_name,
         new.started_at,
+        &new.request_item_ids,
     )
     .fetch_one(conn)
     .await?;
@@ -135,6 +149,7 @@ pub struct FinishedSuotarApiCall {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
@@ -155,9 +170,10 @@ SET http_status = $2,
   succeeded = $4,
   ok_item_count = $5,
   error_item_count = $6,
-  request_level_error_code = $7,
-  error_message = $8,
-  response_body_sample = $9,
+  pending_item_count = $7,
+  request_level_error_code = $8,
+  error_message = $9,
+  response_body_sample = $10,
   updated_at = now()
 WHERE id = $1
         "#,
@@ -167,6 +183,7 @@ WHERE id = $1
         finished.succeeded,
         finished.ok_item_count,
         finished.error_item_count,
+        finished.pending_item_count,
         finished.request_level_error_code,
         finished.error_message,
         finished.response_body_sample,
@@ -178,7 +195,7 @@ WHERE id = $1
 
 /// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small, then
 /// the leading items plus a count, then nothing but the measurements.
-pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
+fn sample_body(value: &serde_json::Value) -> serde_json::Value {
     let sampled = match value.as_array() {
         Some(items) if items.len() > FULL_BODY_ITEM_LIMIT => serde_json::json!({
             "items": &items[..SAMPLED_BODY_ITEM_COUNT],
@@ -201,11 +218,17 @@ pub fn sample_body(value: &serde_json::Value) -> serde_json::Value {
 /// request is in flight and must survive whatever the caller's transaction does next.
 pub struct PgSuotarCallAudit {
     pool: PgPool,
+    is_waiting_item: fn(SuotarEndpoint, &str) -> bool,
 }
 
 impl PgSuotarCallAudit {
-    pub fn new(pool: PgPool) -> Self {
-        Self { pool }
+    /// `is_waiting_item` says whether an error item's `code` only means "not yet", which is logged
+    /// as pending rather than as an error.
+    pub fn new(pool: PgPool, is_waiting_item: fn(SuotarEndpoint, &str) -> bool) -> Self {
+        Self {
+            pool,
+            is_waiting_item,
+        }
     }
 }
 
@@ -220,6 +243,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             succeeded: false,
             ok_item_count: 0,
             error_item_count: 0,
+            pending_item_count: 0,
             request_level_error_code: None,
             error_message: None,
             request_body_sample: Some(sample_body(&scrub_suotar_body(&started.request_body))),
@@ -227,6 +251,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             credit_registration_ids: started.credit_registration_ids,
             worker_name: started.worker_name,
             started_at: started.started_at,
+            request_item_ids: started.request_item_ids,
         };
         let mut conn = match self.pool.acquire().await {
             Ok(conn) => conn,
@@ -245,12 +270,24 @@ impl SuotarCallAudit for PgSuotarCallAudit {
     }
 
     async fn finished(&self, call_id: Uuid, finished: SuotarCallFinished) {
+        let pending_item_count = finished.endpoint.map_or(0, |endpoint| {
+            finished
+                .error_item_codes
+                .iter()
+                .filter(|code| (self.is_waiting_item)(endpoint, code))
+                .count()
+        });
         let finished = FinishedSuotarApiCall {
             http_status: finished.http_status.map(i32::from),
             duration_ms: Some(finished.duration.as_millis().try_into().unwrap_or(i32::MAX)),
             succeeded: finished.succeeded,
             ok_item_count: finished.ok_item_count.try_into().unwrap_or(i32::MAX),
-            error_item_count: finished.error_item_count.try_into().unwrap_or(i32::MAX),
+            error_item_count: finished
+                .error_item_count
+                .saturating_sub(pending_item_count)
+                .try_into()
+                .unwrap_or(i32::MAX),
+            pending_item_count: pending_item_count.try_into().unwrap_or(i32::MAX),
             request_level_error_code: finished.request_level_error_code,
             error_message: finished.error_message.map(|message| scrub_text(&message)),
             response_body_sample: finished
@@ -342,6 +379,7 @@ pub struct SuotarApiCallPageRow {
     pub succeeded: bool,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
@@ -360,13 +398,14 @@ pub async fn get_page(
         SuotarApiCallPageRow,
         r#"
 SELECT id,
-  endpoint AS "endpoint!: SuotarEndpoint",
+  endpoint AS "endpoint!",
   request_item_count,
   http_status,
   duration_ms,
   succeeded,
   ok_item_count,
   error_item_count,
+  pending_item_count,
   request_level_error_code,
   credit_registration_ids,
   worker_name,
@@ -434,6 +473,7 @@ pub struct SuotarEndpointStatsForWindow {
     pub in_flight_count: i64,
     pub ok_item_count: i64,
     pub error_item_count: i64,
+    pub pending_item_count: i64,
     pub p50_duration_ms: Option<i32>,
     pub p95_duration_ms: Option<i32>,
     pub last_success_at: Option<DateTime<Utc>>,
@@ -469,6 +509,7 @@ SELECT w.window_secs AS "window_secs!",
   COUNT(*) FILTER (WHERE c.duration_ms IS NULL) AS "in_flight_count!",
   COALESCE(SUM(c.ok_item_count), 0) AS "ok_item_count!",
   COALESCE(SUM(c.error_item_count), 0) AS "error_item_count!",
+  COALESCE(SUM(c.pending_item_count), 0) AS "pending_item_count!",
   PERCENTILE_DISC(0.5) WITHIN GROUP (
     ORDER BY c.duration_ms
   ) AS "p50_duration_ms",
@@ -498,6 +539,57 @@ GROUP BY w.window_secs,
         "#,
         &window_secs,
         &since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
+}
+
+/// One endpoint's calls on one UTC day: what the enrolment check pacing costs Suotar.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct SuotarEndpointDailyCost {
+    pub day: chrono::NaiveDate,
+    pub endpoint: SuotarEndpoint,
+    pub call_count: i64,
+    pub failed_call_count: i64,
+    pub item_count: i64,
+    pub max_items_per_call: i32,
+    pub p50_duration_ms: Option<i32>,
+    pub p95_duration_ms: Option<i32>,
+}
+
+/// Finished calls per endpoint per UTC day since `since`, latest day first.
+pub async fn get_daily_costs_since(
+    conn: &mut PgConnection,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<SuotarEndpointDailyCost>> {
+    let rows = sqlx::query_as!(
+        SuotarEndpointDailyCost,
+        r#"
+SELECT (started_at AT TIME ZONE 'UTC')::date AS "day!",
+  endpoint AS "endpoint!",
+  COUNT(*) AS "call_count!",
+  COUNT(*) FILTER (
+    WHERE NOT succeeded
+  ) AS "failed_call_count!",
+  COALESCE(SUM(request_item_count), 0) AS "item_count!",
+  COALESCE(MAX(request_item_count), 0) AS "max_items_per_call!",
+  PERCENTILE_DISC(0.5) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p50_duration_ms,
+  PERCENTILE_DISC(0.95) WITHIN GROUP (
+    ORDER BY duration_ms
+  ) AS p95_duration_ms
+FROM suotar_api_calls
+WHERE started_at >= $1
+  AND duration_ms IS NOT NULL
+  AND deleted_at IS NULL
+GROUP BY 1,
+  2
+ORDER BY 1 DESC,
+  endpoint::text
+        "#,
+        since,
     )
     .fetch_all(conn)
     .await?;
@@ -594,6 +686,7 @@ WHERE started_at >= $1
 
 /// The unbroken run of "Suotar did not answer usefully" at the end of the window. A transport
 /// failure carries no HTTP status, which is how it is told from a refusal Suotar composed itself.
+/// Calls we refused before sending are left out.
 pub async fn count_unreachable_run_since(
     conn: &mut PgConnection,
     since: DateTime<Utc>,
@@ -616,6 +709,7 @@ WHERE c.started_at >= $1
   AND c.deleted_at IS NULL
   AND c.duration_ms IS NOT NULL
   AND NOT c.succeeded
+  AND c.request_level_error_code IS DISTINCT FROM $2
   AND (
     c.http_status IS NULL
     OR c.http_status >= 500
@@ -626,6 +720,7 @@ WHERE c.started_at >= $1
   )
         "#,
         since,
+        REFUSED_BEFORE_SENDING_CODE,
     )
     .fetch_one(conn)
     .await?;

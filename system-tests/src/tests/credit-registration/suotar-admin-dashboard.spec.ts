@@ -2,12 +2,16 @@ import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   ADMIN_COURSE_ID,
   ADMIN_COURSE_SLUG,
+  CREDIT_REGISTRATION_STUDENT_1,
   CRS_ADMIN_101,
   ORIGIN,
+  STUDENT_6,
+  SUOTAR_COURSE_ID,
 } from "@/utils/creditRegistration"
 import {
   accountLinkingStats,
   adminAuditLog,
+  adminResolveStudentNumber,
   adminRegistrationDetails,
   adminRegistrationUrl,
   creditRegistrationCourseStats,
@@ -23,10 +27,15 @@ import {
   runPhaseNow,
   suotarApiCall,
 } from "@/utils/creditRegistrationAdmin"
-import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  armMockSuotarFault,
+  disarmMockSuotarFault,
+  transitionMockSuotarSubmissionsFor,
+} from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   CREDIT_REGISTRATION_PHASES,
+  makeRosterListingsDue,
   runEnrolmentDiscoveryTick,
   runLedgerSnapshotTick,
   runLinkEmailsTick,
@@ -37,9 +46,10 @@ import {
 import { pollUntil } from "@/utils/waitingUtils"
 
 /**
- * Owns student numbers `9000009xx` and the `credit-registration-admin` course, the only course this
- * file ticks: discovery and the linking mails scope by course alone, so ticking them anywhere else
- * would sweep another spec's students.
+ * Owns the `credit-registration-admin` course, with `credit-registration-student-1` on it, and the
+ * stale-address fixture `090009037`. The admin course is the only course this file ticks: discovery
+ * and the linking mails scope by course alone, so ticking them anywhere else would sweep another
+ * spec's students.
  *
  * Aggregate tiles are global and run-order dependent, so nothing here asserts a dashboard total.
  */
@@ -68,21 +78,24 @@ const TAB_NAMES = [
 const SUPERSEDED_ATTEMPT_1_ID = "c5ed17ea-0901-4a5e-9e6e-c0de00000901"
 const SUPERSEDED_ATTEMPT_2_ID = "c5ed17ea-0902-4a5e-9e6e-c0de00000902"
 
-const SUPERSEDED_STUDENT_NUMBER = "900000901"
+const SUPERSEDED_STUDENT_NUMBER = STUDENT_6.studentNumber
 
-const STALE_STUDENT_NUMBER = "900000903"
-const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example"
+const STALE_STUDENT_NUMBER = "090009037"
+const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example.com"
 // Anchored: "old." and "older." variants of the same address also carry STALE_ADDRESS as a
 // substring, so a plain text match resolves to all three list items instead of just this one.
 const STALE_ADDRESS_EXACT = new RegExp(
   `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
 )
 
-/** Linked from seed time, so it is the one row on this course a tick can register. */
-const ADMIN_LINKED_EMAIL = "credit-registration-admin-linked@example.com"
-const ADMIN_LINKED_STUDENT_NUMBER = "900000904"
-const ADMIN_LINKED_LAST_NAME = "Alreadylinked"
-const ADMIN_LINKED_SISU_EMAIL = "zzyzx.alreadylinked@helsinki.example"
+/**
+ * Linked from seed time, so it is the one row on this course a tick can register. No spec applies a
+ * scenario to this account, which would rewrite the registry's name and address for it.
+ */
+const ADMIN_LINKED_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
+const ADMIN_LINKED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
+const ADMIN_LINKED_LAST_NAME = CREDIT_REGISTRATION_STUDENT_1.lastName
+const ADMIN_LINKED_SISU_EMAIL = "zzyzx.crsone@helsinki.example.com"
 
 test("Every tab renders, and the phases report heartbeats", async ({ page }) => {
   await page.goto(OVERVIEW_URL)
@@ -120,7 +133,7 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Linking" }).click()
   await expect(page.getByRole("heading", { name: "Recent links" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Per course realisation" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Per course module" })).toBeVisible()
 })
 
 // A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
@@ -181,7 +194,9 @@ test("Pausing a phase stops a tick, and resuming it lifts that again", async ({ 
 test("The explorer filters, and the attempt chain hides the replaced attempt by default", async ({
   page,
 }) => {
-  await page.goto(`${REGISTRATIONS_URL}?student_number=${SUPERSEDED_STUDENT_NUMBER}`)
+  await page.goto(
+    `${REGISTRATIONS_URL}?student_number=${SUPERSEDED_STUDENT_NUMBER}&course_id=${SUOTAR_COURSE_ID}`,
+  )
   const table = page.getByRole("table", { name: "Registrations" })
   await expect(table.getByRole("row")).toHaveCount(2)
 
@@ -204,9 +219,9 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
 })
 
 test("No stored body carries a student number, a name or an email address", async ({ page }) => {
-  const scope = { userEmail: ADMIN_LINKED_EMAIL }
+  const scope = { userEmail: ADMIN_LINKED_EMAIL, courseSlug: ADMIN_COURSE_SLUG }
   await runPhasesUpToSubmission(page.request, scope)
-  // The mock's default ripeness is `manual`: nothing registers a submission without this.
+  // Only a control transition registers a submission in the mock.
   await transitionMockSuotarSubmissionsFor(
     page.request,
     ADMIN_LINKED_STUDENT_NUMBER,
@@ -217,6 +232,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     async () => {
       const listed = await listAdminRegistrations(page.request, {
         student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        course_id: ADMIN_COURSE_ID,
         state: "awaiting_verification",
       })
       return listed.data[0] ?? null
@@ -230,6 +246,7 @@ test("No stored body carries a student number, a name or an email address", asyn
     async () => {
       const listed = await listAdminRegistrations(page.request, {
         student_number: ADMIN_LINKED_STUDENT_NUMBER,
+        course_id: ADMIN_COURSE_ID,
         state: "registered",
       })
       return listed.data[0] ?? null
@@ -243,9 +260,12 @@ test("No stored body carries a student number, a name or an email address", asyn
     "no Suotar calls were logged for this registration",
   ).toBeGreaterThan(0)
 
+  const callDetails = await Promise.all(
+    details.suotar_api_calls.map((call) => suotarApiCall(page.request, call.id)),
+  )
   const stored = JSON.stringify([
     details.events.map((event) => event.details),
-    details.suotar_api_calls.map((call) => [call.request_body_sample, call.response_body_sample]),
+    callDetails.map((call) => [call.request_body_sample, call.response_body_sample]),
   ])
   // resolve-enrolments and import send only the bare student number; a name or an email would only
   // ever reach a stored body through resolve-persons, which this pipeline never calls.
@@ -262,9 +282,18 @@ test("No stored body carries a student number, a name or an email address", asyn
     // and a redacted one look the same.
     await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
-    await page.getByRole("button", { name: "Show the exchange" }).first().click()
+    await page
+      .getByRole("table", { name: "Calls to Suotar" })
+      .getByRole("button", { name: "Show more" })
+      .first()
+      .click()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
+    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "This registration's item" })).toBeVisible()
+    await page.getByRole("link", { name: "Show the whole call" }).first().click()
+    await expect(
+      page.getByRole("dialog").getByRole("heading", { name: "Registrations this call carried" }),
     ).toBeVisible()
   })
 
@@ -314,7 +343,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
   // the reason is the only record of why support went around the mailed link.
   await expect(confirm).toBeDisabled()
 
-  await test.step("The API refuses the same two ways", async () => {
+  await test.step("The API refuses the same two ways, and a mistyped number", async () => {
     const withoutPreview = await postAdminManualLink(page.request, {
       user_id: "00000000-0000-0000-0000-000000000000",
       student_number: STALE_STUDENT_NUMBER,
@@ -330,6 +359,14 @@ test("Manual link is refused without a preview and without a reason", async ({ p
       reason: "   ",
     })
     expect(withoutReason.status()).toBe(422)
+
+    const mistyped = await postAdminManualLink(page.request, {
+      user_id: "00000000-0000-0000-0000-000000000000",
+      student_number: "090009038",
+      sisu_person_id: `hy-hlo-${STALE_STUDENT_NUMBER}`,
+      reason: "System test: the last digit is a typo.",
+    })
+    expect(mistyped.status()).toBe(422)
   })
 
   await test.step("A preview naming a different person is refused as a mismatch", async () => {
@@ -346,7 +383,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
 
 test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   await page.goto(LINKING_URL)
-  const staleTable = page.getByRole("table", { name: /Mailed \d+ times, still unclaimed/ })
+  const staleTable = page.getByRole("table", { name: /Emailed \d+ times, still unclaimed/ })
   const staleRow = staleTable.getByRole("row").filter({ hasText: STALE_STUDENT_NUMBER })
   await expect(staleRow).toBeVisible()
 
@@ -371,8 +408,8 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
       .getByLabel("Reason")
       .fill("System test: proving the override retires the capped mails.")
     await dialog.getByRole("button", { name: "Confirm" }).click()
-    await expect(dialog.getByText("A mail is owed")).toBeVisible()
-    await expect(dialog.getByText("earlier mails were retired")).toBeVisible()
+    await expect(dialog.getByText("An email is queued")).toBeVisible()
+    await expect(dialog.getByText("earlier emails were retired")).toBeVisible()
   })
 })
 
@@ -425,7 +462,7 @@ test("The overview reads the daily snapshots", async ({ page }) => {
   await runLedgerSnapshotTick(page.request)
 
   await page.goto(OVERVIEW_URL)
-  await expect(page.getByRole("heading", { name: "Queue depth over time" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Queue size over time" })).toBeVisible()
 
   await test.step("The tick wrote the range its only snapshot", async () => {
     await expect(page.getByText("No snapshot has been written")).toHaveCount(0)
@@ -547,17 +584,39 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
   })
 })
 
-test("A discovery run writes the per-realisation counters", async ({ page }) => {
+test("A discovery run writes the per-module counters", async ({ page }) => {
+  await makeRosterListingsDue(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
 
   const counters = await pollUntil(
     async () => {
       const stats = await accountLinkingStats(page.request)
-      const mine = stats.realisations.find((row) => row.course_id === ADMIN_COURSE_ID)
+      const mine = stats.modules.find((row) => row.course_id === ADMIN_COURSE_ID)
       return mine?.last_listed_at ? mine : null
     },
-    { description: "the admin course's realisation to report a listing" },
+    { description: "the admin course's module to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
+})
+
+test("A lookup Suotar answers with an unexpected error reads as an error, not as not found", async ({
+  page,
+  adminApi,
+}) => {
+  const studentNumber = "090009503"
+  const faultId = "admin-dashboard-resolve-person-error"
+  await armMockSuotarFault(page.request, {
+    id: faultId,
+    when: [{ endpoint: "resolve_persons" }, { stage: "resolve" }, { studentNumber }],
+    // oxlint-disable-next-line unicorn/no-thenable -- `when`/`then` is the mock's own fault shape
+    then: { kind: "itemLevel", code: "codeThisClientDoesNotKnow" },
+  })
+  try {
+    const resolved = await adminResolveStudentNumber(adminApi, studentNumber)
+    expect(resolved.found).toBe(false)
+    expect(resolved.lookup_error_code).toBe("codeThisClientDoesNotKnow")
+  } finally {
+    await disarmMockSuotarFault(page.request, faultId)
+  }
 })

@@ -18,6 +18,9 @@ pub enum StudentFacingCreditRegistrationStatus {
     /// which is the answer that there is none.
     LookingForEnrolment,
     NeedsEnrolment,
+    /// Held until staff fix the course's registration settings, with no known end: unlike
+    /// [`Self::LookingForEnrolment`], not a short wait.
+    WaitingForCourseSetup,
     /// An enrolment is settled and the attainment is on its way to the study registry.
     Sending,
     WaitingForSisu,
@@ -46,6 +49,7 @@ impl StudentFacingCreditRegistrationStatus {
             State::Pending => match preconditions.reason() {
                 Some(Reason::Completion) => Self::WaitingForCompletion,
                 Some(Reason::StudentNumber) => Self::NeedsStudentNumber,
+                Some(Reason::CourseCode) => Self::WaitingForCourseSetup,
                 // Nothing is outstanding, so the next precondition tick moves the row on.
                 None => Self::LookingForEnrolment,
             },
@@ -61,7 +65,9 @@ impl StudentFacingCreditRegistrationStatus {
                 }
             }
             State::NoUsableEnrolment => Self::NeedsEnrolment,
-            State::SubmissionUncertain | State::AwaitingVerification => Self::WaitingForSisu,
+            State::SubmissionUncertain
+            | State::AwaitingVerification
+            | State::PartiallyRegistered => Self::WaitingForSisu,
             // not_improved means Sisu holds an equal or better attainment, so the credit exists.
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
@@ -78,8 +84,9 @@ impl StudentFacingCreditRegistrationStatus {
     }
 }
 
-/// The `(state, completion_eligible, has_verified_student_number, enrolment_resolved)` combinations
-/// a set of stages covers, as parallel arrays for a query to `UNNEST` and join against.
+/// The `(state, completion_eligible, has_verified_student_number, course_code_allowed,
+/// enrolment_resolved)` combinations a set of stages covers, as parallel arrays for a query to
+/// `UNNEST` and join against.
 ///
 /// Enumerated from [`StudentFacingCreditRegistrationStatus::of`] rather than restated as a SQL
 /// predicate: a roster filtered to "failed" must return exactly the rows whose own badge says
@@ -89,6 +96,7 @@ pub struct StageMatch {
     pub states: Vec<CreditRegistrationState>,
     pub completion_eligible: Vec<bool>,
     pub has_verified_student_number: Vec<bool>,
+    pub course_code_allowed: Vec<bool>,
     pub enrolment_resolved: Vec<bool>,
 }
 
@@ -99,28 +107,32 @@ impl StageMatch {
         if stages.is_empty() {
             return matched;
         }
-        for state in CreditRegistrationState::ALL {
-            for completion_eligible in [false, true] {
-                for has_verified_student_number in [false, true] {
-                    for enrolment_resolved in [false, true] {
-                        let preconditions = PendingPreconditions {
-                            completion_eligible,
-                            has_verified_student_number,
-                        };
-                        if stages.contains(&StudentFacingCreditRegistrationStatus::of(
-                            state,
-                            preconditions,
-                            enrolment_resolved,
-                        )) {
-                            matched.states.push(state);
-                            matched.completion_eligible.push(completion_eligible);
-                            matched
-                                .has_verified_student_number
-                                .push(has_verified_student_number);
-                            matched.enrolment_resolved.push(enrolment_resolved);
-                        }
-                    }
-                }
+        let flags = [false, true];
+        for (
+            state,
+            completion_eligible,
+            has_verified_student_number,
+            course_code_allowed,
+            enrolment_resolved,
+        ) in itertools::iproduct!(CreditRegistrationState::ALL, flags, flags, flags, flags)
+        {
+            let preconditions = PendingPreconditions {
+                completion_eligible,
+                has_verified_student_number,
+                course_code_allowed,
+            };
+            if stages.contains(&StudentFacingCreditRegistrationStatus::of(
+                state,
+                preconditions,
+                enrolment_resolved,
+            )) {
+                matched.states.push(state);
+                matched.completion_eligible.push(completion_eligible);
+                matched
+                    .has_verified_student_number
+                    .push(has_verified_student_number);
+                matched.course_code_allowed.push(course_code_allowed);
+                matched.enrolment_resolved.push(enrolment_resolved);
             }
         }
         matched
@@ -145,6 +157,10 @@ mod tests {
                 has_verified_student_number: false,
                 ..PendingPreconditions::ALL_MET
             },
+            PendingPreconditions {
+                course_code_allowed: false,
+                ..PendingPreconditions::ALL_MET
+            },
         ] {
             assert!(
                 !Status::of(State::Pending, reason, false).is_moving(),
@@ -161,6 +177,7 @@ mod tests {
             State::FailedRetryable,
             State::SubmissionUncertain,
             State::AwaitingVerification,
+            State::PartiallyRegistered,
         ];
         for state in CreditRegistrationState::ALL {
             for enrolment_resolved in [false, true] {

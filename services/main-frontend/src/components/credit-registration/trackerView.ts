@@ -26,6 +26,9 @@ const wasListedByTheRegistry = (registration: MyCreditRegistration): boolean =>
  * instructions to show, and by then those instructions have plainly been followed. The same is true
  * of every terminal state, where there is nothing left to enrol for, and of a student the registry
  * has already listed — telling them to go and enrol could cost them a second Open University fee.
+ * `waiting_for_course_setup` is not terminal, but it is parked on a course-side problem the pipeline
+ * has not gotten past to start looking for an enrolment, so asking would be premature, not helpful.
+ * `sending` and `waiting_for_sisu` only follow a settled enrolment.
  */
 const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolean => {
   if (registration.enrolment_found) {
@@ -34,7 +37,14 @@ const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolea
   if (wasListedByTheRegistry(registration)) {
     return false
   }
-  return !["registered", "failed", "not_registering"].includes(registration.student_facing_status)
+  return ![
+    "registered",
+    "failed",
+    "not_registering",
+    "waiting_for_course_setup",
+    "sending",
+    "waiting_for_sisu",
+  ].includes(registration.student_facing_status)
 }
 
 /**
@@ -70,9 +80,9 @@ export const isWaitingForEnrolment = (input: TrackerViewInput): boolean =>
 /**
  * Whether the state needs saying in its own words.
  *
- * Silent through the enrolment wait and through `needs_student_number`, which have bands of their
- * own, and silent while the question band is still giving the enrolment instructions — repeating
- * them underneath reads as two different things happening. Every other state says something none
+ * Silent through the enrolment wait, through `needs_student_number` and, while the enrolment
+ * question is asked, through the stages it is about: each has a band of its own, and the question
+ * with its button is the last thing the student should read. Every other state says something none
  * of those can.
  */
 export const saysWhatIsHappening = (input: TrackerViewInput): boolean =>
@@ -93,7 +103,8 @@ export const showsRegistrationFacts = (registration: MyCreditRegistration | null
 /**
  * What the linking band says: which student number the credits go to, or how one gets attached.
  *
- * `registering` and `linked` differ only in tense — a failed row is no longer a promise. `null`
+ * `registering` and `linked` differ only in tense — a failed or registered row is no longer a
+ * promise, and `duplicate` and `not_improved` rows read as registered with no fact sheet. `null`
  * means no band: once the credits are in the registry its fact sheet names the number, and a row
  * nobody is registering has no number to name.
  */
@@ -101,6 +112,7 @@ export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
   | { kind: "linked"; studentNumber: string }
   | { kind: "awaiting-enrolment" }
+  | { kind: "staff-links" }
   | { kind: "mailing" }
   | { kind: "mailed"; emailMasked: string; sentAt: string }
   | { kind: "send-failed" }
@@ -108,6 +120,7 @@ export type StudentNumberLinkBand =
 export const studentNumberLinkBand = (
   registration: MyCreditRegistration,
   verifiedStudentNumber: MyVerifiedStudentNumber | null,
+  { isAccountLinkingEnabled }: { isAccountLinkingEnabled: boolean },
 ): StudentNumberLinkBand | null => {
   const status = registration.student_facing_status
   if (status === "not_registering") {
@@ -120,7 +133,7 @@ export const studentNumberLinkBand = (
   }
   if (verifiedStudentNumber !== null) {
     const studentNumber = verifiedStudentNumber.student_number
-    return status === "failed"
+    return status === "failed" || status === "registered"
       ? { kind: "linked", studentNumber }
       : { kind: "registering", studentNumber }
   }
@@ -130,6 +143,10 @@ export const studentNumberLinkBand = (
   }
   if (mail?.email_send_status === "sent" && mail.sent_at) {
     return { kind: "mailed", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
+  }
+  // With linking off a queued mail is never sent, so neither band below can promise one.
+  if (!isAccountLinkingEnabled) {
+    return { kind: "staff-links" }
   }
   // A mail still in the queue already proves the registry listed them, so the band cannot go on
   // telling them to enrol first.

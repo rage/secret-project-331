@@ -82,18 +82,25 @@ async fn apply_grading_update(
     .await?;
     let slide =
         models::exercise_slides::get_exercise_slide(conn, submission.exercise_slide_id).await?;
-    let grading =
-        models::exercise_task_gradings::get_by_exercise_task_submission_id(conn, submission_id)
-            .await?
-            .ok_or_else(|| {
-                controller_err!(
-                    BadRequest,
-                    "No existing grading for the submission found".to_string()
-                )
-            })?;
+    // The submission's current grading, not any grading of it: a regrading adds a row per run.
+    let grading_id = submission.exercise_task_grading_id.ok_or_else(|| {
+        controller_err!(
+            BadRequest,
+            "No existing grading for the submission found".to_string()
+        )
+    })?;
+    let grading = models::exercise_task_gradings::get_by_id(conn, grading_id).await?;
     let exercise = models::exercises::get_by_id(conn, slide.exercise_id).await?;
-    models::exercise_task_gradings::update_grading(conn, &grading, grading_result, &exercise)
-        .await?;
+    let mut tx = conn.begin().await?;
+    models::library::grading::apply_grading_update(
+        &mut tx,
+        &exercise,
+        &submission,
+        &grading,
+        grading_result,
+    )
+    .await?;
+    tx.commit().await?;
     Ok(())
 }
 
@@ -193,7 +200,7 @@ mod tests {
     /// Positive control for the test above: with a grading row present, the same call writes
     /// the result through.
     #[actix_web::test]
-    async fn update_with_an_existing_grading_writes_the_result() {
+    async fn update_with_an_existing_grading_writes_the_result_and_the_points() {
         insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
         let submission_id =
             insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
@@ -207,6 +214,9 @@ mod tests {
         )
         .await
         .unwrap();
+        models::exercise_task_submissions::set_grading_id(tx.as_mut(), grading_id, submission_id)
+            .await
+            .unwrap();
 
         apply_grading_update(
             tx.as_mut(),
@@ -225,6 +235,73 @@ mod tests {
         assert_eq!(grading.unscaled_score_given, Some(1.0));
         assert_eq!(grading.feedback_text.as_deref(), Some("well done"));
         assert!(grading.grading_completed_at.is_some());
+
+        let state = models::user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        assert_eq!(state.grading_progress, GradingProgress::FullyGraded);
+        assert_eq!(state.score_given, grading.score_given);
+    }
+
+    #[actix_web::test]
+    async fn update_after_a_regrading_writes_the_current_grading() {
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
+        let submission_id =
+            insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
+        let mut grading_ids = Vec::new();
+        for _ in 0..2 {
+            grading_ids.push(
+                models::exercise_task_gradings::insert(
+                    tx.as_mut(),
+                    models::PKeyPolicy::Generate,
+                    submission_id,
+                    course,
+                    exercise,
+                    task,
+                )
+                .await
+                .unwrap(),
+            );
+        }
+        let (superseded, current) = (grading_ids[0], grading_ids[1]);
+        models::exercise_task_submissions::set_grading_id(tx.as_mut(), current, submission_id)
+            .await
+            .unwrap();
+
+        apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect("the grading update should be applied");
+
+        let progress =
+            |grading: models::exercise_task_gradings::ExerciseTaskGrading| grading.grading_progress;
+        assert_eq!(
+            progress(
+                models::exercise_task_gradings::get_by_id(tx.as_mut(), current)
+                    .await
+                    .unwrap()
+            ),
+            GradingProgress::FullyGraded
+        );
+        assert_ne!(
+            progress(
+                models::exercise_task_gradings::get_by_id(tx.as_mut(), superseded)
+                    .await
+                    .unwrap()
+            ),
+            GradingProgress::FullyGraded
+        );
     }
 
     /// A submission id that doesn't exist at all must surface as an error rather than being

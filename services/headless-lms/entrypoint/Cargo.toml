@@ -22,6 +22,8 @@ serde_json = "1.0.151"
 futures-util = "0.3.34"
 # Code-first OpenAPI generation from Rust types and handlers
 utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
+# Rustls is a modern TLS library written in Rust.
+rustls.workspace = true
 # A runtime for writing reliable network applications without compromising speed.
 tokio.workspace = true
 

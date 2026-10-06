@@ -22,14 +22,25 @@ type CopyStatus = (typeof COPY_STATUS)[keyof typeof COPY_STATUS]
 const FEEDBACK_VISIBLE_MS = 2000
 const ICON_SIZE_PX = 16
 
+/* Takes no space, so the icon never wraps onto a line of its own or makes a line taller. At the end of
+   a full line the icon hangs into the margin instead. */
+const slotStyles = css`
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+  vertical-align: middle;
+`
+
 const linkStyles = css`
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  vertical-align: middle;
-  margin-left: 0.4rem;
-  padding: 2px;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0.4rem;
+  transform: translateY(-50%);
+  padding: 4px;
   border-radius: 4px;
   color: ${baseTheme.colors.gray[500]};
   opacity: 0;
@@ -125,24 +136,26 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
 
   return (
     <>
-      <a
-        href={`#${anchorId}`}
-        onClick={handleClick}
-        className={cx(HEADING_ANCHOR_LINK_CLASS, linkStyles)}
-        data-status={copyStatus}
-        aria-label={t("copy-link-to-section", { heading: headingText })}
-      >
-        {copyStatus === COPY_STATUS.SUCCESS ? (
-          <CheckCircle size={ICON_SIZE_PX} />
-        ) : copyStatus === COPY_STATUS.ERROR ? (
-          <XmarkCircle size={ICON_SIZE_PX} />
-        ) : (
-          <Link size={ICON_SIZE_PX} />
-        )}
-        <span className={tooltipStyles} data-show={statusMessage !== ""} aria-hidden="true">
-          {statusMessage}
-        </span>
-      </a>
+      <span className={slotStyles}>
+        <a
+          href={`#${anchorId}`}
+          onClick={handleClick}
+          className={cx(HEADING_ANCHOR_LINK_CLASS, linkStyles)}
+          data-status={copyStatus}
+          aria-label={t("copy-link-to-section", { heading: headingText })}
+        >
+          {copyStatus === COPY_STATUS.SUCCESS ? (
+            <CheckCircle size={ICON_SIZE_PX} />
+          ) : copyStatus === COPY_STATUS.ERROR ? (
+            <XmarkCircle size={ICON_SIZE_PX} />
+          ) : (
+            <Link size={ICON_SIZE_PX} />
+          )}
+          <span className={tooltipStyles} data-show={statusMessage !== ""} aria-hidden="true">
+            {statusMessage}
+          </span>
+        </a>
+      </span>
       {/* Rendered even while empty: a live region has to be in the accessibility tree before its
           content changes, or the change goes unannounced. */}
       <span role="status" className="screen-reader-only">

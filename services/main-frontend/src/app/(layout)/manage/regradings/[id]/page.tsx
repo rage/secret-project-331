@@ -9,12 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { getRegradingInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { QueryResult } from "@/shared-module/components"
+import { Meter, METER_KIND, QueryResult, TONE } from "@/shared-module/components"
 
 const ViewRegradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -88,11 +87,16 @@ const ViewRegradingPage: React.FC = () => {
                 <b>user_id</b>: {data.regrading.user_id ? data.regrading.user_id : "null"}
               </p>
             </div>
-            <ProgressBar
+            <Meter
+              kind={METER_KIND.PROGRESS}
+              tone={TONE.SUCCESS}
               label={t("label-submissions-regraded")}
-              variant={"bar"}
-              exercisesAttempted={nRegradingsReady}
-              exercisesTotal={data.submission_infos.length}
+              value={nRegradingsReady}
+              maxValue={data.submission_infos.length}
+              valueLabel={t("value-of-maximum", {
+                value: nRegradingsReady,
+                maximum: data.submission_infos.length,
+              })}
             />
             <div
               className={css`

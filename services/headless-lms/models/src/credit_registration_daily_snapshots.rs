@@ -147,28 +147,3 @@ ORDER BY snapshot_date,
     .await?;
     Ok(res)
 }
-
-pub async fn get_series_for_state(
-    conn: &mut PgConnection,
-    state: CreditRegistrationState,
-    from: NaiveDate,
-    to: NaiveDate,
-) -> ModelResult<Vec<CreditRegistrationDailySnapshot>> {
-    let res = sqlx::query_as!(
-        CreditRegistrationDailySnapshot,
-        r#"
-SELECT *
-FROM credit_registration_daily_snapshots
-WHERE state = $1
-  AND snapshot_date BETWEEN $2 AND $3
-  AND deleted_at IS NULL
-ORDER BY snapshot_date
-        "#,
-        state as CreditRegistrationState,
-        from,
-        to,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}

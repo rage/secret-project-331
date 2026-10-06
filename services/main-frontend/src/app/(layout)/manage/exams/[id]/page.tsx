@@ -29,6 +29,7 @@ import {
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
+import { examPointsCsvHref, examSubmissionsCsvHref } from "@/utils/exportDownloadUrls"
 
 import EditExamDialog from "../EditExamDialog"
 
@@ -225,14 +226,14 @@ const ManageExam: React.FC = () => {
                 <a href={`/cms/exams/${data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
               </li>
               <li className={detailRow}>
-                <a href={`/api/v0/main-frontend/exams/${data.id}/export-points`} download>
+                <a href={examPointsCsvHref(data.id)} download>
                   <Button variant="tertiary" size="medium" type="button">
                     {t("link-export-points")}
                   </Button>
                 </a>
               </li>
               <li className={detailRow}>
-                <a href={`/api/v0/main-frontend/exams/${data.id}/export-submissions`} download>
+                <a href={examSubmissionsCsvHref(data.id)} download>
                   <Button variant="tertiary" size="medium" type="button">
                     {t("link-export-submissions")}
                   </Button>

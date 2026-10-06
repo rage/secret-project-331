@@ -7,6 +7,7 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+  | "CreditRegistrationAdmin"
 
 export type Action =
   | { type: "view_material" }
@@ -26,6 +27,7 @@ export type Action =
   | { type: "view_stats" }
   | { type: "view_and_manage_credit_registrations" }
   | { type: "administrate_user_account" }
+  | { type: "administrate_credit_registrations" }
   | { type: "administrate" }
 
 export interface ActionOnResource {

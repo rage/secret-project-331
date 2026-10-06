@@ -2,7 +2,7 @@
 
 import type { BadgeTone } from "../components/Badge"
 import type { InfoboxTone } from "../components/Infobox"
-import type { MeterTone } from "../components/Meter"
+import type { MeterKind, MeterTone } from "../components/Meter"
 
 /**
  * Tone names accepted by `Badge`, `Infobox` and `Meter`; each takes its own subset. Constrained to
@@ -15,6 +15,12 @@ export const TONE = {
   WARNING: "warning",
   DANGER: "danger",
 } as const satisfies Record<string, BadgeTone | InfoboxTone | MeterTone>
+
+/** Kinds accepted by `Meter` and `MeterInline`. */
+export const METER_KIND = {
+  MEASURE: "measure",
+  PROGRESS: "progress",
+} as const satisfies Record<string, MeterKind>
 
 /** Separator between inline meta values. */
 export const MIDDLE_DOT = " · "

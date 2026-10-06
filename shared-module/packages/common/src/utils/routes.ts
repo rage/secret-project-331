@@ -371,6 +371,15 @@ export function creditRegistrationSystemRoute() {
   return "/manage/credit-registration/system"
 }
 
+/** The System page's API log with one call's full bodies open, every registration it carried. */
+export function creditRegistrationSuotarApiCallRoute(suotarApiCallId: string) {
+  return `/manage/credit-registration/system?suotar_api_call_id=${encodeURIComponent(suotarApiCallId)}`
+}
+
+export function creditRegistrationEnrolmentChecksRoute() {
+  return "/manage/credit-registration/enrolment-checks"
+}
+
 export function creditRegistrationAuditRoute() {
   return "/manage/credit-registration/audit"
 }

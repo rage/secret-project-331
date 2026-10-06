@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_roster_schedules\nSET triggered_fetch_at = LEAST(\n    COALESCE(triggered_fetch_at, 'infinity'::timestamptz),\n    GREATEST(\n      now(),\n      COALESCE(last_fetched_at, '-infinity'::timestamptz) + ($3::bigint * INTERVAL '1 second')\n    )\n  ),\n  follow_up_fetch_at = CASE\n    WHEN $2\n    AND follow_up_fetch_at IS NULL THEN now() + ($4::bigint * INTERVAL '1 second')\n    ELSE follow_up_fetch_at\n  END\nWHERE course_code = $1\n  AND (\n    triggered_fetch_day IS DISTINCT FROM (now() AT TIME ZONE 'UTC')::date\n    OR triggered_fetch_count < $5\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Bool",
+        "Int8",
+        "Int8",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7d65396bbab1eb20e50a15771b3e253ea08f32b06cee53b891adcb1da374abb7"
+}

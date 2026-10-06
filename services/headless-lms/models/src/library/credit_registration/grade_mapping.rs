@@ -1,13 +1,11 @@
-//! Our grade in the study registry's terms. A scale or grade the registry does not know is rejected
-//! at request level, taking the whole batch of twenty-five with it, so every pair that reaches a
-//! batch has been through [`map_grade`] or [`is_known_grade`].
+//! Our grade in the study registry's terms. Every pair that reaches a batch has been through
+//! [`map_grade`] or [`is_known_grade`].
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 
-/// TODO: Suotar has not confirmed the spelling. Both are accepted on the way in; this is the one we
-/// send.
+/// The spelling Suotar accepts, and the one we send. Both are accepted on the way in.
 pub const PASS_FAIL_GRADE_SCALE_ID: &str = "sis-hyl-hyv";
-/// The other accepted spelling of the same scale, which our own legacy pull path sends.
+/// The other spelling of the same scale, which our own legacy pull path sends. Suotar refuses it.
 pub const PASS_FAIL_GRADE_SCALE_ID_ALT: &str = "sis-hyv-hyl";
 pub const NUMERIC_GRADE_SCALE_ID: &str = "sis-0-5";
 
@@ -21,7 +19,7 @@ pub enum GradeScaleFamily {
     Numeric,
 }
 
-pub fn grade_scale_family(grade_scale_id: &str) -> Option<GradeScaleFamily> {
+fn grade_scale_family(grade_scale_id: &str) -> Option<GradeScaleFamily> {
     match grade_scale_id {
         PASS_FAIL_GRADE_SCALE_ID | PASS_FAIL_GRADE_SCALE_ID_ALT => Some(GradeScaleFamily::PassFail),
         NUMERIC_GRADE_SCALE_ID => Some(GradeScaleFamily::Numeric),
@@ -44,23 +42,30 @@ pub struct MappedGrade {
     pub grade_id: String,
 }
 
-/// What the completion says and what the module and the chosen enrolment say the scale should be.
+impl MappedGrade {
+    /// The grade two nullable columns hold, or `None` unless both are set.
+    pub fn from_columns(grade_scale_id: Option<&str>, grade_id: Option<&str>) -> Option<Self> {
+        Some(Self {
+            grade_scale_id: grade_scale_id?.to_string(),
+            grade_id: grade_id?.to_string(),
+        })
+    }
+}
+
+/// What the completion says and what the chosen enrolment says the scale should be.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct GradeSource<'a> {
     pub passed: bool,
     /// `None` for a pass/fail completion.
     pub grade: Option<i32>,
-    /// The module's override, which is how one course is unblocked without a deploy.
-    pub configured_grade_scale_id: Option<&'a str>,
-    /// The scale the chosen enrolment says the registry expects.
+    /// The scale the chosen enrolment says the registry expects, which Suotar requires verbatim.
     pub enrolment_grade_scale_id: Option<&'a str>,
 }
 
 /// Maps a completion into the scale the registry expects, preferring what it told us to a guess.
 pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrationErrorCode> {
     let scale_id = source
-        .configured_grade_scale_id
-        .or(source.enrolment_grade_scale_id)
+        .enrolment_grade_scale_id
         .unwrap_or(if source.grade.is_some() {
             NUMERIC_GRADE_SCALE_ID
         } else {
@@ -92,10 +97,11 @@ pub fn map_grade(source: GradeSource<'_>) -> Result<MappedGrade, CreditRegistrat
     })
 }
 
-/// Whether a frozen pair is one the registry will accept. Checked again before batching: an unknown
-/// pair is a request-level rejection, so one bad row would fail twenty-four good ones.
-pub fn is_known_grade(grade_scale_id: &str, grade_id: &str) -> bool {
-    match grade_scale_family(grade_scale_id) {
+/// Whether a frozen pair is one we can send. Checked again before batching, so a pair our mapping
+/// does not produce fails on our side rather than as Suotar's `invalidGradeForGradeScale`.
+pub fn is_known_grade(grade: &MappedGrade) -> bool {
+    let grade_id = grade.grade_id.as_str();
+    match grade_scale_family(&grade.grade_scale_id) {
         Some(GradeScaleFamily::PassFail) => grade_id == PASS_GRADE_ID || grade_id == FAIL_GRADE_ID,
         Some(GradeScaleFamily::Numeric) => grade_id
             .parse::<i32>()
@@ -120,19 +126,15 @@ pub enum GradeComparison {
 ///
 /// `NotComparable` is not "unknown, try anyway": submitting on a cross-scale difference would ask
 /// the registry to replace a pass with a number, or the other way round, on a guess.
-pub fn compare_grades(
-    registered_grade_scale_id: &str,
-    registered_grade_id: &str,
-    candidate: &MappedGrade,
-) -> GradeComparison {
-    if !same_grade_scale(registered_grade_scale_id, &candidate.grade_scale_id) {
+pub fn compare_grades(registered: &MappedGrade, candidate: &MappedGrade) -> GradeComparison {
+    if !same_grade_scale(&registered.grade_scale_id, &candidate.grade_scale_id) {
         return GradeComparison::NotComparable;
     }
     let Some(family) = grade_scale_family(&candidate.grade_scale_id) else {
         return GradeComparison::NotComparable;
     };
     match (
-        grade_rank(family, registered_grade_id),
+        grade_rank(family, &registered.grade_id),
         grade_rank(family, &candidate.grade_id),
     ) {
         (Some(registered), Some(candidate)) if candidate > registered => GradeComparison::Better,
@@ -156,6 +158,21 @@ fn grade_rank(family: GradeScaleFamily, grade_id: &str) -> Option<i32> {
     }
 }
 
+/// Whether the grade `ours` maps to beats every grade in `held`, which is what Suotar requires of an
+/// improvement. `None` is a held credit whose grade is unknown.
+///
+/// Stricter than Suotar where the two differ: an equal grade never submits (Suotar would let a
+/// later date or more credits through), and neither does a grade on a scale that does not rank
+/// against a held one, or a held grade that is missing.
+pub fn improves_on_all(held: &[Option<MappedGrade>], ours: GradeSource<'_>) -> bool {
+    map_grade(ours).is_ok_and(|mapped| {
+        held.iter().all(|held| {
+            held.as_ref()
+                .is_some_and(|held| compare_grades(held, &mapped) == GradeComparison::Better)
+        })
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -164,7 +181,6 @@ mod tests {
         GradeSource {
             passed,
             grade,
-            configured_grade_scale_id: None,
             enrolment_grade_scale_id: None,
         }
     }
@@ -192,7 +208,7 @@ mod tests {
     }
 
     #[test]
-    fn the_module_override_wins_over_the_enrolment_and_the_enrolment_over_the_guess() {
+    fn the_enrolment_scale_wins_over_the_guess_and_is_sent_verbatim() {
         let with_enrolment = GradeSource {
             enrolment_grade_scale_id: Some(PASS_FAIL_GRADE_SCALE_ID_ALT),
             ..source(true, Some(4))
@@ -202,22 +218,12 @@ mod tests {
             PASS_FAIL_GRADE_SCALE_ID_ALT
         );
         assert_eq!(map_grade(with_enrolment).unwrap().grade_id, PASS_GRADE_ID);
-
-        let overridden = GradeSource {
-            configured_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
-            ..with_enrolment
-        };
-        assert_eq!(
-            map_grade(overridden).unwrap().grade_scale_id,
-            NUMERIC_GRADE_SCALE_ID
-        );
-        assert_eq!(map_grade(overridden).unwrap().grade_id, "4");
     }
 
     #[test]
     fn an_unrecognised_scale_fails_before_anything_is_sent() {
         let source = GradeSource {
-            configured_grade_scale_id: Some("sis-something-else"),
+            enrolment_grade_scale_id: Some("sis-something-else"),
             ..source(true, Some(4))
         };
         assert_eq!(
@@ -229,7 +235,7 @@ mod tests {
     #[test]
     fn a_pass_fail_completion_cannot_be_pushed_into_a_numeric_scale() {
         let source = GradeSource {
-            configured_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
+            enrolment_grade_scale_id: Some(NUMERIC_GRADE_SCALE_ID),
             ..source(true, None)
         };
         assert_eq!(
@@ -260,12 +266,12 @@ mod tests {
 
     #[test]
     fn only_pairs_the_registry_knows_pass_the_pre_flight() {
-        assert!(is_known_grade(PASS_FAIL_GRADE_SCALE_ID, "1"));
-        assert!(is_known_grade(PASS_FAIL_GRADE_SCALE_ID_ALT, "0"));
-        assert!(is_known_grade(NUMERIC_GRADE_SCALE_ID, "5"));
-        assert!(!is_known_grade(NUMERIC_GRADE_SCALE_ID, "6"));
-        assert!(!is_known_grade(PASS_FAIL_GRADE_SCALE_ID, "3"));
-        assert!(!is_known_grade("sis-something-else", "1"));
+        assert!(is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID, "1")));
+        assert!(is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID_ALT, "0")));
+        assert!(is_known_grade(&mapped(NUMERIC_GRADE_SCALE_ID, "5")));
+        assert!(!is_known_grade(&mapped(NUMERIC_GRADE_SCALE_ID, "6")));
+        assert!(!is_known_grade(&mapped(PASS_FAIL_GRADE_SCALE_ID, "3")));
+        assert!(!is_known_grade(&mapped("sis-something-else", "1")));
     }
 
     fn mapped(grade_scale_id: &str, grade_id: &str) -> MappedGrade {
@@ -280,29 +286,27 @@ mod tests {
         use GradeComparison::*;
         let numeric = |grade: &str| mapped(NUMERIC_GRADE_SCALE_ID, grade);
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "3", &numeric("4")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "3"), &numeric("4")),
             Better
         );
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("4")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "4"), &numeric("4")),
             NotBetter
         );
         assert_eq!(
-            compare_grades(NUMERIC_GRADE_SCALE_ID, "4", &numeric("3")),
+            compare_grades(&mapped(NUMERIC_GRADE_SCALE_ID, "4"), &numeric("3")),
             NotBetter
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                FAIL_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, FAIL_GRADE_ID),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID_ALT, PASS_GRADE_ID)
             ),
             Better
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                PASS_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
             ),
             NotBetter
@@ -314,24 +318,21 @@ mod tests {
         use GradeComparison::*;
         assert_eq!(
             compare_grades(
-                NUMERIC_GRADE_SCALE_ID,
-                "3",
+                &mapped(NUMERIC_GRADE_SCALE_ID, "3"),
                 &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID)
             ),
             NotComparable
         );
         assert_eq!(
             compare_grades(
-                PASS_FAIL_GRADE_SCALE_ID,
-                PASS_GRADE_ID,
+                &mapped(PASS_FAIL_GRADE_SCALE_ID, PASS_GRADE_ID),
                 &mapped(NUMERIC_GRADE_SCALE_ID, "5")
             ),
             NotComparable
         );
         assert_eq!(
             compare_grades(
-                "sis-something-else",
-                "3",
+                &mapped("sis-something-else", "3"),
                 &mapped("sis-something-else", "4")
             ),
             NotComparable
@@ -344,12 +345,29 @@ mod tests {
     fn an_unreadable_grade_on_a_known_scale_is_not_comparable() {
         assert_eq!(
             compare_grades(
-                NUMERIC_GRADE_SCALE_ID,
-                "excellent",
+                &mapped(NUMERIC_GRADE_SCALE_ID, "excellent"),
                 &mapped(NUMERIC_GRADE_SCALE_ID, "5")
             ),
             GradeComparison::NotComparable
         );
+    }
+
+    #[test]
+    fn our_grade_improves_only_on_held_grades_it_beats() {
+        let ours = source(true, Some(4));
+        assert!(improves_on_all(&[], ours));
+        assert!(improves_on_all(
+            &[Some(mapped(NUMERIC_GRADE_SCALE_ID, "3"))],
+            ours
+        ));
+        assert!(!improves_on_all(
+            &[
+                Some(mapped(NUMERIC_GRADE_SCALE_ID, "3")),
+                Some(mapped(NUMERIC_GRADE_SCALE_ID, "4"))
+            ],
+            ours
+        ));
+        assert!(!improves_on_all(&[None], ours));
     }
 
     #[test]
@@ -359,10 +377,7 @@ mod tests {
             mapped.push(map_grade(source(grade > 0, Some(grade))).unwrap());
         }
         for grade in mapped {
-            assert!(
-                is_known_grade(&grade.grade_scale_id, &grade.grade_id),
-                "{grade:?}"
-            );
+            assert!(is_known_grade(&grade), "{grade:?}");
         }
     }
 }

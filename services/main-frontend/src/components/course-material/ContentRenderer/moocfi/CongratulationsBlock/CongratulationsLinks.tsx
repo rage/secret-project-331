@@ -82,9 +82,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
         <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
           label={
-            module.enable_credit_registration_via_suotar
-              ? t("credit-registration-status")
-              : t("register")
+            module.register_credits_via_suotar ? t("credit-registration-status") : t("register")
           }
           enabled={Boolean(module.completed)}
         />

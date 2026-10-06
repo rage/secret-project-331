@@ -69,7 +69,7 @@ pub fn configure_controllers(
         cfg.service(web::scope("/mock-sisu").configure(mock_sisu::_add_routes));
     }
     if app_conf.test_suotar && app_conf.test_mode {
-        cfg.service(web::scope("/mock-suotar").configure(mock_suotar::_add_routes));
+        cfg.service(mock_suotar::scope());
     }
 }
 

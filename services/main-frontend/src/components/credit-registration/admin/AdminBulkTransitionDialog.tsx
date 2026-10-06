@@ -11,11 +11,16 @@ import { Checkbox, Infobox, Select } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
 import { refusalSentence } from "../resubmissionRefusal"
-import { noteCss } from "../styles"
+import { noteCss, proseCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import type { BulkTransitionRow } from "./bulkTransitionActions"
-import { countBlocking, groupSelectionByState, selectionSummary } from "./bulkTransitionActions"
+import {
+  countResubmissionRisk,
+  countSkipped,
+  groupSelectionByState,
+  selectionSummary,
+} from "./bulkTransitionActions"
 import { ReasonField } from "./ReasonConfirmDialog"
 import type { TransitionChoice } from "./TransitionTargetSelect"
 import {
@@ -26,7 +31,7 @@ import {
   transitionAction,
 } from "./TransitionTargetSelect"
 
-/** One selected row: the id to move, plus what decides whether each action can help it. */
+/** One selected row: the id to move, plus what the server allows on it. */
 export interface BulkSelectionRow extends BulkTransitionRow {
   credit_registration_id: string
 }
@@ -45,6 +50,7 @@ interface Fields {
   action: TransitionChoice | typeof NO_ACTION
   reason: string
   cancelUnderstood: boolean
+  repeatUnderstood: boolean
 }
 
 const ACTION_LABEL_KEYS = {
@@ -54,6 +60,16 @@ const ACTION_LABEL_KEYS = {
   [CHECK_NOW]: "credit-registration-admin-target-check-now",
 } as const satisfies Record<TransitionChoice, string>
 
+const ACTION_DESCRIPTION_KEYS = {
+  [READY_TO_SUBMIT]: "credit-registration-admin-resubmit-description",
+  [CANCELLED]: "credit-registration-admin-cancel-description",
+  [CLEAR_ATTENTION]: "credit-registration-admin-clear-attention-description",
+  [CHECK_NOW]: "credit-registration-admin-check-now-bulk-description",
+} as const satisfies Record<TransitionChoice, string>
+
+const LIKELY_REJECTED_AGAIN = "likely_rejected_again" as const
+const REPLACES_REVERSED_ATTAINMENT = "replaces_reversed_attainment" as const
+
 const OFFERED_ACTIONS: readonly TransitionChoice[] = [
   READY_TO_SUBMIT,
   CHECK_NOW,
@@ -62,28 +78,61 @@ const OFFERED_ACTIONS: readonly TransitionChoice[] = [
 ]
 
 /**
- * A second, explicit gate on the one bulk move that cannot be undone: the reason field gates every
- * action in this dialog equally, so on its own it puts cancelling a hundred rows on a par with
- * resubmitting them.
+ * What the chosen action does to this selection, and the confirmations it needs on top of the
+ * reason: the reason field gates every action equally, so on its own it puts cancelling a hundred
+ * rows on a par with dismissing their flags.
  */
-const BulkCancelGate: React.FC<{ control: Control<Fields>; count: number }> = ({
-  control,
-  count,
-}) => {
+const BulkActionNotes: React.FC<{
+  control: Control<Fields>
+  selectedRows: readonly BulkSelectionRow[]
+}> = ({ control, selectedRows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const action = useWatch({ control, name: ACTION_FIELD })
-  if (action !== CANCELLED) {
+  if (action === NO_ACTION) {
     return null
   }
+  const uncertainCount = selectedRows.filter((row) => row.state === "submission_uncertain").length
+  const repeatCount = countResubmissionRisk(LIKELY_REJECTED_AGAIN, selectedRows)
+  const reversedCount = countResubmissionRisk(REPLACES_REVERSED_ATTAINMENT, selectedRows)
   return (
     <>
-      <Infobox tone={TONE.DANGER}>{t("credit-registration-admin-bulk-cancel-warning")}</Infobox>
-      <Checkbox
-        name="cancelUnderstood"
-        control={control}
-        rules={{ required: t("required-field") }}
-        label={t("credit-registration-admin-bulk-cancel-confirm", { count })}
-      />
+      <p className={proseCss}>{t(ACTION_DESCRIPTION_KEYS[action])}</p>
+      {(action === READY_TO_SUBMIT || action === CANCELLED) && uncertainCount > 0 && (
+        <p className={noteCss}>
+          {t("credit-registration-admin-bulk-uncertain-note", { count: uncertainCount })}
+        </p>
+      )}
+      {action === READY_TO_SUBMIT && reversedCount > 0 && (
+        <Infobox tone={TONE.INFO}>
+          {t("credit-registration-admin-bulk-reversed-count", { count: reversedCount })}
+        </Infobox>
+      )}
+      {action === READY_TO_SUBMIT && repeatCount > 0 && (
+        <>
+          <Infobox tone={TONE.WARNING}>
+            {t("credit-registration-admin-bulk-repeat-count", { count: repeatCount })}
+          </Infobox>
+          <Checkbox
+            name="repeatUnderstood"
+            control={control}
+            rules={{ required: t("required-field") }}
+            label={t("credit-registration-admin-resubmit-repeat-confirm")}
+          />
+        </>
+      )}
+      {action === CANCELLED && (
+        <>
+          <Infobox tone={TONE.DANGER}>{t("credit-registration-admin-bulk-cancel-warning")}</Infobox>
+          <Checkbox
+            name="cancelUnderstood"
+            control={control}
+            rules={{ required: t("required-field") }}
+            label={t("credit-registration-admin-bulk-cancel-confirm", {
+              count: selectedRows.length - countSkipped(CANCELLED, selectedRows),
+            })}
+          />
+        </>
+      )}
     </>
   )
 }
@@ -91,16 +140,15 @@ const BulkCancelGate: React.FC<{ control: Control<Fields>; count: number }> = ({
 /**
  * Moves every selected live row to one state.
  *
- * The action list is built from the selection: an action no selected row can use is offered
- * disabled, naming how many rows block it, rather than silently doing nothing to them. Nothing is
- * preselected, so a mixed selection cannot be resubmitted by pressing Confirm.
+ * Which rows each action applies to is the server's per-row rule: an action names how many selected
+ * rows it would skip, and is disabled only when it would skip them all. Nothing is preselected, so a
+ * mixed selection cannot be resubmitted by pressing Confirm.
  */
 const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAttentionItems = useInvalidateAttentionItems()
   const selectedIds = selectedRows.map((row) => row.credit_registration_id)
   const groups = groupSelectionByState(selectedRows)
-  const uncertainCount = selectedRows.filter((row) => row.state === "submission_uncertain").length
 
   return (
     <AdminActionDialog<Fields, AdminBulkTransitionResult>
@@ -115,7 +163,12 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied })
         count: selectedIds.length,
       })}
       confirmLabel={t("credit-registration-admin-bulk-transition-confirm")}
-      defaultValues={{ action: NO_ACTION, reason: "", cancelUnderstood: false }}
+      defaultValues={{
+        action: NO_ACTION,
+        reason: "",
+        cancelUnderstood: false,
+        repeatUnderstood: false,
+      }}
       mutationFn={(fields) =>
         adminBulkTransitionCreditRegistrations({
           body: {
@@ -139,28 +192,23 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied })
             placeholder={t("credit-registration-admin-bulk-choose-action")}
             rules={{ required: t("required-field") }}
             options={OFFERED_ACTIONS.map((action) => {
-              const blocking = countBlocking(action, selectedRows)
+              const skipped = countSkipped(action, selectedRows)
               const label = t(ACTION_LABEL_KEYS[action])
               return {
                 value: action,
                 label:
-                  blocking === 0
+                  skipped === 0
                     ? label
                     : `${label}${MIDDLE_DOT}${t("credit-registration-admin-bulk-blocked-rows", {
-                        count: blocking,
+                        count: skipped,
                       })}`,
                 textValue: label,
-                isDisabled: blocking > 0,
+                isDisabled: skipped === selectedRows.length,
               }
             })}
           />
           <p className={noteCss}>{selectionSummary(t, groups).join(MIDDLE_DOT)}</p>
-          {uncertainCount > 0 && (
-            <p className={noteCss}>
-              {t("credit-registration-admin-bulk-uncertain-note", { count: uncertainCount })}
-            </p>
-          )}
-          <BulkCancelGate control={control} count={selectedIds.length} />
+          <BulkActionNotes control={control} selectedRows={selectedRows} />
           <ReasonField control={control} />
         </>
       )}

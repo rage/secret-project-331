@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use headless_lms_utils::secret_string::expose_option;
 use rand::distr::{Alphanumeric, SampleString};
 use secrecy::ExposeSecret;
 
@@ -16,23 +17,23 @@ pub struct StudentNumberVerificationToken {
     pub deleted_at: Option<DateTime<Utc>>,
     pub token: DbSecret,
     pub claimed_by_user_id: Option<Uuid>,
-    pub student_number: String,
-    pub sisu_person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
-    pub emailed_to: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
+    pub emailed_to: DbSecret,
     pub course_id: Option<Uuid>,
     pub expires_at: DateTime<Utc>,
     pub used_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct NewStudentNumberVerificationToken {
-    pub student_number: String,
-    pub sisu_person_id: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
-    pub emailed_to: String,
+    pub student_number: DbSecret,
+    pub sisu_person_id: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
+    pub emailed_to: DbSecret,
     pub course_id: Option<Uuid>,
 }
 
@@ -61,11 +62,11 @@ RETURNING id
         "#,
         pkey_policy.into_uuid(),
         token.expose_secret(),
-        new.student_number,
-        new.sisu_person_id,
-        new.first_names,
-        new.last_name,
-        new.emailed_to,
+        new.student_number.expose_secret(),
+        new.sisu_person_id.expose_secret(),
+        expose_option(&new.first_names),
+        expose_option(&new.last_name),
+        new.emailed_to.expose_secret(),
         new.course_id,
     )
     .fetch_one(conn)
@@ -86,11 +87,26 @@ pub async fn insert_batch(
     let tokens: Vec<String> = (0..news.len())
         .map(|_| Alphanumeric.sample_string(&mut rand::rng(), TOKEN_LENGTH))
         .collect();
-    let student_numbers: Vec<String> = news.iter().map(|n| n.student_number.clone()).collect();
-    let sisu_person_ids: Vec<String> = news.iter().map(|n| n.sisu_person_id.clone()).collect();
-    let first_names: Vec<Option<String>> = news.iter().map(|n| n.first_names.clone()).collect();
-    let last_names: Vec<Option<String>> = news.iter().map(|n| n.last_name.clone()).collect();
-    let emailed_tos: Vec<String> = news.iter().map(|n| n.emailed_to.clone()).collect();
+    let student_numbers: Vec<String> = news
+        .iter()
+        .map(|n| n.student_number.expose_secret().to_owned())
+        .collect();
+    let sisu_person_ids: Vec<String> = news
+        .iter()
+        .map(|n| n.sisu_person_id.expose_secret().to_owned())
+        .collect();
+    let first_names: Vec<Option<String>> = news
+        .iter()
+        .map(|n| expose_option(&n.first_names).map(str::to_owned))
+        .collect();
+    let last_names: Vec<Option<String>> = news
+        .iter()
+        .map(|n| expose_option(&n.last_name).map(str::to_owned))
+        .collect();
+    let emailed_tos: Vec<String> = news
+        .iter()
+        .map(|n| n.emailed_to.expose_secret().to_owned())
+        .collect();
     let course_ids: Vec<Option<Uuid>> = news.iter().map(|n| n.course_id).collect();
 
     sqlx::query!(

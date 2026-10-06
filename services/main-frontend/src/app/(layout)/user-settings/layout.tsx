@@ -1,18 +1,14 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { pageTitleCss } from "@/components/credit-registration/styles"
+import { useIsInCreditRegistrationPipeline } from "@/components/credit-registration/useIsInCreditRegistrationPipeline"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
-import {
-  getMyStudiesOptions,
-  getMyVerifiedStudentNumberOptions,
-} from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -22,15 +18,7 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
   // this only shows for the section's redirect stub. Mirrors the course-material layout pattern.
   usePageTitle(t("user-settings"), { order: 0 })
 
-  // Same query keys and gate as the profile tab bar and the settings card, so no extra request and
-  // the three cannot drift. Read directly rather than through QueryResult: a failing tab list must
-  // not hide the tab content. A linked number with no registering course still needs its own tab,
-  // or the settings card renders with nothing to select it from.
-  const myStudies = useQuery({ ...getMyStudiesOptions() })
-  const verifiedStudentNumber = useQuery({ ...getMyVerifiedStudentNumberOptions() })
-  const showStudentNumberTab =
-    myStudies.data?.any_module_supports_credit_registration === true ||
-    Boolean(verifiedStudentNumber.data)
+  const showStudentNumberTab = useIsInCreditRegistrationPipeline() === true
 
   return (
     <div

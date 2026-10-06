@@ -33,7 +33,15 @@ export const REGISTRATION_STATUS_VIEWS: RegistrationStatusView[] = [
 
 export const DEFAULT_REGISTRATION_STATUS_VIEW: RegistrationStatusView = "everyone"
 
-/** The stages a view covers. Empty means "do not narrow at all", not "match nothing". */
+/**
+ * The stages a view covers. Empty means "do not narrow at all", not "match nothing".
+ *
+ * `registered`, `in_progress`, `waiting_on_student`, `failed` and `not_registering` partition every
+ * status between them, matching the `_count` fields the summary panel sums server-side.
+ * `waiting_for_course_setup` joins `not_registering` there too, since both mean the course, not the
+ * student, is holding things up — otherwise that segment's count would outrun what the filter shows.
+ * `everyone`, `needs_attention` and `needs_student_number` cut across the partition on purpose.
+ */
 const VIEW_STATUSES = {
   everyone: [],
   needs_attention: ALL_REGISTRATION_STATUSES.filter((status) => registrationNeedsAttention(status)),
@@ -42,7 +50,7 @@ const VIEW_STATUSES = {
   in_progress: ["looking_for_enrolment", "sending", "waiting_for_sisu"],
   registered: ["registered"],
   failed: ["failed"],
-  not_registering: ["not_registering"],
+  not_registering: ["not_registering", "waiting_for_course_setup"],
 } as const satisfies Record<
   RegistrationStatusView,
   readonly StudentFacingCreditRegistrationStatus[]
@@ -54,7 +62,9 @@ export const registrationStatusesOf = (
 
 /**
  * A view covering exactly one status borrows that status's label, so the filter option and the
- * cells it narrows to can never come to say different things. The rest name themselves.
+ * cells it narrows to can never come to say different things. `not_registering` borrows its label
+ * too even though `waiting_for_course_setup` rides along: both read as the course, not the student,
+ * holding things up. The rest name themselves.
  */
 const VIEW_LABEL_KEYS = {
   everyone: "credit-registration-view-everyone",

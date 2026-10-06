@@ -23,11 +23,11 @@ interface WindowFields extends FieldValues {
 
 interface WindowSecsSelectProps<T extends WindowFields> {
   control: Control<T>
-  /** The System tab shares hour/day/week; Errors adds a month option. */
+  /** The System tab shares hour/day/week; Errors and Enrolment checks add a month option. */
   includeMonth?: boolean
 }
 
-/** The time-window picker shared by the System and Errors tabs. */
+/** The time-window picker shared by the System, Errors and Enrolment checks tabs. */
 export function WindowSecsSelect<T extends WindowFields>({
   control,
   includeMonth = false,

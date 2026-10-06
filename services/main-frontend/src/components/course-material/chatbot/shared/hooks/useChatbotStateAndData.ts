@@ -325,7 +325,13 @@ const useChatbotStateAndData = (
 
   const handlePickSuggestionMutation = useToastMutation(
     async (message: string) => {
-      return await newMessageMutation.mutateAsync(message)
+      const titleIsMissing = !currentConversationInfo.data?.current_conversation?.conversation_title
+
+      await newMessageMutation.mutateAsync(message)
+
+      if (titleIsMissing) {
+        updateConversationTitleMutation.mutate(message)
+      }
     },
     { notify: false },
   )

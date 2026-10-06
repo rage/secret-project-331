@@ -306,7 +306,13 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     row.state === "awaiting_verification" ||
     row.state === "partially_registered" ||
     row.state === "submission_uncertain"
-  const hidesNextAttempt = row.state === "submitting" || row.state === "resolving_enrolment"
+  // In flight, waiting on a fact rather than a time, or waiting for a human.
+  const hidesNextAttempt =
+    row.state === "submitting" ||
+    row.state === "resolving_enrolment" ||
+    row.state === "pending" ||
+    row.state === "blocked" ||
+    row.state === "misregistered"
   const nextAttempt: DescriptionListItem[] =
     row.terminal_at || row.superseded || hidesNextAttempt
       ? []

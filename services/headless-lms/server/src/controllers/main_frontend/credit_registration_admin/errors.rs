@@ -3,7 +3,7 @@
 use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
     self, AttentionReason, AttentionRegistration, AttentionSort, CreditRegistrationErrorCode,
-    CreditRegistrationState, StuckThresholds,
+    CreditRegistrationState, HandActionAvailability, ResubmissionStrictness, StuckThresholds,
 };
 use headless_lms_models::library::credit_registration::classification::{
     Retryability, retryability,
@@ -46,6 +46,8 @@ pub struct CreditRegistrationAttentionItem {
     /// The pipeline's cached "a human should look at this". A fact about the row, never a reason:
     /// it says nothing about why, so it travels beside `reasons` rather than in them.
     pub needs_admin_attention: bool,
+    /// What the bulk hand transition would allow on this row.
+    pub hand_actions: HandActionAvailability,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -298,6 +300,9 @@ pub async fn get_credit_registration_errors_by_code(
 fn to_attention_item(row: AttentionRegistration) -> CreditRegistrationAttentionItem {
     CreditRegistrationAttentionItem {
         reasons: row.reasons(),
+        hand_actions: row
+            .resubmission_facts()
+            .hand_actions(ResubmissionStrictness::AnyExceptSubmissionUncertain),
         credit_registration_id: row.id,
         user_id: row.user_id,
         first_name: row.first_name,

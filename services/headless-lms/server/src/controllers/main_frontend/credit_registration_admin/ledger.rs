@@ -11,8 +11,8 @@ use headless_lms_models::credit_registration_events::{
 };
 use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
-    CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionRefusal,
-    ResubmissionStrictness, Transition,
+    CreditRegistrationErrorCode, CreditRegistrationState, HandActionAvailability,
+    ResubmissionFacts, ResubmissionRefusal, ResubmissionStrictness, Transition,
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
@@ -92,9 +92,8 @@ pub struct AdminCreditRegistrationRow {
     pub attempt_number: i32,
     pub superseded: bool,
     pub superseded_by_id: Option<Uuid>,
-    /// Why the single-row hand transition would refuse to put this row back on the pipeline, or
-    /// `null` if it would go ahead: what the row's resubmit control renders from.
-    pub resubmission_refusal: Option<ResubmissionRefusal>,
+    /// What the single-row hand transition would allow: what the row's action controls render from.
+    pub hand_actions: HandActionAvailability,
     /// The account's link now, which is not always the number frozen on the row.
     pub verified_student_number: Option<String>,
     pub verified_student_number_at: Option<DateTime<Utc>>,
@@ -233,10 +232,22 @@ pub enum AdminCreditRegistrationAction {
 }
 
 impl AdminCreditRegistrationAction {
-    fn state_move(self) -> Option<AdminCreditRegistrationStateMove> {
+    /// Why this action is refused on the row, or `None` if it may go ahead.
+    fn refusal(
+        self,
+        facts: &ResubmissionFacts,
+        strictness: ResubmissionStrictness,
+    ) -> Option<ResubmissionRefusal> {
         match self {
-            Self::StateMove { to_state } => Some(to_state),
-            Self::ClearNeedsAdminAttention | Self::CheckNow => None,
+            Self::StateMove { to_state } => {
+                facts.admin_transition_refusal(to_state.to_state(), strictness)
+            }
+            Self::CheckNow => facts.check_now_refusal(),
+            // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
+            Self::ClearNeedsAdminAttention if facts.is_superseded => {
+                Some(ResubmissionRefusal::Superseded)
+            }
+            Self::ClearNeedsAdminAttention => None,
         }
     }
 }
@@ -553,7 +564,8 @@ POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regi
 
 The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
 re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
-while Suotar still holds its earlier submission open (`submission_pending`).
+while Suotar may still hold its earlier submission as pending (`submission_uncertain_too_recent`,
+`submission_pending`). The row's `hand_actions` says in advance what this refuses.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -588,20 +600,18 @@ pub async fn admin_transition_credit_registration(
         ));
     }
 
-    if let Some(state_move) = payload.action.state_move() {
-        // `Any`: a human is already looking at this one row, so unlike the bulk transition below it
-        // is not refused for being `submission_uncertain`.
-        if let Some(refusal) = row
-            .resubmission_facts()
-            .admin_transition_refusal(state_move.to_state(), ResubmissionStrictness::Any)
-        {
-            return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
-                outcome: AdminTransitionOutcome::Refused,
-                refusal: Some(refusal),
-                state: row.state,
-                needs_admin_attention: row.needs_admin_attention,
-            }));
-        }
+    // `Any`: a human is already looking at this one row, so unlike the bulk transition below it is
+    // not refused for being `submission_uncertain`.
+    if let Some(refusal) = payload
+        .action
+        .refusal(&row.resubmission_facts(), ResubmissionStrictness::Any)
+    {
+        return token.authorized_ok(web::Json(AdminTransitionCreditRegistrationResult {
+            outcome: AdminTransitionOutcome::Refused,
+            refusal: Some(refusal),
+            state: row.state,
+            needs_admin_attention: row.needs_admin_attention,
+        }));
     }
 
     let mut tx = conn.begin().await?;
@@ -646,11 +656,12 @@ pub async fn admin_transition_credit_registration(
 POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
 selection of rows by hand, one transaction for the lot.
 
-Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
-those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
-looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
-attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
-time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
+Resubmitting or cancelling refuses every row in `submission_uncertain`, whatever the selection
+said. Taking one of those back to `ready_to_submit` is a decision about one student's transcript,
+made after somebody has looked the attainment up; a checkbox in a list is not that, and a mis-click
+here would put a second attainment on every one of them. Those rows are reported back untouched, to
+be dealt with one at a time, as is a row whose earlier submission Suotar still holds open
+(`submission_pending`). Each attention item's `hand_actions` says in advance what this skips.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
@@ -695,22 +706,15 @@ pub async fn admin_bulk_transition_credit_registrations(
     // so a row the pipeline moves in between would make `apply_transition` refuse it and take every
     // row already applied down with it.
     let rows = credit_registrations::get_by_ids_for_update(&mut tx, &ids).await?;
-    let state_move = payload.action.state_move();
 
     let mut applied_count = 0;
     let mut due_now_ids = Vec::new();
     let mut skipped: HashMap<ResubmissionRefusal, i64> = HashMap::new();
     for row in &rows {
-        let refusal = match state_move {
-            Some(state_move) => row.resubmission_facts().admin_transition_refusal(
-                state_move.to_state(),
-                ResubmissionStrictness::AnyExceptSubmissionUncertain,
-            ),
-            // Even clearing a flag on a replaced attempt is an admin acting on the wrong row.
-            None if row.superseded_by_id.is_some() => Some(ResubmissionRefusal::Superseded),
-            None => None,
-        };
-        match refusal {
+        match payload.action.refusal(
+            &row.resubmission_facts(),
+            ResubmissionStrictness::AnyExceptSubmissionUncertain,
+        ) {
             Some(refusal) => *skipped.entry(refusal).or_insert(0) += 1,
             None => {
                 let applied =
@@ -967,10 +971,9 @@ fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
         superseded: row.superseded_by_id.is_some(),
         is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
         pending_reason: row.pending_reason(),
-        resubmission_refusal: row.resubmission_facts().admin_transition_refusal(
-            CreditRegistrationState::ReadyToSubmit,
-            ResubmissionStrictness::Any,
-        ),
+        hand_actions: row
+            .resubmission_facts()
+            .hand_actions(ResubmissionStrictness::Any),
         id: row.id,
         created_at: row.created_at,
         user_id: row.user_id,

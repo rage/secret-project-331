@@ -183,6 +183,7 @@ impl TeacherCreditRegistration {
         ResubmissionFacts {
             state: self.state,
             is_superseded: self.superseded_by_id.is_some(),
+            error_code: self.error_code,
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
         }

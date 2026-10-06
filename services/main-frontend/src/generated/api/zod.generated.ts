@@ -562,6 +562,11 @@ export const zChapterUpdate = z.object({
 })
 
 /**
+ * What checking a row now brings forward.
+ */
+export const zCheckNowTarget = z.enum(["attainment", "enrolment", "next_attempt"])
+
+/**
  * Where one circuit breaker stands, as its worker last reported it.
  */
 export const zCircuitBreakerStatus = z.enum(["closed", "open", "waiting_to_probe"])
@@ -1809,62 +1814,6 @@ export const zCreditRegistrationAdminActionRow = z.object({
   target_last_name: z.string().nullish(),
   target_phase: z.string().nullish(),
   target_user_id: z.uuid().nullish(),
-})
-
-export const zCreditRegistrationAttentionItem = z.object({
-  attempt_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  course_id: z.uuid(),
-  course_module_id: z.uuid(),
-  course_module_name: z.string().nullish(),
-  course_name: z.string(),
-  credit_registration_id: z.uuid(),
-  email: z.string().nullish(),
-  error_code: zCreditRegistrationErrorCode.nullish(),
-  first_name: z.string().nullish(),
-  last_name: z.string().nullish(),
-  needs_admin_attention: z.boolean(),
-  next_attempt_at: z.iso.datetime(),
-  reasons: z.array(zCreditRegistrationAttentionReason),
-  state: zCreditRegistrationState,
-  state_entered_at: z.iso.datetime(),
-  student_number: z.string().nullish(),
-  user_id: z.uuid(),
-})
-
-export const zCreditRegistrationAttentionItems = z.object({
-  counts_by_reason: z.array(zCreditRegistrationAttentionReasonCount),
-  filtered_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  flagged_without_reason_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  items: z.array(zCreditRegistrationAttentionItem),
-  total_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  total_pages: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 /**
@@ -4383,7 +4332,7 @@ export const zResetPasswordTokenPayload = z.object({
 })
 
 /**
- * Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.
+ * Why [`ResubmissionFacts`] refuses a hand action on a row.
  *
  * Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
  * travels to them as it is rather than being re-mapped per surface.
@@ -4392,9 +4341,14 @@ export const zResubmissionRefusal = z.enum([
   "superseded",
   "already_succeeded",
   "submission_uncertain",
+  "submission_uncertain_too_recent",
   "not_failed_permanent",
+  "still_in_pipeline",
   "submission_pending",
   "already_submitted",
+  "awaiting_confirmation",
+  "already_cancelled",
+  "nothing_to_check",
 ])
 
 export const zAdminBulkTransitionSkipCount = z.object({
@@ -4442,6 +4396,99 @@ export const zAdminTransitionCreditRegistrationResult = z.object({
   outcome: zAdminTransitionOutcome,
   refusal: zResubmissionRefusal.nullish(),
   state: zCreditRegistrationState,
+})
+
+/**
+ * How a resend [`ResubmissionFacts::resubmission_refusal`] allows may go wrong, which the admin
+ * surfaces warn about before it is confirmed.
+ */
+export const zResubmissionRisk = z.enum([
+  "normal",
+  "likely_rejected_again",
+  "replaces_reversed_attainment",
+  "possible_duplicate",
+])
+
+/**
+ * Whether a row may be sent again by hand.
+ */
+export const zResubmissionAvailability = z.union([
+  z.object({
+    kind: z.enum(["allowed"]),
+    risk: zResubmissionRisk,
+  }),
+  z.object({
+    available_at: z.iso.datetime().nullish(),
+    kind: z.enum(["refused"]),
+    refusal: zResubmissionRefusal,
+  }),
+])
+
+/**
+ * Which hand actions a row is offered, decided once on the server for every admin surface.
+ * Clearing the attention flag is refused only on a superseded row, so it is not in here.
+ */
+export const zHandActionAvailability = z.object({
+  cancel_refusal: zResubmissionRefusal.nullish(),
+  check_now: zCheckNowTarget.nullish(),
+  resubmission: zResubmissionAvailability,
+})
+
+export const zCreditRegistrationAttentionItem = z.object({
+  attempt_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  credit_registration_id: z.uuid(),
+  email: z.string().nullish(),
+  error_code: zCreditRegistrationErrorCode.nullish(),
+  first_name: z.string().nullish(),
+  hand_actions: zHandActionAvailability,
+  last_name: z.string().nullish(),
+  needs_admin_attention: z.boolean(),
+  next_attempt_at: z.iso.datetime(),
+  reasons: z.array(zCreditRegistrationAttentionReason),
+  state: zCreditRegistrationState,
+  state_entered_at: z.iso.datetime(),
+  student_number: z.string().nullish(),
+  user_id: z.uuid(),
+})
+
+export const zCreditRegistrationAttentionItems = z.object({
+  counts_by_reason: z.array(zCreditRegistrationAttentionReasonCount),
+  filtered_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  flagged_without_reason_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  items: z.array(zCreditRegistrationAttentionItem),
+  total_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  total_pages: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zRetryCreditRegistrationPayload = z.object({
@@ -4761,6 +4808,7 @@ export const zAdminCreditRegistrationRow = z.object({
   first_name: z.string().nullish(),
   grade_id: z.string().nullish(),
   grade_scale_id: z.string().nullish(),
+  hand_actions: zHandActionAvailability,
   id: z.uuid(),
   is_waiting_for_enrolment: z.boolean(),
   last_attempt_at: z.iso.datetime().nullish(),
@@ -4775,7 +4823,6 @@ export const zAdminCreditRegistrationRow = z.object({
   partially_registered_at: z.iso.datetime().nullish(),
   pending_reason: zCreditRegistrationPendingReason.nullish(),
   registered_at: z.iso.datetime().nullish(),
-  resubmission_refusal: zResubmissionRefusal.nullish(),
   resubmit_not_before: z.iso.datetime().nullish(),
   selected_enrolment_id: z.string().nullish(),
   sisu_attainment_id: z.string().nullish(),
@@ -4881,6 +4928,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       first_name: z.string().nullish(),
       grade_id: z.string().nullish(),
       grade_scale_id: z.string().nullish(),
+      hand_actions: zHandActionAvailability,
       id: z.uuid(),
       is_waiting_for_enrolment: z.boolean(),
       last_attempt_at: z.iso.datetime().nullish(),
@@ -4895,7 +4943,6 @@ export const zPageAdminCreditRegistrationRow = z.object({
       partially_registered_at: z.iso.datetime().nullish(),
       pending_reason: zCreditRegistrationPendingReason.nullish(),
       registered_at: z.iso.datetime().nullish(),
-      resubmission_refusal: zResubmissionRefusal.nullish(),
       resubmit_not_before: z.iso.datetime().nullish(),
       selected_enrolment_id: z.string().nullish(),
       sisu_attainment_id: z.string().nullish(),

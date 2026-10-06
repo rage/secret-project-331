@@ -28,6 +28,9 @@ spec:
               value: "true"
             - name: MP_SMTP_AUTH_ALLOW_INSECURE
               value: "true"
+            # Lets the link check reach project-331.local, which resolves to the private minikube IP.
+            - name: MP_ALLOW_INTERNAL_HTTP_REQUESTS
+              value: "true"
           ports:
             - containerPort: 1025
               name: smtp

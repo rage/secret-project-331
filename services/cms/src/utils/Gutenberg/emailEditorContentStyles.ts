@@ -32,7 +32,7 @@ ${ROOT} .block-list-appender {
 ${ROOT} > :first-child { margin-top: 0 !important; }
 ${ROOT} > :last-child { margin-bottom: 0 !important; }
 
-${ROOT} p { margin: 0 0 18px; font-size: 16px; line-height: 26px; overflow-wrap: anywhere; }
+${ROOT} p { margin: 0 0 18px; font-size: 16px; line-height: 26px; overflow-wrap: anywhere; word-break: normal; }
 ${ROOT} p.is-style-lead { font-size: 18px; line-height: 28px; }
 ${ROOT} strong, ${ROOT} b { color: #1A2333; font-weight: 700; }
 
@@ -48,7 +48,7 @@ ${ROOT} h2 { font-size: 24px; line-height: 30px; }
 ${ROOT} h3 { font-size: 19px; line-height: 26px; }
 ${ROOT} h4, ${ROOT} h5, ${ROOT} h6 { font-size: 16px; line-height: 24px; }
 
-${ROOT} a { color: #065853; text-decoration: underline; overflow-wrap: anywhere; }
+${ROOT} a { color: #065853; text-decoration: underline; overflow-wrap: anywhere; word-break: break-word; }
 
 ${ROOT} ul, ${ROOT} ol { margin: 0 0 18px; padding-left: 24px; }
 ${ROOT} li { margin: 0 0 8px; padding-left: 2px; font-size: 16px; line-height: 26px; }
@@ -86,6 +86,7 @@ ${ROOT} pre.wp-block-code {
   border-radius: 6px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  word-break: break-word;
   font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', 'Courier New', monospace;
   font-size: 14px;
   line-height: 20px;

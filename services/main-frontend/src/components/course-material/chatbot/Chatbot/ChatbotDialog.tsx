@@ -47,24 +47,24 @@ const ChatbotDialog: React.FC = () => {
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
 
-  const { isOpen, setIsOpen } = useChatbotContext()
+  const { isOpen, setDialogOpen } = useChatbotContext()
 
   const state = {
     isOpen,
     setOpen: (o: boolean) => {
-      setIsOpen(o)
+      setDialogOpen?.(o)
       if (!o) {
         buttonRef.current?.focus()
       }
     },
     open: () => {
-      setIsOpen(true)
+      setDialogOpen?.(true)
     },
     close: () => {
       // no operation prevents close on scroll
     },
     toggle: () => {
-      setIsOpen(!isOpen)
+      setDialogOpen?.(!isOpen)
       if (isOpen) {
         buttonRef.current?.focus()
       }

@@ -74,6 +74,15 @@ static SMTP_USER: Lazy<String> = Lazy::new(|| {
 static SMTP_PASS: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_PASS").expect("No smtp password found in env variables.")
 });
+/// When set, mail goes to `SMTP_HOST` on this port without TLS, for the local Mailpit in dev and
+/// test. Unset, the sender uses implicit TLS on port 465.
+static SMTP_PLAINTEXT_PORT: Lazy<Option<u16>> = Lazy::new(|| {
+    ProgramConfig::optional("SMTP_PLAINTEXT_PORT").map(|port| {
+        port.trim()
+            .parse()
+            .expect("SMTP_PLAINTEXT_PORT is not a port number.")
+    })
+});
 
 /// Sends one batch of due emails. `warned_layouts` is the `updated_at` of each layout last checked
 /// for problems, so each version is warned about once rather than every batch.
@@ -513,13 +522,16 @@ pub async fn main() -> anyhow::Result<()> {
     let pool = PgPool::connect(&DB_URL.to_string()).await?;
     let creds = Credentials::new(SMTP_USER.to_string(), SMTP_PASS.to_string());
 
-    let mailer = match SmtpTransport::relay(&SMTP_HOST) {
-        Ok(builder) => builder.credentials(creds).build(),
-        Err(e) => {
-            tracing::error!("Could not configure SMTP transport: {}", e);
-            return Err(e.into());
+    let builder = match *SMTP_PLAINTEXT_PORT {
+        Some(port) => {
+            tracing::warn!("Sending email without TLS to {}:{}", *SMTP_HOST, port);
+            SmtpTransport::builder_dangerous(SMTP_HOST.as_str()).port(port)
         }
+        None => SmtpTransport::relay(&SMTP_HOST).inspect_err(|e| {
+            tracing::error!("Could not configure SMTP transport: {}", e);
+        })?,
     };
+    let mailer = builder.credentials(creds).build();
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     // Startup counts as an attempt: pods restart often, and firing on the first tick would turn every

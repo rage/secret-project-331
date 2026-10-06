@@ -415,6 +415,7 @@ async fn exercise_progress(
 ) -> models::ModelResult<api::ExerciseProgress> {
     let is_out_of_tries =
         !has_received_full_points(state.and_then(|s| s.score_given), exercise.score_maximum)
+            && !is_being_graded(state)
             && domain::exercises::is_out_of_tries(
                 conn,
                 user_id,
@@ -443,7 +444,7 @@ fn derive_exercise_progress(
     let attempted = activity_progress != ActivityProgress::Initialized;
     let standing = if has_received_full_points(score_given, score_maximum) {
         api::ExerciseStanding::Passed
-    } else if is_out_of_tries {
+    } else if is_out_of_tries && !is_being_graded(state) {
         api::ExerciseStanding::OutOfTries
     } else if attempted {
         api::ExerciseStanding::Attempted
@@ -458,6 +459,12 @@ fn derive_exercise_progress(
         attempted,
         standing: Some(standing),
     }
+}
+
+/// A grading still in progress can award full points, so the score is not final even when the
+/// last try is spent.
+fn is_being_graded(state: Option<&UserExerciseState>) -> bool {
+    state.is_some_and(|s| !s.grading_progress.is_complete())
 }
 
 /// Full points as the course material judges them, tolerating float rounding. `None` (never
@@ -1471,6 +1478,19 @@ mod tests {
         let full = state_with(Some(5.0), ActivityProgress::Completed);
         let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+    }
+
+    #[test]
+    fn standing_stays_attempted_while_the_last_try_is_graded() {
+        let mut pending = state_with(Some(0.0), ActivityProgress::Completed);
+        pending.grading_progress = GradingProgress::Pending;
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&pending), true);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
+
+        let mut failed = state_with(Some(0.0), ActivityProgress::Completed);
+        failed.grading_progress = GradingProgress::Failed;
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
     }
 
     #[test]
@@ -3726,5 +3746,45 @@ mod route_tests {
             .expect("the fixture exercise has progress");
         assert_eq!(after.standing, Some(api::ExerciseStanding::OutOfTries));
         assert_eq!(after.score_given, 0.0);
+    }
+
+    /// The last try is not final while its grading is pending: it may yet award full points.
+    #[actix_web::test]
+    async fn a_last_try_still_being_graded_is_attempted() {
+        let mut pending = stub_grading();
+        pending.grading_progress = GradingProgress::Pending;
+        pending.score_given = 0.0;
+        let state = Arc::new(StubState::new(StubGrading::Graded(pending)));
+        let (fixture, ids) = fixture_with_stub(state).await;
+        {
+            let mut conn = Conn::init().await;
+            let mut tx = conn.begin().await;
+            models::exercises::set_try_limit(tx.as_mut(), fixture.exercise, true, Some(1))
+                .await
+                .expect("try limit");
+            tx.commit().await;
+        }
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/courses/{}/progress", fixture.course))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        let progress: api::CourseProgress = test::read_body_json(response).await;
+        let progress = progress
+            .exercises
+            .iter()
+            .find(|p| p.exercise_id == fixture.exercise)
+            .expect("the fixture exercise has progress");
+        assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
     }
 }

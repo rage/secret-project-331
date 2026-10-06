@@ -521,8 +521,9 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
             r#"<div class="email-buttons">{}</div>"#,
             process_content_to_html(&block.inner_blocks, theme)
         ),
-        // A table cell with bgcolor, not a styled link alone: Outlook desktop drops padding and
-        // background on <a>. The arrow is text because Gmail and Outlook drop CSS `::after`.
+        // Outlook desktop drops padding and background on <a>, so the cell repeats them in bgcolor
+        // and `mso-padding-alt`, which only Outlook reads. The arrow is text because Gmail and
+        // Outlook drop CSS `::after`.
         EmailBlockName::Button => {
             let (open_tag, close_tag) =
                 match url_with_scheme(block.str_attribute("url"), &LINK_SCHEMES) {
@@ -530,7 +531,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                     None => ("span".to_string(), "span"),
                 };
             format!(
-                r#"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="{background}" style="background-color: {background}; border-radius: 6px;"><{open_tag} class="email-button-link" style="display: inline-block; padding: 14px 26px; font-size: 16px; line-height: 20px; font-weight: 600; color: {text}; text-decoration: none;">{}{}</{close_tag}></td></tr></table>"#,
+                r#"<table role="presentation" class="email-button" cellpadding="0" cellspacing="0" border="0"><tr><td class="email-button-cell" bgcolor="{background}" style="background-color: {background}; border-radius: 6px; mso-padding-alt: 14px 26px;"><{open_tag} class="email-button-link" style="display: inline-block; padding: 14px 26px; font-size: 16px; line-height: 20px; font-weight: 600; color: {text}; text-decoration: none;">{}{}</{close_tag}></td></tr></table>"#,
                 block.rich_text("text"),
                 if block.has_style("arrow") {
                     "&nbsp;&rarr;"

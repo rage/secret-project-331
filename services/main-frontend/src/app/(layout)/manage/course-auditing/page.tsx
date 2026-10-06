@@ -1,8 +1,9 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -14,7 +15,19 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, nullIfEmpty, QueryResult, Switch, TextField } from "@/shared-module/components"
+import {
+  Button,
+  nullIfEmpty,
+  QueryResult,
+  Switch,
+  TextField,
+  TriStateToggle,
+  NOT_SET,
+  INCLUDE,
+  EXCLUDE,
+  type TriStateToggleStates,
+  Tooltip,
+} from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
 import CourseDataFilterForm from "./CourseDataFilterForm"
@@ -26,6 +39,10 @@ export interface CourseFilter {
   short_description: boolean
   no_prerequisites: boolean
   no_audiences: boolean
+  is_draft: Set<TriStateToggleStates>
+  is_unlisted: Set<TriStateToggleStates>
+  is_test_mode: Set<TriStateToggleStates>
+  is_joinable_by_code_only: Set<TriStateToggleStates>
 }
 
 export interface CourseDataFilter {
@@ -65,11 +82,15 @@ export const contentRowStyles = css`
   gap: 1rem;
 `
 
-export const formButtonGridStyles = css`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  margin: 0.5rem 0;
+export const formButtonColumnStyles = css`
+  display: flex;
+  flex-flow: column;
   gap: 0.5rem;
+`
+
+const tooltipBodyRowStyles = css`
+  display: flex;
+  align-items: center;
 `
 
 const CourseAuditing = () => {
@@ -86,6 +107,10 @@ const CourseAuditing = () => {
       short_description: false,
       no_prerequisites: false,
       no_audiences: false,
+      is_draft: new Set([NOT_SET]),
+      is_unlisted: new Set([NOT_SET]),
+      is_test_mode: new Set([NOT_SET]),
+      is_joinable_by_code_only: new Set([NOT_SET]),
     },
   })
 
@@ -114,6 +139,10 @@ const CourseAuditing = () => {
     shortDescription,
     noPrerequisites,
     noAudiences,
+    isDraft,
+    isUnlisted,
+    isTestMode,
+    isJoinableByCodeOnly,
   ] = watch([
     "search_course",
     "no_default_uh_course_code",
@@ -121,6 +150,10 @@ const CourseAuditing = () => {
     "short_description",
     "no_prerequisites",
     "no_audiences",
+    "is_draft",
+    "is_unlisted",
+    "is_test_mode",
+    "is_joinable_by_code_only",
   ])
 
   const deferredSearchCourse = useDeferredValue(searchCourse)
@@ -168,6 +201,30 @@ const CourseAuditing = () => {
         if (noAudiences && course.audiences.length > 0) {
           return false
         }
+        if (
+          (isDraft.has(INCLUDE) && !course.is_draft) ||
+          (isDraft.has(EXCLUDE) && course.is_draft)
+        ) {
+          return false
+        }
+        if (
+          (isUnlisted.has(INCLUDE) && !course.is_unlisted) ||
+          (isUnlisted.has(EXCLUDE) && course.is_unlisted)
+        ) {
+          return false
+        }
+        if (
+          (isTestMode.has(INCLUDE) && !course.is_test_mode) ||
+          (isTestMode.has(EXCLUDE) && course.is_test_mode)
+        ) {
+          return false
+        }
+        if (
+          (isJoinableByCodeOnly.has(INCLUDE) && !course.is_joinable_by_code_only) ||
+          (isJoinableByCodeOnly.has(EXCLUDE) && course.is_joinable_by_code_only)
+        ) {
+          return false
+        }
         return true
       }),
     [
@@ -177,6 +234,10 @@ const CourseAuditing = () => {
       noDefaultUhCourseCode,
       noPrerequisites,
       noAudiences,
+      isDraft,
+      isUnlisted,
+      isTestMode,
+      isJoinableByCodeOnly,
       deferredSearchCourse,
     ],
   )
@@ -216,32 +277,108 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div className={formButtonGridStyles}>
-          <Switch
-            name="no_default_uh_course_code"
-            control={control}
-            label={t("course-auditing-filter-uh-course-code-not-set")}
-          />
-          <Switch
-            name="not_closed"
-            control={control}
-            label={t("course-auditing-filter-not-closed")}
-          />
-          <Switch
-            name="short_description"
-            control={control}
-            label={t("course-auditing-filter-short-description")}
-          />
-          <Switch
-            name="no_prerequisites"
-            control={control}
-            label={t("course-auditing-filter-prerequisites-not-set")}
-          />
-          <Switch
-            name="no_audiences"
-            control={control}
-            label={t("course-auditing-filter-audiences-not-set")}
-          />
+        <div
+          className={cx(
+            contentRowStyles,
+            css`
+              gap: 2rem;
+            `,
+          )}
+        >
+          <div
+            className={css`
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+              margin: 0.5rem 0;
+              gap: 0.5rem;
+              flex-grow: 1;
+              padding-top: 1.5rem;
+            `}
+          >
+            <Switch
+              name="not_closed"
+              control={control}
+              label={t("course-auditing-filter-not-closed")}
+            />
+            <Switch
+              name="no_default_uh_course_code"
+              control={control}
+              label={t("course-auditing-filter-uh-course-code-not-set")}
+            />
+            <Switch
+              name="short_description"
+              control={control}
+              label={t("course-auditing-filter-short-description")}
+            />
+            <Switch
+              name="no_prerequisites"
+              control={control}
+              label={t("course-auditing-filter-prerequisites-not-set")}
+            />
+            <Switch
+              name="no_audiences"
+              control={control}
+              label={t("course-auditing-filter-audiences-not-set")}
+            />
+          </div>
+          <div
+            className={css`
+              display: flex;
+              flex-basis: 350px;
+              flex-direction: column;
+            `}
+          >
+            <div className={formButtonColumnStyles}>
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                `}
+              >
+                <p
+                  className={css`
+                    font-weight: 500;
+                  `}
+                >
+                  {t("course-auditing-filter-course-status-title")}
+                </p>
+                <Tooltip aria-label={t("tri-state-toggle-tooltip-label")}>
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-direction: column;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    <div className={tooltipBodyRowStyles}>
+                      <CheckCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-check")}
+                    </div>
+                    <div className={tooltipBodyRowStyles}>
+                      <MinusCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-dash")}
+                    </div>
+                    <div className={tooltipBodyRowStyles}>
+                      <XmarkCircle />
+                      {": "}
+                      {t("tri-state-toggle-tooltip-body-x")}
+                    </div>
+                  </div>
+                </Tooltip>
+              </div>
+              <TriStateToggle name="is_draft" control={control} label={t("draft")} />
+              <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
+              <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
+              <TriStateToggle
+                name="is_joinable_by_code_only"
+                control={control}
+                label={t("joinable-by-code-only")}
+              />
+            </div>
+          </div>
         </div>
       </FieldSet>
 

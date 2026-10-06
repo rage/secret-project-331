@@ -25,7 +25,7 @@ import type { RadioInnerProps } from "./radioTypes"
 const defaultFieldSize = "md" as const
 
 /** Renders a standalone radio input outside of `RadioGroup`. */
-export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
+export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
   const {
     label,
     description,

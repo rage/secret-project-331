@@ -73,7 +73,7 @@ const RadioNotes: React.FC<{
 )
 
 /** Renders a radio option when nested inside `RadioGroup`. */
-export function GroupedRadio({
+export function RadioInGroup({
   forwardedRef,
   group,
   ...props

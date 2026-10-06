@@ -338,7 +338,7 @@ const CourseAuditing = () => {
                 >
                   {t("course-auditing-filter-course-status-title")}
                 </p>
-                <Tooltip aria-label={t("label-about-tri-state-toggle")}>
+                <Tooltip aria-label={t("tri-state-toggle-tooltip-label")}>
                   <CheckCircle />
                   {t("tri-state-toggle-tooltip-body-check")}
                   {<br />}

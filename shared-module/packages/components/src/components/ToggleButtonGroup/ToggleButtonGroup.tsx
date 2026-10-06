@@ -59,6 +59,17 @@ export type ToggleButtonGroupProps<
   children?: React.ReactNode
 }
 
+/**
+ * Group of toggle buttons.
+ * Uses react-hook-form; pass `name` and `control`.
+ *
+ * @example
+ * <ToggleButtonGroup name="plan" control={control} label="Plan">
+ *   <ToggleButtonGroupButton id="a">
+ *     {t("a")}
+ *   </ToggleButtonGroupButton>
+ * </ToggleButtonGroup >
+ */
 export function ToggleButtonGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: ToggleButtonGroupProps<T, N>,
 ) {

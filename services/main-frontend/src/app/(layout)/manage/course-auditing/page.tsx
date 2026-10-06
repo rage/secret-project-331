@@ -1,8 +1,9 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
+import { CheckCircle, MinusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -25,6 +26,7 @@ import {
   INCLUDE,
   EXCLUDE,
   type TriStateToggleStates,
+  Tooltip,
 } from "@/shared-module/components"
 
 import CourseCard from "./CourseCard/CourseCard"
@@ -270,7 +272,14 @@ const CourseAuditing = () => {
             {t("button-reset")}
           </Button>
         </div>
-        <div className={contentRowStyles}>
+        <div
+          className={cx(
+            contentRowStyles,
+            css`
+              gap: 2rem;
+            `,
+          )}
+        >
           <div
             className={css`
               display: grid;
@@ -278,17 +287,18 @@ const CourseAuditing = () => {
               margin: 0.5rem 0;
               gap: 0.5rem;
               flex-grow: 1;
+              padding-top: 1.5rem;
             `}
           >
-            <Switch
-              name="no_default_uh_course_code"
-              control={control}
-              label={t("course-auditing-filter-uh-course-code-not-set")}
-            />
             <Switch
               name="not_closed"
               control={control}
               label={t("course-auditing-filter-not-closed")}
+            />
+            <Switch
+              name="no_default_uh_course_code"
+              control={control}
+              label={t("course-auditing-filter-uh-course-code-not-set")}
             />
             <Switch
               name="short_description"
@@ -306,15 +316,48 @@ const CourseAuditing = () => {
               label={t("course-auditing-filter-audiences-not-set")}
             />
           </div>
-          <div className={formButtonColumnStyles}>
-            <TriStateToggle name="is_draft" control={control} label={t("draft")} />
-            <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
-            <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
-            <TriStateToggle
-              name="is_joinable_by_code_only"
-              control={control}
-              label={t("joinable-by-code-only")}
-            />
+          <div
+            className={css`
+              display: flex;
+              flex-basis: 350px;
+              flex-direction: column;
+            `}
+          >
+            <div className={formButtonColumnStyles}>
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                `}
+              >
+                <p
+                  className={css`
+                    font-weight: 500;
+                  `}
+                >
+                  {t("course-auditing-filter-course-status-title")}
+                </p>
+                <Tooltip aria-label={t("label-about-tri-state-toggle")}>
+                  <CheckCircle />
+                  {t("tri-state-toggle-tooltip-body-check")}
+                  {<br />}
+                  <MinusCircle />
+                  {t("tri-state-toggle-tooltip-body-dash")}
+                  {<br />}
+                  <XmarkCircle />
+                  {t("tri-state-toggle-tooltip-body-x")}
+                </Tooltip>
+              </div>
+              <TriStateToggle name="is_draft" control={control} label={t("draft")} />
+              <TriStateToggle name="is_unlisted" control={control} label={t("unlisted")} />
+              <TriStateToggle name="is_test_mode" control={control} label={t("test-course")} />
+              <TriStateToggle
+                name="is_joinable_by_code_only"
+                control={control}
+                label={t("joinable-by-code-only")}
+              />
+            </div>
           </div>
         </div>
       </FieldSet>

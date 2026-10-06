@@ -29,6 +29,7 @@ export interface ToggleButtonGroupButtonProps {
   children?: React.ReactNode
 }
 
+/** Renders a toggle button when nested inside `ToggleButtonGroup`. */
 export const ToggleButtonGroupButton = React.forwardRef<
   HTMLButtonElement,
   ToggleButtonGroupButtonProps

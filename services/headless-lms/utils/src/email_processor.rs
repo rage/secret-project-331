@@ -94,6 +94,9 @@ const EMAIL_ASSET_BASE_URL: &str = "https://courses.mooc.fi/static/email";
 const CALLOUT_BACKGROUND_COLOR: &str = "#EDF3F2";
 const CALLOUT_BORDER_COLOR: &str = "#DAE6E5";
 
+const QUOTE_BORDER_COLOR: &str = "#DAE6E5";
+const QUOTE_TEXT_COLOR: &str = "#535A66";
+
 const ONE_TIME_CODE_BACKGROUND_COLOR: &str = "#F7F8F9";
 const ONE_TIME_CODE_BORDER_COLOR: &str = "#DDDEE0";
 const ONE_TIME_CODE_TEXT_COLOR: &str = "#1A2333";
@@ -552,17 +555,23 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                 text = escape_html(theme.button_text_color),
             )
         }
+        // A cell, not <blockquote>: Outlook desktop ignores padding on a blockquote, so its text would
+        // touch the bar.
         EmailBlockName::Quote => {
             let citation = match block.rich_text("citation").as_str() {
                 "" => String::new(),
-                citation => format!("<cite>{citation}</cite>"),
+                citation => format!(
+                    r#"<cite style="display: block; margin: 0; font-size: 14px; font-style: normal;">{citation}</cite>"#
+                ),
             };
             let body = if block.inner_blocks.is_empty() {
                 sanitize_rich_text(block.str_attribute("value"), &QUOTE_VALUE_SANITIZER)
             } else {
                 process_content_to_html(&block.inner_blocks, theme)
             };
-            format!("<blockquote>{body}{citation}</blockquote>")
+            format!(
+                r#"<table role="presentation" class="email-quote" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 0 0 18px;"><tr><td style="padding: 0 0 0 16px; border: 0; border-left: 4px solid {QUOTE_BORDER_COLOR}; font-size: 16px; line-height: 26px; color: {QUOTE_TEXT_COLOR};">{body}{citation}</td></tr></table>"#
+            )
         }
         // Tables, not <hr> or a sized <div>: Outlook desktop ignores their borders, heights and margins.
         EmailBlockName::Separator => r##"<table role="presentation" class="email-separator" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="height: 1px; font-size: 1px; line-height: 1px; mso-line-height-rule: exactly; border-top: 1px solid #DDDEE0;">&nbsp;</td></tr></table>"##.to_string(),

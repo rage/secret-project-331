@@ -101,7 +101,7 @@ export interface AdminRegistrationDetails {
   /** Every attempt for the same completion, this one included. */
   attempts: AdminRegistrationAttempt[]
   events: { kind: string; details: unknown; request_item_id: string | null }[]
-  suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
+  suotar_api_calls: { id: string }[]
   actions: AdminRegistrationAction[]
   notification_emails: AdminNotificationEmail[]
   /** Only on a row the study registry declined as no improvement. */

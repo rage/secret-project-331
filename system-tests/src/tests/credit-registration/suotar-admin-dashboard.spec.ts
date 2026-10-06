@@ -260,9 +260,12 @@ test("No stored body carries a student number, a name or an email address", asyn
     "no Suotar calls were logged for this registration",
   ).toBeGreaterThan(0)
 
+  const callDetails = await Promise.all(
+    details.suotar_api_calls.map((call) => suotarApiCall(page.request, call.id)),
+  )
   const stored = JSON.stringify([
     details.events.map((event) => event.details),
-    details.suotar_api_calls.map((call) => [call.request_body_sample, call.response_body_sample]),
+    callDetails.map((call) => [call.request_body_sample, call.response_body_sample]),
   ])
   // resolve-enrolments and import send only the bare student number; a name or an email would only
   // ever reach a stored body through resolve-persons, which this pipeline never calls.
@@ -288,6 +291,10 @@ test("No stored body carries a student number, a name or an email address", asyn
       page.getByText("Names, student numbers and email addresses are redacted"),
     ).toBeVisible()
     await expect(page.getByRole("heading", { name: "This registration's item" })).toBeVisible()
+    await page.getByRole("link", { name: "Show the whole call" }).first().click()
+    await expect(
+      page.getByRole("dialog").getByRole("heading", { name: "Registrations this call carried" }),
+    ).toBeVisible()
   })
 
   await test.step("The call log is not a second way to read an unscrubbed body", async () => {

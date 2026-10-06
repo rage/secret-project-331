@@ -5152,38 +5152,19 @@ export const zAdminCreditRegistrationEvent = z.object({
 })
 
 export const zAdminSuotarApiCall = z.object({
-  credit_registration_ids: z.array(z.uuid()),
   duration_ms: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   endpoint: zSuotarEndpoint,
-  error_item_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   http_status: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   id: z.uuid(),
-  ok_item_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  pending_item_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  request_body_sample: z.unknown().optional(),
-  request_item_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   request_level_error_code: z.string().nullish(),
-  response_body_sample: z.unknown().optional(),
   started_at: z.iso.datetime(),
   succeeded: z.boolean(),
   worker_name: z.string(),

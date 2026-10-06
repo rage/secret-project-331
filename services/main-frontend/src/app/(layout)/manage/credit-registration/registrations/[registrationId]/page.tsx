@@ -28,10 +28,9 @@ import {
 } from "@/components/credit-registration/admin/registrationSubStates"
 import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
-import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
+import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   CallStatusCell,
-  itemCountColumns,
   SuotarEndpointCell,
   tookColumn,
 } from "@/components/credit-registration/admin/suotarCallColumns"
@@ -448,8 +447,14 @@ const unbrokenCodeCss = css`
   overflow-wrap: normal;
 `
 
-/** This registration's own answer within one call: Suotar's per-item code, or why there was none. */
-const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> = ({ event }) => {
+/**
+ * How one call went for this registration: Suotar's code for its item, or why it got none. Without
+ * an event of its own, how the request as a whole went.
+ */
+const RegistrationCallStatus: React.FC<{
+  call: AdminSuotarApiCall
+  event: AdminCreditRegistrationEvent | undefined
+}> = ({ call, event }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   switch (event?.suotar_answer) {
     case "refused":
@@ -460,7 +465,7 @@ const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> 
   return event?.suotar_code ? (
     <code className={cx(codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
   ) : (
-    ABSENT
+    <CallStatusCell call={call} />
   )
 }
 
@@ -493,15 +498,12 @@ const ApiCallSection: React.FC<{
         responsive={TABLE_STACK}
         rowKey={(call) => call.id}
         rows={calls}
-        expandableRow={(call) => {
-          const event = eventByCall.get(call.id)
-          return (
-            <SuotarApiCallBodies
-              suotarApiCallId={call.id}
-              registrationItem={event && { exchange: event.details }}
-            />
-          )
-        }}
+        expandableRow={(call) => (
+          <RegistrationCallItem
+            suotarApiCallId={call.id}
+            exchange={eventByCall.get(call.id)?.details}
+          />
+        )}
         columns={[
           {
             header: t("label-time"),
@@ -518,15 +520,9 @@ const ApiCallSection: React.FC<{
           tookColumn(t),
           {
             header: t("label-status"),
-            minWidth: "6rem",
-            cell: (call) => <CallStatusCell call={call} />,
-          },
-          {
-            header: t("credit-registration-admin-column-answer"),
             minWidth: "8rem",
-            cell: (call) => <CallAnswer event={eventByCall.get(call.id)} />,
+            cell: (call) => <RegistrationCallStatus call={call} event={eventByCall.get(call.id)} />,
           },
-          ...itemCountColumns<AdminSuotarApiCall>(t),
         ]}
       />
     </section>

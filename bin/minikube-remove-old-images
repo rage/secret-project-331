@@ -2,12 +2,18 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-# Removes the images earlier bin/dev builds left in minikube. Skaffold only prunes its images when dev
-# mode exits cleanly, so otherwise every rebuild adds another multi-gigabyte image until the disk fills.
+# Removes the images earlier builds left in minikube. Skaffold only prunes its images when dev mode exits
+# cleanly, so otherwise every rebuild adds another multi-gigabyte image until the disk fills.
 #
-# This script is called automatically from skaffold.yaml after bin/dev deploys.
+# Only touches the images the given skaffold file builds, so bin/dev and bin/test never remove each other's.
+# Called automatically after bin/dev and bin/test deploy.
 
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+if [ -z ${1+x} ]; then
+  echo "Usage: bin/minikube-remove-old-images <skaffold file>"
+  exit 1
+fi
+
+SKAFFOLD_FILE=$1
 
 eval "$(minikube docker-env --shell bash 2> /dev/null)"
 
@@ -21,16 +27,17 @@ IMAGES_IN_USE=$(
 )
 
 REMOVED=0
-for REPOSITORY in $(sed -n 's/^ *- image: //p' "$BASEDIR/../skaffold.yaml"); do
-  while read -r IMAGE; do
-    # The latest tag is the cache the next build starts from.
-    if [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
+for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
+  # The newest image and the latest tag are the cache the next build starts from.
+  NEWEST_IMAGE_ID=$(docker images "$REPOSITORY" --format '{{.ID}}' | awk 'NR == 1')
+  while read -r IMAGE_ID IMAGE; do
+    if [ "$IMAGE_ID" = "$NEWEST_IMAGE_ID" ] || [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
       continue
     fi
     if docker rmi "$IMAGE" > /dev/null 2>&1; then
       REMOVED=$((REMOVED + 1))
     fi
-  done < <(docker images "$REPOSITORY" --format '{{.Repository}}:{{.Tag}}')
+  done < <(docker images "$REPOSITORY" --format '{{.ID}} {{.Repository}}:{{.Tag}}')
 done
 
-echo "Removed $REMOVED old dev images from minikube."
+echo "Removed $REMOVED old images from minikube."

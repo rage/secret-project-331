@@ -22,7 +22,7 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer};
 use utoipa::ToSchema;
 
-use crate::{helsinki_time::helsinki_date, prelude::*, secret_string::serialize_exposed};
+use crate::{prelude::*, secret_string::serialize_exposed};
 
 /// Under the ingress's 60 s, so an admin waiting on a call gets our answer rather than a 504.
 pub const INTERACTIVE_REQUEST_TIMEOUT: Duration = Duration::from_secs(50);
@@ -449,8 +449,8 @@ pub struct EnrolmentsListedResult {
     pub people: Vec<ListedPerson>,
 }
 
-/// Importer dates arrive as `YYYY-MM-DD` or as an instant (Sisu's UTC midnight), and an instant
-/// means its Helsinki date, the zone Suotar compares days in. Anything else reads as absent.
+/// Importer dates arrive as `YYYY-MM-DD` or as an instant (Sisu's UTC midnight), which means its
+/// UTC date. Anything else reads as absent.
 fn lenient_date<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<NaiveDate>, D::Error> {
     let value = Option::<serde_json::Value>::deserialize(deserializer)?;
     Ok(value
@@ -462,7 +462,7 @@ fn lenient_date<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Option<Nai
                 .or_else(|| {
                     DateTime::parse_from_rfc3339(text)
                         .ok()
-                        .map(|instant| helsinki_date(instant.with_timezone(&Utc)))
+                        .map(|instant| instant.with_timezone(&Utc).date_naive())
                 })
         }))
 }

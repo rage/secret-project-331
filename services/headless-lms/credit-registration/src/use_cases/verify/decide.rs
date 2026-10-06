@@ -13,8 +13,6 @@ use headless_lms_models::library::credit_registration::outcomes::{
     verify_inconclusive_outcome, verify_not_registered_outcome, verify_partial_outcome,
 };
 
-use headless_lms_utils::helsinki_time::helsinki_date;
-
 use crate::registry::{EnrolmentAnswer, VerificationAnswer, VerificationReading};
 use crate::workflow::Decision;
 
@@ -112,7 +110,7 @@ pub(super) fn decide_recovery<'a>(
 ) -> Decision<'a> {
     // An enrolment error still lists the attainments, and the enrolment may be gone by now.
     let found = answer
-        .zip(row.attained_at.map(helsinki_date))
+        .zip(row.attained_at.map(|instant| instant.date_naive()))
         .zip(row.frozen_grade())
         .and_then(|((answer, attainment_date), grade)| {
             attainment_matching_submission(

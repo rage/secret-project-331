@@ -316,7 +316,13 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-uncertain-warning")}</Infobox>
       )}
       {/* A refusal drops both state moves from the row; its reason renders once in their place. */}
-      {refusal !== null && <p className={cx(noteCss, proseCss)}>{refusalSentence(t, refusal)}</p>}
+      {refusal !== null && (
+        <p className={cx(noteCss, proseCss)}>
+          {t("credit-registration-admin-resubmit-unavailable", {
+            reason: refusalSentence(t, refusal),
+          })}
+        </p>
+      )}
       {actions.length === 0 && refusal === null && registration.error_code && (
         <p className={cx(noteCss, proseCss)}>{failureOwnerHeading(t, owner)}</p>
       )}

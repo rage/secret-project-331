@@ -1,18 +1,18 @@
 import type {
-  CreditRegistrationErrorCode,
   CreditRegistrationState,
+  HandActionAvailability,
+  ResubmissionRisk,
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
 import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
-import { canRetryFailure } from "../registrationFailures"
 import type { TransitionChoice } from "./TransitionTargetSelect"
 import { CANCELLED, CHECK_NOW, CLEAR_ATTENTION, READY_TO_SUBMIT } from "./TransitionTargetSelect"
 
 /** The part of a queue row a bulk action's outcome depends on. */
 export interface BulkTransitionRow {
   state: CreditRegistrationState
-  error_code?: CreditRegistrationErrorCode | null
+  hand_actions: HandActionAvailability
 }
 
 /** One state's share of a selection: what a bulk move is about to touch. */
@@ -21,40 +21,36 @@ export interface SelectionGroup {
   count: number
 }
 
-/**
- * Whether the action could change anything for this row.
- *
- * Not what the server permits — it refuses only rows whose submission outcome is unknown. This is
- * the narrower question of whether the move helps: a `blocked` row sent again is blocked again a
- * second later, and a reversed attainment sent again may register the credits twice.
- */
+/** Whether the server applies the action to this row rather than skipping it. */
 export const isBulkActionAllowed = (action: TransitionChoice, row: BulkTransitionRow): boolean => {
   switch (action) {
     case READY_TO_SUBMIT:
-      return (
-        row.state === "failed_retryable" ||
-        (row.state === "failed_permanent" && canRetryFailure(row.error_code))
-      )
+      return row.hand_actions.resubmission.kind === "allowed"
     case CHECK_NOW:
-      return (
-        row.state === "submission_uncertain" ||
-        row.state === "awaiting_verification" ||
-        row.state === "partially_registered"
-      )
+      return (row.hand_actions.check_now ?? null) !== null
     case CANCELLED:
-      // May already hold credits in Sisu. The server does not refuse this, so the client
-      // withholds it.
-      return row.state !== "submission_uncertain"
+      return (row.hand_actions.cancel_refusal ?? null) === null
     case CLEAR_ATTENTION:
       return true
   }
 }
 
-/** How many of the selected rows the action cannot help — the number a disabled option names. */
-export const countBlocking = (
+/** How many of the selected rows the server would skip for this action. */
+export const countSkipped = (
   action: TransitionChoice,
   rows: readonly BulkTransitionRow[],
 ): number => rows.filter((row) => !isBulkActionAllowed(action, row)).length
+
+/** How many of the rows a resend would go to carry this risk. */
+export const countResubmissionRisk = (
+  risk: ResubmissionRisk,
+  rows: readonly BulkTransitionRow[],
+): number =>
+  rows.filter(
+    (row) =>
+      row.hand_actions.resubmission.kind === "allowed" &&
+      row.hand_actions.resubmission.risk === risk,
+  ).length
 
 /** The selection by state, commonest first, so a dialog leads with what most of it is. */
 export const groupSelectionByState = (rows: readonly BulkTransitionRow[]): SelectionGroup[] => {

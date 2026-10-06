@@ -1,7 +1,7 @@
 //! The Errors tab's attention queue: the rows that want a human, and why.
 
 use super::metrics::StuckThresholds;
-use super::state::{CreditRegistrationErrorCode, CreditRegistrationState};
+use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -92,6 +92,8 @@ pub struct AttentionRegistration {
     /// on it alone, and it is never reported as a reason.
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
+    pub submitted_at: Option<DateTime<Utc>>,
+    pub resubmit_not_before: Option<DateTime<Utc>>,
     pub student_number: Option<DbSecret>,
     pub stuck_in_state: bool,
     pub permanent_error: bool,
@@ -112,6 +114,18 @@ pub struct AttentionRegistration {
 }
 
 impl AttentionRegistration {
+    /// What decides whether a human may move this row; see [`ResubmissionFacts`]. The queue never
+    /// holds a superseded row.
+    pub fn resubmission_facts(&self) -> ResubmissionFacts {
+        ResubmissionFacts {
+            state: self.state,
+            is_superseded: false,
+            error_code: self.error_code,
+            resubmit_not_before: self.resubmit_not_before,
+            submitted_at: self.submitted_at,
+        }
+    }
+
     /// The detectors that picked this row.
     pub fn reasons(&self) -> Vec<AttentionReason> {
         AttentionReason::ALL
@@ -218,6 +232,8 @@ SELECT cr.id,
   cr.submit_retry_count + cr.verify_attempt_count AS "attempt_count!",
   cr.needs_admin_attention,
   cr.next_attempt_at,
+  cr.submitted_at,
+  cr.resubmit_not_before,
   cr.student_number,
   d.stuck_in_state AS "stuck_in_state!",
   d.permanent_error AS "permanent_error!",

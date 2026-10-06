@@ -39,8 +39,9 @@ export const subStateExplanations = (
       }),
     )
   }
+  // An uncertain row's actions say when it may be sent again, which this date bounds too.
   if (
-    isPolling(row) &&
+    (row.state === "awaiting_verification" || row.state === "partially_registered") &&
     row.resubmit_not_before &&
     new Date(row.resubmit_not_before).getTime() > now
   ) {

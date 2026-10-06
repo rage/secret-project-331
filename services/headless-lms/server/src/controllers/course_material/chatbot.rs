@@ -13,6 +13,7 @@ use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
 use headless_lms_models::{chatbot_configurations, courses};
+use headless_lms_utils::cache::Cache;
 use rand::seq::IndexedRandom;
 use utoipa::{OpenApi, ToSchema};
 
@@ -107,11 +108,12 @@ Sends a new chat message to the chatbot.
 // Neither the payload nor the request is recorded: the payload carries the learner's message, and
 // `HttpRequest`'s Debug is a multi-line dump of every header.
 #[instrument(
-    skip(pool, app_conf, payload, req),
+    skip(pool, cache, app_conf, payload, req),
     fields(has_page_context = payload.page_context.is_some())
 )]
 async fn send_message(
     pool: web::Data<PgPool>,
+    cache: web::Data<Cache>,
     params: web::Path<(Uuid, Uuid)>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -139,6 +141,7 @@ async fn send_message(
         // An Arc, cheap to clone.
         pool.get_ref().clone(),
         &app_conf,
+        cache.get_ref().clone(),
         chatbot_configuration_id,
         conversation_id,
         &message,
@@ -246,9 +249,10 @@ turn or a lone `Suspended` event when the turn is still waiting for another answ
 // Neither the payload nor the request is recorded: the answer can carry what the learner wrote,
 // and `HttpRequest`'s Debug prints every header, including the anonymous chatbot bearer token that
 // `handle_anonymous_token` reads.
-#[instrument(skip(pool, app_conf, payload, req))]
+#[instrument(skip(pool, cache, app_conf, payload, req))]
 async fn tool_response(
     pool: web::Data<PgPool>,
+    cache: web::Data<Cache>,
     params: web::Path<(Uuid, Uuid)>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -292,6 +296,7 @@ async fn tool_response(
         // An Arc, cheap to clone.
         pool.get_ref().clone(),
         &app_conf,
+        cache.get_ref().clone(),
         chatbot_configuration_id,
         conversation_id,
         &tool_call_id,

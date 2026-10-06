@@ -33,6 +33,9 @@ pub const UNCERTAIN_MAX_RECHECK: TimeDelta = TimeDelta::hours(6);
 /// How long after the submission a human is asked to look in Sisu, well past the hour an
 /// attainment may take to show up. The row still never resubmits.
 pub const UNCERTAIN_ADMIN_AFTER: TimeDelta = TimeDelta::days(1);
+/// Suotar's `PENDING_WINDOW_MS`: how long it holds a submission it has not yet seen in Sisu as
+/// pending. Within it, a second import of the same completion can slip past Suotar's duplicate check.
+pub const SUOTAR_PENDING_WINDOW: TimeDelta = TimeDelta::hours(24);
 
 /// How long verify may see only the assessment item attainment before a human looks.
 pub const PARTIAL_REGISTRATION_ADMIN_AFTER: TimeDelta = TimeDelta::days(3);

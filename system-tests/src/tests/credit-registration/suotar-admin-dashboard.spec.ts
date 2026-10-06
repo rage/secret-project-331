@@ -279,10 +279,15 @@ test("No stored body carries a student number, a name or an email address", asyn
     // and a redacted one look the same.
     await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
-    await page.getByRole("button", { name: "Show the exchange" }).first().click()
+    await page
+      .getByRole("table", { name: "Calls to Suotar" })
+      .getByRole("button", { name: "Show more" })
+      .first()
+      .click()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
     ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "This registration's item" })).toBeVisible()
   })
 
   await test.step("The call log is not a second way to read an unscrubbed body", async () => {

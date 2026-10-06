@@ -86,8 +86,14 @@ export interface AdminRegistrationAttempt {
   sisu_attainment_id: string | null
   sisu_person_id: string | null
   next_attempt_at: string
-  /** Why the single-row hand transition would refuse to resubmit this row, or `null`. */
-  resubmission_refusal: string | null
+  /** What the single-row hand transition would allow on this row. */
+  hand_actions: {
+    resubmission:
+      | { kind: "allowed"; risk: string }
+      | { kind: "refused"; refusal: string; available_at: string | null }
+    cancel_refusal: string | null
+    check_now: string | null
+  }
 }
 
 export interface AdminRegistrationDetails {
@@ -410,6 +416,10 @@ export const makeRegistrationDueNow = async (
   })
   if (!response.ok()) {
     throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)
+  }
+  const body = await response.json()
+  if (body.outcome === "refused") {
+    throw new Error(`POST ${url} refused check_now: ${body.refusal}`)
   }
 }
 

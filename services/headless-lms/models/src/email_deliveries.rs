@@ -225,6 +225,7 @@ WHERE user_id = $1
     .fetch_one(&mut *tx)
     .await?;
     if recent >= max_per_minute {
+        tx.rollback().await?;
         return Ok(None);
     }
     let id = Uuid::new_v4();

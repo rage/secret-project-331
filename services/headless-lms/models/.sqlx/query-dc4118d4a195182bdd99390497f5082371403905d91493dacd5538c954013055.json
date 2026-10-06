@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET next_attempt_at = $1 + random() * make_interval(secs => $2)\nWHERE state = 'checking_enrolment'\n  AND deleted_at IS NULL\n  AND next_attempt_at < $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "dc4118d4a195182bdd99390497f5082371403905d91493dacd5538c954013055"
+}

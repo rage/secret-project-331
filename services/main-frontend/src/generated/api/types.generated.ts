@@ -472,21 +472,11 @@ export type AdminResumeCourseModulePayload = {
 }
 
 export type AdminSuotarApiCall = {
-  credit_registration_ids: Array<string>
   duration_ms?: number | null
   endpoint: SuotarEndpoint
-  error_item_count: number
   http_status?: number | null
   id: string
-  ok_item_count: number
-  pending_item_count: number
-  /**
-   * Scrubbed and sampled at write time.
-   */
-  request_body_sample?: unknown
-  request_item_count: number
   request_level_error_code?: string | null
-  response_body_sample?: unknown
   started_at: string
   succeeded: boolean
   worker_name: string

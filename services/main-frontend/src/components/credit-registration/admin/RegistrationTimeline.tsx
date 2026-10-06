@@ -1,66 +1,111 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { AdminCreditRegistrationEvent } from "@/generated/api/types.generated"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import type { RegistrationStatusState } from "@/shared-module/components"
+import { Table } from "@/shared-module/components"
 
-import { CREDIT_REGISTRATION_NS } from "../constants"
-import {
-  dividedListCss,
-  headingCss,
-  noteCss,
-  sectionCardCss,
-  sectionCardHeaderCss,
-} from "../styles"
+import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
+import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
+import { headingCss, noteCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
 import { formatZonedTimeRange, ZonedTimestamp } from "../ZonedTimestamp"
 import { TONE_INK } from "./AdminStateLabel"
 import { buildTimeline } from "./timelineRows"
+import type { TimelineEntry } from "./timelineRows"
 
-const entryCss = css`
+const DOT_SIZE = "0.5rem"
+
+/** A dot column before every sentence, so sentences line up whether or not their row has one. */
+const eventCellCss = css`
   display: grid;
-  gap: var(--space-1) var(--space-4);
-  grid-template-columns: minmax(0, 1fr);
-
-  ${respondToOrLarger.md} {
-    grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
-  }
+  grid-template-columns: ${DOT_SIZE} minmax(0, 1fr);
+  column-gap: var(--space-2);
+  align-items: baseline;
 `
 
-/** Upcoming and superseded ink is a faint gray meant for glyphs; as text it falls below contrast. */
-const sentenceInk = (tone: RegistrationStatusState): string | undefined =>
-  tone === "upcoming" || tone === "superseded" ? undefined : TONE_INK[tone]
+const dotCss = css`
+  display: inline-block;
+  width: ${DOT_SIZE};
+  height: ${DOT_SIZE};
+  border-radius: 50%;
+  background-color: currentColor;
+`
+
+const detailCss = css`
+  grid-column: 2;
+  margin: 0;
+`
+
+/** Only a step that went wrong is marked; everything else reads as the routine it is. */
+const isProblem = (tone: RegistrationStatusState): boolean =>
+  tone === "action-needed" || tone === "failed"
+
+const EventCell: React.FC<{ entry: TimelineEntry }> = ({ entry }) => {
+  const isProblemEntry = isProblem(entry.tone)
+  return (
+    <div className={eventCellCss}>
+      <span aria-hidden className={isProblemEntry ? TONE_INK[entry.tone] : undefined}>
+        {isProblemEntry && <span className={dotCss} />}
+      </span>
+      <span>{entry.sentence}</span>
+      {entry.detail && <p className={cx(noteCss, detailCss)}>{entry.detail}</p>}
+    </div>
+  )
+}
 
 /** The registration's story in plain words, oldest first; the Suotar calls table has the detail. */
 const RegistrationTimeline: React.FC<{
   events: AdminCreditRegistrationEvent[]
   actorNames: Map<string, string>
-}> = ({ events, actorNames }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const entries = buildTimeline(t, events, { actorName: (userId) => actorNames.get(userId) })
+  selectedEnrolmentId: string | null
+}> = ({ events, actorNames, selectedEnrolmentId }) => {
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const entries = buildTimeline(t, events, {
+    actorName: (userId) => actorNames.get(userId),
+    selectedEnrolmentId,
+    language: i18n.language,
+  })
   return (
     <section className={sectionCardCss}>
       <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-timeline")}</h2>
       </div>
-      {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={dividedListCss} role="list">
-        {entries.map((entry) => (
-          <li key={entry.id} className={entryCss}>
-            <span className={noteCss}>
-              {entry.until ? (
-                <span>{formatZonedTimeRange(new Date(entry.at), new Date(entry.until))}</span>
-              ) : (
-                <ZonedTimestamp at={entry.at} />
-              )}
-            </span>
-            <span className={sentenceInk(entry.tone)}>{entry.sentence}</span>
-          </li>
-        ))}
-      </ol>
+      <Table
+        caption={t("credit-registration-heading-timeline")}
+        density={DENSITY_COMPACT}
+        responsive={TABLE_STACK}
+        rowKey={(entry) => entry.id}
+        rows={entries}
+        columns={[
+          {
+            header: t("label-time"),
+            minWidth: "11rem",
+            cell: (entry) => (
+              <span className={noteCss}>
+                {entry.until ? (
+                  formatZonedTimeRange(new Date(entry.at), new Date(entry.until))
+                ) : (
+                  <ZonedTimestamp at={entry.at} />
+                )}
+              </span>
+            ),
+          },
+          {
+            header: t("credit-registration-admin-column-event"),
+            grow: true,
+            minWidth: "14rem",
+            cell: (entry) => <EventCell entry={entry} />,
+          },
+          {
+            header: t("label-state"),
+            minWidth: "9rem",
+            cell: (entry) => (entry.state ? registrationLedgerStateLabel(t, entry.state) : null),
+          },
+        ]}
+      />
     </section>
   )
 }

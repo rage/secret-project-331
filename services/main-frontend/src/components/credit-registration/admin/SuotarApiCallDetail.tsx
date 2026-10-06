@@ -7,7 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
+import {
+  creditRegistrationItemRoute,
+  creditRegistrationSuotarApiCallRoute,
+} from "@/shared-module/common/utils/routes"
 import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
 import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
@@ -28,11 +31,6 @@ interface Props {
   suotarApiCallId: string
 }
 
-interface BodiesProps extends Props {
-  /** Set when shown for one registration: its own `{request, response}` pair from the call. */
-  registrationItem?: { exchange: unknown } | undefined
-}
-
 const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
   <div className={subsectionCss}>
     <h3 className={subheadingCss}>{title}</h3>
@@ -41,17 +39,37 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
 )
 
 /**
- * The stored request and response of one call, with the ledger rows it carried beside them, and
- * first the one registration's own item when `registrationItem` is given.
+ * One registration's own part of a call: its `{request, response}` item pair, or null when none was
+ * kept. The rest of the batch belongs to other students, so it is behind a link to the whole call.
+ */
+export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
+  suotarApiCallId,
+  exchange,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <div className={sectionCss}>
+      <p className={noteCss}>{t("credit-registration-admin-item-scrubbing-note")}</p>
+      {exchange === null || exchange === undefined ? (
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-registration-item")}</p>
+      ) : (
+        <Body title={t("credit-registration-heading-registration-item")} body={exchange} />
+      )}
+      <Link href={creditRegistrationSuotarApiCallRoute(suotarApiCallId)} prefetch={false}>
+        {t("credit-registration-admin-show-whole-call")}
+      </Link>
+    </div>
+  )
+}
+
+/**
+ * The stored request and response of one call, with the ledger rows it carried beside them.
  *
  * Fetches when it is rendered, so a table hands it to an expanded row rather than to every row.
  * The bodies were scrubbed when they were written and are shown exactly as stored; the ledger
  * reference table is where the names and student numbers behind each `requestItemId` live.
  */
-export const SuotarApiCallBodies: React.FC<BodiesProps> = ({
-  suotarApiCallId,
-  registrationItem,
-}) => {
+export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const detailQuery = useQuery(
     getSuotarApiCallOptions({ path: { suotar_api_call_id: suotarApiCallId } }),
@@ -62,12 +80,6 @@ export const SuotarApiCallBodies: React.FC<BodiesProps> = ({
       {(detail) => (
         <div className={sectionCss}>
           <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
-          {registrationItem && (
-            <Body
-              title={t("credit-registration-heading-registration-item")}
-              body={registrationItem.exchange}
-            />
-          )}
           {detail.error_message && (
             <p>
               <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}

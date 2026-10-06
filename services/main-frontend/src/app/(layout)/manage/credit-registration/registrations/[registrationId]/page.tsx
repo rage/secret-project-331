@@ -28,10 +28,9 @@ import {
 } from "@/components/credit-registration/admin/registrationSubStates"
 import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
-import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
+import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   CallStatusCell,
-  itemCountColumns,
   SuotarEndpointCell,
   tookColumn,
 } from "@/components/credit-registration/admin/suotarCallColumns"
@@ -291,7 +290,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const studentNumber = row.verified_student_number ?? row.student_number
-  const verifiedVia = verificationMethodLabel(t, row.verified_student_number_via)
+  const verifiedVia =
+    row.verified_student_number_via === "study_registry"
+      ? null
+      : verificationMethodLabel(t, row.verified_student_number_via)
   // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
   const heldGrade: DescriptionListItem[] = details.not_improved_attainment
     ? [
@@ -439,8 +441,20 @@ const AttemptChainSection: React.FC<{
   )
 }
 
-/** This registration's own answer within one call: Suotar's per-item code, or why there was none. */
-const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> = ({ event }) => {
+/** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
+const unbrokenCodeCss = css`
+  white-space: nowrap;
+  overflow-wrap: normal;
+`
+
+/**
+ * How one call went for this registration: Suotar's code for its item, or why it got none. Without
+ * an event of its own, how the request as a whole went.
+ */
+const RegistrationCallStatus: React.FC<{
+  call: AdminSuotarApiCall
+  event: AdminCreditRegistrationEvent | undefined
+}> = ({ call, event }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   switch (event?.suotar_answer) {
     case "refused":
@@ -448,7 +462,11 @@ const CallAnswer: React.FC<{ event: AdminCreditRegistrationEvent | undefined }> 
     case "unanswered":
       return t("credit-registration-admin-timeline-result-no-answer")
   }
-  return event?.suotar_code ? <code className={codeValueCss}>{event.suotar_code}</code> : ABSENT
+  return event?.suotar_code ? (
+    <code className={cx(codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+  ) : (
+    <CallStatusCell call={call} />
+  )
 }
 
 const ApiCallSection: React.FC<{
@@ -480,15 +498,12 @@ const ApiCallSection: React.FC<{
         responsive={TABLE_STACK}
         rowKey={(call) => call.id}
         rows={calls}
-        expandableRow={(call) => {
-          const event = eventByCall.get(call.id)
-          return (
-            <SuotarApiCallBodies
-              suotarApiCallId={call.id}
-              registrationItem={event && { exchange: event.details }}
-            />
-          )
-        }}
+        expandableRow={(call) => (
+          <RegistrationCallItem
+            suotarApiCallId={call.id}
+            exchange={eventByCall.get(call.id)?.details}
+          />
+        )}
         columns={[
           {
             header: t("label-time"),
@@ -505,15 +520,9 @@ const ApiCallSection: React.FC<{
           tookColumn(t),
           {
             header: t("label-status"),
-            minWidth: "6rem",
-            cell: (call) => <CallStatusCell call={call} />,
-          },
-          {
-            header: t("credit-registration-admin-column-answer"),
             minWidth: "8rem",
-            cell: (call) => <CallAnswer event={eventByCall.get(call.id)} />,
+            cell: (call) => <RegistrationCallStatus call={call} event={eventByCall.get(call.id)} />,
           },
-          ...itemCountColumns<AdminSuotarApiCall>(t),
         ]}
       />
     </section>
@@ -764,7 +773,11 @@ const RegistrationDetailPage: React.FC = () => {
             <AdminTransitionBlock registration={details.registration} />
           </section>
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
-          <RegistrationTimeline events={details.events} actorNames={actorNames} />
+          <RegistrationTimeline
+            events={details.events}
+            actorNames={actorNames}
+            selectedEnrolmentId={details.registration.selected_enrolment_id ?? null}
+          />
           <ApiCallSection calls={details.suotar_api_calls} events={details.events} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />

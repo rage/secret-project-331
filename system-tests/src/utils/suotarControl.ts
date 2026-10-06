@@ -61,11 +61,12 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, its circuit breaker is open, or account linking is off. Nothing ran. */
+  /** The phase is paused, its circuit breaker is open, account linking is off, or Sisu is still on
+   * the previous day. Nothing ran. */
   | {
       status: "skipped"
       phase: CreditRegistrationPhase
-      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled"
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled" | "sisuDayGap"
     }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }

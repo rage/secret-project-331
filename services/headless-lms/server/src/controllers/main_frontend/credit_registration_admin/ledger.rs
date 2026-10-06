@@ -135,16 +135,8 @@ pub struct AdminSuotarApiCall {
     pub duration_ms: Option<i32>,
     pub http_status: Option<i32>,
     pub succeeded: bool,
-    pub request_item_count: i32,
-    pub ok_item_count: i32,
-    pub error_item_count: i32,
-    pub pending_item_count: i32,
     pub request_level_error_code: Option<String>,
     pub worker_name: String,
-    /// Scrubbed and sampled at write time.
-    pub request_body_sample: Option<serde_json::Value>,
-    pub response_body_sample: Option<serde_json::Value>,
-    pub credit_registration_ids: Vec<Uuid>,
 }
 
 /// One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives
@@ -1030,15 +1022,8 @@ fn to_admin_api_call(call: models::suotar_api_calls::SuotarApiCall) -> AdminSuot
         duration_ms: call.duration_ms,
         http_status: call.http_status,
         succeeded: call.succeeded,
-        request_item_count: call.request_item_count,
-        ok_item_count: call.ok_item_count,
-        error_item_count: call.error_item_count,
-        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
-        request_body_sample: call.request_body_sample,
-        response_body_sample: call.response_body_sample,
-        credit_registration_ids: call.credit_registration_ids,
     }
 }
 

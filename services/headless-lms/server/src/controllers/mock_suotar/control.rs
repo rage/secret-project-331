@@ -83,6 +83,7 @@ impl PhaseTickResult {
                     PhaseSkipReason::Paused => "paused".to_string(),
                     PhaseSkipReason::CircuitBreakerOpen => "circuitBreakerOpen".to_string(),
                     PhaseSkipReason::AccountLinkingDisabled => "accountLinkingDisabled".to_string(),
+                    PhaseSkipReason::SisuDayGap => "sisuDayGap".to_string(),
                 },
             },
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {

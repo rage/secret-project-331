@@ -15269,36 +15269,14 @@
       },
       "AdminSuotarApiCall": {
         "type": "object",
-        "required": [
-          "id",
-          "endpoint",
-          "started_at",
-          "succeeded",
-          "request_item_count",
-          "ok_item_count",
-          "error_item_count",
-          "pending_item_count",
-          "worker_name",
-          "credit_registration_ids"
-        ],
+        "required": ["id", "endpoint", "started_at", "succeeded", "worker_name"],
         "properties": {
-          "credit_registration_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           "duration_ms": {
             "type": ["integer", "null"],
             "format": "int32"
           },
           "endpoint": {
             "$ref": "#/components/schemas/SuotarEndpoint"
-          },
-          "error_item_count": {
-            "type": "integer",
-            "format": "int32"
           },
           "http_status": {
             "type": ["integer", "null"],
@@ -15308,25 +15286,9 @@
             "type": "string",
             "format": "uuid"
           },
-          "ok_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pending_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "request_body_sample": {
-            "description": "Scrubbed and sampled at write time."
-          },
-          "request_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
           "request_level_error_code": {
             "type": ["string", "null"]
           },
-          "response_body_sample": {},
           "started_at": {
             "type": "string",
             "format": "date-time"

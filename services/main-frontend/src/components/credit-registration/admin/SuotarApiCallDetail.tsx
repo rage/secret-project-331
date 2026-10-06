@@ -5,7 +5,6 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
@@ -21,13 +20,17 @@ import {
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import { eventKindLabel } from "./adminCreditRegistrationCopy"
 import AdminStateLabel from "./AdminStateLabel"
 import ErrorCodeCell from "./ErrorCodeCell"
 import PayloadBlock from "./PayloadBlock"
 
 interface Props {
   suotarApiCallId: string
+}
+
+interface BodiesProps extends Props {
+  /** Set when shown for one registration: its own `{request, response}` pair from the call. */
+  registrationItem?: { exchange: unknown }
 }
 
 const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
@@ -38,13 +41,17 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
 )
 
 /**
- * The stored request and response of one call, with the ledger rows it carried beside them.
+ * The stored request and response of one call, with the ledger rows it carried beside them, and
+ * first the one registration's own item when `registrationItem` is given.
  *
  * Fetches when it is rendered, so a table hands it to an expanded row rather than to every row.
  * The bodies were scrubbed when they were written and are shown exactly as stored; the ledger
  * reference table is where the names and student numbers behind each `requestItemId` live.
  */
-export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
+export const SuotarApiCallBodies: React.FC<BodiesProps> = ({
+  suotarApiCallId,
+  registrationItem,
+}) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const detailQuery = useQuery(
     getSuotarApiCallOptions({ path: { suotar_api_call_id: suotarApiCallId } }),
@@ -55,6 +62,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
       {(detail) => (
         <div className={sectionCss}>
           <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
+          {registrationItem && (
+            <Body
+              title={t("credit-registration-heading-registration-item")}
+              body={registrationItem.exchange}
+            />
+          )}
           {detail.error_message && (
             <p>
               <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}
@@ -129,50 +142,6 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         </div>
                       )
                     },
-                  },
-                ]}
-              />
-            )}
-          </div>
-          <div className={subsectionCss}>
-            <h3 className={subheadingCss}>{t("credit-registration-heading-timeline")}</h3>
-            {detail.events.length === 0 ? (
-              <p className={emptyStateCss}>{t("credit-registration-admin-no-events-for-call")}</p>
-            ) : (
-              <Table
-                caption={t("credit-registration-heading-timeline")}
-                density={DENSITY_COMPACT}
-                rowKey={(row) => row.id}
-                rows={detail.events}
-                columns={[
-                  {
-                    header: t("label-time"),
-                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
-                  },
-                  {
-                    header: t("label-kind"),
-                    cell: (row) => eventKindLabel(t, row.kind),
-                  },
-                  {
-                    header: t("label-state"),
-                    cell: (row) =>
-                      row.to_state ? <AdminStateLabel state={row.to_state} /> : ABSENT,
-                  },
-                  {
-                    header: t("label-error-code"),
-                    cell: (row) =>
-                      row.error_code ? <ErrorCodeCell errorCode={row.error_code} /> : ABSENT,
-                  },
-                  {
-                    header: t("label-credit-registration-registration"),
-                    cell: (row) => (
-                      <Link
-                        href={creditRegistrationItemRoute(row.credit_registration_id)}
-                        prefetch={false}
-                      >
-                        {t("credit-registration-admin-open-registration")}
-                      </Link>
-                    ),
                   },
                 ]}
               />

@@ -12,8 +12,6 @@ import { codeValueCss } from "../styles"
 interface Props {
   httpStatus: number | null | undefined
   succeeded: boolean
-  /** Items the study registry rejected inside a call that itself came back 200. */
-  errorItemCount?: number
 }
 
 /** A clean 200 is what most rows are, so it reads as the log's ordinary ink. */
@@ -22,24 +20,24 @@ const plainStatusCss = css`
 `
 
 /**
- * One study registry call's outcome. A 200 that rejected every item is not a success in the sense
- * an operator scanning the column cares about, so the item outcome decides the treatment too.
+ * Whether one study registry call itself went through. Item-level rejections are the item count
+ * columns' business: a 200 that rejected items still delivered its answer.
  *
- * Only a call worth stopping on gets a badge. A filled green pill on every successful row is the
- * whole column, which ranks nothing and buries the handful of calls that did fail.
+ * Only a failed request gets a badge. A filled green pill on every successful row is the whole
+ * column, which ranks nothing and buries the handful of calls that did fail.
  */
-const HttpStatusBadge: React.FC<Props> = ({ httpStatus, succeeded, errorItemCount = 0 }) => {
+const HttpStatusBadge: React.FC<Props> = ({ httpStatus, succeeded }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const label =
     httpStatus === null || httpStatus === undefined
       ? t("credit-registration-admin-no-http-answer")
       : String(httpStatus)
 
-  if (succeeded && errorItemCount === 0) {
+  if (succeeded) {
     return <span className={cx(codeValueCss, plainStatusCss)}>{label}</span>
   }
   return (
-    <Badge tone={succeeded ? TONE.WARNING : TONE.DANGER} size="compact">
+    <Badge tone={TONE.DANGER} size="compact">
       {label}
     </Badge>
   )

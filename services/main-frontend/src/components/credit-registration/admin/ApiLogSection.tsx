@@ -4,18 +4,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
-import type { SuotarEndpoint } from "@/generated/api/types.generated"
+import type { SuotarApiCallRow, SuotarEndpoint } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Pagination, QueryResult, Select, Table, TextField } from "@/shared-module/components"
 
-import {
-  ABSENT,
-  ALIGN_END,
-  CREDIT_REGISTRATION_NS,
-  DENSITY_COMPACT,
-  QUIET_REFRESH,
-  TABLE_STACK,
-} from "../constants"
+import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT, QUIET_REFRESH, TABLE_STACK } from "../constants"
 import {
   controlCss,
   controlsCss,
@@ -27,8 +20,13 @@ import {
   stackedCellCss,
 } from "../styles"
 import { useSuotarApiCalls } from "./adminCreditRegistrationHooks"
-import HttpStatusBadge from "./HttpStatusBadge"
 import SuotarApiCallDetail from "./SuotarApiCallDetail"
+import {
+  CallStatusCell,
+  itemCountColumns,
+  SuotarEndpointCell,
+  tookColumn,
+} from "./suotarCallColumns"
 import type { FilterFieldDescriptor } from "./useFilteredAdminQuery"
 import { selectFilterField, useFilteredAdminQuery } from "./useFilteredAdminQuery"
 
@@ -212,7 +210,7 @@ const ApiLogSection: React.FC = () => {
                 {
                   header: t("label-endpoint"),
                   minWidth: "11rem",
-                  cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+                  cell: (row) => <SuotarEndpointCell endpoint={row.endpoint} />,
                 },
                 {
                   header: t("credit-registration-admin-column-caller"),
@@ -228,36 +226,13 @@ const ApiLogSection: React.FC = () => {
                     )
                   },
                 },
+                tookColumn(t),
                 {
                   header: t("label-status"),
                   minWidth: "6rem",
-                  nowrap: true,
-                  cell: (row) => (
-                    <HttpStatusBadge
-                      httpStatus={row.http_status}
-                      succeeded={row.succeeded}
-                      errorItemCount={row.error_item_count}
-                    />
-                  ),
+                  cell: (row) => <CallStatusCell call={row} />,
                 },
-                {
-                  header: t("credit-registration-admin-column-items"),
-                  grow: true,
-                  minWidth: "10rem",
-                  cell: (row) =>
-                    t("credit-registration-admin-call-items", {
-                      requested: row.request_item_count,
-                      ok: row.ok_item_count,
-                      failed: row.error_item_count,
-                    }),
-                },
-                {
-                  header: t("credit-registration-admin-column-duration-ms"),
-                  align: ALIGN_END,
-                  minWidth: "5rem",
-                  nowrap: true,
-                  cell: (row) => row.duration_ms ?? ABSENT,
-                },
+                ...itemCountColumns<SuotarApiCallRow>(t),
                 {
                   header: t("label-actions"),
                   minWidth: "7rem",

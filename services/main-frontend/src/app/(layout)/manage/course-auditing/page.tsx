@@ -88,6 +88,11 @@ export const formButtonColumnStyles = css`
   gap: 0.5rem;
 `
 
+const tooltipBodyRowStyles = css`
+  display: flex;
+  align-items: center;
+`
+
 const CourseAuditing = () => {
   const { t } = useTranslation()
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
@@ -346,32 +351,17 @@ const CourseAuditing = () => {
                       gap: 0.5rem;
                     `}
                   >
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                      `}
-                    >
+                    <div className={tooltipBodyRowStyles}>
                       <CheckCircle />
                       {": "}
                       {t("tri-state-toggle-tooltip-body-check")}
                     </div>
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                      `}
-                    >
+                    <div className={tooltipBodyRowStyles}>
                       <MinusCircle />
                       {": "}
                       {t("tri-state-toggle-tooltip-body-dash")}
                     </div>
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                      `}
-                    >
+                    <div className={tooltipBodyRowStyles}>
                       <XmarkCircle />
                       {": "}
                       {t("tri-state-toggle-tooltip-body-x")}

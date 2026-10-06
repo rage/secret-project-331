@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Removes the images earlier bin/dev builds left in minikube. Skaffold only prunes its images when dev
+# mode exits cleanly, so otherwise every rebuild adds another multi-gigabyte image until the disk fills.
+#
+# This script is called automatically from skaffold.yaml after bin/dev deploys.
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+
+eval "$(minikube docker-env --shell bash 2> /dev/null)"
+
+# Containers refer to images by id, so Docker would untag a tag a workload still names and its next pod
+# could not start. Finished pods are left out, as they never start again.
+IMAGES_IN_USE=$(
+  {
+    kubectl --context minikube get pods -A --field-selector=status.phase!=Succeeded,status.phase!=Failed -o jsonpath='{..image}'
+    kubectl --context minikube get deployments,statefulsets,daemonsets,cronjobs -A -o jsonpath='{..image}'
+  } | tr ' ' '\n' | sort -u
+)
+
+REMOVED=0
+for REPOSITORY in $(sed -n 's/^ *- image: //p' "$BASEDIR/../skaffold.yaml"); do
+  while read -r IMAGE; do
+    # The latest tag is the cache the next build starts from.
+    if [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
+      continue
+    fi
+    if docker rmi "$IMAGE" > /dev/null 2>&1; then
+      REMOVED=$((REMOVED + 1))
+    fi
+  done < <(docker images "$REPOSITORY" --format '{{.Repository}}:{{.Tag}}')
+done
+
+echo "Removed $REMOVED old dev images from minikube."

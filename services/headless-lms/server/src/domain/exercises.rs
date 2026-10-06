@@ -243,8 +243,8 @@ async fn verify_any_slide_has_tries_left(
 }
 
 /// Whether the user has used up the try limit on every slide of the exercise, so no further
-/// submission is accepted. Always `false` for an exercise without a try limit; a slide nobody has
-/// submitted to has all its tries left.
+/// submission is accepted. Always `false` for an exercise without a try limit or without slides;
+/// a slide nobody has submitted to has all its tries left.
 pub async fn is_out_of_tries(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -264,9 +264,10 @@ pub async fn is_out_of_tries(
         .await?;
     let slides =
         models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise.id).await?;
-    Ok(slides
-        .iter()
-        .all(|slide| submission_counts.get(&slide.id).unwrap_or(&0) >= &max_tries_per_slide))
+    Ok(!slides.is_empty()
+        && slides
+            .iter()
+            .all(|slide| submission_counts.get(&slide.id).unwrap_or(&0) >= &max_tries_per_slide))
 }
 
 /// The rejection both try-limit checks report, kept in one place because the message reaches the

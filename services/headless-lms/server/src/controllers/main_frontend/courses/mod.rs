@@ -1300,7 +1300,7 @@ pub async fn get_feedback_categories(
         Res::Course(*course_id),
     )
     .await?;
-    let res = feedback_categories::get_all_read_status(&mut conn, *course_id, read.read).await?;
+    let res = feedback_categories::get_all_by_read_status(&mut conn, *course_id, read.read).await?;
 
     token.authorized_ok(web::Json(res))
 }

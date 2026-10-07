@@ -66,13 +66,13 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "chart-spec-generation",
                 "content-cleaning",
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation",
-                "feedback-categorization"
+                "feedback-categorization",
+                "chart-spec-generation"
               ]
             }
           }
@@ -104,13 +104,13 @@
             "name": "application_task",
             "kind": {
               "Enum": [
-                "chart-spec-generation",
                 "content-cleaning",
                 "message-suggestion",
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation",
-                "feedback-categorization"
+                "feedback-categorization",
+                "chart-spec-generation"
               ]
             }
           }

@@ -22,3 +22,6 @@ ALTER TABLE feedback
 ADD COLUMN category_id UUID REFERENCES feedback_categories (id);
 
 COMMENT ON COLUMN feedback.category_id IS 'References the feedback_categories entry of the category assigned to this feedback.';
+
+ALTER TYPE application_task
+ADD VALUE IF NOT EXISTS 'feedback-categorization';

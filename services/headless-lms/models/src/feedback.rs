@@ -291,7 +291,7 @@ pub async fn get_feedback_count_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<FeedbackCount> {
-    let res1 = sqlx::query!(
+    let res_categories = sqlx::query!(
         r#"
 SELECT COUNT(*) filter (
     WHERE marked_as_read
@@ -311,36 +311,27 @@ GROUP BY category_id
     .fetch_all(&mut *conn)
     .await?;
 
-    let c: Vec<CategoryFeedbackCount> = res1
+    let mut all_read = 0;
+    let mut all_unread = 0;
+
+    let c: Vec<CategoryFeedbackCount> = res_categories
         .iter()
         .filter_map(|x| {
+            let read = x.read.unwrap_or_default().try_into().ok()?;
+            let unread = x.unread.unwrap_or_default().try_into().ok()?;
+            all_read += read;
+            all_unread += unread;
             Some(CategoryFeedbackCount {
                 category_id: x.category_id,
-                read_feedback: x.read.unwrap_or_default().try_into().ok()?,
-                unread_feedback: x.unread.unwrap_or_default().try_into().ok()?,
+                read_feedback: read,
+                unread_feedback: unread,
             })
         })
         .collect();
 
-    let res = sqlx::query!(
-        "
-SELECT COUNT(*) filter (
-    where marked_as_read
-  ) AS read,
-  COUNT(*) filter (
-    where not(marked_as_read)
-  ) AS unread
-FROM feedback
-WHERE course_id = $1
-  AND feedback.deleted_at IS NULL
-",
-        course_id,
-    )
-    .fetch_one(conn)
-    .await?;
     Ok(FeedbackCount {
-        read: res.read.unwrap_or_default().try_into()?,
-        unread: res.unread.unwrap_or_default().try_into()?,
+        read: all_read,
+        unread: all_unread,
         categories: c,
     })
 }

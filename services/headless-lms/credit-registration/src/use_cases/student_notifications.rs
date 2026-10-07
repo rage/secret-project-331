@@ -73,6 +73,7 @@ fn placeholders(
             .credits
             .map(|credits| format_credits(credits, language))
             .unwrap_or_default(),
+        "ENROLMENT_LINK": notification.enrolment_link.as_deref().unwrap_or_default(),
         "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
     })
 }

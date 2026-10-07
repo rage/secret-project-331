@@ -3,6 +3,7 @@
 use models::email_templates::{EmailTemplate, EmailTemplateNew};
 use utoipa::OpenApi;
 
+use crate::controllers::helpers::email_content::parse_email_content;
 use crate::domain::error::missing_controller_error;
 use crate::prelude::*;
 
@@ -69,9 +70,10 @@ async fn create_email_template(
     )
     .await?;
     let mut new_template = payload.into_inner();
-    new_template
+    let content = new_template
         .content
         .get_or_insert_with(|| serde_json::json!([]));
+    parse_email_content(content)?;
     let created =
         models::email_templates::insert_global_email_template_if_absent(&mut conn, new_template)
             .await?

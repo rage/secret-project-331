@@ -1,0 +1,80 @@
+# Catches the email that dev and test send. Inbox at http://project-331.local/mailpit/.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailpit
+  labels:
+    app: mailpit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailpit
+  template:
+    metadata:
+      labels:
+        app: mailpit
+    spec:
+      containers:
+        - name: mailpit
+          image: ghcr.io/axllent/mailpit:v1.31.4
+          env:
+            - name: MP_WEBROOT
+              value: mailpit
+            - name: MP_DISABLE_VERSION_CHECK
+              value: "true"
+            # The sender always authenticates; the credentials are the dummy SMTP_USER/SMTP_PASS.
+            - name: MP_SMTP_AUTH_ACCEPT_ANY
+              value: "true"
+            - name: MP_SMTP_AUTH_ALLOW_INSECURE
+              value: "true"
+            # Lets the link check reach project-331.local, which resolves to the private minikube IP.
+            - name: MP_ALLOW_INTERNAL_HTTP_REQUESTS
+              value: "true"
+          ports:
+            - containerPort: 1025
+              name: smtp
+            - containerPort: 8025
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /mailpit/readyz
+              port: http
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailpit
+spec:
+  selector:
+    app: mailpit
+  ports:
+    - port: 1025
+      name: smtp
+    - port: 8025
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mailpit
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: project-331.local
+      http:
+        paths:
+          - path: /mailpit
+            pathType: Prefix
+            backend:
+              service:
+                name: mailpit
+                port:
+                  number: 8025

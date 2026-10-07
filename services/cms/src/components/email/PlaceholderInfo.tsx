@@ -9,7 +9,15 @@ import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import {
   getPlaceholderConfig,
   PLACEHOLDER_CODE,
+  PLACEHOLDER_COURSE_NAME,
+  PLACEHOLDER_CREDITS,
+  PLACEHOLDER_ENROLMENT_LINK,
+  PLACEHOLDER_LINK,
+  PLACEHOLDER_MODULE_NAME,
+  PLACEHOLDER_NAME,
   PLACEHOLDER_RESET_LINK,
+  PLACEHOLDER_STATUS_LINK,
+  PLACEHOLDER_STUDENT_NUMBER,
 } from "../../utils/emailPlaceholders"
 
 interface PlaceholderInfoProps {
@@ -37,6 +45,22 @@ const PlaceholderInfo: React.FC<React.PropsWithChildren<PlaceholderInfoProps>> =
         return t("placeholder-reset-link-description")
       case PLACEHOLDER_CODE:
         return t("placeholder-code-description")
+      case PLACEHOLDER_LINK:
+        return t("placeholder-link-description")
+      case PLACEHOLDER_NAME:
+        return t("placeholder-name-description")
+      case PLACEHOLDER_STUDENT_NUMBER:
+        return t("placeholder-student-number-description")
+      case PLACEHOLDER_COURSE_NAME:
+        return t("placeholder-course-name-description")
+      case PLACEHOLDER_MODULE_NAME:
+        return t("placeholder-module-name-description")
+      case PLACEHOLDER_CREDITS:
+        return t("placeholder-credits-description")
+      case PLACEHOLDER_ENROLMENT_LINK:
+        return t("placeholder-enrolment-link-description")
+      case PLACEHOLDER_STATUS_LINK:
+        return t("placeholder-status-link-description")
       default:
         return ""
     }

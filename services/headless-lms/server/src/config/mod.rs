@@ -361,7 +361,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(suotar_client)
         .service(
             web::scope("/api/v0")
-                .wrap(RateLimit::new(api_rate_limit_config))
+                .wrap(RateLimit::new(api_rate_limit_config).bypassable())
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

@@ -1,8 +1,6 @@
 //! The frozen copy of what we submit: written once before the row leaves enrolment resolution and
 //! never rewritten, so a later regrade cannot silently change something already sent.
 
-use headless_lms_utils::helsinki_time::helsinki_date;
-
 use crate::credit_registrations::{CreditRegistrationErrorCode, PayloadSnapshot};
 use crate::prelude::*;
 
@@ -78,7 +76,7 @@ pub fn build_payload_snapshot(
                 .enrolment
                 .and_then(|enrolment| enrolment.course_unit_realisation_name.as_ref())
                 .and_then(|name| serde_json::to_value(name).ok()),
-            attainment_date: helsinki_date(completion.completion_date),
+            attained_at: completion.completion_date,
             attainment_language: attainment_language(&completion.completion_language),
             grade_scale_id: grade.grade_scale_id,
             grade_id: grade.grade_id,

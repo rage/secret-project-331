@@ -592,7 +592,7 @@ fn completion_key(item: &wire::ImportAttainmentRequestItem) -> String {
         item.grade_scale_id,
         item.grade_id,
         item.credits,
-        item.attainment_date
+        item.attainment_date()
     )
 }
 

@@ -61,11 +61,12 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, its circuit breaker is open, or account linking is off. Nothing ran. */
+  /** The phase is paused, its circuit breaker is open, account linking is off, or Sisu is still on
+   * the previous day. Nothing ran. */
   | {
       status: "skipped"
       phase: CreditRegistrationPhase
-      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled"
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled" | "sisuDayGap"
     }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
@@ -198,7 +199,8 @@ export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPh
 
 /**
  * Backdates a row's last enrolment check and last check request past the half hour the recheck
- * buttons wait out, so a spec can press one right after the pipeline looked or the student asked.
+ * buttons wait out, and the row past the hour a student waits after completing, so a spec can press
+ * one right after the pipeline looked, the student asked or the row was created.
  * `clearRestarts` also forgets the day's schedule restarts, for a spec that needs a press to restart
  * the schedule again.
  */

@@ -11,9 +11,14 @@ pub const SUBMIT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
 pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this long in failure a row stops being retried and becomes a support case.
 pub const SUBMIT_MAX_RETRY_AGE: TimeDelta = TimeDelta::days(7);
-/// Sisu needs a few minutes before a submitted attainment shows up, so the first poll waits.
-pub const VERIFY_FIRST_DELAY: TimeDelta = TimeDelta::minutes(2);
-pub const VERIFY_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(5);
+/// Registrations land between about 5 and 29 hours after the submission, most of them in the first
+/// half: polls start shortly before, are close together through the dense part, and back off after.
+const VERIFY_WINDOW_START: TimeDelta = TimeDelta::minutes(270);
+const VERIFY_DENSE_WINDOW_END: TimeDelta = TimeDelta::minutes(630);
+const VERIFY_WINDOW_END: TimeDelta = TimeDelta::hours(29);
+pub const VERIFY_WINDOW_INTERVAL: TimeDelta = TimeDelta::minutes(30);
+const VERIFY_LATE_WINDOW_INTERVAL: TimeDelta = TimeDelta::hours(1);
+pub const VERIFY_BASE_BACKOFF: TimeDelta = TimeDelta::hours(2);
 pub const VERIFY_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this, polling drops to daily and a human looks. Never a failure: the attainment may exist,
 /// and calling it failed would invite a second submission.
@@ -28,6 +33,9 @@ pub const UNCERTAIN_MAX_RECHECK: TimeDelta = TimeDelta::hours(6);
 /// How long after the submission a human is asked to look in Sisu, well past the hour an
 /// attainment may take to show up. The row still never resubmits.
 pub const UNCERTAIN_ADMIN_AFTER: TimeDelta = TimeDelta::days(1);
+/// Suotar's `PENDING_WINDOW_MS`: how long it holds a submission it has not yet seen in Sisu as
+/// pending. Within it, a second import of the same completion can slip past Suotar's duplicate check.
+pub const SUOTAR_PENDING_WINDOW: TimeDelta = TimeDelta::hours(24);
 
 /// How long verify may see only the assessment item attainment before a human looks.
 pub const PARTIAL_REGISTRATION_ADMIN_AFTER: TimeDelta = TimeDelta::days(3);
@@ -66,13 +74,24 @@ pub fn submit_backoff(retry_count: i32) -> TimeDelta {
     doubling(SUBMIT_BASE_BACKOFF, SUBMIT_MAX_BACKOFF, retry_count)
 }
 
-/// The import phase schedules the first poll, so one prior attempt still means the base delay.
-pub fn verify_backoff(attempt_count: i32) -> TimeDelta {
-    doubling(
-        VERIFY_BASE_BACKOFF,
-        VERIFY_MAX_BACKOFF,
-        attempt_count.saturating_sub(1),
-    )
+/// The wait from `now` until the next verify poll of a row submitted at `submitted_at`. Timed from
+/// the submission rather than by counting polls, so a resumed or delayed row still polls at the
+/// times registrations land.
+pub fn verify_delay(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> TimeDelta {
+    let Some(submitted_at) = submitted_at else {
+        return VERIFY_WINDOW_INTERVAL;
+    };
+    let age = now - submitted_at;
+    if age < VERIFY_WINDOW_START {
+        VERIFY_WINDOW_START - age
+    } else if age < VERIFY_DENSE_WINDOW_END {
+        VERIFY_WINDOW_INTERVAL
+    } else if age < VERIFY_WINDOW_END {
+        VERIFY_LATE_WINDOW_INTERVAL
+    } else {
+        // Grows with the time past the window, so polls thin out until the cap.
+        (age - VERIFY_WINDOW_END).clamp(VERIFY_BASE_BACKOFF, VERIFY_MAX_BACKOFF)
+    }
 }
 
 /// `lookup_count` counts the look just made, so the wait after the first one is already doubled.
@@ -113,10 +132,19 @@ mod tests {
     }
 
     #[test]
-    fn verify_backoff_starts_at_the_base_after_the_first_poll() {
-        assert_eq!(verify_backoff(1), VERIFY_BASE_BACKOFF);
-        assert_eq!(verify_backoff(2), VERIFY_BASE_BACKOFF * 2);
-        assert_eq!(verify_backoff(100), VERIFY_MAX_BACKOFF);
+    fn verify_polls_follow_the_landing_window_from_the_submission() {
+        let now = Utc::now();
+        let delay = |age: TimeDelta| verify_delay(Some(now - age), now);
+        assert_eq!(delay(TimeDelta::zero()), VERIFY_WINDOW_START);
+        assert_eq!(delay(TimeDelta::hours(3)), TimeDelta::minutes(90));
+        assert_eq!(delay(TimeDelta::minutes(270)), VERIFY_WINDOW_INTERVAL);
+        assert_eq!(delay(TimeDelta::hours(10)), VERIFY_WINDOW_INTERVAL);
+        assert_eq!(delay(TimeDelta::hours(11)), VERIFY_LATE_WINDOW_INTERVAL);
+        assert_eq!(delay(TimeDelta::hours(28)), VERIFY_LATE_WINDOW_INTERVAL);
+        assert_eq!(delay(TimeDelta::hours(29)), VERIFY_BASE_BACKOFF);
+        assert_eq!(delay(TimeDelta::hours(33)), VERIFY_BASE_BACKOFF * 2);
+        assert_eq!(delay(TimeDelta::days(5)), VERIFY_MAX_BACKOFF);
+        assert_eq!(verify_delay(None, now), VERIFY_WINDOW_INTERVAL);
     }
 
     #[test]

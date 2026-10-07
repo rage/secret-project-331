@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT CASE\n    WHEN ((now() + make_interval(secs => $1)) AT TIME ZONE 'Europe/Helsinki')::date\n      > ((now() - make_interval(secs => $2)) AT TIME ZONE 'UTC')::date\n    THEN (\n      ((now() + make_interval(secs => $1)) AT TIME ZONE 'Europe/Helsinki')::date::timestamp\n        AT TIME ZONE 'UTC'\n    ) + make_interval(secs => $2)\n  END AS \"gap_end?: DateTime<Utc>\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "gap_end?: DateTime<Utc>",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c02848f3987dd3c7ccdc3cc6fdd5b0fb54f4443e9e57b3a42b04ea550089811a"
+}

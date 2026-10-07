@@ -1,9 +1,12 @@
+import { blankCellsInsideShape } from "@/util/matrix"
+
 import type { UserAnswer } from "../../../../types/quizTypes/answer"
 
 /** The translation keys this helper can emit. */
 export type QuizValidityMessageKey =
   | "answer-all-parts-of-the-exercise"
   | "check-your-answer"
+  | "matrix-fill-empty-cells"
   | "timeline-duplicate-answer-error"
 
 /**
@@ -28,6 +31,8 @@ export function getQuizValidityMessages(
       item.type === "timeline" ? item.timelineChoices.map((choice) => choice.chosenEventId) : []
     if (item.type === "timeline" && chosenEventIds.length !== new Set(chosenEventIds).size) {
       messages.push(t("timeline-duplicate-answer-error"))
+    } else if (item.type === "matrix" && blankCellsInsideShape(item.matrix).length > 0) {
+      messages.push(t("matrix-fill-empty-cells"))
     } else {
       messages.push(t("check-your-answer"))
     }

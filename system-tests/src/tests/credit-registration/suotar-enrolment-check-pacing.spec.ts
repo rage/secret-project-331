@@ -54,7 +54,8 @@ import { pollUntil } from "@/utils/waitingUtils"
 test.use({ storageState: seededStudentStorageState(CREDIT_REGISTRATION_STUDENT_3.email) })
 
 const STUDENT = CREDIT_REGISTRATION_STUDENT_3
-const HOUR_MS = 60 * 60 * 1000
+const MINUTE_MS = 60 * 1000
+const HOUR_MS = 60 * MINUTE_MS
 const DAY_MS = 24 * HOUR_MS
 const BATCH_INTERVAL_MS = 5 * 60 * 1000
 const TRANSIENT_RETRY_MS = 5 * 60 * 1000
@@ -319,12 +320,14 @@ test("Opening the registration page moves the check to an hour after the visit",
   expect(schedule.nextAttemptAt).toBe(schedule.dueAt)
 })
 
-test("Asking for a check runs one at once, and the next an hour later", async ({
+test("Asking for a check runs one at once, and the next a quarter of an hour later", async ({
   page,
   adminApi,
 }) => {
   const course = await createPacingCourse(adminApi, page.request, 1)
   const parked = await parkCompletedModule(page, adminApi, course)
+  // A student cannot ask during the row's first hour.
+  await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
   expect(await requestRecheck(page.request, parked.id)).toStrictEqual({ recheck_started: true })
   const requested = await getEnrolmentCheckSchedule(page.request, parked.id)
@@ -342,10 +345,10 @@ test("Asking for a check runs one at once, and the next an hour later", async ({
   expect(answered).toMatchObject({
     state: "no_usable_enrolment",
     group: "check_requested",
-    step: 1,
+    step: 0,
   })
   expect(answered.checkedAt).not.toBeNull()
-  expect(msBetween(answered.anchorAt, answered.dueAt)).toBe(HOUR_MS)
+  expect(msBetween(answered.anchorAt, answered.dueAt)).toBe(15 * MINUTE_MS)
   expect(
     await countMockCallsForStudent(
       page.request,
@@ -362,6 +365,7 @@ test("Check requests wait out half an hour, and restart the schedule four times 
 }) => {
   const course = await createPacingCourse(adminApi, page.request, 1)
   const parked = await parkCompletedModule(page, adminApi, course)
+  await expireEnrolmentRecheckAllowance(page.request, parked.id)
 
   expect(await requestRecheck(page.request, parked.id)).toStrictEqual({ recheck_started: true })
   await runResolveEnrolmentsTick(page.request, parked.rowScope)
@@ -402,6 +406,15 @@ test("Check requests wait out half an hour, and restart the schedule four times 
     })
     expect(Date.parse(checking.nextAttemptAt)).toBeLessThanOrEqual(Date.now() + CLOCK_SLACK_MS)
   })
+})
+
+test("A student cannot ask for a check during the row's first hour", async ({ page, adminApi }) => {
+  const course = await createPacingCourse(adminApi, page.request, 1)
+  const parked = await parkCompletedModule(page, adminApi, course)
+  const before = await getEnrolmentCheckSchedule(page.request, parked.id)
+
+  expect(await requestRecheck(page.request, parked.id)).toStrictEqual({ recheck_started: false })
+  expect(await getEnrolmentCheckSchedule(page.request, parked.id)).toStrictEqual(before)
 })
 
 test("A roster listing the student wakes the waiting row once per enrolment", async ({

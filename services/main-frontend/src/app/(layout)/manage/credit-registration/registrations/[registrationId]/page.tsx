@@ -21,7 +21,6 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import HttpStatusBadge from "@/components/credit-registration/admin/HttpStatusBadge"
 import RegistrationStepper from "@/components/credit-registration/admin/RegistrationStepper"
 import {
   attentionReasonLabel,
@@ -29,7 +28,12 @@ import {
 } from "@/components/credit-registration/admin/registrationSubStates"
 import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
-import { SuotarApiCallBodies } from "@/components/credit-registration/admin/SuotarApiCallDetail"
+import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
+import {
+  CallStatusCell,
+  SuotarEndpointCell,
+  tookColumn,
+} from "@/components/credit-registration/admin/suotarCallColumns"
 import {
   ABSENT,
   ALIGN_END,
@@ -65,12 +69,12 @@ import {
   sectionCss,
   sectionHeaderCss,
   spacedRowCss,
-  stackedCellCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
+  AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
   AdminNotificationEmail,
@@ -286,7 +290,10 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
   const studentNumber = row.verified_student_number ?? row.student_number
-  const verifiedVia = verificationMethodLabel(t, row.verified_student_number_via)
+  const verifiedVia =
+    row.verified_student_number_via === "study_registry"
+      ? null
+      : verificationMethodLabel(t, row.verified_student_number_via)
   // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
   const heldGrade: DescriptionListItem[] = details.not_improved_attainment
     ? [
@@ -306,7 +313,13 @@ const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ d
     row.state === "awaiting_verification" ||
     row.state === "partially_registered" ||
     row.state === "submission_uncertain"
-  const hidesNextAttempt = row.state === "submitting" || row.state === "resolving_enrolment"
+  // In flight, waiting on a fact rather than a time, or waiting for a human.
+  const hidesNextAttempt =
+    row.state === "submitting" ||
+    row.state === "resolving_enrolment" ||
+    row.state === "pending" ||
+    row.state === "blocked" ||
+    row.state === "misregistered"
   const nextAttempt: DescriptionListItem[] =
     row.terminal_at || row.superseded || hidesNextAttempt
       ? []
@@ -428,8 +441,46 @@ const AttemptChainSection: React.FC<{
   )
 }
 
-const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) => {
+/** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
+const unbrokenCodeCss = css`
+  white-space: nowrap;
+  overflow-wrap: normal;
+`
+
+/**
+ * How one call went for this registration: Suotar's code for its item, or why it got none. Without
+ * an event of its own, how the request as a whole went.
+ */
+const RegistrationCallStatus: React.FC<{
+  call: AdminSuotarApiCall
+  event: AdminCreditRegistrationEvent | undefined
+}> = ({ call, event }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  switch (event?.suotar_answer) {
+    case "refused":
+      return t("credit-registration-admin-timeline-result-request-refused")
+    case "unanswered":
+      return t("credit-registration-admin-timeline-result-no-answer")
+  }
+  return event?.suotar_code ? (
+    <code className={cx(codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+  ) : (
+    <CallStatusCell call={call} />
+  )
+}
+
+const ApiCallSection: React.FC<{
+  calls: AdminSuotarApiCall[]
+  events: AdminCreditRegistrationEvent[]
+}> = ({ calls, events }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const eventByCall = new Map(
+    events.flatMap((event) =>
+      event.kind === "suotar_response" && event.suotar_api_call_id
+        ? [[event.suotar_api_call_id, event] as const]
+        : [],
+    ),
+  )
   if (calls.length === 0) {
     return null
   }
@@ -447,7 +498,12 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
         responsive={TABLE_STACK}
         rowKey={(call) => call.id}
         rows={calls}
-        expandableRow={(call) => <SuotarApiCallBodies suotarApiCallId={call.id} />}
+        expandableRow={(call) => (
+          <RegistrationCallItem
+            suotarApiCallId={call.id}
+            exchange={eventByCall.get(call.id)?.details}
+          />
+        )}
         columns={[
           {
             header: t("label-time"),
@@ -456,37 +512,16 @@ const ApiCallSection: React.FC<{ calls: AdminSuotarApiCall[] }> = ({ calls }) =>
             cell: (call) => <ZonedTimestamp at={call.started_at} />,
           },
           {
-            header: t("label-endpoint"),
+            header: t("credit-registration-admin-column-what"),
             grow: true,
             minWidth: "10rem",
-            cell: (call) => <code className={codeValueCss}>{call.endpoint}</code>,
+            cell: (call) => <SuotarEndpointCell endpoint={call.endpoint} />,
           },
+          tookColumn(t),
           {
-            header: t("label-credit-registration-http-status"),
+            header: t("label-status"),
             minWidth: "8rem",
-            cell: (call) => (
-              <span className={stackedCellCss}>
-                <HttpStatusBadge
-                  httpStatus={call.http_status}
-                  succeeded={call.succeeded}
-                  errorItemCount={call.error_item_count}
-                />
-                {call.request_level_error_code && (
-                  <code className={cx(noteCss, codeValueCss)}>{call.request_level_error_code}</code>
-                )}
-              </span>
-            ),
-          },
-          {
-            header: t("credit-registration-admin-column-items"),
-            minWidth: "9rem",
-            cell: (call) =>
-              t("credit-registration-admin-ok-error-items", {
-                ok: call.ok_item_count,
-                pending: call.pending_item_count,
-                error: call.error_item_count,
-                total: call.request_item_count,
-              }),
+            cell: (call) => <RegistrationCallStatus call={call} event={eventByCall.get(call.id)} />,
           },
         ]}
       />
@@ -740,10 +775,10 @@ const RegistrationDetailPage: React.FC = () => {
           <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
           <RegistrationTimeline
             events={details.events}
-            registration={details.registration}
             actorNames={actorNames}
+            selectedEnrolmentId={details.registration.selected_enrolment_id ?? null}
           />
-          <ApiCallSection calls={details.suotar_api_calls} />
+          <ApiCallSection calls={details.suotar_api_calls} events={details.events} />
           <LinkingSection mails={details.linking_emails} />
           <NotificationSection mails={details.notification_emails} />
           <AuditSection registrationId={details.registration.id} query={actionsQuery} />

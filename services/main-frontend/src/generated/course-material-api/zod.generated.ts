@@ -96,6 +96,7 @@ export const zChapterWithStatus = z.object({
 export const zChatbotConversation = z.object({
   anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
+  conversation_title: z.string().nullish(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -497,6 +498,51 @@ export const zExercise = z.object({
   use_course_default_peer_or_self_review_config: z.boolean(),
 })
 
+/**
+ * Where a user's answer to an exercise stands, as far as the student may know.
+ *
+ * Collapses the exercise state into what the exercise block itself tells the student, so the
+ * underlying reviewing and grading stages never reach the client.
+ */
+export const zExercisePointsStatus = z.enum([
+  "NotStarted",
+  "GradingInProgress",
+  "GradingFailed",
+  "PeerReviewToGive",
+  "SelfReviewToGive",
+  "WaitingForPeerReviews",
+  "WaitingForTeacherGrading",
+  "NotAnswered",
+  "Done",
+])
+
+/**
+ * One exercise's row in a points breakdown.
+ */
+export const zExercisePointsBreakdown = z.object({
+  attempts: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  attempts_limit: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  exercise_id: z.uuid(),
+  name: z.string(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  status: zExercisePointsStatus,
+})
+
 export const zExerciseTaskSubmission = z.object({
   answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
@@ -717,6 +763,39 @@ export const zPageChapterAndCourseInformation = z.object({
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
   organization_slug: z.string().nullish(),
+})
+
+/**
+ * A page's exercises in a points breakdown, with their subtotal.
+ */
+export const zPagePointsBreakdown = z.object({
+  exercises: z.array(zExercisePointsBreakdown),
+  page_id: z.uuid(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * A chapter's pages in a points breakdown, with their subtotal.
+ */
+export const zChapterPointsBreakdown = z.object({
+  chapter_id: z.uuid(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+  pages: z.array(zPagePointsBreakdown),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zPageRoutingData = z.object({
@@ -1320,12 +1399,14 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  automatic_completion: z.boolean(),
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -1532,6 +1613,11 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPagePath = z.object({
  */
 export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(zPage)
 
+/**
+ * All chatbot conversations for user
+ */
+export const zAllUserConversationsResponse = z.array(zChatbotConversation)
+
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),
 })
@@ -1541,14 +1627,27 @@ export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
  */
 export const zGetDefaultChatbotConfigurationForCourseResponse = z.uuid().nullable()
 
-export const zGetChatbotCurrentConversationInfoPath = z.object({
+export const zGetConversationInfoPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+export const zGetConversationInfoQuery = z.object({
+  conversation_id: z.uuid().optional(),
+})
+
+/**
+ * Selected chatbot conversation info
+ */
+export const zGetConversationInfoResponse = zChatbotConversationInfo
+
+export const zGetCurrentConversationIdPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })
 
 /**
- * Current chatbot conversation info
+ * Current conversation ID
  */
-export const zGetChatbotCurrentConversationInfoResponse = zChatbotConversationInfo
+export const zGetCurrentConversationIdResponse = z.uuid().nullable()
 
 export const zNewChatbotConversationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1582,6 +1681,13 @@ export const zSendChatbotToolResponsePath = z.object({
  * Chatbot response stream
  */
 export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
+
+export const zUpdateTitleBody = z.string()
+
+export const zUpdateTitlePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),
@@ -1643,6 +1749,17 @@ export const zGetCourseMaterialCourseModuleCompletionsForUserPath = z.object({
  */
 export const zGetCourseMaterialCourseModuleCompletionsForUserResponse =
   z.array(zCourseModuleCompletion)
+
+export const zGetCourseMaterialCourseModulePointsBreakdownPath = z.object({
+  course_instance_id: z.uuid(),
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The user's points by chapter, page and exercise
+ */
+export const zGetCourseMaterialCourseModulePointsBreakdownResponse =
+  z.array(zChapterPointsBreakdown)
 
 export const zGetCourseMaterialUserModuleCompletionsPath = z.object({
   course_instance_id: z.uuid(),

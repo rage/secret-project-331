@@ -11,7 +11,7 @@ import { Button, Checkbox } from "@/shared-module/components"
 import {
   contentRowStyles,
   FieldSet,
-  formButtonGridStyles,
+  formButtonColumnStyles,
   Legend,
   type CourseDataFilter,
 } from "./page"
@@ -95,12 +95,20 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     setValue("show_ects_credits", next, { shouldDirty: true })
   }
 
+  const checkBoxLabelStyles = css`
+    color: ${baseTheme.colors.gray[800]};
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2, 0.5rem);
+    cursor: pointer;
+  `
+
   return (
     <FieldSet>
       <Legend>{t("course-auditing-filter-course-data-title")}</Legend>
 
       <div className={contentRowStyles}>
-        <div className={formButtonGridStyles}>
+        <div className={formButtonColumnStyles}>
           <p
             className={css`
               font-weight: 500;
@@ -108,15 +116,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-metadata-title")}
           </p>
-          <label
-            className={css`
-              color: ${baseTheme.colors.gray[800]};
-              display: inline-flex;
-              align-items: center;
-              gap: var(--space-2, 0.5rem);
-              cursor: pointer;
-            `}
-          >
+          <label className={checkBoxLabelStyles}>
             <input
               type="checkbox"
               checked={allSelectedMetadata}
@@ -146,7 +146,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           />
         </div>
 
-        <div className={formButtonGridStyles}>
+        <div className={formButtonColumnStyles}>
           <p
             className={css`
               font-weight: 500;
@@ -154,15 +154,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-closed-at-data-title")}
           </p>
-          <label
-            className={css`
-              color: ${baseTheme.colors.gray[800]};
-              display: inline-flex;
-              align-items: center;
-              gap: var(--space-2, 0.5rem);
-              cursor: pointer;
-            `}
-          >
+          <label className={checkBoxLabelStyles}>
             <input
               type="checkbox"
               checked={allSelectedClosedAtData}
@@ -187,7 +179,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           />
         </div>
 
-        <div className={formButtonGridStyles}>
+        <div className={formButtonColumnStyles}>
           <p
             className={css`
               font-weight: 500;
@@ -195,15 +187,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-module-data-title")}
           </p>
-          <label
-            className={css`
-              color: ${baseTheme.colors.gray[800]};
-              display: inline-flex;
-              align-items: center;
-              gap: var(--space-2, 0.5rem);
-              cursor: pointer;
-            `}
-          >
+          <label className={checkBoxLabelStyles}>
             <input
               type="checkbox"
               checked={allSelectedModuleData}

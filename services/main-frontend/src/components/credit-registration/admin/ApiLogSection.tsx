@@ -4,18 +4,18 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
-import type { SuotarEndpoint } from "@/generated/api/types.generated"
+import type { SuotarApiCallRow, SuotarEndpoint } from "@/generated/api/types.generated"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Pagination, QueryResult, Select, Table, TextField } from "@/shared-module/components"
-
 import {
-  ABSENT,
-  ALIGN_END,
-  CREDIT_REGISTRATION_NS,
-  DENSITY_COMPACT,
-  QUIET_REFRESH,
-  TABLE_STACK,
-} from "../constants"
+  Dialog,
+  Pagination,
+  QueryResult,
+  Select,
+  Table,
+  TextField,
+} from "@/shared-module/components"
+
+import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT, QUIET_REFRESH, TABLE_STACK } from "../constants"
 import {
   controlCss,
   controlsCss,
@@ -27,8 +27,13 @@ import {
   stackedCellCss,
 } from "../styles"
 import { useSuotarApiCalls } from "./adminCreditRegistrationHooks"
-import HttpStatusBadge from "./HttpStatusBadge"
-import SuotarApiCallDetail from "./SuotarApiCallDetail"
+import SuotarApiCallDetail, { SuotarApiCallBodies } from "./SuotarApiCallDetail"
+import {
+  CallStatusCell,
+  itemCountColumns,
+  SuotarEndpointCell,
+  tookColumn,
+} from "./suotarCallColumns"
 import type { FilterFieldDescriptor } from "./useFilteredAdminQuery"
 import { selectFilterField, useFilteredAdminQuery } from "./useFilteredAdminQuery"
 
@@ -38,6 +43,8 @@ const PARAM_ENDPOINT = "endpoint"
 const PARAM_SUCCEEDED = "succeeded"
 const PARAM_WORKER = "worker_name"
 const PARAM_REGISTRATION = "credit_registration_id"
+/** Opens one call's bodies; `creditRegistrationSuotarApiCallRoute` links here with it. */
+const PARAM_CALL = "suotar_api_call_id"
 const ANY = ""
 const SUCCEEDED = "true"
 const FAILED = "false"
@@ -101,32 +108,34 @@ const splitWorkerName = (workerName: string): { task: string; process: string | 
 const ApiLogSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
 
-  const { control, applyParams, handleSubmit, paginationInfo, query } = useFilteredAdminQuery(
-    FILTER_FIELDS,
-    (filters, pagination) => {
-      const endpoint = filters.param(PARAM_ENDPOINT)
-      const succeeded = resolveSucceededFilter(filters.param(PARAM_SUCCEEDED))
-      const worker = filters.param(PARAM_WORKER)
-      const registrationId = filters.param(PARAM_REGISTRATION)
-      const validEndpoint = isSuotarEndpoint(endpoint) ? endpoint : undefined
-      return {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...includeIf(validEndpoint, { endpoint: validEndpoint }),
-        ...includeIf(succeeded !== undefined, { succeeded }),
-        ...includeIf(worker, { worker_name: worker }),
-        ...includeIf(registrationId, { credit_registration_id: registrationId }),
-      }
-    },
-    {
-      rowsPerPage: ROWS_PER_PAGE,
-      manualDefaults: (filters) => ({
-        credit_registration_id: filters.param(PARAM_REGISTRATION) ?? "",
-      }),
-    },
-  )
+  const { control, param, applyParams, handleSubmit, paginationInfo, query } =
+    useFilteredAdminQuery(
+      FILTER_FIELDS,
+      (filters, pagination) => {
+        const endpoint = filters.param(PARAM_ENDPOINT)
+        const succeeded = resolveSucceededFilter(filters.param(PARAM_SUCCEEDED))
+        const worker = filters.param(PARAM_WORKER)
+        const registrationId = filters.param(PARAM_REGISTRATION)
+        const validEndpoint = isSuotarEndpoint(endpoint) ? endpoint : undefined
+        return {
+          page: pagination.page,
+          limit: pagination.limit,
+          ...includeIf(validEndpoint, { endpoint: validEndpoint }),
+          ...includeIf(succeeded !== undefined, { succeeded }),
+          ...includeIf(worker, { worker_name: worker }),
+          ...includeIf(registrationId, { credit_registration_id: registrationId }),
+        }
+      },
+      {
+        rowsPerPage: ROWS_PER_PAGE,
+        manualDefaults: (filters) => ({
+          credit_registration_id: filters.param(PARAM_REGISTRATION) ?? "",
+        }),
+      },
+    )
 
   const callsQuery = useSuotarApiCalls(query)
+  const linkedCallId = param(PARAM_CALL)
 
   return (
     <section className={sectionCardCss}>
@@ -212,7 +221,7 @@ const ApiLogSection: React.FC = () => {
                 {
                   header: t("label-endpoint"),
                   minWidth: "11rem",
-                  cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+                  cell: (row) => <SuotarEndpointCell endpoint={row.endpoint} />,
                 },
                 {
                   header: t("credit-registration-admin-column-caller"),
@@ -228,36 +237,13 @@ const ApiLogSection: React.FC = () => {
                     )
                   },
                 },
+                tookColumn(t),
                 {
                   header: t("label-status"),
                   minWidth: "6rem",
-                  nowrap: true,
-                  cell: (row) => (
-                    <HttpStatusBadge
-                      httpStatus={row.http_status}
-                      succeeded={row.succeeded}
-                      errorItemCount={row.error_item_count}
-                    />
-                  ),
+                  cell: (row) => <CallStatusCell call={row} />,
                 },
-                {
-                  header: t("credit-registration-admin-column-items"),
-                  grow: true,
-                  minWidth: "10rem",
-                  cell: (row) =>
-                    t("credit-registration-admin-call-items", {
-                      requested: row.request_item_count,
-                      ok: row.ok_item_count,
-                      failed: row.error_item_count,
-                    }),
-                },
-                {
-                  header: t("credit-registration-admin-column-duration-ms"),
-                  align: ALIGN_END,
-                  minWidth: "5rem",
-                  nowrap: true,
-                  cell: (row) => row.duration_ms ?? ABSENT,
-                },
+                ...itemCountColumns<SuotarApiCallRow>(t),
                 {
                   header: t("label-actions"),
                   minWidth: "7rem",
@@ -276,6 +262,14 @@ const ApiLogSection: React.FC = () => {
           </>
         )}
       </QueryResult>
+      <Dialog
+        open={linkedCallId !== undefined}
+        onClose={() => applyParams({ [PARAM_CALL]: undefined })}
+        size="wide"
+        title={t("credit-registration-admin-show-stored-bodies")}
+      >
+        {linkedCallId && <SuotarApiCallBodies suotarApiCallId={linkedCallId} />}
+      </Dialog>
     </section>
   )
 }

@@ -240,7 +240,7 @@ mod tests {
                 selected_enrolment_kind: Some("degree".to_string()),
                 selected_enrolment_realisation_id: Some("hy-opt-cur-1".to_string()),
                 selected_enrolment_realisation_name: None,
-                attainment_date: Utc::now().date_naive(),
+                attained_at: Utc::now(),
                 attainment_language: "en".to_string(),
                 grade_scale_id: "sis-0-5".to_string(),
                 grade_id: "4".to_string(),

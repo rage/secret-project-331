@@ -1241,7 +1241,7 @@ async fn insert_registered_attempt(
                 "en": "Registration test realisation",
                 "sv": null,
             })),
-            attainment_date: (Utc::now() - Duration::days(20)).date_naive(),
+            attained_at: Utc::now() - Duration::days(20),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-0-5".to_string(),
             grade_id: grade_id.to_string(),

@@ -110,7 +110,7 @@ pub(super) fn decide_recovery<'a>(
 ) -> Decision<'a> {
     // An enrolment error still lists the attainments, and the enrolment may be gone by now.
     let found = answer
-        .zip(row.attainment_date)
+        .zip(row.attained_at.map(|instant| instant.date_naive()))
         .zip(row.frozen_grade())
         .and_then(|((answer, attainment_date), grade)| {
             attainment_matching_submission(
@@ -287,7 +287,7 @@ mod tests {
 
     fn uncertain_row() -> CreditRegistration {
         CreditRegistration {
-            attainment_date: Some(date(2026, 8, 1)),
+            attained_at: Some("2026-08-01T09:00:00Z".parse().expect("valid instant")),
             submitted_at: Some(now() - TimeDelta::hours(1)),
             grade_scale_id: Some("sis-0-5".to_string()),
             grade_id: Some("4".to_string()),
@@ -336,7 +336,7 @@ mod tests {
             State::SubmissionUncertain
         );
         let undated = CreditRegistration {
-            attainment_date: None,
+            attained_at: None,
             ..uncertain_row()
         };
         let answer = enrolment_answer(vec![attainment("sis-0-5", "4", date(2026, 8, 1))]);

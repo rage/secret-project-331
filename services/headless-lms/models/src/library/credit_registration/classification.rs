@@ -52,6 +52,18 @@ pub fn retryability(code: CreditRegistrationErrorCode) -> Retryability {
     }
 }
 
+/// Whether Sisu answers an unchanged resend of a row carrying `code` the same way: the rejection
+/// is about what we sent or whom we sent it for, not about the moment it was sent.
+pub fn is_repeatable_rejection(code: CreditRegistrationErrorCode) -> bool {
+    use CreditRegistrationErrorCode as Code;
+    match retryability(code) {
+        Retryability::PermanentNeedsStudent | Retryability::PermanentNeedsConfig => true,
+        // The other admin codes are a timeout's aftermath, a reversal, or unclassified.
+        Retryability::PermanentNeedsAdmin => code == Code::SisuValidationFailed,
+        Retryability::RetryableTransient | Retryability::VerifyOnly => false,
+    }
+}
+
 /// The answers that would send the student off to enrol.
 pub fn is_enrolment_error(code: CreditRegistrationErrorCode) -> bool {
     matches!(

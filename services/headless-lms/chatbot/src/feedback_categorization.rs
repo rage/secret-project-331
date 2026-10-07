@@ -1,16 +1,17 @@
 use crate::{
     azure_chatbot::azure::protocol::{
-        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams, Reasoning,
         ThinkingParams,
     },
     chatbot_error::chatbot_err,
     llm_utils::{APIInputMessage, MessageContent, model_is_thinking, request_structured_json},
-    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
+    prelude::*,
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
+    chatbot_configurations::ReasoningEffortLevel,
     chatbot_conversation_message_messages::MessageRole, feedback::NewFeedback,
     feedback_categories::FeedbackCategory,
 };
@@ -23,6 +24,9 @@ use indexmap::IndexMap;
 pub struct FeedbackCategorisationResponse {
     pub category_name: String,
 }
+
+// Maximum length in chars
+pub const MAX_CATEGORY_NAME_LEN: usize = 255;
 
 /// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
 /// answer for this feature by this name.
@@ -79,20 +83,28 @@ Allowed response types:
 - Assign feedback into an existing category
 - Create a new category and assign the feedback to it
 
+When assigning to an existing category, return the category's name exactly as it is. The existing category names are given below. When creating a new category, return the proposed new category name. In both cases, only the category name should be returned: whether it is listed below or not indicates is it an existing category or a new one.
+
 Constraints:
 - analyse the meaning and context of the feedback
 - don't focus on specific details too much
 - understand the intention behind the feedback and what problem it is really aiming to convey
+- compare the feedback to the existing categories: could it fit into one of them?
+- be conservative when adding new cateogries. If the feedback could be assigned to an existing one, do so instead of creating a new category for it.
 
-Category constraints:
-- the name should be short and adequately descriptive
-- the name should describe the type of feedback in that category
-- the categories should not be overly specific
+New category constraints:
+- the name should be as short and concise as possible
+- the name should be only adequately descriptive: based on it, one should be able to understand what kind of feedback the category contains
+- the name must not be overly specific: it should give a reasonable clue about the category's content, but not describe it with detail
+- the name should describe the general type of feedback in that category and not be based on any specific details in the feedback. For example, instead of "Confusion about the topic in chapter 4" try "Material comprehension difficulties"
+- the name should fit in with the existing categories, i.e. follow the same naming logic
+- the name should use normal, correct language
 
 Currently existing categories:
 
 "#;
 
+// todo: truncate long category names
 pub async fn categorize_feedback(
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
@@ -116,7 +128,13 @@ pub async fn categorize_feedback(
     ];
     let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
         (
-            LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
+            LLMRequestParams::GPTThinking(ThinkingParams {
+                reasoning: Some(Reasoning {
+                    effort: ReasoningEffortLevel::Low,
+                    summary: None,
+                    context: None,
+                }),
+            }),
             Some(7000),
         )
     } else {
@@ -146,7 +164,17 @@ pub async fn categorize_feedback(
     )
     .await?;
 
-    Ok(res)
+    // truncate if too long
+    if res.category_name.chars().count() > MAX_CATEGORY_NAME_LEN {
+        let category_name = res
+            .category_name
+            .chars()
+            .take(MAX_CATEGORY_NAME_LEN)
+            .collect::<String>();
+        Ok(FeedbackCategorisationResponse { category_name })
+    } else {
+        Ok(res)
+    }
 }
 
 #[cfg(test)]

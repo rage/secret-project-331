@@ -299,11 +299,10 @@ SELECT COUNT(*) filter (
   COUNT(*) filter (
     WHERE NOT(marked_as_read)
   ) AS unread,
-  category_id AS "category_id!"
+  category_id
 FROM feedback
 WHERE course_id = $1
   AND deleted_at IS NULL
-  AND category_id IS NOT NULL
 GROUP BY category_id
         "#,
         course_id
@@ -321,8 +320,9 @@ GROUP BY category_id
             let unread = x.unread.unwrap_or_default().try_into().ok()?;
             all_read += read;
             all_unread += unread;
+            let Some(id) = x.category_id else { return None };
             Some(CategoryFeedbackCount {
-                category_id: x.category_id,
+                category_id: id,
                 read_feedback: read,
                 unread_feedback: unread,
             })

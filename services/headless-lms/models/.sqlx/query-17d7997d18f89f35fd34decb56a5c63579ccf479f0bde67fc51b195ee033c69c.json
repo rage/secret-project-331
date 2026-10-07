@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT COUNT(*) filter (\n    WHERE marked_as_read\n  ) AS READ,\n  COUNT(*) filter (\n    WHERE NOT(marked_as_read)\n  ) AS unread,\n  category_id AS \"category_id!\"\nFROM feedback\nWHERE course_id = $1\n  AND deleted_at IS NULL\n  AND category_id IS NOT NULL\nGROUP BY category_id\n        ",
+  "query": "\nSELECT COUNT(*) filter (\n    WHERE marked_as_read\n  ) AS READ,\n  COUNT(*) filter (\n    WHERE NOT(marked_as_read)\n  ) AS unread,\n  category_id\nFROM feedback\nWHERE course_id = $1\n  AND deleted_at IS NULL\nGROUP BY category_id\n        ",
   "describe": {
     "columns": [
       {
@@ -17,7 +17,7 @@
       },
       {
         "ordinal": 2,
-        "name": "category_id!",
+        "name": "category_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -38,5 +38,5 @@
       true
     ]
   },
-  "hash": "b0133b1b2388158b900f982c80e1cd10984260366e369bec6cb8b8e3cfddb57f"
+  "hash": "17d7997d18f89f35fd34decb56a5c63579ccf479f0bde67fc51b195ee033c69c"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE external_courses\nSET name = $1,\n    description = $2,\n    url = $3,\n    name_embedding = COALESCE($4, name_embedding),\n    description_embedding = COALESCE($5, description_embedding)\nWHERE id = $6 AND deleted_at IS NULL\nRETURNING\n        id,\n        name,\n        description,\n        url\n        ",
+  "query": "\nUPDATE external_courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING\n    id,\n    name,\n    description,\n    url,\n    on_old_platform\n        ",
   "describe": {
     "columns": [
       {
@@ -46,25 +46,21 @@
             "name": "url"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "on_old_platform",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "on_old_platform"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Text",
-        "Varchar",
-        {
-          "Custom": {
-            "name": "vector",
-            "kind": "Simple"
-          }
-        },
-        {
-          "Custom": {
-            "name": "vector",
-            "kind": "Simple"
-          }
-        },
         "Uuid"
       ]
     },
@@ -72,8 +68,9 @@
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "eb188924a1ce07147edb0d82f54d645461ea7b4e19f927a989b8ed27e03bddc8"
+  "hash": "5e551bd79f2fa15004828f4bb19e917f23729b6067fd40ea7a212b2887ea457a"
 }

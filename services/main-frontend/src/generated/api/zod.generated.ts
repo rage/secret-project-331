@@ -2894,6 +2894,7 @@ export const zExternalCourseOutput = z.object({
   description: z.string().nullish(),
   id: z.uuid(),
   name: z.string(),
+  on_old_platform: z.boolean(),
   url: z.string(),
 })
 
@@ -3430,6 +3431,7 @@ export const zNewExerciseRepository = z.object({
 export const zNewExternalCourse = z.object({
   description: z.string().nullish(),
   name: z.string(),
+  on_old_platform: z.boolean(),
   url: z.string(),
 })
 

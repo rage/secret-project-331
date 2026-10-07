@@ -17,6 +17,7 @@ pub struct ExternalCourse {
     pub name_embedding: Option<Vector>,
     #[schema(value_type = Option<Vec<f32>>)]
     pub description_embedding: Option<Vector>,
+    pub on_old_platform: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, ToSchema)]
@@ -24,6 +25,7 @@ pub struct NewExternalCourse {
     name: String,
     description: Option<String>,
     url: String,
+    pub on_old_platform: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -32,6 +34,7 @@ pub struct ExternalCourseOutput {
     pub name: String,
     pub description: Option<String>,
     pub url: String,
+    pub on_old_platform: bool,
 }
 pub async fn create_external_course(
     conn: &mut PgConnection,
@@ -71,26 +74,30 @@ INSERT INTO external_courses(
     description,
     url,
     name_embedding,
-    description_embedding
+    description_embedding,
+    on_old_platform
     )
 VALUES(
     $1,
     $2,
     $3,
     $4,
-    $5
+    $5,
+    $6
     )
 RETURNING
     id,
     name,
     description,
-    url
+    url,
+    on_old_platform
         ",
         new.name,
         new.description,
         new.url,
         name_embedding,
-        description_embedding
+        description_embedding,
+        new.on_old_platform
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -111,7 +118,8 @@ SELECT
     id,
     name,
     description,
-    url
+    url,
+    on_old_platform
 FROM external_courses
 WHERE deleted_at IS NULL
         "#
@@ -132,7 +140,8 @@ SELECT
     id,
     name,
     description,
-    url
+    url,
+    on_old_platform
 FROM external_courses
 WHERE id = $1
 AND deleted_at IS NULL
@@ -160,7 +169,8 @@ pub async fn get_external_courses_by_embeddings(
 SELECT  t.id AS "id!",
     t.name AS "name!",
     t.description,
-    t.url AS "url!"
+    t.url AS "url!",
+    t.on_old_platform AS "on_old_platform!"
 FROM (
     SELECT
         ec.*,
@@ -177,7 +187,8 @@ UNION
 SELECT ec.id,
        ec.name,
        ec.description,
-       ec.url
+       ec.url,
+       ec.on_old_platform
 FROM external_courses ec
 CROSS JOIN unnest($2::text[]) AS k(keyword)
 WHERE deleted_at IS NULL
@@ -213,7 +224,8 @@ RETURNING
     id,
     name,
     description,
-    url
+    url,
+    on_old_platform
         "#,
         external_course_id
     )
@@ -278,19 +290,22 @@ SET name = $1,
     description = $2,
     url = $3,
     name_embedding = COALESCE($4, name_embedding),
-    description_embedding = COALESCE($5, description_embedding)
-WHERE id = $6 AND deleted_at IS NULL
+    description_embedding = COALESCE($5, description_embedding),
+    on_old_platform = $6
+WHERE id = $7 AND deleted_at IS NULL
 RETURNING
         id,
         name,
         description,
-        url
+        url,
+        on_old_platform
         "#,
         update.name,
         update.description,
         update.url,
         name_embedding,
         description_embedding,
+        update.on_old_platform,
         update.id
     )
     .fetch_one(conn)

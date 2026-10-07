@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO external_courses(\n    name,\n    description,\n    url,\n    name_embedding,\n    description_embedding\n    )\nVALUES(\n    $1,\n    $2,\n    $3,\n    $4,\n    $5\n    )\nRETURNING\n    id,\n    name,\n    description,\n    url\n        ",
+  "query": "\nINSERT INTO external_courses(\n    name,\n    description,\n    url,\n    name_embedding,\n    description_embedding,\n    on_old_platform\n    )\nVALUES(\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6\n    )\nRETURNING\n    id,\n    name,\n    description,\n    url,\n    on_old_platform\n        ",
   "describe": {
     "columns": [
       {
@@ -46,6 +46,17 @@
             "name": "url"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "on_old_platform",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "on_old_platform"
+          }
+        }
       }
     ],
     "parameters": {
@@ -64,15 +75,17 @@
             "name": "vector",
             "kind": "Simple"
           }
-        }
+        },
+        "Bool"
       ]
     },
     "nullable": [
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "5fc71fad2683694f6af0b05b194eac95182dac1a1c2ebe3157f17dd36f34e7f6"
+  "hash": "54d67a5827bec6837530182931a54eb02b7a5c6eece503797b0140277a01c380"
 }

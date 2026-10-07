@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE external_courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING\n    id,\n    name,\n    description,\n    url\n        ",
+  "query": "\nSELECT\n    id,\n    name,\n    description,\n    url,\n    on_old_platform\nFROM external_courses\nWHERE deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -46,19 +46,29 @@
             "name": "url"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "on_old_platform",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "on_old_platform"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
       false,
       true,
+      false,
       false
     ]
   },
-  "hash": "0d2b615bac92fe18933186476d8d116aa66313be62ebfcbcad6855395a10114e"
+  "hash": "b49a2b27469efae65687abdb0b1eed32b079d574734425a9a1436ffd17cdd2ef"
 }

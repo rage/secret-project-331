@@ -11,7 +11,7 @@ import {
   getExternalCoursesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { nullIfEmpty, TextArea, TextField } from "@/shared-module/components/"
+import { Checkbox, nullIfEmpty, TextArea, TextField } from "@/shared-module/components/"
 
 export interface NewExternalCourseFormProps {
   onSuccess?: () => void
@@ -21,6 +21,7 @@ interface NewExternalCourseFormData {
   name: string
   description: string
   url: string
+  on_old_platform: boolean
 }
 export const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -35,6 +36,7 @@ const NewExternalCourseForm: React.FC<NewExternalCourseFormProps> = ({ onSuccess
       name: "",
       description: "",
       url: "",
+      on_old_platform: false,
     },
   })
 
@@ -61,6 +63,7 @@ const NewExternalCourseForm: React.FC<NewExternalCourseFormProps> = ({ onSuccess
         name: data.name,
         description: data.description,
         url: data.url,
+        on_old_platform: data.on_old_platform,
       },
     })
   })
@@ -95,6 +98,13 @@ const NewExternalCourseForm: React.FC<NewExternalCourseFormProps> = ({ onSuccess
           rules={{
             required: t("field-cannot-be-empty"),
           }}
+        />
+      </FieldContainer>
+      <FieldContainer>
+        <Checkbox
+          control={control}
+          label={t("external-course-form-old-platform")}
+          name={"on_old_platform"}
         />
       </FieldContainer>
     </form>

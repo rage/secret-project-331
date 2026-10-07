@@ -3245,6 +3245,7 @@ export type ExternalCourseOutput = {
   description?: string | null
   id: string
   name: string
+  on_old_platform: boolean
   url: string
 }
 
@@ -3845,6 +3846,7 @@ export type NewExerciseRepository = {
 export type NewExternalCourse = {
   description?: string | null
   name: string
+  on_old_platform: boolean
   url: string
 }
 

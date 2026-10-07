@@ -22688,7 +22688,7 @@
       },
       "ExternalCourseOutput": {
         "type": "object",
-        "required": ["id", "name", "url"],
+        "required": ["id", "name", "url", "on_old_platform"],
         "properties": {
           "description": {
             "type": ["string", "null"]
@@ -22699,6 +22699,9 @@
           },
           "name": {
             "type": "string"
+          },
+          "on_old_platform": {
+            "type": "boolean"
           },
           "url": {
             "type": "string"
@@ -24260,13 +24263,16 @@
       },
       "NewExternalCourse": {
         "type": "object",
-        "required": ["name", "url"],
+        "required": ["name", "url", "on_old_platform"],
         "properties": {
           "description": {
             "type": ["string", "null"]
           },
           "name": {
             "type": "string"
+          },
+          "on_old_platform": {
+            "type": "boolean"
           },
           "url": {
             "type": "string"

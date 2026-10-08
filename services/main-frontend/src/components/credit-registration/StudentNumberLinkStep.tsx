@@ -1,19 +1,28 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { MyCreditRegistration, MyVerifiedStudentNumber } from "@/generated/api/types.generated"
+import type {
+  MyCreditRegistration,
+  MyEnrolmentRoute,
+  MyVerifiedStudentNumber,
+} from "@/generated/api/types.generated"
 import { humanReadableDate } from "@/shared-module/common/utils/time"
 
-import { CREDIT_REGISTRATION_NS } from "./constants"
+import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
+import { missingLinkingEmailSupportMail } from "./studentSupportMail"
 import { bandCss, noteCss, stepsCss, subheadingCss } from "./styles"
-import { studentNumberLinkBand } from "./trackerView"
+import SupportMailLink from "./SupportMailLink"
+import { isLinkingEmailOverdue, studentNumberLinkBand } from "./trackerView"
 import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
+
+const SUPPORT_LINK_IN_TEXT = "link"
 
 export interface StudentNumberLinkStepProps {
   registration: MyCreditRegistration
   verifiedNumber: MyVerifiedStudentNumber | null
+  enrolmentRoute: MyEnrolmentRoute | null
 }
 
 /**
@@ -27,10 +36,15 @@ export interface StudentNumberLinkStepProps {
 export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   registration,
   verifiedNumber,
+  enrolmentRoute,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
-  const band = studentNumberLinkBand(registration, verifiedNumber, { isAccountLinkingEnabled })
+  const [nowMs] = useState(() => Date.now())
+  const band = studentNumberLinkBand(registration, verifiedNumber, {
+    isAccountLinkingEnabled,
+    enrolmentRoute,
+  })
   if (band === null) {
     return null
   }
@@ -70,12 +84,43 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
     )
   }
 
-  if (band.kind === "mailing") {
+  if (band.kind === "awaiting-email") {
+    const supportMail = missingLinkingEmailSupportMail(t, registration.course_name)
     return (
       <section className={bandCss}>
-        <h2 className={subheadingCss}>{t("credit-registration-link-heading-mailing")}</h2>
-        <p>{t("credit-registration-link-mailing-body")}</p>
-        <p className={noteCss}>{t("credit-registration-link-mailing-note")}</p>
+        <h2 className={subheadingCss}>{t("credit-registration-link-heading-awaiting-email")}</h2>
+        <p>
+          {band.isOpenUniversity
+            ? t("credit-registration-link-awaiting-email-body-open-university")
+            : t("credit-registration-link-awaiting-email-body")}
+        </p>
+        {isLinkingEmailOverdue(band.waitingSince, nowMs) ? (
+          <p>
+            {t("credit-registration-link-awaiting-email-overdue")}{" "}
+            <SupportMailLink
+              appearance={SUPPORT_LINK_IN_TEXT}
+              label={SUPPORT_EMAIL}
+              subject={supportMail.subject}
+              bodyLines={supportMail.bodyLines}
+            />
+          </p>
+        ) : (
+          <p className={noteCss}>{t("credit-registration-link-only-once")}</p>
+        )}
+      </section>
+    )
+  }
+
+  if (band.kind === "link-expired") {
+    return (
+      <section className={bandCss}>
+        <h2 className={subheadingCss}>{t("credit-registration-link-heading-expired")}</h2>
+        <p>
+          {t("credit-registration-link-expired-body", {
+            email: band.emailMasked,
+            date: humanReadableDate(band.sentAt, i18n.language),
+          })}
+        </p>
       </section>
     )
   }

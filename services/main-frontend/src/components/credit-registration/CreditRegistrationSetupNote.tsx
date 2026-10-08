@@ -49,11 +49,16 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
       .filter(Boolean)
       .join(MIDDLE_DOT)
 
+  const modules = structureQuery.data?.modules ?? []
+  const isCourseWide = modules.length === 1 && !modules.at(0)?.name
+
   return (
     <div className={proseCss}>
       {enabled.map((config) => (
         <p key={config.course_module_id} className={noteCss}>
-          {t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
+          {isCourseWide
+            ? t("credit-registration-set-up-for-course")
+            : t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
           {settings(config)}
         </p>
       ))}

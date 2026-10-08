@@ -23049,16 +23049,28 @@
           }
         }
       },
+      "LinkingEmailLinkState": {
+        "type": "string",
+        "description": "Whether the link in a linking mail can still be opened.",
+        "enum": ["usable", "expired", "used"]
+      },
       "LinkingEmailStatus": {
         "type": "object",
         "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
-        "required": ["email_send_status", "emailed_to_masked"],
+        "required": ["email_send_status", "emailed_to_masked", "link_state", "can_send_another"],
         "properties": {
+          "can_send_another": {
+            "type": "boolean",
+            "description": "Whether the caps still allow another mail for this course once this link has expired."
+          },
           "email_send_status": {
             "$ref": "#/components/schemas/EmailSendStatus"
           },
           "emailed_to_masked": {
             "type": "string"
+          },
+          "link_state": {
+            "$ref": "#/components/schemas/LinkingEmailLinkState"
           },
           "sent_at": {
             "type": ["string", "null"],

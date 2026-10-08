@@ -35,6 +35,7 @@ use headless_lms_models::{
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
+use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -74,6 +75,18 @@ pub struct LinkingEmailStatus {
     pub email_send_status: EmailSendStatus,
     pub sent_at: Option<DateTime<Utc>>,
     pub emailed_to_masked: String,
+    pub link_state: LinkingEmailLinkState,
+    /// Whether the caps still allow another mail for this course once this link has expired.
+    pub can_send_another: bool,
+}
+
+/// Whether the link in a linking mail can still be opened.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingEmailLinkState {
+    Usable,
+    Expired,
+    Used,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -796,6 +809,7 @@ fn to_my_credit_registration(
 struct LinkingMailCache {
     mails: Vec<CreditRegistrationAccountLinkingEmail>,
     reports: HashMap<Uuid, EmailSendStatusReport>,
+    live_tokens: HashMap<Uuid, StudentNumberVerificationToken>,
 }
 
 /// The latest linking mail for this account's Sisu person on this course. `None` for an account that
@@ -807,9 +821,12 @@ async fn resolve_linking_email(
     cache: &mut Option<LinkingMailCache>,
 ) -> Result<Option<LinkingEmailStatus>, ControllerError> {
     if cache.is_none() {
+        // Only a number proven through its Sisu mailbox is known to be this student's; mails found
+        // through any other unlinked number may be someone else's.
         let mails =
             match verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
                 .await?
+                .filter(|link| link.verified_via == StudentNumberVerificationMethod::EmailedLink)
                 .and_then(|link| link.sisu_person_id)
             {
                 Some(person_id) => {
@@ -824,7 +841,16 @@ async fn resolve_linking_email(
         let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
         let reports =
             credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-        *cache = Some(LinkingMailCache { mails, reports });
+        let token_ids: Vec<Uuid> = mails
+            .iter()
+            .filter_map(|mail| mail.student_number_verification_token_id)
+            .collect();
+        let live_tokens = student_number_verification_tokens::get_by_ids(conn, &token_ids).await?;
+        *cache = Some(LinkingMailCache {
+            mails,
+            reports,
+            live_tokens,
+        });
     }
     let cache = cache.as_ref().ok_or_else(|| {
         controller_err!(
@@ -832,21 +858,41 @@ async fn resolve_linking_email(
             "linking mail cache was not populated".to_string()
         )
     })?;
-    let Some(mail) = cache
+    let mut course_mails = cache
         .mails
         .iter()
-        .find(|mail| mail.course_id == row.course_id)
-    else {
+        .filter(|mail| mail.course_id == row.course_id);
+    let Some(mail) = course_mails.next() else {
         return Ok(None);
     };
     let Some(report) = cache.reports.get(&mail.id) else {
         return Ok(None);
     };
+    let mail_count = 1 + course_mails.count() as i64;
     Ok(Some(LinkingEmailStatus {
         email_send_status: report.email_send_status,
         sent_at: report.sent_at,
         emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
+        link_state: link_state(mail, &cache.live_tokens, Utc::now()),
+        can_send_another: mail_count < MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
     }))
+}
+
+/// Expired tokens are soft-deleted by a cleanup job, so a token missing from `live_tokens` has
+/// lapsed rather than never existed.
+fn link_state(
+    mail: &CreditRegistrationAccountLinkingEmail,
+    live_tokens: &HashMap<Uuid, StudentNumberVerificationToken>,
+    now: DateTime<Utc>,
+) -> LinkingEmailLinkState {
+    let Some(token_id) = mail.student_number_verification_token_id else {
+        return LinkingEmailLinkState::Usable;
+    };
+    match live_tokens.get(&token_id) {
+        Some(token) if token.used_at.is_some() => LinkingEmailLinkState::Used,
+        Some(token) if token.expires_at > now => LinkingEmailLinkState::Usable,
+        _ => LinkingEmailLinkState::Expired,
+    }
 }
 
 fn to_my_verified_student_number(link: VerifiedStudentNumber) -> MyVerifiedStudentNumber {

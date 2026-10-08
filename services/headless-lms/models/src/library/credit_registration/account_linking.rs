@@ -47,7 +47,7 @@ pub const LINKING_MAIL_RESEND_INTERVAL: TimeDelta = TimeDelta::days(7);
 /// included.
 pub const MAX_LINKING_MAILS_PER_PERSON_AND_COURSE: i64 = 3;
 
-/// One person Sisu's `list-by-course` returned, and every address we could reach them at.
+/// One person Sisu's `list-by-course` returned, and the address we mail them at.
 #[derive(Debug, Clone)]
 pub struct DiscoveredPerson {
     pub sisu_person_id: DbSecret,
@@ -55,13 +55,13 @@ pub struct DiscoveredPerson {
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
     pub course_id: Uuid,
-    /// Each address gets its own mail and its own token: we cannot tell which one they read.
+    /// At most their primary address in Sisu; empty when Sisu holds none.
     pub addresses: Vec<DbSecret>,
 }
 
 impl DiscoveredPerson {
-    /// `person` as listed on a roster of `course_id`'s, with every address the registry holds for
-    /// them; the caller decides what an empty address list means.
+    /// `person` as listed on a roster of `course_id`'s; the caller decides what an empty address
+    /// list means.
     pub fn listed(person: &RosterPerson, course_id: Uuid) -> Self {
         Self {
             sisu_person_id: person.person_id.clone().into(),
@@ -74,12 +74,12 @@ impl DiscoveredPerson {
     }
 }
 
-/// Every address the study registry holds for a listed person, in the order it lists them; which
-/// one they read is not something we can know.
+/// Only the primary address: each address mailed spends one of the person's mails for the course,
+/// and the primary is the one students are told to check.
 fn listed_person_addresses(person: &RosterPerson) -> Vec<DbSecret> {
-    [&person.primary_email, &person.secondary_email]
-        .into_iter()
-        .flatten()
+    person
+        .primary_email
+        .iter()
         .filter(|address| !address.expose_secret().trim().is_empty())
         .map(|address| DbSecret::from(address.clone()))
         .collect()

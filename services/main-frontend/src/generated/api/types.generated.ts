@@ -3401,11 +3401,21 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
+ * Whether the link in a linking mail can still be opened.
+ */
+export type LinkingEmailLinkState = "usable" | "expired" | "used"
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export type LinkingEmailStatus = {
+  /**
+   * Whether the caps still allow another mail for this course once this link has expired.
+   */
+  can_send_another: boolean
   email_send_status: EmailSendStatus
   emailed_to_masked: string
+  link_state: LinkingEmailLinkState
   sent_at?: string | null
 }
 

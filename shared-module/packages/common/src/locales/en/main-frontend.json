@@ -1535,7 +1535,7 @@
   "link-student-number-confirm-question": "Check that you are logged in to the account you did the course with.",
   "link-student-number-conflict": "This student number is already linked to another account. Contact support to have it moved to this account.",
   "link-student-number-could-not-link": "We could not link the student number just now. Please try again.",
-  "link-student-number-expired": "This link has expired. Contact support to get a new one.",
+  "link-student-number-expired": "This link has expired. We email you a new one, usually within a week. If none comes, contact support.",
   "link-student-number-not-found": "We do not recognise this link. Check that you copied the whole address from the email.",
   "link-student-number-replaces-current": "This account is currently linked to student number {{current}}. Linking replaces it.",
   "link-student-number-sign-in-required": "Log in or create an account first, and we will bring you back to this link.",

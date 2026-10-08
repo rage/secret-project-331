@@ -122,6 +122,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
       <h3 className={subheadingCss}>
         {t("credit-registration-heading-enrolment-check-roster-codes")}
       </h3>
+      <p className={noteCss}>{t("credit-registration-admin-enrolment-checks-roster-codes-note")}</p>
       <Table
         caption={t("credit-registration-heading-enrolment-check-roster-codes")}
         density={DENSITY_COMPACT}
@@ -178,7 +179,6 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             minWidth: "8rem",
             cell: (row) => <ZonedTimestamp at={row.next_fetch_at} />,
           },
-
           {
             header: t("credit-registration-admin-column-failures"),
             align: ALIGN_END,

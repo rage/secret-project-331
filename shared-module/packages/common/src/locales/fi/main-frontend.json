@@ -1386,7 +1386,7 @@
   "link-student-number-confirm-question": "Tarkista, että olet kirjautunut sille tilille, jolla teit kurssin.",
   "link-student-number-conflict": "Tämä opiskelijanumero on jo liitetty toiseen tiliin. Ota yhteyttä tukeen, niin se siirretään tälle tilille.",
   "link-student-number-could-not-link": "Opiskelijanumeron liittäminen ei onnistunut juuri nyt. Yritä uudelleen.",
-  "link-student-number-expired": "Tämä linkki on vanhentunut. Ota yhteyttä tukeen, niin saat uuden.",
+  "link-student-number-expired": "Tämä linkki on vanhentunut. Lähetämme sinulle uuden, yleensä viikon kuluessa. Jos uutta ei tule, ota yhteyttä tukeen.",
   "link-student-number-not-found": "Emme tunnista tätä linkkiä. Tarkista, että kopioit koko osoitteen sähköpostista.",
   "link-student-number-replaces-current": "Tähän tiliin on liitetty tällä hetkellä opiskelijanumero {{current}}. Liittäminen korvaa sen.",
   "link-student-number-sign-in-required": "Kirjaudu sisään tai luo tili, niin tuomme sinut takaisin tähän linkkiin.",

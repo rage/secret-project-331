@@ -2,6 +2,7 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   asksWhereYouEnrolled,
+  isLinkingEmailOverdue,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -48,6 +49,17 @@ const route = (overrides: Partial<MyEnrolmentRoute> = {}): MyEnrolmentRoute => (
   route: "university_of_helsinki",
   enrolment_confirmed_at: null,
   can_change: true,
+  ...overrides,
+})
+
+const mail = (
+  overrides: Partial<NonNullable<MyCreditRegistration["linking_email"]>> = {},
+): NonNullable<MyCreditRegistration["linking_email"]> => ({
+  email_send_status: "sent",
+  sent_at: "2026-08-20T10:00:00Z",
+  emailed_to_masked: "...@example.com",
+  link_state: "usable",
+  can_send_another: true,
   ...overrides,
 })
 
@@ -115,6 +127,8 @@ describe("whether the student is still asked where they enrol", () => {
             email_send_status: "sent",
             sent_at: "2026-08-20T10:00:00Z",
             emailed_to_masked: "...@example.com",
+            link_state: "usable",
+            can_send_another: true,
           },
         }),
         enrolmentRoute: route(),
@@ -220,7 +234,7 @@ describe("what the linking band says", () => {
     verified_at: "2026-08-21T07:00:00Z",
     verified_via: "emailed_link",
   } as const
-  const linkingOn = { isAccountLinkingEnabled: true }
+  const linkingOn = { isAccountLinkingEnabled: true, enrolmentRoute: route() }
 
   test("promises the number while the credits are still on their way", () => {
     expect(studentNumberLinkBand(registration(), linked, linkingOn)).toEqual({
@@ -287,40 +301,67 @@ describe("what the linking band says", () => {
     })
   })
 
-  test("stops promising a future mail once one is queued", () => {
+  test("stops telling them to enrol once they say they have", () => {
+    expect(
+      studentNumberLinkBand(registration(), null, {
+        isAccountLinkingEnabled: true,
+        enrolmentRoute: route({
+          route: "open_university",
+          enrolment_confirmed_at: "2026-08-21T07:00:00Z",
+        }),
+      }),
+    ).toEqual({
+      kind: "awaiting-email",
+      isOpenUniversity: true,
+      waitingSince: "2026-08-21T07:00:00Z",
+    })
+  })
+
+  test("stops telling them to enrol once a mail is queued", () => {
     expect(
       studentNumberLinkBand(
-        registration({
-          linking_email: { email_send_status: "queued", emailed_to_masked: "...@example.com" },
-        }),
+        registration({ linking_email: mail({ email_send_status: "queued", sent_at: null }) }),
         null,
         linkingOn,
       ),
-    ).toEqual({ kind: "mailing" })
+    ).toEqual({ kind: "awaiting-email", isOpenUniversity: false, waitingSince: null })
   })
 
   test("names the mailbox and the date once a mail has gone out", () => {
+    expect(studentNumberLinkBand(registration({ linking_email: mail() }), null, linkingOn)).toEqual(
+      { kind: "mailed", emailMasked: "...@example.com", sentAt: "2026-08-20T10:00:00Z" },
+    )
+  })
+
+  test("says an expired link will be replaced while the caps allow another", () => {
     expect(
       studentNumberLinkBand(
-        registration({
-          linking_email: {
-            email_send_status: "sent",
-            sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@example.com",
-          },
-        }),
+        registration({ linking_email: mail({ link_state: "expired" }) }),
         null,
         linkingOn,
       ),
-    ).toEqual({ kind: "mailed", emailMasked: "...@example.com", sentAt: "2026-08-20T10:00:00Z" })
+    ).toEqual({
+      kind: "link-expired",
+      emailMasked: "...@example.com",
+      sentAt: "2026-08-20T10:00:00Z",
+    })
+  })
+
+  test("never points at a used link, or an expired one no new mail replaces", () => {
+    for (const linkingEmail of [
+      mail({ link_state: "used" }),
+      mail({ link_state: "expired", can_send_another: false }),
+    ]) {
+      expect(
+        studentNumberLinkBand(registration({ linking_email: linkingEmail }), null, linkingOn),
+      ).toEqual({ kind: "awaiting-enrolment" })
+    }
   })
 
   test("says the mail failed rather than telling them to look for it", () => {
     expect(
       studentNumberLinkBand(
-        registration({
-          linking_email: { email_send_status: "send_failed", emailed_to_masked: "...@example.com" },
-        }),
+        registration({ linking_email: mail({ email_send_status: "send_failed", sent_at: null }) }),
         null,
         linkingOn,
       ),
@@ -328,18 +369,29 @@ describe("what the linking band says", () => {
   })
 
   test("promises no mail while account linking is off", () => {
-    const linkingOff = { isAccountLinkingEnabled: false }
+    const linkingOff = { isAccountLinkingEnabled: false, enrolmentRoute: route() }
     expect(studentNumberLinkBand(registration(), null, linkingOff)).toEqual({
       kind: "staff-links",
     })
     expect(
       studentNumberLinkBand(
         registration({
-          linking_email: { email_send_status: "queued", emailed_to_masked: "...@example.com" },
+          linking_email: mail({ email_send_status: "queued", sent_at: null }),
         }),
         null,
         linkingOff,
       ),
     ).toEqual({ kind: "staff-links" })
+  })
+})
+
+describe("when a missing linking email is worth a mail to support", () => {
+  const pressedAt = "2026-08-21T07:00:00Z"
+  const day = 24 * 60 * 60 * 1000
+
+  test("only two days after they said they enrolled", () => {
+    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + day)).toBe(false)
+    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + 2 * day)).toBe(true)
+    expect(isLinkingEmailOverdue(null, Date.parse(pressedAt) + 30 * day)).toBe(false)
   })
 })

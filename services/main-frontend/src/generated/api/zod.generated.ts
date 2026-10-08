@@ -3155,11 +3155,18 @@ export const zLegacyLedgerDivergenceRow = z.object({
 })
 
 /**
+ * Whether the link in a linking mail can still be opened.
+ */
+export const zLinkingEmailLinkState = z.enum(["usable", "expired", "used"])
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export const zLinkingEmailStatus = z.object({
+  can_send_another: z.boolean(),
   email_send_status: zEmailSendStatus,
   emailed_to_masked: z.string(),
+  link_state: zLinkingEmailLinkState,
   sent_at: z.iso.datetime().nullish(),
 })
 

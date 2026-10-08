@@ -2,7 +2,10 @@
 // integration crates, so the crate-level deny has to be waived here by hand.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use std::{env, sync::Arc};
+use std::{
+    env,
+    sync::{Arc, Once},
+};
 
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
@@ -13,7 +16,10 @@ use headless_lms_models::{
     organizations::{self, Organization},
 };
 use headless_lms_server::{
-    config::{ServerConfig, ServerConfigBuilder},
+    config::{
+        FileStoreRuntimeConfig, ServerConfig, ServerConfigBuilder, ServerRuntimeConfig,
+        server_runtime_config, set_server_runtime_config,
+    },
     domain::models_requests::JwtKey,
     setup_tracing,
 };
@@ -28,6 +34,10 @@ use uuid::Uuid;
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
+static SERVER_RUNTIME_CONFIG_INIT: Once = Once::new();
+
+const PRIVATE_COOKIE_KEY: &str =
+    "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
 
 fn running_in_kubernetes() -> bool {
     env::var_os("KUBERNETES_SERVICE_HOST").is_some()
@@ -79,22 +89,59 @@ pub fn make_jwt_key() -> JwtKey {
     JwtKey::test_key()
 }
 
+/// The process-wide [`ServerRuntimeConfig`] for tests, set on first use because request-path code
+/// such as the rate limiter's bypass reads it through [`server_runtime_config`].
+async fn test_runtime_config() -> &'static ServerRuntimeConfig {
+    let database_url = init_db().await;
+    SERVER_RUNTIME_CONFIG_INIT.call_once(|| {
+        let app_conf = ApplicationConfiguration::mock_conf()
+            .expect("Failed to build the mock application configuration");
+        set_server_runtime_config(ServerRuntimeConfig {
+            database_url: SecretString::new(database_url.into()),
+            oauth_application_id: "some-id".to_string(),
+            oauth_secret: SecretString::new("some-secret".into()),
+            icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
+            redis_url: SecretString::new("redis://example.com".into()),
+            mock_suotar_redis_db_index: 2,
+            private_cookie_key: SecretString::new(PRIVATE_COOKIE_KEY.into()),
+            test_mode: app_conf.test_mode,
+            allow_no_https_for_development: true,
+            host: "0.0.0.0".to_string(),
+            port: "3001".to_string(),
+            file_store: FileStoreRuntimeConfig {
+                use_google_cloud_storage: false,
+                google_cloud_storage_bucket_name: None,
+            },
+            tmc_server_secret_for_communicating_to_secret_project: SecretString::new(
+                "integration-test-intentionally-public".into(),
+            ),
+            ratelimit_protection_safe_api_key: SecretString::new(
+                "integration-test-intentionally-public".into(),
+            ),
+            pod_namespace: "default".to_string(),
+            app_conf,
+        })
+        .expect("Failed to set the server runtime configuration");
+    });
+    server_runtime_config()
+}
+
 pub async fn test_config() -> ServerConfig {
+    let runtime_config = test_runtime_config().await;
     ServerConfigBuilder {
-        database_url: SecretString::new(init_db().await.into()),
-        oauth_application_id: "some-id".to_string(),
-        oauth_secret: SecretString::new("some-secret".into()),
+        database_url: runtime_config.database_url.clone(),
+        oauth_application_id: runtime_config.oauth_application_id.clone(),
+        oauth_secret: runtime_config.oauth_secret.clone(),
         auth_url: "https://example.com".parse().unwrap(),
         token_url: "https://example.com/token".parse().unwrap(),
-        icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
+        icu4x_postcard_path: runtime_config.icu4x_postcard_path.clone(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store")
         })),
-        app_conf: ApplicationConfiguration::mock_conf()
-            .expect("Failed to build the mock application configuration"),
-        redis_url: SecretString::new("redis://example.com".into()),
-        mock_suotar_redis_db_index: 2,
+        app_conf: runtime_config.app_conf.clone(),
+        redis_url: runtime_config.redis_url.clone(),
+        mock_suotar_redis_db_index: runtime_config.mock_suotar_redis_db_index,
         tmc_client: TmcClient::mock_for_test(),
         sisu_client: SisuClient::mock_for_test(),
     }
@@ -112,8 +159,6 @@ pub async fn init_actix() -> (
     unsafe { env::set_var("OAUTH_APPLICATION_ID", "some-id") };
     // TODO: Audit that the environment access only happens in single-threaded code.
     unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
-    let private_cookie_key =
-        "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
     let server_config = test_config().await;
     let pool = server_config.db_pool.clone().into_inner().as_ref().clone();
     let app = App::new()
@@ -121,7 +166,7 @@ pub async fn init_actix() -> (
         .wrap(
             SessionMiddleware::builder(
                 CookieSessionStore::default(),
-                Key::from(private_cookie_key.as_bytes()),
+                Key::from(PRIVATE_COOKIE_KEY.as_bytes()),
             )
             .cookie_name("session".to_string())
             .cookie_secure(false)

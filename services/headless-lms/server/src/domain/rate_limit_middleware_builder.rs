@@ -1,4 +1,5 @@
-use crate::domain::authentication::session_user_id;
+use crate::config::server_runtime_config;
+use crate::domain::authentication::{constant_time_eq_str, session_user_id};
 use actix_session::SessionExt;
 use actix_web::{
     Error, HttpResponse,
@@ -12,6 +13,9 @@ use governor::{
     clock::{Clock, DefaultClock},
     state::keyed::DefaultKeyedStateStore,
 };
+use secrecy::ExposeSecret;
+#[cfg(test)]
+use secrecy::SecretString;
 use std::{
     num::NonZeroU32,
     sync::{
@@ -39,6 +43,19 @@ pub enum RateLimitKey {
     /// The signed-in user, falling back to the client IP for anonymous requests. For endpoints
     /// that act on the caller's own data, where users behind one NAT address must not share a quota.
     User,
+}
+
+/// Request header whose value, when equal to `RATELIMIT_PROTECTION_SAFE_API_KEY`, skips a
+/// [`RateLimit::bypassable`] limiter. tmc-server sends it, and we send it to tmc-server.
+pub const RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER: &str = "RATELIMIT-PROTECTION-SAFE-API-KEY";
+
+/// Which key, if any, lets a request skip the limiter.
+#[derive(Clone)]
+enum Bypass {
+    Off,
+    RuntimeConfigKey,
+    #[cfg(test)]
+    Key(SecretString),
 }
 
 type Key = String;
@@ -108,6 +125,7 @@ fn build_custom_period_limiter(n: u64, period: Duration) -> Option<Arc<Limiter>>
 pub struct RateLimit {
     limiters: Arc<EndpointLimiters>,
     key: RateLimitKey,
+    bypass: Bypass,
     calls: Arc<AtomicU64>,
 }
 
@@ -134,6 +152,7 @@ impl RateLimit {
         Self {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
             key: RateLimitKey::default(),
+            bypass: Bypass::Off,
             calls: Arc::new(AtomicU64::new(0)),
         }
     }
@@ -141,6 +160,24 @@ impl RateLimit {
     /// Shares each quota by `key` instead of by client IP.
     pub fn keyed_by(self, key: RateLimitKey) -> Self {
         Self { key, ..self }
+    }
+
+    /// Lets requests carrying the configured `RATELIMIT_PROTECTION_SAFE_API_KEY` in
+    /// [`RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER`] skip this limiter, for trusted servers that
+    /// call on behalf of many users from one IP. Never use it on brute-force limiters.
+    pub fn bypassable(self) -> Self {
+        Self {
+            bypass: Bypass::RuntimeConfigKey,
+            ..self
+        }
+    }
+
+    #[cfg(test)]
+    fn bypassable_with(self, safe_api_key: SecretString) -> Self {
+        Self {
+            bypass: Bypass::Key(safe_api_key),
+            ..self
+        }
     }
 }
 
@@ -160,6 +197,7 @@ where
             service,
             limiters: self.limiters.clone(),
             key: self.key,
+            bypass: self.bypass.clone(),
             calls: self.calls.clone(),
         }))
     }
@@ -169,7 +207,29 @@ pub struct RateLimitInner<S> {
     service: S,
     limiters: Arc<EndpointLimiters>,
     key: RateLimitKey,
+    bypass: Bypass,
     calls: Arc<AtomicU64>,
+}
+
+impl<S> RateLimitInner<S> {
+    fn carries_bypass_key(&self, req: &ServiceRequest) -> bool {
+        let Some(provided) = req
+            .headers()
+            .get(RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER)
+            .and_then(|value| value.to_str().ok())
+        else {
+            return false;
+        };
+        let expected = match &self.bypass {
+            Bypass::Off => return false,
+            Bypass::RuntimeConfigKey => server_runtime_config()
+                .ratelimit_protection_safe_api_key
+                .expose_secret(),
+            #[cfg(test)]
+            Bypass::Key(key) => key.expose_secret(),
+        };
+        !expected.is_empty() && constant_time_eq_str(provided, expected)
+    }
 }
 
 impl<S, B> Service<ServiceRequest> for RateLimitInner<S>
@@ -186,7 +246,7 @@ where
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if self.limiters.is_empty() {
+        if self.limiters.is_empty() || self.carries_bypass_key(&req) {
             let fut = self.service.call(req);
             return Box::pin(async move { fut.await.map(|r| r.map_into_left_body()) });
         }
@@ -550,5 +610,63 @@ mod tests {
 
         assert_eq!(a2.status(), StatusCode::TOO_MANY_REQUESTS);
         assert_eq!(b2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    async fn call_get_with_safe_api_key<S>(
+        app: &S,
+        safe_api_key: &str,
+    ) -> ServiceResponse<EitherBody<BoxBody>>
+    where
+        S: Service<Request, Response = ServiceResponse<EitherBody<BoxBody>>, Error = Error>,
+    {
+        let req = test::TestRequest::get()
+            .uri("/")
+            .insert_header(("x-forwarded-for", "1.2.3.4"))
+            .insert_header((RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER, safe_api_key))
+            .to_request();
+        test::call_service(app, req).await
+    }
+
+    #[actix_web::test]
+    async fn bypassable_limiter_skips_requests_with_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("safe-key".into())).await;
+
+        for _ in 0..3 {
+            let resp = call_get_with_safe_api_key(&app, "safe-key").await;
+            assert_eq!(resp.status(), StatusCode::OK);
+        }
+    }
+
+    #[actix_web::test]
+    async fn bypassable_limiter_limits_wrong_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("safe-key".into())).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "wrong-key").await;
+        let r2 = call_get_with_safe_api_key(&app, "wrong-key").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    #[actix_web::test]
+    async fn non_bypassable_limiter_limits_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None)).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "safe-key").await;
+        let r2 = call_get_with_safe_api_key(&app, "safe-key").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    #[actix_web::test]
+    async fn empty_configured_safe_api_key_never_bypasses() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("".into())).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "").await;
+        let r2 = call_get_with_safe_api_key(&app, "").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
     }
 }

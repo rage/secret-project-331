@@ -1,11 +1,21 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import {
+  CheckCircle,
+  Clock,
+  ExclamationTriangle,
+  MinusCircle,
+  StopCircle,
+  XmarkCircle,
+} from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { AdminCreditRegistrationDetails } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import type { RegistrationStatusState } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
@@ -15,7 +25,7 @@ import { deriveRegistrationSteps } from "./registrationSteps"
 import type { RegistrationStep, RegistrationStepStatus } from "./registrationSteps"
 import { subStateExplanations } from "./registrationSubStates"
 
-const DOT_SIZE = "0.75rem"
+const MARKER_SIZE = 16
 
 const listCss = css`
   display: flex;
@@ -36,7 +46,7 @@ const itemCss = css`
   flex: 1;
   min-width: 0;
   padding: 0 0 1rem 1.5rem;
-  border-left: 2px solid var(--color-gray-300);
+  border-left: 2px solid var(--color-gray-400);
 
   &:last-child {
     padding-bottom: 0;
@@ -45,25 +55,36 @@ const itemCss = css`
   ${respondToOrLarger.sm} {
     padding: 1.25rem 0 0;
     border-left: 0;
-    border-top: 2px solid var(--color-gray-300);
+    border-top: 2px solid var(--color-gray-400);
   }
 `
 
-const dotCss = css`
+/** Opaque so the connector line does not run through the glyph. */
+const markerCss = css`
   position: absolute;
   top: 0;
   left: 0;
-  width: ${DOT_SIZE};
-  height: ${DOT_SIZE};
+  display: flex;
+  width: ${MARKER_SIZE}px;
+  height: ${MARKER_SIZE}px;
   box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  border: 2px solid var(--dot-color);
-  background: var(--dot-fill);
+  background: var(--color-primary-100);
   transform: translate(calc(-50% - 1px), 0);
 
   ${respondToOrLarger.sm} {
     transform: translate(0, calc(-50% - 1px));
   }
+`
+
+const ringCss = css`
+  width: 0.75rem;
+  height: 0.75rem;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-radius: 50%;
 `
 
 const labelCss = css`
@@ -77,42 +98,40 @@ const detailCss = css`
   color: var(--color-gray-600);
 `
 
-const currentLabelCss = css`
-  color: var(--color-blue-700);
-`
+type MarkerIcon = React.ComponentType<{ size?: number }>
 
-const STATUS_STYLE: Record<RegistrationStepStatus, string> = {
-  done: css`
-    --dot-color: var(--color-green-700);
-    --dot-fill: var(--color-green-700);
-  `,
-  current: css`
-    --dot-color: var(--color-blue-600);
-    --dot-fill: var(--color-blue-600);
-  `,
-  stopped: css`
-    --dot-color: var(--color-red-700);
-    --dot-fill: var(--color-red-700);
-  `,
-  skipped: css`
-    --dot-color: var(--color-gray-400);
-    --dot-fill: var(--color-gray-100);
-  `,
-  upcoming: css`
-    --dot-color: var(--color-gray-400);
-    --dot-fill: transparent;
-  `,
+interface Marker {
+  Icon: MarkerIcon | null
+  colorCss: string
 }
 
-const STOPPED_STYLE = {
-  failed: css`
-    --dot-color: var(--color-crimson-700);
-    --dot-fill: var(--color-crimson-700);
-  `,
-  neutral: css`
-    --dot-color: var(--color-gray-500);
-    --dot-fill: var(--color-gray-500);
-  `,
+const inkCss = (color: string): string => css`
+  color: ${color};
+`
+
+const MARKERS = {
+  done: { Icon: CheckCircle, colorCss: inkCss("var(--color-green-700)") },
+  current: { Icon: Clock, colorCss: inkCss("var(--color-gray-600)") },
+  skipped: { Icon: MinusCircle, colorCss: inkCss("var(--color-gray-400)") },
+  upcoming: { Icon: null, colorCss: inkCss("var(--color-gray-400)") },
+  stoppedFailed: { Icon: XmarkCircle, colorCss: inkCss("var(--color-crimson-700)") },
+  stoppedNeedsAction: { Icon: ExclamationTriangle, colorCss: inkCss("var(--color-red-700)") },
+  stoppedIdle: { Icon: StopCircle, colorCss: inkCss("var(--color-gray-500)") },
+} as const satisfies Record<string, Marker>
+
+const markerFor = (status: RegistrationStepStatus, tone: RegistrationStatusState): Marker => {
+  if (status !== "stopped") {
+    return MARKERS[status]
+  }
+  switch (tone) {
+    case "failed":
+      return MARKERS.stoppedFailed
+    case "upcoming":
+    case "superseded":
+      return MARKERS.stoppedIdle
+    default:
+      return MARKERS.stoppedNeedsAction
+  }
 }
 
 const stepLabel = (t: CreditRegistrationTFunction, step: RegistrationStep): string => {
@@ -135,6 +154,21 @@ const stepLabel = (t: CreditRegistrationTFunction, step: RegistrationStep): stri
       return t("credit-registration-admin-stepper-partial")
     case "registered":
       return t("credit-registration-admin-stepper-registered")
+  }
+}
+
+const stepStatusWord = (t: CreditRegistrationTFunction, status: RegistrationStepStatus): string => {
+  switch (status) {
+    case "done":
+      return t("credit-registration-admin-stepper-done")
+    case "current":
+      return t("credit-registration-admin-stepper-in-progress")
+    case "stopped":
+      return t("credit-registration-admin-stepper-stopped")
+    case "skipped":
+      return t("credit-registration-admin-stepper-skipped")
+    case "upcoming":
+      return t("credit-registration-admin-stepper-upcoming")
   }
 }
 
@@ -172,22 +206,18 @@ const RegistrationStepper: React.FC<{ details: AdminCreditRegistrationDetails; n
   return (
     <ol className={listCss} aria-label={t("credit-registration-admin-stepper-label")}>
       {steps.map((step) => {
-        const stoppedStyle =
-          step.status === "stopped"
-            ? tone === "failed"
-              ? STOPPED_STYLE.failed
-              : tone === "upcoming"
-                ? STOPPED_STYLE.neutral
-                : undefined
-            : undefined
+        const { Icon, colorCss } = markerFor(step.status, tone)
         return (
           <li
             key={step.key}
-            className={cx(itemCss, STATUS_STYLE[step.status], stoppedStyle)}
+            className={itemCss}
             aria-current={step.status === "current" ? "step" : undefined}
           >
-            <span className={dotCss} aria-hidden />
-            <div className={cx(labelCss, step.status === "current" && currentLabelCss)}>
+            <span className={cx(markerCss, colorCss)}>
+              {Icon ? <Icon size={MARKER_SIZE} /> : <span className={ringCss} />}
+            </span>
+            <div className={labelCss}>
+              <VisuallyHidden>{stepStatusWord(t, step.status)}: </VisuallyHidden>
               {stepLabel(t, step)}
             </div>
             <div className={detailCss}>{stepDetail(t, step, activeText)}</div>

@@ -599,12 +599,12 @@ pub async fn admin_request_enrolment_list_fetch(
     let mut schedule = credit_registration_roster_schedules::get_schedules(
         &mut conn,
         None,
-        ScheduleSelection::Every,
+        ScheduleSelection::Code(course_code),
         app_conf.suotar_configuration.account_linking_since,
     )
     .await?
     .into_iter()
-    .find(|schedule| schedule.course_code == course_code)
+    .next()
     .ok_or_else(|| {
         controller_err!(
             NotFound,

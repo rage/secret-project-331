@@ -347,14 +347,20 @@ describe("what the linking band says", () => {
     })
   })
 
-  test("never points at a used link, or an expired one no new mail replaces", () => {
+  test("sends them to support once no new mail can replace a used or expired link", () => {
+    const confirmed = {
+      isAccountLinkingEnabled: true,
+      enrolmentRoute: route({ enrolment_confirmed_at: "2026-08-21T07:00:00Z" }),
+    }
     for (const linkingEmail of [
       mail({ link_state: "used" }),
       mail({ link_state: "expired", can_send_another: false }),
     ]) {
-      expect(
-        studentNumberLinkBand(registration({ linking_email: linkingEmail }), null, linkingOn),
-      ).toEqual({ kind: "awaiting-enrolment" })
+      for (const options of [linkingOn, confirmed]) {
+        expect(
+          studentNumberLinkBand(registration({ linking_email: linkingEmail }), null, options),
+        ).toEqual({ kind: "contact-support" })
+      }
     }
   })
 

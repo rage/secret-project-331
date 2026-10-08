@@ -84,6 +84,24 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
     )
   }
 
+  if (band.kind === "contact-support") {
+    const supportMail = missingLinkingEmailSupportMail(t, registration.course_name)
+    return (
+      <section className={bandCss}>
+        <h2 className={subheadingCss}>{t("credit-registration-link-heading-not-connected")}</h2>
+        <p>
+          {t("credit-registration-link-contact-support-body")}{" "}
+          <SupportMailLink
+            appearance={SUPPORT_LINK_IN_TEXT}
+            label={SUPPORT_EMAIL}
+            subject={supportMail.subject}
+            bodyLines={supportMail.bodyLines}
+          />
+        </p>
+      </section>
+    )
+  }
+
   if (band.kind === "awaiting-email") {
     const supportMail = missingLinkingEmailSupportMail(t, registration.course_name)
     return (

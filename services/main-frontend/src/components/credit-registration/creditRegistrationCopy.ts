@@ -11,6 +11,14 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, translateKey, widenedLookup } from "./labelFrom"
 
+/**
+ * Whether credit registration copy names the course rather than a module: only for a course with
+ * nothing but its default module. Pass the names of all the course's modules, registering or not.
+ */
+export const hasOnlyDefaultModule = (
+  moduleNames: readonly (string | null | undefined)[],
+): boolean => moduleNames.length === 1 && !moduleNames[0]
+
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
   needs_student_number: "action-needed",

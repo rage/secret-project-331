@@ -722,7 +722,8 @@ WHERE reported.user_id = ANY($1::uuid [])
     FROM study_registry_student_number_conflicts dismissed
     WHERE dismissed.user_id = reported.user_id
       AND dismissed.student_number = reported.student_number
-      AND dismissed.deleted_at IS NOT NULL
+      AND dismissed.dismissed_at IS NOT NULL
+      AND dismissed.deleted_at IS NULL
   )
 ON CONFLICT DO NOTHING
         "#,

@@ -5,6 +5,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 import { ChevronIcon } from "@/shared-module/components/components/primitives/ChevronIcon"
 
@@ -21,6 +22,7 @@ import { linkingEmailShortLabel } from "./teacherCreditRegistrations"
 
 interface Props {
   registration: CourseCreditRegistration
+  isCourseWide?: boolean
 }
 
 /** The badge's padding, its icon and the chevron, none of which text measurement can see. */
@@ -121,7 +123,7 @@ const CHEVRON_RIGHT = "right" as const
  * A failure's reason goes on a second line: a column of identical "Failed" pills cannot tell a
  * course-wide cause (no course code) from a per-student one (student not found in Sisu).
  */
-const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
+const CreditRegistrationStatusCell: React.FC<Props> = ({ registration, isCourseWide }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const [open, setOpen] = useState(false)
   const label = registrationStatusTeacherLabel(t, registration.student_facing_status)
@@ -153,6 +155,7 @@ const CreditRegistrationStatusCell: React.FC<Props> = ({ registration }) => {
           registration={registration}
           open={open}
           onClose={() => setOpen(false)}
+          {...omitUndefined({ isCourseWide })}
         />
       )}
     </>

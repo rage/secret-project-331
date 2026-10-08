@@ -845,6 +845,7 @@
   "credit-registration-link-awaiting-email-body": "Kun ilmoittautumisesi näkyy Sisussa, lähetämme liitosviestin Sisussa olevaan ensisijaiseen sähköpostiosoitteeseesi, yleensä kahden tunnin kuluessa. Avaa sen linkki, kun olet kirjautunut tälle tilille. Näin opiskelijanumerosi liitetään tiliin, ja kirjaamme suorituksesi.",
   "credit-registration-link-awaiting-email-body-open-university": "Kun Avoin yliopisto on hyväksynyt ilmoittautumisesi, lähetämme liitosviestin Sisussa olevaan ensisijaiseen sähköpostiosoitteeseesi, yleensä kahden tunnin kuluessa siitä. Avaa sen linkki, kun olet kirjautunut tälle tilille. Näin opiskelijanumerosi liitetään tiliin, ja kirjaamme suorituksesi.",
   "credit-registration-link-awaiting-email-overdue": "Eikö viestiä ole tullut kahdessa päivässä siitä, kun kerroit ilmoittautuneesi? Lähetä tuelle sähköpostia ja kerro opiskelijanumerosi:",
+  "credit-registration-link-contact-support-body": "Emme voi lähettää sinulle uutta liitosviestiä. Lähetä tuelle sähköpostia ja kerro opiskelijanumerosi, niin tuki liittää sen tähän tiliin:",
   "credit-registration-link-expired-body": "Linkki, jonka lähetimme osoitteeseen {{email}} {{date}}, ei enää toimi. Lähetämme sinulle uuden liitosviestin, yleensä viikon kuluessa.",
   "credit-registration-link-heading-awaiting-email": "Odota liitosviestiä Sisussa olevaan sähköpostiisi",
   "credit-registration-link-heading-expired": "Liitosviestisi linkki on vanhentunut",

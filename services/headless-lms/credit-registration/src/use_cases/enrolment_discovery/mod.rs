@@ -10,10 +10,13 @@
 mod listing;
 mod reconcile;
 
+use std::collections::HashSet;
+
 use headless_lms_models::course_module_suotar_configurations::ModuleToList;
 use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{
-    RosterSchedule, ScheduleSelection, ensure_rows, get_modules_by_code, get_schedules,
+    RosterSchedule, ScheduleSelection, count_press_fetches, ensure_rows, get_modules_by_code,
+    get_schedules,
 };
 use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
@@ -47,10 +50,8 @@ pub(crate) async fn run<R: StudyRegistry>(
         return Ok(Counts::default());
     }
     let mut conn = pool.acquire().await?;
-    let due = load_due_roster_codes(&mut conn, scope.course_id, account_linking_since).await?;
-    let planned = plan_roster_requests(due, request_limit, registry.roster_request_size());
-    let requests = load_listing_modules(&mut conn, scope.course_id, planned).await?;
-    // Claims made during a pause would all go out at once on resume.
+    // Claims made during a pause would all go out at once on resume. Nobody counts as waiting
+    // meanwhile either, so rungs and presses are left for a fetch that can claim mail.
     let mailing_since = if credit_registration_phase_state::is_paused(
         &mut conn,
         CreditRegistrationPhase::LinkEmails.as_str(),
@@ -61,6 +62,17 @@ pub(crate) async fn run<R: StudyRegistry>(
     } else {
         account_linking_since
     };
+    let (due, press_driven) =
+        load_due_roster_codes(&mut conn, scope.course_id, mailing_since).await?;
+    let planned = plan_roster_requests(due, request_limit, registry.roster_request_size());
+    let press_fetched: Vec<String> = planned
+        .iter()
+        .flatten()
+        .map(|code| code.course_code.as_str().to_string())
+        .filter(|course_code| press_driven.contains(course_code))
+        .collect();
+    count_press_fetches(&mut conn, &press_fetched).await?;
+    let requests = load_listing_modules(&mut conn, scope.course_id, planned).await?;
     drop(conn);
 
     let mut counts = Counts::default();
@@ -70,7 +82,8 @@ pub(crate) async fn run<R: StudyRegistry>(
         counts += fetched.counts;
         new_mail_count += fetched.new_mail_count;
     }
-    if new_mail_count > 0 {
+    // A scoped run writes nothing to the phase-state row.
+    if new_mail_count > 0 && scope.is_unscoped() {
         let mut conn = pool.acquire().await?;
         credit_registration_phase_state::run_now(
             &mut conn,
@@ -82,12 +95,12 @@ pub(crate) async fn run<R: StudyRegistry>(
 }
 
 /// The codes whose enrolment lists are due, those with people waiting first, then by when each
-/// fell due.
+/// fell due, and of them the ones due only because of presses.
 async fn load_due_roster_codes(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
     account_linking_since: Option<DateTime<Utc>>,
-) -> CreditRegistrationResult<Vec<RosterCode>> {
+) -> CreditRegistrationResult<(Vec<RosterCode>, HashSet<String>)> {
     let now = Utc::now();
     ensure_rows(conn, course_id).await?;
     let mut due: Vec<RosterSchedule> = get_schedules(
@@ -101,7 +114,12 @@ async fn load_due_roster_codes(
     .filter(|schedule| schedule.is_due(now))
     .collect();
     due.sort_by_key(|schedule| (schedule.waiting_count == 0, schedule.next_fetch_at(now)));
-    Ok(due
+    let press_driven = due
+        .iter()
+        .filter(|schedule| schedule.is_due_by_presses_alone(now))
+        .map(|schedule| schedule.course_code.clone())
+        .collect();
+    let codes = due
         .into_iter()
         .filter_map(|schedule| {
             Some(RosterCode {
@@ -109,7 +127,8 @@ async fn load_due_roster_codes(
                 is_fetched_alone: schedule.is_fetched_alone,
             })
         })
-        .collect())
+        .collect();
+    Ok((codes, press_driven))
 }
 
 /// Groups due codes into requests in the order given: a code fetched alone in one of its own, the

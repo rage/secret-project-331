@@ -41,6 +41,7 @@ import {
 } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
+import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
 import type { FailureOwner, FailureRemedy } from "./registrationFailures"
 import { FAILURE_OWNERS, failureOwnerHeading, failureRemedy } from "./registrationFailures"
 import type { RegistrationStatusView } from "./registrationStatusViews"
@@ -385,10 +386,9 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
         }
         const configOf = (id: string) =>
           configsQuery.data?.find((config) => config.course_module_id === id)
-        const enabledModules = summary.modules.filter((module) => module.enabled)
-        // A course whose only registering module is its default one reads as the course itself.
-        const isCourseWide =
-          enabledModules.length === 1 && !enabledModules.at(0)?.course_module_name
+        const isCourseWide = hasOnlyDefaultModule(
+          summary.modules.map((module) => module.course_module_name),
+        )
         const nameOf = (module: CourseCreditRegistrationModuleSummary) =>
           module.course_module_name ?? (isCourseWide ? t("course") : t("default-module"))
         const isAnyModulePaused = shownModules.some((module) => module.paused)

@@ -1,3 +1,11 @@
+ALTER TABLE study_registry_student_number_conflicts DROP COLUMN dismissed_at;
+ALTER TABLE credit_registration_enrolment_check_signals DROP COLUMN visit_ladder_anchor_at,
+  DROP COLUMN check_request_ladder_anchor_at;
+ALTER TABLE credit_registration_roster_schedules DROP CONSTRAINT credit_registration_roster_schedules_press_fetch_count,
+  DROP COLUMN last_fetch_started_at,
+  DROP COLUMN last_mailing_fetch_started_at,
+  DROP COLUMN press_fetch_day,
+  DROP COLUMN press_fetch_count;
 DROP INDEX uq_account_linking_email_person_course_address;
 UPDATE credit_registration_account_linking_emails
 SET deleted_at = replaced_at

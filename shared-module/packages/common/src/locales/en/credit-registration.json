@@ -845,6 +845,7 @@
   "credit-registration-link-awaiting-email-body": "Once your enrolment shows in Sisu, we send a linking email to your primary email address in Sisu, usually within two hours. Open its link while you are logged in to this account. That links your student number, and we register your completion.",
   "credit-registration-link-awaiting-email-body-open-university": "Once the Open University accepts your enrolment, we send a linking email to your primary email address in Sisu, usually within two hours of that. Open its link while you are logged in to this account. That links your student number, and we register your completion.",
   "credit-registration-link-awaiting-email-overdue": "Still no email two days after you said you enrolled? Email support with your student number:",
+  "credit-registration-link-contact-support-body": "We cannot send you another linking email. Email support with your student number, and they link it to this account:",
   "credit-registration-link-expired-body": "The link we sent to {{email}} on {{date}} no longer works. We send you a new linking email, usually within a week.",
   "credit-registration-link-heading-awaiting-email": "Watch your Sisu email for the linking email",
   "credit-registration-link-heading-expired": "Your linking email has expired",

@@ -1410,6 +1410,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/enrolment-route/confirm")
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(5),
+                        per_hour: Some(30),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
                 .route(web::post().to(confirm_my_enrolment))
                 .route(web::delete().to(withdraw_my_enrolment_confirmation)),
         )

@@ -28,6 +28,7 @@ pub async fn count_unresolved(conn: &mut PgConnection) -> ModelResult<i64> {
 SELECT COUNT(*) AS "count!"
 FROM study_registry_student_number_conflicts c
 WHERE c.deleted_at IS NULL
+  AND c.dismissed_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM verified_student_numbers vsn
@@ -70,6 +71,7 @@ FROM study_registry_student_number_conflicts c
   LEFT JOIN user_details ud ON ud.user_id = c.user_id
   LEFT JOIN user_details holder ON holder.user_id = vsn.user_id
 WHERE c.deleted_at IS NULL
+  AND c.dismissed_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM verified_student_numbers held
@@ -118,7 +120,8 @@ WHERE link.id = $1
     FROM study_registry_student_number_conflicts dismissed
     WHERE dismissed.user_id = reported.user_id
       AND dismissed.student_number = reported.student_number
-      AND dismissed.deleted_at IS NOT NULL
+      AND dismissed.dismissed_at IS NOT NULL
+      AND dismissed.deleted_at IS NULL
   )
 ON CONFLICT DO NOTHING
         "#,
@@ -130,15 +133,16 @@ ON CONFLICT DO NOTHING
     Ok(())
 }
 
-/// Soft-deletes a conflict an admin has dismissed, which keeps the same account and number from
-/// being recorded again. Returns false when it was already gone.
+/// Takes a conflict off the list for good: the same account and number are not recorded again.
+/// Returns false when it was already dismissed or is gone.
 pub async fn dismiss(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
     let res = sqlx::query!(
         r#"
 UPDATE study_registry_student_number_conflicts
-SET deleted_at = now()
+SET dismissed_at = now()
 WHERE id = $1
   AND deleted_at IS NULL
+  AND dismissed_at IS NULL
         "#,
         id,
     )

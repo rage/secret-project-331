@@ -42,10 +42,11 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         .collect();
     let module_count: usize = request.iter().map(|listing| listing.modules.len()).sum();
     let attempted = i32::try_from(module_count).unwrap_or(i32::MAX);
-    {
+    let started_at = {
         let mut conn = pool.acquire().await?;
-        mark_attempted(&mut conn, &codes).await?;
-    }
+        mark_attempted(&mut conn, &codes).await?
+    };
+    let could_claim_mail = account_linking_since.is_some();
     let roster_codes: Vec<RosterCode> =
         request.iter().map(|listing| listing.code.clone()).collect();
     let listed = registry.list_course_roster(&roster_codes).await;
@@ -74,8 +75,15 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
                     reconcile_roster(&mut conn, listing, people, account_linking_since).await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
-                let previous_fetch_at =
-                    mark_fetched(&mut conn, course_code, person_count, duration_ms).await?;
+                let previous_fetch_at = mark_fetched(
+                    &mut conn,
+                    course_code,
+                    started_at,
+                    could_claim_mail,
+                    person_count,
+                    duration_ms,
+                )
+                .await?;
                 log_surfaced_enrolments(course_code, people, previous_fetch_at);
             }
             Err(error) => {
@@ -86,7 +94,15 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
                 }
                 // Not one to back off from: a new realisation can open at any time.
                 if error == NO_REALISATION_CODE {
-                    mark_fetched(&mut conn, course_code, 0, duration_ms).await?;
+                    mark_fetched(
+                        &mut conn,
+                        course_code,
+                        started_at,
+                        could_claim_mail,
+                        0,
+                        duration_ms,
+                    )
+                    .await?;
                 } else {
                     mark_alone_failed(&mut conn, course_code, error).await?;
                 }

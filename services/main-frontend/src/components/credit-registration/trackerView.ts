@@ -112,7 +112,8 @@ export const showsRegistrationFacts = (registration: MyCreditRegistration | null
  *
  * `awaiting-email` replaces the enrol step once the student has said they enrolled, or once a mail
  * is queued: either way enrolling is behind them. `waitingSince` is `null` when we only know of the
- * queued mail.
+ * queued mail. `contact-support` is for when no mail can come any more: the latest link was used,
+ * or it expired with the caps spent.
  */
 export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
@@ -123,6 +124,7 @@ export type StudentNumberLinkBand =
   | { kind: "mailed"; emailMasked: string; sentAt: string }
   | { kind: "link-expired"; emailMasked: string; sentAt: string }
   | { kind: "send-failed" }
+  | { kind: "contact-support" }
 
 export interface StudentNumberLinkBandOptions {
   isAccountLinkingEnabled: boolean
@@ -164,6 +166,9 @@ export const studentNumberLinkBand = (
   }
   if (mail?.link_state === "expired" && mail.can_send_another && mail.sent_at) {
     return { kind: "link-expired", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
+  }
+  if (mail && mail.link_state !== "usable") {
+    return { kind: "contact-support" }
   }
   const confirmedAt = enrolmentRoute?.enrolment_confirmed_at ?? null
   if (confirmedAt !== null || usableMail !== null) {

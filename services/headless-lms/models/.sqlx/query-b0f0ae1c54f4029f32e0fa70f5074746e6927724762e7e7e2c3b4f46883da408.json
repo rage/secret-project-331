@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH stamped AS (\n  UPDATE credit_registration_roster_schedules\n  SET last_attempted_at = now()\n  WHERE course_code = ANY($1::text [])\n)\nSELECT now() AS \"started_at!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "started_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "b0f0ae1c54f4029f32e0fa70f5074746e6927724762e7e7e2c3b4f46883da408"
+}

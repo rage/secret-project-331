@@ -4,8 +4,14 @@
 //! and a student waiting for a student number makes their course code's enrolment list due by
 //! them, see [`crate::credit_registration_roster_schedules`].
 
+use chrono::TimeDelta;
+
 use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use crate::prelude::*;
+
+/// A visit or check request restarts its enrolment list fetch ladder only this long after the one
+/// the ladder is anchored on, so reloading the page or pressing again does not push the rungs out.
+pub const LADDER_RESTART_GAP: TimeDelta = TimeDelta::days(1);
 
 /// Records a visit.
 pub async fn record_visit(
@@ -16,13 +22,19 @@ pub async fn record_visit(
         r#"
 INSERT INTO credit_registration_enrolment_check_signals (
     course_module_completion_id,
-    last_visited_at
+    last_visited_at,
+    visit_ladder_anchor_at
   )
-VALUES ($1, now()) ON CONFLICT (course_module_completion_id, deleted_at) DO
+VALUES ($1, now(), now()) ON CONFLICT (course_module_completion_id, deleted_at) DO
 UPDATE
-SET last_visited_at = now()
+SET last_visited_at = now(),
+  visit_ladder_anchor_at = CASE
+    WHEN credit_registration_enrolment_check_signals.visit_ladder_anchor_at > now() - ($2::bigint * INTERVAL '1 second') THEN credit_registration_enrolment_check_signals.visit_ladder_anchor_at
+    ELSE now()
+  END
         "#,
         course_module_completion_id,
+        LADDER_RESTART_GAP.num_seconds(),
     )
     .execute(conn)
     .await?;
@@ -41,15 +53,21 @@ pub async fn record_check_request(
 INSERT INTO credit_registration_enrolment_check_signals (
     course_module_completion_id,
     last_check_requested_at,
+    check_request_ladder_anchor_at,
     check_request_source
   )
-VALUES ($1, now(), $2) ON CONFLICT (course_module_completion_id, deleted_at) DO
+VALUES ($1, now(), now(), $2) ON CONFLICT (course_module_completion_id, deleted_at) DO
 UPDATE
 SET last_check_requested_at = now(),
+  check_request_ladder_anchor_at = CASE
+    WHEN credit_registration_enrolment_check_signals.check_request_ladder_anchor_at > now() - ($3::bigint * INTERVAL '1 second') THEN credit_registration_enrolment_check_signals.check_request_ladder_anchor_at
+    ELSE now()
+  END,
   check_request_source = EXCLUDED.check_request_source
         "#,
         course_module_completion_id,
         source as EnrolmentCheckSource,
+        LADDER_RESTART_GAP.num_seconds(),
     )
     .execute(conn)
     .await?;
@@ -70,9 +88,11 @@ pub async fn record_account_link_for_course(
 INSERT INTO credit_registration_enrolment_check_signals (
     course_module_completion_id,
     last_check_requested_at,
+    check_request_ladder_anchor_at,
     check_request_source
   )
 SELECT cmc.id,
+  now(),
   now(),
   'account_link'
 FROM course_module_completions cmc
@@ -92,11 +112,16 @@ WHERE cmc.user_id = $1
   ) ON CONFLICT (course_module_completion_id, deleted_at) DO
 UPDATE
 SET last_check_requested_at = now(),
+  check_request_ladder_anchor_at = CASE
+    WHEN credit_registration_enrolment_check_signals.check_request_ladder_anchor_at > now() - ($3::bigint * INTERVAL '1 second') THEN credit_registration_enrolment_check_signals.check_request_ladder_anchor_at
+    ELSE now()
+  END,
   check_request_source = EXCLUDED.check_request_source
 RETURNING course_module_completion_id
         "#,
         user_id,
         course_id,
+        LADDER_RESTART_GAP.num_seconds(),
     )
     .fetch_all(conn)
     .await?;

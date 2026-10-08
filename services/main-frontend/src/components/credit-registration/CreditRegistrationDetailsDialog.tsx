@@ -32,6 +32,7 @@ import {
   TONE,
 } from "./constants"
 import {
+  hasOnlyDefaultModule,
   registrationErrorTeacherHelp,
   registrationGradeLabel,
   registrationLedgerStateLabel,
@@ -63,6 +64,8 @@ interface Props {
   registration: CourseCreditRegistration
   open: boolean
   onClose: () => void
+  /** See `hasOnlyDefaultModule`; left out, the dialog loads the course structure to tell. */
+  isCourseWide?: boolean
 }
 
 // The one stage where a resend can help: nothing moves until a student number is linked.
@@ -88,7 +91,12 @@ const supportReferenceValueCss = css`
   white-space: nowrap;
 `
 
-const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
+const CreditRegistrationDetailsDialog: React.FC<Props> = ({
+  registration,
+  open,
+  onClose,
+  isCourseWide,
+}) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const detailsQuery = useQuery({
@@ -99,8 +107,14 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   })
 
   const studentName = formatUserName(registration) || t("missing-name")
-  const courseModules = useCourseStructure(registration.course_id).data?.modules ?? []
-  const isCourseOnlyModule = courseModules.length === 1 && !registration.course_module_name
+  const structureQuery = useCourseStructure(
+    isCourseWide === undefined ? registration.course_id : null,
+  )
+  const structureModules = structureQuery.data?.modules
+  const isCourseOnlyModule =
+    isCourseWide ??
+    (structureModules !== undefined &&
+      hasOnlyDefaultModule(structureModules.map((module) => module.name)))
   // Why this row is where it is: the failure when there is one, otherwise what the stage means.
   const leadSentence =
     registrationErrorTeacherHelp(t, registration.error_code, isCourseOnlyModule) ??

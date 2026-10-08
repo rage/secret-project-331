@@ -28,7 +28,8 @@ pub struct CreditRegistrationAccountLinkingEmail {
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
     pub sent_at: DateTime<Utc>,
-    /// Set once a later mail to the same address took this row's place in the dedup key.
+    /// Set once this row gave up its place in the dedup key: to a later mail to the same address,
+    /// or when the person was unlinked.
     pub replaced_at: Option<DateTime<Utc>>,
 }
 
@@ -730,8 +731,9 @@ WHERE id = ANY($1)
     Ok(())
 }
 
-/// Retires the mails about the person behind a verified link whose link was never used, and voids
-/// those links, so that once unlinked the person can be mailed again within the caps.
+/// Voids the unused links in the mails about the person behind a verified link, and marks those
+/// mails replaced, so that once unlinked the person can be mailed again. The mails still count
+/// against the caps.
 pub async fn retire_unused_for_link(
     conn: &mut PgConnection,
     verified_student_number_id: Uuid,
@@ -740,10 +742,11 @@ pub async fn retire_unused_for_link(
         r#"
 WITH retired AS (
   UPDATE credit_registration_account_linking_emails e
-  SET deleted_at = now()
+  SET replaced_at = now()
   FROM verified_student_numbers vsn
   WHERE vsn.id = $1
     AND e.deleted_at IS NULL
+    AND e.replaced_at IS NULL
     AND (
       e.sisu_person_id = vsn.sisu_person_id
       OR e.student_number = vsn.student_number

@@ -1,9 +1,10 @@
 //! Running one iteration of one phase, and the bookkeeping around it: the pause and scope checks,
 //! the heartbeat, the circuit breakers and the limiter.
 
-use chrono::TimeDelta;
+use chrono::{DateTime, TimeDelta, Utc};
 use headless_lms_models::credit_registration_phase_state::{self, PhaseRunOutcome};
 use headless_lms_models::library::credit_registration::scrub::scrub_text;
+use headless_lms_models::library::credit_registration::sisu_day_gap;
 use headless_lms_utils::services::suotar::SuotarClient;
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
@@ -38,6 +39,8 @@ pub enum PhaseSkipReason {
     Paused,
     CircuitBreakerOpen,
     AccountLinkingDisabled,
+    /// Finland is on the next day and Sisu is not; see [`sisu_day_gap`].
+    SisuDayGap,
 }
 
 /// Who runs a phase iteration.
@@ -77,8 +80,9 @@ pub struct PhaseContext<'a> {
     pub runner: Runner<'a>,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
-    /// Off, the linking mails are not sent, and discovery only wakes linked students' registrations.
-    pub is_account_linking_enabled: bool,
+    /// Linking mails go only to people enrolled at or after it. `None`, none are sent and discovery
+    /// only wakes linked students' registrations.
+    pub account_linking_since: Option<DateTime<Utc>>,
     /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
     pub shutdown: Option<&'a CancellationToken>,
 }
@@ -98,7 +102,7 @@ impl<'a> PhaseContext<'a> {
             test_mode: app_conf.test_mode,
             runner,
             base_url: &app_conf.base_url,
-            is_account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+            account_linking_since: app_conf.suotar_configuration.account_linking_since,
             shutdown: None,
         }
     }
@@ -139,8 +143,31 @@ pub async fn run_phase_once(
         trace!(phase = phase.as_str(), "Wrote phase heartbeat");
     }
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
-    if phase.spec().is_account_linking_only && !ctx.is_account_linking_enabled {
+    if phase.spec().is_account_linking_only && ctx.account_linking_since.is_none() {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
+    }
+    // Not in test mode: the system tests run at every hour, the gap's included.
+    if phase.spec().waits_out_sisu_day_gap
+        && !ctx.test_mode
+        && let Some(gap_end) = sisu_day_gap::current_gap_end(&mut conn).await?
+    {
+        let moved = sisu_day_gap::spread_imports_past_gap(&mut conn, gap_end).await?;
+        if moved > 0 {
+            info!(
+                phase = phase.as_str(),
+                moved,
+                %gap_end,
+                "Spread imports due in the Sisu day gap over the hours after it"
+            );
+        }
+        if bookkeeping {
+            credit_registration_phase_state::record_deliberate_idle_run(&mut conn, phase.as_str())
+                .await?;
+            if is_own_worker {
+                report_breakers(&mut conn, phase).await?;
+            }
+        }
+        return Ok(PhaseTick::Skipped(PhaseSkipReason::SisuDayGap));
     }
     let mut registry = match SuotarStudyRegistry::admit(
         ctx.suotar_client,
@@ -241,10 +268,16 @@ async fn run_body(
         CreditRegistrationPhase::Verify => verify::run(&batch_flow, registry).await,
         CreditRegistrationPhase::LegacyMirror => legacy_mirror::run(pool, scope).await,
         CreditRegistrationPhase::StudentNotifications => {
-            student_notifications::run(pool, scope, ctx.base_url).await
+            student_notifications::run(
+                pool,
+                scope,
+                ctx.base_url,
+                ctx.account_linking_since.is_some(),
+            )
+            .await
         }
         CreditRegistrationPhase::EnrolmentDiscovery => {
-            enrolment_discovery::run(pool, scope, ctx.is_account_linking_enabled, registry).await
+            enrolment_discovery::run(pool, scope, ctx.account_linking_since, registry).await
         }
         CreditRegistrationPhase::LinkEmails => link_emails::run(pool, scope, ctx.base_url).await,
         CreditRegistrationPhase::ConfigValidation => {

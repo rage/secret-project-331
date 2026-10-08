@@ -1372,11 +1372,12 @@ mod tests {
             .unwrap()
             .anonymous_token;
 
-        let info = chatbot_conversations::get_current_conversation_info(
+        let info = chatbot_conversations::get_conversation_info(
             tx.as_mut(),
             None,
             anonymous_token,
             configuration,
+            None,
         )
         .await
         .unwrap();
@@ -1413,11 +1414,12 @@ mod tests {
         .await
         .unwrap();
 
-        let while_suspended = chatbot_conversations::get_current_conversation_info(
+        let while_suspended = chatbot_conversations::get_conversation_info(
             tx.as_mut(),
             None,
             anonymous_token.clone(),
             configuration,
+            None,
         )
         .await
         .unwrap();
@@ -1433,11 +1435,12 @@ mod tests {
         )
         .await
         .unwrap();
-        let after_the_answer = chatbot_conversations::get_current_conversation_info(
+        let after_the_answer = chatbot_conversations::get_conversation_info(
             tx.as_mut(),
             None,
             anonymous_token,
             configuration,
+            None,
         )
         .await
         .unwrap();

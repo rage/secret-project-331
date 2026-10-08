@@ -90,6 +90,17 @@
             "name": "anonymous_token"
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "conversation_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "conversation_title"
+          }
+        }
       }
     ],
     "parameters": {
@@ -107,6 +118,7 @@
       true,
       true,
       false,
+      true,
       true
     ]
   },

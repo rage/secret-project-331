@@ -97,7 +97,7 @@ pub async fn get_credit_registration_enrolment_checks(
     let population =
         credit_registration_enrolment_check_outcomes::get_population(&mut conn).await?;
     let daily_costs = suotar_api_calls::get_daily_costs_since(&mut conn, since).await?;
-    let is_account_linking_enabled = app_conf.suotar_configuration.account_linking_enabled;
+    let is_account_linking_enabled = app_conf.suotar_configuration.is_account_linking_enabled();
     let today = now.date_naive();
     let roster_codes = credit_registration_roster_schedules::get_schedules(
         &mut conn,

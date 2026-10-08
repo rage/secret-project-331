@@ -241,11 +241,10 @@ impl CreditRegistrationState {
             | Self::FailedRetryable
             | Self::FailedPermanent
             | Self::Blocked => true,
-            // Whether the attainment landed, or Sisu voided it, is for someone looking at this one
-            // row to have checked.
-            Self::SubmissionUncertain | Self::Misregistered => {
-                strictness == ResubmissionStrictness::Any
-            }
+            // Sisu reversed the attainment, so a resend cannot count twice; Suotar asks for one.
+            Self::Misregistered => true,
+            // Whether the attainment landed is for someone looking at this one row to have checked.
+            Self::SubmissionUncertain => strictness == ResubmissionStrictness::Any,
             // `cancelled` may be a hand cancellation of a row still awaiting verification.
             Self::Submitting
             | Self::AwaitingVerification
@@ -308,11 +307,11 @@ impl CreditRegistrationState {
     /// by `next_attempt_at`. A caller with a real backoff to apply passes it and overrides this.
     pub(super) fn default_attempt_delay(self) -> TimeDelta {
         use crate::library::credit_registration::backoff::{
-            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_FIRST_DELAY,
+            SUBMIT_BASE_BACKOFF, UNCERTAIN_RECHECK, VERIFY_WINDOW_INTERVAL,
         };
         use crate::library::credit_registration::enrolment_check_schedule::REGISTRY_LAG;
         match self {
-            Self::AwaitingVerification | Self::PartiallyRegistered => VERIFY_FIRST_DELAY,
+            Self::AwaitingVerification | Self::PartiallyRegistered => VERIFY_WINDOW_INTERVAL,
             Self::SubmissionUncertain => UNCERTAIN_RECHECK,
             Self::NoUsableEnrolment => REGISTRY_LAG,
             Self::FailedRetryable => SUBMIT_BASE_BACKOFF,
@@ -336,6 +335,7 @@ pub struct ResubmissionFacts {
     pub state: CreditRegistrationState,
     /// A later attempt replaced this one.
     pub is_superseded: bool,
+    pub error_code: Option<CreditRegistrationErrorCode>,
     pub resubmit_not_before: Option<DateTime<Utc>>,
     pub submitted_at: Option<DateTime<Utc>>,
 }
@@ -353,6 +353,7 @@ impl ResubmissionFacts {
     ) -> Option<ResubmissionRefusal> {
         use CreditRegistrationState as State;
         let state = self.state;
+        let now = Utc::now();
         if self.is_superseded {
             return Some(ResubmissionRefusal::Superseded);
         }
@@ -376,25 +377,87 @@ impl ResubmissionFacts {
         {
             return Some(ResubmissionRefusal::NotFailedPermanent);
         }
+        if matches!(
+            state,
+            State::Pending
+                | State::Blocked
+                | State::ReadyToSubmit
+                | State::ResolvingEnrolment
+                | State::CheckingEnrolment
+                | State::NoUsableEnrolment
+        ) {
+            return Some(ResubmissionRefusal::StillInPipeline);
+        }
+        if self
+            .uncertain_pending_window_end()
+            .is_some_and(|window_end| now < window_end)
+        {
+            return Some(ResubmissionRefusal::SubmissionUncertainTooRecent);
+        }
         if self
             .resubmit_not_before
-            .is_some_and(|not_before| Utc::now() < not_before)
+            .is_some_and(|not_before| now < not_before)
         {
             return Some(ResubmissionRefusal::SubmissionPending);
         }
         None
     }
 
-    /// Why a hand transition of the row to `target` is refused, or `None` if it may go ahead.
-    ///
-    /// The safety half of the admin path, next to the structural half in [`ADMIN_ONLY_TARGETS`]: the
-    /// edge table says the move exists, this decides whether this row may take it. A success state
-    /// is refused outright, since `cancelled` -> `ready_to_submit` would launder a second submission
-    /// for a credit Sisu already has. Cancelling a `submitting` row is refused too, its request still
-    /// in flight. `ready_to_submit` itself is decided by [`Self::resubmission_refusal`].
-    pub fn admin_transition_refusal(
+    /// Until when Suotar may still hold an uncertain submission as pending; `None` for a row in any
+    /// other state.
+    fn uncertain_pending_window_end(&self) -> Option<DateTime<Utc>> {
+        use crate::library::credit_registration::backoff::SUOTAR_PENDING_WINDOW;
+        if self.state != CreditRegistrationState::SubmissionUncertain {
+            return None;
+        }
+        self.submitted_at
+            .map(|submitted_at| submitted_at + SUOTAR_PENDING_WINDOW)
+    }
+
+    /// Whether the row may be sent again, how that send may go wrong, and for a refusal that only
+    /// waits on time, when it lifts.
+    pub fn resubmission_availability(
         &self,
-        target: CreditRegistrationState,
+        strictness: ResubmissionStrictness,
+    ) -> ResubmissionAvailability {
+        use crate::library::credit_registration::classification::is_repeatable_rejection;
+        use CreditRegistrationState as State;
+        match self.resubmission_refusal(strictness) {
+            Some(
+                refusal @ (ResubmissionRefusal::SubmissionUncertainTooRecent
+                | ResubmissionRefusal::SubmissionPending),
+            ) => ResubmissionAvailability::Refused {
+                refusal,
+                available_at: self
+                    .uncertain_pending_window_end()
+                    .max(self.resubmit_not_before),
+            },
+            Some(refusal) => ResubmissionAvailability::Refused {
+                refusal,
+                available_at: None,
+            },
+            None => ResubmissionAvailability::Allowed {
+                risk: match self.state {
+                    State::SubmissionUncertain => ResubmissionRisk::PossibleDuplicate,
+                    State::Misregistered => ResubmissionRisk::ReplacesReversedAttainment,
+                    State::FailedPermanent
+                        if self.error_code.is_some_and(is_repeatable_rejection) =>
+                    {
+                        ResubmissionRisk::LikelyRejectedAgain
+                    }
+                    _ => ResubmissionRisk::Normal,
+                },
+            },
+        }
+    }
+
+    /// Why cancelling the row by hand is refused, or `None` if it may go ahead.
+    ///
+    /// Refused while Sisu may be recording the submission: its request is in flight, or verify is
+    /// waiting for the attainment, so a cancellation would tell the student "not registering" about
+    /// credits that are arriving.
+    pub fn cancel_refusal(
+        &self,
         strictness: ResubmissionStrictness,
     ) -> Option<ResubmissionRefusal> {
         use CreditRegistrationState as State;
@@ -404,13 +467,72 @@ impl ResubmissionFacts {
         if self.state.is_success() {
             return Some(ResubmissionRefusal::AlreadySucceeded);
         }
-        if target == State::Cancelled && self.state == State::Submitting {
-            return Some(ResubmissionRefusal::AlreadySubmitted);
+        match self.state {
+            State::Cancelled => Some(ResubmissionRefusal::AlreadyCancelled),
+            State::Submitting => Some(ResubmissionRefusal::AlreadySubmitted),
+            State::AwaitingVerification | State::PartiallyRegistered => {
+                Some(ResubmissionRefusal::AwaitingConfirmation)
+            }
+            State::SubmissionUncertain if strictness != ResubmissionStrictness::Any => {
+                Some(ResubmissionRefusal::SubmissionUncertain)
+            }
+            _ => None,
         }
-        if target != State::ReadyToSubmit {
+    }
+
+    /// What making the row due now brings forward, or `None` where no phase acts on it sooner for
+    /// being due: a final state, a precondition wait, or a call already in flight.
+    pub fn check_now_target(&self) -> Option<CheckNowTarget> {
+        use CreditRegistrationState as State;
+        if self.is_superseded {
             return None;
         }
-        self.resubmission_refusal(strictness)
+        match self.state {
+            State::AwaitingVerification
+            | State::PartiallyRegistered
+            | State::SubmissionUncertain => Some(CheckNowTarget::Attainment),
+            State::NoUsableEnrolment => Some(CheckNowTarget::Enrolment),
+            State::FailedRetryable => Some(CheckNowTarget::NextAttempt),
+            _ => None,
+        }
+    }
+
+    /// Why checking the row now is refused, or `None` if it may go ahead.
+    pub fn check_now_refusal(&self) -> Option<ResubmissionRefusal> {
+        if self.is_superseded {
+            return Some(ResubmissionRefusal::Superseded);
+        }
+        match self.check_now_target() {
+            Some(_) => None,
+            None => Some(ResubmissionRefusal::NothingToCheck),
+        }
+    }
+
+    /// Why a hand transition of the row to `target` is refused, or `None` if it may go ahead.
+    ///
+    /// The safety half of the admin path, next to the structural half in [`ADMIN_ONLY_TARGETS`]: the
+    /// edge table says the move exists, this decides whether this row may take it.
+    pub fn admin_transition_refusal(
+        &self,
+        target: CreditRegistrationState,
+        strictness: ResubmissionStrictness,
+    ) -> Option<ResubmissionRefusal> {
+        match target {
+            CreditRegistrationState::ReadyToSubmit => self.resubmission_refusal(strictness),
+            CreditRegistrationState::Cancelled => self.cancel_refusal(strictness),
+            _ if self.is_superseded => Some(ResubmissionRefusal::Superseded),
+            _ if self.state.is_success() => Some(ResubmissionRefusal::AlreadySucceeded),
+            _ => None,
+        }
+    }
+
+    /// Every hand action's availability at once, for a surface that offers them.
+    pub fn hand_actions(&self, strictness: ResubmissionStrictness) -> HandActionAvailability {
+        HandActionAvailability {
+            resubmission: self.resubmission_availability(strictness),
+            cancel_refusal: self.cancel_refusal(strictness),
+            check_now: self.check_now_target(),
+        }
     }
 }
 
@@ -436,11 +558,11 @@ pub enum ResubmissionStrictness {
     /// looking at that one row rather than a checkbox in a list.
     AnyExceptSubmissionUncertain,
     /// An admin's single-row hand transition: a human is already looking at this one row, so even
-    /// `submission_uncertain` may be resubmitted.
+    /// `submission_uncertain` may be resubmitted once Suotar no longer holds it as pending.
     Any,
 }
 
-/// Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.
+/// Why [`ResubmissionFacts`] refuses a hand action on a row.
 ///
 /// Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
 /// travels to them as it is rather than being re-mapped per surface.
@@ -454,13 +576,78 @@ pub enum ResubmissionRefusal {
     AlreadySucceeded,
     /// The submission may have landed, so only a human looking at this one row may move it.
     SubmissionUncertain,
+    /// The submission may have landed, and Suotar may still hold it as pending, so a resend could
+    /// slip past its duplicate check. Lifts at [`SUOTAR_PENDING_WINDOW`] after sending.
+    ///
+    /// [`SUOTAR_PENDING_WINDOW`]: crate::library::credit_registration::backoff::SUOTAR_PENDING_WINDOW
+    SubmissionUncertainTooRecent,
     /// Not a failure at all: [`ResubmissionStrictness::OnlyFailedPermanent`] only.
     NotFailedPermanent,
+    /// The pipeline moves the row on by itself once what it waits for is met, so sending it again
+    /// changes nothing.
+    StillInPipeline,
     /// Suotar still holds the earlier submission open, and may yet turn it into an attainment.
     SubmissionPending,
     /// Already sent to Suotar with no final answer on this row: acting again risks a second Sisu
     /// attainment before the first is resolved.
     AlreadySubmitted,
+    /// Cancelling only: verify is waiting for Sisu to record the attainment.
+    AwaitingConfirmation,
+    /// Cancelling only: the row is cancelled already.
+    AlreadyCancelled,
+    /// Checking now only: no phase looks the row up sooner for being due.
+    NothingToCheck,
+}
+
+/// How a resend [`ResubmissionFacts::resubmission_refusal`] allows may go wrong, which the admin
+/// surfaces warn about before it is confirmed.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ResubmissionRisk {
+    Normal,
+    /// The last send was rejected for a reason an unchanged send meets again.
+    LikelyRejectedAgain,
+    /// Sisu reversed the attainment we registered; the resend registers a new one.
+    ReplacesReversedAttainment,
+    /// Sisu may already hold this attainment, so a resend may register the credits twice.
+    PossibleDuplicate,
+}
+
+/// Whether a row may be sent again by hand.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case", tag = "kind")]
+pub enum ResubmissionAvailability {
+    Allowed {
+        risk: ResubmissionRisk,
+    },
+    Refused {
+        refusal: ResubmissionRefusal,
+        /// When the refusal lifts by itself; `None` if waiting does not lift it.
+        available_at: Option<DateTime<Utc>>,
+    },
+}
+
+/// What checking a row now brings forward.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CheckNowTarget {
+    /// Asking Sisu whether it has recorded the submitted attainment. Never sends anything.
+    Attainment,
+    /// Looking up a usable enrolment; the attainment is sent if one is found.
+    Enrolment,
+    /// The retry a backoff is waiting out, which resumes the row where it stopped.
+    NextAttempt,
+}
+
+/// Which hand actions a row is offered, decided once on the server for every admin surface.
+/// Clearing the attention flag is refused only on a superseded row, so it is not in here.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+pub struct HandActionAvailability {
+    pub resubmission: ResubmissionAvailability,
+    /// Why cancelling is refused, or `None` if it may go ahead.
+    pub cancel_refusal: Option<ResubmissionRefusal>,
+    /// What checking now looks up, or `None` where it would do nothing.
+    pub check_now: Option<CheckNowTarget>,
 }
 
 /// Why a ledger row is where it is; `state` says what happens to it next.

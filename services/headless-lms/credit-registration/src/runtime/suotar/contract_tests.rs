@@ -24,7 +24,6 @@ use crate::registry::{
     AnsweredRow, AttainmentId, BatchEntry, Credits, EnrolmentReading, HeldCredit, PersonReading,
     RefusedFor, RefusedRow, SubmittedAttainmentRef, VerificationReading,
 };
-use crate::test_fixtures::date;
 
 const ALL_UNAVAILABLE: &str = "Every item came back unavailable.";
 
@@ -213,7 +212,9 @@ fn submission(student_number: &str, credits: f32) -> AttainmentSubmission {
         student_number: StudentNumber::new(student_number),
         course_code: code("TKT10002"),
         enrolment_id: format!("enrolment-{student_number}"),
-        attainment_date: date(2026, 8, 1),
+        attained_at: "2026-08-01T21:16:05.123456Z"
+            .parse()
+            .expect("valid instant"),
         attainment_language: "fi".to_string(),
         grade: MappedGrade {
             grade_scale_id: "sis-0-5".to_string(),
@@ -306,7 +307,7 @@ async fn an_import_sends_each_row_as_its_wire_item_in_row_order() {
             "studentNumber": "111",
             "courseCode": "TKT10002",
             "enrolmentId": "enrolment-111",
-            "attainmentDate": "2026-08-01",
+            "attainmentDate": "2026-08-01T21:16:05Z",
             "attainmentLanguage": "fi",
             "gradeScaleId": "sis-0-5",
             "gradeId": "4",

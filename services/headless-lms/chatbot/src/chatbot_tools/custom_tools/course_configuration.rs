@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::cache::Cache;
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -17,7 +18,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     json_schema_types::{JSONType, JsonItem, Schema, SchemaPropertyType, string_array_property},
-    services::sisu::{SisuClient, SisuCourseContact},
+    services::sisu::{SisuClient, SisuCourseContacts},
 };
 
 use crate::{
@@ -29,9 +30,9 @@ use crate::{
     user_context::ChatbotTurnContext,
 };
 
-/// Long enough for a real Sisu round trip, short enough that a hung upstream cannot stall the
-/// whole tool call.
-const SISU_LOOKUP_TIMEOUT: Duration = Duration::from_secs(5);
+/// Long enough for the handful of Sisu requests one uncached lookup makes, short enough that a
+/// hung upstream cannot stall the whole tool call.
+const SISU_LOOKUP_TIMEOUT: Duration = Duration::from_secs(15);
 
 pub type CourseConfigurationTool = ToolProperties<CourseConfigurationState>;
 
@@ -171,8 +172,8 @@ struct PoliciesInfo {
 #[derive(Serialize)]
 struct StaffInfo {
     role_based_staff: Vec<RoleBasedStaffContactInfo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    sisu_fallback: Option<SisuFallbackResult>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    sisu_contacts: Vec<SisuContactsResult>,
 }
 
 #[derive(Serialize)]
@@ -187,14 +188,9 @@ struct RoleBasedStaffContactInfo {
 
 #[derive(Serialize)]
 #[serde(untagged)]
-enum SisuFallbackResult {
-    Contacts {
-        course_code: String,
-        contacts: Vec<SisuCourseContact>,
-    },
-    Error {
-        error: String,
-    },
+enum SisuContactsResult {
+    Contacts(SisuCourseContacts),
+    Error { error: String },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -327,6 +323,7 @@ impl ChatbotTool for CourseConfigurationTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        cache: &Cache,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
@@ -551,7 +548,7 @@ impl ChatbotTool for CourseConfigurationTool {
                         )
                     })?;
                     CourseConfigurationFacetValue::Staff(
-                        staff_facet(conn, app_config, course_id, modules).await?,
+                        staff_facet(conn, app_config, cache, course_id, modules).await?,
                     )
                 }
             };
@@ -818,10 +815,15 @@ impl ChatbotTool for CourseConfigurationTool {
                  runs its organization — the role list intentionally includes org-scoped roles."
                     .to_string(),
             );
-            if staff.sisu_fallback.is_some() {
+            if !staff.sisu_contacts.is_empty() {
                 notes.push(
-                    "sisu_fallback is present only when role_based_staff is empty; its Error \
-                     variant is a note to look the code up by hand, not a failed tool call."
+                    "sisu_contacts is who the University of Helsinki's study system Sisu lists \
+                     for each UH course code today, and is the authoritative answer to who \
+                     teaches the university course: contacts from the course unit come first, \
+                     then teachers of its current implementation (source.kind \"realisation\"). \
+                     role \"contact-info\" entries may be a free-text note instead of a person. \
+                     With no contacts, responsible_organisations is the unit to ask. An Error \
+                     entry is a note to look the code up by hand, not a failed tool call."
                         .to_string(),
                 );
             }
@@ -891,12 +893,14 @@ fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) ->
     }
 }
 
-/// Staff contacts from role-based assignments, falling back to a best-effort Sisu lookup only
-/// when there are none and a Sisu code exists. Course instances also carry a static
-/// teacher-in-charge contact, but that field goes stale and is not surfaced here.
+/// Staff contacts from role-based assignments plus a best-effort Sisu lookup per UH course code,
+/// since Sisu is the only up-to-date source of who teaches a university course. Course instances
+/// also carry a static teacher-in-charge contact, but that field goes stale and is not surfaced
+/// here.
 async fn staff_facet(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
+    cache: &Cache,
     course_id: Uuid,
     modules: &[headless_lms_models::course_modules::CourseModule],
 ) -> ChatbotResult<StaffInfo> {
@@ -935,19 +939,23 @@ async fn staff_facet(
         }
     }
 
-    let sisu_course_code = modules.iter().find_map(|m| m.uh_course_code.clone());
-
-    let sisu_fallback = if role_based.is_empty()
-        && let Some(code) = sisu_course_code
-    {
-        Some(sisu_lookup(app_config, &code).await)
-    } else {
-        None
-    };
+    let mut uh_course_codes: Vec<String> = modules
+        .iter()
+        .filter_map(|m| m.uh_course_code.clone())
+        .collect();
+    uh_course_codes.sort();
+    uh_course_codes.dedup();
+    // Concurrent so that an unreachable Sisu costs one timeout, not one per course code.
+    let sisu_contacts = futures::future::join_all(
+        uh_course_codes
+            .iter()
+            .map(|code| sisu_lookup(app_config, cache, code)),
+    )
+    .await;
 
     Ok(StaffInfo {
         role_based_staff: role_based,
-        sisu_fallback,
+        sisu_contacts,
     })
 }
 
@@ -964,12 +972,13 @@ fn combined_name(detail: &headless_lms_models::user_details::UserDetail) -> Opti
 /// an external HTTP hiccup must not take down a support answer that has other facets to give.
 async fn sisu_lookup(
     app_config: &ApplicationConfiguration,
+    cache: &Cache,
     uh_course_code: &str,
-) -> SisuFallbackResult {
+) -> SisuContactsResult {
     let client = match SisuClient::new(app_config.base_url.clone()) {
         Ok(client) => client,
         Err(e) => {
-            return SisuFallbackResult::Error {
+            return SisuContactsResult::Error {
                 error: format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
             };
         }
@@ -977,23 +986,15 @@ async fn sisu_lookup(
 
     match tokio::time::timeout(
         SISU_LOOKUP_TIMEOUT,
-        client.get_course_contacts(uh_course_code),
+        client.get_course_contacts(cache, uh_course_code),
     )
     .await
     {
-        Ok(Ok(contacts)) if !contacts.is_empty() => SisuFallbackResult::Contacts {
-            course_code: uh_course_code.to_string(),
-            contacts,
-        },
-        Ok(Ok(_)) => SisuFallbackResult::Error {
-            error: format!(
-                "Sisu has no responsible-teacher contact for code {uh_course_code}, look it up manually."
-            ),
-        },
-        Ok(Err(e)) => SisuFallbackResult::Error {
+        Ok(Ok(contacts)) => SisuContactsResult::Contacts(contacts),
+        Ok(Err(e)) => SisuContactsResult::Error {
             error: format!("Sisu lookup failed, look up code {uh_course_code} manually: {e}"),
         },
-        Err(_) => SisuFallbackResult::Error {
+        Err(_) => SisuContactsResult::Error {
             error: format!("Sisu lookup timed out, look up code {uh_course_code} manually."),
         },
     }

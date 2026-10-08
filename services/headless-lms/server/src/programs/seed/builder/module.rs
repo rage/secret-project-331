@@ -192,8 +192,8 @@ pub struct CreditRegistrationSeed {
     /// Pauses the module, which every phase's claim query skips: without it the workers running in
     /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
-    /// Sets `register_eligible_new_completions_via_suotar`, so completions seeded for linked
-    /// students go through Suotar.
+    /// Sets `register_eligible_new_completions_via_suotar`, so completions seeded here go through
+    /// Suotar.
     pub register_eligible_new_completions: bool,
 }
 

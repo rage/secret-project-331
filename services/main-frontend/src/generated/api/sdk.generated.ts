@@ -5405,11 +5405,12 @@ export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = t
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
  * selection of rows by hand, one transaction for the lot.
  *
- * Resubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of
- * those back to `ready_to_submit` is a decision about one student's transcript, made after somebody has
- * looked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second
- * attainment on every one of them. Those rows are reported back untouched, to be dealt with one at a
- * time, as is a row whose earlier submission Suotar still holds open (`submission_pending`).
+ * Resubmitting or cancelling refuses every row in `submission_uncertain`, whatever the selection
+ * said. Taking one of those back to `ready_to_submit` is a decision about one student's transcript,
+ * made after somebody has looked the attainment up; a checkbox in a list is not that, and a mis-click
+ * here would put a second attainment on every one of them. Those rows are reported back untouched, to
+ * be dealt with one at a time, as is a row whose earlier submission Suotar still holds open
+ * (`submission_pending`). Each attention item's `hand_actions` says in advance what this skips.
  */
 export const adminBulkTransitionCreditRegistrations = <ThrowOnError extends boolean = true>(
   options: Options<AdminBulkTransitionCreditRegistrationsData, ThrowOnError>,
@@ -5503,7 +5504,8 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
  *
  * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
  * re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
- * while Suotar still holds its earlier submission open (`submission_pending`).
+ * while Suotar may still hold its earlier submission as pending (`submission_uncertain_too_recent`,
+ * `submission_pending`). The row's `hand_actions` says in advance what this refuses.
  */
 export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
   options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,

@@ -96,6 +96,10 @@ export type AccountLinkingStats = {
    * When false, no linking mails are sent and resends are refused.
    */
   account_linking_enabled: boolean
+  /**
+   * Discovery mails only people who enrolled at or after this.
+   */
+  account_linking_since?: string | null
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
@@ -261,6 +265,10 @@ export type AdminCreditRegistrationRow = {
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
+  /**
+   * What the single-row hand transition would allow: what the row's action controls render from.
+   */
+  hand_actions: HandActionAvailability
   id: string
   is_waiting_for_enrolment: boolean
   last_attempt_at?: string | null
@@ -278,7 +286,6 @@ export type AdminCreditRegistrationRow = {
   partially_registered_at?: string | null
   pending_reason?: null | CreditRegistrationPendingReason
   registered_at?: string | null
-  resubmission_refusal?: null | ResubmissionRefusal
   /**
    * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
    */
@@ -469,21 +476,11 @@ export type AdminResumeCourseModulePayload = {
 }
 
 export type AdminSuotarApiCall = {
-  credit_registration_ids: Array<string>
   duration_ms?: number | null
   endpoint: SuotarEndpoint
-  error_item_count: number
   http_status?: number | null
   id: string
-  ok_item_count: number
-  pending_item_count: number
-  /**
-   * Scrubbed and sampled at write time.
-   */
-  request_body_sample?: unknown
-  request_item_count: number
   request_level_error_code?: string | null
-  response_body_sample?: unknown
   started_at: string
   succeeded: boolean
   worker_name: string
@@ -905,6 +902,11 @@ export type ChatbotConfigurationModel = {
 }
 
 /**
+ * What checking a row now brings forward.
+ */
+export type CheckNowTarget = "attainment" | "enrolment" | "next_attempt"
+
+/**
  * Where one circuit breaker stands, as its worker last reported it.
  */
 export type CircuitBreakerStatus = "closed" | "open" | "waiting_to_probe"
@@ -1184,6 +1186,10 @@ export type CourseAuditingData = {
   created_at: string
   description?: string | null
   id: string
+  is_draft: boolean
+  is_joinable_by_code_only: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
   modules: Array<CourseModule>
   name: string
   organization_id: string
@@ -1200,6 +1206,10 @@ export type CourseAuditingDataUpdate = {
   closed_at?: string | null
   closed_course_successor_id?: string | null
   description?: string | null
+  is_draft: boolean
+  is_joinable_by_code_only: boolean
+  is_test_mode: boolean
+  is_unlisted: boolean
   modules: Array<CourseAuditingModuleUpdate>
   prerequisites: Array<EditCoursePrerequisite>
 }
@@ -2021,6 +2031,10 @@ export type CreditRegistrationAttentionItem = {
   email?: string | null
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
+  /**
+   * What the bulk hand transition would allow on this row.
+   */
+  hand_actions: HandActionAvailability
   last_name?: string | null
   /**
    * The pipeline's cached "a human should look at this". A fact about the row, never a reason:
@@ -3343,6 +3357,16 @@ export type GutenbergBlock = {
   name: string
 }
 
+/**
+ * Which hand actions a row is offered, decided once on the server for every admin surface.
+ * Clearing the attention flag is refused only on a superseded row, so it is not in here.
+ */
+export type HandActionAvailability = {
+  cancel_refusal?: null | ResubmissionRefusal
+  check_now?: null | CheckNowTarget
+  resubmission: ResubmissionAvailability
+}
+
 export type HealthStatus = "healthy" | "warning" | "error"
 
 export type HistoryChangeReason = "PageSaved" | "HistoryRestored" | "PageDeleted"
@@ -4116,6 +4140,10 @@ export type PageAdminCreditRegistrationRow = {
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
+    /**
+     * What the single-row hand transition would allow: what the row's action controls render from.
+     */
+    hand_actions: HandActionAvailability
     id: string
     is_waiting_for_enrolment: boolean
     last_attempt_at?: string | null
@@ -4133,7 +4161,6 @@ export type PageAdminCreditRegistrationRow = {
     partially_registered_at?: string | null
     pending_reason?: null | CreditRegistrationPendingReason
     registered_at?: string | null
-    resubmission_refusal?: null | ResubmissionRefusal
     /**
      * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
      */
@@ -4586,7 +4613,24 @@ export type ResetPasswordTokenPayload = {
 }
 
 /**
- * Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.
+ * Whether a row may be sent again by hand.
+ */
+export type ResubmissionAvailability =
+  | {
+      kind: "allowed"
+      risk: ResubmissionRisk
+    }
+  | {
+      /**
+       * When the refusal lifts by itself; `None` if waiting does not lift it.
+       */
+      available_at?: string | null
+      kind: "refused"
+      refusal: ResubmissionRefusal
+    }
+
+/**
+ * Why [`ResubmissionFacts`] refuses a hand action on a row.
  *
  * Rendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it
  * travels to them as it is rather than being re-mapped per surface.
@@ -4595,9 +4639,24 @@ export type ResubmissionRefusal =
   | "superseded"
   | "already_succeeded"
   | "submission_uncertain"
+  | "submission_uncertain_too_recent"
   | "not_failed_permanent"
+  | "still_in_pipeline"
   | "submission_pending"
   | "already_submitted"
+  | "awaiting_confirmation"
+  | "already_cancelled"
+  | "nothing_to_check"
+
+/**
+ * How a resend [`ResubmissionFacts::resubmission_refusal`] allows may go wrong, which the admin
+ * surfaces warn about before it is confirmed.
+ */
+export type ResubmissionRisk =
+  | "normal"
+  | "likely_rejected_again"
+  | "replaces_reversed_attainment"
+  | "possible_duplicate"
 
 export type RetryCreditRegistrationPayload = {
   reason?: string | null

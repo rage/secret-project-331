@@ -181,7 +181,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
     await page.goto(STATES_COMPLETIONS_URL)
     await expect(page.getByLabel("Send anyway, past the rate caps")).toHaveCount(0)
     await expect(
-      page.getByRole("button", { name: "Send the confirmation link again" }),
+      page.getByRole("button", { name: "Send the account linking email again" }),
     ).toHaveCount(0)
   })
 })

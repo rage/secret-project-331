@@ -17,6 +17,8 @@ import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
+import EmailCallout from "./EmailCallout"
+import EmailOneTimeCode from "./EmailOneTimeCode"
 import Exercise from "./Exercise"
 import ExerciseSettings from "./Exercise/ExerciseSettings"
 import ExerciseSlide from "./Exercise/ExerciseSlide"
@@ -137,5 +139,12 @@ export const blockTypeMapForTopLevelPages = [
 
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]
+
+/** Must match the custom blocks in `EmailBlockName` in headless-lms `email_processor.rs`. */
+export const blockTypeMapForEmails = [
+  ["moocfi/email-callout", EmailCallout],
+  ["moocfi/email-one-time-code", EmailOneTimeCode],
   // oxlint-disable-next-line typescript/no-explicit-any
 ] as unknown as [string, BlockConfiguration<Record<string, any>>][]

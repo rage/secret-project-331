@@ -260,9 +260,12 @@ test("No stored body carries a student number, a name or an email address", asyn
     "no Suotar calls were logged for this registration",
   ).toBeGreaterThan(0)
 
+  const callDetails = await Promise.all(
+    details.suotar_api_calls.map((call) => suotarApiCall(page.request, call.id)),
+  )
   const stored = JSON.stringify([
     details.events.map((event) => event.details),
-    details.suotar_api_calls.map((call) => [call.request_body_sample, call.response_body_sample]),
+    callDetails.map((call) => [call.request_body_sample, call.response_body_sample]),
   ])
   // resolve-enrolments and import send only the bare student number; a name or an email would only
   // ever reach a stored body through resolve-persons, which this pipeline never calls.
@@ -279,9 +282,18 @@ test("No stored body carries a student number, a name or an email address", asyn
     // and a redacted one look the same.
     await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
     await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible()
-    await page.getByRole("button", { name: "Show the exchange" }).first().click()
+    await page
+      .getByRole("table", { name: "Calls to Suotar" })
+      .getByRole("button", { name: "Show more" })
+      .first()
+      .click()
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
+    ).toBeVisible()
+    await expect(page.getByRole("heading", { name: "This registration's item" })).toBeVisible()
+    await page.getByRole("link", { name: "Show the whole call" }).first().click()
+    await expect(
+      page.getByRole("dialog").getByRole("heading", { name: "Registrations this call carried" }),
     ).toBeVisible()
   })
 
@@ -382,7 +394,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   ).toBeVisible()
 
   await staleRow.getByRole("button", { name: `Actions for ${STALE_STUDENT_NUMBER}` }).click()
-  await page.getByRole("menuitem", { name: "Send the confirmation link again" }).click()
+  await page.getByRole("menuitem", { name: "Send the account linking email again" }).click()
   const dialog = page.getByRole("dialog")
 
   await test.step("Without the override the cap refuses it", async () => {

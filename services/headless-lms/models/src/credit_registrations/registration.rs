@@ -7,7 +7,6 @@ use crate::library::credit_registration::enrolment_check_schedule::{
 };
 use crate::library::credit_registration::grade_mapping::MappedGrade;
 use crate::prelude::*;
-use chrono::NaiveDate;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct CreditRegistration {
@@ -32,7 +31,7 @@ pub struct CreditRegistration {
     pub selected_enrolment_id: Option<String>,
     pub selected_enrolment_kind: Option<String>,
     pub selected_enrolment_realisation_id: Option<String>,
-    pub attainment_date: Option<NaiveDate>,
+    pub attained_at: Option<DateTime<Utc>>,
     pub attainment_language: Option<String>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
@@ -102,6 +101,7 @@ impl CreditRegistration {
         ResubmissionFacts {
             state: self.state,
             is_superseded: self.superseded_by_id.is_some(),
+            error_code: self.error_code,
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
         }

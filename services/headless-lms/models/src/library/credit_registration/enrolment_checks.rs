@@ -13,8 +13,8 @@ use chrono::TimeDelta;
 use super::enrolment_check_schedule::{
     BATCH_INTERVAL, BATCH_PULL_FORWARD, CHECK_REQUEST_MIN_INTERVAL, CHECK_REQUEST_RESTART_WINDOW,
     EnrolmentCheckGroup, EnrolmentCheckSource, MAX_CHECK_REQUEST_RESTARTS_PER_DAY,
-    ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY, VISIT_RESTART_MIN_INTERVAL, first_check,
-    never, next_check_after,
+    STUDENT_CHECK_REQUEST_MIN_ROW_AGE, ScheduledEnrolmentCheck, TRANSIENT_FAILURE_RETRY,
+    VISIT_RESTART_MIN_INTERVAL, first_check, never, next_check_after,
 };
 use super::study_registry::RegistryEnrolment;
 
@@ -264,6 +264,15 @@ pub fn is_check_request_limited(
         now,
         CHECK_REQUEST_MIN_INTERVAL,
     ) || is_within(enrolment_checked_at, now, CHECK_REQUEST_MIN_INTERVAL)
+}
+
+/// Whether a row is too new for its student to ask for a check, which hides their buttons and turns
+/// a request away as too soon. A teacher's request has no such wait.
+pub fn is_too_new_for_student_check_request(
+    row_created_at: DateTime<Utc>,
+    now: DateTime<Utc>,
+) -> bool {
+    now - row_created_at < STUDENT_CHECK_REQUEST_MIN_ROW_AGE
 }
 
 /// A visit to the registration page while it showed the enrolment instructions. Moves a

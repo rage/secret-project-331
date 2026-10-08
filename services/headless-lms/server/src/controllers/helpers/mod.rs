@@ -1,3 +1,4 @@
+pub mod email_content;
 pub mod file_uploading;
 pub mod multi_query;
 pub mod pagination;

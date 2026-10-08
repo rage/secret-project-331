@@ -19,7 +19,7 @@ export function formatZonedTimestamp(at: Date): string {
   return `${formatTimestamp(at)} (${timeZoneOffsetString(at)})`
 }
 
-/** `13:05:12–13:43:37 (UTC+3)`; full timestamps when the range spans days or a clock change. */
+/** `2026-09-29 13:05:12–13:43:37 (UTC+3)`; both full when the range spans days or a clock change. */
 export function formatZonedTimeRange(from: Date, to: Date): string {
   const start = formatTimestamp(from)
   const end = formatTimestamp(to)
@@ -30,7 +30,7 @@ export function formatZonedTimeRange(from: Date, to: Date): string {
   ) {
     return `${formatZonedTimestamp(from)}–${formatZonedTimestamp(to)}`
   }
-  return `${start.slice(TIME_START)}–${end.slice(TIME_START)} (${offset})`
+  return `${start}–${end.slice(TIME_START)} (${offset})`
 }
 
 /** A `<time>` showing an absolute timestamp with its zone; `ABSENT` when there is none. */

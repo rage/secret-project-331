@@ -64,16 +64,22 @@ pub(super) async fn claim_import_candidates(
             Ok(applied) => {
                 savepoint.commit().await?;
                 match (submission, applied) {
-                    (Some(submission), Applied::Written { .. }) => prepared.send(
-                        Claimed {
-                            claim: ClaimedRegistration::moved_to(
-                                claim.into_registration(),
-                                CreditRegistrationState::Submitting,
-                            ),
-                            extra: (),
-                        },
-                        submission,
-                    ),
+                    (Some(submission), Applied::Written { .. }) => {
+                        let mut registration = claim.into_registration();
+                        // The move just restamped it in the database; the answer's first verify
+                        // poll is timed from this send, not from an earlier one.
+                        registration.submitted_at = Some(Utc::now());
+                        prepared.send(
+                            Claimed {
+                                claim: ClaimedRegistration::moved_to(
+                                    registration,
+                                    CreditRegistrationState::Submitting,
+                                ),
+                                extra: (),
+                            },
+                            submission,
+                        )
+                    }
                     (_, applied) => prepared.record_applied(claim.id(), applied),
                 }
             }
@@ -197,7 +203,7 @@ fn build_submission(row: &CreditRegistration) -> Result<AttainmentSubmission, Un
         Some(student_number),
         Some(course_code),
         Some(enrolment_id),
-        Some(attainment_date),
+        Some(attained_at),
         Some(attainment_language),
         Some(grade_scale_id),
         Some(grade_id),
@@ -206,7 +212,7 @@ fn build_submission(row: &CreditRegistration) -> Result<AttainmentSubmission, Un
         row.student_number.as_ref().map(ExposeSecret::expose_secret),
         row.uh_course_code.as_deref(),
         row.selected_enrolment_id.as_deref(),
-        row.attainment_date,
+        row.attained_at,
         row.attainment_language.as_deref(),
         row.grade_scale_id.as_deref(),
         row.grade_id.as_deref(),
@@ -233,7 +239,7 @@ fn build_submission(row: &CreditRegistration) -> Result<AttainmentSubmission, Un
         student_number: StudentNumber::new(student_number),
         course_code,
         enrolment_id: enrolment_id.to_string(),
-        attainment_date,
+        attained_at,
         attainment_language: attainment_language.to_string(),
         grade,
         credits,

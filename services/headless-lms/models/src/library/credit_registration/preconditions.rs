@@ -8,7 +8,9 @@ use crate::credit_registrations::{
 use crate::prelude::*;
 use chrono::TimeDelta;
 
-use super::backoff::{RESOLVING_RECOVERY_GRACE, SUBMIT_MAX_RETRY_AGE, SUBMITTING_RECOVERY_GRACE};
+use super::backoff::{
+    self, RESOLVING_RECOVERY_GRACE, SUBMIT_MAX_RETRY_AGE, SUBMITTING_RECOVERY_GRACE, verify_delay,
+};
 use super::enrolment_check_schedule::{
     EnrolmentCheckGroup, EnrolmentCheckSource, ScheduledEnrolmentCheck, first_check,
 };
@@ -190,6 +192,12 @@ pub async fn recompute_preconditions(
                 ),
             };
             let mut next_attempt_at = None;
+            if target == CreditRegistrationState::AwaitingVerification {
+                next_attempt_at = Some(backoff::next_attempt_at(
+                    now,
+                    verify_delay(pending.submitted_at, now),
+                ));
+            }
             if target == CreditRegistrationState::ReadyToSubmit
                 && let Some(start) = &pending.check_start
                 && let Some(scheduled) = first_check(start.group, start.anchor_at)

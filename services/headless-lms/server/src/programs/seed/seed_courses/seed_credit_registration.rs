@@ -151,7 +151,6 @@ pub async fn seed_credit_registration(
         base_course_ns: SUOTAR_COURSE_ID,
     };
 
-    // Linked before any completion exists: a completion's registration path is decided at insert.
     info!("inserting credit registration students");
     let students = seed_linked_students(&mut conn, &cx).await?;
 
@@ -449,7 +448,7 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
 }
 
 /// Turns the module on with an enrolment link unique to its course code, without which the config
-/// check flags the module, and opts its linked students' completions in.
+/// check flags the module, and opts its students' completions in.
 fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
         enrolment_link: Some(format!(
@@ -1241,7 +1240,7 @@ async fn insert_registered_attempt(
                 "en": "Registration test realisation",
                 "sv": null,
             })),
-            attainment_date: (Utc::now() - Duration::days(20)).date_naive(),
+            attained_at: Utc::now() - Duration::days(20),
             attainment_language: "en".to_string(),
             grade_scale_id: "sis-0-5".to_string(),
             grade_id: grade_id.to_string(),

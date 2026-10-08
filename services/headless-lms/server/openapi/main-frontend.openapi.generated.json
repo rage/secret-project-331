@@ -8080,7 +8080,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a\nselection of rows by hand, one transaction for the lot.\n\nResubmitting refuses every row in `submission_uncertain`, whatever the selection said. Taking one of\nthose back to `ready_to_submit` is a decision about one student's transcript, made after somebody has\nlooked the attainment up; a checkbox in a list is not that, and a mis-click here would put a second\nattainment on every one of them. Those rows are reported back untouched, to be dealt with one at a\ntime, as is a row whose earlier submission Suotar still holds open (`submission_pending`).",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a\nselection of rows by hand, one transaction for the lot.\n\nResubmitting or cancelling refuses every row in `submission_uncertain`, whatever the selection\nsaid. Taking one of those back to `ready_to_submit` is a decision about one student's transcript,\nmade after somebody has looked the attainment up; a checkbox in a list is not that, and a mis-click\nhere would put a second attainment on every one of them. Those rows are reported back untouched, to\nbe dealt with one at a time, as is a row whose earlier submission Suotar still holds open\n(`submission_pending`). Each attention item's `hand_actions` says in advance what this skips.",
         "operationId": "adminBulkTransitionCreditRegistrations",
         "requestBody": {
           "content": {
@@ -8178,7 +8178,7 @@
     "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
       "post": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted\nwhile Suotar still holds its earlier submission open (`submission_pending`).",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`\n- Moves one row by hand.\n\nThe escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because\nre-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted\nwhile Suotar may still hold its earlier submission as pending (`submission_uncertain_too_recent`,\n`submission_pending`). The row's `hand_actions` says in advance what this refuses.",
         "operationId": "adminTransitionCreditRegistration",
         "parameters": [
           {
@@ -14347,6 +14347,11 @@
             "type": "boolean",
             "description": "When false, no linking mails are sent and resends are refused."
           },
+          "account_linking_since": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Discovery mails only people who enrolled at or after this."
+          },
           "funnel": {
             "$ref": "#/components/schemas/AccountLinkingFunnel"
           },
@@ -14741,7 +14746,8 @@
           "submit_retry_count",
           "verify_attempt_count",
           "attempt_number",
-          "superseded"
+          "superseded",
+          "hand_actions"
         ],
         "properties": {
           "attempt_number": {
@@ -14818,6 +14824,10 @@
           "grade_scale_id": {
             "type": ["string", "null"]
           },
+          "hand_actions": {
+            "$ref": "#/components/schemas/HandActionAvailability",
+            "description": "What the single-row hand transition would allow: what the row's action controls render from."
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -14867,17 +14877,6 @@
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
-          },
-          "resubmission_refusal": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/ResubmissionRefusal",
-                "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
-              }
-            ]
           },
           "resubmit_not_before": {
             "type": ["string", "null"],
@@ -15297,36 +15296,14 @@
       },
       "AdminSuotarApiCall": {
         "type": "object",
-        "required": [
-          "id",
-          "endpoint",
-          "started_at",
-          "succeeded",
-          "request_item_count",
-          "ok_item_count",
-          "error_item_count",
-          "pending_item_count",
-          "worker_name",
-          "credit_registration_ids"
-        ],
+        "required": ["id", "endpoint", "started_at", "succeeded", "worker_name"],
         "properties": {
-          "credit_registration_ids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           "duration_ms": {
             "type": ["integer", "null"],
             "format": "int32"
           },
           "endpoint": {
             "$ref": "#/components/schemas/SuotarEndpoint"
-          },
-          "error_item_count": {
-            "type": "integer",
-            "format": "int32"
           },
           "http_status": {
             "type": ["integer", "null"],
@@ -15336,25 +15313,9 @@
             "type": "string",
             "format": "uuid"
           },
-          "ok_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pending_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "request_body_sample": {
-            "description": "Scrubbed and sampled at write time."
-          },
-          "request_item_count": {
-            "type": "integer",
-            "format": "int32"
-          },
           "request_level_error_code": {
             "type": ["string", "null"]
           },
-          "response_body_sample": {},
           "started_at": {
             "type": "string",
             "format": "date-time"
@@ -16640,6 +16601,11 @@
           }
         }
       },
+      "CheckNowTarget": {
+        "type": "string",
+        "description": "What checking a row now brings forward.",
+        "enum": ["attainment", "enrolment", "next_attempt"]
+      },
       "CircuitBreakerStatus": {
         "type": "string",
         "description": "Where one circuit breaker stands, as its worker last reported it.",
@@ -17424,6 +17390,10 @@
           "slug",
           "created_at",
           "updated_at",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "is_joinable_by_code_only",
           "organization_id",
           "organization_name",
           "organization_slug",
@@ -17459,6 +17429,18 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
           },
           "modules": {
             "type": "array",
@@ -17496,7 +17478,15 @@
       },
       "CourseAuditingDataUpdate": {
         "type": "object",
-        "required": ["prerequisites", "audiences", "modules"],
+        "required": [
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "is_joinable_by_code_only",
+          "prerequisites",
+          "audiences",
+          "modules"
+        ],
         "properties": {
           "audiences": {
             "type": "array",
@@ -17517,6 +17507,18 @@
           },
           "description": {
             "type": ["string", "null"]
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
           },
           "modules": {
             "type": "array",
@@ -19619,7 +19621,8 @@
           "attempt_count",
           "next_attempt_at",
           "reasons",
-          "needs_admin_attention"
+          "needs_admin_attention",
+          "hand_actions"
         ],
         "properties": {
           "attempt_count": {
@@ -19660,6 +19663,10 @@
           },
           "first_name": {
             "type": ["string", "null"]
+          },
+          "hand_actions": {
+            "$ref": "#/components/schemas/HandActionAvailability",
+            "description": "What the bulk hand transition would allow on this row."
           },
           "last_name": {
             "type": ["string", "null"]
@@ -22978,6 +22985,38 @@
           }
         }
       },
+      "HandActionAvailability": {
+        "type": "object",
+        "description": "Which hand actions a row is offered, decided once on the server for every admin surface.\nClearing the attention flag is refused only on a superseded row, so it is not in here.",
+        "required": ["resubmission"],
+        "properties": {
+          "cancel_refusal": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ResubmissionRefusal",
+                "description": "Why cancelling is refused, or `None` if it may go ahead."
+              }
+            ]
+          },
+          "check_now": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CheckNowTarget",
+                "description": "What checking now looks up, or `None` where it would do nothing."
+              }
+            ]
+          },
+          "resubmission": {
+            "$ref": "#/components/schemas/ResubmissionAvailability"
+          }
+        }
+      },
       "HealthStatus": {
         "type": "string",
         "enum": ["healthy", "warning", "error"]
@@ -24982,7 +25021,8 @@
                 "submit_retry_count",
                 "verify_attempt_count",
                 "attempt_number",
-                "superseded"
+                "superseded",
+                "hand_actions"
               ],
               "properties": {
                 "attempt_number": {
@@ -25059,6 +25099,10 @@
                 "grade_scale_id": {
                   "type": ["string", "null"]
                 },
+                "hand_actions": {
+                  "$ref": "#/components/schemas/HandActionAvailability",
+                  "description": "What the single-row hand transition would allow: what the row's action controls render from."
+                },
                 "id": {
                   "type": "string",
                   "format": "uuid"
@@ -25108,17 +25152,6 @@
                 "registered_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
-                },
-                "resubmission_refusal": {
-                  "oneOf": [
-                    {
-                      "type": "null"
-                    },
-                    {
-                      "$ref": "#/components/schemas/ResubmissionRefusal",
-                      "description": "Why the single-row hand transition would refuse to put this row back on the pipeline, or\n`null` if it would go ahead: what the row's resubmit control renders from."
-                    }
-                  ]
                 },
                 "resubmit_not_before": {
                   "type": ["string", "null"],
@@ -26448,16 +26481,67 @@
           }
         }
       },
+      "ResubmissionAvailability": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["risk", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["allowed"]
+              },
+              "risk": {
+                "$ref": "#/components/schemas/ResubmissionRisk"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["refusal", "kind"],
+            "properties": {
+              "available_at": {
+                "type": ["string", "null"],
+                "format": "date-time",
+                "description": "When the refusal lifts by itself; `None` if waiting does not lift it."
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["refused"]
+              },
+              "refusal": {
+                "$ref": "#/components/schemas/ResubmissionRefusal"
+              }
+            }
+          }
+        ],
+        "description": "Whether a row may be sent again by hand."
+      },
       "ResubmissionRefusal": {
         "type": "string",
-        "description": "Why [`ResubmissionFacts::resubmission_refusal`] would not move a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
+        "description": "Why [`ResubmissionFacts`] refuses a hand action on a row.\n\nRendered by the teacher and admin surfaces, which decide from it which buttons a row gets, so it\ntravels to them as it is rather than being re-mapped per surface.",
         "enum": [
           "superseded",
           "already_succeeded",
           "submission_uncertain",
+          "submission_uncertain_too_recent",
           "not_failed_permanent",
+          "still_in_pipeline",
           "submission_pending",
-          "already_submitted"
+          "already_submitted",
+          "awaiting_confirmation",
+          "already_cancelled",
+          "nothing_to_check"
+        ]
+      },
+      "ResubmissionRisk": {
+        "type": "string",
+        "description": "How a resend [`ResubmissionFacts::resubmission_refusal`] allows may go wrong, which the admin\nsurfaces warn about before it is confirmed.",
+        "enum": [
+          "normal",
+          "likely_rejected_again",
+          "replaces_reversed_attainment",
+          "possible_duplicate"
         ]
       },
       "RetryCreditRegistrationPayload": {

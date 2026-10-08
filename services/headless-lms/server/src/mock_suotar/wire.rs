@@ -60,11 +60,19 @@ pub struct ImportAttainmentRequestItem {
     pub student_number: String,
     pub course_code: String,
     pub enrolment_id: String,
-    pub attainment_date: NaiveDate,
+    #[serde(rename = "attainmentDate")]
+    pub attained_at: DateTime<Utc>,
     pub attainment_language: String,
     pub grade_scale_id: String,
     pub grade_id: String,
     pub credits: f64,
+}
+
+impl ImportAttainmentRequestItem {
+    /// The date the attainment gets: the UTC date of the moment sent.
+    pub fn attainment_date(&self) -> NaiveDate {
+        self.attained_at.date_naive()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]

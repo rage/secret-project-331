@@ -41,7 +41,7 @@ pub(crate) fn registration(state: CreditRegistrationState) -> CreditRegistration
         selected_enrolment_id: None,
         selected_enrolment_kind: None,
         selected_enrolment_realisation_id: None,
-        attainment_date: None,
+        attained_at: None,
         attainment_language: None,
         grade_scale_id: None,
         grade_id: None,

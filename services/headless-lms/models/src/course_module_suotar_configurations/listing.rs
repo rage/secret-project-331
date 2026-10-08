@@ -8,6 +8,7 @@ use crate::prelude::*;
 /// dashboard never mixes two runs.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ModuleListingOutcome {
+    /// Only those enrolled since account linking was switched on.
     pub listed_person_count: i32,
     pub already_linked_count: i32,
     pub mailed_count: i32,

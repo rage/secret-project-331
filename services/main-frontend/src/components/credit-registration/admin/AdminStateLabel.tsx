@@ -21,7 +21,7 @@ const SUPERSEDED = "superseded" as const
 export const STATE_ICON_SIZE = 16
 
 /**
- * Ink per tone for state glyphs, and for the timeline's step glyphs and results.
+ * Ink per tone for state glyphs, and for the timeline's sentences.
  *
  * `action-needed` takes the rust red rather than an amber: the yellow ramp is not contrast-safe as
  * ink at any step, and rust still reads clearly apart from the deeper crimson a failure gets.

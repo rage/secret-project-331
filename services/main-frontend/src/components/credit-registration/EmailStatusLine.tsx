@@ -43,7 +43,7 @@ export interface LinkingEmailLineProps {
 }
 
 /**
- * The confirmation link's send record, once one actually went out.
+ * The account linking email's send record, once one actually went out.
  *
  * For copy that names the mailbox and date inline instead of trailing `LinkingEmailLine` after it.
  * Null while queued or failed — use `LinkingEmailLine` for those instead, which say what happened.

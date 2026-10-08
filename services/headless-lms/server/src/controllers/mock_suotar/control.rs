@@ -34,7 +34,8 @@ pub struct RunTickQuery {
     /// Comma-separated ledger row ids, for a spec that already knows them.
     pub credit_registration_ids: Option<String>,
     /// Overrides the deployment's account-linking switch for this tick, so a spec can run a phase
-    /// the way a deployment with linking off would.
+    /// the way a deployment with linking off would. On, it keeps the deployment's cutoff, or mails
+    /// every enrolment if the deployment has none.
     pub account_linking_enabled: Option<bool>,
 }
 
@@ -83,6 +84,7 @@ impl PhaseTickResult {
                     PhaseSkipReason::Paused => "paused".to_string(),
                     PhaseSkipReason::CircuitBreakerOpen => "circuitBreakerOpen".to_string(),
                     PhaseSkipReason::AccountLinkingDisabled => "accountLinkingDisabled".to_string(),
+                    PhaseSkipReason::SisuDayGap => "sisuDayGap".to_string(),
                 },
             },
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {
@@ -133,9 +135,16 @@ async fn run_tick(
     };
 
     let ctx = PhaseContext {
-        is_account_linking_enabled: query
-            .account_linking_enabled
-            .unwrap_or(app_conf.suotar_configuration.account_linking_enabled),
+        account_linking_since: match query.account_linking_enabled {
+            Some(true) => Some(
+                app_conf
+                    .suotar_configuration
+                    .account_linking_since
+                    .unwrap_or(DateTime::UNIX_EPOCH),
+            ),
+            Some(false) => None,
+            None => app_conf.suotar_configuration.account_linking_since,
+        },
         ..tick_context(&app_conf, &pool, &suotar_client)
     };
     debug!(phase = phase.as_str(), ?scope, "run-tick requested");
@@ -303,8 +312,8 @@ pub struct ExpireEnrolmentRecheckAllowancePayload {
     pub clear_restarts: bool,
 }
 
-/// Lets a spec press a recheck button right after the last check or request, instead of waiting
-/// out the limit on asking.
+/// Lets a spec press a recheck button right after the last check or request, or on a new row,
+/// instead of waiting out the limit on asking or the student's first-hour wait.
 async fn expire_enrolment_recheck_allowance(
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
@@ -465,7 +474,7 @@ pub struct RegisterNewCompletionsViaSuotarPayload {
     pub course_module_id: Uuid,
 }
 
-/// Opts a module's new completions of linked students into Suotar, which only support can do by
+/// Opts a module's new completions into Suotar, which only support can do by
 /// hand: a spec that creates its own course needs its completions on the pipeline.
 async fn register_new_completions_via_suotar(
     app_conf: web::Data<ApplicationConfiguration>,

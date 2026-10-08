@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
+import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -15,12 +16,14 @@ import { adminTransitionCreditRegistration } from "@/generated/api/sdk.generated
 import type {
   AdminCreditRegistrationRow,
   AdminTransitionCreditRegistrationResult,
+  CheckNowTarget,
+  ResubmissionRisk,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
-import { Infobox, Link } from "@/shared-module/components"
+import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
 import {
   BUTTON_PRIMARY,
@@ -29,19 +32,16 @@ import {
   CREDIT_REGISTRATION_NS,
   TONE,
 } from "../constants"
-import type { FailureAction, FailureRemedy } from "../registrationFailures"
-import {
-  failureActionLabel,
-  failureActions,
-  failureOwnerHeading,
-  failureRemedy,
-} from "../registrationFailures"
+import { failureActionLabel } from "../registrationFailures"
 import { refusalSentence } from "../resubmissionRefusal"
-import { noteCss, proseCss, rowCss, subsectionCss } from "../styles"
+import { noteCss, proseCss, subsectionCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
+import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { AdminActionDialog } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
+import type { HandActionOffer } from "./handActionOffers"
+import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
 import { ReasonField } from "./ReasonConfirmDialog"
 import type { TransitionChoice } from "./TransitionTargetSelect"
 import {
@@ -52,36 +52,6 @@ import {
   transitionAction,
 } from "./TransitionTargetSelect"
 
-interface TransitionCopy {
-  label: string
-  description: string
-  appliedMessage: string
-}
-
-/** The label, the one-sentence description and the applied message for each transition target. */
-const TRANSITION_COPY = {
-  [READY_TO_SUBMIT]: {
-    label: "credit-registration-admin-target-resubmit",
-    description: "credit-registration-admin-resubmit-description",
-    appliedMessage: "credit-registration-admin-resubmit-applied",
-  },
-  [CHECK_NOW]: {
-    label: "credit-registration-admin-target-check-now",
-    description: "credit-registration-admin-check-now-description",
-    appliedMessage: "credit-registration-admin-check-now-applied",
-  },
-  [CLEAR_ATTENTION]: {
-    label: "credit-registration-admin-target-clear-attention",
-    description: "credit-registration-admin-clear-attention-description",
-    appliedMessage: "credit-registration-admin-attention-cleared",
-  },
-  [CANCELLED]: {
-    label: "credit-registration-admin-target-cancel",
-    description: "credit-registration-admin-cancel-description",
-    appliedMessage: "credit-registration-admin-cancel-applied",
-  },
-} as const satisfies Record<TransitionChoice, TransitionCopy>
-
 interface Props {
   registration: AdminCreditRegistrationRow
 }
@@ -89,82 +59,150 @@ interface Props {
 interface Fields {
   action: TransitionChoice
   reason: string
+  riskUnderstood: boolean
 }
-
-const SUBMISSION_UNCERTAIN = "submission_uncertain"
-const AWAITING_VERIFICATION = "awaiting_verification"
-const PARTIALLY_REGISTERED = "partially_registered"
-const ADMIN_AUDIENCE = "admin" as const
-const RETRY = "retry" as const
-const RECHECK_REGISTRY = "recheck_registry" as const
-
-/** A row of same-height action buttons: a taller item must not lift its neighbours to its middle. */
-const actionsRowCss = cx(
-  rowCss,
-  css`
-    align-items: start;
-  `,
-)
-
-/** Sets the row's one destructive action apart, on its own line rather than wherever it fits. */
-const cancelRowCss = css`
-  display: flex;
-  justify-content: end;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-clear-300);
-`
 
 const APPLIED = "applied" as const
 const REFUSED = "refused" as const
+const RISK_FIELD = "riskUnderstood" as const
 
-/** Why resubmitting to Sisu can't fix this failure — one entry per remedy other than a resend. */
-const RETRY_BLOCKED_KEYS = {
-  module_configuration: "credit-registration-admin-retry-blocked-configuration",
-  student_number: "credit-registration-admin-retry-blocked-student-number",
-  student_enrolment: "credit-registration-admin-retry-blocked-enrolment",
-  recheck: "credit-registration-admin-retry-blocked-uncertain",
-  support: "credit-registration-admin-retry-blocked-deterministic",
-} as const satisfies Record<Exclude<FailureRemedy, typeof RETRY>, string>
+/**
+ * Button on the left, what it does on the right, from `md` up; stacked below that. One grid holds
+ * both groups and each row is a subgrid, so every explanation starts on one edge whatever its
+ * button's width.
+ */
+const actionListCss = css`
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  ${respondToOrLarger.md} {
+    grid-template-columns: fit-content(18rem) minmax(0, 1fr);
+    column-gap: var(--space-5);
+  }
+`
+
+/** Only `row-gap`: a subgrid's own column gap would replace the list's. */
+const actionRowCss = css`
+  display: grid;
+  row-gap: var(--space-2);
+  align-items: start;
+
+  ${respondToOrLarger.md} {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    /* Lines the explanation's first line up with the button's label. */
+    align-items: baseline;
+  }
+`
+
+const housekeepingStartCss = css`
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-clear-300);
+`
+
+const explanationCss = css`
+  display: grid;
+  gap: var(--space-1);
+
+  > p {
+    margin: 0;
+  }
+`
+
+const CHECK_NOW_COPY = {
+  attainment: {
+    label: "credit-registration-admin-target-check-attainment",
+    description: "credit-registration-admin-check-attainment-description",
+  },
+  enrolment: {
+    label: "credit-registration-admin-target-check-enrolment",
+    description: "credit-registration-admin-check-enrolment-description",
+  },
+  next_attempt: {
+    label: "credit-registration-admin-target-check-next-attempt",
+    description: "credit-registration-admin-check-next-attempt-description",
+  },
+} as const satisfies Record<CheckNowTarget, { label: string; description: string }>
+
+/** What a resend dialog says and asks beyond the reason, per how the resend may go wrong. */
+const RISK_COPY = {
+  normal: null,
+  likely_rejected_again: {
+    tone: TONE.WARNING,
+    warning: "credit-registration-admin-resubmit-repeat-warning",
+    confirm: "credit-registration-admin-resubmit-repeat-confirm",
+  },
+  replaces_reversed_attainment: {
+    tone: TONE.INFO,
+    warning: "credit-registration-admin-resubmit-reversed-note",
+    confirm: null,
+  },
+  possible_duplicate: {
+    tone: TONE.DANGER,
+    warning: "credit-registration-admin-resubmit-duplicate-warning",
+    confirm: "credit-registration-admin-resubmit-duplicate-confirm",
+  },
+} as const satisfies Record<
+  ResubmissionRisk,
+  { tone: string; warning: string; confirm: string | null } | null
+>
+
+interface ActionResult {
+  isApplied: boolean
+  message: string
+}
 
 interface TransitionActionProps {
   registration: AdminCreditRegistrationRow
   choice: TransitionChoice
   label: string
-  /** One sentence saying what this action does to the row, shown before the reason field. */
-  description: string
+  /** What the action does, as the list shows it beside the button; also the dialog's body. */
+  explanation: React.ReactNode
   appliedMessage: string
-  triggerVariant?: ButtonVariant
+  triggerVariant: ButtonVariant
+  risk?: ResubmissionRisk
   isDestructive?: boolean
+  onResult: (result: ActionResult) => void
 }
 
 const TransitionAction: React.FC<TransitionActionProps> = ({
   registration,
   choice,
   label,
-  description,
+  explanation,
   appliedMessage,
   triggerVariant,
+  risk = "normal",
   isDestructive = false,
+  onResult,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
+  const riskCopy = RISK_COPY[risk]
 
   return (
     <AdminActionDialog<Fields, AdminTransitionCreditRegistrationResult>
       triggerLabel={label}
-      {...includeIf(triggerVariant, { triggerVariant })}
+      triggerVariant={triggerVariant}
       dialogTitle={label}
-      description={description}
+      description={explanation}
       confirmLabel={label}
-      isDestructive={isDestructive}
-      defaultValues={{ action: choice, reason: "" }}
+      isDestructive={isDestructive || risk === "possible_duplicate"}
+      defaultValues={{ action: choice, reason: "", riskUnderstood: false }}
       mutationFn={(fields) =>
         adminTransitionCreditRegistration({
           path: { credit_registration_id: registration.id },
           body: { action: transitionAction(fields.action), reason: fields.reason },
         })
       }
-      onSuccess={() => {
+      onSuccess={(result) => {
+        onResult({
+          isApplied: result.outcome === APPLIED,
+          message: result.outcome === REFUSED ? refusalSentence(t, result.refusal) : appliedMessage,
+        })
         void Promise.all([
           queryClient.invalidateQueries({
             queryKey: getCreditRegistrationForAdminQueryKey({
@@ -179,166 +217,293 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
           }),
         ])
       }}
-      renderFields={(control) => <ReasonField control={control} />}
-      renderResult={(result) => (
-        <Infobox tone={result.outcome === APPLIED ? TONE.INFO : TONE.WARNING}>
-          {result.outcome === REFUSED ? refusalSentence(t, result.refusal) : appliedMessage}
-        </Infobox>
+      renderFields={(control: Control<Fields>) => (
+        <>
+          {riskCopy && <Infobox tone={riskCopy.tone}>{t(riskCopy.warning)}</Infobox>}
+          {riskCopy?.confirm && (
+            <Checkbox
+              name={RISK_FIELD}
+              control={control}
+              rules={{ required: t("required-field") }}
+              label={t(riskCopy.confirm)}
+            />
+          )}
+          <ReasonField control={control} />
+        </>
       )}
     />
   )
 }
 
-/**
- * The remedies this row is offered, in the order they should be tried.
- *
- * The state decides it where it can: an unknown submission outcome has to be checked rather than
- * sent again, and a row Sisu has not answered yet has nothing to resend. Otherwise the failure's
- * own remedy plan does, so a resend is never the first thing offered for a failure it cannot clear.
- */
-const offeredActions = (registration: AdminCreditRegistrationRow): readonly FailureAction[] => {
-  if (
-    registration.state === SUBMISSION_UNCERTAIN ||
-    registration.state === AWAITING_VERIFICATION ||
-    registration.state === PARTIALLY_REGISTERED
-  ) {
-    return [RECHECK_REGISTRY]
-  }
-  const plan = failureActions(registration.error_code, ADMIN_AUDIENCE)
-  return [plan.primary, ...plan.secondary].filter(
-    (action): action is FailureAction => action !== null,
-  )
-}
+const prose = (text: React.ReactNode) => <p className={proseCss}>{text}</p>
+
+const ActionRow: React.FC<{
+  control: React.ReactNode
+  explanation: React.ReactNode
+  className?: string | undefined
+}> = ({ control, explanation, className }) => (
+  <li className={cx(actionRowCss, className)}>
+    <div>{control}</div>
+    <div className={explanationCss}>{explanation}</div>
+  </li>
+)
 
 /**
- * The hand actions an admin has on one row, led by the one that could fix this failure; a refused
- * one comes back saying why.
- *
- * Dismissing the flag and cancelling come last whatever the failure is: neither is a remedy, and
- * cancelling is the only action that ends the registration.
+ * The hand actions an admin has on one row, each beside what it does, led by the one that could
+ * fix this failure. Dismissing the flag and cancelling come last, under a rule: neither is a
+ * remedy, and cancelling is the only action that ends the registration.
  */
 const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  // Kept here rather than under its button: an applied action usually changes which actions the
+  // row is offered, taking its own button with it.
+  const [lastResult, setLastResult] = useState<ActionResult | null>(null)
 
   if (registration.superseded) {
     return <p className={noteCss}>{t("credit-registration-admin-superseded-no-actions")}</p>
   }
 
-  // Non-null only where the study registry's answer is already in: a state move would be refused.
-  const refusal = registration.resubmission_refusal ?? null
-  const remedy = failureRemedy(registration.error_code)
-  const owner = failureActions(registration.error_code, ADMIN_AUDIENCE).owner
+  const { resubmission } = registration.hand_actions
+  const checkNow = registration.hand_actions.check_now ?? null
+  const cancelRefusal = registration.hand_actions.cancel_refusal ?? null
   const studentNumber = registration.verified_student_number ?? registration.student_number
-  const offered = offeredActions(registration).filter(
-    (action) => refusal === null || action !== RETRY,
+  const { offers, recommended } = handActionOffers(
+    registration,
+    renderableRemedies({
+      hasEmail: Boolean(registration.email),
+      hasStudentNumber: Boolean(studentNumber),
+      isAccountLinkingEnabled,
+    }),
   )
-  const retryBlockedReason =
-    refusal === null && registration.error_code && remedy !== RETRY
-      ? t(RETRY_BLOCKED_KEYS[remedy])
-      : null
+  const variantFor = (offer: HandActionOffer): ButtonVariant =>
+    offer === recommended ? BUTTON_PRIMARY : BUTTON_SECONDARY
 
-  const renderTransition = (choice: TransitionChoice, triggerVariant: ButtonVariant) => {
-    const copy = TRANSITION_COPY[choice]
-    return (
-      <TransitionAction
-        key={choice}
-        registration={registration}
-        choice={choice}
-        label={t(copy.label)}
-        description={t(copy.description)}
-        appliedMessage={t(copy.appliedMessage)}
-        triggerVariant={triggerVariant}
-      />
-    )
-  }
-
-  const renderAction = (action: FailureAction, isPrimary: boolean): React.ReactNode => {
-    const buttonVariant = isPrimary ? BUTTON_PRIMARY : BUTTON_SECONDARY
-    switch (action) {
-      case "retry":
-      case "recheck_registry":
-        return renderTransition(action === "retry" ? READY_TO_SUBMIT : CHECK_NOW, buttonVariant)
-      case "fix_module_configuration":
-      case "email_student": {
-        const href =
-          action === "fix_module_configuration"
-            ? manageCourseModulesRoute(registration.course_id)
-            : registration.email && `mailto:${registration.email}`
-        return href ? (
-          <Link key={action} href={href} styledAsButton variant={buttonVariant} size="medium">
-            {failureActionLabel(t, action)}
-          </Link>
-        ) : null
+  const renderOffer = (offer: HandActionOffer): React.ReactNode => {
+    switch (offer) {
+      case RESUBMIT: {
+        if (resubmission.kind !== "allowed") {
+          return null
+        }
+        const riskCopy = RISK_COPY[resubmission.risk]
+        const explanation = (
+          <>
+            {prose(t("credit-registration-admin-resubmit-description"))}
+            {riskCopy && <p className={noteCss}>{t(riskCopy.warning)}</p>}
+          </>
+        )
+        return (
+          <ActionRow
+            key={offer}
+            control={
+              <TransitionAction
+                registration={registration}
+                choice={READY_TO_SUBMIT}
+                label={t("credit-registration-admin-target-resubmit")}
+                explanation={explanation}
+                appliedMessage={t("credit-registration-admin-resubmit-applied")}
+                triggerVariant={variantFor(offer)}
+                risk={resubmission.risk}
+                onResult={setLastResult}
+              />
+            }
+            explanation={explanation}
+          />
+        )
       }
+      case CHECK_NOW_OFFER: {
+        if (checkNow === null) {
+          return null
+        }
+        const copy = CHECK_NOW_COPY[checkNow]
+        const explanation = prose(t(copy.description))
+        return (
+          <ActionRow
+            key={offer}
+            control={
+              <TransitionAction
+                registration={registration}
+                choice={CHECK_NOW}
+                label={t(copy.label)}
+                explanation={explanation}
+                appliedMessage={t("credit-registration-admin-check-now-applied")}
+                triggerVariant={variantFor(offer)}
+                onResult={setLastResult}
+              />
+            }
+            explanation={explanation}
+          />
+        )
+      }
+      case "fix_module_configuration":
+        return (
+          <ActionRow
+            key={offer}
+            control={
+              <Link
+                href={manageCourseModulesRoute(registration.course_id)}
+                styledAsButton
+                variant={variantFor(offer)}
+                size="medium"
+              >
+                {failureActionLabel(t, offer)}
+              </Link>
+            }
+            explanation={prose(t("credit-registration-admin-fix-module-configuration-description"))}
+          />
+        )
+      case "email_student":
+        return (
+          <ActionRow
+            key={offer}
+            control={
+              <Link
+                href={`mailto:${registration.email}`}
+                styledAsButton
+                variant={variantFor(offer)}
+                size="medium"
+              >
+                {failureActionLabel(t, offer)}
+              </Link>
+            }
+            explanation={prose(
+              t("credit-registration-admin-email-student-description", {
+                email: registration.email,
+              }),
+            )}
+          />
+        )
       case "link_student_number_by_hand":
         return studentNumber ? (
-          <AdminManualLinkButton
-            key={action}
-            studentNumber={studentNumber}
-            account={{
-              userId: registration.user_id,
-              name: formatUserName(registration),
-              email: registration.email ?? null,
-            }}
-            label={failureActionLabel(t, action)}
-            variant={buttonVariant}
+          <ActionRow
+            key={offer}
+            control={
+              <AdminManualLinkButton
+                studentNumber={studentNumber}
+                account={{
+                  userId: registration.user_id,
+                  name: formatUserName(registration),
+                  email: registration.email ?? null,
+                }}
+                label={failureActionLabel(t, offer)}
+                variant={variantFor(offer)}
+              />
+            }
+            explanation={prose(t("credit-registration-admin-manual-link-description"))}
           />
         ) : null
       case "resend_student_number_link":
-        return isAccountLinkingEnabled && studentNumber ? (
-          <AdminResendLinkingEmailButton
-            key={action}
-            studentNumber={studentNumber}
-            courseId={registration.course_id}
-            courseName={registration.course_name}
-            variant={buttonVariant}
+        return studentNumber ? (
+          <ActionRow
+            key={offer}
+            control={
+              <AdminResendLinkingEmailButton
+                studentNumber={studentNumber}
+                courseId={registration.course_id}
+                courseName={registration.course_name}
+                variant={variantFor(offer)}
+              />
+            }
+            explanation={prose(t("credit-registration-admin-resend-link-description"))}
           />
         ) : null
-      default:
-        return null
     }
   }
 
-  // An offered action can render nothing (no email address, no student number), so the buttons that
-  // survived — not the plan — decide which one leads and whether only a sentence is left.
-  const actions = offered.reduce<React.ReactNode[]>((rendered, action) => {
-    const button = renderAction(action, rendered.length === 0)
-    return button === null ? rendered : [...rendered, button]
-  }, [])
-  const dismissFlagAction = registration.needs_admin_attention
-    ? renderTransition(CLEAR_ATTENTION, BUTTON_TERTIARY)
-    : null
+  const rows = offers.map((offer) => renderOffer(offer))
+  // A resend held back only until a known time is worth showing as such: waiting is the remedy.
+  if (resubmission.kind === "refused" && resubmission.available_at) {
+    rows.push(
+      <ActionRow
+        key={RESUBMIT}
+        control={
+          <Button variant={BUTTON_SECONDARY} size="medium" disabled>
+            {t("credit-registration-admin-target-resubmit")}
+          </Button>
+        }
+        explanation={prose(
+          t("credit-registration-admin-resubmit-available-at", {
+            time: formatZonedTimestamp(new Date(resubmission.available_at)),
+          }),
+        )}
+      />,
+    )
+  }
 
-  return (
-    <div className={subsectionCss}>
-      {registration.state === SUBMISSION_UNCERTAIN && (
-        <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-uncertain-warning")}</Infobox>
-      )}
-      {/* A refusal drops both state moves from the row; its reason renders once in their place. */}
-      {refusal !== null && <p className={cx(noteCss, proseCss)}>{refusalSentence(t, refusal)}</p>}
-      {actions.length === 0 && refusal === null && registration.error_code && (
-        <p className={cx(noteCss, proseCss)}>{failureOwnerHeading(t, owner)}</p>
-      )}
-      {(actions.length > 0 || dismissFlagAction !== null) && (
-        <div className={actionsRowCss}>
-          {actions}
-          {dismissFlagAction}
-        </div>
-      )}
-      {retryBlockedReason && <p className={cx(noteCss, proseCss)}>{retryBlockedReason}</p>}
-      {refusal === null && (
-        <div className={cancelRowCss}>
+  const cancelExplanation = (
+    <>
+      {prose(t("credit-registration-admin-cancel-description"))}
+      <p className={noteCss}>
+        {registration.submitted_at
+          ? t("credit-registration-admin-cancel-sent-note")
+          : t("credit-registration-admin-cancel-unsent-note")}
+      </p>
+    </>
+  )
+  const clearAttentionExplanation = prose(
+    t("credit-registration-admin-clear-attention-description"),
+  )
+  const remedies = rows.filter((row) => row !== null)
+  // The rule between the groups sits on the first housekeeping row, so the list holds only actions.
+  const housekeepingStart = remedies.length > 0 ? housekeepingStartCss : undefined
+  const housekeeping: React.ReactNode[] = []
+  if (registration.needs_admin_attention) {
+    housekeeping.push(
+      <ActionRow
+        key={CLEAR_ATTENTION}
+        className={housekeepingStart}
+        control={
+          <TransitionAction
+            registration={registration}
+            choice={CLEAR_ATTENTION}
+            label={t("credit-registration-admin-target-clear-attention")}
+            explanation={clearAttentionExplanation}
+            appliedMessage={t("credit-registration-admin-attention-cleared")}
+            triggerVariant={BUTTON_TERTIARY}
+            onResult={setLastResult}
+          />
+        }
+        explanation={clearAttentionExplanation}
+      />,
+    )
+  }
+  if (cancelRefusal === null) {
+    housekeeping.push(
+      <ActionRow
+        key={CANCELLED}
+        className={housekeeping.length === 0 ? housekeepingStart : undefined}
+        control={
           <TransitionAction
             registration={registration}
             choice={CANCELLED}
-            label={t(TRANSITION_COPY[CANCELLED].label)}
-            description={t(TRANSITION_COPY[CANCELLED].description)}
-            appliedMessage={t(TRANSITION_COPY[CANCELLED].appliedMessage)}
+            label={t("credit-registration-admin-target-cancel")}
+            explanation={cancelExplanation}
+            appliedMessage={t("credit-registration-admin-cancel-applied")}
             triggerVariant={BUTTON_TERTIARY}
             isDestructive
+            onResult={setLastResult}
           />
-        </div>
+        }
+        explanation={cancelExplanation}
+      />,
+    )
+  }
+
+  return (
+    <div className={subsectionCss}>
+      {lastResult && (
+        <Infobox tone={lastResult.isApplied ? TONE.INFO : TONE.WARNING}>
+          {lastResult.message}
+        </Infobox>
+      )}
+      {remedies.length === 0 && housekeeping.length === 0 && (
+        <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
+      )}
+      {(remedies.length > 0 || housekeeping.length > 0) && (
+        <ul className={actionListCss}>
+          {remedies}
+          {housekeeping}
+        </ul>
       )}
     </div>
   )

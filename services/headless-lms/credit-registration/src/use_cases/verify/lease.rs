@@ -16,8 +16,8 @@ use crate::workflow::{Claimed, ClaimedRegistration};
 /// A claimed row, leased where it stands, with the verify attempt the lease counted for it.
 pub(super) type Leased = Claimed<VerifyAttempt>;
 
-/// The verify attempt a lease counted for its row, which sets the backoff the answer is scheduled
-/// by. Only [`claim_and_lease`] makes one, so it is always the count the lease wrote.
+/// The verify attempt a lease counted for its row, which sets the backoff an uncertain row's answer
+/// is scheduled by. Only [`claim_and_lease`] makes one, so it is always the count the lease wrote.
 pub(super) struct VerifyAttempt(i32);
 
 /// The row's facts under the attempt the lease counted, not the count the row was claimed with, so
@@ -30,7 +30,7 @@ pub(super) fn attempt_facts(leased: &Leased, now: DateTime<Utc>) -> RowFacts {
 }
 
 /// Claims up to `limit` of `flow`'s due rows, counts an attempt on each and leases it until its
-/// poll's backoff, or the iteration's registry calls, run out, so a concurrent iteration cannot
+/// next poll would be due, or the iteration's registry calls run out, so a concurrent iteration cannot
 /// poll the same row. Each answer overwrites its own row's schedule.
 pub(super) async fn claim_and_lease(
     ctx: &BatchFlowContext<'_>,
@@ -51,12 +51,13 @@ pub(super) async fn claim_and_lease(
     )
     .await?;
     let now = Utc::now();
-    let scheduled: Vec<_> = attempts
+    let scheduled: Vec<_> = claimed
         .iter()
-        .map(|(id, attempt)| {
+        .filter(|row| attempts.contains_key(&row.id))
+        .map(|row| {
             (
-                *id,
-                verify_poll_lease_until(now, *attempt, ctx.study_registry_wait),
+                row.id,
+                verify_poll_lease_until(now, row.submitted_at, ctx.study_registry_wait),
             )
         })
         .collect();

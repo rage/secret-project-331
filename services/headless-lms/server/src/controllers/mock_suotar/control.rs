@@ -474,7 +474,7 @@ pub struct RegisterNewCompletionsViaSuotarPayload {
     pub course_module_id: Uuid,
 }
 
-/// Opts a module's new completions of linked students into Suotar, which only support can do by
+/// Opts a module's new completions into Suotar, which only support can do by
 /// hand: a spec that creates its own course needs its completions on the pipeline.
 async fn register_new_completions_via_suotar(
     app_conf: web::Data<ApplicationConfiguration>,

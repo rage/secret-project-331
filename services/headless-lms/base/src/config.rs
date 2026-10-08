@@ -225,8 +225,7 @@ impl SuotarConfiguration {
         )
     }
 
-    /// Whether account linking is on: discovery's linking mails, their resends and students
-    /// unlinking their own number.
+    /// Whether account linking is on.
     pub fn is_account_linking_enabled(&self) -> bool {
         self.account_linking_since.is_some()
     }

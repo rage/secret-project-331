@@ -35,13 +35,15 @@ pub(super) async fn reconcile_roster(
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
     let linked = LinkedAccounts::new(&linked_rows);
     let enrolees = roster_enrolees(people, &linked);
+    let enrolled_since_linking =
+        account_linking_since.map(|since| enrolled_since(&distinct, since));
     let mut mailed_count = 0;
     for module in &listing.modules {
         if !enrolees.is_empty() {
             wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
         }
-        if let Some(since) = account_linking_since {
-            let outcome = claim_linking_mails(conn, module, &distinct, &linked, since).await?;
+        if let Some(considered) = &enrolled_since_linking {
+            let outcome = claim_linking_mails(conn, module, considered, &linked).await?;
             mailed_count += outcome.mailed_count;
             record_listing_outcome(conn, module.course_module_id, &outcome).await?;
         } else {
@@ -54,18 +56,12 @@ pub(super) async fn reconcile_roster(
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the
 /// most recent enrolment of each, one with no enrolment time counting as the oldest.
 fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
-    let enrolled_at = |person: &RosterPerson| {
-        person
-            .enrolment
-            .as_ref()
-            .and_then(|enrolment| enrolment.enrolment_date_time)
-    };
     let mut kept: Vec<&RosterPerson> = Vec::new();
     let mut index_by_person: HashMap<&str, usize> = HashMap::new();
     for person in people {
         match index_by_person.get(person.person_id.expose_secret()) {
             Some(&index) => {
-                if enrolled_at(person) > enrolled_at(kept[index]) {
+                if person.enrolled_at() > kept[index].enrolled_at() {
                     kept[index] = person;
                 }
             }
@@ -76,6 +72,20 @@ fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
         }
     }
     kept
+}
+
+/// The people the linking mails consider: those enrolled at or after `since`. Without a link we
+/// cannot tell who the rest are, so they are neither mailed nor counted.
+fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<&'a RosterPerson> {
+    people
+        .iter()
+        .copied()
+        .filter(|person| {
+            person
+                .enrolled_at()
+                .is_some_and(|enrolled_at| enrolled_at >= since)
+        })
+        .collect()
 }
 
 /// The accounts already linked to someone on the roster, by Sisu person id or student number.
@@ -169,16 +179,15 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail for everyone on one module's roster who enrolled at or after `since` and we
-/// hold no link for, and returns the counters its configuration row carries.
+/// Claims a linking mail for everyone in `people` we hold no link for, and returns the counters the
+/// module's configuration row carries.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
     module: &ModuleToList,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-    since: DateTime<Utc>,
 ) -> CreditRegistrationResult<ModuleListingOutcome> {
-    let (mut outcome, discovered) = linking_candidates(module, people, linked, since);
+    let (mut outcome, discovered) = linking_candidates(module, people, linked);
     if !discovered.is_empty() {
         for claimed in claim_linking_mails_batch(conn, &discovered).await? {
             outcome.mailed_count += claimed.claimed;
@@ -190,31 +199,18 @@ async fn claim_linking_mails(
 }
 
 /// The people on one module's roster a linking mail may go to, and the counters of those it may
-/// not. Only people enrolled at or after `since` are considered at all: without a link we cannot
-/// tell who the rest are, so they are neither mailed nor counted.
+/// not: already linked, or with no address to mail.
 fn linking_candidates(
     module: &ModuleToList,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-    since: DateTime<Utc>,
 ) -> (ModuleListingOutcome, Vec<DiscoveredPerson>) {
-    let considered: Vec<&RosterPerson> = people
-        .iter()
-        .copied()
-        .filter(|person| {
-            person
-                .enrolment
-                .as_ref()
-                .and_then(|enrolment| enrolment.enrolment_date_time)
-                .is_some_and(|enrolled_at| enrolled_at >= since)
-        })
-        .collect();
     let mut outcome = ModuleListingOutcome {
-        listed_person_count: i32::try_from(considered.len()).unwrap_or(i32::MAX),
+        listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
         ..ModuleListingOutcome::default()
     };
     let mut discovered = Vec::new();
-    for person in considered {
+    for &person in people {
         if linked.is_linked(person) {
             outcome.already_linked_count += 1;
             continue;
@@ -370,9 +366,9 @@ mod tests {
         let listed: Vec<&RosterPerson> = people.iter().collect();
         let module = module();
         let links = [link("other", Some("p1")), link("2", None)];
-        let since = Utc::now() - TimeDelta::days(10);
+        let considered = enrolled_since(&listed, Utc::now() - TimeDelta::days(10));
         let (outcome, discovered) =
-            linking_candidates(&module, &listed, &LinkedAccounts::new(&links), since);
+            linking_candidates(&module, &considered, &LinkedAccounts::new(&links));
         assert_eq!(
             outcome,
             ModuleListingOutcome {

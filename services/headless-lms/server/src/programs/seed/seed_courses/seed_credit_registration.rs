@@ -151,7 +151,6 @@ pub async fn seed_credit_registration(
         base_course_ns: SUOTAR_COURSE_ID,
     };
 
-    // Linked before any completion exists: a completion's registration path is decided at insert.
     info!("inserting credit registration students");
     let students = seed_linked_students(&mut conn, &cx).await?;
 

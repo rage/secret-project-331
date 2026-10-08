@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use headless_lms_models::course_module_suotar_configurations::{self, LinkingOutcome};
+use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
 };
@@ -11,7 +11,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_roster_schedules::{
-    self, RosterSchedule, ScheduleSelection,
+    self, AccountLinkingCodeCounters, RosterSchedule, ScheduleSelection,
 };
 use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
@@ -101,33 +101,6 @@ pub struct AccountLinkingCodeModule {
     pub course_module_name: Option<String>,
     /// When an enrolment list last fed account linking for the module.
     pub last_listed_at: Option<DateTime<Utc>>,
-}
-
-/// What a code's last enrolment list that fed account linking did, each person counted once. The
-/// other counters add up to `listed_person_count`.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingCodeCounters {
-    /// Only those enrolled since account linking began.
-    pub listed_person_count: i32,
-    pub already_linked_count: i32,
-    pub mailed_count: i32,
-    pub suppressed_by_dedup_count: i32,
-    pub suppressed_by_rate_cap_count: i32,
-    /// Persons the registry holds no address for: the one population no remedy here can reach.
-    pub no_address_count: i32,
-}
-
-impl From<LinkingOutcome> for AccountLinkingCodeCounters {
-    fn from(outcome: LinkingOutcome) -> Self {
-        Self {
-            listed_person_count: outcome.listed_person_count,
-            already_linked_count: outcome.already_linked_count,
-            mailed_count: outcome.mailed_count,
-            suppressed_by_dedup_count: outcome.suppressed_by_dedup_count,
-            suppressed_by_rate_cap_count: outcome.suppressed_by_rate_cap_count,
-            no_address_count: outcome.no_address_count,
-        }
-    }
 }
 
 /// One course code's enrolment list: when it is fetched, and what the last one did for linking.
@@ -1206,7 +1179,7 @@ async fn build_course_codes(
             consecutive_failures: schedule.consecutive_failures,
             retry_not_before: schedule.retry_not_before,
             last_error: schedule.last_error,
-            linking: schedule.linking_outcome.map(Into::into),
+            linking: schedule.linking_counters,
             course_code: schedule.course_code,
         })
         .collect())

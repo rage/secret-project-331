@@ -5,37 +5,59 @@
 //! code is due at the earliest rung no fetch that could claim linking mail has served. Every due
 //! time snaps up to the code's own grid, see [`fetch_slot`], so codes spread evenly over the hour.
 //! Both are derived whenever they are needed; the table keeps only what cannot be: when fetches
-//! ran, the failure backoff and the daily count of fetches presses alone made due.
+//! ran, the failure backoff and how many fetches of the code went out today.
 
 use std::collections::HashMap;
-use std::sync::LazyLock;
 
 use chrono::TimeDelta;
+use utoipa::ToSchema;
 
-use crate::course_module_suotar_configurations::{LinkingOutcome, ModuleToList};
+use crate::course_module_suotar_configurations::ModuleToList;
 use crate::credit_registrations::CreditRegistrationErrorCode;
-use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup;
+use crate::library::credit_registration::enrolment_check_schedule::{
+    COMPLETED_LADDER, DAY_SECS, HOUR_SECS, MINUTE_SECS, WEEK_SECS, ladder,
+};
 use crate::prelude::*;
-
-const HOUR_SECS: i64 = 60 * 60;
-const DAY_SECS: i64 = 24 * HOUR_SECS;
 
 /// How far apart the points of a code's fetch grid are. Divides an hour.
 pub const FETCH_GRID_STEP: TimeDelta = TimeDelta::minutes(20);
 /// A code fetched this recently is not fetched again, whatever is due.
 pub const MIN_REFETCH_GAP: TimeDelta = TimeDelta::minutes(15);
-/// The shorter gap the first fetch after an "I have enrolled" press needs, since the student is
-/// waiting on it.
+/// The shorter gap the first fetch after an "I have enrolled" press or an admin's request needs,
+/// since somebody is waiting on it.
 pub const PRESS_MIN_REFETCH_GAP: TimeDelta = TimeDelta::minutes(5);
 /// How often every code is fetched, whether or not anybody on it is waiting.
 pub const BASELINE_INTERVAL: TimeDelta = TimeDelta::weeks(1);
 /// How long after its anchor a waiting person still makes the code due: every ladder ends here.
 pub const WAITING_HORIZON: TimeDelta = TimeDelta::days(90);
-/// How many fetches of one code a UTC day "I have enrolled" presses may make due on their own.
-/// Past it, presses wait for the fetches something else makes due.
-pub const MAX_PRESS_FETCHES_PER_DAY: i32 = 12;
+/// How many fetches of one code may go out in a UTC day. Past it, only the weekly fetch and an
+/// admin's request make the code due: a third of the grid points, so one busy code cannot crowd
+/// out the rest.
+pub const MAX_FETCHES_PER_DAY: i32 = 24;
 /// How long a code that failed on its own is left alone, by how many times in a row it has.
 const ALONE_FAILURE_BACKOFF_SECS: [i64; 3] = [HOUR_SECS, 4 * HOUR_SECS, DAY_SECS];
+
+const WAITING_HORIZON_SECS: i64 = WAITING_HORIZON.num_seconds();
+const VISITED_LADDER: [i64; 33] = ladder(
+    &[1, 2, 3, 5, 8, 12, 24],
+    HOUR_SECS,
+    &[
+        (DAY_SECS, 14 * DAY_SECS),
+        (3 * DAY_SECS, 30 * DAY_SECS),
+        (WEEK_SECS, WAITING_HORIZON_SECS),
+    ],
+);
+const PRESSED_LADDER: [i64; 35] = ladder(
+    &[
+        0, 20, 40, 60, 80, 100, 120, 150, 180, 240, 360, 540, 720, 1440,
+    ],
+    MINUTE_SECS,
+    &[
+        (DAY_SECS, 7 * DAY_SECS),
+        (3 * DAY_SECS, 30 * DAY_SECS),
+        (WEEK_SECS, WAITING_HORIZON_SECS),
+    ],
+);
 
 /// The first point of `course_code`'s fetch grid at or after `at`: [`FETCH_GRID_STEP`] apart, at an
 /// offset into the step fixed per code. The only place that decides when within the hour a code
@@ -55,60 +77,19 @@ pub fn fetch_slot(course_code: &str, at: DateTime<Utc>) -> DateTime<Utc> {
     DateTime::from_timestamp(point, 0).unwrap_or(at)
 }
 
-/// A waiting person's ladder, as offsets from its anchor: the completion for
-/// [`EnrolmentCheckGroup::Completed`], and for [`EnrolmentCheckGroup::Visited`] and
-/// [`EnrolmentCheckGroup::CheckRequested`] the visit or "I have enrolled" press the ladder is
-/// anchored on, see [`crate::credit_registration_enrolment_check_signals::LADDER_RESTART_GAP`].
-pub fn waiting_ladder(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
-    static COMPLETED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        [1, 3, 7, 14, 30, 60, 90]
-            .into_iter()
-            .map(TimeDelta::days)
-            .collect()
-    });
-    static VISITED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = [1, 2, 3, 5, 8, 12, 24]
-            .into_iter()
-            .map(TimeDelta::hours)
-            .collect();
-        extend_by(&mut offsets, TimeDelta::days(1), TimeDelta::days(14));
-        extend_by(&mut offsets, TimeDelta::days(3), TimeDelta::days(30));
-        extend_by(&mut offsets, TimeDelta::weeks(1), WAITING_HORIZON);
-        offsets
-    });
-    static PRESSED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = [
-            0, 20, 40, 60, 80, 100, 120, 150, 180, 240, 360, 540, 720, 1440,
-        ]
-        .into_iter()
-        .map(TimeDelta::minutes)
-        .collect();
-        extend_by(&mut offsets, TimeDelta::days(1), TimeDelta::days(7));
-        extend_by(&mut offsets, TimeDelta::days(3), TimeDelta::days(30));
-        extend_by(&mut offsets, TimeDelta::weeks(1), WAITING_HORIZON);
-        offsets
-    });
-    match group {
-        EnrolmentCheckGroup::Completed => &COMPLETED,
-        EnrolmentCheckGroup::Visited => &VISITED,
-        EnrolmentCheckGroup::CheckRequested => &PRESSED,
-    }
-}
-
-/// Appends rungs `gap` apart until the next one would pass `until`.
-fn extend_by(offsets: &mut Vec<TimeDelta>, gap: TimeDelta, until: TimeDelta) {
-    while let Some(next) = offsets.last().map(|last| *last + gap)
-        && next <= until
-    {
-        offsets.push(next);
-    }
-}
-
-fn ladder_secs(group: EnrolmentCheckGroup) -> Vec<i64> {
-    waiting_ladder(group)
-        .iter()
-        .map(TimeDelta::num_seconds)
-        .collect()
+/// What one code's last enrolment list that fed account linking did, each person counted once in
+/// exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
+/// mixes two runs.
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize, ToSchema)]
+pub struct AccountLinkingCodeCounters {
+    /// Only those enrolled since account linking began.
+    pub listed_person_count: i32,
+    pub already_linked_count: i32,
+    pub mailed_count: i32,
+    pub suppressed_by_dedup_count: i32,
+    pub suppressed_by_rate_cap_count: i32,
+    /// Persons the registry holds no address for: the one population no remedy here can reach.
+    pub no_address_count: i32,
 }
 
 /// One code's schedule, with the waiting people its next fetch is derived from.
@@ -128,62 +109,50 @@ pub struct RosterSchedule {
     /// Registrations on the code's modules waiting for a student number within
     /// [`WAITING_HORIZON`] of an anchor. Always zero with account linking off.
     pub waiting_count: i64,
-    /// The earliest unserved rung of a completion or visit ladder.
-    pub next_waiting_rung_at: Option<DateTime<Utc>>,
-    /// The earliest unserved rung of a press ladder.
-    pub next_press_rung_at: Option<DateTime<Utc>>,
+    /// The earliest unserved rung of a waiting person's ladder.
+    pub next_rung_at: Option<DateTime<Utc>>,
     /// The latest unserved "I have enrolled" press a waiting person's ladder is anchored on.
     pub unserved_press_at: Option<DateTime<Utc>>,
-    /// Fetches presses alone made due today (UTC), against [`MAX_PRESS_FETCHES_PER_DAY`].
-    pub press_fetches_today: i32,
+    /// Fetches of the code sent today (UTC), against [`MAX_FETCHES_PER_DAY`].
+    pub fetches_today: i32,
     /// An admin's fetch request; served once a fetch sent after it arrives.
     pub fetch_requested_at: Option<DateTime<Utc>>,
-    /// The last enrolment list that fed account linking, each person counted once.
-    pub linking_outcome: Option<LinkingOutcome>,
+    /// The last enrolment list that fed account linking.
+    pub linking_counters: Option<AccountLinkingCodeCounters>,
 }
 
 impl RosterSchedule {
     /// When the code is next due, ignoring the failure backoff: at once if it has never been
     /// fetched.
     pub fn next_fetch_at(&self, now: DateTime<Utc>) -> DateTime<Utc> {
-        let due = self.next_fetch_at_without_presses(now);
-        let Some(last_fetched_at) = self.last_fetched_at else {
-            return due;
-        };
-        if self.press_fetches_today >= MAX_PRESS_FETCHES_PER_DAY {
-            return due;
-        }
-        [
-            self.next_press_rung_at
-                .map(|rung_at| rung_at.max(last_fetched_at + MIN_REFETCH_GAP)),
-            self.unserved_press_at
-                .map(|pressed_at| pressed_at.max(last_fetched_at + PRESS_MIN_REFETCH_GAP)),
-        ]
-        .into_iter()
-        .flatten()
-        .map(|ready_at| fetch_slot(&self.course_code, ready_at))
-        .fold(due, std::cmp::min)
-    }
-
-    fn next_fetch_at_without_presses(&self, now: DateTime<Utc>) -> DateTime<Utc> {
         let Some(last_fetched_at) = self.last_fetched_at else {
             return now;
         };
-        let baseline = last_fetched_at + BASELINE_INTERVAL;
-        let ready_at = self
-            .next_waiting_rung_at
-            .map_or(baseline, |waiting| waiting.min(baseline));
-        let due = fetch_slot(
-            &self.course_code,
-            ready_at.max(last_fetched_at + MIN_REFETCH_GAP),
+        let mut reasons = vec![(last_fetched_at + BASELINE_INTERVAL, MIN_REFETCH_GAP)];
+        reasons.extend(
+            self.unserved_fetch_request_at()
+                .map(|requested_at| (requested_at, PRESS_MIN_REFETCH_GAP)),
         );
-        self.unserved_fetch_request_at()
-            .map_or(due, |requested_at| {
-                due.min(fetch_slot(
-                    &self.course_code,
-                    requested_at.max(last_fetched_at + PRESS_MIN_REFETCH_GAP),
-                ))
-            })
+        if self.fetches_today < MAX_FETCHES_PER_DAY {
+            reasons.extend(self.next_rung_at.map(|rung_at| (rung_at, MIN_REFETCH_GAP)));
+            reasons.extend(
+                self.unserved_press_at
+                    .map(|pressed_at| (pressed_at, PRESS_MIN_REFETCH_GAP)),
+            );
+        }
+        reasons
+            .into_iter()
+            .map(|(ready_at, gap)| self.slot_after(ready_at, gap))
+            .min()
+            .unwrap_or(now)
+    }
+
+    /// The first grid point at or after `ready_at` that is at least `gap` after the last fetch.
+    fn slot_after(&self, ready_at: DateTime<Utc>, gap: TimeDelta) -> DateTime<Utc> {
+        let ready_at = self
+            .last_fetched_at
+            .map_or(ready_at, |fetched_at| ready_at.max(fetched_at + gap));
+        fetch_slot(&self.course_code, ready_at)
     }
 
     /// An admin's fetch request no fetch sent after it has served yet.
@@ -198,16 +167,10 @@ impl RosterSchedule {
     pub fn is_due(&self, now: DateTime<Utc>) -> bool {
         self.retry_not_before.is_none_or(|retry| retry <= now) && self.next_fetch_at(now) <= now
     }
-
-    /// Whether the code is due now only because of presses, so its fetch counts against
-    /// [`MAX_PRESS_FETCHES_PER_DAY`]; see [`count_press_fetches`].
-    pub fn is_due_by_presses_alone(&self, now: DateTime<Utc>) -> bool {
-        self.is_due(now) && self.next_fetch_at_without_presses(now) > now
-    }
 }
 
 /// Creates the schedule rows of every listable code, and the per-module configuration rows the
-/// discovery counters are written to. `course_id` narrows it to one course.
+/// listing status is written to. `course_id` narrows it to one course.
 pub async fn ensure_rows(conn: &mut PgConnection, course_id: Option<Uuid>) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -270,6 +233,10 @@ WITH modules AS (
     JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
   WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
     AND ($1::uuid IS NULL OR acm.course_id = $1)
+    AND (
+      $4::text IS NULL
+      OR TRIM(cm.uh_course_code) = $4
+    )
 )
 SELECT s.course_code,
   s.last_fetched_at,
@@ -289,9 +256,9 @@ SELECT s.course_code,
   s.linking_suppressed_by_rate_cap_count,
   s.linking_no_address_count,
   CASE
-    WHEN s.press_fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.press_fetch_count
+    WHEN s.fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.fetch_day_count
     ELSE 0
-  END AS "press_fetches_today!",
+  END AS "fetches_today!",
   (
     SELECT COUNT(*)
     FROM modules m
@@ -314,10 +281,6 @@ WHERE s.course_code IN (
         OR s.last_fetched_at < $3
       )
     )
-  )
-  AND (
-    $4::text IS NULL
-    OR s.course_code = $4
   )
 ORDER BY s.course_code
         "#,
@@ -349,9 +312,9 @@ ORDER BY s.course_code
         .into_iter()
         .map(|row| {
             let waiting = waiting.remove(&row.course_code).unwrap_or_default();
-            let linking_outcome =
+            let linking_counters =
                 row.linking_listed_count
-                    .map(|listed_person_count| LinkingOutcome {
+                    .map(|listed_person_count| AccountLinkingCodeCounters {
                         listed_person_count,
                         already_linked_count: row.linking_already_linked_count.unwrap_or(0),
                         mailed_count: row.linking_mailed_count.unwrap_or(0),
@@ -375,12 +338,11 @@ ORDER BY s.course_code
                 last_error: row.last_error,
                 module_count: row.module_count,
                 waiting_count: waiting.waiting_count,
-                next_waiting_rung_at: waiting.next_rung_at,
-                next_press_rung_at: waiting.next_press_rung_at,
+                next_rung_at: waiting.next_rung_at,
                 unserved_press_at: waiting.unserved_press_at,
-                press_fetches_today: row.press_fetches_today,
+                fetches_today: row.fetches_today,
                 fetch_requested_at: row.fetch_requested_at,
-                linking_outcome,
+                linking_counters,
             }
         })
         .collect())
@@ -391,7 +353,6 @@ ORDER BY s.course_code
 struct CodeWaiting {
     waiting_count: i64,
     next_rung_at: Option<DateTime<Utc>>,
-    next_press_rung_at: Option<DateTime<Utc>>,
     unserved_press_at: Option<DateTime<Utc>>,
 }
 
@@ -447,12 +408,7 @@ SELECT w.course_code AS "course_code!",
   COUNT(DISTINCT w.credit_registration_id) AS "waiting_count!",
   MIN(rung.due_at) FILTER (
     WHERE rung.due_at > w.served_until
-      AND NOT w.is_press
   ) AS next_rung_at,
-  MIN(rung.due_at) FILTER (
-    WHERE rung.due_at > w.served_until
-      AND w.is_press
-  ) AS next_press_rung_at,
   MAX(w.anchor_at) FILTER (
     WHERE w.is_press
       AND w.anchor_at > w.served_until
@@ -467,9 +423,9 @@ GROUP BY w.course_code
         course_id,
         course_codes,
         served_until,
-        &ladder_secs(EnrolmentCheckGroup::Completed),
-        &ladder_secs(EnrolmentCheckGroup::Visited),
-        &ladder_secs(EnrolmentCheckGroup::CheckRequested),
+        &COMPLETED_LADDER[..],
+        &VISITED_LADDER[..],
+        &PRESSED_LADDER[..],
         account_linking_since,
         WAITING_HORIZON.num_seconds(),
     )
@@ -483,7 +439,6 @@ GROUP BY w.course_code
                 CodeWaiting {
                     waiting_count: row.waiting_count,
                     next_rung_at: row.next_rung_at,
-                    next_press_rung_at: row.next_press_rung_at,
                     unserved_press_at: row.unserved_press_at,
                 },
             )
@@ -527,8 +482,8 @@ ORDER BY cm.id
     Ok(modules_by_code)
 }
 
-/// Stamps the codes a listing request is about to go out for, and returns the stamp to hand to
-/// [`mark_fetched`].
+/// Stamps the codes a listing request is about to go out for and counts the fetch against
+/// [`MAX_FETCHES_PER_DAY`]. Returns the stamp to hand to [`mark_fetched`].
 pub async fn mark_attempted(
     conn: &mut PgConnection,
     course_codes: &[String],
@@ -537,7 +492,12 @@ pub async fn mark_attempted(
         r#"
 WITH stamped AS (
   UPDATE credit_registration_roster_schedules
-  SET last_attempted_at = now()
+  SET last_attempted_at = now(),
+    fetch_day_count = CASE
+      WHEN fetch_day = (now() AT TIME ZONE 'UTC')::date THEN fetch_day_count + 1
+      ELSE 1
+    END,
+    fetch_day = (now() AT TIME ZONE 'UTC')::date
   WHERE course_code = ANY($1::text [])
 )
 SELECT now() AS "started_at!"
@@ -599,10 +559,10 @@ RETURNING previous.last_fetched_at
 }
 
 /// Overwrites the code's linking counters with what its latest enrolment list did.
-pub async fn record_linking_outcome(
+pub async fn record_linking_counters(
     conn: &mut PgConnection,
     course_code: &str,
-    outcome: &LinkingOutcome,
+    counters: &AccountLinkingCodeCounters,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -616,45 +576,19 @@ SET linking_listed_count = $2,
 WHERE course_code = $1
         "#,
         course_code,
-        outcome.listed_person_count,
-        outcome.already_linked_count,
-        outcome.mailed_count,
-        outcome.suppressed_by_dedup_count,
-        outcome.suppressed_by_rate_cap_count,
-        outcome.no_address_count,
+        counters.listed_person_count,
+        counters.already_linked_count,
+        counters.mailed_count,
+        counters.suppressed_by_dedup_count,
+        counters.suppressed_by_rate_cap_count,
+        counters.no_address_count,
     )
     .execute(conn)
     .await?;
     Ok(())
 }
 
-/// Counts a fetch of each of `course_codes` against [`MAX_PRESS_FETCHES_PER_DAY`], for the codes
-/// [`RosterSchedule::is_due_by_presses_alone`] picked.
-pub async fn count_press_fetches(
-    conn: &mut PgConnection,
-    course_codes: &[String],
-) -> ModelResult<()> {
-    if course_codes.is_empty() {
-        return Ok(());
-    }
-    sqlx::query!(
-        r#"
-UPDATE credit_registration_roster_schedules
-SET press_fetch_count = CASE
-    WHEN press_fetch_day = (now() AT TIME ZONE 'UTC')::date THEN press_fetch_count + 1
-    ELSE 1
-  END,
-  press_fetch_day = (now() AT TIME ZONE 'UTC')::date
-WHERE course_code = ANY($1::text [])
-        "#,
-        course_codes,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// Makes the code due at its next grid point, past the daily cap on presses. Returns the schedule
+/// Makes the code due at its next grid point, past [`MAX_FETCHES_PER_DAY`]. Returns the schedule
 /// row's id, or `None` for a code with no row.
 pub async fn request_fetch(
     conn: &mut PgConnection,

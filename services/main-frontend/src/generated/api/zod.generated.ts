@@ -6,8 +6,9 @@
 import * as z from "zod"
 
 /**
- * What a code's last enrolment list that fed account linking did, each person counted once. The
- * other counters add up to `listed_person_count`.
+ * What one code's last enrolment list that fed account linking did, each person counted once in
+ * exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
+ * mixes two runs.
  */
 export const zAccountLinkingCodeCounters = z.object({
   already_linked_count: z
@@ -3240,15 +3241,20 @@ export const zLegacyLedgerDivergenceRow = z.object({
 })
 
 /**
- * Whether the link in a linking mail can still be opened.
+ * Whether the link in a linking mail can still be opened, and if not, whether a new mail can
+ * replace it.
  */
-export const zLinkingEmailLinkState = z.enum(["usable", "expired", "used"])
+export const zLinkingEmailLinkState = z.enum([
+  "usable",
+  "expired_can_resend",
+  "expired_no_resend",
+  "used",
+])
 
 /**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export const zLinkingEmailStatus = z.object({
-  can_send_another: z.boolean(),
   email_send_status: zEmailSendStatus,
   emailed_to_masked: z.string(),
   link_state: zLinkingEmailLinkState,

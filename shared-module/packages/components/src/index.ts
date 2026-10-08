@@ -88,7 +88,10 @@ export type { RegistrationStatusBadgeProps } from "./components/registrationStat
 export { RegistrationStatusHeadline } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusHeadlineProps } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
-export { registrationStatusTone } from "./components/registrationStatus/registrationStatusState"
+export {
+  registrationStatusIcon,
+  registrationStatusTone,
+} from "./components/registrationStatus/registrationStatusState"
 export { RelativeTime } from "./components/RelativeTime"
 export type { RelativeTimeProps } from "./components/RelativeTime"
 export { ABSENT_LABEL, METER_KIND, MIDDLE_DOT, TONE } from "./lib/displayConstants"

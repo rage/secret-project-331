@@ -26,12 +26,6 @@ pub struct CourseModuleSuotarConfiguration {
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
     pub consecutive_listing_failures: i32,
-    pub last_listed_person_count: Option<i32>,
-    pub last_already_linked_count: Option<i32>,
-    pub last_mailed_count: Option<i32>,
-    pub last_suppressed_by_dedup_count: Option<i32>,
-    pub last_suppressed_by_rate_cap_count: Option<i32>,
-    pub last_no_address_count: Option<i32>,
 }
 
 /// Whether the module already has a live configuration row. Lets a caller tell "nothing to store"

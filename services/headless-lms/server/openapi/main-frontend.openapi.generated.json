@@ -14149,7 +14149,7 @@
     "schemas": {
       "AccountLinkingCodeCounters": {
         "type": "object",
-        "description": "What a code's last enrolment list that fed account linking did, each person counted once. The\nother counters add up to `listed_person_count`.",
+        "description": "What one code's last enrolment list that fed account linking did, each person counted once in\nexactly one of the counters after `listed_person_count`. Written whole, so the dashboard never\nmixes two runs.",
         "required": [
           "listed_person_count",
           "already_linked_count",
@@ -23359,18 +23359,14 @@
       },
       "LinkingEmailLinkState": {
         "type": "string",
-        "description": "Whether the link in a linking mail can still be opened.",
-        "enum": ["usable", "expired", "used"]
+        "description": "Whether the link in a linking mail can still be opened, and if not, whether a new mail can\nreplace it.",
+        "enum": ["usable", "expired_can_resend", "expired_no_resend", "used"]
       },
       "LinkingEmailStatus": {
         "type": "object",
         "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
-        "required": ["email_send_status", "emailed_to_masked", "link_state", "can_send_another"],
+        "required": ["email_send_status", "emailed_to_masked", "link_state"],
         "properties": {
-          "can_send_another": {
-            "type": "boolean",
-            "description": "Whether the caps still allow another mail for this course once this link has expired."
-          },
           "email_send_status": {
             "$ref": "#/components/schemas/EmailSendStatus"
           },

@@ -25,8 +25,8 @@ const NO_REALISATION_CODE: CreditRegistrationErrorCode =
 /// What one listing request did.
 pub(super) struct FetchedRosters {
     pub counts: Counts,
-    /// Linking emails claimed, which the `link-emails` phase still has to send.
-    pub new_mail_count: i32,
+    /// Whether it claimed linking mail the `link-emails` phase still has to send.
+    pub claimed_mail: bool,
 }
 
 /// Sends one listing request and reconciles what came back.
@@ -57,7 +57,7 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
             record_roster_failure(&mut conn, request, &codes, &error).await?;
             return Ok(FetchedRosters {
                 counts: Counts::all_failed(attempted),
-                new_mail_count: 0,
+                claimed_mail: false,
             });
         }
     };
@@ -119,7 +119,7 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     );
     Ok(FetchedRosters {
         counts: Counts::processed_with_failures(attempted, items_failed),
-        new_mail_count: new_mails,
+        claimed_mail: new_mails > 0,
     })
 }
 

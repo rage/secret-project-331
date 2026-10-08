@@ -29,7 +29,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import type { TableColumn } from "@/shared-module/components"
+import type { MenuItemDescriptor, TableColumn } from "@/shared-module/components"
 import {
   Badge,
   DescriptionList,
@@ -92,7 +92,6 @@ const DAY_SECS = 86_400
 /** A meter needs a non-zero maximum, and a funnel whose first step is zero has nothing to scale. */
 const MIN_FUNNEL_BASE = 1
 
-const ADMIN_MANUAL = "admin_manual"
 const SEND_FAILED: EmailSendStatus = "send_failed"
 const QUEUED: EmailSendStatus = "queued"
 const RESEND_ITEM = "resend"
@@ -455,6 +454,21 @@ const CourseCodeBreakdown: React.FC<{ row: AccountLinkingCourseCode }> = ({ row 
   )
 }
 
+/** Row-actions menu holding one item, plus any dialog that item opens. */
+const SingleActionMenu: React.FC<{
+  student: string
+  item: MenuItemDescriptor
+  children?: React.ReactNode
+}> = ({ student, item, children }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <>
+      <Menu aria-label={t("credit-registration-admin-row-actions", { student })} items={[item]} />
+      {children}
+    </>
+  )
+}
+
 /** Brings one code's enrolment list forward to its next fetch slot. */
 const FetchNowAction: React.FC<{ courseCode: string }> = ({ courseCode }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -469,25 +483,23 @@ const FetchNowAction: React.FC<{ courseCode: string }> = ({ courseCode }) => {
     },
   )
   return (
-    <Menu
-      aria-label={t("credit-registration-admin-row-actions", { student: courseCode })}
-      items={[
-        {
-          key: FETCH_NOW_ITEM,
-          label: t("button-text-fetch-enrolment-list-now"),
-          isDisabled: mutation.isPending,
-          onAction: async () => {
-            const confirmed = await confirm(
-              t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
-              undefined,
-              { yesButtonLabel: t("button-text-fetch-enrolment-list-now") },
-            )
-            if (confirmed) {
-              mutation.mutate()
-            }
-          },
+    <SingleActionMenu
+      student={courseCode}
+      item={{
+        key: FETCH_NOW_ITEM,
+        label: t("button-text-fetch-enrolment-list-now"),
+        isDisabled: mutation.isPending,
+        onAction: async () => {
+          const confirmed = await confirm(
+            t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
+            undefined,
+            { yesButtonLabel: t("button-text-fetch-enrolment-list-now") },
+          )
+          if (confirmed) {
+            mutation.mutate()
+          }
         },
-      ]}
+      }}
     />
   )
 }
@@ -859,15 +871,9 @@ const DismissConflictAction: React.FC<{ row: StudyRegistryStudentNumberConflict 
     }),
   })
   return (
-    <>
-      <Menu
-        aria-label={t("credit-registration-admin-row-actions", {
-          student: row.reported_student_number,
-        })}
-        items={[item]}
-      />
+    <SingleActionMenu student={row.reported_student_number} item={item}>
       {dialog}
-    </>
+    </SingleActionMenu>
   )
 }
 
@@ -1035,7 +1041,7 @@ const RecentClaimsBlock: React.FC = () => {
                       <span className={stackedCellCss}>
                         {/* A pill only for the exception: an admin having to link by hand, not the two
                             self-service routes a claim normally takes. */}
-                        {row.verified_via === ADMIN_MANUAL ? (
+                        {row.verified_via === "admin_manual" ? (
                           <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
                             {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
                           </Badge>
@@ -1097,7 +1103,7 @@ const LinkingDetailsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats
 const RecentClaimsSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const manualLinkTotal =
-    stats.links_total_by_method.find((row) => row.verified_via === ADMIN_MANUAL)?.count ?? 0
+    stats.links_total_by_method.find((row) => row.verified_via === "admin_manual")?.count ?? 0
   return (
     <section className={sectionCardCss}>
       <div className={sectionCardHeaderCss}>

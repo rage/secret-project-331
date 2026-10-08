@@ -8,8 +8,9 @@ export type ClientOptions = {
 }
 
 /**
- * What a code's last enrolment list that fed account linking did, each person counted once. The
- * other counters add up to `listed_person_count`.
+ * What one code's last enrolment list that fed account linking did, each person counted once in
+ * exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
+ * mixes two runs.
  */
 export type AccountLinkingCodeCounters = {
   already_linked_count: number
@@ -3520,18 +3521,15 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
- * Whether the link in a linking mail can still be opened.
+ * Whether the link in a linking mail can still be opened, and if not, whether a new mail can
+ * replace it.
  */
-export type LinkingEmailLinkState = "usable" | "expired" | "used"
+export type LinkingEmailLinkState = "usable" | "expired_can_resend" | "expired_no_resend" | "used"
 
 /**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export type LinkingEmailStatus = {
-  /**
-   * Whether the caps still allow another mail for this course once this link has expired.
-   */
-  can_send_another: boolean
   email_send_status: EmailSendStatus
   emailed_to_masked: string
   link_state: LinkingEmailLinkState

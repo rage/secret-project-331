@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH codes AS (\n  SELECT *\n  FROM UNNEST($2::text [], $3::timestamptz []) AS code(course_code, served_until)\n),\nwaiting AS (\n  SELECT codes.course_code,\n    codes.served_until,\n    cr.id AS credit_registration_id,\n    ladder.anchor_at,\n    ladder.offsets,\n    ladder.is_press\n  FROM codes\n    JOIN course_modules cm ON TRIM(cm.uh_course_code) = codes.course_code\n    AND cm.deleted_at IS NULL\n    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cm.id\n    JOIN credit_registrations cr ON cr.course_module_id = cm.id\n    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n    JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n    AND sig.deleted_at IS NULL\n    CROSS JOIN LATERAL (\n      VALUES (cmc.completion_date, $4::bigint [], FALSE),\n        (sig.visit_ladder_anchor_at, $5::bigint [], FALSE),\n        (sig.check_request_ladder_anchor_at, $6::bigint [], TRUE)\n    ) AS ladder(anchor_at, offsets, is_press)\n  WHERE ($1::uuid IS NULL OR acm.course_id = $1)\n    AND cr.state = 'pending'\n    AND cr.superseded_by_id IS NULL\n    AND cr.deleted_at IS NULL\n    AND p.completion_eligible\n    AND NOT p.has_verified_student_number\n    AND cmc.completion_date >= $7::timestamptz\n    AND ladder.anchor_at > now() - ($8::bigint * INTERVAL '1 second')\n)\nSELECT w.course_code AS \"course_code!\",\n  COUNT(DISTINCT w.credit_registration_id) AS \"waiting_count!\",\n  MIN(rung.due_at) FILTER (\n    WHERE rung.due_at > w.served_until\n  ) AS next_rung_at,\n  MAX(w.anchor_at) FILTER (\n    WHERE w.is_press\n      AND w.anchor_at > w.served_until\n  ) AS unserved_press_at\nFROM waiting w\n  CROSS JOIN LATERAL (\n    SELECT w.anchor_at + (o.secs * INTERVAL '1 second') AS due_at\n    FROM unnest(w.offsets) AS o(secs)\n  ) rung\nGROUP BY w.course_code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "waiting_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "next_rung_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "unserved_press_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "TimestamptzArray",
+        "Int8Array",
+        "Int8Array",
+        "Int8Array",
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "417870ffb012081271a9dfa8fff5d3638751ddc8258118f7716c8d9a4275503e"
+}

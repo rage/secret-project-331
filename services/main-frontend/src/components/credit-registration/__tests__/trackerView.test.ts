@@ -59,7 +59,6 @@ const mail = (
   sent_at: "2026-08-20T10:00:00Z",
   emailed_to_masked: "...@example.com",
   link_state: "usable",
-  can_send_another: true,
   ...overrides,
 })
 
@@ -128,7 +127,6 @@ describe("whether the student is still asked where they enrol", () => {
             sent_at: "2026-08-20T10:00:00Z",
             emailed_to_masked: "...@example.com",
             link_state: "usable",
-            can_send_another: true,
           },
         }),
         enrolmentRoute: route(),
@@ -336,7 +334,7 @@ describe("what the linking band says", () => {
   test("says an expired link will be replaced while the caps allow another", () => {
     expect(
       studentNumberLinkBand(
-        registration({ linking_email: mail({ link_state: "expired" }) }),
+        registration({ linking_email: mail({ link_state: "expired_can_resend" }) }),
         null,
         linkingOn,
       ),
@@ -354,7 +352,7 @@ describe("what the linking band says", () => {
     }
     for (const linkingEmail of [
       mail({ link_state: "used" }),
-      mail({ link_state: "expired", can_send_another: false }),
+      mail({ link_state: "expired_no_resend" }),
     ]) {
       for (const options of [linkingOn, confirmed]) {
         expect(

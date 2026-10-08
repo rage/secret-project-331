@@ -164,7 +164,7 @@ export const studentNumberLinkBand = (
   if (!isAccountLinkingEnabled) {
     return { kind: "staff-links" }
   }
-  if (mail?.link_state === "expired" && mail.can_send_another && mail.sent_at) {
+  if (mail?.link_state === "expired_can_resend" && mail.sent_at) {
     return { kind: "link-expired", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
   }
   if (mail && mail.link_state !== "usable") {

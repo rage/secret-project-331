@@ -96,25 +96,19 @@ pub async fn get_existing_facts_for_persons(
     let res = sqlx::query_as!(
         ExistingLinkingMailFact,
         r#"
-SELECT e.sisu_person_id,
-  e.course_id,
-  e.emailed_to,
-  e.sent_at,
+SELECT e.sisu_person_id AS "sisu_person_id!",
+  e.course_id AS "course_id!",
+  e.emailed_to AS "emailed_to!",
+  e.sent_at AS "sent_at!",
   (
     e.replaced_at IS NULL
     AND (
       e.student_number_verification_token_id IS NULL
-      OR EXISTS (
-        SELECT 1
-        FROM student_number_verification_tokens t
-        WHERE t.id = e.student_number_verification_token_id
-          AND t.deleted_at IS NULL
-          AND t.used_at IS NULL
-          AND t.expires_at > now()
-      )
+      OR is_usable_verification_token(t)
     )
   ) AS "holds_address!"
 FROM credit_registration_account_linking_emails e
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
 WHERE e.sisu_person_id = ANY($1::text [])
   AND e.deleted_at IS NULL
         "#,
@@ -158,9 +152,7 @@ WHERE e.sisu_person_id = slot.sisu_person_id
     SELECT 1
     FROM student_number_verification_tokens t
     WHERE t.id = e.student_number_verification_token_id
-      AND t.deleted_at IS NULL
-      AND t.used_at IS NULL
-      AND t.expires_at > now()
+      AND is_usable_verification_token(t)
   )
         "#,
         &sisu_person_ids,
@@ -362,9 +354,7 @@ FROM credit_registration_account_linking_emails e
   JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
 WHERE e.email_delivery_id IS NULL
   AND e.deleted_at IS NULL
-  AND t.deleted_at IS NULL
-  AND t.used_at IS NULL
-  AND t.expires_at > now()
+  AND is_usable_verification_token(t)
   AND ($2::uuid IS NULL OR e.course_id = $2)
 ORDER BY e.sent_at
 FOR UPDATE OF e SKIP LOCKED
@@ -397,6 +387,52 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Whether the link a linking mail carries can still be opened.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkingMailLinkState {
+    /// Also a mail with no token, which has no link to lapse.
+    Usable,
+    Used,
+    /// Expired, or retired unused.
+    Lapsed,
+}
+
+/// The state of each mail's link, by mail id.
+pub async fn get_link_states(
+    conn: &mut PgConnection,
+    mail_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, LinkingMailLinkState>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT e.id,
+  (
+    e.student_number_verification_token_id IS NULL
+    OR is_usable_verification_token(t)
+  ) AS "is_usable!",
+  t.used_at IS NOT NULL AS "is_used!"
+FROM credit_registration_account_linking_emails e
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+WHERE e.id = ANY($1::uuid [])
+        "#,
+        mail_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            let state = if row.is_usable {
+                LinkingMailLinkState::Usable
+            } else if row.is_used {
+                LinkingMailLinkState::Used
+            } else {
+                LinkingMailLinkState::Lapsed
+            };
+            (row.id, state)
+        })
+        .collect())
 }
 
 /// What we can honestly say about each linking mail. A slot with no delivery yet is `queued`:
@@ -521,30 +557,25 @@ WHERE e.sent_at >= $1
         ..Default::default()
     };
     for row in rows {
-        let status = match row.email_delivery_id {
-            None => {
-                totals.waiting_for_link_emails += 1;
-                continue;
-            }
-            Some(_) => {
-                let facts = EmailSendStatusFacts {
-                    sent: row.delivery_sent.unwrap_or(false),
-                    retryable: row.retryable.unwrap_or(false),
-                    retry_count: row.retry_count.unwrap_or(0),
-                    next_retry_at: None,
-                    first_failed_at: row.first_failed_at,
-                    last_attempt_at: None,
-                    failure_code: None,
-                    failure_is_transient: None,
-                };
-                derive_email_send_status(&facts, now).email_send_status
-            }
-        };
+        let status = row.email_delivery_id.map(|_| {
+            let facts = EmailSendStatusFacts {
+                sent: row.delivery_sent.unwrap_or(false),
+                retryable: row.retryable.unwrap_or(false),
+                retry_count: row.retry_count.unwrap_or(0),
+                next_retry_at: None,
+                first_failed_at: row.first_failed_at,
+                last_attempt_at: None,
+                failure_code: None,
+                failure_is_transient: None,
+            };
+            derive_email_send_status(&facts, now).email_send_status
+        });
         match status {
-            EmailSendStatus::Queued => totals.waiting_for_email_worker += 1,
-            EmailSendStatus::Retrying => totals.retrying += 1,
-            EmailSendStatus::Sent => totals.sent += 1,
-            EmailSendStatus::SendFailed => {
+            None => totals.waiting_for_link_emails += 1,
+            Some(EmailSendStatus::Queued) => totals.waiting_for_email_worker += 1,
+            Some(EmailSendStatus::Retrying) => totals.retrying += 1,
+            Some(EmailSendStatus::Sent) => totals.sent += 1,
+            Some(EmailSendStatus::SendFailed) => {
                 totals.send_failed += 1;
                 totals.last_send_failed_at = Some(
                     totals
@@ -778,12 +809,12 @@ mod tests {
     use crate::email_deliveries::insert_email_delivery_to_address;
     use crate::email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template};
     use crate::library::credit_registration::account_linking::{
-        DiscoveredPerson, claim_linking_mails,
+        DiscoveredPerson, claim_linking_mail,
     };
     use crate::test_helper::*;
 
     async fn claim_a_mail(conn: &mut PgConnection, course_id: Uuid) -> Uuid {
-        claim_linking_mails(
+        claim_linking_mail(
             conn,
             &DiscoveredPerson {
                 sisu_person_id: "hy-hlo-1".to_string().into(),
@@ -791,7 +822,7 @@ mod tests {
                 first_names: Some("Aada".to_string().into()),
                 last_name: Some("Virtanen".to_string().into()),
                 course_id,
-                addresses: vec![DbSecret::new("aada@example.com")],
+                address: Some(DbSecret::new("aada@example.com")),
             },
         )
         .await

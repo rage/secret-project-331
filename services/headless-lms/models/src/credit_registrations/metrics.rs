@@ -126,25 +126,7 @@ pub async fn get_waiting_for_student_number(
     since: Option<DateTime<Utc>>,
     limit: i64,
 ) -> ModelResult<(Vec<WaitingForStudentNumber>, i64)> {
-    let total = sqlx::query_scalar!(
-        r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registrations cr
-  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-WHERE cr.state = 'pending'
-  AND cr.superseded_by_id IS NULL
-  AND cr.deleted_at IS NULL
-  AND p.completion_eligible
-  AND NOT p.has_verified_student_number
-  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)
-        "#,
-        since,
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-    let rows = sqlx::query_as!(
-        WaitingForStudentNumber,
+    let rows = sqlx::query!(
         r#"
 SELECT cr.id AS credit_registration_id,
   cr.user_id,
@@ -157,7 +139,8 @@ SELECT cr.id AS credit_registration_id,
   cm.uh_course_code AS "uh_course_code?",
   cmc.completion_date,
   sig.last_visited_at AS "last_visited_at?",
-  sig.last_check_requested_at AS "last_check_requested_at?"
+  sig.last_check_requested_at AS "last_check_requested_at?",
+  COUNT(*) OVER () AS "total!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
@@ -181,7 +164,26 @@ LIMIT $2
     )
     .fetch_all(conn)
     .await?;
-    Ok((rows, total))
+    let total = rows.first().map_or(0, |row| row.total);
+    Ok((
+        rows.into_iter()
+            .map(|row| WaitingForStudentNumber {
+                credit_registration_id: row.credit_registration_id,
+                user_id: row.user_id,
+                email: row.email,
+                first_name: row.first_name,
+                last_name: row.last_name,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                course_module_name: row.course_module_name,
+                uh_course_code: row.uh_course_code,
+                completion_date: row.completion_date,
+                last_visited_at: row.last_visited_at,
+                last_check_requested_at: row.last_check_requested_at,
+            })
+            .collect(),
+        total,
+    ))
 }
 
 /// Live rows carrying an error code, split by whether the pipeline is still working on them.

@@ -1,21 +1,14 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import {
-  CheckCircle,
-  Clock,
-  ExclamationTriangle,
-  MinusCircle,
-  StopCircle,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
+import { MinusCircle, StopCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { AdminCreditRegistrationDetails } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import type { RegistrationStatusState } from "@/shared-module/components"
+import { registrationStatusIcon, type RegistrationStatusState } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
@@ -98,7 +91,7 @@ const detailCss = css`
   color: var(--color-gray-600);
 `
 
-type MarkerIcon = React.ComponentType<{ size?: number }>
+type MarkerIcon = (props: { size?: number }) => React.ReactNode
 
 interface Marker {
   Icon: MarkerIcon | null
@@ -110,12 +103,18 @@ const inkCss = (color: string): string => css`
 `
 
 const MARKERS = {
-  done: { Icon: CheckCircle, colorCss: inkCss("var(--color-green-700)") },
-  current: { Icon: Clock, colorCss: inkCss("var(--color-gray-600)") },
+  done: { Icon: registrationStatusIcon.done, colorCss: inkCss("var(--color-green-700)") },
+  current: { Icon: registrationStatusIcon.current, colorCss: inkCss("var(--color-gray-600)") },
   skipped: { Icon: MinusCircle, colorCss: inkCss("var(--color-gray-400)") },
-  upcoming: { Icon: null, colorCss: inkCss("var(--color-gray-400)") },
-  stoppedFailed: { Icon: XmarkCircle, colorCss: inkCss("var(--color-crimson-700)") },
-  stoppedNeedsAction: { Icon: ExclamationTriangle, colorCss: inkCss("var(--color-red-700)") },
+  upcoming: { Icon: registrationStatusIcon.upcoming, colorCss: inkCss("var(--color-gray-400)") },
+  stoppedFailed: {
+    Icon: registrationStatusIcon.failed,
+    colorCss: inkCss("var(--color-crimson-700)"),
+  },
+  stoppedNeedsAction: {
+    Icon: registrationStatusIcon["action-needed"],
+    colorCss: inkCss("var(--color-red-700)"),
+  },
   stoppedIdle: { Icon: StopCircle, colorCss: inkCss("var(--color-gray-500)") },
 } as const satisfies Record<string, Marker>
 

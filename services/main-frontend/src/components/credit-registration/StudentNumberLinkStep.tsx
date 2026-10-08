@@ -19,6 +19,20 @@ import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 const SUPPORT_LINK_IN_TEXT = "link"
 
+/** A mail to support, prefilled for a linking email that never came. */
+const MissingEmailSupportLink: React.FC<{ courseName: string }> = ({ courseName }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const supportMail = missingLinkingEmailSupportMail(t, courseName)
+  return (
+    <SupportMailLink
+      appearance={SUPPORT_LINK_IN_TEXT}
+      label={SUPPORT_EMAIL}
+      subject={supportMail.subject}
+      bodyLines={supportMail.bodyLines}
+    />
+  )
+}
+
 export interface StudentNumberLinkStepProps {
   registration: MyCreditRegistration
   verifiedNumber: MyVerifiedStudentNumber | null
@@ -85,25 +99,18 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   }
 
   if (band.kind === "contact-support") {
-    const supportMail = missingLinkingEmailSupportMail(t, registration.course_name)
     return (
       <section className={bandCss}>
         <h2 className={subheadingCss}>{t("credit-registration-link-heading-not-connected")}</h2>
         <p>
           {t("credit-registration-link-contact-support-body")}{" "}
-          <SupportMailLink
-            appearance={SUPPORT_LINK_IN_TEXT}
-            label={SUPPORT_EMAIL}
-            subject={supportMail.subject}
-            bodyLines={supportMail.bodyLines}
-          />
+          <MissingEmailSupportLink courseName={registration.course_name} />
         </p>
       </section>
     )
   }
 
   if (band.kind === "awaiting-email") {
-    const supportMail = missingLinkingEmailSupportMail(t, registration.course_name)
     return (
       <section className={bandCss}>
         <h2 className={subheadingCss}>{t("credit-registration-link-heading-awaiting-email")}</h2>
@@ -115,12 +122,7 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
         {isLinkingEmailOverdue(band.waitingSince, nowMs) ? (
           <p>
             {t("credit-registration-link-awaiting-email-overdue")}{" "}
-            <SupportMailLink
-              appearance={SUPPORT_LINK_IN_TEXT}
-              label={SUPPORT_EMAIL}
-              subject={supportMail.subject}
-              bodyLines={supportMail.bodyLines}
-            />
+            <MissingEmailSupportLink courseName={registration.course_name} />
           </p>
         ) : (
           <p className={noteCss}>{t("credit-registration-link-only-once")}</p>

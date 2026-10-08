@@ -21,7 +21,7 @@ impl InvalidStudentNumber {
     pub fn message(self) -> &'static str {
         match self {
             Self::Format => "A student number is nine digits and starts with 0.",
-            Self::CheckDigit => "The check digit does not match. Check the number for typos.",
+            Self::CheckDigit => "This is not a valid student number. Check it for typos.",
         }
     }
 }

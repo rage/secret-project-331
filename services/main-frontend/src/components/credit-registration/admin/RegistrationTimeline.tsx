@@ -9,9 +9,9 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import { Table } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
-import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
 import { headingCss, noteCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
 import { formatZonedTimeRange, ZonedTimestamp } from "../ZonedTimestamp"
+import { adminLedgerStateLabel } from "./adminCreditRegistrationCopy"
 import { TONE_INK } from "./AdminStateLabel"
 import { buildTimeline } from "./timelineRows"
 import type { TimelineEntry } from "./timelineRows"
@@ -102,7 +102,7 @@ const RegistrationTimeline: React.FC<{
           {
             header: t("label-state"),
             minWidth: "9rem",
-            cell: (entry) => (entry.state ? registrationLedgerStateLabel(t, entry.state) : null),
+            cell: (entry) => (entry.state ? adminLedgerStateLabel(t, entry.state) : null),
           },
         ]}
       />

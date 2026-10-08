@@ -225,7 +225,7 @@ describe("buildTimeline", () => {
       context,
     )
     expect(sentences(entries)).toEqual([
-      "by-actor action=moved-to state=credit-registration-ledger-state-submitting actor=Ada Admin",
+      "by-actor action=moved-to state=credit-registration-admin-ledger-state-submitting actor=Ada Admin",
       "by-actor action=moved-to state=credit-registration-ledger-state-ready-to-submit actor=Ada Admin",
       "by-actor action=credit-registration-admin-event-admin-action actor=Ada Admin",
       "by-actor action=credit-registration-admin-event-admin-action actor=Ada Admin",

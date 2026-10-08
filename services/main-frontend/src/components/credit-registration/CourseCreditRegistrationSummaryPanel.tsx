@@ -41,6 +41,7 @@ import {
 } from "./constants"
 import CourseCreditRegistrationActionsPanel from "./CourseCreditRegistrationActionsPanel"
 import CreditRegistrationConfigCallout from "./CreditRegistrationConfigCallout"
+import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
 import type { FailureOwner, FailureRemedy } from "./registrationFailures"
 import { FAILURE_OWNERS, failureOwnerHeading, failureRemedy } from "./registrationFailures"
 import type { RegistrationStatusView } from "./registrationStatusViews"
@@ -199,7 +200,8 @@ const PauseNotice: React.FC<{
   config: CourseModuleCreditRegistrationConfig
   /** False when the module's own row (with its "Paused" badge) is right below this notice. */
   showModuleName: boolean
-}> = ({ moduleName, config, showModuleName }) => {
+  isCourseWide: boolean
+}> = ({ moduleName, config, showModuleName, isCourseWide }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const hasReason = Boolean(
     config.credit_registration_paused_at || config.credit_registration_pause_reason,
@@ -207,7 +209,11 @@ const PauseNotice: React.FC<{
   return (
     <Infobox tone={TONE.WARNING}>
       {(showModuleName || !hasReason) && (
-        <div>{t("credit-registration-module-paused-explanation", { module: moduleName })}</div>
+        <div>
+          {isCourseWide
+            ? t("credit-registration-course-paused-explanation")
+            : t("credit-registration-module-paused-explanation", { module: moduleName })}
+        </div>
       )}
       {config.credit_registration_paused_at && (
         <div className={noteCss}>
@@ -380,8 +386,11 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
         }
         const configOf = (id: string) =>
           configsQuery.data?.find((config) => config.course_module_id === id)
+        const isCourseWide = hasOnlyDefaultModule(
+          summary.modules.map((module) => module.course_module_name),
+        )
         const nameOf = (module: CourseCreditRegistrationModuleSummary) =>
-          module.course_module_name ?? t("default-module")
+          module.course_module_name ?? (isCourseWide ? t("course") : t("default-module"))
         const isAnyModulePaused = shownModules.some((module) => module.paused)
 
         const segmentsOf = (
@@ -421,6 +430,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
                   moduleName={nameOf(module)}
                   config={config}
                   showModuleName={shownModules.length > 1}
+                  isCourseWide={isCourseWide}
                 />
               ) : null
             })}
@@ -430,6 +440,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
                 config: configOf(module.course_module_id),
               }))}
               fixHref={manageCourseModulesRoute(courseId)}
+              isCourseWide={isCourseWide}
             />
 
             <div className={breakdownGridCss}>
@@ -502,10 +513,18 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
 
             <Disclosure
               variant={PLAIN_DISCLOSURE}
-              title={t("credit-registration-heading-exact-counts")}
+              title={
+                isCourseWide
+                  ? t("credit-registration-heading-exact-counts-course")
+                  : t("credit-registration-heading-exact-counts")
+              }
             >
               <Table
-                caption={t("credit-registration-heading-exact-counts")}
+                caption={
+                  isCourseWide
+                    ? t("credit-registration-heading-exact-counts-course")
+                    : t("credit-registration-heading-exact-counts")
+                }
                 density={DENSITY_COMPACT}
                 rowKey={(module) => module.course_module_id}
                 rows={shownModules}

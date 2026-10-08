@@ -108,15 +108,20 @@ export interface AdminRegistrationDetails {
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
-export interface AccountLinkingModuleCounters {
-  course_id: string
-  last_listed_at: string | null
-  listed_person_count: number | null
+export interface AccountLinkingCourseCode {
+  course_code: string
+  modules: { course_id: string; last_listed_at: string | null }[]
+  linking: { listed_person_count: number } | null
 }
 
 export interface AccountLinkingStats {
-  modules: AccountLinkingModuleCounters[]
+  course_codes: AccountLinkingCourseCode[]
 }
+
+/** When an enrolment list last fed account linking for one of the course's modules. */
+export const linkingListedAt = (stats: AccountLinkingStats, courseId: string): string | null =>
+  stats.course_codes.flatMap((code) => code.modules).find((module) => module.course_id === courseId)
+    ?.last_listed_at ?? null
 
 export interface AdminRegistrationFilter {
   student_number?: string

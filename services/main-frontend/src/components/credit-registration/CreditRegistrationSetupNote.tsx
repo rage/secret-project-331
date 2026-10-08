@@ -9,6 +9,7 @@ import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 
 import { CREDIT_REGISTRATION_NS, MIDDLE_DOT } from "./constants"
+import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
 import { noteCss, proseCss } from "./styles"
 
 interface Props {
@@ -49,11 +50,17 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
       .filter(Boolean)
       .join(MIDDLE_DOT)
 
+  const isCourseWide = hasOnlyDefaultModule(
+    (structureQuery.data?.modules ?? []).map((module) => module.name),
+  )
+
   return (
     <div className={proseCss}>
       {enabled.map((config) => (
         <p key={config.course_module_id} className={noteCss}>
-          {t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
+          {isCourseWide
+            ? t("credit-registration-set-up-for-course")
+            : t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
           {settings(config)}
         </p>
       ))}

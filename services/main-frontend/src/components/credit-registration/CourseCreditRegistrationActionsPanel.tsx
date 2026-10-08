@@ -12,6 +12,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure, Link, QueryResult, RelativeTime } from "@/shared-module/components"
 
@@ -25,6 +26,7 @@ import {
   TONE,
 } from "./constants"
 import CreditRegistrationByIdDialog from "./CreditRegistrationByIdDialog"
+import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
 import { actionSentence, TEACHER_ACTOR_ROLE } from "./creditRegistrationRetry"
 import {
   dividedListCss,
@@ -92,6 +94,11 @@ const ActionTarget: React.FC<{ courseId: string; action: CourseCreditRegistratio
           <CreditRegistrationByIdDialog
             creditRegistrationId={action.target_id}
             onClose={() => setIsOpen(false)}
+            {...omitUndefined({
+              isCourseWide:
+                structureQuery.data &&
+                hasOnlyDefaultModule(structureQuery.data.modules.map((module) => module.name)),
+            })}
           />
         )}
       </>

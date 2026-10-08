@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO study_registry_student_number_conflicts (\n    user_id,\n    student_number,\n    registered_completion_id,\n    conflicting_verified_student_number_id\n  )\nSELECT reported.user_id,\n  reported.student_number,\n  reported.registered_completion_id,\n  $2\nFROM verified_student_numbers link\n  JOIN study_registry_reported_student_numbers reported ON reported.user_id = link.user_id\n  AND reported.student_number = link.student_number\nWHERE link.id = $1\n  AND NOT EXISTS (\n    SELECT 1\n    FROM study_registry_student_number_conflicts dismissed\n    WHERE dismissed.user_id = reported.user_id\n      AND dismissed.student_number = reported.student_number\n      AND dismissed.dismissed_at IS NOT NULL\n      AND dismissed.deleted_at IS NULL\n  )\nON CONFLICT DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "85099bd5bfbc37cac9c63d3080b4bae52e2466d47c65665c45bc19e1f3b053ea"
+}

@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_enrolment_check_signals (\n    course_module_completion_id,\n    last_check_requested_at,\n    check_request_ladder_anchor_at,\n    check_request_source\n  )\nVALUES ($1, now(), now(), $2) ON CONFLICT (course_module_completion_id, deleted_at) DO\nUPDATE\nSET last_check_requested_at = now(),\n  check_request_ladder_anchor_at = restarted_ladder_anchor(\n    credit_registration_enrolment_check_signals.check_request_ladder_anchor_at,\n    $3::bigint * INTERVAL '1 second'\n  ),\n  check_request_source = EXCLUDED.check_request_source\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "enrolment_check_source",
+            "kind": {
+              "Enum": [
+                "schedule",
+                "student_request",
+                "teacher_request",
+                "admin_request",
+                "roster_listing",
+                "account_link"
+              ]
+            }
+          }
+        },
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b1b7708c65502b636c7fd991151e0feaaca776dcc1881827e3db345585e1183c"
+}

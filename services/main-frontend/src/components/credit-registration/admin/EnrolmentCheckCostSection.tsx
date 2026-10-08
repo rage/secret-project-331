@@ -30,7 +30,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import { listingErrorLabel, rosterTierLabel } from "./adminCreditRegistrationCopy"
+import { listingErrorLabel } from "./adminCreditRegistrationCopy"
 import { formatPercent } from "./percent"
 
 /** Suotar calls per endpoint per day: the pacing's own cost. */
@@ -122,6 +122,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
       <h3 className={subheadingCss}>
         {t("credit-registration-heading-enrolment-check-roster-codes")}
       </h3>
+      <p className={noteCss}>{t("credit-registration-admin-enrolment-checks-roster-codes-note")}</p>
       <Table
         caption={t("credit-registration-heading-enrolment-check-roster-codes")}
         density={DENSITY_COMPACT}
@@ -145,9 +146,10 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             ),
           },
           {
-            header: t("credit-registration-admin-column-tier"),
-            minWidth: "6rem",
-            cell: (row) => rosterTierLabel(t, row.tier),
+            header: t("credit-registration-admin-column-waiting-for-student-number"),
+            align: ALIGN_END,
+            minWidth: "8rem",
+            cell: (row) => row.waiting_count,
           },
           {
             header: t("credit-registration-admin-column-last-fetched"),
@@ -155,6 +157,11 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             cell: (row) => (
               <span className={stackedCellCss}>
                 <ZonedTimestamp at={row.last_fetched_at} />
+                {row.is_fetched_alone && (
+                  <span className={noteCss}>
+                    {t("credit-registration-admin-enrolment-checks-fetched-alone")}
+                  </span>
+                )}
                 {row.last_fetch_duration_ms !== null &&
                   row.last_fetch_duration_ms !== undefined && (
                     <span className={noteCss}>
@@ -171,21 +178,6 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             header: t("credit-registration-admin-column-next-fetch"),
             minWidth: "8rem",
             cell: (row) => <ZonedTimestamp at={row.next_fetch_at} />,
-          },
-          {
-            header: t("credit-registration-admin-column-triggered-today"),
-            align: ALIGN_END,
-            minWidth: "8rem",
-            cell: (row) => (
-              <span className={stackedCellCss}>
-                <span>{row.triggered_fetch_count_today}</span>
-                {row.is_fetched_alone && (
-                  <span className={noteCss}>
-                    {t("credit-registration-admin-enrolment-checks-fetched-alone")}
-                  </span>
-                )}
-              </span>
-            ),
           },
           {
             header: t("credit-registration-admin-column-failures"),

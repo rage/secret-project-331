@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_suotar_configurations\nSET last_listed_at = CASE\n    WHEN $2 THEN now()\n    ELSE last_listed_at\n  END,\n  last_listing_attempted_at = now(),\n  last_listing_error = NULL,\n  consecutive_listing_failures = 0\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "cf8f8ab51f0b594b0f323822286b935e19efc45df9a757f452ba721e5ef9f8a3"
+}

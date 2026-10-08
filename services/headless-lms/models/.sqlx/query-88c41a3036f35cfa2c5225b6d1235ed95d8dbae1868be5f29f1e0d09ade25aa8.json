@@ -37,7 +37,9 @@
                 "resend_link_email",
                 "unlink_student_number",
                 "manual_link_student_number",
-                "override_rate_cap"
+                "override_rate_cap",
+                "request_enrolment_list_fetch",
+                "dismiss_study_registry_conflict"
               ]
             }
           }
@@ -62,7 +64,9 @@
                 "course",
                 "phase",
                 "verified_student_number",
-                "student_number_verification_token"
+                "student_number_verification_token",
+                "roster_schedule",
+                "study_registry_student_number_conflict"
               ]
             }
           }

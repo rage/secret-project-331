@@ -60,6 +60,8 @@ use secrecy::ExposeSecret;
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
     account_linking::admin_manually_link_student_number,
+    account_linking::admin_request_enrolment_list_fetch,
+    account_linking::admin_dismiss_study_registry_conflict,
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations

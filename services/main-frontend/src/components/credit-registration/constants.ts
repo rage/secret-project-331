@@ -120,4 +120,4 @@ export const openUniversityEnrolmentInfoUrl = (language: string): string =>
     : OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN
 
 /** Kept in one place so every page that names it can change together. */
-export const SUPPORT_EMAIL = "mooc@cs.helsinki.fi"
+export const SUPPORT_EMAIL = "mooc@helsinki.fi"

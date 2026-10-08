@@ -13,7 +13,7 @@ pub async fn ensure_resend_possible(
     app_conf: &ApplicationConfiguration,
     course_id: Uuid,
 ) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.account_linking_enabled {
+    if !app_conf.suotar_configuration.is_account_linking_enabled() {
         return Err(controller_err!(
             BadRequest,
             "Account linking is switched off.".to_string()

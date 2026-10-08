@@ -47,8 +47,13 @@ pub struct Email {
     pub subject: Option<String>,
     pub body: Option<serde_json::Value>,
     pub template_type: Option<EmailTemplateType>,
+    /// The template's language, else its course's; `None` for a global template without one.
+    pub language: Option<String>,
     /// Substitutions carried on the delivery row, so a mail to a raw address needs no user lookup.
     pub placeholders: Option<serde_json::Value>,
+    /// A test send from the email editor: `subject` and `body` are its snapshot rather than the
+    /// saved template, and every substitution comes from `placeholders`.
+    pub is_test: bool,
     /// Number of failed send attempts recorded so far.
     pub retry_count: i32,
     pub next_retry_at: Option<DateTime<Utc>>,
@@ -187,6 +192,68 @@ VALUES ($1, $2, $3, $4)
     Ok(id)
 }
 
+/// Queues a test send of an unsaved template body to the account's own address, unless the
+/// account already queued `max_per_minute` in the last minute, in which case returns `None`.
+/// `placeholders` must hold every substitution: the sender derives none for a test send.
+pub async fn insert_test_email_delivery_within_limit(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email_template_id: Uuid,
+    subject: &str,
+    content: &serde_json::Value,
+    placeholders: &serde_json::Value,
+    max_per_minute: i64,
+) -> ModelResult<Option<Uuid>> {
+    let mut tx = conn.begin().await?;
+    // Serializes concurrent sends of one user, so the count below cannot go stale before the insert.
+    sqlx::query!(
+        "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+        user_id.to_string()
+    )
+    .execute(&mut *tx)
+    .await?;
+    let recent = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM email_deliveries
+WHERE user_id = $1
+  AND test_content IS NOT NULL
+  AND created_at > now() - interval '1 minute'
+        "#,
+        user_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if recent >= max_per_minute {
+        tx.rollback().await?;
+        return Ok(None);
+    }
+    let id = Uuid::new_v4();
+    sqlx::query!(
+        r#"
+INSERT INTO email_deliveries (
+    id,
+    user_id,
+    email_template_id,
+    placeholders,
+    test_subject,
+    test_content
+)
+VALUES ($1, $2, $3, $4, $5, $6)
+        "#,
+        id,
+        user_id,
+        email_template_id,
+        placeholders,
+        subject,
+        content,
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(Some(id))
+}
+
 pub async fn fetch_emails(conn: &mut PgConnection) -> ModelResult<Vec<Email>> {
     let emails = sqlx::query_as!(
         Email,
@@ -222,6 +289,8 @@ claimed AS (
         ed.user_id,
         ed.recipient_email,
         ed.placeholders,
+        ed.test_subject,
+        ed.test_content,
         ed.email_template_id,
         ed.retry_count,
         ed.next_retry_at,
@@ -233,10 +302,12 @@ SELECT
     c.id AS id,
     c.user_id AS user_id,
     COALESCE(c.recipient_email, ud.email) AS "to!",
-    et.subject AS subject,
-    et.content AS body,
+    COALESCE(c.test_subject, et.subject) AS subject,
+    COALESCE(c.test_content, et.content) AS body,
     et.email_template_type AS "template_type",
+    email_template_language(et) AS language,
     c.placeholders AS placeholders,
+    c.test_content IS NOT NULL AS "is_test!",
     c.retry_count AS retry_count,
     c.next_retry_at AS next_retry_at,
     c.retryable AS retryable,

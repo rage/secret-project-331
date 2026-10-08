@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
 import {
   Badge,
@@ -31,6 +32,7 @@ import {
   TONE,
 } from "./constants"
 import {
+  hasOnlyDefaultModule,
   registrationErrorTeacherHelp,
   registrationGradeLabel,
   registrationLedgerStateLabel,
@@ -62,6 +64,8 @@ interface Props {
   registration: CourseCreditRegistration
   open: boolean
   onClose: () => void
+  /** See `hasOnlyDefaultModule`; left out, the dialog loads the course structure to tell. */
+  isCourseWide?: boolean
 }
 
 // The one stage where a resend can help: nothing moves until a student number is linked.
@@ -87,7 +91,12 @@ const supportReferenceValueCss = css`
   white-space: nowrap;
 `
 
-const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
+const CreditRegistrationDetailsDialog: React.FC<Props> = ({
+  registration,
+  open,
+  onClose,
+  isCourseWide,
+}) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const detailsQuery = useQuery({
@@ -98,13 +107,20 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   })
 
   const studentName = formatUserName(registration) || t("missing-name")
-  const moduleName = registration.course_module_name ?? t("default-module")
+  const structureQuery = useCourseStructure(
+    isCourseWide === undefined ? registration.course_id : null,
+  )
+  const structureModules = structureQuery.data?.modules
+  const isCourseOnlyModule =
+    isCourseWide ??
+    (structureModules !== undefined &&
+      hasOnlyDefaultModule(structureModules.map((module) => module.name)))
   // Why this row is where it is: the failure when there is one, otherwise what the stage means.
   const leadSentence =
-    registrationErrorTeacherHelp(t, registration.error_code) ??
+    registrationErrorTeacherHelp(t, registration.error_code, isCourseOnlyModule) ??
     (registration.student_facing_status === "needs_student_number" && !isAccountLinkingEnabled
       ? t("credit-registration-teacher-explanation-needs-student-number-linking-off")
-      : registrationTeacherExplanation(t, registration.student_facing_status))
+      : registrationTeacherExplanation(t, registration.student_facing_status, isCourseOnlyModule))
   const verificationLabel = studentNumberVerificationLabel(
     t,
     registration.student_number_verified_via,
@@ -159,7 +175,15 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     .join(" ")
 
   return (
-    <Dialog open={open} onClose={onClose} title={`${studentName}${MIDDLE_DOT}${moduleName}`}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={
+        isCourseOnlyModule
+          ? studentName
+          : `${studentName}${MIDDLE_DOT}${registration.course_module_name ?? t("default-module")}`
+      }
+    >
       <div className={sectionsCss}>
         <div className={leadCss}>
           <RegistrationStatusHeadline

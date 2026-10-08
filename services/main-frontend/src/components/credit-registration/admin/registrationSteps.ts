@@ -4,12 +4,7 @@ import type {
   CreditRegistrationState,
 } from "@/generated/api/types.generated"
 
-export type RegistrationStepKey =
-  | "completed"
-  | "enrolment_found"
-  | "sent"
-  | "partial"
-  | "registered"
+export type RegistrationStepKey = "completed" | "enrolment" | "sent" | "partial" | "registered"
 
 export type RegistrationStepStatus = "done" | "current" | "stopped" | "skipped" | "upcoming"
 
@@ -24,16 +19,10 @@ export interface RegistrationStep {
   ending?: RegistrationEnding | undefined
 }
 
-const STEP_KEYS: RegistrationStepKey[] = [
-  "completed",
-  "enrolment_found",
-  "sent",
-  "partial",
-  "registered",
-]
+const STEP_KEYS: RegistrationStepKey[] = ["completed", "enrolment", "sent", "partial", "registered"]
 
 const ENROLMENT_FOUND_STATES: ReadonlySet<CreditRegistrationState> = new Set([
-  "ready_to_submit",
+  "checking_enrolment",
   "submitting",
   "submission_uncertain",
   "awaiting_verification",
@@ -75,11 +64,11 @@ const position = (row: AdminCreditRegistrationRow, hasEnrolment: boolean): Posit
   switch (row.state) {
     case "pending":
       return { index: row.pending_reason === "completion" ? COMPLETED : ENROLMENT, kind: "current" }
+    case "ready_to_submit":
     case "resolving_enrolment":
-    case "checking_enrolment":
     case "no_usable_enrolment":
       return { index: ENROLMENT, kind: "current" }
-    case "ready_to_submit":
+    case "checking_enrolment":
     case "submitting":
     case "submission_uncertain":
     case "awaiting_verification":

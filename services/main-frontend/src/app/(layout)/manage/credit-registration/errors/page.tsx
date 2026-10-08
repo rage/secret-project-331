@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import {
   retryabilityLabel,
   retryabilityTone,
+  adminErrorShortLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useCreditRegistrationErrorsByCode } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AttentionQueueSection from "@/components/credit-registration/admin/AttentionQueueSection"
@@ -25,7 +26,6 @@ import {
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
-import { registrationErrorShortLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   failureOwner,
   failureOwnerLabel,
@@ -109,7 +109,7 @@ const ErrorCodeSummary: React.FC = () => {
                       appearance={LINK_QUIET}
                     >
                       <span className={stackedCellCss}>
-                        <span>{registrationErrorShortLabel(t, row.error_code)}</span>
+                        <span>{adminErrorShortLabel(t, row.error_code)}</span>
                         <code className={cx(noteCss, codeValueCss)}>{row.error_code}</code>
                       </span>
                     </Link>

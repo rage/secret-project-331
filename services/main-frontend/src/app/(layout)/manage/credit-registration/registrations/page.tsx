@@ -5,7 +5,11 @@ import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { registrationErrorNote } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
+import {
+  adminErrorShortLabel,
+  adminLedgerStateLabel,
+  registrationErrorNote,
+} from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useAdminCreditRegistrations,
   useCreditRegistrationCourseStats,
@@ -42,10 +46,6 @@ import {
   TIME_DURATION,
   TONE,
 } from "@/components/credit-registration/constants"
-import {
-  registrationErrorShortLabel,
-  registrationLedgerStateLabel,
-} from "@/components/credit-registration/creditRegistrationCopy"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
@@ -257,14 +257,14 @@ const RegistrationsPage: React.FC = () => {
   const errorCodeOptions: ErrorCodeOption[] = (overviewQuery.data?.error_codes ?? []).map(
     (row) => ({
       code: row.error_code,
-      label: `${registrationErrorShortLabel(t, row.error_code)}${MIDDLE_DOT}${row.error_code}`,
+      label: `${adminErrorShortLabel(t, row.error_code)}${MIDDLE_DOT}${row.error_code}`,
     }),
   )
 
   const stateOptions: StateOption[] = BUCKET_ORDER.flatMap((bucket) =>
     ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket).map((state) => ({
       state,
-      label: `${registrationLedgerStateLabel(t, state)}${MIDDLE_DOT}${bucketLabel(t, bucket)}`,
+      label: `${adminLedgerStateLabel(t, state)}${MIDDLE_DOT}${bucketLabel(t, bucket)}`,
     })),
   )
 
@@ -301,9 +301,7 @@ const RegistrationsPage: React.FC = () => {
 
   const searchTerm = param(PARAM_SEARCH)
   const activeFilters: string[] = [
-    ...chosenStates.map((state) =>
-      registrationLedgerStateLabel(t, state as CreditRegistrationState),
-    ),
+    ...chosenStates.map((state) => adminLedgerStateLabel(t, state as CreditRegistrationState)),
     ...chosenErrorCodes,
     ...chipFilters.map(
       ({ name, value }) =>
@@ -503,12 +501,7 @@ const RegistrationsPage: React.FC = () => {
                           !row.superseded &&
                           threshold !== null &&
                           secondsSince(row.state_entered_at) > threshold
-                        const errorNote = registrationErrorNote(
-                          t,
-                          row.state,
-                          row.error_code,
-                          row.pending_reason,
-                        )
+                        const errorNote = registrationErrorNote(t, row.state, row.error_code)
                         return (
                           <span className={stackedCellCss}>
                             <span className={rowCss}>

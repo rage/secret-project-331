@@ -37,6 +37,9 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
   const placeholderConfig = getPlaceholderConfig(templateTypeString)
 
   const templateTypeHelperText = useMemo(() => {
+    if (placeholderConfig?.required.length === 0) {
+      return t("template-type-helper-text-no-required-placeholders")
+    }
     if (placeholderConfig) {
       const requiredPlaceholders = placeholderConfig.required.map((p) => `{{${p}}}`).join(", ")
       return t("template-type-helper-text", { placeholders: requiredPlaceholders })
@@ -87,6 +90,26 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
                 // oxlint-disable-next-line i18next/no-literal-string
                 value: "confirm_email_code",
                 label: t("email-template-type-confirm-email-code"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "verify_email_address",
+                label: t("email-template-type-verify-email-address"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_account_linking",
+                label: t("email-template-type-credit-registration-account-linking"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_action_needed",
+                label: t("email-template-type-credit-registration-action-needed"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_registered",
+                label: t("email-template-type-credit-registration-registered"),
               },
             ]}
           />

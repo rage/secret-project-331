@@ -401,7 +401,7 @@ const CoursesPage: React.FC = () => {
                   </Infobox>
                 )}
                 <Table
-                  caption={t("credit-registration-heading-courses-table")}
+                  caption={t("credit-registration-heading-courses")}
                   density={DENSITY_COMPACT}
                   responsive={TABLE_STACK}
                   rowKey={(row) => row.course_module_id}

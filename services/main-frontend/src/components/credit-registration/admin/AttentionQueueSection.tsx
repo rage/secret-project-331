@@ -95,8 +95,7 @@ const MAX_SELECT_ALL_ROWS = 500
 /** The only states a next attempt is scheduled for. Everything else here waits on a person. */
 const RETRYING_STATES: readonly CreditRegistrationState[] = ["failed_retryable", "ready_to_submit"]
 
-// These reasons just restate the state badge beside them (a misregistered row's badge and reason
-// both say "Removed from Sisu"); showing them again in the reasons column would only repeat it.
+// These reasons just restate the state badge beside them, so the reasons column leaves them out.
 const REASONS_IMPLIED_BY_STATE: ReadonlySet<CreditRegistrationAttentionReason> = new Set([
   "permanent_error",
   "outcome_uncertain",

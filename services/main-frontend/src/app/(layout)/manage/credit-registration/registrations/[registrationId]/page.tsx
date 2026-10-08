@@ -14,6 +14,7 @@ import {
   sendStatusLabel,
   stateTone,
   verificationMethodLabel,
+  adminLedgerStateLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useAdminCreditRegistration,
@@ -50,10 +51,7 @@ import {
   TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
-import {
-  registrationGradeLabel,
-  registrationLedgerStateLabel,
-} from "@/components/credit-registration/creditRegistrationCopy"
+import { registrationGradeLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   dividedListCss,
   emptyStateCss,
@@ -196,7 +194,7 @@ const HeaderSection: React.FC<{
 }> = ({ details, isLive, updatedAt }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details.registration
-  const stateLabel = registrationLedgerStateLabel(t, row.state, row.pending_reason)
+  const stateLabel = adminLedgerStateLabel(t, row.state, row.pending_reason)
   const now = Date.now()
   const explanations = subStateExplanations(t, row, details.attention_thresholds, now)
   const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)

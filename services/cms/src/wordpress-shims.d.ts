@@ -19,6 +19,7 @@ declare module "@wordpress/block-editor" {
   export const InspectorControls: any
   export const MediaPlaceholder: any
   export const ObserveTyping: any
+  export const PlainText: any
   export const RichText: any
   export const WritingFlow: any
   export const __experimentalLibrary: any

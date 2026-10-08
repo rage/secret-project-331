@@ -791,6 +791,89 @@
         }
       }
     },
+    "/api/v0/cms/email-templates/{email_template_id}/preview": {
+      "post": {
+        "tags": ["cms_email_templates"],
+        "summary": "\nPOST `/api/v0/cms/email-templates/:id/preview`\n\nRenders the editor's unsaved state exactly as the sender would, with sample placeholder values.",
+        "operationId": "previewCmsEmailTemplate",
+        "parameters": [
+          {
+            "name": "email_template_id",
+            "in": "path",
+            "description": "Email template id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplatePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplatePreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/cms/email-templates/{email_template_id}/send-test": {
+      "post": {
+        "tags": ["cms_email_templates"],
+        "summary": "\nPOST `/api/v0/cms/email-templates/:id/send-test`\n\nQueues the editor's unsaved state, with sample placeholder values, to the requesting user's own\naddress. Returns the id of the queued delivery.",
+        "operationId": "sendCmsEmailTemplateTest",
+        "parameters": [
+          {
+            "name": "email_template_id",
+            "in": "path",
+            "description": "Email template id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplatePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Id of the queued test delivery",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/exams/{exam_id}/edit": {
       "get": {
         "tags": ["cms_exams"],
@@ -2141,6 +2224,34 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "EmailTemplatePreview": {
+        "type": "object",
+        "description": "A template rendered as it would be sent, with sample placeholder values.",
+        "required": ["subject", "html", "plain_text"],
+        "properties": {
+          "html": {
+            "type": "string",
+            "description": "The complete HTML document, layout included."
+          },
+          "plain_text": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailTemplatePreviewRequest": {
+        "type": "object",
+        "description": "The editor's unsaved subject and body.",
+        "required": ["subject", "content"],
+        "properties": {
+          "content": {},
+          "subject": {
+            "type": "string"
           }
         }
       },

@@ -36,8 +36,15 @@ import {
 } from "@wordpress/block-editor"
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
+import {
+  type BlockStyle,
+  store as blocksStore,
+  registerBlockStyle,
+  unregisterBlockStyle,
+} from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
+import { dispatch, select } from "@wordpress/data"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
@@ -86,6 +93,20 @@ interface EditorContentStyle {
 const EDITOR_STYLE_TRANSFORM_OPTIONS = {
   ignoredSelectors: [/\.editor-styles-wrapper/gi],
 }
+// By name: @wordpress/rich-text is only a transitive dependency.
+// oxlint-disable-next-line i18next/no-literal-string
+const RICH_TEXT_STORE = "core/rich-text"
+
+/** A registered rich text format type; the fields this file touches. */
+interface FormatType {
+  name: string
+}
+
+interface RichTextActions {
+  addFormatTypes: (formatTypes: FormatType[]) => void
+  removeFormatTypes: (names: string[]) => void
+}
+
 // oxlint-disable-next-line i18next/no-literal-string
 const EDITOR_STYLES_SCOPE = ":where(.editor-styles-wrapper)"
 
@@ -95,6 +116,20 @@ interface GutenbergEditorProps {
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: CustomBlockDefinition[]
+  /**
+   * Style choices that replace a block type's registered ones while this editor is mounted. The
+   * block registry is global, so registering them for good would offer them in every editor.
+   */
+  blockStyles?: Record<string, BlockStyle[]>
+  /**
+   * The only rich text formats offered while this editor is mounted. Format types are global, so the
+   * rest are unregistered on mount and restored on unmount.
+   */
+  allowedFormats?: readonly string[]
+  /** Merged over the default block editor settings, e.g. to disable block supports or replace `styles`. */
+  settingsOverrides?: Record<string, unknown>
+  /** Layout of the top-level block list; its `alignments` limit the block alignment toolbar. */
+  rootLayout?: Record<string, unknown>
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: React.JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
@@ -151,6 +186,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   allowedBlockVariations,
   allowedBlocks,
   customBlocks,
+  blockStyles,
+  allowedFormats,
+  settingsOverrides,
+  rootLayout,
   mediaUpload,
   inspectorButtons,
   needToRunMigrationsAndValidations,
@@ -174,6 +213,43 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     ensureStandaloneGutenbergBootstrap({ allowedBlockVariations, customBlocks })
     setIsGutenbergBootstrapped(true)
   }, [allowedBlockVariations, customBlocks])
+
+  // Declared after the bootstrap effect so it runs after the bootstrap registers the global styles.
+  useEffect(() => {
+    if (!blockStyles) {
+      return
+    }
+    const replacedStyles = Object.entries(blockStyles).map(([blockName, styles]) => {
+      const previousStyles: BlockStyle[] = select(blocksStore).getBlockStyles(blockName) ?? []
+      previousStyles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+      registerBlockStyle(blockName, styles)
+      return { blockName, styles, previousStyles }
+    })
+    return () => {
+      replacedStyles.forEach(({ blockName, styles, previousStyles }) => {
+        styles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+        if (previousStyles.length > 0) {
+          registerBlockStyle(blockName, previousStyles)
+        }
+      })
+    }
+  }, [blockStyles])
+
+  useEffect(() => {
+    if (!allowedFormats) {
+      return
+    }
+    const formatTypes: FormatType[] = select(RICH_TEXT_STORE).getFormatTypes()
+    const removedFormats = formatTypes.filter((format) => !allowedFormats.includes(format.name))
+    if (removedFormats.length === 0) {
+      return
+    }
+    const richTextActions = dispatch(RICH_TEXT_STORE) as RichTextActions
+    richTextActions.removeFormatTypes(removedFormats.map((format) => format.name))
+    return () => {
+      richTextActions.addFormatTypes(removedFormats)
+    }
+  }, [allowedFormats])
 
   const allowedBlockTypes = useMemo(() => {
     if (!allowedBlocks && !customBlocks) {
@@ -203,8 +279,9 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
       codeEditingEnabled: false,
       mediaUpload,
       allowedBlockTypes,
+      ...settingsOverrides,
     }),
-    [allowedBlockTypes, mediaUpload],
+    [allowedBlockTypes, mediaUpload, settingsOverrides],
   )
 
   useEffect(() => {
@@ -518,7 +595,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 />
                 <EditorCanvas contentRef={localRef}>
                   <ObserveTyping>
-                    <BlockList />
+                    <BlockList layout={rootLayout} />
 
                     {content.length > 0 && <ButtonBlockAppender rootClientId={undefined} />}
                   </ObserveTyping>

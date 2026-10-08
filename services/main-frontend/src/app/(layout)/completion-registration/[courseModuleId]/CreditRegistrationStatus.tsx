@@ -22,6 +22,7 @@ import {
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
+import { LinkingEmailQuestions } from "@/components/credit-registration/LinkingEmailQuestions"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -296,7 +297,11 @@ const Tracker: React.FC<TrackerProps> = ({
       <article className={bandedCardCss}>
         {heading}
 
-        <StudentNumberLinkStep registration={registration} verifiedNumber={verifiedNumber} />
+        <StudentNumberLinkStep
+          registration={registration}
+          verifiedNumber={verifiedNumber}
+          enrolmentRoute={enrolmentRoute}
+        />
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
@@ -356,6 +361,12 @@ const Tracker: React.FC<TrackerProps> = ({
           })}
         </section>
       ) : null}
+
+      <LinkingEmailQuestions
+        registration={registration}
+        verifiedNumber={verifiedNumber}
+        enrolmentRoute={enrolmentRoute}
+      />
     </>
   )
 }

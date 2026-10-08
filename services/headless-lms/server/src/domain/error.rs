@@ -63,6 +63,10 @@ pub enum ControllerErrorType {
     #[display("Not found")]
     NotFound,
 
+    /// HTTP status code 429.
+    #[display("Too many requests")]
+    TooManyRequests,
+
     /// HTTP status code 401. Needs to log in.
     #[display("Unauthorized")]
     Unauthorized,
@@ -531,6 +535,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
+            ControllerErrorType::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
@@ -564,6 +569,8 @@ impl ControllerError {
             }
             ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
             ControllerErrorType::NotFound => ("not_found", "not_found"),
+            // Matches the rate limit middleware's response.
+            ControllerErrorType::TooManyRequests => ("rate_limit", "rate_limited"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::UnauthorizedWithReason(reason) => {
                 ("unauthorized", reason.message_key())

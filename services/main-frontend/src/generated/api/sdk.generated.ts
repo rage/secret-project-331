@@ -25,6 +25,9 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissStudyRegistryConflictData,
+  AdminDismissStudyRegistryConflictErrors,
+  AdminDismissStudyRegistryConflictResponses,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberErrors,
   AdminManuallyLinkStudentNumberResponses,
@@ -36,6 +39,9 @@ import type {
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchErrors,
+  AdminRequestEnrolmentListFetchResponses,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsErrors,
   AdminRequeueRetryableCreditRegistrationsResponses,
@@ -837,6 +843,7 @@ import {
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
+  zAdminRequestEnrolmentListFetchResponse,
   zAdminRequeueRetryableCreditRegistrationsResponse,
   zAdminResendAccountLinkingEmailResponse,
   zAdminResolveStudentNumberForLinkingResponse,
@@ -4888,8 +4895,9 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
@@ -4899,6 +4907,38 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetch = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequestEnrolmentListFetchData, ThrowOnError>,
+): RequestResult<
+  AdminRequestEnrolmentListFetchResponses,
+  AdminRequestEnrolmentListFetchErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequestEnrolmentListFetchResponses,
+    AdminRequestEnrolmentListFetchErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequestEnrolmentListFetchResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -4995,6 +5035,36 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
       await zAdminResolveStudentNumberForLinkingResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissStudyRegistryConflictData, ThrowOnError>,
+): RequestResult<
+  AdminDismissStudyRegistryConflictResponses,
+  AdminDismissStudyRegistryConflictErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissStudyRegistryConflictResponses,
+    AdminDismissStudyRegistryConflictErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -5134,7 +5204,7 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
- * and findings of the enrolment checks, and the roster schedule per course code.
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
 export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationEnrolmentChecksData, ThrowOnError>,
@@ -5711,8 +5781,9 @@ export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
  *
  * Moves a waiting registration onto the schedule for students who have looked, or restarts that
  * schedule at most once a day. Recorded against the completion too, so a visit before there is a
- * registration, or before a student number is linked, still counts once there is. Idempotent enough
- * to call on every page load; the page sends it once per load.
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
  */
 export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
   options: Options<RecordMyEnrolmentPageVisitData, ThrowOnError>,
@@ -5795,8 +5866,8 @@ export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = t
  *
  * Counts as a check request: a waiting registration restarts its checks on the check-requested
  * schedule, under the limit every check request shares. Recorded against the completion too, so a
- * registration that starts waiting later starts on that schedule. With account linking on, a caller
- * with no linked student number books a roster listing of the course code instead.
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
  */
 export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
   options: Options<ConfirmMyEnrolmentData, ThrowOnError>,

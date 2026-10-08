@@ -3,13 +3,13 @@
 //! breaker learns from its calls, so one click cannot trip the workers'.
 //!
 //! The addresses come from the study registry rather than the ledger, and the claim goes through
-//! [`claim_linking_mails`], so the caps and dedup guard apply exactly as they do to the worker.
+//! [`claim_linking_mail`], so the caps and dedup guard apply exactly as they do to the worker.
 
 use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
-    ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, retire_capped_mails,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mail, retire_capped_mails,
 };
 use headless_lms_models::verified_student_numbers;
 use sqlx::{Connection, PgPool};
@@ -123,7 +123,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     };
 
     let discovered = DiscoveredPerson::listed(&person, course_id);
-    if discovered.addresses.is_empty() {
+    if discovered.address.is_none() {
         return Ok(not_retired(ResendOutcome::NoAddressInStudyRegistry));
     }
 
@@ -143,27 +143,14 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         }
         None => 0,
     };
-    let ClaimedLinkingMails {
-        claimed,
-        suppressed_by_dedup,
-        suppressed_by_rate_cap,
-    } = claim_linking_mails(&mut tx, &discovered).await?;
+    let claim = claim_linking_mail(&mut tx, &discovered).await?;
     tx.commit().await?;
-    debug!(
-        course_id = %course_id,
-        claimed,
-        suppressed_by_dedup,
-        suppressed_by_rate_cap,
-        "Linking mail resend claim result"
-    );
-    let outcome = if claimed > 0 {
-        ResendOutcome::Queued
-    } else if suppressed_by_rate_cap > 0 {
-        ResendOutcome::RefusedByRateCap
-    } else if suppressed_by_dedup > 0 {
-        ResendOutcome::AlreadyMailedToEveryKnownAddress
-    } else {
-        ResendOutcome::NoAddressInStudyRegistry
+    debug!(course_id = %course_id, ?claim, "Linking mail resend claim result");
+    let outcome = match claim {
+        LinkingMailClaim::Claimed => ResendOutcome::Queued,
+        LinkingMailClaim::SuppressedByRateCap => ResendOutcome::RefusedByRateCap,
+        LinkingMailClaim::SuppressedByDedup => ResendOutcome::AlreadyMailedToEveryKnownAddress,
+        LinkingMailClaim::NoAddress => ResendOutcome::NoAddressInStudyRegistry,
     };
     Ok(ResendAttempt {
         outcome,

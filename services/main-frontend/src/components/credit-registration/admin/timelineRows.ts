@@ -8,10 +8,8 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import { MIDDLE_DOT } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import {
-  registrationErrorShortLabel,
-  registrationLedgerStateLabel,
-} from "../creditRegistrationCopy"
-import {
+  adminErrorShortLabel,
+  adminLedgerStateLabel,
   eventKindLabel,
   registrationErrorAdminHelp,
   stateTone,
@@ -120,8 +118,7 @@ const enrolmentSummary = (
 const rejectionDetail = (t: CreditRegistrationTFunction, event: Event): string => {
   const parts = [
     event.suotar_code ?? null,
-    registrationErrorAdminHelp(t, event.error_code) ??
-      registrationErrorShortLabel(t, event.error_code),
+    registrationErrorAdminHelp(t, event.error_code) ?? adminErrorShortLabel(t, event.error_code),
   ].filter((part): part is string => Boolean(part))
   return parts.length > 0
     ? parts.join(MIDDLE_DOT)
@@ -132,7 +129,7 @@ const eventTime = (event: Event): string => event.suotar_answered_at ?? event.cr
 
 /** A code we have no wording for: the error's short label if classified, else the state reached. */
 const fallbackOutcome = (t: CreditRegistrationTFunction, event: Event): Outcome => {
-  const errorLabel = registrationErrorShortLabel(t, event.error_code)
+  const errorLabel = adminErrorShortLabel(t, event.error_code)
   if (errorLabel) {
     return {
       sentence: errorLabel,
@@ -142,7 +139,7 @@ const fallbackOutcome = (t: CreditRegistrationTFunction, event: Event): Outcome 
   }
   return {
     sentence: event.to_state
-      ? registrationLedgerStateLabel(t, event.to_state)
+      ? adminLedgerStateLabel(t, event.to_state)
       : (event.suotar_code ?? t("credit-registration-admin-timeline-result-no-clear-answer")),
     tone: toneOfState(event.to_state),
   }
@@ -341,7 +338,7 @@ const byActor = (
 const movedOrActed = (t: CreditRegistrationTFunction, event: Event): string =>
   changedState(event) && event.to_state
     ? t("credit-registration-admin-timeline-moved-to", {
-        state: registrationLedgerStateLabel(t, event.to_state),
+        state: adminLedgerStateLabel(t, event.to_state),
       })
     : eventKindLabel(t, event.kind)
 
@@ -365,7 +362,7 @@ const describe = (
     case "student_action":
       return { sentence: event.message ?? eventKindLabel(t, event.kind), tone: "current" }
     case "cancelled": {
-      const cancelled = registrationLedgerStateLabel(t, "cancelled")
+      const cancelled = adminLedgerStateLabel(t, "cancelled")
       if (event.actor_user_id) {
         return byActor(t, cancelled, event, context, "upcoming")
       }

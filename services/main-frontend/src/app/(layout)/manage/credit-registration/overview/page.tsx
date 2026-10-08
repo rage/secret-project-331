@@ -7,6 +7,7 @@ import { useDateFormatter } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
+import { adminLedgerStateLabel } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useCreditRegistrationErrorsByCode,
   useCreditRegistrationOverview,
@@ -41,7 +42,6 @@ import {
   QUIET_REFRESH,
   TABLE_STACK,
 } from "@/components/credit-registration/constants"
-import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   controlCss,
   emptyStateCss,
@@ -59,7 +59,9 @@ import {
 import type {
   CreditRegistrationHistory,
   CreditRegistrationOverview,
+  CreditRegistrationPendingReason,
   CreditRegistrationState,
+  PendingReasonCounts,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { includeIf } from "@/shared-module/common/utils/nullability"
@@ -210,8 +212,41 @@ const ThroughputSection: React.FC = () => {
 
 interface StateRow {
   state: CreditRegistrationState
+  pendingReason?: CreditRegistrationPendingReason
   count: number
 }
+
+const stateRowKey = (row: StateRow): string =>
+  row.pendingReason ? `${row.state}:${row.pendingReason}` : row.state
+
+const PENDING = "pending" as const
+
+const pendingCountsByReason = (
+  byReason: PendingReasonCounts,
+): Record<CreditRegistrationPendingReason, number> => ({
+  completion: byReason.completion_count,
+  student_number: byReason.student_number_count,
+  course_code: byReason.course_code_count,
+})
+
+/** The `pending` row split by what it waits for; whatever no reason covers stays a plain row. */
+const splitPending = (rows: StateRow[], byReason: PendingReasonCounts): StateRow[] =>
+  rows.flatMap((row) => {
+    if (row.state !== PENDING) {
+      return [row]
+    }
+    const counts = pendingCountsByReason(byReason)
+    const reasons = Object.keys(counts) as CreditRegistrationPendingReason[]
+    const reasonRows: StateRow[] = reasons.map((pendingReason) => ({
+      state: PENDING,
+      pendingReason,
+      count: counts[pendingReason],
+    }))
+    const unexplained = row.count - reasonRows.reduce((sum, reasonRow) => sum + reasonRow.count, 0)
+    return [...reasonRows, { state: PENDING, count: unexplained }].filter(
+      (reasonRow) => reasonRow.count > 0,
+    )
+  })
 
 /** One stage's states, deepest first, with each state's share of everything still live. */
 const StageTable: React.FC<{
@@ -233,7 +268,7 @@ const StageTable: React.FC<{
       <Table
         caption={bucketLabel(t, bucket)}
         density={DENSITY_COMPACT}
-        rowKey={(row) => row.state}
+        rowKey={stateRowKey}
         rows={rows}
         responsive={TABLE_STACK}
         columns={[
@@ -243,14 +278,22 @@ const StageTable: React.FC<{
             minWidth: "13rem",
             cell: (row) => {
               const StateIcon = STATE_ICONS[row.state]
+              const label = (
+                <>
+                  <StateIcon size={STATE_ICON_SIZE} className={stateIconCss} />
+                  {adminLedgerStateLabel(t, row.state, row.pendingReason)}
+                </>
+              )
+              if (row.pendingReason) {
+                return <span className={stateLinkCss}>{label}</span>
+              }
               return (
                 <Link
                   href={`${creditRegistrationRegistrationsRoute()}${STATE_QUERY}${row.state}`}
                   appearance={LINK_INHERIT}
                   className={stateLinkCss}
                 >
-                  <StateIcon size={STATE_ICON_SIZE} className={stateIconCss} />
-                  {registrationLedgerStateLabel(t, row.state)}
+                  {label}
                 </Link>
               )
             },
@@ -276,7 +319,7 @@ const StageTable: React.FC<{
                       maxValue={deepestLiveCount}
                       valueText={formatSharePercent(row.count, liveTotal)}
                       label={t("credit-registration-admin-share-of-live-label", {
-                        state: registrationLedgerStateLabel(t, row.state),
+                        state: adminLedgerStateLabel(t, row.state, row.pendingReason),
                         count: row.count,
                         total: liveTotal,
                       })}
@@ -297,7 +340,10 @@ const StageTable: React.FC<{
  */
 const QueueSection: React.FC<{ overview: CreditRegistrationOverview }> = ({ overview }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const rows: StateRow[] = overview.counts_by_state.filter((row) => row.count > 0)
+  const rows = splitPending(
+    overview.counts_by_state.filter((row) => row.count > 0),
+    overview.pending_by_reason,
+  )
   const liveRows = rows.filter((row) => BUCKET_OF_STATE[row.state] !== "done")
   const liveTotal = liveRows.reduce((sum, row) => sum + row.count, 0)
   const deepestLiveCount = Math.max(...liveRows.map((row) => row.count), 1)
@@ -527,7 +573,7 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
   const options: EChartsOption = {
     tooltip: AXIS_TOOLTIP,
     title: charted.map((one, index) => ({
-      text: registrationLedgerStateLabel(t, one.state),
+      text: adminLedgerStateLabel(t, one.state),
       left: cellLeft(index),
       top: cellTop(index),
       textStyle: { fontSize: MINI_TITLE_SIZE, fontWeight: PLAIN_WEIGHT, color: AXIS_TEXT_COLOR },
@@ -566,7 +612,7 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
       splitLine: { lineStyle: { color: GRID_LINE_COLOR } },
     })),
     series: charted.map((one, index) => ({
-      name: registrationLedgerStateLabel(t, one.state),
+      name: adminLedgerStateLabel(t, one.state),
       type: "line",
       xAxisIndex: index,
       yAxisIndex: index,

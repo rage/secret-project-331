@@ -20,6 +20,9 @@ const buttonCss = (selected: boolean) => css`
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
   }
+  & > span > span::first-letter {
+    text-transform: uppercase;
+  }
   ${
     selected &&
     `

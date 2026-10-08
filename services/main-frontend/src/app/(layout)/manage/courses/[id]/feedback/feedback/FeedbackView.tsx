@@ -132,7 +132,18 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       {feedback.feedback_category_name && (
         <TextInformationWrapper>
           {t("assigned-feedback-category")}
-          <i>{feedback.feedback_category_name}</i>
+          <i>
+            <span
+              className={css`
+                display: inline-block;
+                &::first-letter {
+                  text-transform: uppercase;
+                }
+              `}
+            >
+              {feedback.feedback_category_name}
+            </span>
+          </i>
         </TextInformationWrapper>
       )}
 

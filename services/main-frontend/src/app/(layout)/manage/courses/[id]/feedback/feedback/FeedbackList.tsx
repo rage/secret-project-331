@@ -32,7 +32,7 @@ interface Props {
 
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo(3)
+  const paginationInfo = usePaginationInfo()
   const { allFeedbackId, selectedCategory, toggleState } =
     useFeedbackCategoryToggleInfo(paginationInfo)
 

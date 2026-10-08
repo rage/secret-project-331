@@ -320,9 +320,8 @@ GROUP BY category_id
             let unread = x.unread.unwrap_or_default().try_into().ok()?;
             all_read += read;
             all_unread += unread;
-            let Some(id) = x.category_id else { return None };
             Some(CategoryFeedbackCount {
-                category_id: id,
+                category_id: x.category_id?,
                 read_feedback: read,
                 unread_feedback: unread,
             })

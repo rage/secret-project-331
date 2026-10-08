@@ -19,7 +19,7 @@ pub struct NewFeedbackCategory {
 ///     - lowercase
 ///     - remove trailing and preceding non-alphanumeric chars
 ///     - remove '*' and ';', these shouldn't be needed
-fn normalize(input: &String) -> String {
+fn normalize(input: &str) -> String {
     input
         .to_lowercase()
         .replace(";", "")

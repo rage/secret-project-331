@@ -446,7 +446,7 @@ pub async fn get_credit_registration_settings(
 ) -> ControllerResult<web::Json<CreditRegistrationSettings>> {
     let token = skip_authorize();
     token.authorized_ok(web::Json(CreditRegistrationSettings {
-        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+        account_linking_enabled: app_conf.suotar_configuration.is_account_linking_enabled(),
     }))
 }
 
@@ -1374,7 +1374,7 @@ async fn book_roster_listing_for_unlinked_student(
     course_module_id: Uuid,
     is_visit: bool,
 ) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.account_linking_enabled {
+    if !app_conf.suotar_configuration.is_account_linking_enabled() {
         return Ok(());
     }
     book_listing_for_unlinked_student(conn, user_id, course_module_id, is_visit).await?;

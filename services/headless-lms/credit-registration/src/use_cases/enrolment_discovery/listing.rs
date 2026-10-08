@@ -7,6 +7,7 @@ use headless_lms_models::credit_registration_roster_schedules::{
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
+use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
 
 use super::CodeListing;
@@ -25,7 +26,7 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     pool: &PgPool,
     registry: &mut R,
     request: &[CodeListing],
-    is_account_linking_enabled: bool,
+    account_linking_since: Option<DateTime<Utc>>,
 ) -> CreditRegistrationResult<Counts> {
     let codes: Vec<String> = request
         .iter()
@@ -59,8 +60,7 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         match roster {
             Ok(people) => {
                 new_mails +=
-                    reconcile_roster(&mut conn, listing, people, is_account_linking_enabled)
-                        .await?;
+                    reconcile_roster(&mut conn, listing, people, account_linking_since).await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
                 mark_fetched(&mut conn, course_code, person_count, duration_ms).await?;

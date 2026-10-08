@@ -43,6 +43,7 @@
   "credit-registration-action-needed-email-sent": "Lähetimme sinulle tästä sähköpostia {{date}}.",
   "credit-registration-admin-about-stuck": "Tietoa jumiutumisrajasta",
   "credit-registration-admin-account-linking-disabled": "Tilien yhdistäminen on pois päältä. Vahvistusviestejä ei lähetetä, eikä niitä voi lähettää uudelleen.",
+  "credit-registration-admin-account-linking-since": "Vahvistusviestit lähetetään vain niille, jotka ovat ilmoittautuneet Sisussa {{time}} tai myöhemmin.",
   "credit-registration-admin-action-cancel-registration": "Perui kirjauksen",
   "credit-registration-admin-action-count_one": "{{count}} toiminto vastaa rajauksia.",
   "credit-registration-admin-action-count_other": "{{count}} toimintoa vastaa rajauksia.",

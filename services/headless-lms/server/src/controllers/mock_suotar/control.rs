@@ -34,7 +34,8 @@ pub struct RunTickQuery {
     /// Comma-separated ledger row ids, for a spec that already knows them.
     pub credit_registration_ids: Option<String>,
     /// Overrides the deployment's account-linking switch for this tick, so a spec can run a phase
-    /// the way a deployment with linking off would.
+    /// the way a deployment with linking off would. On, it keeps the deployment's cutoff, or mails
+    /// every enrolment if the deployment has none.
     pub account_linking_enabled: Option<bool>,
 }
 
@@ -134,9 +135,16 @@ async fn run_tick(
     };
 
     let ctx = PhaseContext {
-        is_account_linking_enabled: query
-            .account_linking_enabled
-            .unwrap_or(app_conf.suotar_configuration.account_linking_enabled),
+        account_linking_since: match query.account_linking_enabled {
+            Some(true) => Some(
+                app_conf
+                    .suotar_configuration
+                    .account_linking_since
+                    .unwrap_or(DateTime::UNIX_EPOCH),
+            ),
+            Some(false) => None,
+            None => app_conf.suotar_configuration.account_linking_since,
+        },
         ..tick_context(&app_conf, &pool, &suotar_client)
     };
     debug!(phase = phase.as_str(), ?scope, "run-tick requested");

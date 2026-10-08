@@ -14325,6 +14325,11 @@
             "type": "boolean",
             "description": "When false, no linking mails are sent and resends are refused."
           },
+          "account_linking_since": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Discovery mails only people who enrolled at or after this."
+          },
           "funnel": {
             "$ref": "#/components/schemas/AccountLinkingFunnel"
           },

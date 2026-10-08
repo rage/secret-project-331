@@ -4,7 +4,10 @@ import { css, cx } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import {
+  formatZonedTimestamp,
+  ZonedTimestamp,
+} from "@/components/credit-registration/ZonedTimestamp"
 import { adminUnlinkStudentNumber } from "@/generated/api/sdk.generated"
 import type {
   AccountLinkingModuleCounters,
@@ -802,6 +805,13 @@ const AccountLinkingSection: React.FC = () => {
           <>
             {!stats.account_linking_enabled && (
               <Infobox>{t("credit-registration-admin-account-linking-disabled")}</Infobox>
+            )}
+            {stats.account_linking_since && (
+              <p className={noteCss}>
+                {t("credit-registration-admin-account-linking-since", {
+                  time: formatZonedTimestamp(new Date(stats.account_linking_since)),
+                })}
+              </p>
             )}
             <RightNow stats={stats} />
             <WindowFunnel stats={stats} windowDays={windowDays} />

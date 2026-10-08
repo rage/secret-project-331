@@ -43,6 +43,7 @@
   "credit-registration-action-needed-email-sent": "We emailed you about this on {{date}}.",
   "credit-registration-admin-about-stuck": "About the stuck threshold",
   "credit-registration-admin-account-linking-disabled": "Account linking is switched off. No confirmation emails are sent, and they cannot be sent again.",
+  "credit-registration-admin-account-linking-since": "Confirmation emails go only to people who enrolled in Sisu on or after {{time}}.",
   "credit-registration-admin-action-cancel-registration": "Cancelled a registration",
   "credit-registration-admin-action-count_one": "{{count}} action matches.",
   "credit-registration-admin-action-count_other": "{{count}} actions match.",

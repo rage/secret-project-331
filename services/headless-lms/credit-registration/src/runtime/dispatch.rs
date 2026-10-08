@@ -1,7 +1,7 @@
 //! Running one iteration of one phase, and the bookkeeping around it: the pause and scope checks,
 //! the heartbeat, the circuit breakers and the limiter.
 
-use chrono::TimeDelta;
+use chrono::{DateTime, TimeDelta, Utc};
 use headless_lms_models::credit_registration_phase_state::{self, PhaseRunOutcome};
 use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_models::library::credit_registration::sisu_day_gap;
@@ -80,8 +80,9 @@ pub struct PhaseContext<'a> {
     pub runner: Runner<'a>,
     /// Absolute base for links in queued mail, which outlive the process that wrote them.
     pub base_url: &'a str,
-    /// Off, the linking mails are not sent, and discovery only wakes linked students' registrations.
-    pub is_account_linking_enabled: bool,
+    /// Linking mails go only to people enrolled at or after it. `None`, none are sent and discovery
+    /// only wakes linked students' registrations.
+    pub account_linking_since: Option<DateTime<Utc>>,
     /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
     pub shutdown: Option<&'a CancellationToken>,
 }
@@ -101,7 +102,7 @@ impl<'a> PhaseContext<'a> {
             test_mode: app_conf.test_mode,
             runner,
             base_url: &app_conf.base_url,
-            is_account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+            account_linking_since: app_conf.suotar_configuration.account_linking_since,
             shutdown: None,
         }
     }
@@ -142,7 +143,7 @@ pub async fn run_phase_once(
         trace!(phase = phase.as_str(), "Wrote phase heartbeat");
     }
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
-    if phase.spec().is_account_linking_only && !ctx.is_account_linking_enabled {
+    if phase.spec().is_account_linking_only && ctx.account_linking_since.is_none() {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
     }
     // Not in test mode: the system tests run at every hour, the gap's included.
@@ -270,7 +271,7 @@ async fn run_body(
             student_notifications::run(pool, scope, ctx.base_url).await
         }
         CreditRegistrationPhase::EnrolmentDiscovery => {
-            enrolment_discovery::run(pool, scope, ctx.is_account_linking_enabled, registry).await
+            enrolment_discovery::run(pool, scope, ctx.account_linking_since, registry).await
         }
         CreditRegistrationPhase::LinkEmails => link_emails::run(pool, scope, ctx.base_url).await,
         CreditRegistrationPhase::ConfigValidation => {

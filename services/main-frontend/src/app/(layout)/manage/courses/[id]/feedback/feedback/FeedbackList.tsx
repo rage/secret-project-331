@@ -11,6 +11,10 @@ import {
   getCourseFeedbackCountOptions,
   getCourseFeedbackOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  CategoryFeedbackCount,
+  FeedbackEditProposalCounts,
+} from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -30,13 +34,13 @@ interface Props {
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo(3)
-  const allButtonId = useId()
+  const allFeedbackId = useId()
   const selectedCategory = useRef<string | undefined>(undefined)
   let toggleState = useToggleGroupState({
     // oxlint-disable-next-line i18next/no-literal-string
     selectionMode: "single",
     disallowEmptySelection: true,
-    defaultSelectedKeys: new Set([allButtonId]),
+    defaultSelectedKeys: new Set([allFeedbackId]),
   })
   let selected = toggleState.selectedKeys.keys().next().value?.toString()
 
@@ -45,7 +49,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
       selectedCategory.current = selected
       paginationInfo.setPage(1)
     }
-  }, [paginationInfo, selected, allButtonId])
+  }, [paginationInfo, selected, allFeedbackId])
 
   const getFeedbackCount = useQuery({
     ...getCourseFeedbackCountOptions({
@@ -65,7 +69,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
         page: paginationInfo.page,
         limit: paginationInfo.limit,
         category_filter:
-          selectedCategory.current !== allButtonId ? selectedCategory.current : undefined,
+          selectedCategory.current !== allFeedbackId ? selectedCategory.current : undefined,
       }),
     }),
   })
@@ -81,7 +85,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   const AllButton = (
     <ToggleGroup
       groupLabel={t("feedback-categories")}
-      toggles={[{ id: allButtonId, name: t("all") }]}
+      toggles={[{ id: allFeedbackId, name: t("all") }]}
       state={toggleState}
     />
   )
@@ -89,14 +93,17 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   return (
     <QueryResult query={getFeedbackCount}>
       {(countData) => {
-        let y =
-          // fix
-          selectedCategory.current !== allButtonId
-            ? (countData.feedback_categories_counts.find(
-                (x) => x.category_id === selectedCategory.current,
-              ) ?? countData)
-            : countData
-        const items = read ? y.read_feedback : y.unread_feedback
+        // use the query result data, unless a category is selected, then find
+        // the correct category and use its read/unread counts
+        let feedbackData: FeedbackEditProposalCounts | CategoryFeedbackCount = countData
+        if (selectedCategory.current !== allFeedbackId) {
+          feedbackData =
+            countData.feedback_categories_counts.find(
+              (x) => x.category_id === selectedCategory.current,
+            ) ?? countData
+        }
+
+        const items = read ? feedbackData.read_feedback : feedbackData.unread_feedback
         if (items <= 0) {
           return <div>{t("no-feedback")}</div>
         }
@@ -111,7 +118,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
                 return (
                   <ToggleGroup
                     groupLabel={t("feedback-categories")}
-                    toggles={[{ id: allButtonId, name: t("all") }].concat(categories)}
+                    toggles={[{ id: allFeedbackId, name: t("all") }].concat(categories)}
                     state={toggleState}
                   />
                 )

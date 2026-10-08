@@ -4385,6 +4385,7 @@ export type PeerReviewWithQuestionsAndAnswers = {
  */
 export type PendingReasonCounts = {
   completion_count: number
+  course_code_count: number
   student_number_count: number
 }
 

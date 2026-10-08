@@ -25785,9 +25785,13 @@
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
-        "required": ["completion_count", "student_number_count"],
+        "required": ["completion_count", "student_number_count", "course_code_count"],
         "properties": {
           "completion_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "course_code_count": {
             "type": "integer",
             "format": "int64"
           },

@@ -79,7 +79,12 @@ SELECT COUNT(*) FILTER (
   COUNT(*) FILTER (
     WHERE p.completion_eligible
       AND NOT p.has_verified_student_number
-  ) AS "student_number_count!"
+  ) AS "student_number_count!",
+  COUNT(*) FILTER (
+    WHERE p.completion_eligible
+      AND p.has_verified_student_number
+      AND NOT p.course_code_allowed
+  ) AS "course_code_count!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
 WHERE cr.state = 'pending'
@@ -92,6 +97,7 @@ WHERE cr.state = 'pending'
     Ok(PendingReasonCounts {
         completion_count: row.completion_count,
         student_number_count: row.student_number_count,
+        course_code_count: row.course_code_count,
     })
 }
 

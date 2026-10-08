@@ -33,6 +33,50 @@ export {
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
 
+/** Where the admin wording names Suotar or the admin; teachers see only Sisu. */
+const ADMIN_LEDGER_STATE_KEYS = {
+  submitting: "credit-registration-admin-ledger-state-submitting",
+  misregistered: "credit-registration-admin-ledger-state-misregistered",
+} as const satisfies Partial<Record<CreditRegistrationState, string>>
+
+const ADMIN_PENDING_REASON_STATE_KEYS = {
+  course_code: "credit-registration-admin-ledger-state-pending-course-code",
+} as const satisfies Partial<Record<CreditRegistrationPendingReason, string>>
+
+const ADMIN_ERROR_CODE_SHORT_KEYS = {
+  course_not_allowed: "credit-registration-admin-short-reason-course-not-allowed",
+  service_temporarily_unavailable:
+    "credit-registration-admin-short-reason-service-temporarily-unavailable",
+  transport_error: "credit-registration-admin-short-reason-transport-error",
+  sisu_timeout: "credit-registration-admin-short-reason-sisu-timeout",
+  unauthorized: "credit-registration-admin-short-reason-unauthorized",
+  unexpected_response: "credit-registration-admin-short-reason-unexpected-response",
+} as const satisfies Partial<Record<CreditRegistrationErrorCode, string>>
+
+/** `registrationLedgerStateLabel` as the admin dashboard words it. */
+export const adminLedgerStateLabel = (
+  t: CreditRegistrationTFunction,
+  state: CreditRegistrationState,
+  pendingReason?: CreditRegistrationPendingReason | null,
+): string => {
+  const adminKey =
+    state === "pending" && pendingReason
+      ? widenedLookup(ADMIN_PENDING_REASON_STATE_KEYS, pendingReason)
+      : widenedLookup(ADMIN_LEDGER_STATE_KEYS, state)
+  return adminKey
+    ? translateKey(t, adminKey)
+    : registrationLedgerStateLabel(t, state, pendingReason)
+}
+
+/** `registrationErrorShortLabel` as the admin dashboard words it. */
+export const adminErrorShortLabel = (
+  t: CreditRegistrationTFunction,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): string | null => {
+  const adminKey = errorCode ? widenedLookup(ADMIN_ERROR_CODE_SHORT_KEYS, errorCode) : undefined
+  return adminKey ? translateKey(t, adminKey) : registrationErrorShortLabel(t, errorCode)
+}
+
 /** How much the link is worth as proof. */
 const VERIFICATION_METHOD_TONES = {
   emailed_link: TONE.SUCCESS,
@@ -246,9 +290,7 @@ export const alertSentence = (
   labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
     count,
     subject:
-      subject && isLedgerState(subject)
-        ? registrationLedgerStateLabel(t, subject)
-        : (subject ?? ""),
+      subject && isLedgerState(subject) ? adminLedgerStateLabel(t, subject) : (subject ?? ""),
     total: total ?? 0,
   })
 
@@ -278,21 +320,14 @@ export const attentionReasonLabel = (
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
 
 /**
- * The error's short label beside a state badge, or `null` when it would just repeat the badge
- * (e.g. a misregistered row's error label and state label are the same sentence).
+ * The error's short label beside a state badge, or `null` when the error code is the state itself
+ * (`misregistered`) and the label would only repeat the badge.
  */
 export const registrationErrorNote = (
   t: CreditRegistrationTFunction,
   state: CreditRegistrationState,
   errorCode: CreditRegistrationErrorCode | null | undefined,
-  pendingReason?: CreditRegistrationPendingReason | null,
-): string | null => {
-  const errorLabel = registrationErrorShortLabel(t, errorCode)
-  if (errorLabel === null) {
-    return null
-  }
-  return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
-}
+): string | null => (errorCode === state ? null : adminErrorShortLabel(t, errorCode))
 
 /**
  * Why a course code's roster listing fails. On the listing, `course_code_not_found` means only that
@@ -304,7 +339,7 @@ export const listingErrorLabel = (
 ): string =>
   errorCode === "course_code_not_found"
     ? t("credit-registration-admin-listing-no-current-realisations")
-    : (registrationErrorShortLabel(t, errorCode) ?? errorCode)
+    : (adminErrorShortLabel(t, errorCode) ?? errorCode)
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",

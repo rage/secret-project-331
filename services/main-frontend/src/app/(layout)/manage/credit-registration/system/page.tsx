@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { adminLedgerStateLabel } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
@@ -26,7 +27,6 @@ import {
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
-import { registrationLedgerStateLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
   headingCss,
   codeValueCss,
@@ -85,7 +85,7 @@ const PhaseTable: React.FC<{
                 >
                   {t("credit-registration-admin-owned-states-tooltip-body", {
                     states: row.owned_states
-                      .map((state) => registrationLedgerStateLabel(t, state))
+                      .map((state) => adminLedgerStateLabel(t, state))
                       .join(MIDDLE_DOT),
                   })}
                 </Tooltip>

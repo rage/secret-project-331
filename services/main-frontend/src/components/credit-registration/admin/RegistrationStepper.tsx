@@ -9,9 +9,8 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
-import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
-import { stateTone } from "./adminCreditRegistrationCopy"
+import { adminLedgerStateLabel, stateTone } from "./adminCreditRegistrationCopy"
 import { deriveRegistrationSteps } from "./registrationSteps"
 import type { RegistrationStep, RegistrationStepStatus } from "./registrationSteps"
 import { subStateExplanations } from "./registrationSubStates"
@@ -128,8 +127,8 @@ const stepLabel = (t: CreditRegistrationTFunction, step: RegistrationStep): stri
   switch (step.key) {
     case "completed":
       return t("credit-registration-admin-stepper-completed")
-    case "enrolment_found":
-      return t("credit-registration-admin-stepper-enrolment-found")
+    case "enrolment":
+      return t("credit-registration-admin-stepper-enrolment")
     case "sent":
       return t("credit-registration-admin-stepper-sent")
     case "partial":
@@ -168,7 +167,7 @@ const RegistrationStepper: React.FC<{ details: AdminCreditRegistrationDetails; n
   const steps = deriveRegistrationSteps(row, details.events)
   const activeText =
     subStateExplanations(t, row, details.attention_thresholds, now)[0] ??
-    registrationLedgerStateLabel(t, row.state, row.pending_reason)
+    adminLedgerStateLabel(t, row.state, row.pending_reason)
   const tone = stateTone(row.state, row.pending_reason)
   return (
     <ol className={listCss} aria-label={t("credit-registration-admin-stepper-label")}>

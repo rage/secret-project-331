@@ -100,7 +100,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
             <div>{resendOutcomeLabel(t, result.outcome)}</div>
             <div>
-              {t("credit-registration-admin-resend-mails-so-far", {
+              {t("credit-registration-resend-mails-so-far", {
                 sent: result.mails_sent_for_this_course,
                 max: result.max_mails_per_person_and_course,
               })}

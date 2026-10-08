@@ -103,6 +103,15 @@ pub struct RosterPerson {
     pub enrolment: Option<RosterEnrolment>,
 }
 
+impl RosterPerson {
+    /// When the roster says they enrolled, if it says.
+    pub fn enrolled_at(&self) -> Option<DateTime<Utc>> {
+        self.enrolment
+            .as_ref()
+            .and_then(|enrolment| enrolment.enrolment_date_time)
+    }
+}
+
 /// The enrolment a roster lists a person under; every field may be absent.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RosterEnrolment {

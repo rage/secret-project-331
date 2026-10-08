@@ -282,7 +282,7 @@
   "placeholder-course-name-description": "The name of the course.",
   "placeholder-credits-description": "The number of credits, written the way the email's language writes numbers.",
   "placeholder-enrolment-link-description": "The link where the student can enrol on the course. Empty when the course module has none.",
-  "placeholder-link-description": "The confirmation link that links the student number to the recipient's account.",
+  "placeholder-link-description": "The link in the account linking email that links the student number to the recipient's account.",
   "placeholder-module-name-description": "The name of the completed course module.",
   "placeholder-name-description": "The recipient's first name.",
   "placeholder-reset-link-description": "The password reset link that users can click to reset their password.",

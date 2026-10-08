@@ -158,6 +158,8 @@ pub struct VerifiedStudentNumberMethodTotal {
 pub struct AccountLinkingStats {
     /// When false, no linking mails are sent and resends are refused.
     pub account_linking_enabled: bool,
+    /// Discovery mails only people who enrolled at or after this.
+    pub account_linking_since: Option<DateTime<Utc>>,
     pub window_secs: i64,
     pub funnel: AccountLinkingFunnel,
     pub send_status_totals: AccountLinkingSendStatusTotals,
@@ -418,7 +420,8 @@ pub async fn get_account_linking_stats(
     .collect();
 
     token.authorized_ok(web::Json(AccountLinkingStats {
-        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+        account_linking_enabled: app_conf.suotar_configuration.is_account_linking_enabled(),
+        account_linking_since: app_conf.suotar_configuration.account_linking_since,
         window_secs,
         funnel,
         send_status_totals,

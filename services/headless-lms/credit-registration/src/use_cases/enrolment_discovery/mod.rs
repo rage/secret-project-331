@@ -15,7 +15,7 @@ use headless_lms_models::credit_registration_roster_schedules::{
     get_schedules,
 };
 use headless_lms_models::{course_modules, verified_student_numbers};
-use headless_lms_utils::prelude::Utc;
+use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -60,14 +60,15 @@ pub async fn book_listing_for_unlinked_student(
     Ok(())
 }
 
-/// With account linking off, a roster still wakes linked students' registrations, and only the
-/// mails are left out.
+/// With account linking off (`account_linking_since` `None`), a roster still wakes linked students'
+/// registrations, and only the mails are left out.
 pub(crate) async fn run<R: StudyRegistry>(
     pool: &PgPool,
     scope: &RegistrationScope,
-    is_account_linking_enabled: bool,
+    account_linking_since: Option<DateTime<Utc>>,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
+    let is_account_linking_enabled = account_linking_since.is_some();
     // The limiter counts roster requests, so the limit is how many may go out.
     let request_limit = registry.allowance(RegistryOperation::ListCourseRoster);
     if request_limit == 0 {
@@ -81,7 +82,7 @@ pub(crate) async fn run<R: StudyRegistry>(
 
     let mut counts = Counts::default();
     for request in requests {
-        counts += fetch_course_roster(pool, registry, &request, is_account_linking_enabled).await?;
+        counts += fetch_course_roster(pool, registry, &request, account_linking_since).await?;
     }
     Ok(counts)
 }

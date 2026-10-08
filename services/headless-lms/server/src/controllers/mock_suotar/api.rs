@@ -1033,8 +1033,8 @@ fn item_problem(endpoint: Endpoint, item: &serde_json::Value) -> Option<String> 
                     .then(|| "credits must be a number.".to_string())
             })
             .or_else(|| {
-                (!non_empty_string(item, "attainmentDate").is_some_and(is_strict_date))
-                    .then(|| "attainmentDate must be a date in YYYY-MM-DD format.".to_string())
+                (!non_empty_string(item, "attainmentDate").is_some_and(is_strict_timestamp))
+                    .then(|| "attainmentDate must be an ISO 8601 timestamp with an offset.".to_string())
             }),
     }
 }
@@ -1043,6 +1043,41 @@ fn non_empty_string<'a>(item: &'a serde_json::Value, field: &str) -> Option<&'a 
     item.get(field)
         .and_then(serde_json::Value::as_str)
         .filter(|value| !value.is_empty())
+}
+
+/// Moment's strict `YYYY-MM-DDTHH:mm:ss[.SSS]Z`, with the offset as `Z` or `±HH:MM`. Suotar also
+/// still takes a bare date, which we never send and the wire type cannot hold.
+fn is_strict_timestamp(value: &str) -> bool {
+    let Some((date, time)) = value.split_once('T') else {
+        return false;
+    };
+    let time_shape_matches = time.len() >= 9
+        && time.char_indices().take(8).all(|(index, c)| match index {
+            2 | 5 => c == ':',
+            _ => c.is_ascii_digit(),
+        });
+    let offset = time.get(8..).map(|rest| {
+        rest.strip_prefix('.')
+            .filter(|fraction| {
+                fraction
+                    .get(..3)
+                    .is_some_and(|ms| ms.bytes().all(|b| b.is_ascii_digit()))
+            })
+            .map_or(rest, |fraction| &fraction[3..])
+    });
+    let offset_shape_matches = offset.is_some_and(|offset| {
+        offset == "Z"
+            || (offset.len() == 6
+                && offset.char_indices().all(|(index, c)| match index {
+                    0 => c == '+' || c == '-',
+                    3 => c == ':',
+                    _ => c.is_ascii_digit(),
+                }))
+    });
+    is_strict_date(date)
+        && time_shape_matches
+        && offset_shape_matches
+        && chrono::DateTime::parse_from_rfc3339(value).is_ok()
 }
 
 /// Moment's strict `YYYY-MM-DD`: that exact shape, and a day the calendar has.

@@ -267,7 +267,7 @@
   "placeholder-course-name-description": "Kurssin nimi.",
   "placeholder-credits-description": "Opintopisteiden määrä sähköpostin kielen mukaisesti kirjoitettuna.",
   "placeholder-enrolment-link-description": "Linkki, josta opiskelija voi ilmoittautua kurssille. Tyhjä, jos kurssimoduulilla ei ole sitä.",
-  "placeholder-link-description": "Vahvistuslinkki, jolla opiskelijanumero liitetään vastaanottajan tiliin.",
+  "placeholder-link-description": "Tilin yhdistämisviestin linkki, jolla opiskelijanumero liitetään vastaanottajan tiliin.",
   "placeholder-module-name-description": "Suoritetun kurssimoduulin nimi.",
   "placeholder-name-description": "Vastaanottajan etunimi.",
   "placeholder-reset-link-description": "Salasanan palautuslinkki, jota käyttäjä voi napsauttaa palauttaakseen salasanansa.",

@@ -269,14 +269,15 @@ pub async fn seed_generic_emails(
 async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting credit registration account linking emails");
 
-    let english_subject = Some("Link your student number to register your credits");
+    let english_subject =
+        Some("Link your University of Helsinki student number to register your credits");
     let english_body = json!([
         {
             "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hello {{NAME}}, we can see your enrolment on {{COURSE_NAME}}. To register your credits in Sisu, we need to link your student number to your account on courses.mooc.fi.",
+                "content": "Hello, we can see your enrolment on {{COURSE_NAME}}. To register your credits in Sisu, we need to link your University of Helsinki student number {{STUDENT_NUMBER}} to your account on courses.mooc.fi.",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -286,7 +287,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Log in to courses.mooc.fi with the account you use for the course. Then use the button below to link student number {{STUDENT_NUMBER}} to it.",
+                "content": "Log in to courses.mooc.fi with the account you use for the course, then press the button below.",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -314,7 +315,27 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "The link works for 14 days and only once. You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If this was not you, you can ignore this email.",
+                "content": "The link works once, for 14 days. It is fine if this email address is different from the one you use on courses.mooc.fi.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If that is not you, ignore this email.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "content": "Best regards,<br>MOOC.fi",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -334,14 +355,15 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     )
     .await?;
 
-    let finnish_subject = Some("Liitä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
+    let finnish_subject =
+        Some("Liitä Helsingin yliopiston opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
     let finnish_body = json!([
         {
             "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hei {{NAME}}, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata opintopisteesi Sisuun, meidän pitää liittää opiskelijanumerosi courses.mooc.fi-tiliisi.",
+                "content": "Hei, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata opintopisteesi Sisuun, meidän pitää liittää Helsingin yliopiston opiskelijanumerosi {{STUDENT_NUMBER}} courses.mooc.fi-tiliisi.",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -351,7 +373,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia. Liitä sitten opiskelijanumero {{STUDENT_NUMBER}} tiliisi alla olevasta painikkeesta.",
+                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia, ja paina sitten alla olevaa painiketta.",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -379,7 +401,27 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "Linkki toimii 14 päivää ja vain kerran. Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos et ole ilmoittautunut, voit jättää viestin huomiotta.",
+                "content": "Linkki toimii kerran, 14 päivän ajan. Ei haittaa, jos tämä sähköpostiosoite on eri kuin courses.mooc.fi:ssä käyttämäsi.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos se et ole sinä, voit jättää viestin huomiotta.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "content": "Terveisin,<br>MOOC.fi",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -544,8 +586,8 @@ async fn seed_credit_registration_status_templates(
             "See how to enrol",
             &[
                 "Hello, congratulations on completing {{COURSE_NAME}}! You have earned {{CREDITS}} credits.",
-                "To get the credits registered in Sisu, you need to be enrolled on the course. See how to enrol with the button below.",
-                "After that you do not need to do anything else: we check your enrolment regularly and register your credits automatically. If you have already enrolled, you can ignore this message.",
+                "To get them registered in Sisu, enrol on the course. The button below shows how.",
+                "After you enrol, we register your credits automatically. If your University of Helsinki student number is not linked yet, we first send an account linking email to your primary email address in Sisu. If you have already enrolled, you do not need to enrol again.",
                 "Best regards,<br>MOOC.fi",
             ],
         ),
@@ -556,8 +598,8 @@ async fn seed_credit_registration_status_templates(
             "Katso ilmoittautumisohjeet",
             &[
                 "Hei, onnittelut kurssin {{COURSE_NAME}} suorittamisesta! Olet ansainnut {{CREDITS}} op.",
-                "Jotta opintopisteet voidaan kirjata Sisuun, sinun pitää olla ilmoittautunut kurssille. Ilmoittautumisohjeet näet alla olevasta painikkeesta.",
-                "Sen jälkeen sinun ei tarvitse tehdä muuta: tarkistamme ilmoittautumisesi säännöllisesti ja kirjaamme opintopisteesi automaattisesti. Jos olet jo ilmoittautunut, voit jättää tämän viestin huomiotta.",
+                "Jotta opintopisteet voidaan kirjata Sisuun, ilmoittaudu kurssille. Alla olevasta painikkeesta näet, miten.",
+                "Ilmoittautumisen jälkeen kirjaamme opintopisteesi automaattisesti. Jos Helsingin yliopiston opiskelijanumeroasi ei ole vielä liitetty, lähetämme ensin tilin yhdistämisviestin Sisussa olevaan ensisijaiseen sähköpostiosoitteeseesi. Jos olet jo ilmoittautunut, sinun ei tarvitse ilmoittautua uudelleen.",
                 "Terveisin,<br>MOOC.fi",
             ],
         ),

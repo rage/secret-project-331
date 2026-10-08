@@ -268,7 +268,13 @@ async fn run_body(
         CreditRegistrationPhase::Verify => verify::run(&batch_flow, registry).await,
         CreditRegistrationPhase::LegacyMirror => legacy_mirror::run(pool, scope).await,
         CreditRegistrationPhase::StudentNotifications => {
-            student_notifications::run(pool, scope, ctx.base_url).await
+            student_notifications::run(
+                pool,
+                scope,
+                ctx.base_url,
+                ctx.account_linking_since.is_some(),
+            )
+            .await
         }
         CreditRegistrationPhase::EnrolmentDiscovery => {
             enrolment_discovery::run(pool, scope, ctx.account_linking_since, registry).await

@@ -2,8 +2,8 @@
 //! registration.
 //!
 //! Exactly two mails exist and each row gets each at most once. Nothing else is mailed: a
-//! `failed_permanent` row is a configuration problem the student cannot act on, a withdrawn one was
-//! the student's own decision, and the linking mail already covers a missing student number.
+//! `failed_permanent` row is a configuration problem the student cannot act on, and a withdrawn one
+//! was the student's own decision.
 
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_models::library::credit_registration::student_notifications::{
@@ -23,10 +23,17 @@ pub(crate) async fn run(
     pool: &PgPool,
     scope: &RegistrationScope,
     base_url: &str,
+    is_account_linking_enabled: bool,
 ) -> CreditRegistrationResult<Counts> {
     let mut conn = pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let claimed = claim_unnotified(&mut tx, scope, STUDENT_NOTIFICATION_LIMIT).await?;
+    let claimed = claim_unnotified(
+        &mut tx,
+        scope,
+        STUDENT_NOTIFICATION_LIMIT,
+        is_account_linking_enabled,
+    )
+    .await?;
     let mut templates = TemplateCache::default();
     let mut summary = MailQueueSummary::new(claimed.len());
     for notification in &claimed {

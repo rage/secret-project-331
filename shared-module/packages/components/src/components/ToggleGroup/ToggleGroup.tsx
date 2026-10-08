@@ -11,7 +11,7 @@ import ToggleGroupToggle from "./ToggleGroupToggle"
 
 const buttonGroupCss = css`
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   gap: 0.25rem;
 `
 

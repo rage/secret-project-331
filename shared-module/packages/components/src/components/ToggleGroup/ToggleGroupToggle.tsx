@@ -11,15 +11,7 @@ import { omitUndefined } from "../../lib/utils/nullability"
 import { Button } from "./../Button"
 
 const buttonCss = (selected: boolean) => css`
-  border-radius: 0;
-  &:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-  &:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
+  border-radius: 8px;
   & > span > span::first-letter {
     text-transform: uppercase;
   }

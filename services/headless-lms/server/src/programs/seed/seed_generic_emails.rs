@@ -411,7 +411,7 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000004",
             "attributes": {
-                "content": "Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos se et ole sinä, voit jättää viestin huomiotta.",
+                "content": "Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos viesti ei ole sinulle, voit jättää sen huomiotta.",
                 "dropCap": false
             },
             "innerBlocks": []

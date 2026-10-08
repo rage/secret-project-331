@@ -43,13 +43,15 @@ const useNewConversationMutation = (
         }
         const anonymousToken = res.anonymous_token
         saveChatbotAnonymousToken(anonymousToken)
-        queryClient.refetchQueries({
-          queryKey: getCurrentConversationIdQueryKey({
-            path: {
-              chatbot_configuration_id: chatbotConfigurationId,
-            },
-          }),
+        const currentConversationIdQueryKey = getCurrentConversationIdQueryKey({
+          path: {
+            chatbot_configuration_id: chatbotConfigurationId,
+          },
         })
+        // Set before the refetch lands: until then the cached id still names the previous
+        // conversation, and a message sent in that window would go there.
+        queryClient.setQueryData(currentConversationIdQueryKey, res.id)
+        queryClient.refetchQueries({ queryKey: currentConversationIdQueryKey })
         queryClient.refetchQueries({
           queryKey: allUserConversationsQueryKey(),
         })

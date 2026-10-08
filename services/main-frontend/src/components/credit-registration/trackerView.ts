@@ -167,7 +167,7 @@ export const studentNumberLinkBand = (
   if (mail?.link_state === "expired_can_resend" && mail.sent_at) {
     return { kind: "link-expired", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
   }
-  if (mail && mail.link_state !== "usable") {
+  if (mail?.link_state === "used" || mail?.link_state === "expired_no_resend") {
     return { kind: "contact-support" }
   }
   const confirmedAt = enrolmentRoute?.enrolment_confirmed_at ?? null

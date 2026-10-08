@@ -148,7 +148,9 @@ FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
   AND cmc.deleted_at IS NULL
   JOIN courses c ON c.id = cr.course_id
+  AND c.deleted_at IS NULL
   JOIN course_modules cm ON cm.id = cr.course_module_id
+  AND cm.deleted_at IS NULL
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
   AND sig.deleted_at IS NULL

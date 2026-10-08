@@ -937,6 +937,7 @@ SELECT e.id,
   latest_error.is_transient AS "is_transient?"
 FROM credit_registration_account_linking_emails e
   JOIN courses c ON c.id = e.course_id
+  AND c.deleted_at IS NULL
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
   AND ed.deleted_at IS NULL
   LEFT JOIN LATERAL (

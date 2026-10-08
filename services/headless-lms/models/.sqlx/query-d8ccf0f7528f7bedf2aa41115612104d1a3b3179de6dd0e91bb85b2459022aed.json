@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.user_id,\n  ud.email AS \"email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  cr.course_id,\n  c.name AS course_name,\n  cm.name AS \"course_module_name?\",\n  cm.uh_course_code AS \"uh_course_code?\",\n  cmc.completion_date,\n  sig.last_visited_at AS \"last_visited_at?\",\n  sig.last_check_requested_at AS \"last_check_requested_at?\",\n  COUNT(*) OVER () AS \"total!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND p.completion_eligible\n  AND NOT p.has_verified_student_number\n  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)\nORDER BY cmc.completion_date,\n  cr.id\nLIMIT $2\n        ",
+  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.user_id,\n  ud.email AS \"email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  cr.course_id,\n  c.name AS course_name,\n  cm.name AS \"course_module_name?\",\n  cm.uh_course_code AS \"uh_course_code?\",\n  cmc.completion_date,\n  sig.last_visited_at AS \"last_visited_at?\",\n  CASE\n    WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at\n  END AS \"last_check_requested_at?\",\n  COUNT(*) OVER () AS \"total!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  AND cmc.deleted_at IS NULL\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND p.completion_eligible\n  AND NOT p.has_verified_student_number\n  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)\nORDER BY cmc.completion_date,\n  cr.id\nLIMIT $2\n        ",
   "describe": {
     "columns": [
       {
@@ -128,12 +128,7 @@
         "ordinal": 11,
         "name": "last_check_requested_at?",
         "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "credit_registration_enrolment_check_signals",
-            "name": "last_check_requested_at"
-          }
-        }
+        "origin": "Expression"
       },
       {
         "ordinal": 12,
@@ -160,9 +155,9 @@
       true,
       false,
       true,
-      true,
+      null,
       null
     ]
   },
-  "hash": "b33ee7eeef354b2aba97a27f579a9a983f576941df1fefdcf454445a5b6644ce"
+  "hash": "d8ccf0f7528f7bedf2aa41115612104d1a3b3179de6dd0e91bb85b2459022aed"
 }

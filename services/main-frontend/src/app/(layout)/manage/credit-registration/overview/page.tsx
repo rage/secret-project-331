@@ -278,14 +278,22 @@ const StageTable: React.FC<{
             minWidth: "13rem",
             cell: (row) => {
               const StateIcon = STATE_ICONS[row.state]
+              const label = (
+                <>
+                  <StateIcon size={STATE_ICON_SIZE} className={stateIconCss} />
+                  {adminLedgerStateLabel(t, row.state, row.pendingReason)}
+                </>
+              )
+              if (row.pendingReason) {
+                return <span className={stateLinkCss}>{label}</span>
+              }
               return (
                 <Link
                   href={`${creditRegistrationRegistrationsRoute()}${STATE_QUERY}${row.state}`}
                   appearance={LINK_INHERIT}
                   className={stateLinkCss}
                 >
-                  <StateIcon size={STATE_ICON_SIZE} className={stateIconCss} />
-                  {adminLedgerStateLabel(t, row.state, row.pendingReason)}
+                  {label}
                 </Link>
               )
             },

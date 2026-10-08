@@ -115,7 +115,7 @@ pub struct WaitingForStudentNumber {
     pub uh_course_code: Option<String>,
     pub completion_date: DateTime<Utc>,
     pub last_visited_at: Option<DateTime<Utc>>,
-    /// The last "I have enrolled" press.
+    /// The last "I have enrolled" press; `None` when the latest check request came from someone else.
     pub last_check_requested_at: Option<DateTime<Utc>>,
 }
 
@@ -139,11 +139,14 @@ SELECT cr.id AS credit_registration_id,
   cm.uh_course_code AS "uh_course_code?",
   cmc.completion_date,
   sig.last_visited_at AS "last_visited_at?",
-  sig.last_check_requested_at AS "last_check_requested_at?",
+  CASE
+    WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at
+  END AS "last_check_requested_at?",
   COUNT(*) OVER () AS "total!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  AND cmc.deleted_at IS NULL
   JOIN courses c ON c.id = cr.course_id
   JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id

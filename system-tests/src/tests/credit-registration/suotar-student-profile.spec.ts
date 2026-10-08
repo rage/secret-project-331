@@ -70,7 +70,9 @@ test.describe("A student on a Suotar course and nothing else", () => {
     await expect(
       page.getByRole("heading", { name: "Credit registration via Suotar" }),
     ).toBeVisible()
-    await expect(page.getByText("No student number is linked yet.")).toHaveCount(0)
+    await expect(
+      page.getByText("No University of Helsinki student number is linked yet."),
+    ).toHaveCount(0)
     await expect(page.getByRole("heading", { name: "Something you need to do" })).toHaveCount(0)
     await expect(
       page.getByRole("heading", { name: "Credits that did not go through" }),

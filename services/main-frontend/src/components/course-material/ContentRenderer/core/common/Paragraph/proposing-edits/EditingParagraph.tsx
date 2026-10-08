@@ -91,7 +91,8 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
 
   useEffect(() => {
     const isCurrentlyEditing = selectedBlockId === id
-    if (wasEditingRef.current && !isCurrentlyEditing && editButtonRef.current) {
+    // Only when editing closed: on a switch, focusing here would steal it from the newly opened paragraph.
+    if (wasEditingRef.current && selectedBlockId === null && editButtonRef.current) {
       requestAnimationFrame(() => {
         editButtonRef.current?.focus()
       })

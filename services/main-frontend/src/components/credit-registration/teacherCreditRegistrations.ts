@@ -313,7 +313,7 @@ const LINKING_EMAIL_SHORT_KEYS = {
 } as const satisfies Record<EmailSendStatus, string>
 
 /**
- * Where the student's confirmation link got to, in the few words a roster cell has room for.
+ * Where the student's account linking email got to, in the few words a roster cell has room for.
  *
  * The reason line under a "No student number" pill: the teacher's question there is whether the
  * student was ever asked, not why a registration failed. Null when nothing has been sent yet.

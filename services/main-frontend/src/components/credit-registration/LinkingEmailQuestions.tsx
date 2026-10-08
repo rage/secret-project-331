@@ -19,7 +19,7 @@ export interface LinkingEmailQuestionsProps {
   verifiedNumber: MyVerifiedStudentNumber | null
 }
 
-/** Questions a student waiting for the confirmation email asks, while one is still to come. */
+/** Questions a student waiting for the account linking email asks, while one is still to come. */
 export const LinkingEmailQuestions: React.FC<LinkingEmailQuestionsProps> = ({
   registration,
   verifiedNumber,

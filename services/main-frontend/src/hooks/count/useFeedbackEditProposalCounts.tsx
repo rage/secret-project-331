@@ -14,7 +14,7 @@ const createFeedbackEditProposalCountsHook = (courseId: string, count: WhichCoun
           course_id: courseId,
         },
       }),
-      gcTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 60, // 1 hour
       select: (data) => {
         switch (count) {
           case "both":

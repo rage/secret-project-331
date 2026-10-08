@@ -1,17 +1,27 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useToggleGroupState } from "@react-stately/toggle"
 import { useQuery } from "@tanstack/react-query"
-import { useId, useState } from "react"
+import { useEffect, useId, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseFeedbackCategoriesOptions,
+  getCourseFeedbackCountOptions,
+  getCourseFeedbackOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { QueryResult } from "@/shared-module/components"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { QueryResult, ToggleGroup, type ToggleInfo } from "@/shared-module/components"
 
-import FeedbackPage from "../feedback/FeedbackPage"
+import FeedbackView from "./FeedbackView"
 
+const listCss = css`
+  list-style: none;
+  padding: 0;
+`
 interface Props {
   courseId: string
   read: boolean
@@ -19,20 +29,23 @@ interface Props {
 
 const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo()
+  const paginationInfo = usePaginationInfo(3)
   const allButtonId = useId()
-  const [categoryFilter, setCategoryFilter] = useState<string>(allButtonId)
+  const selectedCategory = useRef<string | undefined>(undefined)
   let toggleState = useToggleGroupState({
     // oxlint-disable-next-line i18next/no-literal-string
     selectionMode: "single",
     disallowEmptySelection: true,
     defaultSelectedKeys: new Set([allButtonId]),
   })
-  let selectedCategory = toggleState.selectedKeys.keys().next().value?.toString()
-  if (selectedCategory && selectedCategory !== categoryFilter) {
-    paginationInfo.setPage(1)
-    setCategoryFilter(selectedCategory)
-  }
+  let selected = toggleState.selectedKeys.keys().next().value?.toString()
+
+  useEffect(() => {
+    if (selectedCategory.current !== selected) {
+      selectedCategory.current = selected
+      paginationInfo.setPage(1)
+    }
+  }, [paginationInfo, selected, allButtonId])
 
   const getFeedbackCount = useQuery({
     ...getCourseFeedbackCountOptions({
@@ -42,14 +55,47 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
     }),
   })
 
+  const getFeedbackList = useQuery({
+    ...getCourseFeedbackOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: omitUndefined({
+        read,
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+        category_filter:
+          selectedCategory.current !== allButtonId ? selectedCategory.current : undefined,
+      }),
+    }),
+  })
+  const getFeedbackCategories = useQuery({
+    ...getCourseFeedbackCategoriesOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: { read },
+    }),
+  })
+
+  const AllButton = (
+    <ToggleGroup
+      groupLabel={t("feedback-categories")}
+      toggles={[{ id: allButtonId, name: t("all") }]}
+      state={toggleState}
+    />
+  )
+
   return (
     <QueryResult query={getFeedbackCount}>
-      {(data) => {
+      {(countData) => {
         let y =
-          categoryFilter !== allButtonId
-            ? (data.feedback_categories_counts.find((x) => x.category_id === categoryFilter) ??
-              data)
-            : data
+          // fix
+          selectedCategory.current !== allButtonId
+            ? (countData.feedback_categories_counts.find(
+                (x) => x.category_id === selectedCategory.current,
+              ) ?? countData)
+            : countData
         const items = read ? y.read_feedback : y.unread_feedback
         if (items <= 0) {
           return <div>{t("no-feedback")}</div>
@@ -57,15 +103,39 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
         const pageCount = Math.ceil(items / paginationInfo.limit)
         return (
           <div>
-            <FeedbackPage
-              courseId={courseId}
-              allButtonId={allButtonId}
-              page={paginationInfo.page}
-              read={read}
-              paginationInfo={paginationInfo}
-              onChange={getFeedbackCount.refetch}
-              state={toggleState}
-            />
+            <QueryResult query={getFeedbackCategories} emptyFallback={AllButton}>
+              {(data) => {
+                const categories: ToggleInfo[] = data.map((c) => {
+                  return { id: c.id, name: c.name }
+                })
+                return (
+                  <ToggleGroup
+                    groupLabel={t("feedback-categories")}
+                    toggles={[{ id: allButtonId, name: t("all") }].concat(categories)}
+                    state={toggleState}
+                  />
+                )
+              }}
+            </QueryResult>
+            <QueryResult query={getFeedbackList} emptyFallback={<ul className={listCss} />}>
+              {(data) => (
+                <ul className={listCss}>
+                  {data.map((f) => (
+                    <li key={f.id}>
+                      <FeedbackView
+                        courseId={courseId}
+                        feedback={f}
+                        read={read}
+                        setRead={async () => {
+                          await getFeedbackList.refetch()
+                          await getFeedbackCount.refetch()
+                        }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </QueryResult>
             <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
           </div>
         )

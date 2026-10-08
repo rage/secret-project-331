@@ -6567,7 +6567,7 @@ export const getCreditRegistrationEnrolmentChecksQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
- * and findings of the enrolment checks, and the roster schedule per course code.
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
 export const getCreditRegistrationEnrolmentChecksOptions = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,
@@ -7398,8 +7398,9 @@ export const setMyCreditJustificationMutation = (
  *
  * Moves a waiting registration onto the schedule for students who have looked, or restarts that
  * schedule at most once a day. Recorded against the completion too, so a visit before there is a
- * registration, or before a student number is linked, still counts once there is. Idempotent enough
- * to call on every page load; the page sends it once per load.
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
  */
 export const recordMyEnrolmentPageVisitMutation = (
   options?: Partial<Options<RecordMyEnrolmentPageVisitData>>,
@@ -7505,8 +7506,8 @@ export const withdrawMyEnrolmentConfirmationMutation = (
  *
  * Counts as a check request: a waiting registration restarts its checks on the check-requested
  * schedule, under the limit every check request shares. Recorded against the completion too, so a
- * registration that starts waiting later starts on that schedule. With account linking on, a caller
- * with no linked student number books a roster listing of the course code instead.
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
  */
 export const confirmMyEnrolmentMutation = (
   options?: Partial<Options<ConfirmMyEnrolmentData>>,

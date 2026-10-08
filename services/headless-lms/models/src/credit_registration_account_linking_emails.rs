@@ -3,7 +3,8 @@
 //! Keyed on the Sisu person id plus the recipient address: at send time there is no account of ours
 //! to key on, and the student number changes when a student moves between programmes. A row is
 //! written when the right to mail is claimed, before a delivery exists, so a crash between the two
-//! phases cannot mail twice.
+//! phases cannot mail twice. A row holds its address only while its link can still be used; once
+//! the link has expired or been used, a later mail to the address replaces it.
 use std::collections::{HashMap, HashSet};
 
 use secrecy::ExposeSecret;
@@ -27,6 +28,8 @@ pub struct CreditRegistrationAccountLinkingEmail {
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
     pub sent_at: DateTime<Utc>,
+    /// Set once a later mail to the same address took this row's place in the dedup key.
+    pub replaced_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
@@ -39,8 +42,9 @@ pub struct NewAccountLinkingEmail {
     pub email_delivery_id: Option<Uuid>,
 }
 
-/// Claims the right to mail this (person, course, address) once; `None` means the caller must not
-/// send. Call in the transaction that mints the token, so a refused claim leaves no usable link.
+/// Claims the right to mail this (person, course, address); `None` means another row holds the
+/// address and the caller must not send. Call in the transaction that mints the token, so a refused
+/// claim leaves no usable link.
 pub async fn claim_send_slot(
     conn: &mut PgConnection,
     new: &NewAccountLinkingEmail,
@@ -77,6 +81,9 @@ pub struct ExistingLinkingMailFact {
     pub course_id: Uuid,
     pub emailed_to: DbSecret,
     pub sent_at: DateTime<Utc>,
+    /// Whether the row still holds its address: not replaced, and its link can still be used. A row
+    /// with no token holds it for good.
+    pub holds_address: bool,
 }
 
 /// Every live mail these people have ever been sent, any course: one query stands in for the
@@ -88,19 +95,80 @@ pub async fn get_existing_facts_for_persons(
     let res = sqlx::query_as!(
         ExistingLinkingMailFact,
         r#"
-SELECT sisu_person_id,
-  course_id,
-  emailed_to,
-  sent_at
-FROM credit_registration_account_linking_emails
-WHERE sisu_person_id = ANY($1::text [])
-  AND deleted_at IS NULL
+SELECT e.sisu_person_id,
+  e.course_id,
+  e.emailed_to,
+  e.sent_at,
+  (
+    e.replaced_at IS NULL
+    AND (
+      e.student_number_verification_token_id IS NULL
+      OR EXISTS (
+        SELECT 1
+        FROM student_number_verification_tokens t
+        WHERE t.id = e.student_number_verification_token_id
+          AND t.deleted_at IS NULL
+          AND t.used_at IS NULL
+          AND t.expires_at > now()
+      )
+    )
+  ) AS "holds_address!"
+FROM credit_registration_account_linking_emails e
+WHERE e.sisu_person_id = ANY($1::text [])
+  AND e.deleted_at IS NULL
         "#,
         sisu_person_ids
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Marks the rows these new slots would collide with in the dedup key as replaced, where their link
+/// can no longer be used, so the slots can be claimed. Rows holding their address are left alone.
+pub async fn replace_lapsed_slots(
+    conn: &mut PgConnection,
+    new: &[NewAccountLinkingEmail],
+) -> ModelResult<()> {
+    if new.is_empty() {
+        return Ok(());
+    }
+    let sisu_person_ids: Vec<String> = new
+        .iter()
+        .map(|n| n.sisu_person_id.expose_secret().to_owned())
+        .collect();
+    let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
+    let emailed_tos: Vec<String> = new
+        .iter()
+        .map(|n| n.emailed_to.expose_secret().to_owned())
+        .collect();
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_account_linking_emails e
+SET replaced_at = now()
+FROM UNNEST($1::text [], $2::uuid [], $3::text []) AS slot(sisu_person_id, course_id, emailed_to)
+WHERE e.sisu_person_id = slot.sisu_person_id
+  AND e.course_id = slot.course_id
+  AND LOWER(e.emailed_to) = LOWER(slot.emailed_to)
+  AND e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND e.student_number_verification_token_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM student_number_verification_tokens t
+    WHERE t.id = e.student_number_verification_token_id
+      AND t.deleted_at IS NULL
+      AND t.used_at IS NULL
+      AND t.expires_at > now()
+  )
+        "#,
+        &sisu_person_ids,
+        &course_ids,
+        &emailed_tos,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// Batched form of [`claim_send_slot`], keyed by token: returns the
@@ -230,8 +298,8 @@ ORDER BY sent_at DESC
     Ok(res)
 }
 
-/// How many mails this person has had for this course, tokens that expired unused included. Read
-/// against the lifetime cap when an admin asks for a resend.
+/// How many mails this person has had for this course, replaced ones included. Read against the
+/// lifetime cap when an admin asks for a resend.
 pub async fn count_sent_for_person_and_course(
     conn: &mut PgConnection,
     sisu_person_id: &str,
@@ -271,9 +339,8 @@ pub struct LinkingMailToQueue {
 /// Locks them, so the caller must hold a transaction: the delivery insert is not idempotent, and two
 /// iterations claiming one slot would queue the same mail twice.
 ///
-/// A retired, used or expired token is skipped rather than mailed — a dead link spends the
-/// recipient's one mail for this course on nothing — but its slot stays, since it is still proof we
-/// may not mail that address again.
+/// A retired, used or expired token is skipped rather than mailed — a dead link would spend one of
+/// the recipient's mails for this course on nothing — but its slot stays, counting against the caps.
 pub async fn claim_unqueued(
     conn: &mut PgConnection,
     limit: i64,
@@ -651,6 +718,45 @@ WHERE id = ANY($1)
   AND deleted_at IS NULL
         "#,
         ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Retires the mails about the person behind a verified link whose link was never used, and voids
+/// those links, so that once unlinked the person can be mailed again within the caps.
+pub async fn retire_unused_for_link(
+    conn: &mut PgConnection,
+    verified_student_number_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+WITH retired AS (
+  UPDATE credit_registration_account_linking_emails e
+  SET deleted_at = now()
+  FROM verified_student_numbers vsn
+  WHERE vsn.id = $1
+    AND e.deleted_at IS NULL
+    AND (
+      e.sisu_person_id = vsn.sisu_person_id
+      OR e.student_number = vsn.student_number
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM student_number_verification_tokens t
+      WHERE t.id = e.student_number_verification_token_id
+        AND t.used_at IS NOT NULL
+    )
+  RETURNING e.student_number_verification_token_id
+)
+UPDATE student_number_verification_tokens t
+SET deleted_at = now()
+FROM retired
+WHERE t.id = retired.student_number_verification_token_id
+  AND t.deleted_at IS NULL
+        "#,
+        verified_student_number_id,
     )
     .execute(conn)
     .await?;

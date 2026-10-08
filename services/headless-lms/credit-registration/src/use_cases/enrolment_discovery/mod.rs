@@ -1,25 +1,26 @@
 //! The `enrolment-discovery` phase: who the study registry says is on the course.
 //!
-//! Each iteration lists the course codes that are due, triggered listings first, in batches as
-//! large as the registry takes; every module on a code shares its listing. One listing wakes the
-//! registrations of people we already have a link for and, while account linking is switched on,
-//! claims an account-linking mail for everybody else. When to list a code is
+//! Each iteration fetches the enrolment lists of the course codes that are due, those with people
+//! waiting first, in batches as large as the registry takes; every module on a code shares its
+//! list. One list wakes the registrations of people we already have a link for and, while account
+//! linking is switched on, claims a linking email for everybody else, which the `link-emails` phase
+//! is made due at once to send. When to fetch a code is
 //! [`headless_lms_models::credit_registration_roster_schedules`].
 
 mod listing;
 mod reconcile;
 
 use headless_lms_models::course_module_suotar_configurations::ModuleToList;
+use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{
-    RosterSchedule, ScheduleSelection, book_triggered_fetch, ensure_rows, get_modules_by_code,
-    get_schedules,
+    RosterSchedule, ScheduleSelection, ensure_rows, get_modules_by_code, get_schedules,
 };
-use headless_lms_models::{course_modules, verified_student_numbers};
 use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
 use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
+use crate::phase::CreditRegistrationPhase;
 use crate::registry::{CourseCode, RegistryOperation, RosterCode, StudyRegistry};
 use crate::workflow::Counts;
 use headless_lms_models::credit_registrations::RegistrationScope;
@@ -32,34 +33,6 @@ struct CodeListing {
     modules: Vec<ModuleToList>,
 }
 
-/// Books a listing of the module's course code for a student we hold no number for, since the
-/// listing is what mails them the link. `is_visit` also books the follow-up listing a visit gets.
-/// Does nothing for a linked student, or a module with no course code. The caller checks that
-/// account linking is switched on.
-pub async fn book_listing_for_unlinked_student(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_module_id: Uuid,
-    is_visit: bool,
-) -> CreditRegistrationResult<()> {
-    if verified_student_numbers::get_by_user_id(conn, user_id)
-        .await?
-        .is_some()
-    {
-        return Ok(());
-    }
-    let course_module = course_modules::get_by_id(conn, course_module_id).await?;
-    let Some(course_code) = course_module
-        .uh_course_code
-        .as_deref()
-        .and_then(CourseCode::parse)
-    else {
-        return Ok(());
-    };
-    book_triggered_fetch(conn, course_code.as_str(), is_visit).await?;
-    Ok(())
-}
-
 /// With account linking off (`account_linking_since` `None`), a roster still wakes linked students'
 /// registrations, and only the mails are left out.
 pub(crate) async fn run<R: StudyRegistry>(
@@ -68,45 +41,55 @@ pub(crate) async fn run<R: StudyRegistry>(
     account_linking_since: Option<DateTime<Utc>>,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
-    let is_account_linking_enabled = account_linking_since.is_some();
     // The limiter counts roster requests, so the limit is how many may go out.
     let request_limit = registry.allowance(RegistryOperation::ListCourseRoster);
     if request_limit == 0 {
         return Ok(Counts::default());
     }
     let mut conn = pool.acquire().await?;
-    let due = load_due_roster_codes(&mut conn, scope.course_id, is_account_linking_enabled).await?;
+    let due = load_due_roster_codes(&mut conn, scope.course_id, account_linking_since).await?;
     let planned = plan_roster_requests(due, request_limit, registry.roster_request_size());
     let requests = load_listing_modules(&mut conn, scope.course_id, planned).await?;
     drop(conn);
 
     let mut counts = Counts::default();
+    let mut new_mail_count = 0;
     for request in requests {
-        counts += fetch_course_roster(pool, registry, &request, account_linking_since).await?;
+        let fetched = fetch_course_roster(pool, registry, &request, account_linking_since).await?;
+        counts += fetched.counts;
+        new_mail_count += fetched.new_mail_count;
+    }
+    if new_mail_count > 0 {
+        let mut conn = pool.acquire().await?;
+        credit_registration_phase_state::run_now(
+            &mut conn,
+            CreditRegistrationPhase::LinkEmails.as_str(),
+        )
+        .await?;
     }
     Ok(counts)
 }
 
-/// The codes whose rosters are due, triggered listings first, then by when each fell due.
+/// The codes whose enrolment lists are due, those with people waiting first, then by when each
+/// fell due.
 async fn load_due_roster_codes(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
-    is_account_linking_enabled: bool,
+    account_linking_since: Option<DateTime<Utc>>,
 ) -> CreditRegistrationResult<Vec<RosterCode>> {
     let now = Utc::now();
     ensure_rows(conn, course_id).await?;
-    let mut due: Vec<RosterSchedule> =
-        get_schedules(conn, course_id, ScheduleSelection::DueCandidates)
-            .await?
-            .into_iter()
-            .filter(|schedule| schedule.is_due(is_account_linking_enabled, now))
-            .collect();
-    due.sort_by_key(|schedule| {
-        (
-            !schedule.is_triggered_due(now),
-            schedule.next_fetch_at(is_account_linking_enabled, now),
-        )
-    });
+    let mut due: Vec<RosterSchedule> = get_schedules(
+        conn,
+        course_id,
+        ScheduleSelection::DueCandidates,
+        account_linking_since,
+    )
+    .await?
+    .into_iter()
+    .filter(|schedule| schedule.is_due(now))
+    .collect();
+    due.sort_by_key(|schedule| (schedule.waiting_count == 0, schedule.next_fetch_at(now)));
     Ok(due
         .into_iter()
         .filter_map(|schedule| {

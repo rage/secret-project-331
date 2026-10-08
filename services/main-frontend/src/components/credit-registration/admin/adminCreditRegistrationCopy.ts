@@ -13,7 +13,6 @@ import type {
   EnrolmentCheckSource,
   ResendOutcome,
   Retryability,
-  RosterTier,
   StudentNumberVerificationMethod,
   SuotarEndpoint,
 } from "@/generated/api/types.generated"
@@ -501,16 +500,3 @@ export const enrolmentCheckStepLabel = (
   step === null || step === undefined
     ? t("credit-registration-admin-enrolment-check-stopped")
     : String(step)
-
-const ROSTER_TIER_KEYS = {
-  active: "credit-registration-admin-roster-tier-active",
-  idle: "credit-registration-admin-roster-tier-idle",
-  dormant: "credit-registration-admin-roster-tier-dormant",
-  unlisted: "credit-registration-admin-roster-tier-unlisted",
-} as const satisfies Record<RosterTier, string>
-
-const ROSTER_TIER_UNKNOWN_KEY = "credit-registration-admin-roster-tier-unknown"
-
-/** How often a course code's roster listing is due, from how recently it has had activity. */
-export const rosterTierLabel = (t: CreditRegistrationTFunction, tier: RosterTier): string =>
-  labelFrom(t, ROSTER_TIER_KEYS, tier, ROSTER_TIER_UNKNOWN_KEY)

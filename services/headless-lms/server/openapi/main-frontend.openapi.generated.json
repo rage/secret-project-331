@@ -7557,7 +7557,7 @@
     "/api/v0/main-frontend/credit-registration-admin/enrolment-checks": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population\nand findings of the enrolment checks, and the roster schedule per course code.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population\nand findings of the enrolment checks, and the enrolment list schedule per course code.",
         "operationId": "getCreditRegistrationEnrolmentChecks",
         "parameters": [
           {
@@ -8553,7 +8553,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`\n- The caller opened the registration page after completing, and it is showing them how to enrol.\n\nMoves a waiting registration onto the schedule for students who have looked, or restarts that\nschedule at most once a day. Recorded against the completion too, so a visit before there is a\nregistration, or before a student number is linked, still counts once there is. Idempotent enough\nto call on every page load; the page sends it once per load.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`\n- The caller opened the registration page after completing, and it is showing them how to enrol.\n\nMoves a waiting registration onto the schedule for students who have looked, or restarts that\nschedule at most once a day. Recorded against the completion too, so a visit before there is a\nregistration, or before a student number is linked, still counts once there is; an unlinked\ncaller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on\nevery page load; the page sends it once per load.",
         "operationId": "recordMyEnrolmentPageVisit",
         "parameters": [
           {
@@ -8650,7 +8650,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nCounts as a check request: a waiting registration restarts its checks on the check-requested\nschedule, under the limit every check request shares. Recorded against the completion too, so a\nregistration that starts waiting later starts on that schedule. With account linking on, a caller\nwith no linked student number books a roster listing of the course code instead.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nCounts as a check request: a waiting registration restarts its checks on the check-requested\nschedule, under the limit every check request shares. Recorded against the completion too, so a\nregistration that starts waiting later starts on that schedule. For a caller with no linked\nstudent number, it also makes the course code's enrolment list due sooner.",
         "operationId": "confirmMyEnrolment",
         "parameters": [
           {
@@ -21463,11 +21463,11 @@
       },
       "EnrolmentCheckRosterCode": {
         "type": "object",
-        "description": "One course code's roster schedule as it stands.",
+        "description": "One course code's enrolment list schedule as it stands.",
         "required": [
           "course_code",
-          "tier",
-          "triggered_fetch_count_today",
+          "waiting_count",
+          "next_fetch_at",
           "is_fetched_alone",
           "consecutive_failures",
           "module_count"
@@ -21510,20 +21510,18 @@
             "format": "int32"
           },
           "next_fetch_at": {
-            "type": ["string", "null"],
+            "type": "string",
             "format": "date-time",
-            "description": "When a trigger or the tier next makes it due; `None` when neither will."
+            "description": "When it is next due, ignoring the failure backoff."
           },
           "retry_not_before": {
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "tier": {
-            "$ref": "#/components/schemas/RosterTier"
-          },
-          "triggered_fetch_count_today": {
+          "waiting_count": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "People on the code's modules waiting for a student number, who make it due sooner than\nweekly."
           }
         }
       },
@@ -26702,11 +26700,6 @@
             "format": "uuid"
           }
         }
-      },
-      "RosterTier": {
-        "type": "string",
-        "description": "How often a code is listed without a trigger.",
-        "enum": ["active", "idle", "dormant", "unlisted"]
       },
       "SaveCourseDesignerScheduleRequest": {
         "type": "object",

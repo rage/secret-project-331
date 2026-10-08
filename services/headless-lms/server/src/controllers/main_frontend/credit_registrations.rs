@@ -46,7 +46,6 @@ use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, m
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::account_linking::book_listing_for_unlinked_student;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -1088,10 +1087,10 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Counts as a check request: a waiting registration restarts its checks on the check-requested
 schedule, under the limit every check request shares. Recorded against the completion too, so a
-registration that starts waiting later starts on that schedule. With account linking on, a caller
-with no linked student number books a roster listing of the course code instead.
+registration that starts waiting later starts on that schedule. For a caller with no linked
+student number, it also makes the course code's enrolment list due sooner.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
@@ -1105,7 +1104,6 @@ with no linked student number books a roster listing of the course code instead.
 pub async fn confirm_my_enrolment(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
     let mut conn = pool.acquire().await?;
@@ -1146,19 +1144,12 @@ pub async fn confirm_my_enrolment(
             .await?;
         }
         _ => {
-            // No row waits yet: a row that starts waiting takes its group from the signal.
+            // No row waits yet: a row that starts waiting takes its group from the signal, and an
+            // unlinked student's signal makes their course code's enrolment list due.
             credit_registration_enrolment_check_signals::record_check_request(
                 &mut conn,
                 current.course_module_completion_id,
                 EnrolmentCheckSource::StudentRequest,
-            )
-            .await?;
-            book_roster_listing_for_unlinked_student(
-                &mut conn,
-                &app_conf,
-                user.id,
-                *course_module_id,
-                false,
             )
             .await?;
         }
@@ -1303,10 +1294,11 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Moves a waiting registration onto the schedule for students who have looked, or restarts that
 schedule at most once a day. Recorded against the completion too, so a visit before there is a
-registration, or before a student number is linked, still counts once there is. Idempotent enough
-to call on every page load; the page sends it once per load.
+registration, or before a student number is linked, still counts once there is; an unlinked
+caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+every page load; the page sends it once per load.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-page-visit",
@@ -1321,7 +1313,6 @@ to call on every page load; the page sends it once per load.
 pub async fn record_my_enrolment_page_visit(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
@@ -1337,48 +1328,18 @@ pub async fn record_my_enrolment_page_visit(
     {
         return token.authorized_ok(web::Json(()));
     }
-    let previous_visit_at = credit_registration_enrolment_check_signals::record_visit(
+    credit_registration_enrolment_check_signals::record_visit(
         &mut conn,
         course_module_completion_id,
     )
     .await?;
-    match registration {
-        Some(registration) if registration.is_waiting_for_enrolment() => {
-            enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
-        }
-        _ => {
-            // Each unlinked visitor asks for a listing at most once a day.
-            let today = Utc::now().date_naive();
-            if previous_visit_at.is_none_or(|visited| visited.date_naive() != today) {
-                book_roster_listing_for_unlinked_student(
-                    &mut conn,
-                    &app_conf,
-                    user.id,
-                    *course_module_id,
-                    true,
-                )
-                .await?;
-            }
-        }
+    if let Some(registration) = registration
+        && registration.is_waiting_for_enrolment()
+    {
+        enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
     }
 
     token.authorized_ok(web::Json(()))
-}
-
-/// With account linking on, books a roster listing for a student we hold no number for; see
-/// [`book_listing_for_unlinked_student`].
-async fn book_roster_listing_for_unlinked_student(
-    conn: &mut PgConnection,
-    app_conf: &ApplicationConfiguration,
-    user_id: Uuid,
-    course_module_id: Uuid,
-    is_visit: bool,
-) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.is_account_linking_enabled() {
-        return Ok(());
-    }
-    book_listing_for_unlinked_student(conn, user_id, course_module_id, is_visit).await?;
-    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

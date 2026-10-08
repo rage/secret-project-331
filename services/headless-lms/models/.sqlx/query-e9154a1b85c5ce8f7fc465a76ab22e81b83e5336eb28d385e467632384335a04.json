@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH retired AS (\n  UPDATE credit_registration_account_linking_emails e\n  SET deleted_at = now()\n  FROM verified_student_numbers vsn\n  WHERE vsn.id = $1\n    AND e.deleted_at IS NULL\n    AND (\n      e.sisu_person_id = vsn.sisu_person_id\n      OR e.student_number = vsn.student_number\n    )\n    AND NOT EXISTS (\n      SELECT 1\n      FROM student_number_verification_tokens t\n      WHERE t.id = e.student_number_verification_token_id\n        AND t.used_at IS NOT NULL\n    )\n  RETURNING e.student_number_verification_token_id\n)\nUPDATE student_number_verification_tokens t\nSET deleted_at = now()\nFROM retired\nWHERE t.id = retired.student_number_verification_token_id\n  AND t.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e9154a1b85c5ce8f7fc465a76ab22e81b83e5336eb28d385e467632384335a04"
+}

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT sisu_person_id,\n  course_id,\n  emailed_to,\n  sent_at\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = ANY($1::text [])\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT e.sisu_person_id,\n  e.course_id,\n  e.emailed_to,\n  e.sent_at,\n  (\n    e.replaced_at IS NULL\n    AND (\n      e.student_number_verification_token_id IS NULL\n      OR EXISTS (\n        SELECT 1\n        FROM student_number_verification_tokens t\n        WHERE t.id = e.student_number_verification_token_id\n          AND t.deleted_at IS NULL\n          AND t.used_at IS NULL\n          AND t.expires_at > now()\n      )\n    )\n  ) AS \"holds_address!\"\nFROM credit_registration_account_linking_emails e\nWHERE e.sisu_person_id = ANY($1::text [])\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -46,6 +46,12 @@
             "name": "sent_at"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "holds_address!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -57,8 +63,9 @@
       false,
       false,
       false,
-      false
+      false,
+      null
     ]
   },
-  "hash": "70ad9fdd910629fbbd266121261cc4f5b07f7f6c72dbb8f6886ee6dd31db994c"
+  "hash": "26eafab30a4cf640d12c681a50db43956c92d3bb936d149f2a5e969f3ba63eec"
 }

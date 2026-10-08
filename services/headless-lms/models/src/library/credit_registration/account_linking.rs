@@ -12,7 +12,7 @@ use secrecy::ExposeSecret;
 
 use crate::credit_registration_account_linking_emails::{
     self, ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
-    get_existing_facts_for_persons,
+    get_existing_facts_for_persons, replace_lapsed_slots,
 };
 use crate::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
@@ -39,6 +39,9 @@ pub fn link_student_number_url(base_url: &str, token: &str) -> String {
 
 /// How long after a linking mail the person is left alone, across every course and address.
 pub const LINKING_MAIL_QUIET_PERIOD: TimeDelta = TimeDelta::days(1);
+
+/// How long after a linking mail for a course the same person may get another for it.
+pub const LINKING_MAIL_RESEND_INTERVAL: TimeDelta = TimeDelta::days(7);
 
 /// How many linking mails one person may ever get for one course, tokens that expired unused
 /// included.
@@ -105,9 +108,9 @@ pub async fn claim_linking_mails(
         ))
 }
 
-/// Claims one slot and one unbound token per person and address, dedup before rate cap and the
-/// allowance spent left to right. Returns one outcome per input, in order; a claimed slot means a
-/// mail the `link-emails` phase still owes.
+/// Claims one slot and one unbound token per person and address that has no usable link from us
+/// yet, dedup before rate cap and the allowance spent left to right. Returns one outcome per input,
+/// in order; a claimed slot means a mail the `link-emails` phase still owes.
 pub async fn claim_linking_mails_batch(
     conn: &mut PgConnection,
     people: &[DiscoveredPerson],
@@ -135,7 +138,7 @@ pub async fn claim_linking_mails_batch(
             .or_default()
             .push(fact);
     }
-    let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
+    let now = Utc::now();
 
     let mut to_claim: Vec<(usize, &DbSecret)> = Vec::new();
     for (i, (person, addresses)) in people.iter().zip(&per_person_addresses).enumerate() {
@@ -146,9 +149,9 @@ pub async fn claim_linking_mails_batch(
             .get(person.sisu_person_id.expose_secret())
             .map(Vec::as_slice)
             .unwrap_or(&[]);
-        let mut allowance = remaining_allowance(person, person_facts, quiet_since);
+        let mut allowance = remaining_allowance(person, person_facts, now);
         for address in addresses {
-            if already_mailed(person_facts, person.course_id, address.expose_secret()) {
+            if holds_address(person_facts, person.course_id, address.expose_secret()) {
                 outcomes[i].suppressed_by_dedup += 1;
                 continue;
             }
@@ -193,6 +196,7 @@ pub async fn claim_linking_mails_batch(
     }
     insert_tokens_batch(conn, &token_ids, &new_tokens).await?;
 
+    replace_lapsed_slots(conn, &new_slots).await?;
     let claimed_token_ids = claim_send_slots(conn, &new_slots, &token_ids).await?;
     let lost_token_ids: Vec<Uuid> = token_owner
         .keys()
@@ -286,24 +290,34 @@ async fn person_id_of_mails(
 fn remaining_allowance(
     person: &DiscoveredPerson,
     facts: &[&ExistingLinkingMailFact],
-    quiet_since: DateTime<Utc>,
+    now: DateTime<Utc>,
 ) -> i64 {
     // The quiet period is about the person's inbox, so it ignores the course.
-    if facts.iter().any(|fact| fact.sent_at >= quiet_since) {
+    if facts
+        .iter()
+        .any(|fact| fact.sent_at >= now - LINKING_MAIL_QUIET_PERIOD)
+    {
         return 0;
     }
-    let already_sent = facts
+    let course_facts: Vec<_> = facts
         .iter()
         .filter(|fact| fact.course_id == person.course_id)
-        .count() as i64;
-    (MAX_LINKING_MAILS_PER_PERSON_AND_COURSE - already_sent).max(0)
+        .collect();
+    if course_facts
+        .iter()
+        .any(|fact| fact.sent_at >= now - LINKING_MAIL_RESEND_INTERVAL)
+    {
+        return 0;
+    }
+    (MAX_LINKING_MAILS_PER_PERSON_AND_COURSE - course_facts.len() as i64).max(0)
 }
 
-/// Whether this (person, course, address) already had its mail. The unique index behind
-/// [`claim_send_slots`] is what actually prevents a second one.
-fn already_mailed(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
+/// Whether a mail to this (person, course, address) still holds the address. The unique index
+/// behind [`claim_send_slots`] is what actually prevents a second one.
+fn holds_address(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
     facts.iter().any(|fact| {
-        fact.course_id == course_id
+        fact.holds_address
+            && fact.course_id == course_id
             && fact
                 .emailed_to
                 .expose_secret()

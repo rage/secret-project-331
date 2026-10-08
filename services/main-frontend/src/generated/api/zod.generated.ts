@@ -2547,6 +2547,40 @@ export const zEnrolmentCheckPopulation = z.object({
 })
 
 /**
+ * One course code's enrolment list schedule as it stands.
+ */
+export const zEnrolmentCheckRosterCode = z.object({
+  consecutive_failures: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_code: z.string(),
+  is_fetched_alone: z.boolean(),
+  last_error: zCreditRegistrationErrorCode.nullish(),
+  last_fetch_duration_ms: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  last_fetched_at: z.iso.datetime().nullish(),
+  last_listed_person_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  module_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  next_fetch_at: z.iso.datetime(),
+  retry_not_before: z.iso.datetime().nullish(),
+  waiting_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
  * What made an enrolment check run when it did.
  */
 export const zEnrolmentCheckSource = z.enum([
@@ -4605,46 +4639,6 @@ export const zRoleDomain = z.union([
     tag: z.enum(["Exam"]),
   }),
 ])
-
-/**
- * How often a code is listed without a trigger.
- */
-export const zRosterTier = z.enum(["active", "idle", "dormant", "unlisted"])
-
-/**
- * One course code's roster schedule as it stands.
- */
-export const zEnrolmentCheckRosterCode = z.object({
-  consecutive_failures: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  course_code: z.string(),
-  is_fetched_alone: z.boolean(),
-  last_error: zCreditRegistrationErrorCode.nullish(),
-  last_fetch_duration_ms: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  last_fetched_at: z.iso.datetime().nullish(),
-  last_listed_person_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  module_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  next_fetch_at: z.iso.datetime().nullish(),
-  retry_not_before: z.iso.datetime().nullish(),
-  tier: zRosterTier,
-  triggered_fetch_count_today: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-})
 
 export const zSaveCourseDesignerScheduleRequest = z.object({
   name: z.string().nullish(),

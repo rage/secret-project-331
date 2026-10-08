@@ -2911,7 +2911,7 @@ export type EnrolmentCheckPopulation = {
 }
 
 /**
- * One course code's roster schedule as it stands.
+ * One course code's enrolment list schedule as it stands.
  */
 export type EnrolmentCheckRosterCode = {
   consecutive_failures: number
@@ -2923,12 +2923,15 @@ export type EnrolmentCheckRosterCode = {
   last_listed_person_count?: number | null
   module_count: number
   /**
-   * When a trigger or the tier next makes it due; `None` when neither will.
+   * When it is next due, ignoring the failure backoff.
    */
-  next_fetch_at?: string | null
+  next_fetch_at: string
   retry_not_before?: string | null
-  tier: RosterTier
-  triggered_fetch_count_today: number
+  /**
+   * People on the code's modules waiting for a student number, who make it due sooner than
+   * weekly.
+   */
+  waiting_count: number
 }
 
 /**
@@ -4745,11 +4748,6 @@ export type RoleUser = {
   role: UserRole
   user_id: string
 }
-
-/**
- * How often a code is listed without a trigger.
- */
-export type RosterTier = "active" | "idle" | "dormant" | "unlisted"
 
 export type SaveCourseDesignerScheduleRequest = {
   name?: string | null

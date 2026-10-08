@@ -128,12 +128,12 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Courses" }).click()
   await expect(
-    page.getByRole("heading", { name: "Courses with credit registration on" }),
+    page.getByRole("heading", { name: "Modules with credit registration on" }),
   ).toBeVisible()
 
   await page.getByRole("tab", { name: "Linking" }).click()
   await expect(page.getByRole("heading", { name: "Recent links" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Per course module" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Enrolment lists per course code" })).toBeVisible()
 })
 
 // A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
@@ -213,7 +213,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
   await test.step("A replaced attempt offers no actions", async () => {
     await page.goto(`${REGISTRATIONS_URL}/${SUPERSEDED_ATTEMPT_1_ID}`)
     await expect(page.getByText("This attempt has been replaced by a later one.")).toBeVisible()
-    await expect(page.getByRole("button", { name: "Send to Sisu again" })).toHaveCount(0)
+    await expect(page.getByRole("button", { name: "Send again" })).toHaveCount(0)
     await expect(page.getByRole("button", { name: "Cancel this registration" })).toHaveCount(0)
   })
 })
@@ -290,7 +290,9 @@ test("No stored body carries a student number, a name or an email address", asyn
     await expect(
       page.getByText("Names, student numbers and email addresses are redacted"),
     ).toBeVisible()
-    await expect(page.getByRole("heading", { name: "This registration's item" })).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: "This registration's part of the call" }),
+    ).toBeVisible()
     await page.getByRole("link", { name: "Show the whole call" }).first().click()
     await expect(
       page.getByRole("dialog").getByRole("heading", { name: "Registrations this call carried" }),
@@ -383,7 +385,7 @@ test("Manual link is refused without a preview and without a reason", async ({ p
 
 test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   await page.goto(LINKING_URL)
-  const staleTable = page.getByRole("table", { name: /Emailed \d+ times, still unclaimed/ })
+  const staleTable = page.getByRole("table", { name: /Emailed \d+ times, still not linked/ })
   const staleRow = staleTable.getByRole("row").filter({ hasText: STALE_STUDENT_NUMBER })
   await expect(staleRow).toBeVisible()
 
@@ -394,7 +396,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   ).toBeVisible()
 
   await staleRow.getByRole("button", { name: `Actions for ${STALE_STUDENT_NUMBER}` }).click()
-  await page.getByRole("menuitem", { name: "Send the account linking email again" }).click()
+  await page.getByRole("menuitem", { name: "Send the linking email again" }).click()
   const dialog = page.getByRole("dialog")
 
   await test.step("Without the override the cap refuses it", async () => {
@@ -500,10 +502,10 @@ test("The courses tab reports each enabled module's configuration", async ({ pag
 
   await page.goto(COURSES_URL)
   await expect(
-    page.getByRole("heading", { name: "Courses with credit registration on" }),
+    page.getByRole("heading", { name: "Modules with credit registration on" }),
   ).toBeVisible()
   const table = page.getByRole("table", {
-    name: "Course modules with credit registration enabled",
+    name: "Modules with credit registration on",
   })
   await expect(
     table.getByRole("row").filter({ hasText: "Credit registration admin" }),
@@ -559,10 +561,12 @@ test("The reconciliation badge is the sum of its detectors", async ({ page }) =>
       reconciliation.legacy_divergence_count,
   )
 
-  // The detectors sit under the overview's Sisu checks, each behind its own disclosure rather than
-  // a heading, and a detector that found nothing is folded into one line instead of an empty box.
+  // The detectors sit under the overview's disagreements section, each behind its own disclosure
+  // rather than a heading, and a detector that found nothing is folded into one line.
   await page.goto(OVERVIEW_URL)
-  await expect(page.getByRole("heading", { name: "Checks against Sisu" })).toBeVisible()
+  await expect(
+    page.getByRole("heading", { name: "Disagreements with Sisu and the old system" }),
+  ).toBeVisible()
   await expect(page.getByRole("button", { name: "Create missing registrations now" })).toBeVisible()
 })
 
@@ -578,13 +582,13 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
     const rows = page
       .getByRole("table", { name: "Who acted on this, and why" })
       .getByRole("row")
-      .filter({ hasText: "Global admin" })
+      .filter({ has: page.getByText(/^Admin( · |$)/) })
     await expect(rows).toHaveCount(0)
     await expect(page.getByText("Course teacher").first()).toBeVisible()
   })
 })
 
-test("A discovery run writes the per-module counters", async ({ page }) => {
+test("A discovery run writes the course code's linking counters", async ({ page }) => {
   await makeRosterListingsDue(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
@@ -592,10 +596,12 @@ test("A discovery run writes the per-module counters", async ({ page }) => {
   const counters = await pollUntil(
     async () => {
       const stats = await accountLinkingStats(page.request)
-      const mine = stats.modules.find((row) => row.course_id === ADMIN_COURSE_ID)
-      return mine?.last_listed_at ? mine : null
+      const mine = stats.course_codes.find((row) =>
+        row.modules.some((module) => module.course_id === ADMIN_COURSE_ID),
+      )
+      return mine?.linking ?? null
     },
-    { description: "the admin course's module to report a listing" },
+    { description: "the admin course's course code to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
 })

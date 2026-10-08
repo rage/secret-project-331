@@ -45,9 +45,10 @@ pub async fn record_student_number_change(
     .await
 }
 
-/// Retires a verified link and reopens every registration it had gated, as one step. Both the
-/// student's own unlink and the admin unlink call this rather than each doing the soft-delete and
-/// the recompute themselves; callers keep owning the transaction and any admin-action row around it.
+/// Retires a verified link and reopens every registration it had gated, as one step, and retires
+/// the person's unused linking mails so a new one can go out. Both the student's own unlink and the
+/// admin unlink call this rather than each doing the soft-delete and the recompute themselves;
+/// callers keep owning the transaction and any admin-action row around it.
 pub async fn unlink_verified_student_number(
     conn: &mut PgConnection,
     verified_student_number_id: Uuid,
@@ -56,6 +57,11 @@ pub async fn unlink_verified_student_number(
     event_kind: CreditRegistrationEventKind,
     message: &str,
 ) -> ModelResult<i64> {
+    crate::credit_registration_account_linking_emails::retire_unused_for_link(
+        conn,
+        verified_student_number_id,
+    )
+    .await?;
     verified_student_numbers::soft_delete(conn, verified_student_number_id).await?;
     record_student_number_change(conn, subject_user_id, actor_user_id, event_kind, message).await
 }

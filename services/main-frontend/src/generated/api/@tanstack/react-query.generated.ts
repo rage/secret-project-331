@@ -18,10 +18,12 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   adminBulkTransitionCreditRegistrations,
+  adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
   adminPausePhase,
+  adminRequestEnrolmentListFetch,
   adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
@@ -413,6 +415,7 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminDismissStudyRegistryConflictData,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
@@ -420,6 +423,8 @@ import type {
   AdminPauseCourseModuleCreditRegistrationData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchResponse,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsResponse,
   AdminResendAccountLinkingEmailData,
@@ -6187,8 +6192,9 @@ export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinki
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkingStatsData>) =>
   queryOptions<
@@ -6206,6 +6212,35 @@ export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkin
       }),
     queryKey: getAccountLinkingStatsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetchMutation = (
+  options?: Partial<Options<AdminRequestEnrolmentListFetchData>>,
+): UseMutationOptions<
+  AdminRequestEnrolmentListFetchResponse,
+  DefaultError,
+  Options<AdminRequestEnrolmentListFetchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRequestEnrolmentListFetchResponse,
+    DefaultError,
+    Options<AdminRequestEnrolmentListFetchData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRequestEnrolmentListFetch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -6291,6 +6326,31 @@ export const adminResolveStudentNumberForLinkingMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await adminResolveStudentNumberForLinking({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflictMutation = (
+  options?: Partial<Options<AdminDismissStudyRegistryConflictData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDismissStudyRegistryConflictData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDismissStudyRegistryConflictData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDismissStudyRegistryConflict({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -6567,7 +6627,7 @@ export const getCreditRegistrationEnrolmentChecksQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
- * and findings of the enrolment checks, and the roster schedule per course code.
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
 export const getCreditRegistrationEnrolmentChecksOptions = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,
@@ -7398,8 +7458,9 @@ export const setMyCreditJustificationMutation = (
  *
  * Moves a waiting registration onto the schedule for students who have looked, or restarts that
  * schedule at most once a day. Recorded against the completion too, so a visit before there is a
- * registration, or before a student number is linked, still counts once there is. Idempotent enough
- * to call on every page load; the page sends it once per load.
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
  */
 export const recordMyEnrolmentPageVisitMutation = (
   options?: Partial<Options<RecordMyEnrolmentPageVisitData>>,
@@ -7505,8 +7566,8 @@ export const withdrawMyEnrolmentConfirmationMutation = (
  *
  * Counts as a check request: a waiting registration restarts its checks on the check-requested
  * schedule, under the limit every check request shares. Recorded against the completion too, so a
- * registration that starts waiting later starts on that schedule. With account linking on, a caller
- * with no linked student number books a roster listing of the course code instead.
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
  */
 export const confirmMyEnrolmentMutation = (
   options?: Partial<Options<ConfirmMyEnrolmentData>>,

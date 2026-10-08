@@ -8,6 +8,69 @@ export type ClientOptions = {
 }
 
 /**
+ * What one code's last enrolment list that fed account linking did, each person counted once in
+ * exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
+ * mixes two runs.
+ */
+export type AccountLinkingCodeCounters = {
+  already_linked_count: number
+  /**
+   * Only those enrolled since account linking began.
+   */
+  listed_person_count: number
+  mailed_count: number
+  /**
+   * Persons the registry holds no address for: the one population no remedy here can reach.
+   */
+  no_address_count: number
+  suppressed_by_dedup_count: number
+  suppressed_by_rate_cap_count: number
+}
+
+/**
+ * A module on a course code, which shares the code's enrolment list.
+ */
+export type AccountLinkingCodeModule = {
+  course_id: string
+  course_module_id: string
+  course_module_name?: string | null
+  course_name: string
+  /**
+   * When an enrolment list last fed account linking for the module.
+   */
+  last_listed_at?: string | null
+}
+
+/**
+ * One course code's enrolment list: when it is fetched, and what the last one did for linking.
+ */
+export type AccountLinkingCourseCode = {
+  consecutive_failures: number
+  course_code: string
+  /**
+   * An admin's "Fetch now" no fetch has served yet.
+   */
+  fetch_requested_at?: string | null
+  last_error?: null | CreditRegistrationErrorCode
+  last_fetched_at?: string | null
+  /**
+   * Everyone on the last list, however long ago they enrolled.
+   */
+  last_listed_person_count?: number | null
+  linking?: null | AccountLinkingCodeCounters
+  modules: Array<AccountLinkingCodeModule>
+  /**
+   * When it is next due, ignoring the failure backoff.
+   */
+  next_fetch_at: string
+  retry_not_before?: string | null
+  /**
+   * People on the code's modules waiting for a student number.
+   */
+  waiting_count: number
+}
+
+/**
  * Hard send failures grouped by recipient domain.
  */
 export type AccountLinkingFailureDomain = {
@@ -16,8 +79,9 @@ export type AccountLinkingFailureDomain = {
 }
 
 /**
- * The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
- * whole, the `_in_window` ones from the window: there is no single denominator.
+ * The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person
+ * counted once per code, and the `_in_window` ones come from the window: there is no single
+ * denominator.
  */
 export type AccountLinkingFunnel = {
   already_linked_last_run: number
@@ -34,29 +98,21 @@ export type AccountLinkingFunnel = {
   suppressed_by_rate_cap_last_run: number
 }
 
-export type AccountLinkingModuleCounters = {
-  already_linked_count?: number | null
-  consecutive_listing_failures: number
+/**
+ * One linking email, newest first in the recent list.
+ */
+export type AccountLinkingRecentEmail = {
+  claimed_at: string
   course_id: string
-  course_module_id: string
-  course_module_name?: string | null
   course_name: string
+  emailed_to_masked: string
+  id: string
+  last_error_message?: string | null
   /**
-   * When the counters below were collected. Not the last attempt: a failing listing keeps the
-   * last roster that arrived.
+   * When the `link-emails` phase handed it to the email worker.
    */
-  last_listed_at?: string | null
-  last_listing_attempted_at?: string | null
-  last_listing_error?: null | CreditRegistrationErrorCode
-  listed_person_count?: number | null
-  mailed_count?: number | null
-  /**
-   * Persons the registry holds no address for: the one population no remedy here can reach.
-   */
-  no_address_count?: number | null
-  suppressed_by_dedup_count?: number | null
-  suppressed_by_rate_cap_count?: number | null
-  uh_course_code?: string | null
+  queued_at?: string | null
+  send_status?: null | EmailSendStatusReport
 }
 
 /**
@@ -68,10 +124,17 @@ export type AccountLinkingSendOutcome = {
 }
 
 export type AccountLinkingSendStatusTotals = {
-  queued: number
   retrying: number
   send_failed: number
   sent: number
+  /**
+   * Queued, but not yet attempted by the email worker.
+   */
+  waiting_for_email_worker: number
+  /**
+   * Claimed, but not yet queued by the `link-emails` phase.
+   */
+  waiting_for_link_emails: number
 }
 
 /**
@@ -100,13 +163,17 @@ export type AccountLinkingStats = {
    * Discovery mails only people who enrolled at or after this.
    */
   account_linking_since?: string | null
+  course_codes: Array<AccountLinkingCourseCode>
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
   links_total_by_method: Array<VerifiedStudentNumberMethodTotal>
   max_mails_per_person_and_course: number
-  modules: Array<AccountLinkingModuleCounters>
   quiet_period_secs: number
+  /**
+   * Newest first, capped.
+   */
+  recent_linking_emails: Array<AccountLinkingRecentEmail>
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
   /**
@@ -117,7 +184,36 @@ export type AccountLinkingStats = {
    * Accounts with an eligible completion still waiting for a student number.
    */
   waiting_for_student_number_count: number
+  /**
+   * Of those, the ones completed since `account_linking_since`, longest waiting first, capped.
+   */
+  waiting_students: Array<AccountLinkingWaitingStudent>
+  /**
+   * `waiting_students` before the cap.
+   */
+  waiting_students_total: number
   window_secs: number
+}
+
+/**
+ * A student whose registration waits for a student number.
+ */
+export type AccountLinkingWaitingStudent = {
+  completion_date: string
+  course_id: string
+  course_module_name?: string | null
+  course_name: string
+  credit_registration_id: string
+  email?: string | null
+  first_name?: string | null
+  /**
+   * The last "I have enrolled" press.
+   */
+  last_check_requested_at?: string | null
+  last_name?: string | null
+  last_visited_at?: string | null
+  uh_course_code?: string | null
+  user_id: string
 }
 
 /**
@@ -321,6 +417,10 @@ export type AdminCreditRegistrationRow = {
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
 
+export type AdminDismissStudyRegistryConflictPayload = {
+  reason: string
+}
+
 export type AdminLinkingEmail = {
   claimed_at: string
   course_id: string
@@ -403,6 +503,17 @@ export type AdminPausePhasePayload = {
 
 export type AdminPhaseActionPayload = {
   reason?: string | null
+}
+
+export type AdminRequestEnrolmentListFetchPayload = {
+  course_code: string
+}
+
+export type AdminRequestEnrolmentListFetchResult = {
+  /**
+   * Ignoring the failure backoff, as on the Linking tab.
+   */
+  next_fetch_at: string
 }
 
 export type AdminRequeueRetryablePayload = {
@@ -1888,6 +1999,8 @@ export type CreditRegistrationAdminAction =
   | "unlink_student_number"
   | "manual_link_student_number"
   | "override_rate_cap"
+  | "request_enrolment_list_fetch"
+  | "dismiss_study_registry_conflict"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -1961,6 +2074,8 @@ export type CreditRegistrationAdminActionTarget =
   | "phase"
   | "verified_student_number"
   | "student_number_verification_token"
+  | "roster_schedule"
+  | "study_registry_student_number_conflict"
 
 export type CreditRegistrationAlert = {
   /**
@@ -2371,6 +2486,11 @@ export type CreditRegistrationPhaseList = {
    * In process then pipeline order, so the grouping is a fold over the list.
    */
   phases: Array<CreditRegistrationPhaseRow>
+  /**
+   * The git commit the answering server was built from, or `unknown` for a build without one.
+   * Workers may run another build while a rollout is under way.
+   */
+  server_build_commit: string
 }
 
 /**
@@ -2911,7 +3031,7 @@ export type EnrolmentCheckPopulation = {
 }
 
 /**
- * One course code's roster schedule as it stands.
+ * One course code's enrolment list schedule as it stands.
  */
 export type EnrolmentCheckRosterCode = {
   consecutive_failures: number
@@ -2923,12 +3043,15 @@ export type EnrolmentCheckRosterCode = {
   last_listed_person_count?: number | null
   module_count: number
   /**
-   * When a trigger or the tier next makes it due; `None` when neither will.
+   * When it is next due, ignoring the failure backoff.
    */
-  next_fetch_at?: string | null
+  next_fetch_at: string
   retry_not_before?: string | null
-  tier: RosterTier
-  triggered_fetch_count_today: number
+  /**
+   * People on the code's modules waiting for a student number, who make it due sooner than
+   * weekly.
+   */
+  waiting_count: number
 }
 
 /**
@@ -3398,11 +3521,18 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
+ * Whether the link in a linking mail can still be opened, and if not, whether a new mail can
+ * replace it.
+ */
+export type LinkingEmailLinkState = "usable" | "expired_can_resend" | "expired_no_resend" | "used"
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export type LinkingEmailStatus = {
   email_send_status: EmailSendStatus
   emailed_to_masked: string
+  link_state: LinkingEmailLinkState
   sent_at?: string | null
 }
 
@@ -4385,6 +4515,7 @@ export type PeerReviewWithQuestionsAndAnswers = {
  */
 export type PendingReasonCounts = {
   completion_count: number
+  course_code_count: number
   student_number_count: number
 }
 
@@ -4744,11 +4875,6 @@ export type RoleUser = {
   role: UserRole
   user_id: string
 }
-
-/**
- * How often a code is listed without a trigger.
- */
-export type RosterTier = "active" | "idle" | "dormant" | "unlisted"
 
 export type SaveCourseDesignerScheduleRequest = {
   name?: string | null
@@ -9836,6 +9962,30 @@ export type GetAccountLinkingStatsResponses = {
 export type GetAccountLinkingStatsResponse =
   GetAccountLinkingStatsResponses[keyof GetAccountLinkingStatsResponses]
 
+export type AdminRequestEnrolmentListFetchData = {
+  body: AdminRequestEnrolmentListFetchPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list"
+}
+
+export type AdminRequestEnrolmentListFetchErrors = {
+  /**
+   * No active module has the course code
+   */
+  404: unknown
+}
+
+export type AdminRequestEnrolmentListFetchResponses = {
+  /**
+   * When the list is now due
+   */
+  200: AdminRequestEnrolmentListFetchResult
+}
+
+export type AdminRequestEnrolmentListFetchResponse =
+  AdminRequestEnrolmentListFetchResponses[keyof AdminRequestEnrolmentListFetchResponses]
+
 export type AdminManuallyLinkStudentNumberData = {
   body: AdminManuallyLinkStudentNumberPayload
   path?: never
@@ -9907,6 +10057,36 @@ export type AdminResolveStudentNumberForLinkingResponses = {
 
 export type AdminResolveStudentNumberForLinkingResponse =
   AdminResolveStudentNumberForLinkingResponses[keyof AdminResolveStudentNumberForLinkingResponses]
+
+export type AdminDismissStudyRegistryConflictData = {
+  body: AdminDismissStudyRegistryConflictPayload
+  path: {
+    /**
+     * The clash's id
+     */
+    conflict_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss"
+}
+
+export type AdminDismissStudyRegistryConflictErrors = {
+  /**
+   * No such clash, or already dismissed
+   */
+  404: unknown
+  /**
+   * No reason given
+   */
+  422: unknown
+}
+
+export type AdminDismissStudyRegistryConflictResponses = {
+  /**
+   * Dismissed
+   */
+  200: unknown
+}
 
 export type GetCreditRegistrationAttentionItemsData = {
   body?: never

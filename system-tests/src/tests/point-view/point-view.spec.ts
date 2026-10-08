@@ -36,7 +36,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
+    "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67/overview",
   )
 
   await page.getByRole("tab", { name: "Course instances" }).click()

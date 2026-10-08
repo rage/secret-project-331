@@ -33,6 +33,8 @@ pub enum CreditRegistrationAdminAction {
     UnlinkStudentNumber,
     ManualLinkStudentNumber,
     OverrideRateCap,
+    RequestEnrolmentListFetch,
+    DismissStudyRegistryConflict,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -48,6 +50,8 @@ pub enum CreditRegistrationAdminActionTarget {
     Phase,
     VerifiedStudentNumber,
     StudentNumberVerificationToken,
+    RosterSchedule,
+    StudyRegistryStudentNumberConflict,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

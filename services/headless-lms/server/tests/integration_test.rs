@@ -119,6 +119,7 @@ async fn test_runtime_config() -> &'static ServerRuntimeConfig {
                 "integration-test-intentionally-public".into(),
             ),
             pod_namespace: "default".to_string(),
+            build_commit: "unknown".to_string(),
             app_conf,
         })
         .expect("Failed to set the server runtime configuration");

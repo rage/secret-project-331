@@ -13,6 +13,7 @@ import {
   accountLinkingStats,
   adminRegistrationDetails,
   adminResolveStudentNumber,
+  linkingListedAt,
   listAdminRegistrations,
 } from "@/utils/creditRegistrationAdmin"
 import {
@@ -196,9 +197,7 @@ test("With account linking off, discovery wakes a linked student and mails nobod
   // roster person on its own schedule.
   const mailsBefore = (await adminResolveStudentNumber(adminApi, UNLINKED_STUDENT_NUMBER))
     .linking_emails
-  const listedBefore = (await accountLinkingStats(adminApi)).modules.find(
-    (row) => row.course_id === SUOTAR_B_COURSE_ID,
-  )?.last_listed_at
+  const listedBefore = linkingListedAt(await accountLinkingStats(adminApi), SUOTAR_B_COURSE_ID)
   await setTestExclusiveHold(page.request, STUDENT.email, HOLD_SECS, SUOTAR_B_COURSE_ID)
   await makeRosterListingsDue(page.request, { courseSlug: SUOTAR_B_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(
@@ -211,9 +210,7 @@ test("With account linking off, discovery wakes a linked student and mails nobod
 
   await test.step("Nobody on the roster was mailed, and no linking run was recorded", async () => {
     expect(mailsAfter.map((mail) => mail.id)).toStrictEqual(mailsBefore.map((mail) => mail.id))
-    const listedAfter = (await accountLinkingStats(adminApi)).modules.find(
-      (row) => row.course_id === SUOTAR_B_COURSE_ID,
-    )?.last_listed_at
+    const listedAfter = linkingListedAt(await accountLinkingStats(adminApi), SUOTAR_B_COURSE_ID)
     expect(listedAfter).toBe(listedBefore)
   })
 

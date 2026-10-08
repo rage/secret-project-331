@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT sisu_person_id,\n  course_id,\n  emailed_to,\n  sent_at\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = ANY($1::text [])\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT e.sisu_person_id AS \"sisu_person_id!\",\n  e.course_id AS \"course_id!\",\n  e.emailed_to AS \"emailed_to!\",\n  e.sent_at AS \"sent_at!\",\n  (\n    e.replaced_at IS NULL\n    AND (\n      e.student_number_verification_token_id IS NULL\n      OR is_usable_verification_token(t)\n    )\n  ) AS \"holds_address!\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.sisu_person_id = ANY($1::text [])\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "sisu_person_id",
+        "name": "sisu_person_id!",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "course_id",
+        "name": "course_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "emailed_to",
+        "name": "emailed_to!",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "sent_at",
+        "name": "sent_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -46,6 +46,12 @@
             "name": "sent_at"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "holds_address!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -54,11 +60,12 @@
       ]
     },
     "nullable": [
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      null
     ]
   },
-  "hash": "70ad9fdd910629fbbd266121261cc4f5b07f7f6c72dbb8f6886ee6dd31db994c"
+  "hash": "fcf4b2f40dbc1fd2d43190b764892e1df7388e12a4c0c90e84c9620a824b1aeb"
 }

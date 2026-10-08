@@ -13,6 +13,7 @@ import {
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import { hasOnlyDefaultModule } from "@/components/credit-registration/creditRegistrationCopy"
 import CreditRegistrationSetupNote from "@/components/credit-registration/CreditRegistrationSetupNote"
 import CreditRegistrationStatusCell, {
   CREDIT_REGISTRATION_CELL_CHROME_PX,
@@ -27,6 +28,7 @@ import {
 import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { EmptyState, QueryResults } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -180,10 +182,16 @@ const RegistrationCell: React.FC<{
   registered: boolean
   creditRegistration: CourseCreditRegistration | undefined
   isCreditRegistrationsPending: boolean
-}> = ({ registered, creditRegistration, isCreditRegistrationsPending }) => {
+  isCourseWide: boolean | undefined
+}> = ({ registered, creditRegistration, isCreditRegistrationsPending, isCourseWide }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (creditRegistration) {
-    return <CreditRegistrationStatusCell registration={creditRegistration} />
+    return (
+      <CreditRegistrationStatusCell
+        registration={creditRegistration}
+        {...omitUndefined({ isCourseWide })}
+      />
+    )
   }
   if (registered) {
     return <span>{t("registered")}</span>
@@ -204,6 +212,7 @@ const buildColumns = (
   locale: string,
   creditRegistrations: CreditRegistrationIndex,
   isCreditRegistrationsPending: boolean,
+  isCourseWide: boolean | undefined,
 ): ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] => {
   const columns: ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] = [
     {
@@ -256,6 +265,7 @@ const buildColumns = (
                 creditRegistrationKey(row.original.user_id, moduleId),
               )}
               isCreditRegistrationsPending={isCreditRegistrationsPending}
+              isCourseWide={isCourseWide}
             />
           ),
           meta: {
@@ -288,6 +298,9 @@ export const CompletionsTabContent: React.FC = () => {
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
   const structureQuery = useCourseStructure(courseId)
   const structureModules = useMemo(() => structureQuery.data?.modules ?? [], [structureQuery.data])
+  const isCourseWide = structureQuery.data
+    ? hasOnlyDefaultModule(structureQuery.data.modules.map((module) => module.name))
+    : undefined
   const {
     data: creditRegistrations,
     isAuthorized: canSeeCreditRegistrations,
@@ -319,8 +332,16 @@ export const CompletionsTabContent: React.FC = () => {
         i18n.language,
         creditRegistrations,
         isCreditRegistrationsPending,
+        isCourseWide,
       ),
-    [modulesInOrder, t, i18n.language, creditRegistrations, isCreditRegistrationsPending],
+    [
+      modulesInOrder,
+      t,
+      i18n.language,
+      creditRegistrations,
+      isCreditRegistrationsPending,
+      isCourseWide,
+    ],
   )
 
   // The detail request is skipped while the page lists nobody, so a query that can never resolve

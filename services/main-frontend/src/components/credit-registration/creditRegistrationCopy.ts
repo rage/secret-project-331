@@ -11,6 +11,14 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, translateKey, widenedLookup } from "./labelFrom"
 
+/**
+ * Whether credit registration copy names the course rather than a module: only for a course with
+ * nothing but its default module. Pass the names of all the course's modules, registering or not.
+ */
+export const hasOnlyDefaultModule = (
+  moduleNames: readonly (string | null | undefined)[],
+): boolean => moduleNames.length === 1 && !moduleNames[0]
+
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
   needs_student_number: "action-needed",
@@ -83,6 +91,15 @@ const TEACHER_STATUS_EXPLANATION_KEYS = {
 
 const TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY = "credit-registration-teacher-explanation-unknown"
 
+/** "This module" sentences reworded for a course whose only module is its default one. */
+const TEACHER_STATUS_EXPLANATION_COURSE_KEYS: Partial<
+  Record<StudentFacingCreditRegistrationStatus, string>
+> = {
+  waiting_for_completion: "credit-registration-teacher-explanation-waiting-for-completion-course",
+  waiting_for_course_setup:
+    "credit-registration-teacher-explanation-waiting-for-course-setup-course",
+}
+
 /** The study registry's own message is never shown: it is untranslated and may name a person. */
 const ERROR_CODE_KEYS = {
   person_not_found: "credit-registration-error-person-not-found",
@@ -139,6 +156,15 @@ const TEACHER_ERROR_CODE_KEYS = {
   retry_window_expired: "credit-registration-teacher-error-retry-window-expired",
   unknown: "credit-registration-teacher-error-unknown",
 } as const satisfies Record<CreditRegistrationErrorCode, string>
+
+/** See `TEACHER_STATUS_EXPLANATION_COURSE_KEYS`. */
+const TEACHER_ERROR_COURSE_KEYS: Partial<Record<CreditRegistrationErrorCode, string>> = {
+  course_code_not_found: "credit-registration-teacher-error-course-code-not-found-course",
+  invalid_credits: "credit-registration-teacher-error-invalid-credits-course",
+  no_grade_scale_mapping: "credit-registration-teacher-error-no-grade-scale-mapping-course",
+  missing_uh_course_code: "credit-registration-teacher-error-missing-uh-course-code-course",
+  missing_ects_credits: "credit-registration-teacher-error-missing-ects-credits-course",
+}
 
 const TEACHER_ERROR_UNKNOWN_KEY = "credit-registration-teacher-error-unknown"
 
@@ -249,8 +275,13 @@ export const myRegistrationExplanation = (
 export const registrationTeacherExplanation = (
   t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
-): string =>
-  labelFrom(t, TEACHER_STATUS_EXPLANATION_KEYS, status, TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY)
+  isCourseOnlyModule: boolean,
+): string => {
+  const courseKey = isCourseOnlyModule ? TEACHER_STATUS_EXPLANATION_COURSE_KEYS[status] : undefined
+  return courseKey
+    ? translateKey(t, courseKey)
+    : labelFrom(t, TEACHER_STATUS_EXPLANATION_KEYS, status, TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY)
+}
 
 /** Matches `grade_mapping.rs`: both spellings of the pass/fail scale are in circulation. */
 const PASS_FAIL_GRADE_SCALE_IDS = ["sis-hyl-hyv", "sis-hyv-hyl"]
@@ -290,8 +321,16 @@ export const registrationErrorHelp = (
 export const registrationErrorTeacherHelp = (
   t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
-): string | null =>
-  errorCode ? labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY) : null
+  isCourseOnlyModule: boolean,
+): string | null => {
+  if (!errorCode) {
+    return null
+  }
+  const courseKey = isCourseOnlyModule ? TEACHER_ERROR_COURSE_KEYS[errorCode] : undefined
+  return courseKey
+    ? translateKey(t, courseKey)
+    : labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY)
+}
 
 /**
  * Why the registration failed, in the two or three words a roster cell or a breakdown chip has

@@ -1,12 +1,13 @@
-//! Sending one listing request, and recording what its rosters, or its failure, say about each
-//! code.
+//! Sending one listing request, and recording what its enrolment lists, or its failure, say about
+//! each code.
 
 use headless_lms_models::course_module_suotar_configurations::mark_listing_failed;
 use headless_lms_models::credit_registration_roster_schedules::{
-    mark_alone_failed, mark_attempted, mark_batch_failed, mark_fetched, mark_window_closed,
+    mark_alone_failed, mark_attempted, mark_batch_failed, mark_fetched,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
 use headless_lms_models::library::credit_registration::outcomes::request_level_code;
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
 
@@ -21,23 +22,31 @@ use crate::workflow::Counts;
 const NO_REALISATION_CODE: CreditRegistrationErrorCode =
     CreditRegistrationErrorCode::CourseCodeNotFound;
 
+/// What one listing request did.
+pub(super) struct FetchedRosters {
+    pub counts: Counts,
+    /// Whether it claimed linking mail the `link-emails` phase still has to send.
+    pub claimed_mail: bool,
+}
+
 /// Sends one listing request and reconciles what came back.
 pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     pool: &PgPool,
     registry: &mut R,
     request: &[CodeListing],
     account_linking_since: Option<DateTime<Utc>>,
-) -> CreditRegistrationResult<Counts> {
+) -> CreditRegistrationResult<FetchedRosters> {
     let codes: Vec<String> = request
         .iter()
         .map(|listing| listing.code.course_code.as_str().to_string())
         .collect();
     let module_count: usize = request.iter().map(|listing| listing.modules.len()).sum();
     let attempted = i32::try_from(module_count).unwrap_or(i32::MAX);
-    {
+    let started_at = {
         let mut conn = pool.acquire().await?;
-        mark_attempted(&mut conn, &codes).await?;
-    }
+        mark_attempted(&mut conn, &codes).await?
+    };
+    let could_claim_mail = account_linking_since.is_some();
     let roster_codes: Vec<RosterCode> =
         request.iter().map(|listing| listing.code.clone()).collect();
     let listed = registry.list_course_roster(&roster_codes).await;
@@ -46,7 +55,10 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         Ok(roster_listing) => roster_listing,
         Err(error) => {
             record_roster_failure(&mut conn, request, &codes, &error).await?;
-            return Ok(Counts::all_failed(attempted));
+            return Ok(FetchedRosters {
+                counts: Counts::all_failed(attempted),
+                claimed_mail: false,
+            });
         }
     };
 
@@ -63,7 +75,16 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
                     reconcile_roster(&mut conn, listing, people, account_linking_since).await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
-                mark_fetched(&mut conn, course_code, person_count, duration_ms).await?;
+                let previous_fetch_at = mark_fetched(
+                    &mut conn,
+                    course_code,
+                    started_at,
+                    could_claim_mail,
+                    person_count,
+                    duration_ms,
+                )
+                .await?;
+                log_surfaced_enrolments(course_code, people, previous_fetch_at);
             }
             Err(error) => {
                 let error = *error;
@@ -71,8 +92,17 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
                 for module in &listing.modules {
                     mark_listing_failed(&mut conn, module.course_module_id, error).await?;
                 }
+                // Not one to back off from: a new realisation can open at any time.
                 if error == NO_REALISATION_CODE {
-                    mark_window_closed(&mut conn, course_code).await?;
+                    mark_fetched(
+                        &mut conn,
+                        course_code,
+                        started_at,
+                        could_claim_mail,
+                        0,
+                        duration_ms,
+                    )
+                    .await?;
                 } else {
                     mark_alone_failed(&mut conn, course_code, error).await?;
                 }
@@ -87,7 +117,37 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         duration_ms,
         "fetched roster: {enrolments} enrolments for {codes} codes, {new_mails} new"
     );
-    Ok(Counts::processed_with_failures(attempted, items_failed))
+    Ok(FetchedRosters {
+        counts: Counts::processed_with_failures(attempted, items_failed),
+        claimed_mail: new_mails > 0,
+    })
+}
+
+/// Logs each enrolment made since the code's previous fetch with the fetches it surfaced between,
+/// which brackets how long Suotar's copy of Sisu takes to show an enrolment.
+fn log_surfaced_enrolments(
+    course_code: &str,
+    people: &[RosterPerson],
+    previous_fetch_at: Option<DateTime<Utc>>,
+) {
+    let Some(previous_fetch_at) = previous_fetch_at else {
+        return;
+    };
+    let fetched_at = Utc::now();
+    for enrolled_at in people
+        .iter()
+        .filter_map(RosterPerson::enrolled_at)
+        .filter(|enrolled_at| *enrolled_at > previous_fetch_at)
+    {
+        info!(
+            course_code,
+            %enrolled_at,
+            %previous_fetch_at,
+            %fetched_at,
+            surfaced_within_secs = (fetched_at - enrolled_at).num_seconds(),
+            "enrolment surfaced on the enrolment list"
+        );
+    }
 }
 
 /// A request Suotar failed as a whole. Suotar fails every code of a request when one fails, so the

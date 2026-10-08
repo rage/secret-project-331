@@ -75,13 +75,13 @@ export const subStateExplanations = (
         }),
       )
     }
-    if (row.enrolment_checked_at) {
-      parts.push(
-        t("credit-registration-admin-substate-enrolment-checked", {
-          checked: timestamp(row.enrolment_checked_at),
-        }),
-      )
-    }
+    parts.push(
+      row.enrolment_checked_at
+        ? t("credit-registration-admin-substate-enrolment-checked", {
+            checked: timestamp(row.enrolment_checked_at),
+          })
+        : t("credit-registration-admin-substate-enrolment-not-checked"),
+    )
     if (row.enrolment_checks_stopped_at) {
       parts.push(
         t("credit-registration-admin-substate-enrolment-stopped", {

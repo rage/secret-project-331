@@ -42,24 +42,31 @@ export interface LinkingEmailLineProps {
   linkingEmail: LinkingEmailStatus | null | undefined
 }
 
+/** A mail whose link has expired or been used is no longer worth pointing a student at. */
+const usableLinkingEmail = (
+  linkingEmail: LinkingEmailStatus | null | undefined,
+): LinkingEmailStatus | null => (linkingEmail?.link_state === "usable" ? linkingEmail : null)
+
 /**
- * The account linking email's send record, once one actually went out.
+ * The account linking email's send record, once one actually went out and its link still works.
  *
  * For copy that names the mailbox and date inline instead of trailing `LinkingEmailLine` after it.
  * Null while queued or failed — use `LinkingEmailLine` for those instead, which say what happened.
  */
 export const sentLinkingEmail = (
   linkingEmail: LinkingEmailStatus | null | undefined,
-): { emailMasked: string; sentAt: string } | null =>
-  linkingEmail?.email_send_status === "sent" && linkingEmail.sent_at
-    ? { emailMasked: linkingEmail.emailed_to_masked, sentAt: linkingEmail.sent_at }
+): { emailMasked: string; sentAt: string } | null => {
+  const usable = usableLinkingEmail(linkingEmail)
+  return usable?.email_send_status === "sent" && usable.sent_at
+    ? { emailMasked: usable.emailed_to_masked, sentAt: usable.sent_at }
     : null
+}
 
 export const LinkingEmailLine: React.FC<LinkingEmailLineProps> = ({ linkingEmail }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <EmailStatusLine
-      status={linkingEmail}
+      status={usableLinkingEmail(linkingEmail)}
       sentText={(date) =>
         t("credit-registration-linking-email-sent", {
           email: linkingEmail?.emailed_to_masked,

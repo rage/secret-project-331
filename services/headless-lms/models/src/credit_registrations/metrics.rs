@@ -79,7 +79,12 @@ SELECT COUNT(*) FILTER (
   COUNT(*) FILTER (
     WHERE p.completion_eligible
       AND NOT p.has_verified_student_number
-  ) AS "student_number_count!"
+  ) AS "student_number_count!",
+  COUNT(*) FILTER (
+    WHERE p.completion_eligible
+      AND p.has_verified_student_number
+      AND NOT p.course_code_allowed
+  ) AS "course_code_count!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
 WHERE cr.state = 'pending'
@@ -92,7 +97,98 @@ WHERE cr.state = 'pending'
     Ok(PendingReasonCounts {
         completion_count: row.completion_count,
         student_number_count: row.student_number_count,
+        course_code_count: row.course_code_count,
     })
+}
+
+/// A `pending` registration waiting for a student number, with what its student has done about it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WaitingForStudentNumber {
+    pub credit_registration_id: Uuid,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    pub last_visited_at: Option<DateTime<Utc>>,
+    /// The last "I have enrolled" press; `None` when the latest check request came from someone else.
+    pub last_check_requested_at: Option<DateTime<Utc>>,
+}
+
+/// The rows behind [`PendingReasonCounts::student_number_count`] completed on or after `since`,
+/// longest waiting first, with how many there are in all.
+pub async fn get_waiting_for_student_number(
+    conn: &mut PgConnection,
+    since: Option<DateTime<Utc>>,
+    limit: i64,
+) -> ModelResult<(Vec<WaitingForStudentNumber>, i64)> {
+    let rows = sqlx::query!(
+        r#"
+SELECT cr.id AS credit_registration_id,
+  cr.user_id,
+  ud.email AS "email?",
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  cr.course_id,
+  c.name AS course_name,
+  cm.name AS "course_module_name?",
+  cm.uh_course_code AS "uh_course_code?",
+  cmc.completion_date,
+  sig.last_visited_at AS "last_visited_at?",
+  CASE
+    WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at
+  END AS "last_check_requested_at?",
+  COUNT(*) OVER () AS "total!"
+FROM credit_registrations cr
+  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  AND cmc.deleted_at IS NULL
+  JOIN courses c ON c.id = cr.course_id
+  AND c.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  AND cm.deleted_at IS NULL
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  AND sig.deleted_at IS NULL
+WHERE cr.state = 'pending'
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND p.completion_eligible
+  AND NOT p.has_verified_student_number
+  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)
+ORDER BY cmc.completion_date,
+  cr.id
+LIMIT $2
+        "#,
+        since,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    let total = rows.first().map_or(0, |row| row.total);
+    Ok((
+        rows.into_iter()
+            .map(|row| WaitingForStudentNumber {
+                credit_registration_id: row.credit_registration_id,
+                user_id: row.user_id,
+                email: row.email,
+                first_name: row.first_name,
+                last_name: row.last_name,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                course_module_name: row.course_module_name,
+                uh_course_code: row.uh_course_code,
+                completion_date: row.completion_date,
+                last_visited_at: row.last_visited_at,
+                last_check_requested_at: row.last_check_requested_at,
+            })
+            .collect(),
+        total,
+    ))
 }
 
 /// Live rows carrying an error code, split by whether the pipeline is still working on them.

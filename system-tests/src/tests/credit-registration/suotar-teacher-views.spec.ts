@@ -180,9 +180,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
   await test.step("The teacher UI offers no override anywhere", async () => {
     await page.goto(STATES_COMPLETIONS_URL)
     await expect(page.getByLabel("Send anyway, past the rate caps")).toHaveCount(0)
-    await expect(
-      page.getByRole("button", { name: "Send the account linking email again" }),
-    ).toHaveCount(0)
+    await expect(page.getByRole("button", { name: "Send the linking email again" })).toHaveCount(0)
   })
 })
 

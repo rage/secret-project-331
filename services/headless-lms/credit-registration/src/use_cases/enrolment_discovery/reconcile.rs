@@ -1,14 +1,14 @@
 //! What one code's roster does to the modules on it: waking linked students' registrations and
 //! claiming linking mails for everybody else.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 
-use headless_lms_models::course_module_suotar_configurations::{
-    ModuleListingOutcome, ModuleToList, mark_listing_succeeded_without_linking,
-    record_listing_outcome,
+use headless_lms_models::course_module_suotar_configurations::mark_listing_succeeded;
+use headless_lms_models::credit_registration_roster_schedules::{
+    AccountLinkingCodeCounters, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, claim_linking_mails_batch,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, mail_address,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -19,12 +19,14 @@ use headless_lms_utils::prelude::{DateTime, Utc};
 use headless_lms_utils::secret_string::expose_option;
 use secrecy::ExposeSecret;
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use super::CodeListing;
 use crate::error::CreditRegistrationResult;
 
-/// Wakes and mails for one code's roster, module by module: mails and links are per course. Returns
-/// the linking mails claimed across the listing's modules, for the caller's roster-fetch summary.
+/// Wakes the linked students' registrations on every module of one code's roster and claims a
+/// linking mail for everybody else, once per course on the code: mails and links are per course.
+/// Returns the linking mails claimed, for the caller's roster-fetch summary.
 pub(super) async fn reconcile_roster(
     conn: &mut PgConnection,
     listing: &CodeListing,
@@ -35,20 +37,30 @@ pub(super) async fn reconcile_roster(
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
     let linked = LinkedAccounts::new(&linked_rows);
     let enrolees = roster_enrolees(people, &linked);
-    let enrolled_since_linking =
-        account_linking_since.map(|since| enrolled_since(&distinct, since));
-    let mut mailed_count = 0;
-    for module in &listing.modules {
-        if !enrolees.is_empty() {
+    if !enrolees.is_empty() {
+        for module in &listing.modules {
             wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
         }
-        if let Some(considered) = &enrolled_since_linking {
-            let outcome = claim_linking_mails(conn, module, considered, &linked).await?;
-            mailed_count += outcome.mailed_count;
-            record_listing_outcome(conn, module.course_module_id, &outcome).await?;
-        } else {
-            mark_listing_succeeded_without_linking(conn, module.course_module_id).await?;
-        }
+    }
+    let mut mailed_count = 0;
+    if let Some(since) = account_linking_since {
+        let considered = enrolled_since(&distinct, since);
+        let course_ids: BTreeSet<Uuid> = listing
+            .modules
+            .iter()
+            .map(|module| module.course_id)
+            .collect();
+        let counters = claim_linking_mails(conn, &considered, &linked, &course_ids).await?;
+        mailed_count = counters.mailed_count;
+        record_linking_counters(conn, listing.code.course_code.as_str(), &counters).await?;
+    }
+    for module in &listing.modules {
+        mark_listing_succeeded(
+            conn,
+            module.course_module_id,
+            account_linking_since.is_some(),
+        )
+        .await?;
     }
     Ok(mailed_count)
 }
@@ -179,51 +191,61 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail for everyone in `people` we hold no link for, and returns the counters the
-/// module's configuration row carries.
+/// Claims a linking mail on each of `course_ids` for everyone in `people` we hold no link for, and
+/// counts each person once by the strongest claim any course got for them.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
-    module: &ModuleToList,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-) -> CreditRegistrationResult<ModuleListingOutcome> {
-    let (mut outcome, discovered) = linking_candidates(module, people, linked);
-    if !discovered.is_empty() {
-        for claimed in claim_linking_mails_batch(conn, &discovered).await? {
-            outcome.mailed_count += claimed.claimed;
-            outcome.suppressed_by_dedup_count += claimed.suppressed_by_dedup;
-            outcome.suppressed_by_rate_cap_count += claimed.suppressed_by_rate_cap;
+    course_ids: &BTreeSet<Uuid>,
+) -> CreditRegistrationResult<AccountLinkingCodeCounters> {
+    let (mut counters, candidates) = linking_candidates(people, linked);
+    let mut strongest = vec![LinkingMailClaim::NoAddress; candidates.len()];
+    if !candidates.is_empty() {
+        for &course_id in course_ids {
+            let discovered: Vec<DiscoveredPerson> = candidates
+                .iter()
+                .map(|person| DiscoveredPerson::listed(person, course_id))
+                .collect();
+            let claims = claim_linking_mails_batch(conn, &discovered).await?;
+            for (person_strongest, claim) in strongest.iter_mut().zip(claims) {
+                *person_strongest = (*person_strongest).max(claim);
+            }
         }
     }
-    Ok(outcome)
+    for claim in strongest {
+        match claim {
+            LinkingMailClaim::Claimed => counters.mailed_count += 1,
+            LinkingMailClaim::SuppressedByDedup => counters.suppressed_by_dedup_count += 1,
+            LinkingMailClaim::SuppressedByRateCap => counters.suppressed_by_rate_cap_count += 1,
+            LinkingMailClaim::NoAddress => {}
+        }
+    }
+    Ok(counters)
 }
 
-/// The people on one module's roster a linking mail may go to, and the counters of those it may
-/// not: already linked, or with no address to mail.
-fn linking_candidates(
-    module: &ModuleToList,
-    people: &[&RosterPerson],
+/// The people on a roster a linking mail may go to, and the counters of those it may not: already
+/// linked, or with no address to mail.
+fn linking_candidates<'a>(
+    people: &[&'a RosterPerson],
     linked: &LinkedAccounts<'_>,
-) -> (ModuleListingOutcome, Vec<DiscoveredPerson>) {
-    let mut outcome = ModuleListingOutcome {
+) -> (AccountLinkingCodeCounters, Vec<&'a RosterPerson>) {
+    let mut counters = AccountLinkingCodeCounters {
         listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
-        ..ModuleListingOutcome::default()
+        ..AccountLinkingCodeCounters::default()
     };
-    let mut discovered = Vec::new();
+    let mut candidates = Vec::new();
     for &person in people {
         if linked.is_linked(person) {
-            outcome.already_linked_count += 1;
-            continue;
-        }
-        let listed = DiscoveredPerson::listed(person, module.course_id);
-        if listed.addresses.is_empty() {
+            counters.already_linked_count += 1;
+        } else if mail_address(person).is_none() {
             // The only genuinely unreachable population, and the reason it has a counter of its own.
-            outcome.no_address_count += 1;
-            continue;
+            counters.no_address_count += 1;
+        } else {
+            candidates.push(person);
         }
-        discovered.push(listed);
     }
-    (outcome, discovered)
+    (counters, candidates)
 }
 
 #[cfg(test)]
@@ -279,15 +301,6 @@ mod tests {
             linked_by_user_id: None,
             link_reason: None,
             verified_from_course_id: None,
-        }
-    }
-
-    fn module() -> ModuleToList {
-        ModuleToList {
-            course_module_id: Uuid::new_v4(),
-            course_id: Uuid::new_v4(),
-            uh_course_code: "TKT1".to_string(),
-            course_language_code: "fi".to_string(),
         }
     }
 
@@ -364,23 +377,19 @@ mod tests {
             person("p7", "7", Some("unknown-date@example.com")),
         ];
         let listed: Vec<&RosterPerson> = people.iter().collect();
-        let module = module();
         let links = [link("other", Some("p1")), link("2", None)];
         let considered = enrolled_since(&listed, Utc::now() - TimeDelta::days(10));
-        let (outcome, discovered) =
-            linking_candidates(&module, &considered, &LinkedAccounts::new(&links));
+        let (counters, candidates) = linking_candidates(&considered, &LinkedAccounts::new(&links));
         assert_eq!(
-            outcome,
-            ModuleListingOutcome {
+            counters,
+            AccountLinkingCodeCounters {
                 listed_person_count: 5,
                 already_linked_count: 2,
                 no_address_count: 2,
-                ..ModuleListingOutcome::default()
+                ..AccountLinkingCodeCounters::default()
             }
         );
-        assert_eq!(discovered.len(), 1);
-        assert_eq!(discovered[0].sisu_person_id.expose_secret(), "p5");
-        assert_eq!(discovered[0].course_id, module.course_id);
-        assert_eq!(discovered[0].addresses.len(), 1);
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(candidates[0].person_id.expose_secret(), "p5");
     }
 }

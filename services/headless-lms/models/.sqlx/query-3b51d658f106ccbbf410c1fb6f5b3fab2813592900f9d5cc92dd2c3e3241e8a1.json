@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_roster_schedules\nSET linking_listed_count = $2,\n  linking_already_linked_count = $3,\n  linking_mailed_count = $4,\n  linking_suppressed_by_dedup_count = $5,\n  linking_suppressed_by_rate_cap_count = $6,\n  linking_no_address_count = $7\nWHERE course_code = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3b51d658f106ccbbf410c1fb6f5b3fab2813592900f9d5cc92dd2c3e3241e8a1"
+}

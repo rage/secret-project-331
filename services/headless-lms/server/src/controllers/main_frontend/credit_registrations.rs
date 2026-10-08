@@ -11,7 +11,9 @@ use std::collections::HashMap;
 use headless_lms_models::{
     completion_registration_credit_justifications,
     course_module_completions::CourseModuleCompletion,
-    credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
+    credit_registration_account_linking_emails::{
+        self, CreditRegistrationAccountLinkingEmail, LinkingMailLinkState,
+    },
     credit_registration_enrolment_routes::{
         self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
     },
@@ -35,6 +37,7 @@ use headless_lms_models::{
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
+use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -46,7 +49,6 @@ use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, m
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::account_linking::book_listing_for_unlinked_student;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -75,6 +77,19 @@ pub struct LinkingEmailStatus {
     pub email_send_status: EmailSendStatus,
     pub sent_at: Option<DateTime<Utc>>,
     pub emailed_to_masked: String,
+    pub link_state: LinkingEmailLinkState,
+}
+
+/// Whether the link in a linking mail can still be opened, and if not, whether a new mail can
+/// replace it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingEmailLinkState {
+    Usable,
+    /// The caps still allow another mail for this course.
+    ExpiredCanResend,
+    ExpiredNoResend,
+    Used,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -797,6 +812,7 @@ fn to_my_credit_registration(
 struct LinkingMailCache {
     mails: Vec<CreditRegistrationAccountLinkingEmail>,
     reports: HashMap<Uuid, EmailSendStatusReport>,
+    link_states: HashMap<Uuid, LinkingMailLinkState>,
 }
 
 /// The latest linking mail for this account's Sisu person on this course. `None` for an account that
@@ -808,9 +824,12 @@ async fn resolve_linking_email(
     cache: &mut Option<LinkingMailCache>,
 ) -> Result<Option<LinkingEmailStatus>, ControllerError> {
     if cache.is_none() {
+        // Only a number proven through its Sisu mailbox is known to be this student's; mails found
+        // through any other unlinked number may be someone else's.
         let mails =
             match verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
                 .await?
+                .filter(|link| link.verified_via == StudentNumberVerificationMethod::EmailedLink)
                 .and_then(|link| link.sisu_person_id)
             {
                 Some(person_id) => {
@@ -825,7 +844,13 @@ async fn resolve_linking_email(
         let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
         let reports =
             credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-        *cache = Some(LinkingMailCache { mails, reports });
+        let link_states =
+            credit_registration_account_linking_emails::get_link_states(conn, &ids).await?;
+        *cache = Some(LinkingMailCache {
+            mails,
+            reports,
+            link_states,
+        });
     }
     let cache = cache.as_ref().ok_or_else(|| {
         controller_err!(
@@ -833,20 +858,30 @@ async fn resolve_linking_email(
             "linking mail cache was not populated".to_string()
         )
     })?;
-    let Some(mail) = cache
+    let mut course_mails = cache
         .mails
         .iter()
-        .find(|mail| mail.course_id == row.course_id)
-    else {
+        .filter(|mail| mail.course_id == row.course_id);
+    let Some(mail) = course_mails.next() else {
         return Ok(None);
     };
     let Some(report) = cache.reports.get(&mail.id) else {
         return Ok(None);
     };
+    let mail_count = 1 + course_mails.count() as i64;
+    let link_state = match cache.link_states.get(&mail.id) {
+        Some(LinkingMailLinkState::Usable) => LinkingEmailLinkState::Usable,
+        Some(LinkingMailLinkState::Used) => LinkingEmailLinkState::Used,
+        _ if mail_count < MAX_LINKING_MAILS_PER_PERSON_AND_COURSE => {
+            LinkingEmailLinkState::ExpiredCanResend
+        }
+        _ => LinkingEmailLinkState::ExpiredNoResend,
+    };
     Ok(Some(LinkingEmailStatus {
         email_send_status: report.email_send_status,
         sent_at: report.sent_at,
         emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
+        link_state,
     }))
 }
 
@@ -1088,10 +1123,10 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Counts as a check request: a waiting registration restarts its checks on the check-requested
 schedule, under the limit every check request shares. Recorded against the completion too, so a
-registration that starts waiting later starts on that schedule. With account linking on, a caller
-with no linked student number books a roster listing of the course code instead.
+registration that starts waiting later starts on that schedule. For a caller with no linked
+student number, it also makes the course code's enrolment list due sooner.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
@@ -1105,7 +1140,6 @@ with no linked student number books a roster listing of the course code instead.
 pub async fn confirm_my_enrolment(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
     let mut conn = pool.acquire().await?;
@@ -1146,19 +1180,12 @@ pub async fn confirm_my_enrolment(
             .await?;
         }
         _ => {
-            // No row waits yet: a row that starts waiting takes its group from the signal.
+            // No row waits yet: a row that starts waiting takes its group from the signal, and an
+            // unlinked student's signal makes their course code's enrolment list due.
             credit_registration_enrolment_check_signals::record_check_request(
                 &mut conn,
                 current.course_module_completion_id,
                 EnrolmentCheckSource::StudentRequest,
-            )
-            .await?;
-            book_roster_listing_for_unlinked_student(
-                &mut conn,
-                &app_conf,
-                user.id,
-                *course_module_id,
-                false,
             )
             .await?;
         }
@@ -1303,10 +1330,11 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Moves a waiting registration onto the schedule for students who have looked, or restarts that
 schedule at most once a day. Recorded against the completion too, so a visit before there is a
-registration, or before a student number is linked, still counts once there is. Idempotent enough
-to call on every page load; the page sends it once per load.
+registration, or before a student number is linked, still counts once there is; an unlinked
+caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+every page load; the page sends it once per load.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-page-visit",
@@ -1321,7 +1349,6 @@ to call on every page load; the page sends it once per load.
 pub async fn record_my_enrolment_page_visit(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
@@ -1337,48 +1364,18 @@ pub async fn record_my_enrolment_page_visit(
     {
         return token.authorized_ok(web::Json(()));
     }
-    let previous_visit_at = credit_registration_enrolment_check_signals::record_visit(
+    credit_registration_enrolment_check_signals::record_visit(
         &mut conn,
         course_module_completion_id,
     )
     .await?;
-    match registration {
-        Some(registration) if registration.is_waiting_for_enrolment() => {
-            enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
-        }
-        _ => {
-            // Each unlinked visitor asks for a listing at most once a day.
-            let today = Utc::now().date_naive();
-            if previous_visit_at.is_none_or(|visited| visited.date_naive() != today) {
-                book_roster_listing_for_unlinked_student(
-                    &mut conn,
-                    &app_conf,
-                    user.id,
-                    *course_module_id,
-                    true,
-                )
-                .await?;
-            }
-        }
+    if let Some(registration) = registration
+        && registration.is_waiting_for_enrolment()
+    {
+        enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
     }
 
     token.authorized_ok(web::Json(()))
-}
-
-/// With account linking on, books a roster listing for a student we hold no number for; see
-/// [`book_listing_for_unlinked_student`].
-async fn book_roster_listing_for_unlinked_student(
-    conn: &mut PgConnection,
-    app_conf: &ApplicationConfiguration,
-    user_id: Uuid,
-    course_module_id: Uuid,
-    is_visit: bool,
-) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.is_account_linking_enabled() {
-        return Ok(());
-    }
-    book_listing_for_unlinked_student(conn, user_id, course_module_id, is_visit).await?;
-    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -1403,6 +1400,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/enrolment-route/confirm")
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(5),
+                        per_hour: Some(30),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
                 .route(web::post().to(confirm_my_enrolment))
                 .route(web::delete().to(withdraw_my_enrolment_confirmation)),
         )

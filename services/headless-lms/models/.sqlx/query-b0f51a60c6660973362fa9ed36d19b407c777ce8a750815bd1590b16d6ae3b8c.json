@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.created_at,\n  c.user_id,\n  ud.email AS \"user_email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  c.student_number AS reported_student_number,\n  r.course_id,\n  co.name AS course_name,\n  vsn.user_id AS conflicting_link_user_id,\n  holder.email AS \"conflicting_link_user_email?\",\n  vsn.student_number AS conflicting_link_student_number,\n  vsn.verified_via AS conflicting_link_verified_via\nFROM study_registry_student_number_conflicts c\n  JOIN course_module_completion_registered_to_study_registries r ON r.id = c.registered_completion_id\n  JOIN courses co ON co.id = r.course_id\n  JOIN verified_student_numbers vsn ON vsn.id = c.conflicting_verified_student_number_id\n  LEFT JOIN user_details ud ON ud.user_id = c.user_id\n  LEFT JOIN user_details holder ON holder.user_id = vsn.user_id\nWHERE c.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers held\n    WHERE held.user_id = c.user_id\n      AND held.student_number = c.student_number\n      AND held.deleted_at IS NULL\n  )\nORDER BY c.created_at DESC,\n  c.id\nLIMIT $1\n        ",
+  "query": "\nSELECT c.id,\n  c.created_at,\n  c.user_id,\n  ud.email AS \"user_email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  c.student_number AS reported_student_number,\n  r.course_id,\n  co.name AS course_name,\n  vsn.user_id AS conflicting_link_user_id,\n  holder.email AS \"conflicting_link_user_email?\",\n  vsn.student_number AS conflicting_link_student_number,\n  vsn.verified_via AS conflicting_link_verified_via\nFROM study_registry_student_number_conflicts c\n  JOIN course_module_completion_registered_to_study_registries r ON r.id = c.registered_completion_id\n  JOIN courses co ON co.id = r.course_id\n  JOIN verified_student_numbers vsn ON vsn.id = c.conflicting_verified_student_number_id\n  LEFT JOIN user_details ud ON ud.user_id = c.user_id\n  LEFT JOIN user_details holder ON holder.user_id = vsn.user_id\nWHERE c.deleted_at IS NULL\n  AND c.dismissed_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM verified_student_numbers held\n    WHERE held.user_id = c.user_id\n      AND held.student_number = c.student_number\n      AND held.deleted_at IS NULL\n  )\nORDER BY c.created_at DESC,\n  c.id\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -179,5 +179,5 @@
       false
     ]
   },
-  "hash": "0c271e123b68cd579ae062f4259b273f4c67c5fe51163e29a21e9aba32a7226e"
+  "hash": "b0f51a60c6660973362fa9ed36d19b407c777ce8a750815bd1590b16d6ae3b8c"
 }

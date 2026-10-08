@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_account_linking_emails e\nSET replaced_at = now()\nFROM UNNEST($1::text [], $2::uuid [], $3::text []) AS slot(sisu_person_id, course_id, emailed_to)\nWHERE e.sisu_person_id = slot.sisu_person_id\n  AND e.course_id = slot.course_id\n  AND LOWER(e.emailed_to) = LOWER(slot.emailed_to)\n  AND e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND e.student_number_verification_token_id IS NOT NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM student_number_verification_tokens t\n    WHERE t.id = e.student_number_verification_token_id\n      AND is_usable_verification_token(t)\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a826a39eaa3948e7444aeeb68cada49d6e8cc4f5dfda902eef0e6628adc7c48e"
+}

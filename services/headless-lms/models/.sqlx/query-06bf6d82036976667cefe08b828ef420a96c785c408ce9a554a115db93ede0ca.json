@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH modules AS (\n  SELECT TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n)\nSELECT s.course_code,\n  s.last_fetched_at,\n  s.last_fetch_duration_ms,\n  s.last_listed_person_count,\n  s.is_fetched_alone,\n  s.consecutive_failures,\n  s.retry_not_before,\n  s.last_error,\n  (\n    SELECT COUNT(*)\n    FROM modules m\n    WHERE m.course_code = s.course_code\n  ) AS \"module_count!\"\nFROM credit_registration_roster_schedules s\nWHERE s.course_code IN (\n    SELECT course_code\n    FROM modules\n  )\n  AND (\n    NOT $2::boolean\n    OR (\n      (\n        s.retry_not_before IS NULL\n        OR s.retry_not_before <= now()\n      )\n      AND (\n        s.last_fetched_at IS NULL\n        OR s.last_fetched_at < $3\n      )\n    )\n  )\nORDER BY s.course_code\n        ",
+  "query": "\nWITH modules AS (\n  SELECT TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n)\nSELECT s.course_code,\n  s.last_fetched_at,\n  s.last_fetch_duration_ms,\n  s.last_listed_person_count,\n  s.is_fetched_alone,\n  s.consecutive_failures,\n  s.retry_not_before,\n  s.last_error,\n  s.fetch_requested_at,\n  s.linking_listed_count,\n  s.linking_already_linked_count,\n  s.linking_mailed_count,\n  s.linking_suppressed_by_dedup_count,\n  s.linking_suppressed_by_rate_cap_count,\n  s.linking_no_address_count,\n  (\n    SELECT COUNT(*)\n    FROM modules m\n    WHERE m.course_code = s.course_code\n  ) AS \"module_count!\"\nFROM credit_registration_roster_schedules s\nWHERE s.course_code IN (\n    SELECT course_code\n    FROM modules\n  )\n  AND (\n    NOT $2::boolean\n    OR (\n      (\n        s.retry_not_before IS NULL\n        OR s.retry_not_before <= now()\n      )\n      AND (\n        s.last_fetched_at IS NULL\n        OR s.last_fetched_at < $3\n      )\n    )\n  )\nORDER BY s.course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -124,6 +124,83 @@
       },
       {
         "ordinal": 8,
+        "name": "fetch_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "fetch_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "linking_listed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_listed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "linking_already_linked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_already_linked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "linking_mailed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_mailed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "linking_suppressed_by_dedup_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_suppressed_by_dedup_count"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "linking_suppressed_by_rate_cap_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_suppressed_by_rate_cap_count"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "linking_no_address_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_no_address_count"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
         "name": "module_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -145,8 +222,15 @@
       false,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       null
     ]
   },
-  "hash": "590fc0703511dd3ae94a88d9d77890aba91726d27025ec5754d6998d7fbd14b5"
+  "hash": "06bf6d82036976667cefe08b828ef420a96c785c408ce9a554a115db93ede0ca"
 }

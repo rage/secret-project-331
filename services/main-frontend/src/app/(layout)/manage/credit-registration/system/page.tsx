@@ -137,20 +137,18 @@ const PhaseTable: React.FC<{
         },
         {
           header: t("credit-registration-admin-column-due"),
-          minWidth: "13rem",
-          cell: (row) => {
-            const elapsed = row.seconds_since_heartbeat
-            return (
+          minWidth: "10rem",
+          cell: (row) => (
+            <span className={stackedCellCss}>
+              {/* A paused phase keeps a stale next_run_at; the status column says why it will not run. */}
+              {row.paused_at ? <span>{ABSENT}</span> : <ZonedTimestamp at={row.next_run_at} />}
               <span className={noteCss}>
-                {elapsed === null || elapsed === undefined
-                  ? ABSENT
-                  : t("credit-registration-admin-heartbeat-progress", {
-                      elapsed: formatIntervalSecs(elapsed, t),
-                      interval: formatIntervalSecs(row.expected_interval_secs, t),
-                    })}
+                {t("credit-registration-admin-phase-interval", {
+                  interval: formatIntervalSecs(row.expected_interval_secs, t),
+                })}
               </span>
-            )
-          },
+            </span>
+          ),
         },
         {
           header: t("credit-registration-admin-column-queue"),
@@ -207,6 +205,10 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
         })}{" "}
         {t("credit-registration-admin-pause-is-our-flag-note")}{" "}
         <Link href={SERVER_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
+      </p>
+      <p className={noteCss}>
+        {t("credit-registration-admin-server-build")}{" "}
+        <code className={codeValueCss}>{list.server_build_commit}</code>
       </p>
       {/* Failing and heartbeat-late counts are the System tab badge's own number; repeating them
           here would just be that badge restated. Running and paused are not shown anywhere else. */}

@@ -90,7 +90,8 @@ LIMIT $1
 
 /// Records that a registrar-reported link could not take its Sisu person because `blocking_link_id`,
 /// another account's live link, already holds that person. Nothing is recorded unless `link_id`'s
-/// number is still the latest one a registrar reported for its account.
+/// number is still the latest one a registrar reported for its account, or once an admin has
+/// dismissed the same conflict.
 pub async fn record_person_conflict(
     conn: &mut PgConnection,
     link_id: Uuid,
@@ -112,6 +113,13 @@ FROM verified_student_numbers link
   JOIN study_registry_reported_student_numbers reported ON reported.user_id = link.user_id
   AND reported.student_number = link.student_number
 WHERE link.id = $1
+  AND NOT EXISTS (
+    SELECT 1
+    FROM study_registry_student_number_conflicts dismissed
+    WHERE dismissed.user_id = reported.user_id
+      AND dismissed.student_number = reported.student_number
+      AND dismissed.deleted_at IS NOT NULL
+  )
 ON CONFLICT DO NOTHING
         "#,
         link_id,
@@ -120,4 +128,21 @@ ON CONFLICT DO NOTHING
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Soft-deletes a conflict an admin has dismissed, which keeps the same account and number from
+/// being recorded again. Returns false when it was already gone.
+pub async fn dismiss(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+UPDATE study_registry_student_number_conflicts
+SET deleted_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
 }

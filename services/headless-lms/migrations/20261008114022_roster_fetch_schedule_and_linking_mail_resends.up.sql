@@ -20,3 +20,29 @@ WHERE deleted_at IS NULL
 COMMENT ON TABLE credit_registration_account_linking_emails IS 'One row per account-linking mail we queued, keyed on the Sisu person id plus the recipient address. While its link can still be used, a row blocks another mail to the same person, course and address; replaced rows still count against the per-person rate caps.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.replaced_at IS 'When a later mail to the same person, course and address took this row''s place in the dedup key, after this row''s link had expired or been used. NULL while the row holds that place.';
 COMMENT ON COLUMN course_module_suotar_configurations.last_suppressed_by_dedup_count IS 'Of the last listing, how many mails were suppressed because an earlier mail to that person and address for this course still had a usable link.';
+
+ALTER TABLE credit_registration_roster_schedules
+ADD COLUMN fetch_requested_at TIMESTAMP WITH TIME ZONE,
+  ADD COLUMN linking_listed_count INT,
+  ADD COLUMN linking_already_linked_count INT,
+  ADD COLUMN linking_mailed_count INT,
+  ADD COLUMN linking_suppressed_by_dedup_count INT,
+  ADD COLUMN linking_suppressed_by_rate_cap_count INT,
+  ADD COLUMN linking_no_address_count INT;
+
+COMMENT ON COLUMN credit_registration_roster_schedules.fetch_requested_at IS 'When an admin last asked for the enrolment list to be fetched. Until a fetch runs after it, the code is due at its next grid point; the rate limiter and the failure backoff still apply.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_listed_count IS 'Distinct people on the last enrolment list that fed account linking, of those enrolled since account linking began. Each is counted once however many modules share the code, in exactly one of the other linking_ counters. NULL until such a list arrives.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_already_linked_count IS 'Of linking_listed_count, those some account already holds a student number link for.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_mailed_count IS 'Of linking_listed_count, those a linking email was claimed for on at least one module.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_suppressed_by_dedup_count IS 'Of linking_listed_count, those mailed on no module because an earlier mail still had a usable link on at least one.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_suppressed_by_rate_cap_count IS 'Of linking_listed_count, those mailed on no module and held back only by the rate caps.';
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_no_address_count IS 'Of linking_listed_count, those the study registry holds no address for.';
+
+ALTER TYPE credit_registration_admin_action
+ADD VALUE IF NOT EXISTS 'request_enrolment_list_fetch';
+ALTER TYPE credit_registration_admin_action
+ADD VALUE IF NOT EXISTS 'dismiss_study_registry_conflict';
+ALTER TYPE credit_registration_admin_action_target
+ADD VALUE IF NOT EXISTS 'roster_schedule';
+ALTER TYPE credit_registration_admin_action_target
+ADD VALUE IF NOT EXISTS 'study_registry_student_number_conflict';

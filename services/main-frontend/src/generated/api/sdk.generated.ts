@@ -25,6 +25,9 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissStudyRegistryConflictData,
+  AdminDismissStudyRegistryConflictErrors,
+  AdminDismissStudyRegistryConflictResponses,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberErrors,
   AdminManuallyLinkStudentNumberResponses,
@@ -36,6 +39,9 @@ import type {
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchErrors,
+  AdminRequestEnrolmentListFetchResponses,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsErrors,
   AdminRequeueRetryableCreditRegistrationsResponses,
@@ -837,6 +843,7 @@ import {
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
+  zAdminRequestEnrolmentListFetchResponse,
   zAdminRequeueRetryableCreditRegistrationsResponse,
   zAdminResendAccountLinkingEmailResponse,
   zAdminResolveStudentNumberForLinkingResponse,
@@ -4888,8 +4895,9 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
@@ -4899,6 +4907,38 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetch = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequestEnrolmentListFetchData, ThrowOnError>,
+): RequestResult<
+  AdminRequestEnrolmentListFetchResponses,
+  AdminRequestEnrolmentListFetchErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequestEnrolmentListFetchResponses,
+    AdminRequestEnrolmentListFetchErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequestEnrolmentListFetchResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -4995,6 +5035,36 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
       await zAdminResolveStudentNumberForLinkingResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissStudyRegistryConflictData, ThrowOnError>,
+): RequestResult<
+  AdminDismissStudyRegistryConflictResponses,
+  AdminDismissStudyRegistryConflictErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissStudyRegistryConflictResponses,
+    AdminDismissStudyRegistryConflictErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
     ...options,
     headers: {
       "Content-Type": "application/json",

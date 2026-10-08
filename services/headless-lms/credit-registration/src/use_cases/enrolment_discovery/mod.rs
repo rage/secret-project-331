@@ -3,8 +3,8 @@
 //! Each iteration fetches the enrolment lists of the course codes that are due, those with people
 //! waiting first, in batches as large as the registry takes; every module on a code shares its
 //! list. One list wakes the registrations of people we already have a link for and, while account
-//! linking is switched on, claims a linking email for everybody else, which the `link-emails` phase
-//! is made due at once to send. When to fetch a code is
+//! linking is switched on and `link-emails` is not paused, claims a linking email for everybody
+//! else, which the `link-emails` phase is made due at once to send. When to fetch a code is
 //! [`headless_lms_models::credit_registration_roster_schedules`].
 
 mod listing;
@@ -50,12 +50,23 @@ pub(crate) async fn run<R: StudyRegistry>(
     let due = load_due_roster_codes(&mut conn, scope.course_id, account_linking_since).await?;
     let planned = plan_roster_requests(due, request_limit, registry.roster_request_size());
     let requests = load_listing_modules(&mut conn, scope.course_id, planned).await?;
+    // Claims made during a pause would all go out at once on resume.
+    let mailing_since = if credit_registration_phase_state::is_paused(
+        &mut conn,
+        CreditRegistrationPhase::LinkEmails.as_str(),
+    )
+    .await?
+    {
+        None
+    } else {
+        account_linking_since
+    };
     drop(conn);
 
     let mut counts = Counts::default();
     let mut new_mail_count = 0;
     for request in requests {
-        let fetched = fetch_course_roster(pool, registry, &request, account_linking_since).await?;
+        let fetched = fetch_course_roster(pool, registry, &request, mailing_since).await?;
         counts += fetched.counts;
         new_mail_count += fetched.new_mail_count;
     }

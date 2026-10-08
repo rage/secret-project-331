@@ -471,7 +471,10 @@ WHERE sent_at >= $1
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct LinkingMailSendStatusTotals {
     pub mails_in_window: i64,
-    pub queued: i64,
+    /// Claimed, with no delivery yet: the `link-emails` phase has not queued them.
+    pub waiting_for_link_emails: i64,
+    /// Queued as a delivery the email worker has not attempted yet.
+    pub waiting_for_email_worker: i64,
     pub retrying: i64,
     pub sent: i64,
     pub send_failed: i64,
@@ -518,7 +521,10 @@ WHERE e.sent_at >= $1
     };
     for row in rows {
         let status = match row.email_delivery_id {
-            None => EmailSendStatus::Queued,
+            None => {
+                totals.waiting_for_link_emails += 1;
+                continue;
+            }
             Some(_) => {
                 let facts = EmailSendStatusFacts {
                     sent: row.delivery_sent.unwrap_or(false),
@@ -534,7 +540,7 @@ WHERE e.sent_at >= $1
             }
         };
         match status {
-            EmailSendStatus::Queued => totals.queued += 1,
+            EmailSendStatus::Queued => totals.waiting_for_email_worker += 1,
             EmailSendStatus::Retrying => totals.retrying += 1,
             EmailSendStatus::Sent => totals.sent += 1,
             EmailSendStatus::SendFailed => {
@@ -855,4 +861,99 @@ mod tests {
             Some(EmailSendStatus::Queued)
         );
     }
+}
+
+/// One linking email as the admin's recent list shows it.
+#[derive(Debug, Clone)]
+pub struct RecentLinkingMail {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub emailed_to: DbSecret,
+    pub claimed_at: DateTime<Utc>,
+    /// When the `link-emails` phase queued it for the email worker; `None` until then.
+    pub queued_at: Option<DateTime<Utc>>,
+    /// `None` until queued.
+    pub send_status: Option<EmailSendStatusReport>,
+    /// The newest delivery error's message, however transient.
+    pub last_error_message: Option<String>,
+}
+
+/// The newest `limit` linking emails, newest first.
+pub async fn get_recent(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<RecentLinkingMail>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT e.id,
+  e.course_id,
+  c.name AS course_name,
+  e.emailed_to,
+  e.sent_at AS claimed_at,
+  ed.created_at AS "queued_at?",
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.retry_count AS "retry_count?",
+  ed.next_retry_at AS "next_retry_at?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.last_attempt_at AS "last_attempt_at?",
+  latest_error.error_code AS "error_code?",
+  latest_error.error_message AS "error_message?",
+  latest_error.is_transient AS "is_transient?"
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  AND ed.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT ede.error_code,
+      ede.error_message,
+      ede.is_transient
+    FROM email_delivery_errors ede
+    WHERE ede.email_delivery_id = ed.id
+      AND ede.deleted_at IS NULL
+    ORDER BY ede.attempt DESC,
+      ede.created_at DESC
+    LIMIT 1
+  ) latest_error ON TRUE
+WHERE e.deleted_at IS NULL
+ORDER BY e.sent_at DESC,
+  e.id
+LIMIT $1
+        "#,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    let now = Utc::now();
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            let send_status = row.delivery_sent.map(|sent| {
+                derive_email_send_status(
+                    &EmailSendStatusFacts {
+                        sent,
+                        retryable: row.retryable.unwrap_or(false),
+                        retry_count: row.retry_count.unwrap_or(0),
+                        next_retry_at: row.next_retry_at,
+                        first_failed_at: row.first_failed_at,
+                        last_attempt_at: row.last_attempt_at,
+                        failure_code: row.error_code,
+                        failure_is_transient: row.is_transient,
+                    },
+                    now,
+                )
+            });
+            RecentLinkingMail {
+                id: row.id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                emailed_to: row.emailed_to,
+                claimed_at: row.claimed_at,
+                queued_at: row.queued_at,
+                send_status,
+                last_error_message: row.error_message,
+            }
+        })
+        .collect())
 }

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND p.completion_eligible\n  AND NOT p.has_verified_student_number\n  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "215ec5cdc3a5ea055dc4beea6c7d9704e8d00a84f2be45a7122dd1145df0710b"
+}

@@ -385,6 +385,9 @@ export const ADMIN_ACTION_KEYS = {
   unlink_student_number: "credit-registration-admin-action-unlink-student-number",
   manual_link_student_number: "credit-registration-admin-action-manual-link-student-number",
   override_rate_cap: "credit-registration-admin-action-override-rate-cap",
+  request_enrolment_list_fetch: "credit-registration-admin-action-request-enrolment-list-fetch",
+  dismiss_study_registry_conflict:
+    "credit-registration-admin-action-dismiss-study-registry-conflict",
 } as const satisfies Record<CreditRegistrationAdminAction, string>
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
@@ -401,6 +404,9 @@ export const ADMIN_TARGET_KEYS = {
   phase: "credit-registration-admin-action-target-phase",
   verified_student_number: "credit-registration-admin-action-target-verified-student-number",
   student_number_verification_token: "credit-registration-admin-action-target-token",
+  roster_schedule: "credit-registration-admin-action-target-roster-schedule",
+  study_registry_student_number_conflict:
+    "credit-registration-admin-action-target-study-registry-conflict",
 } as const satisfies Record<CreditRegistrationAdminActionTarget, string>
 
 const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"

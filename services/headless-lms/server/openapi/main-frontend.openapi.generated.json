@@ -7131,7 +7131,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the\nper-module counters, the send-status totals and the stale-address list.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each\ncourse code's enrolment list, the send-status totals, the recent linking emails, who is waiting for\na student number and the stale-address list.",
         "operationId": "getAccountLinkingStats",
         "parameters": [
           {
@@ -7156,6 +7156,38 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes\none course code's enrolment list due at its next grid point.\n\nThe fetch still waits for the rate limiter and any failure backoff, like any other.",
+        "operationId": "adminRequestEnrolmentListFetch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRequestEnrolmentListFetchPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "When the list is now due",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRequestEnrolmentListFetchResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active module has the course code"
           }
         }
       }
@@ -7252,6 +7284,46 @@
           },
           "422": {
             "description": "No student number given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -\nTakes a student number clash off the list for good.\n\nThe links stay as they are. A reason is required, so the request carries a body.",
+        "operationId": "adminDismissStudyRegistryConflict",
+        "parameters": [
+          {
+            "name": "conflict_id",
+            "in": "path",
+            "description": "The clash's id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDismissStudyRegistryConflictPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dismissed"
+          },
+          "404": {
+            "description": "No such clash, or already dismissed"
+          },
+          "422": {
+            "description": "No reason given"
           }
         }
       }
@@ -14075,6 +14147,147 @@
   },
   "components": {
     "schemas": {
+      "AccountLinkingCodeCounters": {
+        "type": "object",
+        "description": "What a code's last enrolment list that fed account linking did, each person counted once. The\nother counters add up to `listed_person_count`.",
+        "required": [
+          "listed_person_count",
+          "already_linked_count",
+          "mailed_count",
+          "suppressed_by_dedup_count",
+          "suppressed_by_rate_cap_count",
+          "no_address_count"
+        ],
+        "properties": {
+          "already_linked_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "listed_person_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Only those enrolled since account linking began."
+          },
+          "mailed_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "no_address_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
+          },
+          "suppressed_by_dedup_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suppressed_by_rate_cap_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AccountLinkingCodeModule": {
+        "type": "object",
+        "description": "A module on a course code, which shares the code's enrolment list.",
+        "required": ["course_id", "course_name", "course_module_id"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When an enrolment list last fed account linking for the module."
+          }
+        }
+      },
+      "AccountLinkingCourseCode": {
+        "type": "object",
+        "description": "One course code's enrolment list: when it is fetched, and what the last one did for linking.",
+        "required": [
+          "course_code",
+          "modules",
+          "next_fetch_at",
+          "waiting_count",
+          "consecutive_failures"
+        ],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_code": {
+            "type": "string"
+          },
+          "fetch_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "An admin's \"Fetch now\" no fetch has served yet."
+          },
+          "last_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "last_fetched_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listed_person_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Everyone on the last list, however long ago they enrolled."
+          },
+          "linking": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AccountLinkingCodeCounters",
+                "description": "`None` until a list has fed account linking."
+              }
+            ]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingCodeModule"
+            }
+          },
+          "next_fetch_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When it is next due, ignoring the failure backoff."
+          },
+          "retry_not_before": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "waiting_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "People on the code's modules waiting for a student number."
+          }
+        }
+      },
       "AccountLinkingFailureDomain": {
         "type": "object",
         "description": "Hard send failures grouped by recipient domain.",
@@ -14091,7 +14304,7 @@
       },
       "AccountLinkingFunnel": {
         "type": "object",
-        "description": "The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites\nwhole, the `_in_window` ones from the window: there is no single denominator.",
+        "description": "The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person\ncounted once per code, and the `_in_window` ones come from the window: there is no single\ndenominator.",
         "required": [
           "persons_discovered_last_run",
           "already_linked_last_run",
@@ -14143,80 +14356,47 @@
           }
         }
       },
-      "AccountLinkingModuleCounters": {
+      "AccountLinkingRecentEmail": {
         "type": "object",
-        "required": [
-          "course_id",
-          "course_name",
-          "course_module_id",
-          "consecutive_listing_failures"
-        ],
+        "description": "One linking email, newest first in the recent list.",
+        "required": ["id", "course_id", "course_name", "emailed_to_masked", "claimed_at"],
         "properties": {
-          "already_linked_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "consecutive_listing_failures": {
-            "type": "integer",
-            "format": "int32"
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "course_id": {
             "type": "string",
             "format": "uuid"
           },
-          "course_module_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_module_name": {
-            "type": ["string", "null"]
-          },
           "course_name": {
             "type": "string"
           },
-          "last_listed_at": {
+          "emailed_to_masked": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_error_message": {
+            "type": ["string", "null"]
+          },
+          "queued_at": {
             "type": ["string", "null"],
             "format": "date-time",
-            "description": "When the counters below were collected. Not the last attempt: a failing listing keeps the\nlast roster that arrived."
+            "description": "When the `link-emails` phase handed it to the email worker."
           },
-          "last_listing_attempted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "last_listing_error": {
+          "send_status": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/CreditRegistrationErrorCode",
-                "description": "Set while the listing attempts since `last_listed_at` are failing, so an empty course and an\nunreachable one do not read alike."
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until queued."
               }
             ]
-          },
-          "listed_person_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "mailed_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "no_address_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
-          },
-          "suppressed_by_dedup_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "suppressed_by_rate_cap_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "uh_course_code": {
-            "type": ["string", "null"]
           }
         }
       },
@@ -14235,12 +14415,14 @@
       },
       "AccountLinkingSendStatusTotals": {
         "type": "object",
-        "required": ["queued", "retrying", "sent", "send_failed"],
+        "required": [
+          "waiting_for_link_emails",
+          "waiting_for_email_worker",
+          "retrying",
+          "sent",
+          "send_failed"
+        ],
         "properties": {
-          "queued": {
-            "type": "integer",
-            "format": "int64"
-          },
           "retrying": {
             "type": "integer",
             "format": "int64"
@@ -14252,6 +14434,16 @@
           "sent": {
             "type": "integer",
             "format": "int64"
+          },
+          "waiting_for_email_worker": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Queued, but not yet attempted by the email worker."
+          },
+          "waiting_for_link_emails": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Claimed, but not yet queued by the `link-emails` phase."
           }
         }
       },
@@ -14311,11 +14503,14 @@
           "funnel",
           "send_status_totals",
           "hard_failure_domains",
-          "modules",
+          "course_codes",
+          "recent_linking_emails",
           "stale_addresses",
           "links_total_by_method",
           "links_in_window_by_method",
           "waiting_for_student_number_count",
+          "waiting_students",
+          "waiting_students_total",
           "max_mails_per_person_and_course",
           "quiet_period_secs",
           "study_registry_conflicts"
@@ -14329,6 +14524,12 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "Discovery mails only people who enrolled at or after this."
+          },
+          "course_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingCourseCode"
+            }
           },
           "funnel": {
             "$ref": "#/components/schemas/AccountLinkingFunnel"
@@ -14355,15 +14556,16 @@
             "type": "integer",
             "format": "int64"
           },
-          "modules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AccountLinkingModuleCounters"
-            }
-          },
           "quiet_period_secs": {
             "type": "integer",
             "format": "int64"
+          },
+          "recent_linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingRecentEmail"
+            },
+            "description": "Newest first, capped."
           },
           "send_status_totals": {
             "$ref": "#/components/schemas/AccountLinkingSendStatusTotals"
@@ -14386,9 +14588,77 @@
             "format": "int64",
             "description": "Accounts with an eligible completion still waiting for a student number."
           },
+          "waiting_students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingWaitingStudent"
+            },
+            "description": "Of those, the ones completed since `account_linking_since`, longest waiting first, capped."
+          },
+          "waiting_students_total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "`waiting_students` before the cap."
+          },
           "window_secs": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "AccountLinkingWaitingStudent": {
+        "type": "object",
+        "description": "A student whose registration waits for a student number.",
+        "required": [
+          "credit_registration_id",
+          "user_id",
+          "course_id",
+          "course_name",
+          "completion_date"
+        ],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_check_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The last \"I have enrolled\" press."
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "last_visited_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -14940,6 +15210,15 @@
         "description": "The states an admin may move a row to; everything else is the pipeline's to decide.",
         "enum": ["ready_to_submit", "cancelled"]
       },
+      "AdminDismissStudyRegistryConflictPayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
       "AdminLinkingEmail": {
         "type": "object",
         "required": [
@@ -15105,6 +15384,26 @@
         "properties": {
           "reason": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "AdminRequestEnrolmentListFetchPayload": {
+        "type": "object",
+        "required": ["course_code"],
+        "properties": {
+          "course_code": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminRequestEnrolmentListFetchResult": {
+        "type": "object",
+        "required": ["next_fetch_at"],
+        "properties": {
+          "next_fetch_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Ignoring the failure backoff, as on the Linking tab."
           }
         }
       },
@@ -19311,7 +19610,9 @@
           "resend_link_email",
           "unlink_student_number",
           "manual_link_student_number",
-          "override_rate_cap"
+          "override_rate_cap",
+          "request_enrolment_list_fetch",
+          "dismiss_study_registry_conflict"
         ]
       },
       "CreditRegistrationAdminActionRecord": {
@@ -19501,7 +19802,9 @@
           "course",
           "phase",
           "verified_student_number",
-          "student_number_verification_token"
+          "student_number_verification_token",
+          "roster_schedule",
+          "study_registry_student_number_conflict"
         ]
       },
       "CreditRegistrationAlert": {
@@ -20269,7 +20572,8 @@
           "heartbeat_interval_multiplier",
           "consecutive_failure_limit",
           "paused_globally",
-          "circuit_breakers"
+          "circuit_breakers",
+          "server_build_commit"
         ],
         "properties": {
           "circuit_breakers": {
@@ -20296,6 +20600,10 @@
               "$ref": "#/components/schemas/CreditRegistrationPhaseRow"
             },
             "description": "In process then pipeline order, so the grouping is a fold over the list."
+          },
+          "server_build_commit": {
+            "type": "string",
+            "description": "The git commit the answering server was built from, or `unknown` for a build without one.\nWorkers may run another build while a rollout is under way."
           }
         }
       },

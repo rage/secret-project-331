@@ -4,11 +4,11 @@
 use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations::{
-    ModuleListingOutcome, ModuleToList, mark_listing_succeeded_without_linking,
-    record_listing_outcome,
+    LinkingOutcome, ModuleToList, mark_listing_succeeded_without_linking, record_listing_outcome,
 };
+use headless_lms_models::credit_registration_roster_schedules::record_linking_outcome;
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, claim_linking_mails_batch,
+    ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails_batch,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -38,19 +38,57 @@ pub(super) async fn reconcile_roster(
     let enrolled_since_linking =
         account_linking_since.map(|since| enrolled_since(&distinct, since));
     let mut mailed_count = 0;
+    let mut code_outcome: Option<LinkingOutcome> = None;
+    let mut claims_by_person: HashMap<String, ClaimedLinkingMails> = HashMap::new();
     for module in &listing.modules {
         if !enrolees.is_empty() {
             wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
         }
         if let Some(considered) = &enrolled_since_linking {
-            let outcome = claim_linking_mails(conn, module, considered, &linked).await?;
+            let (outcome, claims) = claim_linking_mails(conn, module, considered, &linked).await?;
             mailed_count += outcome.mailed_count;
             record_listing_outcome(conn, module.course_module_id, &outcome).await?;
+            code_outcome.get_or_insert(outcome);
+            for (person_id, claim) in claims {
+                let merged = claims_by_person.entry(person_id).or_default();
+                merged.claimed += claim.claimed;
+                merged.suppressed_by_dedup += claim.suppressed_by_dedup;
+                merged.suppressed_by_rate_cap += claim.suppressed_by_rate_cap;
+            }
         } else {
             mark_listing_succeeded_without_linking(conn, module.course_module_id).await?;
         }
     }
+    if let Some(module_outcome) = code_outcome {
+        let outcome = code_linking_outcome(&module_outcome, claims_by_person.values());
+        record_linking_outcome(conn, listing.code.course_code.as_str(), &outcome).await?;
+    }
     Ok(mailed_count)
+}
+
+/// The code's counters with each person once: listed, linked and addressless are the same on every
+/// module, and a person mailed on any module counts as mailed, else as held back by dedup on any,
+/// else by the rate caps.
+fn code_linking_outcome<'a>(
+    module_outcome: &LinkingOutcome,
+    claims_by_person: impl Iterator<Item = &'a ClaimedLinkingMails>,
+) -> LinkingOutcome {
+    let mut outcome = LinkingOutcome {
+        listed_person_count: module_outcome.listed_person_count,
+        already_linked_count: module_outcome.already_linked_count,
+        no_address_count: module_outcome.no_address_count,
+        ..LinkingOutcome::default()
+    };
+    for claim in claims_by_person {
+        if claim.claimed > 0 {
+            outcome.mailed_count += 1;
+        } else if claim.suppressed_by_dedup > 0 {
+            outcome.suppressed_by_dedup_count += 1;
+        } else if claim.suppressed_by_rate_cap > 0 {
+            outcome.suppressed_by_rate_cap_count += 1;
+        }
+    }
+    outcome
 }
 
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the
@@ -179,23 +217,26 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail for everyone in `people` we hold no link for, and returns the counters the
-/// module's configuration row carries.
+/// Claims a linking mail for everyone in `people` we hold no link for. Returns the counters the
+/// module's configuration row carries, and each candidate's claim by Sisu person id.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
     module: &ModuleToList,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-) -> CreditRegistrationResult<ModuleListingOutcome> {
+) -> CreditRegistrationResult<(LinkingOutcome, Vec<(String, ClaimedLinkingMails)>)> {
     let (mut outcome, discovered) = linking_candidates(module, people, linked);
+    let mut claims = Vec::with_capacity(discovered.len());
     if !discovered.is_empty() {
-        for claimed in claim_linking_mails_batch(conn, &discovered).await? {
-            outcome.mailed_count += claimed.claimed;
-            outcome.suppressed_by_dedup_count += claimed.suppressed_by_dedup;
-            outcome.suppressed_by_rate_cap_count += claimed.suppressed_by_rate_cap;
+        let claimed = claim_linking_mails_batch(conn, &discovered).await?;
+        for (person, claim) in discovered.iter().zip(claimed) {
+            outcome.mailed_count += claim.claimed;
+            outcome.suppressed_by_dedup_count += claim.suppressed_by_dedup;
+            outcome.suppressed_by_rate_cap_count += claim.suppressed_by_rate_cap;
+            claims.push((person.sisu_person_id.expose_secret().to_owned(), claim));
         }
     }
-    Ok(outcome)
+    Ok((outcome, claims))
 }
 
 /// The people on one module's roster a linking mail may go to, and the counters of those it may
@@ -204,10 +245,10 @@ fn linking_candidates(
     module: &ModuleToList,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-) -> (ModuleListingOutcome, Vec<DiscoveredPerson>) {
-    let mut outcome = ModuleListingOutcome {
+) -> (LinkingOutcome, Vec<DiscoveredPerson>) {
+    let mut outcome = LinkingOutcome {
         listed_person_count: i32::try_from(people.len()).unwrap_or(i32::MAX),
-        ..ModuleListingOutcome::default()
+        ..LinkingOutcome::default()
     };
     let mut discovered = Vec::new();
     for &person in people {
@@ -371,11 +412,11 @@ mod tests {
             linking_candidates(&module, &considered, &LinkedAccounts::new(&links));
         assert_eq!(
             outcome,
-            ModuleListingOutcome {
+            LinkingOutcome {
                 listed_person_count: 5,
                 already_linked_count: 2,
                 no_address_count: 2,
-                ..ModuleListingOutcome::default()
+                ..LinkingOutcome::default()
             }
         );
         assert_eq!(discovered.len(), 1);

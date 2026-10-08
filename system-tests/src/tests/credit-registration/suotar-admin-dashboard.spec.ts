@@ -133,7 +133,7 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Linking" }).click()
   await expect(page.getByRole("heading", { name: "Recent links" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Per course module" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Enrolment lists per course code" })).toBeVisible()
 })
 
 // A pause is on the globally-shared `credit_registration_phase_state` row, not on this course, so the
@@ -588,7 +588,7 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
   })
 })
 
-test("A discovery run writes the per-module counters", async ({ page }) => {
+test("A discovery run writes the course code's linking counters", async ({ page }) => {
   await makeRosterListingsDue(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runEnrolmentDiscoveryTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
   await runLinkEmailsTick(page.request, { courseSlug: ADMIN_COURSE_SLUG })
@@ -596,10 +596,12 @@ test("A discovery run writes the per-module counters", async ({ page }) => {
   const counters = await pollUntil(
     async () => {
       const stats = await accountLinkingStats(page.request)
-      const mine = stats.modules.find((row) => row.course_id === ADMIN_COURSE_ID)
-      return mine?.last_listed_at ? mine : null
+      const mine = stats.course_codes.find((row) =>
+        row.modules.some((module) => module.course_id === ADMIN_COURSE_ID),
+      )
+      return mine?.linking ?? null
     },
-    { description: "the admin course's module to report a listing" },
+    { description: "the admin course's course code to report a listing" },
   )
   expect(counters.listed_person_count).toBeGreaterThan(0)
 })

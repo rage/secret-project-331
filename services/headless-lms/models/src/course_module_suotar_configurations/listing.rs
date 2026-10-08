@@ -4,10 +4,10 @@
 use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::prelude::*;
 
-/// Outcome counters for one enrolment-discovery run over one module. Written whole, so the
-/// dashboard never mixes two runs.
+/// What one enrolment list did for account linking: per module, or per code with each person
+/// counted once. Written whole, so the dashboard never mixes two runs.
 #[derive(Debug, Clone, PartialEq, Default)]
-pub struct ModuleListingOutcome {
+pub struct LinkingOutcome {
     /// Only those enrolled since account linking was switched on.
     pub listed_person_count: i32,
     pub already_linked_count: i32,
@@ -166,7 +166,7 @@ WHERE course_module_id = $1
 pub async fn record_listing_outcome(
     conn: &mut PgConnection,
     course_module_id: Uuid,
-    outcome: &ModuleListingOutcome,
+    outcome: &LinkingOutcome,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"

@@ -12,7 +12,15 @@ CREATE UNIQUE INDEX uq_account_linking_email_person_course_address ON credit_reg
 ALTER TABLE credit_registration_account_linking_emails DROP COLUMN replaced_at;
 COMMENT ON TABLE credit_registration_account_linking_emails IS 'One row per account-linking mail we queued, keyed on the Sisu person id plus the recipient address. Prevents mailing the same Sisu person twice for the same course and backs the per-person rate caps.';
 
+-- The enum values the up migration added cannot be dropped, so they stay.
 ALTER TABLE credit_registration_roster_schedules DROP CONSTRAINT credit_registration_roster_schedules_consecutive_failures,
+  DROP COLUMN fetch_requested_at,
+  DROP COLUMN linking_listed_count,
+  DROP COLUMN linking_already_linked_count,
+  DROP COLUMN linking_mailed_count,
+  DROP COLUMN linking_suppressed_by_dedup_count,
+  DROP COLUMN linking_suppressed_by_rate_cap_count,
+  DROP COLUMN linking_no_address_count,
   ADD COLUMN triggered_fetch_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN follow_up_fetch_at TIMESTAMP WITH TIME ZONE,
   ADD COLUMN triggered_fetch_day DATE,

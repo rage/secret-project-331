@@ -602,10 +602,10 @@ WHERE vsn.id IS NULL
 /// link still stands in the way. A link someone made by hand (the student or an admin) always wins,
 /// but another account's study-registry link on the reported number moves to the account reported
 /// most recently, unless the holder's own report of it is newer: a student with two accounts gets
-/// the number on the later one. A retired link does
-/// not block: the registrar's report is authoritative, so a number the student or an admin unlinked,
-/// or one resolve-person-ids dropped over a conflict, is linked again. Returns how many links were
-/// made.
+/// the number on the later one. A retired link does not block: the registrar's report is
+/// authoritative, so a number the student or an admin unlinked, or one resolve-person-ids dropped
+/// over a conflict, is linked again. A conflict an admin dismissed is not recorded again. Returns
+/// how many links were made.
 pub async fn link_numbers_reported_by_study_registry(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
@@ -717,6 +717,13 @@ FROM study_registry_reported_student_numbers reported
   ) blocker ON TRUE
 WHERE reported.user_id = ANY($1::uuid [])
   AND reported.student_number ~ '^[0-9]{6,12}$'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM study_registry_student_number_conflicts dismissed
+    WHERE dismissed.user_id = reported.user_id
+      AND dismissed.student_number = reported.student_number
+      AND dismissed.deleted_at IS NOT NULL
+  )
 ON CONFLICT DO NOTHING
         "#,
         user_ids,

@@ -18,10 +18,12 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   adminBulkTransitionCreditRegistrations,
+  adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
   adminPausePhase,
+  adminRequestEnrolmentListFetch,
   adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
@@ -413,6 +415,7 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminDismissStudyRegistryConflictData,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
@@ -420,6 +423,8 @@ import type {
   AdminPauseCourseModuleCreditRegistrationData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchResponse,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsResponse,
   AdminResendAccountLinkingEmailData,
@@ -6187,8 +6192,9 @@ export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinki
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkingStatsData>) =>
   queryOptions<
@@ -6206,6 +6212,35 @@ export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkin
       }),
     queryKey: getAccountLinkingStatsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetchMutation = (
+  options?: Partial<Options<AdminRequestEnrolmentListFetchData>>,
+): UseMutationOptions<
+  AdminRequestEnrolmentListFetchResponse,
+  DefaultError,
+  Options<AdminRequestEnrolmentListFetchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRequestEnrolmentListFetchResponse,
+    DefaultError,
+    Options<AdminRequestEnrolmentListFetchData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRequestEnrolmentListFetch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -6291,6 +6326,31 @@ export const adminResolveStudentNumberForLinkingMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await adminResolveStudentNumberForLinking({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflictMutation = (
+  options?: Partial<Options<AdminDismissStudyRegistryConflictData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDismissStudyRegistryConflictData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDismissStudyRegistryConflictData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDismissStudyRegistryConflict({
         ...options,
         ...fnOptions,
         throwOnError: true,

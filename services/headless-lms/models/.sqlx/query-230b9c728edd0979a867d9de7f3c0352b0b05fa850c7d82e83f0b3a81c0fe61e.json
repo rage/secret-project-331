@@ -1,0 +1,196 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  ed.created_at AS \"queued_at?\",\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.deleted_at IS NULL\nORDER BY e.sent_at DESC,\n  e.id\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "claimed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "queued_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "delivery_sent?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "retryable?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "retry_count?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "next_retry_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "next_retry_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "first_failed_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_attempt_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "last_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "error_code?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "error_message?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_message"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "is_transient?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "is_transient"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "230b9c728edd0979a867d9de7f3c0352b0b05fa850c7d82e83f0b3a81c0fe61e"
+}

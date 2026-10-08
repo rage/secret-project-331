@@ -11,7 +11,7 @@ use std::sync::LazyLock;
 
 use chrono::TimeDelta;
 
-use crate::course_module_suotar_configurations::ModuleToList;
+use crate::course_module_suotar_configurations::{LinkingOutcome, ModuleToList};
 use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup;
 use crate::prelude::*;
@@ -126,6 +126,10 @@ pub struct RosterSchedule {
     pub next_waiting_rung_at: Option<DateTime<Utc>>,
     /// The latest "I have enrolled" press by a waiting person after the last fetch.
     pub unserved_press_at: Option<DateTime<Utc>>,
+    /// An admin's fetch request; served once a fetch runs after it.
+    pub fetch_requested_at: Option<DateTime<Utc>>,
+    /// The last enrolment list that fed account linking, each person counted once.
+    pub linking_outcome: Option<LinkingOutcome>,
 }
 
 impl RosterSchedule {
@@ -143,11 +147,23 @@ impl RosterSchedule {
             &self.course_code,
             ready_at.max(last_fetched_at + MIN_REFETCH_GAP),
         );
-        self.unserved_press_at.map_or(due, |pressed_at| {
+        let urgent_at = [self.unserved_press_at, self.unserved_fetch_request_at()]
+            .into_iter()
+            .flatten()
+            .min();
+        urgent_at.map_or(due, |urgent_at| {
             due.min(fetch_slot(
                 &self.course_code,
-                pressed_at.max(last_fetched_at + PRESS_MIN_REFETCH_GAP),
+                urgent_at.max(last_fetched_at + PRESS_MIN_REFETCH_GAP),
             ))
+        })
+    }
+
+    /// An admin's fetch request no fetch has run after yet.
+    pub fn unserved_fetch_request_at(&self) -> Option<DateTime<Utc>> {
+        self.fetch_requested_at.filter(|requested_at| {
+            self.last_fetched_at
+                .is_none_or(|fetched_at| *requested_at > fetched_at)
         })
     }
 
@@ -224,6 +240,13 @@ SELECT s.course_code,
   s.consecutive_failures,
   s.retry_not_before,
   s.last_error,
+  s.fetch_requested_at,
+  s.linking_listed_count,
+  s.linking_already_linked_count,
+  s.linking_mailed_count,
+  s.linking_suppressed_by_dedup_count,
+  s.linking_suppressed_by_rate_cap_count,
+  s.linking_no_address_count,
   (
     SELECT COUNT(*)
     FROM modules m
@@ -273,6 +296,20 @@ ORDER BY s.course_code
         .into_iter()
         .map(|row| {
             let waiting = waiting.remove(&row.course_code).unwrap_or_default();
+            let linking_outcome =
+                row.linking_listed_count
+                    .map(|listed_person_count| LinkingOutcome {
+                        listed_person_count,
+                        already_linked_count: row.linking_already_linked_count.unwrap_or(0),
+                        mailed_count: row.linking_mailed_count.unwrap_or(0),
+                        suppressed_by_dedup_count: row
+                            .linking_suppressed_by_dedup_count
+                            .unwrap_or(0),
+                        suppressed_by_rate_cap_count: row
+                            .linking_suppressed_by_rate_cap_count
+                            .unwrap_or(0),
+                        no_address_count: row.linking_no_address_count.unwrap_or(0),
+                    });
             RosterSchedule {
                 course_code: row.course_code,
                 last_fetched_at: row.last_fetched_at,
@@ -286,6 +323,8 @@ ORDER BY s.course_code
                 waiting_count: waiting.waiting_count,
                 next_waiting_rung_at: waiting.next_rung_at,
                 unserved_press_at: waiting.unserved_press_at,
+                fetch_requested_at: row.fetch_requested_at,
+                linking_outcome,
             }
         })
         .collect())
@@ -476,6 +515,56 @@ RETURNING previous.last_fetched_at
     .fetch_optional(conn)
     .await?;
     Ok(previous.flatten())
+}
+
+/// Overwrites the code's linking counters with what its latest enrolment list did.
+pub async fn record_linking_outcome(
+    conn: &mut PgConnection,
+    course_code: &str,
+    outcome: &LinkingOutcome,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_roster_schedules
+SET linking_listed_count = $2,
+  linking_already_linked_count = $3,
+  linking_mailed_count = $4,
+  linking_suppressed_by_dedup_count = $5,
+  linking_suppressed_by_rate_cap_count = $6,
+  linking_no_address_count = $7
+WHERE course_code = $1
+        "#,
+        course_code,
+        outcome.listed_person_count,
+        outcome.already_linked_count,
+        outcome.mailed_count,
+        outcome.suppressed_by_dedup_count,
+        outcome.suppressed_by_rate_cap_count,
+        outcome.no_address_count,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Makes the code due at its next grid point, as an "I have enrolled" press would. Returns the
+/// schedule row's id, or `None` for a code with no row.
+pub async fn request_fetch(
+    conn: &mut PgConnection,
+    course_code: &str,
+) -> ModelResult<Option<Uuid>> {
+    let id = sqlx::query_scalar!(
+        r#"
+UPDATE credit_registration_roster_schedules
+SET fetch_requested_at = now()
+WHERE course_code = $1
+RETURNING id
+        "#,
+        course_code,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(id)
 }
 
 /// Records a request batching several codes that failed as a whole. Each is listed on its own from

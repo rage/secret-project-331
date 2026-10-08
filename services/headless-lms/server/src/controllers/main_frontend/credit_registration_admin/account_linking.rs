@@ -1,6 +1,8 @@
 //! The account-linking funnel, resending and hand-resolving linking mails, and manual links.
 
-use headless_lms_models::course_module_suotar_configurations;
+use std::collections::HashMap;
+
+use headless_lms_models::course_module_suotar_configurations::{self, LinkingOutcome};
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
 };
@@ -8,8 +10,11 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
-use headless_lms_models::credit_registrations;
-use headless_lms_models::email_deliveries::EmailSendStatus;
+use headless_lms_models::credit_registration_roster_schedules::{
+    self, RosterSchedule, ScheduleSelection,
+};
+use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
+use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::account_linking::{
     LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
 };
@@ -26,6 +31,7 @@ use crate::controllers::main_frontend::course_credit_registrations::record_resen
 use crate::domain::credit_registration::linking_mail_resend::{
     ResendOutcome, ensure_resend_possible,
 };
+use crate::domain::credit_registration::mail_status::mask_email;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::account_linking::{
@@ -39,6 +45,8 @@ use super::{
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
 const STUDY_REGISTRY_CONFLICT_LIMIT: i64 = 200;
+const RECENT_LINKING_EMAIL_LIMIT: i64 = 50;
+const WAITING_STUDENT_LIMIT: i64 = 100;
 
 /// Marks a manual action's study registry call in the call log as something a person set off.
 const RESEND_CALLER: &str = "admin-resend";
@@ -49,8 +57,9 @@ const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 /// ledger rows.
 const RESEND_QUIET_PERIOD_SECS: i64 = 60;
 
-/// The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites
-/// whole, the `_in_window` ones from the window: there is no single denominator.
+/// The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person
+/// counted once per code, and the `_in_window` ones come from the window: there is no single
+/// denominator.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingFunnel {
     pub persons_discovered_last_run: i64,
@@ -67,7 +76,10 @@ pub struct AccountLinkingFunnel {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingSendStatusTotals {
-    pub queued: i64,
+    /// Claimed, but not yet queued by the `link-emails` phase.
+    pub waiting_for_link_emails: i64,
+    /// Queued, but not yet attempted by the email worker.
+    pub waiting_for_email_worker: i64,
     pub retrying: i64,
     pub sent: i64,
     pub send_failed: i64,
@@ -80,29 +92,96 @@ pub struct AccountLinkingFailureDomain {
     pub count: i64,
 }
 
+/// A module on a course code, which shares the code's enrolment list.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingModuleCounters {
+pub struct AccountLinkingCodeModule {
     pub course_id: Uuid,
     pub course_name: String,
     pub course_module_id: Uuid,
     pub course_module_name: Option<String>,
-    pub uh_course_code: Option<String>,
-    /// When the counters below were collected. Not the last attempt: a failing listing keeps the
-    /// last roster that arrived.
+    /// When an enrolment list last fed account linking for the module.
     pub last_listed_at: Option<DateTime<Utc>>,
-    pub last_listing_attempted_at: Option<DateTime<Utc>>,
-    /// Set while the listing attempts since `last_listed_at` are failing, so an empty course and an
-    /// unreachable one do not read alike.
-    pub last_listing_error:
-        Option<headless_lms_models::credit_registrations::CreditRegistrationErrorCode>,
-    pub consecutive_listing_failures: i32,
-    pub listed_person_count: Option<i32>,
-    pub already_linked_count: Option<i32>,
-    pub mailed_count: Option<i32>,
-    pub suppressed_by_dedup_count: Option<i32>,
-    pub suppressed_by_rate_cap_count: Option<i32>,
+}
+
+/// What a code's last enrolment list that fed account linking did, each person counted once. The
+/// other counters add up to `listed_person_count`.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingCodeCounters {
+    /// Only those enrolled since account linking began.
+    pub listed_person_count: i32,
+    pub already_linked_count: i32,
+    pub mailed_count: i32,
+    pub suppressed_by_dedup_count: i32,
+    pub suppressed_by_rate_cap_count: i32,
     /// Persons the registry holds no address for: the one population no remedy here can reach.
-    pub no_address_count: Option<i32>,
+    pub no_address_count: i32,
+}
+
+impl From<LinkingOutcome> for AccountLinkingCodeCounters {
+    fn from(outcome: LinkingOutcome) -> Self {
+        Self {
+            listed_person_count: outcome.listed_person_count,
+            already_linked_count: outcome.already_linked_count,
+            mailed_count: outcome.mailed_count,
+            suppressed_by_dedup_count: outcome.suppressed_by_dedup_count,
+            suppressed_by_rate_cap_count: outcome.suppressed_by_rate_cap_count,
+            no_address_count: outcome.no_address_count,
+        }
+    }
+}
+
+/// One course code's enrolment list: when it is fetched, and what the last one did for linking.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingCourseCode {
+    pub course_code: String,
+    pub modules: Vec<AccountLinkingCodeModule>,
+    pub last_fetched_at: Option<DateTime<Utc>>,
+    /// When it is next due, ignoring the failure backoff.
+    pub next_fetch_at: DateTime<Utc>,
+    /// An admin's "Fetch now" no fetch has served yet.
+    pub fetch_requested_at: Option<DateTime<Utc>>,
+    /// People on the code's modules waiting for a student number.
+    pub waiting_count: i64,
+    /// Everyone on the last list, however long ago they enrolled.
+    pub last_listed_person_count: Option<i32>,
+    pub consecutive_failures: i32,
+    pub retry_not_before: Option<DateTime<Utc>>,
+    pub last_error: Option<CreditRegistrationErrorCode>,
+    /// `None` until a list has fed account linking.
+    pub linking: Option<AccountLinkingCodeCounters>,
+}
+
+/// One linking email, newest first in the recent list.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingRecentEmail {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub emailed_to_masked: String,
+    pub claimed_at: DateTime<Utc>,
+    /// When the `link-emails` phase handed it to the email worker.
+    pub queued_at: Option<DateTime<Utc>>,
+    /// `None` until queued.
+    pub send_status: Option<EmailSendStatusReport>,
+    pub last_error_message: Option<String>,
+}
+
+/// A student whose registration waits for a student number.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingWaitingStudent {
+    pub credit_registration_id: Uuid,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    pub last_visited_at: Option<DateTime<Utc>>,
+    /// The last "I have enrolled" press.
+    pub last_check_requested_at: Option<DateTime<Utc>>,
 }
 
 /// One mail attempt: the address it went to and what we can say about its delivery.
@@ -164,12 +243,18 @@ pub struct AccountLinkingStats {
     pub funnel: AccountLinkingFunnel,
     pub send_status_totals: AccountLinkingSendStatusTotals,
     pub hard_failure_domains: Vec<AccountLinkingFailureDomain>,
-    pub modules: Vec<AccountLinkingModuleCounters>,
+    pub course_codes: Vec<AccountLinkingCourseCode>,
+    /// Newest first, capped.
+    pub recent_linking_emails: Vec<AccountLinkingRecentEmail>,
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     /// Accounts with an eligible completion still waiting for a student number.
     pub waiting_for_student_number_count: i64,
+    /// Of those, the ones completed since `account_linking_since`, longest waiting first, capped.
+    pub waiting_students: Vec<AccountLinkingWaitingStudent>,
+    /// `waiting_students` before the cap.
+    pub waiting_students_total: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
     /// Newest first, capped.
@@ -179,6 +264,22 @@ pub struct AccountLinkingStats {
 #[derive(Debug, Deserialize)]
 pub struct AccountLinkingStatsQuery {
     window_days: Option<u32>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminRequestEnrolmentListFetchPayload {
+    pub course_code: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminRequestEnrolmentListFetchResult {
+    /// Ignoring the failure backoff, as on the Linking tab.
+    pub next_fetch_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminDismissStudyRegistryConflictPayload {
+    pub reason: String,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -267,8 +368,9 @@ pub struct AdminManuallyLinkStudentNumberResult {
 }
 
 /**
-GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
-per-module counters, the send-status totals and the stale-address list.
+GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+a student number and the stale-address list.
 */
 #[instrument(skip(pool, app_conf))]
 #[utoipa::path(
@@ -294,29 +396,14 @@ pub async fn get_account_linking_stats(
     let window_secs = window_days * 24 * 60 * 60;
     let since = Utc::now() - chrono::Duration::days(window_days);
 
-    let modules = course_module_suotar_configurations::get_active_discovery_reports(&mut conn)
-        .await?
-        .into_iter()
-        .map(|row| AccountLinkingModuleCounters {
-            course_id: row.course_id,
-            course_name: row.course_name,
-            course_module_id: row.course_module_id,
-            course_module_name: row.course_module_name,
-            uh_course_code: row.uh_course_code,
-            last_listed_at: row.last_listed_at,
-            last_listing_attempted_at: row.last_listing_attempted_at,
-            last_listing_error: row.last_listing_error,
-            consecutive_listing_failures: row.consecutive_listing_failures,
-            listed_person_count: row.last_listed_person_count,
-            already_linked_count: row.last_already_linked_count,
-            mailed_count: row.last_mailed_count,
-            suppressed_by_dedup_count: row.last_suppressed_by_dedup_count,
-            suppressed_by_rate_cap_count: row.last_suppressed_by_rate_cap_count,
-            no_address_count: row.last_no_address_count,
-        })
-        .collect::<Vec<_>>();
-    let sum = |pick: fn(&AccountLinkingModuleCounters) -> Option<i32>| -> i64 {
-        modules.iter().filter_map(pick).map(i64::from).sum::<i64>()
+    let account_linking_since = app_conf.suotar_configuration.account_linking_since;
+    let course_codes = build_course_codes(&mut conn, account_linking_since).await?;
+    let sum = |pick: fn(&AccountLinkingCodeCounters) -> i32| -> i64 {
+        course_codes
+            .iter()
+            .filter_map(|code| code.linking.as_ref())
+            .map(|counters| i64::from(pick(counters)))
+            .sum::<i64>()
     };
 
     let now = Utc::now();
@@ -325,7 +412,8 @@ pub async fn get_account_linking_stats(
     )
     .await?;
     let send_status_totals = AccountLinkingSendStatusTotals {
-        queued: totals.queued,
+        waiting_for_link_emails: totals.waiting_for_link_emails,
+        waiting_for_email_worker: totals.waiting_for_email_worker,
         retrying: totals.retrying,
         sent: totals.sent,
         send_failed: totals.send_failed,
@@ -380,6 +468,46 @@ pub async fn get_account_linking_stats(
     let waiting_for_student_number_count = credit_registrations::count_pending_by_reason(&mut conn)
         .await?
         .student_number_count;
+    let (waiting, waiting_students_total) = credit_registrations::get_waiting_for_student_number(
+        &mut conn,
+        account_linking_since,
+        WAITING_STUDENT_LIMIT,
+    )
+    .await?;
+    let waiting_students = waiting
+        .into_iter()
+        .map(|row| AccountLinkingWaitingStudent {
+            credit_registration_id: row.credit_registration_id,
+            user_id: row.user_id,
+            email: row.email,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            course_id: row.course_id,
+            course_name: row.course_name,
+            course_module_name: row.course_module_name,
+            uh_course_code: row.uh_course_code,
+            completion_date: row.completion_date,
+            last_visited_at: row.last_visited_at,
+            last_check_requested_at: row.last_check_requested_at,
+        })
+        .collect();
+    let recent_linking_emails = credit_registration_account_linking_emails::get_recent(
+        &mut conn,
+        RECENT_LINKING_EMAIL_LIMIT,
+    )
+    .await?
+    .into_iter()
+    .map(|row| AccountLinkingRecentEmail {
+        id: row.id,
+        course_id: row.course_id,
+        course_name: row.course_name,
+        emailed_to_masked: mask_email(row.emailed_to.expose_secret()),
+        claimed_at: row.claimed_at,
+        queued_at: row.queued_at,
+        send_status: row.send_status,
+        last_error_message: row.last_error_message,
+    })
+    .collect();
 
     let funnel = AccountLinkingFunnel {
         persons_discovered_last_run: sum(|row| row.listed_person_count),
@@ -421,20 +549,153 @@ pub async fn get_account_linking_stats(
 
     token.authorized_ok(web::Json(AccountLinkingStats {
         account_linking_enabled: app_conf.suotar_configuration.is_account_linking_enabled(),
-        account_linking_since: app_conf.suotar_configuration.account_linking_since,
+        account_linking_since,
         window_secs,
         funnel,
         send_status_totals,
         hard_failure_domains,
-        modules,
+        course_codes,
+        recent_linking_emails,
         stale_addresses,
         links_total_by_method,
         links_in_window_by_method,
         waiting_for_student_number_count,
+        waiting_students,
+        waiting_students_total,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
         quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
         study_registry_conflicts,
     }))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+one course code's enrolment list due at its next grid point.
+
+The fetch still waits for the rate limiter and any failure backoff, like any other.
+*/
+#[instrument(skip(pool, payload, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/account-linking/fetch-enrolment-list",
+    operation_id = "adminRequestEnrolmentListFetch",
+    tag = "credit-registration-admin",
+    request_body = AdminRequestEnrolmentListFetchPayload,
+    responses(
+        (status = 200, description = "When the list is now due", body = AdminRequestEnrolmentListFetchResult),
+        (status = 404, description = "No active module has the course code")
+    )
+)]
+pub async fn admin_request_enrolment_list_fetch(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<AdminRequestEnrolmentListFetchPayload>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<AdminRequestEnrolmentListFetchResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let course_code = payload.course_code.trim();
+    let mut schedule = credit_registration_roster_schedules::get_schedules(
+        &mut conn,
+        None,
+        ScheduleSelection::Every,
+        app_conf.suotar_configuration.account_linking_since,
+    )
+    .await?
+    .into_iter()
+    .find(|schedule| schedule.course_code == course_code)
+    .ok_or_else(|| {
+        controller_err!(
+            NotFound,
+            "No module with credit registration has this course code.".to_string()
+        )
+    })?;
+
+    let mut tx = conn.begin().await?;
+    let schedule_id = credit_registration_roster_schedules::request_fetch(&mut tx, course_code)
+        .await?
+        .ok_or_else(|| controller_err!(NotFound, "No such course code.".to_string()))?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            target_id: Some(schedule_id),
+            details: Some(serde_json::json!({ "course_code": course_code })),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::RequestEnrolmentListFetch,
+                CreditRegistrationAdminActionTarget::RosterSchedule,
+                user.id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+    info!(actor = %user.id, course_code, "Admin requested an enrolment list fetch");
+
+    let now = Utc::now();
+    schedule.fetch_requested_at = Some(now);
+    token.authorized_ok(web::Json(AdminRequestEnrolmentListFetchResult {
+        next_fetch_at: schedule.next_fetch_at(now),
+    }))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+Takes a student number clash off the list for good.
+
+The links stay as they are. A reason is required, so the request carries a body.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
+    operation_id = "adminDismissStudyRegistryConflict",
+    tag = "credit-registration-admin",
+    params(("conflict_id" = Uuid, Path, description = "The clash's id")),
+    request_body = AdminDismissStudyRegistryConflictPayload,
+    responses(
+        (status = 200, description = "Dismissed"),
+        (status = 422, description = "No reason given"),
+        (status = 404, description = "No such clash, or already dismissed")
+    )
+)]
+pub async fn admin_dismiss_study_registry_conflict(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    conflict_id: web::Path<Uuid>,
+    payload: web::Json<AdminDismissStudyRegistryConflictPayload>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+    let id = *conflict_id;
+    let mut tx = conn.begin().await?;
+    if !study_registry_student_number_conflicts::dismiss(&mut tx, id).await? {
+        return Err(controller_err!(
+            NotFound,
+            "No such student number clash.".to_string()
+        ));
+    }
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            target_id: Some(id),
+            reason: Some(reason.to_string()),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::DismissStudyRegistryConflict,
+                CreditRegistrationAdminActionTarget::StudyRegistryStudentNumberConflict,
+                user.id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+    info!(actor = %user.id, conflict_id = %id, "Admin dismissed a student number clash");
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -902,6 +1163,55 @@ async fn finish_resend(
     }))
 }
 
+/// Every active course code's schedule, with the modules that share its enrolment list.
+async fn build_course_codes(
+    conn: &mut PgConnection,
+    account_linking_since: Option<DateTime<Utc>>,
+) -> Result<Vec<AccountLinkingCourseCode>, ControllerError> {
+    let mut modules_by_code: HashMap<String, Vec<AccountLinkingCodeModule>> = HashMap::new();
+    for row in course_module_suotar_configurations::get_active_discovery_reports(conn).await? {
+        let Some(code) = row.uh_course_code.as_deref().map(str::trim) else {
+            continue;
+        };
+        modules_by_code
+            .entry(code.to_string())
+            .or_default()
+            .push(AccountLinkingCodeModule {
+                course_id: row.course_id,
+                course_name: row.course_name,
+                course_module_id: row.course_module_id,
+                course_module_name: row.course_module_name,
+                last_listed_at: row.last_listed_at,
+            });
+    }
+    let now = Utc::now();
+    let schedules = credit_registration_roster_schedules::get_schedules(
+        conn,
+        None,
+        ScheduleSelection::Every,
+        account_linking_since,
+    )
+    .await?;
+    Ok(schedules
+        .into_iter()
+        .map(|schedule: RosterSchedule| AccountLinkingCourseCode {
+            modules: modules_by_code
+                .remove(&schedule.course_code)
+                .unwrap_or_default(),
+            next_fetch_at: schedule.next_fetch_at(now),
+            fetch_requested_at: schedule.unserved_fetch_request_at(),
+            last_fetched_at: schedule.last_fetched_at,
+            waiting_count: schedule.waiting_count,
+            last_listed_person_count: schedule.last_listed_person_count,
+            consecutive_failures: schedule.consecutive_failures,
+            retry_not_before: schedule.retry_not_before,
+            last_error: schedule.last_error,
+            linking: schedule.linking_outcome.map(Into::into),
+            course_code: schedule.course_code,
+        })
+        .collect())
+}
+
 async fn build_stale_addresses(
     conn: &mut PgConnection,
     rows: Vec<StaleUnclaimedLinkingMails>,
@@ -951,6 +1261,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/account-linking/manual-link",
             web::post().to(admin_manually_link_student_number),
+        )
+        .route(
+            "/account-linking/fetch-enrolment-list",
+            web::post().to(admin_request_enrolment_list_fetch),
+        )
+        .route(
+            "/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
+            web::post().to(admin_dismiss_study_registry_conflict),
         );
 }
 

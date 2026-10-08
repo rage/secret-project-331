@@ -1,5 +1,6 @@
 use crate::jwt::DEVELOPMENT_JWT_PASSWORD;
 use anyhow::Context;
+use chrono::{DateTime, Utc};
 use secrecy::{ExposeSecret, SecretBox, SecretString};
 use std::sync::Arc;
 use std::{env, str::FromStr};
@@ -190,10 +191,6 @@ pub const SUOTAR_AUTH_SCHEME: &str = "Bearer";
 /// The only token the mock Suotar accepts. Public on purpose: never a real credential.
 pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
 
-/// Enrolment discovery, the linking mails and their resends. Off where students get their number
-/// linked some other way.
-const ACCOUNT_LINKING_ENABLED_DEFAULT: bool = false;
-
 /// Where and how to reach Suotar's moocfi API. In production the base url is
 /// `https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/`.
 #[derive(Clone)]
@@ -201,7 +198,10 @@ pub struct SuotarConfiguration {
     /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
     pub api_base_url: Url,
     pub api_token: SecretString,
-    pub account_linking_enabled: bool,
+    /// Switches account linking on, and only people who enrolled at or after it are mailed a link,
+    /// so turning it on does not mail everyone already on a roster. `None` where students get their
+    /// number linked some other way.
+    pub account_linking_since: Option<DateTime<Utc>>,
 }
 
 impl SuotarConfiguration {
@@ -213,7 +213,7 @@ impl SuotarConfiguration {
                 .context("Invalid URL in BASE_URL")?
                 .join("/api/v0/mock-suotar/")?,
             api_token: SecretString::new(MOCK_SUOTAR_TOKEN.to_string().into()),
-            account_linking_enabled: Self::account_linking_enabled_from_env(),
+            account_linking_since: Self::account_linking_since_from_env()?,
         })
     }
 
@@ -221,22 +221,30 @@ impl SuotarConfiguration {
         Self::from_values(
             non_empty_env("SUOTAR_API_BASE_URL"),
             non_empty_env("SUOTAR_API_KEY"),
-            Self::account_linking_enabled_from_env(),
+            Self::account_linking_since_from_env()?,
         )
     }
 
-    fn account_linking_enabled_from_env() -> bool {
-        match non_empty_env("SUOTAR_ACCOUNT_LINKING_ENABLED") {
-            Some(_) => bool_env_false_by_default("SUOTAR_ACCOUNT_LINKING_ENABLED"),
-            None => ACCOUNT_LINKING_ENABLED_DEFAULT,
-        }
+    /// Whether account linking is on.
+    pub fn is_account_linking_enabled(&self) -> bool {
+        self.account_linking_since.is_some()
+    }
+
+    fn account_linking_since_from_env() -> anyhow::Result<Option<DateTime<Utc>>> {
+        non_empty_env("SUOTAR_ACCOUNT_LINKING_SINCE")
+            .map(|since| {
+                DateTime::parse_from_rfc3339(&since)
+                    .map(|since| since.with_timezone(&Utc))
+                    .context("SUOTAR_ACCOUNT_LINKING_SINCE must be an RFC 3339 timestamp")
+            })
+            .transpose()
     }
 
     /// Pure so the no-mock-fallback rule can be tested without touching process env.
     fn from_values(
         api_base_url: Option<String>,
         api_token: Option<String>,
-        account_linking_enabled: bool,
+        account_linking_since: Option<DateTime<Utc>>,
     ) -> anyhow::Result<Self> {
         let api_base_url = api_base_url.context(
             "SUOTAR_API_BASE_URL must be defined unless TEST_MODE and USE_MOCK_SUOTAR_ENDPOINT are both on. Credit registration writes to the real student registry, so there is no mock fallback.",
@@ -248,7 +256,7 @@ impl SuotarConfiguration {
             api_base_url: parse_join_base(&api_base_url)
                 .context("Invalid URL in SUOTAR_API_BASE_URL")?,
             api_token: SecretString::new(api_token.into()),
-            account_linking_enabled,
+            account_linking_since,
         })
     }
 }
@@ -531,21 +539,21 @@ mod tests {
 
     #[test]
     fn suotar_configuration_has_no_mock_fallback() {
-        assert!(SuotarConfiguration::from_values(None, None, false).is_err());
+        assert!(SuotarConfiguration::from_values(None, None, None).is_err());
         assert!(
             SuotarConfiguration::from_values(
                 Some("https://suotar.example.com/api".to_string()),
                 None,
-                false
+                None
             )
             .is_err()
         );
-        assert!(SuotarConfiguration::from_values(None, Some("token".to_string()), false).is_err());
+        assert!(SuotarConfiguration::from_values(None, Some("token".to_string()), None).is_err());
         assert!(
             SuotarConfiguration::from_values(
                 Some("https://suotar.example.com/api".to_string()),
                 Some("token".to_string()),
-                false
+                None
             )
             .is_ok()
         );
@@ -558,7 +566,7 @@ mod tests {
         let conf = SuotarConfiguration::from_values(
             Some("https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi".to_string()),
             Some("token".to_string()),
-            false,
+            None,
         )
         .expect("valid fixture values");
         assert_eq!(

@@ -659,7 +659,9 @@ const ChatbotChatBody: React.FC = () => {
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {currentConversationInfo.isLoading ? (
+      {/* The previous conversation stays loaded while a new one is created; hide it so nothing
+          is sent into it. */}
+      {currentConversationInfo.isLoading || newConversationMutation.isPending ? (
         <Spinner variant="medium" />
       ) : currentConversationInfo.isError ? (
         <div className={errorWrapperStyle}>

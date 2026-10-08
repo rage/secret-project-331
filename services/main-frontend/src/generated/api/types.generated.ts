@@ -96,6 +96,10 @@ export type AccountLinkingStats = {
    * When false, no linking mails are sent and resends are refused.
    */
   account_linking_enabled: boolean
+  /**
+   * Discovery mails only people who enrolled at or after this.
+   */
+  account_linking_since?: string | null
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>

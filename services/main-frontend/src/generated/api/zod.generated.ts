@@ -6344,6 +6344,7 @@ export const zVerifiedStudentNumberMethodTotal = z.object({
 
 export const zAccountLinkingStats = z.object({
   account_linking_enabled: z.boolean(),
+  account_linking_since: z.iso.datetime().nullish(),
   funnel: zAccountLinkingFunnel,
   hard_failure_domains: z.array(zAccountLinkingFailureDomain),
   links_in_window_by_method: z.array(zVerifiedStudentNumberMethodTotal),

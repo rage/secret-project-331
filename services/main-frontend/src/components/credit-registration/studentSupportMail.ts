@@ -42,7 +42,7 @@ export const registrationSupportMail = (
   }
 }
 
-/** What a confirmation link can leave a student stuck on, and so what the mail has to ask for. */
+/** What an account linking email can leave a student stuck on, and so what the mail has to ask for. */
 export type StudentNumberLinkProblem =
   | "need_a_new_link"
   | "used_by_someone_else"
@@ -56,7 +56,7 @@ const LINK_PROBLEM_KEYS = {
   linked_to_another_account: "support-mail-line-number-linked-to-another-account",
 } as const satisfies Record<StudentNumberLinkProblem, string>
 
-/** A support mail about a confirmation link the student never received or can no longer use. */
+/** A support mail about an account linking email the student never received or can no longer use. */
 export const studentNumberLinkSupportMail = (
   t: CreditRegistrationTFunction,
   problem: StudentNumberLinkProblem,

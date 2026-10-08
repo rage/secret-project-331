@@ -394,7 +394,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   ).toBeVisible()
 
   await staleRow.getByRole("button", { name: `Actions for ${STALE_STUDENT_NUMBER}` }).click()
-  await page.getByRole("menuitem", { name: "Send the confirmation link again" }).click()
+  await page.getByRole("menuitem", { name: "Send the account linking email again" }).click()
   const dialog = page.getByRole("dialog")
 
   await test.step("Without the override the cap refuses it", async () => {

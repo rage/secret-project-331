@@ -72,6 +72,9 @@ deploy:
                 "-c",
                 "echo 'Waiting for the ingress to be ready.' && echo '> kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller",
               ]
+      after:
+        - host:
+            command: ["bash", "-c", "bin/minikube-remove-old-images skaffold.production.yaml &"]
 
 portForward:
   - resourceType: statefulset

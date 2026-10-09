@@ -139,6 +139,9 @@ pub struct AccountLinkingCourseCode {
     pub last_error: Option<CreditRegistrationErrorCode>,
     /// `None` until a list has fed account linking.
     pub linking: Option<AccountLinkingCodeCounters>,
+    /// People on the same list who enrolled before account linking began and are linked to no
+    /// account, so no linking email went to them.
+    pub unlinked_enrolled_before_count: Option<i32>,
     /// Pressers on the code's modules still waiting for a student number, since the cutoff.
     pub pressed_waiting_count: i64,
     /// Linking emails on the code whose link can still be used.
@@ -172,6 +175,9 @@ pub struct AccountLinkingPresser {
     pub last_linking_email_on_code_at: Option<DateTime<Utc>>,
     pub is_enrolment_list_empty: bool,
     pub is_fetch_failing: bool,
+    /// The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
+    /// one of them.
+    pub unlinked_enrolled_before_count: Option<i32>,
     /// Carries `student_number_stuck`; its actions live on Needs attention.
     pub is_stuck: bool,
     /// Counted in Needs attention: stuck, and neither dismissed nor explained by a blocking problem.
@@ -196,6 +202,8 @@ pub struct AccountLinkingUnusedLink {
     pub course_id: Uuid,
     pub course_name: String,
     pub uh_course_code: Option<String>,
+    /// In full: support tells the recipients apart by it.
+    pub emailed_to: String,
     pub claimed_at: DateTime<Utc>,
     pub expires_at: DateTime<Utc>,
 }
@@ -717,6 +725,8 @@ pub async fn get_account_linking_stats(
                 last_linking_email_on_code_at: row.last_linking_email_on_code_at,
                 is_enrolment_list_empty: code.is_some_and(|code| code.is_enrolment_list_empty),
                 is_fetch_failing: code.is_some_and(|code| code.is_fetch_failing),
+                unlinked_enrolled_before_count: code
+                    .and_then(|code| code.unlinked_enrolled_before_count),
                 is_stuck: stuck_needs_attention.is_some(),
                 needs_attention: stuck_needs_attention.unwrap_or(false),
             }
@@ -766,6 +776,7 @@ pub async fn get_account_linking_stats(
                 course_id: row.course_id,
                 course_name: row.course_name,
                 uh_course_code: row.uh_course_code,
+                emailed_to: row.emailed_to.expose_secret().to_owned(),
                 claimed_at: row.claimed_at,
                 expires_at: row.expires_at,
             })
@@ -1608,6 +1619,7 @@ async fn build_course_codes(
             retry_not_before: schedule.retry_not_before,
             last_error: schedule.last_error,
             linking: schedule.linking_counters,
+            unlinked_enrolled_before_count: schedule.unlinked_enrolled_before_count,
             course_code: schedule.course_code,
         })
         .collect())

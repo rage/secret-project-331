@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  (\n    SELECT MIN(TRIM(cm.uh_course_code))\n    FROM course_modules cm\n    WHERE cm.course_id = e.course_id\n      AND cm.deleted_at IS NULL\n      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  ) AS \"uh_course_code?\",\n  e.sent_at AS claimed_at,\n  t.expires_at\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND is_usable_verification_token(t)\nORDER BY e.sent_at,\n  e.id\nLIMIT $1\n        ",
+  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  (\n    SELECT MIN(TRIM(cm.uh_course_code))\n    FROM course_modules cm\n    WHERE cm.course_id = e.course_id\n      AND cm.deleted_at IS NULL\n      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  ) AS \"uh_course_code?\",\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  t.expires_at\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND is_usable_verification_token(t)\nORDER BY e.sent_at,\n  e.id\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -44,6 +44,17 @@
       },
       {
         "ordinal": 4,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
         "name": "claimed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -54,7 +65,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "expires_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -76,8 +87,9 @@
       false,
       null,
       false,
+      false,
       false
     ]
   },
-  "hash": "27cf947411ab3b03b7354f537b9285a3e6baccab06db305a84caa92e05eaa54c"
+  "hash": "101f5e31fc964fa9441eebb46d1e9e6483591fd6c0a75447db063d17ba298ddf"
 }

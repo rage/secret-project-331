@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import InlineParts from "@/components/credit-registration/InlineParts"
@@ -14,7 +15,7 @@ import {
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { AdminLinkingCandidate } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
-import { Badge, Checkbox, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
+import { Badge, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "../constants"
 import { BADGE_COMPACT, BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
@@ -24,7 +25,6 @@ import { useActionResult } from "../useActionResult"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { linkingSimilarityLabel, resendOutcomeLabel } from "./adminCreditRegistrationCopy"
 import { useLinkingCandidates } from "./adminCreditRegistrationHooks"
-import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props {
   open: boolean
@@ -34,8 +34,6 @@ interface Props {
 
 interface Fields {
   student_number: string
-  override_rate_caps: boolean
-  reason: string
 }
 
 const candidateListCss = css`
@@ -47,7 +45,12 @@ const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCa
   [candidate.first_names, candidate.last_name].filter(Boolean).join(" ") ||
   t("credit-registration-admin-linking-candidate-no-name")
 
-const candidateFacts = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) => [
+/** `showsNotEmailed` is off when nobody on the list was emailed, where saying so on every row is noise. */
+const candidateFacts = (
+  t: CreditRegistrationTFunction,
+  candidate: AdminLinkingCandidate,
+  showsNotEmailed: boolean,
+) => [
   candidate.email ? (
     <UnbrokenValuesText key="email">{candidate.email}</UnbrokenValuesText>
   ) : (
@@ -62,7 +65,7 @@ const candidateFacts = (t: CreditRegistrationTFunction, candidate: AdminLinkingC
     ? t("credit-registration-admin-linking-candidate-emails", {
         count: candidate.linking_emails_for_course,
       })
-    : t("credit-registration-admin-linking-candidate-not-emailed"),
+    : showsNotEmailed && t("credit-registration-admin-linking-candidate-not-emailed"),
 ]
 
 /**
@@ -73,13 +76,16 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const candidatesQuery = useLinkingCandidates(registrationId, open)
-  const { control, handleSubmit, watch, reset } = useReasonRequiredForm<Fields>({
-    student_number: "",
-    override_rate_caps: false,
-    reason: "",
+  const { control, handleSubmit, watch, reset } = useForm<Fields>({
+    defaultValues: { student_number: "" },
   })
-  const override = watch("override_rate_caps")
   const data = candidatesQuery.data
+  const picked = data?.candidates.find(
+    (candidate) => candidate.student_number === watch("student_number"),
+  )
+  const showsNotEmailed = Boolean(
+    data?.candidates.some((candidate) => candidate.linking_emails_for_course > 0),
+  )
 
   const { result, setResult, mutation } = useActionResult(
     ({ fields, courseId }: { fields: Fields; courseId: string }) =>
@@ -87,8 +93,8 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
         body: {
           student_number: fields.student_number,
           course_id: courseId,
-          override_rate_caps: fields.override_rate_caps,
-          reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
+          override_rate_caps: false,
+          reason: null,
           credit_registration_id: registrationId,
         },
       }),
@@ -118,10 +124,14 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
   })
   const actions: readonly [DialogAction] = [
     {
-      label: t("button-text-send-linking-email"),
+      label: picked
+        ? t("credit-registration-admin-linking-candidates-send-to", {
+            name: candidateName(t, picked),
+          })
+        : t("button-text-send-linking-email"),
       variant: BUTTON_PRIMARY,
       isLoading: mutation.isPending,
-      disabled: !hasCandidates,
+      disabled: !picked,
       onPress: () => void submit(),
     },
   ]
@@ -184,7 +194,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
                   label={candidateName(t, candidate)}
                   description={
                     <span className={stackedCellCss}>
-                      <InlineParts parts={candidateFacts(t, candidate)} />
+                      <InlineParts parts={candidateFacts(t, candidate, showsNotEmailed)} />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>
                           {candidate.similarities.map((similarity) => (
@@ -199,17 +209,6 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
                 />
               ))}
             </RadioGroup>
-            <Checkbox
-              name="override_rate_caps"
-              control={control}
-              label={t("credit-registration-admin-resend-override-label")}
-              description={t("credit-registration-admin-resend-override-description")}
-            />
-            <ReasonField
-              control={control}
-              description={t("credit-registration-admin-resend-reason-description")}
-              isRequired={override}
-            />
           </form>
         )}
       </div>

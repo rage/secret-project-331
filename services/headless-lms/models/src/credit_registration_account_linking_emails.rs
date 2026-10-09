@@ -1000,13 +1000,14 @@ LIMIT $1
 }
 
 /// A linking email whose link can still be used.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct UnusedLinkingLink {
     pub id: Uuid,
     pub course_id: Uuid,
     pub course_name: String,
     /// The course code of the email's course, where its modules agree on one.
     pub uh_course_code: Option<String>,
+    pub emailed_to: DbSecret,
     pub claimed_at: DateTime<Utc>,
     pub expires_at: DateTime<Utc>,
 }
@@ -1029,6 +1030,7 @@ SELECT e.id,
       AND cm.deleted_at IS NULL
       AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
   ) AS "uh_course_code?",
+  e.emailed_to,
   e.sent_at AS claimed_at,
   t.expires_at
 FROM credit_registration_account_linking_emails e

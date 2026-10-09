@@ -26,7 +26,9 @@ import {
   bucketLabel,
 } from "@/components/credit-registration/admin/queueBuckets"
 import { REGISTRATIONS_PARAM } from "@/components/credit-registration/admin/registrationsListUrl"
-import StudentCell from "@/components/credit-registration/admin/StudentCell"
+import StudentCell, {
+  STUDENT_COLUMN_MIN_WIDTH,
+} from "@/components/credit-registration/admin/StudentCell"
 import {
   ATTENTION_STEPS,
   ENGAGEMENT_STEPS,
@@ -56,6 +58,7 @@ import {
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
+import InlineParts from "@/components/credit-registration/InlineParts"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   controlCss,
@@ -199,6 +202,18 @@ const activityCss = css`
 const attentionLineCss = css`
   display: inline-flex;
   gap: var(--space-2);
+  align-items: flex-start;
+`
+
+/** Centred on the first line of a label that may wrap. */
+const attentionIconCss = css`
+  flex: none;
+  margin-top: 0.2em;
+`
+
+const numberLineCss = css`
+  display: inline-flex;
+  gap: var(--space-2);
   align-items: center;
 `
 
@@ -226,7 +241,7 @@ const useMirroredParam = (
   }, [picked.join()])
 }
 
-/** Phase over step, in the timeline's words; an ending is its own one line. */
+/** The step in the timeline's words, and under it why the row needs a person, if it does. */
 const StatusCell: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const needsAttention = row.attention_standing === "needs_attention"
@@ -234,32 +249,28 @@ const StatusCell: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
   const reason = needsAttention ? row.attention_reasons[0] : undefined
   return (
     <span className={stackedCellCss}>
-      {row.phase !== "ended" && <span className={noteCss}>{timelinePhaseLabel(t, row.phase)}</span>}
-      <span className={stepCss}>
-        {isAttention ? (
-          <span className={attentionLineCss}>
-            <ExclamationTriangle
-              size={ATTENTION_ICON_SIZE}
-              className={TONE_INK["action-needed"]}
-              aria-hidden
-            />
-            {timelineStepLabel(t, row.timeline_step)}
-          </span>
-        ) : (
-          timelineStepLabel(t, row.timeline_step)
+      <span className={cx(stepCss, attentionLineCss)}>
+        {isAttention && (
+          <ExclamationTriangle
+            size={ATTENTION_ICON_SIZE}
+            className={cx(TONE_INK["action-needed"], attentionIconCss)}
+            aria-hidden
+          />
         )}
+        {timelineStepLabel(t, row.timeline_step)}
       </span>
-      {reason && <span className={noteCss}>{attentionReasonLabel(t, reason)}</span>}
-      {row.attention_standing === "running_late" && (
-        <span className={noteCss}>{t("credit-registration-admin-running-late")}</span>
-      )}
-      {row.superseded && (
-        <span>
-          <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
-            {t("credit-registration-admin-replaced")}
-          </Badge>
-        </span>
-      )}
+      <InlineParts
+        className={noteCss}
+        parts={[
+          reason && attentionReasonLabel(t, reason),
+          row.attention_standing === "running_late" && t("credit-registration-admin-running-late"),
+          row.superseded && (
+            <Badge key="replaced" tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
+              {t("credit-registration-admin-replaced")}
+            </Badge>
+          ),
+        ]}
+      />
     </span>
   )
 }
@@ -643,7 +654,7 @@ const RegistrationsPage: React.FC = () => {
                   columns={[
                     {
                       header: t("label-student"),
-                      minWidth: "14rem",
+                      minWidth: STUDENT_COLUMN_MIN_WIDTH,
                       cell: (row) => (
                         <StudentCell row={row} href={creditRegistrationItemRoute(row.id)} />
                       ),
@@ -678,10 +689,11 @@ const RegistrationsPage: React.FC = () => {
                           )
                         }
                         return (
-                          <span className={rowCss}>
+                          <span className={numberLineCss}>
                             <span className={codeValueCss}>{number}</span>
                             {row.verified_student_number_via && (
                               <LinkingMethodLabel
+                                iconOnly
                                 method={row.verified_student_number_via}
                                 linkedAt={row.verified_student_number_at}
                               />
@@ -692,7 +704,7 @@ const RegistrationsPage: React.FC = () => {
                     },
                     {
                       header: t("label-status"),
-                      minWidth: "14rem",
+                      minWidth: "12rem",
                       cell: (row) => <StatusCell row={row} />,
                     },
                     {
@@ -713,33 +725,18 @@ const RegistrationsPage: React.FC = () => {
                       header: t("label-credit-registration-in-phase-since"),
                       minWidth: "9rem",
                       nowrap: true,
-                      cell: (row) => (
-                        <span className={stackedCellCss}>
-                          <ZonedTimestamp at={row.phase_started_at} />
-                          <span className={noteCss}>
-                            <ZonedTimestamp at={row.phase_started_at} />
-                          </span>
-                        </span>
-                      ),
+                      cell: (row) => <ZonedTimestamp at={row.phase_started_at} />,
                     },
                     {
                       header: t("label-credit-registration-last-activity"),
                       minWidth: "9rem",
                       nowrap: true,
                       // A blocked row has never been attempted, but entering its current state
-                      // counts as its last activity, or "—" here would read as "nothing ever
-                      // happened".
-                      cell: (row) => {
-                        const at = row.last_attempt_at ?? row.state_entered_at
-                        return (
-                          <span className={stackedCellCss}>
-                            <ZonedTimestamp at={at} />
-                            <span className={noteCss}>
-                              <ZonedTimestamp at={at} />
-                            </span>
-                          </span>
-                        )
-                      },
+                      // counts as its last activity, or a None mark here would read as "nothing
+                      // ever happened".
+                      cell: (row) => (
+                        <ZonedTimestamp at={row.last_attempt_at ?? row.state_entered_at} />
+                      ),
                     },
                   ]}
                 />

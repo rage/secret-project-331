@@ -240,6 +240,7 @@ export const zAccountLinkingUnusedLink = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid(),
   course_name: z.string(),
+  emailed_to: z.string(),
   expires_at: z.iso.datetime(),
   id: z.uuid(),
   uh_course_code: z.string().nullish(),
@@ -1723,6 +1724,11 @@ export const zAccountLinkingPresser = z.object({
   next_fetch_at: z.iso.datetime().nullish(),
   pressed_at: z.iso.datetime(),
   uh_course_code: z.string().nullish(),
+  unlinked_enrolled_before_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   user_id: z.uuid(),
 })
 
@@ -1787,6 +1793,11 @@ export const zAccountLinkingCourseCode = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   retry_not_before: z.iso.datetime().nullish(),
+  unlinked_enrolled_before_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   unused_link_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {

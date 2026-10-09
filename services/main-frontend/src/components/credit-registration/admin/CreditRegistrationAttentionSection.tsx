@@ -26,16 +26,12 @@ import {
   CREDIT_REGISTRATION_NS,
   PLAIN_DISCLOSURE,
 } from "../constants"
-import type { CreditRegistrationTFunction } from "../constants"
 import { dividedListCss, noteCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
 import { attentionPhaseAnchorId, needsAttentionHref } from "./adminLinks"
 import { registrationsListHref } from "./registrationsListUrl"
 
-const MINUTE_SECS = 60
-const HOUR_SECS = 3600
-const DAY_SECS = 86_400
 const WARNING_ICON_SIZE = 20
 
 const CRITICAL = "critical" as const
@@ -73,19 +69,7 @@ const bannerCss = css`
   gap: var(--space-3);
 `
 
-const alertLineCss = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  align-items: baseline;
-  justify-content: start;
-`
-
-const windowCaptionCss = css`
-  white-space: nowrap;
-`
-
-/** One card per alert: the sentence, the window it was measured over, and the way to act on it. */
+/** One card per alert: the sentence and the way to act on it. */
 const alertCardsCss = css`
   display: grid;
   gap: var(--space-3);
@@ -162,37 +146,6 @@ const ALERT_TONE_CSS = {
   `,
 } as const
 
-/** A rule's window in words: it lands in a sentence, where "7 d" reads as a typo. */
-const windowInWords = (t: CreditRegistrationTFunction, seconds: number): string => {
-  if (seconds >= DAY_SECS) {
-    return t("credit-registration-window-days", { count: Math.round(seconds / DAY_SECS) })
-  }
-  if (seconds >= HOUR_SECS) {
-    return t("credit-registration-window-hours", { count: Math.round(seconds / HOUR_SECS) })
-  }
-  return t("credit-registration-window-minutes", {
-    count: Math.max(1, Math.round(seconds / MINUTE_SECS)),
-  })
-}
-
-/**
- * The window a rule was measured over. Without it, two rules counting the same thing over
- * different windows read as a contradiction rather than as two measurements.
- */
-const AlertWindowCaption: React.FC<{ windowSecs: number | null | undefined }> = ({
-  windowSecs,
-}) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  if (windowSecs === null || windowSecs === undefined) {
-    return null
-  }
-  return (
-    <span className={cx(noteCss, windowCaptionCss)}>
-      {t("credit-registration-alert-window", { window: windowInWords(t, windowSecs) })}
-    </span>
-  )
-}
-
 /** Opens the tab a rule is acted on. Every card's button says "Open", so the accessible name is
  *  what carries which alert it opens. */
 const AlertOpenLink: React.FC<{ alert: CreditRegistrationAlert; sentence: string }> = ({
@@ -238,30 +191,26 @@ const AlertCardContent: React.FC<{ action: React.ReactNode; children: React.Reac
  * page of links, where one button per card says there is one thing to do with each.
  */
 const AlertRow: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   // oxlint-disable-next-line i18next/no-literal-string -- CSS lookup key, not user-facing text
   const tone = alert.severity === CRITICAL ? "critical" : "warning"
-  const sentence = alertSentence(t, alert.id, alert.count, alert.subject, alert.total)
+  const sentence = alertSentence(t, alert, i18n.language)
 
   return (
     <li className={cx(alertCardCss, ALERT_TONE_CSS[tone])}>
       <AlertCardContent action={<AlertOpenLink alert={alert} sentence={sentence} />}>
         <p className={alertSentenceCss}>{sentence}</p>
-        <AlertWindowCaption windowSecs={alert.window_secs} />
       </AlertCardContent>
     </li>
   )
 }
 
 const AlertLine: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
-    <span className={alertLineCss}>
-      <Link href={ALERT_ROUTES[alert.id]} prefetch={false}>
-        {alertSentence(t, alert.id, alert.count, alert.subject, alert.total)}
-      </Link>
-      <AlertWindowCaption windowSecs={alert.window_secs} />
-    </span>
+    <Link href={ALERT_ROUTES[alert.id]} prefetch={false}>
+      {alertSentence(t, alert, i18n.language)}
+    </Link>
   )
 }
 
@@ -286,9 +235,11 @@ export const CreditRegistrationAttentionSection: React.FC = () => {
   const notices = bySeverity(alerts, INFO)
   const named = alerts.filter((alert) => alert.severity !== INFO)
 
-  // The Needs attention tile beside this already says when nothing needs a person.
   if (named.length === 0 && notices.length === 0) {
-    return null
+    // With anything on the queue, the tab strip's Needs attention count already says so.
+    return overviewQuery.data?.needs_attention_count === 0 ? (
+      <p className={noteCss}>{t("credit-registration-admin-nothing-needs-a-human")}</p>
+    ) : null
   }
   return (
     <div className={bannerCss}>

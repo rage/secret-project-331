@@ -22,6 +22,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
@@ -40,6 +41,7 @@ import { noteCss, proseCss, subsectionCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { AdminActionDialog } from "./AdminActionDialog"
+import type { DialogOpenState } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
 import type { HandActionOffer } from "./handActionOffers"
@@ -187,6 +189,7 @@ interface TransitionActionProps {
   risk?: ResubmissionRisk
   isDestructive?: boolean
   onResult: (result: ActionResult) => void
+  openState?: DialogOpenState
 }
 
 /** One hand transition on one registration: its button, and the reason dialog it opens. */
@@ -200,6 +203,7 @@ export const TransitionAction: React.FC<TransitionActionProps> = ({
   risk = "normal",
   isDestructive = false,
   onResult,
+  openState,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -209,6 +213,7 @@ export const TransitionAction: React.FC<TransitionActionProps> = ({
     <AdminActionDialog<Fields, AdminTransitionCreditRegistrationResult>
       triggerLabel={label}
       triggerVariant={triggerVariant}
+      {...includeIf(openState, { openState })}
       dialogTitle={label}
       description={explanation}
       confirmLabel={label}

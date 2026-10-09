@@ -2,6 +2,7 @@ import type {
   AdminManualLinkOutcome,
   CreditRegistrationAdminAction,
   CreditRegistrationAdminActionTarget,
+  CreditRegistrationAlert,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
   CreditRegistrationEnrolmentRoute,
@@ -28,6 +29,7 @@ import {
   registrationLedgerStateLabel,
 } from "../creditRegistrationCopy"
 import { labelFrom, translateKey, widenedLookup } from "../labelFrom"
+import { formatSharePercent } from "./percent"
 
 export {
   notificationEmailLabel as notificationKindLabel,
@@ -277,25 +279,44 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
+const MINUTE_SECS = 60
+const HOUR_SECS = 3600
+const DAY_SECS = 86_400
+
+/** A rule's window in words, to slot into a sentence after "in the last". */
+const windowInWords = (t: CreditRegistrationTFunction, seconds: number): string => {
+  if (seconds >= DAY_SECS) {
+    return t("credit-registration-window-days", { count: Math.round(seconds / DAY_SECS) })
+  }
+  if (seconds >= HOUR_SECS) {
+    return t("credit-registration-window-hours", { count: Math.round(seconds / HOUR_SECS) })
+  }
+  return t("credit-registration-window-minutes", {
+    count: Math.max(1, Math.round(seconds / MINUTE_SECS)),
+  })
+}
+
 /**
- * One alert as the sentence the banner links.
+ * One alert as the sentence the banner shows, the window it was measured over included.
  *
- * `subject` is whatever the backend named as the commonest cause — a state, a mail domain, a phase.
+ * `subject` is whatever the backend named as the commonest cause: a state, a mail domain, a phase.
  * A state is translated on the way in, so the banner never shows a wire name; anything else is
  * passed through as the backend wrote it.
  */
 export const alertSentence = (
   t: CreditRegistrationTFunction,
-  id: CreditRegistrationAlertId,
-  count: number,
-  subject: string | null | undefined,
-  total: number | null | undefined,
+  alert: CreditRegistrationAlert,
+  locale: string,
 ): string =>
-  labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
-    count,
+  labelFrom(t, ALERT_KEYS, alert.id, GENERIC_ALERT_KEY, {
+    count: alert.count,
     subject:
-      subject && isLedgerState(subject) ? adminLedgerStateLabel(t, subject) : (subject ?? ""),
-    total: total ?? 0,
+      alert.subject && isLedgerState(alert.subject)
+        ? adminLedgerStateLabel(t, alert.subject)
+        : (alert.subject ?? ""),
+    total: alert.total ?? 0,
+    percent: alert.total ? formatSharePercent(alert.count, alert.total, locale) : "",
+    window: alert.window_secs ? windowInWords(t, alert.window_secs) : "",
   })
 
 const ATTENTION_REASON_KEYS = {

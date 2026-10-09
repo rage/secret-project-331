@@ -52,8 +52,15 @@ import AttentionRowActions from "./AttentionRowActions"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
-import { STEPS_BY_PHASE, TIMELINE_PHASES, timelinePhaseLabel } from "./timelineSteps"
+import {
+  STEPS_BY_PHASE,
+  TIMELINE_PHASES,
+  timelinePhaseLabel,
+  timelineStepLabel,
+} from "./timelineSteps"
 import { useHashTarget, useOpenedByLink } from "./useHashTarget"
+
+const ANSWER_UNCLEAR = "answer_unclear"
 
 /** Says how many of a section's rows are listed when the server capped them. */
 const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total }) => {
@@ -63,7 +70,10 @@ const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total
   ) : null
 }
 
-/** Who it waits on, then what happens next: the registration page's status card in a cell. */
+/**
+ * What is wrong first, then what to do, whom it waits on and any hint. An unclear answer's next
+ * step is advice, so its step name is what says what is wrong.
+ */
 const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registrationStatusLines(
@@ -72,10 +82,19 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
     null,
     item.unlinked_enrolled_before_count,
   )
+  const diagnosis =
+    item.timeline_step === ANSWER_UNCLEAR ? timelineStepLabel(t, item.timeline_step) : null
+  const [lead, ...notes] = [diagnosis, status.next, status.waitsOn].filter((line): line is string =>
+    Boolean(line),
+  )
   return (
     <span className={stackedCellCss}>
-      <span>{status.waitsOn}</span>
-      {status.next && <span className={noteCss}>{status.next}</span>}
+      <span>{lead}</span>
+      {notes.map((line) => (
+        <span key={line} className={noteCss}>
+          {line}
+        </span>
+      ))}
       {status.hint && <span className={noteCss}>{status.hint}</span>}
     </span>
   )

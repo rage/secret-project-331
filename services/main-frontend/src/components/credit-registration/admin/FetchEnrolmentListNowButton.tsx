@@ -15,8 +15,11 @@ import { Button } from "@/shared-module/components"
 
 import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS } from "../constants"
 
-/** Brings one course code's enrolment list forward to its next fetch slot, after a confirmation. */
-const FetchEnrolmentListNowButton: React.FC<{ courseCode: string }> = ({ courseCode }) => {
+/**
+ * Asks to confirm, then brings one course code's enrolment list forward to its next fetch slot.
+ * `run` is the whole flow, for a trigger other than `FetchEnrolmentListNowButton`.
+ */
+export const useFetchEnrolmentListNow = (courseCode: string) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
@@ -33,22 +36,30 @@ const FetchEnrolmentListNowButton: React.FC<{ courseCode: string }> = ({ courseC
         ]),
     },
   )
+  const run = async () => {
+    const confirmed = await confirm(
+      t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
+      undefined,
+      { yesButtonLabel: t("button-text-fetch-enrolment-list-now") },
+    )
+    if (confirmed) {
+      mutation.mutate()
+    }
+  }
+  return { run, isPending: mutation.isPending }
+}
+
+/** Brings one course code's enrolment list forward to its next fetch slot, after a confirmation. */
+const FetchEnrolmentListNowButton: React.FC<{ courseCode: string }> = ({ courseCode }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { run, isPending } = useFetchEnrolmentListNow(courseCode)
   return (
     <Button
       variant={BUTTON_TERTIARY}
       size="medium"
-      disabled={mutation.isPending}
+      disabled={isPending}
       aria-label={t("credit-registration-admin-fetch-enrolment-list-of", { code: courseCode })}
-      onClick={async () => {
-        const confirmed = await confirm(
-          t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
-          undefined,
-          { yesButtonLabel: t("button-text-fetch-enrolment-list-now") },
-        )
-        if (confirmed) {
-          mutation.mutate()
-        }
-      }}
+      onClick={() => void run()}
     >
       {t("button-text-fetch-enrolment-list-now")}
     </Button>

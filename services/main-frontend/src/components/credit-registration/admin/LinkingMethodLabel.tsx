@@ -44,7 +44,9 @@ const contentCss = css`
 const LinkingMethodLabel: React.FC<{
   method: StudentNumberVerificationMethod
   linkedAt: string | null | undefined
-}> = ({ method, linkedAt }) => {
+  /** Shows the icon alone, for a table too narrow for the label; the label stays its accessible name. */
+  iconOnly?: boolean
+}> = ({ method, linkedAt, iconOnly = false }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const Icon = METHOD_ICONS[method]
   const label = verificationMethodLabel(t, method)
@@ -54,7 +56,7 @@ const LinkingMethodLabel: React.FC<{
       trigger={
         <span className={triggerCss}>
           <Icon size={ICON_SIZE} />
-          {label}
+          {!iconOnly && label}
         </span>
       }
     >

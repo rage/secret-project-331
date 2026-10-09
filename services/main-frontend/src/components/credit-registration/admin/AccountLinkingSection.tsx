@@ -51,6 +51,7 @@ import {
   ADMIN_PAGE_SIZE_OPTIONS,
   ALIGN_END,
   BADGE_COMPACT,
+  BUTTON_SECONDARY,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
@@ -85,6 +86,7 @@ import {
   useAdminVerifiedStudentNumbers,
   useInvalidateAfterLinkingChange,
 } from "./adminCreditRegistrationHooks"
+import AdminLinkingCandidatesButton from "./AdminLinkingCandidatesButton"
 import {
   attentionPhaseAnchorId,
   courseCodeAnchorId,
@@ -118,6 +120,7 @@ const RECENT_LINK_METHODS = [
   "admin_manual",
 ] as const satisfies readonly StudentNumberVerificationMethod[]
 const STUDY_REGISTRY: StudentNumberVerificationMethod = "study_registry"
+const ADMIN_MANUAL: StudentNumberVerificationMethod = "admin_manual"
 
 const STUCK_DELTA_TONE: StatTileDeltaTone = "negative"
 const WAITING_FOR_STUDENT_NUMBER: TimelineStep = "waiting_for_student_number"
@@ -140,6 +143,13 @@ const arrowLinkCss = css`
   display: inline-flex;
   gap: var(--space-2);
   align-items: center;
+`
+
+const findingListCss = css`
+  display: grid;
+  margin: 0;
+  padding-left: var(--space-4);
+  list-style: none;
 `
 
 const healthListCss = css`
@@ -205,10 +215,16 @@ const HealthBanner: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   )
 }
 
+const unmailedEarlyEnrolees = (row: AccountLinkingPresser): number =>
+  row.unlinked_enrolled_before_count ?? 0
+
 /** Where a presser's linking email stands, from what is known about their course code. */
 const presserStatus = (t: CreditRegistrationTFunction, row: AccountLinkingPresser): string => {
   if (row.is_stuck) {
-    return t("credit-registration-admin-presser-stuck")
+    // The stuck rule also fires when emails did go out, if the code has unmailed early enrolees.
+    return unmailedEarlyEnrolees(row) > 0
+      ? t("credit-registration-admin-status-student-number-stuck")
+      : t("credit-registration-admin-presser-stuck")
   }
   if (row.is_fetch_failing) {
     return t("credit-registration-admin-presser-fetch-failing")
@@ -226,11 +242,24 @@ const presserStatus = (t: CreditRegistrationTFunction, row: AccountLinkingPresse
     : t("credit-registration-admin-status-waiting-for-linking-email")
 }
 
+/** Whether a fetch that could send linking emails has started since the press. */
+const isFetchedSincePress = (row: AccountLinkingPresser): boolean =>
+  row.last_mailing_fetch_started_at !== null &&
+  row.last_mailing_fetch_started_at !== undefined &&
+  new Date(row.last_mailing_fetch_started_at) >= new Date(row.pressed_at)
+
 const PresserStatusCell: React.FC<{ row: AccountLinkingPresser }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
       <span>{presserStatus(t, row)}</span>
+      {row.is_stuck && unmailedEarlyEnrolees(row) > 0 && (
+        <span className={noteCss}>
+          {t("credit-registration-admin-status-unmailed-early-enrolees", {
+            count: unmailedEarlyEnrolees(row),
+          })}
+        </span>
+      )}
       {row.is_stuck && (
         <Link
           href={needsAttentionHref(attentionPhaseAnchorId(WAITING_FOR_STUDENT_NUMBER_PHASE))}
@@ -243,6 +272,28 @@ const PresserStatusCell: React.FC<{ row: AccountLinkingPresser }> = ({ row }) =>
       )}
     </span>
   )
+}
+
+/**
+ * A stuck presser on a code with unmailed early enrolees gets the guess; anyone else a fetch, until
+ * one that could email them has run since the press.
+ */
+const PresserAction: React.FC<{ row: AccountLinkingPresser; isLinkingEnabled: boolean }> = ({
+  row,
+  isLinkingEnabled,
+}) => {
+  if (row.is_stuck && isLinkingEnabled && unmailedEarlyEnrolees(row) > 0) {
+    return (
+      <AdminLinkingCandidatesButton
+        registrationId={row.credit_registration_id}
+        variant={BUTTON_SECONDARY}
+      />
+    )
+  }
+  if (row.uh_course_code && !isFetchedSincePress(row)) {
+    return <FetchEnrolmentListNowButton courseCode={row.uh_course_code} />
+  }
+  return null
 }
 
 /** Students who pressed "I have enrolled" and still have no linked student number, stuck first. */
@@ -277,7 +328,7 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           {
             header: t("label-course"),
             grow: true,
-            minWidth: "11rem",
+            minWidth: "9rem",
             cell: (row) => (
               <span className={stackedCellCss}>
                 <span>{row.course_name}</span>
@@ -289,15 +340,14 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
             ),
           },
           {
-            header: t("label-credit-registration-how-they-enrolled"),
-            minWidth: "9rem",
-            cell: (row) => enrolmentRouteLabel(t, row.enrolment_route) ?? <AbsentValue />,
-          },
-          {
             header: t("label-credit-registration-pressed"),
             minWidth: "7rem",
-            nowrap: true,
-            cell: (row) => <ZonedTimestamp at={row.pressed_at} />,
+            cell: (row) => (
+              <span className={stackedCellCss}>
+                <ZonedTimestamp at={row.pressed_at} />
+                <span className={noteCss}>{enrolmentRouteLabel(t, row.enrolment_route)}</span>
+              </span>
+            ),
           },
           {
             header: t("credit-registration-admin-column-enrolment-list"),
@@ -318,16 +368,15 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           {
             header: t("label-status"),
             grow: 2,
-            minWidth: "16rem",
+            minWidth: "13rem",
             cell: (row) => <PresserStatusCell row={row} />,
           },
           {
             header: t("label-actions"),
             minWidth: "6rem",
-            cell: (row) =>
-              row.uh_course_code ? (
-                <FetchEnrolmentListNowButton courseCode={row.uh_course_code} />
-              ) : null,
+            cell: (row) => (
+              <PresserAction row={row} isLinkingEnabled={stats.account_linking_enabled} />
+            ),
           },
         ]}
       />
@@ -352,7 +401,10 @@ const WaitingCounts: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
           })}
           {...(engagement === "pressed" && counts.pressed_stuck > 0
             ? {
-                delta: t("credit-registration-admin-stuck-count", { count: counts.pressed_stuck }),
+                delta:
+                  counts.pressed_stuck === counts.pressed
+                    ? t("credit-registration-admin-all-stuck")
+                    : t("credit-registration-admin-stuck-of-them", { count: counts.pressed_stuck }),
                 deltaTone: STUCK_DELTA_TONE,
               }
             : {})}
@@ -393,6 +445,11 @@ const UnusedLinksBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
                 )}
               </span>
             ),
+          },
+          {
+            header: t("credit-registration-admin-column-sent-to"),
+            minWidth: "12rem",
+            cell: (row) => <UnbrokenValuesText>{row.emailed_to}</UnbrokenValuesText>,
           },
           {
             header: t("credit-registration-admin-column-link-age"),
@@ -477,7 +534,10 @@ const LinkingEmailsSection: React.FC<{ stats: AccountLinkingStats; windowDays: n
           alertWhenNonZero
         />
         {notSentYet > 0 && (
-          <StatTile label={t("credit-registration-admin-not-sent-yet")} value={notSentYet} />
+          <StatTile
+            label={t("credit-registration-admin-linking-emails-not-sent-yet")}
+            value={notSentYet}
+          />
         )}
       </StatTileList>
       <UnusedLinksBlock stats={stats} />
@@ -488,28 +548,61 @@ const LinkingEmailsSection: React.FC<{ stats: AccountLinkingStats; windowDays: n
   )
 }
 
-/** The people a code's last fetch found and what happened to each; zeros left out. */
+/**
+ * What happened to each person on a code's last list that fed linking; zeros left out. Unused links
+ * are only a note: they may come from earlier lists.
+ */
 const CourseCodeFindings: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const findings = [
-    { label: t("credit-registration-admin-found-mailed"), value: row.linking?.mailed_count },
-    { label: t("credit-registration-admin-found-unused-link"), value: row.unused_link_count },
-    {
-      label: t("credit-registration-admin-found-no-address"),
-      value: row.linking?.no_address_count,
-    },
+  const counters = row.linking
+  const outcomes = [
+    { label: t("credit-registration-admin-found-mailed"), value: counters?.mailed_count },
     {
       label: t("credit-registration-admin-found-already-linked"),
-      value: row.linking?.already_linked_count,
+      value: counters?.already_linked_count,
     },
-  ].filter((finding) => nonZero(finding.value) !== null)
+    {
+      label: t("credit-registration-admin-found-earlier-link-works"),
+      value: counters?.suppressed_by_dedup_count,
+    },
+    {
+      label: t("credit-registration-admin-found-sending-limit"),
+      value: counters?.suppressed_by_rate_cap_count,
+    },
+    { label: t("credit-registration-admin-found-no-address"), value: counters?.no_address_count },
+  ].filter((outcome) => nonZero(outcome.value) !== null)
+  const earlyEnrolees = nonZero(row.unlinked_enrolled_before_count)
+  const unusedLinks = nonZero(row.unused_link_count)
+  if (!counters) {
+    return <AbsentValue />
+  }
   return (
     <span className={stackedCellCss}>
-      {findings.map((finding) => (
-        <span key={finding.label}>
-          {finding.label}: {finding.value}
+      <span>
+        {t("credit-registration-admin-found-enrolled-since", {
+          count: counters.listed_person_count,
+        })}
+      </span>
+      {outcomes.length > 0 && (
+        // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+        <ul className={findingListCss} role="list">
+          {outcomes.map((outcome) => (
+            <li key={outcome.label}>
+              {outcome.label}: {outcome.value}
+            </li>
+          ))}
+        </ul>
+      )}
+      {earlyEnrolees !== null && (
+        <span>
+          {t("credit-registration-admin-found-enrolled-before", { count: earlyEnrolees })}
         </span>
-      ))}
+      )}
+      {unusedLinks !== null && (
+        <span className={noteCss}>
+          {t("credit-registration-admin-unused-links-on-code", { count: unusedLinks })}
+        </span>
+      )}
     </span>
   )
 }
@@ -582,19 +675,8 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
         {
           header: t("credit-registration-admin-column-last-fetched"),
           minWidth: "9rem",
-          cell: (row) => (
-            <span className={stackedCellCss}>
-              <ZonedTimestamp at={row.last_fetched_at} />
-              {row.last_listed_person_count !== null &&
-                row.last_listed_person_count !== undefined && (
-                  <span className={noteCss}>
-                    {t("credit-registration-admin-listed-count", {
-                      count: row.last_listed_person_count,
-                    })}
-                  </span>
-                )}
-            </span>
-          ),
+          nowrap: true,
+          cell: (row) => <ZonedTimestamp at={row.last_fetched_at} />,
         },
         {
           header: t("credit-registration-admin-column-next-fetch"),
@@ -610,13 +692,20 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
         },
         {
           header: t("credit-registration-admin-column-on-enrolment-list"),
-          align: ALIGN_END,
           minWidth: "7rem",
-          cell: (row) => nonZero(row.linking?.listed_person_count),
+          // Counts a person once per implementation they enrolled on, unlike the findings.
+          cell: (row) =>
+            row.last_listed_person_count === null || row.last_listed_person_count === undefined ? (
+              <AbsentValue />
+            ) : (
+              t("credit-registration-admin-enrolment-count", {
+                count: row.last_listed_person_count,
+              })
+            ),
         },
         {
           header: t("credit-registration-admin-column-what-happened"),
-          minWidth: "12rem",
+          minWidth: "16rem",
           cell: (row) => <CourseCodeFindings row={row} />,
         },
         {
@@ -656,7 +745,6 @@ const CourseCodesSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats })
           {t("credit-registration-heading-course-codes")}
         </h2>
       </div>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-course-codes-note")}</p>
       {active.length > 0 && <CourseCodeTable rows={active} labelledBy={headingId} />}
       {others.length > 0 && (
         <Disclosure
@@ -802,9 +890,6 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
       variant={PLAIN_DISCLOSURE}
     >
       <div className={subsectionCss}>
-        <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-recent-linking-emails-note")}
-        </p>
         <Table
           labelledBy={headingId}
           density={DENSITY_COMPACT}
@@ -949,9 +1034,6 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
       variant={PLAIN_DISCLOSURE}
     >
       <div className={subsectionCss}>
-        <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-stale-addresses-note")}
-        </p>
         <Table
           labelledBy={headingId}
           density={DENSITY_COMPACT}
@@ -1158,15 +1240,28 @@ const RecentClaimsBlock: React.FC<{
   })
   return (
     <div className={subsectionCss}>
-      <p className={cx(noteCss, proseCss)}>
-        {t("credit-registration-admin-claiming-address-differs-note")}
-      </p>
       <QueryResult
         query={numbersQuery}
         refreshIndicator={QUIET_REFRESH}
         contentClassName={subsectionCss}
       >
         {(page) => {
+          // A link made by hand rests on no address.
+          const sentToColumn: TableColumn<(typeof page.data)[number]>[] =
+            verifiedVia === ADMIN_MANUAL
+              ? []
+              : [
+                  {
+                    header: t("credit-registration-admin-column-sent-to"),
+                    minWidth: "14rem",
+                    cell: (row) =>
+                      row.verified_via_email ? (
+                        <UnbrokenValuesText>{row.verified_via_email}</UnbrokenValuesText>
+                      ) : (
+                        <AbsentValue />
+                      ),
+                  },
+                ]
           // Only manual links carry one, so on most pages the column would be empty end to end.
           const reasonColumn: TableColumn<(typeof page.data)[number]>[] = page.data.some(
             (row) => row.link_reason,
@@ -1203,26 +1298,7 @@ const RecentClaimsBlock: React.FC<{
                     minWidth: STUDENT_COLUMN_MIN_WIDTH,
                     cell: (row) => <StudentCell row={{ ...row, email: row.user_email ?? null }} />,
                   },
-                  {
-                    header: t("label-credit-registration-verified-via"),
-                    minWidth: "12rem",
-                    cell: (row) => (
-                      <span className={stackedCellCss}>
-                        {/* A pill only for the exception: an admin having to link by hand, not the two
-                            self-service routes a claim normally takes. */}
-                        {row.verified_via === "admin_manual" ? (
-                          <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
-                            {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
-                          </Badge>
-                        ) : (
-                          <span>
-                            {verificationMethodLabel(t, row.verified_via) ?? row.verified_via}
-                          </span>
-                        )}
-                        <span className={noteCss}>{row.verified_via_email}</span>
-                      </span>
-                    ),
-                  },
+                  ...sentToColumn,
                   {
                     header: t("label-time"),
                     minWidth: "8rem",
@@ -1310,13 +1386,15 @@ const AccountLinkingSection: React.FC = () => {
             <HealthBanner stats={stats} />
             {stats.account_linking_since && (
               <p className={cx(noteCss, proseCss)}>
-                {t("credit-registration-admin-account-linking-since", {
-                  time: formatZonedTimestamp(new Date(stats.account_linking_since)),
-                })}
+                <UnbrokenValuesText>
+                  {t("credit-registration-admin-account-linking-since", {
+                    time: formatZonedTimestamp(new Date(stats.account_linking_since)),
+                  })}
+                </UnbrokenValuesText>
               </p>
             )}
-            <PressersSection stats={stats} />
             <WaitingCounts stats={stats} />
+            <PressersSection stats={stats} />
             <LinkingEmailsSection stats={stats} windowDays={windowDays} />
             <CourseCodesSection stats={stats} />
             {stats.study_registry_conflicts.length > 0 && (

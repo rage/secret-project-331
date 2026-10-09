@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { EChartsOption } from "echarts"
 import React, { useId, useMemo, useState } from "react"
 import { useDateFormatter } from "react-aria"
@@ -8,7 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import {
-  HOUR_SECS,
   useCreditRegistrationErrorsByCode,
   useCreditRegistrationOverview,
   useCreditRegistrationPhases,
@@ -34,7 +32,6 @@ import {
 } from "@/components/credit-registration/admin/timelineSteps"
 import WhereRegistrationsStandList from "@/components/credit-registration/admin/WhereRegistrationsStandList"
 import {
-  DAY_SECS,
   useWindowSecsParam,
   WEEK_SECS,
   WindowSecsSelect,
@@ -44,7 +41,6 @@ import {
   DAY_AND_MONTH_FORMAT,
   QUIET_REFRESH,
 } from "@/components/credit-registration/constants"
-import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
   controlCss,
   emptyStateCss,
@@ -53,7 +49,6 @@ import {
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
-  sectionCss,
 } from "@/components/credit-registration/styles"
 import { formatZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -61,11 +56,10 @@ import type {
   CreditRegistrationOverview,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { creditRegistrationErrorsRoute } from "@/shared-module/common/utils/routes"
 import { Link, QueryResult, StatTile, StatTileList } from "@/shared-module/components"
 
 const TREND_CHART_HEIGHT = 300
-const TILE_COLUMNS = 5
+const TILE_COLUMNS = 4
 const SNAPSHOT_PHASE = "ledger-snapshot"
 const NEEDS_ATTENTION_LINE = "needs_attention" as const
 
@@ -81,38 +75,20 @@ const TREND_COLORS = {
   needs_attention: baseTheme.colors.crimson[600],
 } as const
 
-/** No heading needed: the control's own floating label covers it. Left-aligned like the rest of
- *  the page — pushed right it would have nothing to sit against. */
-const windowRowCss = css`
-  display: flex;
-`
-
-/** How a period's tiles name it: "in the last 7 days". */
-const periodLabel = (t: CreditRegistrationTFunction, windowSecs: number): string => {
-  switch (windowSecs) {
-    case HOUR_SECS:
-      return t("credit-registration-admin-period-hour")
-    case DAY_SECS:
-      return t("credit-registration-admin-period-day")
-    case WEEK_SECS:
-      return t("credit-registration-admin-period-week")
-    default:
-      return t("credit-registration-admin-period-month")
-  }
-}
-
-/** How the period's finished registrations ended, and how many need a person now. */
-const ThroughputSection: React.FC<{ needsAttentionCount: number | undefined }> = ({
-  needsAttentionCount,
-}) => {
+/** How the chosen period's finished registrations ended. The period picker sits in this card's
+ *  header because these tiles are all it controls. */
+const ThroughputSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
   const { control, windowSecs } = useWindowSecsParam(WEEK_SECS)
   const errorsQuery = useCreditRegistrationErrorsByCode(windowSecs)
-  const period = periodLabel(t, windowSecs)
 
   return (
-    <div className={sectionCss}>
-      <div className={windowRowCss}>
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-verdicts")}
+        </h2>
         <div className={controlCss}>
           <WindowSecsSelect control={control} includeMonth />
         </div>
@@ -123,35 +99,27 @@ const ThroughputSection: React.FC<{ needsAttentionCount: number | undefined }> =
             ariaLabel={t("credit-registration-heading-verdicts")}
             maxColumns={TILE_COLUMNS}
           >
-            {needsAttentionCount !== undefined && (
-              <StatTile
-                label={t("credit-registration-admin-tile-needs-attention")}
-                value={needsAttentionCount}
-                href={creditRegistrationErrorsRoute()}
-                alertWhenNonZero
-              />
-            )}
             <StatTile
-              label={t("credit-registration-admin-tile-registered", { period })}
+              label={t("credit-registration-admin-tile-registered")}
               value={verdicts.registered_count}
             />
             <StatTile
-              label={t("credit-registration-admin-tile-already-in-sisu", { period })}
+              label={t("credit-registration-admin-tile-already-in-sisu")}
               value={verdicts.duplicate_and_not_improved_count}
             />
             <StatTile
-              label={t("credit-registration-admin-tile-stopped", { period })}
+              label={t("credit-registration-admin-tile-stopped")}
               value={verdicts.failed_permanent_count}
               alertWhenNonZero
             />
             <StatTile
-              label={t("credit-registration-admin-tile-cancelled", { period })}
+              label={t("credit-registration-admin-tile-cancelled")}
               value={verdicts.cancelled_count}
             />
           </StatTileList>
         )}
       </QueryResult>
-    </div>
+    </section>
   )
 }
 
@@ -191,14 +159,32 @@ const WhereRegistrationsStandSection: React.FC<{ overview: CreditRegistrationOve
   )
 }
 
-/** One line per phase, Not started and finished registrations left out, and the Needs attention count. */
+/** Legend marks distinct in shape, so no line is told apart by its colour alone. */
+const TREND_SYMBOLS = {
+  course: "rect",
+  student_number: "triangle",
+  registering: "circle",
+  confirmation: "diamond",
+  needs_attention: "emptyCircle",
+} as const
+
+const SYMBOL_SIZE = 7
+const SOLID = "solid" as const
+const DASHED = "dashed" as const
+const LEGEND_PHASES = "phases"
+const LEGEND_ATTENTION = "attention"
+
+/**
+ * One line per phase that had anyone in it, Not started and finished registrations left out. Needs
+ * attention cuts across the phases, so it is dashed and has its own legend apart from them.
+ */
 const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
   const { points, days, snapshotOf } = useMemo(() => readHistoryDays(history), [history])
 
-  const series = useMemo(() => {
-    const phaseLines = TREND_PHASES.map((phase) => ({
+  const { phaseLines, attentionLine } = useMemo(() => {
+    const phases = TREND_PHASES.map((phase) => ({
       line: phase,
       label: timelinePhaseLabel(t, phase),
       points: days.map((day) => {
@@ -216,21 +202,38 @@ const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
           )
           .reduce((sum, point) => sum + point.count, 0)
       }),
-    }))
-    const attentionLine = {
+    })).filter((one) => one.points.some((point) => point !== null && point > 0))
+    const attention = {
       line: NEEDS_ATTENTION_LINE,
-      label: t("credit-registration-tab-errors"),
+      label: t("credit-registration-admin-trend-needs-attention"),
       points: days.map((day) => snapshotOf(day)?.needs_attention_count ?? null),
     }
-    return [...phaseLines, attentionLine]
+    return { phaseLines: phases, attentionLine: attention }
   }, [days, snapshotOf, t])
 
   const gapMarkArea = missingDaysMarkArea(points, t("credit-registration-admin-no-snapshot-day"))
+  const lineSeries = (
+    one: (typeof phaseLines)[number] | typeof attentionLine,
+    lineType: typeof SOLID | typeof DASHED,
+  ) => ({
+    name: one.label,
+    type: "line" as const,
+    symbol: TREND_SYMBOLS[one.line],
+    symbolSize: SYMBOL_SIZE,
+    showSymbol: !hasDrawableSegment(one.points),
+    connectNulls: false,
+    lineStyle: { width: LINE_WIDTH, type: lineType },
+    itemStyle: { color: TREND_COLORS[one.line] },
+    data: one.points,
+  })
   const options: EChartsOption = {
     tooltip: AXIS_TOOLTIP,
     // Above the plot: at the bottom it lands on the dates, and one of the two has to be read.
-    legend: { data: series.map((one) => one.label), top: 0 },
-    // The legend can wrap to two rows at phone width, so top has to clear both.
+    legend: [
+      { id: LEGEND_PHASES, data: phaseLines.map((one) => one.label), top: 0, left: 0 },
+      { id: LEGEND_ATTENTION, data: [attentionLine.label], top: 0, right: 0 },
+    ],
+    // The legends can wrap to two rows at phone width, so top has to clear both.
     grid: { left: 52, right: 16, top: 72, bottom: 32 },
     xAxis: {
       type: "category",
@@ -243,16 +246,13 @@ const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
       minInterval: 1,
       splitLine: { lineStyle: { color: GRID_LINE_COLOR } },
     },
-    series: series.map((one, index) => ({
-      name: one.label,
-      type: "line",
-      showSymbol: !hasDrawableSegment(one.points),
-      connectNulls: false,
-      lineStyle: { width: LINE_WIDTH },
-      itemStyle: { color: TREND_COLORS[one.line] },
-      data: one.points,
-      ...(index === 0 && gapMarkArea !== null ? { markArea: gapMarkArea } : {}),
-    })),
+    series: [
+      ...phaseLines.map((one) => lineSeries(one, SOLID)),
+      {
+        ...lineSeries(attentionLine, DASHED),
+        ...(gapMarkArea !== null ? { markArea: gapMarkArea } : {}),
+      },
+    ],
   }
   return <Echarts options={options} height={TREND_CHART_HEIGHT} />
 }
@@ -308,12 +308,8 @@ const OverviewPage: React.FC = () => {
 
   return (
     <div className={sectionCardsCss}>
-      {/* What is wrong right now and how the period went: the summary the reader came for, so it
-          opens the page uncarded rather than framed as one section among several. */}
-      <div className={sectionCss}>
-        <ThroughputSection needsAttentionCount={overviewQuery.data?.needs_attention_count} />
-        <CreditRegistrationAttentionSection />
-      </div>
+      <CreditRegistrationAttentionSection />
+      <ThroughputSection />
       <QueryResult query={overviewQuery} refreshIndicator={QUIET_REFRESH}>
         {(overview) => <WhereRegistrationsStandSection overview={overview} />}
       </QueryResult>

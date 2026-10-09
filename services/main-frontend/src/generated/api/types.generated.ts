@@ -75,6 +75,11 @@ export type AccountLinkingCourseCode = {
   pressed_waiting_count: number
   retry_not_before?: string | null
   /**
+   * People on the same list who enrolled before account linking began and are linked to no
+   * account, so no linking email went to them.
+   */
+  unlinked_enrolled_before_count?: number | null
+  /**
    * Linking emails on the code whose link can still be used.
    */
   unused_link_count: number
@@ -165,6 +170,11 @@ export type AccountLinkingPresser = {
   next_fetch_at?: string | null
   pressed_at: string
   uh_course_code?: string | null
+  /**
+   * The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
+   * one of them.
+   */
+  unlinked_enrolled_before_count?: number | null
   user_id: string
 }
 
@@ -312,6 +322,10 @@ export type AccountLinkingUnusedLink = {
   claimed_at: string
   course_id: string
   course_name: string
+  /**
+   * In full: support tells the recipients apart by it.
+   */
+  emailed_to: string
   expires_at: string
   id: string
   uh_course_code?: string | null

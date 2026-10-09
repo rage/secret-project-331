@@ -162,6 +162,19 @@ const secondaryCss = variantCss("secondary", "var(--btn-secondary-bg)")
 const tertiaryCss = variantCss("tertiary", "var(--btn-tertiary-bg-hover)")
 const destructiveCss = variantCss("destructive", "var(--btn-destructive-bg)")
 
+/**
+ * Keeps a selected toggle filled while hovered or focused. The primary hover inverts to a pale fill,
+ * so a toggle just clicked on would read as unselected for as long as the pointer stays on it.
+ */
+export const selectedToggleCss = css`
+  &[data-selected="true"]:hover:not(:disabled):not([aria-disabled="true"]),
+  &[data-selected="true"]:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+    border-color: var(--btn-primary-border);
+  }
+`
+
 const iconCss = css`
   background: var(--btn-icon-bg);
   color: var(--btn-icon-fg);

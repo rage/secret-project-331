@@ -14414,6 +14414,11 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "unlinked_enrolled_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "People on the same list who enrolled before account linking began and are linked to no\naccount, so no linking email went to them."
+          },
           "unused_link_count": {
             "type": "integer",
             "format": "int64",
@@ -14609,6 +14614,11 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
+          },
+          "unlinked_enrolled_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be\none of them."
           },
           "user_id": {
             "type": "string",
@@ -14946,7 +14956,7 @@
       "AccountLinkingUnusedLink": {
         "type": "object",
         "description": "A link that can still be used, and how old it is.",
-        "required": ["id", "course_id", "course_name", "claimed_at", "expires_at"],
+        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at", "expires_at"],
         "properties": {
           "claimed_at": {
             "type": "string",
@@ -14958,6 +14968,10 @@
           },
           "course_name": {
             "type": "string"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support tells the recipients apart by it."
           },
           "expires_at": {
             "type": "string",

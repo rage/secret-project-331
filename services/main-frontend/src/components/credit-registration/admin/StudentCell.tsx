@@ -1,6 +1,5 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
 import React from "react"
 
 import { formatUserName } from "@/hooks/useUserDetails"
@@ -8,15 +7,10 @@ import { Link } from "@/shared-module/components"
 
 import { LINK_QUIET } from "../constants"
 import { noteCss, stackedCellCss } from "../styles"
+import UnbrokenValuesText from "../UnbrokenValuesText"
 
 /** `Table.columns[].minWidth` for the `label-student` column, decided once for every table that has one. */
 export const STUDENT_COLUMN_MIN_WIDTH = "12rem"
-
-// An email address has almost no break opportunities of its own, so a fixed minWidth alone leaves it
-// to overflow the column.
-const addressCss = css`
-  overflow-wrap: anywhere;
-`
 
 interface Props {
   row: { first_name?: string | null; last_name?: string | null; email?: string | null }
@@ -34,7 +28,11 @@ const StudentCell: React.FC<Props> = ({ row, href }) => (
     ) : (
       <span>{formatUserName(row)}</span>
     )}
-    <span className={cx(noteCss, addressCss)}>{row.email}</span>
+    {row.email && (
+      <span className={noteCss}>
+        <UnbrokenValuesText>{row.email}</UnbrokenValuesText>
+      </span>
+    )}
   </span>
 )
 

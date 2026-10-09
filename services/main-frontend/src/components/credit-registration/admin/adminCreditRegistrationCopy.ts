@@ -156,6 +156,9 @@ const ADMIN_ERROR_CODE_KEYS = {
 
 const ADMIN_ERROR_UNKNOWN_KEY = "credit-registration-admin-error-unknown"
 
+/** Every error code, for a filter that offers them all. */
+export const ERROR_CODES = Object.keys(ADMIN_ERROR_CODE_KEYS) as CreditRegistrationErrorCode[]
+
 /**
  * The two codes whose sentence names the value Sisu rejected. Without the value the sentence still
  * has to read, so each has a variant that refers to it rather than quoting it.
@@ -504,11 +507,11 @@ export const enrolmentCheckSourceLabel = (
   source: EnrolmentCheckSource,
 ): string => labelFrom(t, ENROLMENT_CHECK_SOURCE_KEYS, source, ENROLMENT_CHECK_SOURCE_UNKNOWN_KEY)
 
-/** A ladder step, or that the ladder ran out when there is none. */
+/** A rung as "3rd check" (rungs count from 0), or "Stopped" once the ladder ran out. */
 export const enrolmentCheckStepLabel = (
   t: CreditRegistrationTFunction,
   step: number | null | undefined,
 ): string =>
   step === null || step === undefined
     ? t("credit-registration-admin-enrolment-check-stopped")
-    : String(step)
+    : t("credit-registration-admin-enrolment-check-nth", { count: step + 1, ordinal: true })

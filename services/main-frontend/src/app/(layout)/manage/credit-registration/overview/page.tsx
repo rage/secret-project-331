@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import type { EChartsOption } from "echarts"
 import React, { useId, useMemo, useState } from "react"
 import { useDateFormatter } from "react-aria"
@@ -15,7 +15,6 @@ import {
   useCreditRegistrationPipelineHistory,
   useCreditRegistrationReconciliation,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
 import { CreditRegistrationAttentionSection } from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
 import {
   AXIS_TOOLTIP,
@@ -30,15 +29,10 @@ import HistoryRangeChips from "@/components/credit-registration/admin/HistoryRan
 import ReconciliationSection from "@/components/credit-registration/admin/ReconciliationSection"
 import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
 import {
-  ATTENTION_STEPS,
-  ENGAGEMENTS,
-  engagementLabel,
   FINISHED_STEPS,
-  STEPS_BY_PHASE,
-  TIMELINE_PHASES,
   timelinePhaseLabel,
-  timelineStepLabel,
 } from "@/components/credit-registration/admin/timelineSteps"
+import WhereRegistrationsStandTable from "@/components/credit-registration/admin/WhereRegistrationsStandTable"
 import {
   DAY_SECS,
   useWindowSecsParam,
@@ -46,14 +40,9 @@ import {
   WindowSecsSelect,
 } from "@/components/credit-registration/admin/WindowSecsSelect"
 import {
-  ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DAY_AND_MONTH_FORMAT,
-  DENSITY_COMPACT,
-  LINK_INHERIT,
-  MIDDLE_DOT,
   QUIET_REFRESH,
-  TABLE_STACK,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
@@ -70,11 +59,10 @@ import { formatZonedTimestamp } from "@/components/credit-registration/ZonedTime
 import type {
   CreditRegistrationHistory,
   CreditRegistrationOverview,
-  CreditRegistrationStepCount,
 } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { creditRegistrationErrorsRoute } from "@/shared-module/common/utils/routes"
-import { Link, QueryResult, StatTile, StatTileList, Table } from "@/shared-module/components"
+import { Link, QueryResult, StatTile, StatTileList } from "@/shared-module/components"
 
 const TREND_CHART_HEIGHT = 300
 const TILE_COLUMNS = 5
@@ -97,16 +85,6 @@ const TREND_COLORS = {
  *  the page — pushed right it would have nothing to sit against. */
 const windowRowCss = css`
   display: flex;
-`
-
-const stepCellCss = css`
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-`
-
-const countLinkCss = css`
-  font-variant-numeric: tabular-nums;
 `
 
 /** How a period's tiles name it: "in the last 7 days". */
@@ -177,12 +155,6 @@ const ThroughputSection: React.FC<{ needsAttentionCount: number | undefined }> =
   )
 }
 
-const ORDERED_STEPS = TIMELINE_PHASES.flatMap((phase) => STEPS_BY_PHASE[phase])
-
-const stepCountOrder = (row: CreditRegistrationStepCount): number =>
-  ORDERED_STEPS.indexOf(row.step) * ENGAGEMENTS.length +
-  (row.engagement ? ENGAGEMENTS.indexOf(row.engagement) : 0)
-
 /**
  * Every step with live registrations, under its phase, in the timeline's words. Each count links to
  * the Registrations tab filtered to exactly those rows.
@@ -192,9 +164,7 @@ const WhereRegistrationsStandSection: React.FC<{ overview: CreditRegistrationOve
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
-  const rows = overview.where_registrations_stand
-    .filter((row) => row.count > 0)
-    .toSorted((a, b) => stepCountOrder(a) - stepCountOrder(b))
+  const hasRows = overview.where_registrations_stand.some((row) => row.count > 0)
 
   return (
     <section className={sectionCardCss} aria-labelledby={headingId}>
@@ -209,64 +179,13 @@ const WhereRegistrationsStandSection: React.FC<{ overview: CreditRegistrationOve
           {t("credit-registration-admin-show-not-started-link")}
         </Link>
       </p>
-      {rows.length === 0 ? (
-        <p className={emptyStateCss}>{t("credit-registration-admin-no-registrations")}</p>
-      ) : (
-        <Table
+      {hasRows ? (
+        <WhereRegistrationsStandTable
+          counts={overview.where_registrations_stand}
           labelledBy={headingId}
-          density={DENSITY_COMPACT}
-          responsive={TABLE_STACK}
-          rowKey={(row) => `${row.step}:${row.engagement ?? ""}`}
-          rows={rows}
-          rowGroup={(row) => ({ key: row.phase, label: timelinePhaseLabel(t, row.phase) })}
-          columns={[
-            {
-              header: t("credit-registration-admin-filter-step"),
-              grow: 1,
-              minWidth: "14rem",
-              cell: (row) => (
-                <span
-                  className={cx(
-                    stepCellCss,
-                    ATTENTION_STEPS.has(row.step) && TONE_INK["action-needed"],
-                  )}
-                >
-                  {timelineStepLabel(t, row.step)}
-                  {row.engagement && (
-                    <span className={noteCss}>
-                      {MIDDLE_DOT}
-                      {engagementLabel(t, row.engagement)}
-                    </span>
-                  )}
-                </span>
-              ),
-            },
-            {
-              header: t("label-count"),
-              align: ALIGN_END,
-              minWidth: "5rem",
-              nowrap: true,
-              cell: (row) => (
-                <Link
-                  href={registrationsListHref({
-                    steps: [row.step],
-                    engagements: row.engagement ? [row.engagement] : [],
-                  })}
-                  appearance={LINK_INHERIT}
-                  className={countLinkCss}
-                  aria-label={t("credit-registration-admin-open-count", {
-                    count: row.count,
-                    step: row.engagement
-                      ? `${timelineStepLabel(t, row.step)}${MIDDLE_DOT}${engagementLabel(t, row.engagement)}`
-                      : timelineStepLabel(t, row.step),
-                  })}
-                >
-                  {row.count}
-                </Link>
-              ),
-            },
-          ]}
         />
+      ) : (
+        <p className={emptyStateCss}>{t("credit-registration-admin-no-registrations")}</p>
       )}
     </section>
   )

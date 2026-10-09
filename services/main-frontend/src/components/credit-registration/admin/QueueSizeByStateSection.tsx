@@ -1,21 +1,16 @@
 "use client"
 
 import type { EChartsOption } from "echarts"
-import React, { useMemo, useState } from "react"
+import React, { useId, useMemo, useState } from "react"
 import { useDateFormatter } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CreditRegistrationHistory } from "@/generated/api/types.generated"
-import { Disclosure, QueryResult } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components"
 
-import {
-  CREDIT_REGISTRATION_NS,
-  DAY_AND_MONTH_FORMAT,
-  PLAIN_DISCLOSURE,
-  QUIET_REFRESH,
-} from "../constants"
-import { emptyStateCss, noteCss, sectionCardCss, subsectionCss } from "../styles"
+import { CREDIT_REGISTRATION_NS, DAY_AND_MONTH_FORMAT, QUIET_REFRESH } from "../constants"
+import { emptyStateCss, noteCss, subheadingCss, subsectionCss } from "../styles"
 import { adminLedgerStateLabel } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationPipelineHistory } from "./adminCreditRegistrationHooks"
 import {
@@ -154,34 +149,23 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
   )
 }
 
-const QueueSizeHistory: React.FC = () => {
+/** The daily queue size per ledger state, as one part of the System tab's History. */
+const QueueSizeByStateSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
   const [historyDays, setHistoryDays] = useState(MONTH_DAYS)
   const historyQuery = useCreditRegistrationPipelineHistory(historyDays)
 
   return (
-    <div className={subsectionCss}>
+    <section className={subsectionCss} aria-labelledby={headingId}>
+      <h3 id={headingId} className={subheadingCss}>
+        {t("credit-registration-heading-by-state-trend")}
+      </h3>
       <HistoryRangeChips days={historyDays} onChange={setHistoryDays} />
       <p className={noteCss}>{t("credit-registration-admin-small-multiples-note")}</p>
       <QueryResult query={historyQuery} refreshIndicator={QUIET_REFRESH}>
         {(history) => <StateSmallMultiples history={history} />}
       </QueryResult>
-    </div>
-  )
-}
-
-/** The daily queue size per ledger state, collapsed: a technical history, not today's work. */
-const QueueSizeByStateSection: React.FC = () => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <section className={sectionCardCss}>
-      <Disclosure
-        title={t("credit-registration-heading-by-state-trend")}
-        variant={PLAIN_DISCLOSURE}
-      >
-        {/* Mounted only when opened, so the history is fetched only for a reader who wants it. */}
-        <QueueSizeHistory />
-      </Disclosure>
     </section>
   )
 }

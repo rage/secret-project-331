@@ -18,6 +18,7 @@ import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import { AUDIT_USER_ID_PARAM } from "@/components/credit-registration/admin/adminLinks"
 import AdminStateLabel, {
   STATE_ICON_SIZE,
 } from "@/components/credit-registration/admin/AdminStateLabel"
@@ -38,6 +39,7 @@ import {
   MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
+  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
@@ -74,6 +76,7 @@ import {
   Infobox,
   Link,
   QueryResult,
+  RelativeTime,
   Select,
   Table,
   TextField,
@@ -87,6 +90,7 @@ const PARAM_ACTION = "action"
 const PARAM_TARGET_KIND = "target_kind"
 const PARAM_TARGET_ID = "target_id"
 const PARAM_COURSE_ID = "course_id"
+const PARAM_USER_ID = AUDIT_USER_ID_PARAM
 const PARAM_FROM = "from"
 const PARAM_TO = "to"
 const ANY = ""
@@ -293,6 +297,18 @@ const filteredTargetLabel = (
   return student || match?.course_name || targetId.slice(0, ID_PREFIX_LENGTH)
 }
 
+/** The student a `user_id` filter is about, named from the rows it matched. */
+const filteredStudentLabel = (
+  userId: string,
+  rows: readonly CreditRegistrationAdminActionRow[],
+): string => {
+  const named = rows.find((row) => row.target_first_name || row.target_last_name)
+  const student = named
+    ? formatUserName({ first_name: named.target_first_name, last_name: named.target_last_name })
+    : ""
+  return student || userId.slice(0, ID_PREFIX_LENGTH)
+}
+
 /**
  * Every hand action on the pipeline, admins and course teachers alike. The actor-kind filter is the
  * point of the tab: without it a teacher's retry on their own course reads as an admin's.
@@ -328,6 +344,7 @@ const AuditPage: React.FC = () => {
       const action = filters.param(PARAM_ACTION)
       const targetKind = filters.param(PARAM_TARGET_KIND)
       const targetId = filters.param(PARAM_TARGET_ID)
+      const userId = filters.param(PARAM_USER_ID)
       const courseId = filters.param(PARAM_COURSE_ID)
       const from = filters.param(PARAM_FROM)
       const to = filters.param(PARAM_TO)
@@ -343,6 +360,7 @@ const AuditPage: React.FC = () => {
         ...includeIf(validAction, { action: [validAction as CreditRegistrationAdminAction] }),
         ...includeIf(validTargetKind, { target_kind: validTargetKind }),
         ...includeIf(targetId, { target_id: targetId }),
+        ...includeIf(userId, { user_id: userId }),
         ...includeIf(courseId, { course_id: courseId }),
         ...includeIf(from, { from }),
         ...includeIf(to, { to }),
@@ -356,6 +374,7 @@ const AuditPage: React.FC = () => {
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
   const filteredTargetId = param(PARAM_TARGET_ID)
+  const filteredUserId = param(PARAM_USER_ID)
   const filteredActorId = param(PARAM_ACTOR_USER_ID)
 
   // Off the page in view, because the endpoint reports no roster of actors: someone who has not
@@ -377,12 +396,14 @@ const AuditPage: React.FC = () => {
     applyParams({ [PARAM_TARGET_ID]: undefined })
   }
 
-  // The target id is applied on submit rather than on change, so it is not one of the descriptors
-  // the hook counts — and a reader who arrived from a registration has only that one filter set.
-  const narrowedByCount = activeFilterCount + (filteredTargetId ? 1 : 0)
+  const clearUserFilter = () => applyParams({ [PARAM_USER_ID]: undefined })
+
+  // The target id and the student arrive from links rather than from the selects, so they are not
+  // descriptors the hook counts, and a reader who followed one has only that filter set.
+  const narrowedByCount = activeFilterCount + (filteredTargetId ? 1 : 0) + (filteredUserId ? 1 : 0)
   const clearAllFilters = () => {
     setValue(TARGET_ID_FIELD, "")
-    clearFilters([PARAM_TARGET_ID])
+    clearFilters([PARAM_TARGET_ID, PARAM_USER_ID])
   }
 
   return (
@@ -535,6 +556,19 @@ const AuditPage: React.FC = () => {
                     })}
                   </Chip>
                 )}
+                {filteredUserId && (
+                  <Chip
+                    onRemove={clearUserFilter}
+                    removeLabel={t("credit-registration-admin-remove-filter", {
+                      filter: t("label-student"),
+                      value: filteredStudentLabel(filteredUserId, page.data),
+                    })}
+                  >
+                    {t("credit-registration-admin-filtered-to-student", {
+                      student: filteredStudentLabel(filteredUserId, page.data),
+                    })}
+                  </Chip>
+                )}
               </div>
               <Table
                 caption={t("credit-registration-heading-audit")}
@@ -565,7 +599,14 @@ const AuditPage: React.FC = () => {
                     header: t("label-time"),
                     minWidth: "7rem",
                     nowrap: true,
-                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
+                    cell: (row) => (
+                      <span className={stackedCellCss}>
+                        <ZonedTimestamp at={row.created_at} />
+                        <span className={noteCss}>
+                          <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />
+                        </span>
+                      </span>
+                    ),
                   },
                   {
                     header: t("label-actor"),

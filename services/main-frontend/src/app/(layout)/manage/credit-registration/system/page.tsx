@@ -1,15 +1,18 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { adminLedgerStateLabel } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import { phaseAnchorId } from "@/components/credit-registration/admin/adminLinks"
 import AdminPhaseActions from "@/components/credit-registration/admin/AdminPhaseActions"
 import ApiLogSection from "@/components/credit-registration/admin/ApiLogSection"
+import BulkChangesSection from "@/components/credit-registration/admin/BulkChangesSection"
 import CircuitBreakerSection from "@/components/credit-registration/admin/CircuitBreakerSection"
 import EndpointSummarySection from "@/components/credit-registration/admin/EndpointSummarySection"
+import ErrorCodeSection from "@/components/credit-registration/admin/ErrorCodeSection"
 import {
   countPhasesByHealth,
   formatIntervalSecs,
@@ -24,8 +27,10 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
+  PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
+  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
 import {
@@ -37,19 +42,22 @@ import {
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
+  sectionCss,
   sectionHeaderCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
-import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
+  CreditRegistrationErrorCode,
   CreditRegistrationPhaseList,
   CreditRegistrationPhaseRow,
 } from "@/generated/api/types.generated"
 import {
   Badge,
+  Disclosure,
   Link,
+  RelativeTime,
   QueryResult,
   StatTile,
   StatTileList,
@@ -76,7 +84,7 @@ const PhaseTable: React.FC<{
           header: t("credit-registration-admin-column-phase"),
           minWidth: "12rem",
           cell: (row) => (
-            <span className={rowCss}>
+            <span id={phaseAnchorId(row.phase)} className={rowCss}>
               <code className={codeValueCss}>{row.phase}</code>
               {row.owned_states.length > 0 && (
                 <Tooltip
@@ -134,7 +142,9 @@ const PhaseTable: React.FC<{
           header: t("credit-registration-admin-phase-last-run"),
           minWidth: "8rem",
           nowrap: true,
-          cell: (row) => <ZonedTimestamp at={row.last_run_finished_at} />,
+          cell: (row) => (
+            <RelativeTime at={row.last_run_finished_at} absoluteTime={TIME_IN_TITLE} />
+          ),
         },
         {
           header: t("credit-registration-admin-column-due"),
@@ -142,7 +152,11 @@ const PhaseTable: React.FC<{
           cell: (row) => (
             <span className={stackedCellCss}>
               {/* A paused phase keeps a stale next_run_at; the status column says why it will not run. */}
-              {row.paused_at ? <span>{ABSENT}</span> : <ZonedTimestamp at={row.next_run_at} />}
+              {row.paused_at ? (
+                <span>{ABSENT}</span>
+              ) : (
+                <RelativeTime at={row.next_run_at} absoluteTime={TIME_IN_TITLE} />
+              )}
               <span className={noteCss}>
                 {t("credit-registration-admin-phase-interval", {
                   interval: formatIntervalSecs(row.expected_interval_secs, t),
@@ -215,7 +229,9 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
           here would just be that badge restated. Running and paused are not shown anywhere else. */}
       <StatTileList ariaLabel={t("credit-registration-heading-phases")}>
         <StatTile label={t("credit-registration-admin-phase-running")} value={counts.running} />
-        <StatTile label={t("credit-registration-admin-phase-paused")} value={counts.paused} />
+        {counts.paused > 0 && (
+          <StatTile label={t("credit-registration-admin-phase-paused")} value={counts.paused} />
+        )}
       </StatTileList>
       {list.paused_globally && (
         <div className={rowCss}>
@@ -238,16 +254,50 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
   )
 }
 
-/** The machinery: the phases that move the ledger, and the calls they make to the study registry. */
+/** The machinery: the phases that move the ledger, their history, the tools that act on many rows at
+ * once, and the calls they make to the study registry. */
 const SystemPage: React.FC = () => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const phasesQuery = useCreditRegistrationPhases()
+  const [isBulkOpen, setIsBulkOpen] = useState(false)
+  const [bulkErrorCode, setBulkErrorCode] = useState<CreditRegistrationErrorCode | null>(null)
+  const bulkSectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (bulkErrorCode) {
+      bulkSectionRef.current?.scrollIntoView()
+    }
+  }, [bulkErrorCode])
+
+  const selectRowsWithErrorCode = (errorCode: CreditRegistrationErrorCode) => {
+    setBulkErrorCode(errorCode)
+    setIsBulkOpen(true)
+  }
 
   return (
     <div className={sectionCardsCss}>
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
-      <QueueSizeByStateSection />
+      <section className={sectionCardCss}>
+        {/* Mounted only when opened, so the history is fetched only for a reader who wants it. */}
+        <Disclosure title={t("credit-registration-heading-history")} variant={PLAIN_DISCLOSURE}>
+          <div className={sectionCss}>
+            <ErrorCodeSection onSelectRows={selectRowsWithErrorCode} />
+            <QueueSizeByStateSection />
+          </div>
+        </Disclosure>
+      </section>
+      <section ref={bulkSectionRef} className={sectionCardCss}>
+        <Disclosure
+          title={t("credit-registration-heading-bulk-changes")}
+          variant={PLAIN_DISCLOSURE}
+          expanded={isBulkOpen}
+          onExpandedChange={setIsBulkOpen}
+        >
+          <BulkChangesSection prefilledErrorCode={bulkErrorCode} />
+        </Disclosure>
+      </section>
       <CircuitBreakerSection />
       <EndpointSummarySection />
       <ApiLogSection />

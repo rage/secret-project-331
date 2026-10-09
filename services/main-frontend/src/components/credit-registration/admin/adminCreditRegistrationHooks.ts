@@ -91,10 +91,11 @@ export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["que
 
 export const useAdminCreditRegistrations = (
   query: NonNullable<ListCreditRegistrationsForAdminData["query"]>,
-  { paused }: { paused: boolean },
+  { paused, enabled = true }: { paused: boolean; enabled?: boolean },
 ) =>
   useQuery({
     ...listCreditRegistrationsForAdminOptions({ query }),
+    enabled,
     // A table that reshuffles under a click is worse than a stale one.
     refetchInterval: paused ? false : LIST_REFETCH_INTERVAL_MS,
     staleTime: LIST_REFETCH_INTERVAL_MS,

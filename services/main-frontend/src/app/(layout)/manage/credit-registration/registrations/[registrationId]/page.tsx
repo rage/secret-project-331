@@ -16,10 +16,11 @@ import {
   useAdminCreditRegistration,
   useCreditRegistrationAdminActions,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import { auditForStudentHref } from "@/components/credit-registration/admin/adminLinks"
 import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import LinkingMethodIcon from "@/components/credit-registration/admin/LinkingMethodIcon"
 import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
+import LinkingMethodIcon from "@/components/credit-registration/admin/LinkingMethodIcon"
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
 import { registrationStatusLines } from "@/components/credit-registration/admin/registrationStatus"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
@@ -82,7 +83,6 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
-  creditRegistrationAuditRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
@@ -473,7 +473,7 @@ const FactsSection: React.FC<{
         <h2 id={headingId} className={headingCss}>
           {t("credit-registration-heading-registration-facts")}
         </h2>
-        <Link href={`${creditRegistrationAuditRoute()}?user_id=${row.user_id}`} prefetch={false}>
+        <Link href={auditForStudentHref(row.user_id)} prefetch={false}>
           {t("credit-registration-admin-all-actions-on-student")}
         </Link>
       </div>

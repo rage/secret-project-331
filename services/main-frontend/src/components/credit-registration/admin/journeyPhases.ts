@@ -312,8 +312,8 @@ export const buildJourney = (
   const studentNumberSlots: Slot[] = isReturning
     ? [
         {
-          key: "already_linked",
-          label: t("credit-registration-admin-journey-already-linked"),
+          key: "already_known",
+          label: t("credit-registration-admin-journey-already-known"),
           at: linkedAt,
         },
       ]

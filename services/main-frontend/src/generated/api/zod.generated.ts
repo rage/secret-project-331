@@ -3010,6 +3010,14 @@ export const zExtendStageRequest = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zExternalCourseOutput = z.object({
+  description: z.string().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  on_old_platform: z.boolean(),
+  url: z.string(),
+})
+
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
   order_number: z
@@ -3550,6 +3558,13 @@ export const zNewExerciseRepository = z.object({
   exam_id: z.uuid().nullish(),
   git_url: z.string(),
   public_key: z.string().nullish(),
+})
+
+export const zNewExternalCourse = z.object({
+  description: z.string().nullish(),
+  name: z.string(),
+  on_old_platform: z.boolean(),
+  url: z.string(),
 })
 
 export const zNewMaterialReference = z.object({
@@ -9243,6 +9258,32 @@ export const zGetExerciseSubmissionsForUserPath = z.object({
  * Exercise submissions for user
  */
 export const zGetExerciseSubmissionsForUserResponse = z.array(zExerciseSlideSubmission)
+
+/**
+ * All external courses
+ */
+export const zGetExternalCoursesResponse = z.array(zExternalCourseOutput)
+
+export const zDeleteExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Deleted external course
+ */
+export const zDeleteExternalCourseResponse = zExternalCourseOutput
+
+export const zCreateExternalCourseBody = zNewExternalCourse
+
+/**
+ * Created external course
+ */
+export const zCreateExternalCourseResponse = zExternalCourseOutput
+
+export const zUpdateExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Updated external course
+ */
+export const zUpdateExternalCourseResponse = zExternalCourseOutput
 
 export const zMarkFeedbackAsReadBody = zMarkAsRead
 

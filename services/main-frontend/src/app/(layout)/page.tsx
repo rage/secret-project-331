@@ -148,6 +148,13 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link href="/external-courses" className={navLinkCss}>
+            {t("external-courses")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
     </div>
   )
 }

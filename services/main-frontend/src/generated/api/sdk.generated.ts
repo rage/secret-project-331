@@ -122,6 +122,8 @@ import type {
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
   CreateExerciseServiceResponses,
+  CreateExternalCourseData,
+  CreateExternalCourseResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -166,6 +168,8 @@ import type {
   DeleteExerciseRepositoryResponses,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponses,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponses,
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
@@ -475,6 +479,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponses,
   GetExerciseSubmissionsResponses,
+  GetExternalCoursesData,
+  GetExternalCoursesResponses,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponses,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -804,6 +810,8 @@ import type {
   UpdateExerciseRepositoryResponses,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponses,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponses,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponses,
   UpdateGlossaryTermData,
@@ -872,6 +880,7 @@ import {
   zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
+  zCreateExternalCourseResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -884,6 +893,7 @@ import {
   zDeleteEmailTemplateResponse,
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
+  zDeleteExternalCourseResponse,
   zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
@@ -1020,6 +1030,7 @@ import {
   zGetExerciseSlideSubmissionInfoResponse,
   zGetExerciseSubmissionsForUserResponse,
   zGetExerciseSubmissionsResponse,
+  zGetExternalCoursesResponse,
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
@@ -1155,6 +1166,7 @@ import {
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
+  zUpdateExternalCourseResponse,
   zUpdateGeneratedCertificateResponse,
   zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
@@ -6829,6 +6841,74 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}",
     ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+ */
+export const getExternalCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetExternalCoursesData, ThrowOnError>,
+): RequestResult<GetExternalCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetExternalCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetExternalCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/all",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-course/delete` - Deletes external course.
+ */
+export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteExternalCourseData, ThrowOnError>,
+): RequestResult<DeleteExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DeleteExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDeleteExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
+ */
+export const createExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExternalCourseData, ThrowOnError>,
+): RequestResult<CreateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/new",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-course/update` - Updates external course.
+ */
+export const updateExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExternalCourseData, ThrowOnError>,
+): RequestResult<UpdateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/update",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

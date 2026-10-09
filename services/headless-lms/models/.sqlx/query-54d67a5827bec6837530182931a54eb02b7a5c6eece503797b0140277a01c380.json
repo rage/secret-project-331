@@ -1,0 +1,91 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO external_courses(\n    name,\n    description,\n    url,\n    name_embedding,\n    description_embedding,\n    on_old_platform\n    )\nVALUES(\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6\n    )\nRETURNING\n    id,\n    name,\n    description,\n    url,\n    on_old_platform\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "url",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "url"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "on_old_platform",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_courses",
+            "name": "on_old_platform"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "54d67a5827bec6837530182931a54eb02b7a5c6eece503797b0140277a01c380"
+}

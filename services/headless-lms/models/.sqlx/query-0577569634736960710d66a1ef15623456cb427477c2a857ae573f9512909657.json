@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT  t.id AS \"id!\",\n    t.name AS \"name!\",\n    t.description,\n    t.url AS \"url!\",\n    t.on_old_platform AS \"on_old_platform!\"\nFROM (\n    SELECT\n        ec.*,\n        LEAST(MIN(name_embedding <#> v.embedding),\n              MIN(description_embedding <#> v.embedding)) AS distance\n    FROM external_courses ec\n    CROSS JOIN unnest($1::vector[]) AS v(embedding)\n    WHERE deleted_at IS NULL\n    GROUP BY id\n    ORDER BY distance ASC\n    LIMIT 5\n) t\nUNION\nSELECT ec.id,\n       ec.name,\n       ec.description,\n       ec.url,\n       ec.on_old_platform\nFROM external_courses ec\nCROSS JOIN unnest($2::text[]) AS k(keyword)\nWHERE deleted_at IS NULL\nAND to_tsvector(\n    'english',\n    ec.name || ' ' || coalesce(ec.description, '')\n) @@ websearch_to_tsquery('english', k.keyword)\n\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "name!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "url!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "on_old_platform!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "vector[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "vector",
+                  "kind": "Simple"
+                }
+              }
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "0577569634736960710d66a1ef15623456cb427477c2a857ae573f9512909657"
+}

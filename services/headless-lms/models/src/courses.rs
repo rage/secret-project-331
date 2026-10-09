@@ -115,6 +115,16 @@ pub struct Course {
     pub ai_policy: CourseAiPolicy,
     pub course_material_ai_instructions: Option<bool>,
 }
+impl Course {
+    pub fn is_closed(&self) -> bool {
+        if let Some(closed_at) = self.closed_at {
+            let now = chrono::Utc::now();
+            closed_at <= now
+        } else {
+            false
+        }
+    }
+}
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1721,7 +1731,7 @@ FROM (
     WHERE c.deleted_at IS NULL AND ce.deleted_at IS NULL AND c.id = ce.course_id
     GROUP BY c.id
     ORDER BY distance ASC
-    LIMIT 5
+    LIMIT 10
 ) t
 UNION ALL
 SELECT DISTINCT c.id

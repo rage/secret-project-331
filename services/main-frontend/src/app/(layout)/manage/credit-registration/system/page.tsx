@@ -4,6 +4,7 @@ import { cx } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import { adminLedgerStateLabel } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import { useCreditRegistrationPhases } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { phaseAnchorId } from "@/components/credit-registration/admin/adminLinks"
@@ -15,24 +16,22 @@ import EndpointSummarySection from "@/components/credit-registration/admin/Endpo
 import ErrorCodeSection from "@/components/credit-registration/admin/ErrorCodeSection"
 import {
   countPhasesByHealth,
-  formatIntervalSecs,
   isUnhealthyPhase,
   phaseHealth,
   phaseHealthLabel,
 } from "@/components/credit-registration/admin/phaseStatus"
 import QueueSizeByStateSection from "@/components/credit-registration/admin/QueueSizeByStateSection"
 import {
-  ABSENT,
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
+import { formatIntervalInWords } from "@/components/credit-registration/durationWords"
+import ScheduledTime from "@/components/credit-registration/ScheduledTime"
 import {
   headingCss,
   codeValueCss,
@@ -48,6 +47,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationPhaseList,
@@ -57,7 +57,6 @@ import {
   Badge,
   Disclosure,
   Link,
-  RelativeTime,
   QueryResult,
   StatTile,
   StatTileList,
@@ -91,11 +90,18 @@ const PhaseTable: React.FC<{
                   aria-label={t("credit-registration-admin-owned-states-tooltip-label", {
                     phase: row.phase,
                   })}
+                  trigger={
+                    <span className={noteCss}>
+                      {t("credit-registration-admin-owned-states-trigger", {
+                        count: row.owned_states.length,
+                      })}
+                    </span>
+                  }
                 >
                   {t("credit-registration-admin-owned-states-tooltip-body", {
                     states: row.owned_states
                       .map((state) => adminLedgerStateLabel(t, state))
-                      .join(MIDDLE_DOT),
+                      .join(", "),
                   })}
                 </Tooltip>
               )}
@@ -142,9 +148,7 @@ const PhaseTable: React.FC<{
           header: t("credit-registration-admin-phase-last-run"),
           minWidth: "8rem",
           nowrap: true,
-          cell: (row) => (
-            <RelativeTime at={row.last_run_finished_at} absoluteTime={TIME_IN_TITLE} />
-          ),
+          cell: (row) => <ZonedTimestamp at={row.last_run_finished_at} />,
         },
         {
           header: t("credit-registration-admin-column-due"),
@@ -152,14 +156,10 @@ const PhaseTable: React.FC<{
           cell: (row) => (
             <span className={stackedCellCss}>
               {/* A paused phase keeps a stale next_run_at; the status column says why it will not run. */}
-              {row.paused_at ? (
-                <span>{ABSENT}</span>
-              ) : (
-                <RelativeTime at={row.next_run_at} absoluteTime={TIME_IN_TITLE} />
-              )}
+              {row.paused_at ? <AbsentValue /> : <ScheduledTime at={row.next_run_at} />}
               <span className={noteCss}>
                 {t("credit-registration-admin-phase-interval", {
-                  interval: formatIntervalSecs(row.expected_interval_secs, t),
+                  interval: formatIntervalInWords(t, row.expected_interval_secs),
                 })}
               </span>
             </span>
@@ -170,7 +170,7 @@ const PhaseTable: React.FC<{
           align: ALIGN_END,
           minWidth: "5rem",
           nowrap: true,
-          cell: (row) => row.queue_depth ?? ABSENT,
+          cell: (row) => row.queue_depth ?? <AbsentValue />,
         },
         {
           header: t("label-actions"),

@@ -2584,7 +2584,7 @@ export const zAccountLinkingRecentEmail = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid(),
   course_name: z.string(),
-  emailed_to_masked: z.string(),
+  emailed_to: z.string(),
   id: z.uuid(),
   last_error_message: z.string().nullish(),
   queued_at: z.iso.datetime().nullish(),
@@ -3409,7 +3409,7 @@ export const zLinkingCandidateSimilarity = z.enum([
  * account linking began, and who may be the waiting student.
  */
 export const zAdminLinkingCandidate = z.object({
-  email_masked: z.string().nullish(),
+  email: z.string().nullish(),
   enrolled_at: z.iso.datetime().nullish(),
   first_names: z.string().nullish(),
   last_name: z.string().nullish(),

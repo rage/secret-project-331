@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { ABSENT } from "@/components/credit-registration/constants"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import { timeZoneOffsetString } from "@/shared-module/common/utils/time"
 import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTimeFormat"
 
@@ -33,10 +33,10 @@ export function formatZonedTimeRange(from: Date, to: Date): string {
   return `${start}–${end.slice(TIME_START)} (${offset})`
 }
 
-/** A `<time>` showing an absolute timestamp with its zone; `ABSENT` when there is none. */
+/** A `<time>` showing an absolute timestamp with its zone; a muted mark when there is none. */
 export const ZonedTimestamp: React.FC<{ at: string | null | undefined }> = ({ at }) => {
   if (!at) {
-    return <span>{ABSENT}</span>
+    return <AbsentValue />
   }
   return (
     <time className={nowrapCss} dateTime={at}>

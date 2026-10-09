@@ -4,6 +4,7 @@ import React, { useEffect, useId, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationErrorCode,
   CreditRegistrationState,
@@ -11,7 +12,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Button, QueryResult, RelativeTime, Select, Table } from "@/shared-module/components"
+import { Button, QueryResult, Select, Table } from "@/shared-module/components"
 
 import {
   BUTTON_TERTIARY,
@@ -19,7 +20,6 @@ import {
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_DURATION,
 } from "../constants"
 import {
   codeValueCss,
@@ -247,9 +247,7 @@ const BulkChangesSection: React.FC<{ prefilledErrorCode: CreditRegistrationError
                     header: t("label-credit-registration-time-in-state"),
                     minWidth: "7rem",
                     nowrap: true,
-                    cell: (row) => (
-                      <RelativeTime at={row.state_changed_at} absoluteTime={TIME_DURATION} />
-                    ),
+                    cell: (row) => <ZonedTimestamp at={row.state_changed_at} />,
                   },
                 ]}
               />

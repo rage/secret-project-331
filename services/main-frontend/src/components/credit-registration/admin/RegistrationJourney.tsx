@@ -680,7 +680,7 @@ const StepItem: React.FC<{
   attemptNumber: (registrationId: string) => number | undefined
   showsAttempts: boolean
 }> = ({ step, currentAttemptId, attemptNumber, showsAttempts }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [isOpen, setIsOpen] = useState(false)
   const eventsId = useId()
   const labelId = useId()
@@ -706,7 +706,7 @@ const StepItem: React.FC<{
           {step.secsAfterPrevious !== null && (
             <span className="tl-gap">
               {t("credit-registration-admin-journey-later", {
-                duration: formatDurationInWords(t, step.secsAfterPrevious, i18n.language),
+                duration: formatDurationInWords(t, step.secsAfterPrevious),
               })}
               <VisuallyHidden>
                 {" "}

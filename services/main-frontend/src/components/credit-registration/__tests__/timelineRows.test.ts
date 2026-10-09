@@ -278,9 +278,9 @@ describe("buildTimeline", () => {
     )
     expect(sentences(entries)).toEqual(["result-enrolment-found", "result-rejected"])
     expect(entries.map((entry) => entry.detail)).toEqual([
-      "Syksy · credit-registration-credits credits=5",
+      "Syksy, credit-registration-credits credits=5",
       expect.stringMatching(
-        /^sisuValidationFailed · credit-registration-admin-error-sisu-validation-failed/,
+        /^credit-registration-admin-rejection-detail .*credit-registration-admin-error-sisu-validation-failed.*sisuValidationFailed/,
       ),
     ])
     expect(entries.map((entry) => entry.state)).toEqual(["checking_enrolment", "failed_permanent"])

@@ -6,6 +6,7 @@ import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -16,7 +17,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
+import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
   codeValueCss,
@@ -140,7 +141,9 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code className={codeValueCss}>{row.request_item_id ?? ABSENT}</code>
+                        <code className={codeValueCss}>
+                          {row.request_item_id ?? <AbsentValue />}
+                        </code>
                       </Link>
                     ),
                   },
@@ -150,12 +153,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   },
                   {
                     header: t("label-email"),
-                    cell: (row) => row.email ?? ABSENT,
+                    cell: (row) => row.email ?? <AbsentValue />,
                   },
                   {
                     header: t("label-student-number"),
                     cell: (row) => (
-                      <span className={codeValueCss}>{row.student_number ?? ABSENT}</span>
+                      <span className={codeValueCss}>{row.student_number ?? <AbsentValue />}</span>
                     ),
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },

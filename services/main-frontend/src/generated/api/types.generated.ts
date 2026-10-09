@@ -175,7 +175,10 @@ export type AccountLinkingRecentEmail = {
   claimed_at: string
   course_id: string
   course_name: string
-  emailed_to_masked: string
+  /**
+   * In full: support tells the recipients apart by it.
+   */
+  emailed_to: string
   id: string
   last_error_message?: string | null
   /**
@@ -631,9 +634,9 @@ export type AdminDismissStudyRegistryConflictPayload = {
  */
 export type AdminLinkingCandidate = {
   /**
-   * Masked like a teacher sees it: until a link is used they are a stranger, not the student.
+   * In full: support has to tell the candidates apart before mailing one of them.
    */
-  email_masked?: string | null
+  email?: string | null
   /**
    * `None` when the study registry gave no enrolment time.
    */

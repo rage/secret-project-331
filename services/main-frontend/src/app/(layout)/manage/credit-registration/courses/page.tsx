@@ -29,18 +29,17 @@ import {
   FINISHED_STEPS,
   TIMELINE_STEPS,
 } from "@/components/credit-registration/admin/timelineSteps"
-import WhereRegistrationsStandTable from "@/components/credit-registration/admin/WhereRegistrationsStandTable"
+import WhereRegistrationsStandList from "@/components/credit-registration/admin/WhereRegistrationsStandList"
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
+import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   controlCss,
   controlsCss,
@@ -58,6 +57,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats, TimelineStep } from "@/generated/api/types.generated"
 import {
   Badge,
@@ -67,7 +67,6 @@ import {
   Link,
   MeterInline,
   QueryResult,
-  RelativeTime,
   Select,
   StatTile,
   StatTileList,
@@ -227,7 +226,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
             ) : (
               <>
                 {t("credit-registration-admin-config-checked-at")}{" "}
-                <RelativeTime at={module.config_checked_at} absoluteTime={TIME_IN_TITLE} />
+                <ZonedTimestamp at={module.config_checked_at} />
               </>
             )}
           </p>
@@ -318,7 +317,7 @@ const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({
       <h3 id={headingId} className={subheadingCss}>
         {t("credit-registration-heading-states")}
       </h3>
-      <WhereRegistrationsStandTable
+      <WhereRegistrationsStandList
         counts={module.where_registrations_stand}
         labelledBy={headingId}
         courseModuleId={module.course_module_id}
@@ -480,9 +479,10 @@ const CoursesPage: React.FC = () => {
                           >
                             {row.course_name}
                           </Link>
-                          <span className={cx(noteCss, codeValueCss)}>
-                            {moduleSubtitle(row).join(MIDDLE_DOT)}
-                          </span>
+                          <InlineParts
+                            className={cx(noteCss, codeValueCss)}
+                            parts={moduleSubtitle(row)}
+                          />
                         </span>
                       ),
                     },
@@ -505,7 +505,7 @@ const CoursesPage: React.FC = () => {
                             {row.paused_at && (
                               <span className={noteCss}>
                                 {t("credit-registration-module-paused-since")}{" "}
-                                <RelativeTime at={row.paused_at} absoluteTime={TIME_IN_TITLE} />
+                                <ZonedTimestamp at={row.paused_at} />
                               </span>
                             )}
                             {isPaused && row.pause_reason && (

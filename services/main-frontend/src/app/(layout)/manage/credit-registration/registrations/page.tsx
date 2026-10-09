@@ -51,11 +51,9 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_DURATION,
   TONE,
 } from "@/components/credit-registration/constants"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
@@ -92,7 +90,6 @@ import {
   EmptyState,
   MultiSelect,
   QueryResult,
-  RelativeTime,
   Select,
   Table,
   TextField,
@@ -238,10 +235,14 @@ const StatusCell: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
   return (
     <span className={stackedCellCss}>
       {row.phase !== "ended" && <span className={noteCss}>{timelinePhaseLabel(t, row.phase)}</span>}
-      <span className={cx(stepCss, isAttention && TONE_INK["action-needed"])}>
+      <span className={stepCss}>
         {isAttention ? (
           <span className={attentionLineCss}>
-            <ExclamationTriangle size={ATTENTION_ICON_SIZE} aria-hidden />
+            <ExclamationTriangle
+              size={ATTENTION_ICON_SIZE}
+              className={TONE_INK["action-needed"]}
+              aria-hidden
+            />
             {timelineStepLabel(t, row.timeline_step)}
           </span>
         ) : (
@@ -367,7 +368,10 @@ const RegistrationsPage: React.FC = () => {
   const errorCodeOptions: ErrorCodeOption[] = (overviewQuery.data?.error_codes ?? []).map(
     (row) => ({
       code: row.error_code,
-      label: `${adminErrorShortLabel(t, row.error_code)}${MIDDLE_DOT}${row.error_code}`,
+      label: t("credit-registration-admin-error-option", {
+        label: adminErrorShortLabel(t, row.error_code),
+        code: row.error_code,
+      }),
     }),
   )
 
@@ -378,7 +382,10 @@ const RegistrationsPage: React.FC = () => {
   const stateOptions: StateOption[] = BUCKET_ORDER.flatMap((bucket) =>
     ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket).map((state) => ({
       state,
-      label: `${adminLedgerStateLabel(t, state)}${MIDDLE_DOT}${bucketLabel(t, bucket)}`,
+      label: t("credit-registration-admin-state-in-bucket", {
+        state: adminLedgerStateLabel(t, state),
+        bucket: bucketLabel(t, bucket),
+      }),
     })),
   )
 
@@ -609,7 +616,7 @@ const RegistrationsPage: React.FC = () => {
                 // than no button.
                 {...includeIf(activeFilters.length > 0, {
                   hint: t("credit-registration-admin-filters-in-use", {
-                    filters: activeFilters.join(MIDDLE_DOT),
+                    filters: activeFilters.join(", "),
                   }),
                   action: (
                     <Button variant={BUTTON_TERTIARY} size="medium" onClick={clearEveryFilter}>
@@ -708,7 +715,7 @@ const RegistrationsPage: React.FC = () => {
                       nowrap: true,
                       cell: (row) => (
                         <span className={stackedCellCss}>
-                          <RelativeTime at={row.phase_started_at} absoluteTime={TIME_DURATION} />
+                          <ZonedTimestamp at={row.phase_started_at} />
                           <span className={noteCss}>
                             <ZonedTimestamp at={row.phase_started_at} />
                           </span>
@@ -726,7 +733,7 @@ const RegistrationsPage: React.FC = () => {
                         const at = row.last_attempt_at ?? row.state_entered_at
                         return (
                           <span className={stackedCellCss}>
-                            <RelativeTime at={at} absoluteTime={TIME_DURATION} />
+                            <ZonedTimestamp at={at} />
                             <span className={noteCss}>
                               <ZonedTimestamp at={at} />
                             </span>

@@ -5,6 +5,7 @@ import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import {
   actorRoleLabel,
   ADMIN_ACTION_KEYS,
@@ -28,7 +29,6 @@ import {
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
-  ABSENT,
   ADMIN_PAGE_SIZE_OPTIONS,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
@@ -36,10 +36,8 @@ import {
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   LINK_QUIET,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
@@ -56,6 +54,7 @@ import {
   stackedCellCss,
   stateChangeFromCss,
 } from "@/components/credit-registration/styles"
+import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationAdminAction,
@@ -76,7 +75,6 @@ import {
   Infobox,
   Link,
   QueryResult,
-  RelativeTime,
   Select,
   Table,
   TextField,
@@ -141,10 +139,6 @@ const dateRangeCss = css`
 `
 
 /** The "On" column's subtitle: a course or module name, which can outrun the column's width. */
-const targetSubtitleCss = css`
-  overflow-wrap: anywhere;
-`
-
 interface FilterFields {
   actor_role: string
   actor_user_id: string
@@ -213,9 +207,12 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
   return (
     <span className={stackedCellCss}>
       <span>{actorName(row)}</span>
-      <span className={noteCss}>
-        {[actorRoleLabel(t, row.actor_role), row.actor_email].filter(Boolean).join(MIDDLE_DOT)}
-      </span>
+      <span className={noteCss}>{actorRoleLabel(t, row.actor_role)}</span>
+      {row.actor_email && (
+        <span className={noteCss}>
+          <UnbrokenValuesText>{row.actor_email}</UnbrokenValuesText>
+        </span>
+      )}
     </span>
   )
 }
@@ -232,16 +229,11 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
     row.target_phase ??
     row.course_name ??
     (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
-  const kindAndCourse = [
-    adminActionTargetLabel(t, row.target_kind),
-    student ? row.course_name : null,
-  ]
-    .filter(Boolean)
-    .join(MIDDLE_DOT)
   const body = (
     <span className={stackedCellCss}>
-      <span>{name ?? ABSENT}</span>
-      <span className={cx(noteCss, targetSubtitleCss)}>{kindAndCourse}</span>
+      <span>{name ?? <AbsentValue />}</span>
+      <span className={noteCss}>{adminActionTargetLabel(t, row.target_kind)}</span>
+      {student && row.course_name && <span className={noteCss}>{row.course_name}</span>}
     </span>
   )
   return row.target_kind === REGISTRATION_TARGET && row.target_id ? (
@@ -272,7 +264,7 @@ const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ 
           </span>
         </span>
       )}
-      {row.after_state ? <AdminStateLabel state={row.after_state} /> : <span>{ABSENT}</span>}
+      {row.after_state ? <AdminStateLabel state={row.after_state} /> : <AbsentValue />}
     </span>
   )
 }
@@ -603,7 +595,7 @@ const AuditPage: React.FC = () => {
                       <span className={stackedCellCss}>
                         <ZonedTimestamp at={row.created_at} />
                         <span className={noteCss}>
-                          <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />
+                          <ZonedTimestamp at={row.created_at} />
                         </span>
                       </span>
                     ),
@@ -636,7 +628,7 @@ const AuditPage: React.FC = () => {
                     grow: 2,
                     minWidth: "16rem",
                     nowrap: false,
-                    cell: (row) => row.reason ?? ABSENT,
+                    cell: (row) => row.reason ?? <AbsentValue />,
                   },
                   {
                     header: t("credit-registration-admin-column-on"),

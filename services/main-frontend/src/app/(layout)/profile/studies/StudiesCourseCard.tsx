@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next"
 import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
-  MIDDLE_DOT,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -39,6 +38,7 @@ import {
   Link,
   Meter,
   METER_KIND,
+  MIDDLE_DOT,
   RegistrationStatusBadge,
   RelativeTime,
 } from "@/shared-module/components"

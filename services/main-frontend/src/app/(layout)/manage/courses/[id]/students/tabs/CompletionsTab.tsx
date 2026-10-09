@@ -6,11 +6,8 @@ import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import {
-  ABSENT,
-  CREDIT_REGISTRATION_NS,
-  QUIET_REFRESH,
-} from "@/components/credit-registration/constants"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { CREDIT_REGISTRATION_NS, QUIET_REFRESH } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
 import { hasOnlyDefaultModule } from "@/components/credit-registration/creditRegistrationCopy"
@@ -29,7 +26,7 @@ import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/ap
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { EmptyState, QueryResults } from "@/shared-module/components"
+import { ABSENT_LABEL, EmptyState, QueryResults } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -144,7 +141,7 @@ const gradeLabel = (grade: unknown, passed: unknown, t: CreditRegistrationTFunct
   if (passed === false) {
     return t("label-not-passed")
   }
-  return ABSENT
+  return ABSENT_LABEL
 }
 
 /** Width of the review badge, which the plain-text column measurement cannot see. */
@@ -203,7 +200,7 @@ const RegistrationCell: React.FC<{
       </span>
     )
   }
-  return <span>{ABSENT}</span>
+  return <AbsentValue />
 }
 
 const buildColumns = (

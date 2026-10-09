@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import InlineParts from "@/components/credit-registration/InlineParts"
+import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import {
   getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
@@ -15,13 +17,7 @@ import type { DialogAction } from "@/shared-module/components"
 import { Badge, Checkbox, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "../constants"
-import {
-  BADGE_COMPACT,
-  BUTTON_PRIMARY,
-  CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
-  TONE,
-} from "../constants"
+import { BADGE_COMPACT, BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss, rowCss, stackedCellCss } from "../styles"
 import { useActionResult } from "../useActionResult"
@@ -51,20 +47,23 @@ const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCa
   [candidate.first_names, candidate.last_name].filter(Boolean).join(" ") ||
   t("credit-registration-admin-linking-candidate-no-name")
 
-const candidateFacts = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) =>
-  [
-    candidate.email_masked ?? t("credit-registration-admin-linking-candidate-no-address"),
-    candidate.enrolled_at
-      ? t("credit-registration-admin-linking-candidate-enrolled", {
-          time: formatZonedTimestamp(new Date(candidate.enrolled_at)),
-        })
-      : t("credit-registration-admin-linking-candidate-enrolment-time-unknown"),
-    candidate.linking_emails_for_course > 0
-      ? t("credit-registration-admin-linking-candidate-emails", {
-          count: candidate.linking_emails_for_course,
-        })
-      : t("credit-registration-admin-linking-candidate-not-emailed"),
-  ].join(MIDDLE_DOT)
+const candidateFacts = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) => [
+  candidate.email ? (
+    <UnbrokenValuesText key="email">{candidate.email}</UnbrokenValuesText>
+  ) : (
+    t("credit-registration-admin-linking-candidate-no-address")
+  ),
+  candidate.enrolled_at
+    ? t("credit-registration-admin-linking-candidate-enrolled", {
+        time: formatZonedTimestamp(new Date(candidate.enrolled_at)),
+      })
+    : t("credit-registration-admin-linking-candidate-enrolment-time-unknown"),
+  candidate.linking_emails_for_course > 0
+    ? t("credit-registration-admin-linking-candidate-emails", {
+        count: candidate.linking_emails_for_course,
+      })
+    : t("credit-registration-admin-linking-candidate-not-emailed"),
+]
 
 /**
  * Lets an admin guess which unlinked early enrolee on the code is a student stuck waiting for a
@@ -185,7 +184,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
                   label={candidateName(t, candidate)}
                   description={
                     <span className={stackedCellCss}>
-                      <span>{candidateFacts(t, candidate)}</span>
+                      <InlineParts parts={candidateFacts(t, candidate)} />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>
                           {candidate.similarities.map((similarity) => (

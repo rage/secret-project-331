@@ -39,7 +39,6 @@ use crate::domain::credit_registration::linking_candidates::{
 use crate::domain::credit_registration::linking_mail_resend::{
     ResendOutcome, ensure_resend_possible,
 };
-use crate::domain::credit_registration::mail_status::mask_email;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::CreditRegistrationPhase;
@@ -220,7 +219,8 @@ pub struct AccountLinkingRecentEmail {
     pub id: Uuid,
     pub course_id: Uuid,
     pub course_name: String,
-    pub emailed_to_masked: String,
+    /// In full: support tells the recipients apart by it.
+    pub emailed_to: String,
     pub claimed_at: DateTime<Utc>,
     /// When the `link-emails` phase handed it to the email worker.
     pub queued_at: Option<DateTime<Utc>>,
@@ -390,8 +390,8 @@ pub struct AdminLinkingCandidate {
     pub student_number: String,
     pub first_names: Option<String>,
     pub last_name: Option<String>,
-    /// Masked like a teacher sees it: until a link is used they are a stranger, not the student.
-    pub email_masked: Option<String>,
+    /// In full: support has to tell the candidates apart before mailing one of them.
+    pub email: Option<String>,
     /// `None` when the study registry gave no enrolment time.
     pub enrolled_at: Option<DateTime<Utc>>,
     /// Linking emails they have had for the registration's course, replaced ones included.
@@ -623,7 +623,7 @@ pub async fn get_account_linking_stats(
         id: row.id,
         course_id: row.course_id,
         course_name: row.course_name,
-        emailed_to_masked: mask_email(row.emailed_to.expose_secret()),
+        emailed_to: row.emailed_to.expose_secret().to_owned(),
         claimed_at: row.claimed_at,
         queued_at: row.queued_at,
         send_status: row.send_status,
@@ -1143,8 +1143,7 @@ pub async fn get_credit_registration_linking_candidates(
                     .last_name
                     .as_ref()
                     .map(|name| name.expose_secret().to_owned()),
-                email_masked: mail_address(person)
-                    .map(|address| mask_email(address.expose_secret())),
+                email: mail_address(person).map(|address| address.expose_secret().to_owned()),
                 enrolled_at: person.enrolled_at(),
                 linking_emails_for_course: mails_by_person
                     .get(person.person_id.expose_secret())

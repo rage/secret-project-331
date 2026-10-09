@@ -5,7 +5,6 @@ import type {
 import { isRecord } from "@/shared-module/common/utils/objects"
 import type { RegistrationStatusState } from "@/shared-module/components"
 
-import { ABSENT, MIDDLE_DOT } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import {
   adminErrorShortLabel,
@@ -115,7 +114,7 @@ const enrolmentSummary = (
     realisation,
     credits === null ? null : t("credit-registration-credits", { credits }),
   ].filter((part): part is string => part !== null)
-  return parts.length > 0 ? parts.join(MIDDLE_DOT) : null
+  return parts.length > 0 ? parts.join(", ") : null
 }
 
 /** The realisation and credits of the enrolment the registration went with, if an answer named it. */
@@ -135,13 +134,13 @@ export const selectedEnrolmentSummary = (
 
 /** Sisu's own code, then what it means for the administrator. */
 const rejectionDetail = (t: CreditRegistrationTFunction, event: Event): string => {
-  const parts = [
-    event.suotar_code ?? null,
-    registrationErrorAdminHelp(t, event.error_code) ?? adminErrorShortLabel(t, event.error_code),
-  ].filter((part): part is string => Boolean(part))
-  return parts.length > 0
-    ? parts.join(MIDDLE_DOT)
-    : t("credit-registration-admin-timeline-result-no-clear-answer")
+  const help =
+    registrationErrorAdminHelp(t, event.error_code) ?? adminErrorShortLabel(t, event.error_code)
+  const code = event.suotar_code ?? null
+  if (help && code) {
+    return t("credit-registration-admin-rejection-detail", { help, code })
+  }
+  return help ?? code ?? t("credit-registration-admin-timeline-result-no-clear-answer")
 }
 
 const eventTime = (event: Event): string => event.suotar_answered_at ?? event.created_at
@@ -370,14 +369,17 @@ const describe = (
   switch (event.kind) {
     case "suotar_response":
       return suotarOutcome(t, event, context)
-    case "created":
+    case "created": {
+      const n = context.attemptNumber(event.credit_registration_id)
       return {
-        sentence: t("credit-registration-admin-timeline-attempt-started", {
-          n: context.attemptNumber(event.credit_registration_id) ?? ABSENT,
-        }),
+        sentence:
+          n === undefined
+            ? t("credit-registration-admin-timeline-another-attempt-started")
+            : t("credit-registration-admin-timeline-attempt-started", { n }),
         tone: "current",
         detail: event.message ?? null,
       }
+    }
     case "retry_scheduled":
       // SUBMIT_MAX_BACKOFF in credit-registration's import claim; the event does not carry it.
       return {

@@ -4,6 +4,8 @@ import { cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
+import InlineParts from "@/components/credit-registration/InlineParts"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   BlockingProblem,
   CreditRegistrationAttentionDismissal,
@@ -16,24 +18,14 @@ import {
   creditRegistrationItemRoute,
   manageCourseModulesRoute,
 } from "@/shared-module/common/utils/routes"
-import {
-  Disclosure,
-  EmptyState,
-  Link,
-  QueryResult,
-  RelativeTime,
-  Table,
-} from "@/shared-module/components"
+import { Disclosure, EmptyState, Link, QueryResult, Table } from "@/shared-module/components"
 
 import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_DURATION,
-  TIME_IN_TITLE,
 } from "../constants"
 import {
   headingCss,
@@ -56,7 +48,6 @@ import {
   phaseHref,
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
-import { TONE_INK } from "./AdminStateLabel"
 import AttentionRowActions from "./AttentionRowActions"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
@@ -83,9 +74,7 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
   )
   return (
     <span className={stackedCellCss}>
-      <span className={cx(status.tone === "attention" && TONE_INK["action-needed"])}>
-        {status.waitsOn}
-      </span>
+      <span>{status.waitsOn}</span>
       {status.next && <span className={noteCss}>{status.next}</span>}
       {status.hint && <span className={noteCss}>{status.hint}</span>}
     </span>
@@ -95,9 +84,7 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
 const CourseCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => (
   <span className={stackedCellCss}>
     <span>{item.course_name}</span>
-    <span className={noteCss}>
-      {[item.course_module_name, item.uh_course_code].filter(Boolean).join(MIDDLE_DOT)}
-    </span>
+    <InlineParts className={noteCss} parts={[item.course_module_name, item.uh_course_code]} />
   </span>
 )
 
@@ -140,7 +127,7 @@ const AttentionItemsTable: React.FC<{
           header: t("label-credit-registration-in-phase-since"),
           minWidth: "7rem",
           nowrap: true,
-          cell: (row) => <RelativeTime at={row.phase_started_at} absoluteTime={TIME_DURATION} />,
+          cell: (row) => <ZonedTimestamp at={row.phase_started_at} />,
         },
         ...(hasActions
           ? [
@@ -187,7 +174,12 @@ const BlockingProblemLine: React.FC<{
         <p className={proseCss}>
           {t("credit-registration-admin-problem-module-misconfigured", {
             course: first
-              ? [first.course_name, first.course_module_name].filter(Boolean).join(MIDDLE_DOT)
+              ? first.course_module_name
+                ? t("credit-registration-course-and-module", {
+                    course: first.course_name,
+                    module: first.course_module_name,
+                  })
+                : first.course_name
               : problem.subject,
           })}{" "}
           {first && (
@@ -363,10 +355,13 @@ const DismissedRecentlySection: React.FC<{
             {
               header: t("credit-registration-admin-column-dismissed-reasons"),
               minWidth: "10rem",
-              cell: (row) =>
-                row.dismissed_reasons
-                  .map((reason) => attentionReasonLabel(t, reason))
-                  .join(MIDDLE_DOT),
+              cell: (row) => (
+                <span className={stackedCellCss}>
+                  {row.dismissed_reasons.map((reason) => (
+                    <span key={reason}>{attentionReasonLabel(t, reason)}</span>
+                  ))}
+                </span>
+              ),
             },
             {
               header: t("label-reason"),
@@ -386,7 +381,7 @@ const DismissedRecentlySection: React.FC<{
                     })}
                   </span>
                   <span className={noteCss}>
-                    <RelativeTime at={row.dismissed_at} absoluteTime={TIME_IN_TITLE} />
+                    <ZonedTimestamp at={row.dismissed_at} />
                   </span>
                 </span>
               ),

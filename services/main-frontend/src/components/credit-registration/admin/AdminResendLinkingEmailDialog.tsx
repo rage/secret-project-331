@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import InlineParts from "@/components/credit-registration/InlineParts"
+import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import {
   getAccountLinkingStatsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
@@ -12,7 +14,7 @@ import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
@@ -113,11 +115,13 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
               </div>
             )}
             {result.linking_emails.map((mail) => (
-              <div key={mail.id}>
-                {mail.emailed_to}
-                {MIDDLE_DOT}
-                {sendStatusLabel(t, mail.send_status.email_send_status)}
-              </div>
+              <InlineParts
+                key={mail.id}
+                parts={[
+                  <UnbrokenValuesText key="to">{mail.emailed_to}</UnbrokenValuesText>,
+                  sendStatusLabel(t, mail.send_status.email_send_status),
+                ]}
+              />
             ))}
           </Infobox>
         )}

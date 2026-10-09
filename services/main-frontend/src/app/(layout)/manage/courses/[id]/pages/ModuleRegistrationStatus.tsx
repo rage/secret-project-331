@@ -4,7 +4,7 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BADGE_COMPACT, MIDDLE_DOT, TONE } from "@/components/credit-registration/constants"
+import { BADGE_COMPACT, TONE } from "@/components/credit-registration/constants"
 import { noteCss } from "@/components/credit-registration/styles"
 import type { CourseCreditRegistrationModuleSummary } from "@/generated/api/types.generated"
 import { Badge, Link } from "@/shared-module/components"
@@ -46,12 +46,9 @@ const ModuleRegistrationStatus: React.FC<Props> = ({ summary, rosterHrefOf }) =>
         })}
       </Link>
       {summary.failed_count > 0 && (
-        <>
-          {MIDDLE_DOT}
-          <Link href={rosterHrefOf(true)} className={failedCss}>
-            {t("credit-registration-summary-failed", { count: summary.failed_count })}
-          </Link>
-        </>
+        <Link href={rosterHrefOf(true)} className={failedCss}>
+          {t("credit-registration-summary-failed", { count: summary.failed_count })}
+        </Link>
       )}
       {summary.paused && (
         <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>

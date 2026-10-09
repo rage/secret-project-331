@@ -15,7 +15,7 @@ import {
   useCreditRegistrationPipelineHistory,
   useCreditRegistrationReconciliation,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import { CreditRegistrationAttentionSection } from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
+import { CreditRegistrationAttentionSection } from "@/components/credit-registration/admin/CreditRegistrationAttentionSection"
 import {
   AXIS_TOOLTIP,
   GRID_LINE_COLOR,
@@ -32,7 +32,7 @@ import {
   FINISHED_STEPS,
   timelinePhaseLabel,
 } from "@/components/credit-registration/admin/timelineSteps"
-import WhereRegistrationsStandTable from "@/components/credit-registration/admin/WhereRegistrationsStandTable"
+import WhereRegistrationsStandList from "@/components/credit-registration/admin/WhereRegistrationsStandList"
 import {
   DAY_SECS,
   useWindowSecsParam,
@@ -180,7 +180,7 @@ const WhereRegistrationsStandSection: React.FC<{ overview: CreditRegistrationOve
         </Link>
       </p>
       {hasRows ? (
-        <WhereRegistrationsStandTable
+        <WhereRegistrationsStandList
           counts={overview.where_registrations_stand}
           labelledBy={headingId}
         />

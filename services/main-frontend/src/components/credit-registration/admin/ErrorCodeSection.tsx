@@ -1,11 +1,13 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { ArrowDownLine, ArrowUpLine } from "@vectopus/atlas-icons-react"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationErrorCode } from "@/generated/api/types.generated"
-import { Badge, Button, Link, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, Button, Link, QueryResult, Table } from "@/shared-module/components"
 
 import {
   ALIGN_END,
@@ -16,7 +18,6 @@ import {
   LINK_QUIET,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_IN_TITLE,
   TONE,
 } from "../constants"
 import { failureOwner, failureOwnerLabel } from "../registrationFailures"
@@ -40,15 +41,22 @@ import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSele
 
 const signed = (delta: number): string => (delta > 0 ? `+${delta}` : String(delta))
 
-const risingCss = css`
-  color: var(--color-crimson-700);
+const deltaCss = css`
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
   font-variant-numeric: tabular-nums;
 `
 
-const fallingCss = css`
-  color: var(--color-green-700);
-  font-variant-numeric: tabular-nums;
+const risingIconCss = css`
+  color: var(--color-crimson-700);
 `
+
+const fallingIconCss = css`
+  color: var(--color-green-700);
+`
+
+const DELTA_ICON_SIZE = 12
 
 /**
  * Which error codes the window's failures ended on, against the previous window. The counts are
@@ -146,7 +154,21 @@ const ErrorCodeSection: React.FC<{
                       return t("credit-registration-admin-new-this-window")
                     }
                     return (
-                      <span className={delta > 0 ? risingCss : delta < 0 ? fallingCss : noteCss}>
+                      <span className={cx(deltaCss, delta === 0 && noteCss)}>
+                        {delta > 0 && (
+                          <ArrowUpLine
+                            size={DELTA_ICON_SIZE}
+                            className={risingIconCss}
+                            aria-hidden
+                          />
+                        )}
+                        {delta < 0 && (
+                          <ArrowDownLine
+                            size={DELTA_ICON_SIZE}
+                            className={fallingIconCss}
+                            aria-hidden
+                          />
+                        )}
                         {signed(delta)}
                       </span>
                     )
@@ -170,9 +192,7 @@ const ErrorCodeSection: React.FC<{
                   header: t("credit-registration-admin-column-last-seen"),
                   minWidth: "8rem",
                   nowrap: true,
-                  cell: (row) => (
-                    <RelativeTime at={row.last_seen_at} absoluteTime={TIME_IN_TITLE} />
-                  ),
+                  cell: (row) => <ZonedTimestamp at={row.last_seen_at} />,
                 },
                 {
                   header: t("credit-registration-admin-column-registrations-now"),

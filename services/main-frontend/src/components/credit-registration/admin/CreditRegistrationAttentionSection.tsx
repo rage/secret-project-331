@@ -3,7 +3,6 @@
 import { css, cx } from "@emotion/css"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -17,7 +16,6 @@ import {
   creditRegistrationEnrolmentChecksRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
-  creditRegistrationRegistrationsRoute,
   creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
 import { Disclosure, Link as ActionLink } from "@/shared-module/components"
@@ -318,106 +316,3 @@ export const CreditRegistrationAttentionSection: React.FC = () => {
     </div>
   )
 }
-
-/**
- * One card on the tabs that are not the Overview: five system-wide problems above a page about one
- * registration are noise, but a working tab should still say what is on fire elsewhere — and say
- * it, rather than only counting it, while there is one thing to name.
- */
-const SummaryStrip: React.FC<{ alerts: CreditRegistrationAlert[] }> = ({ alerts }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const criticals = bySeverity(alerts, CRITICAL)
-  // The one thing on fire gets named; several get counted, because naming the first of five picks
-  // for the reader.
-  const namedOne =
-    criticals.length === 1 ? criticals[0] : alerts.length === 1 ? alerts[0] : undefined
-  const rest = alerts.length - 1
-  // oxlint-disable-next-line i18next/no-literal-string -- CSS lookup key, not user-facing text
-  const tone = criticals.length > 0 ? "critical" : "warning"
-
-  if (namedOne) {
-    const sentence = alertSentence(t, namedOne.id, namedOne.count, namedOne.subject, namedOne.total)
-    return (
-      <div className={cx(alertCardCss, ALERT_TONE_CSS[tone])}>
-        <AlertCardContent action={<AlertOpenLink alert={namedOne} sentence={sentence} />}>
-          <p className={alertSentenceCss}>{sentence}</p>
-          {rest > 0 ? (
-            <span className={alertLineCss}>
-              <AlertWindowCaption windowSecs={namedOne.window_secs} />
-              <Link href={creditRegistrationOverviewRoute()} prefetch={false}>
-                {t("credit-registration-alert-n-more", { count: rest })}
-              </Link>
-            </span>
-          ) : (
-            <AlertWindowCaption windowSecs={namedOne.window_secs} />
-          )}
-        </AlertCardContent>
-      </div>
-    )
-  }
-
-  return (
-    <div className={cx(alertCardCss, ALERT_TONE_CSS[tone])}>
-      <AlertCardContent
-        action={
-          <ActionLink
-            href={creditRegistrationOverviewRoute()}
-            prefetch={false}
-            styledAsButton
-            variant={BUTTON_SECONDARY}
-            size={BUTTON_SMALL}
-            className={alertActionCss}
-          >
-            {t("credit-registration-alert-see-overview")}
-          </ActionLink>
-        }
-      >
-        <p className={alertSentenceCss}>
-          {criticals.length === 0
-            ? t("credit-registration-alert-summary-warnings", { count: alerts.length })
-            : t("credit-registration-alert-summary", {
-                critical: criticals.length,
-                warnings: alerts.length - criticals.length,
-              })}
-        </p>
-      </AlertCardContent>
-    </div>
-  )
-}
-
-/** The health rules that are firing right now, weighted by how much of the tab they deserve. */
-const CreditRegistrationAlertBanner: React.FC = () => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const pathname = usePathname()
-  const overviewQuery = useCreditRegistrationOverview()
-  // Notices are not problems: the backend counts the pipeline healthy while one fires and the
-  // Overview collapses them, so a strip calling them warnings would contradict both.
-  const alerts = (overviewQuery.data?.health.alerts ?? []).filter(
-    (alert) => alert.severity !== INFO,
-  )
-  if (alerts.length === 0) {
-    return null
-  }
-  // One registration's page is about that row — except when it's critical, since then the row's
-  // own action cannot fix it either.
-  if (pathname?.startsWith(`${creditRegistrationRegistrationsRoute()}/`)) {
-    const criticals = bySeverity(alerts, CRITICAL)
-    if (criticals.length === 0) {
-      return null
-    }
-    return (
-      <ul className={alertCardsCss} aria-label={t("credit-registration-heading-needs-attention")}>
-        {criticals.map((alert) => (
-          <AlertRow key={alert.id} alert={alert} />
-        ))}
-      </ul>
-    )
-  }
-  // The Overview lists every rule in its own section, so a strip above it would say it twice.
-  if (pathname === creditRegistrationOverviewRoute()) {
-    return null
-  }
-  return <SummaryStrip alerts={alerts} />
-}
-
-export default CreditRegistrationAlertBanner

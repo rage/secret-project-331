@@ -13,7 +13,6 @@ import {
   useCreditRegistrationUnhealthyPhaseCount,
   useHasBlockingProblem,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
@@ -154,7 +153,6 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />
         {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
-        <CreditRegistrationAlertBanner />
         {children}
       </div>
     </BreakFromCentered>

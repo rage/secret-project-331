@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 
 import {
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TIME_DATE,
   TIME_IN_TITLE,
@@ -190,7 +189,10 @@ const CardHeading: React.FC<{
     <header className={cardTitleBandCss}>
       <h1 className={pageTitleCss}>{t("register-completion")}</h1>
       <p className={subheadingCss}>
-        {t("course")}: {moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName}
+        {t("course")}:{" "}
+        {moduleName
+          ? t("credit-registration-course-and-module", { course: courseName, module: moduleName })
+          : courseName}
       </p>
       {typeof ectsCredits === "number" ? (
         <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>

@@ -14619,7 +14619,7 @@
       "AccountLinkingRecentEmail": {
         "type": "object",
         "description": "One linking email, newest first in the recent list.",
-        "required": ["id", "course_id", "course_name", "emailed_to_masked", "claimed_at"],
+        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at"],
         "properties": {
           "claimed_at": {
             "type": "string",
@@ -14632,8 +14632,9 @@
           "course_name": {
             "type": "string"
           },
-          "emailed_to_masked": {
-            "type": "string"
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support tells the recipients apart by it."
           },
           "id": {
             "type": "string",
@@ -15779,9 +15780,9 @@
         "description": "A person on the code's enrolment list whom no linking email reached because they enrolled before\naccount linking began, and who may be the waiting student.",
         "required": ["student_number", "linking_emails_for_course", "similarities"],
         "properties": {
-          "email_masked": {
+          "email": {
             "type": ["string", "null"],
-            "description": "Masked like a teacher sees it: until a link is used they are a stranger, not the student."
+            "description": "In full: support has to tell the candidates apart before mailing one of them."
           },
           "enrolled_at": {
             "type": ["string", "null"],

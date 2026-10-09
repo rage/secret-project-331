@@ -7,6 +7,7 @@ import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import {
   enrolmentRouteLabel,
   notificationKindLabel,
@@ -35,7 +36,6 @@ import {
 import type { TimelineContext } from "@/components/credit-registration/admin/timelineRows"
 import { timelineStepLabel } from "@/components/credit-registration/admin/timelineSteps"
 import {
-  ABSENT,
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
@@ -274,7 +274,7 @@ const FactsSection: React.FC<{
 
   const identityItems: DescriptionListItem[] = [
     // The page heading is the student's name, so only the address is news here.
-    { label: t("label-email"), value: row.email ?? ABSENT },
+    { label: t("label-email"), value: row.email ?? <AbsentValue /> },
     {
       label: t("label-student-number"),
       value: studentNumber ? (
@@ -546,7 +546,7 @@ const ApiCallSection: React.FC<{
             header: t("credit-registration-admin-column-duration-ms"),
             align: ALIGN_END,
             nowrap: true,
-            cell: (group) => group.calls[0].duration_ms ?? ABSENT,
+            cell: (group) => group.calls[0].duration_ms ?? <AbsentValue />,
           },
         ]}
       />

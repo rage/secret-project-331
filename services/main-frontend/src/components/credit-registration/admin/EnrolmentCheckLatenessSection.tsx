@@ -7,9 +7,9 @@ import type { EnrolmentCheckLateness } from "@/generated/api/types.generated"
 import { Table } from "@/shared-module/components"
 
 import { ALIGN_END, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
+import { formatIntervalInWords } from "../durationWords"
 import { headingCss, noteCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
 import { enrolmentCheckGroupLabel, enrolmentCheckStepLabel } from "./adminCreditRegistrationCopy"
-import { formatIntervalSecs } from "./phaseStatus"
 
 /** How late the scheduled checks ran against their due time, by check schedule and check. */
 const EnrolmentCheckLatenessSection: React.FC<{
@@ -28,7 +28,7 @@ const EnrolmentCheckLatenessSection: React.FC<{
       </div>
       <p className={noteCss}>
         {t("credit-registration-admin-enrolment-checks-very-late-note", {
-          threshold: formatIntervalSecs(veryLateAfterSecs, t),
+          threshold: formatIntervalInWords(t, veryLateAfterSecs),
         })}
       </p>
       <Table
@@ -62,21 +62,21 @@ const EnrolmentCheckLatenessSection: React.FC<{
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.p50_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.p50_late_secs),
           },
           {
             header: t("credit-registration-admin-column-p95-late"),
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.p95_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.p95_late_secs),
           },
           {
             header: t("credit-registration-admin-column-max-late"),
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.max_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.max_late_secs),
           },
           {
             header: t("credit-registration-admin-column-very-late"),

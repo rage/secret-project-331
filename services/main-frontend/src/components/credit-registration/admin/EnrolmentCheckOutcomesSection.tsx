@@ -3,23 +3,18 @@
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import type { EnrolmentCheckFindings } from "@/generated/api/types.generated"
 import { Table } from "@/shared-module/components"
 
-import {
-  ABSENT,
-  ALIGN_END,
-  CREDIT_REGISTRATION_NS,
-  DENSITY_COMPACT,
-  TABLE_STACK,
-} from "../constants"
+import { ALIGN_END, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
+import { formatIntervalInWords } from "../durationWords"
 import { headingCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
 import {
   enrolmentCheckGroupLabel,
   enrolmentCheckSourceLabel,
   enrolmentCheckStepLabel,
 } from "./adminCreditRegistrationCopy"
-import { formatIntervalSecs } from "./phaseStatus"
 
 /** What the checks found, by check schedule, check and what triggered them. */
 const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }> = ({ rows }) => {
@@ -77,9 +72,11 @@ const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }
             minWidth: "7rem",
             nowrap: true,
             cell: (row) =>
-              row.p50_detection_secs === null || row.p50_detection_secs === undefined
-                ? ABSENT
-                : formatIntervalSecs(row.p50_detection_secs, t),
+              row.p50_detection_secs === null || row.p50_detection_secs === undefined ? (
+                <AbsentValue />
+              ) : (
+                formatIntervalInWords(t, row.p50_detection_secs)
+              ),
           },
           {
             header: t("credit-registration-admin-column-p95-detection"),
@@ -87,9 +84,11 @@ const EnrolmentCheckOutcomesSection: React.FC<{ rows: EnrolmentCheckFindings[] }
             minWidth: "7rem",
             nowrap: true,
             cell: (row) =>
-              row.p95_detection_secs === null || row.p95_detection_secs === undefined
-                ? ABSENT
-                : formatIntervalSecs(row.p95_detection_secs, t),
+              row.p95_detection_secs === null || row.p95_detection_secs === undefined ? (
+                <AbsentValue />
+              ) : (
+                formatIntervalInWords(t, row.p95_detection_secs)
+              ),
           },
         ]}
       />

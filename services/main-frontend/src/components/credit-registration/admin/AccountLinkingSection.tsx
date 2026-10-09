@@ -6,6 +6,10 @@ import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import InlineParts from "@/components/credit-registration/InlineParts"
+import ScheduledTime from "@/components/credit-registration/ScheduledTime"
+import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import {
   formatZonedTimestamp,
   ZonedTimestamp,
@@ -38,25 +42,20 @@ import {
   Link,
   Menu,
   QueryResult,
-  RelativeTime,
   StatTile,
   StatTileList,
   Table,
 } from "@/shared-module/components"
 
 import {
-  ABSENT,
   ADMIN_PAGE_SIZE_OPTIONS,
   ALIGN_END,
   BADGE_COMPACT,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_DURATION,
-  TIME_IN_TITLE,
   TONE,
 } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
@@ -282,22 +281,23 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
             cell: (row) => (
               <span className={stackedCellCss}>
                 <span>{row.course_name}</span>
-                <span className={noteCss}>
-                  {[row.course_module_name, row.uh_course_code].filter(Boolean).join(MIDDLE_DOT)}
-                </span>
+                <InlineParts
+                  className={noteCss}
+                  parts={[row.course_module_name, row.uh_course_code]}
+                />
               </span>
             ),
           },
           {
             header: t("label-credit-registration-how-they-enrolled"),
             minWidth: "9rem",
-            cell: (row) => enrolmentRouteLabel(t, row.enrolment_route) ?? ABSENT,
+            cell: (row) => enrolmentRouteLabel(t, row.enrolment_route) ?? <AbsentValue />,
           },
           {
             header: t("label-credit-registration-pressed"),
             minWidth: "7rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.pressed_at} absoluteTime={TIME_IN_TITLE} />,
+            cell: (row) => <ZonedTimestamp at={row.pressed_at} />,
           },
           {
             header: t("credit-registration-admin-column-enrolment-list"),
@@ -306,11 +306,11 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
               <span className={stackedCellCss}>
                 <span>
                   {t("credit-registration-admin-fetch-last")}{" "}
-                  <RelativeTime at={row.last_fetched_at} absoluteTime={TIME_IN_TITLE} />
+                  <ZonedTimestamp at={row.last_fetched_at} />
                 </span>
                 <span className={noteCss}>
                   {t("credit-registration-admin-fetch-next")}{" "}
-                  <RelativeTime at={row.next_fetch_at} absoluteTime={TIME_IN_TITLE} />
+                  <ScheduledTime at={row.next_fetch_at} />
                 </span>
               </span>
             ),
@@ -398,13 +398,13 @@ const UnusedLinksBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
             header: t("credit-registration-admin-column-link-age"),
             minWidth: "7rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.claimed_at} absoluteTime={TIME_DURATION} />,
+            cell: (row) => <ZonedTimestamp at={row.claimed_at} />,
           },
           {
             header: t("credit-registration-admin-column-link-expires"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.expires_at} absoluteTime={TIME_IN_TITLE} />,
+            cell: (row) => <ScheduledTime at={row.expires_at} />,
           },
         ]}
       />
@@ -520,9 +520,11 @@ const CourseCodeCell: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) =>
     <span id={courseCodeAnchorId(row.course_code)} className={stackedCellCss}>
       <code className={codeValueCss}>{row.course_code}</code>
       {row.modules.map((module) => (
-        <span key={module.course_module_id} className={noteCss}>
-          {[module.course_name, module.course_module_name].filter(Boolean).join(MIDDLE_DOT)}
-        </span>
+        <InlineParts
+          key={module.course_module_id}
+          className={noteCss}
+          parts={[module.course_name, module.course_module_name]}
+        />
       ))}
       {(row.is_enrolment_list_empty || row.is_fetch_failing) && (
         <span className={rowCss}>
@@ -544,7 +546,7 @@ const CourseCodeCell: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) =>
       {row.retry_not_before && (
         <span className={noteCss}>
           {t("credit-registration-admin-enrolment-checks-backoff-note")}{" "}
-          <RelativeTime at={row.retry_not_before} absoluteTime={TIME_IN_TITLE} />
+          <ScheduledTime at={row.retry_not_before} />
         </span>
       )}
     </span>
@@ -582,7 +584,7 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
           minWidth: "9rem",
           cell: (row) => (
             <span className={stackedCellCss}>
-              <RelativeTime at={row.last_fetched_at} absoluteTime={TIME_IN_TITLE} />
+              <ZonedTimestamp at={row.last_fetched_at} />
               {row.last_listed_person_count !== null &&
                 row.last_listed_person_count !== undefined && (
                   <span className={noteCss}>
@@ -599,7 +601,7 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
           minWidth: "9rem",
           cell: (row) => (
             <span className={stackedCellCss}>
-              <RelativeTime at={row.next_fetch_at} absoluteTime={TIME_IN_TITLE} />
+              <ScheduledTime at={row.next_fetch_at} />
               {row.fetch_requested_at && (
                 <span className={noteCss}>{t("credit-registration-admin-fetch-requested")}</span>
               )}
@@ -725,11 +727,10 @@ const OtherWaitingStudentsSection: React.FC<{ stats: AccountLinkingStats }> = ({
                 cell: (row) => (
                   <span className={stackedCellCss}>
                     <span>{row.course_name}</span>
-                    <span className={noteCss}>
-                      {[row.course_module_name, row.uh_course_code]
-                        .filter(Boolean)
-                        .join(MIDDLE_DOT)}
-                    </span>
+                    <InlineParts
+                      className={noteCss}
+                      parts={[row.course_module_name, row.uh_course_code]}
+                    />
                   </span>
                 ),
               },
@@ -742,18 +743,14 @@ const OtherWaitingStudentsSection: React.FC<{ stats: AccountLinkingStats }> = ({
                 header: t("label-credit-registration-completed"),
                 minWidth: "8rem",
                 nowrap: true,
-                cell: (row) => (
-                  <RelativeTime at={row.completion_date} absoluteTime={TIME_IN_TITLE} />
-                ),
+                cell: (row) => <ZonedTimestamp at={row.completion_date} />,
               },
               {
                 header: t("label-credit-registration-visited-page"),
                 minWidth: "8rem",
                 nowrap: true,
                 cell: (row) =>
-                  row.last_visited_at ? (
-                    <RelativeTime at={row.last_visited_at} absoluteTime={TIME_IN_TITLE} />
-                  ) : null,
+                  row.last_visited_at ? <ZonedTimestamp at={row.last_visited_at} /> : null,
               },
             ]}
           />
@@ -823,7 +820,9 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
               cell: (row) => (
                 <span className={stackedCellCss}>
                   <span>{row.course_name}</span>
-                  <span className={noteCss}>{row.emailed_to_masked}</span>
+                  <span className={noteCss}>
+                    <UnbrokenValuesText>{row.emailed_to}</UnbrokenValuesText>
+                  </span>
                 </span>
               ),
             },
@@ -831,13 +830,13 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
               header: t("label-credit-registration-claimed-at"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.claimed_at} absoluteTime={TIME_IN_TITLE} />,
+              cell: (row) => <ZonedTimestamp at={row.claimed_at} />,
             },
             {
               header: t("label-credit-registration-queued-at"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.queued_at} absoluteTime={TIME_IN_TITLE} />,
+              cell: (row) => <ZonedTimestamp at={row.queued_at} />,
             },
             {
               header: t("credit-registration-admin-send-status-header"),
@@ -852,7 +851,7 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
                 row.last_error_message ? (
                   <span className={cx(noteCss, codeValueCss)}>{row.last_error_message}</span>
                 ) : (
-                  ABSENT
+                  <AbsentValue />
                 ),
             },
           ]}
@@ -983,7 +982,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
               header: t("label-credit-registration-last-sent"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.last_sent_at} absoluteTime={TIME_IN_TITLE} />,
+              cell: (row) => <ZonedTimestamp at={row.last_sent_at} />,
             },
             {
               header: t("label-actions"),
@@ -1086,16 +1085,15 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             cell: (row) => (
               <div className={stackedCellCss}>
                 <span className={codeValueCss}>{row.conflicting_link_student_number}</span>
-                <span className={noteCss}>
-                  {[
+                <InlineParts
+                  className={noteCss}
+                  parts={[
                     row.conflicting_link_user_id === row.user_id
                       ? t("credit-registration-admin-conflict-same-account")
                       : (row.conflicting_link_user_email ?? row.conflicting_link_user_id),
                     verificationMethodLabel(t, row.conflicting_link_verified_via),
-                  ]
-                    .filter(Boolean)
-                    .join(MIDDLE_DOT)}
-                </span>
+                  ]}
+                />
               </div>
             ),
           },
@@ -1103,7 +1101,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             header: t("label-credit-registration-reported-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.created_at} absoluteTime={TIME_IN_TITLE} />,
+            cell: (row) => <ZonedTimestamp at={row.created_at} />,
           },
           {
             header: t("label-actions"),
@@ -1179,7 +1177,7 @@ const RecentClaimsBlock: React.FC<{
                   grow: true,
                   minWidth: "14rem",
                   nowrap: false,
-                  cell: (row) => row.link_reason ?? ABSENT,
+                  cell: (row) => row.link_reason ?? <AbsentValue />,
                 },
               ]
             : []
@@ -1229,9 +1227,7 @@ const RecentClaimsBlock: React.FC<{
                     header: t("label-time"),
                     minWidth: "8rem",
                     nowrap: true,
-                    cell: (row) => (
-                      <RelativeTime at={row.verified_at} absoluteTime={TIME_IN_TITLE} />
-                    ),
+                    cell: (row) => <ZonedTimestamp at={row.verified_at} />,
                   },
                   ...reasonColumn,
                   {

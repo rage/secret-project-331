@@ -3,6 +3,9 @@
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import ScheduledTime from "@/components/credit-registration/ScheduledTime"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   EnrolmentCheckRosterCode,
   SuotarEndpointDailyCost,
@@ -11,14 +14,12 @@ import type {
 import { Badge, Link, RelativeTime, Table } from "@/shared-module/components"
 
 import {
-  ABSENT,
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
   TABLE_STACK,
   TIME_DATE,
-  TIME_IN_TITLE,
   TONE,
 } from "../constants"
 import {
@@ -97,14 +98,14 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
             align: ALIGN_END,
             minWidth: "5rem",
             nowrap: true,
-            cell: (row) => row.p50_duration_ms ?? ABSENT,
+            cell: (row) => row.p50_duration_ms ?? <AbsentValue />,
           },
           {
             header: t("label-credit-registration-p95-ms"),
             align: ALIGN_END,
             minWidth: "5rem",
             nowrap: true,
-            cell: (row) => row.p95_duration_ms ?? ABSENT,
+            cell: (row) => row.p95_duration_ms ?? <AbsentValue />,
           },
         ]}
       />
@@ -162,7 +163,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
             minWidth: "10rem",
             cell: (row) => (
               <span className={stackedCellCss}>
-                <RelativeTime at={row.last_fetched_at} absoluteTime={TIME_IN_TITLE} />
+                <ZonedTimestamp at={row.last_fetched_at} />
                 {row.is_fetched_alone && (
                   <span className={noteCss}>
                     {t("credit-registration-admin-enrolment-checks-fetched-alone")}
@@ -183,7 +184,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
           {
             header: t("credit-registration-admin-column-next-fetch"),
             minWidth: "8rem",
-            cell: (row) => <RelativeTime at={row.next_fetch_at} absoluteTime={TIME_IN_TITLE} />,
+            cell: (row) => <ScheduledTime at={row.next_fetch_at} />,
           },
           {
             header: t("credit-registration-admin-column-failures"),
@@ -201,7 +202,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows
                   {row.retry_not_before && (
                     <span className={noteCss}>
                       {t("credit-registration-admin-enrolment-checks-backoff-note")}{" "}
-                      <RelativeTime at={row.retry_not_before} absoluteTime={TIME_IN_TITLE} />
+                      <ScheduledTime at={row.retry_not_before} />
                     </span>
                   )}
                 </span>
@@ -261,7 +262,7 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
             header: t("credit-registration-admin-column-recorded-at"),
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => <RelativeTime at={row.updated_at} absoluteTime={TIME_IN_TITLE} />,
+            cell: (row) => <ZonedTimestamp at={row.updated_at} />,
           },
         ]}
       />

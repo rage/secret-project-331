@@ -126,7 +126,7 @@ test("Every tab renders, and the phases report heartbeats", async ({ page }) => 
 
   await page.getByRole("tab", { name: "Registrations" }).click()
   await expect(page.getByRole("table", { name: "Registrations" })).toBeVisible()
-  await expect(page.getByRole("columnheader", { name: "State", exact: true })).toBeVisible()
+  await expect(page.getByRole("columnheader", { name: "Status", exact: true })).toBeVisible()
 
   await page.getByRole("tab", { name: "Courses" }).click()
   await expect(

@@ -131,19 +131,19 @@ export interface AdminRegistrationFilter {
   state?: string
   needs_admin_attention?: boolean
   include_superseded?: boolean
-  /** Rows waiting on a student who has not started are left out unless this is set. */
+  /** Defaults to true here, unlike in the API: a spec looking up its own row never wants it hidden. */
   include_not_started?: boolean
   limit?: number
 }
 
+/** A page of the ledger, including rows waiting on a student who has not started. */
 export const listAdminRegistrations = (
   request: APIRequestContext,
   filter: AdminRegistrationFilter = {},
 ): Promise<AdminRegistrationsPage> =>
-  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
   getJson<AdminRegistrationsPage>(
     request,
-    `${ADMIN_REGISTRATIONS_URL}${queryString({ ...filter })}`,
+    `${ADMIN_REGISTRATIONS_URL}${queryString({ include_not_started: true, ...filter })}`,
   )
 
 export const adminRegistrationDetails = (

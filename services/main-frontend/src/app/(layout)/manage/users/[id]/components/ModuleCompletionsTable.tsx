@@ -4,12 +4,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  ABSENT,
-  DENSITY_COMPACT,
-  TIME_DATE,
-  TONE,
-} from "@/components/credit-registration/constants"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { DENSITY_COMPACT, TIME_DATE, TONE } from "@/components/credit-registration/constants"
 import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
 import { emptyStateCss, rowCss } from "@/components/credit-registration/styles"
 import type {
@@ -143,7 +139,11 @@ const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({
       grow: true,
       cell: (row) => {
         const registration = registrationByModuleId.get(row.completion.course_module_id)
-        return registration ? <CreditRegistrationStatusCell registration={registration} /> : ABSENT
+        return registration ? (
+          <CreditRegistrationStatusCell registration={registration} />
+        ) : (
+          <AbsentValue />
+        )
       },
     })
   }

@@ -30,6 +30,7 @@ import {
   expandIconCss,
   expandLabelCss,
   frameCss,
+  groupHeaderCellCss,
   growFixedCss,
   headerCellCss,
   nowrapCss,
@@ -122,14 +123,33 @@ export interface TableSelection<Row> {
   rowLabel?: (row: Row) => string
 }
 
-export interface TableProps<Row> {
+/**
+ * How the table is named for assistive tech: its own caption, visually hidden unless
+ * `showCaption`, or the id of a visible heading that already names it, so the name is not read
+ * twice.
+ */
+export type TableName =
+  | { caption: React.ReactNode; showCaption?: boolean; labelledBy?: never }
+  | { labelledBy: string; caption?: never; showCaption?: never }
+
+/** The heading a run of rows is listed under. */
+export interface TableRowGroup {
+  key: string
+  label: React.ReactNode
+}
+
+export type TableProps<Row> = TableName & TableOptions<Row>
+
+export interface TableOptions<Row> {
   columns: TableColumn<Row>[]
   rows: Row[]
   /** Stable identity per row; keeps React from reusing the wrong row on reorder. */
   rowKey: (row: Row, index: number) => React.Key
-  /** Names the table for assistive tech; visually hidden unless `showCaption`. */
-  caption: React.ReactNode
-  showCaption?: boolean
+  /**
+   * Puts a heading row before each run of consecutive rows in the same group. Sort the rows by
+   * group first: a group that comes back after another gets a second heading.
+   */
+  rowGroup?: (row: Row) => TableRowGroup
   density?: TableDensity
   /**
    * Fills the body with this when there are no rows. Defaults to a translated line, so a
@@ -281,6 +301,8 @@ export function Table<Row>({
   rowKey,
   caption,
   showCaption = false,
+  labelledBy,
+  rowGroup,
   density = "comfortable",
   emptyState,
   overflowCue = true,
@@ -465,8 +487,9 @@ export function Table<Row>({
             rowHover && rowHoverCss,
           )}
           role={isStacking ? "table" : undefined}
+          aria-labelledby={labelledBy}
         >
-          {showCaption ? (
+          {labelledBy !== undefined ? null : showCaption ? (
             <caption className={captionCss}>{caption}</caption>
           ) : (
             // oxlint-disable-next-line i18next/no-literal-string -- element name, not user-facing text
@@ -551,9 +574,27 @@ export function Table<Row>({
                 const detail = expandableRow?.(row) ?? null
                 const isExpanded = expandedRowKeys.has(String(key))
                 const detailId = `${detailIdPrefix}-${rowIndex}`
+                const group = rowGroup?.(row)
+                const previousRow = rowIndex > 0 ? rows[rowIndex - 1] : undefined
+                const startsGroup =
+                  group !== undefined &&
+                  (previousRow === undefined || rowGroup?.(previousRow).key !== group.key)
 
                 return (
                   <React.Fragment key={key}>
+                    {startsGroup ? (
+                      <tr data-table-group="true" role={isStacking ? "row" : undefined}>
+                        <th
+                          className={groupHeaderCellCss}
+                          colSpan={totalColumnCount}
+                          data-table-group="true"
+                          role={isStacking ? "rowheader" : undefined}
+                          scope="colgroup"
+                        >
+                          {group.label}
+                        </th>
+                      </tr>
+                    ) : null}
                     <tr role={isStacking ? "row" : undefined}>
                       {hasSelection ? (
                         <td

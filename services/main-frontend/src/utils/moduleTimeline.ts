@@ -3,6 +3,7 @@
 // (`first_submission_at` on the enrollment DTO); the base module starts at enrollment.
 
 import type { CourseEnrollmentInfo, CourseModuleInfo } from "@/generated/api/types.generated"
+import { daysHoursMinutes } from "@/utils/durationParts"
 import type { ServiceTFunction } from "@/utils/translationNamespaces"
 
 /** Whole seconds between two instants, clamped at 0. */
@@ -12,10 +13,7 @@ export function durationSeconds(from: Date, to: Date): number {
 
 /** Localized, day-aware duration: `Xd` / `Xd Yh` / `Xh` / `Xh Ym` / `Ym`. */
 export function formatDuration(seconds: number, t: ServiceTFunction): string {
-  const totalMinutes = Math.round(seconds / 60)
-  const days = Math.floor(totalMinutes / (60 * 24))
-  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
-  const minutes = totalMinutes % 60
+  const { days, hours, minutes } = daysHoursMinutes(seconds)
   if (days > 0) {
     return hours > 0 ? t("duration-days-hours", { days, hours }) : t("duration-days", { days })
   }

@@ -2,16 +2,20 @@
 
 use std::collections::HashMap;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registrations::{
-    self, CreditRegistrationErrorCode, CreditRegistrationErrorCodeCount, CreditRegistrationState,
-    OldestNonTerminalRegistration, StuckRegistrationCount,
+    self, AttentionStanding, CreditRegistrationErrorCode, CreditRegistrationErrorCodeCount,
+    CreditRegistrationState, OldestNonTerminalRegistration, StepCount, StuckRegistrationCount,
 };
 use headless_lms_models::library::credit_registration::PendingReasonCounts;
+use headless_lms_models::library::credit_registration::timeline::{
+    Engagement, TimelinePhase, TimelineStep,
+};
 use headless_lms_models::suotar_api_calls::{
     self, SuotarEndpoint, SuotarEndpointStanding as SuotarEndpointStandingRow,
     SuotarEndpointStatsForWindow,
@@ -19,12 +23,12 @@ use headless_lms_models::suotar_api_calls::{
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::{
-    CreditRegistrationHealth, evaluate, is_heartbeat_late, stuck_thresholds,
+    CreditRegistrationHealth, evaluate, is_heartbeat_late,
 };
 use crate::prelude::*;
 use headless_lms_credit_registration::CreditRegistrationPhase;
 
-use super::{ATTENTION_TOO_MANY_ATTEMPTS, authorize_credit_registration_admin, required_reason};
+use super::{attention_rules, authorize_credit_registration_admin, required_reason};
 
 const THROUGHPUT_DAYS: i64 = 30;
 
@@ -39,6 +43,8 @@ pub struct CreditRegistrationStateTotal {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationErrorCodeTotal {
     pub error_code: CreditRegistrationErrorCode,
+    /// Every live row carrying the code.
+    pub live_count: i64,
     /// Rows the pipeline is still working on.
     pub in_flight_count: i64,
     /// Rows that ended on this code.
@@ -49,7 +55,7 @@ pub struct CreditRegistrationErrorCodeTotal {
 pub struct CreditRegistrationOldestNonTerminal {
     pub credit_registration_id: Uuid,
     pub state: CreditRegistrationState,
-    pub state_entered_at: DateTime<Utc>,
+    pub state_changed_at: DateTime<Utc>,
     /// Computed server-side: a page comparing its own clock against a server timestamp misjudges
     /// this on a skewed client, the same reason `seconds_since_heartbeat` is computed here too.
     pub seconds_in_state: i64,
@@ -64,12 +70,25 @@ pub struct CreditRegistrationThroughputBucket {
     pub failed_count: i64,
 }
 
+/// The Running late rows in one state.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationStuckTotal {
     pub state: CreditRegistrationState,
     pub count: i64,
     pub severely_stuck_count: i64,
-    pub oldest_state_entered_at: Option<DateTime<Utc>>,
+    pub oldest_state_changed_at: Option<DateTime<Utc>>,
+}
+
+/// Live registrations at one timeline step, split by engagement on the steps that wait on the
+/// student. Equal to the Registrations list filtered by `step` and `engagement` (and
+/// `course_module_id` where the count is per module).
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationStepCount {
+    pub phase: TimelinePhase,
+    pub step: TimelineStep,
+    /// `None` on a step that does not wait on the student.
+    pub engagement: Option<Engagement>,
+    pub count: i64,
 }
 
 /// Where one study registry endpoint stands, over all time.
@@ -115,12 +134,14 @@ pub struct CreditRegistrationOverview {
     /// The `pending` depth split by what each row is waiting on, which the ledger does not store.
     pub pending_by_reason: PendingReasonCounts,
     pub error_codes: Vec<CreditRegistrationErrorCodeTotal>,
-    /// Live rows a detector picked or the pipeline flagged. The one definition of "needs a human":
-    /// `/attention` pages through exactly these rows and reports the same total.
-    pub needs_admin_attention_count: i64,
+    /// The Needs attention count: the same number as `/attention`'s `total_count` and the tab badge.
+    pub needs_attention_count: i64,
+    /// "Where registrations stand": every step with live rows, Not started left out.
+    pub where_registrations_stand: Vec<CreditRegistrationStepCount>,
     pub oldest_non_terminal: Option<CreditRegistrationOldestNonTerminal>,
     pub throughput: Vec<CreditRegistrationThroughputBucket>,
     pub throughput_days: i64,
+    /// The Running late rows per state, which the stuck-registrations alert counts.
     pub stuck: Vec<CreditRegistrationStuckTotal>,
     pub endpoints: Vec<SuotarEndpointStanding>,
 }
@@ -167,7 +188,7 @@ pub struct AdminPhaseActionPayload {
 GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
 alert banner render, in one request so the tiles cannot contradict each other.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/overview",
@@ -180,11 +201,27 @@ alert banner render, in one request so the tiles cannot contradict each other.
 pub async fn get_credit_registration_overview(
     user: AuthUser,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CreditRegistrationOverview>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let stuck_rows = credit_registrations::count_stuck(&mut conn, &stuck_thresholds()).await?;
+    let rules = attention_rules(&mut conn, &app_conf).await?;
+    let attention_rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
+    let stuck_rows =
+        credit_registrations::count_stuck_in_state(&attention_rows, &rules.thresholds, Utc::now());
+    let needs_attention_count = attention_rows
+        .iter()
+        .filter(|row| row.standing(&rules.blocking) == AttentionStanding::NeedsAttention)
+        .count() as i64;
+    let where_registrations_stand = sum_step_counts(
+        credit_registrations::count_by_step_and_engagement(
+            &mut conn,
+            app_conf.suotar_configuration.account_linking_since,
+        )
+        .await?
+        .iter(),
+    );
     let depths = credit_registrations::count_by_state(&mut conn).await?;
     let health = evaluate(&mut conn, &stuck_rows, &depths).await?;
     let counts_by_state = depths
@@ -197,13 +234,6 @@ pub async fn get_credit_registration_overview(
         .into_iter()
         .map(to_error_code_total)
         .collect();
-    let needs_admin_attention_count = credit_registrations::count_needing_attention(
-        &mut conn,
-        &stuck_thresholds(),
-        ATTENTION_TOO_MANY_ATTEMPTS,
-    )
-    .await?
-    .map_or(0, |row| row.total_count);
     let oldest_non_terminal = credit_registrations::get_oldest_non_terminal(&mut conn)
         .await?
         .map(|row| to_oldest_non_terminal(row, Utc::now()));
@@ -232,7 +262,8 @@ pub async fn get_credit_registration_overview(
         counts_by_state,
         pending_by_reason,
         error_codes,
-        needs_admin_attention_count,
+        needs_attention_count,
+        where_registrations_stand,
         oldest_non_terminal,
         throughput,
         throughput_days: THROUGHPUT_DAYS,
@@ -463,7 +494,7 @@ async fn one_phase_status(
     Ok(to_phase_status(row, Utc::now()))
 }
 
-fn to_phase_status(
+pub(super) fn to_phase_status(
     row: credit_registration_phase_state::CreditRegistrationPhaseState,
     now: DateTime<Utc>,
 ) -> CreditRegistrationPhaseStatus {
@@ -495,6 +526,7 @@ fn to_phase_status(
 fn to_error_code_total(row: CreditRegistrationErrorCodeCount) -> CreditRegistrationErrorCodeTotal {
     CreditRegistrationErrorCodeTotal {
         error_code: row.error_code,
+        live_count: row.live_count,
         in_flight_count: row.in_flight_count,
         terminal_failure_count: row.terminal_failure_count,
     }
@@ -507,9 +539,25 @@ fn to_oldest_non_terminal(
     CreditRegistrationOldestNonTerminal {
         credit_registration_id: row.id,
         state: row.state,
-        seconds_in_state: (now - row.state_entered_at).num_seconds(),
-        state_entered_at: row.state_entered_at,
+        seconds_in_state: (now - row.state_changed_at).num_seconds(),
+        state_changed_at: row.state_changed_at,
     }
+}
+
+/// Sums per-module counts into one per step and engagement, Not started left out, in timeline order.
+pub(super) fn sum_step_counts<'a>(
+    rows: impl IntoIterator<Item = &'a StepCount>,
+) -> Vec<CreditRegistrationStepCount> {
+    credit_registrations::sum_step_counts_over_modules(rows)
+        .into_iter()
+        .filter(|((_, engagement), _)| *engagement != Some(Engagement::NotStarted))
+        .map(|((step, engagement), count)| CreditRegistrationStepCount {
+            phase: step.phase(),
+            step,
+            engagement,
+            count,
+        })
+        .collect()
 }
 
 fn to_stuck_total(row: StuckRegistrationCount) -> CreditRegistrationStuckTotal {
@@ -517,7 +565,7 @@ fn to_stuck_total(row: StuckRegistrationCount) -> CreditRegistrationStuckTotal {
         state: row.state,
         count: row.count,
         severely_stuck_count: row.severely_stuck_count,
-        oldest_state_entered_at: row.oldest_state_entered_at,
+        oldest_state_changed_at: row.oldest_state_changed_at,
     }
 }
 

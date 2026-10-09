@@ -3,73 +3,68 @@
 import { css, cx } from "@emotion/css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import React, { useMemo } from "react"
+import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import {
-  adminActionLabel,
+  enrolmentRouteLabel,
   notificationKindLabel,
-  registrationErrorAdminHelp,
   sendStatusLabel,
-  stateTone,
-  verificationMethodLabel,
-  adminLedgerStateLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useAdminCreditRegistration,
   useCreditRegistrationAdminActions,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
+import { auditForStudentHref } from "@/components/credit-registration/admin/adminLinks"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
-import RegistrationStepper from "@/components/credit-registration/admin/RegistrationStepper"
-import {
-  attentionReasonLabel,
-  subStateExplanations,
-} from "@/components/credit-registration/admin/registrationSubStates"
-import RegistrationTimeline from "@/components/credit-registration/admin/RegistrationTimeline"
-import StudentCell from "@/components/credit-registration/admin/StudentCell"
+import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
+import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
+import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
+import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   CallStatusCell,
   SuotarEndpointCell,
-  tookColumn,
 } from "@/components/credit-registration/admin/suotarCallColumns"
 import {
-  ABSENT,
+  buildTimeline,
+  eventSentence,
+  selectedEnrolmentSummary,
+} from "@/components/credit-registration/admin/timelineRows"
+import type { TimelineContext } from "@/components/credit-registration/admin/timelineRows"
+import { timelineStepLabel } from "@/components/credit-registration/admin/timelineSteps"
+import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   STACKED,
-  STATE_SUPERSEDED,
   TABLE_STACK,
-  TIME_DATE,
-  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import { registrationGradeLabel } from "@/components/credit-registration/creditRegistrationCopy"
 import {
-  dividedListCss,
-  emptyStateCss,
-  headingCss,
   codeValueCss,
+  headingCss,
   noteCss,
   pageTitleCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
-  sectionCss,
   sectionHeaderCss,
-  spacedRowCss,
+  stackedCellCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
-import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import {
+  formatZonedTimeRange,
+  formatZonedTimestamp,
+  ZonedTimestamp,
+} from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationEvent,
@@ -83,7 +78,6 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
-  creditRegistrationAuditRoute,
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
   manageCourseRoute,
@@ -95,18 +89,14 @@ import {
   DescriptionList,
   Disclosure,
   QueryResult,
-  RegistrationStatusHeadline,
-  RelativeTime,
   Table,
 } from "@/shared-module/components"
 
-/** Actions on this one row; anything older than these is a click away in the audit log. */
+/** The actor names the timeline needs; older actions are a click away in the audit log. */
 const AUDIT_ROWS = 25
 
 /** A stable empty page, so the actor lookup below is not rebuilt on every render. */
 const NO_ACTIONS: CreditRegistrationAdminActionRow[] = []
-
-type AdminActionsQuery = ReturnType<typeof useCreditRegistrationAdminActions>
 
 const idRowCss = cx(
   rowCss,
@@ -188,253 +178,242 @@ const IdentifierList: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
 }
 
 const HeaderSection: React.FC<{
-  details: AdminCreditRegistrationDetails
+  row: AdminCreditRegistrationRow
   isLive: boolean
   updatedAt: number
-}> = ({ details, isLive, updatedAt }) => {
+}> = ({ row, isLive, updatedAt }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const row = details.registration
-  const stateLabel = adminLedgerStateLabel(t, row.state, row.pending_reason)
-  const now = Date.now()
-  const explanations = subStateExplanations(t, row, details.attention_thresholds, now)
-  const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
-  const errorHelp = registrationErrorAdminHelp(t, row.error_code, {
-    studentNumber: row.verified_student_number ?? row.student_number ?? null,
-    courseCode: row.uh_course_code ?? null,
-  })
   return (
-    <section className={sectionCss}>
+    <div className={sectionHeaderCss}>
+      <h1 className={pageTitleCss}>{formatUserName(row)}</h1>
+      <span className={rowCss}>
+        <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
+        {row.course_module_name ? <span>{row.course_module_name}</span> : null}
+        {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
+      </span>
+      <span className={idRowCss}>
+        <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
+        <CopyButton
+          value={row.id}
+          label={t("credit-registration-admin-copy-identifier", {
+            label: t("label-credit-registration-registration"),
+          })}
+        />
+        {isLive && (
+          <span className={noteCss}>
+            {t("credit-registration-admin-live-updated")}{" "}
+            <ZonedTimestamp at={new Date(updatedAt).toISOString()} />
+          </span>
+        )}
+      </span>
+    </div>
+  )
+}
+
+/** Where an older attempt's page points: the attempt that replaced it. */
+const SupersededCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  const row = details.registration
+  const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
       <div className={sectionHeaderCss}>
-        <h1 className={pageTitleCss}>{formatUserName(row)}</h1>
-        <span className={rowCss}>
-          <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
-          {row.course_module_name ? <span>{row.course_module_name}</span> : null}
-          {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
-        </span>
-        <span className={idRowCss}>
-          <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
-          <CopyButton
-            value={row.id}
-            label={t("credit-registration-admin-copy-identifier", {
-              label: t("label-credit-registration-registration"),
-            })}
-          />
-          {isLive && (
-            <span className={noteCss}>
-              {t("credit-registration-admin-live-updated")}{" "}
-              {/* Relative time, not absolute: the distance ticking down is what shows this row is
-                  updating live. */}
-              <RelativeTime at={new Date(updatedAt).toISOString()} absoluteTime={TIME_IN_TITLE} />
-            </span>
-          )}
-        </span>
-      </div>
-      <RegistrationStepper details={details} now={now} />
-      {/* A replaced attempt keeps the state it reached, but leading with it reads as news about the
-          completion — which the newest attempt, not this one, decides. That nothing can be done to
-          it is the Actions section's sentence; a banner here would say it twice. */}
-      {row.superseded ? (
-        <div className={sectionHeaderCss}>
-          <RegistrationStatusHeadline state={STATE_SUPERSEDED}>
-            {replacement
-              ? t("credit-registration-admin-replaced-by-attempt", {
-                  n: replacement.attempt_number,
-                })
-              : t("credit-registration-admin-replaced")}
-          </RegistrationStatusHeadline>
-          <p className={noteCss}>
-            {t("credit-registration-admin-superseded-was", { state: stateLabel })}
-          </p>
-          {row.superseded_by_id && (
-            <Link href={creditRegistrationItemRoute(row.superseded_by_id)} prefetch={false}>
-              {t("credit-registration-admin-open-replacement")}
-            </Link>
-          )}
-        </div>
-      ) : (
-        <RegistrationStatusHeadline state={stateTone(row.state, row.pending_reason)}>
-          {stateLabel}
-        </RegistrationStatusHeadline>
-      )}
-      {row.needs_admin_attention && !row.superseded && (
-        <div>
-          <Badge
-            tone={TONE.WARNING}
-            description={attentionReasonLabel(t, row, details.attention_thresholds, now)}
-          >
-            {t("credit-registration-admin-needs-attention")}
-          </Badge>
-        </div>
-      )}
-      {explanations.map((line) => (
-        <p key={line} className={proseCss}>
-          {line}
+        <h2 id={headingId} className={headingCss}>
+          {replacement
+            ? t("credit-registration-admin-replaced-by-attempt", { n: replacement.attempt_number })
+            : t("credit-registration-admin-replaced")}
+        </h2>
+        <p className={noteCss}>
+          {t("credit-registration-admin-superseded-was", {
+            state: timelineStepLabel(t, row.timeline_step),
+          })}
         </p>
-      ))}
-      {errorHelp && (
-        <div className={sectionHeaderCss}>
-          <p className={proseCss}>{errorHelp}</p>
-          {/* Untranslated on purpose: this is the identifier an operator quotes. */}
-          <p className={noteCss}>
-            <code className={codeValueCss}>{row.error_code}</code>
-          </p>
-        </div>
+      </div>
+      {row.superseded_by_id && (
+        <Link href={creditRegistrationItemRoute(row.superseded_by_id)} prefetch={false}>
+          {t("credit-registration-admin-open-replacement")}
+        </Link>
       )}
     </section>
   )
 }
 
-const FactsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+/** Who took the registration off Needs attention, when and why; null unless that still holds. */
+const DismissalNote: React.FC<{ attention: AdminCreditRegistrationDetails["attention"] }> = ({
+  attention,
+}) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (attention?.standing !== "dismissed" || !attention.dismissed_at) {
+    return null
+  }
+  return (
+    <p className={noteCss}>
+      {t("credit-registration-admin-status-dismissed", {
+        name:
+          formatUserName({
+            first_name: attention.dismissed_by_first_name,
+            last_name: attention.dismissed_by_last_name,
+          }) || t("missing-name"),
+        time: formatZonedTimestamp(new Date(attention.dismissed_at)),
+        reason: attention.dismissal_reason ?? "",
+      })}
+    </p>
+  )
+}
+
+/** The hand actions on a registration with no problem box to carry them. */
+const ActionsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("label-actions")}
+        </h2>
+      </div>
+      <DismissalNote attention={details.attention} />
+      <AdminTransitionBlock registration={details.registration} />
+    </section>
+  )
+}
+
+const FactsSection: React.FC<{
+  details: AdminCreditRegistrationDetails
+  context: TimelineContext
+}> = ({ details, context }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
   const row = details.registration
   const studentNumber = row.verified_student_number ?? row.student_number
-  const verifiedVia =
-    row.verified_student_number_via === "study_registry"
-      ? null
-      : verificationMethodLabel(t, row.verified_student_number_via)
-  // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
-  const heldGrade: DescriptionListItem[] = details.not_improved_attainment
-    ? [
-        {
-          label: t("label-credit-registration-registry-held-grade"),
-          value: registrationGradeLabel(
-            t,
-            details.not_improved_attainment.grade_id,
-            details.not_improved_attainment.grade_scale_id,
-          ),
-        },
-      ]
-    : []
-  // A row that has finished, or that a later attempt replaced, has no next attempt; the stored
-  // instant is whatever it was last scheduled for, which reads as a bug under that label.
-  const isChecking =
-    row.state === "awaiting_verification" ||
-    row.state === "partially_registered" ||
-    row.state === "submission_uncertain"
-  // In flight, waiting on a fact rather than a time, or waiting for a human.
-  const hidesNextAttempt =
-    row.state === "submitting" ||
-    row.state === "resolving_enrolment" ||
-    row.state === "pending" ||
-    row.state === "blocked" ||
-    row.state === "misregistered"
-  const nextAttempt: DescriptionListItem[] =
-    row.terminal_at || row.superseded || hidesNextAttempt
-      ? []
-      : [
-          {
-            label: isChecking
-              ? t("label-credit-registration-next-check")
-              : t("label-credit-registration-next-attempt"),
-            value: <ZonedTimestamp at={row.next_attempt_at} />,
-          },
-        ]
+  const route = enrolmentRouteLabel(t, details.journey.enrolment_route)
+  const realisation = selectedEnrolmentSummary(t, details.events, context)
 
   const identityItems: DescriptionListItem[] = [
     // The page heading is the student's name, so only the address is news here.
-    {
-      label: t("label-email"),
-      value: row.email ?? ABSENT,
-    },
+    { label: t("label-email"), value: row.email ?? <AbsentValue /> },
     {
       label: t("label-student-number"),
       value: studentNumber ? (
         <span className={rowCss}>
           <span className={codeValueCss}>{studentNumber}</span>
-          {verifiedVia}
+          {row.verified_student_number_via && (
+            <LinkingMethodLabel
+              method={row.verified_student_number_via}
+              linkedAt={row.verified_student_number_at}
+            />
+          )}
         </span>
       ) : (
-        ABSENT
+        t("credit-registration-admin-not-linked")
       ),
     },
+    ...(route ? [{ label: t("label-credit-registration-how-they-enrolled"), value: route }] : []),
     {
       label: t("label-credit-registration-grade"),
-      value: row.grade_id ? registrationGradeLabel(t, row.grade_id, row.grade_scale_id) : ABSENT,
+      value: row.grade_id
+        ? registrationGradeLabel(t, row.grade_id, row.grade_scale_id)
+        : t("credit-registration-admin-not-sent-yet"),
     },
     {
       label: t("label-credits"),
-      value: row.credits ?? ABSENT,
+      value: row.credits ?? t("credit-registration-admin-not-sent-yet"),
     },
-    ...heldGrade,
+    // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
+    ...(details.not_improved_attainment
+      ? [
+          {
+            label: t("label-credit-registration-registry-held-grade"),
+            value: registrationGradeLabel(
+              t,
+              details.not_improved_attainment.grade_id,
+              details.not_improved_attainment.grade_scale_id,
+            ),
+          },
+        ]
+      : []),
   ]
 
-  const timingItems: DescriptionListItem[] = [
-    {
-      label: t("label-credit-registration-completion"),
-      value: <RelativeTime at={row.completion_date} absoluteTime={TIME_DATE} />,
-    },
-    {
-      label: t("label-credit-registration-time-in-state"),
-      value: <ZonedTimestamp at={row.state_entered_at} />,
-    },
-    ...nextAttempt,
-    {
-      // Failed sends and confirmation checks, not calls: one Sisu call carries many rows, so the
-      // call table below counts more than these two do.
-      label: t("label-credit-registration-failed-sends"),
-      value: row.submit_retry_count,
-    },
-    {
-      label: t("label-credit-registration-confirmation-checks"),
-      value: row.verify_attempt_count,
-    },
+  const registrationItems: DescriptionListItem[] = [
+    ...(realisation
+      ? [{ label: t("label-credit-registration-course-unit-realisation"), value: realisation }]
+      : []),
+    ...(details.journey.sisu_enrolled_at
+      ? [
+          {
+            label: t("label-credit-registration-sisu-enrolment-time"),
+            value: <ZonedTimestamp at={details.journey.sisu_enrolled_at} />,
+          },
+        ]
+      : []),
+    // Failed sends and confirmation checks, not calls: one Sisu call carries many rows, so the
+    // call table below counts more than these two do.
+    ...(row.submit_retry_count > 0
+      ? [{ label: t("label-credit-registration-failed-sends"), value: row.submit_retry_count }]
+      : []),
+    ...(row.verify_attempt_count > 0
+      ? [
+          {
+            label: t("label-credit-registration-confirmation-checks"),
+            value: row.verify_attempt_count,
+          },
+        ]
+      : []),
+    ...(row.error_code
+      ? [
+          {
+            label: t("label-error-code"),
+            // Untranslated on purpose: this is the identifier an operator quotes.
+            value: <code className={codeValueCss}>{row.error_code}</code>,
+          },
+        ]
+      : []),
+    ...(details.attempts.length > 1
+      ? [
+          {
+            label: t("credit-registration-heading-attempt-chain"),
+            value: (
+              <span className={rowCss}>
+                {details.attempts
+                  .toSorted((a, b) => a.attempt_number - b.attempt_number)
+                  .map((attempt) =>
+                    attempt.id === row.id ? (
+                      <span key={attempt.id} aria-current="page">
+                        {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
+                      </span>
+                    ) : (
+                      <Link
+                        key={attempt.id}
+                        href={creditRegistrationItemRoute(attempt.id)}
+                        prefetch={false}
+                      >
+                        {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
+                      </Link>
+                    ),
+                  )}
+              </span>
+            ),
+          },
+        ]
+      : []),
   ]
 
   return (
-    <section className={sectionCardCss}>
+    <section className={sectionCardCss} aria-labelledby={headingId}>
       <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-registration-facts")}</h2>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-registration-facts")}
+        </h2>
+        <Link href={auditForStudentHref(row.user_id)} prefetch={false}>
+          {t("credit-registration-admin-all-actions-on-student")}
+        </Link>
       </div>
       <div className={factsGridCss}>
         <DescriptionList items={identityItems} />
-        <DescriptionList items={timingItems} />
+        {registrationItems.length > 0 && <DescriptionList items={registrationItems} />}
       </div>
       <IdentifierList row={row} />
-    </section>
-  )
-}
-
-const AttemptChainSection: React.FC<{
-  attempts: AdminCreditRegistrationRow[]
-  currentId: string
-}> = ({ attempts, currentId }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  if (attempts.length < 2) {
-    return null
-  }
-  const chain = attempts.toSorted((a, b) => a.attempt_number - b.attempt_number)
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-attempt-chain")}</h2>
-      </div>
-      {/* Capped so each timestamp stays beside its attempt instead of at the card's far edge. */}
-      {/* oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role */}
-      <ol className={cx(dividedListCss, proseCss)} role="list">
-        {chain.map((attempt) => (
-          <li key={attempt.id} className={spacedRowCss}>
-            <span className={rowCss}>
-              {/* Only the number links: a link around a badge underlines the badge. */}
-              {attempt.id === currentId ? (
-                <span aria-current="page">
-                  {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
-                </span>
-              ) : (
-                <Link href={creditRegistrationItemRoute(attempt.id)} prefetch={false}>
-                  {t("credit-registration-attempt-n", { n: attempt.attempt_number })}
-                </Link>
-              )}
-              {/* No replaced badge: all but the newest attempt are, so it would label the whole
-                  list. The wire name is worth quoting only on the attempt being acted on. */}
-              <AdminStateLabel state={attempt.state} showToken={attempt.id === currentId} />
-            </span>
-            <span className={noteCss}>
-              <ZonedTimestamp at={attempt.created_at} />
-            </span>
-          </li>
-        ))}
-      </ol>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-attempt-chain-note")}</p>
     </section>
   )
 }
@@ -445,81 +424,147 @@ const unbrokenCodeCss = css`
   overflow-wrap: normal;
 `
 
-/**
- * How one call went for this registration: Suotar's code for its item, or why it got none. Without
- * an event of its own, how the request as a whole went.
- */
-const RegistrationCallStatus: React.FC<{
-  call: AdminSuotarApiCall
-  event: AdminCreditRegistrationEvent | undefined
-}> = ({ call, event }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  switch (event?.suotar_answer) {
-    case "refused":
-      return t("credit-registration-admin-timeline-result-request-refused")
-    case "unanswered":
-      return t("credit-registration-admin-timeline-result-no-answer")
+type Event = AdminCreditRegistrationEvent
+
+/** Consecutive calls that went the same way, newest first, shown as one row. */
+interface CallGroup {
+  calls: [AdminSuotarApiCall, ...AdminSuotarApiCall[]]
+  event: Event | undefined
+}
+
+const callGroupKey = (call: AdminSuotarApiCall, event: Event | undefined): string =>
+  JSON.stringify([
+    call.endpoint,
+    call.succeeded,
+    call.http_status ?? null,
+    call.request_level_error_code ?? null,
+    event?.suotar_code ?? null,
+    event?.suotar_answer ?? null,
+    event?.from_state ?? null,
+    event?.to_state ?? null,
+  ])
+
+const groupCalls = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallGroup[] => {
+  const groups: (CallGroup & { key: string })[] = []
+  for (const call of calls) {
+    const event = eventByCall.get(call.id)
+    const key = callGroupKey(call, event)
+    const last = groups.at(-1)
+    if (last && last.key === key) {
+      last.calls.push(call)
+    } else {
+      groups.push({ key, calls: [call], event })
+    }
   }
-  return event?.suotar_code ? (
-    <code className={cx(codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
-  ) : (
-    <CallStatusCell call={call} />
+  return groups
+}
+
+/** What Suotar said about this registration, in plain words over its own code. */
+const CallAnswer: React.FC<{
+  group: CallGroup
+  context: TimelineContext
+}> = ({ group, context }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const [newest] = group.calls
+  const { event } = group
+  if (!event) {
+    return <CallStatusCell call={newest} />
+  }
+  return (
+    <span className={cx(sectionHeaderCss)}>
+      <span>{eventSentence(t, event, context)}</span>
+      {event.suotar_code && (
+        <code className={cx(noteCss, codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+      )}
+    </span>
   )
 }
 
 const ApiCallSection: React.FC<{
   calls: AdminSuotarApiCall[]
-  events: AdminCreditRegistrationEvent[]
-}> = ({ calls, events }) => {
+  events: Event[]
+  context: TimelineContext
+}> = ({ calls, events, context }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const eventByCall = new Map(
-    events.flatMap((event) =>
-      event.kind === "suotar_response" && event.suotar_api_call_id
-        ? [[event.suotar_api_call_id, event] as const]
-        : [],
-    ),
-  )
+  const headingId = useId()
+  const groups = useMemo(() => {
+    const eventByCall = new Map(
+      events.flatMap((event) =>
+        event.kind === "suotar_response" && event.suotar_api_call_id
+          ? [[event.suotar_api_call_id, event] as const]
+          : [],
+      ),
+    )
+    return groupCalls(calls, eventByCall)
+  }, [calls, events])
   if (calls.length === 0) {
-    return null
+    return (
+      <section className={sectionCardCss} aria-labelledby={headingId}>
+        <div className={sectionCardHeaderCss}>
+          <h2 id={headingId} className={headingCss}>
+            {t("credit-registration-heading-api-calls")}
+          </h2>
+        </div>
+        <p className={noteCss}>{t("credit-registration-admin-api-calls-none")}</p>
+      </section>
+    )
   }
   return (
-    <section className={sectionCardCss}>
+    <section className={sectionCardCss} aria-labelledby={headingId}>
       <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>
+        <h2 id={headingId} className={headingCss}>
           {t("credit-registration-heading-api-calls-count", { count: calls.length })}
         </h2>
       </div>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-api-calls-note")}</p>
       <Table
-        caption={t("credit-registration-heading-api-calls")}
+        labelledBy={headingId}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
-        rowKey={(call) => call.id}
-        rows={calls}
-        expandableRow={(call) => (
+        rowKey={(group) => group.calls[0].id}
+        rows={groups}
+        expandableRow={(group) => (
           <RegistrationCallItem
-            suotarApiCallId={call.id}
-            exchange={eventByCall.get(call.id)?.details}
+            suotarApiCallId={group.calls[0].id}
+            exchange={group.event?.details}
           />
         )}
         columns={[
           {
             header: t("label-time"),
-            minWidth: "8rem",
-            nowrap: true,
-            cell: (call) => <ZonedTimestamp at={call.started_at} />,
+            minWidth: "10rem",
+            cell: (group) => {
+              const [newest] = group.calls
+              const oldest = group.calls.at(-1) ?? newest
+              return group.calls.length === 1 ? (
+                <ZonedTimestamp at={newest.started_at} />
+              ) : (
+                <span className={sectionHeaderCss}>
+                  <span>
+                    {t("credit-registration-admin-calls-repeated", { count: group.calls.length })}
+                  </span>
+                  <span className={noteCss}>
+                    {formatZonedTimeRange(new Date(oldest.started_at), new Date(newest.started_at))}
+                  </span>
+                </span>
+              )
+            },
           },
           {
             header: t("credit-registration-admin-column-what"),
-            grow: true,
             minWidth: "10rem",
-            cell: (call) => <SuotarEndpointCell endpoint={call.endpoint} />,
+            cell: (group) => <SuotarEndpointCell endpoint={group.calls[0].endpoint} />,
           },
-          tookColumn(t),
           {
-            header: t("label-status"),
-            minWidth: "8rem",
-            cell: (call) => <RegistrationCallStatus call={call} event={eventByCall.get(call.id)} />,
+            header: t("credit-registration-admin-column-answer"),
+            grow: true,
+            minWidth: "12rem",
+            cell: (group) => <CallAnswer group={group} context={context} />,
+          },
+          {
+            header: t("credit-registration-admin-column-duration-ms"),
+            align: ALIGN_END,
+            nowrap: true,
+            cell: (group) => group.calls[0].duration_ms ?? <AbsentValue />,
           },
         ]}
       />
@@ -534,10 +579,14 @@ const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_stat
   {
     header: t("credit-registration-admin-send-status-header"),
     minWidth: "10rem",
-    cell: (mail) =>
-      [sendStatusLabel(t, mail.send_status.email_send_status), mail.send_status.failure_code]
-        .filter(Boolean)
-        .join(MIDDLE_DOT),
+    cell: (mail) => (
+      <span className={stackedCellCss}>
+        <span>{sendStatusLabel(t, mail.send_status.email_send_status)}</span>
+        {mail.send_status.failure_code && (
+          <code className={cx(noteCss, codeValueCss)}>{mail.send_status.failure_code}</code>
+        )}
+      </span>
+    ),
   },
   {
     header: t("label-credit-registration-handed-over"),
@@ -568,17 +617,20 @@ const MailTable = <T extends { send_status: AdminLinkingEmail["send_status"] }>(
   extraColumns?: TableColumn<T>[]
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
   const [sendStatusColumn, handedOverColumn, retriesColumn] = sendStatusColumns<T>(t)
   if (mails.length === 0) {
     return null
   }
   return (
-    <section className={sectionCardCss}>
+    <section className={sectionCardCss} aria-labelledby={headingId}>
       <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{heading}</h2>
+        <h2 id={headingId} className={headingCss}>
+          {heading}
+        </h2>
       </div>
       <Table
-        caption={heading}
+        labelledBy={headingId}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
         rowKey={rowKey}
@@ -639,86 +691,18 @@ const NotificationSection: React.FC<{ mails: AdminNotificationEmail[] }> = ({ ma
   )
 }
 
-/** Who acted on this row, from the same log the Audit tab reads, so both name the actor. */
-const AuditSection: React.FC<{
-  registrationId: string
-  query: AdminActionsQuery
-}> = ({ registrationId, query }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
-        <Link
-          href={`${creditRegistrationAuditRoute()}?target_id=${registrationId}`}
-          prefetch={false}
-        >
-          {t("credit-registration-admin-open-in-audit-log")}
-        </Link>
-      </div>
-      <QueryResult query={query} refreshIndicator={QUIET_REFRESH}>
-        {(page) => (
-          <Table
-            caption={t("credit-registration-heading-audit")}
-            density={DENSITY_COMPACT}
-            responsive={TABLE_STACK}
-            rowKey={(action) => action.id}
-            rows={page.data}
-            emptyState={
-              <span className={emptyStateCss}>{t("credit-registration-admin-no-actions-yet")}</span>
-            }
-            columns={[
-              {
-                header: t("label-time"),
-                minWidth: "8rem",
-                nowrap: true,
-                cell: (action) => <ZonedTimestamp at={action.created_at} />,
-              },
-              {
-                header: t("label-actor"),
-                minWidth: "11rem",
-                cell: (action) => (
-                  <StudentCell
-                    row={{
-                      first_name: action.actor_first_name ?? null,
-                      last_name: action.actor_last_name ?? null,
-                      email: action.actor_email ?? null,
-                    }}
-                  />
-                ),
-              },
-              {
-                header: t("credit-registration-admin-column-action"),
-                minWidth: "11rem",
-                cell: (action) => adminActionLabel(t, action.action),
-              },
-              {
-                header: t("label-reason"),
-                grow: true,
-                minWidth: "16rem",
-                nowrap: false,
-                cell: (action) => action.reason ?? ABSENT,
-              },
-            ]}
-          />
-        )}
-      </QueryResult>
-    </section>
-  )
-}
-
-/** One ledger row end to end: what it is, what an admin can do to it, and everything it has done. */
+/** One completion end to end, told from whichever of its attempts the page is for. */
 const RegistrationDetailPage: React.FC = () => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const params = useParams<{ registrationId: string }>()
   const detailsQuery = useAdminCreditRegistration(params.registrationId)
+  // The events carry an actor id and no name; the log carries both.
   const actionsQuery = useCreditRegistrationAdminActions({
     target_id: params.registrationId,
     page: 1,
     limit: AUDIT_ROWS,
   })
   const actions = actionsQuery.data?.data ?? NO_ACTIONS
-  // The events carry an actor id and no name; the log carries both, for the same registration.
   const actorNames = useMemo(
     () =>
       new Map(
@@ -734,7 +718,23 @@ const RegistrationDetailPage: React.FC = () => {
     [actions],
   )
 
-  const row = detailsQuery.data?.registration
+  const details = detailsQuery.data
+  const row = details?.registration
+  const context = useMemo<TimelineContext>(
+    () => ({
+      actorName: (userId) => actorNames.get(userId),
+      selectedEnrolmentId: details?.registration.selected_enrolment_id ?? null,
+      language: i18n.language,
+      attemptNumber: (registrationId) =>
+        details?.attempts.find((attempt) => attempt.id === registrationId)?.attempt_number,
+    }),
+    [actorNames, details, i18n.language],
+  )
+  const phases = useMemo(
+    () => (details ? buildJourney(t, details, buildTimeline(t, details.events, context)) : []),
+    [t, details, context],
+  )
+
   usePageTitle(row ? formatUserName(row) : null)
   const crumbs = useMemo(
     () => [
@@ -746,7 +746,7 @@ const RegistrationDetailPage: React.FC = () => {
       row
         ? {
             isLoading: false as const,
-            label: `${formatUserName(row)}${MIDDLE_DOT}${row.course_name}`,
+            label: formatUserName(row),
           }
         : { isLoading: true as const },
     ],
@@ -756,32 +756,51 @@ const RegistrationDetailPage: React.FC = () => {
 
   return (
     <QueryResult query={detailsQuery} refreshIndicator={QUIET_REFRESH}>
-      {(details) => (
-        <div className={sectionCardsCss}>
-          <HeaderSection
-            details={details}
-            isLive={!details.registration.terminal_at}
-            updatedAt={detailsQuery.dataUpdatedAt}
-          />
-          <FactsSection details={details} />
-          <section className={sectionCardCss}>
-            <div className={sectionCardHeaderCss}>
-              <h2 className={headingCss}>{t("label-actions")}</h2>
-            </div>
-            <AdminTransitionBlock registration={details.registration} />
-          </section>
-          <AttemptChainSection attempts={details.attempts} currentId={details.registration.id} />
-          <RegistrationTimeline
-            events={details.events}
-            actorNames={actorNames}
-            selectedEnrolmentId={details.registration.selected_enrolment_id ?? null}
-          />
-          <ApiCallSection calls={details.suotar_api_calls} events={details.events} />
-          <LinkingSection mails={details.linking_emails} />
-          <NotificationSection mails={details.notification_emails} />
-          <AuditSection registrationId={details.registration.id} query={actionsQuery} />
-        </div>
-      )}
+      {(loaded) => {
+        const problem = phases.find((phase) => phase.problem)?.problem ?? null
+        return (
+          <div className={sectionCardsCss}>
+            <HeaderSection
+              row={loaded.registration}
+              isLive={!loaded.registration.terminal_at}
+              updatedAt={detailsQuery.dataUpdatedAt}
+            />
+            {loaded.registration.superseded && <SupersededCard details={loaded} />}
+            <RegistrationJourney
+              phases={phases}
+              attempts={{
+                currentId: loaded.registration.id,
+                count: loaded.attempts.length,
+                numberOf: context.attemptNumber,
+              }}
+              problemActions={
+                problem && !loaded.registration.superseded ? (
+                  <>
+                    <DismissalNote attention={loaded.attention} />
+                    <RegistrationProblemActions
+                      registration={loaded.registration}
+                      isStudentNumberStuck={problem.isStudentNumberStuck}
+                      isDismissed={loaded.attention?.standing === "dismissed"}
+                      unmailedEarlyEnroleeCount={
+                        loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
+                      }
+                    />
+                  </>
+                ) : null
+              }
+            />
+            {!problem && !loaded.registration.superseded && <ActionsSection details={loaded} />}
+            <FactsSection details={loaded} context={context} />
+            <ApiCallSection
+              calls={loaded.suotar_api_calls}
+              events={loaded.events}
+              context={context}
+            />
+            <LinkingSection mails={loaded.linking_emails} />
+            <NotificationSection mails={loaded.notification_emails} />
+          </div>
+        )
+      }}
     </QueryResult>
   )
 }

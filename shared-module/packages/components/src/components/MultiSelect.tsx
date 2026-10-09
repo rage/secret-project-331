@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { Item } from "@react-stately/collections"
+import { Item, Section } from "@react-stately/collections"
 import { useListState } from "@react-stately/list"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
@@ -11,7 +11,7 @@ import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
+import type { ComboBoxItemAccessors, NormalizedComboBoxItem } from "../lib/utils/combobox"
 import { normalizeComboBoxItems } from "../lib/utils/combobox"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
 import { omitUndefined } from "../lib/utils/nullability"
@@ -143,6 +143,11 @@ export type MultiSelectProps<
   /** What the filter matches against, and the tag's label. */
   getItemTextValue: (item: TItem) => string
   getItemDisabled?: (item: TItem) => boolean
+  /**
+   * Lists the options under headings, one per distinct value, in the order the headings first
+   * appear in `items`.
+   */
+  getItemSection?: (item: TItem) => string
   /** Shown in the control while nothing is picked. */
   placeholder?: React.ReactNode
   /** Accessible name and placeholder for the filter box. Defaults to a shared-module string. */
@@ -152,6 +157,12 @@ export type MultiSelectProps<
   id?: string
   className?: string
 }
+
+const renderItem = (item: NormalizedComboBoxItem<unknown>) => (
+  <Item key={item.key} textValue={item.textValue}>
+    {item.rendered}
+  </Item>
+)
 
 export function MultiSelect<
   TItem,
@@ -173,6 +184,7 @@ export function MultiSelect<
     getItemKey,
     getItemTextValue,
     getItemDisabled,
+    getItemSection,
     placeholder,
     searchLabel,
     emptyState,
@@ -242,13 +254,27 @@ export function MultiSelect<
     : []
   const selectedKeys = new Set(pickedKeys.map(String))
 
+  const sections = useMemo(() => {
+    if (getItemSection === undefined) {
+      return null
+    }
+    const byTitle = new Map<string, typeof visibleItems>()
+    for (const item of visibleItems) {
+      const title = getItemSection(item.item)
+      byTitle.set(title, [...(byTitle.get(title) ?? []), item])
+    }
+    return Array.from(byTitle, ([title, sectionItems]) => ({ title, items: sectionItems }))
+  }, [getItemSection, visibleItems])
+
   const listState = useListState({
-    items: visibleItems,
-    children: (item) => (
-      <Item key={item.key} textValue={item.textValue}>
-        {item.rendered}
-      </Item>
-    ),
+    items: (sections ?? visibleItems) as typeof visibleItems,
+    children: (sections === null
+      ? renderItem
+      : (section: NonNullable<typeof sections>[number]) => (
+          <Section key={section.title} title={section.title} items={section.items}>
+            {renderItem}
+          </Section>
+        )) as typeof renderItem,
     disabledKeys,
     selectionMode: SELECTION_MODE_MULTIPLE,
     selectedKeys,

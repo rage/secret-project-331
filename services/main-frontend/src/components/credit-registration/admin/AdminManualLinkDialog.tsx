@@ -6,6 +6,10 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
+import InlineParts from "@/components/credit-registration/InlineParts"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
@@ -25,17 +29,14 @@ import {
   DescriptionList,
   Dialog,
   Infobox,
-  RelativeTime,
   TextField,
 } from "@/shared-module/components"
 
 import {
-  ABSENT,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   STACKED,
   TONE,
 } from "../constants"
@@ -51,6 +52,7 @@ import {
   subheadingCss,
 } from "../styles"
 import { useActionResult } from "../useActionResult"
+import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -63,9 +65,7 @@ export interface ManualLinkAccount {
   email: string | null
 }
 
-interface Props {
-  open: boolean
-  onClose: () => void
+interface Props extends DialogOpenState {
   /** Seeds the number field; the preview still has to be run against it. */
   studentNumber?: string
   /** Seeds the account, where the caller already knows whose row this is. */
@@ -181,7 +181,7 @@ const AccountPicker: React.FC<{
 }
 
 /** The API enforces the same two gates: the preview must have run, and a reason is required. */
-const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, account }) => {
+const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber, account }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const [chosenAccount, setChosenAccount] = useState<ManualLinkAccount | null>(account ?? null)
@@ -240,7 +240,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onClose={closeDialog}
       title={t("credit-registration-admin-manual-link-title")}
       actions={actions}
@@ -285,14 +285,18 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
                     <span className={noteCss}>
                       {t("credit-registration-admin-manual-link-sisu-holds")}
                     </span>
-                    <span>{`${preview.first_names ?? ABSENT} ${preview.last_name ?? ABSENT}`}</span>
+                    <span>
+                      {[preview.first_names, preview.last_name].filter(Boolean).join(" ") || (
+                        <AbsentValue />
+                      )}
+                    </span>
                   </span>
                   <span className={identityCss}>
                     <span className={noteCss}>
                       {t("credit-registration-admin-manual-link-account-holds")}
                     </span>
-                    <span>{chosenAccount?.name ?? ABSENT}</span>
-                    <span className={noteCss}>{chosenAccount?.email ?? ABSENT}</span>
+                    <span>{chosenAccount?.name ?? <AbsentValue />}</span>
+                    <span className={noteCss}>{chosenAccount?.email ?? <AbsentValue />}</span>
                   </span>
                 </div>
                 <DescriptionList
@@ -301,7 +305,9 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
                     {
                       label: t("label-credit-registration-person-id"),
                       value: (
-                        <code className={codeValueCss}>{preview.sisu_person_id ?? ABSENT}</code>
+                        <code className={codeValueCss}>
+                          {preview.sisu_person_id ?? <AbsentValue />}
+                        </code>
                       ),
                     },
                     {
@@ -319,11 +325,16 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
                           <ul>
                             {preview.linking_emails.map((mail) => (
                               <li key={mail.id}>
-                                {mail.emailed_to}
-                                {MIDDLE_DOT}
-                                {sendStatusLabel(t, mail.send_status.email_send_status)}
-                                {MIDDLE_DOT}
-                                <RelativeTime at={mail.send_status.sent_at ?? mail.claimed_at} />
+                                <InlineParts
+                                  parts={[
+                                    <EmailAddress key="to" address={mail.emailed_to} />,
+                                    sendStatusLabel(t, mail.send_status.email_send_status),
+                                    <ZonedTimestamp
+                                      key="at"
+                                      at={mail.send_status.sent_at ?? mail.claimed_at}
+                                    />,
+                                  ]}
+                                />
                               </li>
                             ))}
                           </ul>
@@ -345,7 +356,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ open, onClose, studentNumber, 
             <span className={spacedRowCss}>
               <span className={identityCss}>
                 <span>{chosenAccount.name}</span>
-                <span className={noteCss}>{chosenAccount.email ?? ABSENT}</span>
+                <span className={noteCss}>{chosenAccount.email ?? <AbsentValue />}</span>
               </span>
               <Button
                 variant={BUTTON_TERTIARY}

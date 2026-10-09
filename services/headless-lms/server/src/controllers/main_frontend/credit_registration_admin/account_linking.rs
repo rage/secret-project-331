@@ -10,15 +10,20 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
+use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
+use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{
     self, AccountLinkingCodeCounters, RosterSchedule, ScheduleSelection,
 };
-use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
+use headless_lms_models::credit_registrations::{
+    self, AttentionReason, AttentionStanding, CreditRegistrationErrorCode, WaitingPresser,
+};
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::account_linking::{
-    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
+    LINKING_MAIL_QUIET_PERIOD, MAX_LINKING_MAILS_PER_PERSON_AND_COURSE, mail_address,
 };
 use headless_lms_models::library::credit_registration::student_number::parse_student_number;
+use headless_lms_models::library::credit_registration::timeline::{Engagement, TimelineStep};
 use headless_lms_models::study_registry_student_number_conflicts;
 use headless_lms_models::verified_student_numbers::{
     self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
@@ -28,30 +33,38 @@ use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::controllers::main_frontend::course_credit_registrations::record_resend_and_fetch_mails;
+use crate::domain::credit_registration::linking_candidates::{
+    AccountIdentity, LinkingCandidateSimilarity, similarities, similarity_score,
+};
 use crate::domain::credit_registration::linking_mail_resend::{
     ResendOutcome, ensure_resend_possible,
 };
-use crate::domain::credit_registration::mail_status::mask_email;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::CreditRegistrationPhase;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson, look_up_person,
-    resend_linking_mail_for_target,
+    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson,
+    list_unlinked_enrolled_before, look_up_person, resend_linking_mail_for_target,
 };
 
+use super::dashboard::{CreditRegistrationPhaseStatus, to_phase_status};
 use super::{
-    AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
+    AdminLinkingEmail, attention_rules, authorize_credit_registration_admin, build_linking_emails,
+    required_reason,
 };
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
 const STUDY_REGISTRY_CONFLICT_LIMIT: i64 = 200;
 const RECENT_LINKING_EMAIL_LIMIT: i64 = 50;
 const WAITING_STUDENT_LIMIT: i64 = 100;
+const UNUSED_LINK_LIMIT: i64 = 200;
+const RECENT_LINK_LIMIT: i64 = 50;
 
 /// Marks a manual action's study registry call in the call log as something a person set off.
 const RESEND_CALLER: &str = "admin-resend";
 const RESOLVE_CALLER: &str = "admin-resolve-person";
 const MANUAL_LINK_CALLER: &str = "admin-manual-link";
+const CANDIDATES_CALLER: &str = "admin-linking-candidates";
 
 /// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
 /// ledger rows.
@@ -83,6 +96,8 @@ pub struct AccountLinkingSendStatusTotals {
     pub retrying: i64,
     pub sent: i64,
     pub send_failed: i64,
+    /// Claimed in the window and used since.
+    pub used: i64,
 }
 
 /// Hard send failures grouped by recipient domain.
@@ -109,6 +124,8 @@ pub struct AccountLinkingCourseCode {
     pub course_code: String,
     pub modules: Vec<AccountLinkingCodeModule>,
     pub last_fetched_at: Option<DateTime<Utc>>,
+    /// The latest fetch that could send linking emails.
+    pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     /// When it is next due, ignoring the failure backoff.
     pub next_fetch_at: DateTime<Utc>,
     /// An admin's "Fetch now" no fetch has served yet.
@@ -122,6 +139,86 @@ pub struct AccountLinkingCourseCode {
     pub last_error: Option<CreditRegistrationErrorCode>,
     /// `None` until a list has fed account linking.
     pub linking: Option<AccountLinkingCodeCounters>,
+    /// People on the same list who enrolled before account linking began and are linked to no
+    /// account, so no linking email went to them.
+    pub unlinked_enrolled_before_count: Option<i32>,
+    /// Pressers on the code's modules still waiting for a student number, since the cutoff.
+    pub pressed_waiting_count: i64,
+    /// Linking emails on the code whose link can still be used.
+    pub unused_link_count: i64,
+    pub is_enrolment_list_empty: bool,
+    pub is_fetch_failing: bool,
+}
+
+/// A student waiting for a student number who pressed "I have enrolled".
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingPresser {
+    pub credit_registration_id: Uuid,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    pub pressed_at: DateTime<Utc>,
+    /// How they enrolled.
+    pub enrolment_route: CreditRegistrationEnrolmentRoute,
+    pub last_fetched_at: Option<DateTime<Utc>>,
+    /// The latest fetch that could send linking emails; the stuck rule counts from here.
+    pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
+    pub next_fetch_at: Option<DateTime<Utc>>,
+    /// On any course sharing the code since the press; not attributable to this student.
+    pub linking_emails_on_code_since_press: i64,
+    pub last_linking_email_on_code_at: Option<DateTime<Utc>>,
+    pub is_enrolment_list_empty: bool,
+    pub is_fetch_failing: bool,
+    /// The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
+    /// one of them.
+    pub unlinked_enrolled_before_count: Option<i32>,
+    /// Carries `student_number_stuck`; its actions live on Needs attention.
+    pub is_stuck: bool,
+    /// Counted in Needs attention: stuck, and neither dismissed nor explained by a blocking problem.
+    pub needs_attention: bool,
+}
+
+/// Students waiting for a student number since the cutoff, by what they have done. Mutually
+/// exclusive, uncapped, and equal to the overview's counts for the same step.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingEngagementCounts {
+    pub pressed: i64,
+    /// Of `pressed`, those stuck.
+    pub pressed_stuck: i64,
+    pub visited: i64,
+    pub not_started: i64,
+}
+
+/// A link that can still be used, and how old it is.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingUnusedLink {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub uh_course_code: Option<String>,
+    /// In full: support tells the recipients apart by it.
+    pub emailed_to: String,
+    pub claimed_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+}
+
+/// A student number linked by a linking email or by hand.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AccountLinkingRecentLink {
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub verified_at: DateTime<Utc>,
+    pub verified_via: StudentNumberVerificationMethod,
+    pub verified_from_course_id: Option<Uuid>,
+    pub verified_from_course_name: Option<String>,
 }
 
 /// One linking email, newest first in the recent list.
@@ -130,7 +227,8 @@ pub struct AccountLinkingRecentEmail {
     pub id: Uuid,
     pub course_id: Uuid,
     pub course_name: String,
-    pub emailed_to_masked: String,
+    /// In full: support tells the recipients apart by it.
+    pub emailed_to: String,
     pub claimed_at: DateTime<Utc>,
     /// When the `link-emails` phase handed it to the email worker.
     pub queued_at: Option<DateTime<Utc>>,
@@ -153,8 +251,10 @@ pub struct AccountLinkingWaitingStudent {
     pub uh_course_code: Option<String>,
     pub completion_date: DateTime<Utc>,
     pub last_visited_at: Option<DateTime<Utc>>,
-    /// The last "I have enrolled" press.
+    /// The latest check request the student made themselves.
     pub last_check_requested_at: Option<DateTime<Utc>>,
+    /// Pressed means their "I have enrolled" press stands.
+    pub engagement: Engagement,
 }
 
 /// One mail attempt: the address it went to and what we can say about its delivery.
@@ -232,6 +332,17 @@ pub struct AccountLinkingStats {
     pub quiet_period_secs: i64,
     /// Newest first, capped.
     pub study_registry_conflicts: Vec<StudyRegistryStudentNumberConflict>,
+    /// Enrolment discovery and link-emails, the processing phases a linking email goes out
+    /// through, for the health banner.
+    pub processing_phases: Vec<CreditRegistrationPhaseStatus>,
+    /// Every presser waiting for a student number since the cutoff, stuck first, then longest
+    /// waiting.
+    pub pressers: Vec<AccountLinkingPresser>,
+    pub engagement_counts: AccountLinkingEngagementCounts,
+    /// Oldest first, capped.
+    pub unused_links: Vec<AccountLinkingUnusedLink>,
+    /// Newest first, capped; study registry links only as `links_total_by_method`.
+    pub recent_links: Vec<AccountLinkingRecentLink>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -263,6 +374,9 @@ pub struct AdminResendAccountLinkingEmailPayload {
     /// Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
     pub override_rate_caps: bool,
     pub reason: Option<String>,
+    /// The registration whose student the mail is a guess for, from the linking candidates. Must be
+    /// on `course_id`; recorded on the audit row.
+    pub credit_registration_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -274,6 +388,36 @@ pub struct AdminResendAccountLinkingEmailResult {
     pub mails_sent_for_this_course: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
+}
+
+/// A person on the code's enrolment list whom no linking email reached because they enrolled before
+/// account linking began, and who may be the waiting student.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminLinkingCandidate {
+    /// Echoed back to the resend endpoint to mail them.
+    pub student_number: String,
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    /// In full: support has to tell the candidates apart before mailing one of them.
+    pub email: Option<String>,
+    /// `None` when the study registry gave no enrolment time.
+    pub enrolled_at: Option<DateTime<Utc>>,
+    /// Linking emails they have had for the registration's course, replaced ones included.
+    pub linking_emails_for_course: i64,
+    /// What they share with the student's account; the list is ordered by these.
+    pub similarities: Vec<LinkingCandidateSimilarity>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminLinkingCandidates {
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_code: String,
+    pub account_linking_since: DateTime<Utc>,
+    /// The study registry gave no usable answer, so an empty `candidates` says nothing.
+    pub study_registry_unavailable: bool,
+    /// Most like the student's account first.
+    pub candidates: Vec<AdminLinkingCandidate>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -370,7 +514,18 @@ pub async fn get_account_linking_stats(
     let since = Utc::now() - chrono::Duration::days(window_days);
 
     let account_linking_since = app_conf.suotar_configuration.account_linking_since;
-    let course_codes = build_course_codes(&mut conn, account_linking_since).await?;
+    let presser_rows =
+        credit_registrations::get_waiting_pressers(&mut conn, account_linking_since, None).await?;
+    let unused_by_code =
+        credit_registration_account_linking_emails::count_unused_links_by_course_code(&mut conn)
+            .await?;
+    let course_codes = build_course_codes(
+        &mut conn,
+        account_linking_since,
+        &presser_rows,
+        &unused_by_code,
+    )
+    .await?;
     let sum = |pick: fn(&AccountLinkingCodeCounters) -> i32| -> i64 {
         course_codes
             .iter()
@@ -390,6 +545,7 @@ pub async fn get_account_linking_stats(
         retrying: totals.retrying,
         sent: totals.sent,
         send_failed: totals.send_failed,
+        used: totals.used,
     };
     let hard_failure_domains: Vec<AccountLinkingFailureDomain> =
         credit_registration_account_linking_emails::get_send_failure_domains_since(
@@ -460,6 +616,7 @@ pub async fn get_account_linking_stats(
             course_module_name: row.course_module_name,
             uh_course_code: row.uh_course_code,
             completion_date: row.completion_date,
+            engagement: Engagement::of(row.pressed_at, row.last_visited_at),
             last_visited_at: row.last_visited_at,
             last_check_requested_at: row.last_check_requested_at,
         })
@@ -474,7 +631,7 @@ pub async fn get_account_linking_stats(
         id: row.id,
         course_id: row.course_id,
         course_name: row.course_name,
-        emailed_to_masked: mask_email(row.emailed_to.expose_secret()),
+        emailed_to: row.emailed_to.expose_secret().to_owned(),
         claimed_at: row.claimed_at,
         queued_at: row.queued_at,
         send_status: row.send_status,
@@ -520,7 +677,132 @@ pub async fn get_account_linking_stats(
     })
     .collect();
 
+    let rules = attention_rules(&mut conn, &app_conf).await?;
+    let presser_ids: Vec<Uuid> = presser_rows
+        .iter()
+        .map(|row| row.credit_registration_id)
+        .collect();
+    let attention =
+        credit_registrations::get_attention_items(&mut conn, &rules, Some(&presser_ids)).await?;
+    let needs_attention_by_stuck_id: HashMap<Uuid, bool> = attention
+        .iter()
+        .filter(|row| row.reasons.contains(&AttentionReason::StudentNumberStuck))
+        .map(|row| {
+            (
+                row.id,
+                row.standing(&rules.blocking) == AttentionStanding::NeedsAttention,
+            )
+        })
+        .collect();
+    let mut pressers: Vec<AccountLinkingPresser> = presser_rows
+        .into_iter()
+        .map(|row| {
+            let code = row
+                .uh_course_code
+                .as_deref()
+                .and_then(|code| course_codes.iter().find(|known| known.course_code == code));
+            let stuck_needs_attention = needs_attention_by_stuck_id
+                .get(&row.credit_registration_id)
+                .copied();
+            AccountLinkingPresser {
+                credit_registration_id: row.credit_registration_id,
+                user_id: row.user_id,
+                email: row.email,
+                first_name: row.first_name,
+                last_name: row.last_name,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                course_module_name: row.course_module_name,
+                uh_course_code: row.uh_course_code.clone(),
+                completion_date: row.completion_date,
+                pressed_at: row.pressed_at,
+                enrolment_route: row.enrolment_route,
+                last_fetched_at: code.and_then(|code| code.last_fetched_at),
+                last_mailing_fetch_started_at: code
+                    .and_then(|code| code.last_mailing_fetch_started_at),
+                next_fetch_at: code.map(|code| code.next_fetch_at),
+                linking_emails_on_code_since_press: row.linking_emails_on_code_since_press,
+                last_linking_email_on_code_at: row.last_linking_email_on_code_at,
+                is_enrolment_list_empty: code.is_some_and(|code| code.is_enrolment_list_empty),
+                is_fetch_failing: code.is_some_and(|code| code.is_fetch_failing),
+                unlinked_enrolled_before_count: code
+                    .and_then(|code| code.unlinked_enrolled_before_count),
+                is_stuck: stuck_needs_attention.is_some(),
+                needs_attention: stuck_needs_attention.unwrap_or(false),
+            }
+        })
+        .collect();
+    pressers.sort_by_key(|presser| (!presser.is_stuck, presser.pressed_at));
+
+    let mut engagement_counts = AccountLinkingEngagementCounts {
+        pressed: 0,
+        pressed_stuck: pressers.iter().filter(|presser| presser.is_stuck).count() as i64,
+        visited: 0,
+        not_started: 0,
+    };
+    for row in credit_registrations::count_by_step_and_engagement(&mut conn, account_linking_since)
+        .await?
+        .into_iter()
+        .filter(|row| row.step == TimelineStep::WaitingForStudentNumber)
+    {
+        match row.engagement {
+            Some(Engagement::Pressed) => engagement_counts.pressed += row.count,
+            Some(Engagement::Visited) => engagement_counts.visited += row.count,
+            Some(Engagement::NotStarted) => engagement_counts.not_started += row.count,
+            None => {}
+        }
+    }
+
+    let now = Utc::now();
+    let processing_phases = credit_registration_phase_state::get_all(&mut conn)
+        .await?
+        .into_iter()
+        .filter(|row| {
+            [
+                CreditRegistrationPhase::EnrolmentDiscovery,
+                CreditRegistrationPhase::LinkEmails,
+            ]
+            .iter()
+            .any(|phase| phase.as_str() == row.phase)
+        })
+        .map(|row| to_phase_status(row, now))
+        .collect();
+    let unused_links =
+        credit_registration_account_linking_emails::get_unused_links(&mut conn, UNUSED_LINK_LIMIT)
+            .await?
+            .into_iter()
+            .map(|row| AccountLinkingUnusedLink {
+                id: row.id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                uh_course_code: row.uh_course_code,
+                emailed_to: row.emailed_to.expose_secret().to_owned(),
+                claimed_at: row.claimed_at,
+                expires_at: row.expires_at,
+            })
+            .collect();
+    let recent_links =
+        verified_student_numbers::get_recent_linked_by_email_or_hand(&mut conn, RECENT_LINK_LIMIT)
+            .await?
+            .into_iter()
+            .map(|row| AccountLinkingRecentLink {
+                user_id: row.user_id,
+                first_name: row.first_name,
+                last_name: row.last_name,
+                email: row.email,
+                verified_at: row.verified_at,
+                verified_via: row.verified_via,
+                verified_from_course_id: row.verified_from_course_id,
+                verified_from_course_name: row.verified_from_course_name,
+            })
+            .collect();
+
     token.authorized_ok(web::Json(AccountLinkingStats {
+        processing_phases,
+        pressers,
+        engagement_counts,
+        unused_links,
+        recent_links,
         account_linking_enabled: app_conf.suotar_configuration.is_account_linking_enabled(),
         account_linking_since,
         window_secs,
@@ -722,6 +1004,18 @@ pub async fn admin_resend_account_linking_email(
         ));
     }
 
+    if let Some(credit_registration_id) = payload.credit_registration_id
+        && credit_registrations::get_by_id(&mut conn, credit_registration_id)
+            .await?
+            .course_id
+            != payload.course_id
+    {
+        return Err(controller_err!(
+            BadRequest,
+            "The registration is on another course.".to_string()
+        ));
+    }
+
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
@@ -757,6 +1051,135 @@ pub async fn admin_resend_account_linking_email(
         token,
     )
     .await
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+- Who on the code's enrolment list a student stuck waiting for a student number may be.
+
+Lists the roster live and keeps the people no account is linked to who enrolled before account
+linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+is only a hint. Stores nothing beyond the call log row every study registry call writes.
+*/
+#[instrument(skip(pool, app_conf, suotar_client))]
+#[utoipa::path(
+    get,
+    path = "/registrations/{credit_registration_id}/linking-candidates",
+    operation_id = "getCreditRegistrationLinkingCandidates",
+    tag = "credit-registration-admin",
+    params(("credit_registration_id" = Uuid, Path, description = "Credit registration id")),
+    responses(
+        (status = 200, description = "The candidates", body = AdminLinkingCandidates),
+        (status = 400, description = "Account linking is off, or the row is not stuck waiting for a student number")
+    )
+)]
+pub async fn get_credit_registration_linking_candidates(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    credit_registration_id: web::Path<Uuid>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
+) -> ControllerResult<web::Json<AdminLinkingCandidates>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let Some(since) = app_conf.suotar_configuration.account_linking_since else {
+        return Err(controller_err!(
+            BadRequest,
+            "Account linking is switched off.".to_string()
+        ));
+    };
+    let rules = attention_rules(&mut conn, &app_conf).await?;
+    let row = credit_registrations::get_attention_items(
+        &mut conn,
+        &rules,
+        Some(&[*credit_registration_id]),
+    )
+    .await?
+    .into_iter()
+    .next()
+    .filter(|row| row.reasons.contains(&AttentionReason::StudentNumberStuck));
+    let Some((row, course_code)) =
+        row.and_then(|row| row.uh_course_code.clone().map(|code| (row, code)))
+    else {
+        return Err(controller_err!(
+            BadRequest,
+            "This registration is not stuck waiting for a student number.".to_string()
+        ));
+    };
+
+    let ctx = ManualActionContext::new(&pool, &suotar_client, CANDIDATES_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    info!(actor = %user.id, credit_registration_id = %row.id, "Admin listing linking candidates");
+    let people = list_unlinked_enrolled_before(&ctx, &course_code, since).await?;
+    let mut conn = pool.acquire().await?;
+
+    let study_registry_unavailable = people.is_none();
+    let people = people.unwrap_or_default();
+    let person_ids: Vec<String> = people
+        .iter()
+        .map(|person| person.person_id.expose_secret().to_owned())
+        .collect();
+    let mut mails_by_person: HashMap<String, i64> = HashMap::new();
+    for fact in credit_registration_account_linking_emails::get_existing_facts_for_persons(
+        &mut conn,
+        &person_ids,
+    )
+    .await?
+    .into_iter()
+    .filter(|fact| fact.course_id == row.course_id)
+    {
+        *mails_by_person
+            .entry(fact.sisu_person_id.expose_secret().to_owned())
+            .or_default() += 1;
+    }
+
+    let account = AccountIdentity {
+        first_name: row.first_name.as_deref(),
+        last_name: row.last_name.as_deref(),
+        email: row.email.as_deref(),
+    };
+    let mut ranked: Vec<(u32, AdminLinkingCandidate)> = people
+        .iter()
+        .map(|person| {
+            let found = similarities(&account, person);
+            let candidate = AdminLinkingCandidate {
+                student_number: person.student_number.expose_secret().to_owned(),
+                first_names: person
+                    .first_names
+                    .as_ref()
+                    .map(|names| names.expose_secret().to_owned()),
+                last_name: person
+                    .last_name
+                    .as_ref()
+                    .map(|name| name.expose_secret().to_owned()),
+                email: mail_address(person).map(|address| address.expose_secret().to_owned()),
+                enrolled_at: person.enrolled_at(),
+                linking_emails_for_course: mails_by_person
+                    .get(person.person_id.expose_secret())
+                    .copied()
+                    .unwrap_or(0),
+                similarities: found.clone(),
+            };
+            (similarity_score(&found), candidate)
+        })
+        .collect();
+    ranked.sort_by(|(a_score, a), (b_score, b)| {
+        b_score
+            .cmp(a_score)
+            .then_with(|| a.last_name.cmp(&b.last_name))
+            .then_with(|| a.first_names.cmp(&b.first_names))
+    });
+
+    token.authorized_ok(web::Json(AdminLinkingCandidates {
+        course_id: row.course_id,
+        course_name: row.course_name,
+        course_code,
+        account_linking_since: since,
+        study_registry_unavailable,
+        candidates: ranked.into_iter().map(|(_, candidate)| candidate).collect(),
+    }))
 }
 
 /**
@@ -1121,6 +1544,7 @@ async fn finish_resend(
             "student_number": student_number.expose_secret(),
             "override_rate_caps": payload.override_rate_caps,
             "retired_mail_count": retired_mail_count,
+            "credit_registration_id": payload.credit_registration_id,
         }),
     )
     .await?;
@@ -1140,6 +1564,8 @@ async fn finish_resend(
 async fn build_course_codes(
     conn: &mut PgConnection,
     account_linking_since: Option<DateTime<Utc>>,
+    pressers: &[WaitingPresser],
+    unused_by_code: &[(String, i64)],
 ) -> Result<Vec<AccountLinkingCourseCode>, ControllerError> {
     let mut modules_by_code: HashMap<String, Vec<AccountLinkingCodeModule>> = HashMap::new();
     for row in course_module_suotar_configurations::get_active_discovery_reports(conn).await? {
@@ -1168,6 +1594,19 @@ async fn build_course_codes(
     Ok(schedules
         .into_iter()
         .map(|schedule: RosterSchedule| AccountLinkingCourseCode {
+            pressed_waiting_count: pressers
+                .iter()
+                .filter(|presser| {
+                    presser.uh_course_code.as_deref() == Some(schedule.course_code.as_str())
+                })
+                .count() as i64,
+            unused_link_count: unused_by_code
+                .iter()
+                .find(|(code, _)| *code == schedule.course_code)
+                .map_or(0, |(_, count)| *count),
+            is_enrolment_list_empty: schedule.last_listed_person_count == Some(0),
+            is_fetch_failing: schedule.consecutive_failures > 0,
+            last_mailing_fetch_started_at: schedule.last_mailing_fetch_started_at,
             modules: modules_by_code
                 .remove(&schedule.course_code)
                 .unwrap_or_default(),
@@ -1180,6 +1619,7 @@ async fn build_course_codes(
             retry_not_before: schedule.retry_not_before,
             last_error: schedule.last_error,
             linking: schedule.linking_counters,
+            unlinked_enrolled_before_count: schedule.unlinked_enrolled_before_count,
             course_code: schedule.course_code,
         })
         .collect())
@@ -1242,6 +1682,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
             web::post().to(admin_dismiss_study_registry_conflict),
+        )
+        .route(
+            "/registrations/{credit_registration_id}/linking-candidates",
+            web::get().to(get_credit_registration_linking_candidates),
         );
 }
 

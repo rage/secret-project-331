@@ -1,0 +1,175 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.user_id,\n  ud.email AS \"email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  cr.course_id,\n  c.name AS course_name,\n  cm.name AS \"course_module_name?\",\n  cm.uh_course_code AS \"uh_course_code?\",\n  cmc.completion_date,\n  sig.last_visited_at AS \"last_visited_at?\",\n  CASE\n    WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at\n  END AS \"last_check_requested_at?\",\n  route.enrolment_confirmed_at AS \"pressed_at?\",\n  COUNT(*) OVER () AS \"total!\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  AND cmc.deleted_at IS NULL\n  JOIN courses c ON c.id = cr.course_id\n  AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  AND cm.deleted_at IS NULL\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id\n  AND route.deleted_at IS NULL\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND p.completion_eligible\n  AND NOT p.has_verified_student_number\n  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)\nORDER BY cmc.completion_date,\n  cr.id\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_module_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "uh_course_code?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "completion_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "completion_date"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "last_visited_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_check_signals",
+            "name": "last_visited_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "last_check_requested_at?",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 12,
+        "name": "pressed_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "total!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      null,
+      true,
+      null
+    ]
+  },
+  "hash": "cdce96116c3cb5d983ef22e3f6186422ae67af3be53d8da335b7532bbd91d1fe"
+}

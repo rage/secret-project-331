@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT snapshot_date,\n  timeline_step AS \"step: TimelineStep\",\n  engagement AS \"engagement: Engagement\",\n  count\nFROM credit_registration_daily_step_snapshots\nWHERE snapshot_date BETWEEN $1 AND $2\n  AND deleted_at IS NULL\nORDER BY snapshot_date\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "snapshot_date",
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_daily_step_snapshots",
+            "name": "snapshot_date"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "step: TimelineStep",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_timeline_step",
+            "kind": {
+              "Enum": [
+                "course_not_registrable_yet",
+                "waiting_for_student_number",
+                "held_for_course_code",
+                "looking_for_enrolment",
+                "waiting_for_enrolment",
+                "sending",
+                "answer_unclear",
+                "waiting_for_assessment_item",
+                "waiting_for_course_unit",
+                "registered",
+                "already_in_sisu",
+                "better_grade_in_sisu",
+                "recorded_wrongly",
+                "needs_a_person",
+                "not_registering",
+                "no_longer_registrable"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_daily_step_snapshots",
+            "name": "timeline_step"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "engagement: Engagement",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_engagement",
+            "kind": {
+              "Enum": [
+                "pressed",
+                "visited",
+                "not_started"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_daily_step_snapshots",
+            "name": "engagement"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_daily_step_snapshots",
+            "name": "count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Date",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "9be3607dbf94baab3e27340c50895fbc2cf53da7992880766aca15e2606a1ee2"
+}

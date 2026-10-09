@@ -4,20 +4,19 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ScheduledTime from "@/components/credit-registration/ScheduledTime"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
-import { Badge, QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, QueryResult, Table } from "@/shared-module/components"
 
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
   TONE,
 } from "../constants"
 import {
-  codeValueCss,
   headingCss,
   noteCss,
   proseCss,
@@ -25,6 +24,7 @@ import {
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationPhases } from "./adminCreditRegistrationHooks"
 import { breakerNextAttemptAt, breakerStatusLabel, breakerTargetLabel } from "./breakerStatus"
 
@@ -80,7 +80,7 @@ const CircuitBreakerSection: React.FC = () => {
                         row.open_for_secs !== undefined && (
                           <span className={noteCss}>
                             {t("credit-registration-admin-breaker-next-attempt-note")}{" "}
-                            <RelativeTime at={breakerNextAttemptAt(row.open_for_secs)} />
+                            <ScheduledTime at={breakerNextAttemptAt(row.open_for_secs)} />
                           </span>
                         )}
                     </span>
@@ -106,7 +106,11 @@ const CircuitBreakerSection: React.FC = () => {
                 grow: true,
                 minWidth: "12rem",
                 cell: (row) => (
-                  <code className={codeValueCss}>{row.endpoints.join(MIDDLE_DOT)}</code>
+                  <span className={stackedCellCss}>
+                    {row.endpoints.map((endpoint) => (
+                      <span key={endpoint}>{suotarEndpointLabel(t, endpoint)}</span>
+                    ))}
+                  </span>
                 ),
               },
               {

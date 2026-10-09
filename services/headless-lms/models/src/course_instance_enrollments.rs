@@ -106,29 +106,46 @@ pub struct NewCourseInstanceEnrollment {
 }
 
 /**
-Inserts enrollment if it doesn't exist yet; on conflict updates deleted_at to NULL (upsert).
+Inserts enrollment if it doesn't exist yet, or restores a soft-deleted one.
 
-Handles duplicate submissions (e.g. multiple tabs or parallel requests) by conflicting on (user_id, course_id, course_instance_id).
+Safe to call concurrently for the same enrollment, e.g. from multiple tabs or parallel requests.
 */
 pub async fn insert_enrollment_if_it_doesnt_exist(
     conn: &mut PgConnection,
     enrollment: NewCourseInstanceEnrollment,
 ) -> ModelResult<CourseInstanceEnrollment> {
-    let enrollment = sqlx::query_as!(
-        CourseInstanceEnrollment,
+    let mut tx = conn.begin().await?;
+    // A conflict target would leave the table's other unique index as a non-arbiter, which raises a
+    // duplicate key error instead of conflicting when two requests insert at the same time.
+    sqlx::query!(
         "
 INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
 VALUES ($1, $2, $3)
-ON CONFLICT (user_id, course_id, course_instance_id)
-DO UPDATE SET deleted_at = NULL
-RETURNING *;
+ON CONFLICT DO NOTHING
 ",
         enrollment.user_id,
         enrollment.course_id,
         enrollment.course_instance_id,
     )
-    .fetch_one(conn)
+    .execute(&mut *tx)
     .await?;
+    let enrollment = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+UPDATE course_instance_enrollments
+SET deleted_at = NULL
+WHERE user_id = $1
+  AND course_id = $2
+  AND course_instance_id = $3
+RETURNING *
+",
+        enrollment.user_id,
+        enrollment.course_id,
+        enrollment.course_instance_id,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
     Ok(enrollment)
 }
 

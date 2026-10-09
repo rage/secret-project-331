@@ -1,13 +1,17 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import AdminCourseModulePauseButton from "@/components/credit-registration/admin/AdminCourseModulePauseButton"
 import { useCreditRegistrationCourseStats } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import type { ConfigFailureReason } from "@/components/credit-registration/admin/courseModuleStatus"
+import type {
+  ConfigFailureReason,
+  CourseModuleStatus,
+} from "@/components/credit-registration/admin/courseModuleStatus"
 import {
   backfillGap,
   configFailureReason,
@@ -23,23 +27,29 @@ import {
 } from "@/components/credit-registration/admin/courseModuleStatus"
 import FacetChip from "@/components/credit-registration/admin/FacetChip"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
+import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
+import {
+  FAILED_STEPS,
+  FINISHED_STEPS,
+  TIMELINE_STEPS,
+} from "@/components/credit-registration/admin/timelineSteps"
+import WhereRegistrationsStandList from "@/components/credit-registration/admin/WhereRegistrationsStandList"
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
+import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   controlCss,
   controlsCss,
   headingCss,
   codeValueCss,
   noteCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
@@ -47,10 +57,11 @@ import {
   sectionCss,
   stackedCellCss,
   statusTriggerCss,
+  subheadingCss,
+  subsectionCss,
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
-import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
-import { creditRegistrationRegistrationsRoute } from "@/shared-module/common/utils/routes"
+import type { CreditRegistrationCourseStats, TimelineStep } from "@/generated/api/types.generated"
 import {
   Badge,
   Checkbox,
@@ -65,8 +76,22 @@ import {
   Table,
 } from "@/shared-module/components"
 
-const MODULE_QUERY = "?course_module_id="
-const ATTENTION_QUERY = "&needs_admin_attention=true"
+/** Steps still on their way: neither finished nor counted under Failed. */
+const IN_PROGRESS_STEPS: readonly TimelineStep[] = TIMELINE_STEPS.filter(
+  (step) => !FINISHED_STEPS.has(step) && !FAILED_STEPS.includes(step),
+)
+
+const inProgressCount = (module: CreditRegistrationCourseStats): number =>
+  module.where_registrations_stand
+    .filter((row) => IN_PROGRESS_STEPS.includes(row.step))
+    .reduce((sum, row) => sum + row.count, 0)
+
+const heldForCourseSetupCount = (module: CreditRegistrationCourseStats): number =>
+  module.where_registrations_stand
+    .filter((row) => row.step === "held_for_course_code")
+    .reduce((sum, row) => sum + row.count, 0)
+const UNCHECKED: CourseModuleStatus = "unchecked"
+
 const SORT_NAME = "name"
 const SORT_FAILURES = "failures"
 const SORT_BACKFILL = "backfill"
@@ -99,13 +124,6 @@ const checkboxAlignCss = css`
   align-self: center;
 `
 
-/** A pause reason is free text and can run long; one line keeps the badge row from growing per-row. */
-const truncatedNoteCss = css`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-
 const STATUS_ICON_SIZE = 16
 
 const statusMarkCss = css`
@@ -125,13 +143,16 @@ const statusIconDangerCss = css`
   color: var(--color-crimson-700);
 `
 
-/**
- * The row's one status mark. "ok" gets no glyph at all, just muted text — a pill on every fine row
- * is exactly the chrome Overview removed.
- */
-const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
+/** The row's one status mark; "ok" is muted text with no glyph, as most rows are fine. */
+const ModuleStatusMark: React.FC<{
+  module: CreditRegistrationCourseStats
+  isUncheckedSaidAbove: boolean
+}> = ({ module, isUncheckedSaidAbove }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = courseModuleStatus(module)
+  if (status === UNCHECKED && isUncheckedSaidAbove) {
+    return module.paused_at === null ? <AbsentValue /> : null
+  }
   const label = courseModuleStatusLabel(t, status)
   const StatusIcon = courseModuleStatusIcon(status)
   if (StatusIcon === null) {
@@ -216,20 +237,27 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
   )
 }
 
-/** Failed share of the module's finished rows: a percent and a bar on every row, so the shape of the
- * column never itself looks like the signal. Only the tone marks a rate worth acting on. */
+/** Failed share of the module's finished rows, linking to the rows that stopped. Only the tone
+ * marks a rate worth acting on. */
 const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (module.failed_count === 0) {
+    return null
+  }
   const rate = failureRatePercent(module)
   const terminal = module.success_count + module.failed_count
+  const failedHref = registrationsListHref({
+    courseModuleId: module.course_module_id,
+    steps: FAILED_STEPS,
+  })
   if (rate === null) {
     return (
-      <span>
+      <Link href={failedHref} appearance={LINK_QUIET}>
         {t("credit-registration-admin-failure-count-value", {
           failed: module.failed_count,
           terminal,
         })}
-      </span>
+      </Link>
     )
   }
   return (
@@ -243,39 +271,59 @@ const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ 
         terminal,
         percent: formatPercent(rate),
       })}
-      valueText={t("credit-registration-admin-failure-count-percent-value", {
-        failed: module.failed_count,
-        terminal,
-        percent: formatPercent(rate),
-      })}
+      valueText={
+        <Link href={failedHref} appearance={LINK_QUIET}>
+          {t("credit-registration-admin-failure-count-percent-value", {
+            failed: module.failed_count,
+            terminal,
+            percent: formatPercent(rate),
+          })}
+        </Link>
+      }
     />
   )
 }
 
-/** Registrations against eligible completions; the gap itself only earns a colour once it is non-zero. */
+/** Eligible completions with no registration, the bar filling as more go missing. */
 const BackfillCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const gap = backfillGap(module)
-  const valueText = t("credit-registration-admin-backfill-value", {
-    registered: module.registration_count,
-    eligible: module.eligible_completion_count,
-  })
-  if (module.eligible_completion_count === 0) {
-    return <span>{valueText}</span>
+  // Empty at zero like the count columns beside it.
+  if (gap <= 0) {
+    return null
   }
+  const counts = { missing: gap, eligible: module.eligible_completion_count }
   return (
     <MeterInline
-      value={module.registration_count}
+      value={gap}
       maxValue={module.eligible_completion_count}
-      tone={gap === 0 ? TONE.NEUTRAL : TONE.WARNING}
-      label={t("credit-registration-admin-backfill-label", {
-        registered: module.registration_count,
-        eligible: module.eligible_completion_count,
-      })}
-      valueText={valueText}
+      tone={TONE.WARNING}
+      label={t("credit-registration-admin-missing-registrations-label", counts)}
+      valueText={t("credit-registration-admin-missing-registrations-value", counts)}
     />
   )
 }
+
+/** The module's own "Where registrations stand", opened from its row. */
+const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <div className={subsectionCss}>
+      <h3 id={headingId} className={subheadingCss}>
+        {t("credit-registration-heading-states")}
+      </h3>
+      <WhereRegistrationsStandList
+        counts={module.where_registrations_stand}
+        labelledBy={headingId}
+        courseModuleId={module.course_module_id}
+      />
+    </div>
+  )
+}
+
+/** A zero is left empty, so the counts that matter stand out. */
+const nonZero = (count: number): number | null => (count === 0 ? null : count)
 
 const stripModulePrefix = (value: string): string => value.replace(/^Module\s+/, "")
 
@@ -335,6 +383,9 @@ const CoursesPage: React.FC = () => {
               return activeReason === null || configFailureReason(module) === activeReason
             })
             const modules = shown.toSorted(SORT_COMPARATORS[sort])
+            const isNothingChecked =
+              stats.modules.length > 0 &&
+              stats.modules.every((module) => courseModuleStatus(module) === UNCHECKED)
 
             return (
               <>
@@ -343,10 +394,12 @@ const CoursesPage: React.FC = () => {
                     label={t("credit-registration-admin-modules-enabled")}
                     value={stats.modules.length}
                   />
-                  <StatTile
-                    label={t("credit-registration-admin-modules-paused")}
-                    value={pausedCount}
-                  />
+                  {pausedCount > 0 && (
+                    <StatTile
+                      label={t("credit-registration-admin-modules-paused")}
+                      value={pausedCount}
+                    />
+                  )}
                 </StatTileList>
                 <div className={controlsCss}>
                   <div className={controlCss}>
@@ -400,6 +453,9 @@ const CoursesPage: React.FC = () => {
                     </span>
                   </Infobox>
                 )}
+                {isNothingChecked && (
+                  <p className={noteCss}>{t("credit-registration-admin-no-course-code-checked")}</p>
+                )}
                 <Table
                   caption={t("credit-registration-heading-courses")}
                   density={DENSITY_COMPACT}
@@ -407,6 +463,11 @@ const CoursesPage: React.FC = () => {
                   rowKey={(row) => row.course_module_id}
                   rows={modules}
                   emptyState={t("credit-registration-admin-no-enabled-modules")}
+                  expandableRow={(row) =>
+                    row.where_registrations_stand.some((count) => count.count > 0) ? (
+                      <ModuleStepCounts module={row} />
+                    ) : null
+                  }
                   columns={[
                     {
                       header: t("label-course"),
@@ -415,14 +476,15 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <Link
-                            href={`${creditRegistrationRegistrationsRoute()}${MODULE_QUERY}${row.course_module_id}`}
+                            href={registrationsListHref({ courseModuleId: row.course_module_id })}
                             appearance={LINK_QUIET}
                           >
                             {row.course_name}
                           </Link>
-                          <span className={cx(noteCss, codeValueCss)}>
-                            {moduleSubtitle(row).join(MIDDLE_DOT)}
-                          </span>
+                          <InlineParts
+                            className={cx(noteCss, codeValueCss)}
+                            parts={moduleSubtitle(row)}
+                          />
                         </span>
                       ),
                     },
@@ -431,6 +493,7 @@ const CoursesPage: React.FC = () => {
                       minWidth: "16rem",
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
+                        const heldCount = heldForCourseSetupCount(row)
                         return (
                           <span className={stackedCellCss}>
                             <span className={rowCss}>
@@ -439,21 +502,38 @@ const CoursesPage: React.FC = () => {
                                   {t("credit-registration-admin-module-paused")}
                                 </Badge>
                               )}
-                              <ModuleStatusMark module={row} />
+                              <ModuleStatusMark
+                                module={row}
+                                isUncheckedSaidAbove={isNothingChecked}
+                              />
                             </span>
-                            {isPaused && row.pause_reason && (
-                              <span
-                                className={cx(noteCss, truncatedNoteCss)}
-                                title={row.pause_reason}
-                              >
-                                {row.pause_reason}
+                            {row.paused_at && (
+                              <span className={noteCss}>
+                                {t("credit-registration-module-paused-since")}{" "}
+                                <ZonedTimestamp at={row.paused_at} />
                               </span>
+                            )}
+                            {isPaused && row.pause_reason && (
+                              <span className={noteCss}>{row.pause_reason}</span>
                             )}
                             {row.check.message && (
                               <span className={noteCss}>
                                 {configFailureReasonLabel(t, configFailureReasonOrOther(row))}{" "}
                                 <ConfigDetail module={row} />
                               </span>
+                            )}
+                            {heldCount > 0 && (
+                              <Link
+                                href={registrationsListHref({
+                                  steps: ["held_for_course_code"],
+                                  courseModuleId: row.course_module_id,
+                                })}
+                                appearance={LINK_QUIET}
+                              >
+                                {t("credit-registration-admin-waiting-for-setup-fix", {
+                                  count: heldCount,
+                                })}
+                              </Link>
                             )}
                           </span>
                         )
@@ -466,11 +546,41 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => <BackfillCell module={row} />,
                     },
                     {
-                      header: t("credit-registration-admin-column-registered"),
+                      header: t("credit-registration-admin-column-in-progress"),
                       align: ALIGN_END,
                       minWidth: "6rem",
                       nowrap: true,
-                      cell: (row) => row.success_count,
+                      cell: (row) => {
+                        const count = inProgressCount(row)
+                        return count === 0 ? null : (
+                          <Link
+                            href={registrationsListHref({
+                              courseModuleId: row.course_module_id,
+                              steps: IN_PROGRESS_STEPS,
+                            })}
+                            appearance={LINK_QUIET}
+                          >
+                            {count}
+                          </Link>
+                        )
+                      },
+                    },
+                    {
+                      header: t("credit-registration-admin-column-registered"),
+                      align: ALIGN_END,
+                      minWidth: "7rem",
+                      cell: (row) => (
+                        <span className={stackedCellCss}>
+                          <span>{nonZero(row.registered_count)}</span>
+                          {row.already_in_sisu_count > 0 && (
+                            <span className={noteCss}>
+                              {t("credit-registration-admin-already-in-sisu-count", {
+                                count: row.already_in_sisu_count,
+                              })}
+                            </span>
+                          )}
+                        </span>
+                      ),
                     },
                     {
                       header: t("credit-registration-admin-column-failed"),
@@ -484,14 +594,16 @@ const CoursesPage: React.FC = () => {
                       minWidth: "6rem",
                       nowrap: true,
                       cell: (row) =>
-                        row.needs_admin_attention_count === 0 ? (
-                          row.needs_admin_attention_count
-                        ) : (
+                        row.needs_attention_count === 0 ? null : (
                           <Link
-                            href={`${creditRegistrationRegistrationsRoute()}${MODULE_QUERY}${row.course_module_id}${ATTENTION_QUERY}`}
+                            href={registrationsListHref({
+                              courseModuleId: row.course_module_id,
+                              needsAttention: true,
+                              includeNotStarted: true,
+                            })}
                             appearance={LINK_QUIET}
                           >
-                            {row.needs_admin_attention_count}
+                            {row.needs_attention_count}
                           </Link>
                         ),
                     },
@@ -509,9 +621,6 @@ const CoursesPage: React.FC = () => {
                     },
                   ]}
                 />
-                <p className={cx(noteCss, proseCss)}>
-                  {t("credit-registration-admin-config-recomputed-note")}
-                </p>
               </>
             )
           }}

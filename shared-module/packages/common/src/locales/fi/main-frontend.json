@@ -1608,7 +1608,7 @@
   "override-completion-registration-link": "Käytä poikkeavaa suoritusten kirjauslinkkiä",
   "page-deletion-confirmation-message": "Oletko varma, että haluat poistaa sivun {{title}}?",
   "page-number": "sivu {{page-number}}",
-  "page-title-credit-registration-for-course": "Opintopisteiden kirjaaminen · {{course}}",
+  "page-title-credit-registration-for-course": "Opintopisteiden kirjaaminen: {{course}}",
   "pages": "Sivut",
   "paper-size": "Paperin koko",
   "partners-section-button-text": "Lisää kumppaniosio",

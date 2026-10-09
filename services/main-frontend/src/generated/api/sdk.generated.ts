@@ -25,6 +25,9 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionErrors,
+  AdminDismissCreditRegistrationAttentionResponses,
   AdminDismissStudyRegistryConflictData,
   AdminDismissStudyRegistryConflictErrors,
   AdminDismissStudyRegistryConflictResponses,
@@ -420,6 +423,9 @@ import type {
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminErrors,
   GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  GetCreditRegistrationLinkingCandidatesResponses,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponses,
   GetCreditRegistrationPipelineHistoryData,
@@ -840,6 +846,7 @@ import {
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
@@ -993,6 +1000,7 @@ import {
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationLinkingCandidatesResponse,
   zGetCreditRegistrationOverviewResponse,
   zGetCreditRegistrationPipelineHistoryResponse,
   zGetCreditRegistrationReconciliationResponse,
@@ -5074,12 +5082,13 @@ export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean =
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5391,7 +5400,8 @@ export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
- * ledger state, with what entered and left each state that day.
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
  */
 export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationPipelineHistoryData, ThrowOnError>,
@@ -5545,6 +5555,69 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
       await zGetCreditRegistrationForAdminResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttention = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissCreditRegistrationAttentionData, ThrowOnError>,
+): RequestResult<
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissCreditRegistrationAttentionErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissCreditRegistrationAttentionResponses,
+    AdminDismissCreditRegistrationAttentionErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminDismissCreditRegistrationAttentionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationLinkingCandidatesData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationLinkingCandidatesResponses,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationLinkingCandidatesResponses,
+    GetCreditRegistrationLinkingCandidatesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationLinkingCandidatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
   })
 

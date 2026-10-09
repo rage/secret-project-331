@@ -20,9 +20,11 @@ mod phases;
 mod reconciliation;
 mod student_numbers;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, CreditRegistrationAccountLinkingEmail,
 };
+use headless_lms_models::credit_registrations::AttentionRules;
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::student_number_verification_tokens;
 use utoipa::{OpenApi, ToSchema};
@@ -46,6 +48,7 @@ use secrecy::ExposeSecret;
     errors::get_credit_registration_thresholds,
     errors::get_credit_registration_attention_items,
     errors::get_credit_registration_errors_by_code,
+    errors::admin_dismiss_credit_registration_attention,
     phases::list_credit_registration_phases,
     api_log::list_suotar_api_calls,
     api_log::get_suotar_api_call,
@@ -62,16 +65,26 @@ use secrecy::ExposeSecret;
     account_linking::admin_manually_link_student_number,
     account_linking::admin_request_enrolment_list_fetch,
     account_linking::admin_dismiss_study_registry_conflict,
+    account_linking::get_credit_registration_linking_candidates,
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations
 ))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
-/// Resends after which retrying is not the answer and the attention queue picks the row up. Verify
-/// polls do not count: confirming routinely takes many. Shared so the Overview tile and the Errors
-/// queue count the same rows.
-const ATTENTION_TOO_MANY_ATTEMPTS: i32 = 5;
+/// The rules every Needs attention count on these tabs is taken under.
+async fn attention_rules(
+    conn: &mut PgConnection,
+    app_conf: &ApplicationConfiguration,
+) -> Result<AttentionRules, ControllerError> {
+    Ok(
+        headless_lms_credit_registration::attention::attention_rules(
+            conn,
+            app_conf.suotar_configuration.account_linking_since,
+        )
+        .await?,
+    )
+}
 
 /// Every handler here gates on the same check; a submodule calls this instead of repeating it.
 async fn authorize_credit_registration_admin(

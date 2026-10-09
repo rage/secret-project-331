@@ -276,11 +276,8 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
     },
   ]
 
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
-      </div>
+  const checks = (
+    <>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-reconciliation-in-queue-note")}
       </p>
@@ -304,6 +301,31 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
       {/* After the checks, not beside the heading: it stays the section's action regardless of
           what the checks found, but a phone must not read it before it reads why it exists. */}
       <MaterializeButton />
+    </>
+  )
+
+  if (detectors.every((detector) => detector.count === 0)) {
+    return (
+      <section className={sectionCardCss}>
+        <Disclosure
+          title={t("credit-registration-heading-reconciliation")}
+          summary={
+            <span className={noteCss}>{t("credit-registration-admin-check-none-found")}</span>
+          }
+          variant={PLAIN_DISCLOSURE}
+        >
+          <div className={subsectionCss}>{checks}</div>
+        </Disclosure>
+      </section>
+    )
+  }
+
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
+      </div>
+      {checks}
     </section>
   )
 }

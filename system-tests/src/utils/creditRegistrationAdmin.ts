@@ -86,6 +86,8 @@ export interface AdminRegistrationAttempt {
   sisu_attainment_id: string | null
   sisu_person_id: string | null
   next_attempt_at: string
+  /** Suotar's `retryAfter` for a pending submission. */
+  resubmit_not_before: string | null
   /** What the single-row hand transition would allow on this row. */
   hand_actions: {
     resubmission:
@@ -129,17 +131,19 @@ export interface AdminRegistrationFilter {
   state?: string
   needs_admin_attention?: boolean
   include_superseded?: boolean
+  /** Defaults to true here, unlike in the API: a spec looking up its own row never wants it hidden. */
+  include_not_started?: boolean
   limit?: number
 }
 
+/** A page of the ledger, including rows waiting on a student who has not started. */
 export const listAdminRegistrations = (
   request: APIRequestContext,
   filter: AdminRegistrationFilter = {},
 ): Promise<AdminRegistrationsPage> =>
-  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
   getJson<AdminRegistrationsPage>(
     request,
-    `${ADMIN_REGISTRATIONS_URL}${queryString({ ...filter })}`,
+    `${ADMIN_REGISTRATIONS_URL}${queryString({ include_not_started: true, ...filter })}`,
   )
 
 export const adminRegistrationDetails = (

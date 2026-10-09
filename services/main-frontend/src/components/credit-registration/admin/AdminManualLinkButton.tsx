@@ -37,7 +37,7 @@ const AdminManualLinkButton: React.FC<Props> = ({
       </Button>
       {open && (
         <AdminManualLinkDialog
-          open
+          isOpen
           onClose={() => setOpen(false)}
           {...includeIf(studentNumber, { studentNumber })}
           {...includeIf(account, { account })}

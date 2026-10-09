@@ -1,19 +1,23 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { isRecord } from "@/shared-module/common/utils/objects"
 import {
   creditRegistrationItemRoute,
   creditRegistrationSuotarApiCallRoute,
 } from "@/shared-module/common/utils/routes"
 import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
 
-import { ABSENT, CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
+import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
   emptyStateCss,
   codeValueCss,
@@ -31,6 +35,15 @@ interface Props {
   suotarApiCallId: string
 }
 
+const exchangeCss = css`
+  display: grid;
+  gap: var(--space-4);
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`
+
 const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
   <div className={subsectionCss}>
     <h3 className={subheadingCss}>{title}</h3>
@@ -38,9 +51,16 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
   </div>
 )
 
+const REQUEST = "request"
+const RESPONSE = "response"
+
+const exchangePart = (exchange: unknown, part: typeof REQUEST | typeof RESPONSE): unknown =>
+  isRecord(exchange) ? exchange[part] : undefined
+
 /**
- * One registration's own part of a call: its `{request, response}` item pair, or null when none was
- * kept. The rest of the batch belongs to other students, so it is behind a link to the whole call.
+ * One registration's own part of a call: the request item we sent and the response item we got,
+ * or a note that none was kept. The rest of the batch belongs to other students, so it is behind
+ * a link to the whole call.
  */
 export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
   suotarApiCallId,
@@ -53,7 +73,16 @@ export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
       {exchange === null || exchange === undefined ? (
         <p className={emptyStateCss}>{t("credit-registration-admin-no-registration-item")}</p>
       ) : (
-        <Body title={t("credit-registration-heading-registration-item")} body={exchange} />
+        <div className={exchangeCss}>
+          <Body
+            title={t("credit-registration-admin-request-item")}
+            body={exchangePart(exchange, REQUEST)}
+          />
+          <Body
+            title={t("credit-registration-admin-response-item")}
+            body={exchangePart(exchange, RESPONSE)}
+          />
+        </div>
       )}
       <Link href={creditRegistrationSuotarApiCallRoute(suotarApiCallId)} prefetch={false}>
         {t("credit-registration-admin-show-whole-call")}
@@ -112,7 +141,9 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                         href={creditRegistrationItemRoute(row.credit_registration_id)}
                         prefetch={false}
                       >
-                        <code className={codeValueCss}>{row.request_item_id ?? ABSENT}</code>
+                        <code className={codeValueCss}>
+                          {row.request_item_id ?? <AbsentValue />}
+                        </code>
                       </Link>
                     ),
                   },
@@ -122,12 +153,12 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                   },
                   {
                     header: t("label-email"),
-                    cell: (row) => row.email ?? ABSENT,
+                    cell: (row) => row.email ?? <AbsentValue />,
                   },
                   {
                     header: t("label-student-number"),
                     cell: (row) => (
-                      <span className={codeValueCss}>{row.student_number ?? ABSENT}</span>
+                      <span className={codeValueCss}>{row.student_number ?? <AbsentValue />}</span>
                     ),
                   },
                   { header: t("label-course"), cell: (row) => row.course_name },

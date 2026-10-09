@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
+import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getAccountLinkingStatsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
@@ -12,16 +14,15 @@ import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
+import type { DialogOpenState } from "./AdminActionDialog"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
-interface Props {
-  open: boolean
-  onClose: () => void
+interface Props extends DialogOpenState {
   studentNumber: string
   courseId: string
   courseName: string
@@ -39,7 +40,7 @@ interface Fields {
  * an ordinary resend does not. Controlled, so a row's overflow menu can open it.
  */
 const AdminResendLinkingEmailDialog: React.FC<Props> = ({
-  open,
+  isOpen,
   onClose,
   studentNumber,
   courseId,
@@ -90,7 +91,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onClose={closeDialog}
       title={t("button-text-resend-linking-email")}
       actions={actions}
@@ -113,11 +114,13 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
               </div>
             )}
             {result.linking_emails.map((mail) => (
-              <div key={mail.id}>
-                {mail.emailed_to}
-                {MIDDLE_DOT}
-                {sendStatusLabel(t, mail.send_status.email_send_status)}
-              </div>
+              <InlineParts
+                key={mail.id}
+                parts={[
+                  <EmailAddress key="to" address={mail.emailed_to} />,
+                  sendStatusLabel(t, mail.send_status.email_send_status),
+                ]}
+              />
             ))}
           </Infobox>
         )}

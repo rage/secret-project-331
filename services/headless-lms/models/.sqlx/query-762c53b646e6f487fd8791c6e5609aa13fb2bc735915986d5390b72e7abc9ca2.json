@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_daily_step_snapshots (\n    snapshot_date,\n    timeline_step,\n    engagement,\n    count\n  )\nSELECT $1,\n  u.step,\n  u.engagement,\n  u.count\nFROM UNNEST(\n    $2::credit_registration_timeline_step [],\n    $3::credit_registration_engagement [],\n    $4::int []\n  ) AS u(step, engagement, count)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Date",
+        {
+          "Custom": {
+            "name": "credit_registration_timeline_step[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_timeline_step",
+                  "kind": {
+                    "Enum": [
+                      "course_not_registrable_yet",
+                      "waiting_for_student_number",
+                      "held_for_course_code",
+                      "looking_for_enrolment",
+                      "waiting_for_enrolment",
+                      "sending",
+                      "answer_unclear",
+                      "waiting_for_assessment_item",
+                      "waiting_for_course_unit",
+                      "registered",
+                      "already_in_sisu",
+                      "better_grade_in_sisu",
+                      "recorded_wrongly",
+                      "needs_a_person",
+                      "not_registering",
+                      "no_longer_registrable"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_engagement[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_engagement",
+                  "kind": {
+                    "Enum": [
+                      "pressed",
+                      "visited",
+                      "not_started"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Int4Array"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "762c53b646e6f487fd8791c6e5609aa13fb2bc735915986d5390b72e7abc9ca2"
+}

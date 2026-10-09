@@ -1761,7 +1761,7 @@
   "override-completion-registration-link": "Override completion registration link",
   "page-deletion-confirmation-message": "Are you sure you want to delete page {{title}}?",
   "page-number": "page {{page-number}}",
-  "page-title-credit-registration-for-course": "Credit registration · {{course}}",
+  "page-title-credit-registration-for-course": "Credit registration: {{course}}",
   "pages": "Pages",
   "paper-size": "Paper size",
   "partners-section-button-text": "Add Partners Section",

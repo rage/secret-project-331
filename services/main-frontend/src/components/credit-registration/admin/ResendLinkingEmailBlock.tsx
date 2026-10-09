@@ -58,7 +58,6 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
           control={control}
           className={controlCss}
           label={t("label-student-number")}
-          description={t("description-resend-linking-email-student-number")}
         />
         <Button variant="secondary" size="medium" type="submit" disabled={mutation.isPending}>
           {t("button-text-resend-linking-email")}

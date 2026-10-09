@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM credit_registration_daily_step_snapshots\nWHERE snapshot_date = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Date"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fb8e492363a56bbed38ba85055489b8788d18afa3633a9d4b2fab7c35cf53c57"
+}

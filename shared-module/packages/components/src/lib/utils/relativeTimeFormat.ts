@@ -22,7 +22,8 @@ const RELATIVE_TIME_OPTIONS: Intl.RelativeTimeFormatOptions = { numeric: "auto" 
 // Resolving a locale costs more than the format call; tables render one instance per row.
 const formatterCache = new Map<string, Intl.RelativeTimeFormat>()
 
-function relativeTimeFormatter(locale: string): Intl.RelativeTimeFormat {
+/** A shared `Intl.RelativeTimeFormat` for `locale`, with `numeric: "auto"` ("tomorrow", "in 1 hour"). */
+export function relativeTimeFormatter(locale: string): Intl.RelativeTimeFormat {
   const cached = formatterCache.get(locale)
   if (cached) {
     return cached

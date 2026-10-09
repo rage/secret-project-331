@@ -62,9 +62,16 @@ ORDER BY cm.course_id,
 /// [`check_module_config`]:
 /// crate::library::credit_registration::config_validation::check_module_config
 pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
+    Ok(get_module_ids_failing_config_check(conn).await?.len() as i64)
+}
+
+/// The modules [`count_modules_failing_config_check`] counts.
+pub async fn get_module_ids_failing_config_check(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<Uuid>> {
+    let ids = sqlx::query_scalar!(
         r#"
-SELECT COUNT(*) AS "count!"
+SELECT conf.course_module_id
 FROM course_module_suotar_configurations conf
   JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL
 WHERE cm.enable_credit_registration_via_suotar
@@ -74,9 +81,9 @@ WHERE cm.enable_credit_registration_via_suotar
   AND conf.config_check_message IS NOT NULL
         "#,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(count)
+    Ok(ids)
 }
 
 /// What one configuration check concluded. `None` means the check could not reach an answer, which

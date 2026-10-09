@@ -60,6 +60,7 @@ pub struct ListAdminActionsQuery {
     target_kind: Option<CreditRegistrationAdminActionTarget>,
     target_id: Option<Uuid>,
     target_phase: Option<String>,
+    user_id: Option<Uuid>,
     course_id: Option<Uuid>,
     from: Option<DateTime<Utc>>,
     to: Option<DateTime<Utc>>,
@@ -87,6 +88,7 @@ module, a course, a phase, a student-number link or its token.
         ("target_kind" = Option<CreditRegistrationAdminActionTarget>, Query, description = "What was acted on"),
         ("target_id" = Option<Uuid>, Query, description = "One target row"),
         ("target_phase" = Option<String>, Query, description = "One pipeline phase"),
+        ("user_id" = Option<Uuid>, Query, description = "Every action about this student: their registrations, student number links, tokens, and actions naming them or their student number"),
         ("course_id" = Option<Uuid>, Query, description = "Actions on this course, and actions its teachers took"),
         ("from" = Option<DateTime<Utc>>, Query, description = "Taken at or after"),
         ("to" = Option<DateTime<Utc>>, Query, description = "Taken at or before")
@@ -113,6 +115,7 @@ pub async fn list_credit_registration_admin_actions(
         target_kind: query.target_kind,
         target_id: query.target_id,
         target_phase,
+        user_id: query.user_id,
         course_id: query.course_id,
         from: query.from,
         to: query.to,

@@ -51,23 +51,56 @@ export type AccountLinkingCourseCode = {
    * An admin's "Fetch now" no fetch has served yet.
    */
   fetch_requested_at?: string | null
+  is_enrolment_list_empty: boolean
+  is_fetch_failing: boolean
   last_error?: null | CreditRegistrationErrorCode
   last_fetched_at?: string | null
   /**
    * Everyone on the last list, however long ago they enrolled.
    */
   last_listed_person_count?: number | null
+  /**
+   * The latest fetch that could send linking emails.
+   */
+  last_mailing_fetch_started_at?: string | null
   linking?: null | AccountLinkingCodeCounters
   modules: Array<AccountLinkingCodeModule>
   /**
    * When it is next due, ignoring the failure backoff.
    */
   next_fetch_at: string
+  /**
+   * Pressers on the code's modules still waiting for a student number, since the cutoff.
+   */
+  pressed_waiting_count: number
   retry_not_before?: string | null
+  /**
+   * People on the same list who enrolled before account linking began and are linked to no
+   * account, so no linking email went to them.
+   */
+  unlinked_enrolled_before_count?: number | null
+  /**
+   * Linking emails on the code whose link can still be used.
+   */
+  unused_link_count: number
   /**
    * People on the code's modules waiting for a student number.
    */
   waiting_count: number
+}
+
+/**
+ * Students waiting for a student number since the cutoff, by what they have done. Mutually
+ * exclusive, uncapped, and equal to the overview's counts for the same step.
+ */
+export type AccountLinkingEngagementCounts = {
+  not_started: number
+  pressed: number
+  /**
+   * Of `pressed`, those stuck.
+   */
+  pressed_stuck: number
+  visited: number
 }
 
 /**
@@ -99,13 +132,63 @@ export type AccountLinkingFunnel = {
 }
 
 /**
+ * A student waiting for a student number who pressed "I have enrolled".
+ */
+export type AccountLinkingPresser = {
+  completion_date: string
+  course_id: string
+  course_module_name?: string | null
+  course_name: string
+  credit_registration_id: string
+  email?: string | null
+  /**
+   * How they enrolled.
+   */
+  enrolment_route: CreditRegistrationEnrolmentRoute
+  first_name?: string | null
+  is_enrolment_list_empty: boolean
+  is_fetch_failing: boolean
+  /**
+   * Carries `student_number_stuck`; its actions live on Needs attention.
+   */
+  is_stuck: boolean
+  last_fetched_at?: string | null
+  last_linking_email_on_code_at?: string | null
+  /**
+   * The latest fetch that could send linking emails; the stuck rule counts from here.
+   */
+  last_mailing_fetch_started_at?: string | null
+  last_name?: string | null
+  /**
+   * On any course sharing the code since the press; not attributable to this student.
+   */
+  linking_emails_on_code_since_press: number
+  /**
+   * Counted in Needs attention: stuck, and neither dismissed nor explained by a blocking problem.
+   */
+  needs_attention: boolean
+  next_fetch_at?: string | null
+  pressed_at: string
+  uh_course_code?: string | null
+  /**
+   * The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
+   * one of them.
+   */
+  unlinked_enrolled_before_count?: number | null
+  user_id: string
+}
+
+/**
  * One linking email, newest first in the recent list.
  */
 export type AccountLinkingRecentEmail = {
   claimed_at: string
   course_id: string
   course_name: string
-  emailed_to_masked: string
+  /**
+   * In full: support tells the recipients apart by it.
+   */
+  emailed_to: string
   id: string
   last_error_message?: string | null
   /**
@@ -113,6 +196,20 @@ export type AccountLinkingRecentEmail = {
    */
   queued_at?: string | null
   send_status?: null | EmailSendStatusReport
+}
+
+/**
+ * A student number linked by a linking email or by hand.
+ */
+export type AccountLinkingRecentLink = {
+  email?: string | null
+  first_name?: string | null
+  last_name?: string | null
+  user_id: string
+  verified_at: string
+  verified_from_course_id?: string | null
+  verified_from_course_name?: string | null
+  verified_via: StudentNumberVerificationMethod
 }
 
 /**
@@ -127,6 +224,10 @@ export type AccountLinkingSendStatusTotals = {
   retrying: number
   send_failed: number
   sent: number
+  /**
+   * Claimed in the window and used since.
+   */
+  used: number
   /**
    * Queued, but not yet attempted by the email worker.
    */
@@ -164,22 +265,41 @@ export type AccountLinkingStats = {
    */
   account_linking_since?: string | null
   course_codes: Array<AccountLinkingCourseCode>
+  engagement_counts: AccountLinkingEngagementCounts
   funnel: AccountLinkingFunnel
   hard_failure_domains: Array<AccountLinkingFailureDomain>
   links_in_window_by_method: Array<VerifiedStudentNumberMethodTotal>
   links_total_by_method: Array<VerifiedStudentNumberMethodTotal>
   max_mails_per_person_and_course: number
+  /**
+   * Every presser waiting for a student number since the cutoff, stuck first, then longest
+   * waiting.
+   */
+  pressers: Array<AccountLinkingPresser>
+  /**
+   * Enrolment discovery and link-emails, the processing phases a linking email goes out
+   * through, for the health banner.
+   */
+  processing_phases: Array<CreditRegistrationPhaseStatus>
   quiet_period_secs: number
   /**
    * Newest first, capped.
    */
   recent_linking_emails: Array<AccountLinkingRecentEmail>
+  /**
+   * Newest first, capped; study registry links only as `links_total_by_method`.
+   */
+  recent_links: Array<AccountLinkingRecentLink>
   send_status_totals: AccountLinkingSendStatusTotals
   stale_addresses: Array<AccountLinkingStaleAddress>
   /**
    * Newest first, capped.
    */
   study_registry_conflicts: Array<StudyRegistryStudentNumberConflict>
+  /**
+   * Oldest first, capped.
+   */
+  unused_links: Array<AccountLinkingUnusedLink>
   /**
    * Accounts with an eligible completion still waiting for a student number.
    */
@@ -196,6 +316,22 @@ export type AccountLinkingStats = {
 }
 
 /**
+ * A link that can still be used, and how old it is.
+ */
+export type AccountLinkingUnusedLink = {
+  claimed_at: string
+  course_id: string
+  course_name: string
+  /**
+   * In full: support tells the recipients apart by it.
+   */
+  emailed_to: string
+  expires_at: string
+  id: string
+  uh_course_code?: string | null
+}
+
+/**
  * A student whose registration waits for a student number.
  */
 export type AccountLinkingWaitingStudent = {
@@ -205,9 +341,13 @@ export type AccountLinkingWaitingStudent = {
   course_name: string
   credit_registration_id: string
   email?: string | null
+  /**
+   * Pressed means their "I have enrolled" press stands.
+   */
+  engagement: Engagement
   first_name?: string | null
   /**
-   * The last "I have enrolled" press.
+   * The latest check request the student made themselves.
    */
   last_check_requested_at?: string | null
   last_name?: string | null
@@ -284,16 +424,25 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
+  attention?: null | AdminRegistrationAttention
   attention_thresholds: AdminAttentionThresholds
+  /**
+   * Every attempt's events, oldest first, so one timeline covers the whole completion.
+   */
   events: Array<AdminCreditRegistrationEvent>
+  /**
+   * Read from the newest attempt, whichever attempt was asked for.
+   */
+  journey: AdminCreditRegistrationJourney
   /**
    * Every mail addressed to this person, on any course.
    */
   linking_emails: Array<AdminLinkingEmail>
+  linking_schedule?: null | AdminLinkingSchedule
   not_improved_attainment?: null | NotImprovedAttainment
   /**
-   * The terminal-state mails queued for this row, with the same send status the student and the
-   * teacher are shown.
+   * The student mails queued for every attempt ("Please register" is `action_needed`), with the
+   * same send status the student and the teacher are shown.
    */
   notification_emails: Array<AdminNotificationEmail>
   registration: AdminCreditRegistrationRow
@@ -306,6 +455,10 @@ export type AdminCreditRegistrationDetails = {
 export type AdminCreditRegistrationEvent = {
   actor_user_id?: string | null
   created_at: string
+  /**
+   * The attempt the event belongs to.
+   */
+  credit_registration_id: string
   /**
    * The `{request, response}` pair, scrubbed at write time: names, student numbers and email
    * addresses read `[redacted]` while their keys survive. The values we sent are on the row.
@@ -336,8 +489,43 @@ export type AdminCreditRegistrationEvent = {
   to_state?: null | CreditRegistrationState
 }
 
+/**
+ * What the student did around the completion, with full timestamps, for the timeline.
+ */
+export type AdminCreditRegistrationJourney = {
+  check_request_source?: null | EnrolmentCheckSource
+  /**
+   * When they first picked any language version of the course.
+   */
+  course_started_at?: string | null
+  enrolment_route?: null | CreditRegistrationEnrolmentRoute
+  /**
+   * The first visit to the registration page; a check request recorded before any visit makes
+   * this the time of that request instead.
+   */
+  first_visited_at?: string | null
+  last_check_requested_at?: string | null
+  /**
+   * Only the latest visit is kept after the first.
+   */
+  last_visited_at?: string | null
+  /**
+   * The latest "I have enrolled" press; overwritten by a later one, cleared if taken back.
+   */
+  pressed_at?: string | null
+  /**
+   * Sisu's own time for the enrolment we found, where Sisu gave one.
+   */
+  sisu_enrolled_at?: string | null
+}
+
 export type AdminCreditRegistrationRow = {
   attempt_number: number
+  /**
+   * Every reason the Needs attention queue picks the row for; empty when it is not picked.
+   */
+  attention_reasons: Array<CreditRegistrationAttentionReason>
+  attention_standing?: null | AttentionStanding
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -351,12 +539,14 @@ export type AdminCreditRegistrationRow = {
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
+  engagement?: null | Engagement
   /**
    * The next scheduled enrolment check.
    */
   enrolment_check_due_at?: string | null
   enrolment_checked_at?: string | null
   enrolment_checks_stopped_at?: string | null
+  enrolment_route?: null | CreditRegistrationEnrolmentRoute
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
   grade_id?: string | null
@@ -369,6 +559,7 @@ export type AdminCreditRegistrationRow = {
   is_waiting_for_enrolment: boolean
   last_attempt_at?: string | null
   last_name?: string | null
+  last_visited_at?: string | null
   needs_admin_attention: boolean
   next_attempt_at: string
   no_usable_enrolment_since?: string | null
@@ -381,6 +572,15 @@ export type AdminCreditRegistrationRow = {
    */
   partially_registered_at?: string | null
   pending_reason?: null | CreditRegistrationPendingReason
+  phase: TimelinePhase
+  /**
+   * When the row entered its timeline phase: what "In this phase since" shows.
+   */
+  phase_started_at: string
+  /**
+   * The student's latest "I have enrolled" press for the completion.
+   */
+  pressed_at?: string | null
   registered_at?: string | null
   /**
    * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
@@ -390,6 +590,14 @@ export type AdminCreditRegistrationRow = {
   sisu_attainment_id?: string | null
   sisu_person_id?: string | null
   state: CreditRegistrationState
+  /**
+   * When the row entered its state. Same-state checks move `state_entered_at` but not this.
+   */
+  state_changed_at: string
+  /**
+   * Moved by every write that keeps the state too, so it is when the row was last touched, not
+   * how long it has been where it is.
+   */
   state_entered_at: string
   /**
    * Frozen on the row before it was sent, so it is what we actually submitted.
@@ -401,6 +609,7 @@ export type AdminCreditRegistrationRow = {
   superseded: boolean
   superseded_by_id?: string | null
   terminal_at?: string | null
+  timeline_step: TimelineStep
   uh_course_code?: string | null
   user_id: string
   /**
@@ -410,6 +619,7 @@ export type AdminCreditRegistrationRow = {
   verified_student_number_at?: string | null
   verified_student_number_via?: null | StudentNumberVerificationMethod
   verify_attempt_count: number
+  waits_on: WaitsOn
 }
 
 /**
@@ -417,8 +627,63 @@ export type AdminCreditRegistrationRow = {
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
 
+export type AdminDismissAttentionPayload = {
+  reason: string
+}
+
+export type AdminDismissAttentionResult = {
+  /**
+   * The reasons the dismissal covers; a different one firing brings the row back.
+   */
+  dismissed_reasons: Array<CreditRegistrationAttentionReason>
+}
+
 export type AdminDismissStudyRegistryConflictPayload = {
   reason: string
+}
+
+/**
+ * A person on the code's enrolment list whom no linking email reached because they enrolled before
+ * account linking began, and who may be the waiting student.
+ */
+export type AdminLinkingCandidate = {
+  /**
+   * In full: support has to tell the candidates apart before mailing one of them.
+   */
+  email?: string | null
+  /**
+   * `None` when the study registry gave no enrolment time.
+   */
+  enrolled_at?: string | null
+  first_names?: string | null
+  last_name?: string | null
+  /**
+   * Linking emails they have had for the registration's course, replaced ones included.
+   */
+  linking_emails_for_course: number
+  /**
+   * What they share with the student's account; the list is ordered by these.
+   */
+  similarities: Array<LinkingCandidateSimilarity>
+  /**
+   * Echoed back to the resend endpoint to mail them.
+   */
+  student_number: string
+}
+
+export type AdminLinkingCandidates = {
+  account_linking_since: string
+  /**
+   * Most like the student's account first.
+   */
+  candidates: Array<AdminLinkingCandidate>
+  course_code: string
+  course_id: string
+  course_name: string
+  /**
+   * The study registry gave no usable answer, so an empty `candidates` says nothing.
+   */
+  study_registry_unavailable: boolean
 }
 
 export type AdminLinkingEmail = {
@@ -435,6 +700,31 @@ export type AdminLinkingEmail = {
   token_claimed_by_user_id?: string | null
   token_expires_at?: string | null
   token_used_at?: string | null
+}
+
+/**
+ * For a student who pressed "I have enrolled" and has no linked student number: their course
+ * code's enrolment list schedule, and what went out on the code since the press.
+ */
+export type AdminLinkingSchedule = {
+  course_code: string
+  is_enrolment_list_empty: boolean
+  is_fetch_failing: boolean
+  last_fetched_at?: string | null
+  last_linking_email_at?: string | null
+  /**
+   * The latest fetch that could send linking emails; the stuck rule counts from here.
+   */
+  last_mailing_fetch_started_at?: string | null
+  /**
+   * On any course sharing the code. Not attributable to this student until a link is used.
+   */
+  linking_emails_since_press: number
+  next_fetch_at: string
+  /**
+   * See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
+   */
+  unlinked_enrolled_before_count?: number | null
 }
 
 export type AdminManualLinkOutcome =
@@ -485,6 +775,10 @@ export type AdminMaterializeResult = {
  */
 export type AdminNotificationEmail = {
   /**
+   * The attempt the mail was sent for.
+   */
+  credit_registration_id: string
+  /**
    * The delivery this registration is pinned to, so support can find the message in the queue and
    * tell "still the first mail" from "a second one went out".
    */
@@ -503,6 +797,24 @@ export type AdminPausePhasePayload = {
 
 export type AdminPhaseActionPayload = {
   reason?: string | null
+}
+
+/**
+ * The row's standing on the Needs attention queue.
+ */
+export type AdminRegistrationAttention = {
+  blocking_problem?: null | BlockingProblem
+  dismissal_reason?: string | null
+  dismissed_at?: string | null
+  dismissed_by_first_name?: string | null
+  dismissed_by_last_name?: string | null
+  dismissed_by_user_id?: string | null
+  /**
+   * The dismissal in force, if any; a row whose reasons all fall under it is `dismissed`.
+   */
+  dismissed_reasons?: Array<CreditRegistrationAttentionReason> | null
+  reasons: Array<CreditRegistrationAttentionReason>
+  standing: AttentionStanding
 }
 
 export type AdminRequestEnrolmentListFetchPayload = {
@@ -529,6 +841,11 @@ export type AdminRequeueRetryableResult = {
 
 export type AdminResendAccountLinkingEmailPayload = {
   course_id: string
+  /**
+   * The registration whose student the mail is a guess for, from the linking candidates. Must be
+   * on `course_id`; recorded on the audit row.
+   */
+  credit_registration_id?: string | null
   /**
    * Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
    */
@@ -749,6 +1066,15 @@ export type AnswersRequiringAttention = {
   total_pages: number
 }
 
+/**
+ * Which section of the Needs attention tab a picked row belongs to. Exactly one per row.
+ */
+export type AttentionStanding =
+  | "needs_attention"
+  | "running_late"
+  | "dismissed"
+  | "explained_by_problem"
+
 export type AuthorizedClientInfo = {
   client_id: string
   client_name: string
@@ -801,6 +1127,22 @@ export type BlockProposalInfo = {
   action: BlockProposalAction
   id: string
 }
+
+/**
+ * A problem that holds up many registrations at once.
+ */
+export type BlockingProblem = {
+  kind: BlockingProblemKind
+  subject: string
+}
+
+/**
+ * What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
+ */
+export type BlockingProblemKind =
+  | "processing_phase_stopped"
+  | "course_code_failing"
+  | "module_misconfigured"
 
 /**
  * Which phases one circuit breaker pauses.
@@ -2001,6 +2343,7 @@ export type CreditRegistrationAdminAction =
   | "override_rate_cap"
   | "request_enrolment_list_fetch"
   | "dismiss_study_registry_conflict"
+  | "dismiss_attention"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2127,8 +2470,28 @@ export type CreditRegistrationAlertId =
 
 export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
 
+/**
+ * A dismissal made recently, for the "Dismissed recently" section.
+ */
+export type CreditRegistrationAttentionDismissal = {
+  course_id: string
+  course_name: string
+  credit_registration_id: string
+  dismissed_at: string
+  dismissed_by_first_name?: string | null
+  dismissed_by_last_name?: string | null
+  dismissed_by_user_id: string
+  dismissed_reasons: Array<CreditRegistrationAttentionReason>
+  email?: string | null
+  first_name?: string | null
+  last_name?: string | null
+  reason: string
+  user_id: string
+}
+
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
+  blocking_problem?: null | BlockingProblem
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -2138,63 +2501,104 @@ export type CreditRegistrationAttentionItem = {
    * In full: this is the list support works from.
    */
   email?: string | null
+  engagement?: null | Engagement
+  enrolment_route?: null | CreditRegistrationEnrolmentRoute
   error_code?: null | CreditRegistrationErrorCode
   first_name?: string | null
   /**
    * What the bulk hand transition would allow on this row.
    */
   hand_actions: HandActionAvailability
+  is_enrolment_list_empty: boolean
+  /**
+   * When the code's latest enrolment list fetch that could send a linking email started.
+   */
+  last_mailing_fetch_started_at?: string | null
   last_name?: string | null
   /**
-   * The pipeline's cached "a human should look at this". A fact about the row, never a reason:
-   * it says nothing about why, so it travels beside `reasons` rather than in them.
+   * The pipeline's own flag; a fact about the row, separate from any dismissal.
    */
   needs_admin_attention: boolean
   next_attempt_at: string
+  phase: TimelinePhase
+  phase_started_at: string
   /**
-   * Every detector that picked this row, so the table can group by any of them. Empty on a row
-   * the pipeline flagged that no detector explains.
+   * The student's latest "I have enrolled" press.
+   */
+  pressed_at?: string | null
+  /**
+   * Every reason that picked this row.
    */
   reasons: Array<CreditRegistrationAttentionReason>
+  standing: AttentionStanding
   state: CreditRegistrationState
-  state_entered_at: string
+  /**
+   * When the row entered its state; same-state checks do not move it.
+   */
+  state_changed_at: string
   student_number?: string | null
+  timeline_step: TimelineStep
+  uh_course_code?: string | null
+  /**
+   * From the code's last enrolment list that fed account linking: people who enrolled before
+   * account linking began and are linked to no account, so no linking email went to them.
+   */
+  unlinked_enrolled_before_count?: number | null
   user_id: string
+  waits_on: WaitsOn
 }
 
 export type CreditRegistrationAttentionItems = {
   /**
-   * Over the whole queue, not over the page or the filter, so the counts stay usable as facets.
+   * Over the whole Needs attention section, so the counts stay usable as facets.
    */
   counts_by_reason: Array<CreditRegistrationAttentionReasonCount>
   /**
-   * Rows matching this request's narrowing, which is what `total_pages` pages through. Equal to
-   * `total_count` when neither `reason` nor `without_reason` was given.
+   * Dismissals of the last 14 days, newest first, whether or not the row has come back since.
    */
-  filtered_count: number
+  dismissed_recently: Array<CreditRegistrationAttentionDismissal>
   /**
-   * Queue rows no detector picked, which the pipeline's flag alone put there. No `reason`
-   * reaches them, so a surface that groups by reason has to offer `without_reason` beside the
-   * reasons or leave this many rows unreachable.
+   * Rows a blocking problem accounts for, under that problem. Not in the count.
    */
-  flagged_without_reason_count: number
+  explained_by_problem: Array<CreditRegistrationBlockingProblemRows>
   /**
-   * The requested page of the queue.
+   * The rows needing attention that match `reason`, one entry per timeline phase that has any,
+   * in timeline order.
    */
-  items: Array<CreditRegistrationAttentionItem>
+  phases: Array<CreditRegistrationAttentionPhaseRows>
   /**
-   * The whole queue, whatever this request filtered to: the canonical "needs a human" count, the
-   * same number `/overview` reports and the tab badge shows.
+   * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
+   * the count.
+   */
+  running_late: Array<CreditRegistrationAttentionItem>
+  /**
+   * Every running late row, however many `running_late` lists.
+   */
+  running_late_count: number
+  /**
+   * The Needs attention count, whatever this request filtered to: the tab badge, the same number
+   * `/overview` reports.
    */
   total_count: number
-  total_pages: number
 }
 
 /**
- * Which detector picked a row for the attention queue. A row can carry several.
- *
- * Not `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue,
- * but it says nothing about why, so it is reported per row rather than as a reason of its own.
+ * The rows of one timeline phase that need attention.
+ */
+export type CreditRegistrationAttentionPhaseRows = {
+  /**
+   * The first of them in the requested order, at most `limit`.
+   */
+  items: Array<CreditRegistrationAttentionItem>
+  phase: TimelinePhase
+  /**
+   * Every row of the phase matching `reason`, however many `items` lists.
+   */
+  total_count: number
+}
+
+/**
+ * Why a row is picked. A row can carry several.
  */
 export type CreditRegistrationAttentionReason =
   | "stuck_in_state"
@@ -2203,10 +2607,30 @@ export type CreditRegistrationAttentionReason =
   | "misregistered"
   | "too_many_attempts"
   | "outcome_uncertain"
+  | "partly_registered_overdue"
+  | "verification_gave_up"
+  | "repeatedly_not_registered"
+  | "student_number_stuck"
+  | "flagged_by_pipeline"
 
 export type CreditRegistrationAttentionReasonCount = {
   count: number
   reason: CreditRegistrationAttentionReason
+}
+
+/**
+ * One blocking problem and the rows it accounts for.
+ */
+export type CreditRegistrationBlockingProblemRows = {
+  /**
+   * The oldest of them, at most `limit`.
+   */
+  items: Array<CreditRegistrationAttentionItem>
+  problem: BlockingProblem
+  /**
+   * Every row the problem accounts for, however many `items` lists.
+   */
+  total_count: number
 }
 
 /**
@@ -2250,6 +2674,10 @@ export type CreditRegistrationCourseConfigCheck = {
 
 export type CreditRegistrationCourseStats = {
   /**
+   * Of `success_count`, already in Sisu or with a better grade there.
+   */
+  already_in_sisu_count: number
+  /**
    * What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
    * longer shows as broken.
    */
@@ -2279,17 +2707,34 @@ export type CreditRegistrationCourseStats = {
   in_flight_count: number
   last_listed_at?: string | null
   last_registered_at?: string | null
-  needs_admin_attention_count: number
+  /**
+   * The module's rows counted in Needs attention: the Registrations list with
+   * `course_module_id` and `needs_attention=true` holds exactly these.
+   */
+  needs_attention_count: number
   pause_reason?: string | null
   paused_at?: string | null
+  /**
+   * Of `success_count`, registered by us.
+   */
+  registered_count: number
   registration_count: number
   /**
    * The verdict as the phase stored it, which may be older than `check`.
    */
   stored_config_check_message?: string | null
+  /**
+   * Registered, already in Sisu and better grade in Sisu: the denominator the failure rate is
+   * taken against, with `failed_count`.
+   */
   success_count: number
   top_error_code?: null | CreditRegistrationErrorCode
   uh_course_code?: string | null
+  /**
+   * The module's "Where registrations stand", Not started left out; each count equals the
+   * Registrations list filtered by its step, engagement and `course_module_id`.
+   */
+  where_registrations_stand: Array<CreditRegistrationStepCount>
 }
 
 export type CreditRegistrationDetails = {
@@ -2344,6 +2789,10 @@ export type CreditRegistrationErrorCodeTotal = {
    */
   in_flight_count: number
   /**
+   * Every live row carrying the code.
+   */
+  live_count: number
+  /**
    * Rows that ended on this code.
    */
   terminal_failure_count: number
@@ -2359,6 +2808,11 @@ export type CreditRegistrationErrorCodeWindow = {
   error_code: CreditRegistrationErrorCode
   first_seen_at?: string | null
   last_seen_at?: string | null
+  /**
+   * Live rows carrying the code now: what the Registrations list filtered by `error_code`
+   * shows. The other counts are failure events in the window.
+   */
+  live_count: number
   previous_count: number
   /**
    * What may be done about the code, which is the difference between a wait and a fix.
@@ -2407,6 +2861,10 @@ export type CreditRegistrationHistory = {
 
 export type CreditRegistrationHistoryDay = {
   /**
+   * `None` on days before the count was snapshotted.
+   */
+  needs_attention_count?: number | null
+  /**
    * The UTC day the snapshot describes.
    */
   snapshot_date: string
@@ -2415,6 +2873,11 @@ export type CreditRegistrationHistoryDay = {
    * chart rather than as an empty queue.
    */
   states: Array<CreditRegistrationHistoryPoint>
+  /**
+   * Every step that had live rows, Not started included. Empty on days before step snapshots
+   * began.
+   */
+  steps: Array<CreditRegistrationHistoryStepPoint>
 }
 
 /**
@@ -2434,6 +2897,16 @@ export type CreditRegistrationHistoryPoint = {
 }
 
 /**
+ * One timeline step's count on one day.
+ */
+export type CreditRegistrationHistoryStepPoint = {
+  count: number
+  engagement?: null | Engagement
+  phase: TimelinePhase
+  step: TimelineStep
+}
+
+/**
  * Which of the two student mails a row is owed, or already holds.
  */
 export type CreditRegistrationNotificationKind = "action_needed" | "registered"
@@ -2446,7 +2919,7 @@ export type CreditRegistrationOldestNonTerminal = {
    */
   seconds_in_state: number
   state: CreditRegistrationState
-  state_entered_at: string
+  state_changed_at: string
 }
 
 export type CreditRegistrationOverview = {
@@ -2455,18 +2928,24 @@ export type CreditRegistrationOverview = {
   error_codes: Array<CreditRegistrationErrorCodeTotal>
   health: CreditRegistrationHealth
   /**
-   * Live rows a detector picked or the pipeline flagged. The one definition of "needs a human":
-   * `/attention` pages through exactly these rows and reports the same total.
+   * The Needs attention count: the same number as `/attention`'s `total_count` and the tab badge.
    */
-  needs_admin_attention_count: number
+  needs_attention_count: number
   oldest_non_terminal?: null | CreditRegistrationOldestNonTerminal
   /**
    * The `pending` depth split by what each row is waiting on, which the ledger does not store.
    */
   pending_by_reason: PendingReasonCounts
+  /**
+   * The Running late rows per state, which the stuck-registrations alert counts.
+   */
   stuck: Array<CreditRegistrationStuckTotal>
   throughput: Array<CreditRegistrationThroughputBucket>
   throughput_days: number
+  /**
+   * "Where registrations stand": every step with live rows, Not started left out.
+   */
+  where_registrations_stand: Array<CreditRegistrationStepCount>
 }
 
 /**
@@ -2667,9 +3146,24 @@ export type CreditRegistrationStatsByCourse = {
   modules: Array<CreditRegistrationCourseStats>
 }
 
+/**
+ * Live registrations at one timeline step, split by engagement on the steps that wait on the
+ * student. Equal to the Registrations list filtered by `step` and `engagement` (and
+ * `course_module_id` where the count is per module).
+ */
+export type CreditRegistrationStepCount = {
+  count: number
+  engagement?: null | Engagement
+  phase: TimelinePhase
+  step: TimelineStep
+}
+
+/**
+ * The Running late rows in one state.
+ */
 export type CreditRegistrationStuckTotal = {
   count: number
-  oldest_state_entered_at?: string | null
+  oldest_state_changed_at?: string | null
   severely_stuck_count: number
   state: CreditRegistrationState
 }
@@ -2955,6 +3449,12 @@ export type EmailVerificationStatus = {
    */
   verification_enabled: boolean
 }
+
+/**
+ * What a student waiting on their own step has done on the registration page. Per completion, so
+ * every attempt of one completion shares it. Ordered from most to least engaged.
+ */
+export type Engagement = "pressed" | "visited" | "not_started"
 
 export type EnrolmentCheckDashboard = {
   daily_costs: Array<SuotarEndpointDailyCost>
@@ -3519,6 +4019,11 @@ export type LegacyLedgerDivergenceRow = {
   state_entered_at: string
   user_id: string
 }
+
+/**
+ * Something a listed person shares with the student's account, strongest first.
+ */
+export type LinkingCandidateSimilarity = "email" | "email_username" | "last_name" | "first_name"
 
 /**
  * Whether the link in a linking mail can still be opened, and if not, whether a new mail can
@@ -4224,6 +4729,11 @@ export type PageVisitDatumSummaryByPages = {
 export type PageAdminCreditRegistrationRow = {
   data: Array<{
     attempt_number: number
+    /**
+     * Every reason the Needs attention queue picks the row for; empty when it is not picked.
+     */
+    attention_reasons: Array<CreditRegistrationAttentionReason>
+    attention_standing?: null | AttentionStanding
     completion_date: string
     course_id: string
     course_instance_id: string
@@ -4237,12 +4747,14 @@ export type PageAdminCreditRegistrationRow = {
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
+    engagement?: null | Engagement
     /**
      * The next scheduled enrolment check.
      */
     enrolment_check_due_at?: string | null
     enrolment_checked_at?: string | null
     enrolment_checks_stopped_at?: string | null
+    enrolment_route?: null | CreditRegistrationEnrolmentRoute
     error_code?: null | CreditRegistrationErrorCode
     first_name?: string | null
     grade_id?: string | null
@@ -4255,6 +4767,7 @@ export type PageAdminCreditRegistrationRow = {
     is_waiting_for_enrolment: boolean
     last_attempt_at?: string | null
     last_name?: string | null
+    last_visited_at?: string | null
     needs_admin_attention: boolean
     next_attempt_at: string
     no_usable_enrolment_since?: string | null
@@ -4267,6 +4780,15 @@ export type PageAdminCreditRegistrationRow = {
      */
     partially_registered_at?: string | null
     pending_reason?: null | CreditRegistrationPendingReason
+    phase: TimelinePhase
+    /**
+     * When the row entered its timeline phase: what "In this phase since" shows.
+     */
+    phase_started_at: string
+    /**
+     * The student's latest "I have enrolled" press for the completion.
+     */
+    pressed_at?: string | null
     registered_at?: string | null
     /**
      * Suotar's `retryAfter` for a pending submission: resending earlier may duplicate it.
@@ -4276,6 +4798,14 @@ export type PageAdminCreditRegistrationRow = {
     sisu_attainment_id?: string | null
     sisu_person_id?: string | null
     state: CreditRegistrationState
+    /**
+     * When the row entered its state. Same-state checks move `state_entered_at` but not this.
+     */
+    state_changed_at: string
+    /**
+     * Moved by every write that keeps the state too, so it is when the row was last touched, not
+     * how long it has been where it is.
+     */
     state_entered_at: string
     /**
      * Frozen on the row before it was sent, so it is what we actually submitted.
@@ -4287,6 +4817,7 @@ export type PageAdminCreditRegistrationRow = {
     superseded: boolean
     superseded_by_id?: string | null
     terminal_at?: string | null
+    timeline_step: TimelineStep
     uh_course_code?: string | null
     user_id: string
     /**
@@ -4296,6 +4827,7 @@ export type PageAdminCreditRegistrationRow = {
     verified_student_number_at?: string | null
     verified_student_number_via?: null | StudentNumberVerificationMethod
     verify_attempt_count: number
+    waits_on: WaitsOn
   }>
   total_count: number
   total_pages: number
@@ -5288,6 +5820,34 @@ export type ThresholdData = {
 export type TimeGranularity = "Year" | "Month" | "Day"
 
 /**
+ * A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the
+ * steps that wait on the student. Declared, and so ordered, in timeline order.
+ */
+export type TimelinePhase = "course" | "student_number" | "registering" | "confirmation" | "ended"
+
+/**
+ * One step of the admin timeline. The Registrations list, the overview counts and the status card
+ * all name a row by this. Declared, and so ordered, in timeline order.
+ */
+export type TimelineStep =
+  | "course_not_registrable_yet"
+  | "waiting_for_student_number"
+  | "held_for_course_code"
+  | "looking_for_enrolment"
+  | "waiting_for_enrolment"
+  | "sending"
+  | "answer_unclear"
+  | "waiting_for_assessment_item"
+  | "waiting_for_course_unit"
+  | "registered"
+  | "already_in_sisu"
+  | "better_grade_in_sisu"
+  | "recorded_wrongly"
+  | "needs_a_person"
+  | "not_registering"
+  | "no_longer_registrable"
+
+/**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
  * this kind of tool", not "may this caller use it".
@@ -5585,6 +6145,11 @@ export type VerifyEmailOwnershipPayload = {
  * indistinguishable to someone typing digits, and telling them apart only helps a guesser.
  */
 export type VerifyEmailOwnershipResult = "verified" | "already_verified" | "invalid"
+
+/**
+ * Who a registration waits on. The first line of the status card and of a Needs attention row.
+ */
+export type WaitsOn = "student" | "sisu" | "support" | "course_setup" | "nobody"
 
 export type UploadFilesForExerciseAnswerData = {
   body: {
@@ -10093,23 +10658,15 @@ export type GetCreditRegistrationAttentionItemsData = {
   path?: never
   query?: {
     /**
-     * Page number, from 1
-     */
-    page?: number
-    /**
-     * Rows per page
+     * Rows listed per section; the counts cover every row
      */
     limit?: number
     /**
-     * Only rows one of these detectors picked; repeat the parameter for several
+     * Only rows carrying one of these reasons; repeat the parameter for several
      */
     reason?: Array<CreditRegistrationAttentionReason>
     /**
-     * Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason
-     */
-    without_reason?: boolean
-    /**
-     * time_in_state, next_attempt or course
+     * time_in_phase, next_attempt or course
      */
     sort?: string
   }
@@ -10118,7 +10675,7 @@ export type GetCreditRegistrationAttentionItemsData = {
 
 export type GetCreditRegistrationAttentionItemsResponses = {
   /**
-   * A page of the rows needing a human, and how many for each reason
+   * The Needs attention sections
    */
   200: CreditRegistrationAttentionItems
 }
@@ -10162,6 +10719,10 @@ export type ListCreditRegistrationAdminActionsData = {
      * One pipeline phase
      */
     target_phase?: string
+    /**
+     * Every action about this student: their registrations, student number links, tokens, and actions naming them or their student number
+     */
+    user_id?: string
     /**
      * Actions on this course, and actions its teachers took
      */
@@ -10512,9 +11073,25 @@ export type ListCreditRegistrationsForAdminData = {
      */
     student_number?: string
     /**
-     * Only rows asking for a human
+     * Timeline steps; repeat the parameter for several. A row waiting for a student number matches only if it completed since account linking began, as the overview counts it
      */
-    needs_admin_attention?: boolean
+    step?: Array<TimelineStep>
+    /**
+     * Only rows at a step that waits on the student whose student did this; repeat for several
+     */
+    engagement?: Array<Engagement>
+    /**
+     * Include rows at a step that waits on the student whose student has not started; left out by default
+     */
+    include_not_started?: boolean
+    /**
+     * Only rows counted in Needs attention
+     */
+    needs_attention?: boolean
+    /**
+     * Only rows the Needs attention queue picks for one of these reasons, whatever their section; repeat for several
+     */
+    attention_reason?: Array<CreditRegistrationAttentionReason>
     /**
      * Submitted at or after
      */
@@ -10532,7 +11109,7 @@ export type ListCreditRegistrationsForAdminData = {
      */
     include_superseded?: boolean
     /**
-     * last_activity, created, time_in_state or attempts
+     * last_activity (the default; rows counted in Needs attention first), created, time_in_state or attempts
      */
     sort?: string
   }
@@ -10625,6 +11202,64 @@ export type GetCreditRegistrationForAdminResponses = {
 
 export type GetCreditRegistrationForAdminResponse =
   GetCreditRegistrationForAdminResponses[keyof GetCreditRegistrationForAdminResponses]
+
+export type AdminDismissCreditRegistrationAttentionData = {
+  body: AdminDismissAttentionPayload
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention"
+}
+
+export type AdminDismissCreditRegistrationAttentionErrors = {
+  /**
+   * No reason given, or nothing picks the row
+   */
+  400: unknown
+}
+
+export type AdminDismissCreditRegistrationAttentionResponses = {
+  /**
+   * The reasons dismissed
+   */
+  200: AdminDismissAttentionResult
+}
+
+export type AdminDismissCreditRegistrationAttentionResponse =
+  AdminDismissCreditRegistrationAttentionResponses[keyof AdminDismissCreditRegistrationAttentionResponses]
+
+export type GetCreditRegistrationLinkingCandidatesData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates"
+}
+
+export type GetCreditRegistrationLinkingCandidatesErrors = {
+  /**
+   * Account linking is off, or the row is not stuck waiting for a student number
+   */
+  400: unknown
+}
+
+export type GetCreditRegistrationLinkingCandidatesResponses = {
+  /**
+   * The candidates
+   */
+  200: AdminLinkingCandidates
+}
+
+export type GetCreditRegistrationLinkingCandidatesResponse =
+  GetCreditRegistrationLinkingCandidatesResponses[keyof GetCreditRegistrationLinkingCandidatesResponses]
 
 export type AdminTransitionCreditRegistrationData = {
   body: AdminTransitionCreditRegistrationPayload

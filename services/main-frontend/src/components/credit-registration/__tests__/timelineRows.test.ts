@@ -17,6 +17,7 @@ const context: TimelineContext = {
   actorName: () => "Ada Admin",
   selectedEnrolmentId: "enrolment-2",
   language: "en",
+  attemptNumber: () => 1,
 }
 
 const START = Date.parse("2026-09-01T10:00:00Z")
@@ -24,23 +25,22 @@ const MINUTE_MS = 60_000
 
 type EventSpec = Partial<AdminCreditRegistrationEvent> & Pick<AdminCreditRegistrationEvent, "kind">
 
-/** Builds a chronological log, one minute apart, and returns it newest first as the API does. */
+/** Builds a chronological log, one minute apart, oldest first as the API returns it. */
 const log = (events: EventSpec[]): AdminCreditRegistrationEvent[] =>
-  events
-    .map((event, index) => {
-      const at = new Date(START + index * MINUTE_MS).toISOString()
-      const isExchange = Boolean(event.suotar_endpoint)
-      return {
-        id: `event-${index}`,
-        created_at: at,
-        suotar_requested_at: isExchange
-          ? new Date(START + index * MINUTE_MS - 2000).toISOString()
-          : null,
-        suotar_answered_at: isExchange ? at : null,
-        ...event,
-      }
-    })
-    .toReversed()
+  events.map((event, index) => {
+    const at = new Date(START + index * MINUTE_MS).toISOString()
+    const isExchange = Boolean(event.suotar_endpoint)
+    return {
+      id: `event-${index}`,
+      credit_registration_id: "registration-1",
+      created_at: at,
+      suotar_requested_at: isExchange
+        ? new Date(START + index * MINUTE_MS - 2000).toISOString()
+        : null,
+      suotar_answered_at: isExchange ? at : null,
+      ...event,
+    }
+  })
 
 const sentences = (entries: TimelineEntry[]) => entries.map((entry) => entry.sentence)
 
@@ -113,7 +113,6 @@ describe("buildTimeline", () => {
     )
 
     expect(sentences(entries)).toEqual([
-      "result-created",
       "Waiting for the first enrolment check.",
       "The student said they had enrolled.",
       "checked-enrolment-none count=3",
@@ -122,14 +121,14 @@ describe("buildTimeline", () => {
       "result-partly-registered",
       "waited-for-confirmation count=6",
     ])
-    expect(entries[1]?.tone).toBe("current")
-    expect(entries[1]?.state).toBe("no_usable_enrolment")
-    expect(entries[3]?.state).toBeNull()
-    const checks = entries[3]
+    expect(entries[0]?.tone).toBe("current")
+    expect(entries[0]?.state).toBe("no_usable_enrolment")
+    expect(entries[2]?.state).toBeNull()
+    const checks = entries[2]
     expect(checks?.at).toBe(new Date(START + 4 * MINUTE_MS).toISOString())
     expect(checks?.until).toBe(new Date(START + 7 * MINUTE_MS).toISOString())
-    expect(entries[4]?.until).toBeNull()
-    expect(entries[4]?.tone).toBe("done")
+    expect(entries[3]?.until).toBeNull()
+    expect(entries[3]?.tone).toBe("done")
   })
 
   test("keeps an unlinked student number, which changes what happens next", () => {
@@ -279,9 +278,9 @@ describe("buildTimeline", () => {
     )
     expect(sentences(entries)).toEqual(["result-enrolment-found", "result-rejected"])
     expect(entries.map((entry) => entry.detail)).toEqual([
-      "Syksy · credit-registration-credits credits=5",
+      "Syksy, credit-registration-credits credits=5",
       expect.stringMatching(
-        /^sisuValidationFailed · credit-registration-admin-error-sisu-validation-failed/,
+        /^credit-registration-admin-rejection-detail .*credit-registration-admin-error-sisu-validation-failed.*sisuValidationFailed/,
       ),
     ])
     expect(entries.map((entry) => entry.state)).toEqual(["checking_enrolment", "failed_permanent"])

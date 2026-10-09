@@ -2,6 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
+import NextLink from "next/link"
 import React, { useEffect, useId, useMemo, useRef, useState } from "react"
 import type { Placement } from "react-aria"
 
@@ -31,6 +32,7 @@ const itemCss = css`
   color: var(--color-gray-700);
   font: inherit;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
 
   &:focus-visible {
@@ -52,14 +54,17 @@ const itemCss = css`
   }
 `
 
-export interface MenuItemDescriptor {
+/**
+ * One menu item: an action to run, or a link to follow. A link is a real anchor, so a `mailto:` or
+ * external `href` is left to the browser instead of the router.
+ */
+export type MenuItemDescriptor = {
   key: string
   label: React.ReactNode
-  onAction: () => void
   isDisabled?: boolean
   /** Renders the item in the danger palette, for actions like unlinking or cancelling. */
   tone?: "default" | "destructive"
-}
+} & ({ onAction: () => void } | { href: string })
 
 export interface MenuProps {
   /** Accessible name for the menu, and for the trigger unless `label` gives it visible text. */
@@ -91,7 +96,7 @@ export const Menu: React.FC<MenuProps> = ({
 }) => {
   const triggerRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const itemRefs = useRef<(HTMLElement | null)[]>([])
   const contentId = useId()
   const state = useOverlayTriggerState({})
   const [focusedIndex, setFocusedIndex] = useState(0)
@@ -132,7 +137,9 @@ export const Menu: React.FC<MenuProps> = ({
     if (item.isDisabled) {
       return
     }
-    item.onAction()
+    if ("onAction" in item) {
+      item.onAction()
+    }
     state.close()
     triggerRef.current?.focus()
   }
@@ -210,23 +217,44 @@ export const Menu: React.FC<MenuProps> = ({
             onKeyDown: onMenuKeyDown,
           }}
         >
-          {items.map((item, index) => (
-            <button
-              key={item.key}
-              ref={(el) => {
+          {items.map((item, index) => {
+            const itemProps = {
+              ref: (el: HTMLElement | null) => {
                 itemRefs.current[index] = el
-              }}
-              type="button"
-              role="menuitem"
-              tabIndex={focusedIndex === index ? 0 : -1}
-              disabled={item.isDisabled}
-              data-tone={item.tone}
-              className={cx(itemCss)}
-              onClick={() => runAction(item)}
-            >
-              {item.label}
-            </button>
-          ))}
+              },
+              tabIndex: focusedIndex === index ? 0 : -1,
+              "data-tone": item.tone,
+              className: itemCss,
+              onClick: () => runAction(item),
+            }
+            return "href" in item && !item.isDisabled ? (
+              <NextLink
+                key={item.key}
+                {...itemProps}
+                role="menuitem"
+                href={item.href}
+                onKeyDown={(event) => {
+                  // A menu item activates on Space as well; an anchor only follows on Enter.
+                  if (event.key === " ") {
+                    event.preventDefault()
+                    event.currentTarget.click()
+                  }
+                }}
+              >
+                {item.label}
+              </NextLink>
+            ) : (
+              <button
+                key={item.key}
+                {...itemProps}
+                type="button"
+                role="menuitem"
+                disabled={item.isDisabled}
+              >
+                {item.label}
+              </button>
+            )
+          })}
         </Popover>
       ) : null}
     </>

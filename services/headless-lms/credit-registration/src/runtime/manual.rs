@@ -1,6 +1,8 @@
 //! The account-linking actions a person sets off by hand, each over a study registry built for
 //! someone waiting on the answer.
 
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
+use headless_lms_utils::prelude::{DateTime, Utc};
 use headless_lms_utils::services::suotar::SuotarClient;
 use secrecy::SecretString;
 use sqlx::PgPool;
@@ -61,4 +63,17 @@ pub async fn look_up_person(
     InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string())
         .look_up_person(&StudentNumber::new(student_number.clone()))
         .await
+}
+
+/// Lists one course code's roster now and keeps the people linking mails skip: enrolled before
+/// `since` or at no known time, and linked to no account, each once. Stores nothing.
+///
+/// `Ok(None)` means the registry gave no usable answer.
+pub async fn list_unlinked_enrolled_before(
+    ctx: &ManualActionContext<'_>,
+    course_code: &str,
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
+    account_linking::unlinked_enrolled_before(ctx.pool, &registry, course_code, since).await
 }

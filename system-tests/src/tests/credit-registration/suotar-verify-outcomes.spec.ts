@@ -45,12 +45,14 @@ test.describe("A submission the study registry has not answered yet", () => {
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
 
-    await test.step("A pending submission is polled again soon but not resubmitted", async () => {
+    await test.step("A pending submission is polled before its retryAfter but not resubmitted", async () => {
       const { registration } = await adminRegistrationDetails(adminApi, submitted.id)
-      // The mock answers `submissionPending` with a `retryAfter` a day out, like Suotar does.
-      const hoursUntilNextPoll =
-        (new Date(registration.next_attempt_at).getTime() - Date.now()) / 3_600_000
-      expect(hoursUntilNextPoll).toBeLessThan(1)
+      // The mock answers `submissionPending` with a `retryAfter` a day out, like Suotar does; the
+      // next poll follows the verify schedule instead of waiting that out.
+      expect(registration.resubmit_not_before).not.toBeNull()
+      expect(new Date(registration.next_attempt_at).getTime()).toBeLessThan(
+        new Date(registration.resubmit_not_before ?? 0).getTime(),
+      )
       expect(registration.hand_actions.resubmission).toMatchObject({
         kind: "refused",
         refusal: "already_submitted",

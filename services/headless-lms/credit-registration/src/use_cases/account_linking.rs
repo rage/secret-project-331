@@ -11,13 +11,16 @@ use headless_lms_models::course_module_suotar_configurations::get_active_modules
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, LinkingMailClaim, claim_linking_mail, retire_capped_mails,
 };
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::verified_student_numbers;
+use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{Connection, PgPool};
 use std::collections::BTreeSet;
 use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, InteractiveStudyRegistry, StudentNumber};
+use crate::use_cases::enrolment_discovery::list_unlinked_enrolled_before;
 
 /// What one resend attempt came to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -156,4 +159,23 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         outcome,
         retired_mail_count,
     })
+}
+
+/// [`crate::account_linking::list_unlinked_enrolled_before`] through `registry`.
+pub(crate) async fn unlinked_enrolled_before<R: InteractiveStudyRegistry>(
+    pool: &PgPool,
+    registry: &R,
+    course_code: &str,
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let Some(code) = CourseCode::parse(course_code) else {
+        return Ok(Some(Vec::new()));
+    };
+    let Some(people) = registry.fetch_course_roster(&code).await else {
+        return Ok(None);
+    };
+    let mut conn = pool.acquire().await?;
+    Ok(Some(
+        list_unlinked_enrolled_before(&mut conn, &people, since).await?,
+    ))
 }

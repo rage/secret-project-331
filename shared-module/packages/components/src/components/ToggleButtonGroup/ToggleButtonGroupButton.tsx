@@ -72,7 +72,7 @@ export function ToggleButtonGroupButton(props: ToggleButtonGroupButtonProps) {
   const size = group.fieldSize
 
   // oxlint-disable-next-line i18next/no-literal-string
-  const variant = isSelected ? "primary" : "secondary"
+  const variant = isSelected ? "selected" : "secondary"
 
   const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 

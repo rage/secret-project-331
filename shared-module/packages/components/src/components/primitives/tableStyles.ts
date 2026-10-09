@@ -261,6 +261,16 @@ export const detailCellCss = css`
   color: var(--color-gray-700);
 `
 
+/** A `rowGroup` heading row: spans the table and introduces the rows under it. */
+export const groupHeaderCellCss = css`
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-clear-300);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-1);
+  font-weight: 600;
+  text-align: start;
+`
+
 /** Hidden until the table stacks, where it becomes the row's label for that cell. */
 export const stackLabelCss = css`
   display: none;
@@ -375,6 +385,17 @@ export const stackCss = css`
     & td[data-table-detail="true"] {
       display: block;
       margin-top: var(--space-2);
+      border-bottom: 0;
+    }
+
+    & tr[data-table-group="true"] {
+      padding: var(--space-3) 0 0;
+      border: 0;
+    }
+
+    & th[data-table-group="true"] {
+      display: block;
+      padding: 0;
       border-bottom: 0;
     }
 

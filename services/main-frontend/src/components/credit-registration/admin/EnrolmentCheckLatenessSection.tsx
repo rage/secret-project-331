@@ -1,35 +1,38 @@
 "use client"
 
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { EnrolmentCheckLateness } from "@/generated/api/types.generated"
 import { Table } from "@/shared-module/components"
 
 import { ALIGN_END, CREDIT_REGISTRATION_NS, DENSITY_COMPACT, TABLE_STACK } from "../constants"
+import { formatIntervalInWords } from "../durationWords"
 import { headingCss, noteCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
-import { enrolmentCheckGroupLabel } from "./adminCreditRegistrationCopy"
-import { formatIntervalSecs } from "./phaseStatus"
+import { enrolmentCheckGroupLabel, enrolmentCheckStepLabel } from "./adminCreditRegistrationCopy"
 
-/** How late the schedule's own checks ran against their ladder time, by group and step. */
+/** How late the scheduled checks ran against their due time, by check schedule and check. */
 const EnrolmentCheckLatenessSection: React.FC<{
   rows: EnrolmentCheckLateness[]
   veryLateAfterSecs: number
 }> = ({ rows, veryLateAfterSecs }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
 
   return (
-    <section className={sectionCardCss}>
+    <section className={sectionCardCss} aria-labelledby={headingId}>
       <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-enrolment-check-lateness")}</h2>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-enrolment-check-lateness")}
+        </h2>
       </div>
       <p className={noteCss}>
         {t("credit-registration-admin-enrolment-checks-very-late-note", {
-          threshold: formatIntervalSecs(veryLateAfterSecs, t),
+          threshold: formatIntervalInWords(t, veryLateAfterSecs),
         })}
       </p>
       <Table
-        caption={t("credit-registration-heading-enrolment-check-lateness")}
+        labelledBy={headingId}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
         rowKey={(row) => `${row.enrolment_check_group}-${row.enrolment_check_step}`}
@@ -37,16 +40,15 @@ const EnrolmentCheckLatenessSection: React.FC<{
         emptyState={t("credit-registration-admin-no-enrolment-checks-in-window")}
         columns={[
           {
-            header: t("credit-registration-admin-column-group"),
+            header: t("credit-registration-admin-column-check-schedule"),
             minWidth: "10rem",
             cell: (row) => enrolmentCheckGroupLabel(t, row.enrolment_check_group),
           },
           {
-            header: t("credit-registration-admin-column-step"),
-            align: ALIGN_END,
-            minWidth: "4rem",
+            header: t("credit-registration-admin-column-check"),
+            minWidth: "6rem",
             nowrap: true,
-            cell: (row) => row.enrolment_check_step,
+            cell: (row) => enrolmentCheckStepLabel(t, row.enrolment_check_step),
           },
           {
             header: t("credit-registration-admin-column-checks"),
@@ -60,28 +62,28 @@ const EnrolmentCheckLatenessSection: React.FC<{
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.p50_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.p50_late_secs),
           },
           {
             header: t("credit-registration-admin-column-p95-late"),
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.p95_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.p95_late_secs),
           },
           {
             header: t("credit-registration-admin-column-max-late"),
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => formatIntervalSecs(row.max_late_secs, t),
+            cell: (row) => formatIntervalInWords(t, row.max_late_secs),
           },
           {
             header: t("credit-registration-admin-column-very-late"),
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => row.very_late_count,
+            cell: (row) => (row.very_late_count === 0 ? null : row.very_late_count),
           },
         ]}
       />

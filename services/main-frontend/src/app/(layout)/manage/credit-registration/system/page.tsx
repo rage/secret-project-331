@@ -17,6 +17,7 @@ import {
   phaseHealth,
   phaseHealthLabel,
 } from "@/components/credit-registration/admin/phaseStatus"
+import QueueSizeByStateSection from "@/components/credit-registration/admin/QueueSizeByStateSection"
 import {
   ABSENT,
   ALIGN_END,
@@ -246,6 +247,7 @@ const SystemPage: React.FC = () => {
       <QueryResult query={phasesQuery} refreshIndicator={QUIET_REFRESH}>
         {(list) => <PhaseSection list={list} />}
       </QueryResult>
+      <QueueSizeByStateSection />
       <CircuitBreakerSection />
       <EndpointSummarySection />
       <ApiLogSection />

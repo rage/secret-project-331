@@ -126,7 +126,6 @@ const NARROWING_PARAMS = [
   ...CHIP_PARAMS,
 ]
 
-/** Chip labels for `CHIP_PARAMS`. */
 const FILTER_LABEL_KEYS: Record<string, string> = {
   [PARAM.courseModuleId]: "label-course-module-id",
   [PARAM.userId]: "label-user-id",

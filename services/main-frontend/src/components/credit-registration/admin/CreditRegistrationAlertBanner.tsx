@@ -30,7 +30,7 @@ import {
   PLAIN_DISCLOSURE,
 } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
-import { dividedListCss, emptyStateCss, noteCss } from "../styles"
+import { dividedListCss, noteCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
 
@@ -288,11 +288,12 @@ export const CreditRegistrationAttentionSection: React.FC = () => {
   const notices = bySeverity(alerts, INFO)
   const named = alerts.filter((alert) => alert.severity !== INFO)
 
+  // The Needs attention tile beside this already says when nothing needs a person.
+  if (named.length === 0 && notices.length === 0) {
+    return null
+  }
   return (
     <div className={bannerCss}>
-      {named.length === 0 && notices.length === 0 && (
-        <p className={emptyStateCss}>{t("credit-registration-admin-nothing-needs-a-human")}</p>
-      )}
       {named.length > 0 && (
         <ul className={alertCardsCss} aria-label={t("credit-registration-heading-needs-attention")}>
           {named.map((alert) => (

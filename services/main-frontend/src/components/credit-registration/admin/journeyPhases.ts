@@ -26,8 +26,10 @@ export type JourneyPhaseKey =
   | "registering"
   | "confirmation"
 
+/** Done (green check), current (blue clock) or upcoming (grey hollow circle). */
 export type JourneyStepStatus = "done" | "current" | "upcoming"
 
+/** One checklist line under a phase column. */
 export interface JourneyStep {
   key: string
   label: string
@@ -43,8 +45,10 @@ export interface JourneyStep {
   entries: TimelineEntry[]
 }
 
+/** A skipped phase is one the registration passed without any of its steps happening. */
 export type JourneyPhaseStatus = "done" | "current" | "upcoming" | "skipped"
 
+/** One column of the timeline. */
 export interface JourneyPhase {
   key: JourneyPhaseKey
   status: JourneyPhaseStatus
@@ -55,6 +59,7 @@ export interface JourneyPhase {
   ending: TimelineStep | null
 }
 
+/** The columns, left to right. */
 export const JOURNEY_PHASES: readonly JourneyPhaseKey[] = [
   "course",
   "starting_registration",

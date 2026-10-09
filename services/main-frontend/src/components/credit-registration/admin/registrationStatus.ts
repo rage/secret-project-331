@@ -8,6 +8,7 @@ import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { attentionReasonLabel, registrationErrorAdminHelp } from "./adminCreditRegistrationCopy"
 import { ATTENTION_STEPS, FINISHED_STEPS, waitsOnLabel } from "./timelineSteps"
 
+/** Attention for a person's work, done for an ending, neutral for everything still on its way. */
 export type RegistrationStatusTone = "neutral" | "attention" | "done"
 
 /** A registration's status in two lines: who it waits on, then what happens next. */
@@ -19,6 +20,7 @@ export interface RegistrationStatusLines {
   isHandledInNeedsAttention: boolean
 }
 
+/** The row fields a status is worded from. */
 export type RegistrationStatusSubject = Pick<
   AdminCreditRegistrationRow,
   | "timeline_step"

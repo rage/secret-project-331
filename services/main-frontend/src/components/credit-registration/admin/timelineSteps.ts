@@ -37,10 +37,12 @@ export const STEPS_BY_PHASE = {
   ended: ["already_in_sisu", "better_grade_in_sisu", "not_registering", "no_longer_registrable"],
 } as const satisfies Record<TimelinePhase, readonly TimelineStep[]>
 
+/** Every step, phase by phase. */
 export const TIMELINE_STEPS: readonly TimelineStep[] = TIMELINE_PHASES.flatMap(
   (phase) => STEPS_BY_PHASE[phase],
 )
 
+/** The phase a step is counted under; the client-side twin of the row's `phase`. */
 export const phaseOfStep = (step: TimelineStep): TimelinePhase =>
   TIMELINE_PHASES.find((phase) =>
     (STEPS_BY_PHASE[phase] as readonly TimelineStep[]).includes(step),
@@ -68,6 +70,7 @@ export const ENGAGEMENT_STEPS: ReadonlySet<TimelineStep> = new Set<TimelineStep>
   "waiting_for_enrolment",
 ])
 
+/** The "Student activity" groups, in the order they are listed. */
 export const ENGAGEMENTS = [
   "pressed",
   "visited",
@@ -116,13 +119,15 @@ const WAITS_ON_KEYS = {
   nobody: "credit-registration-admin-waits-on-nobody",
 } as const satisfies Record<WaitsOn, string>
 
+/** A phase's name, as a column, subheading or filter group. */
 export const timelinePhaseLabel = (t: CreditRegistrationTFunction, phase: TimelinePhase): string =>
   t(PHASE_KEYS[phase])
 
+/** A step's plain-language label: the same words in the list, the counts and the status card. */
 export const timelineStepLabel = (t: CreditRegistrationTFunction, step: TimelineStep): string =>
   t(STEP_KEYS[step])
 
-/** Pressed · Visited · Not started, the "Student activity" groups. */
+/** One "Student activity" group's name: Pressed, Visited or Not started. */
 export const engagementLabel = (t: CreditRegistrationTFunction, engagement: Engagement): string =>
   t(ENGAGEMENT_KEYS[engagement])
 
@@ -133,6 +138,8 @@ export const waitsOnLabel = (t: CreditRegistrationTFunction, waitsOn: WaitsOn): 
 const TIMELINE_STEP_SET: ReadonlySet<string> = new Set(TIMELINE_STEPS)
 const ENGAGEMENT_SET: ReadonlySet<string> = new Set(ENGAGEMENTS)
 
+/** Whether a query-string value names a step. */
 export const isTimelineStep = (value: string): value is TimelineStep => TIMELINE_STEP_SET.has(value)
 
+/** Whether a query-string value names a "Student activity" group. */
 export const isEngagement = (value: string): value is Engagement => ENGAGEMENT_SET.has(value)

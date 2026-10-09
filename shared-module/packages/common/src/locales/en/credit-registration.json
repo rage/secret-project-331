@@ -679,7 +679,7 @@
   "credit-registration-admin-status-cannot-register": "Cannot register",
   "credit-registration-admin-status-config-check-failed": "Settings check failed",
   "credit-registration-admin-status-course-not-registrable-yet": "Registering starts once the student meets the prerequisites or the completion is reviewed.",
-  "credit-registration-admin-status-dismissed": "Removed from Needs attention: {{reason}}",
+  "credit-registration-admin-status-dismissed": "{{name}} removed this from Needs attention on {{time}}: {{reason}}",
   "credit-registration-admin-status-enrolment-checks-stopped": "We stopped checking Sisu at {{time}}.",
   "credit-registration-admin-status-enrolment-list-empty": "This course code's enrolment list is empty.",
   "credit-registration-admin-status-failing": "Failing often",

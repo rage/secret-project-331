@@ -3,6 +3,8 @@ import type { CreditRegistrationTFunction } from "./constants"
 const SECS_PER_MINUTE = 60
 const SECS_PER_HOUR = 3600
 const SECS_PER_DAY = 86400
+const MINUTES_PER_HOUR = 60
+const HOURS_PER_DAY = 24
 
 const minutes = (t: CreditRegistrationTFunction, count: number) =>
   t("credit-registration-duration-minutes", { count })
@@ -33,8 +35,9 @@ export const formatDurationInWords = (t: CreditRegistrationTFunction, secs: numb
  * "15 minutes", "1 hour 30 minutes", "2 days 4 hours".
  */
 export const formatIntervalInWords = (t: CreditRegistrationTFunction, secs: number): string => {
-  if (secs < SECS_PER_MINUTE) {
-    return t("credit-registration-duration-seconds", { count: Math.round(secs) })
+  const wholeSecs = Math.round(secs)
+  if (wholeSecs < SECS_PER_MINUTE) {
+    return t("credit-registration-duration-seconds", { count: wholeSecs })
   }
   const totalMinutes = Math.round(secs / SECS_PER_MINUTE)
   const wholeDays = Math.floor(totalMinutes / (24 * 60))
@@ -59,11 +62,13 @@ const DAY_MS = SECS_PER_DAY * 1000
 export const formatFutureInWords = (at: Date, language: string): string => {
   const ms = at.getTime() - Date.now()
   const format = new Intl.RelativeTimeFormat(language, { numeric: "auto" })
-  if (ms < HOUR_MS) {
-    return format.format(Math.max(1, Math.round(ms / MINUTE_MS)), "minute")
+  const wholeMinutes = Math.round(ms / MINUTE_MS)
+  if (wholeMinutes < MINUTES_PER_HOUR) {
+    return format.format(Math.max(1, wholeMinutes), "minute")
   }
-  if (ms < DAY_MS) {
-    return format.format(Math.round(ms / HOUR_MS), "hour")
+  const wholeHours = Math.round(ms / HOUR_MS)
+  if (wholeHours < HOURS_PER_DAY) {
+    return format.format(wholeHours, "hour")
   }
   return format.format(Math.round(ms / DAY_MS), "day")
 }

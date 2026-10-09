@@ -143,10 +143,7 @@ const statusIconDangerCss = css`
   color: var(--color-crimson-700);
 `
 
-/**
- * The row's one status mark. "ok" gets no glyph at all, just muted text — a pill on every fine row
- * is exactly the chrome Overview removed.
- */
+/** The row's one status mark; "ok" is muted text with no glyph, as most rows are fine. */
 const ModuleStatusMark: React.FC<{
   module: CreditRegistrationCourseStats
   isUncheckedSaidAbove: boolean

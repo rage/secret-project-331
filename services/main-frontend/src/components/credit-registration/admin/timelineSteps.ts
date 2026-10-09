@@ -120,7 +120,7 @@ const WAITS_ON_KEYS = {
 export const timelinePhaseLabel = (t: CreditRegistrationTFunction, phase: TimelinePhase): string =>
   t(PHASE_KEYS[phase])
 
-/** A step's plain-language label: the same words in the list, the counts and the status card. */
+/** A step's plain-language label: the same words in the list, the counts and the timeline. */
 export const timelineStepLabel = (t: CreditRegistrationTFunction, step: TimelineStep): string =>
   t(STEP_KEYS[step])
 

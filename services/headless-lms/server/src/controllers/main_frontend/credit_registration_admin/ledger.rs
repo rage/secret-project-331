@@ -247,6 +247,8 @@ pub struct AdminRegistrationAttention {
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
     pub dismissed_by_user_id: Option<Uuid>,
+    pub dismissed_by_first_name: Option<String>,
+    pub dismissed_by_last_name: Option<String>,
     pub dismissal_reason: Option<String>,
 }
 
@@ -719,6 +721,8 @@ pub async fn get_credit_registration_for_admin(
             dismissed_reasons: row.dismissed_reasons.clone(),
             dismissed_at: row.dismissed_at,
             dismissed_by_user_id: row.dismissed_by_user_id,
+            dismissed_by_first_name: row.dismissed_by_first_name.clone(),
+            dismissed_by_last_name: row.dismissed_by_last_name.clone(),
             dismissal_reason: row.dismissal_reason.clone(),
         });
 
@@ -1161,6 +1165,8 @@ struct AttentionLookupRow {
     dismissed_reasons: Option<Vec<AttentionReason>>,
     dismissed_at: Option<DateTime<Utc>>,
     dismissed_by_user_id: Option<Uuid>,
+    dismissed_by_first_name: Option<String>,
+    dismissed_by_last_name: Option<String>,
     dismissal_reason: Option<String>,
 }
 
@@ -1187,6 +1193,8 @@ impl AttentionLookup {
                     dismissed_reasons: row.dismissed_reasons,
                     dismissed_at: row.dismissed_at,
                     dismissed_by_user_id: row.dismissed_by_user_id,
+                    dismissed_by_first_name: row.dismissed_by_first_name,
+                    dismissed_by_last_name: row.dismissed_by_last_name,
                     dismissal_reason: row.dismissal_reason,
                 }
             })

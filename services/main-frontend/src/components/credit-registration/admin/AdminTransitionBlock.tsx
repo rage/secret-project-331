@@ -59,8 +59,8 @@ import {
 interface Props {
   registration: AdminCreditRegistrationRow
   /**
-   * Buttons only, in one row with the housekeeping ones set apart on the right, for a box that
-   * already says what is wrong; each dialog still explains its action.
+   * Buttons in one row with housekeeping ones set apart on the right, for a box that already says
+   * what is wrong.
    */
   isCompact?: boolean
 }
@@ -449,7 +449,13 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
 
   const rows = offers.map((offer) => renderOffer(offer))
   // A resend held back only until a known time is worth showing as such: waiting is the remedy.
-  if (resubmission.kind === "refused" && resubmission.available_at) {
+  const resubmitWaitNote =
+    resubmission.kind === "refused" && resubmission.available_at
+      ? t("credit-registration-admin-resubmit-available-at", {
+          time: formatZonedTimestamp(new Date(resubmission.available_at)),
+        })
+      : null
+  if (resubmitWaitNote !== null) {
     rows.push(
       <ActionRow
         key={RESUBMIT}
@@ -458,11 +464,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             {t("credit-registration-admin-target-resubmit")}
           </Button>
         }
-        explanation={prose(
-          t("credit-registration-admin-resubmit-available-at", {
-            time: formatZonedTimestamp(new Date(resubmission.available_at)),
-          }),
-        )}
+        explanation={prose(resubmitWaitNote)}
       />,
     )
   }
@@ -526,6 +528,11 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
     )
   }
 
+  const hasActions = remedies.length > 0 || housekeeping.length > 0
+  const noActionsNote = !hasActions && (
+    <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
+  )
+
   if (isCompact) {
     return (
       <CompactContext.Provider value>
@@ -535,12 +542,16 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
               {lastResult.message}
             </Infobox>
           )}
-          <div className={compactCss}>
-            {remedies}
-            {housekeeping.length > 0 && (
-              <span className={compactHousekeepingCss}>{housekeeping}</span>
-            )}
-          </div>
+          {noActionsNote}
+          {hasActions && (
+            <div className={compactCss}>
+              {remedies}
+              {housekeeping.length > 0 && (
+                <span className={compactHousekeepingCss}>{housekeeping}</span>
+              )}
+            </div>
+          )}
+          {resubmitWaitNote !== null && <p className={noteCss}>{resubmitWaitNote}</p>}
         </div>
       </CompactContext.Provider>
     )
@@ -553,10 +564,8 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
           {lastResult.message}
         </Infobox>
       )}
-      {remedies.length === 0 && housekeeping.length === 0 && (
-        <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
-      )}
-      {(remedies.length > 0 || housekeeping.length > 0) && (
+      {noActionsNote}
+      {hasActions && (
         <ul className={actionListCss}>
           {remedies}
           {housekeeping}

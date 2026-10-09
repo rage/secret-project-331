@@ -19,8 +19,8 @@ import type {
   JourneyPhaseKey,
   JourneyPhaseStatus,
   JourneyProblem,
-  JourneyStep,
-  JourneyStepStatus,
+  JourneySubstep,
+  JourneySubstepStatus,
 } from "./journeyPhases"
 import type { TimelineEntry } from "./timelineRows"
 import { timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
@@ -28,18 +28,18 @@ import { timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
 const CHEVRON_RIGHT = "right" as const
 const WARNING_ICON_SIZE = 20
 
-/** Steps sit side by side from this container width; below it they stack on a vertical line. */
+/** Phases sit side by side from this container width; below it they stack on a vertical line. */
 const ACROSS_MIN_PX = 1220
 /** Below this container width the markers and indents shrink to leave phones the text. */
 const PHONE_MAX_PX = 600
-/** From this container width a stacked step's times move to a column of their own. */
+/** From this container width a stacked substep's times move to a column of their own. */
 const TIME_COLUMN_MIN_PX = 640
 
 const bodyCss = css`
   container-type: inline-size;
 `
 
-/** Phones get the card's side padding back for the steps' text. */
+/** Phones reclaim the card's side padding for the timeline's text. */
 const PHONE_CARD_PADDING_MAX_PX = 560
 
 const sectionCss = css`
@@ -56,10 +56,7 @@ const sectionCss = css`
   }
 `
 
-/*
- * One scoped block: the steps, panels, substeps and problem box all restyle together at each
- * container width, which per-element classes would have to repeat in every query.
- */
+// One block so every part restyles together per container width.
 const timelineCss = css`
   --node: 28px;
   --col-gap: var(--space-4);
@@ -174,14 +171,14 @@ const timelineCss = css`
     font-size: var(--font-size-1);
   }
 
-  .tl-steps {
+  .tl-substeps {
     display: grid;
     gap: 6px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .tl-step {
+  .tl-substep {
     position: relative;
     display: grid;
     grid-template-columns: 16px minmax(0, 1fr);
@@ -190,7 +187,7 @@ const timelineCss = css`
     font-size: var(--font-size-1);
   }
   /* The sub-line runs from each dot to the next, so it stops at the last one. */
-  .tl-step:not(:last-child)::before {
+  .tl-substep:not(:last-child)::before {
     content: "";
     position: absolute;
     top: 13px;
@@ -199,7 +196,7 @@ const timelineCss = css`
     width: 2px;
     background: var(--rail);
   }
-  .tl-step[data-status="done"]:not(:last-child)::before {
+  .tl-substep[data-status="done"]:not(:last-child)::before {
     background: var(--done-line);
   }
   .tl-dot {
@@ -214,30 +211,30 @@ const timelineCss = css`
     border-radius: 50%;
     background: var(--color-clear-50);
   }
-  .tl-step[data-status="done"] > .tl-dot {
+  .tl-substep[data-status="done"] > .tl-dot {
     border-color: var(--done);
     background: var(--done);
   }
-  .tl-step[data-status="current"] > .tl-dot {
+  .tl-substep[data-status="current"] > .tl-dot {
     border-color: var(--current);
     background: var(--current);
   }
-  .tl-step[data-status="attention"] > .tl-dot {
+  .tl-substep[data-status="attention"] > .tl-dot {
     border-color: var(--attention);
     background: var(--attention);
     box-shadow: 0 0 0 3px var(--color-crimson-100);
   }
-  .tl-step > :not(.tl-dot) {
+  .tl-substep > :not(.tl-dot) {
     grid-column: 2;
   }
   .tl-label {
     min-width: 0;
   }
-  .tl-step[data-status="upcoming"] .tl-label {
+  .tl-substep[data-status="upcoming"] .tl-label {
     color: var(--muted);
   }
-  .tl-step[data-status="current"] .tl-label,
-  .tl-step[data-status="attention"] .tl-label {
+  .tl-substep[data-status="current"] .tl-label,
+  .tl-substep[data-status="attention"] .tl-label {
     font-weight: 600;
   }
   .tl-detail {
@@ -285,7 +282,7 @@ const timelineCss = css`
     }
   }
   /* Indented past the sub-line so the line keeps running beside open details. */
-  .tl-step > .tl-events {
+  .tl-substep > .tl-events {
     display: grid;
     grid-column: 1 / -1;
     gap: var(--space-3);
@@ -338,6 +335,8 @@ const timelineCss = css`
     font-size: var(--font-size-1);
   }
   .tl-problem-actions {
+    display: grid;
+    gap: var(--space-3);
     margin-top: var(--space-3);
   }
 
@@ -346,9 +345,9 @@ const timelineCss = css`
     grid-template-columns: repeat(5, minmax(0, 1fr));
     column-gap: var(--col-gap);
 
-    /* Every step spans the full width on a subgrid so its problem box can run under all five
-       panels while staying inside the step in reading order. The step box itself is transparent,
-       so it must not take clicks meant for the steps it overlaps. */
+    /* Every phase spans the full width on a subgrid so its problem box can run under all five
+       panels while staying inside the phase in reading order. The phase box itself is transparent,
+       so it must not take clicks meant for the phases it overlaps. */
     .tl-phase {
       display: grid;
       grid-row: 1 / span 3;
@@ -431,26 +430,25 @@ const timelineCss = css`
     }
   }
 
-  /* Stacked with room to spare: times move to a right-hand column, so a substep takes one or two
-     lines. */
+  /* Stacked with room to spare: times go in a right-hand column. */
   @container (min-width: ${TIME_COLUMN_MIN_PX}px) and (max-width: ${ACROSS_MIN_PX - 0.02}px) {
-    .tl-step {
+    .tl-substep {
       grid-template-columns: 16px minmax(0, 1fr) auto;
       column-gap: var(--space-4);
     }
-    .tl-step > .tl-label {
+    .tl-substep > .tl-label {
       grid-row: 1 / span 2;
     }
-    .tl-step > .tl-when {
+    .tl-substep > .tl-when {
       grid-row: 1 / span 2;
       grid-column: 3;
       text-align: right;
     }
-    .tl-step > .tl-details {
+    .tl-substep > .tl-details {
       grid-row: 3;
       grid-column: 2;
     }
-    .tl-step > .tl-events {
+    .tl-substep > .tl-events {
       grid-row: 4;
       grid-column: 1 / -1;
     }
@@ -471,8 +469,7 @@ const timelineCss = css`
     .tl-panel {
       padding: 10px;
     }
-    /* As the infobox does on phones: the icon shares the heading's line instead of taking a
-       column, and the text and buttons get the full width. */
+    /* Like the infobox on phones: icon inline with the heading, text and buttons full width. */
     .tl-problem {
       display: block;
       padding: var(--space-3-5);
@@ -489,6 +486,7 @@ const timelineCss = css`
       margin-top: var(--space-2);
     }
     .tl-problem-body > .tl-problem-actions {
+      display: grid;
       margin-top: var(--space-3);
     }
     /* One full-width button per line, the ones set apart included. */
@@ -516,14 +514,14 @@ const timelineCss = css`
     position: relative;
     z-index: 0;
   }
-  .tl-step[data-status="current"] {
+  .tl-substep[data-status="current"] {
     z-index: 0;
   }
-  .tl-step[data-status="current"] > .tl-dot {
+  .tl-substep[data-status="current"] > .tl-dot {
     z-index: auto;
   }
   .tl-phase[data-status="current"] .tl-node::before,
-  .tl-step[data-status="current"] > .tl-dot::before {
+  .tl-substep[data-status="current"] > .tl-dot::before {
     content: "";
     position: absolute;
     z-index: -1;
@@ -536,7 +534,7 @@ const timelineCss = css`
   .tl-phase[data-status="current"] .tl-node {
     --reach: 1.55;
   }
-  .tl-step[data-status="current"] > .tl-dot {
+  .tl-substep[data-status="current"] > .tl-dot {
     --reach: 2.3;
   }
   @keyframes tl-wave {
@@ -551,7 +549,7 @@ const timelineCss = css`
   }
   @media (prefers-reduced-motion: reduce) {
     .tl-phase[data-status="current"] .tl-node::before,
-    .tl-step[data-status="current"] > .tl-dot::before {
+    .tl-substep[data-status="current"] > .tl-dot::before {
       animation: none;
       opacity: 0;
     }
@@ -576,24 +574,24 @@ const problemCss = css`
   }
 `
 
-/** The step's column when they sit side by side. */
+/** The phase's column when they sit side by side. */
 const columnCss = (column: number) => css`
   --col: ${column};
 `
 
-const STEP_STATUS_KEYS = {
+const SUBSTEP_STATUS_KEYS = {
   done: "credit-registration-admin-journey-step-done",
   current: "credit-registration-admin-journey-step-current",
   attention: "credit-registration-admin-journey-step-attention",
   upcoming: "credit-registration-admin-journey-step-upcoming",
-} as const satisfies Record<JourneyStepStatus, string>
+} as const satisfies Record<JourneySubstepStatus, string>
 
 const journeyPhaseLabel = (t: CreditRegistrationTFunction, key: JourneyPhaseKey): string =>
   key === "starting_registration"
     ? t("credit-registration-admin-timeline-phase-starting-registration")
     : timelinePhaseLabel(t, key)
 
-/** The state beside a step's name: the outcome once finished, otherwise where it stands. */
+/** The state beside a phase's name: the outcome once finished, otherwise where it stands. */
 const phaseStateLabel = (t: CreditRegistrationTFunction, phase: JourneyPhase): string => {
   if (phase.ending) {
     return timelineStepLabel(t, phase.ending)
@@ -619,8 +617,8 @@ const entryTime = (entry: TimelineEntry): string =>
     ? formatZonedTimeRange(new Date(entry.at), new Date(entry.until))
     : formatZonedTimestamp(new Date(entry.at))
 
-/** The events behind one step, with a heading wherever another attempt's events begin. */
-const StepEvents: React.FC<{
+/** The events behind one substep, with a heading wherever another attempt's events begin. */
+const SubstepEvents: React.FC<{
   id: string
   isOpen: boolean
   entries: TimelineEntry[]
@@ -674,39 +672,41 @@ const StepEvents: React.FC<{
   )
 }
 
-const StepItem: React.FC<{
-  step: JourneyStep
+const SubstepItem: React.FC<{
+  substep: JourneySubstep
   currentAttemptId: string
   attemptNumber: (registrationId: string) => number | undefined
   showsAttempts: boolean
-}> = ({ step, currentAttemptId, attemptNumber, showsAttempts }) => {
+}> = ({ substep, currentAttemptId, attemptNumber, showsAttempts }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [isOpen, setIsOpen] = useState(false)
   const eventsId = useId()
   const labelId = useId()
   return (
     <li
-      className="tl-step"
-      data-status={step.status}
-      aria-current={step.status === "current" || step.status === "attention" ? "step" : undefined}
+      className="tl-substep"
+      data-status={substep.status}
+      aria-current={
+        substep.status === "current" || substep.status === "attention" ? "step" : undefined
+      }
     >
       <span className="tl-dot" aria-hidden="true" />
       <span className="tl-label" id={labelId}>
-        <VisuallyHidden>{t(STEP_STATUS_KEYS[step.status])}: </VisuallyHidden>
-        {step.label}
-        {step.detail && (
+        <VisuallyHidden>{t(SUBSTEP_STATUS_KEYS[substep.status])}: </VisuallyHidden>
+        {substep.label}
+        {substep.detail && (
           <span className="tl-detail">
-            <UnbrokenValuesText>{step.detail}</UnbrokenValuesText>
+            <UnbrokenValuesText>{substep.detail}</UnbrokenValuesText>
           </span>
         )}
       </span>
-      {step.at && (
+      {substep.at && (
         <span className="tl-when">
-          <ZonedTimestamp at={step.at} />
-          {step.secsAfterPrevious !== null && (
+          <ZonedTimestamp at={substep.at} />
+          {substep.secsAfterPrevious !== null && (
             <span className="tl-gap">
               {t("credit-registration-admin-journey-later", {
-                duration: formatDurationInWords(t, step.secsAfterPrevious),
+                duration: formatDurationInWords(t, substep.secsAfterPrevious),
               })}
               <VisuallyHidden>
                 {" "}
@@ -716,7 +716,7 @@ const StepItem: React.FC<{
           )}
         </span>
       )}
-      {step.entries.length > 0 && (
+      {substep.entries.length > 0 && (
         <>
           <button
             type="button"
@@ -727,12 +727,12 @@ const StepItem: React.FC<{
             onClick={() => setIsOpen((open) => !open)}
           >
             <ChevronIcon direction={CHEVRON_RIGHT} />
-            {t("credit-registration-admin-journey-details", { count: step.entries.length })}
+            {t("credit-registration-admin-journey-details", { count: substep.entries.length })}
           </button>
-          <StepEvents
+          <SubstepEvents
             id={eventsId}
             isOpen={isOpen}
-            entries={step.entries}
+            entries={substep.entries}
             currentAttemptId={currentAttemptId}
             attemptNumber={attemptNumber}
             showsAttempts={showsAttempts}
@@ -786,10 +786,9 @@ const leadsIntoDone = (next: JourneyPhaseStatus | undefined): boolean =>
   next === "done" || next === "skipped"
 
 /**
- * The whole completion's story as numbered steps, each with its substeps, across a wide container
- * and stacked on a line below that. Every attempt's page shows the same story, with its own
- * attempt marked in the details. `problemActions` go in the problem box of a step that waits for a
- * person.
+ * The whole completion's story as numbered steps with substeps, side by side in a wide container
+ * and stacked below that. Every attempt's page shows the same story, its own attempt marked.
+ * `problemActions` go in the problem box of a phase that waits for a person.
  */
 const RegistrationJourney: React.FC<{
   phases: JourneyPhase[]
@@ -845,12 +844,12 @@ const RegistrationJourney: React.FC<{
                       {t("credit-registration-admin-journey-page-not-opened")}
                     </p>
                   )}
-                  {phase.steps.length > 0 && (
-                    <ol className="tl-steps">
-                      {phase.steps.map((step) => (
-                        <StepItem
-                          key={step.key}
-                          step={step}
+                  {phase.substeps.length > 0 && (
+                    <ol className="tl-substeps">
+                      {phase.substeps.map((substep) => (
+                        <SubstepItem
+                          key={substep.key}
+                          substep={substep}
                           currentAttemptId={currentAttemptId}
                           attemptNumber={attemptNumber}
                           showsAttempts={showsAttempts}

@@ -329,7 +329,6 @@ export const statusTriggerCss = css`
   }
 `
 
-/** Holds the arrow to the state it leads away from, so it never starts a line of its own. */
 /** The arrow and the state a change led to, under the state it left. */
 export const stateChangeToCss = css`
   display: flex;

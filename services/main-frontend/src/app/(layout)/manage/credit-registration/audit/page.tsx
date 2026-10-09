@@ -137,7 +137,6 @@ const dateRangeCss = css`
   }
 `
 
-/** The "On" column's subtitle: a course or module name, which can outrun the column's width. */
 interface FilterFields {
   actor_role: string
   actor_user_id: string

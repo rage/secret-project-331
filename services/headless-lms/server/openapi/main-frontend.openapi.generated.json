@@ -16109,6 +16109,12 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "dismissed_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "dismissed_by_last_name": {
+            "type": ["string", "null"]
+          },
           "dismissed_by_user_id": {
             "type": ["string", "null"],
             "format": "uuid"

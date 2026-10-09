@@ -679,7 +679,7 @@
   "credit-registration-admin-status-cannot-register": "Ei voi kirjata",
   "credit-registration-admin-status-config-check-failed": "Asetusten tarkistus epäonnistui",
   "credit-registration-admin-status-course-not-registrable-yet": "Kirjaaminen alkaa, kun opiskelija täyttää esitiedot tai suoritus on tarkistettu.",
-  "credit-registration-admin-status-dismissed": "Poistettu Vaatii huomiota -listalta: {{reason}}",
+  "credit-registration-admin-status-dismissed": "{{name}} poisti tämän Vaatii huomiota -listalta {{time}}: {{reason}}",
   "credit-registration-admin-status-enrolment-checks-stopped": "Lopetimme Sisun tarkistamisen {{time}}.",
   "credit-registration-admin-status-enrolment-list-empty": "Tämän kurssikoodin ilmoittautumislista on tyhjä.",
   "credit-registration-admin-status-failing": "Epäonnistuu usein",

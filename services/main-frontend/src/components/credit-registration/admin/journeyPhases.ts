@@ -23,30 +23,30 @@ export type JourneyPhaseKey =
   | "registering"
   | "confirmation"
 
-/** `attention` is a step stopped until a person acts. */
-export type JourneyStepStatus = "done" | "current" | "attention" | "upcoming"
+/** `attention` is a substep stopped until a person acts. */
+export type JourneySubstepStatus = "done" | "current" | "attention" | "upcoming"
 
-/** One checklist line under a phase column. */
-export interface JourneyStep {
+/** One checklist line under a phase. */
+export interface JourneySubstep {
   key: string
   label: string
-  status: JourneyStepStatus
+  status: JourneySubstepStatus
   at: string | null
-  /** Seconds since the step before it; null for the first step or one that came earlier. */
+  /** Seconds since the substep before it; null for the first one or one that came earlier. */
   secsAfterPrevious: number | null
-  /** One more fact about the step, such as how they enrolled or what happens next. */
+  /** One more fact about the substep, such as how they enrolled or what happens next. */
   detail: string | null
-  /** The events that led up to the step, or, for the current step, everything since. */
+  /** The events that led up to the substep, or, for the current one, everything since. */
   entries: TimelineEntry[]
 }
 
 /**
- * A skipped phase is one the registration passed without any of its steps happening; `attention`
+ * A skipped phase is one the registration passed without any of its substeps happening; `attention`
  * is the current phase when it waits for a person.
  */
 export type JourneyPhaseStatus = "done" | "current" | "attention" | "upcoming" | "skipped"
 
-/** What stopped an `attention` phase, worded for the box under the timeline's steps. */
+/** What stopped an `attention` phase, worded for the box under the timeline. */
 export interface JourneyProblem {
   /** Who it waits on, e.g. "Waiting for support". */
   waitsOn: string
@@ -60,13 +60,13 @@ export interface JourneyProblem {
   isStudentNumberStuck: boolean
 }
 
-/** One step of the timeline. */
+/** One of the timeline's numbered steps, as admins see it, with its substeps. */
 export interface JourneyPhase {
   key: JourneyPhaseKey
   status: JourneyPhaseStatus
-  steps: JourneyStep[]
+  substeps: JourneySubstep[]
   problem: JourneyProblem | null
-  /** How the registration ended, on the Confirmation step of a finished one. */
+  /** How the registration ended, on the Confirmation phase of a finished one. */
   ending: TimelineStep | null
 }
 
@@ -142,9 +142,9 @@ interface Slot {
   detail?: string | null
 }
 
-type StepDraft = Omit<JourneyStep, "secsAfterPrevious" | "entries">
+type SubstepDraft = Omit<JourneySubstep, "secsAfterPrevious" | "entries">
 
-const toStep = (slot: Slot, status: "done" | "upcoming"): StepDraft => ({
+const toSubstep = (slot: Slot, status: "done" | "upcoming"): SubstepDraft => ({
   key: slot.key,
   label: slot.label,
   status,
@@ -152,8 +152,8 @@ const toStep = (slot: Slot, status: "done" | "upcoming"): StepDraft => ({
   detail: status === "done" ? (slot.detail ?? null) : null,
 })
 
-/** The newest attempt's own step, standing in for the slot it `replaces`, or added if none. */
-interface CurrentStep {
+/** The newest attempt's own substep, standing in for the slot it `replaces`, or added if none. */
+interface CurrentSubstep {
   label: string
   status: "current" | "attention"
   detail: string | null
@@ -161,29 +161,29 @@ interface CurrentStep {
 }
 
 /**
- * One phase's steps: the slots that happened as done, the current step in its slot's place (or
+ * One phase's substeps: the slots that happened as done, the current one in its slot's place (or
  * after the done ones), the rest as upcoming. In a phase the row has left, slots that never
  * happened are left out.
  */
-const phaseSteps = (
+const phaseSubsteps = (
   slots: Slot[],
   position: "past" | "current" | "future",
-  current: CurrentStep | null,
-): StepDraft[] => {
+  current: CurrentSubstep | null,
+): SubstepDraft[] => {
   if (position === "past") {
-    return slots.filter((slot) => slot.at !== null).map((slot) => toStep(slot, "done"))
+    return slots.filter((slot) => slot.at !== null).map((slot) => toSubstep(slot, "done"))
   }
   if (position === "future" || current === null) {
-    return slots.map((slot) => toStep(slot, slot.at === null ? "upcoming" : "done"))
+    return slots.map((slot) => toSubstep(slot, slot.at === null ? "upcoming" : "done"))
   }
-  const steps: StepDraft[] = []
+  const substeps: SubstepDraft[] = []
   let isPlaced = false
   const place = (at: string | null) => {
-    steps.push({
+    substeps.push({
       key: current.replaces ?? "current",
       label: current.label,
       status: current.status,
-      // A rejected send keeps its time; a step still under way has none yet.
+      // A rejected send keeps its time; a substep still under way has none yet.
       at,
       detail: current.detail,
     })
@@ -197,15 +197,15 @@ const phaseSteps = (
     if (slot.at === null && !isPlaced && current.replaces === null) {
       place(null)
     }
-    steps.push(toStep(slot, slot.at === null ? "upcoming" : "done"))
+    substeps.push(toSubstep(slot, slot.at === null ? "upcoming" : "done"))
   }
   if (!isPlaced) {
     place(null)
   }
-  return steps
+  return substeps
 }
 
-/** The slot a current Registering or Confirmation step stands in for, and that slot's phase. */
+/** The slot a current timeline step in Registering or Confirmation stands in for, and its phase. */
 const REPLACED_SLOT: Partial<Record<TimelineStep, { slot: string; phase: JourneyPhaseKey }>> = {
   looking_for_enrolment: { slot: "enrolment_found", phase: "registering" },
   waiting_for_enrolment: { slot: "enrolment_found", phase: "registering" },
@@ -215,7 +215,7 @@ const REPLACED_SLOT: Partial<Record<TimelineStep, { slot: string; phase: Journey
   waiting_for_course_unit: { slot: "course_unit", phase: "confirmation" },
 }
 
-/** The phase a step with no slot of its own is shown in, as an extra current step. */
+/** The phase a timeline step with no slot of its own is shown in, as an extra current substep. */
 const INSERTED_IN: Partial<Record<TimelineStep, JourneyPhaseKey>> = {
   course_not_registrable_yet: "course",
   held_for_course_code: "registering",
@@ -223,37 +223,37 @@ const INSERTED_IN: Partial<Record<TimelineStep, JourneyPhaseKey>> = {
 }
 
 /**
- * Hands each event entry to the timed step it led up to, and what came after the last one to the
- * current step, so expanding a step shows how it got there.
+ * Hands each event entry to the timed substep it led up to, and what came after the last one to the
+ * current substep, so expanding a substep shows how it got there.
  */
 const attachEntries = (phases: JourneyPhase[], entries: TimelineEntry[]) => {
-  const steps = phases.flatMap((phase) => phase.steps)
-  const timed = steps
-    .flatMap((step) =>
-      step.at !== null && (step.status === "done" || step.status === "attention")
-        ? [{ step, at: Date.parse(step.at) }]
+  const substeps = phases.flatMap((phase) => phase.substeps)
+  const timed = substeps
+    .flatMap((substep) =>
+      substep.at !== null && (substep.status === "done" || substep.status === "attention")
+        ? [{ substep, at: Date.parse(substep.at) }]
         : [],
     )
     .toSorted((a, b) => a.at - b.at)
   const tail =
-    steps.find((step) => step.status === "current" || step.status === "attention") ??
-    timed.at(-1)?.step
+    substeps.find((substep) => substep.status === "current" || substep.status === "attention") ??
+    timed.at(-1)?.substep
   for (const entry of entries) {
-    const owner = timed.find(({ at }) => at >= Date.parse(entry.at))?.step ?? tail
+    const owner = timed.find(({ at }) => at >= Date.parse(entry.at))?.substep ?? tail
     owner?.entries.push(entry)
   }
 }
 
-/** Fills in each timed step's distance from the one before it, in reading order. */
+/** Fills in each timed substep's distance from the one before it, in reading order. */
 const attachDurations = (phases: JourneyPhase[]) => {
   let previous: number | null = null
-  for (const step of phases.flatMap((phase) => phase.steps)) {
-    if (step.at === null) {
+  for (const substep of phases.flatMap((phase) => phase.substeps)) {
+    if (substep.at === null) {
       continue
     }
-    const at = Date.parse(step.at)
+    const at = Date.parse(substep.at)
     if (previous !== null && at >= previous) {
-      step.secsAfterPrevious = (at - previous) / 1000
+      substep.secsAfterPrevious = (at - previous) / 1000
     }
     previous = previous === null ? at : Math.max(previous, at)
   }
@@ -279,7 +279,7 @@ export const buildJourney = (
   const newest = details.attempts[0] ?? details.registration
   const newestEvents = details.events.filter((event) => event.credit_registration_id === newest.id)
   const { journey } = details
-  const step = newest.timeline_step
+  const timelineStep = newest.timeline_step
   const currentPhase = currentPhaseOf(newest)
   const currentIndex =
     currentPhase === null ? JOURNEY_PHASES.length : JOURNEY_PHASES.indexOf(currentPhase)
@@ -294,10 +294,10 @@ export const buildJourney = (
     details.linking_schedule?.unlinked_enrolled_before_count,
   )
   const isAttention = status.tone === "attention"
-  const currentStep = (replaces: string | null): CurrentStep => ({
-    label: timelineStepLabel(t, step),
+  const currentSubstep = (replaces: string | null): CurrentSubstep => ({
+    label: timelineStepLabel(t, timelineStep),
     status: isAttention ? "attention" : "current",
-    // An attention step's story is told in the problem box.
+    // An attention substep's story is told in the problem box.
     detail: isAttention ? null : status.next,
     replaces,
   })
@@ -442,12 +442,12 @@ export const buildJourney = (
     },
   ]
 
-  const currentIn = (phase: JourneyPhaseKey): CurrentStep | null => {
-    if (step === "needs_a_person") {
+  const currentIn = (phase: JourneyPhaseKey): CurrentSubstep | null => {
+    if (timelineStep === "needs_a_person") {
       if (phase !== "registering") {
         return null
       }
-      // Stopped at the Registering step that went wrong; a rejected send keeps its own name.
+      // Stopped at the Registering substep that went wrong; a rejected send keeps its own name.
       const pending = registeringSlots.find((slot) => slot.at === null)
       const failed =
         pending?.key === "accepted" ? registeringSlots.find((slot) => slot.key === "sent") : pending
@@ -458,38 +458,38 @@ export const buildJourney = (
             detail: adminErrorShortLabel(t, newest.error_code),
             replaces: failed.key,
           }
-        : currentStep(null)
+        : currentSubstep(null)
     }
-    if (INSERTED_IN[step] === phase) {
-      return currentStep(null)
+    if (INSERTED_IN[timelineStep] === phase) {
+      return currentSubstep(null)
     }
-    const replaced = REPLACED_SLOT[step]
-    return replaced?.phase === phase ? currentStep(replaced.slot) : null
+    const replaced = REPLACED_SLOT[timelineStep]
+    return replaced?.phase === phase ? currentSubstep(replaced.slot) : null
   }
 
-  const stepsOf = (phase: JourneyPhaseKey): StepDraft[] => {
+  const substepsOf = (phase: JourneyPhaseKey): SubstepDraft[] => {
     const position = positionOf(phase)
     switch (phase) {
       case "course":
-        return phaseSteps(courseSlots, position, currentIn(phase))
+        return phaseSubsteps(courseSlots, position, currentIn(phase))
       case "starting_registration": {
         if (position !== "current") {
-          return phaseSteps(startingSlots, position, null)
+          return phaseSubsteps(startingSlots, position, null)
         }
-        // What the student does next is the current step; there is no ledger step for it.
+        // What the student does next is the current substep; there is no timeline step for it.
         const nextIndex = startingSlots.findIndex((slot) => slot.at === null)
         return startingSlots.map((slot, index) =>
           index === nextIndex
-            ? { ...currentStep(null), key: slot.key, label: slot.label, at: null }
-            : toStep(slot, slot.at === null ? "upcoming" : "done"),
+            ? { ...currentSubstep(null), key: slot.key, label: slot.label, at: null }
+            : toSubstep(slot, slot.at === null ? "upcoming" : "done"),
         )
       }
       case "student_number": {
         if (linkedAt !== null) {
-          return phaseSteps(studentNumberSlots, position, null)
+          return phaseSubsteps(studentNumberSlots, position, null)
         }
         // Until they link, we do not know who they are in Sisu, so nothing more can be said.
-        const notLinked = { ...currentStep(null), key: "not_linked", at: null }
+        const notLinked = { ...currentSubstep(null), key: "not_linked", at: null }
         return [
           position === "current"
             ? notLinked
@@ -502,9 +502,9 @@ export const buildJourney = (
         ]
       }
       case "registering":
-        return phaseSteps(registeringSlots, position, currentIn(phase))
+        return phaseSubsteps(registeringSlots, position, currentIn(phase))
       case "confirmation":
-        return phaseSteps(confirmationSlots, position, currentIn(phase))
+        return phaseSubsteps(confirmationSlots, position, currentIn(phase))
     }
   }
 
@@ -525,26 +525,30 @@ export const buildJourney = (
   }
 
   const phases: JourneyPhase[] = JOURNEY_PHASES.map((key) => {
-    const steps = stepsOf(key).map((one) => ({ ...one, secsAfterPrevious: null, entries: [] }))
+    const substeps = substepsOf(key).map((one) => ({
+      ...one,
+      secsAfterPrevious: null,
+      entries: [],
+    }))
     const position = positionOf(key)
     const isFinishedConfirmation = key === "confirmation" && currentPhase === null
     return {
       key,
-      steps,
+      substeps,
       status:
         position === "current"
           ? isAttention
             ? "attention"
             : "current"
-          : steps.length > 0 && steps.every((one) => one.status === "done")
+          : substeps.length > 0 && substeps.every((one) => one.status === "done")
             ? "done"
             : position === "past" || isFinishedConfirmation
-              ? steps.length === 0 && !isFinishedConfirmation
+              ? substeps.length === 0 && !isFinishedConfirmation
                 ? "skipped"
                 : "done"
               : "upcoming",
       problem: position === "current" && isAttention ? problem() : null,
-      ending: isFinishedConfirmation ? step : null,
+      ending: isFinishedConfirmation ? timelineStep : null,
     }
   })
   attachDurations(phases)

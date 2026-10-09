@@ -806,6 +806,8 @@ export type AdminRegistrationAttention = {
   blocking_problem?: null | BlockingProblem
   dismissal_reason?: string | null
   dismissed_at?: string | null
+  dismissed_by_first_name?: string | null
+  dismissed_by_last_name?: string | null
   dismissed_by_user_id?: string | null
   /**
    * The dismissal in force, if any; a row whose reasons all fall under it is `dismissed`.

@@ -26,7 +26,6 @@ type ItemCounts = Pick<
   "ok_item_count" | "pending_item_count" | "error_item_count"
 >
 
-/** The endpoint in plain words over its wire name, which is what the logs and filters use. */
 const FAILED_ICON_SIZE = 14
 
 const failedCountCss = css`
@@ -35,6 +34,7 @@ const failedCountCss = css`
   align-items: center;
 `
 
+/** The endpoint in plain words over its wire name, which is what the logs and filters use. */
 export const SuotarEndpointCell: React.FC<{ endpoint: SuotarEndpoint }> = ({ endpoint }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (

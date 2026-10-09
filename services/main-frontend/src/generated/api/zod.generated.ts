@@ -1635,6 +1635,8 @@ export const zAdminRegistrationAttention = z.object({
   blocking_problem: zBlockingProblem.nullish(),
   dismissal_reason: z.string().nullish(),
   dismissed_at: z.iso.datetime().nullish(),
+  dismissed_by_first_name: z.string().nullish(),
+  dismissed_by_last_name: z.string().nullish(),
   dismissed_by_user_id: z.uuid().nullish(),
   dismissed_reasons: z.array(zCreditRegistrationAttentionReason).nullish(),
   reasons: z.array(zCreditRegistrationAttentionReason),

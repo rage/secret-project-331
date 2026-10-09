@@ -171,12 +171,10 @@ const TREND_SYMBOLS = {
 const SYMBOL_SIZE = 7
 const SOLID = "solid" as const
 const DASHED = "dashed" as const
-const LEGEND_PHASES = "phases"
-const LEGEND_ATTENTION = "attention"
 
 /**
  * One line per phase that had anyone in it, Not started and finished registrations left out. Needs
- * attention cuts across the phases, so it is dashed and has its own legend apart from them.
+ * attention cuts across the phases, so it is dashed and comes last in the legend.
  */
 const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -228,12 +226,14 @@ const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
   })
   const options: EChartsOption = {
     tooltip: AXIS_TOOLTIP,
-    // Above the plot: at the bottom it lands on the dates, and one of the two has to be read.
-    legend: [
-      { id: LEGEND_PHASES, data: phaseLines.map((one) => one.label), top: 0, left: 0 },
-      { id: LEGEND_ATTENTION, data: [attentionLine.label], top: 0, right: 0 },
-    ],
-    // The legends can wrap to two rows at phone width, so top has to clear both.
+    // Above the plot: at the bottom it lands on the dates, and one of the two has to be read. One
+    // legend, as two would overlap once one wraps.
+    legend: {
+      data: [...phaseLines.map((one) => one.label), attentionLine.label],
+      top: 0,
+      left: 0,
+    },
+    // The legend wraps to two rows at phone width, so top has to clear both.
     grid: { left: 52, right: 16, top: 72, bottom: 32 },
     xAxis: {
       type: "category",

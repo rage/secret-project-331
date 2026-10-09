@@ -17,8 +17,6 @@ export interface RegistrationStatusLines {
   waitsOn: string
   next: string | null
   tone: RegistrationStatusTone
-  /** Its actions live on the Needs attention tab. */
-  isHandledInNeedsAttention: boolean
   /** A possible cause, worded as one, for a third line. */
   hint: string | null
 }
@@ -128,7 +126,7 @@ const stepNext = (
 }
 
 /**
- * The two-line status the registration page's status card and the Needs attention rows share.
+ * The two-line status the registration page's timeline and the Needs attention rows share.
  *
  * `schedule` is the course code's linking schedule, which only a student who pressed "I have
  * enrolled" and has no linked number has. `unmailedEarlyEnroleeCount` is the code's count of
@@ -148,7 +146,6 @@ export const registrationStatusLines = (
       waitsOn,
       next: t("credit-registration-admin-status-student-number-stuck"),
       tone: "attention",
-      isHandledInNeedsAttention: true,
       hint:
         unmailedEarlyEnroleeCount && unmailedEarlyEnroleeCount > 0
           ? t("credit-registration-admin-status-unmailed-early-enrolees", {
@@ -176,7 +173,6 @@ export const registrationStatusLines = (
         : FINISHED_STEPS.has(row.timeline_step)
           ? "done"
           : "neutral",
-    isHandledInNeedsAttention: false,
     hint: null,
   }
 }

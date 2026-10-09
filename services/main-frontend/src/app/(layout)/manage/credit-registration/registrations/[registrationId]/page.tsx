@@ -62,6 +62,7 @@ import {
 } from "@/components/credit-registration/styles"
 import {
   formatZonedTimeRange,
+  formatZonedTimestamp,
   ZonedTimestamp,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -238,6 +239,29 @@ const SupersededCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({
   )
 }
 
+/** Who took the registration off Needs attention, when and why; null unless that still holds. */
+const DismissalNote: React.FC<{ attention: AdminCreditRegistrationDetails["attention"] }> = ({
+  attention,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (attention?.standing !== "dismissed" || !attention.dismissed_at) {
+    return null
+  }
+  return (
+    <p className={noteCss}>
+      {t("credit-registration-admin-status-dismissed", {
+        name:
+          formatUserName({
+            first_name: attention.dismissed_by_first_name,
+            last_name: attention.dismissed_by_last_name,
+          }) || t("missing-name"),
+        time: formatZonedTimestamp(new Date(attention.dismissed_at)),
+        reason: attention.dismissal_reason ?? "",
+      })}
+    </p>
+  )
+}
+
 /** The hand actions on a registration with no problem box to carry them. */
 const ActionsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -249,13 +273,7 @@ const ActionsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({
           {t("label-actions")}
         </h2>
       </div>
-      {details.attention?.standing === "dismissed" && details.attention.dismissal_reason && (
-        <p className={noteCss}>
-          {t("credit-registration-admin-status-dismissed", {
-            reason: details.attention.dismissal_reason,
-          })}
-        </p>
-      )}
+      <DismissalNote attention={details.attention} />
       <AdminTransitionBlock registration={details.registration} />
     </section>
   )
@@ -755,13 +773,16 @@ const RegistrationDetailPage: React.FC = () => {
               showsAttempts={loaded.attempts.length > 1}
               problemActions={
                 problem && !loaded.registration.superseded ? (
-                  <RegistrationProblemActions
-                    registration={loaded.registration}
-                    isStudentNumberStuck={problem.isStudentNumberStuck}
-                    unmailedEarlyEnroleeCount={
-                      loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
-                    }
-                  />
+                  <>
+                    <DismissalNote attention={loaded.attention} />
+                    <RegistrationProblemActions
+                      registration={loaded.registration}
+                      isStudentNumberStuck={problem.isStudentNumberStuck}
+                      unmailedEarlyEnroleeCount={
+                        loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
+                      }
+                    />
+                  </>
                 ) : null
               }
             />

@@ -173,11 +173,14 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
         ]
   ).filter((action): action is RowAction => action !== null)
 
+  // router.push of a mailto: never settles and leaves the app router suspended.
+  const followHref = (href: string) =>
+    href.startsWith("mailto:") ? window.location.assign(href) : router.push(href)
   const [main, ...rest] = actions
   const menuItems = rest.map((action): MenuItemDescriptor => ({
     key: action.key,
     label: action.label,
-    onAction: "href" in action ? () => router.push(action.href) : action.onOpen,
+    onAction: "href" in action ? () => followHref(action.href) : action.onOpen,
     ...(action.isDestructive ? { tone: DESTRUCTIVE } : {}),
   }))
 

@@ -187,6 +187,8 @@ pub struct AttentionRegistration {
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
     pub dismissed_by_user_id: Option<Uuid>,
+    pub dismissed_by_first_name: Option<String>,
+    pub dismissed_by_last_name: Option<String>,
     pub dismissal_reason: Option<String>,
 }
 
@@ -354,6 +356,8 @@ SELECT cr.id,
   dis.dismissed_reasons AS "dismissed_reasons?: Vec<AttentionReason>",
   dis.created_at AS "dismissed_at?",
   dis.dismissed_by_user_id AS "dismissed_by_user_id?",
+  dismisser.first_name AS "dismissed_by_first_name?",
+  dismisser.last_name AS "dismissed_by_last_name?",
   dis.reason AS "dismissal_reason?"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
@@ -368,6 +372,7 @@ FROM credit_registrations cr
   LEFT JOIN credit_registration_roster_schedules s ON s.course_code = TRIM(cm.uh_course_code)
   LEFT JOIN credit_registration_attention_dismissals dis ON dis.credit_registration_id = cr.id
   AND dis.deleted_at IS NULL
+  LEFT JOIN user_details dismisser ON dismisser.user_id = dis.dismissed_by_user_id
   LEFT JOIN LATERAL (
     SELECT u.threshold_secs
     FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)

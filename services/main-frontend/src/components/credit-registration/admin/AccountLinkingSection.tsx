@@ -573,8 +573,20 @@ const CourseCodeFindings: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }
   ].filter((outcome) => nonZero(outcome.value) !== null)
   const earlyEnrolees = nonZero(row.unlinked_enrolled_before_count)
   const unusedLinks = nonZero(row.unused_link_count)
+  const unusedLinksNote = unusedLinks !== null && (
+    <span className={noteCss}>
+      {t("credit-registration-admin-unused-links-on-code", { count: unusedLinks })}
+    </span>
+  )
   if (!counters) {
-    return <AbsentValue />
+    return unusedLinksNote ? (
+      <span className={stackedCellCss}>
+        <AbsentValue />
+        {unusedLinksNote}
+      </span>
+    ) : (
+      <AbsentValue />
+    )
   }
   return (
     <span className={stackedCellCss}>
@@ -598,11 +610,7 @@ const CourseCodeFindings: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }
           {t("credit-registration-admin-found-enrolled-before", { count: earlyEnrolees })}
         </span>
       )}
-      {unusedLinks !== null && (
-        <span className={noteCss}>
-          {t("credit-registration-admin-unused-links-on-code", { count: unusedLinks })}
-        </span>
-      )}
+      {unusedLinksNote}
     </span>
   )
 }

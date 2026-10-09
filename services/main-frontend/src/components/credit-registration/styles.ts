@@ -330,11 +330,11 @@ export const statusTriggerCss = css`
 `
 
 /** Holds the arrow to the state it leads away from, so it never starts a line of its own. */
-export const stateChangeFromCss = css`
-  display: inline-flex;
+/** The arrow and the state a change led to, under the state it left. */
+export const stateChangeToCss = css`
+  display: flex;
   align-items: center;
   gap: var(--space-2);
-  white-space: nowrap;
 `
 
 /** A code-like value (identifier, error code, student number) in the body font; `<code>` and `<pre>` are monospace globally. */

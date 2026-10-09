@@ -42,7 +42,6 @@ import {
   sectionCardHeaderCss,
   sectionCardsCss,
   sectionCss,
-  sectionHeaderCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
@@ -218,7 +217,6 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
           multiplier: list.heartbeat_interval_multiplier,
           limit: list.consecutive_failure_limit,
         })}{" "}
-        {t("credit-registration-admin-pause-is-our-flag-note")}{" "}
         <Link href={SERVER_STATUS_PATH}>{t("credit-registration-admin-open-pod-status")}</Link>
       </p>
       <p className={noteCss}>
@@ -240,10 +238,7 @@ const PhaseSection: React.FC<{ list: CreditRegistrationPhaseList }> = ({ list })
       )}
       {groupByProcess(list.phases).map(([processName, phases]) => (
         <div key={processName} className={subsectionCss}>
-          <div className={sectionHeaderCss}>
-            <h3 className={subheadingCss}>{processName}</h3>
-            <p className={noteCss}>{t("credit-registration-admin-process-group-note")}</p>
-          </div>
+          <h3 className={subheadingCss}>{processName}</h3>
           <PhaseTable phases={phases} caption={processName} />
         </div>
       ))}

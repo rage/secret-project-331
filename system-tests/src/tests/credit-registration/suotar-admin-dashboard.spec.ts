@@ -548,7 +548,6 @@ test("The system tab groups the phases under the process that runs them", async 
   for (const processName of ["credit-registrar", "suotar-syncer"]) {
     await expect(page.getByRole("heading", { name: processName, exact: true })).toBeVisible()
   }
-  await expect(page.getByText("Paused is our own flag", { exact: false })).toBeVisible()
 })
 
 test("The reconciliation badge is the sum of its detectors", async ({ page }) => {

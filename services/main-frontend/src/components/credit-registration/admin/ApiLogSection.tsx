@@ -26,6 +26,7 @@ import {
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { useSuotarApiCalls } from "./adminCreditRegistrationHooks"
 import SuotarApiCallDetail, { SuotarApiCallBodies } from "./SuotarApiCallDetail"
 import {
@@ -155,7 +156,10 @@ const ApiLogSection: React.FC = () => {
             label={t("label-endpoint")}
             options={[
               { value: ANY, label: t("credit-registration-admin-any-endpoint") },
-              ...ENDPOINTS.map((endpoint) => ({ value: endpoint, label: endpoint })),
+              ...ENDPOINTS.map((endpoint) => ({
+                value: endpoint,
+                label: suotarEndpointLabel(t, endpoint),
+              })),
             ]}
           />
         </div>

@@ -23,6 +23,7 @@ import {
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { useSuotarHealth } from "./adminCreditRegistrationHooks"
 import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSelect"
 
@@ -54,8 +55,8 @@ const EndpointSummarySection: React.FC = () => {
             columns={[
               {
                 header: t("label-endpoint"),
-                minWidth: "14rem",
-                cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+                minWidth: "12rem",
+                cell: (row) => suotarEndpointLabel(t, row.endpoint),
               },
               {
                 header: t("credit-registration-admin-column-calls"),

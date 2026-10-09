@@ -46,13 +46,12 @@ import {
   controlsCss,
   headingCss,
   noteCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCss,
   stackedCellCss,
-  stateChangeFromCss,
+  stateChangeToCss,
 } from "@/components/credit-registration/styles"
 import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
@@ -255,16 +254,12 @@ const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ 
     return null
   }
   return (
-    <span className={rowCss}>
-      {row.before_state && (
-        <span className={stateChangeFromCss}>
-          <AdminStateLabel state={row.before_state} />
-          <span aria-hidden="true">
-            <ArrowRight size={STATE_ICON_SIZE} />
-          </span>
-        </span>
-      )}
-      {row.after_state ? <AdminStateLabel state={row.after_state} /> : <AbsentValue />}
+    <span className={stackedCellCss}>
+      {row.before_state && <AdminStateLabel state={row.before_state} />}
+      <span className={stateChangeToCss}>
+        {row.before_state && <ArrowRight size={STATE_ICON_SIZE} aria-hidden />}
+        {row.after_state ? <AdminStateLabel state={row.after_state} /> : <AbsentValue />}
+      </span>
     </span>
   )
 }
@@ -403,9 +398,6 @@ const AuditPage: React.FC = () => {
       <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
       </div>
-      <p className={cx(noteCss, proseCss)}>
-        {t("credit-registration-admin-audit-two-actor-kinds-note")}
-      </p>
       <form
         className={filterRowsCss}
         onSubmit={handleSubmit((fields) =>
@@ -502,7 +494,6 @@ const AuditPage: React.FC = () => {
           </div>
         </div>
       </form>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-actors-on-this-page")}</p>
       {activeFilterCount > 0 && (
         <div className={rowCss}>
           <span className={noteCss}>
@@ -591,18 +582,11 @@ const AuditPage: React.FC = () => {
                     header: t("label-time"),
                     minWidth: "7rem",
                     nowrap: true,
-                    cell: (row) => (
-                      <span className={stackedCellCss}>
-                        <ZonedTimestamp at={row.created_at} />
-                        <span className={noteCss}>
-                          <ZonedTimestamp at={row.created_at} />
-                        </span>
-                      </span>
-                    ),
+                    cell: (row) => <ZonedTimestamp at={row.created_at} />,
                   },
                   {
                     header: t("label-actor"),
-                    minWidth: "9rem",
+                    minWidth: "11rem",
                     cell: (row) => <ActorCell row={row} />,
                   },
                   {

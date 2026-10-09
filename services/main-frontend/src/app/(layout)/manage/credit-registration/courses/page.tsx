@@ -5,9 +5,13 @@ import React, { useId, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import AdminCourseModulePauseButton from "@/components/credit-registration/admin/AdminCourseModulePauseButton"
 import { useCreditRegistrationCourseStats } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import type { ConfigFailureReason } from "@/components/credit-registration/admin/courseModuleStatus"
+import type {
+  ConfigFailureReason,
+  CourseModuleStatus,
+} from "@/components/credit-registration/admin/courseModuleStatus"
 import {
   backfillGap,
   configFailureReason,
@@ -46,7 +50,6 @@ import {
   headingCss,
   codeValueCss,
   noteCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
@@ -87,6 +90,8 @@ const heldForCourseSetupCount = (module: CreditRegistrationCourseStats): number 
   module.where_registrations_stand
     .filter((row) => row.step === "held_for_course_code")
     .reduce((sum, row) => sum + row.count, 0)
+const UNCHECKED: CourseModuleStatus = "unchecked"
+
 const SORT_NAME = "name"
 const SORT_FAILURES = "failures"
 const SORT_BACKFILL = "backfill"
@@ -119,13 +124,6 @@ const checkboxAlignCss = css`
   align-self: center;
 `
 
-/** A pause reason is free text and can run long; one line keeps the badge row from growing per-row. */
-const truncatedNoteCss = css`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-
 const STATUS_ICON_SIZE = 16
 
 const statusMarkCss = css`
@@ -149,9 +147,15 @@ const statusIconDangerCss = css`
  * The row's one status mark. "ok" gets no glyph at all, just muted text — a pill on every fine row
  * is exactly the chrome Overview removed.
  */
-const ModuleStatusMark: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
+const ModuleStatusMark: React.FC<{
+  module: CreditRegistrationCourseStats
+  isUncheckedSaidAbove: boolean
+}> = ({ module, isUncheckedSaidAbove }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = courseModuleStatus(module)
+  if (status === UNCHECKED && isUncheckedSaidAbove) {
+    return module.paused_at === null ? <AbsentValue /> : null
+  }
   const label = courseModuleStatusLabel(t, status)
   const StatusIcon = courseModuleStatusIcon(status)
   if (StatusIcon === null) {
@@ -283,27 +287,22 @@ const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ 
   )
 }
 
-/** Registrations against eligible completions; the gap itself only earns a colour once it is non-zero. */
+/** Eligible completions with no registration, the bar filling as more go missing. */
 const BackfillCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const gap = backfillGap(module)
-  const valueText = t("credit-registration-admin-backfill-value", {
-    registered: module.registration_count,
-    eligible: module.eligible_completion_count,
-  })
-  if (module.eligible_completion_count === 0) {
-    return <span>{valueText}</span>
+  // Empty at zero like the count columns beside it.
+  if (gap <= 0) {
+    return null
   }
+  const counts = { missing: gap, eligible: module.eligible_completion_count }
   return (
     <MeterInline
-      value={module.registration_count}
+      value={gap}
       maxValue={module.eligible_completion_count}
-      tone={gap === 0 ? TONE.NEUTRAL : TONE.WARNING}
-      label={t("credit-registration-admin-backfill-label", {
-        registered: module.registration_count,
-        eligible: module.eligible_completion_count,
-      })}
-      valueText={valueText}
+      tone={TONE.WARNING}
+      label={t("credit-registration-admin-missing-registrations-label", counts)}
+      valueText={t("credit-registration-admin-missing-registrations-value", counts)}
     />
   )
 }
@@ -387,6 +386,9 @@ const CoursesPage: React.FC = () => {
               return activeReason === null || configFailureReason(module) === activeReason
             })
             const modules = shown.toSorted(SORT_COMPARATORS[sort])
+            const isNothingChecked =
+              stats.modules.length > 0 &&
+              stats.modules.every((module) => courseModuleStatus(module) === UNCHECKED)
 
             return (
               <>
@@ -454,6 +456,9 @@ const CoursesPage: React.FC = () => {
                     </span>
                   </Infobox>
                 )}
+                {isNothingChecked && (
+                  <p className={noteCss}>{t("credit-registration-admin-no-course-code-checked")}</p>
+                )}
                 <Table
                   caption={t("credit-registration-heading-courses")}
                   density={DENSITY_COMPACT}
@@ -500,7 +505,10 @@ const CoursesPage: React.FC = () => {
                                   {t("credit-registration-admin-module-paused")}
                                 </Badge>
                               )}
-                              <ModuleStatusMark module={row} />
+                              <ModuleStatusMark
+                                module={row}
+                                isUncheckedSaidAbove={isNothingChecked}
+                              />
                             </span>
                             {row.paused_at && (
                               <span className={noteCss}>
@@ -509,12 +517,7 @@ const CoursesPage: React.FC = () => {
                               </span>
                             )}
                             {isPaused && row.pause_reason && (
-                              <span
-                                className={cx(noteCss, truncatedNoteCss)}
-                                title={row.pause_reason}
-                              >
-                                {row.pause_reason}
-                              </span>
+                              <span className={noteCss}>{row.pause_reason}</span>
                             )}
                             {row.check.message && (
                               <span className={noteCss}>
@@ -621,9 +624,6 @@ const CoursesPage: React.FC = () => {
                     },
                   ]}
                 />
-                <p className={cx(noteCss, proseCss)}>
-                  {t("credit-registration-admin-config-recomputed-note")}
-                </p>
               </>
             )
           }}

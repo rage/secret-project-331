@@ -11,13 +11,15 @@ import type {
   SuotarEndpointDailyCost,
   SuotarEndpointRateLimit,
 } from "@/generated/api/types.generated"
-import { Badge, Link, RelativeTime, Table } from "@/shared-module/components"
+import type { TableColumn } from "@/shared-module/components"
+import { Badge, Disclosure, Link, RelativeTime, Table } from "@/shared-module/components"
 
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
+  PLAIN_DISCLOSURE,
   TABLE_STACK,
   TIME_DATE,
   TONE,
@@ -32,7 +34,7 @@ import {
   subheadingCss,
   subsectionCss,
 } from "../styles"
-import { listingErrorLabel } from "./adminCreditRegistrationCopy"
+import { listingErrorLabel, suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { courseCodeHref } from "./adminLinks"
 import { formatPercent } from "./percent"
 
@@ -63,7 +65,7 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
           {
             header: t("label-endpoint"),
             minWidth: "12rem",
-            cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+            cell: (row) => suotarEndpointLabel(t, row.endpoint),
           },
           {
             header: t("credit-registration-admin-column-calls"),
@@ -116,100 +118,141 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
 const byFailuresThenCode = (a: EnrolmentCheckRosterCode, b: EnrolmentCheckRosterCode): number =>
   b.consecutive_failures - a.consecutive_failures || a.course_code.localeCompare(b.course_code)
 
-/** Every course code's own listing schedule: when it last ran, and whether it is backing off. */
-const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows }) => {
+/** A code someone waits on or whose fetch fails; the rest run on the plain weekly schedule. */
+const isWorthALook = (row: EnrolmentCheckRosterCode): boolean =>
+  row.waiting_count > 0 || row.consecutive_failures > 0
+
+const FailuresCell: React.FC<{ row: EnrolmentCheckRosterCode }> = ({ row }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (row.consecutive_failures === 0) {
+    return null
+  }
+  return (
+    <span className={stackedCellCss}>
+      <Badge tone={TONE.DANGER} size="compact">
+        {row.consecutive_failures}
+      </Badge>
+      {row.last_error && <span className={noteCss}>{listingErrorLabel(t, row.last_error)}</span>}
+      {row.retry_not_before && (
+        <span className={noteCss}>
+          {t("credit-registration-admin-enrolment-checks-backoff-note")}{" "}
+          <ScheduledTime at={row.retry_not_before} />
+        </span>
+      )}
+    </span>
+  )
+}
+
+const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[]; labelledBy: string }> = ({
+  rows,
+  labelledBy,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const failuresColumn: TableColumn<EnrolmentCheckRosterCode>[] = rows.some(
+    (row) => row.consecutive_failures > 0,
+  )
+    ? [
+        {
+          header: t("credit-registration-admin-column-failures"),
+          align: ALIGN_END,
+          minWidth: "10rem",
+          cell: (row) => <FailuresCell row={row} />,
+        },
+      ]
+    : []
+  return (
+    <Table
+      labelledBy={labelledBy}
+      density={DENSITY_COMPACT}
+      responsive={TABLE_STACK}
+      rowKey={(row) => row.course_code}
+      rows={rows}
+      emptyState={t("credit-registration-admin-no-roster-codes")}
+      columns={[
+        {
+          header: t("credit-registration-admin-column-course-code"),
+          minWidth: "10rem",
+          cell: (row) => (
+            <span className={stackedCellCss}>
+              <Link href={courseCodeHref(row.course_code)} appearance={LINK_QUIET}>
+                <code className={codeValueCss}>{row.course_code}</code>
+              </Link>
+              <span className={noteCss}>
+                {t("credit-registration-admin-enrolment-checks-modules-count", {
+                  count: row.module_count,
+                })}
+              </span>
+            </span>
+          ),
+        },
+        {
+          header: t("credit-registration-admin-column-speeding-up-fetches"),
+          align: ALIGN_END,
+          minWidth: "8rem",
+          cell: (row) => (row.waiting_count === 0 ? null : row.waiting_count),
+        },
+        {
+          header: t("credit-registration-admin-column-last-fetched"),
+          minWidth: "10rem",
+          cell: (row) => (
+            <span className={stackedCellCss}>
+              <ZonedTimestamp at={row.last_fetched_at} />
+              {row.is_fetched_alone && (
+                <span className={noteCss}>
+                  {t("credit-registration-admin-enrolment-checks-fetched-alone")}
+                </span>
+              )}
+              {row.last_fetch_duration_ms !== null && row.last_fetch_duration_ms !== undefined && (
+                <span className={noteCss}>
+                  {t("credit-registration-admin-enrolment-checks-fetch-note", {
+                    duration: row.last_fetch_duration_ms,
+                    count: row.last_listed_person_count ?? 0,
+                  })}
+                </span>
+              )}
+            </span>
+          ),
+        },
+        {
+          header: t("credit-registration-admin-column-next-fetch"),
+          minWidth: "8rem",
+          cell: (row) => <ScheduledTime at={row.next_fetch_at} />,
+        },
+        ...failuresColumn,
+      ]}
+    />
+  )
+}
+
+/** Every course code's own listing schedule; the codes nobody waits on and that fetch fine collapsed. */
+const RosterCodesBlock: React.FC<{ rows: EnrolmentCheckRosterCode[] }> = ({ rows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
+  const othersHeadingId = useId()
   const sorted = rows.toSorted(byFailuresThenCode)
+  const active = sorted.filter((row) => isWorthALook(row))
+  const others = sorted.filter((row) => !isWorthALook(row))
 
   return (
     <div className={subsectionCss}>
       <h3 id={headingId} className={subheadingCss}>
         {t("credit-registration-heading-enrolment-check-roster-codes")}
       </h3>
-      <p className={noteCss}>{t("credit-registration-admin-enrolment-checks-roster-codes-note")}</p>
-      <Table
-        labelledBy={headingId}
-        density={DENSITY_COMPACT}
-        responsive={TABLE_STACK}
-        rowKey={(row) => row.course_code}
-        rows={sorted}
-        emptyState={t("credit-registration-admin-no-roster-codes")}
-        columns={[
-          {
-            header: t("credit-registration-admin-column-course-code"),
-            minWidth: "10rem",
-            cell: (row) => (
-              <span className={stackedCellCss}>
-                <Link href={courseCodeHref(row.course_code)} appearance={LINK_QUIET}>
-                  <code className={codeValueCss}>{row.course_code}</code>
-                </Link>
-                <span className={noteCss}>
-                  {t("credit-registration-admin-enrolment-checks-modules-count", {
-                    count: row.module_count,
-                  })}
-                </span>
-              </span>
-            ),
-          },
-          {
-            header: t("credit-registration-admin-column-speeding-up-fetches"),
-            align: ALIGN_END,
-            minWidth: "8rem",
-            cell: (row) => (row.waiting_count === 0 ? null : row.waiting_count),
-          },
-          {
-            header: t("credit-registration-admin-column-last-fetched"),
-            minWidth: "10rem",
-            cell: (row) => (
-              <span className={stackedCellCss}>
-                <ZonedTimestamp at={row.last_fetched_at} />
-                {row.is_fetched_alone && (
-                  <span className={noteCss}>
-                    {t("credit-registration-admin-enrolment-checks-fetched-alone")}
-                  </span>
-                )}
-                {row.last_fetch_duration_ms !== null &&
-                  row.last_fetch_duration_ms !== undefined && (
-                    <span className={noteCss}>
-                      {t("credit-registration-admin-enrolment-checks-fetch-note", {
-                        duration: row.last_fetch_duration_ms,
-                        count: row.last_listed_person_count ?? 0,
-                      })}
-                    </span>
-                  )}
-              </span>
-            ),
-          },
-          {
-            header: t("credit-registration-admin-column-next-fetch"),
-            minWidth: "8rem",
-            cell: (row) => <ScheduledTime at={row.next_fetch_at} />,
-          },
-          {
-            header: t("credit-registration-admin-column-failures"),
-            align: ALIGN_END,
-            minWidth: "10rem",
-            cell: (row) =>
-              row.consecutive_failures === 0 ? null : (
-                <span className={stackedCellCss}>
-                  <Badge tone={TONE.DANGER} size="compact">
-                    {row.consecutive_failures}
-                  </Badge>
-                  {row.last_error && (
-                    <span className={noteCss}>{listingErrorLabel(t, row.last_error)}</span>
-                  )}
-                  {row.retry_not_before && (
-                    <span className={noteCss}>
-                      {t("credit-registration-admin-enrolment-checks-backoff-note")}{" "}
-                      <ScheduledTime at={row.retry_not_before} />
-                    </span>
-                  )}
-                </span>
-              ),
-          },
-        ]}
-      />
+      {(active.length > 0 || others.length === 0) && (
+        <RosterCodesTable rows={active} labelledBy={headingId} />
+      )}
+      {others.length > 0 && (
+        <Disclosure
+          title={
+            <span id={othersHeadingId}>
+              {t("credit-registration-admin-other-course-codes", { count: others.length })}
+            </span>
+          }
+          variant={PLAIN_DISCLOSURE}
+        >
+          <RosterCodesTable rows={others} labelledBy={othersHeadingId} />
+        </Disclosure>
+      )}
     </div>
   )
 }
@@ -235,7 +278,7 @@ const RateLimitsTable: React.FC<{ rows: SuotarEndpointRateLimit[] }> = ({ rows }
           {
             header: t("label-endpoint"),
             minWidth: "12rem",
-            cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+            cell: (row) => suotarEndpointLabel(t, row.endpoint),
           },
           {
             header: t("credit-registration-admin-column-rate-share"),
@@ -287,7 +330,7 @@ const EnrolmentCheckCostSection: React.FC<{
         </h2>
       </div>
       <DailyCostsTable rows={dailyCosts} />
-      <RosterCodesTable rows={rosterCodes} />
+      <RosterCodesBlock rows={rosterCodes} />
       <RateLimitsTable rows={rateLimits} />
     </section>
   )

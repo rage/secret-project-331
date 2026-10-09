@@ -7,6 +7,7 @@ import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
   getCreditRegistrationOverviewQueryKey,
   listCreditRegistrationAdminActionsQueryKey,
@@ -112,7 +113,7 @@ const explanationCss = css`
   }
 `
 
-const CHECK_NOW_COPY = {
+export const CHECK_NOW_COPY = {
   attainment: {
     label: "credit-registration-admin-target-check-attainment",
     description: "credit-registration-admin-check-attainment-description",
@@ -150,13 +151,13 @@ const RISK_COPY = {
   { tone: string; warning: string; confirm: string | null } | null
 >
 
-interface ActionResult {
+export interface ActionResult {
   isApplied: boolean
   message: string
 }
 
 interface TransitionActionProps {
-  registration: AdminCreditRegistrationRow
+  registrationId: string
   choice: TransitionChoice
   label: string
   /** What the action does, as the list shows it beside the button; also the dialog's body. */
@@ -168,8 +169,9 @@ interface TransitionActionProps {
   onResult: (result: ActionResult) => void
 }
 
-const TransitionAction: React.FC<TransitionActionProps> = ({
-  registration,
+/** One hand transition on one registration: its button, and the reason dialog it opens. */
+export const TransitionAction: React.FC<TransitionActionProps> = ({
+  registrationId,
   choice,
   label,
   explanation,
@@ -194,7 +196,7 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
       defaultValues={{ action: choice, reason: "", riskUnderstood: false }}
       mutationFn={(fields) =>
         adminTransitionCreditRegistration({
-          path: { credit_registration_id: registration.id },
+          path: { credit_registration_id: registrationId },
           body: { action: transitionAction(fields.action), reason: fields.reason },
         })
       }
@@ -206,8 +208,11 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
         void Promise.all([
           queryClient.invalidateQueries({
             queryKey: getCreditRegistrationForAdminQueryKey({
-              path: { credit_registration_id: registration.id },
+              path: { credit_registration_id: registrationId },
             }),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getCreditRegistrationAttentionItemsQueryKey(),
           }),
           queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
@@ -297,7 +302,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             key={offer}
             control={
               <TransitionAction
-                registration={registration}
+                registrationId={registration.id}
                 choice={READY_TO_SUBMIT}
                 label={t("credit-registration-admin-target-resubmit")}
                 explanation={explanation}
@@ -322,7 +327,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             key={offer}
             control={
               <TransitionAction
-                registration={registration}
+                registrationId={registration.id}
                 choice={CHECK_NOW}
                 label={t(copy.label)}
                 explanation={explanation}
@@ -454,7 +459,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         className={housekeepingStart}
         control={
           <TransitionAction
-            registration={registration}
+            registrationId={registration.id}
             choice={CLEAR_ATTENTION}
             label={t("credit-registration-admin-target-clear-attention")}
             explanation={clearAttentionExplanation}
@@ -474,7 +479,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         className={housekeeping.length === 0 ? housekeepingStart : undefined}
         control={
           <TransitionAction
-            registration={registration}
+            registrationId={registration.id}
             choice={CANCELLED}
             label={t("credit-registration-admin-target-cancel")}
             explanation={cancelExplanation}

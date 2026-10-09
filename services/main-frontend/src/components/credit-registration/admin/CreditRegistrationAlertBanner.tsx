@@ -15,7 +15,6 @@ import type {
 import {
   creditRegistrationCoursesRoute,
   creditRegistrationEnrolmentChecksRoute,
-  creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationOverviewRoute,
   creditRegistrationRegistrationsRoute,
@@ -33,6 +32,7 @@ import type { CreditRegistrationTFunction } from "../constants"
 import { dividedListCss, noteCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
+import { attentionPhaseAnchorId, needsAttentionHref, RUNNING_LATE_ANCHOR } from "./adminLinks"
 
 const MINUTE_SECS = 60
 const HOUR_SECS = 3600
@@ -42,10 +42,6 @@ const WARNING_ICON_SIZE = 20
 const CRITICAL = "critical" as const
 const INFO = "info" as const
 
-const STUCK_QUERY = "?reason=stuck_in_state"
-const MISREGISTERED_QUERY = "?reason=misregistered"
-const PERMANENT_ERROR_QUERY = "?reason=permanent_error"
-
 /**
  * Where each rule is acted on. An alert with no destination reads as a complaint the surface cannot
  * answer, and every rule here has a tab that shows the rows behind it.
@@ -54,13 +50,13 @@ const ALERT_ROUTES = {
   credentials_rejected: creditRegistrationSystemRoute(),
   study_registry_unreachable: creditRegistrationSystemRoute(),
   service_unavailable: creditRegistrationSystemRoute(),
-  stuck_registrations: `${creditRegistrationErrorsRoute()}${STUCK_QUERY}`,
+  stuck_registrations: needsAttentionHref(RUNNING_LATE_ANCHOR),
   linking_mail_send_failed: creditRegistrationLinkingRoute(),
   linking_mail_rate_cap_exceeded: creditRegistrationLinkingRoute(),
   phase_heartbeat_stale: creditRegistrationSystemRoute(),
   phase_failing: creditRegistrationSystemRoute(),
-  permanent_failures_accumulating: `${creditRegistrationErrorsRoute()}${PERMANENT_ERROR_QUERY}`,
-  misregistrations_detected: `${creditRegistrationErrorsRoute()}${MISREGISTERED_QUERY}`,
+  permanent_failures_accumulating: needsAttentionHref(attentionPhaseAnchorId("registering")),
+  misregistrations_detected: needsAttentionHref(attentionPhaseAnchorId("confirmation")),
   course_configuration_broken: creditRegistrationCoursesRoute(),
   pipeline_idle: creditRegistrationSystemRoute(),
   completions_never_entered: creditRegistrationOverviewRoute(),

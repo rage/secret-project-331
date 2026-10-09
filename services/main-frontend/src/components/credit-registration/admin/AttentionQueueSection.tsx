@@ -1,519 +1,452 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
+  BlockingProblem,
+  CreditRegistrationAttentionDismissal,
   CreditRegistrationAttentionItem,
-  CreditRegistrationAttentionItems,
-  CreditRegistrationAttentionReason,
-  CreditRegistrationState,
-  GetCreditRegistrationAttentionItemsData,
-  StuckThresholds,
+  CreditRegistrationBlockingProblemRows,
+  TimelinePhase,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import Pagination from "@/shared-module/common/components/Pagination"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   creditRegistrationItemRoute,
-  creditRegistrationRegistrationsRoute,
+  manageCourseModulesRoute,
 } from "@/shared-module/common/utils/routes"
 import {
-  Button,
+  Disclosure,
+  EmptyState,
   Link,
-  MeterInline,
   QueryResult,
   RelativeTime,
-  Select,
   Table,
-  Tooltip,
 } from "@/shared-module/components"
-import { formatDuration } from "@/utils/moduleTimeline"
 
 import {
-  ABSENT,
   ADMIN_PAGE_SIZE_OPTIONS,
-  BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  LINK_QUIET,
   MIDDLE_DOT,
+  PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
   TIME_DURATION,
-  TONE,
+  TIME_IN_TITLE,
 } from "../constants"
 import {
-  controlCss,
-  controlsCss,
   headingCss,
-  codeValueCss,
   noteCss,
   proseCss,
-  rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
+  sectionCardsCss,
   sectionCss,
-  sectionHeaderCss,
   stackedCellCss,
-  toolbarCss,
+  subsectionCss,
 } from "../styles"
-import AdminBulkTransitionDialog from "./AdminBulkTransitionDialog"
+import { attentionReasonLabel } from "./adminCreditRegistrationCopy"
+import { useCreditRegistrationAttentionItems } from "./adminCreditRegistrationHooks"
 import {
-  attentionReasonLabel,
-  isAttentionReason,
-  registrationErrorNote,
-} from "./adminCreditRegistrationCopy"
-import {
-  useCreditRegistrationAttentionItems,
-  useCreditRegistrationThresholds,
-} from "./adminCreditRegistrationHooks"
-import AdminRequeueRetryableDialog from "./AdminRequeueRetryableDialog"
-import AdminStateLabel from "./AdminStateLabel"
-import FacetChip from "./FacetChip"
-import { secondsSince, stuckThresholdSecs } from "./stuckThreshold"
+  attentionPhaseAnchorId,
+  auditForStudentHref,
+  courseCodeHref,
+  DISMISSED_RECENTLY_ANCHOR,
+  phaseHref,
+  RUNNING_LATE_ANCHOR,
+} from "./adminLinks"
+import { TONE_INK } from "./AdminStateLabel"
+import AttentionRowActions from "./AttentionRowActions"
+import { registrationsListHref } from "./registrationsListUrl"
+import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
-import type { FilterFieldDescriptor } from "./useFilteredAdminQuery"
+import { TIMELINE_PHASES, timelinePhaseLabel } from "./timelineSteps"
 import { useFilteredAdminQuery } from "./useFilteredAdminQuery"
-import type { QueryParamFilters } from "./useQueryParamFilters"
+import { useHashTarget, useOpenedByLink } from "./useHashTarget"
 
-type AttentionQuery = NonNullable<GetCreditRegistrationAttentionItemsData["query"]>
+const ROWS_PER_PAGE = 100
 
-const ROWS_PER_PAGE = 50
-
-/** The bar runs to twice the threshold, so a stuck row shows how far past it has gone. */
-const STUCK_METER_SCALE = 2
-
-/**
- * Above this, selecting a whole facet is not offered: the rows have to be fetched to be selected,
- * and the bulk endpoint caps what one call may move anyway.
- */
-const MAX_SELECT_ALL_ROWS = 500
-
-/** The only states a next attempt is scheduled for. Everything else here waits on a person. */
-const RETRYING_STATES: readonly CreditRegistrationState[] = ["failed_retryable", "ready_to_submit"]
-
-// These reasons just restate the state badge beside them, so the reasons column leaves them out.
-const REASONS_IMPLIED_BY_STATE: ReadonlySet<CreditRegistrationAttentionReason> = new Set([
-  "permanent_error",
-  "outcome_uncertain",
-  "misregistered",
-])
-
-const PARAM_REASON = "reason"
-const PARAM_SORT = "sort"
-
-const SORT_TIME_IN_STATE = "time_in_state"
-const SORT_NEXT_ATTEMPT = "next_attempt"
-const SORT_COURSE = "course"
-
-const ATTENTION_QUERY = "?needs_attention=true"
-const COURSE_PARAM = "&course_id="
-const STATE_PARAM = "&state="
-
-interface SortFields {
-  sort: string
-}
-
-const FILTER_FIELDS: FilterFieldDescriptor<SortFields>[] = [
-  {
-    param: PARAM_SORT,
-    field: "sort",
-    fromParam: (raw) => raw ?? SORT_TIME_IN_STATE,
-    // The default order stays out of the URL, so a pasted link carries only what was chosen.
-    toParam: (value) => (value === SORT_TIME_IN_STATE ? undefined : (value as string)),
-  },
-]
-
-interface Facets {
-  reasons: CreditRegistrationAttentionReason[]
-}
-
-const readFacets = (filters: Pick<QueryParamFilters, "param" | "params">): Facets => ({
-  // Validated, not cast: an unknown reason would narrow the queue to nothing, which the page then
-  // reports as "nothing needs a human".
-  reasons: filters.params(PARAM_REASON).filter((raw) => isAttentionReason(raw)),
-})
-
-/**
- * How long this row has sat in its state, against the threshold that makes it stuck.
- *
- * The duration is the reading; the bar is only there to show how far past the threshold it is.
- */
-const TimeInState: React.FC<{
-  item: CreditRegistrationAttentionItem
-  thresholds: StuckThresholds | undefined
-}> = ({ item, thresholds }) => {
+/** Who it waits on, then what happens next: the registration page's status card in a cell. */
+const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const threshold = thresholds ? stuckThresholdSecs(item.state, thresholds) : null
-  const elapsed = secondsSince(item.state_changed_at)
-
+  const status = registrationStatusLines(t, attentionItemStatusSubject(item))
   return (
     <span className={stackedCellCss}>
-      {threshold === null ? (
-        <RelativeTime at={item.state_changed_at} absoluteTime={TIME_DURATION} />
-      ) : (
-        <MeterInline
-          value={elapsed}
-          maxValue={threshold * STUCK_METER_SCALE}
-          threshold={threshold}
-          tone={elapsed > threshold ? TONE.DANGER : TONE.NEUTRAL}
-          valueText={<RelativeTime at={item.state_changed_at} absoluteTime={TIME_DURATION} />}
-          valueLabel={t("credit-registration-admin-stuck-progress", {
-            elapsed: formatDuration(elapsed, t),
-            threshold: formatDuration(threshold, t),
-          })}
-          label={t("label-credit-registration-time-in-state")}
-        />
-      )}
-      <span className={noteCss}>
-        <ZonedTimestamp at={item.state_changed_at} />
+      <span className={cx(status.tone === "attention" && TONE_INK["action-needed"])}>
+        {status.waitsOn}
       </span>
+      {status.next && <span className={noteCss}>{status.next}</span>}
     </span>
   )
 }
 
-const FacetChips: React.FC<{
-  attention: CreditRegistrationAttentionItems
-  facets: Facets
-  applyParams: QueryParamFilters["applyParams"]
-  thresholds: StuckThresholds | undefined
-}> = ({ attention, facets, applyParams, thresholds }) => {
+const CourseCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => (
+  <span className={stackedCellCss}>
+    <span>{item.course_name}</span>
+    <span className={noteCss}>
+      {[item.course_module_name, item.uh_course_code].filter(Boolean).join(MIDDLE_DOT)}
+    </span>
+  </span>
+)
+
+/** The rows of one section, with their actions unless `hasActions` is off. */
+const AttentionItemsTable: React.FC<{
+  items: CreditRegistrationAttentionItem[]
+  labelledBy: string
+  hasActions?: boolean
+}> = ({ items, labelledBy, hasActions = true }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const groups = attention.counts_by_reason.filter((group) => group.count > 0)
-
-  const toggleReason = (reason: CreditRegistrationAttentionReason) =>
-    applyParams({
-      [PARAM_REASON]: facets.reasons.includes(reason)
-        ? facets.reasons.filter((one) => one !== reason)
-        : [...facets.reasons, reason],
-    })
-
-  const reasonTotal = groups.reduce((sum, group) => sum + group.count, 0)
-
   return (
-    <div className={sectionHeaderCss}>
-      <div className={rowCss}>
-        {groups.map((group) => (
-          <FacetChip
-            key={group.reason}
-            label={attentionReasonLabel(t, group.reason)}
-            count={group.count}
-            isSelected={facets.reasons.includes(group.reason)}
-            onToggle={() => toggleReason(group.reason)}
-          />
-        ))}
-        {thresholds && (
-          <Tooltip aria-label={t("credit-registration-admin-about-stuck")}>
-            {t("credit-registration-admin-stuck-thresholds", {
-              readyToSubmit: formatDuration(thresholds.stuck_ready_to_submit_secs, t),
-              submitting: formatDuration(thresholds.stuck_submitting_secs, t),
-              awaitingVerification: formatDuration(thresholds.stuck_awaiting_verification_secs, t),
-              failedRetryable: formatDuration(thresholds.stuck_failed_retryable_secs, t),
-            })}
-          </Tooltip>
-        )}
-      </div>
-      {/* The chips add up to more than the queue whenever a row carries two reasons, which reads as
-          an error unless it is said. */}
-      {reasonTotal > attention.total_count && (
-        <p className={cx(noteCss, proseCss)}>
-          {t("credit-registration-admin-several-reasons-note")}
+    <Table
+      labelledBy={labelledBy}
+      density={DENSITY_COMPACT}
+      responsive={TABLE_STACK}
+      rowKey={(row) => row.credit_registration_id}
+      rows={items}
+      columns={[
+        {
+          header: t("label-student"),
+          grow: 1,
+          minWidth: STUDENT_COLUMN_MIN_WIDTH,
+          cell: (row) => (
+            <StudentCell row={row} href={creditRegistrationItemRoute(row.credit_registration_id)} />
+          ),
+        },
+        {
+          header: t("label-course"),
+          grow: 1,
+          minWidth: "11rem",
+          cell: (row) => <CourseCell item={row} />,
+        },
+        {
+          header: t("label-status"),
+          grow: 2,
+          minWidth: "16rem",
+          cell: (row) => <StatusCell item={row} />,
+        },
+        {
+          header: t("label-credit-registration-in-phase-since"),
+          minWidth: "7rem",
+          nowrap: true,
+          cell: (row) => <RelativeTime at={row.phase_started_at} absoluteTime={TIME_DURATION} />,
+        },
+        ...(hasActions
+          ? [
+              {
+                header: t("label-actions"),
+                minWidth: "14rem",
+                cell: (row: CreditRegistrationAttentionItem) => <AttentionRowActions item={row} />,
+              },
+            ]
+          : []),
+      ]}
+    />
+  )
+}
+
+/** The sentence naming a blocking problem, and where it is looked at. */
+const BlockingProblemLine: React.FC<{
+  problem: BlockingProblem
+  items: CreditRegistrationAttentionItem[]
+}> = ({ problem, items }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  switch (problem.kind) {
+    case "processing_phase_stopped":
+      return (
+        <p className={proseCss}>
+          {t("credit-registration-admin-problem-phase-stopped", { phase: problem.subject })}{" "}
+          <Link href={phaseHref(problem.subject)}>
+            {t("credit-registration-admin-problem-see-phase")}
+          </Link>
         </p>
-      )}
+      )
+    case "course_code_failing":
+      return (
+        <p className={proseCss}>
+          {t("credit-registration-admin-problem-course-code-failing", { code: problem.subject })}{" "}
+          <Link href={courseCodeHref(problem.subject)}>
+            {t("credit-registration-admin-problem-see-course-code")}
+          </Link>
+        </p>
+      )
+    case "module_misconfigured": {
+      const [first] = items
+      return (
+        <p className={proseCss}>
+          {t("credit-registration-admin-problem-module-misconfigured", {
+            course: first
+              ? [first.course_name, first.course_module_name].filter(Boolean).join(MIDDLE_DOT)
+              : problem.subject,
+          })}{" "}
+          {first && (
+            <Link href={manageCourseModulesRoute(first.course_id)}>
+              {t("credit-registration-admin-problem-open-module-settings")}
+            </Link>
+          )}
+        </p>
+      )
+    }
+  }
+}
+
+const BlockingProblemGroup: React.FC<{ group: CreditRegistrationBlockingProblemRows }> = ({
+  group,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <div className={subsectionCss}>
+      <BlockingProblemLine problem={group.problem} items={group.items} />
+      <Disclosure
+        title={
+          <span id={headingId}>
+            {t("credit-registration-admin-problem-holds-up", { count: group.items.length })}
+          </span>
+        }
+        variant={PLAIN_DISCLOSURE}
+      >
+        <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
+      </Disclosure>
     </div>
   )
 }
 
+/** Problems that hold up many registrations at once; their rows are not counted below. */
+const BlockingProblemsSection: React.FC<{ groups: CreditRegistrationBlockingProblemRows[] }> = ({
+  groups,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-blocking-problems")}
+        </h2>
+      </div>
+      {groups.map((group) => (
+        <BlockingProblemGroup
+          key={`${group.problem.kind}:${group.problem.subject}`}
+          group={group}
+        />
+      ))}
+    </section>
+  )
+}
+
+const PhaseSection: React.FC<{
+  phase: TimelinePhase
+  items: CreditRegistrationAttentionItem[]
+}> = ({ phase, items }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <section
+      id={attentionPhaseAnchorId(phase)}
+      className={sectionCardCss}
+      aria-labelledby={headingId}
+    >
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-admin-phase-with-count", {
+            phase: timelinePhaseLabel(t, phase),
+            count: items.length,
+          })}
+        </h2>
+      </div>
+      <AttentionItemsTable items={items} labelledBy={headingId} />
+    </section>
+  )
+}
+
+const RunningLateSection: React.FC<{
+  items: CreditRegistrationAttentionItem[]
+  isOpen: boolean
+}> = ({ items, isOpen }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  const expansion = useOpenedByLink(isOpen)
+  return (
+    <section id={RUNNING_LATE_ANCHOR} className={sectionCardCss}>
+      <Disclosure
+        title={<span id={headingId}>{t("credit-registration-heading-running-late")}</span>}
+        summary={<span className={noteCss}>{items.length}</span>}
+        variant={PLAIN_DISCLOSURE}
+        {...expansion}
+      >
+        <div className={sectionCss}>
+          <p className={cx(noteCss, proseCss)}>
+            {t("credit-registration-admin-running-late-note")}
+          </p>
+          <AttentionItemsTable items={items} labelledBy={headingId} />
+        </div>
+      </Disclosure>
+    </section>
+  )
+}
+
+const DismissedRecentlySection: React.FC<{
+  dismissals: CreditRegistrationAttentionDismissal[]
+  isOpen: boolean
+}> = ({ dismissals, isOpen }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  const expansion = useOpenedByLink(isOpen)
+  return (
+    <section id={DISMISSED_RECENTLY_ANCHOR} className={sectionCardCss}>
+      <Disclosure
+        title={<span id={headingId}>{t("credit-registration-heading-dismissed-recently")}</span>}
+        summary={<span className={noteCss}>{dismissals.length}</span>}
+        variant={PLAIN_DISCLOSURE}
+        {...expansion}
+      >
+        <Table
+          labelledBy={headingId}
+          density={DENSITY_COMPACT}
+          responsive={TABLE_STACK}
+          rowKey={(row) => `${row.credit_registration_id}:${row.dismissed_at}`}
+          rows={dismissals}
+          columns={[
+            {
+              header: t("label-student"),
+              grow: 1,
+              minWidth: STUDENT_COLUMN_MIN_WIDTH,
+              cell: (row) => (
+                <span className={stackedCellCss}>
+                  <StudentCell
+                    row={row}
+                    href={creditRegistrationItemRoute(row.credit_registration_id)}
+                  />
+                  <span className={noteCss}>{row.course_name}</span>
+                </span>
+              ),
+            },
+            {
+              header: t("credit-registration-admin-column-dismissed-reasons"),
+              minWidth: "10rem",
+              cell: (row) =>
+                row.dismissed_reasons
+                  .map((reason) => attentionReasonLabel(t, reason))
+                  .join(MIDDLE_DOT),
+            },
+            {
+              header: t("label-reason"),
+              grow: 2,
+              minWidth: "14rem",
+              cell: (row) => row.reason,
+            },
+            {
+              header: t("credit-registration-admin-column-dismissed"),
+              minWidth: "10rem",
+              cell: (row) => (
+                <span className={stackedCellCss}>
+                  <span>
+                    {formatUserName({
+                      first_name: row.dismissed_by_first_name,
+                      last_name: row.dismissed_by_last_name,
+                    })}
+                  </span>
+                  <span className={noteCss}>
+                    <RelativeTime at={row.dismissed_at} absoluteTime={TIME_IN_TITLE} />
+                  </span>
+                </span>
+              ),
+            },
+            {
+              header: t("label-actions"),
+              minWidth: "8rem",
+              cell: (row) => (
+                <Link href={auditForStudentHref(row.user_id)} prefetch={false}>
+                  {t("credit-registration-admin-see-in-audit-log")}
+                </Link>
+              ),
+            },
+          ]}
+        />
+      </Disclosure>
+    </section>
+  )
+}
+
 /**
- * The work queue: every live registration a detector picked, plus the ones the pipeline flagged
- * without one. Its length is the number the tab badge shows.
+ * Everything that needs a person, one section per timeline phase, after the problems that hold up
+ * many rows at once. Running late and recent dismissals follow, collapsed and not counted.
  */
 const AttentionQueueSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const thresholds = useCreditRegistrationThresholds().data
-
-  const { control, param, params, applyParams, paginationInfo, query } = useFilteredAdminQuery<
-    SortFields,
-    AttentionQuery
-  >(
-    FILTER_FIELDS,
-    (filters, pagination) => {
-      const facets = readFacets(filters)
-      const sort = filters.param(PARAM_SORT)
-      return {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...includeIf(facets.reasons.length > 0, {
-          reason: facets.reasons,
-        }),
-        ...includeIf(sort, { sort }),
-      }
-    },
+  const { paginationInfo, query } = useFilteredAdminQuery(
+    [],
+    (_filters, pagination) => ({
+      page: pagination.page,
+      limit: pagination.limit,
+    }),
     { rowsPerPage: ROWS_PER_PAGE },
   )
-
-  const facets = readFacets({ param, params })
   const attentionQuery = useCreditRegistrationAttentionItems(query)
-  const items = attentionQuery.data?.items ?? []
-  const filteredCount = attentionQuery.data?.filtered_count ?? 0
-
-  // The picked rows themselves, not just their ids: this query polls, and a row a worker moves out
-  // of the queue between polls would otherwise drop out of a selection mid-way through acting on it,
-  // taking the toolbar's count and the open dialog's with it.
-  const [selectedRowsById, setSelectedRowsById] = useState<
-    ReadonlyMap<string, CreditRegistrationAttentionItem>
-  >(() => new Map())
-  const [isSelectingFacet, setIsSelectingFacet] = useState(false)
-  const clearSelection = useCallback(() => {
-    setSelectedRowsById(new Map())
-    setIsSelectingFacet(false)
-  }, [])
-
-  // Every row the narrowing matches, fetched only when the operator asks to select them all: the
-  // bulk dialog needs each row's state to decide which moves are safe, not just its id.
-  const facetQuery = useCreditRegistrationAttentionItems(
-    { ...query, page: 1, limit: Math.max(filteredCount, 1) },
-    { enabled: isSelectingFacet },
-  )
-  const facetRows = facetQuery.data?.items
-
-  // Taking the whole facet is one capture rather than a mode, so ticking a row off afterwards is
-  // just a smaller selection instead of a fight with the next poll.
-  useEffect(() => {
-    if (!isSelectingFacet || facetRows === undefined) {
-      return
-    }
-    setSelectedRowsById(new Map(facetRows.map((row) => [row.credit_registration_id, row])))
-    setIsSelectingFacet(false)
-  }, [isSelectingFacet, facetRows])
-
-  // A facet or a page turn changes which rows exist to act on; ticks they hide would otherwise
-  // reappear in the toolbar's count once the narrowing is cleared again.
-  useEffect(clearSelection, [facets.reasons.join(), paginationInfo.page, clearSelection])
-
-  const selectedKeys = new Set(selectedRowsById.keys())
-  const selectedRows = Array.from(selectedRowsById.values())
-  const pickRows = (keys: ReadonlySet<string>) => {
-    const rowsOnPage = new Map(items.map((row) => [row.credit_registration_id, row] as const))
-    setSelectedRowsById((previous) => {
-      const next = new Map<string, CreditRegistrationAttentionItem>()
-      for (const key of keys) {
-        const row = previous.get(key) ?? rowsOnPage.get(key)
-        if (row) {
-          next.set(key, row)
-        }
-      }
-      return next
-    })
-  }
-  const canSelectWholeFacet =
-    filteredCount > items.length &&
-    filteredCount <= MAX_SELECT_ALL_ROWS &&
-    !isSelectingFacet &&
-    selectedRowsById.size < filteredCount
+  const hash = useHashTarget(attentionQuery.isSuccess)
 
   return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-attention")}</h2>
-      </div>
-      {attentionQuery.data && (
-        <FacetChips
-          attention={attentionQuery.data}
-          facets={facets}
-          applyParams={applyParams}
-          thresholds={thresholds}
-        />
-      )}
-      <div className={controlsCss}>
-        <div className={controlCss}>
-          <Select
-            name="sort"
-            control={control}
-            label={t("credit-registration-admin-sort")}
-            options={[
-              {
-                value: SORT_TIME_IN_STATE,
-                label: t("credit-registration-admin-sort-time-in-state"),
-              },
-              { value: SORT_NEXT_ATTEMPT, label: t("credit-registration-admin-sort-next-attempt") },
-              { value: SORT_COURSE, label: t("credit-registration-admin-sort-course-name") },
-            ]}
-          />
-        </div>
-        <AdminRequeueRetryableDialog />
-      </div>
-      {(selectedRows.length > 0 || canSelectWholeFacet) && (
-        <div className={toolbarCss}>
-          <div className={rowCss}>
-            {selectedRows.length > 0 && (
-              <>
-                <span>
-                  {t("credit-registration-admin-selected-count", {
-                    count: selectedRows.length,
-                  })}
-                </span>
-                <AdminBulkTransitionDialog selectedRows={selectedRows} onApplied={clearSelection} />
-                <Button variant={BUTTON_TERTIARY} size="medium" onClick={clearSelection}>
-                  {t("credit-registration-admin-clear-selection")}
-                </Button>
-              </>
-            )}
-            {canSelectWholeFacet && (
-              <Button
-                variant={BUTTON_TERTIARY}
-                size="small"
-                onClick={() => setIsSelectingFacet(true)}
-              >
-                {t("credit-registration-admin-select-all-matching", { count: filteredCount })}
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
-      <QueryResult
-        query={attentionQuery}
-        refreshIndicator={QUIET_REFRESH}
-        contentClassName={sectionCss}
-      >
-        {(attention) => (
+    <QueryResult
+      query={attentionQuery}
+      refreshIndicator={QUIET_REFRESH}
+      contentClassName={sectionCardsCss}
+    >
+      {(attention) => {
+        const phases = TIMELINE_PHASES.filter((phase) =>
+          attention.items.some((item) => item.phase === phase),
+        )
+        return (
           <>
-            {attention.filtered_count !== attention.total_count && (
+            {attention.total_count > 0 && (
               <p className={noteCss}>
-                {t("credit-registration-admin-queue-narrowed", {
-                  shown: attention.filtered_count,
-                  total: attention.total_count,
-                })}
+                <Link href={registrationsListHref({ needsAttention: true })}>
+                  {t("credit-registration-admin-needs-attention-in-list", {
+                    count: attention.total_count,
+                  })}
+                </Link>
               </p>
             )}
-            <Table
-              caption={t("credit-registration-heading-attention")}
-              density={DENSITY_COMPACT}
-              rowKey={(row) => row.credit_registration_id}
-              rows={attention.items}
-              emptyState={t("credit-registration-admin-nothing-needs-a-human")}
-              responsive={TABLE_STACK}
-              stickyFirstColumn
-              rowHover
-              selection={{
-                selectedKeys,
-                onChange: (keys) => {
-                  setIsSelectingFacet(false)
-                  pickRows(keys)
-                },
-                selectAllLabel: t("credit-registration-admin-select-every-row"),
-                rowLabel: (row) =>
-                  t("credit-registration-admin-select-registration", {
-                    student: formatUserName(row),
-                  }),
-              }}
-              columns={[
-                {
-                  header: t("label-student"),
-                  grow: 1,
-                  minWidth: STUDENT_COLUMN_MIN_WIDTH,
-                  cell: (row) => (
-                    <StudentCell
-                      row={row}
-                      href={creditRegistrationItemRoute(row.credit_registration_id)}
-                    />
-                  ),
-                },
-                {
-                  header: t("label-course"),
-                  grow: 1,
-                  minWidth: "11rem",
-                  // The queue cannot be narrowed by course, so the cell opens the list that can.
-                  cell: (row) => (
-                    <span className={stackedCellCss}>
-                      <Link
-                        href={`${creditRegistrationRegistrationsRoute()}${ATTENTION_QUERY}${COURSE_PARAM}${row.course_id}`}
-                        appearance={LINK_QUIET}
-                        prefetch={false}
-                      >
-                        {row.course_name}
-                      </Link>
-                      <span className={noteCss}>{row.course_module_name}</span>
-                    </span>
-                  ),
-                },
-                {
-                  header: t("label-state"),
-                  minWidth: "13rem",
-                  cell: (row) => {
-                    const errorNote = registrationErrorNote(t, row.state, row.error_code)
-                    return (
-                      <span className={stackedCellCss}>
-                        <Link
-                          href={`${creditRegistrationRegistrationsRoute()}${ATTENTION_QUERY}${STATE_PARAM}${row.state}`}
-                          appearance={LINK_QUIET}
-                          prefetch={false}
-                        >
-                          <AdminStateLabel state={row.state} />
-                        </Link>
-                        {errorNote && (
-                          <span className={noteCss}>
-                            {errorNote} <code className={codeValueCss}>{row.error_code}</code>
-                          </span>
-                        )}
-                      </span>
-                    )
-                  },
-                },
-                // Once a facet is picked every row carries it, so the column only repeats the chip.
-                ...(facets.reasons.length > 0
-                  ? []
-                  : [
-                      {
-                        header: t("credit-registration-admin-column-reasons"),
-                        minWidth: "10rem",
-                        cell: (row: CreditRegistrationAttentionItem) => {
-                          const informative = row.reasons.filter(
-                            (reason) => !REASONS_IMPLIED_BY_STATE.has(reason),
-                          )
-                          return informative.length === 0 ? (
-                            <span className={noteCss}>{ABSENT}</span>
-                          ) : (
-                            informative
-                              .map((reason) => attentionReasonLabel(t, reason))
-                              .join(MIDDLE_DOT)
-                          )
-                        },
-                      },
-                    ]),
-                {
-                  header: t("label-credit-registration-time-in-state"),
-                  minWidth: "11rem",
-                  cell: (row) => <TimeInState item={row} thresholds={thresholds} />,
-                },
-                {
-                  header: t("credit-registration-admin-column-next-attempt"),
-                  minWidth: "7rem",
-                  nowrap: true,
-                  // A terminal or blocked row is never attempted again, and a date under this
-                  // heading promises that it will be.
-                  cell: (row) =>
-                    RETRYING_STATES.includes(row.state) ? (
-                      <ZonedTimestamp at={row.next_attempt_at} />
-                    ) : (
-                      <span className={noteCss}>{ABSENT}</span>
-                    ),
-                },
-              ]}
-            />
+            {attention.explained_by_problem.length > 0 && (
+              <BlockingProblemsSection groups={attention.explained_by_problem} />
+            )}
+            {phases.length === 0 ? (
+              <section className={sectionCardCss}>
+                <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
+              </section>
+            ) : (
+              phases.map((phase) => (
+                <PhaseSection
+                  key={phase}
+                  phase={phase}
+                  items={attention.items.filter((item) => item.phase === phase)}
+                />
+              ))
+            )}
             <Pagination
               paginationInfo={paginationInfo}
               totalPages={attention.total_pages}
               totalItems={attention.filtered_count}
               itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
             />
+            {attention.running_late.length > 0 && (
+              <RunningLateSection
+                items={attention.running_late}
+                isOpen={hash === RUNNING_LATE_ANCHOR}
+              />
+            )}
+            {attention.dismissed_recently.length > 0 && (
+              <DismissedRecentlySection
+                dismissals={attention.dismissed_recently}
+                isOpen={hash === DISMISSED_RECENTLY_ANCHOR}
+              />
+            )}
           </>
-        )}
-      </QueryResult>
-    </section>
+        )
+      }}
+    </QueryResult>
   )
 }
 

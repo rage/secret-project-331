@@ -4,6 +4,7 @@ import type {
   CreditRegistrationAdminActionTarget,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationEnrolmentRoute,
   CreditRegistrationErrorCode,
   CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
@@ -327,16 +328,6 @@ export const attentionReasonLabel = (
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
 
 /**
- * The error's short label beside a state badge, or `null` when the error code is the state itself
- * (`misregistered`) and the label would only repeat the badge.
- */
-export const registrationErrorNote = (
-  t: CreditRegistrationTFunction,
-  state: CreditRegistrationState,
-  errorCode: CreditRegistrationErrorCode | null | undefined,
-): string | null => (errorCode === state ? null : adminErrorShortLabel(t, errorCode))
-
-/**
  * Why a course code's roster listing fails. On the listing, `course_code_not_found` means only that
  * no realisation of the code is current, not that the code is wrong.
  */
@@ -515,3 +506,18 @@ export const enrolmentCheckStepLabel = (
   step === null || step === undefined
     ? t("credit-registration-admin-enrolment-check-stopped")
     : t("credit-registration-admin-enrolment-check-nth", { count: step + 1, ordinal: true })
+
+/** How the student said they enrolled in Sisu, or `null` when they have not said. */
+export const enrolmentRouteLabel = (
+  t: CreditRegistrationTFunction,
+  route: CreditRegistrationEnrolmentRoute | null | undefined,
+): string | null => {
+  switch (route) {
+    case "open_university":
+      return t("credit-registration-admin-enrolment-route-open-university")
+    case "university_of_helsinki":
+      return t("credit-registration-admin-enrolment-route-university-of-helsinki")
+    default:
+      return null
+  }
+}

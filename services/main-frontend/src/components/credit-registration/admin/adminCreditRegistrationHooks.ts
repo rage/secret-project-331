@@ -15,7 +15,6 @@ import {
   getCreditRegistrationReconciliationQueryKey,
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
-  getCreditRegistrationThresholdsOptions,
   getSuotarHealthOptions,
   listCreditRegistrationAdminActionsOptions,
   listCreditRegistrationPhasesOptions,
@@ -26,7 +25,6 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
-  AccountLinkingStats,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
@@ -51,7 +49,7 @@ const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
 
-/** The window the Linking page reads its funnel over. Shared so the tab badge hits the same cache. */
+/** The window the Linking page reads its linking email counts over. */
 export const LINKING_STATS_WINDOW_DAYS = 30
 
 const GC_TIME_MS = 5 * 60_000
@@ -133,14 +131,6 @@ export const useCreditRegistrationPhases = () =>
     ...polled(PHASE_REFETCH_INTERVAL_MS),
   })
 
-/** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
-export const useCreditRegistrationThresholds = () =>
-  useQuery({
-    ...getCreditRegistrationThresholdsOptions(),
-    staleTime: GC_TIME_MS,
-    gcTime: GC_TIME_MS,
-  })
-
 /**
  * One page of the work queue. The facet counts on the response cover the whole queue, not the page.
  *
@@ -212,6 +202,32 @@ export const useCreditRegistrationMisconfiguredCourseCount = () =>
     select: (stats: CreditRegistrationStatsByCourse) => stats.misconfigured_count,
   })
 
+const BLOCKING_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
+  "phase_failing",
+  "phase_heartbeat_stale",
+  "pipeline_paused_globally",
+  "roster_course_code_failing",
+]
+
+const selectHasBlockingAlert = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, BLOCKING_ALERT_IDS) > 0
+
+/**
+ * Whether a processing phase is paused or late or a course code is failing: problems that hold up
+ * many registrations, which the Needs attention count leaves out.
+ */
+export const useHasBlockingProblem = (): boolean => {
+  const hasBlockingAlert = useQuery({
+    ...getCreditRegistrationOverviewOptions(),
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
+    select: selectHasBlockingAlert,
+  }).data
+  const hasPausedPhase = useCreditRegistrationPhases().data?.phases.some(
+    (phase) => phase.paused_at !== null && phase.paused_at !== undefined,
+  )
+  return Boolean(hasBlockingAlert || hasPausedPhase)
+}
+
 /** Pipeline phases that are failing or overdue. */
 export const useCreditRegistrationUnhealthyPhaseCount = () =>
   useOverviewCount(selectUnhealthyPhases)
@@ -224,17 +240,6 @@ const selectFailingRosterCodes = (overview: CreditRegistrationOverview) =>
 /** Course codes whose roster listing is backing off after repeated failures. */
 export const useCreditRegistrationFailingRosterCodeCount = () =>
   useOverviewCount(selectFailingRosterCodes)
-
-/**
- * Account-linking mails our own sender never got out, all time — the number the Linking page's
- * "Sending failed" tile shows. Keep the two reading the same field.
- */
-export const useCreditRegistrationLinkingFailureCount = () =>
-  useQuery({
-    ...getAccountLinkingStatsOptions({ query: { window_days: LINKING_STATS_WINDOW_DAYS } }),
-    ...polled(LIST_REFETCH_INTERVAL_MS),
-    select: (stats: AccountLinkingStats) => stats.send_status_totals.send_failed,
-  })
 
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({

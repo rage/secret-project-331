@@ -9,9 +9,9 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import {
   useCreditRegistrationAttentionCount,
   useCreditRegistrationFailingRosterCodeCount,
-  useCreditRegistrationLinkingFailureCount,
   useCreditRegistrationMisconfiguredCourseCount,
   useCreditRegistrationUnhealthyPhaseCount,
+  useHasBlockingProblem,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CreditRegistrationAlertBanner from "@/components/credit-registration/admin/CreditRegistrationAlertBanner"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
@@ -94,6 +94,8 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         countHook: useCreditRegistrationAttentionCount,
         // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
         countTone: "danger",
+        dotHook: useHasBlockingProblem,
+        dotLabel: t("credit-registration-tab-errors-blocking-problem"),
       },
       {
         key: KEY_COURSES,
@@ -105,7 +107,6 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         key: KEY_LINKING,
         title: t("credit-registration-tab-linking"),
         href: creditRegistrationLinkingRoute(),
-        countHook: useCreditRegistrationLinkingFailureCount,
       },
       {
         key: KEY_SYSTEM,

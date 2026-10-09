@@ -1,6 +1,7 @@
 import type {
   AdminCreditRegistrationRow,
   AdminLinkingSchedule,
+  CreditRegistrationAttentionItem,
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
@@ -168,3 +169,26 @@ export const registrationStatusLines = (
     isHandledInNeedsAttention: false,
   }
 }
+
+/**
+ * A Needs attention item as a status subject. The item carries no enrolment check schedule or
+ * registration time, so a status worded from it leaves those out.
+ */
+export const attentionItemStatusSubject = (
+  item: CreditRegistrationAttentionItem,
+): RegistrationStatusSubject => ({
+  timeline_step: item.timeline_step,
+  waits_on: item.waits_on,
+  engagement: item.engagement ?? null,
+  state: item.state,
+  error_code: item.error_code ?? null,
+  next_attempt_at: item.next_attempt_at,
+  enrolment_check_due_at: null,
+  enrolment_checks_stopped_at: null,
+  registered_at: null,
+  attention_standing: item.standing,
+  attention_reasons: item.reasons,
+  uh_course_code: item.uh_course_code ?? null,
+  verified_student_number: null,
+  student_number: item.student_number ?? null,
+})

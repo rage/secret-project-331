@@ -1,5 +1,7 @@
+import type { TimelinePhase } from "@/generated/api/types.generated"
 import {
   creditRegistrationAuditRoute,
+  creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
@@ -24,3 +26,14 @@ export const AUDIT_USER_ID_PARAM = "user_id"
 /** The Audit tab filtered to every action about one student. */
 export const auditForStudentHref = (userId: string): string =>
   `${creditRegistrationAuditRoute()}?${new URLSearchParams({ [AUDIT_USER_ID_PARAM]: userId }).toString()}`
+
+/** Sections of the Needs attention tab a link can land on. */
+export const RUNNING_LATE_ANCHOR = "running-late"
+export const DISMISSED_RECENTLY_ANCHOR = "dismissed-recently"
+
+/** The id of one timeline phase's section on the Needs attention tab. */
+export const attentionPhaseAnchorId = (phase: TimelinePhase): string => `needs-attention-${phase}`
+
+/** A section of the Needs attention tab, by its anchor id. */
+export const needsAttentionHref = (anchorId: string): string =>
+  `${creditRegistrationErrorsRoute()}#${anchorId}`

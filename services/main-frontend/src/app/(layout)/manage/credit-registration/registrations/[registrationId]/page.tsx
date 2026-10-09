@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
+  enrolmentRouteLabel,
   notificationKindLabel,
   sendStatusLabel,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
@@ -16,7 +17,11 @@ import {
   useAdminCreditRegistration,
   useCreditRegistrationAdminActions,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import { auditForStudentHref } from "@/components/credit-registration/admin/adminLinks"
+import {
+  attentionPhaseAnchorId,
+  auditForStudentHref,
+  needsAttentionHref,
+} from "@/components/credit-registration/admin/adminLinks"
 import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
@@ -83,7 +88,6 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
-  creditRegistrationErrorsRoute,
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
   manageCourseRoute,
@@ -324,7 +328,11 @@ const StatusCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ det
         )}
       </div>
       {status.isHandledInNeedsAttention ? (
-        <Link href={creditRegistrationErrorsRoute()} prefetch={false} className={arrowLinkCss}>
+        <Link
+          href={needsAttentionHref(attentionPhaseAnchorId("student_number"))}
+          prefetch={false}
+          className={arrowLinkCss}
+        >
           {t("credit-registration-admin-handled-in-needs-attention")}
           <ArrowRight size={ARROW_SIZE} aria-hidden />
         </Link>
@@ -336,20 +344,6 @@ const StatusCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ det
       )}
     </section>
   )
-}
-
-const enrolmentRouteLabel = (
-  t: CreditRegistrationTFunction,
-  route: AdminCreditRegistrationDetails["journey"]["enrolment_route"],
-): string | null => {
-  switch (route) {
-    case "open_university":
-      return t("credit-registration-admin-enrolment-route-open-university")
-    case "university_of_helsinki":
-      return t("credit-registration-admin-enrolment-route-university-of-helsinki")
-    default:
-      return null
-  }
 }
 
 const FactsSection: React.FC<{

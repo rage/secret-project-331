@@ -59,8 +59,9 @@ pub enum AttentionReason {
     RepeatedlyNotRegistered,
     /// Pressed "I have enrolled", and a fetch of the code's enrolment list that could have claimed
     /// a linking email started [`STUDENT_NUMBER_STUCK_AFTER_PRESS`] after the press, yet no linking
-    /// email has gone out on the code since. Measured in fetches so a paused pipeline does not
-    /// count against the student.
+    /// email has gone out on the code since, or that fetch found people who enrolled before account
+    /// linking began and were never mailed, whom the student may be among. Measured in fetches so a
+    /// paused pipeline does not count against the student.
     StudentNumberStuck,
     /// The pipeline's flag is up and no other reason explains it.
     FlaggedByPipeline,
@@ -180,6 +181,8 @@ pub struct AttentionRegistration {
     pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     /// The code's last enrolment list listed nobody.
     pub is_enrolment_list_empty: bool,
+    /// See [`crate::credit_registration_roster_schedules::RosterSchedule::unlinked_enrolled_before_count`].
+    pub unlinked_enrolled_before_count: Option<i32>,
     pub reasons: Vec<AttentionReason>,
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
@@ -331,6 +334,7 @@ SELECT cr.id,
   sig.last_visited_at AS "last_visited_at?",
   s.last_mailing_fetch_started_at AS "last_mailing_fetch_started_at?",
   COALESCE(s.last_listed_person_count = 0, FALSE) AS "is_enrolment_list_empty!",
+  s.linking_unlinked_enrolled_before_count AS "unlinked_enrolled_before_count?",
   ARRAY_REMOVE(
     ARRAY [
       CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,
@@ -399,14 +403,17 @@ FROM credit_registrations cr
         AND NOT p.has_verified_student_number
         AND cmc.completion_date >= $7::timestamptz
         AND s.last_mailing_fetch_started_at >= route.enrolment_confirmed_at + ($8::bigint * INTERVAL '1 second')
-        AND NOT EXISTS (
-          SELECT 1
-          FROM credit_registration_account_linking_emails e
-            JOIN course_modules code_module ON code_module.course_id = e.course_id
-            AND code_module.deleted_at IS NULL
-          WHERE TRIM(code_module.uh_course_code) = s.course_code
-            AND e.sent_at >= route.enrolment_confirmed_at
-            AND e.deleted_at IS NULL
+        AND (
+          s.linking_unlinked_enrolled_before_count > 0
+          OR NOT EXISTS (
+            SELECT 1
+            FROM credit_registration_account_linking_emails e
+              JOIN course_modules code_module ON code_module.course_id = e.course_id
+              AND code_module.deleted_at IS NULL
+            WHERE TRIM(code_module.uh_course_code) = s.course_code
+              AND e.sent_at >= route.enrolment_confirmed_at
+              AND e.deleted_at IS NULL
+          )
         ),
         FALSE
       ) AS student_number_stuck

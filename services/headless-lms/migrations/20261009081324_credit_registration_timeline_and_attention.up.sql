@@ -184,3 +184,8 @@ COMMENT ON COLUMN credit_registration_daily_attention_snapshots.needs_attention_
 COMMENT ON COLUMN credit_registration_daily_attention_snapshots.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN credit_registration_daily_attention_snapshots.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN credit_registration_daily_attention_snapshots.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
+ALTER TABLE credit_registration_roster_schedules
+ADD COLUMN linking_unlinked_enrolled_before_count INT;
+
+COMMENT ON COLUMN credit_registration_roster_schedules.linking_unlinked_enrolled_before_count IS 'Distinct people on the last enrolment list that fed account linking who enrolled before account linking began, or with no enrolment time, and whom no account is linked to. Linking mails skip them, so a student among them waits for a student number until an admin acts. Outside linking_listed_count. NULL until such a list arrives.';

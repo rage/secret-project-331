@@ -19,6 +19,8 @@ export interface RegistrationStatusLines {
   tone: RegistrationStatusTone
   /** Its actions live on the Needs attention tab. */
   isHandledInNeedsAttention: boolean
+  /** A possible cause, worded as one, for a third line. */
+  hint: string | null
 }
 
 /** The row fields a status is worded from. */
@@ -129,12 +131,14 @@ const stepNext = (
  * The two-line status the registration page's status card and the Needs attention rows share.
  *
  * `schedule` is the course code's linking schedule, which only a student who pressed "I have
- * enrolled" and has no linked number has.
+ * enrolled" and has no linked number has. `unmailedEarlyEnroleeCount` is the code's count of
+ * unlinked people who enrolled before linking emails started.
  */
 export const registrationStatusLines = (
   t: CreditRegistrationTFunction,
   row: RegistrationStatusSubject,
   schedule?: AdminLinkingSchedule | null,
+  unmailedEarlyEnroleeCount?: number | null,
 ): RegistrationStatusLines => {
   const needsAttention = row.attention_standing === "needs_attention"
   const isStuckPresser = needsAttention && row.attention_reasons.includes("student_number_stuck")
@@ -145,6 +149,12 @@ export const registrationStatusLines = (
       next: t("credit-registration-admin-status-student-number-stuck"),
       tone: "attention",
       isHandledInNeedsAttention: true,
+      hint:
+        unmailedEarlyEnroleeCount && unmailedEarlyEnroleeCount > 0
+          ? t("credit-registration-admin-status-unmailed-early-enrolees", {
+              count: unmailedEarlyEnroleeCount,
+            })
+          : null,
     }
   }
   const next = stepNext(t, row, schedule)
@@ -167,6 +177,7 @@ export const registrationStatusLines = (
           ? "done"
           : "neutral",
     isHandledInNeedsAttention: false,
+    hint: null,
   }
 }
 

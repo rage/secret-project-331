@@ -205,6 +205,7 @@ import {
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
+  getCreditRegistrationLinkingCandidates,
   getCreditRegistrationOverview,
   getCreditRegistrationPipelineHistory,
   getCreditRegistrationReconciliation,
@@ -757,6 +758,8 @@ import type {
   GetCreditRegistrationErrorsByCodeResponse,
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminResponse,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesResponse,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponse,
   GetCreditRegistrationPipelineHistoryData,
@@ -7042,6 +7045,38 @@ export const adminDismissCreditRegistrationAttentionMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationLinkingCandidatesQueryKey = (
+  options: Options<GetCreditRegistrationLinkingCandidatesData>,
+) => createQueryKey("getCreditRegistrationLinkingCandidates", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidatesOptions = (
+  options: Options<GetCreditRegistrationLinkingCandidatesData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationLinkingCandidatesResponse,
+    DefaultError,
+    GetCreditRegistrationLinkingCandidatesResponse,
+    ReturnType<typeof getCreditRegistrationLinkingCandidatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationLinkingCandidates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationLinkingCandidatesQueryKey(options),
+  })
 
 /**
  *

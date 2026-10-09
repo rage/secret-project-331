@@ -8,6 +8,7 @@ import {
   getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
+  getCreditRegistrationLinkingCandidatesOptions,
   getCreditRegistrationOverviewOptions,
   getCreditRegistrationOverviewQueryKey,
   getCreditRegistrationPipelineHistoryOptions,
@@ -109,6 +110,20 @@ export const useAdminCreditRegistration = (creditRegistrationId: string) =>
       query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
+  })
+
+/**
+ * Fetches the code's enrolment list live from Sisu on every open; nothing is cached past the dialog.
+ */
+export const useLinkingCandidates = (creditRegistrationId: string, isEnabled: boolean) =>
+  useQuery({
+    ...getCreditRegistrationLinkingCandidatesOptions({
+      path: { credit_registration_id: creditRegistrationId },
+    }),
+    enabled: isEnabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
   })
 
 export const useAccountLinkingStats = (windowDays: number) =>

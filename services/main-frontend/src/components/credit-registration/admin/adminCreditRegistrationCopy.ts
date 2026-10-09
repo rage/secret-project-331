@@ -12,6 +12,7 @@ import type {
   EmailSendStatus,
   EnrolmentCheckGroup,
   EnrolmentCheckSource,
+  LinkingCandidateSimilarity,
   ResendOutcome,
   Retryability,
   StudentNumberVerificationMethod,
@@ -447,6 +448,20 @@ export const resendOutcomeLabel = (
   t: CreditRegistrationTFunction,
   outcome: ResendOutcome,
 ): string => labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
+
+const LINKING_SIMILARITY_KEYS = {
+  email: "credit-registration-admin-linking-similarity-email",
+  email_username: "credit-registration-admin-linking-similarity-email-username",
+  last_name: "credit-registration-admin-linking-similarity-last-name",
+  first_name: "credit-registration-admin-linking-similarity-first-name",
+} as const satisfies Record<LinkingCandidateSimilarity, string>
+
+const LINKING_SIMILARITY_UNKNOWN_KEY = "credit-registration-admin-linking-similarity-unknown"
+
+export const linkingSimilarityLabel = (
+  t: CreditRegistrationTFunction,
+  similarity: LinkingCandidateSimilarity,
+): string => labelFrom(t, LINKING_SIMILARITY_KEYS, similarity, LINKING_SIMILARITY_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {
   linked: "credit-registration-admin-manual-link-linked",

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH modules AS (\n  SELECT TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n    AND (\n      $4::text IS NULL\n      OR TRIM(cm.uh_course_code) = $4\n    )\n)\nSELECT s.course_code,\n  s.last_fetched_at,\n  s.last_fetch_started_at,\n  s.last_mailing_fetch_started_at,\n  s.last_fetch_duration_ms,\n  s.last_listed_person_count,\n  s.is_fetched_alone,\n  s.consecutive_failures,\n  s.retry_not_before,\n  s.last_error,\n  s.fetch_requested_at,\n  s.linking_listed_count,\n  s.linking_already_linked_count,\n  s.linking_mailed_count,\n  s.linking_suppressed_by_dedup_count,\n  s.linking_suppressed_by_rate_cap_count,\n  s.linking_no_address_count,\n  CASE\n    WHEN s.fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.fetch_day_count\n    ELSE 0\n  END AS \"fetches_today!\",\n  (\n    SELECT COUNT(*)\n    FROM modules m\n    WHERE m.course_code = s.course_code\n  ) AS \"module_count!\"\nFROM credit_registration_roster_schedules s\nWHERE s.course_code IN (\n    SELECT course_code\n    FROM modules\n  )\n  AND (\n    NOT $2::boolean\n    OR (\n      (\n        s.retry_not_before IS NULL\n        OR s.retry_not_before <= now()\n      )\n      AND (\n        s.last_fetched_at IS NULL\n        OR s.last_fetched_at < $3\n      )\n    )\n  )\nORDER BY s.course_code\n        ",
+  "query": "\nWITH modules AS (\n  SELECT TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n    AND (\n      $4::text IS NULL\n      OR TRIM(cm.uh_course_code) = $4\n    )\n)\nSELECT s.course_code,\n  s.last_fetched_at,\n  s.last_fetch_started_at,\n  s.last_mailing_fetch_started_at,\n  s.last_fetch_duration_ms,\n  s.last_listed_person_count,\n  s.is_fetched_alone,\n  s.consecutive_failures,\n  s.retry_not_before,\n  s.last_error,\n  s.fetch_requested_at,\n  s.linking_listed_count,\n  s.linking_already_linked_count,\n  s.linking_mailed_count,\n  s.linking_suppressed_by_dedup_count,\n  s.linking_suppressed_by_rate_cap_count,\n  s.linking_no_address_count,\n  s.linking_unlinked_enrolled_before_count,\n  CASE\n    WHEN s.fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.fetch_day_count\n    ELSE 0\n  END AS \"fetches_today!\",\n  (\n    SELECT COUNT(*)\n    FROM modules m\n    WHERE m.course_code = s.course_code\n  ) AS \"module_count!\"\nFROM credit_registration_roster_schedules s\nWHERE s.course_code IN (\n    SELECT course_code\n    FROM modules\n  )\n  AND (\n    NOT $2::boolean\n    OR (\n      (\n        s.retry_not_before IS NULL\n        OR s.retry_not_before <= now()\n      )\n      AND (\n        s.last_fetched_at IS NULL\n        OR s.last_fetched_at < $3\n      )\n    )\n  )\nORDER BY s.course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -223,12 +223,23 @@
       },
       {
         "ordinal": 17,
+        "name": "linking_unlinked_enrolled_before_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_unlinked_enrolled_before_count"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
         "name": "fetches_today!",
         "type_info": "Int4",
         "origin": "Expression"
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "module_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -260,9 +271,10 @@
       true,
       true,
       true,
+      true,
       null,
       null
     ]
   },
-  "hash": "de944e0e4bef61e9736f534af656b6aa5b90ba7f34d786f5d0613ded4cd5a3a9"
+  "hash": "3a52b99c5ac414dcaa98615bc799f52c43a95b5327c589e508802a8ebd85a544"
 }

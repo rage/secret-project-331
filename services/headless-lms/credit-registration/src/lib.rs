@@ -67,7 +67,10 @@ pub use use_cases::materialize::{Materialized, materialize_now};
 /// The account-linking actions an admin or a teacher sets off by hand, and what they answer.
 pub mod account_linking {
     pub use crate::registry::{PersonLookupError, RegistryPerson};
-    pub use crate::runtime::{ManualActionContext, look_up_person, resend_linking_mail_for_target};
+    pub use crate::runtime::{
+        ManualActionContext, list_unlinked_enrolled_before, look_up_person,
+        resend_linking_mail_for_target,
+    };
     pub use crate::use_cases::account_linking::{RateCapOverride, ResendAttempt, ResendOutcome};
 }
 

@@ -297,7 +297,12 @@ const StatusCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ det
     )
   }
 
-  const status = registrationStatusLines(t, row, details.linking_schedule)
+  const status = registrationStatusLines(
+    t,
+    row,
+    details.linking_schedule,
+    details.linking_schedule?.unlinked_enrolled_before_count,
+  )
   return (
     <section
       className={cx(sectionCardCss, STATUS_RULE_CSS[status.tone])}
@@ -311,6 +316,7 @@ const StatusCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ det
           {status.waitsOn}
         </h2>
         {status.next && <p className={nextCss}>{status.next}</p>}
+        {status.hint && <p className={noteCss}>{status.hint}</p>}
         {!row.terminal_at && (
           <p className={noteCss}>
             {t("label-credit-registration-in-phase-since")}{" "}

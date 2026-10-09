@@ -75,13 +75,19 @@ const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total
 /** Who it waits on, then what happens next: the registration page's status card in a cell. */
 const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const status = registrationStatusLines(t, attentionItemStatusSubject(item))
+  const status = registrationStatusLines(
+    t,
+    attentionItemStatusSubject(item),
+    null,
+    item.unlinked_enrolled_before_count,
+  )
   return (
     <span className={stackedCellCss}>
       <span className={cx(status.tone === "attention" && TONE_INK["action-needed"])}>
         {status.waitsOn}
       </span>
       {status.next && <span className={noteCss}>{status.next}</span>}
+      {status.hint && <span className={noteCss}>{status.hint}</span>}
     </span>
   )
 }

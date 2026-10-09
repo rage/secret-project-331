@@ -52,7 +52,14 @@ pub(super) async fn reconcile_roster(
             .collect();
         let counters = claim_linking_mails(conn, &considered, &linked, &course_ids).await?;
         mailed_count = counters.mailed_count;
-        record_linking_counters(conn, listing.code.course_code.as_str(), &counters).await?;
+        let unlinked_before = unlinked_enrolled_before(&distinct, &linked, since).len();
+        record_linking_counters(
+            conn,
+            listing.code.course_code.as_str(),
+            &counters,
+            i32::try_from(unlinked_before).unwrap_or(i32::MAX),
+        )
+        .await?;
     }
     for module in &listing.modules {
         mark_listing_succeeded(
@@ -98,6 +105,40 @@ fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<
                 .is_some_and(|enrolled_at| enrolled_at >= since)
         })
         .collect()
+}
+
+/// The people [`enrolled_since`] leaves out, enrolled before `since` or at no known time, whom no
+/// account is linked to.
+fn unlinked_enrolled_before<'a>(
+    people: &[&'a RosterPerson],
+    linked: &LinkedAccounts<'_>,
+    since: DateTime<Utc>,
+) -> Vec<&'a RosterPerson> {
+    people
+        .iter()
+        .copied()
+        .filter(|person| {
+            person
+                .enrolled_at()
+                .is_none_or(|enrolled_at| enrolled_at < since)
+                && !linked.is_linked(person)
+        })
+        .collect()
+}
+
+/// [`unlinked_enrolled_before`] over a whole roster, each person once with their latest enrolment.
+pub(crate) async fn list_unlinked_enrolled_before(
+    conn: &mut PgConnection,
+    people: &[RosterPerson],
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<Vec<RosterPerson>> {
+    let distinct = distinct_people(people);
+    let linked_rows = load_linked_accounts(conn, &distinct).await?;
+    let linked = LinkedAccounts::new(&linked_rows);
+    Ok(unlinked_enrolled_before(&distinct, &linked, since)
+        .into_iter()
+        .cloned()
+        .collect())
 }
 
 /// The accounts already linked to someone on the roster, by Sisu person id or student number.

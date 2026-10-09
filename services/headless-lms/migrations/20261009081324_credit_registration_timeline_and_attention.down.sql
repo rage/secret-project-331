@@ -1,3 +1,5 @@
+ALTER TABLE credit_registration_roster_schedules DROP COLUMN linking_unlinked_enrolled_before_count;
+
 DROP TABLE credit_registration_daily_attention_snapshots;
 DROP TABLE credit_registration_daily_step_snapshots;
 DROP TYPE credit_registration_engagement;

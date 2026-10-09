@@ -353,6 +353,11 @@ export const zAdminLinkingSchedule = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   next_fetch_at: z.iso.datetime(),
+  unlinked_enrolled_before_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
 })
 
 export const zAdminManualLinkOutcome = z.enum([
@@ -455,6 +460,7 @@ export const zAdminRequeueRetryableResult = z.object({
 
 export const zAdminResendAccountLinkingEmailPayload = z.object({
   course_id: z.uuid(),
+  credit_registration_id: z.uuid().nullish(),
   override_rate_caps: z.boolean(),
   reason: z.string().nullish(),
   student_number: z.string(),
@@ -3386,6 +3392,46 @@ export const zLegacyLedgerDivergenceRow = z.object({
   state: zCreditRegistrationState,
   state_entered_at: z.iso.datetime(),
   user_id: z.uuid(),
+})
+
+/**
+ * Something a listed person shares with the student's account, strongest first.
+ */
+export const zLinkingCandidateSimilarity = z.enum([
+  "email",
+  "email_username",
+  "last_name",
+  "first_name",
+])
+
+/**
+ * A person on the code's enrolment list whom no linking email reached because they enrolled before
+ * account linking began, and who may be the waiting student.
+ */
+export const zAdminLinkingCandidate = z.object({
+  email_masked: z.string().nullish(),
+  enrolled_at: z.iso.datetime().nullish(),
+  first_names: z.string().nullish(),
+  last_name: z.string().nullish(),
+  linking_emails_for_course: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  similarities: z.array(zLinkingCandidateSimilarity),
+  student_number: z.string(),
+})
+
+export const zAdminLinkingCandidates = z.object({
+  account_linking_since: z.iso.datetime(),
+  candidates: z.array(zAdminLinkingCandidate),
+  course_code: z.string(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  study_registry_unavailable: z.boolean(),
 })
 
 /**
@@ -6763,6 +6809,11 @@ export const zCreditRegistrationAttentionItem = z.object({
   student_number: z.string().nullish(),
   timeline_step: zTimelineStep,
   uh_course_code: z.string().nullish(),
+  unlinked_enrolled_before_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   user_id: z.uuid(),
   waits_on: zWaitsOn,
 })
@@ -9028,6 +9079,15 @@ export const zAdminDismissCreditRegistrationAttentionPath = z.object({
  * The reasons dismissed
  */
 export const zAdminDismissCreditRegistrationAttentionResponse = zAdminDismissAttentionResult
+
+export const zGetCreditRegistrationLinkingCandidatesPath = z.object({
+  credit_registration_id: z.uuid(),
+})
+
+/**
+ * The candidates
+ */
+export const zGetCreditRegistrationLinkingCandidatesResponse = zAdminLinkingCandidates
 
 export const zAdminTransitionCreditRegistrationBody = zAdminTransitionCreditRegistrationPayload
 

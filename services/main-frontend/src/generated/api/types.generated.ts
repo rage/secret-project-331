@@ -625,6 +625,50 @@ export type AdminDismissStudyRegistryConflictPayload = {
   reason: string
 }
 
+/**
+ * A person on the code's enrolment list whom no linking email reached because they enrolled before
+ * account linking began, and who may be the waiting student.
+ */
+export type AdminLinkingCandidate = {
+  /**
+   * Masked like a teacher sees it: until a link is used they are a stranger, not the student.
+   */
+  email_masked?: string | null
+  /**
+   * `None` when the study registry gave no enrolment time.
+   */
+  enrolled_at?: string | null
+  first_names?: string | null
+  last_name?: string | null
+  /**
+   * Linking emails they have had for the registration's course, replaced ones included.
+   */
+  linking_emails_for_course: number
+  /**
+   * What they share with the student's account; the list is ordered by these.
+   */
+  similarities: Array<LinkingCandidateSimilarity>
+  /**
+   * Echoed back to the resend endpoint to mail them.
+   */
+  student_number: string
+}
+
+export type AdminLinkingCandidates = {
+  account_linking_since: string
+  /**
+   * Most like the student's account first.
+   */
+  candidates: Array<AdminLinkingCandidate>
+  course_code: string
+  course_id: string
+  course_name: string
+  /**
+   * The study registry gave no usable answer, so an empty `candidates` says nothing.
+   */
+  study_registry_unavailable: boolean
+}
+
 export type AdminLinkingEmail = {
   claimed_at: string
   course_id: string
@@ -660,6 +704,10 @@ export type AdminLinkingSchedule = {
    */
   linking_emails_since_press: number
   next_fetch_at: string
+  /**
+   * See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
+   */
+  unlinked_enrolled_before_count?: number | null
 }
 
 export type AdminManualLinkOutcome =
@@ -774,6 +822,11 @@ export type AdminRequeueRetryableResult = {
 
 export type AdminResendAccountLinkingEmailPayload = {
   course_id: string
+  /**
+   * The registration whose student the mail is a guess for, from the linking candidates. Must be
+   * on `course_id`; recorded on the audit row.
+   */
+  credit_registration_id?: string | null
   /**
    * Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
    */
@@ -2467,6 +2520,11 @@ export type CreditRegistrationAttentionItem = {
   student_number?: string | null
   timeline_step: TimelineStep
   uh_course_code?: string | null
+  /**
+   * From the code's last enrolment list that fed account linking: people who enrolled before
+   * account linking began and are linked to no account, so no linking email went to them.
+   */
+  unlinked_enrolled_before_count?: number | null
   user_id: string
   waits_on: WaitsOn
 }
@@ -3942,6 +4000,11 @@ export type LegacyLedgerDivergenceRow = {
   state_entered_at: string
   user_id: string
 }
+
+/**
+ * Something a listed person shares with the student's account, strongest first.
+ */
+export type LinkingCandidateSimilarity = "email" | "email_username" | "last_name" | "first_name"
 
 /**
  * Whether the link in a linking mail can still be opened, and if not, whether a new mail can
@@ -11149,6 +11212,35 @@ export type AdminDismissCreditRegistrationAttentionResponses = {
 
 export type AdminDismissCreditRegistrationAttentionResponse =
   AdminDismissCreditRegistrationAttentionResponses[keyof AdminDismissCreditRegistrationAttentionResponses]
+
+export type GetCreditRegistrationLinkingCandidatesData = {
+  body?: never
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates"
+}
+
+export type GetCreditRegistrationLinkingCandidatesErrors = {
+  /**
+   * Account linking is off, or the row is not stuck waiting for a student number
+   */
+  400: unknown
+}
+
+export type GetCreditRegistrationLinkingCandidatesResponses = {
+  /**
+   * The candidates
+   */
+  200: AdminLinkingCandidates
+}
+
+export type GetCreditRegistrationLinkingCandidatesResponse =
+  GetCreditRegistrationLinkingCandidatesResponses[keyof GetCreditRegistrationLinkingCandidatesResponses]
 
 export type AdminTransitionCreditRegistrationData = {
   body: AdminTransitionCreditRegistrationPayload

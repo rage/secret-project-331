@@ -13,6 +13,7 @@ import { failureActionLabel } from "../registrationFailures"
 import { noteCss, rowCss, stackedCellCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import AdminDismissAttentionButton from "./AdminDismissAttentionButton"
+import AdminLinkingCandidatesButton from "./AdminLinkingCandidatesButton"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
 import type { ActionResult } from "./AdminTransitionBlock"
@@ -33,8 +34,8 @@ const RUNNING_LATE_OFFERS: ReadonlySet<HandActionOffer> = new Set([RESUBMIT, CHE
 
 /**
  * The actions a Needs attention row offers in its own cell. A stuck presser gets the linking
- * actions; every other row its best remedies, then Dismiss, and Cancel once Sisu has stopped
- * accepting retries.
+ * actions, plus a guess from the enrolment list on a code with unmailed early enrolees; every other
+ * row its best remedies, then Dismiss, and Cancel once Sisu has stopped accepting retries.
  */
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -61,6 +62,12 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
           variant={BUTTON_SECONDARY}
         />
         {item.uh_course_code && <FetchEnrolmentListNowButton courseCode={item.uh_course_code} />}
+        {isAccountLinkingEnabled && (item.unlinked_enrolled_before_count ?? 0) > 0 && (
+          <AdminLinkingCandidatesButton
+            registrationId={item.credit_registration_id}
+            variant={BUTTON_TERTIARY}
+          />
+        )}
         <AdminDismissAttentionButton registrationId={item.credit_registration_id} />
       </span>
     )

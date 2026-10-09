@@ -8273,6 +8273,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`\n- Who on the code's enrolment list a student stuck waiting for a student number may be.\n\nLists the roster live and keeps the people no account is linked to who enrolled before account\nlinking began, whom no linking email went to. Ranked by resemblance to the student's account, which\nis only a hint. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getCreditRegistrationLinkingCandidates",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The candidates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLinkingCandidates"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account linking is off, or the row is not stuck waiting for a student number"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -15740,6 +15774,82 @@
           }
         }
       },
+      "AdminLinkingCandidate": {
+        "type": "object",
+        "description": "A person on the code's enrolment list whom no linking email reached because they enrolled before\naccount linking began, and who may be the waiting student.",
+        "required": ["student_number", "linking_emails_for_course", "similarities"],
+        "properties": {
+          "email_masked": {
+            "type": ["string", "null"],
+            "description": "Masked like a teacher sees it: until a link is used they are a stranger, not the student."
+          },
+          "enrolled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` when the study registry gave no enrolment time."
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linking_emails_for_course": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Linking emails they have had for the registration's course, replaced ones included."
+          },
+          "similarities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkingCandidateSimilarity"
+            },
+            "description": "What they share with the student's account; the list is ordered by these."
+          },
+          "student_number": {
+            "type": "string",
+            "description": "Echoed back to the resend endpoint to mail them."
+          }
+        }
+      },
+      "AdminLinkingCandidates": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "course_code",
+          "account_linking_since",
+          "study_registry_unavailable",
+          "candidates"
+        ],
+        "properties": {
+          "account_linking_since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingCandidate"
+            },
+            "description": "Most like the student's account first."
+          },
+          "course_code": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer, so an empty `candidates` says nothing."
+          }
+        }
+      },
       "AdminLinkingEmail": {
         "type": "object",
         "required": [
@@ -15832,6 +15942,11 @@
           "next_fetch_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "unlinked_enrolled_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`]."
           }
         }
       },
@@ -16059,6 +16174,11 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The registration whose student the mail is a guess for, from the linking candidates. Must be\non `course_id`; recorded on the audit row."
           },
           "override_rate_caps": {
             "type": "boolean",
@@ -20726,6 +20846,11 @@
           "uh_course_code": {
             "type": ["string", "null"]
           },
+          "unlinked_enrolled_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "From the code's last enrolment list that fed account linking: people who enrolled before\naccount linking began and are linked to no account, so no linking email went to them."
+          },
           "user_id": {
             "type": "string",
             "format": "uuid"
@@ -24305,6 +24430,11 @@
             "format": "uuid"
           }
         }
+      },
+      "LinkingCandidateSimilarity": {
+        "type": "string",
+        "description": "Something a listed person shares with the student's account, strongest first.",
+        "enum": ["email", "email_username", "last_name", "first_name"]
       },
       "LinkingEmailLinkState": {
         "type": "string",

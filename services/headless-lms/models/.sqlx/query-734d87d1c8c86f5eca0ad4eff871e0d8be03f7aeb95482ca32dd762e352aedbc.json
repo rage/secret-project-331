@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  NULLIF(TRIM(cm.uh_course_code), '') AS uh_course_code,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_changed_at,\n  cr.phase_started_at,\n  cr.error_code AS \"error_code?\",\n  cr.submit_retry_count + cr.verify_attempt_count AS \"attempt_count!\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.submitted_at,\n  cr.resubmit_not_before,\n  cr.student_number,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  route.enrolment_confirmed_at AS \"pressed_at?\",\n  route.route AS \"enrolment_route?: CreditRegistrationEnrolmentRoute\",\n  sig.last_visited_at AS \"last_visited_at?\",\n  s.last_mailing_fetch_started_at AS \"last_mailing_fetch_started_at?\",\n  COALESCE(s.last_listed_person_count = 0, FALSE) AS \"is_enrolment_list_empty!\",\n  ARRAY_REMOVE(\n    ARRAY [\n      CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,\n      CASE WHEN d.permanent_error THEN 'permanent_error'::credit_registration_attention_reason END,\n      CASE WHEN d.retry_window_expired THEN 'retry_window_expired'::credit_registration_attention_reason END,\n      CASE WHEN d.misregistered THEN 'misregistered'::credit_registration_attention_reason END,\n      CASE WHEN d.too_many_attempts THEN 'too_many_attempts'::credit_registration_attention_reason END,\n      CASE WHEN d.outcome_uncertain THEN 'outcome_uncertain'::credit_registration_attention_reason END,\n      CASE WHEN d.partly_registered_overdue THEN 'partly_registered_overdue'::credit_registration_attention_reason END,\n      CASE WHEN d.verification_gave_up THEN 'verification_gave_up'::credit_registration_attention_reason END,\n      CASE WHEN d.repeatedly_not_registered THEN 'repeatedly_not_registered'::credit_registration_attention_reason END,\n      CASE WHEN d.student_number_stuck THEN 'student_number_stuck'::credit_registration_attention_reason END,\n      CASE WHEN flagged.only_flag THEN 'flagged_by_pipeline'::credit_registration_attention_reason END\n    ],\n    NULL\n  ) AS \"reasons!: Vec<AttentionReason>\",\n  dis.dismissed_reasons AS \"dismissed_reasons?: Vec<AttentionReason>\",\n  dis.created_at AS \"dismissed_at?\",\n  dis.dismissed_by_user_id AS \"dismissed_by_user_id?\",\n  dis.reason AS \"dismissal_reason?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id\n  AND route.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\n  LEFT JOIN credit_registration_roster_schedules s ON s.course_code = TRIM(cm.uh_course_code)\n  LEFT JOIN credit_registration_attention_dismissals dis ON dis.credit_registration_id = cr.id\n  AND dis.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT u.threshold_secs\n    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)\n    WHERE u.state = cr.state\n  ) t ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT cr.terminal_at IS NULL\n      AND t.threshold_secs IS NOT NULL\n      AND now() - cr.state_changed_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,\n      cr.state = 'failed_permanent'\n      AND cr.needs_admin_attention\n      AND cr.error_code IS DISTINCT FROM 'retry_window_expired' AS permanent_error,\n      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,\n      cr.state = 'misregistered' AS misregistered,\n      cr.submit_retry_count >= $3\n      AND cr.terminal_at IS NULL AS too_many_attempts,\n      cr.state = 'submission_uncertain' AS outcome_uncertain,\n      COALESCE(\n        cr.state = 'partially_registered'\n        AND cr.partially_registered_at <= now() - ($4::bigint * INTERVAL '1 second'),\n        FALSE\n      ) AS partly_registered_overdue,\n      COALESCE(\n        cr.state IN ('awaiting_verification', 'partially_registered')\n        AND cr.submitted_at <= now() - ($5::bigint * INTERVAL '1 second'),\n        FALSE\n      ) AS verification_gave_up,\n      cr.not_registered_reimport_count >= $6\n      AND cr.terminal_at IS NULL AS repeatedly_not_registered,\n      COALESCE(\n        cr.state = 'pending'\n        AND p.completion_eligible\n        AND NOT p.has_verified_student_number\n        AND cmc.completion_date >= $7::timestamptz\n        AND s.last_mailing_fetch_started_at >= route.enrolment_confirmed_at + ($8::bigint * INTERVAL '1 second')\n        AND NOT EXISTS (\n          SELECT 1\n          FROM credit_registration_account_linking_emails e\n            JOIN course_modules code_module ON code_module.course_id = e.course_id\n            AND code_module.deleted_at IS NULL\n          WHERE TRIM(code_module.uh_course_code) = s.course_code\n            AND e.sent_at >= route.enrolment_confirmed_at\n            AND e.deleted_at IS NULL\n        ),\n        FALSE\n      ) AS student_number_stuck\n  ) d\n  CROSS JOIN LATERAL (\n    SELECT cr.needs_admin_attention\n      AND NOT (\n        d.stuck_in_state\n        OR d.permanent_error\n        OR d.retry_window_expired\n        OR d.misregistered\n        OR d.too_many_attempts\n        OR d.outcome_uncertain\n        OR d.partly_registered_overdue\n        OR d.verification_gave_up\n        OR d.repeatedly_not_registered\n        OR d.student_number_stuck\n      ) AS only_flag\n  ) flagged\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    $9::uuid [] IS NULL\n    OR cr.id = ANY($9)\n  )\n  AND (\n    cr.needs_admin_attention\n    OR d.stuck_in_state\n    OR d.permanent_error\n    OR d.retry_window_expired\n    OR d.misregistered\n    OR d.too_many_attempts\n    OR d.outcome_uncertain\n    OR d.partly_registered_overdue\n    OR d.verification_gave_up\n    OR d.repeatedly_not_registered\n    OR d.student_number_stuck\n  )\nORDER BY cr.phase_started_at,\n  cr.id\n        ",
+  "query": "\nSELECT cr.id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  NULLIF(TRIM(cm.uh_course_code), '') AS uh_course_code,\n  cr.course_module_completion_id,\n  cmc.completion_date,\n  cr.state,\n  cr.state_changed_at,\n  cr.phase_started_at,\n  cr.error_code AS \"error_code?\",\n  cr.submit_retry_count + cr.verify_attempt_count AS \"attempt_count!\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.submitted_at,\n  cr.resubmit_not_before,\n  cr.student_number,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  route.enrolment_confirmed_at AS \"pressed_at?\",\n  route.route AS \"enrolment_route?: CreditRegistrationEnrolmentRoute\",\n  sig.last_visited_at AS \"last_visited_at?\",\n  s.last_mailing_fetch_started_at AS \"last_mailing_fetch_started_at?\",\n  COALESCE(s.last_listed_person_count = 0, FALSE) AS \"is_enrolment_list_empty!\",\n  s.linking_unlinked_enrolled_before_count AS \"unlinked_enrolled_before_count?\",\n  ARRAY_REMOVE(\n    ARRAY [\n      CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,\n      CASE WHEN d.permanent_error THEN 'permanent_error'::credit_registration_attention_reason END,\n      CASE WHEN d.retry_window_expired THEN 'retry_window_expired'::credit_registration_attention_reason END,\n      CASE WHEN d.misregistered THEN 'misregistered'::credit_registration_attention_reason END,\n      CASE WHEN d.too_many_attempts THEN 'too_many_attempts'::credit_registration_attention_reason END,\n      CASE WHEN d.outcome_uncertain THEN 'outcome_uncertain'::credit_registration_attention_reason END,\n      CASE WHEN d.partly_registered_overdue THEN 'partly_registered_overdue'::credit_registration_attention_reason END,\n      CASE WHEN d.verification_gave_up THEN 'verification_gave_up'::credit_registration_attention_reason END,\n      CASE WHEN d.repeatedly_not_registered THEN 'repeatedly_not_registered'::credit_registration_attention_reason END,\n      CASE WHEN d.student_number_stuck THEN 'student_number_stuck'::credit_registration_attention_reason END,\n      CASE WHEN flagged.only_flag THEN 'flagged_by_pipeline'::credit_registration_attention_reason END\n    ],\n    NULL\n  ) AS \"reasons!: Vec<AttentionReason>\",\n  dis.dismissed_reasons AS \"dismissed_reasons?: Vec<AttentionReason>\",\n  dis.created_at AS \"dismissed_at?\",\n  dis.dismissed_by_user_id AS \"dismissed_by_user_id?\",\n  dis.reason AS \"dismissal_reason?\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id\n  AND route.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\n  LEFT JOIN credit_registration_roster_schedules s ON s.course_code = TRIM(cm.uh_course_code)\n  LEFT JOIN credit_registration_attention_dismissals dis ON dis.credit_registration_id = cr.id\n  AND dis.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT u.threshold_secs\n    FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)\n    WHERE u.state = cr.state\n  ) t ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT cr.terminal_at IS NULL\n      AND t.threshold_secs IS NOT NULL\n      AND now() - cr.state_changed_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,\n      cr.state = 'failed_permanent'\n      AND cr.needs_admin_attention\n      AND cr.error_code IS DISTINCT FROM 'retry_window_expired' AS permanent_error,\n      COALESCE(cr.error_code = 'retry_window_expired', FALSE) AS retry_window_expired,\n      cr.state = 'misregistered' AS misregistered,\n      cr.submit_retry_count >= $3\n      AND cr.terminal_at IS NULL AS too_many_attempts,\n      cr.state = 'submission_uncertain' AS outcome_uncertain,\n      COALESCE(\n        cr.state = 'partially_registered'\n        AND cr.partially_registered_at <= now() - ($4::bigint * INTERVAL '1 second'),\n        FALSE\n      ) AS partly_registered_overdue,\n      COALESCE(\n        cr.state IN ('awaiting_verification', 'partially_registered')\n        AND cr.submitted_at <= now() - ($5::bigint * INTERVAL '1 second'),\n        FALSE\n      ) AS verification_gave_up,\n      cr.not_registered_reimport_count >= $6\n      AND cr.terminal_at IS NULL AS repeatedly_not_registered,\n      COALESCE(\n        cr.state = 'pending'\n        AND p.completion_eligible\n        AND NOT p.has_verified_student_number\n        AND cmc.completion_date >= $7::timestamptz\n        AND s.last_mailing_fetch_started_at >= route.enrolment_confirmed_at + ($8::bigint * INTERVAL '1 second')\n        AND (\n          s.linking_unlinked_enrolled_before_count > 0\n          OR NOT EXISTS (\n            SELECT 1\n            FROM credit_registration_account_linking_emails e\n              JOIN course_modules code_module ON code_module.course_id = e.course_id\n              AND code_module.deleted_at IS NULL\n            WHERE TRIM(code_module.uh_course_code) = s.course_code\n              AND e.sent_at >= route.enrolment_confirmed_at\n              AND e.deleted_at IS NULL\n          )\n        ),\n        FALSE\n      ) AS student_number_stuck\n  ) d\n  CROSS JOIN LATERAL (\n    SELECT cr.needs_admin_attention\n      AND NOT (\n        d.stuck_in_state\n        OR d.permanent_error\n        OR d.retry_window_expired\n        OR d.misregistered\n        OR d.too_many_attempts\n        OR d.outcome_uncertain\n        OR d.partly_registered_overdue\n        OR d.verification_gave_up\n        OR d.repeatedly_not_registered\n        OR d.student_number_stuck\n      ) AS only_flag\n  ) flagged\nWHERE cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND (\n    $9::uuid [] IS NULL\n    OR cr.id = ANY($9)\n  )\n  AND (\n    cr.needs_admin_attention\n    OR d.stuck_in_state\n    OR d.permanent_error\n    OR d.retry_window_expired\n    OR d.misregistered\n    OR d.too_many_attempts\n    OR d.outcome_uncertain\n    OR d.partly_registered_overdue\n    OR d.verification_gave_up\n    OR d.repeatedly_not_registered\n    OR d.student_number_stuck\n  )\nORDER BY cr.phase_started_at,\n  cr.id\n        ",
   "describe": {
     "columns": [
       {
@@ -392,6 +392,17 @@
       },
       {
         "ordinal": 31,
+        "name": "unlinked_enrolled_before_count?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_unlinked_enrolled_before_count"
+          }
+        }
+      },
+      {
+        "ordinal": 32,
         "name": "reasons!: Vec<AttentionReason>",
         "type_info": {
           "Custom": {
@@ -423,7 +434,7 @@
         "origin": "Expression"
       },
       {
-        "ordinal": 32,
+        "ordinal": 33,
         "name": "dismissed_reasons?: Vec<AttentionReason>",
         "type_info": {
           "Custom": {
@@ -460,7 +471,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "dismissed_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -471,7 +482,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 35,
         "name": "dismissed_by_user_id?",
         "type_info": "Uuid",
         "origin": {
@@ -482,7 +493,7 @@
         }
       },
       {
-        "ordinal": 35,
+        "ordinal": 36,
         "name": "dismissal_reason?",
         "type_info": "Text",
         "origin": {
@@ -570,6 +581,7 @@
       true,
       true,
       null,
+      true,
       null,
       false,
       false,
@@ -577,5 +589,5 @@
       false
     ]
   },
-  "hash": "6e321092a1c99c2708e38dc10de8327d3e068bec206888e4e23865c91739cf9f"
+  "hash": "734d87d1c8c86f5eca0ad4eff871e0d8be03f7aeb95482ca32dd762e352aedbc"
 }

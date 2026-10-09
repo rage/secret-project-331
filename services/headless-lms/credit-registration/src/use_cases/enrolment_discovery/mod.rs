@@ -10,6 +10,8 @@
 mod listing;
 mod reconcile;
 
+pub(crate) use reconcile::list_unlinked_enrolled_before;
+
 use headless_lms_models::course_module_suotar_configurations::ModuleToList;
 use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{

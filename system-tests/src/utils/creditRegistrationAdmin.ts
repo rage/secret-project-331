@@ -129,6 +129,8 @@ export interface AdminRegistrationFilter {
   state?: string
   needs_admin_attention?: boolean
   include_superseded?: boolean
+  /** Rows waiting on a student who has not started are left out unless this is set. */
+  include_not_started?: boolean
   limit?: number
 }
 

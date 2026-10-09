@@ -75,6 +75,7 @@ const rowInState = (adminApi: APIRequestContext, states: string[]) =>
         await listAdminRegistrations(adminApi, {
           student_number: STUDENT.studentNumber,
           course_id: SUOTAR_B_COURSE_ID,
+          include_not_started: true,
         })
       ).data
       return row && states.includes(row.state) ? row : null

@@ -633,8 +633,13 @@ pub async fn get_account_linking_stats(
     .collect();
 
     let rules = attention_rules(&mut conn, &app_conf).await?;
-    let attention = credit_registrations::get_attention_items(&mut conn, &rules).await?;
-    let stuck: Vec<(Uuid, bool)> = attention
+    let presser_ids: Vec<Uuid> = presser_rows
+        .iter()
+        .map(|row| row.credit_registration_id)
+        .collect();
+    let attention =
+        credit_registrations::get_attention_items(&mut conn, &rules, Some(&presser_ids)).await?;
+    let needs_attention_by_stuck_id: HashMap<Uuid, bool> = attention
         .iter()
         .filter(|row| row.reasons.contains(&AttentionReason::StudentNumberStuck))
         .map(|row| {
@@ -651,9 +656,9 @@ pub async fn get_account_linking_stats(
                 .uh_course_code
                 .as_deref()
                 .and_then(|code| course_codes.iter().find(|known| known.course_code == code));
-            let stuck_row = stuck
-                .iter()
-                .find(|(id, _)| *id == row.credit_registration_id);
+            let stuck_needs_attention = needs_attention_by_stuck_id
+                .get(&row.credit_registration_id)
+                .copied();
             AccountLinkingPresser {
                 credit_registration_id: row.credit_registration_id,
                 user_id: row.user_id,
@@ -675,8 +680,8 @@ pub async fn get_account_linking_stats(
                 last_linking_email_on_code_at: row.last_linking_email_on_code_at,
                 is_enrolment_list_empty: code.is_some_and(|code| code.is_enrolment_list_empty),
                 is_fetch_failing: code.is_some_and(|code| code.is_fetch_failing),
-                is_stuck: stuck_row.is_some(),
-                needs_attention: stuck_row.is_some_and(|(_, needs)| *needs),
+                is_stuck: stuck_needs_attention.is_some(),
+                needs_attention: stuck_needs_attention.unwrap_or(false),
             }
         })
         .collect();

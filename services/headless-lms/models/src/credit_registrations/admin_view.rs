@@ -1,5 +1,7 @@
 //! The ledger as the admin explorer and the reconciliation detectors read it, across courses.
 
+use std::collections::BTreeMap;
+
 use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use super::teacher_view::search_pattern_of;
@@ -103,6 +105,7 @@ impl AdminCreditRegistration {
         )
     }
 
+    /// What a `pending` row is waiting on, as the row's precondition flags say.
     pub fn preconditions(&self) -> PendingPreconditions {
         PendingPreconditions {
             completion_eligible: self.completion_eligible,
@@ -111,6 +114,7 @@ impl AdminCreditRegistration {
         }
     }
 
+    /// Where the row stands on the admin timeline.
     pub fn position(&self) -> TimelinePosition {
         TimelinePosition::of(
             self.state,
@@ -527,6 +531,17 @@ GROUP BY cr.course_module_id,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// [`count_by_step_and_engagement`]'s rows summed over modules, in timeline order.
+pub fn sum_step_counts_over_modules<'a>(
+    rows: impl IntoIterator<Item = &'a StepCount>,
+) -> BTreeMap<(TimelineStep, Option<Engagement>), i64> {
+    let mut totals = BTreeMap::new();
+    for row in rows {
+        *totals.entry((row.step, row.engagement)).or_insert(0) += row.count;
+    }
+    totals
 }
 
 /// Live rows in each of the given states, newest activity first within each state, for the

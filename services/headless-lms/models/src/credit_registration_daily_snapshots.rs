@@ -5,7 +5,9 @@
 use chrono::NaiveDate;
 use utoipa::ToSchema;
 
-use crate::credit_registrations::{CreditRegistrationState, StepCount};
+use crate::credit_registrations::{
+    CreditRegistrationState, StepCount, sum_step_counts_over_modules,
+};
 use crate::library::credit_registration::timeline::{Engagement, TimelineStep};
 use crate::prelude::*;
 
@@ -166,21 +168,13 @@ pub async fn write_step_snapshot_for_date(
     snapshot_date: NaiveDate,
     counts: &[StepCount],
 ) -> ModelResult<()> {
-    let mut totals: Vec<(TimelineStep, Option<Engagement>, i64)> = Vec::new();
-    for row in counts {
-        match totals
-            .iter_mut()
-            .find(|(step, engagement, _)| *step == row.step && *engagement == row.engagement)
-        {
-            Some(total) => total.2 += row.count,
-            None => totals.push((row.step, row.engagement, row.count)),
-        }
-    }
-    let steps: Vec<TimelineStep> = totals.iter().map(|total| total.0).collect();
-    let engagements: Vec<Option<Engagement>> = totals.iter().map(|total| total.1).collect();
+    let totals = sum_step_counts_over_modules(counts);
+    let steps: Vec<TimelineStep> = totals.keys().map(|(step, _)| *step).collect();
+    let engagements: Vec<Option<Engagement>> =
+        totals.keys().map(|(_, engagement)| *engagement).collect();
     let step_counts: Vec<i32> = totals
-        .iter()
-        .map(|total| i32::try_from(total.2).unwrap_or(i32::MAX))
+        .values()
+        .map(|count| i32::try_from(*count).unwrap_or(i32::MAX))
         .collect();
     let mut tx = conn.begin().await?;
     // A step emptied since an earlier run today must not keep that run's count.
@@ -243,6 +237,7 @@ SET needs_attention_count = $2
     Ok(())
 }
 
+/// The step snapshots of every day from `from` to `to`, both included, oldest day first.
 pub async fn get_step_counts_between(
     conn: &mut PgConnection,
     from: NaiveDate,

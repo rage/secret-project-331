@@ -478,6 +478,7 @@
   "credit-registration-admin-not-linked": "Ei liitetty",
   "credit-registration-admin-not-sent-yet": "Ei vielä lähetetty",
   "credit-registration-admin-nothing-needs-a-human": "Mikään ei vaadi ihmistä juuri nyt.",
+  "credit-registration-admin-oldest-shown": "Vanhimmat ensin, {{shown}}/{{total}}.",
   "credit-registration-admin-one-snapshot-only": "Vain yksi tilannekuva. Kehityksen näkeminen vaatii vähintään kaksi päivää.",
   "credit-registration-admin-only-needs-attention": "Vain huomiota vaativat",
   "credit-registration-admin-only-problems": "Vain moduulit, joissa on ongelma",

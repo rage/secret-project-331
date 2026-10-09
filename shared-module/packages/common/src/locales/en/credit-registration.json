@@ -478,6 +478,7 @@
   "credit-registration-admin-not-linked": "Not linked",
   "credit-registration-admin-not-sent-yet": "Not sent yet",
   "credit-registration-admin-nothing-needs-a-human": "Nothing needs a human right now.",
+  "credit-registration-admin-oldest-shown": "Oldest first, {{shown}} of {{total}}.",
   "credit-registration-admin-one-snapshot-only": "One snapshot so far. A trend needs at least two days.",
   "credit-registration-admin-only-needs-attention": "Needs attention only",
   "credit-registration-admin-only-problems": "Only modules with a problem",

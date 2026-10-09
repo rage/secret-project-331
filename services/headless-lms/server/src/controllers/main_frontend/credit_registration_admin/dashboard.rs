@@ -207,8 +207,9 @@ pub async fn get_credit_registration_overview(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let rules = attention_rules(&mut conn, &app_conf).await?;
-    let attention_rows = credit_registrations::get_attention_items(&mut conn, &rules).await?;
-    let stuck_rows = credit_registrations::count_running_late(&attention_rows, &rules, Utc::now());
+    let attention_rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
+    let stuck_rows =
+        credit_registrations::count_stuck_in_state(&attention_rows, &rules.thresholds, Utc::now());
     let needs_attention_count = attention_rows
         .iter()
         .filter(|row| row.standing(&rules.blocking) == AttentionStanding::NeedsAttention)
@@ -545,32 +546,18 @@ fn to_oldest_non_terminal(
 
 /// Sums per-module counts into one per step and engagement, Not started left out, in timeline order.
 pub(super) fn sum_step_counts<'a>(
-    rows: impl Iterator<Item = &'a StepCount>,
+    rows: impl IntoIterator<Item = &'a StepCount>,
 ) -> Vec<CreditRegistrationStepCount> {
-    let mut totals: Vec<CreditRegistrationStepCount> = Vec::new();
-    for row in rows.filter(|row| row.engagement != Some(Engagement::NotStarted)) {
-        match totals
-            .iter_mut()
-            .find(|total| total.step == row.step && total.engagement == row.engagement)
-        {
-            Some(total) => total.count += row.count,
-            None => totals.push(CreditRegistrationStepCount {
-                phase: row.step.phase(),
-                step: row.step,
-                engagement: row.engagement,
-                count: row.count,
-            }),
-        }
-    }
-    totals.sort_by_key(|total| {
-        (
-            TimelineStep::ALL
-                .iter()
-                .position(|step| *step == total.step),
-            total.engagement.map(|engagement| engagement as u8),
-        )
-    });
-    totals
+    credit_registrations::sum_step_counts_over_modules(rows)
+        .into_iter()
+        .filter(|((_, engagement), _)| *engagement != Some(Engagement::NotStarted))
+        .map(|((step, engagement), count)| CreditRegistrationStepCount {
+            phase: step.phase(),
+            step,
+            engagement,
+            count,
+        })
+        .collect()
 }
 
 fn to_stuck_total(row: StuckRegistrationCount) -> CreditRegistrationStuckTotal {

@@ -413,6 +413,9 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt's events, oldest first, so one timeline covers the whole completion.
    */
   events: Array<AdminCreditRegistrationEvent>
+  /**
+   * Read from the newest attempt, whichever attempt was asked for.
+   */
   journey: AdminCreditRegistrationJourney
   /**
    * Every mail addressed to this person, on any course.
@@ -1061,6 +1064,9 @@ export type BlockingProblem = {
   subject: string
 }
 
+/**
+ * What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
+ */
 export type BlockingProblemKind =
   | "processing_phase_stopped"
   | "course_code_failing"
@@ -2479,23 +2485,39 @@ export type CreditRegistrationAttentionItems = {
    */
   explained_by_problem: Array<CreditRegistrationBlockingProblemRows>
   /**
-   * Rows matching `reason`, which is what `total_pages` pages through.
+   * The rows needing attention that match `reason`, one entry per timeline phase that has any,
+   * in timeline order.
    */
-  filtered_count: number
+  phases: Array<CreditRegistrationAttentionPhaseRows>
   /**
-   * The requested page of the Needs attention section.
-   */
-  items: Array<CreditRegistrationAttentionItem>
-  /**
-   * Over a timing threshold with no person-level cause, oldest first. Not in the count.
+   * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
+   * the count.
    */
   running_late: Array<CreditRegistrationAttentionItem>
+  /**
+   * Every running late row, however many `running_late` lists.
+   */
+  running_late_count: number
   /**
    * The Needs attention count, whatever this request filtered to: the tab badge, the same number
    * `/overview` reports.
    */
   total_count: number
-  total_pages: number
+}
+
+/**
+ * The rows of one timeline phase that need attention.
+ */
+export type CreditRegistrationAttentionPhaseRows = {
+  /**
+   * The first of them in the requested order, at most `limit`.
+   */
+  items: Array<CreditRegistrationAttentionItem>
+  phase: TimelinePhase
+  /**
+   * Every row of the phase matching `reason`, however many `items` lists.
+   */
+  total_count: number
 }
 
 /**
@@ -2523,8 +2545,15 @@ export type CreditRegistrationAttentionReasonCount = {
  * One blocking problem and the rows it accounts for.
  */
 export type CreditRegistrationBlockingProblemRows = {
+  /**
+   * The oldest of them, at most `limit`.
+   */
   items: Array<CreditRegistrationAttentionItem>
   problem: BlockingProblem
+  /**
+   * Every row the problem accounts for, however many `items` lists.
+   */
+  total_count: number
 }
 
 /**
@@ -3346,7 +3375,7 @@ export type EmailVerificationStatus = {
 
 /**
  * What a student waiting on their own step has done on the registration page. Per completion, so
- * every attempt of one completion shares it.
+ * every attempt of one completion shares it. Ordered from most to least engaged.
  */
 export type Engagement = "pressed" | "visited" | "not_started"
 
@@ -5710,13 +5739,13 @@ export type TimeGranularity = "Year" | "Month" | "Day"
 
 /**
  * A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the
- * steps that wait on the student.
+ * steps that wait on the student. Declared, and so ordered, in timeline order.
  */
 export type TimelinePhase = "course" | "student_number" | "registering" | "confirmation" | "ended"
 
 /**
  * One step of the admin timeline. The Registrations list, the overview counts and the status card
- * all name a row by this.
+ * all name a row by this. Declared, and so ordered, in timeline order.
  */
 export type TimelineStep =
   | "course_not_registrable_yet"
@@ -10547,11 +10576,7 @@ export type GetCreditRegistrationAttentionItemsData = {
   path?: never
   query?: {
     /**
-     * Page number, from 1
-     */
-    page?: number
-    /**
-     * Rows per page
+     * Rows listed per section; the counts cover every row
      */
     limit?: number
     /**
@@ -11002,7 +11027,7 @@ export type ListCreditRegistrationsForAdminData = {
      */
     include_superseded?: boolean
     /**
-     * last_activity (rows counted in Needs attention first), created, time_in_state or attempts
+     * last_activity (the default; rows counted in Needs attention first), created, time_in_state or attempts
      */
     sort?: string
   }

@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react"
-
 import type {
   CreditRegistrationHistory,
   CreditRegistrationHistoryDay,
@@ -115,21 +113,4 @@ export const niceMax = (value: number): number => {
   const magnitude = 10 ** Math.floor(Math.log10(Math.max(value, 1)))
   const step = NICE_STEPS.find((candidate) => value <= candidate * magnitude) ?? 10
   return step * magnitude
-}
-
-/** The container's width once it is on screen; 0 before the first measurement. */
-export const useMeasuredWidth = (): [React.RefObject<HTMLDivElement | null>, number] => {
-  const ref = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
-  useEffect(() => {
-    const element = ref.current
-    if (element === null || typeof ResizeObserver === "undefined") {
-      return
-    }
-    const observer = new ResizeObserver(() => setWidth(element.clientWidth))
-    observer.observe(element)
-    setWidth(element.clientWidth)
-    return () => observer.disconnect()
-  }, [])
-  return [ref, width]
 }

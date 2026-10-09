@@ -25,6 +25,7 @@ import FacetChip from "@/components/credit-registration/admin/FacetChip"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
 import {
+  FAILED_STEPS,
   FINISHED_STEPS,
   TIMELINE_STEPS,
 } from "@/components/credit-registration/admin/timelineSteps"
@@ -72,8 +73,6 @@ import {
   StatTileList,
   Table,
 } from "@/shared-module/components"
-
-const FAILED_STEPS: readonly TimelineStep[] = ["needs_a_person", "recorded_wrongly"]
 
 /** Steps still on their way: neither finished nor counted under Failed. */
 const IN_PROGRESS_STEPS: readonly TimelineStep[] = TIMELINE_STEPS.filter(
@@ -600,6 +599,7 @@ const CoursesPage: React.FC = () => {
                             href={registrationsListHref({
                               courseModuleId: row.course_module_id,
                               needsAttention: true,
+                              includeNotStarted: true,
                             })}
                             appearance={LINK_QUIET}
                           >

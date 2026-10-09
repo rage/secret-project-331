@@ -612,6 +612,9 @@ export const zBlockProposalInfo = z.object({
   id: z.uuid(),
 })
 
+/**
+ * What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
+ */
 export const zBlockingProblemKind = z.enum([
   "processing_phase_stopped",
   "course_code_failing",
@@ -2676,7 +2679,7 @@ export const zEmailVerificationStatus = z.object({
 
 /**
  * What a student waiting on their own step has done on the registration page. Per completion, so
- * every attempt of one completion shares it.
+ * every attempt of one completion shares it. Ordered from most to least engaged.
  */
 export const zEngagement = z.enum(["pressed", "visited", "not_started"])
 
@@ -5830,7 +5833,7 @@ export const zTimeGranularity = z.enum(["Year", "Month", "Day"])
 
 /**
  * A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the
- * steps that wait on the student.
+ * steps that wait on the student. Declared, and so ordered, in timeline order.
  */
 export const zTimelinePhase = z.enum([
   "course",
@@ -5842,7 +5845,7 @@ export const zTimelinePhase = z.enum([
 
 /**
  * One step of the admin timeline. The Registrations list, the overview counts and the status card
- * all name a row by this.
+ * all name a row by this. Declared, and so ordered, in timeline order.
  */
 export const zTimelineStep = z.enum([
   "course_not_registrable_yet",
@@ -6765,27 +6768,11 @@ export const zCreditRegistrationAttentionItem = z.object({
 })
 
 /**
- * One blocking problem and the rows it accounts for.
+ * The rows of one timeline phase that need attention.
  */
-export const zCreditRegistrationBlockingProblemRows = z.object({
+export const zCreditRegistrationAttentionPhaseRows = z.object({
   items: z.array(zCreditRegistrationAttentionItem),
-  problem: zBlockingProblem,
-})
-
-export const zCreditRegistrationAttentionItems = z.object({
-  counts_by_reason: z.array(zCreditRegistrationAttentionReasonCount),
-  dismissed_recently: z.array(zCreditRegistrationAttentionDismissal),
-  explained_by_problem: z.array(zCreditRegistrationBlockingProblemRows),
-  filtered_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-  items: z.array(zCreditRegistrationAttentionItem),
-  running_late: z.array(zCreditRegistrationAttentionItem),
+  phase: zTimelinePhase,
   total_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -6794,10 +6781,46 @@ export const zCreditRegistrationAttentionItems = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  total_pages: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * One blocking problem and the rows it accounts for.
+ */
+export const zCreditRegistrationBlockingProblemRows = z.object({
+  items: z.array(zCreditRegistrationAttentionItem),
+  problem: zBlockingProblem,
+  total_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+export const zCreditRegistrationAttentionItems = z.object({
+  counts_by_reason: z.array(zCreditRegistrationAttentionReasonCount),
+  dismissed_recently: z.array(zCreditRegistrationAttentionDismissal),
+  explained_by_problem: z.array(zCreditRegistrationBlockingProblemRows),
+  phases: z.array(zCreditRegistrationAttentionPhaseRows),
+  running_late: z.array(zCreditRegistrationAttentionItem),
+  running_late_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  total_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 export const zPageAdminCreditRegistrationRow = z.object({
@@ -8773,11 +8796,6 @@ export const zAdminDismissStudyRegistryConflictPath = z.object({
 })
 
 export const zGetCreditRegistrationAttentionItemsQuery = z.object({
-  page: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .optional(),
   limit: z
     .int()
     .gte(0)

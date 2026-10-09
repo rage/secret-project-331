@@ -6368,8 +6368,8 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
- * the rows that need a person, and the rows running late, explained by a blocking problem or
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
  * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
@@ -6394,64 +6394,6 @@ export const getCreditRegistrationAttentionItemsOptions = (
       }),
     queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
   })
-
-export const getCreditRegistrationAttentionItemsInfiniteQueryKey = (
-  options?: Options<GetCreditRegistrationAttentionItemsData>,
-): QueryKey<Options<GetCreditRegistrationAttentionItemsData>> =>
-  createQueryKey("getCreditRegistrationAttentionItems", options, true)
-
-/**
- *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
- * the rows that need a person, and the rows running late, explained by a blocking problem or
- * recently dismissed.
- *
- * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
- * number.
- */
-export const getCreditRegistrationAttentionItemsInfiniteOptions = (
-  options?: Options<GetCreditRegistrationAttentionItemsData>,
-) => {
-  const opts = infiniteQueryOptions<
-    GetCreditRegistrationAttentionItemsResponse,
-    DefaultError,
-    InfiniteData<GetCreditRegistrationAttentionItemsResponse>,
-    QueryKey<Options<GetCreditRegistrationAttentionItemsData>>,
-    | number
-    | Pick<
-        QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
-        "body" | "headers" | "path" | "query"
-      >
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
-          "body" | "headers" | "path" | "query"
-        > =
-          typeof pageParam === "object"
-            ? pageParam
-            : {
-                query: {
-                  page: pageParam,
-                },
-              }
-        const params = createInfiniteParams(queryKey, page)
-        return await getCreditRegistrationAttentionItems({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true,
-        })
-      },
-      queryKey: getCreditRegistrationAttentionItemsInfiniteQueryKey(options),
-    },
-  )
-  return opts as Omit<typeof opts, "initialData">
-}
 
 export const listCreditRegistrationAdminActionsQueryKey = (
   options?: Options<ListCreditRegistrationAdminActionsData>,

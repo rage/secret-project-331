@@ -32,7 +32,8 @@ import type { CreditRegistrationTFunction } from "../constants"
 import { dividedListCss, noteCss } from "../styles"
 import { alertSentence } from "./adminCreditRegistrationCopy"
 import { useCreditRegistrationOverview } from "./adminCreditRegistrationHooks"
-import { attentionPhaseAnchorId, needsAttentionHref, RUNNING_LATE_ANCHOR } from "./adminLinks"
+import { attentionPhaseAnchorId, needsAttentionHref } from "./adminLinks"
+import { registrationsListHref } from "./registrationsListUrl"
 
 const MINUTE_SECS = 60
 const HOUR_SECS = 3600
@@ -50,7 +51,10 @@ const ALERT_ROUTES = {
   credentials_rejected: creditRegistrationSystemRoute(),
   study_registry_unreachable: creditRegistrationSystemRoute(),
   service_unavailable: creditRegistrationSystemRoute(),
-  stuck_registrations: needsAttentionHref(RUNNING_LATE_ANCHOR),
+  stuck_registrations: registrationsListHref({
+    attentionReasons: ["stuck_in_state"],
+    includeNotStarted: true,
+  }),
   linking_mail_send_failed: creditRegistrationLinkingRoute(),
   linking_mail_rate_cap_exceeded: creditRegistrationLinkingRoute(),
   phase_heartbeat_stale: creditRegistrationSystemRoute(),

@@ -10,8 +10,10 @@ use crate::prelude::*;
 use super::pending_reason::{CreditRegistrationPendingReason, PendingPreconditions};
 
 /// A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the
-/// steps that wait on the student.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
+/// steps that wait on the student. Declared, and so ordered, in timeline order.
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, ToSchema,
+)]
 #[serde(rename_all = "snake_case")]
 pub enum TimelinePhase {
     Course,
@@ -33,8 +35,10 @@ impl TimelinePhase {
 }
 
 /// One step of the admin timeline. The Registrations list, the overview counts and the status card
-/// all name a row by this.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
+/// all name a row by this. Declared, and so ordered, in timeline order.
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Type, ToSchema,
+)]
 #[sqlx(
     type_name = "credit_registration_timeline_step",
     rename_all = "snake_case"
@@ -65,6 +69,7 @@ pub enum TimelineStep {
 }
 
 impl TimelineStep {
+    /// Every step, in timeline order.
     pub const ALL: [Self; 16] = [
         Self::CourseNotRegistrableYet,
         Self::WaitingForStudentNumber,
@@ -127,6 +132,7 @@ impl TimelineStep {
         }
     }
 
+    /// The timeline column the step is counted under.
     pub fn phase(self) -> TimelinePhase {
         match self {
             Self::CourseNotRegistrableYet => TimelinePhase::Course,
@@ -148,6 +154,7 @@ impl TimelineStep {
         }
     }
 
+    /// Whether the step waits on the student, and so reports an [`Engagement`].
     pub fn has_engagement(self) -> bool {
         Self::ENGAGEMENT_STEPS.contains(&self)
     }
@@ -232,8 +239,10 @@ impl StepMatch {
 }
 
 /// What a student waiting on their own step has done on the registration page. Per completion, so
-/// every attempt of one completion shares it.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
+/// every attempt of one completion shares it. Ordered from most to least engaged.
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Type, ToSchema,
+)]
 #[sqlx(
     type_name = "credit_registration_engagement",
     rename_all = "snake_case"
@@ -248,6 +257,8 @@ pub enum Engagement {
 }
 
 impl Engagement {
+    /// The engagement shown by the student's latest "I have enrolled" press and latest visit to the
+    /// registration page.
     pub fn of(pressed_at: Option<DateTime<Utc>>, last_visited_at: Option<DateTime<Utc>>) -> Self {
         if pressed_at.is_some() {
             Self::Pressed

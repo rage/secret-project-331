@@ -21,6 +21,7 @@ use headless_lms_models::library::credit_registration::timeline::{
     Engagement, TimelinePhase, TimelineStep, WaitsOn,
 };
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
+use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::stuck_thresholds;
@@ -29,8 +30,8 @@ use headless_lms_utils::secret_string::expose_option;
 
 use super::{attention_rules, authorize_credit_registration_admin, required_reason};
 
-/// Rows per page of the attention queue when the caller names no limit.
-const ATTENTION_PAGE_SIZE: u32 = 50;
+/// Rows listed per section of the Needs attention tab when the caller names no limit.
+const ATTENTION_SECTION_SIZE: u32 = 50;
 const RECENT_DISMISSAL_DAYS: i64 = 14;
 const RECENT_DISMISSAL_LIMIT: i64 = 200;
 const DEFAULT_ERROR_WINDOW_SECS: i64 = 24 * 60 * 60;
@@ -89,6 +90,19 @@ pub struct CreditRegistrationAttentionReasonCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationBlockingProblemRows {
     pub problem: BlockingProblem,
+    /// Every row the problem accounts for, however many `items` lists.
+    pub total_count: i64,
+    /// The oldest of them, at most `limit`.
+    pub items: Vec<CreditRegistrationAttentionItem>,
+}
+
+/// The rows of one timeline phase that need attention.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationAttentionPhaseRows {
+    pub phase: TimelinePhase,
+    /// Every row of the phase matching `reason`, however many `items` lists.
+    pub total_count: i64,
+    /// The first of them in the requested order, at most `limit`.
     pub items: Vec<CreditRegistrationAttentionItem>,
 }
 
@@ -112,18 +126,19 @@ pub struct CreditRegistrationAttentionDismissal {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionItems {
-    /// The requested page of the Needs attention section.
-    pub items: Vec<CreditRegistrationAttentionItem>,
     /// The Needs attention count, whatever this request filtered to: the tab badge, the same number
     /// `/overview` reports.
     pub total_count: i64,
-    /// Rows matching `reason`, which is what `total_pages` pages through.
-    pub filtered_count: i64,
-    pub total_pages: u32,
     /// Over the whole Needs attention section, so the counts stay usable as facets.
     pub counts_by_reason: Vec<CreditRegistrationAttentionReasonCount>,
-    /// Over a timing threshold with no person-level cause, oldest first. Not in the count.
+    /// The rows needing attention that match `reason`, one entry per timeline phase that has any,
+    /// in timeline order.
+    pub phases: Vec<CreditRegistrationAttentionPhaseRows>,
+    /// Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
+    /// the count.
     pub running_late: Vec<CreditRegistrationAttentionItem>,
+    /// Every running late row, however many `running_late` lists.
+    pub running_late_count: i64,
     /// Rows a blocking problem accounts for, under that problem. Not in the count.
     pub explained_by_problem: Vec<CreditRegistrationBlockingProblemRows>,
     /// Dismissals of the last 14 days, newest first, whether or not the row has come back since.
@@ -211,15 +226,14 @@ pub async fn get_credit_registration_thresholds(
 
 #[derive(Debug, Deserialize)]
 pub struct AttentionQuery {
-    page: Option<u32>,
     limit: Option<u32>,
     reason: Option<Vec<AttentionReason>>,
     sort: Option<String>,
 }
 
 /**
-GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
-the rows that need a person, and the rows running late, explained by a blocking problem or
+GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+that need a person by timeline phase, and the rows running late, explained by a blocking problem or
 recently dismissed.
 
 Superseded attempts are outside every detector: acting on a replaced attempt is never right.
@@ -233,8 +247,7 @@ number.
     operation_id = "getCreditRegistrationAttentionItems",
     tag = "credit-registration-admin",
     params(
-        ("page" = Option<u32>, Query, description = "Page number, from 1"),
-        ("limit" = Option<u32>, Query, description = "Rows per page"),
+        ("limit" = Option<u32>, Query, description = "Rows listed per section; the counts cover every row"),
         ("reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows carrying one of these reasons; repeat the parameter for several"),
         ("sort" = Option<String>, Query, description = "time_in_phase, next_attempt or course")
     ),
@@ -251,10 +264,12 @@ pub async fn get_credit_registration_attention_items(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let pagination = parse_pagination(query.page, query.limit, ATTENTION_PAGE_SIZE)?;
+    let section_size =
+        usize::try_from(parse_pagination(None, query.limit, ATTENTION_SECTION_SIZE)?.limit())
+            .unwrap_or(usize::MAX);
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
-    let rows = credit_registrations::get_attention_items(&mut conn, &rules).await?;
+    let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
         Utc::now() - chrono::Duration::days(RECENT_DISMISSAL_DAYS),
@@ -265,14 +280,13 @@ pub async fn get_credit_registration_attention_items(
     .map(to_dismissal)
     .collect();
 
-    let items: Vec<CreditRegistrationAttentionItem> = rows
-        .into_iter()
-        .map(|row| to_attention_item(row, &rules.blocking))
-        .collect();
     let mut needing: Vec<CreditRegistrationAttentionItem> = Vec::new();
     let mut running_late = Vec::new();
     let mut explained_by_problem: Vec<CreditRegistrationBlockingProblemRows> = Vec::new();
-    for item in items {
+    for item in rows
+        .into_iter()
+        .map(|row| to_attention_item(row, &rules.blocking))
+    {
         match item.standing {
             AttentionStanding::NeedsAttention => needing.push(item),
             AttentionStanding::RunningLate => running_late.push(item),
@@ -287,6 +301,7 @@ pub async fn get_credit_registration_attention_items(
                     Some(group) => group.items.push(item),
                     None => explained_by_problem.push(CreditRegistrationBlockingProblemRows {
                         problem,
+                        total_count: 0,
                         items: vec![item],
                     }),
                 }
@@ -294,47 +309,54 @@ pub async fn get_credit_registration_attention_items(
             AttentionStanding::Dismissed => {}
         }
     }
-
-    let mut counts_by_reason: Vec<CreditRegistrationAttentionReasonCount> = Vec::new();
-    for reason in needing.iter().flat_map(|item| item.reasons.iter()) {
-        match counts_by_reason
-            .iter_mut()
-            .find(|count| count.reason == *reason)
-        {
-            Some(count) => count.count += 1,
-            None => counts_by_reason.push(CreditRegistrationAttentionReasonCount {
-                reason: *reason,
-                count: 1,
-            }),
-        }
+    for group in &mut explained_by_problem {
+        group.total_count = group.items.len() as i64;
+        group.items.truncate(section_size);
     }
+    let running_late_count = running_late.len() as i64;
+    running_late.truncate(section_size);
+
+    let mut reason_counts: BTreeMap<AttentionReason, i64> = BTreeMap::new();
+    for reason in needing.iter().flat_map(|item| item.reasons.iter()) {
+        *reason_counts.entry(*reason).or_insert(0) += 1;
+    }
+    let counts_by_reason = reason_counts
+        .into_iter()
+        .map(|(reason, count)| CreditRegistrationAttentionReasonCount { reason, count })
+        .collect();
     let total_count = needing.len() as i64;
 
-    let mut filtered: Vec<CreditRegistrationAttentionItem> = needing
-        .into_iter()
-        .filter(|item| {
-            reasons.is_empty() || item.reasons.iter().any(|reason| reasons.contains(reason))
-        })
-        .collect();
-    match query.sort.as_deref() {
-        Some("next_attempt") => filtered.sort_by_key(|item| item.next_attempt_at),
-        Some("course") => filtered.sort_by(|a, b| a.course_name.cmp(&b.course_name)),
-        _ => filtered.sort_by_key(|item| item.phase_started_at),
+    let mut by_phase: BTreeMap<TimelinePhase, Vec<CreditRegistrationAttentionItem>> =
+        BTreeMap::new();
+    for item in needing.into_iter().filter(|item| {
+        reasons.is_empty() || item.reasons.iter().any(|reason| reasons.contains(reason))
+    }) {
+        by_phase.entry(item.phase).or_default().push(item);
     }
-    let filtered_count = filtered.len() as i64;
-    let page = filtered
+    let phases = by_phase
         .into_iter()
-        .skip(usize::try_from(pagination.offset()).unwrap_or(0))
-        .take(usize::try_from(pagination.limit()).unwrap_or(0))
+        .map(|(phase, mut items)| {
+            match query.sort.as_deref() {
+                Some("next_attempt") => items.sort_by_key(|item| item.next_attempt_at),
+                Some("course") => items.sort_by(|a, b| a.course_name.cmp(&b.course_name)),
+                _ => items.sort_by_key(|item| item.phase_started_at),
+            }
+            let total_count = items.len() as i64;
+            items.truncate(section_size);
+            CreditRegistrationAttentionPhaseRows {
+                phase,
+                total_count,
+                items,
+            }
+        })
         .collect();
 
     token.authorized_ok(web::Json(CreditRegistrationAttentionItems {
-        items: page,
         total_count,
-        filtered_count,
-        total_pages: pagination.total_pages(u32::try_from(filtered_count).unwrap_or(u32::MAX)),
         counts_by_reason,
+        phases,
         running_late,
+        running_late_count,
         explained_by_problem,
         dismissed_recently,
     }))
@@ -373,10 +395,10 @@ pub async fn admin_dismiss_credit_registration_attention(
     let reason = required_reason(&payload.reason)?;
     let id = *credit_registration_id;
     let rules = attention_rules(&mut conn, &app_conf).await?;
-    let reasons = credit_registrations::get_attention_items(&mut conn, &rules)
+    let reasons = credit_registrations::get_attention_items(&mut conn, &rules, Some(&[id]))
         .await?
         .into_iter()
-        .find(|row| row.id == id)
+        .next()
         .map(|row| row.reasons)
         .unwrap_or_default();
     if reasons.is_empty() {

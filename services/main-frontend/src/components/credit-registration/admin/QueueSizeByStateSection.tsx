@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CreditRegistrationHistory } from "@/generated/api/types.generated"
+import { useDebouncedElementWidth } from "@/shared-module/common/hooks/useDebouncedElementWidth"
 import { QueryResult } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, DAY_AND_MONTH_FORMAT, QUIET_REFRESH } from "../constants"
@@ -23,7 +24,6 @@ import {
   MONTH_DAYS,
   niceMax,
   readHistoryDays,
-  useMeasuredWidth,
 } from "./historyChart"
 import HistoryRangeChips from "./HistoryRangeChips"
 import { ALL_STATES, BUCKET_COLORS, BUCKET_OF_STATE } from "./queueBuckets"
@@ -34,6 +34,7 @@ const SMALL_MULTIPLE_TITLE_HEIGHT = 24
 const SMALL_MULTIPLE_AXIS_HEIGHT = 22
 const SMALL_MULTIPLE_ROW_GAP = 20
 const MEDIUM_PANEL_WIDTH = 900
+const RESIZE_DEBOUNCE_MS = 150
 const WIDE_COLUMNS = 4
 const MEDIUM_COLUMNS = 2
 /** Horizontal room each panel gives its y-axis line, as a share of the panel; labels are hidden. */
@@ -50,7 +51,8 @@ const CENTRED = "center"
 const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({ history }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const dayFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
-  const [panelRef, panelWidth] = useMeasuredWidth()
+  const { ref: panelRef, width: panelWidth } =
+    useDebouncedElementWidth<HTMLDivElement>(RESIZE_DEBOUNCE_MS)
   const { days, snapshotOf } = useMemo(() => readHistoryDays(history), [history])
 
   // Every resize tick re-renders this, and at the year range the walk is twelve states over a year
@@ -75,7 +77,10 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
   // Four panels across is unreadable on a phone, so the panel count follows the room there is.
   // Two columns is the floor: twelve single-column panels run to 1800px of near-empty charts, and
   // 9rem is comfortable even at phone width.
-  const columns = panelWidth > 0 && panelWidth < MEDIUM_PANEL_WIDTH ? MEDIUM_COLUMNS : WIDE_COLUMNS
+  const columns =
+    panelWidth !== null && panelWidth > 0 && panelWidth < MEDIUM_PANEL_WIDTH
+      ? MEDIUM_COLUMNS
+      : WIDE_COLUMNS
 
   const sharedMax = niceMax(
     Math.max(...charted.flatMap((one) => one.points.map((point) => point ?? 0)), 1),

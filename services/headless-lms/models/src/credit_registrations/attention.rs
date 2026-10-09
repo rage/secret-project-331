@@ -30,7 +30,9 @@ pub const TOO_MANY_SUBMIT_RETRIES: i32 = 5;
 pub const STUDENT_NUMBER_STUCK_AFTER_PRESS: TimeDelta = TimeDelta::minutes(60);
 
 /// Why a row is picked. A row can carry several.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Type, ToSchema,
+)]
 #[sqlx(
     type_name = "credit_registration_attention_reason",
     rename_all = "snake_case"
@@ -65,6 +67,7 @@ pub enum AttentionReason {
 }
 
 impl AttentionReason {
+    /// Whether the reason puts a row in the Needs attention count; see [`AttentionStanding`].
     pub fn is_person_level(self) -> bool {
         self != Self::StuckInState
     }
@@ -85,6 +88,7 @@ pub enum AttentionStanding {
     ExplainedByProblem,
 }
 
+/// What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum BlockingProblemKind {
@@ -196,6 +200,7 @@ impl AttentionRegistration {
         }
     }
 
+    /// Where the row stands on the admin timeline.
     pub fn position(&self) -> TimelinePosition {
         TimelinePosition::of(
             self.state,
@@ -269,6 +274,7 @@ impl AttentionRegistration {
             .is_some_and(|dismissed| self.reasons.iter().all(|reason| dismissed.contains(reason)))
     }
 
+    /// Which Needs attention section the row is listed in under `problems`.
     pub fn standing(&self, problems: &BlockingProblems) -> AttentionStanding {
         if self.is_dismissed() {
             AttentionStanding::Dismissed
@@ -282,11 +288,13 @@ impl AttentionRegistration {
     }
 }
 
-/// Every live row at least one detector picks, oldest phase start first. Superseded rows are
-/// outside every detector: acting on a replaced attempt is never right.
+/// Every live row at least one detector picks, oldest phase start first, narrowed to `only_ids`
+/// when given. Superseded rows are outside every detector: acting on a replaced attempt is never
+/// right.
 pub async fn get_attention_items(
     conn: &mut PgConnection,
     rules: &AttentionRules,
+    only_ids: Option<&[Uuid]>,
 ) -> ModelResult<Vec<AttentionRegistration>> {
     let (state_thresholds, threshold_secs) = rules.thresholds.state_seconds_arrays();
     let res = sqlx::query_as!(
@@ -398,6 +406,7 @@ FROM credit_registrations cr
             AND code_module.deleted_at IS NULL
           WHERE TRIM(code_module.uh_course_code) = s.course_code
             AND e.sent_at >= route.enrolment_confirmed_at
+            AND e.deleted_at IS NULL
         ),
         FALSE
       ) AS student_number_stuck
@@ -419,6 +428,10 @@ FROM credit_registrations cr
   ) flagged
 WHERE cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
+  AND (
+    $9::uuid [] IS NULL
+    OR cr.id = ANY($9)
+  )
   AND (
     cr.needs_admin_attention
     OR d.stuck_in_state
@@ -443,6 +456,7 @@ ORDER BY cr.phase_started_at,
         NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD,
         rules.account_linking_since,
         STUDENT_NUMBER_STUCK_AFTER_PRESS.num_seconds(),
+        only_ids as Option<&[Uuid]>,
     )
     .fetch_all(conn)
     .await?;
@@ -455,7 +469,7 @@ pub async fn count_needing_attention(
     conn: &mut PgConnection,
     rules: &AttentionRules,
 ) -> ModelResult<i64> {
-    let rows = get_attention_items(conn, rules).await?;
+    let rows = get_attention_items(conn, rules, None).await?;
     Ok(rows
         .iter()
         .filter(|row| row.standing(&rules.blocking) == AttentionStanding::NeedsAttention)

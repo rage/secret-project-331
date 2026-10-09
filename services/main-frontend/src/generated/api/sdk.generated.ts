@@ -5078,8 +5078,8 @@ export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean =
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
- * the rows that need a person, and the rows running late, explained by a blocking problem or
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
  * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.

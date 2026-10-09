@@ -131,22 +131,13 @@ export const useCreditRegistrationPhases = () =>
     ...polled(PHASE_REFETCH_INTERVAL_MS),
   })
 
-/**
- * One page of the work queue. The facet counts on the response cover the whole queue, not the page.
- *
- * `enabled: false` for the second call a page makes to select a whole facet at once, which must not
- * run until the operator asks for it.
- */
+/** The Needs attention tab's sections. Each lists its oldest rows; every count covers all of them. */
 export const useCreditRegistrationAttentionItems = (
   query: NonNullable<GetCreditRegistrationAttentionItemsData["query"]>,
-  { enabled = true }: { enabled?: boolean } = {},
 ) =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
-    enabled,
-    // A facet click must not blank the table it renumbers.
-    placeholderData: keepPreviousData,
   })
 
 export const useInvalidateAttentionItems = () => {

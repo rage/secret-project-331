@@ -31,6 +31,7 @@ const TRUE = "true"
 export interface RegistrationsListFilter {
   steps?: readonly TimelineStep[]
   engagements?: readonly Engagement[]
+  /** Set for a count over every live row; the step counts leave Not started rows out. */
   includeNotStarted?: boolean
   needsAttention?: boolean
   attentionReasons?: readonly CreditRegistrationAttentionReason[]

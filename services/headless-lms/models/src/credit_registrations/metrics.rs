@@ -1,11 +1,12 @@
 //! The dashboard's and the health alerts' counts over the whole ledger.
 
-use super::attention::{AttentionRegistration, AttentionRules, AttentionStanding};
+use super::attention::{AttentionReason, AttentionRegistration};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState};
 use crate::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
 use crate::library::credit_registration::PendingReasonCounts;
 use crate::prelude::*;
 use chrono::TimeDelta;
+use std::collections::HashMap;
 use utoipa::ToSchema;
 
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
@@ -269,6 +270,7 @@ FROM credit_registrations cr
       AND code_module.deleted_at IS NULL
     WHERE TRIM(code_module.uh_course_code) = TRIM(cm.uh_course_code)
       AND e.sent_at >= route.enrolment_confirmed_at
+      AND e.deleted_at IS NULL
   ) emails
 WHERE cr.state = 'pending'
   AND cr.superseded_by_id IS NULL
@@ -672,35 +674,27 @@ pub struct StuckRegistrationCount {
     pub oldest_state_changed_at: Option<DateTime<Utc>>,
 }
 
-/// The Running late section per state, for the stuck-registrations alert, so the alert counts
-/// exactly the rows that section lists.
-pub fn count_running_late(
+/// Rows past their state's threshold, per state, for the stuck-registrations alert. Counted
+/// whatever their Needs attention standing: a dismissal or another reason does not unstick a row.
+pub fn count_stuck_in_state(
     rows: &[AttentionRegistration],
-    rules: &AttentionRules,
+    thresholds: &StuckThresholds,
     now: DateTime<Utc>,
 ) -> Vec<StuckRegistrationCount> {
-    let mut counts: Vec<StuckRegistrationCount> = Vec::new();
+    let mut by_state: HashMap<CreditRegistrationState, StuckRegistrationCount> = HashMap::new();
     for row in rows
         .iter()
-        .filter(|row| row.standing(&rules.blocking) == AttentionStanding::RunningLate)
+        .filter(|row| row.reasons.contains(&AttentionReason::StuckInState))
     {
-        let severe = rules
-            .thresholds
+        let severe = thresholds
             .seconds_for(row.state)
             .is_some_and(|secs| (now - row.state_changed_at).num_seconds() > secs * 3);
-        let index = match counts.iter().position(|count| count.state == row.state) {
-            Some(index) => index,
-            None => {
-                counts.push(StuckRegistrationCount {
-                    state: row.state,
-                    count: 0,
-                    severely_stuck_count: 0,
-                    oldest_state_changed_at: None,
-                });
-                counts.len() - 1
-            }
-        };
-        let count = &mut counts[index];
+        let count = by_state.entry(row.state).or_insert(StuckRegistrationCount {
+            state: row.state,
+            count: 0,
+            severely_stuck_count: 0,
+            oldest_state_changed_at: None,
+        });
         count.count += 1;
         count.severely_stuck_count += i64::from(severe);
         count.oldest_state_changed_at = Some(
@@ -711,5 +705,11 @@ pub fn count_running_late(
                 }),
         );
     }
+    let mut counts: Vec<StuckRegistrationCount> = by_state.into_values().collect();
+    counts.sort_by_key(|count| {
+        CreditRegistrationState::ALL
+            .iter()
+            .position(|state| *state == count.state)
+    });
     counts
 }

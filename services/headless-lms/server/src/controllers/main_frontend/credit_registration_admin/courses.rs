@@ -150,7 +150,7 @@ pub async fn get_credit_registration_stats_by_course(
 
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let mut needs_attention: HashMap<Uuid, i64> = HashMap::new();
-    for row in credit_registrations::get_attention_items(&mut conn, &rules).await? {
+    for row in credit_registrations::get_attention_items(&mut conn, &rules, None).await? {
         if row.standing(&rules.blocking) == AttentionStanding::NeedsAttention {
             *needs_attention.entry(row.course_module_id).or_insert(0) += 1;
         }

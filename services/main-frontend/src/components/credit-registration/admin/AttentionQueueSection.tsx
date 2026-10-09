@@ -8,11 +8,10 @@ import type {
   BlockingProblem,
   CreditRegistrationAttentionDismissal,
   CreditRegistrationAttentionItem,
+  CreditRegistrationAttentionPhaseRows,
   CreditRegistrationBlockingProblemRows,
-  TimelinePhase,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import Pagination from "@/shared-module/common/components/Pagination"
 import {
   creditRegistrationItemRoute,
   manageCourseModulesRoute,
@@ -27,7 +26,6 @@ import {
 } from "@/shared-module/components"
 
 import {
-  ADMIN_PAGE_SIZE_OPTIONS,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   MIDDLE_DOT,
@@ -63,11 +61,16 @@ import AttentionRowActions from "./AttentionRowActions"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
-import { TIMELINE_PHASES, timelinePhaseLabel } from "./timelineSteps"
-import { useFilteredAdminQuery } from "./useFilteredAdminQuery"
+import { STEPS_BY_PHASE, TIMELINE_PHASES, timelinePhaseLabel } from "./timelineSteps"
 import { useHashTarget, useOpenedByLink } from "./useHashTarget"
 
-const ROWS_PER_PAGE = 100
+/** Says how many of a section's rows are listed when the server capped them. */
+const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return shown < total ? (
+    <p className={noteCss}>{t("credit-registration-admin-oldest-shown", { shown, total })}</p>
+  ) : null
+}
 
 /** Who it waits on, then what happens next: the registration page's status card in a cell. */
 const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
@@ -203,12 +206,15 @@ const BlockingProblemGroup: React.FC<{ group: CreditRegistrationBlockingProblemR
       <Disclosure
         title={
           <span id={headingId}>
-            {t("credit-registration-admin-problem-holds-up", { count: group.items.length })}
+            {t("credit-registration-admin-problem-holds-up", { count: group.total_count })}
           </span>
         }
         variant={PLAIN_DISCLOSURE}
       >
-        <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
+        <div className={sectionCss}>
+          <ShownOfTotal shown={group.items.length} total={group.total_count} />
+          <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
+        </div>
       </Disclosure>
     </div>
   )
@@ -237,35 +243,58 @@ const BlockingProblemsSection: React.FC<{ groups: CreditRegistrationBlockingProb
   )
 }
 
-const PhaseSection: React.FC<{
-  phase: TimelinePhase
-  items: CreditRegistrationAttentionItem[]
-}> = ({ phase, items }) => {
+const PhaseSection: React.FC<{ rows: CreditRegistrationAttentionPhaseRows }> = ({ rows }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   return (
     <section
-      id={attentionPhaseAnchorId(phase)}
+      id={attentionPhaseAnchorId(rows.phase)}
       className={sectionCardCss}
       aria-labelledby={headingId}
     >
       <div className={sectionCardHeaderCss}>
         <h2 id={headingId} className={headingCss}>
           {t("credit-registration-admin-phase-with-count", {
-            phase: timelinePhaseLabel(t, phase),
-            count: items.length,
+            phase: timelinePhaseLabel(t, rows.phase),
+            count: rows.total_count,
           })}
         </h2>
       </div>
-      <AttentionItemsTable items={items} labelledBy={headingId} />
+      {rows.items.length === 0 ? (
+        <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
+      ) : (
+        <>
+          {rows.items.length < rows.total_count && (
+            <p className={noteCss}>
+              {t("credit-registration-admin-oldest-shown", {
+                shown: rows.items.length,
+                total: rows.total_count,
+              })}{" "}
+              <Link
+                href={registrationsListHref({
+                  needsAttention: true,
+                  steps: STEPS_BY_PHASE[rows.phase],
+                  includeNotStarted: true,
+                })}
+              >
+                {t("credit-registration-admin-needs-attention-in-list", {
+                  count: rows.total_count,
+                })}
+              </Link>
+            </p>
+          )}
+          <AttentionItemsTable items={rows.items} labelledBy={headingId} />
+        </>
+      )}
     </section>
   )
 }
 
 const RunningLateSection: React.FC<{
   items: CreditRegistrationAttentionItem[]
+  totalCount: number
   isOpen: boolean
-}> = ({ items, isOpen }) => {
+}> = ({ items, totalCount, isOpen }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   const expansion = useOpenedByLink(isOpen)
@@ -273,7 +302,7 @@ const RunningLateSection: React.FC<{
     <section id={RUNNING_LATE_ANCHOR} className={sectionCardCss}>
       <Disclosure
         title={<span id={headingId}>{t("credit-registration-heading-running-late")}</span>}
-        summary={<span className={noteCss}>{items.length}</span>}
+        summary={<span className={noteCss}>{totalCount}</span>}
         variant={PLAIN_DISCLOSURE}
         {...expansion}
       >
@@ -281,6 +310,7 @@ const RunningLateSection: React.FC<{
           <p className={cx(noteCss, proseCss)}>
             {t("credit-registration-admin-running-late-note")}
           </p>
+          <ShownOfTotal shown={items.length} total={totalCount} />
           <AttentionItemsTable items={items} labelledBy={headingId} />
         </div>
       </Disclosure>
@@ -377,15 +407,7 @@ const DismissedRecentlySection: React.FC<{
  */
 const AttentionQueueSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const { paginationInfo, query } = useFilteredAdminQuery(
-    [],
-    (_filters, pagination) => ({
-      page: pagination.page,
-      limit: pagination.limit,
-    }),
-    { rowsPerPage: ROWS_PER_PAGE },
-  )
-  const attentionQuery = useCreditRegistrationAttentionItems(query)
+  const attentionQuery = useCreditRegistrationAttentionItems({})
   const hash = useHashTarget(attentionQuery.isSuccess)
 
   return (
@@ -395,14 +417,23 @@ const AttentionQueueSection: React.FC = () => {
       contentClassName={sectionCardsCss}
     >
       {(attention) => {
-        const phases = TIMELINE_PHASES.filter((phase) =>
-          attention.items.some((item) => item.phase === phase),
-        )
+        // A link to a phase with nothing in it still lands on that phase's heading.
+        const phases = TIMELINE_PHASES.flatMap((phase): CreditRegistrationAttentionPhaseRows[] => {
+          const rows = attention.phases.find((candidate) => candidate.phase === phase)
+          if (rows) {
+            return [rows]
+          }
+          return hash === attentionPhaseAnchorId(phase)
+            ? [{ phase, total_count: 0, items: [] }]
+            : []
+        })
         return (
           <>
             {attention.total_count > 0 && (
               <p className={noteCss}>
-                <Link href={registrationsListHref({ needsAttention: true })}>
+                <Link
+                  href={registrationsListHref({ needsAttention: true, includeNotStarted: true })}
+                >
                   {t("credit-registration-admin-needs-attention-in-list", {
                     count: attention.total_count,
                   })}
@@ -417,23 +448,12 @@ const AttentionQueueSection: React.FC = () => {
                 <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
               </section>
             ) : (
-              phases.map((phase) => (
-                <PhaseSection
-                  key={phase}
-                  phase={phase}
-                  items={attention.items.filter((item) => item.phase === phase)}
-                />
-              ))
+              phases.map((rows) => <PhaseSection key={rows.phase} rows={rows} />)
             )}
-            <Pagination
-              paginationInfo={paginationInfo}
-              totalPages={attention.total_pages}
-              totalItems={attention.filtered_count}
-              itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}
-            />
-            {attention.running_late.length > 0 && (
+            {attention.running_late_count > 0 && (
               <RunningLateSection
                 items={attention.running_late}
+                totalCount={attention.running_late_count}
                 isOpen={hash === RUNNING_LATE_ANCHOR}
               />
             )}

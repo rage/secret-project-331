@@ -182,7 +182,10 @@ const ErrorCodeSection: React.FC<{
                     row.live_count === 0 ? null : (
                       <span className={stackedCellCss}>
                         <Link
-                          href={registrationsListHref({ errorCodes: [row.error_code] })}
+                          href={registrationsListHref({
+                            errorCodes: [row.error_code],
+                            includeNotStarted: true,
+                          })}
                           appearance={LINK_QUIET}
                         >
                           {row.live_count}

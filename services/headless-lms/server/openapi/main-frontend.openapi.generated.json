@@ -7331,24 +7331,13 @@
     "/api/v0/main-frontend/credit-registration-admin/attention": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of\nthe rows that need a person, and the rows running late, explained by a blocking problem or\nrecently dismissed.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.\n`total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same\nnumber.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows\nthat need a person by timeline phase, and the rows running late, explained by a blocking problem or\nrecently dismissed.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.\n`total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same\nnumber.",
         "operationId": "getCreditRegistrationAttentionItems",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number, from 1",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
-            "description": "Rows per page",
+            "description": "Rows listed per section; the counts cover every row",
             "required": false,
             "schema": {
               "type": "integer",
@@ -8121,7 +8110,7 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "last_activity (rows counted in Needs attention first), created, time_in_state or attempts",
+            "description": "last_activity (the default; rows counted in Needs attention first), created, time_in_state or attempts",
             "required": false,
             "schema": {
               "type": "string"
@@ -15199,7 +15188,8 @@
             "description": "Every attempt's events, oldest first, so one timeline covers the whole completion."
           },
           "journey": {
-            "$ref": "#/components/schemas/AdminCreditRegistrationJourney"
+            "$ref": "#/components/schemas/AdminCreditRegistrationJourney",
+            "description": "Read from the newest attempt, whichever attempt was asked for."
           },
           "linking_emails": {
             "type": "array",
@@ -15215,7 +15205,7 @@
               },
               {
                 "$ref": "#/components/schemas/AdminLinkingSchedule",
-                "description": "Only for a student waiting for a student number who pressed \"I have enrolled\"."
+                "description": "Of the newest attempt, as `journey` is, and only while it waits for a student number after an\n\"I have enrolled\" press."
               }
             ]
           },
@@ -16779,6 +16769,7 @@
       },
       "BlockingProblemKind": {
         "type": "string",
+        "description": "What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.",
         "enum": ["processing_phase_stopped", "course_code_failing", "module_misconfigured"]
       },
       "BreakerTarget": {
@@ -20747,12 +20738,11 @@
       "CreditRegistrationAttentionItems": {
         "type": "object",
         "required": [
-          "items",
           "total_count",
-          "filtered_count",
-          "total_pages",
           "counts_by_reason",
+          "phases",
           "running_late",
+          "running_late_count",
           "explained_by_problem",
           "dismissed_recently"
         ],
@@ -20778,34 +20768,51 @@
             },
             "description": "Rows a blocking problem accounts for, under that problem. Not in the count."
           },
-          "filtered_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Rows matching `reason`, which is what `total_pages` pages through."
-          },
-          "items": {
+          "phases": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
+              "$ref": "#/components/schemas/CreditRegistrationAttentionPhaseRows"
             },
-            "description": "The requested page of the Needs attention section."
+            "description": "The rows needing attention that match `reason`, one entry per timeline phase that has any,\nin timeline order."
           },
           "running_late": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "Over a timing threshold with no person-level cause, oldest first. Not in the count."
+            "description": "Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in\nthe count."
+          },
+          "running_late_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Every running late row, however many `running_late` lists."
           },
           "total_count": {
             "type": "integer",
             "format": "int64",
             "description": "The Needs attention count, whatever this request filtered to: the tab badge, the same number\n`/overview` reports."
+          }
+        }
+      },
+      "CreditRegistrationAttentionPhaseRows": {
+        "type": "object",
+        "description": "The rows of one timeline phase that need attention.",
+        "required": ["phase", "total_count", "items"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
+            },
+            "description": "The first of them in the requested order, at most `limit`."
           },
-          "total_pages": {
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
+          },
+          "total_count": {
             "type": "integer",
-            "format": "int32",
-            "minimum": 0
+            "format": "int64",
+            "description": "Every row of the phase matching `reason`, however many `items` lists."
           }
         }
       },
@@ -20842,16 +20849,22 @@
       "CreditRegistrationBlockingProblemRows": {
         "type": "object",
         "description": "One blocking problem and the rows it accounts for.",
-        "required": ["problem", "items"],
+        "required": ["problem", "total_count", "items"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
-            }
+            },
+            "description": "The oldest of them, at most `limit`."
           },
           "problem": {
             "$ref": "#/components/schemas/BlockingProblem"
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Every row the problem accounts for, however many `items` lists."
           }
         }
       },
@@ -22539,7 +22552,7 @@
       },
       "Engagement": {
         "type": "string",
-        "description": "What a student waiting on their own step has done on the registration page. Per completion, so\nevery attempt of one completion shares it.",
+        "description": "What a student waiting on their own step has done on the registration page. Per completion, so\nevery attempt of one completion shares it. Ordered from most to least engaged.",
         "enum": ["pressed", "visited", "not_started"]
       },
       "EnrolmentCheckDashboard": {
@@ -29014,12 +29027,12 @@
       },
       "TimelinePhase": {
         "type": "string",
-        "description": "A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the\nsteps that wait on the student.",
+        "description": "A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the\nsteps that wait on the student. Declared, and so ordered, in timeline order.",
         "enum": ["course", "student_number", "registering", "confirmation", "ended"]
       },
       "TimelineStep": {
         "type": "string",
-        "description": "One step of the admin timeline. The Registrations list, the overview counts and the status card\nall name a row by this.",
+        "description": "One step of the admin timeline. The Registrations list, the overview counts and the status card\nall name a row by this. Declared, and so ordered, in timeline order.",
         "enum": [
           "course_not_registrable_yet",
           "waiting_for_student_number",

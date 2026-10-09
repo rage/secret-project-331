@@ -42,18 +42,15 @@ export const TIMELINE_STEPS: readonly TimelineStep[] = TIMELINE_PHASES.flatMap(
   (phase) => STEPS_BY_PHASE[phase],
 )
 
-/** The phase a step is counted under; the client-side twin of the row's `phase`. */
-export const phaseOfStep = (step: TimelineStep): TimelinePhase =>
-  TIMELINE_PHASES.find((phase) =>
-    (STEPS_BY_PHASE[phase] as readonly TimelineStep[]).includes(step),
-  ) ?? "ended"
-
 /** Steps that stop until a person acts, whatever the row's Needs attention standing. */
 export const ATTENTION_STEPS: ReadonlySet<TimelineStep> = new Set<TimelineStep>([
   "answer_unclear",
   "recorded_wrongly",
   "needs_a_person",
 ])
+
+/** Steps counted as failed: `answer_unclear` is left out, as the server's `failed_count` does. */
+export const FAILED_STEPS: readonly TimelineStep[] = ["needs_a_person", "recorded_wrongly"]
 
 /** Steps where nothing more will happen. */
 export const FINISHED_STEPS: ReadonlySet<TimelineStep> = new Set<TimelineStep>([

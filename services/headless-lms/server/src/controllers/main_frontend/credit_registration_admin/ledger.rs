@@ -254,8 +254,10 @@ pub struct AdminCreditRegistrationDetails {
     pub registration: AdminCreditRegistrationRow,
     /// `None` when nothing picks the row.
     pub attention: Option<AdminRegistrationAttention>,
+    /// Read from the newest attempt, whichever attempt was asked for.
     pub journey: AdminCreditRegistrationJourney,
-    /// Only for a student waiting for a student number who pressed "I have enrolled".
+    /// Of the newest attempt, as `journey` is, and only while it waits for a student number after an
+    /// "I have enrolled" press.
     pub linking_schedule: Option<AdminLinkingSchedule>,
     /// Every attempt for the same completion, newest first, this one included.
     pub attempts: Vec<AdminCreditRegistrationRow>,
@@ -446,7 +448,7 @@ and sorted.
         ("submitted_before" = Option<DateTime<Utc>>, Query, description = "Submitted at or before"),
         ("search" = Option<String>, Query, description = "Name, email, student number, attainment id, stored error text, or a uuid"),
         ("include_superseded" = Option<bool>, Query, description = "Include replaced attempts"),
-        ("sort" = Option<String>, Query, description = "last_activity (rows counted in Needs attention first), created, time_in_state or attempts")
+        ("sort" = Option<String>, Query, description = "last_activity (the default; rows counted in Needs attention first), created, time_in_state or attempts")
     ),
     responses(
         (status = 200, description = "A page of the ledger", body = Page<AdminCreditRegistrationRow>)
@@ -464,16 +466,32 @@ pub async fn list_credit_registrations_for_admin(
     let pagination = parse_pagination(query.page, query.limit, 50)?;
     let search = non_empty(expose_option(&query.search));
     let student_number = non_empty(expose_option(&query.student_number));
-    let attention = AttentionLookup::load(&mut conn, &app_conf).await?;
-    let needs_attention_ids =
-        attention.ids(|row| row.standing == AttentionStanding::NeedsAttention);
+    let sort = match query.sort.as_deref() {
+        Some("created") => AdminCreditRegistrationSort::Created,
+        Some("time_in_state") => AdminCreditRegistrationSort::TimeInState,
+        Some("attempts") => AdminCreditRegistrationSort::Attempts,
+        _ => AdminCreditRegistrationSort::LastActivity,
+    };
+    let only_needs_attention = query.needs_attention.unwrap_or(false);
     let attention_reasons: &[AttentionReason] =
         query.attention_reason.as_deref().unwrap_or_default();
-    let selected_ids = (query.needs_attention.unwrap_or(false) || !attention_reasons.is_empty())
-        .then(|| {
-            attention.ids(|row| {
-                (!query.needs_attention.unwrap_or(false)
-                    || row.standing == AttentionStanding::NeedsAttention)
+    let is_selected_by_attention = only_needs_attention || !attention_reasons.is_empty();
+    let whole_queue =
+        if is_selected_by_attention || sort == AdminCreditRegistrationSort::LastActivity {
+            Some(AttentionLookup::load(&mut conn, &app_conf, None).await?)
+        } else {
+            None
+        };
+    let needs_attention_ids = whole_queue
+        .as_ref()
+        .filter(|_| sort == AdminCreditRegistrationSort::LastActivity)
+        .map(|queue| queue.ids(|row| row.standing == AttentionStanding::NeedsAttention));
+    let selected_ids = whole_queue
+        .as_ref()
+        .filter(|_| is_selected_by_attention)
+        .map(|queue| {
+            queue.ids(|row| {
+                (!only_needs_attention || row.standing == AttentionStanding::NeedsAttention)
                     && (attention_reasons.is_empty()
                         || row
                             .reasons
@@ -492,7 +510,7 @@ pub async fn list_credit_registrations_for_admin(
         engagements: query.engagement.as_deref().unwrap_or_default(),
         hide_not_started: !query.include_not_started.unwrap_or(false),
         account_linking_since: app_conf.suotar_configuration.account_linking_since,
-        first_ids: Some(&needs_attention_ids),
+        first_ids: needs_attention_ids.as_deref(),
         credit_registration_ids: selected_ids.as_deref(),
         submitted_after: query.submitted_after,
         submitted_before: query.submitted_before,
@@ -500,12 +518,6 @@ pub async fn list_credit_registrations_for_admin(
         search_id: search.and_then(|search| Uuid::parse_str(search).ok()),
         include_superseded: query.include_superseded.unwrap_or(false),
         ..AdminCreditRegistrationFilters::default()
-    };
-    let sort = match query.sort.as_deref() {
-        Some("created") => AdminCreditRegistrationSort::Created,
-        Some("time_in_state") => AdminCreditRegistrationSort::TimeInState,
-        Some("attempts") => AdminCreditRegistrationSort::Attempts,
-        _ => AdminCreditRegistrationSort::LastActivity,
     };
 
     let rows = credit_registrations::get_admin_facing(
@@ -517,6 +529,13 @@ pub async fn list_credit_registrations_for_admin(
     )
     .await?;
     let total_count = rows.first().map_or(0, |row| row.total_count);
+    let attention = match whole_queue {
+        Some(queue) => queue,
+        None => {
+            let page_ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+            AttentionLookup::load(&mut conn, &app_conf, Some(&page_ids)).await?
+        }
+    };
     let data = rows
         .into_iter()
         .map(|row| to_admin_row(row, &attention))
@@ -552,7 +571,6 @@ pub async fn get_credit_registration_for_admin(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let id = *credit_registration_id;
-    let attention_lookup = AttentionLookup::load(&mut conn, &app_conf).await?;
     let registration = one_admin_row(&mut conn, id)
         .await?
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
@@ -569,20 +587,18 @@ pub async fn get_credit_registration_for_admin(
         MAX_RELATED_ROWS,
         0,
     )
-    .await?
-    .into_iter()
-    .map(|row| to_admin_row(row, &attention_lookup))
-    .collect::<Vec<_>>();
+    .await?;
     let attempt_ids: Vec<Uuid> = attempts.iter().map(|attempt| attempt.id).collect();
+    let attention_lookup = AttentionLookup::load(&mut conn, &app_conf, Some(&attempt_ids)).await?;
+    let newest_attempt_id = attempts.first().map_or(id, |attempt| attempt.id);
+    let attempts: Vec<AdminCreditRegistrationRow> = attempts
+        .into_iter()
+        .map(|row| to_admin_row(row, &attention_lookup))
+        .collect();
 
-    let mut attempt_events = Vec::new();
-    for attempt_id in &attempt_ids {
-        attempt_events.extend(
-            models::credit_registration_events::get_by_registration_id(&mut conn, *attempt_id)
-                .await?,
-        );
-    }
-    attempt_events.sort_by_key(|event| event.created_at);
+    let attempt_events =
+        models::credit_registration_events::get_by_registration_ids(&mut conn, &attempt_ids)
+            .await?;
     let events: Vec<AdminCreditRegistrationEvent> = attempt_events
         .into_iter()
         .map(|event| AdminCreditRegistrationEvent {
@@ -668,7 +684,7 @@ pub async fn get_credit_registration_for_admin(
     let not_improved_attainment =
         models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
 
-    let journey = credit_registrations::get_registration_journey(&mut conn, id)
+    let journey = credit_registrations::get_registration_journey(&mut conn, newest_attempt_id)
         .await?
         .map(|journey| AdminCreditRegistrationJourney {
             course_started_at: journey.course_started_at,
@@ -688,14 +704,12 @@ pub async fn get_credit_registration_for_admin(
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
     let linking_schedule = linking_schedule_for(
         &mut conn,
-        id,
+        newest_attempt_id,
         app_conf.suotar_configuration.account_linking_since,
     )
     .await?;
     let attention = attention_lookup
-        .rows
-        .iter()
-        .find(|row| row.id == id)
+        .get(id)
         .map(|row| AdminRegistrationAttention {
             reasons: row.reasons.clone(),
             standing: row.standing,
@@ -1132,7 +1146,9 @@ async fn one_admin_row(
 
 /// The Needs attention queue as one request saw it, for marking rows of the ledger.
 struct AttentionLookup {
+    /// Queue order, which `ids` preserves.
     rows: Vec<AttentionLookupRow>,
+    index_by_id: HashMap<Uuid, usize>,
 }
 
 struct AttentionLookupRow {
@@ -1147,12 +1163,14 @@ struct AttentionLookupRow {
 }
 
 impl AttentionLookup {
+    /// `only_ids` narrows the lookup to those rows; `None` loads the whole queue.
     async fn load(
         conn: &mut PgConnection,
         app_conf: &ApplicationConfiguration,
+        only_ids: Option<&[Uuid]>,
     ) -> Result<Self, ControllerError> {
         let rules = attention_rules(conn, app_conf).await?;
-        let rows = credit_registrations::get_attention_items(conn, &rules)
+        let rows = credit_registrations::get_attention_items(conn, &rules, only_ids)
             .await?
             .into_iter()
             .map(|row| {
@@ -1170,8 +1188,13 @@ impl AttentionLookup {
                     dismissal_reason: row.dismissal_reason,
                 }
             })
+            .collect::<Vec<_>>();
+        let index_by_id = rows
+            .iter()
+            .enumerate()
+            .map(|(index, row)| (row.id, index))
             .collect();
-        Ok(Self { rows })
+        Ok(Self { rows, index_by_id })
     }
 
     fn ids(&self, keep: impl Fn(&AttentionLookupRow) -> bool) -> Vec<Uuid> {
@@ -1183,7 +1206,7 @@ impl AttentionLookup {
     }
 
     fn get(&self, id: Uuid) -> Option<&AttentionLookupRow> {
-        self.rows.iter().find(|row| row.id == id)
+        self.index_by_id.get(&id).map(|&index| &self.rows[index])
     }
 }
 

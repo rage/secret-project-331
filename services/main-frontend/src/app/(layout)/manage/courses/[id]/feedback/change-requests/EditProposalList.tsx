@@ -8,18 +8,23 @@ import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { QueryResult } from "@/shared-module/components"
 
-import FeedbackPage from "./FeedbackPage"
+import EditProposalPage from "./EditProposalPage"
 
 interface Props {
   courseId: string
-  read: boolean
+  pending: boolean
+  perPage: number
 }
 
-const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read }) => {
+const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
+  pending,
+  perPage,
+}) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getFeedbackCount = useQuery({
+  const getEditProposalCount = useQuery({
     ...getCourseFeedbackCountOptions({
       path: {
         course_id: courseId,
@@ -28,21 +33,23 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   })
 
   return (
-    <QueryResult query={getFeedbackCount}>
+    <QueryResult query={getEditProposalCount}>
       {(data) => {
-        const items = read ? data.read : data.unread
+        const items = pending ? data.pending_edits : data.handled_edits
         if (items <= 0) {
-          return <div>{t("no-feedback")}</div>
+          return <div>{t("no-change-requests")}</div>
         }
-        const pageCount = Math.ceil(items / paginationInfo.limit)
+
+        const pageCount = Math.ceil(items / perPage)
+
         return (
           <div>
-            <FeedbackPage
+            <EditProposalPage
               courseId={courseId}
               page={paginationInfo.page}
-              read={read}
-              paginationInfo={paginationInfo}
-              onChange={getFeedbackCount.refetch}
+              pending={pending}
+              limit={perPage}
+              onChange={getEditProposalCount.refetch}
             />
             <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
           </div>
@@ -52,4 +59,4 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   )
 }
 
-export default FeedbackList
+export default EditProposalList

@@ -1,9 +1,10 @@
 "use client"
 
 import { cx } from "@emotion/css"
+import type { FocusableElement } from "@react-types/shared"
 import React from "react"
 import { mergeProps, useButton, useObjectRef, VisuallyHidden } from "react-aria"
-import type { AriaButtonOptions, PressEvent } from "react-aria"
+import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
@@ -63,14 +64,12 @@ export type ButtonProps = PressHandlers & {
   value?: string | number | readonly string[]
   formAction?: string
   /**
-   * Alias of `onPress`, fired for pointer, keyboard and touch alike.
-   *
-   * Activation runs through react-aria's press handling, which handles Enter/Space itself rather
-   * than letting the browser synthesize a click, so this is invoked from there instead of being
-   * bound as a DOM click handler. It therefore receives a `PressEvent`, which has no
-   * `preventDefault`; use `type="submit"` for native form submission.
+   * An alternative to onPress. onPress is preferred, as it works better for
+   * non-mouse interactions, but using onClick is required when using our
+   * Button component with some other react-aria hooks. Providing useButton
+   * with both onPress and onClick works: it combines the event handlers.
    */
-  onClick?: (e: PressEvent) => void
+  onClick?: (e: React.MouseEvent<FocusableElement>) => void
   onPointerDown?: React.PointerEventHandler<HTMLButtonElement>
   onPointerUp?: React.PointerEventHandler<HTMLButtonElement>
   onPointerCancel?: React.PointerEventHandler<HTMLButtonElement>
@@ -138,19 +137,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const ref = useObjectRef(forwardedRef)
 
-    // onClick is an alias of onPress rather than a DOM handler, so it reaches keyboard users too.
-    const handlePress =
-      onPress || onClick
-        ? (e: PressEvent) => {
-            onPress?.(e)
-            onClick?.(e)
-          }
-        : undefined
-
     const ariaOptions: AriaButtonOptions<"button"> = {
       isDisabled,
       ...omitUndefined({
-        onPress: handlePress,
+        onPress,
+        onClick,
         onPressStart,
         onPressEnd,
         onPressChange,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)\nVALUES ($1, $2, $3)\nON CONFLICT (user_id, course_id, course_instance_id)\nDO UPDATE SET deleted_at = NULL\nRETURNING *;\n",
+  "query": "\nUPDATE course_instance_enrollments\nSET deleted_at = NULL\nWHERE user_id = $1\n  AND course_id = $2\n  AND course_instance_id = $3\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -86,5 +86,5 @@
       true
     ]
   },
-  "hash": "2b4dfc81801997749eb2c598bb5a0c89787d186b9644871b1a5a460af3697396"
+  "hash": "7fe747996ee8f8480d5236d9504d87181f3a860adeadb026fc3ac1511b7c17fa"
 }

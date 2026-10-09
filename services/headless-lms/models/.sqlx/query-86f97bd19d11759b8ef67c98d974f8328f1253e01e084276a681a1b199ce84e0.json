@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE external_courses\nSET name = $1,\n    description = $2,\n    url = $3,\n    name_embedding = COALESCE($4, name_embedding),\n    description_embedding = CASE WHEN $2::text IS NULL THEN NULL ELSE COALESCE($5, description_embedding) END,\n    on_old_platform = $6\nWHERE id = $7 AND deleted_at IS NULL\nRETURNING\n        id,\n        name,\n        description,\n        url,\n        on_old_platform\n        ",
+  "query": "\nUPDATE external_courses\nSET name = $1,\n    description = $2,\n    url = $3,\n    name_embedding = COALESCE($4, name_embedding),\n    description_embedding = CASE WHEN $2::text IS NULL THEN NULL ELSE COALESCE($5, description_embedding) END,\n    on_old_platform = $6\nWHERE id = $7\n  AND deleted_at IS NULL\n  AND name = $8\n  AND description IS NOT DISTINCT FROM $9\nRETURNING\n        id,\n        name,\n        description,\n        url,\n        on_old_platform\n        ",
   "describe": {
     "columns": [
       {
@@ -77,7 +77,9 @@
           }
         },
         "Bool",
-        "Uuid"
+        "Uuid",
+        "Text",
+        "Text"
       ]
     },
     "nullable": [
@@ -88,5 +90,5 @@
       false
     ]
   },
-  "hash": "1969e92fd6ab3359159f4103f2442605403873665e77b0a8894ce48b26566423"
+  "hash": "86f97bd19d11759b8ef67c98d974f8328f1253e01e084276a681a1b199ce84e0"
 }

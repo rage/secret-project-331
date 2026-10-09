@@ -249,12 +249,7 @@ pub async fn update_by_id(
                 .await?
                 .into_iter()
                 .next()
-                .ok_or_else(|| {
-                    model_err!(
-                        Generic,
-                        "The embedding API returned no description embedding."
-                    )
-                })
+                .ok_or_else(|| model_err!(Generic, "The embedding API returned no name embedding."))
                 .map(Vector::from)?,
         )
     } else {
@@ -292,7 +287,10 @@ SET name = $1,
     name_embedding = COALESCE($4, name_embedding),
     description_embedding = CASE WHEN $2::text IS NULL THEN NULL ELSE COALESCE($5, description_embedding) END,
     on_old_platform = $6
-WHERE id = $7 AND deleted_at IS NULL
+WHERE id = $7
+  AND deleted_at IS NULL
+  AND name = $8
+  AND description IS NOT DISTINCT FROM $9
 RETURNING
         id,
         name,
@@ -306,7 +304,9 @@ RETURNING
         name_embedding,
         description_embedding,
         update.on_old_platform,
-        update.id
+        update.id,
+        old.name,
+        old.description
     )
     .fetch_one(conn)
     .await?;

@@ -53,9 +53,10 @@ test("can-delete-external-course", async ({ page }) => {
     page,
     async () => {
       await page.getByRole("button", { name: "Delete" }).click()
+      await respondToConfirmDialog(page, true, "Are you sure you want to delete this course?")
     },
     "Course deleted successfully",
   )
-  await respondToConfirmDialog(page, true, "Are you sure you want to delete this course?")
+
   await expect(page.getByText("No external courses found")).toBeVisible()
 })

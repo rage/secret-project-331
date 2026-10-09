@@ -11,6 +11,7 @@ import {
   getExternalCoursesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { Checkbox, nullIfEmpty, TextArea, TextField } from "@/shared-module/components/"
 
 export interface NewExternalCourseFormProps {
@@ -61,7 +62,7 @@ const NewExternalCourseForm: React.FC<NewExternalCourseFormProps> = ({ onSuccess
     createExternalCourse.mutate({
       body: {
         name: data.name,
-        description: data.description,
+        description: nullIfEmptyString(data.description),
         url: data.url,
         on_old_platform: data.on_old_platform,
       },

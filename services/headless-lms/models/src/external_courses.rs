@@ -237,7 +237,7 @@ RETURNING
 /**
 Edit external course information
 */
-pub async fn udpate_by_id(
+pub async fn update_by_id(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     update: ExternalCourseOutput,
@@ -290,7 +290,7 @@ SET name = $1,
     description = $2,
     url = $3,
     name_embedding = COALESCE($4, name_embedding),
-    description_embedding = COALESCE($5, description_embedding),
+    description_embedding = CASE WHEN $2::text IS NULL THEN NULL ELSE COALESCE($5, description_embedding) END,
     on_old_platform = $6
 WHERE id = $7 AND deleted_at IS NULL
 RETURNING

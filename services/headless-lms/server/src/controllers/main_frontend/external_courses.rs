@@ -3,7 +3,7 @@ use utoipa::OpenApi;
 
 use models::external_courses::{
     ExternalCourseOutput, NewExternalCourse, create_external_course, delete_by_id,
-    get_all_external_courses, udpate_by_id,
+    get_all_external_courses, update_by_id,
 };
 
 use crate::prelude::*;
@@ -18,7 +18,7 @@ use crate::prelude::*;
 pub(crate) struct MainFrontendExternalCoursesApiDoc;
 
 /**
-POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
+POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
 */
 #[utoipa::path(
     post,
@@ -48,7 +48,7 @@ async fn insert_external_course(
 }
 
 /**
-GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
  */
 #[utoipa::path(
     get,
@@ -76,7 +76,7 @@ async fn get_external_courses(
 }
 
 /**
-POST `/api/v0/main-frontend/external-course/update` - Updates external course.
+POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
 */
 #[utoipa::path(
     post,
@@ -100,13 +100,13 @@ async fn update_external_course(
     let update = payload.0;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
 
-    let external_course = udpate_by_id(&mut conn, &app_conf, update).await?;
+    let external_course = update_by_id(&mut conn, &app_conf, update).await?;
 
     token.authorized_ok(web::Json(external_course))
 }
 
 /**
-POST `/api/v0/main-frontend/external-course/delete` - Deletes external course.
+POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
 */
 #[utoipa::path(
     post,

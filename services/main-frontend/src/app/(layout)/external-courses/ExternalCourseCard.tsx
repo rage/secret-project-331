@@ -66,7 +66,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
 
   const deleteContent = async () => {
     const confirmed = await confirm(
-      t("delete-external-course-confirmation", { name: externalCourse.name }),
+      t("delete-course-confirmation", { name: externalCourse.name }),
       t("button-text-delete"),
     )
     if (confirmed) {
@@ -112,7 +112,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
   )
   const deleteMutation = useToastMutationOptions(
     deleteExternalCourseMutation(),
-    { notify: false },
+    { method: "POST", notify: true, successMessage: t("course-deleted-successfully") },
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -222,12 +222,9 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
               control={control}
               label={t("text-field-label-name")}
               name={"name"}
-              rules={nullIfEmpty}
+              rules={{ required: t("required-field") }}
               autoResize={true}
             />
-            {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
-            )}
             <TextArea
               control={control}
               label={t("text-field-label-description")}
@@ -235,15 +232,11 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
               rules={nullIfEmpty}
               autoResize={true}
             />
-
-            {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
-            )}
             <TextArea
               control={control}
               label={t("text-field-label-url")}
               name={"url"}
-              rules={nullIfEmpty}
+              rules={{ required: t("required-field") }}
               autoResize={true}
             />
             <Checkbox

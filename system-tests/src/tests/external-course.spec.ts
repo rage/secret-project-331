@@ -17,7 +17,7 @@ test("can-create-new-external-course", async ({ page }) => {
   await page.getByRole("textbox", { name: "Description" }).fill("external course")
   await page.getByRole("textbox", { name: "Description" }).press("Tab")
   await page.getByRole("textbox", { name: "Url" }).fill("http://mooc.fi")
-  await page.locator(".css-j1czi1").click()
+  await page.getByLabel("Is the course hosted on the old version of the mooc.fi platform").click()
   await waitForSuccessNotification(page, async () => {
     await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
   })
@@ -49,11 +49,13 @@ test("can-edit-external-course", async ({ page }) => {
 test("can-delete-external-course", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "External courses" }).click()
-  await page.getByRole("button", { name: "Delete" }).click()
-  await respondToConfirmDialog(
+  await waitForSuccessNotification(
     page,
-    true,
-    'Are you sure you want to delete the external course "new name"',
+    async () => {
+      await page.getByRole("button", { name: "Delete" }).click()
+    },
+    "Course deleted successfully",
   )
+  await respondToConfirmDialog(page, true, "Are you sure you want to delete this course?")
   await expect(page.getByText("No external courses found")).toBeVisible()
 })

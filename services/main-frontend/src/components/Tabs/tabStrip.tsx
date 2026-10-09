@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 
 /** How wide the "more tabs this way" fade is at an overflowing end of the strip. */
-const STRIP_FADE_WIDTH = "2.5rem"
+const STRIP_FADE_WIDTH = "1.5rem"
 
 /**
  * The container both tab strips share: `Tabs` (state-driven) and `RouteTabList` (route-driven).

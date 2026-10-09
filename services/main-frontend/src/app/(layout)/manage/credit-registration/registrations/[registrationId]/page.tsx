@@ -768,9 +768,11 @@ const RegistrationDetailPage: React.FC = () => {
             {loaded.registration.superseded && <SupersededCard details={loaded} />}
             <RegistrationJourney
               phases={phases}
-              currentAttemptId={loaded.registration.id}
-              attemptNumber={context.attemptNumber}
-              showsAttempts={loaded.attempts.length > 1}
+              attempts={{
+                currentId: loaded.registration.id,
+                count: loaded.attempts.length,
+                numberOf: context.attemptNumber,
+              }}
               problemActions={
                 problem && !loaded.registration.superseded ? (
                   <>
@@ -778,6 +780,7 @@ const RegistrationDetailPage: React.FC = () => {
                     <RegistrationProblemActions
                       registration={loaded.registration}
                       isStudentNumberStuck={problem.isStudentNumberStuck}
+                      isDismissed={loaded.attention?.standing === "dismissed"}
                       unmailedEarlyEnroleeCount={
                         loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
                       }

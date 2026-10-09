@@ -1,3 +1,6 @@
+import { relativeTimeFormatter } from "@/shared-module/components/lib/utils/relativeTimeFormat"
+import { daysHoursMinutes } from "@/utils/durationParts"
+
 import type { CreditRegistrationTFunction } from "./constants"
 
 const SECS_PER_MINUTE = 60
@@ -5,6 +8,7 @@ const SECS_PER_HOUR = 3600
 const SECS_PER_DAY = 86400
 const MINUTES_PER_HOUR = 60
 const HOURS_PER_DAY = 24
+const MS_PER_SEC = 1000
 
 const minutes = (t: CreditRegistrationTFunction, count: number) =>
   t("credit-registration-duration-minutes", { count })
@@ -39,36 +43,29 @@ export const formatIntervalInWords = (t: CreditRegistrationTFunction, secs: numb
   if (wholeSecs < SECS_PER_MINUTE) {
     return t("credit-registration-duration-seconds", { count: wholeSecs })
   }
-  const totalMinutes = Math.round(secs / SECS_PER_MINUTE)
-  const wholeDays = Math.floor(totalMinutes / (24 * 60))
-  const wholeHours = Math.floor((totalMinutes % (24 * 60)) / 60)
-  const restMinutes = totalMinutes % 60
+  const span = daysHoursMinutes(secs)
   const pair = (larger: string, smaller: string | null) =>
     smaller === null ? larger : t("credit-registration-duration-pair", { larger, smaller })
-  if (wholeDays > 0) {
-    return pair(days(t, wholeDays), wholeHours > 0 ? hours(t, wholeHours) : null)
+  if (span.days > 0) {
+    return pair(days(t, span.days), span.hours > 0 ? hours(t, span.hours) : null)
   }
-  if (wholeHours > 0) {
-    return pair(hours(t, wholeHours), restMinutes > 0 ? minutes(t, restMinutes) : null)
+  if (span.hours > 0) {
+    return pair(hours(t, span.hours), span.minutes > 0 ? minutes(t, span.minutes) : null)
   }
-  return minutes(t, restMinutes)
+  return minutes(t, span.minutes)
 }
-
-const MINUTE_MS = SECS_PER_MINUTE * 1000
-const HOUR_MS = SECS_PER_HOUR * 1000
-const DAY_MS = SECS_PER_DAY * 1000
 
 /** How far ahead a future moment is, in whole units of the UI `language`: "in 5 minutes", "tomorrow". */
 export const formatFutureInWords = (at: Date, language: string): string => {
-  const ms = at.getTime() - Date.now()
-  const format = new Intl.RelativeTimeFormat(language, { numeric: "auto" })
-  const wholeMinutes = Math.round(ms / MINUTE_MS)
+  const secs = (at.getTime() - Date.now()) / MS_PER_SEC
+  const format = relativeTimeFormatter(language)
+  const wholeMinutes = Math.round(secs / SECS_PER_MINUTE)
   if (wholeMinutes < MINUTES_PER_HOUR) {
     return format.format(Math.max(1, wholeMinutes), "minute")
   }
-  const wholeHours = Math.round(ms / HOUR_MS)
+  const wholeHours = Math.round(secs / SECS_PER_HOUR)
   if (wholeHours < HOURS_PER_DAY) {
     return format.format(wholeHours, "hour")
   }
-  return format.format(Math.round(ms / DAY_MS), "day")
+  return format.format(Math.round(secs / SECS_PER_DAY), "day")
 }

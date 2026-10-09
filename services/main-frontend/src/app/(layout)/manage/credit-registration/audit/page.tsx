@@ -41,6 +41,7 @@ import {
   TONE,
 } from "@/components/credit-registration/constants"
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import {
   controlCss,
   controlsCss,
@@ -53,7 +54,6 @@ import {
   stackedCellCss,
   stateChangeToCss,
 } from "@/components/credit-registration/styles"
-import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   CreditRegistrationAdminAction,
@@ -208,7 +208,7 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
       <span className={noteCss}>{actorRoleLabel(t, row.actor_role)}</span>
       {row.actor_email && (
         <span className={noteCss}>
-          <UnbrokenValuesText>{row.actor_email}</UnbrokenValuesText>
+          <EmailAddress address={row.actor_email} />
         </span>
       )}
     </span>

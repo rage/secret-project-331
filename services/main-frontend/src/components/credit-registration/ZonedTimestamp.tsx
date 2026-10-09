@@ -1,8 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { Trans } from "react-i18next"
 
 import AbsentValue from "@/components/credit-registration/AbsentValue"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import { timeZoneOffsetString } from "@/shared-module/common/utils/time"
 import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTimeFormat"
 
@@ -44,3 +46,21 @@ export const ZonedTimestamp: React.FC<{ at: string | null | undefined }> = ({ at
     </time>
   )
 }
+
+/** The translations with a `<time/>` tag. */
+type TimestampSentenceKey =
+  | "credit-registration-admin-journey-sisu-enrolment-time"
+  | "credit-registration-admin-status-enrolment-checks-stopped"
+  | "credit-registration-admin-status-next-attempt"
+  | "credit-registration-admin-status-next-enrolment-list-fetch"
+  | "credit-registration-admin-status-next-sisu-check"
+  | "credit-registration-admin-status-registered"
+
+/** The `i18nKey` sentence with its `<time/>` tag rendered as a `ZonedTimestamp` of `at`. */
+export const sentenceWithTimestamp = (
+  t: CreditRegistrationTFunction,
+  i18nKey: TimestampSentenceKey,
+  at: string,
+): React.ReactElement => (
+  <Trans t={t} i18nKey={i18nKey} components={{ time: <ZonedTimestamp at={at} /> }} />
+)

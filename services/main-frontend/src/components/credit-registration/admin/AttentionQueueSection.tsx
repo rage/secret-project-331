@@ -84,14 +84,12 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
   )
   const diagnosis =
     item.timeline_step === ANSWER_UNCLEAR ? timelineStepLabel(t, item.timeline_step) : null
-  const [lead, ...notes] = [diagnosis, status.next, status.waitsOn].filter((line): line is string =>
-    Boolean(line),
-  )
+  const [lead, ...notes] = [diagnosis, status.next, status.waitsOn].filter(Boolean)
   return (
     <span className={stackedCellCss}>
       <span>{lead}</span>
-      {notes.map((line) => (
-        <span key={line} className={noteCss}>
+      {notes.map((line, index) => (
+        <span key={index} className={noteCss}>
           {line}
         </span>
       ))}

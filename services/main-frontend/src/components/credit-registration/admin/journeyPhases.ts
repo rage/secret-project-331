@@ -1,3 +1,5 @@
+import type React from "react"
+
 import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationEvent,
@@ -9,7 +11,8 @@ import type {
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
-import { formatZonedTimestamp } from "../ZonedTimestamp"
+import { sentenceWithEmailAddress } from "../EmailAddress"
+import { sentenceWithTimestamp } from "../ZonedTimestamp"
 import { adminErrorShortLabel } from "./adminCreditRegistrationCopy"
 import { registrationStatusLines } from "./registrationStatus"
 import type { TimelineEntry } from "./timelineRows"
@@ -35,7 +38,7 @@ export interface JourneySubstep {
   /** Seconds since the substep before it; null for the first one or one that came earlier. */
   secsAfterPrevious: number | null
   /** One more fact about the substep, such as how they enrolled or what happens next. */
-  detail: string | null
+  detail: React.ReactNode
   /** The events that led up to the substep, or, for the current one, everything since. */
   entries: TimelineEntry[]
 }
@@ -53,7 +56,7 @@ export interface JourneyProblem {
   /** When it stopped. */
   since: string
   /** What is wrong, as facts. */
-  summary: string | null
+  summary: React.ReactNode
   /** A possible cause, worded as one. */
   hint: string | null
   /** Stuck on a student number that never got linked, which has its own actions. */
@@ -69,6 +72,10 @@ export interface JourneyPhase {
   /** How the registration ended, on the Confirmation phase of a finished one. */
   ending: TimelineStep | null
 }
+
+/** `aria-current` for a phase or substep: set on the one the registration is at. */
+export const ariaCurrent = (status: JourneyPhaseStatus): "step" | undefined =>
+  status === "current" || status === "attention" ? "step" : undefined
 
 /** The columns, left to right. */
 export const JOURNEY_PHASES: readonly JourneyPhaseKey[] = [
@@ -139,24 +146,24 @@ interface Slot {
   key: string
   label: string
   at: string | null
-  detail?: string | null
+  detail?: React.ReactNode
 }
 
 type SubstepDraft = Omit<JourneySubstep, "secsAfterPrevious" | "entries">
 
-const toSubstep = (slot: Slot, status: "done" | "upcoming"): SubstepDraft => ({
+const toSubstep = (slot: Slot): SubstepDraft => ({
   key: slot.key,
   label: slot.label,
-  status,
-  at: status === "done" ? slot.at : null,
-  detail: status === "done" ? (slot.detail ?? null) : null,
+  status: slot.at === null ? "upcoming" : "done",
+  at: slot.at,
+  detail: slot.at === null ? null : (slot.detail ?? null),
 })
 
 /** The newest attempt's own substep, standing in for the slot it `replaces`, or added if none. */
 interface CurrentSubstep {
   label: string
   status: "current" | "attention"
-  detail: string | null
+  detail: React.ReactNode
   replaces: string | null
 }
 
@@ -171,10 +178,10 @@ const phaseSubsteps = (
   current: CurrentSubstep | null,
 ): SubstepDraft[] => {
   if (position === "past") {
-    return slots.filter((slot) => slot.at !== null).map((slot) => toSubstep(slot, "done"))
+    return slots.filter((slot) => slot.at !== null).map((slot) => toSubstep(slot))
   }
   if (position === "future" || current === null) {
-    return slots.map((slot) => toSubstep(slot, slot.at === null ? "upcoming" : "done"))
+    return slots.map((slot) => toSubstep(slot))
   }
   const substeps: SubstepDraft[] = []
   let isPlaced = false
@@ -197,7 +204,7 @@ const phaseSubsteps = (
     if (slot.at === null && !isPlaced && current.replaces === null) {
       place(null)
     }
-    substeps.push(toSubstep(slot, slot.at === null ? "upcoming" : "done"))
+    substeps.push(toSubstep(slot))
   }
   if (!isPlaced) {
     place(null)
@@ -256,6 +263,28 @@ const attachDurations = (phases: JourneyPhase[]) => {
       substep.secsAfterPrevious = (at - previous) / 1000
     }
     previous = previous === null ? at : Math.max(previous, at)
+  }
+}
+
+/**
+ * A phase's status from its position. A finished registration has no current phase, so its
+ * Confirmation is `past`, and done even with no substeps.
+ */
+const phaseStatusOf = (
+  position: "past" | "current" | "future",
+  substeps: SubstepDraft[],
+  isAttention: boolean,
+  isFinishedConfirmation: boolean,
+): JourneyPhaseStatus => {
+  switch (position) {
+    case "current":
+      return isAttention ? "attention" : "current"
+    case "past":
+      return substeps.length > 0 || isFinishedConfirmation ? "done" : "skipped"
+    case "future":
+      return substeps.length > 0 && substeps.every((one) => one.status === "done")
+        ? "done"
+        : "upcoming"
   }
 }
 
@@ -380,9 +409,11 @@ export const buildJourney = (
                 key: "linking_email_sent",
                 label: t("credit-registration-admin-journey-linking-email-sent"),
                 at: usedLinkingEmail.send_status.sent_at ?? null,
-                detail: t("credit-registration-admin-journey-emailed-to", {
-                  email: usedLinkingEmail.emailed_to,
-                }),
+                detail: sentenceWithEmailAddress(
+                  t,
+                  "credit-registration-admin-journey-emailed-to",
+                  usedLinkingEmail.emailed_to,
+                ),
               },
             ]
           : []),
@@ -405,9 +436,11 @@ export const buildJourney = (
       at: enrolmentFoundAt,
       detail:
         enrolmentFoundAt && journey.sisu_enrolled_at
-          ? t("credit-registration-admin-journey-sisu-enrolment-time", {
-              time: formatZonedTimestamp(new Date(journey.sisu_enrolled_at)),
-            })
+          ? sentenceWithTimestamp(
+              t,
+              "credit-registration-admin-journey-sisu-enrolment-time",
+              journey.sisu_enrolled_at,
+            )
           : null,
     },
     {
@@ -481,7 +514,7 @@ export const buildJourney = (
         return startingSlots.map((slot, index) =>
           index === nextIndex
             ? { ...currentSubstep(null), key: slot.key, label: slot.label, at: null }
-            : toSubstep(slot, slot.at === null ? "upcoming" : "done"),
+            : toSubstep(slot),
         )
       }
       case "student_number": {
@@ -535,18 +568,7 @@ export const buildJourney = (
     return {
       key,
       substeps,
-      status:
-        position === "current"
-          ? isAttention
-            ? "attention"
-            : "current"
-          : substeps.length > 0 && substeps.every((one) => one.status === "done")
-            ? "done"
-            : position === "past" || isFinishedConfirmation
-              ? substeps.length === 0 && !isFinishedConfirmation
-                ? "skipped"
-                : "done"
-              : "upcoming",
+      status: phaseStatusOf(position, substeps, isAttention, isFinishedConfirmation),
       problem: position === "current" && isAttention ? problem() : null,
       ending: isFinishedConfirmation ? timelineStep : null,
     }

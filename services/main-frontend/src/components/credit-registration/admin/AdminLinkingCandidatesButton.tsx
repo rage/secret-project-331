@@ -28,7 +28,7 @@ const AdminLinkingCandidatesButton: React.FC<Props> = ({
         {t("button-text-guess-from-enrolment-list")}
       </Button>
       <AdminLinkingCandidatesDialog
-        open={open}
+        isOpen={open}
         onClose={() => setOpen(false)}
         registrationId={registrationId}
       />

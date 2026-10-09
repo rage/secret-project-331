@@ -176,6 +176,11 @@ export const rowCss = css`
   align-items: center;
 `
 
+/** Pushed to the far end of a `rowCss`, for an action that does not move the row forward. */
+export const apartCss = css`
+  margin-left: auto;
+`
+
 /** A `rowCss` whose ends are pushed apart: a name on the left, its status or action on the right. */
 export const spacedRowCss = cx(
   rowCss,

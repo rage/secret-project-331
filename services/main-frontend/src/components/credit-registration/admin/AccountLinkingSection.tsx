@@ -4,12 +4,12 @@ import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React, { useId, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import ScheduledTime from "@/components/credit-registration/ScheduledTime"
-import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import {
   formatZonedTimestamp,
   ZonedTimestamp,
@@ -449,7 +449,7 @@ const UnusedLinksBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
           {
             header: t("credit-registration-admin-column-sent-to"),
             minWidth: "12rem",
-            cell: (row) => <UnbrokenValuesText>{row.emailed_to}</UnbrokenValuesText>,
+            cell: (row) => <EmailAddress address={row.emailed_to} />,
           },
           {
             header: t("credit-registration-admin-column-link-age"),
@@ -914,7 +914,7 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
                 <span className={stackedCellCss}>
                   <span>{row.course_name}</span>
                   <span className={noteCss}>
-                    <UnbrokenValuesText>{row.emailed_to}</UnbrokenValuesText>
+                    <EmailAddress address={row.emailed_to} />
                   </span>
                 </span>
               ),
@@ -979,7 +979,7 @@ const StaleAddressActions: React.FC<{
         items={canResend ? [resendItem, linkItem] : [linkItem]}
       />
       <AdminResendLinkingEmailDialog
-        open={isResendOpen}
+        isOpen={isResendOpen}
         onClose={() => setResendOpen(false)}
         studentNumber={row.student_number}
         courseId={row.course_id}
@@ -987,7 +987,7 @@ const StaleAddressActions: React.FC<{
       />
       {isLinkOpen && (
         <AdminManualLinkDialog
-          open
+          isOpen
           onClose={() => setLinkOpen(false)}
           studentNumber={row.student_number}
         />
@@ -1264,7 +1264,7 @@ const RecentClaimsBlock: React.FC<{
                     minWidth: "14rem",
                     cell: (row) =>
                       row.verified_via_email ? (
-                        <UnbrokenValuesText>{row.verified_via_email}</UnbrokenValuesText>
+                        <EmailAddress address={row.verified_via_email} />
                       ) : (
                         <AbsentValue />
                       ),
@@ -1394,11 +1394,11 @@ const AccountLinkingSection: React.FC = () => {
             <HealthBanner stats={stats} />
             {stats.account_linking_since && (
               <p className={cx(noteCss, proseCss)}>
-                <UnbrokenValuesText>
-                  {t("credit-registration-admin-account-linking-since", {
-                    time: formatZonedTimestamp(new Date(stats.account_linking_since)),
-                  })}
-                </UnbrokenValuesText>
+                <Trans
+                  t={t}
+                  i18nKey="credit-registration-admin-account-linking-since"
+                  components={{ time: <ZonedTimestamp at={stats.account_linking_since} /> }}
+                />
               </p>
             )}
             <WaitingCounts stats={stats} />

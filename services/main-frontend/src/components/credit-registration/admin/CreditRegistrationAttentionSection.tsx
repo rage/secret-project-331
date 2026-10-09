@@ -37,10 +37,7 @@ const WARNING_ICON_SIZE = 20
 const CRITICAL = "critical" as const
 const INFO = "info" as const
 
-/**
- * Where each rule is acted on. An alert with no destination reads as a complaint the surface cannot
- * answer, and every rule here has a tab that shows the rows behind it.
- */
+/** Where each rule is acted on; every alert needs a destination. */
 const ALERT_ROUTES = {
   credentials_rejected: creditRegistrationSystemRoute(),
   study_registry_unreachable: creditRegistrationSystemRoute(),
@@ -94,9 +91,8 @@ const alertCardCss = css`
 `
 
 /**
- * Icon and sentence as one flex child, so the two can never be split across lines and it is the
- * action that drops to a line of its own when the card runs out of room. Sized so that happens
- * before the sentence is squeezed into a column three lines deep on a phone.
+ * Icon and sentence as one flex child, so the action is what wraps to its own line. The basis makes
+ * that happen before the sentence is squeezed three lines deep on a phone.
  */
 const alertMainCss = css`
   flex: 1 1 20rem;
@@ -168,11 +164,7 @@ const AlertOpenLink: React.FC<{ alert: CreditRegistrationAlert; sentence: string
   )
 }
 
-/**
- * A card's contents: the glyph and what it says as one group that cannot be split
- * across lines, then the one way to act on it. The element and the tone are the caller's — a list
- * item where every rule is listed, a lone panel where they are summarised.
- */
+/** A card's contents: glyph and sentence as one group, then the action. */
 const AlertCardContent: React.FC<{ action: React.ReactNode; children: React.ReactNode }> = ({
   action,
   children,
@@ -186,10 +178,7 @@ const AlertCardContent: React.FC<{ action: React.ReactNode; children: React.Reac
   </>
 )
 
-/**
- * One alert as a card. The sentence is not itself the link: five underlined sentences read as a
- * page of links, where one button per card says there is one thing to do with each.
- */
+/** One alert as a card. The sentence is not the link; one button per card is. */
 const AlertRow: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   // oxlint-disable-next-line i18next/no-literal-string -- CSS lookup key, not user-facing text
@@ -220,13 +209,10 @@ const bySeverity = (alerts: CreditRegistrationAlert[], severity: CreditRegistrat
 /**
  * Everything firing, worst first, as the Overview's opening content.
  *
- * Uncarded and unheaded: the cards are already tinted panels that say what they are, so a frame
- * and a title around them only add chrome to the first thing a reader looks at. The list keeps an
- * accessible name in place of the heading. The tab strip carries the standing counts, so a tile
- * row here would only repeat them under labels identical to the tabs' own.
+ * Uncarded and unheaded: the cards already say what they are. The list keeps an accessible name in
+ * place of the heading, and no tile row repeats the tab strip's counts.
  *
- * Only notices collapse. This is the one page whose job is to list what is wrong, so a warning
- * behind a toggle is a warning nobody reads.
+ * Only notices collapse; a warning behind a toggle goes unread.
  */
 export const CreditRegistrationAttentionSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)

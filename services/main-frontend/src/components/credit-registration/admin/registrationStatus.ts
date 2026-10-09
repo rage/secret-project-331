@@ -1,3 +1,5 @@
+import React from "react"
+
 import type {
   AdminCreditRegistrationRow,
   AdminLinkingSchedule,
@@ -5,7 +7,7 @@ import type {
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
-import { formatZonedTimestamp } from "../ZonedTimestamp"
+import { sentenceWithTimestamp } from "../ZonedTimestamp"
 import { attentionReasonLabel, registrationErrorAdminHelp } from "./adminCreditRegistrationCopy"
 import { ATTENTION_STEPS, FINISHED_STEPS, waitsOnLabel } from "./timelineSteps"
 
@@ -15,7 +17,7 @@ export type RegistrationStatusTone = "neutral" | "attention" | "done"
 /** A registration's status in two lines: who it waits on, then what happens next. */
 export interface RegistrationStatusLines {
   waitsOn: string
-  next: string | null
+  next: React.ReactNode
   tone: RegistrationStatusTone
   /** A possible cause, worded as one, for a third line. */
   hint: string | null
@@ -40,15 +42,13 @@ export type RegistrationStatusSubject = Pick<
   | "student_number"
 >
 
-const at = (time: string): string => formatZonedTimestamp(new Date(time))
-
 const nextSisuCheck = (t: CreditRegistrationTFunction, time: string | null | undefined) =>
-  time ? t("credit-registration-admin-status-next-sisu-check", { time: at(time) }) : null
+  time ? sentenceWithTimestamp(t, "credit-registration-admin-status-next-sisu-check", time) : null
 
 const linkingNext = (
   t: CreditRegistrationTFunction,
   schedule: AdminLinkingSchedule | null | undefined,
-): string => {
+): React.ReactNode => {
   if (!schedule) {
     return t("credit-registration-admin-status-waiting-for-linking-email")
   }
@@ -58,16 +58,18 @@ const linkingNext = (
   if (schedule.linking_emails_since_press > 0) {
     return t("credit-registration-admin-status-linking-email-went-out")
   }
-  return t("credit-registration-admin-status-next-enrolment-list-fetch", {
-    time: at(schedule.next_fetch_at),
-  })
+  return sentenceWithTimestamp(
+    t,
+    "credit-registration-admin-status-next-enrolment-list-fetch",
+    schedule.next_fetch_at,
+  )
 }
 
 const stepNext = (
   t: CreditRegistrationTFunction,
   row: RegistrationStatusSubject,
   schedule: AdminLinkingSchedule | null | undefined,
-): string | null => {
+): React.ReactNode => {
   switch (row.timeline_step) {
     case "course_not_registrable_yet":
       return t("credit-registration-admin-status-course-not-registrable-yet")
@@ -89,13 +91,19 @@ const stepNext = (
         return t("credit-registration-admin-status-until-visited")
       }
       if (row.enrolment_checks_stopped_at) {
-        return t("credit-registration-admin-status-enrolment-checks-stopped", {
-          time: at(row.enrolment_checks_stopped_at),
-        })
+        return sentenceWithTimestamp(
+          t,
+          "credit-registration-admin-status-enrolment-checks-stopped",
+          row.enrolment_checks_stopped_at,
+        )
       }
       return nextSisuCheck(t, row.enrolment_check_due_at)
     case "sending":
-      return t("credit-registration-admin-status-next-attempt", { time: at(row.next_attempt_at) })
+      return sentenceWithTimestamp(
+        t,
+        "credit-registration-admin-status-next-attempt",
+        row.next_attempt_at,
+      )
     case "answer_unclear":
       return t("credit-registration-admin-status-answer-unclear")
     case "waiting_for_assessment_item":
@@ -103,7 +111,7 @@ const stepNext = (
       return nextSisuCheck(t, row.next_attempt_at)
     case "registered":
       return row.registered_at
-        ? t("credit-registration-admin-status-registered", { time: at(row.registered_at) })
+        ? sentenceWithTimestamp(t, "credit-registration-admin-status-registered", row.registered_at)
         : null
     case "already_in_sisu":
       return t("credit-registration-admin-status-already-in-sisu")
@@ -164,9 +172,13 @@ export const registrationStatusLines = (
     row.attention_standing === "running_late"
       ? [t("credit-registration-admin-status-running-late")]
       : reasons.map((reason) => t("credit-registration-admin-status-reason", { reason }))
+  const leadText = lead.join(" ")
   return {
     waitsOn,
-    next: [...lead, next].filter((part): part is string => Boolean(part)).join(" ") || null,
+    next:
+      leadText && next
+        ? React.createElement(React.Fragment, null, leadText, " ", next)
+        : leadText || next,
     tone:
       needsAttention || ATTENTION_STEPS.has(row.timeline_step)
         ? "attention"

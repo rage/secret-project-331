@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,8 +12,9 @@ import { Button, Link, Menu } from "@/shared-module/components"
 
 import { BUTTON_SECONDARY, CREDIT_REGISTRATION_NS } from "../constants"
 import { failureActionLabel } from "../registrationFailures"
-import { noteCss, stackedCellCss } from "../styles"
+import { apartCss, noteCss, stackedCellCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
+import type { DialogOpenState } from "./AdminActionDialog"
 import AdminDismissAttentionButton from "./AdminDismissAttentionButton"
 import AdminLinkingCandidatesDialog from "./AdminLinkingCandidatesDialog"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
@@ -24,12 +24,13 @@ import { CHECK_NOW_COPY, TransitionAction } from "./AdminTransitionBlock"
 import { useFetchEnrolmentListNow } from "./FetchEnrolmentListNowButton"
 import type { HandActionOffer, RemedyOffer } from "./handActionOffers"
 import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
+import {
+  GUESS_FROM_ENROLMENT_LIST,
+  useStudentNumberStuckActions,
+} from "./studentNumberStuckActions"
 import { CANCELLED, CHECK_NOW, READY_TO_SUBMIT } from "./TransitionTargetSelect"
 
 const EMAIL_STUDENT: RemedyOffer = "email_student"
-const LINK_BY_HAND: RemedyOffer = "link_student_number_by_hand"
-const RESEND_LINK: RemedyOffer = "resend_student_number_link"
-const GUESS = "guess_from_enrolment_list"
 const FETCH_NOW = "fetch_enrolment_list_now"
 const CANCEL = "cancel"
 const DESTRUCTIVE = "destructive" as const
@@ -44,40 +45,36 @@ const actionsCss = css`
   align-items: center;
 `
 
-/** Pushed to the far end: dismissing does not move the registration forward. */
-const apartCss = css`
-  margin-left: auto;
-`
-
-/** One thing the row lets a person do: a link to go to, or a dialog to open. */
+/** One thing the row lets a person do: a link to go to, something to run, or a dialog to open. */
 type RowAction = {
   key: string
   label: string
   isDestructive?: boolean
-} & ({ href: string } | { onOpen: () => void })
+} & (
+  | { href: string }
+  | { onRun: () => void }
+  | { dialog: (openState: DialogOpenState) => React.ReactNode }
+)
 
 /**
  * A Needs attention row's actions: its best remedy as a button, the others in a More menu, and
- * Dismiss set apart. A stuck presser gets the linking actions, led by a guess from the enrolment
- * list on a code with unmailed early enrolees; every other row its remedies, and Cancel once Sisu
- * has stopped accepting retries.
+ * Dismiss set apart. A stuck presser gets the linking actions; every other row its remedies, and
+ * Cancel once Sisu has stopped accepting retries.
  */
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const router = useRouter()
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const stuckActions = useStudentNumberStuckActions(item.unlinked_enrolled_before_count)
   const [lastResult, setLastResult] = useState<ActionResult | null>(null)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const fetchNow = useFetchEnrolmentListNow(item.uh_course_code ?? "")
   const isRunningLate = item.standing === "running_late"
   const isStudentNumberStuck = item.reasons.includes("student_number_stuck")
   const studentName = formatUserName(item)
-  const account = { userId: item.user_id, name: studentName, email: item.email ?? null }
-  const dialogOpenState = (key: string) => ({
+  const dialogOpenState = (key: string): DialogOpenState => ({
     isOpen: openDialog === key,
     onClose: () => setOpenDialog(null),
   })
-  const opens = (key: string) => () => setOpenDialog(key)
   const emailAction: RowAction | null = item.email
     ? {
         key: EMAIL_STUDENT,
@@ -94,7 +91,11 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
       isAccountLinkingEnabled,
     }),
   )
-  const checkNow = item.hand_actions.check_now ?? null
+  const resubmission =
+    item.hand_actions.resubmission.kind === "allowed" ? item.hand_actions.resubmission : null
+  const checkNowCopy = item.hand_actions.check_now
+    ? CHECK_NOW_COPY[item.hand_actions.check_now]
+    : null
   const canCancel =
     !isStudentNumberStuck &&
     !isRunningLate &&
@@ -104,17 +105,44 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
   const offerAction = (offer: HandActionOffer): RowAction | null => {
     switch (offer) {
       case RESUBMIT:
-        return item.hand_actions.resubmission.kind === "allowed"
+        return resubmission
           ? {
               key: offer,
               label: t("credit-registration-admin-target-resubmit"),
-              onOpen: opens(offer),
+              dialog: (openState) => (
+                <TransitionAction
+                  registrationId={item.credit_registration_id}
+                  choice={READY_TO_SUBMIT}
+                  label={t("credit-registration-admin-target-resubmit")}
+                  explanation={t("credit-registration-admin-resubmit-description")}
+                  appliedMessage={t("credit-registration-admin-resubmit-applied")}
+                  triggerVariant={BUTTON_SECONDARY}
+                  risk={resubmission.risk}
+                  onResult={setLastResult}
+                  openState={openState}
+                />
+              ),
             }
           : null
       case CHECK_NOW_OFFER:
-        return checkNow === null
-          ? null
-          : { key: offer, label: t(CHECK_NOW_COPY[checkNow].label), onOpen: opens(offer) }
+        return checkNowCopy
+          ? {
+              key: offer,
+              label: t(checkNowCopy.label),
+              dialog: (openState) => (
+                <TransitionAction
+                  registrationId={item.credit_registration_id}
+                  choice={CHECK_NOW}
+                  label={t(checkNowCopy.label)}
+                  explanation={t(checkNowCopy.description)}
+                  appliedMessage={t("credit-registration-admin-check-now-applied")}
+                  triggerVariant={BUTTON_SECONDARY}
+                  onResult={setLastResult}
+                  openState={openState}
+                />
+              ),
+            }
+          : null
       case "fix_module_configuration":
         return {
           key: offer,
@@ -123,36 +151,77 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
         }
       case "email_student":
         return emailAction
-      case "link_student_number_by_hand":
-      case "resend_student_number_link":
-        return item.student_number
-          ? { key: offer, label: failureActionLabel(t, offer), onOpen: opens(offer) }
+      case "link_student_number_by_hand": {
+        const studentNumber = item.student_number
+        return studentNumber
+          ? {
+              key: offer,
+              label: failureActionLabel(t, offer),
+              dialog: (openState) =>
+                openState.isOpen && (
+                  <AdminManualLinkDialog
+                    {...openState}
+                    account={{
+                      userId: item.user_id,
+                      name: studentName,
+                      email: item.email ?? null,
+                    }}
+                    studentNumber={studentNumber}
+                  />
+                ),
+            }
           : null
+      }
+      case "resend_student_number_link": {
+        const studentNumber = item.student_number
+        return studentNumber
+          ? {
+              key: offer,
+              label: failureActionLabel(t, offer),
+              dialog: (openState) => (
+                <AdminResendLinkingEmailDialog
+                  {...openState}
+                  studentNumber={studentNumber}
+                  courseId={item.course_id}
+                  courseName={item.course_name}
+                />
+              ),
+            }
+          : null
+      }
     }
   }
 
-  const canGuess = isAccountLinkingEnabled && (item.unlinked_enrolled_before_count ?? 0) > 0
   const actions: RowAction[] = (
     isStudentNumberStuck
       ? [
-          canGuess
-            ? {
-                key: GUESS,
-                label: t("button-text-guess-from-enrolment-list"),
-                onOpen: opens(GUESS),
-              }
-            : null,
-          {
-            key: LINK_BY_HAND,
-            label: failureActionLabel(t, LINK_BY_HAND),
-            onOpen: opens(LINK_BY_HAND),
-          },
+          ...stuckActions.map((action): RowAction => ({
+            ...action,
+            dialog: (openState) =>
+              action.key === GUESS_FROM_ENROLMENT_LIST ? (
+                <AdminLinkingCandidatesDialog
+                  {...openState}
+                  registrationId={item.credit_registration_id}
+                />
+              ) : (
+                openState.isOpen && (
+                  <AdminManualLinkDialog
+                    {...openState}
+                    account={{
+                      userId: item.user_id,
+                      name: studentName,
+                      email: item.email ?? null,
+                    }}
+                  />
+                )
+              ),
+          })),
           emailAction,
           item.uh_course_code
             ? {
                 key: FETCH_NOW,
                 label: t("button-text-fetch-enrolment-list-now"),
-                onOpen: () => void fetchNow.run(),
+                onRun: () => void fetchNow.run(),
               }
             : null,
         ]
@@ -167,20 +236,31 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
                 key: CANCEL,
                 label: t("credit-registration-admin-target-cancel"),
                 isDestructive: true,
-                onOpen: opens(CANCEL),
+                dialog: (openState: DialogOpenState) => (
+                  <TransitionAction
+                    registrationId={item.credit_registration_id}
+                    choice={CANCELLED}
+                    label={t("credit-registration-admin-target-cancel")}
+                    explanation={t("credit-registration-admin-cancel-description")}
+                    appliedMessage={t("credit-registration-admin-cancel-applied")}
+                    triggerVariant={BUTTON_SECONDARY}
+                    isDestructive
+                    onResult={setLastResult}
+                    openState={openState}
+                  />
+                ),
               }
             : null,
         ]
   ).filter((action): action is RowAction => action !== null)
 
-  // router.push of a mailto: never settles and leaves the app router suspended.
-  const followHref = (href: string) =>
-    href.startsWith("mailto:") ? window.location.assign(href) : router.push(href)
+  const run = (action: RowAction) =>
+    "onRun" in action ? action.onRun : () => setOpenDialog(action.key)
   const [main, ...rest] = actions
   const menuItems = rest.map((action): MenuItemDescriptor => ({
     key: action.key,
     label: action.label,
-    onAction: "href" in action ? () => followHref(action.href) : action.onOpen,
+    ...("href" in action ? { href: action.href } : { onAction: run(action) }),
     ...(action.isDestructive ? { tone: DESTRUCTIVE } : {}),
   }))
 
@@ -193,7 +273,7 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
               {main.label}
             </Link>
           ) : (
-            <Button variant={BUTTON_SECONDARY} size="medium" onClick={main.onOpen}>
+            <Button variant={BUTTON_SECONDARY} size="medium" onClick={run(main)}>
               {main.label}
             </Button>
           ))}
@@ -211,70 +291,13 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
         )}
       </span>
       {lastResult && <span className={noteCss}>{lastResult.message}</span>}
-      {actions.some((action) => action.key === RESUBMIT) &&
-        item.hand_actions.resubmission.kind === "allowed" && (
-          <TransitionAction
-            registrationId={item.credit_registration_id}
-            choice={READY_TO_SUBMIT}
-            label={t("credit-registration-admin-target-resubmit")}
-            explanation={t("credit-registration-admin-resubmit-description")}
-            appliedMessage={t("credit-registration-admin-resubmit-applied")}
-            triggerVariant={BUTTON_SECONDARY}
-            risk={item.hand_actions.resubmission.risk}
-            onResult={setLastResult}
-            openState={dialogOpenState(RESUBMIT)}
-          />
-        )}
-      {actions.some((action) => action.key === CHECK_NOW_OFFER) && checkNow !== null && (
-        <TransitionAction
-          registrationId={item.credit_registration_id}
-          choice={CHECK_NOW}
-          label={t(CHECK_NOW_COPY[checkNow].label)}
-          explanation={t(CHECK_NOW_COPY[checkNow].description)}
-          appliedMessage={t("credit-registration-admin-check-now-applied")}
-          triggerVariant={BUTTON_SECONDARY}
-          onResult={setLastResult}
-          openState={dialogOpenState(CHECK_NOW_OFFER)}
-        />
-      )}
-      {canCancel && (
-        <TransitionAction
-          registrationId={item.credit_registration_id}
-          choice={CANCELLED}
-          label={t("credit-registration-admin-target-cancel")}
-          explanation={t("credit-registration-admin-cancel-description")}
-          appliedMessage={t("credit-registration-admin-cancel-applied")}
-          triggerVariant={BUTTON_SECONDARY}
-          isDestructive
-          onResult={setLastResult}
-          openState={dialogOpenState(CANCEL)}
-        />
-      )}
-      {openDialog === LINK_BY_HAND && (
-        <AdminManualLinkDialog
-          open
-          onClose={() => setOpenDialog(null)}
-          account={account}
-          {...(isStudentNumberStuck || !item.student_number
-            ? {}
-            : { studentNumber: item.student_number })}
-        />
-      )}
-      {item.student_number && (
-        <AdminResendLinkingEmailDialog
-          open={openDialog === RESEND_LINK}
-          onClose={() => setOpenDialog(null)}
-          studentNumber={item.student_number}
-          courseId={item.course_id}
-          courseName={item.course_name}
-        />
-      )}
-      {canGuess && (
-        <AdminLinkingCandidatesDialog
-          open={openDialog === GUESS}
-          onClose={() => setOpenDialog(null)}
-          registrationId={item.credit_registration_id}
-        />
+      {actions.map(
+        (action) =>
+          "dialog" in action && (
+            <React.Fragment key={action.key}>
+              {action.dialog(dialogOpenState(action.key))}
+            </React.Fragment>
+          ),
       )}
     </span>
   )

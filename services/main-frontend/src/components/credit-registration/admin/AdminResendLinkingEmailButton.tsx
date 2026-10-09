@@ -32,7 +32,7 @@ const AdminResendLinkingEmailButton: React.FC<Props> = ({
         {t("button-text-resend-linking-email")}
       </Button>
       <AdminResendLinkingEmailDialog
-        open={open}
+        isOpen={open}
         onClose={() => setOpen(false)}
         studentNumber={studentNumber}
         courseId={courseId}

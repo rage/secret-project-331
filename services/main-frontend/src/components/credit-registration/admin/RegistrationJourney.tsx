@@ -11,8 +11,8 @@ import { ChevronIcon } from "@/shared-module/components/components/primitives/Ch
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import { formatDurationInWords } from "../durationWords"
+import { TextWithEmailAddresses } from "../EmailAddress"
 import { headingCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
-import UnbrokenValuesText from "../UnbrokenValuesText"
 import { formatZonedTimeRange, formatZonedTimestamp, ZonedTimestamp } from "../ZonedTimestamp"
 import type {
   JourneyPhase,
@@ -22,6 +22,7 @@ import type {
   JourneySubstep,
   JourneySubstepStatus,
 } from "./journeyPhases"
+import { ariaCurrent } from "./journeyPhases"
 import type { TimelineEntry } from "./timelineRows"
 import { timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
 
@@ -612,6 +613,14 @@ const phaseStateLabel = (t: CreditRegistrationTFunction, phase: JourneyPhase): s
   }
 }
 
+/** How the events tell one completion's attempts apart. */
+export interface JourneyAttempts {
+  /** The attempt whose page is open. */
+  currentId: string
+  count: number
+  numberOf: (registrationId: string) => number | undefined
+}
+
 const entryTime = (entry: TimelineEntry): string =>
   entry.until
     ? formatZonedTimeRange(new Date(entry.at), new Date(entry.until))
@@ -622,18 +631,17 @@ const SubstepEvents: React.FC<{
   id: string
   isOpen: boolean
   entries: TimelineEntry[]
-  currentAttemptId: string
-  attemptNumber: (registrationId: string) => number | undefined
-  showsAttempts: boolean
-}> = ({ id, isOpen, entries, currentAttemptId, attemptNumber, showsAttempts }) => {
+  attempts: JourneyAttempts
+}> = ({ id, isOpen, entries, attempts }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const showsAttempts = attempts.count > 1
   return (
     <ul id={id} className="tl-events" hidden={!isOpen}>
       {entries.map((entry, index) => {
         const previous = entries[index - 1]
         const startsAttempt =
           showsAttempts && (previous === undefined || previous.attemptId !== entry.attemptId)
-        const n = attemptNumber(entry.attemptId)
+        const n = attempts.numberOf(entry.attemptId)
         const time = entryTime(entry)
         // Repeating the same second on consecutive rows says nothing new.
         const showsTime = startsAttempt || previous === undefined || entryTime(previous) !== time
@@ -641,14 +649,14 @@ const SubstepEvents: React.FC<{
           <React.Fragment key={entry.id}>
             {startsAttempt && n !== undefined && (
               <li className="tl-attempt">
-                {entry.attemptId === currentAttemptId
+                {entry.attemptId === attempts.currentId
                   ? t("credit-registration-admin-journey-this-attempt", { n })
                   : t("credit-registration-attempt-n", { n })}
               </li>
             )}
             <li>
               <span className="tl-event-text">
-                <UnbrokenValuesText>{entry.sentence}</UnbrokenValuesText>
+                <TextWithEmailAddresses>{entry.sentence}</TextWithEmailAddresses>
               </span>
               {showsTime && (
                 <span className="tl-event-time">
@@ -661,7 +669,7 @@ const SubstepEvents: React.FC<{
               )}
               {entry.detail && (
                 <span className="tl-event-detail">
-                  <UnbrokenValuesText>{entry.detail}</UnbrokenValuesText>
+                  <TextWithEmailAddresses>{entry.detail}</TextWithEmailAddresses>
                 </span>
               )}
             </li>
@@ -674,10 +682,8 @@ const SubstepEvents: React.FC<{
 
 const SubstepItem: React.FC<{
   substep: JourneySubstep
-  currentAttemptId: string
-  attemptNumber: (registrationId: string) => number | undefined
-  showsAttempts: boolean
-}> = ({ substep, currentAttemptId, attemptNumber, showsAttempts }) => {
+  attempts: JourneyAttempts
+}> = ({ substep, attempts }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const [isOpen, setIsOpen] = useState(false)
   const eventsId = useId()
@@ -686,19 +692,13 @@ const SubstepItem: React.FC<{
     <li
       className="tl-substep"
       data-status={substep.status}
-      aria-current={
-        substep.status === "current" || substep.status === "attention" ? "step" : undefined
-      }
+      aria-current={ariaCurrent(substep.status)}
     >
       <span className="tl-dot" aria-hidden="true" />
       <span className="tl-label" id={labelId}>
         <VisuallyHidden>{t(SUBSTEP_STATUS_KEYS[substep.status])}: </VisuallyHidden>
         {substep.label}
-        {substep.detail && (
-          <span className="tl-detail">
-            <UnbrokenValuesText>{substep.detail}</UnbrokenValuesText>
-          </span>
-        )}
+        {substep.detail && <span className="tl-detail">{substep.detail}</span>}
       </span>
       {substep.at && (
         <span className="tl-when">
@@ -733,9 +733,7 @@ const SubstepItem: React.FC<{
             id={eventsId}
             isOpen={isOpen}
             entries={substep.entries}
-            currentAttemptId={currentAttemptId}
-            attemptNumber={attemptNumber}
-            showsAttempts={showsAttempts}
+            attempts={attempts}
           />
         </>
       )}
@@ -766,16 +764,8 @@ const ProblemBox: React.FC<{
           {t("credit-registration-admin-journey-problem-since")}{" "}
           <ZonedTimestamp at={problem.since} />
         </span>
-        {problem.summary && (
-          <p>
-            <UnbrokenValuesText>{problem.summary}</UnbrokenValuesText>
-          </p>
-        )}
-        {problem.hint && (
-          <p className="tl-problem-hint">
-            <UnbrokenValuesText>{problem.hint}</UnbrokenValuesText>
-          </p>
-        )}
+        {problem.summary && <p>{problem.summary}</p>}
+        {problem.hint && <p className="tl-problem-hint">{problem.hint}</p>}
         {actions && <div className="tl-problem-actions">{actions}</div>}
       </div>
     </section>
@@ -792,11 +782,9 @@ const leadsIntoDone = (next: JourneyPhaseStatus | undefined): boolean =>
  */
 const RegistrationJourney: React.FC<{
   phases: JourneyPhase[]
-  currentAttemptId: string
-  attemptNumber: (registrationId: string) => number | undefined
-  showsAttempts: boolean
+  attempts: JourneyAttempts
   problemActions: React.ReactNode
-}> = ({ phases, currentAttemptId, attemptNumber, showsAttempts, problemActions }) => {
+}> = ({ phases, attempts, problemActions }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   return (
@@ -816,9 +804,7 @@ const RegistrationJourney: React.FC<{
                 className={cx("tl-phase", columnCss(index + 1))}
                 data-status={phase.status}
                 data-to-done={leadsIntoDone(phases[index + 1]?.status) ? "" : undefined}
-                aria-current={
-                  phase.status === "current" || phase.status === "attention" ? "step" : undefined
-                }
+                aria-current={ariaCurrent(phase.status)}
               >
                 <div className="tl-head">
                   <span className="tl-node" aria-hidden="true">
@@ -847,13 +833,7 @@ const RegistrationJourney: React.FC<{
                   {phase.substeps.length > 0 && (
                     <ol className="tl-substeps">
                       {phase.substeps.map((substep) => (
-                        <SubstepItem
-                          key={substep.key}
-                          substep={substep}
-                          currentAttemptId={currentAttemptId}
-                          attemptNumber={attemptNumber}
-                          showsAttempts={showsAttempts}
-                        />
+                        <SubstepItem key={substep.key} substep={substep} attempts={attempts} />
                       ))}
                     </ol>
                   )}

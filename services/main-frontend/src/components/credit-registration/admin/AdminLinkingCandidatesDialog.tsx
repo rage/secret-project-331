@@ -6,8 +6,8 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
-import UnbrokenValuesText from "@/components/credit-registration/UnbrokenValuesText"
 import {
   getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
@@ -23,12 +23,11 @@ import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss, rowCss, stackedCellCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
+import type { DialogOpenState } from "./AdminActionDialog"
 import { linkingSimilarityLabel, resendOutcomeLabel } from "./adminCreditRegistrationCopy"
 import { useLinkingCandidates } from "./adminCreditRegistrationHooks"
 
-interface Props {
-  open: boolean
-  onClose: () => void
+interface Props extends DialogOpenState {
   registrationId: string
 }
 
@@ -52,7 +51,7 @@ const candidateFacts = (
   showsNotEmailed: boolean,
 ) => [
   candidate.email ? (
-    <UnbrokenValuesText key="email">{candidate.email}</UnbrokenValuesText>
+    <EmailAddress key="email" address={candidate.email} />
   ) : (
     t("credit-registration-admin-linking-candidate-no-address")
   ),
@@ -72,10 +71,10 @@ const candidateFacts = (
  * Lets an admin guess which unlinked early enrolee on the code is a student stuck waiting for a
  * student number, and send that person the linking email through the ordinary resend path.
  */
-const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registrationId }) => {
+const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, registrationId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
-  const candidatesQuery = useLinkingCandidates(registrationId, open)
+  const candidatesQuery = useLinkingCandidates(registrationId, isOpen)
   const { control, handleSubmit, watch, reset } = useForm<Fields>({
     defaultValues: { student_number: "" },
   })
@@ -138,7 +137,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ open, onClose, registra
 
   return (
     <Dialog
-      open={open}
+      open={isOpen}
       onClose={closeDialog}
       title={t("button-text-guess-from-enrolment-list")}
       actions={actions}

@@ -6,8 +6,8 @@ import { formatUserName } from "@/hooks/useUserDetails"
 import { Link } from "@/shared-module/components"
 
 import { LINK_QUIET } from "../constants"
+import { EmailAddress } from "../EmailAddress"
 import { noteCss, stackedCellCss } from "../styles"
-import UnbrokenValuesText from "../UnbrokenValuesText"
 
 /** `Table.columns[].minWidth` for the `label-student` column, decided once for every table that has one. */
 export const STUDENT_COLUMN_MIN_WIDTH = "12rem"
@@ -30,7 +30,7 @@ const StudentCell: React.FC<Props> = ({ row, href }) => (
     )}
     {row.email && (
       <span className={noteCss}>
-        <UnbrokenValuesText>{row.email}</UnbrokenValuesText>
+        <EmailAddress address={row.email} />
       </span>
     )}
   </span>

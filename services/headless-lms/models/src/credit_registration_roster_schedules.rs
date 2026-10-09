@@ -98,6 +98,8 @@ pub struct RosterSchedule {
     pub course_code: String,
     pub last_fetched_at: Option<DateTime<Utc>>,
     pub last_fetch_started_at: Option<DateTime<Utc>>,
+    /// When the latest arrived fetch that could claim linking mail was sent.
+    pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     pub last_fetch_duration_ms: Option<i32>,
     pub last_listed_person_count: Option<i32>,
     pub is_fetched_alone: bool,
@@ -330,6 +332,7 @@ ORDER BY s.course_code
                 course_code: row.course_code,
                 last_fetched_at: row.last_fetched_at,
                 last_fetch_started_at: row.last_fetch_started_at,
+                last_mailing_fetch_started_at: row.last_mailing_fetch_started_at,
                 last_fetch_duration_ms: row.last_fetch_duration_ms,
                 last_listed_person_count: row.last_listed_person_count,
                 is_fetched_alone: row.is_fetched_alone,

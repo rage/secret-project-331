@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($2::credit_registration_state [])\n  ) AS \"failed_count!\",\n  COUNT(*) FILTER (WHERE cr.needs_admin_attention) AS \"needs_admin_attention_count!\",\n  MAX(cr.registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY cr.course_module_id\n        ",
+  "query": "\nSELECT cr.course_module_id,\n  COUNT(*) AS \"total_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($1::credit_registration_state [])\n  ) AS \"success_count!\",\n  COUNT(*) FILTER (WHERE cr.state = 'registered') AS \"registered_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($3::credit_registration_state [])\n  ) AS \"already_in_sisu_count!\",\n  COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE cr.state = ANY($2::credit_registration_state [])\n  ) AS \"failed_count!\",\n  MAX(cr.registered_at) AS \"last_registered_at\",\n  (\n    SELECT inner_cr.error_code\n    FROM credit_registrations inner_cr\n    WHERE inner_cr.course_module_id = cr.course_module_id\n      AND inner_cr.error_code IS NOT NULL\n      AND inner_cr.superseded_by_id IS NULL\n      AND inner_cr.deleted_at IS NULL\n    GROUP BY inner_cr.error_code\n    ORDER BY COUNT(*) DESC,\n      inner_cr.error_code\n    LIMIT 1\n  ) AS \"top_error_code?: CreditRegistrationErrorCode\"\nFROM credit_registrations cr\nWHERE superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY cr.course_module_id\n        ",
   "describe": {
     "columns": [
       {
@@ -28,30 +28,36 @@
       },
       {
         "ordinal": 3,
-        "name": "in_flight_count!",
+        "name": "registered_count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
         "ordinal": 4,
-        "name": "failed_count!",
+        "name": "already_in_sisu_count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
         "ordinal": 5,
-        "name": "needs_admin_attention_count!",
+        "name": "in_flight_count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
         "ordinal": 6,
+        "name": "failed_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 7,
         "name": "last_registered_at",
         "type_info": "Timestamptz",
         "origin": "Expression"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "top_error_code?: CreditRegistrationErrorCode",
         "type_info": {
           "Custom": {
@@ -155,6 +161,39 @@
               }
             }
           }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "partially_registered",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
         }
       ]
     },
@@ -166,8 +205,9 @@
       null,
       null,
       null,
+      null,
       null
     ]
   },
-  "hash": "96173266215fc42a176d9941ba11339b552386fa3eda615158cc9b9127e8e161"
+  "hash": "b117b596031468f36e6b6abc9ee1d33ccc3dd2559d429f10b2bcb6285bea41bb"
 }

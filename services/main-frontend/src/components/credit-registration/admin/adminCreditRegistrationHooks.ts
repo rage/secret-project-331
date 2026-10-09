@@ -183,7 +183,7 @@ const SYSTEM_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
 ]
 
 const selectNeedsAttention = (overview: CreditRegistrationOverview) =>
-  overview.needs_admin_attention_count
+  overview.needs_attention_count
 
 const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
   alertTotal(overview, SYSTEM_ALERT_IDS)

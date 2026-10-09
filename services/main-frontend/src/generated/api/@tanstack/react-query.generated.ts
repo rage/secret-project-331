@@ -18,6 +18,7 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   adminBulkTransitionCreditRegistrations,
+  adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
@@ -415,6 +416,8 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionResponse,
   AdminDismissStudyRegistryConflictData,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
@@ -6365,12 +6368,13 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
+ * the rows that need a person, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItemsOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6398,12 +6402,13 @@ export const getCreditRegistrationAttentionItemsInfiniteQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: a page of
+ * the rows that need a person, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItemsInfiniteOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6842,7 +6847,8 @@ export const getCreditRegistrationPipelineHistoryQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
- * ledger state, with what entered and left each state that day.
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
  */
 export const getCreditRegistrationPipelineHistoryOptions = (
   options?: Options<GetCreditRegistrationPipelineHistoryData>,
@@ -7064,6 +7070,36 @@ export const getCreditRegistrationForAdminOptions = (
       }),
     queryKey: getCreditRegistrationForAdminQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttentionMutation = (
+  options?: Partial<Options<AdminDismissCreditRegistrationAttentionData>>,
+): UseMutationOptions<
+  AdminDismissCreditRegistrationAttentionResponse,
+  DefaultError,
+  Options<AdminDismissCreditRegistrationAttentionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminDismissCreditRegistrationAttentionResponse,
+    DefaultError,
+    Options<AdminDismissCreditRegistrationAttentionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDismissCreditRegistrationAttention({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

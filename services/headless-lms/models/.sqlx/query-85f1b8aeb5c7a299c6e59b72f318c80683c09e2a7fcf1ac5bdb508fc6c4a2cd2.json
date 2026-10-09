@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations\nWHERE state = $1\n  AND state_entered_at >= $2\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations\nWHERE state = $1\n  AND state_changed_at >= $2\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -45,5 +45,5 @@
       null
     ]
   },
-  "hash": "d663ce1afa86091da333003b01f5147fdfae6b35695c66d8e997a110e3d3bf25"
+  "hash": "85f1b8aeb5c7a299c6e59b72f318c80683c09e2a7fcf1ac5bdb508fc6c4a2cd2"
 }

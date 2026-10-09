@@ -300,6 +300,11 @@ const ATTENTION_REASON_KEYS = {
   misregistered: "credit-registration-admin-reason-misregistered",
   too_many_attempts: "credit-registration-admin-reason-too-many-attempts",
   outcome_uncertain: "credit-registration-admin-reason-outcome-uncertain",
+  partly_registered_overdue: "credit-registration-admin-reason-partly-registered-overdue",
+  verification_gave_up: "credit-registration-admin-reason-verification-gave-up",
+  repeatedly_not_registered: "credit-registration-admin-reason-repeatedly-not-registered",
+  student_number_stuck: "credit-registration-admin-reason-student-number-stuck",
+  flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
 } as const satisfies Record<CreditRegistrationAttentionReason, string>
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
@@ -388,6 +393,7 @@ export const ADMIN_ACTION_KEYS = {
   request_enrolment_list_fetch: "credit-registration-admin-action-request-enrolment-list-fetch",
   dismiss_study_registry_conflict:
     "credit-registration-admin-action-dismiss-study-registry-conflict",
+  dismiss_attention: "credit-registration-admin-action-dismiss-attention",
 } as const satisfies Record<CreditRegistrationAdminAction, string>
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"

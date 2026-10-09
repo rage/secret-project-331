@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT a.id,\n  a.created_at,\n  a.updated_at,\n  a.deleted_at,\n  a.action AS \"action!: CreditRegistrationAdminAction\",\n  a.target_kind AS \"target_kind!: CreditRegistrationAdminActionTarget\",\n  a.target_id,\n  a.target_phase,\n  a.actor_user_id,\n  a.actor_role,\n  a.actor_course_id,\n  a.reason,\n  a.before_state AS \"before_state?: CreditRegistrationState\",\n  a.after_state AS \"after_state?: CreditRegistrationState\",\n  a.details,\n  a.affected_row_count,\n  ud.first_name AS \"actor_first_name?\",\n  ud.last_name AS \"actor_last_name?\",\n  ud.email AS \"actor_email?\",\n  c.name AS \"course_name?\",\n  target_user.user_id AS \"target_user_id?\",\n  tud.first_name AS \"target_first_name?\",\n  tud.last_name AS \"target_last_name?\",\n  tud.email AS \"target_email?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\n  LEFT JOIN credit_registrations tcr ON tcr.id = a.target_id\n  AND a.target_kind = 'credit_registration'\n  LEFT JOIN verified_student_numbers tvsn ON tvsn.id = a.target_id\n  AND a.target_kind = 'verified_student_number'\n  CROSS JOIN LATERAL (\n    SELECT COALESCE(tcr.user_id, tvsn.user_id) AS user_id\n  ) target_user\n  LEFT JOIN user_details tud ON tud.user_id = target_user.user_id\n  LEFT JOIN courses c ON c.id = COALESCE(\n    a.actor_course_id,\n    tcr.course_id,\n    CASE\n      WHEN a.target_kind = 'course' THEN a.target_id\n    END\n  )\nWHERE a.deleted_at IS NULL\n  AND (\n    $1::credit_registration_admin_action [] IS NULL\n    OR a.action = ANY($1)\n  )\n  AND ($2::uuid IS NULL OR a.actor_user_id = $2)\n  AND ($3::text IS NULL OR a.actor_role = $3)\n  AND (\n    $4::credit_registration_admin_action_target IS NULL\n    OR a.target_kind = $4\n  )\n  AND ($5::uuid IS NULL OR a.target_id = $5)\n  AND ($6::text IS NULL OR a.target_phase = $6)\n  AND (\n    $7::uuid IS NULL\n    OR a.actor_course_id = $7\n    OR (\n      a.target_kind = 'course'\n      AND a.target_id = $7\n    )\n  )\n  AND ($8::timestamptz IS NULL OR a.created_at >= $8)\n  AND ($9::timestamptz IS NULL OR a.created_at <= $9)\nORDER BY a.created_at DESC,\n  a.id\nLIMIT $10 OFFSET $11\n        ",
+  "query": "\nSELECT a.id,\n  a.created_at,\n  a.updated_at,\n  a.deleted_at,\n  a.action AS \"action!: CreditRegistrationAdminAction\",\n  a.target_kind AS \"target_kind!: CreditRegistrationAdminActionTarget\",\n  a.target_id,\n  a.target_phase,\n  a.actor_user_id,\n  a.actor_role,\n  a.actor_course_id,\n  a.reason,\n  a.before_state AS \"before_state?: CreditRegistrationState\",\n  a.after_state AS \"after_state?: CreditRegistrationState\",\n  a.details,\n  a.affected_row_count,\n  ud.first_name AS \"actor_first_name?\",\n  ud.last_name AS \"actor_last_name?\",\n  ud.email AS \"actor_email?\",\n  c.name AS \"course_name?\",\n  target_user.user_id AS \"target_user_id?\",\n  tud.first_name AS \"target_first_name?\",\n  tud.last_name AS \"target_last_name?\",\n  tud.email AS \"target_email?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\n  LEFT JOIN credit_registrations tcr ON tcr.id = a.target_id\n  AND a.target_kind = 'credit_registration'\n  LEFT JOIN verified_student_numbers tvsn ON tvsn.id = a.target_id\n  AND a.target_kind = 'verified_student_number'\n  LEFT JOIN student_number_verification_tokens ttok ON ttok.id = a.target_id\n  AND a.target_kind = 'student_number_verification_token'\n  LEFT JOIN study_registry_student_number_conflicts tconf ON tconf.id = a.target_id\n  AND a.target_kind = 'study_registry_student_number_conflict'\n  CROSS JOIN LATERAL (\n    SELECT COALESCE(\n        tcr.user_id,\n        tvsn.user_id,\n        ttok.claimed_by_user_id,\n        tconf.user_id,\n        CASE\n          WHEN a.details->>'user_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'user_id')::uuid\n        END\n      ) AS user_id\n  ) target_user\n  LEFT JOIN user_details tud ON tud.user_id = target_user.user_id\n  LEFT JOIN courses c ON c.id = COALESCE(\n    a.actor_course_id,\n    tcr.course_id,\n    CASE\n      WHEN a.target_kind = 'course' THEN a.target_id\n    END\n  )\nWHERE a.deleted_at IS NULL\n  AND (\n    $1::credit_registration_admin_action [] IS NULL\n    OR a.action = ANY($1)\n  )\n  AND ($2::uuid IS NULL OR a.actor_user_id = $2)\n  AND ($3::text IS NULL OR a.actor_role = $3)\n  AND (\n    $4::credit_registration_admin_action_target IS NULL\n    OR a.target_kind = $4\n  )\n  AND ($5::uuid IS NULL OR a.target_id = $5)\n  AND ($6::text IS NULL OR a.target_phase = $6)\n  AND (\n    $7::uuid IS NULL\n    OR a.actor_course_id = $7\n    OR (\n      a.target_kind = 'course'\n      AND a.target_id = $7\n    )\n  )\n  AND ($8::timestamptz IS NULL OR a.created_at >= $8)\n  AND ($9::timestamptz IS NULL OR a.created_at <= $9)\n  AND (\n    $12::uuid IS NULL\n    OR target_user.user_id = $12\n    OR a.details->>'student_number' IN (\n      SELECT linked.student_number\n      FROM verified_student_numbers linked\n      WHERE linked.user_id = $12\n    )\n  )\nORDER BY a.created_at DESC,\n  a.id\nLIMIT $10 OFFSET $11\n        ",
   "describe": {
     "columns": [
       {
@@ -72,7 +72,8 @@
                 "manual_link_student_number",
                 "override_rate_cap",
                 "request_enrolment_list_fetch",
-                "dismiss_study_registry_conflict"
+                "dismiss_study_registry_conflict",
+                "dismiss_attention"
               ]
             }
           }
@@ -389,7 +390,8 @@
                       "manual_link_student_number",
                       "override_rate_cap",
                       "request_enrolment_list_fetch",
-                      "dismiss_study_registry_conflict"
+                      "dismiss_study_registry_conflict",
+                      "dismiss_attention"
                     ]
                   }
                 }
@@ -422,7 +424,8 @@
         "Timestamptz",
         "Timestamptz",
         "Int8",
-        "Int8"
+        "Int8",
+        "Uuid"
       ]
     },
     "nullable": [
@@ -453,5 +456,5 @@
       null
     ]
   },
-  "hash": "ddd8efab2581b4f276ff6663627e3d74f741fffece5f756c2ab99abfeede0295"
+  "hash": "1d698ed2880d8785e91cefcbe6cf7cce034dd5322f9b18894153e0b0f5cb60ae"
 }

@@ -1,33 +1,39 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.state AS \"state!\",\n  COUNT(*) AS \"count!\",\n  COUNT(*) FILTER (\n    WHERE now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs * 3)\n  ) AS \"severely_stuck_count!\",\n  MIN(cr.state_entered_at) AS \"oldest_state_entered_at\"\nFROM credit_registrations cr\n  JOIN UNNEST($1::credit_registration_state [], $2::double precision []) AS t(state, threshold_secs) ON t.state = cr.state\nWHERE cr.terminal_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs)\nGROUP BY cr.state\n        ",
+  "query": "\nSELECT error_code AS \"error_code!\",\n  COUNT(*) AS \"live_count!\",\n  COUNT(*) FILTER (WHERE terminal_at IS NULL) AS \"in_flight_count!\",\n  COUNT(*) FILTER (\n    WHERE state = ANY($1::credit_registration_state [])\n  ) AS \"terminal_failure_count!\"\nFROM credit_registrations\nWHERE error_code IS NOT NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\nGROUP BY error_code\nORDER BY COUNT(*) DESC\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "state!",
+        "name": "error_code!",
         "type_info": {
           "Custom": {
-            "name": "credit_registration_state",
+            "name": "credit_registration_error_code",
             "kind": {
               "Enum": [
-                "pending",
-                "ready_to_submit",
-                "resolving_enrolment",
-                "checking_enrolment",
-                "no_usable_enrolment",
-                "submitting",
-                "submission_uncertain",
-                "awaiting_verification",
-                "partially_registered",
-                "registered",
-                "duplicate",
-                "not_improved",
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
                 "misregistered",
-                "failed_retryable",
-                "failed_permanent",
-                "blocked",
-                "cancelled"
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
               ]
             }
           }
@@ -35,26 +41,26 @@
         "origin": {
           "Table": {
             "table": "credit_registrations",
-            "name": "state"
+            "name": "error_code"
           }
         }
       },
       {
         "ordinal": 1,
-        "name": "count!",
+        "name": "live_count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
         "ordinal": 2,
-        "name": "severely_stuck_count!",
+        "name": "in_flight_count!",
         "type_info": "Int8",
         "origin": "Expression"
       },
       {
         "ordinal": 3,
-        "name": "oldest_state_entered_at",
-        "type_info": "Timestamptz",
+        "name": "terminal_failure_count!",
+        "type_info": "Int8",
         "origin": "Expression"
       }
     ],
@@ -92,16 +98,15 @@
               }
             }
           }
-        },
-        "Float8Array"
+        }
       ]
     },
     "nullable": [
-      false,
+      true,
       null,
       null,
       null
     ]
   },
-  "hash": "b596bcf2231b00e4a0d3ec8590af6dad385016fd64abc3fe27165330980989a0"
+  "hash": "b5818aa7b9db6935bc68e81e98066b9d8ca288dacb4902b42929ab7ea5cc680c"
 }

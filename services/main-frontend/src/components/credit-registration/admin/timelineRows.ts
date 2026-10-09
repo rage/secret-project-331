@@ -5,7 +5,7 @@ import type {
 import { isRecord } from "@/shared-module/common/utils/objects"
 import type { RegistrationStatusState } from "@/shared-module/components"
 
-import { MIDDLE_DOT } from "../constants"
+import { ABSENT, MIDDLE_DOT } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import {
   adminErrorShortLabel,
@@ -19,6 +19,8 @@ import {
 export interface TimelineEntry {
   /** The first event's id. */
   id: string
+  /** The attempt the entry's events belong to. */
+  attemptId: string
   /** `suotar_answered_at ?? created_at` of the first event, the instant the API sorts by. */
   at: string
   /** The last event's instant when the entry folds a run of checks; otherwise null. */
@@ -38,6 +40,8 @@ export interface TimelineContext {
   selectedEnrolmentId: string | null
   /** The UI language, for picking a realisation name Sisu gives in several. */
   language: string
+  /** The attempt number of a registration id; one completion's attempts share a timeline. */
+  attemptNumber: (registrationId: string) => number | undefined
 }
 
 type Event = AdminCreditRegistrationEvent
@@ -112,6 +116,21 @@ const enrolmentSummary = (
     credits === null ? null : t("credit-registration-credits", { credits }),
   ].filter((part): part is string => part !== null)
   return parts.length > 0 ? parts.join(MIDDLE_DOT) : null
+}
+
+/** The realisation and credits of the enrolment the registration went with, if an answer named it. */
+export const selectedEnrolmentSummary = (
+  t: CreditRegistrationTFunction,
+  events: Event[],
+  context: TimelineContext,
+): string | null => {
+  const found = events.findLast(
+    (event) =>
+      event.suotar_endpoint === "resolve_enrolments" &&
+      event.suotar_code === "enrolmentFound" &&
+      event.to_state === "checking_enrolment",
+  )
+  return found ? enrolmentSummary(t, found, context) : null
 }
 
 /** Sisu's own code, then what it means for the administrator. */
@@ -352,7 +371,13 @@ const describe = (
     case "suotar_response":
       return suotarOutcome(t, event, context)
     case "created":
-      return { sentence: t("credit-registration-admin-timeline-result-created"), tone: "current" }
+      return {
+        sentence: t("credit-registration-admin-timeline-attempt-started", {
+          n: context.attemptNumber(event.credit_registration_id) ?? ABSENT,
+        }),
+        tone: "current",
+        detail: event.message ?? null,
+      }
     case "retry_scheduled":
       // SUBMIT_MAX_BACKOFF in credit-registration's import claim; the event does not carry it.
       return {
@@ -377,11 +402,19 @@ const describe = (
   }
 }
 
+/** One event in plain words, as its timeline entry would put it. */
+export const eventSentence = (
+  t: CreditRegistrationTFunction,
+  event: Event,
+  context: TimelineContext,
+): string => describe(t, event, context).sentence
+
 /**
- * Bookkeeping nobody needs to read: a silent claim or resume, and a student lookup that found the
- * person it was looking for without changing anything.
+ * Bookkeeping nobody needs to read: the first attempt's creation, a silent claim or resume, and a
+ * student lookup that found the person it was looking for without changing anything.
  */
-const isNoise = (event: Event): boolean =>
+const isNoise = (event: Event, context: TimelineContext): boolean =>
+  (event.kind === "created" && context.attemptNumber(event.credit_registration_id) === 1) ||
   (event.kind === "state_changed" && !event.message && !event.actor_user_id) ||
   (event.kind === "suotar_response" &&
     event.suotar_endpoint === "resolve_persons" &&
@@ -423,24 +456,27 @@ const foldedSentence = (
 }
 
 /**
- * The registration's story, oldest first: milestones one per line, bookkeeping dropped, and each
- * run of unchanged checks folded into one line with its count.
- *
- * `newestFirst` is the API's order.
+ * The registration's story from `oldestFirst`, the API's order: milestones one per line,
+ * bookkeeping dropped, and each run of unchanged checks folded into one line with its count.
  */
 export const buildTimeline = (
   t: CreditRegistrationTFunction,
-  newestFirst: Event[],
+  oldestFirst: Event[],
   context: TimelineContext,
 ): TimelineEntry[] => {
   const runs: { key: string | null; events: [Event, ...Event[]] }[] = []
-  for (const event of newestFirst.toReversed()) {
-    if (isNoise(event)) {
+  for (const event of oldestFirst) {
+    if (isNoise(event, context)) {
       continue
     }
     const key = foldKey(event)
     const last = runs.at(-1)
-    if (last && key !== null && last.key === key) {
+    if (
+      last &&
+      key !== null &&
+      last.key === key &&
+      last.events[0].credit_registration_id === event.credit_registration_id
+    ) {
       last.events.push(event)
     } else {
       runs.push({ key, events: [event] })
@@ -452,6 +488,7 @@ export const buildTimeline = (
     const newest = events.at(-1) ?? first
     return {
       id: first.id,
+      attemptId: first.credit_registration_id,
       at: eventTime(first),
       until: events.length > 1 ? eventTime(newest) : null,
       sentence:

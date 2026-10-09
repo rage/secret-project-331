@@ -66,7 +66,7 @@ import {
 } from "@/shared-module/components"
 
 const MODULE_QUERY = "?course_module_id="
-const ATTENTION_QUERY = "&needs_admin_attention=true"
+const ATTENTION_QUERY = "&needs_attention=true"
 const SORT_NAME = "name"
 const SORT_FAILURES = "failures"
 const SORT_BACKFILL = "backfill"
@@ -484,14 +484,14 @@ const CoursesPage: React.FC = () => {
                       minWidth: "6rem",
                       nowrap: true,
                       cell: (row) =>
-                        row.needs_admin_attention_count === 0 ? (
-                          row.needs_admin_attention_count
+                        row.needs_attention_count === 0 ? (
+                          row.needs_attention_count
                         ) : (
                           <Link
                             href={`${creditRegistrationRegistrationsRoute()}${MODULE_QUERY}${row.course_module_id}${ATTENTION_QUERY}`}
                             appearance={LINK_QUIET}
                           >
-                            {row.needs_admin_attention_count}
+                            {row.needs_attention_count}
                           </Link>
                         ),
                     },

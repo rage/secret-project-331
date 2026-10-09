@@ -3,6 +3,11 @@
 use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
 use super::teacher_view::search_pattern_of;
+use crate::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
+use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
+use crate::library::credit_registration::timeline::{
+    Engagement, StepMatch, TimelinePosition, TimelineStep,
+};
 use crate::library::credit_registration::{CreditRegistrationPendingReason, PendingPreconditions};
 use crate::prelude::*;
 use crate::verified_student_numbers::StudentNumberVerificationMethod;
@@ -30,6 +35,8 @@ pub struct AdminCreditRegistration {
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
+    pub state_changed_at: DateTime<Utc>,
+    pub phase_started_at: DateTime<Utc>,
     pub error_code: Option<CreditRegistrationErrorCode>,
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
@@ -66,6 +73,10 @@ pub struct AdminCreditRegistration {
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
     pub course_code_allowed: bool,
+    /// The student's latest "I have enrolled" press for the completion.
+    pub pressed_at: Option<DateTime<Utc>>,
+    pub enrolment_route: Option<CreditRegistrationEnrolmentRoute>,
+    pub last_visited_at: Option<DateTime<Utc>>,
     /// The page's total row count, so a caller can read it off the first row instead of a second
     /// query.
     pub total_count: i64,
@@ -92,18 +103,41 @@ impl AdminCreditRegistration {
         )
     }
 
+    pub fn preconditions(&self) -> PendingPreconditions {
+        PendingPreconditions {
+            completion_eligible: self.completion_eligible,
+            has_verified_student_number: self.has_verified_student_number,
+            course_code_allowed: self.course_code_allowed,
+        }
+    }
+
+    pub fn position(&self) -> TimelinePosition {
+        TimelinePosition::of(
+            self.state,
+            self.preconditions(),
+            self.selected_enrolment_id.is_some(),
+            Engagement::of(self.pressed_at, self.last_visited_at),
+        )
+    }
+
+    /// When the row entered its current phase. A row held for its course code moved there from
+    /// waiting for a student number when the number was linked, which changed no state.
+    pub fn phase_started_at(&self) -> DateTime<Utc> {
+        match self.position().step {
+            TimelineStep::HeldForCourseCode => self
+                .verified_student_number_at
+                .map_or(self.phase_started_at, |linked_at| {
+                    linked_at.max(self.phase_started_at)
+                }),
+            _ => self.phase_started_at,
+        }
+    }
+
     /// What this row is waiting on, or `None` where it is not waiting at all: outside `pending` the
     /// preconditions say nothing about why the row is where it is.
     pub fn pending_reason(&self) -> Option<CreditRegistrationPendingReason> {
         (self.state == CreditRegistrationState::Pending)
-            .then(|| {
-                PendingPreconditions {
-                    completion_eligible: self.completion_eligible,
-                    has_verified_student_number: self.has_verified_student_number,
-                    course_code_allowed: self.course_code_allowed,
-                }
-                .reason()
-            })
+            .then(|| self.preconditions().reason())
             .flatten()
     }
 }
@@ -139,7 +173,18 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub course_module_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub student_number: Option<&'a str>,
-    pub needs_admin_attention: bool,
+    /// Rows at one of these timeline steps. Empty means no narrowing. A row waiting for a student
+    /// number matches only if it completed since `account_linking_since`, as the linking page and
+    /// [`count_by_step_and_engagement`] count them.
+    pub steps: &'a [TimelineStep],
+    /// Rows with one of these engagements, at steps that wait on the student. Empty means no
+    /// narrowing.
+    pub engagements: &'a [Engagement],
+    /// Leaves out not-started rows at steps that wait on the student.
+    pub hide_not_started: bool,
+    pub account_linking_since: Option<DateTime<Utc>>,
+    /// Listed first, in the sort order among themselves.
+    pub first_ids: Option<&'a [Uuid]>,
     pub submitted_after: Option<DateTime<Utc>>,
     pub submitted_before: Option<DateTime<Utc>>,
     /// Matched against the student's name and email, either student number, the attainment ids and
@@ -169,6 +214,7 @@ async fn admin_facing_page(
     offset: i64,
 ) -> ModelResult<Vec<AdminCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
+    let step_match = StepMatch::all();
     let res = sqlx::query_as!(
         AdminCreditRegistration,
         r#"
@@ -187,6 +233,8 @@ SELECT cr.id,
   cmc.completion_date,
   cr.state,
   cr.state_entered_at,
+  cr.state_changed_at,
+  cr.phase_started_at,
   cr.error_code AS "error_code?",
   cr.needs_admin_attention,
   cr.next_attempt_at,
@@ -221,6 +269,9 @@ SELECT cr.id,
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
   p.course_code_allowed AS "course_code_allowed!",
+  route.enrolment_confirmed_at AS "pressed_at?",
+  route.route AS "enrolment_route?: CreditRegistrationEnrolmentRoute",
+  sig.last_visited_at AS "last_visited_at?",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id
@@ -230,6 +281,46 @@ FROM credit_registrations cr
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  AND route.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  AND sig.deleted_at IS NULL
+  -- The step and engagement are computed exactly as in count_by_step_and_engagement, so a list
+  -- filtered to a step and engagement holds as many rows as that function counts.
+  LEFT JOIN LATERAL (
+    SELECT m.step
+    FROM UNNEST(
+        $19::credit_registration_state [],
+        $20::boolean [],
+        $21::boolean [],
+        $22::boolean [],
+        $23::boolean [],
+        $24::credit_registration_timeline_step []
+      ) AS m(
+        state,
+        completion_eligible,
+        has_verified_student_number,
+        course_code_allowed,
+        enrolment_resolved,
+        step
+      )
+    WHERE m.state = cr.state
+      AND m.completion_eligible = p.completion_eligible
+      AND m.has_verified_student_number = p.has_verified_student_number
+      AND m.course_code_allowed = p.course_code_allowed
+      AND m.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
+  ) ts ON TRUE
+  CROSS JOIN LATERAL (
+    SELECT CASE
+        WHEN ts.step = ANY($25::credit_registration_timeline_step []) THEN CASE
+          WHEN route.enrolment_confirmed_at IS NOT NULL THEN 'pressed'::credit_registration_engagement
+          WHEN sig.last_visited_at IS NOT NULL THEN 'visited'::credit_registration_engagement
+          ELSE 'not_started'::credit_registration_engagement
+        END
+      END AS engagement,
+      ts.step = 'waiting_for_student_number'
+      AND cmc.completion_date < $29::timestamptz AS is_before_linking
+  ) eng
 WHERE cr.deleted_at IS NULL
   AND ($1::bool OR cr.superseded_by_id IS NULL)
   AND (
@@ -248,7 +339,21 @@ WHERE cr.deleted_at IS NULL
     OR cr.student_number = $7
     OR vsn.student_number = $7
   )
-  AND (NOT $8::bool OR cr.needs_admin_attention)
+  AND (
+    CARDINALITY($8::credit_registration_timeline_step []) = 0
+    OR (
+      ts.step = ANY($8)
+      AND eng.is_before_linking IS NOT TRUE
+    )
+  )
+  AND (
+    CARDINALITY($26::credit_registration_engagement []) = 0
+    OR eng.engagement = ANY($26)
+  )
+  AND (
+    NOT $27::bool
+    OR eng.engagement IS DISTINCT FROM 'not_started'
+  )
   AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)
   AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
   AND (
@@ -276,12 +381,13 @@ WHERE cr.deleted_at IS NULL
     $18::uuid IS NULL
     OR cr.course_module_completion_id = $18
   )
-ORDER BY CASE
+ORDER BY COALESCE(cr.id = ANY($28::uuid []), FALSE) DESC,
+  CASE
     WHEN $14::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count
   END DESC NULLS LAST,
   CASE $14::text
     WHEN 'created' THEN cr.created_at
-    WHEN 'time_in_state' THEN cr.state_entered_at
+    WHEN 'time_in_state' THEN cr.state_changed_at
     ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)
   END DESC,
   cr.id
@@ -294,7 +400,7 @@ LIMIT $15 OFFSET $16
         filters.course_module_id,
         filters.user_id,
         filters.student_number,
-        filters.needs_admin_attention,
+        filters.steps as &[TimelineStep],
         filters.submitted_after,
         filters.submitted_before,
         search_pattern.as_deref(),
@@ -305,6 +411,17 @@ LIMIT $15 OFFSET $16
         offset,
         filters.id,
         filters.course_module_completion_id,
+        &step_match.states as &[CreditRegistrationState],
+        &step_match.completion_eligible,
+        &step_match.has_verified_student_number,
+        &step_match.course_code_allowed,
+        &step_match.enrolment_resolved,
+        &step_match.steps as &[TimelineStep],
+        &TimelineStep::ENGAGEMENT_STEPS as &[TimelineStep],
+        filters.engagements as &[Engagement],
+        filters.hide_not_started,
+        filters.first_ids as Option<&[Uuid]>,
+        filters.account_linking_since,
     )
     .fetch_all(conn)
     .await?;
@@ -320,6 +437,96 @@ pub async fn get_admin_facing(
     offset: i64,
 ) -> ModelResult<Vec<AdminCreditRegistration>> {
     admin_facing_page(conn, filters, sort, limit, offset).await
+}
+
+/// Live rows of one module at one step, with one engagement where the step waits on the student.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StepCount {
+    pub course_module_id: Uuid,
+    pub step: TimelineStep,
+    pub engagement: Option<Engagement>,
+    pub count: i64,
+}
+
+/// Live rows per module, step and engagement: the overview's "Where registrations stand", the
+/// Courses tab's per-module table and the daily snapshot.
+///
+/// Counts exactly what [`get_admin_facing`] lists filtered to the same step, engagement and module,
+/// superseded rows left out: a row waiting for a student number is counted only if it completed
+/// since `account_linking_since`.
+pub async fn count_by_step_and_engagement(
+    conn: &mut PgConnection,
+    account_linking_since: Option<DateTime<Utc>>,
+) -> ModelResult<Vec<StepCount>> {
+    let step_match = StepMatch::all();
+    let res = sqlx::query_as!(
+        StepCount,
+        r#"
+SELECT cr.course_module_id,
+  ts.step AS "step!: TimelineStep",
+  eng.engagement AS "engagement?: Engagement",
+  COUNT(*) AS "count!"
+FROM credit_registrations cr
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  AND route.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  AND sig.deleted_at IS NULL
+  -- Computed exactly as in admin_facing_page; see there.
+  JOIN LATERAL (
+    SELECT m.step
+    FROM UNNEST(
+        $1::credit_registration_state [],
+        $2::boolean [],
+        $3::boolean [],
+        $4::boolean [],
+        $5::boolean [],
+        $6::credit_registration_timeline_step []
+      ) AS m(
+        state,
+        completion_eligible,
+        has_verified_student_number,
+        course_code_allowed,
+        enrolment_resolved,
+        step
+      )
+    WHERE m.state = cr.state
+      AND m.completion_eligible = p.completion_eligible
+      AND m.has_verified_student_number = p.has_verified_student_number
+      AND m.course_code_allowed = p.course_code_allowed
+      AND m.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
+  ) ts ON TRUE
+  CROSS JOIN LATERAL (
+    SELECT CASE
+        WHEN ts.step = ANY($7::credit_registration_timeline_step []) THEN CASE
+          WHEN route.enrolment_confirmed_at IS NOT NULL THEN 'pressed'::credit_registration_engagement
+          WHEN sig.last_visited_at IS NOT NULL THEN 'visited'::credit_registration_engagement
+          ELSE 'not_started'::credit_registration_engagement
+        END
+      END AS engagement,
+      ts.step = 'waiting_for_student_number'
+      AND cmc.completion_date < $8::timestamptz AS is_before_linking
+  ) eng
+WHERE cr.deleted_at IS NULL
+  AND cr.superseded_by_id IS NULL
+  AND eng.is_before_linking IS NOT TRUE
+GROUP BY cr.course_module_id,
+  ts.step,
+  eng.engagement
+        "#,
+        &step_match.states as &[CreditRegistrationState],
+        &step_match.completion_eligible,
+        &step_match.has_verified_student_number,
+        &step_match.course_code_allowed,
+        &step_match.enrolment_resolved,
+        &step_match.steps as &[TimelineStep],
+        &TimelineStep::ENGAGEMENT_STEPS as &[TimelineStep],
+        account_linking_since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 /// Live rows in each of the given states, newest activity first within each state, for the
@@ -353,6 +560,86 @@ ORDER BY cr.state_entered_at DESC
         limit_per_state,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// What the student did and when, around one registration's completion, for the admin timeline.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AdminRegistrationJourney {
+    /// When they first picked any language version of the course.
+    pub course_started_at: Option<DateTime<Utc>>,
+    /// When the completion's page signals were first recorded: the first visit, unless a check
+    /// request came first.
+    pub first_visited_at: Option<DateTime<Utc>>,
+    pub last_visited_at: Option<DateTime<Utc>>,
+    pub last_check_requested_at: Option<DateTime<Utc>>,
+    pub check_request_source: Option<EnrolmentCheckSource>,
+    pub enrolment_route: Option<CreditRegistrationEnrolmentRoute>,
+    pub pressed_at: Option<DateTime<Utc>>,
+    /// Sisu's own enrolment time, from the latest enrolment check that found it.
+    pub checked_enrolled_at: Option<DateTime<Utc>>,
+    /// Sisu's own enrolment time as the selected enrolment's lookup answer gave it, unparsed.
+    pub selected_enrolment_date_time: Option<String>,
+}
+
+/// The journey around `credit_registration_id`'s completion. `None` for no such live row.
+pub async fn get_registration_journey(
+    conn: &mut PgConnection,
+    credit_registration_id: Uuid,
+) -> ModelResult<Option<AdminRegistrationJourney>> {
+    let res = sqlx::query_as!(
+        AdminRegistrationJourney,
+        r#"
+SELECT ucs.created_at AS "course_started_at?",
+  CASE
+    WHEN sig.last_visited_at IS NOT NULL THEN LEAST(sig.created_at, sig.last_visited_at)
+  END AS "first_visited_at?",
+  sig.last_visited_at AS "last_visited_at?",
+  sig.last_check_requested_at AS "last_check_requested_at?",
+  sig.check_request_source AS "check_request_source?: EnrolmentCheckSource",
+  route.route AS "enrolment_route?: CreditRegistrationEnrolmentRoute",
+  route.enrolment_confirmed_at AS "pressed_at?",
+  (
+    SELECT o.enrolled_at
+    FROM credit_registration_enrolment_check_outcomes o
+      JOIN credit_registrations attempt ON attempt.id = o.credit_registration_id
+    WHERE attempt.course_module_completion_id = cr.course_module_completion_id
+      AND o.is_enrolment_found
+      AND o.enrolled_at IS NOT NULL
+    ORDER BY o.checked_at DESC
+    LIMIT 1
+  ) AS "checked_enrolled_at?",
+  (
+    SELECT found.value #>> '{}'
+    FROM credit_registration_events e
+      CROSS JOIN LATERAL jsonb_path_query_first(
+        e.details,
+        'lax $.** ? (@.id == $id).enrolmentDateTime',
+        jsonb_build_object('id', cr.selected_enrolment_id)
+      ) AS found(value)
+    WHERE e.credit_registration_id = cr.id
+      AND e.deleted_at IS NULL
+      AND cr.selected_enrolment_id IS NOT NULL
+      AND found.value IS NOT NULL
+    ORDER BY e.created_at DESC
+    LIMIT 1
+  ) AS "selected_enrolment_date_time?"
+FROM credit_registrations cr
+  JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN user_course_settings ucs ON ucs.user_id = cr.user_id
+  AND ucs.course_language_group_id = c.course_language_group_id
+  AND ucs.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  AND sig.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  AND route.deleted_at IS NULL
+WHERE cr.id = $1
+  AND cr.deleted_at IS NULL
+        "#,
+        credit_registration_id,
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

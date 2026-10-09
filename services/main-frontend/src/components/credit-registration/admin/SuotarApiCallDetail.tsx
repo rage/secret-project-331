@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useState } from "react"
@@ -7,6 +8,8 @@ import { useTranslation } from "react-i18next"
 
 import { getSuotarApiCallOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { isRecord } from "@/shared-module/common/utils/objects"
 import {
   creditRegistrationItemRoute,
   creditRegistrationSuotarApiCallRoute,
@@ -31,6 +34,15 @@ interface Props {
   suotarApiCallId: string
 }
 
+const exchangeCss = css`
+  display: grid;
+  gap: var(--space-4);
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`
+
 const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
   <div className={subsectionCss}>
     <h3 className={subheadingCss}>{title}</h3>
@@ -38,9 +50,16 @@ const Body: React.FC<{ title: string; body: unknown }> = ({ title, body }) => (
   </div>
 )
 
+const REQUEST = "request"
+const RESPONSE = "response"
+
+const exchangePart = (exchange: unknown, part: typeof REQUEST | typeof RESPONSE): unknown =>
+  isRecord(exchange) ? exchange[part] : undefined
+
 /**
- * One registration's own part of a call: its `{request, response}` item pair, or null when none was
- * kept. The rest of the batch belongs to other students, so it is behind a link to the whole call.
+ * One registration's own part of a call: the request item we sent and the response item we got,
+ * or a note that none was kept. The rest of the batch belongs to other students, so it is behind
+ * a link to the whole call.
  */
 export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
   suotarApiCallId,
@@ -53,7 +72,16 @@ export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
       {exchange === null || exchange === undefined ? (
         <p className={emptyStateCss}>{t("credit-registration-admin-no-registration-item")}</p>
       ) : (
-        <Body title={t("credit-registration-heading-registration-item")} body={exchange} />
+        <div className={exchangeCss}>
+          <Body
+            title={t("credit-registration-admin-request-item")}
+            body={exchangePart(exchange, REQUEST)}
+          />
+          <Body
+            title={t("credit-registration-admin-response-item")}
+            body={exchangePart(exchange, RESPONSE)}
+          />
+        </div>
       )}
       <Link href={creditRegistrationSuotarApiCallRoute(suotarApiCallId)} prefetch={false}>
         {t("credit-registration-admin-show-whole-call")}

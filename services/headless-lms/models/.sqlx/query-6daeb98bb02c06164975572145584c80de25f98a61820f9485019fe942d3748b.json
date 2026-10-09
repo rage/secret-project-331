@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\",\n  COALESCE(t.used_at IS NOT NULL, FALSE) AS \"is_used!\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -68,6 +68,12 @@
             "name": "retry_count"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "is_used!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -76,13 +82,14 @@
       ]
     },
     "nullable": [
-      true,
-      true,
-      false,
       false,
       true,
-      false
+      true,
+      true,
+      true,
+      true,
+      null
     ]
   },
-  "hash": "5c72405658dd088573fda3837e0fb63805f2c600177ac6d0eb30a2d997806399"
+  "hash": "6daeb98bb02c06164975572145584c80de25f98a61820f9485019fe942d3748b"
 }

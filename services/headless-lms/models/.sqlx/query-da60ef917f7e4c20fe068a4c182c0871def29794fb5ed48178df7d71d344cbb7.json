@@ -776,6 +776,28 @@
             "name": "attained_at"
           }
         }
+      },
+      {
+        "ordinal": 63,
+        "name": "state_changed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "state_changed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 64,
+        "name": "phase_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "phase_started_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -846,7 +868,9 @@
       false,
       true,
       true,
-      true
+      true,
+      false,
+      false
     ]
   },
   "hash": "da60ef917f7e4c20fe068a4c182c0871def29794fb5ed48178df7d71d344cbb7"

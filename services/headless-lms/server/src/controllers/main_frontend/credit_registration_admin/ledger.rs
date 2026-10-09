@@ -1,18 +1,22 @@
 //! Viewing and hand-transitioning rows of the credit registration ledger.
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_account_linking_emails;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionFilters,
     CreditRegistrationAdminActionRecord, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
+use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NotImprovedAttainment, SuotarAnswer,
 };
+use headless_lms_models::credit_registration_roster_schedules::{self, ScheduleSelection};
 use headless_lms_models::credit_registrations::{
     self, AdminCreditRegistration, AdminCreditRegistrationFilters, AdminCreditRegistrationSort,
-    CreditRegistrationErrorCode, CreditRegistrationState, HandActionAvailability,
-    ResubmissionFacts, ResubmissionRefusal, ResubmissionStrictness, Transition,
+    AttentionReason, AttentionStanding, BlockingProblem, CreditRegistrationErrorCode,
+    CreditRegistrationState, HandActionAvailability, ResubmissionFacts, ResubmissionRefusal,
+    ResubmissionStrictness, Transition,
 };
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::library::credit_registration::CreditRegistrationPendingReason;
@@ -24,6 +28,9 @@ use headless_lms_models::library::credit_registration::enrolment_check_schedule:
 use headless_lms_models::library::credit_registration::student_notifications::{
     self, CreditRegistrationNotificationKind, RegistrationNotificationEmail,
 };
+use headless_lms_models::library::credit_registration::timeline::{
+    Engagement, TimelinePhase, TimelineStep, WaitsOn,
+};
 use headless_lms_models::suotar_api_calls;
 use headless_lms_models::verified_student_numbers::{self, StudentNumberVerificationMethod};
 use std::collections::{HashMap, HashSet};
@@ -34,7 +41,8 @@ use headless_lms_utils::secret_string::expose_option;
 use secrecy::{ExposeSecret, SecretString};
 
 use super::{
-    AdminLinkingEmail, authorize_credit_registration_admin, build_linking_emails, required_reason,
+    AdminLinkingEmail, attention_rules, authorize_credit_registration_admin, build_linking_emails,
+    required_reason,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -57,7 +65,26 @@ pub struct AdminCreditRegistrationRow {
     /// What a `pending` row is waiting on, which the ledger does not store; `null` for every other
     /// state.
     pub pending_reason: Option<CreditRegistrationPendingReason>,
+    pub timeline_step: TimelineStep,
+    pub phase: TimelinePhase,
+    pub waits_on: WaitsOn,
+    /// Only on the steps that wait on the student.
+    pub engagement: Option<Engagement>,
+    /// When the row entered its timeline phase: what "In this phase since" shows.
+    pub phase_started_at: DateTime<Utc>,
+    /// When the row entered its state. Same-state checks move `state_entered_at` but not this.
+    pub state_changed_at: DateTime<Utc>,
+    /// Moved by every write that keeps the state too, so it is when the row was last touched, not
+    /// how long it has been where it is.
     pub state_entered_at: DateTime<Utc>,
+    /// Every reason the Needs attention queue picks the row for; empty when it is not picked.
+    pub attention_reasons: Vec<AttentionReason>,
+    /// Which Needs attention section the row is in; `None` when it is not picked.
+    pub attention_standing: Option<AttentionStanding>,
+    /// The student's latest "I have enrolled" press for the completion.
+    pub pressed_at: Option<DateTime<Utc>>,
+    pub enrolment_route: Option<CreditRegistrationEnrolmentRoute>,
+    pub last_visited_at: Option<DateTime<Utc>>,
     pub error_code: Option<CreditRegistrationErrorCode>,
     pub needs_admin_attention: bool,
     pub next_attempt_at: DateTime<Utc>,
@@ -104,6 +131,8 @@ pub struct AdminCreditRegistrationRow {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationEvent {
     pub id: Uuid,
+    /// The attempt the event belongs to.
+    pub credit_registration_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub kind: CreditRegistrationEventKind,
     pub from_state: Option<CreditRegistrationState>,
@@ -143,6 +172,8 @@ pub struct AdminSuotarApiCall {
 /// the decision to look at the relay.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminNotificationEmail {
+    /// The attempt the mail was sent for.
+    pub credit_registration_id: Uuid,
     pub kind: CreditRegistrationNotificationKind,
     /// The delivery this registration is pinned to, so support can find the message in the queue and
     /// tell "still the first mail" from "a second one went out".
@@ -168,12 +199,67 @@ impl AdminAttentionThresholds {
     };
 }
 
+/// What the student did around the completion, with full timestamps, for the timeline.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCreditRegistrationJourney {
+    /// When they first picked any language version of the course.
+    pub course_started_at: Option<DateTime<Utc>>,
+    /// The first visit to the registration page; a check request recorded before any visit makes
+    /// this the time of that request instead.
+    pub first_visited_at: Option<DateTime<Utc>>,
+    /// Only the latest visit is kept after the first.
+    pub last_visited_at: Option<DateTime<Utc>>,
+    pub last_check_requested_at: Option<DateTime<Utc>>,
+    pub check_request_source: Option<EnrolmentCheckSource>,
+    /// How they enrolled.
+    pub enrolment_route: Option<CreditRegistrationEnrolmentRoute>,
+    /// The latest "I have enrolled" press; overwritten by a later one, cleared if taken back.
+    pub pressed_at: Option<DateTime<Utc>>,
+    /// Sisu's own time for the enrolment we found, where Sisu gave one.
+    pub sisu_enrolled_at: Option<DateTime<Utc>>,
+}
+
+/// For a student who pressed "I have enrolled" and has no linked student number: their course
+/// code's enrolment list schedule, and what went out on the code since the press.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminLinkingSchedule {
+    pub course_code: String,
+    pub last_fetched_at: Option<DateTime<Utc>>,
+    /// The latest fetch that could send linking emails; the stuck rule counts from here.
+    pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
+    pub next_fetch_at: DateTime<Utc>,
+    pub is_fetch_failing: bool,
+    pub is_enrolment_list_empty: bool,
+    /// On any course sharing the code. Not attributable to this student until a link is used.
+    pub linking_emails_since_press: i64,
+    pub last_linking_email_at: Option<DateTime<Utc>>,
+}
+
+/// The row's standing on the Needs attention queue.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminRegistrationAttention {
+    pub reasons: Vec<AttentionReason>,
+    pub standing: AttentionStanding,
+    pub blocking_problem: Option<BlockingProblem>,
+    /// The dismissal in force, if any; a row whose reasons all fall under it is `dismissed`.
+    pub dismissed_reasons: Option<Vec<AttentionReason>>,
+    pub dismissed_at: Option<DateTime<Utc>>,
+    pub dismissed_by_user_id: Option<Uuid>,
+    pub dismissal_reason: Option<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationDetails {
     pub attention_thresholds: AdminAttentionThresholds,
     pub registration: AdminCreditRegistrationRow,
+    /// `None` when nothing picks the row.
+    pub attention: Option<AdminRegistrationAttention>,
+    pub journey: AdminCreditRegistrationJourney,
+    /// Only for a student waiting for a student number who pressed "I have enrolled".
+    pub linking_schedule: Option<AdminLinkingSchedule>,
     /// Every attempt for the same completion, newest first, this one included.
     pub attempts: Vec<AdminCreditRegistrationRow>,
+    /// Every attempt's events, oldest first, so one timeline covers the whole completion.
     pub events: Vec<AdminCreditRegistrationEvent>,
     /// The calls the timeline refers to, newest first.
     pub suotar_api_calls: Vec<AdminSuotarApiCall>,
@@ -181,8 +267,8 @@ pub struct AdminCreditRegistrationDetails {
     pub actions: Vec<CreditRegistrationAdminActionRecord>,
     /// Every mail addressed to this person, on any course.
     pub linking_emails: Vec<AdminLinkingEmail>,
-    /// The terminal-state mails queued for this row, with the same send status the student and the
-    /// teacher are shown.
+    /// The student mails queued for every attempt ("Please register" is `action_needed`), with the
+    /// same send status the student and the teacher are shown.
     pub notification_emails: Vec<AdminNotificationEmail>,
     /// The grade the registry already held, for a row it declined as no improvement. The row's own
     /// grade is what we sent.
@@ -320,7 +406,11 @@ pub struct ListCreditRegistrationsQuery {
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
     student_number: Option<SecretString>,
-    needs_admin_attention: Option<bool>,
+    step: Option<Vec<TimelineStep>>,
+    engagement: Option<Vec<Engagement>>,
+    include_not_started: Option<bool>,
+    needs_attention: Option<bool>,
+    attention_reason: Option<Vec<AttentionReason>>,
     submitted_after: Option<DateTime<Utc>>,
     submitted_before: Option<DateTime<Utc>>,
     search: Option<SecretString>,
@@ -332,7 +422,7 @@ pub struct ListCreditRegistrationsQuery {
 GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
 and sorted.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/registrations",
@@ -347,12 +437,16 @@ and sorted.
         ("course_module_id" = Option<Uuid>, Query, description = "Course module filter"),
         ("user_id" = Option<Uuid>, Query, description = "Student filter"),
         ("student_number" = Option<String>, Query, description = "Exact student number, frozen on the row or linked to the account"),
-        ("needs_admin_attention" = Option<bool>, Query, description = "Only rows asking for a human"),
+        ("step" = Option<Vec<TimelineStep>>, Query, description = "Timeline steps; repeat the parameter for several. A row waiting for a student number matches only if it completed since account linking began, as the overview counts it"),
+        ("engagement" = Option<Vec<Engagement>>, Query, description = "Only rows at a step that waits on the student whose student did this; repeat for several"),
+        ("include_not_started" = Option<bool>, Query, description = "Include rows at a step that waits on the student whose student has not started; left out by default"),
+        ("needs_attention" = Option<bool>, Query, description = "Only rows counted in Needs attention"),
+        ("attention_reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows the Needs attention queue picks for one of these reasons, whatever their section; repeat for several"),
         ("submitted_after" = Option<DateTime<Utc>>, Query, description = "Submitted at or after"),
         ("submitted_before" = Option<DateTime<Utc>>, Query, description = "Submitted at or before"),
         ("search" = Option<String>, Query, description = "Name, email, student number, attainment id, stored error text, or a uuid"),
         ("include_superseded" = Option<bool>, Query, description = "Include replaced attempts"),
-        ("sort" = Option<String>, Query, description = "last_activity, created, time_in_state or attempts")
+        ("sort" = Option<String>, Query, description = "last_activity (rows counted in Needs attention first), created, time_in_state or attempts")
     ),
     responses(
         (status = 200, description = "A page of the ledger", body = Page<AdminCreditRegistrationRow>)
@@ -362,6 +456,7 @@ pub async fn list_credit_registrations_for_admin(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: MultiQuery<ListCreditRegistrationsQuery>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Page<AdminCreditRegistrationRow>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
@@ -369,6 +464,23 @@ pub async fn list_credit_registrations_for_admin(
     let pagination = parse_pagination(query.page, query.limit, 50)?;
     let search = non_empty(expose_option(&query.search));
     let student_number = non_empty(expose_option(&query.student_number));
+    let attention = AttentionLookup::load(&mut conn, &app_conf).await?;
+    let needs_attention_ids =
+        attention.ids(|row| row.standing == AttentionStanding::NeedsAttention);
+    let attention_reasons: &[AttentionReason] =
+        query.attention_reason.as_deref().unwrap_or_default();
+    let selected_ids = (query.needs_attention.unwrap_or(false) || !attention_reasons.is_empty())
+        .then(|| {
+            attention.ids(|row| {
+                (!query.needs_attention.unwrap_or(false)
+                    || row.standing == AttentionStanding::NeedsAttention)
+                    && (attention_reasons.is_empty()
+                        || row
+                            .reasons
+                            .iter()
+                            .any(|reason| attention_reasons.contains(reason)))
+            })
+        });
     let filters = AdminCreditRegistrationFilters {
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
@@ -376,7 +488,12 @@ pub async fn list_credit_registrations_for_admin(
         course_module_id: query.course_module_id,
         user_id: query.user_id,
         student_number,
-        needs_admin_attention: query.needs_admin_attention.unwrap_or(false),
+        steps: query.step.as_deref().unwrap_or_default(),
+        engagements: query.engagement.as_deref().unwrap_or_default(),
+        hide_not_started: !query.include_not_started.unwrap_or(false),
+        account_linking_since: app_conf.suotar_configuration.account_linking_since,
+        first_ids: Some(&needs_attention_ids),
+        credit_registration_ids: selected_ids.as_deref(),
         submitted_after: query.submitted_after,
         submitted_before: query.submitted_before,
         search,
@@ -400,7 +517,10 @@ pub async fn list_credit_registrations_for_admin(
     )
     .await?;
     let total_count = rows.first().map_or(0, |row| row.total_count);
-    let data = rows.into_iter().map(to_admin_row).collect();
+    let data = rows
+        .into_iter()
+        .map(|row| to_admin_row(row, &attention))
+        .collect();
 
     token.authorized_ok(web::Json(Page::new(pagination, data, total_count)))
 }
@@ -410,7 +530,7 @@ GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_regis
 row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
 the actions taken on it and its linking mails.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/registrations/{credit_registration_id}",
@@ -426,11 +546,13 @@ pub async fn get_credit_registration_for_admin(
     user: AuthUser,
     pool: web::Data<PgPool>,
     credit_registration_id: web::Path<Uuid>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<AdminCreditRegistrationDetails>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let id = *credit_registration_id;
+    let attention_lookup = AttentionLookup::load(&mut conn, &app_conf).await?;
     let registration = one_admin_row(&mut conn, id)
         .await?
         .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
@@ -449,37 +571,45 @@ pub async fn get_credit_registration_for_admin(
     )
     .await?
     .into_iter()
-    .map(to_admin_row)
-    .collect();
+    .map(|row| to_admin_row(row, &attention_lookup))
+    .collect::<Vec<_>>();
+    let attempt_ids: Vec<Uuid> = attempts.iter().map(|attempt| attempt.id).collect();
 
-    let events: Vec<AdminCreditRegistrationEvent> =
-        models::credit_registration_events::get_by_registration_id(&mut conn, id)
-            .await?
-            .into_iter()
-            .map(|event| AdminCreditRegistrationEvent {
-                id: event.id,
-                created_at: event.created_at,
-                kind: event.kind,
-                from_state: event.from_state,
-                to_state: event.to_state,
-                error_code: event.error_code,
-                message: event.message,
-                actor_user_id: event.actor_user_id,
-                suotar_api_call_id: event.suotar_api_call_id,
-                suotar_code: event
-                    .details
-                    .as_ref()
-                    .and_then(|details| details.pointer("/response/code"))
-                    .and_then(|code| code.as_str())
-                    .map(str::to_string),
-                details: event.details,
-                request_item_id: event.request_item_id,
-                suotar_endpoint: event.suotar_endpoint,
-                suotar_requested_at: event.suotar_requested_at,
-                suotar_answered_at: event.suotar_answered_at,
-                suotar_answer: event.suotar_answer,
-            })
-            .collect();
+    let mut attempt_events = Vec::new();
+    for attempt_id in &attempt_ids {
+        attempt_events.extend(
+            models::credit_registration_events::get_by_registration_id(&mut conn, *attempt_id)
+                .await?,
+        );
+    }
+    attempt_events.sort_by_key(|event| event.created_at);
+    let events: Vec<AdminCreditRegistrationEvent> = attempt_events
+        .into_iter()
+        .map(|event| AdminCreditRegistrationEvent {
+            id: event.id,
+            credit_registration_id: event.credit_registration_id,
+            created_at: event.created_at,
+            kind: event.kind,
+            from_state: event.from_state,
+            to_state: event.to_state,
+            error_code: event.error_code,
+            message: event.message,
+            actor_user_id: event.actor_user_id,
+            suotar_api_call_id: event.suotar_api_call_id,
+            suotar_code: event
+                .details
+                .as_ref()
+                .and_then(|details| details.pointer("/response/code"))
+                .and_then(|code| code.as_str())
+                .map(str::to_string),
+            details: event.details,
+            request_item_id: event.request_item_id,
+            suotar_endpoint: event.suotar_endpoint,
+            suotar_requested_at: event.suotar_requested_at,
+            suotar_answered_at: event.suotar_answered_at,
+            suotar_answer: event.suotar_answer,
+        })
+        .collect();
     let suotar_api_calls =
         suotar_api_calls::get_by_credit_registration_id(&mut conn, id, MAX_RELATED_ROWS)
             .await?
@@ -522,11 +652,12 @@ pub async fn get_credit_registration_for_admin(
         None => Vec::new(),
     };
 
-    let notification_emails = student_notifications::get_for_registrations(&mut conn, &[id])
+    let notification_emails = student_notifications::get_for_registrations(&mut conn, &attempt_ids)
         .await?
         .into_iter()
         .map(
             |mail: RegistrationNotificationEmail| AdminNotificationEmail {
+                credit_registration_id: mail.credit_registration_id,
                 kind: mail.kind,
                 email_delivery_id: mail.email_delivery_id,
                 send_status: mail.send_status,
@@ -537,9 +668,50 @@ pub async fn get_credit_registration_for_admin(
     let not_improved_attainment =
         models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
 
+    let journey = credit_registrations::get_registration_journey(&mut conn, id)
+        .await?
+        .map(|journey| AdminCreditRegistrationJourney {
+            course_started_at: journey.course_started_at,
+            first_visited_at: journey.first_visited_at,
+            last_visited_at: journey.last_visited_at,
+            last_check_requested_at: journey.last_check_requested_at,
+            check_request_source: journey.check_request_source,
+            enrolment_route: journey.enrolment_route,
+            pressed_at: journey.pressed_at,
+            sisu_enrolled_at: journey
+                .selected_enrolment_date_time
+                .as_deref()
+                .and_then(|text| DateTime::parse_from_rfc3339(text).ok())
+                .map(|at| at.with_timezone(&Utc))
+                .or(journey.checked_enrolled_at),
+        })
+        .ok_or_else(|| controller_err!(NotFound, "Not found.".to_string()))?;
+    let linking_schedule = linking_schedule_for(
+        &mut conn,
+        id,
+        app_conf.suotar_configuration.account_linking_since,
+    )
+    .await?;
+    let attention = attention_lookup
+        .rows
+        .iter()
+        .find(|row| row.id == id)
+        .map(|row| AdminRegistrationAttention {
+            reasons: row.reasons.clone(),
+            standing: row.standing,
+            blocking_problem: row.blocking_problem.clone(),
+            dismissed_reasons: row.dismissed_reasons.clone(),
+            dismissed_at: row.dismissed_at,
+            dismissed_by_user_id: row.dismissed_by_user_id,
+            dismissal_reason: row.dismissal_reason.clone(),
+        });
+
     token.authorized_ok(web::Json(AdminCreditRegistrationDetails {
         attention_thresholds: AdminAttentionThresholds::CURRENT,
-        registration: to_admin_row(registration),
+        registration: to_admin_row(registration, &attention_lookup),
+        attention,
+        journey,
+        linking_schedule,
         attempts,
         events,
         suotar_api_calls,
@@ -958,8 +1130,128 @@ async fn one_admin_row(
     Ok(rows.into_iter().next())
 }
 
-fn to_admin_row(row: AdminCreditRegistration) -> AdminCreditRegistrationRow {
+/// The Needs attention queue as one request saw it, for marking rows of the ledger.
+struct AttentionLookup {
+    rows: Vec<AttentionLookupRow>,
+}
+
+struct AttentionLookupRow {
+    id: Uuid,
+    reasons: Vec<AttentionReason>,
+    standing: AttentionStanding,
+    blocking_problem: Option<BlockingProblem>,
+    dismissed_reasons: Option<Vec<AttentionReason>>,
+    dismissed_at: Option<DateTime<Utc>>,
+    dismissed_by_user_id: Option<Uuid>,
+    dismissal_reason: Option<String>,
+}
+
+impl AttentionLookup {
+    async fn load(
+        conn: &mut PgConnection,
+        app_conf: &ApplicationConfiguration,
+    ) -> Result<Self, ControllerError> {
+        let rules = attention_rules(conn, app_conf).await?;
+        let rows = credit_registrations::get_attention_items(conn, &rules)
+            .await?
+            .into_iter()
+            .map(|row| {
+                let standing = row.standing(&rules.blocking);
+                AttentionLookupRow {
+                    id: row.id,
+                    standing,
+                    blocking_problem: (standing == AttentionStanding::ExplainedByProblem)
+                        .then(|| row.blocking_problem(&rules.blocking))
+                        .flatten(),
+                    reasons: row.reasons,
+                    dismissed_reasons: row.dismissed_reasons,
+                    dismissed_at: row.dismissed_at,
+                    dismissed_by_user_id: row.dismissed_by_user_id,
+                    dismissal_reason: row.dismissal_reason,
+                }
+            })
+            .collect();
+        Ok(Self { rows })
+    }
+
+    fn ids(&self, keep: impl Fn(&AttentionLookupRow) -> bool) -> Vec<Uuid> {
+        self.rows
+            .iter()
+            .filter(|row| keep(row))
+            .map(|row| row.id)
+            .collect()
+    }
+
+    fn get(&self, id: Uuid) -> Option<&AttentionLookupRow> {
+        self.rows.iter().find(|row| row.id == id)
+    }
+}
+
+/// The code's schedule for a presser still waiting for a student number; `None` for anyone else.
+async fn linking_schedule_for(
+    conn: &mut PgConnection,
+    id: Uuid,
+    account_linking_since: Option<DateTime<Utc>>,
+) -> Result<Option<AdminLinkingSchedule>, ControllerError> {
+    let Some(presser) = credit_registrations::get_waiting_pressers(conn, None, Some(id))
+        .await?
+        .into_iter()
+        .next()
+    else {
+        return Ok(None);
+    };
+    let Some(course_code) = presser.uh_course_code else {
+        return Ok(None);
+    };
+    let Some(schedule) = credit_registration_roster_schedules::get_schedules(
+        conn,
+        None,
+        ScheduleSelection::Code(&course_code),
+        account_linking_since,
+    )
+    .await?
+    .into_iter()
+    .next() else {
+        return Ok(None);
+    };
+    Ok(Some(AdminLinkingSchedule {
+        next_fetch_at: schedule.next_fetch_at(Utc::now()),
+        last_fetched_at: schedule.last_fetched_at,
+        last_mailing_fetch_started_at: schedule.last_mailing_fetch_started_at,
+        is_fetch_failing: schedule.consecutive_failures > 0,
+        is_enrolment_list_empty: schedule.last_listed_person_count == Some(0),
+        linking_emails_since_press: presser.linking_emails_on_code_since_press,
+        last_linking_email_at: presser.last_linking_email_on_code_at,
+        course_code,
+    }))
+}
+
+fn to_admin_row(
+    row: AdminCreditRegistration,
+    attention: &AttentionLookup,
+) -> AdminCreditRegistrationRow {
+    let position = row.position();
+    let picked = attention.get(row.id);
+    let standing = picked.map(|picked| picked.standing);
     AdminCreditRegistrationRow {
+        timeline_step: position.step,
+        phase: position.step.phase(),
+        waits_on: WaitsOn::of(
+            position.step,
+            position.engagement,
+            standing == Some(AttentionStanding::NeedsAttention),
+            credit_registrations::needs_course_setup(row.error_code),
+        ),
+        engagement: position.engagement,
+        phase_started_at: row.phase_started_at(),
+        state_changed_at: row.state_changed_at,
+        attention_reasons: picked
+            .map(|picked| picked.reasons.clone())
+            .unwrap_or_default(),
+        attention_standing: standing,
+        pressed_at: row.pressed_at,
+        enrolment_route: row.enrolment_route,
+        last_visited_at: row.last_visited_at,
         superseded: row.superseded_by_id.is_some(),
         is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
         pending_reason: row.pending_reason(),

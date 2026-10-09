@@ -10,6 +10,7 @@ use crate::credit_registration_events::{
     CreditRegistrationEventKind, NewCreditRegistrationEvent, SuotarAnswer,
 };
 use crate::error::missing_model_error;
+use crate::library::credit_registration::timeline::TimelinePhase;
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 use chrono::TimeDelta;
@@ -140,13 +141,13 @@ impl Transition {
 ///
 /// Owns the lifecycle stamps, so callers must not touch them (bar
 /// [`reset_for_resubmission`](super::reset_for_resubmission) clearing `first_failed_at`):
-/// `state_entered_at`, `terminal_at`, `first_failed_at` and `submit_retry_count`, which starting to
-/// wait for an enrolment clears, `registered_at`, `submitted_at`, `enrolment_checked_at`,
-/// `enrolment_banner_dismissed_at`, which starting to wait for an enrolment clears,
-/// `no_usable_enrolment_since`, and `next_attempt_at`, which takes the target state's default
-/// cadence unless the caller names a time. Leaving the wait for an enrolment also clears the check
-/// schedule, but not `enrolment_check_group`, and every move clears the claim of an enrolment
-/// check. Returns the row as written.
+/// `state_entered_at`, `state_changed_at`, `phase_started_at`, `terminal_at`, `first_failed_at`,
+/// `submit_retry_count`, `registered_at`, `submitted_at`, `enrolment_checked_at`,
+/// `enrolment_banner_dismissed_at`, `no_usable_enrolment_since` and `next_attempt_at`, which takes
+/// the target state's default cadence unless the caller names a time. Starting to wait for an
+/// enrolment clears `first_failed_at`, `submit_retry_count` and `enrolment_banner_dismissed_at`;
+/// leaving that wait clears the check schedule, but not `enrolment_check_group`. Every move clears
+/// the claim of an enrolment check. Returns the row as written.
 pub async fn transition(
     conn: &mut PgConnection,
     id: Uuid,
@@ -298,6 +299,13 @@ async fn write_moves(
         .iter()
         .map(|state| state.keeps_enrolment_check_schedule())
         .collect();
+    let enters_another_phase: Vec<bool> = moves
+        .iter()
+        .map(|(_, from_state, transition)| {
+            TimelinePhase::entered_with(*from_state)
+                != TimelinePhase::entered_with(transition.to_state)
+        })
+        .collect();
     let keeps_waiting_since: Vec<bool> = to_states
         .iter()
         .map(|state| {
@@ -313,6 +321,14 @@ SET state = move.to_state,
   -- clock_timestamp(), not now(): now() is the transaction timestamp, so several state changes in
   -- one transaction would share an instant and the timeline would lose their order.
   state_entered_at = clock_timestamp(),
+  state_changed_at = CASE
+    WHEN cr.state <> move.to_state THEN clock_timestamp()
+    ELSE cr.state_changed_at
+  END,
+  phase_started_at = CASE
+    WHEN move.enters_another_phase THEN clock_timestamp()
+    ELSE cr.phase_started_at
+  END,
   error_code = move.error_code,
   error_message = move.error_message,
   needs_admin_attention = COALESCE(move.needs_admin_attention, cr.needs_admin_attention),
@@ -396,7 +412,8 @@ FROM UNNEST(
     $9::interval [],
     $10::boolean [],
     $11::boolean [],
-    $12::boolean []
+    $12::boolean [],
+    $13::boolean []
   ) AS move(
     id,
     to_state,
@@ -409,7 +426,8 @@ FROM UNNEST(
     default_delay,
     keeps_checked_at,
     keeps_schedule,
-    keeps_waiting_since
+    keeps_waiting_since,
+    enters_another_phase
   )
 WHERE cr.id = move.id
   AND cr.deleted_at IS NULL
@@ -427,6 +445,7 @@ RETURNING cr.*
         &keeps_checked_at,
         &keeps_schedule,
         &keeps_waiting_since,
+        &enters_another_phase,
     )
     .fetch_all(&mut *conn)
     .await?;

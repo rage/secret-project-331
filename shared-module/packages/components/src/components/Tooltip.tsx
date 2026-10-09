@@ -27,6 +27,8 @@ export interface TooltipProps {
   "aria-label": string
   /** Help content revealed by the trigger. Keep it to a sentence or two. */
   children: React.ReactNode
+  /** What the trigger shows instead of "?", e.g. an icon that stands for the value it explains. */
+  trigger?: React.ReactNode
   placement?: Placement
   className?: string
   "data-testid"?: string
@@ -42,6 +44,7 @@ export interface TooltipProps {
 export const Tooltip: React.FC<TooltipProps> = ({
   "aria-label": ariaLabel,
   children,
+  trigger,
   placement = "top",
   className,
   "data-testid": dataTestId,
@@ -58,7 +61,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         variant="icon"
         size="small"
         aria-label={ariaLabel}
-        className={cx(triggerCss, className)}
+        className={cx(trigger === undefined && triggerCss, className)}
         // A mouse has already opened it by hovering, so toggling there would shut it on the click
         // that was meant to open it. Touch and keyboard have no hover, so they toggle.
         onPress={(event) => (event.pointerType === "mouse" ? state.open() : state.toggle())}
@@ -79,7 +82,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
         }}
         data-testid={dataTestId}
       >
-        <span aria-hidden="true">{HELP_SYMBOL}</span>
+        <span aria-hidden="true">{trigger ?? HELP_SYMBOL}</span>
       </Button>
       {state.isOpen ? (
         <Popover

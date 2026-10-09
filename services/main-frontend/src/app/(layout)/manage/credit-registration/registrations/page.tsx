@@ -1,33 +1,44 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo } from "react"
+import { css, cx } from "@emotion/css"
+import { ExclamationTriangle, MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import React, { useEffect, useId, useMemo } from "react"
+import type { Key } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
   adminErrorShortLabel,
   adminLedgerStateLabel,
-  registrationErrorNote,
+  attentionReasonLabel,
+  isAttentionReason,
 } from "@/components/credit-registration/admin/adminCreditRegistrationCopy"
 import {
   useAdminCreditRegistrations,
   useCreditRegistrationCourseStats,
   useCreditRegistrationOverview,
-  useCreditRegistrationThresholds,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import AdminStateLabel from "@/components/credit-registration/admin/AdminStateLabel"
+import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
+import LinkingMethodIcon from "@/components/credit-registration/admin/LinkingMethodIcon"
 import {
   ALL_STATES,
   BUCKET_OF_STATE,
   BUCKET_ORDER,
   bucketLabel,
 } from "@/components/credit-registration/admin/queueBuckets"
-import {
-  secondsSince,
-  stuckThresholdSecs,
-} from "@/components/credit-registration/admin/stuckThreshold"
+import { REGISTRATIONS_PARAM } from "@/components/credit-registration/admin/registrationsListUrl"
 import StudentCell from "@/components/credit-registration/admin/StudentCell"
+import {
+  ATTENTION_STEPS,
+  ENGAGEMENT_STEPS,
+  ENGAGEMENTS,
+  engagementLabel,
+  isEngagement,
+  isTimelineStep,
+  STEPS_BY_PHASE,
+  TIMELINE_PHASES,
+  timelinePhaseLabel,
+  timelineStepLabel,
+} from "@/components/credit-registration/admin/timelineSteps"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
@@ -41,6 +52,7 @@ import {
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   MIDDLE_DOT,
+  PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   TABLE_STACK,
   TIME_DURATION,
@@ -56,12 +68,17 @@ import {
   sectionCardCss,
   sectionCardsCss,
   stackedCellCss,
+  subsectionCss,
   toolbarCheckboxCss,
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
+  AdminCreditRegistrationRow,
   CreditRegistrationErrorCode,
   CreditRegistrationState,
+  Engagement,
+  TimelinePhase,
+  TimelineStep,
 } from "@/generated/api/types.generated"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
@@ -71,6 +88,7 @@ import {
   Button,
   Checkbox,
   Chip,
+  Disclosure,
   EmptyState,
   MultiSelect,
   QueryResult,
@@ -78,24 +96,18 @@ import {
   Select,
   Table,
   TextField,
+  ToggleButtonGroup,
+  ToggleButtonGroupButton,
 } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 50
 const SEARCH_ICON_SIZE = 16
+const ATTENTION_ICON_SIZE = 14
 
-// Every filter lives in the query string, so links are shareable and the Overview can deep-link in.
-const PARAM_STATE = "state"
-const PARAM_ERROR_CODE = "error_code"
-const PARAM_COURSE_ID = "course_id"
-const PARAM_COURSE_MODULE_ID = "course_module_id"
-const PARAM_USER_ID = "user_id"
-const PARAM_STUDENT_NUMBER = "student_number"
-const PARAM_ATTENTION = "needs_admin_attention"
-const PARAM_SEARCH = "search"
-const PARAM_SUPERSEDED = "include_superseded"
-const PARAM_SORT = "sort"
+const PARAM = REGISTRATIONS_PARAM
 const TRUE = "true"
 const NONE = ""
+const SELECT_MANY = "multiple" as const
 
 const SORT_LAST_ACTIVITY = "last_activity"
 const SORT_CREATED = "created"
@@ -103,23 +115,33 @@ const SORT_TIME_IN_STATE = "time_in_state"
 const SORT_ATTEMPTS = "attempts"
 
 /** The filters shown as removable chips: the ones a deep link sets and no control on the page owns. */
-const CHIP_PARAMS = [PARAM_COURSE_MODULE_ID, PARAM_USER_ID, PARAM_STUDENT_NUMBER]
+const CHIP_PARAMS = [PARAM.courseModuleId, PARAM.userId, PARAM.studentNumber, PARAM.attentionReason]
 
-const NARROWING_PARAMS = [PARAM_STATE, PARAM_ERROR_CODE, PARAM_COURSE_ID, ...CHIP_PARAMS]
+const NARROWING_PARAMS = [
+  PARAM.step,
+  PARAM.engagement,
+  PARAM.state,
+  PARAM.errorCode,
+  PARAM.courseId,
+  ...CHIP_PARAMS,
+]
 
-/** Chip labels for `CHIP_PARAMS`. Their values are ids and numbers, so only the label translates. */
+/** Chip labels for `CHIP_PARAMS`. */
 const FILTER_LABEL_KEYS: Record<string, string> = {
-  [PARAM_COURSE_MODULE_ID]: "label-course-module-id",
-  [PARAM_USER_ID]: "label-user-id",
-  [PARAM_STUDENT_NUMBER]: "label-student-number",
+  [PARAM.courseModuleId]: "label-course-module-id",
+  [PARAM.userId]: "label-user-id",
+  [PARAM.studentNumber]: "label-student-number",
+  [PARAM.attentionReason]: "label-reason",
 }
 
 /** A uuid filter reads as noise in full; the prefix is enough to tell two of them apart. */
-const ID_PARAMS = new Set([PARAM_COURSE_MODULE_ID, PARAM_USER_ID])
+const ID_PARAMS = new Set<string>([PARAM.courseModuleId, PARAM.userId])
 
-/** What a filter chip shows for its value: shortened for ids, raw otherwise. */
-const chipValue = (name: string, value: string): string =>
-  ID_PARAMS.has(name) ? value.slice(0, ID_PREFIX_LENGTH) : value
+interface StepOption {
+  step: TimelineStep
+  phase: TimelinePhase
+  label: string
+}
 
 interface StateOption {
   state: CreditRegistrationState
@@ -136,32 +158,36 @@ interface FilterFields {
   sort: string
   course_id: string
   attention: boolean
+  notStarted: boolean
   superseded: boolean
+  steps: string[]
+  engagements: Set<Key>
   states: string[]
   errorCodes: string[]
 }
 
+const booleanField = (
+  param: string,
+  field: "attention" | "notStarted" | "superseded",
+): FilterFieldDescriptor<FilterFields> => ({
+  param,
+  field,
+  fromParam: (raw) => raw === TRUE,
+  toParam: (value) => (value ? TRUE : undefined),
+})
+
 const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
   {
-    param: PARAM_SORT,
+    param: PARAM.sort,
     field: "sort",
     fromParam: (raw) => raw ?? SORT_LAST_ACTIVITY,
     // The default order stays out of the URL, so a pasted link carries only what was chosen.
     toParam: (value) => (value === SORT_LAST_ACTIVITY ? undefined : (value as string)),
   },
-  selectFilterField(PARAM_COURSE_ID, "course_id"),
-  {
-    param: PARAM_ATTENTION,
-    field: "attention",
-    fromParam: (raw) => raw === TRUE,
-    toParam: (value) => (value ? TRUE : undefined),
-  },
-  {
-    param: PARAM_SUPERSEDED,
-    field: "superseded",
-    fromParam: (raw) => raw === TRUE,
-    toParam: (value) => (value ? TRUE : undefined),
-  },
+  selectFilterField(PARAM.courseId, "course_id"),
+  booleanField(PARAM.needsAttention, "attention"),
+  booleanField(PARAM.includeNotStarted, "notStarted"),
+  booleanField(PARAM.includeSuperseded, "superseded"),
 ]
 
 const searchCss = css`
@@ -169,9 +195,79 @@ const searchCss = css`
   flex: 1 1 20rem;
 `
 
-/** Superseded attempts are hidden by default: a regraded course holds two rows per student. */
+const activityCss = css`
+  display: grid;
+  gap: var(--space-2);
+`
+
+const attentionLineCss = css`
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+`
+
+const stepCss = css`
+  font-weight: 500;
+`
+
+/** Mirrors a multi-valued param into a form field and back; each side writes only on a difference. */
+const useMirroredParam = (
+  values: string[],
+  picked: string[],
+  write: (values: string[]) => void,
+  apply: (values: string[]) => void,
+) => {
+  useEffect(() => {
+    write(values)
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.join()])
+
+  useEffect(() => {
+    if (picked.join() !== values.join()) {
+      apply(picked)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [picked.join()])
+}
+
+/** Phase over step, in the timeline's words; an ending is its own one line. */
+const StatusCell: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const needsAttention = row.attention_standing === "needs_attention"
+  const isAttention = !row.superseded && (needsAttention || ATTENTION_STEPS.has(row.timeline_step))
+  const reason = needsAttention ? row.attention_reasons[0] : undefined
+  return (
+    <span className={stackedCellCss}>
+      {row.phase !== "ended" && <span className={noteCss}>{timelinePhaseLabel(t, row.phase)}</span>}
+      <span className={cx(stepCss, isAttention && TONE_INK["action-needed"])}>
+        {isAttention ? (
+          <span className={attentionLineCss}>
+            <ExclamationTriangle size={ATTENTION_ICON_SIZE} aria-hidden />
+            {timelineStepLabel(t, row.timeline_step)}
+          </span>
+        ) : (
+          timelineStepLabel(t, row.timeline_step)
+        )}
+      </span>
+      {reason && <span className={noteCss}>{attentionReasonLabel(t, reason)}</span>}
+      {row.attention_standing === "running_late" && (
+        <span className={noteCss}>{t("credit-registration-admin-running-late")}</span>
+      )}
+      {row.superseded && (
+        <span>
+          <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
+            {t("credit-registration-admin-replaced")}
+          </Badge>
+        </span>
+      )}
+    </span>
+  )
+}
+
+/** Superseded attempts and students who have not started are hidden unless asked for. */
 const RegistrationsPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const activityLabelId = useId()
 
   const {
     control,
@@ -187,45 +283,60 @@ const RegistrationsPage: React.FC = () => {
   } = useFilteredAdminQuery(
     FILTER_FIELDS,
     (filters, pagination) => {
-      const states = filters.params(PARAM_STATE) as CreditRegistrationState[]
-      const errorCodes = filters.params(PARAM_ERROR_CODE) as CreditRegistrationErrorCode[]
-      const courseId = filters.param(PARAM_COURSE_ID)
-      const courseModuleId = filters.param(PARAM_COURSE_MODULE_ID)
-      const userId = filters.param(PARAM_USER_ID)
-      const studentNumber = filters.param(PARAM_STUDENT_NUMBER)
-      const search = filters.param(PARAM_SEARCH)
-      const sort = filters.param(PARAM_SORT)
+      const steps = filters.params(PARAM.step).filter((value) => isTimelineStep(value))
+      const engagements = filters.params(PARAM.engagement).filter((value) => isEngagement(value))
+      const attentionReasons = filters
+        .params(PARAM.attentionReason)
+        .filter((value) => isAttentionReason(value))
+      const states = filters.params(PARAM.state) as CreditRegistrationState[]
+      const errorCodes = filters.params(PARAM.errorCode) as CreditRegistrationErrorCode[]
+      const courseId = filters.param(PARAM.courseId)
+      const courseModuleId = filters.param(PARAM.courseModuleId)
+      const userId = filters.param(PARAM.userId)
+      const studentNumber = filters.param(PARAM.studentNumber)
+      const search = filters.param(PARAM.search)
+      const sort = filters.param(PARAM.sort)
+      // Picking Not started would otherwise select rows the default leaves out.
+      const includeNotStarted =
+        filters.param(PARAM.includeNotStarted) === TRUE || engagements.includes("not_started")
       return {
         page: pagination.page,
         limit: pagination.limit,
+        ...includeIf(steps.length > 0, { step: steps }),
+        ...includeIf(engagements.length > 0, { engagement: engagements }),
+        ...includeIf(includeNotStarted, { include_not_started: true }),
+        ...includeIf(attentionReasons.length > 0, { attention_reason: attentionReasons }),
         ...includeIf(states.length > 0, { state: states }),
         ...includeIf(errorCodes.length > 0, { error_code: errorCodes }),
         ...includeIf(courseId, { course_id: courseId }),
         ...includeIf(courseModuleId, { course_module_id: courseModuleId }),
         ...includeIf(userId, { user_id: userId }),
         ...includeIf(studentNumber, { student_number: studentNumber }),
-        ...includeIf(filters.param(PARAM_ATTENTION) === TRUE, { needs_admin_attention: true }),
+        ...includeIf(filters.param(PARAM.needsAttention) === TRUE, { needs_attention: true }),
         ...includeIf(search, { search }),
-        ...includeIf(filters.param(PARAM_SUPERSEDED) === TRUE, { include_superseded: true }),
+        ...includeIf(filters.param(PARAM.includeSuperseded) === TRUE, {
+          include_superseded: true,
+        }),
         ...includeIf(sort, { sort }),
       }
     },
     {
       rowsPerPage: ROWS_PER_PAGE,
       manualDefaults: (filters) => ({
-        search: filters.param(PARAM_SEARCH) ?? "",
-        states: filters.params(PARAM_STATE),
-        errorCodes: filters.params(PARAM_ERROR_CODE),
+        search: filters.param(PARAM.search) ?? "",
+        steps: filters.params(PARAM.step),
+        engagements: new Set<Key>(filters.params(PARAM.engagement)),
+        states: filters.params(PARAM.state),
+        errorCodes: filters.params(PARAM.errorCode),
       }),
     },
   )
 
   const typedSearch = watch("search")
   // Refetching mid-word would reshuffle the table under the operator's cursor.
-  const searchPending = typedSearch.trim() !== (param(PARAM_SEARCH) ?? "")
+  const searchPending = typedSearch.trim() !== (param(PARAM.search) ?? "")
 
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
-  const thresholds = useCreditRegistrationThresholds().data
   const chipFilters = CHIP_PARAMS.flatMap((name) => params(name).map((value) => ({ name, value })))
 
   // The stats are one row per module, and a course can have several enabled modules: dedupe by
@@ -261,6 +372,10 @@ const RegistrationsPage: React.FC = () => {
     }),
   )
 
+  const stepOptions: StepOption[] = TIMELINE_PHASES.flatMap((phase) =>
+    STEPS_BY_PHASE[phase].map((step) => ({ step, phase, label: timelineStepLabel(t, step) })),
+  )
+
   const stateOptions: StateOption[] = BUCKET_ORDER.flatMap((bucket) =>
     ALL_STATES.filter((state) => BUCKET_OF_STATE[state] === bucket).map((state) => ({
       state,
@@ -268,49 +383,63 @@ const RegistrationsPage: React.FC = () => {
     })),
   )
 
-  const chosenStates = params(PARAM_STATE)
-  const chosenErrorCodes = params(PARAM_ERROR_CODE)
-  const pickedStates = watch("states")
-  const pickedErrorCodes = watch("errorCodes")
+  const chosenSteps = params(PARAM.step)
+  const chosenEngagements = params(PARAM.engagement)
+  const chosenStates = params(PARAM.state)
+  const chosenErrorCodes = params(PARAM.errorCode)
 
-  // The two multi-selects and the query string mirror each other, and each side writes only when
-  // the two differ, which is what stops the pair of effects from bouncing off each other.
-  useEffect(() => {
-    setValue("states", chosenStates)
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosenStates.join()])
+  useMirroredParam(
+    chosenSteps,
+    watch("steps"),
+    (values) => setValue("steps", values),
+    (values) => applyParams({ [PARAM.step]: values }),
+  )
+  useMirroredParam(
+    chosenEngagements,
+    // In the order the chips are listed, so toggling one never reorders the URL.
+    ENGAGEMENTS.filter((engagement) => watch("engagements").has(engagement)),
+    (values) => setValue("engagements", new Set<Key>(values)),
+    (values) => applyParams({ [PARAM.engagement]: values }),
+  )
+  useMirroredParam(
+    chosenStates,
+    watch("states"),
+    (values) => setValue("states", values),
+    (values) => applyParams({ [PARAM.state]: values }),
+  )
+  useMirroredParam(
+    chosenErrorCodes,
+    watch("errorCodes"),
+    (values) => setValue("errorCodes", values),
+    (values) => applyParams({ [PARAM.errorCode]: values }),
+  )
 
-  useEffect(() => {
-    if (pickedStates.join() !== chosenStates.join()) {
-      applyParams({ [PARAM_STATE]: pickedStates })
+  const chipText = (name: string, value: string): string => {
+    if (name === PARAM.attentionReason && isAttentionReason(value)) {
+      return attentionReasonLabel(t, value)
     }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickedStates.join()])
+    return ID_PARAMS.has(name) ? value.slice(0, ID_PREFIX_LENGTH) : value
+  }
 
-  useEffect(() => {
-    setValue("errorCodes", chosenErrorCodes)
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosenErrorCodes.join()])
-
-  useEffect(() => {
-    if (pickedErrorCodes.join() !== chosenErrorCodes.join()) {
-      applyParams({ [PARAM_ERROR_CODE]: pickedErrorCodes })
-    }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickedErrorCodes.join()])
-
-  const searchTerm = param(PARAM_SEARCH)
+  const searchTerm = param(PARAM.search)
   const activeFilters: string[] = [
+    ...chosenSteps
+      .filter((value) => isTimelineStep(value))
+      .map((step) => timelineStepLabel(t, step)),
+    ...chosenEngagements
+      .filter((value) => isEngagement(value))
+      .map((engagement) => engagementLabel(t, engagement)),
     ...chosenStates.map((state) => adminLedgerStateLabel(t, state as CreditRegistrationState)),
     ...chosenErrorCodes,
     ...chipFilters.map(
       ({ name, value }) =>
-        `${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`,
+        `${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipText(name, value)}`,
     ),
     ...(searchTerm ? [searchTerm] : []),
   ]
 
-  const clearEveryFilter = () => clearFilters([...NARROWING_PARAMS, PARAM_SEARCH])
+  const clearEveryFilter = () => clearFilters([...NARROWING_PARAMS, PARAM.search])
+  const hasAdvancedFilters = chosenStates.length > 0 || chosenErrorCodes.length > 0
 
   return (
     <div className={sectionCardsCss}>
@@ -319,7 +448,7 @@ const RegistrationsPage: React.FC = () => {
       <section className={sectionCardCss}>
         <form
           className={controlsCss}
-          onSubmit={handleSubmit((fields) => applyParams({ [PARAM_SEARCH]: fields.search.trim() }))}
+          onSubmit={handleSubmit((fields) => applyParams({ [PARAM.search]: fields.search.trim() }))}
         >
           <div className={searchCss}>
             <TextField
@@ -346,24 +475,14 @@ const RegistrationsPage: React.FC = () => {
           </div>
           <div className={controlCss}>
             <MultiSelect
-              name="states"
+              name="steps"
               control={control}
-              label={t("label-state")}
-              placeholder={t("credit-registration-admin-any-state")}
-              items={stateOptions}
-              getItemKey={(option) => option.state}
+              label={t("credit-registration-admin-filter-step")}
+              placeholder={t("credit-registration-admin-any-step")}
+              items={stepOptions}
+              getItemKey={(option) => option.step}
               getItemTextValue={(option) => option.label}
-            />
-          </div>
-          <div className={controlCss}>
-            <MultiSelect
-              name="errorCodes"
-              control={control}
-              label={t("label-error-code")}
-              placeholder={t("credit-registration-admin-any-error-code")}
-              items={errorCodeOptions}
-              getItemKey={(option) => option.code}
-              getItemTextValue={(option) => option.label}
+              getItemSection={(option) => timelinePhaseLabel(t, option.phase)}
             />
           </div>
           <div className={controlCss}>
@@ -385,12 +504,41 @@ const RegistrationsPage: React.FC = () => {
               ]}
             />
           </div>
+        </div>
+        <div className={controlsCss}>
+          <div className={activityCss}>
+            <span id={activityLabelId} className={noteCss}>
+              {t("credit-registration-admin-student-activity")}
+            </span>
+            <ToggleButtonGroup
+              name="engagements"
+              control={control}
+              label={null}
+              aria-labelledby={activityLabelId}
+              selectionMode={SELECT_MANY}
+              disallowEmptySelection={false}
+            >
+              {ENGAGEMENTS.map((engagement: Engagement) => (
+                <ToggleButtonGroupButton key={engagement} id={engagement}>
+                  {engagementLabel(t, engagement)}
+                </ToggleButtonGroupButton>
+              ))}
+            </ToggleButtonGroup>
+          </div>
           <div className={toolbarCheckboxCss}>
             <Checkbox
               name="attention"
               control={control}
               isInline
               label={t("credit-registration-admin-only-needs-attention")}
+            />
+          </div>
+          <div className={toolbarCheckboxCss}>
+            <Checkbox
+              name="notStarted"
+              control={control}
+              isInline
+              label={t("credit-registration-admin-show-not-started")}
             />
           </div>
           <div className={toolbarCheckboxCss}>
@@ -402,6 +550,39 @@ const RegistrationsPage: React.FC = () => {
             />
           </div>
         </div>
+        <Disclosure
+          title={t("credit-registration-admin-advanced-filters")}
+          variant={PLAIN_DISCLOSURE}
+          defaultExpanded={hasAdvancedFilters}
+        >
+          <div className={subsectionCss}>
+            <p className={noteCss}>{t("credit-registration-admin-advanced-filters-note")}</p>
+            <div className={controlsCss}>
+              <div className={controlCss}>
+                <MultiSelect
+                  name="states"
+                  control={control}
+                  label={t("label-state")}
+                  placeholder={t("credit-registration-admin-any-state")}
+                  items={stateOptions}
+                  getItemKey={(option) => option.state}
+                  getItemTextValue={(option) => option.label}
+                />
+              </div>
+              <div className={controlCss}>
+                <MultiSelect
+                  name="errorCodes"
+                  control={control}
+                  label={t("label-error-code")}
+                  placeholder={t("credit-registration-admin-any-error-code")}
+                  items={errorCodeOptions}
+                  getItemKey={(option) => option.code}
+                  getItemTextValue={(option) => option.label}
+                />
+              </div>
+            </div>
+          </div>
+        </Disclosure>
         {chipFilters.length > 0 && (
           <div className={rowCss}>
             {chipFilters.map(({ name, value }) => (
@@ -412,10 +593,10 @@ const RegistrationsPage: React.FC = () => {
                 }
                 removeLabel={t("credit-registration-admin-remove-filter", {
                   filter: labelFrom(t, FILTER_LABEL_KEYS, name, name),
-                  value,
+                  value: chipText(name, value),
                 })}
               >
-                {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipValue(name, value)}`}
+                {`${labelFrom(t, FILTER_LABEL_KEYS, name, name)}: ${chipText(name, value)}`}
               </Chip>
             ))}
           </div>
@@ -456,25 +637,10 @@ const RegistrationsPage: React.FC = () => {
                   columns={[
                     {
                       header: t("label-student"),
-                      minWidth: "16rem",
+                      minWidth: "14rem",
                       cell: (row) => (
                         <StudentCell row={row} href={creditRegistrationItemRoute(row.id)} />
                       ),
-                    },
-                    {
-                      header: t("label-student-number"),
-                      minWidth: "7rem",
-                      nowrap: true,
-                      cell: (row) => {
-                        const number = row.verified_student_number ?? row.student_number
-                        return number === null || number === undefined ? (
-                          <span className={noteCss}>
-                            {t("credit-registration-admin-not-linked")}
-                          </span>
-                        ) : (
-                          <span className={codeValueCss}>{number}</span>
-                        )
-                      },
                     },
                     {
                       header: t("label-course"),
@@ -486,45 +652,69 @@ const RegistrationsPage: React.FC = () => {
                           {manyModuleCourseIds.has(row.course_id) && (
                             <span className={noteCss}>{row.course_module_name}</span>
                           )}
+                          {row.uh_course_code && (
+                            <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
+                          )}
                         </span>
                       ),
                     },
                     {
-                      header: t("label-state"),
-                      minWidth: "14rem",
+                      header: t("label-student-number"),
+                      minWidth: "8rem",
+                      nowrap: true,
                       cell: (row) => {
-                        const threshold = thresholds
-                          ? stuckThresholdSecs(row.state, thresholds)
-                          : null
-                        // A superseded row is frozen, not stalled: it already carries its own badge.
-                        const isStuck =
-                          !row.superseded &&
-                          threshold !== null &&
-                          secondsSince(row.state_entered_at) > threshold
-                        const errorNote = registrationErrorNote(t, row.state, row.error_code)
-                        return (
-                          <span className={stackedCellCss}>
-                            <span className={rowCss}>
-                              <AdminStateLabel
-                                state={row.state}
-                                pendingReason={row.pending_reason}
-                                superseded={row.superseded}
-                                attemptNumber={row.attempt_number}
-                              />
-                              {isStuck && (
-                                <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
-                                  {t("label-credit-registration-stuck")}
-                                </Badge>
-                              )}
+                        const number = row.verified_student_number ?? row.student_number
+                        if (!number) {
+                          return (
+                            <span className={noteCss}>
+                              {t("credit-registration-admin-not-linked")}
                             </span>
-                            {errorNote && (
-                              <span className={noteCss}>
-                                {errorNote} <code className={codeValueCss}>{row.error_code}</code>
-                              </span>
+                          )
+                        }
+                        return (
+                          <span className={rowCss}>
+                            <span className={codeValueCss}>{number}</span>
+                            {row.verified_student_number_via && (
+                              <LinkingMethodIcon
+                                method={row.verified_student_number_via}
+                                linkedAt={row.verified_student_number_at}
+                              />
                             )}
                           </span>
                         )
                       },
+                    },
+                    {
+                      header: t("label-status"),
+                      minWidth: "14rem",
+                      cell: (row) => <StatusCell row={row} />,
+                    },
+                    {
+                      header: t("credit-registration-admin-student-activity"),
+                      minWidth: "7rem",
+                      nowrap: true,
+                      cell: (row) =>
+                        row.engagement && ENGAGEMENT_STEPS.has(row.timeline_step) ? (
+                          <Badge
+                            tone={row.engagement === "pressed" ? TONE.INFO : TONE.NEUTRAL}
+                            size={BADGE_COMPACT}
+                          >
+                            {engagementLabel(t, row.engagement)}
+                          </Badge>
+                        ) : null,
+                    },
+                    {
+                      header: t("label-credit-registration-in-phase-since"),
+                      minWidth: "9rem",
+                      nowrap: true,
+                      cell: (row) => (
+                        <span className={stackedCellCss}>
+                          <RelativeTime at={row.phase_started_at} absoluteTime={TIME_DURATION} />
+                          <span className={noteCss}>
+                            <ZonedTimestamp at={row.phase_started_at} />
+                          </span>
+                        </span>
+                      ),
                     },
                     {
                       header: t("label-credit-registration-last-activity"),

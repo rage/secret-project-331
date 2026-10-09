@@ -39,7 +39,8 @@
                 "manual_link_student_number",
                 "override_rate_cap",
                 "request_enrolment_list_fetch",
-                "dismiss_study_registry_conflict"
+                "dismiss_study_registry_conflict",
+                "dismiss_attention"
               ]
             }
           }

@@ -1,0 +1,192 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id AS credit_registration_id,\n  cr.user_id,\n  ud.email AS \"email?\",\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  cr.course_id,\n  c.name AS course_name,\n  cr.course_module_id,\n  cm.name AS \"course_module_name?\",\n  NULLIF(TRIM(cm.uh_course_code), '') AS \"uh_course_code?\",\n  cmc.completion_date,\n  route.enrolment_confirmed_at AS \"pressed_at!\",\n  route.route AS \"enrolment_route: CreditRegistrationEnrolmentRoute\",\n  emails.count AS \"linking_emails_on_code_since_press!\",\n  emails.last_at AS \"last_linking_email_on_code_at?\"\nFROM credit_registrations cr\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  AND cmc.deleted_at IS NULL\n  JOIN courses c ON c.id = cr.course_id\n  AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id\n  AND cm.deleted_at IS NULL\n  JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id\n  AND route.deleted_at IS NULL\n  AND route.enrolment_confirmed_at IS NOT NULL\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  CROSS JOIN LATERAL (\n    SELECT COUNT(*) AS count,\n      MAX(e.sent_at) AS last_at\n    FROM credit_registration_account_linking_emails e\n      JOIN course_modules code_module ON code_module.course_id = e.course_id\n      AND code_module.deleted_at IS NULL\n    WHERE TRIM(code_module.uh_course_code) = TRIM(cm.uh_course_code)\n      AND e.sent_at >= route.enrolment_confirmed_at\n  ) emails\nWHERE cr.state = 'pending'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n  AND p.completion_eligible\n  AND NOT p.has_verified_student_number\n  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)\n  AND ($2::uuid IS NULL OR cr.id = $2)\nORDER BY route.enrolment_confirmed_at,\n  cr.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_module_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "uh_course_code?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "completion_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "completion_date"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "pressed_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "enrolment_route: CreditRegistrationEnrolmentRoute",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "linking_emails_on_code_since_press!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 14,
+        "name": "last_linking_email_on_code_at?",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      null,
+      false,
+      true,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "924d7933f46f7edc9693aa05ff6e950541552d4ec684bc069a6464b2442e78c3"
+}

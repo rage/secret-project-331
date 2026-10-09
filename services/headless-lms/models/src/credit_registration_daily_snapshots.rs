@@ -1,11 +1,12 @@
-//! Daily queue depth per ledger state.
+//! Daily queue depth per ledger state, and per timeline step with the Needs attention count.
 //!
 //! The ledger holds current state only, so a row that passed through a state in an hour leaves no
 //! depth trace. Aggregates only: anything per-person belongs in the ledger.
 use chrono::NaiveDate;
 use utoipa::ToSchema;
 
-use crate::credit_registrations::CreditRegistrationState;
+use crate::credit_registrations::{CreditRegistrationState, StepCount};
+use crate::library::credit_registration::timeline::{Engagement, TimelineStep};
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -146,4 +147,149 @@ ORDER BY snapshot_date,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// One timeline step's count on one day.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct DailyStepCount {
+    pub snapshot_date: NaiveDate,
+    pub step: TimelineStep,
+    pub engagement: Option<Engagement>,
+    pub count: i32,
+}
+
+/// Writes one day's counts per step and engagement, as
+/// [`count_by_step_and_engagement`](crate::credit_registrations::count_by_step_and_engagement)
+/// returns them summed over modules. Idempotent.
+pub async fn write_step_snapshot_for_date(
+    conn: &mut PgConnection,
+    snapshot_date: NaiveDate,
+    counts: &[StepCount],
+) -> ModelResult<()> {
+    let mut totals: Vec<(TimelineStep, Option<Engagement>, i64)> = Vec::new();
+    for row in counts {
+        match totals
+            .iter_mut()
+            .find(|(step, engagement, _)| *step == row.step && *engagement == row.engagement)
+        {
+            Some(total) => total.2 += row.count,
+            None => totals.push((row.step, row.engagement, row.count)),
+        }
+    }
+    let steps: Vec<TimelineStep> = totals.iter().map(|total| total.0).collect();
+    let engagements: Vec<Option<Engagement>> = totals.iter().map(|total| total.1).collect();
+    let step_counts: Vec<i32> = totals
+        .iter()
+        .map(|total| i32::try_from(total.2).unwrap_or(i32::MAX))
+        .collect();
+    let mut tx = conn.begin().await?;
+    // A step emptied since an earlier run today must not keep that run's count.
+    sqlx::query!(
+        r#"
+DELETE FROM credit_registration_daily_step_snapshots
+WHERE snapshot_date = $1
+        "#,
+        snapshot_date,
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        r#"
+INSERT INTO credit_registration_daily_step_snapshots (
+    snapshot_date,
+    timeline_step,
+    engagement,
+    count
+  )
+SELECT $1,
+  u.step,
+  u.engagement,
+  u.count
+FROM UNNEST(
+    $2::credit_registration_timeline_step [],
+    $3::credit_registration_engagement [],
+    $4::int []
+  ) AS u(step, engagement, count)
+        "#,
+        snapshot_date,
+        &steps as &[TimelineStep],
+        &engagements as &[Option<Engagement>],
+        &step_counts,
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Writes one day's Needs attention count. Idempotent.
+pub async fn write_attention_snapshot_for_date(
+    conn: &mut PgConnection,
+    snapshot_date: NaiveDate,
+    needs_attention_count: i64,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+INSERT INTO credit_registration_daily_attention_snapshots (snapshot_date, needs_attention_count)
+VALUES ($1, $2) ON CONFLICT (snapshot_date, deleted_at) DO
+UPDATE
+SET needs_attention_count = $2
+        "#,
+        snapshot_date,
+        i32::try_from(needs_attention_count).unwrap_or(i32::MAX),
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_step_counts_between(
+    conn: &mut PgConnection,
+    from: NaiveDate,
+    to: NaiveDate,
+) -> ModelResult<Vec<DailyStepCount>> {
+    let res = sqlx::query_as!(
+        DailyStepCount,
+        r#"
+SELECT snapshot_date,
+  timeline_step AS "step: TimelineStep",
+  engagement AS "engagement: Engagement",
+  count
+FROM credit_registration_daily_step_snapshots
+WHERE snapshot_date BETWEEN $1 AND $2
+  AND deleted_at IS NULL
+ORDER BY snapshot_date
+        "#,
+        from,
+        to,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The Needs attention count per day that has one.
+pub async fn get_attention_counts_between(
+    conn: &mut PgConnection,
+    from: NaiveDate,
+    to: NaiveDate,
+) -> ModelResult<Vec<(NaiveDate, i32)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT snapshot_date,
+  needs_attention_count
+FROM credit_registration_daily_attention_snapshots
+WHERE snapshot_date BETWEEN $1 AND $2
+  AND deleted_at IS NULL
+ORDER BY snapshot_date
+        "#,
+        from,
+        to,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.snapshot_date, row.needs_attention_count))
+        .collect())
 }

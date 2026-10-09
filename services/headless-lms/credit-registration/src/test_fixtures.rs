@@ -31,6 +31,8 @@ pub(crate) fn registration(state: CreditRegistrationState) -> CreditRegistration
         course_instance_id: Uuid::new_v4(),
         state,
         state_entered_at: at,
+        state_changed_at: at,
+        phase_started_at: at,
         error_code: None,
         error_message: None,
         needs_admin_attention: false,

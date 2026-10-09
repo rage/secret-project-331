@@ -47,6 +47,7 @@
 #[macro_use]
 extern crate tracing;
 
+pub mod attention;
 pub mod error;
 mod error_reports;
 mod phase;

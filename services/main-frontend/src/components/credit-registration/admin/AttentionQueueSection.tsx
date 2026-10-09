@@ -103,15 +103,13 @@ const REASONS_IMPLIED_BY_STATE: ReadonlySet<CreditRegistrationAttentionReason> =
 ])
 
 const PARAM_REASON = "reason"
-const PARAM_WITHOUT_REASON = "without_reason"
 const PARAM_SORT = "sort"
-const TRUE = "true"
 
 const SORT_TIME_IN_STATE = "time_in_state"
 const SORT_NEXT_ATTEMPT = "next_attempt"
 const SORT_COURSE = "course"
 
-const ATTENTION_QUERY = "?needs_admin_attention=true"
+const ATTENTION_QUERY = "?needs_attention=true"
 const COURSE_PARAM = "&course_id="
 const STATE_PARAM = "&state="
 
@@ -131,14 +129,12 @@ const FILTER_FIELDS: FilterFieldDescriptor<SortFields>[] = [
 
 interface Facets {
   reasons: CreditRegistrationAttentionReason[]
-  withoutReason: boolean
 }
 
 const readFacets = (filters: Pick<QueryParamFilters, "param" | "params">): Facets => ({
   // Validated, not cast: an unknown reason would narrow the queue to nothing, which the page then
   // reports as "nothing needs a human".
   reasons: filters.params(PARAM_REASON).filter((raw) => isAttentionReason(raw)),
-  withoutReason: filters.param(PARAM_WITHOUT_REASON) === TRUE,
 })
 
 /**
@@ -152,19 +148,19 @@ const TimeInState: React.FC<{
 }> = ({ item, thresholds }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const threshold = thresholds ? stuckThresholdSecs(item.state, thresholds) : null
-  const elapsed = secondsSince(item.state_entered_at)
+  const elapsed = secondsSince(item.state_changed_at)
 
   return (
     <span className={stackedCellCss}>
       {threshold === null ? (
-        <RelativeTime at={item.state_entered_at} absoluteTime={TIME_DURATION} />
+        <RelativeTime at={item.state_changed_at} absoluteTime={TIME_DURATION} />
       ) : (
         <MeterInline
           value={elapsed}
           maxValue={threshold * STUCK_METER_SCALE}
           threshold={threshold}
           tone={elapsed > threshold ? TONE.DANGER : TONE.NEUTRAL}
-          valueText={<RelativeTime at={item.state_entered_at} absoluteTime={TIME_DURATION} />}
+          valueText={<RelativeTime at={item.state_changed_at} absoluteTime={TIME_DURATION} />}
           valueLabel={t("credit-registration-admin-stuck-progress", {
             elapsed: formatDuration(elapsed, t),
             threshold: formatDuration(threshold, t),
@@ -173,7 +169,7 @@ const TimeInState: React.FC<{
         />
       )}
       <span className={noteCss}>
-        <ZonedTimestamp at={item.state_entered_at} />
+        <ZonedTimestamp at={item.state_changed_at} />
       </span>
     </span>
   )
@@ -188,24 +184,14 @@ const FacetChips: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const groups = attention.counts_by_reason.filter((group) => group.count > 0)
 
-  // The two narrowings select disjoint sets and the endpoint refuses them together, so picking one
-  // clears the other rather than quietly returning nothing.
   const toggleReason = (reason: CreditRegistrationAttentionReason) =>
     applyParams({
       [PARAM_REASON]: facets.reasons.includes(reason)
         ? facets.reasons.filter((one) => one !== reason)
         : [...facets.reasons, reason],
-      [PARAM_WITHOUT_REASON]: undefined,
     })
 
-  const toggleWithoutReason = () =>
-    applyParams({
-      [PARAM_WITHOUT_REASON]: facets.withoutReason ? undefined : TRUE,
-      [PARAM_REASON]: undefined,
-    })
-
-  const reasonTotal =
-    groups.reduce((sum, group) => sum + group.count, 0) + attention.flagged_without_reason_count
+  const reasonTotal = groups.reduce((sum, group) => sum + group.count, 0)
 
   return (
     <div className={sectionHeaderCss}>
@@ -219,14 +205,6 @@ const FacetChips: React.FC<{
             onToggle={() => toggleReason(group.reason)}
           />
         ))}
-        {attention.flagged_without_reason_count > 0 && (
-          <FacetChip
-            label={t("credit-registration-admin-reason-flagged-only")}
-            count={attention.flagged_without_reason_count}
-            isSelected={facets.withoutReason}
-            onToggle={toggleWithoutReason}
-          />
-        )}
         {thresholds && (
           <Tooltip aria-label={t("credit-registration-admin-about-stuck")}>
             {t("credit-registration-admin-stuck-thresholds", {
@@ -268,10 +246,9 @@ const AttentionQueueSection: React.FC = () => {
       return {
         page: pagination.page,
         limit: pagination.limit,
-        ...includeIf(!facets.withoutReason && facets.reasons.length > 0, {
+        ...includeIf(facets.reasons.length > 0, {
           reason: facets.reasons,
         }),
-        ...includeIf(facets.withoutReason, { without_reason: true }),
         ...includeIf(sort, { sort }),
       }
     },
@@ -315,12 +292,7 @@ const AttentionQueueSection: React.FC = () => {
 
   // A facet or a page turn changes which rows exist to act on; ticks they hide would otherwise
   // reappear in the toolbar's count once the narrowing is cleared again.
-  useEffect(clearSelection, [
-    facets.reasons.join(),
-    facets.withoutReason,
-    paginationInfo.page,
-    clearSelection,
-  ])
+  useEffect(clearSelection, [facets.reasons.join(), paginationInfo.page, clearSelection])
 
   const selectedKeys = new Set(selectedRowsById.keys())
   const selectedRows = Array.from(selectedRowsById.values())
@@ -355,9 +327,6 @@ const AttentionQueueSection: React.FC = () => {
           applyParams={applyParams}
           thresholds={thresholds}
         />
-      )}
-      {facets.withoutReason && (
-        <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-flagged-only-note")}</p>
       )}
       <div className={controlsCss}>
         <div className={controlCss}>
@@ -495,20 +464,13 @@ const AttentionQueueSection: React.FC = () => {
                   },
                 },
                 // Once a facet is picked every row carries it, so the column only repeats the chip.
-                ...(facets.reasons.length > 0 || facets.withoutReason
+                ...(facets.reasons.length > 0
                   ? []
                   : [
                       {
                         header: t("credit-registration-admin-column-reasons"),
                         minWidth: "10rem",
                         cell: (row: CreditRegistrationAttentionItem) => {
-                          if (row.reasons.length === 0) {
-                            return (
-                              <span className={noteCss}>
-                                {t("credit-registration-admin-reason-flagged-only")}
-                              </span>
-                            )
-                          }
                           const informative = row.reasons.filter(
                             (reason) => !REASONS_IMPLIED_BY_STATE.has(reason),
                           )

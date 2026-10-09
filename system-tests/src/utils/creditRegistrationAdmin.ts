@@ -86,6 +86,8 @@ export interface AdminRegistrationAttempt {
   sisu_attainment_id: string | null
   sisu_person_id: string | null
   next_attempt_at: string
+  /** Suotar's `retryAfter` for a pending submission. */
+  resubmit_not_before: string | null
   /** What the single-row hand transition would allow on this row. */
   hand_actions: {
     resubmission:

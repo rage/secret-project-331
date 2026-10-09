@@ -2,21 +2,18 @@ import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
+  CreditRegistrationNotificationKind,
   CreditRegistrationState,
+  StudentNumberVerificationMethod,
   TimelineStep,
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
+import { adminErrorShortLabel } from "./adminCreditRegistrationCopy"
 import { registrationStatusLines } from "./registrationStatus"
-import type { RegistrationStatusLines } from "./registrationStatus"
 import type { TimelineEntry } from "./timelineRows"
-import {
-  ATTENTION_STEPS,
-  ENGAGEMENT_STEPS,
-  FINISHED_STEPS,
-  timelineStepLabel,
-} from "./timelineSteps"
+import { ENGAGEMENT_STEPS, FINISHED_STEPS, timelineStepLabel } from "./timelineSteps"
 
 /** A column of the registration page's timeline; Starting registration is a column only there. */
 export type JourneyPhaseKey =
@@ -26,36 +23,50 @@ export type JourneyPhaseKey =
   | "registering"
   | "confirmation"
 
-/** Done (green check), current (blue clock) or upcoming (grey hollow circle). */
-export type JourneyStepStatus = "done" | "current" | "upcoming"
+/** `attention` is a step stopped until a person acts. */
+export type JourneyStepStatus = "done" | "current" | "attention" | "upcoming"
 
 /** One checklist line under a phase column. */
 export interface JourneyStep {
   key: string
   label: string
   status: JourneyStepStatus
-  /** Current, and waiting for a person. */
-  isAttention: boolean
   at: string | null
   /** Seconds since the step before it; null for the first step or one that came earlier. */
   secsAfterPrevious: number | null
-  /** One more fact about the step, such as how they enrolled. */
-  note: string | null
+  /** One more fact about the step, such as how they enrolled or what happens next. */
+  detail: string | null
   /** The events that led up to the step, or, for the current step, everything since. */
   entries: TimelineEntry[]
 }
 
-/** A skipped phase is one the registration passed without any of its steps happening. */
-export type JourneyPhaseStatus = "done" | "current" | "upcoming" | "skipped"
+/**
+ * A skipped phase is one the registration passed without any of its steps happening; `attention`
+ * is the current phase when it waits for a person.
+ */
+export type JourneyPhaseStatus = "done" | "current" | "attention" | "upcoming" | "skipped"
 
-/** One column of the timeline. */
+/** What stopped an `attention` phase, worded for the box under the timeline's steps. */
+export interface JourneyProblem {
+  /** Who it waits on, e.g. "Waiting for support". */
+  waitsOn: string
+  /** When it stopped. */
+  since: string
+  /** What is wrong, as facts. */
+  summary: string | null
+  /** A possible cause, worded as one. */
+  hint: string | null
+  /** Stuck on a student number that never got linked, which has its own actions. */
+  isStudentNumberStuck: boolean
+}
+
+/** One step of the timeline. */
 export interface JourneyPhase {
   key: JourneyPhaseKey
   status: JourneyPhaseStatus
   steps: JourneyStep[]
-  /** The current phase's two-line status. */
-  current: RegistrationStatusLines | null
-  /** How a finished phase ended, when it ended in something other than plain "done". */
+  problem: JourneyProblem | null
+  /** How the registration ended, on the Confirmation step of a finished one. */
   ending: TimelineStep | null
 }
 
@@ -89,13 +100,15 @@ const ACCEPTED_STATES: ReadonlySet<CreditRegistrationState> = new Set([
 
 type Event = AdminCreditRegistrationEvent
 
+const changedState = (event: Event): boolean =>
+  Boolean(event.to_state) && event.from_state !== event.to_state
+
 const firstReaching = (
   events: Event[],
   states: ReadonlySet<CreditRegistrationState>,
 ): string | null =>
-  events.find(
-    (event) => event.to_state && event.from_state !== event.to_state && states.has(event.to_state),
-  )?.created_at ?? null
+  events.find((event) => changedState(event) && event.to_state && states.has(event.to_state))
+    ?.created_at ?? null
 
 const firstSent = (events: Event[]): string | null => {
   const sent = events.find((event) => event.suotar_endpoint === "import_attainments")
@@ -126,56 +139,70 @@ interface Slot {
   key: string
   label: string
   at: string | null
-  note?: string | null
+  detail?: string | null
 }
 
-const toStep = (
-  slot: Slot,
-  status: JourneyStepStatus,
-): Omit<JourneyStep, "secsAfterPrevious" | "entries"> => ({
+type StepDraft = Omit<JourneyStep, "secsAfterPrevious" | "entries">
+
+const toStep = (slot: Slot, status: "done" | "upcoming"): StepDraft => ({
   key: slot.key,
   label: slot.label,
   status,
-  isAttention: false,
   at: status === "done" ? slot.at : null,
-  note: status === "done" ? (slot.note ?? null) : null,
+  detail: status === "done" ? (slot.detail ?? null) : null,
 })
 
+/** The newest attempt's own step, standing in for the slot it `replaces`, or added if none. */
+interface CurrentStep {
+  label: string
+  status: "current" | "attention"
+  detail: string | null
+  replaces: string | null
+}
+
 /**
- * One phase's steps: the slots that happened as done, then the row's current step, standing in for
- * the slot it `replaces` if any, then the rest as upcoming. In a phase the row has left, slots that
- * never happened are left out; in one it has not reached, the rest are all upcoming.
+ * One phase's steps: the slots that happened as done, the current step in its slot's place (or
+ * after the done ones), the rest as upcoming. In a phase the row has left, slots that never
+ * happened are left out.
  */
 const phaseSteps = (
   slots: Slot[],
-  phaseStatus: "past" | "current" | "future",
-  current: { label: string; isAttention: boolean; replaces: string | null } | null,
-): Omit<JourneyStep, "secsAfterPrevious" | "entries">[] => {
-  const done = slots.filter((slot) => slot.at !== null)
-  if (phaseStatus === "past") {
-    return done.map((slot) => toStep(slot, "done"))
+  position: "past" | "current" | "future",
+  current: CurrentStep | null,
+): StepDraft[] => {
+  if (position === "past") {
+    return slots.filter((slot) => slot.at !== null).map((slot) => toStep(slot, "done"))
   }
-  if (phaseStatus === "future") {
+  if (position === "future" || current === null) {
     return slots.map((slot) => toStep(slot, slot.at === null ? "upcoming" : "done"))
   }
-  const pending = slots.filter((slot) => slot.at === null)
-  const steps = done.map((slot) => toStep(slot, "done"))
-  if (current) {
+  const steps: StepDraft[] = []
+  let isPlaced = false
+  const place = (at: string | null) => {
     steps.push({
       key: current.replaces ?? "current",
       label: current.label,
-      status: "current",
-      isAttention: current.isAttention,
-      at: null,
-      note: null,
+      status: current.status,
+      // A rejected send keeps its time; a step still under way has none yet.
+      at,
+      detail: current.detail,
     })
+    isPlaced = true
   }
-  return [
-    ...steps,
-    ...pending
-      .filter((slot) => slot.key !== current?.replaces)
-      .map((slot) => toStep(slot, "upcoming")),
-  ]
+  for (const slot of slots) {
+    if (slot.key === current.replaces) {
+      place(slot.at)
+      continue
+    }
+    if (slot.at === null && !isPlaced && current.replaces === null) {
+      place(null)
+    }
+    steps.push(toStep(slot, slot.at === null ? "upcoming" : "done"))
+  }
+  if (!isPlaced) {
+    place(null)
+  }
+  return steps
 }
 
 /** The slot a current Registering or Confirmation step stands in for, and that slot's phase. */
@@ -196,26 +223,32 @@ const INSERTED_IN: Partial<Record<TimelineStep, JourneyPhaseKey>> = {
 }
 
 /**
- * Hands each event entry to the done step it led up to, and what came after the last one to the
+ * Hands each event entry to the timed step it led up to, and what came after the last one to the
  * current step, so expanding a step shows how it got there.
  */
 const attachEntries = (phases: JourneyPhase[], entries: TimelineEntry[]) => {
   const steps = phases.flatMap((phase) => phase.steps)
-  const done = steps
-    .filter((step) => step.status === "done" && step.at !== null)
-    .toSorted((a, b) => Date.parse(a.at ?? "") - Date.parse(b.at ?? ""))
-  const tail = steps.find((step) => step.status === "current") ?? done.at(-1)
+  const timed = steps
+    .flatMap((step) =>
+      step.at !== null && (step.status === "done" || step.status === "attention")
+        ? [{ step, at: Date.parse(step.at) }]
+        : [],
+    )
+    .toSorted((a, b) => a.at - b.at)
+  const tail =
+    steps.find((step) => step.status === "current" || step.status === "attention") ??
+    timed.at(-1)?.step
   for (const entry of entries) {
-    const owner = done.find((step) => Date.parse(step.at ?? "") >= Date.parse(entry.at)) ?? tail
+    const owner = timed.find(({ at }) => at >= Date.parse(entry.at))?.step ?? tail
     owner?.entries.push(entry)
   }
 }
 
-/** Fills in each done step's distance from the one before it, in reading order. */
+/** Fills in each timed step's distance from the one before it, in reading order. */
 const attachDurations = (phases: JourneyPhase[]) => {
   let previous: number | null = null
   for (const step of phases.flatMap((phase) => phase.steps)) {
-    if (step.status !== "done" || step.at === null) {
+    if (step.at === null) {
       continue
     }
     const at = Date.parse(step.at)
@@ -226,9 +259,15 @@ const attachDurations = (phases: JourneyPhase[]) => {
   }
 }
 
+const LINKED_VIA_KEYS = {
+  emailed_link: "credit-registration-admin-journey-linked-via-emailed-link",
+  admin_manual: "credit-registration-admin-journey-linked-via-admin-manual",
+  study_registry: "credit-registration-admin-journey-linked-via-study-registry",
+} as const satisfies Record<StudentNumberVerificationMethod, string>
+
 /**
- * The whole completion's story as phase columns, whichever attempt's page is open: the newest
- * attempt decides where it stands, and every attempt's events are in it.
+ * The whole completion's story as phases, whichever attempt's page is open: the newest attempt
+ * decides where it stands, and every attempt's events are in it.
  *
  * `entries` is `buildTimeline` over `details.events`.
  */
@@ -248,16 +287,25 @@ export const buildJourney = (
     const index = JOURNEY_PHASES.indexOf(phase)
     return index < currentIndex ? "past" : index === currentIndex ? "current" : "future"
   }
-  const isAttention = ATTENTION_STEPS.has(step) || newest.attention_standing === "needs_attention"
-  const currentStep = (
-    replaces: string | null,
-  ): { label: string; isAttention: boolean; replaces: string | null } => ({
+  const status = registrationStatusLines(
+    t,
+    newest,
+    details.linking_schedule,
+    details.linking_schedule?.unlinked_enrolled_before_count,
+  )
+  const isAttention = status.tone === "attention"
+  const currentStep = (replaces: string | null): CurrentStep => ({
     label: timelineStepLabel(t, step),
-    isAttention,
+    status: isAttention ? "attention" : "current",
+    // An attention step's story is told in the problem box.
+    detail: isAttention ? null : status.next,
     replaces,
   })
 
-  const pleaseRegister = details.notification_emails.find((mail) => mail.kind === "action_needed")
+  const mailSentAt = (kind: CreditRegistrationNotificationKind): string | null =>
+    details.notification_emails.find((mail) => mail.kind === kind)?.send_status.sent_at ?? null
+
+  const pleaseRegisterSentAt = mailSentAt("action_needed")
   const courseSlots: Slot[] = [
     {
       key: "course_started",
@@ -269,14 +317,16 @@ export const buildJourney = (
       label: t("credit-registration-admin-journey-course-finished"),
       at: newest.completion_date,
     },
+    ...(pleaseRegisterSentAt
+      ? [
+          {
+            key: "please_register_sent",
+            label: t("credit-registration-admin-journey-please-register-sent"),
+            at: pleaseRegisterSentAt,
+          },
+        ]
+      : []),
   ]
-  if (pleaseRegister?.send_status.sent_at) {
-    courseSlots.push({
-      key: "please_register_sent",
-      label: t("credit-registration-admin-journey-please-register-sent"),
-      at: pleaseRegister.send_status.sent_at,
-    })
-  }
 
   const startingSlots: Slot[] = [
     {
@@ -288,7 +338,7 @@ export const buildJourney = (
       key: "pressed",
       label: t("credit-registration-admin-journey-pressed"),
       at: journey.pressed_at ?? null,
-      note: journey.enrolment_route
+      detail: journey.enrolment_route
         ? t(
             journey.enrolment_route === "open_university"
               ? "credit-registration-admin-enrolment-route-open-university"
@@ -302,9 +352,10 @@ export const buildJourney = (
     ...details.attempts.map((attempt) => Date.parse(attempt.created_at)),
   )
   const linkedAt = newest.verified_student_number_at ?? null
+  const linkedVia = newest.verified_student_number_via ?? null
   const isReturning = linkedAt !== null && Date.parse(linkedAt) < firstCreatedAt
   const usedLinkingEmail =
-    newest.verified_student_number_via === "emailed_link"
+    linkedVia === "emailed_link"
       ? details.linking_emails.find(
           (mail) => mail.token_used_at && mail.token_claimed_by_user_id === newest.user_id,
         )
@@ -329,6 +380,9 @@ export const buildJourney = (
                 key: "linking_email_sent",
                 label: t("credit-registration-admin-journey-linking-email-sent"),
                 at: usedLinkingEmail.send_status.sent_at ?? null,
+                detail: t("credit-registration-admin-journey-emailed-to", {
+                  email: usedLinkingEmail.emailed_to,
+                }),
               },
             ]
           : []),
@@ -336,16 +390,20 @@ export const buildJourney = (
           key: "linked",
           label: t("credit-registration-admin-journey-linked"),
           at: linkedAt,
+          detail: linkedVia ? t(LINKED_VIA_KEYS[linkedVia]) : null,
         },
       ].filter((slot) => slot.at !== null)
 
   const enrolmentFoundAt = firstReaching(newestEvents, ENROLMENT_FOUND_STATES)
+  const sendCount = newestEvents.filter(
+    (event) => event.suotar_endpoint === "import_attainments",
+  ).length
   const registeringSlots: Slot[] = [
     {
       key: "enrolment_found",
       label: t("credit-registration-admin-journey-enrolment-found"),
       at: enrolmentFoundAt,
-      note:
+      detail:
         enrolmentFoundAt && journey.sisu_enrolled_at
           ? t("credit-registration-admin-journey-sisu-enrolment-time", {
               time: formatZonedTimestamp(new Date(journey.sisu_enrolled_at)),
@@ -356,6 +414,8 @@ export const buildJourney = (
       key: "sent",
       label: t("credit-registration-admin-journey-sent"),
       at: newest.submitted_at ?? firstSent(newestEvents),
+      detail:
+        sendCount > 1 ? t("credit-registration-admin-journey-tries", { count: sendCount }) : null,
     },
     {
       key: "accepted",
@@ -375,14 +435,30 @@ export const buildJourney = (
       label: t("credit-registration-admin-journey-course-unit"),
       at: newest.registered_at ?? null,
     },
+    {
+      key: "registered_email_sent",
+      label: t("credit-registration-admin-journey-registered-email-sent"),
+      at: mailSentAt("registered"),
+    },
   ]
 
-  const currentIn = (phase: JourneyPhaseKey) => {
+  const currentIn = (phase: JourneyPhaseKey): CurrentStep | null => {
     if (step === "needs_a_person") {
-      // Stopped at whichever Registering step it had not reached.
-      return phase === "registering"
-        ? currentStep(registeringSlots.find((slot) => slot.at === null)?.key ?? null)
-        : null
+      if (phase !== "registering") {
+        return null
+      }
+      // Stopped at the Registering step that went wrong; a rejected send keeps its own name.
+      const pending = registeringSlots.find((slot) => slot.at === null)
+      const failed =
+        pending?.key === "accepted" ? registeringSlots.find((slot) => slot.key === "sent") : pending
+      return failed
+        ? {
+            label: failed.label,
+            status: "attention",
+            detail: adminErrorShortLabel(t, newest.error_code),
+            replaces: failed.key,
+          }
+        : currentStep(null)
     }
     if (INSERTED_IN[step] === phase) {
       return currentStep(null)
@@ -391,7 +467,7 @@ export const buildJourney = (
     return replaced?.phase === phase ? currentStep(replaced.slot) : null
   }
 
-  const stepsOf = (phase: JourneyPhaseKey) => {
+  const stepsOf = (phase: JourneyPhaseKey): StepDraft[] => {
     const position = positionOf(phase)
     switch (phase) {
       case "course":
@@ -402,38 +478,49 @@ export const buildJourney = (
         }
         // What the student does next is the current step; there is no ledger step for it.
         const nextIndex = startingSlots.findIndex((slot) => slot.at === null)
-        return startingSlots.map((slot, index) => ({
-          key: slot.key,
-          label: slot.label,
-          status: (slot.at !== null
-            ? "done"
-            : index === nextIndex
-              ? "current"
-              : "upcoming") as JourneyStepStatus,
-          isAttention: false,
-          at: slot.at,
-          note: slot.at !== null ? (slot.note ?? null) : null,
-        }))
+        return startingSlots.map((slot, index) =>
+          index === nextIndex
+            ? { ...currentStep(null), key: slot.key, label: slot.label, at: null }
+            : toStep(slot, slot.at === null ? "upcoming" : "done"),
+        )
       }
-      case "student_number":
-        if (linkedAt === null) {
-          // Until they link, we do not know who they are in Sisu, so nothing more can be said.
-          return [
-            {
-              key: "not_linked",
-              label: timelineStepLabel(t, "waiting_for_student_number"),
-              status: (position === "current" ? "current" : "upcoming") as JourneyStepStatus,
-              isAttention: position === "current" && isAttention,
-              at: null,
-              note: null,
-            },
-          ]
+      case "student_number": {
+        if (linkedAt !== null) {
+          return phaseSteps(studentNumberSlots, position, null)
         }
-        return phaseSteps(studentNumberSlots, position, null)
+        // Until they link, we do not know who they are in Sisu, so nothing more can be said.
+        const notLinked = { ...currentStep(null), key: "not_linked", at: null }
+        return [
+          position === "current"
+            ? notLinked
+            : {
+                ...notLinked,
+                label: timelineStepLabel(t, "waiting_for_student_number"),
+                status: "upcoming",
+                detail: null,
+              },
+        ]
+      }
       case "registering":
         return phaseSteps(registeringSlots, position, currentIn(phase))
       case "confirmation":
         return phaseSteps(confirmationSlots, position, currentIn(phase))
+    }
+  }
+
+  const problem = (): JourneyProblem => {
+    const isStudentNumberStuck = newest.attention_reasons.includes("student_number_stuck")
+    // The stuck rule counts from the fetch that should have sent a linking email.
+    const stoppedAt = isStudentNumberStuck
+      ? details.linking_schedule?.last_mailing_fetch_started_at
+      : newestEvents.findLast((event) => changedState(event) && event.to_state === newest.state)
+          ?.created_at
+    return {
+      waitsOn: status.waitsOn,
+      since: stoppedAt ?? newest.phase_started_at,
+      summary: status.next,
+      hint: status.hint,
+      isStudentNumberStuck,
     }
   }
 
@@ -446,7 +533,9 @@ export const buildJourney = (
       steps,
       status:
         position === "current"
-          ? "current"
+          ? isAttention
+            ? "attention"
+            : "current"
           : steps.length > 0 && steps.every((one) => one.status === "done")
             ? "done"
             : position === "past" || isFinishedConfirmation
@@ -454,11 +543,8 @@ export const buildJourney = (
                 ? "skipped"
                 : "done"
               : "upcoming",
-      current:
-        position === "current"
-          ? registrationStatusLines(t, newest, details.linking_schedule)
-          : null,
-      ending: isFinishedConfirmation && step !== "registered" ? step : null,
+      problem: position === "current" && isAttention ? problem() : null,
+      ending: isFinishedConfirmation ? step : null,
     }
   })
   attachDurations(phases)

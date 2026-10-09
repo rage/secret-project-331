@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { ArrowRight } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
@@ -17,17 +16,12 @@ import {
   useAdminCreditRegistration,
   useCreditRegistrationAdminActions,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import {
-  attentionPhaseAnchorId,
-  auditForStudentHref,
-  needsAttentionHref,
-} from "@/components/credit-registration/admin/adminLinks"
-import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
+import { auditForStudentHref } from "@/components/credit-registration/admin/adminLinks"
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
-import LinkingMethodIcon from "@/components/credit-registration/admin/LinkingMethodIcon"
+import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
-import { registrationStatusLines } from "@/components/credit-registration/admin/registrationStatus"
+import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
 import {
   CallStatusCell,
@@ -45,13 +39,10 @@ import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
   STACKED,
   TABLE_STACK,
-  TIME_DURATION,
-  TIME_IN_TITLE,
   TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
@@ -61,14 +52,12 @@ import {
   headingCss,
   noteCss,
   pageTitleCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
-  sectionCss,
   sectionHeaderCss,
-  subheadingCss,
+  stackedCellCss,
   subsectionCss,
 } from "@/components/credit-registration/styles"
 import {
@@ -99,7 +88,6 @@ import {
   DescriptionList,
   Disclosure,
   QueryResult,
-  RelativeTime,
   Table,
 } from "@/shared-module/components"
 
@@ -108,8 +96,6 @@ const AUDIT_ROWS = 25
 
 /** A stable empty page, so the actor lookup below is not rebuilt on every render. */
 const NO_ACTIONS: CreditRegistrationAdminActionRow[] = []
-
-const ARROW_SIZE = 14
 
 const idRowCss = cx(
   rowCss,
@@ -126,42 +112,6 @@ const factsGridCss = css`
   ${respondToOrLarger.lg} {
     grid-template-columns: 1fr 1fr;
   }
-`
-
-const statusLinesCss = css`
-  display: grid;
-  gap: var(--space-2);
-`
-
-const waitsOnCss = css`
-  margin: 0;
-  font-size: var(--font-size-4);
-  font-weight: 600;
-  line-height: 1.25;
-`
-
-const nextCss = css`
-  margin: 0;
-  color: var(--color-gray-700);
-  font-size: var(--font-size-2);
-`
-
-const STATUS_RULE_CSS = {
-  neutral: css`
-    border-left: 4px solid var(--color-blue-600);
-  `,
-  attention: css`
-    border-left: 4px solid var(--color-red-700);
-  `,
-  done: css`
-    border-left: 4px solid var(--color-green-600);
-  `,
-}
-
-const arrowLinkCss = css`
-  display: inline-flex;
-  gap: var(--space-2);
-  align-items: center;
 `
 
 const JOIN_IDENTIFIERS = "\n"
@@ -251,9 +201,7 @@ const HeaderSection: React.FC<{
         {isLive && (
           <span className={noteCss}>
             {t("credit-registration-admin-live-updated")}{" "}
-            {/* Relative time, not absolute: the distance ticking down is what shows this row is
-                updating live. */}
-            <RelativeTime at={new Date(updatedAt).toISOString()} absoluteTime={TIME_IN_TITLE} />
+            <ZonedTimestamp at={new Date(updatedAt).toISOString()} />
           </span>
         )}
       </span>
@@ -261,93 +209,54 @@ const HeaderSection: React.FC<{
   )
 }
 
-/**
- * Who the registration waits on and what happens next, with what an admin can do about it. The
- * timeline's current phase and the Needs attention row say the same two lines.
- */
-const StatusCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+/** Where an older attempt's page points: the attempt that replaced it. */
+const SupersededCard: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   const row = details.registration
-
-  if (row.superseded) {
-    const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
-    return (
-      <section className={cx(sectionCardCss, STATUS_RULE_CSS.done)} aria-labelledby={headingId}>
-        <div className={statusLinesCss}>
-          <h2 id={headingId} className={waitsOnCss}>
-            {replacement
-              ? t("credit-registration-admin-replaced-by-attempt", {
-                  n: replacement.attempt_number,
-                })
-              : t("credit-registration-admin-replaced")}
-          </h2>
-          <p className={nextCss}>
-            {t("credit-registration-admin-superseded-was", {
-              state: timelineStepLabel(t, row.timeline_step),
-            })}
-          </p>
-        </div>
-        {row.superseded_by_id && (
-          <Link href={creditRegistrationItemRoute(row.superseded_by_id)} prefetch={false}>
-            {t("credit-registration-admin-open-replacement")}
-          </Link>
-        )}
-      </section>
-    )
-  }
-
-  const status = registrationStatusLines(
-    t,
-    row,
-    details.linking_schedule,
-    details.linking_schedule?.unlinked_enrolled_before_count,
-  )
+  const replacement = details.attempts.find((attempt) => attempt.id === row.superseded_by_id)
   return (
-    <section
-      className={cx(sectionCardCss, STATUS_RULE_CSS[status.tone])}
-      aria-labelledby={headingId}
-    >
-      <div className={statusLinesCss}>
-        <h2
-          id={headingId}
-          className={cx(waitsOnCss, status.tone === "attention" && TONE_INK["action-needed"])}
-        >
-          {status.waitsOn}
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {replacement
+            ? t("credit-registration-admin-replaced-by-attempt", { n: replacement.attempt_number })
+            : t("credit-registration-admin-replaced")}
         </h2>
-        {status.next && <p className={nextCss}>{status.next}</p>}
-        {status.hint && <p className={noteCss}>{status.hint}</p>}
-        {!row.terminal_at && (
-          <p className={noteCss}>
-            {t("label-credit-registration-in-phase-since")}{" "}
-            <RelativeTime at={row.phase_started_at} absoluteTime={TIME_DURATION} />
-            {MIDDLE_DOT}
-            <ZonedTimestamp at={row.phase_started_at} />
-          </p>
-        )}
-        {details.attention?.standing === "dismissed" && details.attention.dismissal_reason && (
-          <p className={noteCss}>
-            {t("credit-registration-admin-status-dismissed", {
-              reason: details.attention.dismissal_reason,
-            })}
-          </p>
-        )}
+        <p className={noteCss}>
+          {t("credit-registration-admin-superseded-was", {
+            state: timelineStepLabel(t, row.timeline_step),
+          })}
+        </p>
       </div>
-      {status.isHandledInNeedsAttention ? (
-        <Link
-          href={needsAttentionHref(attentionPhaseAnchorId("student_number"))}
-          prefetch={false}
-          className={arrowLinkCss}
-        >
-          {t("credit-registration-admin-handled-in-needs-attention")}
-          <ArrowRight size={ARROW_SIZE} aria-hidden />
+      {row.superseded_by_id && (
+        <Link href={creditRegistrationItemRoute(row.superseded_by_id)} prefetch={false}>
+          {t("credit-registration-admin-open-replacement")}
         </Link>
-      ) : (
-        <div className={subsectionCss}>
-          <h3 className={subheadingCss}>{t("label-actions")}</h3>
-          <AdminTransitionBlock registration={row} />
-        </div>
       )}
+    </section>
+  )
+}
+
+/** The hand actions on a registration with no problem box to carry them. */
+const ActionsSection: React.FC<{ details: AdminCreditRegistrationDetails }> = ({ details }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("label-actions")}
+        </h2>
+      </div>
+      {details.attention?.standing === "dismissed" && details.attention.dismissal_reason && (
+        <p className={noteCss}>
+          {t("credit-registration-admin-status-dismissed", {
+            reason: details.attention.dismissal_reason,
+          })}
+        </p>
+      )}
+      <AdminTransitionBlock registration={details.registration} />
     </section>
   )
 }
@@ -372,7 +281,7 @@ const FactsSection: React.FC<{
         <span className={rowCss}>
           <span className={codeValueCss}>{studentNumber}</span>
           {row.verified_student_number_via && (
-            <LinkingMethodIcon
+            <LinkingMethodLabel
               method={row.verified_student_number_via}
               linkedAt={row.verified_student_number_at}
             />
@@ -385,9 +294,14 @@ const FactsSection: React.FC<{
     ...(route ? [{ label: t("label-credit-registration-how-they-enrolled"), value: route }] : []),
     {
       label: t("label-credit-registration-grade"),
-      value: row.grade_id ? registrationGradeLabel(t, row.grade_id, row.grade_scale_id) : ABSENT,
+      value: row.grade_id
+        ? registrationGradeLabel(t, row.grade_id, row.grade_scale_id)
+        : t("credit-registration-admin-not-sent-yet"),
     },
-    { label: t("label-credits"), value: row.credits ?? ABSENT },
+    {
+      label: t("label-credits"),
+      value: row.credits ?? t("credit-registration-admin-not-sent-yet"),
+    },
     // Next to the grade we sent, which is the comparison that explains a "no improvement" verdict.
     ...(details.not_improved_attainment
       ? [
@@ -566,7 +480,16 @@ const ApiCallSection: React.FC<{
     return groupCalls(calls, eventByCall)
   }, [calls, events])
   if (calls.length === 0) {
-    return null
+    return (
+      <section className={sectionCardCss} aria-labelledby={headingId}>
+        <div className={sectionCardHeaderCss}>
+          <h2 id={headingId} className={headingCss}>
+            {t("credit-registration-heading-api-calls")}
+          </h2>
+        </div>
+        <p className={noteCss}>{t("credit-registration-admin-api-calls-none")}</p>
+      </section>
+    )
   }
   return (
     <section className={sectionCardCss} aria-labelledby={headingId}>
@@ -575,7 +498,6 @@ const ApiCallSection: React.FC<{
           {t("credit-registration-heading-api-calls-count", { count: calls.length })}
         </h2>
       </div>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-api-calls-note")}</p>
       <Table
         labelledBy={headingId}
         density={DENSITY_COMPACT}
@@ -639,10 +561,14 @@ const sendStatusColumns = <T extends { send_status: AdminLinkingEmail["send_stat
   {
     header: t("credit-registration-admin-send-status-header"),
     minWidth: "10rem",
-    cell: (mail) =>
-      [sendStatusLabel(t, mail.send_status.email_send_status), mail.send_status.failure_code]
-        .filter(Boolean)
-        .join(MIDDLE_DOT),
+    cell: (mail) => (
+      <span className={stackedCellCss}>
+        <span>{sendStatusLabel(t, mail.send_status.email_send_status)}</span>
+        {mail.send_status.failure_code && (
+          <code className={cx(noteCss, codeValueCss)}>{mail.send_status.failure_code}</code>
+        )}
+      </span>
+    ),
   },
   {
     header: t("label-credit-registration-handed-over"),
@@ -802,7 +728,7 @@ const RegistrationDetailPage: React.FC = () => {
       row
         ? {
             isLoading: false as const,
-            label: `${formatUserName(row)}${MIDDLE_DOT}${row.course_name}`,
+            label: formatUserName(row),
           }
         : { isLoading: true as const },
     ],
@@ -812,32 +738,45 @@ const RegistrationDetailPage: React.FC = () => {
 
   return (
     <QueryResult query={detailsQuery} refreshIndicator={QUIET_REFRESH}>
-      {(loaded) => (
-        <div className={sectionCardsCss}>
-          <div className={sectionCss}>
+      {(loaded) => {
+        const problem = phases.find((phase) => phase.problem)?.problem ?? null
+        return (
+          <div className={sectionCardsCss}>
             <HeaderSection
               row={loaded.registration}
               isLive={!loaded.registration.terminal_at}
               updatedAt={detailsQuery.dataUpdatedAt}
             />
-            <StatusCard details={loaded} />
+            {loaded.registration.superseded && <SupersededCard details={loaded} />}
+            <RegistrationJourney
+              phases={phases}
+              currentAttemptId={loaded.registration.id}
+              attemptNumber={context.attemptNumber}
+              showsAttempts={loaded.attempts.length > 1}
+              problemActions={
+                problem && !loaded.registration.superseded ? (
+                  <RegistrationProblemActions
+                    registration={loaded.registration}
+                    isStudentNumberStuck={problem.isStudentNumberStuck}
+                    unmailedEarlyEnroleeCount={
+                      loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
+                    }
+                  />
+                ) : null
+              }
+            />
+            {!problem && !loaded.registration.superseded && <ActionsSection details={loaded} />}
+            <FactsSection details={loaded} context={context} />
+            <ApiCallSection
+              calls={loaded.suotar_api_calls}
+              events={loaded.events}
+              context={context}
+            />
+            <LinkingSection mails={loaded.linking_emails} />
+            <NotificationSection mails={loaded.notification_emails} />
           </div>
-          <RegistrationJourney
-            phases={phases}
-            currentAttemptId={loaded.registration.id}
-            attemptNumber={context.attemptNumber}
-            showsAttempts={loaded.attempts.length > 1}
-          />
-          <FactsSection details={loaded} context={context} />
-          <ApiCallSection
-            calls={loaded.suotar_api_calls}
-            events={loaded.events}
-            context={context}
-          />
-          <LinkingSection mails={loaded.linking_emails} />
-          <NotificationSection mails={loaded.notification_emails} />
-        </div>
-      )}
+        )
+      }}
     </QueryResult>
   )
 }

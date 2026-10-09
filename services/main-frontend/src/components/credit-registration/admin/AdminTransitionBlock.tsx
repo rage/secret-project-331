@@ -27,6 +27,7 @@ import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
 import {
+  BUTTON_DESTRUCTIVE,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
@@ -55,6 +56,11 @@ import {
 
 interface Props {
   registration: AdminCreditRegistrationRow
+  /**
+   * Buttons only, in one row with the housekeeping ones set apart on the right, for a box that
+   * already says what is wrong; each dialog still explains its action.
+   */
+  isCompact?: boolean
 }
 
 interface Fields {
@@ -102,6 +108,20 @@ const actionRowCss = css`
 const housekeepingStartCss = css`
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-clear-300);
+`
+
+const compactCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
+
+/** Pushed to the far end: neither dismissing nor cancelling moves the registration forward. */
+const compactHousekeepingCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-left: auto;
 `
 
 const explanationCss = css`
@@ -246,19 +266,26 @@ const ActionRow: React.FC<{
   control: React.ReactNode
   explanation: React.ReactNode
   className?: string | undefined
-}> = ({ control, explanation, className }) => (
-  <li className={cx(actionRowCss, className)}>
-    <div>{control}</div>
-    <div className={explanationCss}>{explanation}</div>
-  </li>
-)
+}> = ({ control, explanation, className }) => {
+  const isCompact = React.useContext(CompactContext)
+  return isCompact ? (
+    control
+  ) : (
+    <li className={cx(actionRowCss, className)}>
+      <div>{control}</div>
+      <div className={explanationCss}>{explanation}</div>
+    </li>
+  )
+}
+
+const CompactContext = React.createContext(false)
 
 /**
  * The hand actions an admin has on one row, each beside what it does, led by the one that could
  * fix this failure. Dismissing the flag and cancelling come last, under a rule: neither is a
  * remedy, and cancelling is the only action that ends the registration.
  */
-const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
+const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   // Kept here rather than under its button: an applied action usually changes which actions the
@@ -484,13 +511,33 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             label={t("credit-registration-admin-target-cancel")}
             explanation={cancelExplanation}
             appliedMessage={t("credit-registration-admin-cancel-applied")}
-            triggerVariant={BUTTON_TERTIARY}
+            triggerVariant={isCompact ? BUTTON_DESTRUCTIVE : BUTTON_TERTIARY}
             isDestructive
             onResult={setLastResult}
           />
         }
         explanation={cancelExplanation}
       />,
+    )
+  }
+
+  if (isCompact) {
+    return (
+      <CompactContext.Provider value>
+        <div className={subsectionCss}>
+          {lastResult && (
+            <Infobox tone={lastResult.isApplied ? TONE.INFO : TONE.WARNING}>
+              {lastResult.message}
+            </Infobox>
+          )}
+          <div className={compactCss}>
+            {remedies}
+            {housekeeping.length > 0 && (
+              <span className={compactHousekeepingCss}>{housekeeping}</span>
+            )}
+          </div>
+        </div>
+      </CompactContext.Provider>
     )
   }
 

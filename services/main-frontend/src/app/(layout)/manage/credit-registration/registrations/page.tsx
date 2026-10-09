@@ -18,7 +18,7 @@ import {
   useCreditRegistrationOverview,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
-import LinkingMethodIcon from "@/components/credit-registration/admin/LinkingMethodIcon"
+import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
 import {
   ALL_STATES,
   BUCKET_OF_STATE,
@@ -674,7 +674,7 @@ const RegistrationsPage: React.FC = () => {
                           <span className={rowCss}>
                             <span className={codeValueCss}>{number}</span>
                             {row.verified_student_number_via && (
-                              <LinkingMethodIcon
+                              <LinkingMethodLabel
                                 method={row.verified_student_number_via}
                                 linkedAt={row.verified_student_number_at}
                               />

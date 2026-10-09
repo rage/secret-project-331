@@ -586,7 +586,7 @@ test("The audit tab tells the two actor kinds apart", async ({ page }) => {
     const rows = page
       .getByRole("table", { name: "Who acted on this, and why" })
       .getByRole("row")
-      .filter({ has: page.getByText(/^Admin( · |$)/) })
+      .filter({ has: page.getByText("Admin", { exact: true }) })
     await expect(rows).toHaveCount(0)
     await expect(page.getByText("Course teacher").first()).toBeVisible()
   })

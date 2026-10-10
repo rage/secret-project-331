@@ -191,7 +191,7 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 ]
 
 const searchCss = css`
-  min-width: 20rem;
+  min-width: min(20rem, 100%);
   flex: 1 1 20rem;
 `
 

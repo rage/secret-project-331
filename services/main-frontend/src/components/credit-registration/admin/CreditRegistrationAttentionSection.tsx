@@ -2,7 +2,6 @@
 
 import { css, cx } from "@emotion/css"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -197,9 +196,9 @@ const AlertRow: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
 const AlertLine: React.FC<{ alert: CreditRegistrationAlert }> = ({ alert }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
-    <Link href={ALERT_ROUTES[alert.id]} prefetch={false}>
+    <ActionLink href={ALERT_ROUTES[alert.id]} prefetch={false}>
       {alertSentence(t, alert, i18n.language)}
-    </Link>
+    </ActionLink>
   )
 }
 

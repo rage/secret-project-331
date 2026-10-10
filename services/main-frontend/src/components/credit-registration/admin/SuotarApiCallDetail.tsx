@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,7 +14,7 @@ import {
   creditRegistrationItemRoute,
   creditRegistrationSuotarApiCallRoute,
 } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
+import { Button, Dialog, Link, QueryResult, Table } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {

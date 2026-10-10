@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -90,6 +89,7 @@ import {
   Disclosure,
   QueryResult,
   Table,
+  Link,
 } from "@/shared-module/components"
 
 /** The actor names the timeline needs; older actions are a click away in the audit log. */

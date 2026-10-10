@@ -57,8 +57,6 @@ export interface JourneyProblem {
   since: string
   /** What is wrong, as facts. */
   summary: React.ReactNode
-  /** A possible cause, worded as one. */
-  hint: string | null
   /** Stuck on a student number that never got linked, which has its own actions. */
   isStudentNumberStuck: boolean
 }
@@ -316,12 +314,7 @@ export const buildJourney = (
     const index = JOURNEY_PHASES.indexOf(phase)
     return index < currentIndex ? "past" : index === currentIndex ? "current" : "future"
   }
-  const status = registrationStatusLines(
-    t,
-    newest,
-    details.linking_schedule,
-    details.linking_schedule?.unlinked_enrolled_before_count,
-  )
+  const status = registrationStatusLines(t, newest, details.linking_schedule)
   const isAttention = status.tone === "attention"
   const currentSubstep = (replaces: string | null): CurrentSubstep => ({
     label: timelineStepLabel(t, timelineStep),
@@ -552,7 +545,6 @@ export const buildJourney = (
       waitsOn: status.waitsOn,
       since: stoppedAt ?? newest.phase_started_at,
       summary: status.next,
-      hint: status.hint,
       isStudentNumberStuck,
     }
   }

@@ -330,8 +330,7 @@ const timelineCss = css`
   .tl-problem-body p {
     margin: 0;
   }
-  .tl-problem-since,
-  .tl-problem-hint {
+  .tl-problem-since {
     color: var(--muted);
     font-size: var(--font-size-1);
   }
@@ -765,7 +764,6 @@ const ProblemBox: React.FC<{
           <ZonedTimestamp at={problem.since} />
         </span>
         {problem.summary && <p>{problem.summary}</p>}
-        {problem.hint && <p className="tl-problem-hint">{problem.hint}</p>}
         {actions && <div className="tl-problem-actions">{actions}</div>}
       </div>
     </section>

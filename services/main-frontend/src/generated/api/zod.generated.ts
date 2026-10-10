@@ -354,11 +354,6 @@ export const zAdminLinkingSchedule = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   next_fetch_at: z.iso.datetime(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
 })
 
 export const zAdminManualLinkOutcome = z.enum([
@@ -1726,11 +1721,6 @@ export const zAccountLinkingPresser = z.object({
   next_fetch_at: z.iso.datetime().nullish(),
   pressed_at: z.iso.datetime(),
   uh_course_code: z.string().nullish(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
   user_id: z.uuid(),
 })
 
@@ -6822,11 +6812,6 @@ export const zCreditRegistrationAttentionItem = z.object({
   student_number: z.string().nullish(),
   timeline_step: zTimelineStep,
   uh_course_code: z.string().nullish(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
   user_id: z.uuid(),
   waits_on: zWaitsOn,
 })

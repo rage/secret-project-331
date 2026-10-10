@@ -170,11 +170,6 @@ export type AccountLinkingPresser = {
   next_fetch_at?: string | null
   pressed_at: string
   uh_course_code?: string | null
-  /**
-   * The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
-   * one of them.
-   */
-  unlinked_enrolled_before_count?: number | null
   user_id: string
 }
 
@@ -721,10 +716,6 @@ export type AdminLinkingSchedule = {
    */
   linking_emails_since_press: number
   next_fetch_at: string
-  /**
-   * See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
-   */
-  unlinked_enrolled_before_count?: number | null
 }
 
 export type AdminManualLinkOutcome =
@@ -2539,11 +2530,6 @@ export type CreditRegistrationAttentionItem = {
   student_number?: string | null
   timeline_step: TimelineStep
   uh_course_code?: string | null
-  /**
-   * From the code's last enrolment list that fed account linking: people who enrolled before
-   * account linking began and are linked to no account, so no linking email went to them.
-   */
-  unlinked_enrolled_before_count?: number | null
   user_id: string
   waits_on: WaitsOn
 }

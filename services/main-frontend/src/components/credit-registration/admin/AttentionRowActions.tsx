@@ -64,7 +64,7 @@ type RowAction = {
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
-  const stuckActions = useStudentNumberStuckActions(item.unlinked_enrolled_before_count)
+  const stuckActions = useStudentNumberStuckActions()
   const [lastResult, setLastResult] = useState<ActionResult | null>(null)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const fetchNow = useFetchEnrolmentListNow(item.uh_course_code ?? "")

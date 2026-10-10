@@ -175,9 +175,6 @@ pub struct AccountLinkingPresser {
     pub last_linking_email_on_code_at: Option<DateTime<Utc>>,
     pub is_enrolment_list_empty: bool,
     pub is_fetch_failing: bool,
-    /// The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
-    /// one of them.
-    pub unlinked_enrolled_before_count: Option<i32>,
     /// Carries `student_number_stuck`; its actions live on Needs attention.
     pub is_stuck: bool,
     /// Counted in Needs attention: stuck, and neither dismissed nor explained by a blocking problem.
@@ -725,8 +722,6 @@ pub async fn get_account_linking_stats(
                 last_linking_email_on_code_at: row.last_linking_email_on_code_at,
                 is_enrolment_list_empty: code.is_some_and(|code| code.is_enrolment_list_empty),
                 is_fetch_failing: code.is_some_and(|code| code.is_fetch_failing),
-                unlinked_enrolled_before_count: code
-                    .and_then(|code| code.unlinked_enrolled_before_count),
                 is_stuck: stuck_needs_attention.is_some(),
                 needs_attention: stuck_needs_attention.unwrap_or(false),
             }

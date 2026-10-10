@@ -25,6 +25,7 @@ import type {
   AccountLinkingRecentEmail,
   AccountLinkingStaleAddress,
   AccountLinkingStats,
+  CreditRegistrationAttentionReason,
   EmailSendStatus,
   StudentNumberVerificationMethod,
   StudyRegistryStudentNumberConflict,
@@ -75,6 +76,7 @@ import {
   subsectionCss,
 } from "../styles"
 import {
+  attentionReasonLabel,
   enrolmentRouteLabel,
   listingErrorLabel,
   sendStatusLabel,
@@ -125,6 +127,7 @@ const ADMIN_MANUAL: StudentNumberVerificationMethod = "admin_manual"
 const STUCK_DELTA_TONE: StatTileDeltaTone = "negative"
 const WAITING_FOR_STUDENT_NUMBER: TimelineStep = "waiting_for_student_number"
 const WAITING_FOR_STUDENT_NUMBER_PHASE: TimelinePhase = "student_number"
+const STUDENT_NUMBER_STUCK: CreditRegistrationAttentionReason = "student_number_stuck"
 
 /** Capped, so the count does not sit a screen away from the domain it belongs to. */
 const narrowTableCss = css`
@@ -215,16 +218,10 @@ const HealthBanner: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   )
 }
 
-const unmailedEarlyEnrolees = (row: AccountLinkingPresser): number =>
-  row.unlinked_enrolled_before_count ?? 0
-
 /** Where a presser's linking email stands, from what is known about their course code. */
 const presserStatus = (t: CreditRegistrationTFunction, row: AccountLinkingPresser): string => {
   if (row.is_stuck) {
-    // The stuck rule also fires when emails did go out, if the code has unmailed early enrolees.
-    return unmailedEarlyEnrolees(row) > 0
-      ? t("credit-registration-admin-status-student-number-stuck")
-      : t("credit-registration-admin-presser-stuck")
+    return attentionReasonLabel(t, STUDENT_NUMBER_STUCK)
   }
   if (row.is_fetch_failing) {
     return t("credit-registration-admin-presser-fetch-failing")
@@ -253,13 +250,6 @@ const PresserStatusCell: React.FC<{ row: AccountLinkingPresser }> = ({ row }) =>
   return (
     <span className={stackedCellCss}>
       <span>{presserStatus(t, row)}</span>
-      {row.is_stuck && unmailedEarlyEnrolees(row) > 0 && (
-        <span className={noteCss}>
-          {t("credit-registration-admin-status-unmailed-early-enrolees", {
-            count: unmailedEarlyEnrolees(row),
-          })}
-        </span>
-      )}
       {row.is_stuck && (
         <Link
           href={needsAttentionHref(attentionPhaseAnchorId(WAITING_FOR_STUDENT_NUMBER_PHASE))}
@@ -275,14 +265,14 @@ const PresserStatusCell: React.FC<{ row: AccountLinkingPresser }> = ({ row }) =>
 }
 
 /**
- * A stuck presser on a code with unmailed early enrolees gets the guess; anyone else a fetch, until
- * one that could email them has run since the press.
+ * A stuck presser gets the guess while account linking is on; anyone else a fetch, until one that
+ * could email them has run since the press.
  */
 const PresserAction: React.FC<{ row: AccountLinkingPresser; isLinkingEnabled: boolean }> = ({
   row,
   isLinkingEnabled,
 }) => {
-  if (row.is_stuck && isLinkingEnabled && unmailedEarlyEnrolees(row) > 0) {
+  if (row.is_stuck && isLinkingEnabled) {
     return (
       <AdminLinkingCandidatesButton
         registrationId={row.credit_registration_id}

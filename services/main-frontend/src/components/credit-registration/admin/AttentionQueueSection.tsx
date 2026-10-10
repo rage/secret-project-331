@@ -71,17 +71,12 @@ const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total
 }
 
 /**
- * What is wrong first, then what to do, whom it waits on and any hint. An unclear answer's next
- * step is advice, so its step name is what says what is wrong.
+ * What is wrong first, then what to do and whom it waits on. An unclear answer's next step is
+ * advice, so its step name is what says what is wrong.
  */
 const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const status = registrationStatusLines(
-    t,
-    attentionItemStatusSubject(item),
-    null,
-    item.unlinked_enrolled_before_count,
-  )
+  const status = registrationStatusLines(t, attentionItemStatusSubject(item), null)
   const diagnosis =
     item.timeline_step === ANSWER_UNCLEAR ? timelineStepLabel(t, item.timeline_step) : null
   const [lead, ...notes] = [diagnosis, status.next, status.waitsOn].filter(Boolean)
@@ -93,7 +88,6 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
           {line}
         </span>
       ))}
-      {status.hint && <span className={noteCss}>{status.hint}</span>}
     </span>
   )
 }

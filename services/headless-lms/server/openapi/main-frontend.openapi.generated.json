@@ -14615,11 +14615,6 @@
           "uh_course_code": {
             "type": ["string", "null"]
           },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be\none of them."
-          },
           "user_id": {
             "type": "string",
             "format": "uuid"
@@ -15957,11 +15952,6 @@
           "next_fetch_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`]."
           }
         }
       },
@@ -20866,11 +20856,6 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "From the code's last enrolment list that fed account linking: people who enrolled before\naccount linking began and are linked to no account, so no linking email went to them."
           },
           "user_id": {
             "type": "string",

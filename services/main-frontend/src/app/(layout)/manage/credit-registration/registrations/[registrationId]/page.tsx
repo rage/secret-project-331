@@ -781,9 +781,6 @@ const RegistrationDetailPage: React.FC = () => {
                       registration={loaded.registration}
                       isStudentNumberStuck={problem.isStudentNumberStuck}
                       isDismissed={loaded.attention?.standing === "dismissed"}
-                      unmailedEarlyEnroleeCount={
-                        loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
-                      }
                     />
                   </>
                 ) : null

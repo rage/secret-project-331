@@ -18,14 +18,11 @@ export interface StudentNumberStuckAction {
 
 /**
  * The linking actions for a student stuck without a student number, best first: a guess from the
- * enrolment list when the code has unmailed early enrolees, then linking by hand.
+ * enrolment list while account linking is on, then linking by hand.
  */
-export const useStudentNumberStuckActions = (
-  unmailedEarlyEnroleeCount: number | null | undefined,
-): StudentNumberStuckAction[] => {
+export const useStudentNumberStuckActions = (): StudentNumberStuckAction[] => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
-  const canGuess = isAccountLinkingEnabled && (unmailedEarlyEnroleeCount ?? 0) > 0
+  const canGuess = useIsAccountLinkingEnabled()
   const linkByHand: StudentNumberStuckAction = {
     key: LINK_BY_HAND,
     label: failureActionLabel(t, LINK_BY_HAND),

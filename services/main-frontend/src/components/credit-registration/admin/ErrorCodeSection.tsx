@@ -199,7 +199,9 @@ const ErrorCodeSection: React.FC<{
                   align: ALIGN_END,
                   minWidth: "9rem",
                   cell: (row) =>
-                    row.live_count === 0 ? null : (
+                    row.live_count === 0 ? (
+                      0
+                    ) : (
                       <span className={stackedCellCss}>
                         <Link
                           href={registrationsListHref({

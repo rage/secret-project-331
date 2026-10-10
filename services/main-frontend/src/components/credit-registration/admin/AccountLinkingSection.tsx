@@ -167,7 +167,7 @@ const healthListCss = css`
   padding-left: var(--space-5);
 `
 
-/** A count left empty at zero, so the counts that matter stand out. */
+/** A count, or null at zero or when unknown: for leaving out list items and notes that would say none. */
 const nonZero = (count: number | null | undefined): number | null =>
   count === null || count === undefined || count === 0 ? null : count
 
@@ -673,7 +673,7 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
           header: t("credit-registration-admin-column-pressed-waiting"),
           align: ALIGN_END,
           minWidth: "7rem",
-          cell: (row) => nonZero(row.pressed_waiting_count),
+          cell: (row) => row.pressed_waiting_count,
         },
         {
           header: t("credit-registration-admin-column-last-fetched"),

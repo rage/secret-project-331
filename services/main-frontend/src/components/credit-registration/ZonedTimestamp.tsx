@@ -12,11 +12,14 @@ import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTi
 const DATE_LENGTH = 10
 const TIME_START = 11
 
-// Timestamps land in translated sentences and table cells as plain strings, where only
-// no-break spaces stop a line break inside one; a range may still break after its dash.
+// Timestamps land in translated sentences and table cells as plain strings, where a line can break
+// at a space or after a hyphen; a range may still break after its dash.
 const NO_BREAK_SPACE = "\u00A0"
+// Not U+2011: Inter lacks it, and the fallback glyph is narrower than a hyphen.
+const WORD_JOINER = "\u2060"
 
-const unbroken = (text: string): string => text.replaceAll(" ", NO_BREAK_SPACE)
+const unbroken = (text: string): string =>
+  text.replaceAll(" ", NO_BREAK_SPACE).replaceAll("-", `-${WORD_JOINER}`)
 
 const nowrapCss = css`
   white-space: nowrap;

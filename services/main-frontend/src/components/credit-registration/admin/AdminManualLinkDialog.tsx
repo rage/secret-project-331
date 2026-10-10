@@ -47,6 +47,7 @@ import {
   controlsCss,
   dialogFormCss,
   dividedListCss,
+  fieldActionCss,
   noteCss,
   spacedRowCss,
   subheadingCss,
@@ -146,6 +147,7 @@ const AccountPicker: React.FC<{
           type="submit"
           variant={isCurrentStep ? BUTTON_PRIMARY : BUTTON_SECONDARY}
           size="medium"
+          className={fieldActionCss}
           disabled={accountsQuery.isFetching}
         >
           {t("button-text-search")}
@@ -261,6 +263,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
             // A wizard reads top to bottom: this is the first thing to do until it is done.
             variant={preview?.found === true ? BUTTON_SECONDARY : BUTTON_PRIMARY}
             size="medium"
+            className={fieldActionCss}
             disabled={previewMutation.isPending}
             onClick={async () => {
               // A mistyped number is caught here rather than looked up in Sisu.

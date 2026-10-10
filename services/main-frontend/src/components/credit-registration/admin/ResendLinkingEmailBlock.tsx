@@ -14,7 +14,7 @@ import { Button, Infobox, TextField } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { RESEND_QUEUED, resendOutcomeLabel } from "../resendOutcome"
-import { controlCss, controlsCss, dialogFormCss } from "../styles"
+import { controlCss, controlsCss, dialogFormCss, fieldActionCss } from "../styles"
 import { linkingEmailSentence } from "../teacherCreditRegistrations"
 
 interface Props {
@@ -59,7 +59,13 @@ const ResendLinkingEmailBlock: React.FC<Props> = ({ registration }) => {
           className={controlCss}
           label={t("label-student-number")}
         />
-        <Button variant="secondary" size="medium" type="submit" disabled={mutation.isPending}>
+        <Button
+          variant="secondary"
+          size="medium"
+          type="submit"
+          disabled={mutation.isPending}
+          className={fieldActionCss}
+        >
           {t("button-text-resend-linking-email")}
         </Button>
       </div>

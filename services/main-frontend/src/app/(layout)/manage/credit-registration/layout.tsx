@@ -63,15 +63,35 @@ const wideCss = css`
 `
 
 const PLAIN_TEXT = "text/plain"
+const HTML = "text/html"
+const NO_BREAK_SPACE = "\u00A0"
+// What `innerHTML` writes for U+00A0.
+const NBSP_ENTITY = "&nbsp;"
+const SPACE = " "
 
-/** Timestamps hold word joiners to keep lines from breaking after their hyphens; copied text drops them. */
-const stripWordJoinersOnCopy = (event: React.ClipboardEvent) => {
-  const text = window.getSelection()?.toString() ?? ""
-  if (!text.includes(WORD_JOINER)) {
+/**
+ * Timestamps hold word joiners to keep lines from breaking after their hyphens, and no-break
+ * spaces; copied text drops both so it pastes into a search or psql.
+ */
+const cleanTimestampsOnCopy = (event: React.ClipboardEvent) => {
+  const selection = window.getSelection()
+  const text = selection?.toString() ?? ""
+  if (!selection || !text.includes(WORD_JOINER)) {
     return
   }
   event.preventDefault()
-  event.clipboardData.setData(PLAIN_TEXT, text.replaceAll(WORD_JOINER, ""))
+  event.clipboardData.setData(
+    PLAIN_TEXT,
+    text.replaceAll(WORD_JOINER, "").replaceAll(NO_BREAK_SPACE, SPACE),
+  )
+  const container = document.createElement("div")
+  for (let index = 0; index < selection.rangeCount; index++) {
+    container.append(selection.getRangeAt(index).cloneContents())
+  }
+  event.clipboardData.setData(
+    HTML,
+    container.innerHTML.replaceAll(WORD_JOINER, "").replaceAll(NBSP_ENTITY, SPACE),
+  )
 }
 
 const ADMINISTRATE_CREDIT_REGISTRATIONS = [
@@ -165,7 +185,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div className={cx(sectionsCss, wideCss)} onCopy={stripWordJoinersOnCopy}>
+      <div className={cx(sectionsCss, wideCss)} onCopy={cleanTimestampsOnCopy}>
         <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />

@@ -1,18 +1,26 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import InlineParts from "@/components/credit-registration/InlineParts"
-import { getCreditRegistrationAttentionItemsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getAccountLinkingUnlinkedEnroleesQueryKey,
+  getCreditRegistrationAttentionItemsQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import type { AdminLinkingCandidate, AdminLinkingCourse } from "@/generated/api/types.generated"
+import type {
+  AdminLinkingCandidate,
+  AdminLinkingCourse,
+  AdminUnlinkedEnrolees,
+} from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { ComboBox, Dialog, Infobox, Radio, RadioGroup, TextField } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
+import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
@@ -23,6 +31,7 @@ import {
 } from "./adminCreditRegistrationHooks"
 import {
   candidateFacts,
+  candidateFullName,
   candidateListCss,
   candidateName,
   ResendOutcomeNotice,
@@ -40,14 +49,8 @@ const DEFAULT_FIELDS: Fields = { course_id: null, filter: "", student_number: ""
 const courseLabel = (course: AdminLinkingCourse) =>
   `${course.course_name} (${course.course_codes.join(", ")})`
 
-const matchesFilter = (person: AdminLinkingCandidate, filter: string): boolean => {
-  const needle = filter.trim().toLocaleLowerCase()
-  const fullName = [person.first_names, person.last_name].filter(Boolean).join(" ")
-  return [fullName, person.email, person.student_number]
-    .join("\n")
-    .toLocaleLowerCase()
-    .includes(needle)
-}
+const searchText = (person: AdminLinkingCandidate): string =>
+  [candidateFullName(person), person.email, person.student_number].join("\n").toLocaleLowerCase()
 
 /**
  * Lets an admin send a linking email by hand to anyone on a course's enrolment lists who has no
@@ -57,7 +60,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
-  const { control, handleSubmit, watch, reset, setValue } = useForm<Fields>({
+  const { control, handleSubmit, watch, reset } = useForm<Fields>({
     defaultValues: DEFAULT_FIELDS,
   })
   const courseId = watch("course_id")
@@ -66,14 +69,18 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
   const enroleesQuery = useUnlinkedEnrolees(courseId, isOpen)
 
   useEffect(() => {
-    setValue("filter", "")
-    setValue("student_number", "")
-  }, [courseId, setValue])
+    reset({ ...DEFAULT_FIELDS, course_id: courseId })
+  }, [courseId, reset])
 
-  const data = enroleesQuery.data
-  const people = data?.people ?? []
-  const shownPeople = people.filter((person) => matchesFilter(person, filter))
-  const picked = shownPeople.find((person) => person.student_number === watch("student_number"))
+  const enrolees = enroleesQuery.data
+  const people = useMemo(() => enrolees?.people ?? [], [enrolees])
+  const searchTexts = useMemo(() => people.map((person) => searchText(person)), [people])
+  const shownPeople = useMemo(() => {
+    const needle = filter.trim().toLocaleLowerCase()
+    return people.filter((_, index) => searchTexts[index]?.includes(needle))
+  }, [people, searchTexts, filter])
+  const studentNumber = watch("student_number")
+  const picked = shownPeople.find((person) => person.student_number === studentNumber)
   const isNotEmailedShown = showsNotEmailed(people)
   const course = coursesQuery.data?.find((one) => one.course_id === courseId)
 
@@ -87,7 +94,23 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
           credit_registration_id: null,
         },
       }),
-    () => void enroleesQuery.refetch(),
+    (sent, target) => {
+      if (sent.outcome !== RESEND_QUEUED) {
+        return
+      }
+      queryClient.setQueryData<AdminUnlinkedEnrolees>(
+        getAccountLinkingUnlinkedEnroleesQueryKey({ path: { course_id: target.course_id } }),
+        (current) =>
+          current && {
+            ...current,
+            people: current.people.map((person) =>
+              person.student_number === target.student_number
+                ? { ...person, linking_emails_for_course: person.linking_emails_for_course + 1 }
+                : person,
+            ),
+          },
+      )
+    },
   )
 
   const closeDialog = () => {
@@ -162,15 +185,15 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
         {courseId && enroleesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}
-        {data?.study_registry_unavailable && (
+        {enrolees?.study_registry_unavailable && (
           <Infobox tone={TONE.WARNING}>
             {t("credit-registration-admin-linking-candidates-unavailable")}
           </Infobox>
         )}
-        {data && !data.study_registry_unavailable && people.length === 0 && (
+        {enrolees && !enrolees.study_registry_unavailable && people.length === 0 && (
           <p className={proseCss}>{t("credit-registration-admin-send-linking-email-none")}</p>
         )}
-        {data && course && people.length > 0 && (
+        {enrolees && course && people.length > 0 && (
           <>
             <p className={proseCss}>
               {t("credit-registration-admin-send-linking-email-intro", {

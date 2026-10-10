@@ -56,6 +56,7 @@ import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { candidateFullName } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import StudentCell from "./StudentCell"
 
@@ -290,11 +291,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
                     <span className={noteCss}>
                       {t("credit-registration-admin-manual-link-sisu-holds")}
                     </span>
-                    <span>
-                      {[preview.first_names, preview.last_name].filter(Boolean).join(" ") || (
-                        <AbsentValue />
-                      )}
-                    </span>
+                    <span>{candidateFullName(preview) || <AbsentValue />}</span>
                   </span>
                   <span className={identityCss}>
                     <span className={noteCss}>

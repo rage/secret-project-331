@@ -16499,7 +16499,7 @@
             "items": {
               "$ref": "#/components/schemas/AdminLinkingCandidate"
             },
-            "description": "By last name, then first names."
+            "description": "By last name, then first names, ignoring case; people with no last name last."
           },
           "study_registry_unavailable": {
             "type": "boolean",

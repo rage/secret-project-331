@@ -949,7 +949,7 @@ export type AdminUnlinkStudentNumberResult = {
  */
 export type AdminUnlinkedEnrolees = {
   /**
-   * By last name, then first names.
+   * By last name, then first names, ignoring case; people with no last name last.
    */
   people: Array<AdminLinkingCandidate>
   /**

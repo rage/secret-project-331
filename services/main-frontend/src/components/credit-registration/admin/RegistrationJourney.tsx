@@ -68,10 +68,6 @@ const timelineCss = css`
   color: var(--color-gray-700);
   overflow-wrap: anywhere;
 
-  time {
-    font-variant-numeric: tabular-nums;
-  }
-
   .tl-node {
     flex: none;
     position: relative;

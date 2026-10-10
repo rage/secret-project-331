@@ -356,7 +356,6 @@ export const breakAnywhereCss = css`
 export const codeValueCss = css`
   font-family: ${primaryFont};
   font-feature-settings: normal;
-  font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 `
 

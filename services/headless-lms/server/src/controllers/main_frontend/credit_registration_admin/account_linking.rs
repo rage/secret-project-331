@@ -1,6 +1,6 @@
 //! The account-linking funnel, resending and hand-resolving linking mails, and manual links.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
@@ -30,6 +30,7 @@ use headless_lms_models::verified_student_numbers::{
     self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
 };
 use headless_lms_utils::secret_string::expose_option;
+use indexmap::IndexMap;
 use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
@@ -1184,7 +1185,8 @@ pub async fn get_account_linking_courses(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let mut courses: Vec<AdminLinkingCourse> = Vec::new();
+    let mut courses: IndexMap<Uuid, AdminLinkingCourse> = IndexMap::new();
+    let mut seen_codes: HashSet<(Uuid, String)> = HashSet::new();
     for row in course_module_suotar_configurations::get_active_discovery_reports(&mut conn).await? {
         let Some(code) = row
             .uh_course_code
@@ -1194,24 +1196,18 @@ pub async fn get_account_linking_courses(
         else {
             continue;
         };
-        let course = match courses
-            .iter_mut()
-            .find(|course| course.course_id == row.course_id)
-        {
-            Some(course) => course,
-            None => {
-                courses.push(AdminLinkingCourse {
-                    course_id: row.course_id,
-                    course_name: row.course_name,
-                    course_codes: Vec::new(),
-                });
-                courses.last_mut().expect("just pushed")
-            }
-        };
-        if !course.course_codes.iter().any(|known| known == code) {
+        let course = courses
+            .entry(row.course_id)
+            .or_insert_with(|| AdminLinkingCourse {
+                course_id: row.course_id,
+                course_name: row.course_name.clone(),
+                course_codes: Vec::new(),
+            });
+        if seen_codes.insert((row.course_id, code.to_string())) {
             course.course_codes.push(code.to_string());
         }
     }
+    let courses: Vec<AdminLinkingCourse> = courses.into_values().collect();
 
     token.authorized_ok(web::Json(courses))
 }
@@ -1618,7 +1614,7 @@ async fn count_linking_emails_for_course(
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
-    let mails_by_person =
+    Ok(
         credit_registration_account_linking_emails::count_mails_per_person_for_course(
             conn,
             &person_ids,
@@ -1626,8 +1622,8 @@ async fn count_linking_emails_for_course(
         )
         .await?
         .into_iter()
-        .collect();
-    Ok(mails_by_person)
+        .collect(),
+    )
 }
 
 fn to_linking_candidate(

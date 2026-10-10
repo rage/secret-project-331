@@ -115,6 +115,8 @@ const alertSentenceCss = css`
 
 const alertActionCss = css`
   flex: none;
+  /* Centres the button on the sentence's 24px first line instead of hanging below it. */
+  margin-top: calc((24px - var(--control-height-sm)) / 2);
 `
 
 const alertIconCss = css`

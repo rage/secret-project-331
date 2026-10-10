@@ -638,8 +638,8 @@ export type AdminDismissStudyRegistryConflictPayload = {
 }
 
 /**
- * A person on the code's enrolment list whom no linking email reached because they enrolled before
- * account linking began, and who may be the waiting student.
+ * A person on a course's enrolment list whom no account is linked to, whom support can send a
+ * linking email.
  */
 export type AdminLinkingCandidate = {
   /**
@@ -653,11 +653,12 @@ export type AdminLinkingCandidate = {
   first_names?: string | null
   last_name?: string | null
   /**
-   * Linking emails they have had for the registration's course, replaced ones included.
+   * Linking emails they have had for the course, replaced ones included.
    */
   linking_emails_for_course: number
   /**
-   * What they share with the student's account; the list is ordered by these.
+   * What they share with the waiting student's account, by which the linking candidates are
+   * ordered. Always empty in [`AdminUnlinkedEnrolees`].
    */
   similarities: Array<LinkingCandidateSimilarity>
   /**
@@ -679,6 +680,19 @@ export type AdminLinkingCandidates = {
    * The study registry gave no usable answer, so an empty `candidates` says nothing.
    */
   study_registry_unavailable: boolean
+}
+
+/**
+ * A course support can send a linking email for by hand: one taking part in credit registration
+ * with a University of Helsinki course code.
+ */
+export type AdminLinkingCourse = {
+  /**
+   * Usually one; a course whose modules have different codes has each of them.
+   */
+  course_codes: Array<string>
+  course_id: string
+  course_name: string
 }
 
 export type AdminLinkingEmail = {
@@ -928,6 +942,20 @@ export type AdminUnlinkStudentNumberResult = {
    * Registrations that went back to waiting for a number.
    */
   affected_registration_count: number
+}
+
+/**
+ * Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.
+ */
+export type AdminUnlinkedEnrolees = {
+  /**
+   * By last name, then first names.
+   */
+  people: Array<AdminLinkingCandidate>
+  /**
+   * The study registry gave no usable answer for some code, so `people` says nothing.
+   */
+  study_registry_unavailable: boolean
 }
 
 export type AdminVerifiedStudentNumberRow = {
@@ -10512,6 +10540,52 @@ export type GetAccountLinkingStatsResponses = {
 
 export type GetAccountLinkingStatsResponse =
   GetAccountLinkingStatsResponses[keyof GetAccountLinkingStatsResponses]
+
+export type GetAccountLinkingCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses"
+}
+
+export type GetAccountLinkingCoursesResponses = {
+  /**
+   * By course name
+   */
+  200: Array<AdminLinkingCourse>
+}
+
+export type GetAccountLinkingCoursesResponse =
+  GetAccountLinkingCoursesResponses[keyof GetAccountLinkingCoursesResponses]
+
+export type GetAccountLinkingUnlinkedEnroleesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees"
+}
+
+export type GetAccountLinkingUnlinkedEnroleesErrors = {
+  /**
+   * Account linking is off, or the course takes no part in credit registration
+   */
+  400: unknown
+}
+
+export type GetAccountLinkingUnlinkedEnroleesResponses = {
+  /**
+   * The unlinked people
+   */
+  200: AdminUnlinkedEnrolees
+}
+
+export type GetAccountLinkingUnlinkedEnroleesResponse =
+  GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
 
 export type AdminRequestEnrolmentListFetchData = {
   body: AdminRequestEnrolmentListFetchPayload

@@ -65,6 +65,18 @@ pub async fn look_up_person(
         .await
 }
 
+/// Lists the rosters of every course code on the course now and keeps the people linked to no
+/// account, whenever they enrolled, each once. Stores nothing.
+///
+/// `Ok(None)` means the registry gave no usable answer for some code.
+pub async fn list_unlinked_on_course_rosters(
+    ctx: &ManualActionContext<'_>,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
+    account_linking::unlinked_on_course_rosters(ctx.pool, &registry, course_id).await
+}
+
 /// Lists one course code's roster now and keeps the people linking mails skip: enrolled before
 /// `since` or at no known time, and linked to no account, each once. Stores nothing.
 ///

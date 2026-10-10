@@ -242,8 +242,13 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponses,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  GetAccountLinkingUnlinkedEnroleesResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -917,7 +922,9 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
+  zGetAccountLinkingUnlinkedEnroleesResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -4914,6 +4921,52 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetAccountLinkingStatsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingCoursesData, ThrowOnError>,
+): RequestResult<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetAccountLinkingCoursesResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingUnlinkedEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingUnlinkedEnroleesResponses,
+    GetAccountLinkingUnlinkedEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingUnlinkedEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
     ...options,
   })
 

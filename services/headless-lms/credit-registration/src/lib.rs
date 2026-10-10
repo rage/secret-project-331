@@ -68,8 +68,8 @@ pub use use_cases::materialize::{Materialized, materialize_now};
 pub mod account_linking {
     pub use crate::registry::{PersonLookupError, RegistryPerson};
     pub use crate::runtime::{
-        ManualActionContext, list_unlinked_enrolled_before, look_up_person,
-        resend_linking_mail_for_target,
+        ManualActionContext, list_unlinked_enrolled_before, list_unlinked_on_course_rosters,
+        look_up_person, resend_linking_mail_for_target,
     };
     pub use crate::use_cases::account_linking::{RateCapOverride, ResendAttempt, ResendOutcome};
 }

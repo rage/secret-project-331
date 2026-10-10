@@ -335,6 +335,16 @@ export const zAdminDismissStudyRegistryConflictPayload = z.object({
 })
 
 /**
+ * A course support can send a linking email for by hand: one taking part in credit registration
+ * with a University of Helsinki course code.
+ */
+export const zAdminLinkingCourse = z.object({
+  course_codes: z.array(z.string()),
+  course_id: z.uuid(),
+  course_name: z.string(),
+})
+
+/**
  * For a student who pressed "I have enrolled" and has no linked student number: their course
  * code's enrolment list schedule, and what went out on the code since the press.
  */
@@ -3408,8 +3418,8 @@ export const zLinkingCandidateSimilarity = z.enum([
 ])
 
 /**
- * A person on the code's enrolment list whom no linking email reached because they enrolled before
- * account linking began, and who may be the waiting student.
+ * A person on a course's enrolment list whom no account is linked to, whom support can send a
+ * linking email.
  */
 export const zAdminLinkingCandidate = z.object({
   email: z.string().nullish(),
@@ -3434,6 +3444,14 @@ export const zAdminLinkingCandidates = z.object({
   course_code: z.string(),
   course_id: z.uuid(),
   course_name: z.string(),
+  study_registry_unavailable: z.boolean(),
+})
+
+/**
+ * Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.
+ */
+export const zAdminUnlinkedEnrolees = z.object({
+  people: z.array(zAdminLinkingCandidate),
   study_registry_unavailable: z.boolean(),
 })
 
@@ -8809,6 +8827,20 @@ export const zGetAccountLinkingStatsQuery = z.object({
  * Where account linking stands
  */
 export const zGetAccountLinkingStatsResponse = zAccountLinkingStats
+
+/**
+ * By course name
+ */
+export const zGetAccountLinkingCoursesResponse = z.array(zAdminLinkingCourse)
+
+export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The unlinked people
+ */
+export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
 export const zAdminRequestEnrolmentListFetchBody = zAdminRequestEnrolmentListFetchPayload
 

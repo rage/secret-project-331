@@ -71,6 +71,7 @@ import {
   sectionCardHeaderCss,
   sectionCardsCss,
   sectionCss,
+  spacedRowCss,
   stackedCellCss,
   subheadingCss,
   subsectionCss,
@@ -98,6 +99,7 @@ import {
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
+import AdminSendLinkingEmailButton from "./AdminSendLinkingEmailButton"
 import FacetChip from "./FacetChip"
 import FetchEnrolmentListNowButton from "./FetchEnrolmentListNowButton"
 import { isUnhealthyPhase, phaseHealth, phaseHealthLabel } from "./phaseStatus"
@@ -1383,13 +1385,16 @@ const AccountLinkingSection: React.FC = () => {
           <>
             <HealthBanner stats={stats} />
             {stats.account_linking_since && (
-              <p className={cx(noteCss, proseCss)}>
-                <Trans
-                  t={t}
-                  i18nKey="credit-registration-admin-account-linking-since"
-                  components={{ time: <ZonedTimestamp at={stats.account_linking_since} /> }}
-                />
-              </p>
+              <div className={spacedRowCss}>
+                <p className={cx(noteCss, proseCss)}>
+                  <Trans
+                    t={t}
+                    i18nKey="credit-registration-admin-account-linking-since"
+                    components={{ time: <ZonedTimestamp at={stats.account_linking_since} /> }}
+                  />
+                </p>
+                <AdminSendLinkingEmailButton />
+              </div>
             )}
             <WaitingCounts stats={stats} />
             <PressersSection stats={stats} />

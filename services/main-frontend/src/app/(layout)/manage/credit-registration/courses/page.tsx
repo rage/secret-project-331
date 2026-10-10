@@ -26,6 +26,7 @@ import {
   HIGH_FAILURE_RATE_PERCENT,
 } from "@/components/credit-registration/admin/courseModuleStatus"
 import FacetChip from "@/components/credit-registration/admin/FacetChip"
+import { moduleSubtitleParts } from "@/components/credit-registration/admin/moduleSubtitle"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
 import {
@@ -322,24 +323,6 @@ const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({
   )
 }
 
-const stripModulePrefix = (value: string): string => value.replace(/^Module\s+/, "")
-
-/** Module name and UH course code are one string in some configurations; printing it twice is noise. */
-const moduleSubtitle = (module: CreditRegistrationCourseStats): string[] => {
-  const seen = new Set<string>()
-  return [module.course_module_name, module.uh_course_code].filter((part): part is string => {
-    if (!part) {
-      return false
-    }
-    const key = stripModulePrefix(part)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
-  })
-}
-
 /** Which course modules register credits, how well each does it, and what is wrong with the rest. */
 const CoursesPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -481,7 +464,7 @@ const CoursesPage: React.FC = () => {
                           </Link>
                           <InlineParts
                             className={cx(noteCss, codeValueCss)}
-                            parts={moduleSubtitle(row)}
+                            parts={moduleSubtitleParts(row.course_module_name, row.uh_course_code)}
                           />
                         </span>
                       ),

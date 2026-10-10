@@ -103,6 +103,7 @@ import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import AdminSendLinkingEmailButton from "./AdminSendLinkingEmailButton"
 import FacetChip from "./FacetChip"
 import FetchEnrolmentListNowButton from "./FetchEnrolmentListNowButton"
+import { moduleSubtitleParts } from "./moduleSubtitle"
 import { isUnhealthyPhase, phaseHealth, phaseHealthLabel } from "./phaseStatus"
 import { registrationsListHref } from "./registrationsListUrl"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
@@ -329,7 +330,7 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
                 <span className={breakAnywhereCss}>{row.course_name}</span>
                 <InlineParts
                   className={noteCss}
-                  parts={[row.course_module_name, row.uh_course_code]}
+                  parts={moduleSubtitleParts(row.course_module_name, row.uh_course_code)}
                 />
               </span>
             ),
@@ -820,7 +821,7 @@ const OtherWaitingStudentsSection: React.FC<{ stats: AccountLinkingStats }> = ({
                     <span className={breakAnywhereCss}>{row.course_name}</span>
                     <InlineParts
                       className={noteCss}
-                      parts={[row.course_module_name, row.uh_course_code]}
+                      parts={moduleSubtitleParts(row.course_module_name, row.uh_course_code)}
                     />
                   </span>
                 ),

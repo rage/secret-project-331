@@ -50,6 +50,7 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
+import { moduleSubtitleParts } from "./moduleSubtitle"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
@@ -96,7 +97,10 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
 const CourseCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => (
   <span className={stackedCellCss}>
     <span className={breakAnywhereCss}>{item.course_name}</span>
-    <InlineParts className={noteCss} parts={[item.course_module_name, item.uh_course_code]} />
+    <InlineParts
+      className={noteCss}
+      parts={moduleSubtitleParts(item.course_module_name, item.uh_course_code)}
+    />
   </span>
 )
 

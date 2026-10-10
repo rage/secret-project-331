@@ -436,7 +436,7 @@ pub struct AdminLinkingCourse {
 pub struct AdminUnlinkedEnrolees {
     /// The study registry gave no usable answer for some code, so `people` says nothing.
     pub study_registry_unavailable: bool,
-    /// By last name, then first names.
+    /// By last name, then first names, ignoring case; people with no last name last.
     pub people: Vec<AdminLinkingCandidate>,
 }
 
@@ -1618,19 +1618,15 @@ async fn count_linking_emails_for_course(
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
-    let mut mails_by_person: HashMap<String, i64> = HashMap::new();
-    for fact in credit_registration_account_linking_emails::get_existing_facts_for_persons(
-        conn,
-        &person_ids,
-    )
-    .await?
-    .into_iter()
-    .filter(|fact| fact.course_id == course_id)
-    {
-        *mails_by_person
-            .entry(fact.sisu_person_id.expose_secret().to_owned())
-            .or_default() += 1;
-    }
+    let mails_by_person =
+        credit_registration_account_linking_emails::count_mails_per_person_for_course(
+            conn,
+            &person_ids,
+            course_id,
+        )
+        .await?
+        .into_iter()
+        .collect();
     Ok(mails_by_person)
 }
 
@@ -1660,9 +1656,14 @@ fn to_linking_candidate(
 }
 
 fn by_name(a: &AdminLinkingCandidate, b: &AdminLinkingCandidate) -> std::cmp::Ordering {
-    a.last_name
-        .cmp(&b.last_name)
-        .then_with(|| a.first_names.cmp(&b.first_names))
+    let folded = |name: &Option<String>| name.as_ref().map(|name| name.to_lowercase());
+    // `None` sorts first, so reversing the flag puts people with no last name last.
+    let (a_last, b_last) = (folded(&a.last_name), folded(&b.last_name));
+    a_last
+        .is_none()
+        .cmp(&b_last.is_none())
+        .then_with(|| a_last.cmp(&b_last))
+        .then_with(|| folded(&a.first_names).cmp(&folded(&b.first_names)))
 }
 
 /// Audits the resend whatever it did, and reports where this person's mails now stand.

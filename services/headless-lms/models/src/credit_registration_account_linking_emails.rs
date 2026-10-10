@@ -119,6 +119,38 @@ WHERE e.sisu_person_id = ANY($1::text [])
     Ok(res)
 }
 
+/// How many linking mails one course has sent each of these people, replaced ones included.
+pub async fn count_mails_per_person_for_course(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    course_id: Uuid,
+) -> ModelResult<HashMap<String, i64>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  COUNT(*) AS "mail_count!"
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND course_id = $2
+  AND deleted_at IS NULL
+GROUP BY sisu_person_id
+        "#,
+        sisu_person_ids,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id.expose_secret().to_owned(),
+                row.mail_count,
+            )
+        })
+        .collect())
+}
+
 /// Marks the rows these new slots would collide with in the dedup key as replaced, where their link
 /// can no longer be used, so the slots can be claimed. Rows holding their address are left alone.
 pub async fn replace_lapsed_slots(

@@ -12,7 +12,7 @@ import { Button, Link, Menu } from "@/shared-module/components"
 
 import { BUTTON_SECONDARY, CREDIT_REGISTRATION_NS } from "../constants"
 import { failureActionLabel } from "../registrationFailures"
-import { apartCss, noteCss, stackedCellCss } from "../styles"
+import { noteCss, stackedCellCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import type { DialogOpenState } from "./AdminActionDialog"
 import AdminDismissAttentionButton from "./AdminDismissAttentionButton"
@@ -58,7 +58,7 @@ type RowAction = {
 
 /**
  * A Needs attention row's actions: its best remedy as a button, the others in a More menu, and
- * Dismiss set apart. A stuck presser gets the linking actions; every other row its remedies, and
+ * Dismiss last. A stuck presser gets the linking actions; every other row its remedies, and
  * Cancel once Sisu has stopped accepting retries.
  */
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
@@ -280,14 +280,13 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
         {menuItems.length > 0 && (
           <Menu
             label={t("credit-registration-admin-more-actions")}
+            size="medium"
             aria-label={t("credit-registration-admin-more-actions-for", { student: studentName })}
             items={menuItems}
           />
         )}
         {!isRunningLate && (
-          <span className={apartCss}>
-            <AdminDismissAttentionButton registrationId={item.credit_registration_id} />
-          </span>
+          <AdminDismissAttentionButton registrationId={item.credit_registration_id} />
         )}
       </span>
       {lastResult && <span className={noteCss}>{lastResult.message}</span>}

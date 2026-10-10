@@ -145,10 +145,12 @@ const addressListCss = css`
   list-style: none;
 `
 
+/** Inline, so a label that wraps keeps the arrow after its last word. */
 const arrowLinkCss = css`
-  display: inline-flex;
-  gap: var(--space-2);
-  align-items: center;
+  svg {
+    margin-left: var(--space-2);
+    vertical-align: middle;
+  }
 `
 
 const findingListCss = css`

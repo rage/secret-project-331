@@ -61,9 +61,9 @@ import {
   subsectionCss,
 } from "@/components/credit-registration/styles"
 import {
-  formatZonedTimeRange,
   formatZonedTimestamp,
   ZonedTimestamp,
+  ZonedTimeRange,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
@@ -543,7 +543,7 @@ const ApiCallSection: React.FC<{
                     {t("credit-registration-admin-calls-repeated", { count: group.calls.length })}
                   </span>
                   <span className={noteCss}>
-                    {formatZonedTimeRange(new Date(oldest.started_at), new Date(newest.started_at))}
+                    <ZonedTimeRange from={oldest.started_at} to={newest.started_at} />
                   </span>
                 </span>
               )

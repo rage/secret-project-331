@@ -12,17 +12,22 @@ import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTi
 const DATE_LENGTH = 10
 const TIME_START = 11
 
+// Timestamps land in translated sentences and table cells as plain strings, where only
+// no-break spaces stop a line break inside one; a range may still break after its dash.
+const NO_BREAK_SPACE = "\u00A0"
+
+const unbroken = (text: string): string => text.replaceAll(" ", NO_BREAK_SPACE)
+
 const nowrapCss = css`
   white-space: nowrap;
 `
 
 /** `2026-09-29 13:43:37 (UTC+3)`: an absolute timestamp with its zone spelled out. */
 export function formatZonedTimestamp(at: Date): string {
-  return `${formatTimestamp(at)} (${timeZoneOffsetString(at)})`
+  return unbroken(`${formatTimestamp(at)} (${timeZoneOffsetString(at)})`)
 }
 
-/** `2026-09-29 13:05:12–13:43:37 (UTC+3)`; both full when the range spans days or a clock change. */
-export function formatZonedTimeRange(from: Date, to: Date): string {
+const zonedTimeRangeEnds = (from: Date, to: Date): [string, string] => {
   const start = formatTimestamp(from)
   const end = formatTimestamp(to)
   const offset = timeZoneOffsetString(to)
@@ -30,9 +35,27 @@ export function formatZonedTimeRange(from: Date, to: Date): string {
     start.slice(0, DATE_LENGTH) !== end.slice(0, DATE_LENGTH) ||
     timeZoneOffsetString(from) !== offset
   ) {
-    return `${formatZonedTimestamp(from)}–${formatZonedTimestamp(to)}`
+    return [formatZonedTimestamp(from), formatZonedTimestamp(to)]
   }
-  return `${start}–${end.slice(TIME_START)} (${offset})`
+  return [unbroken(start), unbroken(`${end.slice(TIME_START)} (${offset})`)]
+}
+
+/** `2026-09-29 13:05:12–13:43:37 (UTC+3)`; both full when the range spans days or a clock change. */
+export function formatZonedTimeRange(from: Date, to: Date): string {
+  const [start, end] = zonedTimeRangeEnds(from, to)
+  return `${start}–${end}`
+}
+
+/** A `<time>` showing `formatZonedTimeRange`, which may break only after its dash. */
+export const ZonedTimeRange: React.FC<{ from: string; to: string }> = ({ from, to }) => {
+  const [start, end] = zonedTimeRangeEnds(new Date(from), new Date(to))
+  return (
+    <time dateTime={from}>
+      <span className={nowrapCss}>{`${start}–`}</span>
+      <wbr />
+      <span className={nowrapCss}>{end}</span>
+    </time>
+  )
 }
 
 /** A `<time>` showing an absolute timestamp with its zone; a muted mark when there is none. */

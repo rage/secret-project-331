@@ -13,7 +13,12 @@ import type { CreditRegistrationTFunction } from "../constants"
 import { formatDurationInWords } from "../durationWords"
 import { TextWithEmailAddresses } from "../EmailAddress"
 import { headingCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
-import { formatZonedTimeRange, formatZonedTimestamp, ZonedTimestamp } from "../ZonedTimestamp"
+import {
+  formatZonedTimeRange,
+  formatZonedTimestamp,
+  ZonedTimeRange,
+  ZonedTimestamp,
+} from "../ZonedTimestamp"
 import type {
   JourneyPhase,
   JourneyPhaseKey,
@@ -75,10 +80,10 @@ const timelineCss = css`
   padding: 0;
   list-style: none;
   color: var(--color-gray-700);
+  overflow-wrap: anywhere;
 
   time {
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
   }
 
   .tl-node {
@@ -293,6 +298,10 @@ const timelineCss = css`
     background: var(--inset);
     font-size: var(--font-size-0);
     list-style: none;
+  }
+  /* The display above outranks the user agent's rule for the attribute. */
+  .tl-substep > .tl-events[hidden] {
+    display: none;
   }
   .tl-phase:nth-child(even) .tl-events {
     background: var(--color-clear-50);
@@ -660,7 +669,7 @@ const SubstepEvents: React.FC<{
               {showsTime && (
                 <span className="tl-event-time">
                   {entry.until ? (
-                    <time dateTime={entry.at}>{time}</time>
+                    <ZonedTimeRange from={entry.at} to={entry.until} />
                   ) : (
                     <ZonedTimestamp at={entry.at} />
                   )}

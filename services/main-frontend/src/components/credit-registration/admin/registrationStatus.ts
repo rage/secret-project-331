@@ -146,8 +146,7 @@ export const registrationStatusLines = (
   const isStuckPresser = needsAttention && row.attention_reasons.includes("student_number_stuck")
   const waitsOn = waitsOnLabel(t, row.waits_on)
   if (isStuckPresser) {
-    // The student number heading and the linking actions beside it already say what is wrong.
-    return { waitsOn, next: null, tone: "attention" }
+    return { waitsOn, next: attentionReasonLabel(t, "student_number_stuck"), tone: "attention" }
   }
   const next = stepNext(t, row, schedule)
   // The step's own wording already says what went wrong on an attention step.

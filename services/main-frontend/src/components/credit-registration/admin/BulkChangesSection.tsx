@@ -22,6 +22,7 @@ import {
   TABLE_STACK,
 } from "../constants"
 import {
+  breakAnywhereCss,
   codeValueCss,
   controlCss,
   controlsCss,
@@ -228,7 +229,7 @@ const BulkChangesSection: React.FC<{ prefilledErrorCode: CreditRegistrationError
                     minWidth: "11rem",
                     cell: (row) => (
                       <span className={stackedCellCss}>
-                        <span>{row.course_name}</span>
+                        <span className={breakAnywhereCss}>{row.course_name}</span>
                         <span className={noteCss}>{row.course_module_name}</span>
                       </span>
                     ),

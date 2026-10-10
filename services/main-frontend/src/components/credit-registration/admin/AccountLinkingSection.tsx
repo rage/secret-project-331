@@ -62,6 +62,7 @@ import {
 } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import {
+  breakAnywhereCss,
   codeValueCss,
   headingCss,
   noteCss,
@@ -323,7 +324,7 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
             minWidth: "9rem",
             cell: (row) => (
               <span className={stackedCellCss}>
-                <span>{row.course_name}</span>
+                <span className={breakAnywhereCss}>{row.course_name}</span>
                 <InlineParts
                   className={noteCss}
                   parts={[row.course_module_name, row.uh_course_code]}
@@ -431,7 +432,7 @@ const UnusedLinksBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
             minWidth: "12rem",
             cell: (row) => (
               <span className={stackedCellCss}>
-                <span>{row.course_name}</span>
+                <span className={breakAnywhereCss}>{row.course_name}</span>
                 {row.uh_course_code && (
                   <code className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</code>
                 )}
@@ -610,7 +611,7 @@ const CourseCodeFindings: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }
 const CourseCodeCell: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
-    <span id={courseCodeAnchorId(row.course_code)} className={stackedCellCss}>
+    <span id={courseCodeAnchorId(row.course_code)} className={cx(stackedCellCss, breakAnywhereCss)}>
       <code className={codeValueCss}>{row.course_code}</code>
       {row.modules.map((module) => (
         <InlineParts
@@ -814,7 +815,7 @@ const OtherWaitingStudentsSection: React.FC<{ stats: AccountLinkingStats }> = ({
                 minWidth: "12rem",
                 cell: (row) => (
                   <span className={stackedCellCss}>
-                    <span>{row.course_name}</span>
+                    <span className={breakAnywhereCss}>{row.course_name}</span>
                     <InlineParts
                       className={noteCss}
                       parts={[row.course_module_name, row.uh_course_code]}
@@ -904,7 +905,7 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
               minWidth: "10rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={noteCss}>
                     <EmailAddress address={row.emailed_to} />
                   </span>
@@ -1053,7 +1054,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
               header: t("label-course"),
               grow: true,
               minWidth: "12rem",
-              cell: (row) => row.course_name,
+              cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
             },
             {
               header: t("label-credit-registration-addresses-tried"),
@@ -1159,7 +1160,7 @@ const StudyRegistryConflictBlock: React.FC<{ stats: AccountLinkingStats }> = ({ 
             header: t("label-course"),
             grow: true,
             minWidth: "10rem",
-            cell: (row) => row.course_name,
+            cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
           },
           {
             header: t("label-credit-registration-conflicting-link"),

@@ -45,10 +45,11 @@ import {
 } from "@/components/credit-registration/constants"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   controlCss,
   controlsCss,
   headingCss,
-  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -478,6 +479,7 @@ const CoursesPage: React.FC = () => {
                           <Link
                             href={registrationsListHref({ courseModuleId: row.course_module_id })}
                             appearance={LINK_QUIET}
+                            className={breakAnywhereCss}
                           >
                             {row.course_name}
                           </Link>

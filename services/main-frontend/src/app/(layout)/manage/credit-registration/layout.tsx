@@ -56,6 +56,8 @@ const wideCss = css`
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 var(--space-4);
+  /* Inherited: server text, names and ids can hold runs longer than any card here. */
+  overflow-wrap: break-word;
 `
 
 const ADMINISTRATE_CREDIT_REGISTRATIONS = [

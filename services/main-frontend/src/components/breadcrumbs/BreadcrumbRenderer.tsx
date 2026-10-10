@@ -130,6 +130,8 @@ const breadcrumbList = css`
    label, so a label that wraps leaves the separator stranded beside its second line. */
 const breadcrumbItem = css`
   display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 const breadcrumbText = css`

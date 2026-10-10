@@ -102,6 +102,7 @@ export const subsectionCss = cx(
 /** The page's h1. */
 export const pageTitleCss = css`
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-5);
   font-weight: 600;
@@ -261,10 +262,12 @@ export const dividedListCss = css`
 `
 
 /** Stacks the fields of a dialog form. */
-export const dialogFormCss = css`
-  display: grid;
-  gap: var(--space-4);
-`
+export const dialogFormCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-4);
+  `,
+)
 
 /** A `dialogFormCss` whose controls keep their own width instead of stretching to the grid. */
 export const dialogFormStartCss = cx(
@@ -339,6 +342,14 @@ export const stateChangeToCss = css`
   display: flex;
   align-items: center;
   gap: var(--space-2);
+`
+
+/**
+ * Text we do not control and that can hold one run longer than its box: a name, a course title, a
+ * server message. Breaks anywhere so the run wraps instead of widening its table or flex row.
+ */
+export const breakAnywhereCss = css`
+  overflow-wrap: anywhere;
 `
 
 /** A code-like value (identifier, error code, student number) in the body font; `<code>` and `<pre>` are monospace globally. */

@@ -18,8 +18,9 @@ import { Button, Dialog, Link, QueryResult, Table } from "@/shared-module/compon
 
 import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
-  emptyStateCss,
+  breakAnywhereCss,
   codeValueCss,
+  emptyStateCss,
   noteCss,
   sectionCss,
   stackedCellCss,
@@ -160,7 +161,10 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                       <span className={codeValueCss}>{row.student_number ?? <AbsentValue />}</span>
                     ),
                   },
-                  { header: t("label-course"), cell: (row) => row.course_name },
+                  {
+                    header: t("label-course"),
+                    cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
+                  },
                   {
                     header: t("credit-registration-admin-column-effect-of-call"),
                     cell: (row) => {

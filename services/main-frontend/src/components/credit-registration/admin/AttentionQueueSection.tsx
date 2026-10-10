@@ -28,6 +28,7 @@ import {
   TABLE_STACK,
 } from "../constants"
 import {
+  breakAnywhereCss,
   headingCss,
   noteCss,
   proseCss,
@@ -94,7 +95,7 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
 
 const CourseCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => (
   <span className={stackedCellCss}>
-    <span>{item.course_name}</span>
+    <span className={breakAnywhereCss}>{item.course_name}</span>
     <InlineParts className={noteCss} parts={[item.course_module_name, item.uh_course_code]} />
   </span>
 )
@@ -359,7 +360,7 @@ const DismissedRecentlySection: React.FC<{
                     row={row}
                     href={creditRegistrationItemRoute(row.credit_registration_id)}
                   />
-                  <span className={noteCss}>{row.course_name}</span>
+                  <span className={cx(noteCss, breakAnywhereCss)}>{row.course_name}</span>
                 </span>
               ),
             },

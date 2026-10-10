@@ -61,9 +61,10 @@ import {
 import InlineParts from "@/components/credit-registration/InlineParts"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   controlCss,
   controlsCss,
-  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -665,7 +666,7 @@ const RegistrationsPage: React.FC = () => {
                       minWidth: "9rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
-                          <span>{row.course_name}</span>
+                          <span className={breakAnywhereCss}>{row.course_name}</span>
                           {manyModuleCourseIds.has(row.course_id) && (
                             <span className={noteCss}>{row.course_module_name}</span>
                           )}

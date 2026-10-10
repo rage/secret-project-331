@@ -46,7 +46,9 @@ import {
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import { registrationGradeLabel } from "@/components/credit-registration/creditRegistrationCopy"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import {
+  breakAnywhereCss,
   codeValueCss,
   headingCss,
   noteCss,
@@ -61,8 +63,8 @@ import {
 } from "@/components/credit-registration/styles"
 import {
   formatZonedTimestamp,
-  ZonedTimestamp,
   ZonedTimeRange,
+  ZonedTimestamp,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
   AdminCreditRegistrationDetails,
@@ -87,9 +89,9 @@ import {
   CopyButton,
   DescriptionList,
   Disclosure,
+  Link,
   QueryResult,
   Table,
-  Link,
 } from "@/shared-module/components"
 
 /** The actor names the timeline needs; older actions are a click away in the audit log. */
@@ -185,10 +187,14 @@ const HeaderSection: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={sectionHeaderCss}>
-      <h1 className={pageTitleCss}>{formatUserName(row)}</h1>
+      <h1 className={pageTitleCss}>{formatUserName(row) || t("missing-name")}</h1>
       <span className={rowCss}>
-        <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
-        {row.course_module_name ? <span>{row.course_module_name}</span> : null}
+        <Link href={manageCourseRoute(row.course_id)} className={breakAnywhereCss}>
+          {row.course_name}
+        </Link>
+        {row.course_module_name ? (
+          <span className={breakAnywhereCss}>{row.course_module_name}</span>
+        ) : null}
         {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
       </span>
       <span className={idRowCss}>
@@ -292,7 +298,10 @@ const FactsSection: React.FC<{
 
   const identityItems: DescriptionListItem[] = [
     // The page heading is the student's name, so only the address is news here.
-    { label: t("label-email"), value: row.email ?? <AbsentValue /> },
+    {
+      label: t("label-email"),
+      value: row.email ? <EmailAddress address={row.email} /> : <AbsentValue />,
+    },
     {
       label: t("label-student-number"),
       value: studentNumber ? (
@@ -652,7 +661,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
         header: t("label-email"),
         grow: true,
         minWidth: "12rem",
-        cell: (mail) => mail.emailed_to,
+        cell: (mail) => <EmailAddress address={mail.emailed_to} />,
       }}
       extraColumns={[
         {
@@ -735,7 +744,8 @@ const RegistrationDetailPage: React.FC = () => {
     [t, details, context],
   )
 
-  usePageTitle(row ? formatUserName(row) : null)
+  const studentName = row ? formatUserName(row) || t("missing-name") : null
+  usePageTitle(studentName)
   const crumbs = useMemo(
     () => [
       {
@@ -743,14 +753,14 @@ const RegistrationDetailPage: React.FC = () => {
         label: t("credit-registration-tab-registrations"),
         href: creditRegistrationRegistrationsRoute(),
       },
-      row
+      studentName !== null
         ? {
             isLoading: false as const,
-            label: formatUserName(row),
+            label: studentName,
           }
         : { isLoading: true as const },
     ],
-    [t, row],
+    [t, studentName],
   )
   useRegisterBreadcrumbs({ key: "credit-registration-item", order: 40, crumbs })
 

@@ -1,10 +1,12 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import InlineParts from "@/components/credit-registration/InlineParts"
+import { getCreditRegistrationAttentionItemsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { AdminLinkingCandidate, AdminLinkingCourse } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
@@ -53,6 +55,7 @@ const matchesFilter = (person: AdminLinkingCandidate, filter: string): boolean =
  */
 const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClose }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const queryClient = useQueryClient()
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { control, handleSubmit, watch, reset, setValue } = useForm<Fields>({
     defaultValues: DEFAULT_FIELDS,
@@ -84,6 +87,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
           credit_registration_id: null,
         },
       }),
+    () => void enroleesQuery.refetch(),
   )
 
   const closeDialog = () => {
@@ -91,7 +95,10 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
     reset(DEFAULT_FIELDS)
     if (result) {
       setResult(null)
-      void invalidateAfterLinkingChange()
+      void Promise.all([
+        invalidateAfterLinkingChange(),
+        queryClient.invalidateQueries({ queryKey: getCreditRegistrationAttentionItemsQueryKey() }),
+      ])
     }
   }
 
@@ -121,8 +128,20 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
       title={t("button-text-send-a-linking-email")}
       actions={actions}
     >
-      <form className={dialogFormCss} onSubmit={submit}>
-        {result && <ResendOutcomeNotice result={result} />}
+      <div className={dialogFormCss}>
+        {result && !mutation.isPending && !mutation.isError && (
+          <ResendOutcomeNotice result={result} />
+        )}
+        {mutation.isError && (
+          <Infobox tone={TONE.DANGER} announce>
+            {t("credit-registration-admin-send-linking-email-send-failed")}
+          </Infobox>
+        )}
+        {coursesQuery.isError && (
+          <Infobox tone={TONE.DANGER}>
+            {t("credit-registration-admin-send-linking-email-courses-failed")}
+          </Infobox>
+        )}
         <ComboBox
           name="course_id"
           control={control}
@@ -135,6 +154,11 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
         >
           {courseLabel}
         </ComboBox>
+        {courseId && enroleesQuery.isError && (
+          <Infobox tone={TONE.DANGER}>
+            {t("credit-registration-admin-send-linking-email-enrolees-failed")}
+          </Infobox>
+        )}
         {courseId && enroleesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}
@@ -187,7 +211,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
             )}
           </>
         )}
-      </form>
+      </div>
     </Dialog>
   )
 }

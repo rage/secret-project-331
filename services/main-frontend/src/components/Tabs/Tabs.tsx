@@ -1,14 +1,11 @@
 "use client"
 
-import { Item } from "@react-stately/collections"
 import type { TabListState } from "@react-stately/tabs"
-import { useTabListState } from "@react-stately/tabs"
 import { usePathname } from "next/navigation"
 import React, { createContext, useContext, useMemo } from "react"
 
-import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
-
 import { TabStrip } from "./tabStrip"
+import { useFocusableTabListState } from "./useFocusableTabListState"
 
 interface TabsContextValue {
   state: TabListState<object>
@@ -88,18 +85,8 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
   // the first for keyboard entry; the context flag is what keeps that off the screen.
   const selectedKey = currentTab ?? tabNames[0] ?? null
 
-  const items = useMemo(() => tabNames.map((name) => ({ key: name })), [tabNames])
-
-  // Each tab is a link that navigates on its own, so selection only drives focus: the arrow keys
-  // move between tabs without leaving the page.
-  const state = useTabListState({
-    ...includeIf(selectedKey !== null, { selectedKey }),
-    ...omitUndefined({ defaultSelectedKey: tabNames[0] }),
-    items,
-    // Without a collection the selection manager knows no keys, so it can never focus the selected
-    // tab and every tab stays at tabindex -1.
-    children: (item) => <Item key={item.key}>{item.key}</Item>,
-  }) as TabListState<object>
+  const items = useMemo(() => tabNames.map((name) => ({ key: name, title: name })), [tabNames])
+  const state = useFocusableTabListState(items, selectedKey ?? undefined)
 
   return (
     <TabsContext.Provider value={{ state, basePath, isCurrentRouteATab: currentTab !== undefined }}>

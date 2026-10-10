@@ -472,7 +472,7 @@ const CoursesPage: React.FC = () => {
                     {
                       header: t("label-course"),
                       grow: true,
-                      minWidth: "14rem",
+                      minWidth: "13rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <Link
@@ -490,7 +490,7 @@ const CoursesPage: React.FC = () => {
                     },
                     {
                       header: t("label-status"),
-                      minWidth: "16rem",
+                      minWidth: "14rem",
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
                         const heldCount = heldForCourseSetupCount(row)

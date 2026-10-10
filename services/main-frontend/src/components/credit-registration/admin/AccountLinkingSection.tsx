@@ -360,7 +360,7 @@ const PressersSection: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =>
           {
             header: t("label-status"),
             grow: 2,
-            minWidth: "13rem",
+            minWidth: "10rem",
             cell: (row) => <PresserStatusCell row={row} />,
           },
           {
@@ -663,7 +663,7 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
         {
           header: t("credit-registration-admin-column-course-code"),
           grow: true,
-          minWidth: "14rem",
+          minWidth: "10rem",
           cell: (row) => <CourseCodeCell row={row} />,
         },
         {
@@ -705,7 +705,7 @@ const CourseCodeTable: React.FC<{ rows: AccountLinkingCourseCode[]; labelledBy: 
         },
         {
           header: t("credit-registration-admin-column-what-happened"),
-          minWidth: "16rem",
+          minWidth: "14rem",
           cell: (row) => <CourseCodeFindings row={row} />,
         },
         {

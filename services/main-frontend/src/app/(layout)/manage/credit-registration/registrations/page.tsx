@@ -662,7 +662,7 @@ const RegistrationsPage: React.FC = () => {
                     {
                       header: t("label-course"),
                       grow: 1,
-                      minWidth: "11rem",
+                      minWidth: "9rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <span>{row.course_name}</span>
@@ -704,13 +704,14 @@ const RegistrationsPage: React.FC = () => {
                     },
                     {
                       header: t("label-status"),
-                      minWidth: "12rem",
+                      minWidth: "10rem",
                       cell: (row) => <StatusCell row={row} />,
                     },
                     {
                       header: t("credit-registration-admin-student-activity"),
                       minWidth: "7rem",
-                      nowrap: true,
+                      // Its badges are narrower than the label, which would leave the column mostly air.
+                      nowrap: false,
                       cell: (row) =>
                         row.engagement && ENGAGEMENT_STEPS.has(row.timeline_step) ? (
                           <Badge

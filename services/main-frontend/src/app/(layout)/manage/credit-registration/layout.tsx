@@ -53,7 +53,7 @@ const flushTabListCss = css`
 /** Wider than the site's centred column: the tables here have more columns than it fits. */
 const wideCss = css`
   box-sizing: border-box;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 var(--space-4);
   /* Inherited: server text, names and ids can hold runs longer than any card here. */

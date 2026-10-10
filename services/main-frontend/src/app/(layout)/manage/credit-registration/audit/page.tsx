@@ -527,8 +527,8 @@ const AuditPage: React.FC = () => {
               )}
               <div className={rowCss}>
                 {/* `Pagination` renders nothing below 2 pages, and repeats this total at 2 or
-                    more: show it only where `Pagination` won't. */}
-                {page.total_pages < 2 && (
+                    more: show it only where `Pagination` won't. An empty table says so itself. */}
+                {page.total_pages < 2 && page.total_count > 0 && (
                   <p className={noteCss}>
                     {t("credit-registration-admin-action-count", { count: page.total_count })}
                   </p>

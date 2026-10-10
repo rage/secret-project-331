@@ -126,6 +126,9 @@ const timelineCss = css`
   .tl-phase[data-status="done"] .tl-state {
     color: var(--done);
   }
+  .tl-phase[data-status="current"] .tl-state {
+    color: var(--current);
+  }
   .tl-phase[data-status="attention"] .tl-state {
     color: var(--attention);
   }

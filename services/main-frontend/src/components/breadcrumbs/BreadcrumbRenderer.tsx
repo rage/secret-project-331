@@ -1,8 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useAtomValue } from "jotai"
-import { useRef } from "react"
+import { useAtomValue, useSetAtom } from "jotai"
+import { useLayoutEffect, useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
-import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
+import { breadcrumbCrumbsAtom, type Crumb, isBreadcrumbInPageAtom } from "./breadcrumbAtoms"
 
 const MARKER = "›"
 const ARIA_CURRENT_PAGE = "page"
@@ -74,30 +74,50 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   )
 }
 
-export default function BreadcrumbRenderer() {
+/**
+ * The registered breadcrumbs, full width under the top bar. Pass `inPage` to render them inside a
+ * page's own container instead, lined up with its content; the layout's instance then renders
+ * nothing.
+ */
+export default function BreadcrumbRenderer({ inPage = false }: { inPage?: boolean }) {
   const { t } = useTranslation()
   const items = useAtomValue(breadcrumbCrumbsAtom)
+  const isInPage = useAtomValue(isBreadcrumbInPageAtom)
+  const setIsInPage = useSetAtom(isBreadcrumbInPageAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
-  if (items.length === 0) {
+  // A layout effect, so the layout's instance is gone before the first paint rather than flashing.
+  useLayoutEffect(() => {
+    if (!inPage) {
+      return
+    }
+    setIsInPage(true)
+    return () => setIsInPage(false)
+  }, [inPage, setIsInPage])
+
+  if (items.length === 0 || (isInPage && !inPage)) {
     return null
   }
 
-  return (
+  const nav = (
+    <nav {...navProps} className={breadcrumbNav}>
+      <ol className={cx(breadcrumbList, inPage && inPageListCss)}>
+        {items.map((item, idx) => (
+          <BreadcrumbItem
+            key={`${item.entryKey}-${item.index}`}
+            crumb={item.crumb}
+            isCurrent={idx === items.length - 1}
+          />
+        ))}
+      </ol>
+    </nav>
+  )
+
+  return inPage ? (
+    <div className={inPageWrapper}>{nav}</div>
+  ) : (
     <BreakFromCentered sidebar={false}>
-      <div className={wrapper}>
-        <nav {...navProps} className={breadcrumbNav}>
-          <ol className={breadcrumbList}>
-            {items.map((item, idx) => (
-              <BreadcrumbItem
-                key={`${item.entryKey}-${item.index}`}
-                crumb={item.crumb}
-                isCurrent={idx === items.length - 1}
-              />
-            ))}
-          </ol>
-        </nav>
-      </div>
+      <div className={wrapper}>{nav}</div>
     </BreakFromCentered>
   )
 }
@@ -112,6 +132,10 @@ const wrapper = css`
   }
 `
 
+const inPageWrapper = css`
+  padding-top: 1rem;
+`
+
 const breadcrumbNav = css`
   font-size: 16px;
 `
@@ -124,6 +148,10 @@ const breadcrumbList = css`
   gap: 0.75rem;
   padding-left: 0;
   list-style: none;
+`
+
+const inPageListCss = css`
+  margin-bottom: 0;
 `
 
 /* Inline flow rather than a flex row: a flex row pins the separator to the right of the whole

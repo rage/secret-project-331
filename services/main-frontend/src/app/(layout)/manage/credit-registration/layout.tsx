@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   useCreditRegistrationAttentionCount,
@@ -152,6 +153,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <BreakFromCentered sidebar={false}>
       <div className={cx(sectionsCss, wideCss)}>
+        <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />
         {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}

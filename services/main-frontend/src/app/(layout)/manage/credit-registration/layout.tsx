@@ -16,7 +16,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
-import { WORD_JOINER } from "@/components/credit-registration/ZonedTimestamp"
+import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
@@ -61,38 +61,6 @@ const wideCss = css`
   /* Inherited: server text, names and ids can hold runs longer than any card here. */
   overflow-wrap: break-word;
 `
-
-const PLAIN_TEXT = "text/plain"
-const HTML = "text/html"
-const NO_BREAK_SPACE = "\u00A0"
-// What `innerHTML` writes for U+00A0.
-const NBSP_ENTITY = "&nbsp;"
-const SPACE = " "
-
-/**
- * Timestamps hold word joiners to keep lines from breaking after their hyphens, and no-break
- * spaces; copied text drops both so it pastes into a search or psql.
- */
-const cleanTimestampsOnCopy = (event: React.ClipboardEvent) => {
-  const selection = window.getSelection()
-  const text = selection?.toString() ?? ""
-  if (!selection || !text.includes(WORD_JOINER)) {
-    return
-  }
-  event.preventDefault()
-  event.clipboardData.setData(
-    PLAIN_TEXT,
-    text.replaceAll(WORD_JOINER, "").replaceAll(NO_BREAK_SPACE, SPACE),
-  )
-  const container = document.createElement("div")
-  for (let index = 0; index < selection.rangeCount; index++) {
-    container.append(selection.getRangeAt(index).cloneContents())
-  }
-  event.clipboardData.setData(
-    HTML,
-    container.innerHTML.replaceAll(WORD_JOINER, "").replaceAll(NBSP_ENTITY, SPACE),
-  )
-}
 
 const ADMINISTRATE_CREDIT_REGISTRATIONS = [
   {

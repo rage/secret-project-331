@@ -37,6 +37,3 @@ export const breadcrumbCrumbsAtom = atom((get) => {
 })
 
 export const isCourseMaterialAtom = atom<boolean>(false)
-
-/** True while a page renders the breadcrumb in its own container; the layout's renderer then stays empty. */
-export const isBreadcrumbInPageAtom = atom<boolean>(false)

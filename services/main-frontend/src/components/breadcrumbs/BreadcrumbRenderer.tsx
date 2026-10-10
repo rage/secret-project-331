@@ -1,8 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useAtomValue, useSetAtom } from "jotai"
-import { useLayoutEffect, useRef } from "react"
+import { useAtomValue } from "jotai"
+import { useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 
-import { breadcrumbCrumbsAtom, type Crumb, isBreadcrumbInPageAtom } from "./breadcrumbAtoms"
+import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
 const MARKER = "›"
 const ARIA_CURRENT_PAGE = "page"
@@ -76,26 +76,14 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
 
 /**
  * The registered breadcrumbs, full width under the top bar. Pass `inPage` to render them inside a
- * page's own container instead, lined up with its content; the layout's instance then renders
- * nothing.
+ * page's own container instead, lined up with its content.
  */
 export default function BreadcrumbRenderer({ inPage = false }: { inPage?: boolean }) {
   const { t } = useTranslation()
   const items = useAtomValue(breadcrumbCrumbsAtom)
-  const isInPage = useAtomValue(isBreadcrumbInPageAtom)
-  const setIsInPage = useSetAtom(isBreadcrumbInPageAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
-  // A layout effect, so the layout's instance is gone before the first paint rather than flashing.
-  useLayoutEffect(() => {
-    if (!inPage) {
-      return
-    }
-    setIsInPage(true)
-    return () => setIsInPage(false)
-  }, [inPage, setIsInPage])
-
-  if (items.length === 0 || (isInPage && !inPage)) {
+  if (items.length === 0) {
     return null
   }
 

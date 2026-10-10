@@ -11,8 +11,12 @@ import { CREDIT_REGISTRATION_NS } from "./constants"
 const ICON_SIZE = 14
 
 const iconCss = css`
+  /* One line tall with the glyph centred, so it lines up with the text beside it whether it sits
+     in a line of text or alone in a grid or flex cell, where vertical-align does nothing. */
   display: inline-flex;
-  vertical-align: middle;
+  align-items: center;
+  height: 1lh;
+  vertical-align: top;
   color: var(--color-gray-300);
 `
 

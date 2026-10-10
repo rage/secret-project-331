@@ -16,7 +16,7 @@ const TIME_START = 11
 // at a space or after a hyphen; a range may still break after its dash.
 const NO_BREAK_SPACE = "\u00A0"
 // Not U+2011: Inter lacks it, and the fallback glyph is narrower than a hyphen.
-const WORD_JOINER = "\u2060"
+export const WORD_JOINER = "\u2060"
 
 const unbroken = (text: string): string =>
   text.replaceAll(" ", NO_BREAK_SPACE).replaceAll("-", `-${WORD_JOINER}`)

@@ -16,6 +16,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { WORD_JOINER } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
@@ -60,6 +61,18 @@ const wideCss = css`
   /* Inherited: server text, names and ids can hold runs longer than any card here. */
   overflow-wrap: break-word;
 `
+
+const PLAIN_TEXT = "text/plain"
+
+/** Timestamps hold word joiners to keep lines from breaking after their hyphens; copied text drops them. */
+const stripWordJoinersOnCopy = (event: React.ClipboardEvent) => {
+  const text = window.getSelection()?.toString() ?? ""
+  if (!text.includes(WORD_JOINER)) {
+    return
+  }
+  event.preventDefault()
+  event.clipboardData.setData(PLAIN_TEXT, text.replaceAll(WORD_JOINER, ""))
+}
 
 const ADMINISTRATE_CREDIT_REGISTRATIONS = [
   {
@@ -152,7 +165,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div className={cx(sectionsCss, wideCss)}>
+      <div className={cx(sectionsCss, wideCss)} onCopy={stripWordJoinersOnCopy}>
         <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />

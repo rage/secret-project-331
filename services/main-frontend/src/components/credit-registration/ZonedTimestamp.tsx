@@ -16,10 +16,37 @@ const TIME_START = 11
 // at a space or after a hyphen; a range may still break after its dash.
 const NO_BREAK_SPACE = "\u00A0"
 // Not U+2011: Inter lacks it, and the fallback glyph is narrower than a hyphen.
-export const WORD_JOINER = "\u2060"
+const WORD_JOINER = "\u2060"
 
 const unbroken = (text: string): string =>
   text.replaceAll(" ", NO_BREAK_SPACE).replaceAll("-", `-${WORD_JOINER}`)
+
+const PLAIN_TEXT = "text/plain"
+const HTML = "text/html"
+// What `innerHTML` writes for U+00A0.
+const NBSP_ENTITY = "&nbsp;"
+
+/** `onCopy` handler that strips the word joiners and no-break spaces, so copies paste into a search or psql. */
+export const cleanTimestampsOnCopy = (event: React.ClipboardEvent) => {
+  const selection = window.getSelection()
+  const text = selection?.toString() ?? ""
+  if (!selection || !text.includes(WORD_JOINER)) {
+    return
+  }
+  event.preventDefault()
+  event.clipboardData.setData(
+    PLAIN_TEXT,
+    text.replaceAll(WORD_JOINER, "").replaceAll(NO_BREAK_SPACE, " "),
+  )
+  const container = document.createElement("div")
+  for (let index = 0; index < selection.rangeCount; index++) {
+    container.append(selection.getRangeAt(index).cloneContents())
+  }
+  event.clipboardData.setData(
+    HTML,
+    container.innerHTML.replaceAll(WORD_JOINER, "").replaceAll(NBSP_ENTITY, " "),
+  )
+}
 
 const nowrapCss = css`
   white-space: nowrap;

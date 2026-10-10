@@ -169,6 +169,11 @@ export const fieldActionCss = css`
   margin-top: calc((56px - var(--control-height-md)) / 2);
 `
 
+/** A `Tooltip` trigger in a line of text: its 32px button would otherwise push the line's text down. */
+export const inlineTooltipTriggerCss = css`
+  margin-block: calc(var(--space-3) * -1);
+`
+
 /**
  * A checkbox in a `controlsCss` row. `controlsCss` aligns items to `start`, but a floating-label
  * field is much taller than an inline checkbox, so the checkbox needs centering on its own.

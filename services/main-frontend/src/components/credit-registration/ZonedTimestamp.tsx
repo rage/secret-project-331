@@ -30,7 +30,7 @@ const NBSP_ENTITY = "&nbsp;"
 export const cleanTimestampsOnCopy = (event: React.ClipboardEvent) => {
   const selection = window.getSelection()
   const text = selection?.toString() ?? ""
-  if (!selection || !text.includes(WORD_JOINER)) {
+  if (!selection || (!text.includes(WORD_JOINER) && !text.includes(NO_BREAK_SPACE))) {
     return
   }
   event.preventDefault()

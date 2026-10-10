@@ -74,9 +74,17 @@ const stepCss = css`
   gap: 0 var(--space-3);
 `
 
+/** Keeps the icon on the label's first line when the label wraps. */
+const labelCss = css`
+  display: inline-flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  min-width: 0;
+`
+
 const attentionIconCss = css`
   flex: none;
-  align-self: center;
+  margin-top: 0.2em;
   color: var(--color-crimson-600);
 `
 
@@ -157,13 +165,15 @@ const WhereRegistrationsStandList: React.FC<{
                     })}
                   >
                     <span className={stepCss}>
-                      {ATTENTION_STEPS.has(row.step) && (
-                        <ExclamationTriangle
-                          size={ATTENTION_ICON_SIZE}
-                          className={attentionIconCss}
-                        />
-                      )}
-                      {stepLabel}
+                      <span className={labelCss}>
+                        {ATTENTION_STEPS.has(row.step) && (
+                          <ExclamationTriangle
+                            size={ATTENTION_ICON_SIZE}
+                            className={attentionIconCss}
+                          />
+                        )}
+                        <span>{stepLabel}</span>
+                      </span>
                       {engagement && <span className={noteCss}>{engagement}</span>}
                     </span>
                     <span className={countCss}>{row.count}</span>

@@ -1,31 +1,32 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import type { AdminLinkingCandidate } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Badge, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
 
-import type { CreditRegistrationTFunction } from "../constants"
 import { BADGE_COMPACT, BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss, rowCss, stackedCellCss } from "../styles"
 import { useActionResult } from "../useActionResult"
-import { formatZonedTimestamp } from "../ZonedTimestamp"
 import type { DialogOpenState } from "./AdminActionDialog"
-import { linkingSimilarityLabel, resendOutcomeLabel } from "./adminCreditRegistrationCopy"
+import { linkingSimilarityLabel } from "./adminCreditRegistrationCopy"
 import { useLinkingCandidates } from "./adminCreditRegistrationHooks"
+import {
+  candidateFacts,
+  candidateListCss,
+  candidateName,
+  ResendOutcomeNotice,
+  showsNotEmailed,
+} from "./linkingCandidate"
 
 interface Props extends DialogOpenState {
   registrationId: string
@@ -34,38 +35,6 @@ interface Props extends DialogOpenState {
 interface Fields {
   student_number: string
 }
-
-const candidateListCss = css`
-  max-height: 24rem;
-  overflow-y: auto;
-`
-
-const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) =>
-  [candidate.first_names, candidate.last_name].filter(Boolean).join(" ") ||
-  t("credit-registration-admin-linking-candidate-no-name")
-
-/** `showsNotEmailed` is off when nobody on the list was emailed, where saying so on every row is noise. */
-const candidateFacts = (
-  t: CreditRegistrationTFunction,
-  candidate: AdminLinkingCandidate,
-  showsNotEmailed: boolean,
-) => [
-  candidate.email ? (
-    <EmailAddress key="email" address={candidate.email} />
-  ) : (
-    t("credit-registration-admin-linking-candidate-no-address")
-  ),
-  candidate.enrolled_at
-    ? t("credit-registration-admin-linking-candidate-enrolled", {
-        time: formatZonedTimestamp(new Date(candidate.enrolled_at)),
-      })
-    : t("credit-registration-admin-linking-candidate-enrolment-time-unknown"),
-  candidate.linking_emails_for_course > 0
-    ? t("credit-registration-admin-linking-candidate-emails", {
-        count: candidate.linking_emails_for_course,
-      })
-    : showsNotEmailed && t("credit-registration-admin-linking-candidate-not-emailed"),
-]
 
 /**
  * Lets an admin guess which unlinked early enrolee on the code is a student stuck waiting for a
@@ -82,9 +51,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
   const picked = data?.candidates.find(
     (candidate) => candidate.student_number === watch("student_number"),
   )
-  const showsNotEmailed = Boolean(
-    data?.candidates.some((candidate) => candidate.linking_emails_for_course > 0),
-  )
+  const isNotEmailedShown = showsNotEmailed(data?.candidates ?? [])
 
   const { result, setResult, mutation } = useActionResult(
     ({ fields, courseId }: { fields: Fields; courseId: string }) =>
@@ -143,24 +110,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && (
-          <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
-            <div>{resendOutcomeLabel(t, result.outcome)}</div>
-            <div>
-              {t("credit-registration-resend-mails-so-far", {
-                sent: result.mails_sent_for_this_course,
-                max: result.max_mails_per_person_and_course,
-              })}
-            </div>
-            {result.retired_mail_count > 0 && (
-              <div>
-                {t("credit-registration-admin-resend-retired-mails", {
-                  count: result.retired_mail_count,
-                })}
-              </div>
-            )}
-          </Infobox>
-        )}
+        {result && <ResendOutcomeNotice result={result} />}
         {candidatesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}
@@ -193,7 +143,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
                   label={candidateName(t, candidate)}
                   description={
                     <span className={stackedCellCss}>
-                      <InlineParts parts={candidateFacts(t, candidate, showsNotEmailed)} />
+                      <InlineParts parts={candidateFacts(t, candidate, isNotEmailedShown)} />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>
                           {candidate.similarities.map((similarity) => (

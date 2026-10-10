@@ -79,7 +79,7 @@ const DailyCostsTable: React.FC<{ rows: SuotarEndpointDailyCost[] }> = ({ rows }
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => (row.failed_call_count === 0 ? null : row.failed_call_count),
+            cell: (row) => row.failed_call_count,
           },
           {
             header: t("credit-registration-admin-column-items"),
@@ -189,7 +189,7 @@ const RosterCodesTable: React.FC<{ rows: EnrolmentCheckRosterCode[]; labelledBy:
           header: t("credit-registration-admin-column-speeding-up-fetches"),
           align: ALIGN_END,
           minWidth: "8rem",
-          cell: (row) => (row.waiting_count === 0 ? null : row.waiting_count),
+          cell: (row) => row.waiting_count,
         },
         {
           header: t("credit-registration-admin-column-last-fetched"),

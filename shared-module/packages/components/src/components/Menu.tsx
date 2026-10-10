@@ -8,11 +8,17 @@ import type { Placement } from "react-aria"
 
 import { includeIf } from "../lib/utils/nullability"
 import { Button } from "./Button"
+import type { ButtonSize } from "./primitives/buttonStyles"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 
 const OVERFLOW_SYMBOL = "⋯"
 const ICON_END = "end" as const
+
+// The rotated square's visible corner sits below its box centre; lift it onto the label's line.
+const triggerChevronCss = css`
+  transform: translateY(-25%) rotate(45deg);
+`
 
 const panelCss = css`
   display: grid;
@@ -74,6 +80,8 @@ export interface MenuProps {
    * overflow: the trigger becomes a quiet button with a dropdown chevron, named by this text.
    */
   label?: React.ReactNode
+  /** Trigger size; match it to the buttons beside the menu. */
+  size?: ButtonSize
   items: readonly MenuItemDescriptor[]
   placement?: Placement
   className?: string
@@ -89,6 +97,7 @@ export interface MenuProps {
 export const Menu: React.FC<MenuProps> = ({
   "aria-label": ariaLabel,
   label,
+  size = "small",
   items,
   placement = "bottom end",
   className,
@@ -183,10 +192,10 @@ export const Menu: React.FC<MenuProps> = ({
       <Button
         ref={triggerRef}
         variant={label === undefined ? "icon" : "tertiary"}
-        size="small"
+        size={size}
         {...includeIf(label === undefined, { "aria-label": ariaLabel })}
         {...includeIf(label !== undefined, {
-          icon: <span className={comboChevronCss} />,
+          icon: <span className={cx(comboChevronCss, triggerChevronCss)} />,
           iconPosition: ICON_END,
         })}
         className={cx(className)}

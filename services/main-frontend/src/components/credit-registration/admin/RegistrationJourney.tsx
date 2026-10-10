@@ -12,8 +12,13 @@ import { CREDIT_REGISTRATION_NS } from "../constants"
 import type { CreditRegistrationTFunction } from "../constants"
 import { formatDurationInWords } from "../durationWords"
 import { TextWithEmailAddresses } from "../EmailAddress"
-import { headingCss, sectionCardCss, sectionCardHeaderCss } from "../styles"
-import { formatZonedTimeRange, formatZonedTimestamp, ZonedTimestamp } from "../ZonedTimestamp"
+import { headingCss, sectionCss } from "../styles"
+import {
+  formatZonedTimeRange,
+  formatZonedTimestamp,
+  ZonedTimeRange,
+  ZonedTimestamp,
+} from "../ZonedTimestamp"
 import type {
   JourneyPhase,
   JourneyPhaseKey,
@@ -29,8 +34,11 @@ import { timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
 const CHEVRON_RIGHT = "right" as const
 const WARNING_ICON_SIZE = 20
 
-/** Phases sit side by side from this container width; below it they stack on a vertical line. */
-const ACROSS_MIN_PX = 1220
+/**
+ * Phases sit side by side from this container width, the narrowest where a phase's panel still
+ * fits a timestamp on one line; below it they stack on a vertical line.
+ */
+const ACROSS_MIN_PX = 1300
 /** Below this container width the markers and indents shrink to leave phones the text. */
 const PHONE_MAX_PX = 600
 /** From this container width a stacked substep's times move to a column of their own. */
@@ -38,23 +46,6 @@ const TIME_COLUMN_MIN_PX = 640
 
 const bodyCss = css`
   container-type: inline-size;
-`
-
-/** Phones reclaim the card's side padding for the timeline's text. */
-const PHONE_CARD_PADDING_MAX_PX = 560
-
-const sectionCss = css`
-  @media (max-width: ${PHONE_CARD_PADDING_MAX_PX}px) {
-    padding-right: var(--space-3-5);
-    padding-left: var(--space-3-5);
-
-    > :first-child {
-      margin-right: calc(var(--space-3-5) * -1);
-      margin-left: calc(var(--space-3-5) * -1);
-      padding-right: var(--space-3-5);
-      padding-left: var(--space-3-5);
-    }
-  }
 `
 
 // One block so every part restyles together per container width.
@@ -75,11 +66,7 @@ const timelineCss = css`
   padding: 0;
   list-style: none;
   color: var(--color-gray-700);
-
-  time {
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
+  overflow-wrap: anywhere;
 
   .tl-node {
     flex: none;
@@ -138,6 +125,9 @@ const timelineCss = css`
   }
   .tl-phase[data-status="done"] .tl-state {
     color: var(--done);
+  }
+  .tl-phase[data-status="current"] .tl-state {
+    color: var(--current);
   }
   .tl-phase[data-status="attention"] .tl-state {
     color: var(--attention);
@@ -294,6 +284,10 @@ const timelineCss = css`
     font-size: var(--font-size-0);
     list-style: none;
   }
+  /* The display above outranks the user agent's rule for the attribute. */
+  .tl-substep > .tl-events[hidden] {
+    display: none;
+  }
   .tl-phase:nth-child(even) .tl-events {
     background: var(--color-clear-50);
   }
@@ -330,8 +324,7 @@ const timelineCss = css`
   .tl-problem-body p {
     margin: 0;
   }
-  .tl-problem-since,
-  .tl-problem-hint {
+  .tl-problem-since {
     color: var(--muted);
     font-size: var(--font-size-1);
   }
@@ -661,7 +654,7 @@ const SubstepEvents: React.FC<{
               {showsTime && (
                 <span className="tl-event-time">
                   {entry.until ? (
-                    <time dateTime={entry.at}>{time}</time>
+                    <ZonedTimeRange from={entry.at} to={entry.until} />
                   ) : (
                     <ZonedTimestamp at={entry.at} />
                   )}
@@ -765,7 +758,6 @@ const ProblemBox: React.FC<{
           <ZonedTimestamp at={problem.since} />
         </span>
         {problem.summary && <p>{problem.summary}</p>}
-        {problem.hint && <p className="tl-problem-hint">{problem.hint}</p>}
         {actions && <div className="tl-problem-actions">{actions}</div>}
       </div>
     </section>
@@ -788,12 +780,10 @@ const RegistrationJourney: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   return (
-    <section className={cx(sectionCardCss, sectionCss)} aria-labelledby={headingId}>
-      <div className={sectionCardHeaderCss}>
-        <h2 id={headingId} className={headingCss}>
-          {t("credit-registration-heading-timeline")}
-        </h2>
-      </div>
+    <section className={sectionCss} aria-labelledby={headingId}>
+      <h2 id={headingId} className={headingCss}>
+        {t("credit-registration-heading-timeline")}
+      </h2>
       <div className={bodyCss}>
         <ol className={timelineCss} aria-label={t("credit-registration-admin-journey-steps-label")}>
           {phases.map((phase, index) => {

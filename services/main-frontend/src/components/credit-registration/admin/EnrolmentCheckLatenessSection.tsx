@@ -83,7 +83,7 @@ const EnrolmentCheckLatenessSection: React.FC<{
             align: ALIGN_END,
             minWidth: "6rem",
             nowrap: true,
-            cell: (row) => (row.very_late_count === 0 ? null : row.very_late_count),
+            cell: (row) => row.very_late_count,
           },
         ]}
       />

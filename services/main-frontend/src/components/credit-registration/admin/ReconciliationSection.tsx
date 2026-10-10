@@ -19,9 +19,10 @@ import {
   TONE,
 } from "../constants"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   dividedListCss,
   headingCss,
-  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -142,7 +143,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={noteCss}>{row.course_module_name}</span>
                 </span>
               ),
@@ -204,7 +205,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
                 </span>
               ),
@@ -246,7 +247,11 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
                 />
               ),
             },
-            { header: t("label-course"), minWidth: "11rem", cell: (row) => row.course_name },
+            {
+              header: t("label-course"),
+              minWidth: "11rem",
+              cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
+            },
             {
               header: t("label-state"),
               minWidth: "10rem",

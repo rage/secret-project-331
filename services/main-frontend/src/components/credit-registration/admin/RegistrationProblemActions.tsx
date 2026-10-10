@@ -25,9 +25,8 @@ const RegistrationProblemActions: React.FC<{
   registration: AdminCreditRegistrationRow
   isStudentNumberStuck: boolean
   isDismissed: boolean
-  unmailedEarlyEnroleeCount: number | null
-}> = ({ registration, isStudentNumberStuck, isDismissed, unmailedEarlyEnroleeCount }) => {
-  const stuckActions = useStudentNumberStuckActions(unmailedEarlyEnroleeCount)
+}> = ({ registration, isStudentNumberStuck, isDismissed }) => {
+  const stuckActions = useStudentNumberStuckActions()
 
   if (!isStudentNumberStuck) {
     return <AdminTransitionBlock registration={registration} isCompact />

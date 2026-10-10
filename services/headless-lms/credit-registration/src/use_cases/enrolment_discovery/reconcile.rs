@@ -141,6 +141,22 @@ pub(crate) async fn list_unlinked_enrolled_before(
         .collect())
 }
 
+/// Everyone on a roster whom no account is linked to, whenever they enrolled, each once with their
+/// latest enrolment.
+pub(crate) async fn list_unlinked(
+    conn: &mut PgConnection,
+    people: &[RosterPerson],
+) -> CreditRegistrationResult<Vec<RosterPerson>> {
+    let distinct = distinct_people(people);
+    let linked_rows = load_linked_accounts(conn, &distinct).await?;
+    let linked = LinkedAccounts::new(&linked_rows);
+    Ok(distinct
+        .into_iter()
+        .filter(|person| !linked.is_linked(person))
+        .cloned()
+        .collect())
+}
+
 /// The accounts already linked to someone on the roster, by Sisu person id or student number.
 async fn load_linked_accounts(
     conn: &mut PgConnection,

@@ -50,6 +50,7 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
+import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
 import { moduleSubtitleParts } from "./moduleSubtitle"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
@@ -124,7 +125,16 @@ const AttentionItemsTable: React.FC<{
           grow: 1,
           minWidth: STUDENT_COLUMN_MIN_WIDTH,
           cell: (row) => (
-            <StudentCell row={row} href={creditRegistrationItemRoute(row.credit_registration_id)} />
+            <span className={stackedCellCss}>
+              <StudentCell
+                row={row}
+                href={creditRegistrationItemRoute(row.credit_registration_id)}
+              />
+              <ManualLinkingEmailSendLines
+                sends={row.manual_linking_email_sends}
+                wording={SEND_LINE_WORDING.REGISTRATION}
+              />
+            </span>
           ),
         },
         {

@@ -45,6 +45,8 @@ pub struct ResendAttempt {
     pub outcome: ResendOutcome,
     /// Always zero without an override; only the admin-facing endpoint can pass one.
     pub retired_mail_count: i64,
+    /// Where the queued mail goes; `None` unless `outcome` is `Queued`.
+    pub emailed_to: Option<SecretString>,
 }
 
 /// An admin's go-ahead to get past the linking-mail caps by retiring the mails they count; see
@@ -73,6 +75,7 @@ pub(crate) async fn resend_for_target<R: InteractiveStudyRegistry>(
         return Ok(ResendAttempt {
             outcome: ResendOutcome::AlreadyLinked,
             retired_mail_count: 0,
+            emailed_to: None,
         });
     }
     resend_linking_mail(
@@ -99,6 +102,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     let not_retired = |outcome| ResendAttempt {
         outcome,
         retired_mail_count: 0,
+        emailed_to: None,
     };
     let course_codes = active_course_codes(pool, course_id).await?;
     if course_codes.is_empty() {
@@ -146,9 +150,13 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         LinkingMailClaim::SuppressedByDedup => ResendOutcome::AlreadyMailedToEveryKnownAddress,
         LinkingMailClaim::NoAddress => ResendOutcome::NoAddressInStudyRegistry,
     };
+    let emailed_to = (outcome == ResendOutcome::Queued)
+        .then(|| discovered.address.clone().map(SecretString::from))
+        .flatten();
     Ok(ResendAttempt {
         outcome,
         retired_mail_count,
+        emailed_to,
     })
 }
 

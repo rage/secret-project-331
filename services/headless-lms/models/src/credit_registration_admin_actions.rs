@@ -192,6 +192,104 @@ WHERE actor_user_id = $1
     Ok(count)
 }
 
+/// Which linking emails sent by hand [`get_manual_linking_email_sends`] returns.
+#[derive(Debug, Clone, Copy)]
+pub enum ManualLinkingEmailSendScope<'a> {
+    /// Those to these student numbers on one course.
+    Course {
+        course_id: Uuid,
+        student_numbers: &'a [String],
+    },
+    /// Those sent as a guess for one of these registrations' students.
+    Registrations(&'a [Uuid]),
+}
+
+/// A linking email an admin or a teacher sent by hand: a `resend_link_email` action that queued one.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ManualLinkingEmailSend {
+    pub sent_at: DateTime<Utc>,
+    pub student_number: Option<String>,
+    /// The registration whose student the email was a guess for.
+    pub credit_registration_id: Option<Uuid>,
+    pub sent_by_user_id: Uuid,
+    pub sent_by_first_name: Option<String>,
+    pub sent_by_last_name: Option<String>,
+    pub sent_by_email: Option<String>,
+    /// In full. `None` only for an older action whose ledger row could not be matched.
+    pub emailed_to: Option<String>,
+}
+
+/// Linking emails sent by hand, newest first.
+///
+/// An action recorded before `details.emailed_to` existed is matched to the ledger row its send
+/// claimed: the newest one for the same course and student number claimed at most a minute before
+/// the action. The per person and course quiet period leaves no other row in that window.
+pub async fn get_manual_linking_email_sends(
+    conn: &mut PgConnection,
+    scope: ManualLinkingEmailSendScope<'_>,
+) -> ModelResult<Vec<ManualLinkingEmailSend>> {
+    let (course_id, student_numbers, registration_ids) = match scope {
+        ManualLinkingEmailSendScope::Course {
+            course_id,
+            student_numbers,
+        } => (Some(course_id), Some(student_numbers.to_vec()), None),
+        ManualLinkingEmailSendScope::Registrations(ids) => (
+            None,
+            None,
+            Some(ids.iter().map(Uuid::to_string).collect::<Vec<_>>()),
+        ),
+    };
+    let res = sqlx::query_as!(
+        ManualLinkingEmailSend,
+        r#"
+SELECT a.created_at AS sent_at,
+  a.details->>'student_number' AS "student_number?",
+  CASE
+    WHEN a.details->>'credit_registration_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'credit_registration_id')::uuid
+  END AS "credit_registration_id?",
+  a.actor_user_id AS sent_by_user_id,
+  ud.first_name AS "sent_by_first_name?",
+  ud.last_name AS "sent_by_last_name?",
+  ud.email AS "sent_by_email?",
+  COALESCE(a.details->>'emailed_to', claimed.emailed_to) AS "emailed_to?"
+FROM credit_registration_admin_actions a
+  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+  LEFT JOIN LATERAL (
+    SELECT e.emailed_to
+    FROM credit_registration_account_linking_emails e
+    WHERE a.details->>'emailed_to' IS NULL
+      AND e.course_id = a.target_id
+      AND e.student_number = a.details->>'student_number'
+      AND e.sent_at <= a.created_at
+      AND e.sent_at > a.created_at - INTERVAL '1 minute'
+    ORDER BY e.sent_at DESC
+    LIMIT 1
+  ) claimed ON TRUE
+WHERE a.action = 'resend_link_email'
+  AND a.target_kind = 'course'
+  AND a.details->>'outcome' = 'queued'
+  AND a.deleted_at IS NULL
+  AND ($1::uuid IS NULL OR a.target_id = $1)
+  AND (
+    $2::text [] IS NULL
+    OR a.details->>'student_number' = ANY($2)
+  )
+  AND (
+    $3::text [] IS NULL
+    OR a.details->>'credit_registration_id' = ANY($3)
+  )
+ORDER BY a.created_at DESC,
+  a.id
+        "#,
+        course_id,
+        student_numbers.as_deref(),
+        registration_ids.as_deref(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// The narrowings the Audit tab applies, all of them in SQL.
 #[derive(Debug, Clone, Default)]
 pub struct CreditRegistrationAdminActionFilters<'a> {

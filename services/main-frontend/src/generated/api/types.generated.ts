@@ -434,6 +434,10 @@ export type AdminCreditRegistrationDetails = {
    */
   linking_emails: Array<AdminLinkingEmail>
   linking_schedule?: null | AdminLinkingSchedule
+  /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
   not_improved_attainment?: null | NotImprovedAttainment
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
@@ -657,6 +661,10 @@ export type AdminLinkingCandidate = {
    */
   linking_emails_for_course: number
   /**
+   * Those of `linking_emails_for_course` someone sent by hand, newest first.
+   */
+  manual_sends: Array<AdminManualLinkingEmailSend>
+  /**
    * What they share with the waiting student's account, by which the linking candidates are
    * ordered. Always empty in [`AdminUnlinkedEnrolees`].
    */
@@ -740,6 +748,21 @@ export type AdminManualLinkOutcome =
   | "already_linked_to_this_account"
   | "study_registry_unavailable"
   | "unexpected_study_registry_answer"
+
+/**
+ * A linking email someone sent by hand, so others do not send the same one again.
+ */
+export type AdminManualLinkingEmailSend = {
+  /**
+   * In full. `None` only for an older send whose address could not be told.
+   */
+  emailed_to?: string | null
+  sent_at: string
+  sent_by_email?: string | null
+  sent_by_first_name?: string | null
+  sent_by_last_name?: string | null
+  sent_by_user_id: string
+}
 
 export type AdminManuallyLinkStudentNumberPayload = {
   reason: string
@@ -2534,6 +2557,10 @@ export type CreditRegistrationAttentionItem = {
    */
   last_mailing_fetch_started_at?: string | null
   last_name?: string | null
+  /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
   /**
    * The pipeline's own flag; a fact about the row, separate from any dismissal.
    */

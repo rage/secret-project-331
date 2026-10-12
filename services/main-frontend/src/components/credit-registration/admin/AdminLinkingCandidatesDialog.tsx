@@ -28,6 +28,7 @@ import {
   SendFailedNotice,
   showsNotEmailed,
 } from "./linkingCandidate"
+import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
 
 interface Props extends DialogOpenState {
   registrationId: string
@@ -65,6 +66,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
           credit_registration_id: registrationId,
         },
       }),
+    () => void candidatesQuery.refetch(),
   )
 
   const closeDialog = () => {
@@ -148,6 +150,10 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
                   description={
                     <span className={stackedCellCss}>
                       <InlineParts parts={candidateFacts(t, candidate, isNotEmailedShown)} />
+                      <ManualLinkingEmailSendLines
+                        sends={candidate.manual_sends}
+                        wording={SEND_LINE_WORDING.CANDIDATE}
+                      />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>
                           {candidate.similarities.map((similarity) => (

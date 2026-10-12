@@ -6,22 +6,14 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import InlineParts from "@/components/credit-registration/InlineParts"
-import {
-  getAccountLinkingUnlinkedEnroleesQueryKey,
-  getCreditRegistrationAttentionItemsQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { getCreditRegistrationAttentionItemsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import type {
-  AdminLinkingCandidate,
-  AdminLinkingCourse,
-  AdminUnlinkedEnrolees,
-} from "@/generated/api/types.generated"
+import type { AdminLinkingCandidate, AdminLinkingCourse } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { ComboBox, Dialog, Infobox, Radio, RadioGroup, TextField } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { RESEND_QUEUED } from "../resendOutcome"
-import { dialogFormCss, noteCss, proseCss } from "../styles"
+import { dialogFormCss, noteCss, proseCss, stackedCellCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import {
@@ -38,6 +30,7 @@ import {
   SendFailedNotice,
   showsNotEmailed,
 } from "./linkingCandidate"
+import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
 
 interface Fields {
   course_id: string | null
@@ -95,23 +88,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
           credit_registration_id: null,
         },
       }),
-    (sent, target) => {
-      if (sent.outcome !== RESEND_QUEUED) {
-        return
-      }
-      queryClient.setQueryData<AdminUnlinkedEnrolees>(
-        getAccountLinkingUnlinkedEnroleesQueryKey({ path: { course_id: target.course_id } }),
-        (current) =>
-          current && {
-            ...current,
-            people: current.people.map((person) =>
-              person.student_number === target.student_number
-                ? { ...person, linking_emails_for_course: person.linking_emails_for_course + 1 }
-                : person,
-            ),
-          },
-      )
-    },
+    () => void enroleesQuery.refetch(),
   )
 
   const closeDialog = () => {
@@ -223,7 +200,13 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
                     value={person.student_number}
                     label={candidateName(t, person)}
                     description={
-                      <InlineParts parts={candidateFacts(t, person, isNotEmailedShown)} />
+                      <span className={stackedCellCss}>
+                        <InlineParts parts={candidateFacts(t, person, isNotEmailedShown)} />
+                        <ManualLinkingEmailSendLines
+                          sends={person.manual_sends}
+                          wording={SEND_LINE_WORDING.CANDIDATE}
+                        />
+                      </span>
                     }
                   />
                 ))}

@@ -7,8 +7,8 @@ use headless_lms_models::credit_registration_account_linking_emails::{
     self, StaleUnclaimedLinkingMails,
 };
 use headless_lms_models::credit_registration_admin_actions::{
-    CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
-    NewCreditRegistrationAdminAction,
+    self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
+    ManualLinkingEmailSendScope, NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
 use headless_lms_models::credit_registration_phase_state;
@@ -45,15 +45,15 @@ use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::CreditRegistrationPhase;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson,
+    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson, ResendAttempt,
     list_unlinked_enrolled_before, list_unlinked_on_course_rosters, look_up_person,
     resend_linking_mail_for_target,
 };
 
 use super::dashboard::{CreditRegistrationPhaseStatus, to_phase_status};
 use super::{
-    AdminLinkingEmail, attention_rules, authorize_credit_registration_admin, build_linking_emails,
-    required_reason,
+    AdminLinkingEmail, AdminManualLinkingEmailSend, attention_rules,
+    authorize_credit_registration_admin, build_linking_emails, required_reason,
 };
 
 const STALE_UNCLAIMED_LIMIT: i64 = 200;
@@ -401,6 +401,8 @@ pub struct AdminLinkingCandidate {
     pub enrolled_at: Option<DateTime<Utc>>,
     /// Linking emails they have had for the course, replaced ones included.
     pub linking_emails_for_course: i64,
+    /// Those of `linking_emails_for_course` someone sent by hand, newest first.
+    pub manual_sends: Vec<AdminManualLinkingEmailSend>,
     /// What they share with the waiting student's account, by which the linking candidates are
     /// ordered. Always empty in [`AdminUnlinkedEnrolees`].
     pub similarities: Vec<LinkingCandidateSimilarity>,
@@ -1049,7 +1051,7 @@ pub async fn admin_resend_account_linking_email(
         &payload,
         &student_number,
         outcome,
-        attempt.retired_mail_count,
+        &attempt,
         token,
     )
     .await
@@ -1119,8 +1121,7 @@ pub async fn get_credit_registration_linking_candidates(
 
     let study_registry_unavailable = people.is_none();
     let people = people.unwrap_or_default();
-    let mails_by_person =
-        count_linking_emails_for_course(&mut conn, &people, row.course_id).await?;
+    let history = linking_email_history(&mut conn, &people, row.course_id).await?;
 
     let account = AccountIdentity {
         first_name: row.first_name.as_deref(),
@@ -1132,7 +1133,7 @@ pub async fn get_credit_registration_linking_candidates(
         .map(|person| {
             let found = similarities(&account, person);
             let score = similarity_score(&found);
-            (score, to_linking_candidate(person, &mails_by_person, found))
+            (score, to_linking_candidate(person, &history, found))
         })
         .collect();
     ranked.sort_by(|(a_score, a), (b_score, b)| b_score.cmp(a_score).then_with(|| by_name(a, b)));
@@ -1235,10 +1236,10 @@ pub async fn get_account_linking_unlinked_enrolees(
 
     let study_registry_unavailable = people.is_none();
     let people = people.unwrap_or_default();
-    let mails_by_person = count_linking_emails_for_course(&mut conn, &people, course_id).await?;
+    let history = linking_email_history(&mut conn, &people, course_id).await?;
     let mut people: Vec<AdminLinkingCandidate> = people
         .iter()
-        .map(|person| to_linking_candidate(person, &mails_by_person, Vec::new()))
+        .map(|person| to_linking_candidate(person, &history, Vec::new()))
         .collect();
     people.sort_by(by_name);
 
@@ -1587,31 +1588,60 @@ fn typed_student_number(raw: &SecretString) -> Result<SecretString, ControllerEr
         .map_err(|invalid| controller_err!(BadRequest, invalid.message().to_string()))
 }
 
-/// Linking emails each Sisu person id has had for the course, replaced ones included.
-async fn count_linking_emails_for_course(
+/// The linking emails listed people have had for one course.
+struct LinkingEmailHistory {
+    /// By Sisu person id, replaced ones included.
+    mail_counts: HashMap<String, i64>,
+    /// By student number, newest first.
+    manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>>,
+}
+
+async fn linking_email_history(
     conn: &mut PgConnection,
     people: &[RosterPerson],
     course_id: Uuid,
-) -> Result<HashMap<String, i64>, ControllerError> {
+) -> Result<LinkingEmailHistory, ControllerError> {
     let person_ids: Vec<String> = people
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
-    Ok(
+    let mail_counts =
         credit_registration_account_linking_emails::count_mails_per_person_for_course(
             conn,
             &person_ids,
             course_id,
         )
-        .await?
-        .into_iter()
-        .collect(),
+        .await?;
+    let student_numbers: Vec<String> = people
+        .iter()
+        .map(|person| person.student_number.expose_secret().to_owned())
+        .collect();
+    let mut manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
+    for send in credit_registration_admin_actions::get_manual_linking_email_sends(
+        conn,
+        ManualLinkingEmailSendScope::Course {
+            course_id,
+            student_numbers: &student_numbers,
+        },
     )
+    .await?
+    {
+        if let Some(student_number) = send.student_number.clone() {
+            manual_sends
+                .entry(student_number)
+                .or_default()
+                .push(send.into());
+        }
+    }
+    Ok(LinkingEmailHistory {
+        mail_counts,
+        manual_sends,
+    })
 }
 
 fn to_linking_candidate(
     person: &RosterPerson,
-    mails_by_person: &HashMap<String, i64>,
+    history: &LinkingEmailHistory,
     similarities: Vec<LinkingCandidateSimilarity>,
 ) -> AdminLinkingCandidate {
     AdminLinkingCandidate {
@@ -1626,10 +1656,16 @@ fn to_linking_candidate(
             .map(|name| name.expose_secret().to_owned()),
         email: mail_address(person).map(|address| address.expose_secret().to_owned()),
         enrolled_at: person.enrolled_at(),
-        linking_emails_for_course: mails_by_person
+        linking_emails_for_course: history
+            .mail_counts
             .get(person.person_id.expose_secret())
             .copied()
             .unwrap_or(0),
+        manual_sends: history
+            .manual_sends
+            .get(person.student_number.expose_secret())
+            .cloned()
+            .unwrap_or_default(),
         similarities,
     }
 }
@@ -1652,7 +1688,7 @@ async fn finish_resend(
     payload: &AdminResendAccountLinkingEmailPayload,
     student_number: &SecretString,
     outcome: ResendOutcome,
-    retired_mail_count: i64,
+    attempt: &ResendAttempt,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
@@ -1667,8 +1703,9 @@ async fn finish_resend(
             "outcome": outcome,
             "student_number": student_number.expose_secret(),
             "override_rate_caps": payload.override_rate_caps,
-            "retired_mail_count": retired_mail_count,
+            "retired_mail_count": attempt.retired_mail_count,
             "credit_registration_id": payload.credit_registration_id,
+            "emailed_to": attempt.emailed_to.as_ref().map(ExposeSecret::expose_secret),
         }),
     )
     .await?;
@@ -1676,7 +1713,7 @@ async fn finish_resend(
 
     token.authorized_ok(web::Json(AdminResendAccountLinkingEmailResult {
         outcome,
-        retired_mail_count,
+        retired_mail_count: attempt.retired_mail_count,
         linking_emails,
         mails_sent_for_this_course,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,

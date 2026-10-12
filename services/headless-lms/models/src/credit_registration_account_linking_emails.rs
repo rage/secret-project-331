@@ -75,6 +75,20 @@ RETURNING id
     Ok(res.map(|r| r.id))
 }
 
+/// Moves a mail's `sent_at` `age` into the past, for seeding mails sent before today.
+///
+/// Shifts the row rather than the clock because the caps compare against Postgres `now()`.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: chrono::Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE credit_registration_account_linking_emails SET sent_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as chrono::Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
 #[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {

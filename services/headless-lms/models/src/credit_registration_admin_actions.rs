@@ -215,14 +215,14 @@ pub struct ManualLinkingEmailSend {
     pub sent_by_first_name: Option<String>,
     pub sent_by_last_name: Option<String>,
     pub sent_by_email: Option<String>,
-    /// In full. `None` only for an older action whose ledger row could not be matched.
+    /// In full. `None` when the action recorded no address and no ledger row matched it.
     pub emailed_to: Option<String>,
 }
 
 /// Linking emails sent by hand, newest first.
 ///
-/// An action recorded before `details.emailed_to` existed is matched to the ledger row its send
-/// claimed: the newest one for the same course and student number claimed at most a minute before
+/// An action without `details.emailed_to`, as the earliest ones are, is matched to the ledger row its
+/// send claimed: the newest one for the same course and student number claimed at most a minute before
 /// the action. The per person and course quiet period leaves no other row in that window.
 pub async fn get_manual_linking_email_sends(
     conn: &mut PgConnection,

@@ -143,7 +143,7 @@ pub struct AdminManualLinkingEmailSend {
     pub sent_by_first_name: Option<String>,
     pub sent_by_last_name: Option<String>,
     pub sent_by_email: Option<String>,
-    /// In full. `None` only for an older send whose address could not be told.
+    /// In full. `None` when the send's address could not be told.
     pub emailed_to: Option<String>,
 }
 

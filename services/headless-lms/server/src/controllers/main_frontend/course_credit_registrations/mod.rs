@@ -692,6 +692,7 @@ pub async fn resend_course_credit_registration_linking_email(
             &payload,
             None,
             ResendOutcome::NoStudentNumberKnown,
+            None,
             token,
         )
         .await;
@@ -714,6 +715,7 @@ pub async fn resend_course_credit_registration_linking_email(
         &payload,
         Some(&student_number),
         outcome,
+        attempt.emailed_to.as_ref(),
         token,
     )
     .await
@@ -755,6 +757,7 @@ async fn resolve_resend_target(
 }
 
 /// Audits the attempt whatever it did, and reports where the person's linking mail now stands.
+#[allow(clippy::too_many_arguments)]
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
@@ -762,6 +765,7 @@ async fn finish_resend(
     payload: &ResendLinkingEmailPayload,
     student_number: Option<&SecretString>,
     outcome: ResendOutcome,
+    emailed_to: Option<&SecretString>,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
@@ -775,6 +779,7 @@ async fn finish_resend(
         serde_json::json!({
             "outcome": outcome,
             "student_number": student_number.map(ExposeSecret::expose_secret),
+            "emailed_to": emailed_to.map(ExposeSecret::expose_secret),
         }),
     )
     .await?;

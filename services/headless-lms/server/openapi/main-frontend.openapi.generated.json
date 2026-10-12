@@ -16066,7 +16066,7 @@
         "properties": {
           "emailed_to": {
             "type": ["string", "null"],
-            "description": "In full. `None` only for an older send whose address could not be told."
+            "description": "In full. `None` when the send's address could not be told."
           },
           "sent_at": {
             "type": "string",

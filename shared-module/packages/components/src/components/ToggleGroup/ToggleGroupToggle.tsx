@@ -25,7 +25,6 @@ const buttonCss = (selected: boolean) => css`
   }
 `
 
-// works? or styled.span
 const CapitalizedFirstLetter = css`
   display: inline-block;
   &::first-letter {

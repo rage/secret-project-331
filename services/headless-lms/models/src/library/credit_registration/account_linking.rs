@@ -47,6 +47,18 @@ pub const LINKING_MAIL_RESEND_INTERVAL: TimeDelta = TimeDelta::days(7);
 /// included.
 pub const MAX_LINKING_MAILS_PER_PERSON_AND_COURSE: i64 = 3;
 
+/// No override retires a mail claimed this recently, so a second click, tab or colleague cannot
+/// replace one that has only just gone out.
+pub const JUST_CLAIMED_PERIOD: TimeDelta = TimeDelta::minutes(1);
+
+/// What [`retire_capped_mails`] did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RetiredMails {
+    pub retired_count: i64,
+    /// A mail within [`JUST_CLAIMED_PERIOD`] was left in place, where the caps still count it.
+    pub kept_just_claimed: bool,
+}
+
 /// One person Sisu's `list-by-course` returned, and the address we mail them at.
 #[derive(Debug, Clone)]
 pub struct DiscoveredPerson {
@@ -213,11 +225,16 @@ pub async fn retire_capped_mails(
     course_id: Uuid,
     student_number: &str,
     reason: &str,
-) -> ModelResult<i64> {
-    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
-        return Ok(0);
+) -> ModelResult<RetiredMails> {
+    let mut outcome = RetiredMails {
+        retired_count: 0,
+        kept_just_claimed: false,
     };
-    let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
+    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
+        return Ok(outcome);
+    };
+    let now = Utc::now();
+    let quiet_since = now - LINKING_MAIL_QUIET_PERIOD;
     let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
         conn,
         person_id.expose_secret(),
@@ -225,13 +242,14 @@ pub async fn retire_capped_mails(
     .await?;
     // This course's rows carry the dedup guard and the lifetime cap; a recent row on any course
     // carries the quiet period, which is about the person's inbox rather than one course.
-    let retired: Vec<Uuid> = mails
+    let (just_claimed, retirable): (Vec<_>, Vec<_>) = mails
         .iter()
         .filter(|mail| mail.course_id == course_id || mail.sent_at >= quiet_since)
-        .map(|mail| mail.id)
-        .collect();
+        .partition(|mail| mail.sent_at >= now - JUST_CLAIMED_PERIOD);
+    outcome.kept_just_claimed = !just_claimed.is_empty();
+    let retired: Vec<Uuid> = retirable.iter().map(|mail| mail.id).collect();
     if retired.is_empty() {
-        return Ok(0);
+        return Ok(outcome);
     }
 
     let mut tx = conn.begin().await?;
@@ -256,7 +274,8 @@ pub async fn retire_capped_mails(
     )
     .await?;
     tx.commit().await?;
-    Ok(retired.len() as i64)
+    outcome.retired_count = retired.len() as i64;
+    Ok(outcome)
 }
 
 async fn person_id_of_mails(
@@ -421,6 +440,12 @@ mod tests {
                 .unwrap(),
             1
         );
+        sqlx::query(
+            "UPDATE credit_registration_account_linking_emails SET sent_at = now() - INTERVAL '1 hour'",
+        )
+        .execute(&mut **tx.as_mut())
+        .await
+        .unwrap();
 
         let retired = retire_capped_mails(
             tx.as_mut(),
@@ -432,7 +457,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(retired, 1);
+        assert_eq!(retired.retired_count, 1);
         assert_eq!(
             count_sent_for_person_and_course(tx.as_mut(), "hy-hlo-1", course)
                 .await
@@ -471,7 +496,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(retired, 0);
+        assert_eq!(retired.retired_count, 0);
         assert!(
             credit_registration_admin_actions::get_by_actor(tx.as_mut(), user, 10)
                 .await

@@ -4646,6 +4646,7 @@ export const zResendOutcome = z.enum([
   "queued",
   "already_mailed_to_every_known_address",
   "refused_by_rate_cap",
+  "just_sent",
   "no_address_in_study_registry",
   "not_on_the_course_roster",
   "already_linked",

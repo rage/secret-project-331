@@ -603,6 +603,7 @@
   "credit-registration-admin-resend-already-linked": "Tämä numero on jo liitetty tiliin, joten liitosviestiä ei tarvita.",
   "credit-registration-admin-resend-already-mailed": "Tämän henkilön tämän kurssin liitosviesti on yhä voimassa. Uuden voi lähettää, kun linkki on vanhentunut.",
   "credit-registration-admin-resend-dialog-target": "Opiskelijanumero {{studentNumber}}, kurssi {{course}}.",
+  "credit-registration-admin-resend-just-sent": "Tälle henkilölle lähti liitosviesti hetki sitten, joten uutta ei lähetetty, ei myöskään ohituksella.",
   "credit-registration-admin-resend-link-description": "Lähettää uuden liitosviestin opiskelijan Sisussa olevaan ensisijaiseen sähköpostiosoitteeseen.",
   "credit-registration-admin-resend-no-address": "Sisussa ei ole ensisijaista sähköpostiosoitetta tälle henkilölle.",
   "credit-registration-admin-resend-not-on-roster": "Sisu ei listaa tätä henkilöä tälle kurssille. Avoimen yliopiston ilmoittautumiset näkyvät vasta, kun ne on hyväksytty.",

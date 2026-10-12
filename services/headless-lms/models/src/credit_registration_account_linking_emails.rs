@@ -303,33 +303,6 @@ ORDER BY sent_at DESC
     Ok(res)
 }
 
-/// Whether a linking mail was claimed for this student number on this course since `since`, rows an
-/// override retired included.
-pub async fn was_claimed_since(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    student_number: &str,
-    since: DateTime<Utc>,
-) -> ModelResult<bool> {
-    let res = sqlx::query_scalar!(
-        r#"
-SELECT EXISTS (
-    SELECT 1
-    FROM credit_registration_account_linking_emails
-    WHERE course_id = $1
-      AND student_number = $2
-      AND sent_at >= $3
-  ) AS "claimed!"
-        "#,
-        course_id,
-        student_number,
-        since,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 pub async fn get_by_sisu_person_id(
     conn: &mut PgConnection,
     sisu_person_id: &str,

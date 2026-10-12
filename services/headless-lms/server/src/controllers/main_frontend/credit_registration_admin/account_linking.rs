@@ -70,10 +70,6 @@ const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 const CANDIDATES_CALLER: &str = "admin-linking-candidates";
 const UNLINKED_ENROLEES_CALLER: &str = "admin-unlinked-enrolees";
 
-/// Keeps a second click, tab or colleague from sending, or overriding the caps on, a mail that was
-/// only just claimed.
-const JUST_CLAIMED_WINDOW: chrono::Duration = chrono::Duration::minutes(1);
-
 /// The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person
 /// counted once per code, and the `_in_window` ones come from the window: there is no single
 /// denominator.
@@ -995,7 +991,7 @@ retires the ledger rows the cap is counting, as its own audited action, then run
     request_body = AdminResendAccountLinkingEmailPayload,
     responses(
         (status = 200, description = "What the attempt did", body = AdminResendAccountLinkingEmailResult),
-        (status = 422, description = "An override without a reason, or a linking email to the person on the course was claimed under a minute ago")
+        (status = 422, description = "An override without a reason")
     )
 )]
 pub async fn admin_resend_account_linking_email(
@@ -1015,21 +1011,6 @@ pub async fn admin_resend_account_linking_email(
     } else {
         None
     };
-
-    if credit_registration_account_linking_emails::was_claimed_since(
-        &mut conn,
-        payload.course_id,
-        student_number.expose_secret(),
-        Utc::now() - JUST_CLAIMED_WINDOW,
-    )
-    .await?
-    {
-        return Err(controller_err!(
-            BadRequest,
-            "A linking email to this person on this course went out less than a minute ago."
-                .to_string()
-        ));
-    }
 
     if let Some(credit_registration_id) = payload.credit_registration_id
         && credit_registrations::get_by_id(&mut conn, credit_registration_id)

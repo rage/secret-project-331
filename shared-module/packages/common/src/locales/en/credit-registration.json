@@ -603,6 +603,7 @@
   "credit-registration-admin-resend-already-linked": "This number is already linked to an account, so no linking email is needed.",
   "credit-registration-admin-resend-already-mailed": "This person's linking email for this course still works. A new one can be sent once the link expires.",
   "credit-registration-admin-resend-dialog-target": "Student number {{studentNumber}}, course {{course}}.",
+  "credit-registration-admin-resend-just-sent": "A linking email went to this person moments ago, so nothing new was sent, even with the override.",
   "credit-registration-admin-resend-link-description": "Sends a new linking email to the student's primary email address in Sisu.",
   "credit-registration-admin-resend-no-address": "Sisu holds no primary email address for this person.",
   "credit-registration-admin-resend-not-on-roster": "Sisu does not list this person on this course. Open University enrolments are listed only once accepted.",

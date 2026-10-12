@@ -31,10 +31,10 @@ export const buildFormValues = (data: ExternalCourseOutput): ExternalCourseOutpu
 const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse }) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
-  const methods = useForm<ExternalCourseOutput>({
+  const useFormReturn = useForm<ExternalCourseOutput>({
     defaultValues: buildFormValues(externalCourse),
   })
-  const { control, handleSubmit, reset } = methods
+  const { control, handleSubmit, reset } = useFormReturn
 
   const { isDirty } = useFormState({ control })
 
@@ -123,7 +123,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
   )
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...useFormReturn}>
       <div
         key={externalCourse.id}
         className={css`

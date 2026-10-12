@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.external_completion_id,\n  cr.external_credit_target_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  s.passed AS \"passed!\",\n  s.grade,\n  s.updated_at AS \"completion_updated_at!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  -- Membership is the whole eligibility check: the view is the unit opt-in and the completion\n  -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.\n  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id\n  AND e.fully_eligible\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND cr.pending_superseded_by_id IS NULL\n  -- The success set only: a row whose outcome we do not know must not gain a successor.\n  AND cr.state = ANY($4::credit_registration_state [])\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  -- Only the latest attempt: a newer one, even one that stopped short, reads the completion's grade\n  -- afresh whenever it resolves again.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations later\n    WHERE later.subject_id = cr.subject_id\n      AND later.attempt_number > cr.attempt_number\n      AND later.deleted_at IS NULL\n  )\n  -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot\n  -- have been regraded after that attempt froze its grade; but one touched for any other reason\n  -- passes that test forever, and only the grade comparison below can tell the two apart, which is\n  -- why the loop stamps the watermark on every candidate it declines. Without the second half the\n  -- limit keeps spending itself on the same rows while a real regrade waits behind them.\n  AND s.updated_at > cr.created_at\n  AND (\n    cr.improvement_checked_completion_updated_at IS NULL\n    OR s.updated_at > cr.improvement_checked_completion_updated_at\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($5::uuid IS NULL OR cr.external_credit_target_id = $5)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY s.updated_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.external_completion_id,\n  cr.external_credit_target_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  s.passed AS \"passed!\",\n  s.grade,\n  s.revised_at AS \"completion_revised_at!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  -- Membership is the whole eligibility check: the view is the unit opt-in and the completion\n  -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.\n  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id\n  AND e.fully_eligible\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND cr.pending_superseded_by_id IS NULL\n  -- The success set only: a row whose outcome we do not know must not gain a successor.\n  AND cr.state = ANY($4::credit_registration_state [])\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  -- Only the latest attempt: a newer one, even one that stopped short, reads the completion's grade\n  -- afresh whenever it resolves again.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations later\n    WHERE later.subject_id = cr.subject_id\n      AND later.attempt_number > cr.attempt_number\n      AND later.deleted_at IS NULL\n  )\n  -- Two halves of one cheap pre-filter. A completion unrevised since the attempt was created cannot\n  -- have been regraded after that attempt froze its grade; but one revised for any other reason\n  -- passes that test forever, and only the grade comparison below can tell the two apart, which is\n  -- why the loop stamps the watermark on every candidate it declines. Without the second half the\n  -- limit keeps spending itself on the same rows while a real regrade waits behind them.\n  AND s.revised_at > cr.created_at\n  AND (\n    cr.improvement_checked_completion_updated_at IS NULL\n    OR s.revised_at > cr.improvement_checked_completion_updated_at\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($5::uuid IS NULL OR cr.external_credit_target_id = $5)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY s.revised_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -148,12 +148,12 @@
       },
       {
         "ordinal": 13,
-        "name": "completion_updated_at!",
+        "name": "completion_revised_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "credit_registration_subjects",
-            "name": "updated_at"
+            "name": "revised_at"
           }
         }
       }
@@ -216,5 +216,5 @@
       true
     ]
   },
-  "hash": "9254f5da63085570cae42ad7b7553eeb132aec80c0fe397c14665d9873494d02"
+  "hash": "6dce018fe39e6a30ce2e7d835682cd599c0fff83cd01d2ea3d7a564751aa9872"
 }

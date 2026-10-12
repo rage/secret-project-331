@@ -7,12 +7,11 @@ import type { ButtonVariant } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
-import type { LinkingMailSourceIds } from "./AdminResendLinkingEmailDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 
 interface Props {
   studentNumber: string
-  source: LinkingMailSourceIds
+  courseOrTargetId: string
   courseName: string
   variant?: ButtonVariant
 }
@@ -20,7 +19,7 @@ interface Props {
 /** The resend dialog behind a button of its own, for a page that offers it as one of its actions. */
 const AdminResendLinkingEmailButton: React.FC<Props> = ({
   studentNumber,
-  source,
+  courseOrTargetId,
   courseName,
   variant = "secondary",
 }) => {
@@ -36,7 +35,7 @@ const AdminResendLinkingEmailButton: React.FC<Props> = ({
         isOpen={open}
         onClose={() => setOpen(false)}
         studentNumber={studentNumber}
-        source={source}
+        courseOrTargetId={courseOrTargetId}
         courseName={courseName}
       />
     </>

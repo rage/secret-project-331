@@ -1,15 +1,15 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT external_credit_target_id,\n  COUNT(*) AS \"count!\"\nFROM external_completions\nWHERE deleted_at IS NULL\n  AND passed\n  AND eligible_for_ects\nGROUP BY external_credit_target_id\n        ",
+  "query": "\nSELECT external_credit_target_id AS \"external_credit_target_id!\",\n  COUNT(*) AS \"count!\"\nFROM credit_registration_eligible_completions\nWHERE kind = 'mooc_fi'\nGROUP BY external_credit_target_id\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "external_credit_target_id",
+        "name": "external_credit_target_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "external_completions",
+            "table": "credit_registration_eligible_completions",
             "name": "external_credit_target_id"
           }
         }
@@ -25,9 +25,9 @@
       "Left": []
     },
     "nullable": [
-      false,
+      true,
       null
     ]
   },
-  "hash": "64b5cf3dfb317a302b2451b861c6f6276085c107957f6addfd4a60e60e099602"
+  "hash": "055745292d52cedaaf4f0ecc0a31f50387fd4f262d7270edb22bc1beda79e37f"
 }

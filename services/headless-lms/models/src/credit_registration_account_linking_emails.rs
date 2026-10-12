@@ -67,6 +67,16 @@ impl LinkingMailSource {
             Self::ExternalCreditTarget(id) => Some(id),
         }
     }
+
+    /// Whether a row's `course_id` and `external_credit_target_id` columns name this source.
+    pub fn is_named_by(
+        self,
+        course_id: Option<Uuid>,
+        external_credit_target_id: Option<Uuid>,
+    ) -> bool {
+        self.course_id() == course_id
+            && self.external_credit_target_id() == external_credit_target_id
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -774,9 +784,8 @@ WHERE (
 pub struct StaleUnclaimedLinkingMails {
     pub student_number: DbSecret,
     pub sisu_person_id: DbSecret,
-    /// `None` for a mooc.fi target's mails.
-    pub course_id: Option<Uuid>,
-    pub external_credit_target_id: Option<Uuid>,
+    /// The course or mooc.fi target the mails were sent for.
+    pub course_or_target_id: Uuid,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub mail_count: i64,
@@ -797,8 +806,7 @@ pub async fn get_stale_unclaimed(
         r#"
 SELECT e.student_number AS "student_number!",
   e.sisu_person_id AS "sisu_person_id!",
-  e.course_id,
-  e.external_credit_target_id,
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
   COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   COUNT(*) AS "mail_count!",
   MIN(e.sent_at) AS "first_sent_at!",
@@ -1004,9 +1012,8 @@ mod tests {
 #[derive(Debug, Clone)]
 pub struct RecentLinkingMail {
     pub id: Uuid,
-    /// `None` for a mooc.fi target's mail.
-    pub course_id: Option<Uuid>,
-    pub external_credit_target_id: Option<Uuid>,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub emailed_to: DbSecret,
@@ -1027,8 +1034,7 @@ pub async fn get_recent(
     let rows = sqlx::query!(
         r#"
 SELECT e.id,
-  e.course_id,
-  e.external_credit_target_id,
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
   COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   e.emailed_to,
   e.sent_at AS claimed_at,
@@ -1090,8 +1096,7 @@ LIMIT $1
             });
             RecentLinkingMail {
                 id: row.id,
-                course_id: row.course_id,
-                external_credit_target_id: row.external_credit_target_id,
+                course_or_target_id: row.course_or_target_id,
                 course_name: row.course_name,
                 emailed_to: row.emailed_to,
                 claimed_at: row.claimed_at,
@@ -1107,9 +1112,8 @@ LIMIT $1
 #[derive(Debug, Clone)]
 pub struct UnusedLinkingLink {
     pub id: Uuid,
-    /// `None` for a mooc.fi target's mail.
-    pub course_id: Option<Uuid>,
-    pub external_credit_target_id: Option<Uuid>,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     /// The target's course code, or the email's course's, where its modules agree on one.
@@ -1128,8 +1132,7 @@ pub async fn get_unused_links(
         UnusedLinkingLink,
         r#"
 SELECT e.id,
-  e.course_id,
-  e.external_credit_target_id,
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
   COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   COALESCE(
     TRIM(target.uh_course_code),

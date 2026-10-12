@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.created_at,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  COALESCE(c.name, 'mooc.fi: ' || t.name) AS \"course_name!\",\n  cr.course_module_id,\n  cm.name AS \"course_module_name?\",\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cr.external_credit_target_id,\n  cr.external_completion_id,\n  cr.subject_id,\n  cr.credit_unit_id,\n  s.completion_date AS \"completion_date!\",\n  cr.state,\n  cr.state_entered_at,\n  cr.state_changed_at,\n  cr.phase_started_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.last_attempt_at,\n  cr.submitted_at,\n  cr.registered_at,\n  cr.terminal_at,\n  cr.student_number,\n  cr.sisu_person_id,\n  cr.uh_course_code,\n  cr.selected_enrolment_id,\n  cr.grade_scale_id,\n  cr.grade_id,\n  cr.credits,\n  cr.submitted_attainment_id,\n  cr.sisu_attainment_id,\n  cr.submit_retry_count,\n  cr.verify_attempt_count,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"verified_student_number?\",\n  vsn.verified_at AS \"verified_student_number_at?\",\n  vsn.verified_via AS \"verified_student_number_via?\",\n  cr.resubmit_not_before,\n  cr.partially_registered_at,\n  cr.not_registered_reimport_count,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_due_at,\n  cr.enrolment_checks_stopped_at,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  route.enrolment_confirmed_at AS \"pressed_at?\",\n  route.route AS \"enrolment_route?: CreditRegistrationEnrolmentRoute\",\n  sig.last_visited_at AS \"last_visited_at?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  LEFT JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(\n    route.course_module_completion_id,\n    route.external_completion_id\n  ) = cr.subject_id\n  AND route.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(\n    sig.course_module_completion_id,\n    sig.external_completion_id\n  ) = cr.subject_id\n  AND sig.deleted_at IS NULL\n  -- The step and engagement are computed exactly as in count_by_step_and_engagement, so a list\n  -- filtered to a step and engagement holds as many rows as that function counts.\n  LEFT JOIN LATERAL (\n    SELECT m.step\n    FROM UNNEST(\n        $19::credit_registration_state [],\n        $20::boolean [],\n        $21::boolean [],\n        $22::boolean [],\n        $23::boolean [],\n        $24::credit_registration_timeline_step []\n      ) AS m(\n        state,\n        completion_eligible,\n        has_verified_student_number,\n        course_code_allowed,\n        enrolment_resolved,\n        step\n      )\n    WHERE m.state = cr.state\n      AND m.completion_eligible = p.completion_eligible\n      AND m.has_verified_student_number = p.has_verified_student_number\n      AND m.course_code_allowed = p.course_code_allowed\n      AND m.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)\n  ) ts ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT CASE\n        WHEN ts.step = ANY($25::credit_registration_timeline_step []) THEN CASE\n          WHEN route.enrolment_confirmed_at IS NOT NULL THEN 'pressed'::credit_registration_engagement\n          WHEN sig.last_visited_at IS NOT NULL THEN 'visited'::credit_registration_engagement\n          ELSE 'not_started'::credit_registration_engagement\n        END\n      END AS engagement,\n      ts.step = 'waiting_for_student_number'\n      AND s.completion_date < $29::timestamptz AS is_before_linking\n  ) eng\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND (\n    $4::uuid IS NULL\n    OR cr.course_id = $4\n    OR cr.external_credit_target_id = $4\n  )\n  AND ($5::uuid IS NULL OR cr.credit_unit_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (\n    CARDINALITY($8::credit_registration_timeline_step []) = 0\n    OR (\n      ts.step = ANY($8)\n      AND eng.is_before_linking IS NOT TRUE\n    )\n  )\n  AND (\n    CARDINALITY($26::credit_registration_engagement []) = 0\n    OR eng.engagement = ANY($26)\n  )\n  AND (\n    NOT $27::bool\n    OR eng.engagement IS DISTINCT FROM 'not_started'\n  )\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.subject_id = $12\n  )\n  AND (\n    $13::uuid [] IS NULL\n    OR cr.id = ANY($13)\n  )\n  AND ($17::uuid IS NULL OR cr.id = $17)\n  AND (\n    $18::uuid IS NULL\n    OR cr.subject_id = $18\n  )\nORDER BY COALESCE(cr.id = ANY($28::uuid []), FALSE) DESC,\n  CASE\n    WHEN $14::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count\n  END DESC NULLS LAST,\n  CASE $14::text\n    WHEN 'created' THEN cr.created_at\n    WHEN 'time_in_state' THEN cr.state_changed_at\n    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)\n  END DESC,\n  cr.id\nLIMIT $15 OFFSET $16\n        ",
+  "query": "\nSELECT cr.id,\n  cr.created_at,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  COALESCE(c.name, 'mooc.fi: ' || t.name) AS \"course_name!\",\n  cr.course_module_id,\n  cm.name AS \"course_module_name?\",\n  cr.course_instance_id,\n  cr.course_module_completion_id,\n  cr.external_credit_target_id,\n  cr.external_completion_id,\n  COALESCE(cr.course_id, cr.external_credit_target_id) AS \"course_or_target_id!\",\n  cr.subject_id,\n  cr.credit_unit_id,\n  s.completion_date AS \"completion_date!\",\n  cr.state,\n  cr.state_entered_at,\n  cr.state_changed_at,\n  cr.phase_started_at,\n  cr.error_code AS \"error_code?\",\n  cr.needs_admin_attention,\n  cr.next_attempt_at,\n  cr.last_attempt_at,\n  cr.submitted_at,\n  cr.registered_at,\n  cr.terminal_at,\n  cr.student_number,\n  cr.sisu_person_id,\n  cr.uh_course_code,\n  cr.selected_enrolment_id,\n  cr.grade_scale_id,\n  cr.grade_id,\n  cr.credits,\n  cr.submitted_attainment_id,\n  cr.sisu_attainment_id,\n  cr.submit_retry_count,\n  cr.verify_attempt_count,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  vsn.student_number AS \"verified_student_number?\",\n  vsn.verified_at AS \"verified_student_number_at?\",\n  vsn.verified_via AS \"verified_student_number_via?\",\n  cr.resubmit_not_before,\n  cr.partially_registered_at,\n  cr.not_registered_reimport_count,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_due_at,\n  cr.enrolment_checks_stopped_at,\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\",\n  route.enrolment_confirmed_at AS \"pressed_at?\",\n  route.route AS \"enrolment_route?: CreditRegistrationEnrolmentRoute\",\n  sig.last_visited_at AS \"last_visited_at?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  LEFT JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id\n  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id\n  AND vsn.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(\n    route.course_module_completion_id,\n    route.external_completion_id\n  ) = cr.subject_id\n  AND route.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(\n    sig.course_module_completion_id,\n    sig.external_completion_id\n  ) = cr.subject_id\n  AND sig.deleted_at IS NULL\n  -- The step and engagement are computed exactly as in count_by_step_and_engagement, so a list\n  -- filtered to a step and engagement holds as many rows as that function counts.\n  LEFT JOIN LATERAL (\n    SELECT m.step\n    FROM UNNEST(\n        $19::credit_registration_state [],\n        $20::boolean [],\n        $21::boolean [],\n        $22::boolean [],\n        $23::boolean [],\n        $24::credit_registration_timeline_step []\n      ) AS m(\n        state,\n        completion_eligible,\n        has_verified_student_number,\n        course_code_allowed,\n        enrolment_resolved,\n        step\n      )\n    WHERE m.state = cr.state\n      AND m.completion_eligible = p.completion_eligible\n      AND m.has_verified_student_number = p.has_verified_student_number\n      AND m.course_code_allowed = p.course_code_allowed\n      AND m.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)\n  ) ts ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT CASE\n        WHEN ts.step = ANY($25::credit_registration_timeline_step []) THEN CASE\n          WHEN route.enrolment_confirmed_at IS NOT NULL THEN 'pressed'::credit_registration_engagement\n          WHEN sig.last_visited_at IS NOT NULL THEN 'visited'::credit_registration_engagement\n          ELSE 'not_started'::credit_registration_engagement\n        END\n      END AS engagement,\n      ts.step = 'waiting_for_student_number'\n      AND s.completion_date < $29::timestamptz AS is_before_linking\n  ) eng\nWHERE cr.deleted_at IS NULL\n  AND ($1::bool OR cr.superseded_by_id IS NULL)\n  AND (\n    $2::credit_registration_state [] IS NULL\n    OR cr.state = ANY($2)\n  )\n  AND (\n    $3::credit_registration_error_code [] IS NULL\n    OR cr.error_code = ANY($3)\n  )\n  AND (\n    $4::uuid IS NULL\n    OR cr.course_id = $4\n    OR cr.external_credit_target_id = $4\n  )\n  AND ($5::uuid IS NULL OR cr.credit_unit_id = $5)\n  AND ($6::uuid IS NULL OR cr.user_id = $6)\n  AND (\n    $7::text IS NULL\n    OR cr.student_number = $7\n    OR vsn.student_number = $7\n  )\n  AND (\n    CARDINALITY($8::credit_registration_timeline_step []) = 0\n    OR (\n      ts.step = ANY($8)\n      AND eng.is_before_linking IS NOT TRUE\n    )\n  )\n  AND (\n    CARDINALITY($26::credit_registration_engagement []) = 0\n    OR eng.engagement = ANY($26)\n  )\n  AND (\n    NOT $27::bool\n    OR eng.engagement IS DISTINCT FROM 'not_started'\n  )\n  AND ($9::timestamptz IS NULL OR cr.submitted_at >= $9)\n  AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)\n  AND (\n    $11::text IS NULL\n    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.sisu_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\\'\n    OR LOWER(cr.error_message) LIKE '%' || $11 || '%' ESCAPE '\\'\n  )\n  AND (\n    $12::uuid IS NULL\n    OR cr.id = $12\n    OR cr.user_id = $12\n    OR cr.subject_id = $12\n  )\n  AND (\n    $13::uuid [] IS NULL\n    OR cr.id = ANY($13)\n  )\n  AND ($17::uuid IS NULL OR cr.id = $17)\n  AND (\n    $18::uuid IS NULL\n    OR cr.subject_id = $18\n  )\nORDER BY COALESCE(cr.id = ANY($28::uuid []), FALSE) DESC,\n  CASE\n    WHEN $14::text = 'attempts' THEN cr.submit_retry_count + cr.verify_attempt_count\n  END DESC NULLS LAST,\n  CASE $14::text\n    WHEN 'created' THEN cr.created_at\n    WHEN 'time_in_state' THEN cr.state_changed_at\n    ELSE COALESCE(cr.last_attempt_at, cr.state_entered_at)\n  END DESC,\n  cr.id\nLIMIT $15 OFFSET $16\n        ",
   "describe": {
     "columns": [
       {
@@ -154,6 +154,12 @@
       },
       {
         "ordinal": 14,
+        "name": "course_or_target_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
         "name": "subject_id",
         "type_info": "Uuid",
         "origin": {
@@ -164,7 +170,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "credit_unit_id",
         "type_info": "Uuid",
         "origin": {
@@ -175,7 +181,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "completion_date!",
         "type_info": "Timestamptz",
         "origin": {
@@ -186,7 +192,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "state",
         "type_info": {
           "Custom": {
@@ -222,7 +228,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "state_entered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -233,7 +239,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "state_changed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -244,7 +250,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "phase_started_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -255,7 +261,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "error_code?",
         "type_info": {
           "Custom": {
@@ -297,7 +303,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "needs_admin_attention",
         "type_info": "Bool",
         "origin": {
@@ -308,7 +314,7 @@
         }
       },
       {
-        "ordinal": 23,
+        "ordinal": 24,
         "name": "next_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -319,7 +325,7 @@
         }
       },
       {
-        "ordinal": 24,
+        "ordinal": 25,
         "name": "last_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -330,7 +336,7 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 26,
         "name": "submitted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -341,7 +347,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 27,
         "name": "registered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -352,7 +358,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 28,
         "name": "terminal_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -363,7 +369,7 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 29,
         "name": "student_number",
         "type_info": "Varchar",
         "origin": {
@@ -374,7 +380,7 @@
         }
       },
       {
-        "ordinal": 29,
+        "ordinal": 30,
         "name": "sisu_person_id",
         "type_info": "Varchar",
         "origin": {
@@ -385,7 +391,7 @@
         }
       },
       {
-        "ordinal": 30,
+        "ordinal": 31,
         "name": "uh_course_code",
         "type_info": "Varchar",
         "origin": {
@@ -396,7 +402,7 @@
         }
       },
       {
-        "ordinal": 31,
+        "ordinal": 32,
         "name": "selected_enrolment_id",
         "type_info": "Varchar",
         "origin": {
@@ -407,7 +413,7 @@
         }
       },
       {
-        "ordinal": 32,
+        "ordinal": 33,
         "name": "grade_scale_id",
         "type_info": "Varchar",
         "origin": {
@@ -418,7 +424,7 @@
         }
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "grade_id",
         "type_info": "Varchar",
         "origin": {
@@ -429,7 +435,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 35,
         "name": "credits",
         "type_info": "Float4",
         "origin": {
@@ -440,7 +446,7 @@
         }
       },
       {
-        "ordinal": 35,
+        "ordinal": 36,
         "name": "submitted_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -451,7 +457,7 @@
         }
       },
       {
-        "ordinal": 36,
+        "ordinal": 37,
         "name": "sisu_attainment_id",
         "type_info": "Varchar",
         "origin": {
@@ -462,7 +468,7 @@
         }
       },
       {
-        "ordinal": 37,
+        "ordinal": 38,
         "name": "submit_retry_count",
         "type_info": "Int4",
         "origin": {
@@ -473,7 +479,7 @@
         }
       },
       {
-        "ordinal": 38,
+        "ordinal": 39,
         "name": "verify_attempt_count",
         "type_info": "Int4",
         "origin": {
@@ -484,7 +490,7 @@
         }
       },
       {
-        "ordinal": 39,
+        "ordinal": 40,
         "name": "attempt_number",
         "type_info": "Int4",
         "origin": {
@@ -495,7 +501,7 @@
         }
       },
       {
-        "ordinal": 40,
+        "ordinal": 41,
         "name": "superseded_by_id",
         "type_info": "Uuid",
         "origin": {
@@ -506,7 +512,7 @@
         }
       },
       {
-        "ordinal": 41,
+        "ordinal": 42,
         "name": "verified_student_number?",
         "type_info": "Varchar",
         "origin": {
@@ -517,7 +523,7 @@
         }
       },
       {
-        "ordinal": 42,
+        "ordinal": 43,
         "name": "verified_student_number_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -528,7 +534,7 @@
         }
       },
       {
-        "ordinal": 43,
+        "ordinal": 44,
         "name": "verified_student_number_via?",
         "type_info": {
           "Custom": {
@@ -550,7 +556,7 @@
         }
       },
       {
-        "ordinal": 44,
+        "ordinal": 45,
         "name": "resubmit_not_before",
         "type_info": "Timestamptz",
         "origin": {
@@ -561,7 +567,7 @@
         }
       },
       {
-        "ordinal": 45,
+        "ordinal": 46,
         "name": "partially_registered_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -572,7 +578,7 @@
         }
       },
       {
-        "ordinal": 46,
+        "ordinal": 47,
         "name": "not_registered_reimport_count",
         "type_info": "Int4",
         "origin": {
@@ -583,7 +589,7 @@
         }
       },
       {
-        "ordinal": 47,
+        "ordinal": 48,
         "name": "no_usable_enrolment_since",
         "type_info": "Timestamptz",
         "origin": {
@@ -594,7 +600,7 @@
         }
       },
       {
-        "ordinal": 48,
+        "ordinal": 49,
         "name": "enrolment_checked_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -605,7 +611,7 @@
         }
       },
       {
-        "ordinal": 49,
+        "ordinal": 50,
         "name": "enrolment_check_anchor_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -616,7 +622,7 @@
         }
       },
       {
-        "ordinal": 50,
+        "ordinal": 51,
         "name": "enrolment_check_due_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -627,7 +633,7 @@
         }
       },
       {
-        "ordinal": 51,
+        "ordinal": 52,
         "name": "enrolment_checks_stopped_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -638,7 +644,7 @@
         }
       },
       {
-        "ordinal": 52,
+        "ordinal": 53,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -649,7 +655,7 @@
         }
       },
       {
-        "ordinal": 53,
+        "ordinal": 54,
         "name": "has_verified_student_number!",
         "type_info": "Bool",
         "origin": {
@@ -660,7 +666,7 @@
         }
       },
       {
-        "ordinal": 54,
+        "ordinal": 55,
         "name": "course_code_allowed!",
         "type_info": "Bool",
         "origin": {
@@ -671,7 +677,7 @@
         }
       },
       {
-        "ordinal": 55,
+        "ordinal": 56,
         "name": "pressed_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -682,7 +688,7 @@
         }
       },
       {
-        "ordinal": 56,
+        "ordinal": 57,
         "name": "enrolment_route?: CreditRegistrationEnrolmentRoute",
         "type_info": {
           "Custom": {
@@ -703,7 +709,7 @@
         }
       },
       {
-        "ordinal": 57,
+        "ordinal": 58,
         "name": "last_visited_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -714,7 +720,7 @@
         }
       },
       {
-        "ordinal": 58,
+        "ordinal": 59,
         "name": "total_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -981,6 +987,7 @@
       true,
       true,
       true,
+      null,
       false,
       false,
       true,
@@ -1028,5 +1035,5 @@
       null
     ]
   },
-  "hash": "ae7e039923a75959dcc1bf3c52c5438db69947d8b6568a0948dd2a7354b43625"
+  "hash": "e3a7a3b7b5c83283c50e5a7c76af87d87c9921c126ffdf0743ec9570fb6ecf77"
 }

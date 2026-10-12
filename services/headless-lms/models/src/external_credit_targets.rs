@@ -529,18 +529,18 @@ ORDER BY name,
     Ok(rows.into_iter().map(Into::into).collect())
 }
 
-/// Passed, ECTS-eligible live completions per target, whether or not they have a ledger row.
+/// Completions per target that registration is responsible for, whether or not they have a ledger
+/// row: passed, ECTS-eligible and not withdrawn, by the same rule as
+/// `credit_registration_eligible_completions`.
 pub async fn count_eligible_completions_by_target(
     conn: &mut PgConnection,
 ) -> ModelResult<HashMap<Uuid, i64>> {
     let rows = sqlx::query!(
         r#"
-SELECT external_credit_target_id,
+SELECT external_credit_target_id AS "external_credit_target_id!",
   COUNT(*) AS "count!"
-FROM external_completions
-WHERE deleted_at IS NULL
-  AND passed
-  AND eligible_for_ects
+FROM credit_registration_eligible_completions
+WHERE kind = 'mooc_fi'
 GROUP BY external_credit_target_id
         "#,
     )
@@ -550,6 +550,28 @@ GROUP BY external_credit_target_id
         .into_iter()
         .map(|row| (row.external_credit_target_id, row.count))
         .collect())
+}
+
+/// Whether any mooc.fi completion or ledger row, live or not, was ever stored under the target.
+pub async fn has_completions(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM external_completions
+    WHERE external_credit_target_id = $1
+  )
+  OR EXISTS (
+    SELECT 1
+    FROM credit_registrations
+    WHERE external_credit_target_id = $1
+  ) AS "exists!"
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 /// Whether any ledger row, live or not, was made for the target.
@@ -621,21 +643,4 @@ WHERE id = $1
     }
     tx.commit().await?;
     Ok(())
-}
-
-/// Whether a target with this id exists, deleted or not.
-pub async fn exists(conn: &mut PgConnection, id: Uuid) -> ModelResult<bool> {
-    let res = sqlx::query_scalar!(
-        r#"
-SELECT EXISTS (
-    SELECT 1
-    FROM external_credit_targets
-    WHERE id = $1
-  ) AS "exists!"
-        "#,
-        id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
 }

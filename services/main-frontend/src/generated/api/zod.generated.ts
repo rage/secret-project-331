@@ -41,11 +41,9 @@ export const zAccountLinkingCodeCounters = z.object({
  * A module or mooc.fi target on a course code, which shares the code's enrolment list.
  */
 export const zAccountLinkingCodeModule = z.object({
-  course_id: z.uuid().nullish(),
-  course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
-  external_credit_target_id: z.uuid().nullish(),
+  credit_unit_id: z.uuid(),
   last_listed_at: z.iso.datetime().nullish(),
 })
 
@@ -239,11 +237,10 @@ export const zAccountLinkingSendStatusTotals = z.object({
  */
 export const zAccountLinkingUnusedLink = z.object({
   claimed_at: z.iso.datetime(),
-  course_id: z.uuid().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   emailed_to: z.string(),
   expires_at: z.iso.datetime(),
-  external_credit_target_id: z.uuid().nullish(),
   id: z.uuid(),
   uh_course_code: z.string().nullish(),
 })
@@ -466,6 +463,7 @@ export const zAdminRequestEnrolmentListFetchResult = z.object({
 export const zAdminRequeueRetryablePayload = z.object({
   course_id: z.uuid().nullish(),
   course_module_id: z.uuid().nullish(),
+  external_credit_target_id: z.uuid().nullish(),
   reason: z.string(),
 })
 
@@ -489,9 +487,8 @@ export const zAdminRequeueRetryableResult = z.object({
 })
 
 export const zAdminResendAccountLinkingEmailPayload = z.object({
-  course_id: z.uuid().nullish(),
+  course_or_target_id: z.uuid(),
   credit_registration_id: z.uuid().nullish(),
-  external_credit_target_id: z.uuid().nullish(),
   override_rate_caps: z.boolean(),
   reason: z.string().nullish(),
   student_number: z.string(),
@@ -1736,13 +1733,12 @@ export const zCreditRegistrationEnrolmentRoute = z.enum([
  */
 export const zAccountLinkingPresser = z.object({
   completion_date: z.iso.datetime(),
-  course_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_registration_id: z.uuid(),
   email: z.string().nullish(),
   enrolment_route: zCreditRegistrationEnrolmentRoute,
-  external_credit_target_id: z.uuid().nullish(),
   first_name: z.string().nullish(),
   is_enrolment_list_empty: z.boolean(),
   is_fetch_failing: z.boolean(),
@@ -2594,9 +2590,8 @@ export const zAccountLinkingSendOutcome = z.object({
  * A person mailed to the cap for one course or mooc.fi target whose number was never claimed.
  */
 export const zAccountLinkingStaleAddress = z.object({
-  course_id: z.uuid().nullish(),
   course_name: z.string(),
-  external_credit_target_id: z.uuid().nullish(),
+  course_or_target_id: z.uuid(),
   first_sent_at: z.iso.datetime(),
   last_sent_at: z.iso.datetime(),
   mail_count: z.coerce
@@ -2633,10 +2628,9 @@ export const zEmailSendStatusReport = z.object({
  */
 export const zAccountLinkingRecentEmail = z.object({
   claimed_at: z.iso.datetime(),
-  course_id: z.uuid().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   emailed_to: z.string(),
-  external_credit_target_id: z.uuid().nullish(),
   id: z.uuid(),
   last_error_message: z.string().nullish(),
   queued_at: z.iso.datetime().nullish(),
@@ -2747,13 +2741,12 @@ export const zEngagement = z.enum(["pressed", "visited", "not_started"])
  */
 export const zAccountLinkingWaitingStudent = z.object({
   completion_date: z.iso.datetime(),
-  course_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_registration_id: z.uuid(),
   email: z.string().nullish(),
   engagement: zEngagement,
-  external_credit_target_id: z.uuid().nullish(),
   first_name: z.string().nullish(),
   last_check_requested_at: z.iso.datetime().nullish(),
   last_name: z.string().nullish(),
@@ -3490,9 +3483,8 @@ export const zAdminLinkingCandidates = z.object({
   account_linking_since: z.iso.datetime(),
   candidates: z.array(zAdminLinkingCandidate),
   course_code: z.string(),
-  course_id: z.uuid().nullish(),
   course_name: z.string(),
-  external_credit_target_id: z.uuid().nullish(),
+  course_or_target_id: z.uuid(),
   study_registry_unavailable: z.boolean(),
 })
 
@@ -6904,6 +6896,7 @@ export const zAdminCreditRegistrationRow = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
   email: z.string().nullish(),
@@ -6993,12 +6986,12 @@ export const zCreditRegistrationAttentionItem = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_registration_id: z.uuid(),
   email: z.string().nullish(),
   engagement: zEngagement.nullish(),
   enrolment_route: zCreditRegistrationEnrolmentRoute.nullish(),
   error_code: zCreditRegistrationErrorCode.nullish(),
-  external_credit_target_id: z.uuid().nullish(),
   first_name: z.string().nullish(),
   hand_actions: zHandActionAvailability,
   is_enrolment_list_empty: z.boolean(),
@@ -7097,6 +7090,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       course_module_id: z.uuid().nullish(),
       course_module_name: z.string().nullish(),
       course_name: z.string(),
+      course_or_target_id: z.uuid(),
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
       email: z.string().nullish(),

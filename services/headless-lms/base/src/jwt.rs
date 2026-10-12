@@ -7,12 +7,12 @@
 use std::net::IpAddr;
 
 use chrono::{Duration, Utc};
-use hmac::{Hmac, KeyInit, Mac};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Serialize, de::DeserializeOwned};
-use sha2::Sha256;
 use uuid::Uuid;
+
+use crate::hmac_sha256::hmac_sha256;
 
 /// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
 pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
@@ -60,9 +60,7 @@ pub fn validate_hs256_claim<T: DeserializeOwned>(
     token: &str,
     key: &JwtKey,
 ) -> Result<T, jsonwebtoken::errors::Error> {
-    let validation = Validation::new(Algorithm::HS256);
-    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
-        .map(|token_data| token_data.claims)
+    decode_hs256_claim(token, key, Validation::new(Algorithm::HS256))
 }
 
 /// [`validate_hs256_claim`] with no clock leeway, for claims living shorter than the default 60 s
@@ -73,14 +71,22 @@ pub fn validate_hs256_claim_without_leeway<T: DeserializeOwned>(
 ) -> Result<T, jsonwebtoken::errors::Error> {
     let mut validation = Validation::new(Algorithm::HS256);
     validation.leeway = 0;
+    decode_hs256_claim(token, key, validation)
+}
+
+fn decode_hs256_claim<T: DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+    validation: Validation,
+) -> Result<T, jsonwebtoken::errors::Error> {
     decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
         .map(|token_data| token_data.claims)
 }
 
 /// Signs a student in on courses when mooc.fi's credit registration page sends them over.
 ///
-/// Not single use: a leaked one is harmless because it lives 10 s and works only from the IP it was
-/// minted for.
+/// Not single use: a leaked one is harmless because it lives [`Self::LIFETIME`] and works only from
+/// the IP it was minted for. Sign it with [`sign_hs256_claim`].
 #[derive(Debug, Serialize, serde::Deserialize)]
 pub struct MoocfiHandoffClaim {
     pub user_id: Uuid,
@@ -93,9 +99,11 @@ pub struct MoocfiHandoffClaim {
 }
 
 impl MoocfiHandoffClaim {
-    const LIFETIME: Duration = Duration::seconds(10);
+    /// How long a minted handoff can be redeemed.
+    pub const LIFETIME: Duration = Duration::seconds(10);
 
-    /// A claim for the student at `client_ip` as mooc.fi saw them, expiring in 10 s.
+    /// A claim for the student at `client_ip` as mooc.fi saw them, expiring after
+    /// [`Self::LIFETIME`].
     pub fn new(user_id: Uuid, moocfi_course_id: Uuid, client_ip: IpAddr, key: &JwtKey) -> Self {
         let iat = Utc::now().timestamp();
         Self {
@@ -112,11 +120,6 @@ impl MoocfiHandoffClaim {
         self.client_ip_hash == client_ip_hash(client_ip, key)
     }
 
-    /// The token the redeem URL carries.
-    pub fn sign(&self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
-        sign_hs256_claim(self, key)
-    }
-
     /// Checks the signature and the expiry, with no leeway.
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, jsonwebtoken::errors::Error> {
         validate_hs256_claim_without_leeway(token, key)
@@ -130,8 +133,7 @@ impl MoocfiHandoffClaim {
     ) -> Result<Self, jsonwebtoken::errors::Error> {
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = false;
-        decode::<Self>(token, &DecodingKey::from_secret(&key.0), &validation)
-            .map(|token_data| token_data.claims)
+        decode_hs256_claim(token, key, validation)
     }
 }
 
@@ -145,12 +147,6 @@ fn client_ip_hash(client_ip: IpAddr, key: &JwtKey) -> String {
     };
     let derived_key = hmac_sha256(&key.0, b"moocfi-handoff-client-ip");
     hex::encode(hmac_sha256(&derived_key, normalised.to_string().as_bytes()))
-}
-
-fn hmac_sha256(key: &[u8], message: &[u8]) -> Vec<u8> {
-    let mut mac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC takes a key of any size");
-    mac.update(message);
-    mac.finalize().into_bytes().to_vec()
 }
 
 /// Authorizes the bearer to read one specific host-stored file for a while.

@@ -136,6 +136,7 @@ CREATE TABLE external_completions (
   raw_grade TEXT,
   passed BOOLEAN,
   grade INT CHECK (grade BETWEEN 0 AND 5),
+  revised_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   upstream_checked_at TIMESTAMP WITH TIME ZONE NOT NULL,
   upstream_missing_at TIMESTAMP WITH TIME ZONE,
   registered_upstream_at TIMESTAMP WITH TIME ZONE,
@@ -161,7 +162,7 @@ WHERE deleted_at IS NULL;
 COMMENT ON TABLE external_completions IS 'A mooc.fi completion as courses last read it, one row per completion and the target its tier maps to. The subject of a mooc.fi ledger row, as course_module_completions is of a native one. Facts are copied from mooc.fi when the student opens the registration page and on re-check; mooc.fi stays the source of truth.';
 COMMENT ON COLUMN external_completions.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN external_completions.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN external_completions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger. The grade-improvement scan compares against it.';
+COMMENT ON COLUMN external_completions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN external_completions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN external_completions.external_credit_target_id IS 'The target whose tier range admitted the completion when it was read. A tier later moved out of that range withdraws the row, and the completion gets a new row under the target now covering it.';
 COMMENT ON COLUMN external_completions.user_id IS 'The courses account of the student, matched to mooc.fi by users.upstream_id.';
@@ -174,6 +175,7 @@ COMMENT ON COLUMN external_completions.eligible_for_ects IS 'mooc.fi''s eligible
 COMMENT ON COLUMN external_completions.raw_grade IS 'mooc.fi''s grade verbatim, a free string there, for the admin view. passed and grade are parsed from it.';
 COMMENT ON COLUMN external_completions.passed IS 'Whether the parsed grade is a pass. NULL when the grade was not recognised, which keeps the row from registering until it is fixed on mooc.fi.';
 COMMENT ON COLUMN external_completions.grade IS 'The numeric grade 0 to 5, NULL for a pass/fail or unrecognised grade.';
+COMMENT ON COLUMN external_completions.revised_at IS 'When the completion''s facts as read from mooc.fi (date, language, tier, eligibility or grade) last changed. Unlike updated_at, not moved by a re-check that finds nothing new. The grade-improvement scan compares against it, through credit_registration_subjects.revised_at.';
 COMMENT ON COLUMN external_completions.upstream_checked_at IS 'When mooc.fi last returned this completion. Import refuses a row whose check is too old.';
 COMMENT ON COLUMN external_completions.upstream_missing_at IS 'When the lookup first stopped returning the completion, meaning it was deleted on mooc.fi. Cleared if it reappears. Withdraws the row while set.';
 COMMENT ON COLUMN external_completions.registered_upstream_at IS 'When a registration of the completion by another mooc.fi organization was first seen. Withdraws the row: someone else registered it.';
@@ -228,6 +230,7 @@ COMMENT ON COLUMN credit_registrations.course_instance_id IS 'The instance the c
 COMMENT ON COLUMN credit_registrations.external_completion_id IS 'The mooc.fi completion being registered. NULL on a course module row.';
 COMMENT ON COLUMN credit_registrations.external_credit_target_id IS 'The target that carries the configuration and pause of a mooc.fi row, as course_module_id does for a native one. NULL on a course module row.';
 COMMENT ON COLUMN credit_registrations.subject_id IS 'The completion being registered, whichever kind it is. What every "same completion" comparison uses; ids of the two completion tables are random UUIDs and do not collide.';
+COMMENT ON COLUMN credit_registrations.improvement_checked_completion_updated_at IS 'The completion''s credit_registration_subjects.revised_at as of the last time the grade-improvement scan judged this accepted attempt and found no improvement. A completion revised for any other reason keeps matching the scan''s cheap "changed since the attempt" pre-filter, so without this watermark those rows fill every capped batch and a real regrade further down the queue is never reached.';
 COMMENT ON COLUMN credit_registrations.credit_unit_id IS 'The module or target the row registers for, whichever kind it is. What every "same unit" comparison and the pause gate use.';
 
 DROP INDEX uq_credit_registrations_completion;
@@ -354,6 +357,7 @@ SELECT cmc.id AS subject_id,
   cmc.register_credits_via_suotar AS is_on_pipeline,
   cmc.created_at,
   cmc.updated_at,
+  cmc.updated_at AS revised_at,
   (
     SELECT cm.uh_course_code
     FROM course_modules cm
@@ -428,6 +432,7 @@ SELECT ec.id AS subject_id,
   TRUE AS is_on_pipeline,
   ec.created_at,
   ec.updated_at,
+  ec.revised_at,
   (
     SELECT t.uh_course_code
     FROM external_credit_targets t
@@ -462,6 +467,7 @@ COMMENT ON COLUMN credit_registration_subjects.passed IS 'NULL for a mooc.fi com
 COMMENT ON COLUMN credit_registration_subjects.fully_eligible IS 'Passed and ECTS-eligible, and for a course module completion also not waiting on a prerequisite module or a suspected-cheating review.';
 COMMENT ON COLUMN credit_registration_subjects.is_withdrawn IS 'The completion is no longer ours to register: deleted, or for mooc.fi also gone upstream, registered by another organization, dated before the cutoff, on a deleted target, or with a tier outside the target''s range. Withdrawal cancels rows not yet submitted.';
 COMMENT ON COLUMN credit_registration_subjects.is_on_pipeline IS 'Registered by this pipeline rather than the pull path. Always true for mooc.fi completions: the pull already excludes everything at or after the cutoff.';
+COMMENT ON COLUMN credit_registration_subjects.revised_at IS 'When the completion last changed in a way that could matter to its registration. For a course module completion its updated_at.';
 COMMENT ON COLUMN credit_registration_subjects.course_name IS 'NULL for a mooc.fi completion; unit_name names it.';
 
 CREATE VIEW credit_registration_active_units AS

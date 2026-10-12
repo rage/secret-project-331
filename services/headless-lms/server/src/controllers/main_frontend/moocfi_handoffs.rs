@@ -12,9 +12,10 @@ use actix_web::http::header;
 use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim};
 use jsonwebtoken::errors::ErrorKind;
 
+use crate::controllers::moocfi::credit_registration_handoffs::HANDOFF_RATE_LIMIT;
 use crate::domain::authentication::{self, session_user_id};
 use crate::domain::oauth::redirects::pct_encode;
-use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, request_client_ip};
+use crate::domain::rate_limit_middleware_builder::{RateLimit, request_client_ip};
 use crate::prelude::*;
 
 /// The query parameter the handoff travels in; `redacted_request_line` drops its value from the
@@ -54,7 +55,7 @@ impl RedeemOutcome {
 GET `/api/v0/main-frontend/moocfi-handoffs/redeem?token=…` - Signs in the student a mooc.fi handoff
 was minted for and sends them to the course's registration page.
 
-The handoff must be unexpired (no leeway), arrive in a same-site navigation, and come from the IP it
+The handoff must be unexpired, arrive in a same-site navigation, and come from the IP it
 was minted for. A different account already signed in is never switched: the student is sent to
 `/completion-registration/mooc-fi/{moocfi_course_id}/handoff-error?reason=different_user_signed_in`.
 */
@@ -165,11 +166,7 @@ fn log_outcome(outcome: RedeemOutcome) {
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/redeem")
-            .wrap(RateLimit::new(RateLimitConfig {
-                per_minute: Some(10),
-                per_hour: Some(60),
-                ..Default::default()
-            }))
+            .wrap(RateLimit::new(HANDOFF_RATE_LIMIT))
             .route(web::get().to(redeem_moocfi_handoff)),
     );
 }

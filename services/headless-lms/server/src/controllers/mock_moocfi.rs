@@ -26,7 +26,7 @@ use headless_lms_utils::services::moocfi::{
 use once_cell::sync::Lazy;
 use secrecy::ExposeSecret;
 
-use crate::domain::authentication::constant_time_eq_str;
+use crate::domain::authentication::{authorization_credential, constant_time_eq_str};
 use crate::domain::rate_limit_middleware_builder::request_client_ip;
 use crate::prelude::*;
 
@@ -99,11 +99,7 @@ fn assert_enabled(app_conf: &ApplicationConfiguration) {
 }
 
 fn is_organization(request: &HttpRequest) -> bool {
-    request
-        .headers()
-        .get(actix_web::http::header::AUTHORIZATION)
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.strip_prefix("Basic "))
+    authorization_credential(request, "Basic")
         .is_some_and(|secret| constant_time_eq_str(secret, MOCK_MOOCFI_ORGANIZATION_SECRET))
 }
 
@@ -372,12 +368,7 @@ async fn create_handoff(
 ) -> ControllerResult<HttpResponse> {
     assert_enabled(&app_conf);
     let token = skip_authorize();
-    let Some(tmc_access_token) = request
-        .headers()
-        .get(actix_web::http::header::AUTHORIZATION)
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.strip_prefix("Bearer "))
-        .map(str::to_string)
+    let Some(tmc_access_token) = authorization_credential(&request, "Bearer").map(str::to_string)
     else {
         return token.authorized_ok(HttpResponse::Unauthorized().finish());
     };

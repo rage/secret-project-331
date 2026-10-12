@@ -32,16 +32,17 @@ export type AccountLinkingCodeCounters = {
  */
 export type AccountLinkingCodeModule = {
   /**
-   * `None` for a mooc.fi target, as is `course_module_id`.
+   * `None` for a mooc.fi target.
    */
-  course_id?: string | null
-  course_module_id?: string | null
   course_module_name?: string | null
   /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
-  external_credit_target_id?: string | null
+  /**
+   * The module's or target's id.
+   */
+  credit_unit_id: string
   /**
    * When an enrolment list last fed account linking for the module or target.
    */
@@ -143,22 +144,18 @@ export type AccountLinkingFunnel = {
  */
 export type AccountLinkingPresser = {
   completion_date: string
-  /**
-   * `None` on a mooc.fi registration.
-   */
-  course_id?: string | null
   course_module_name?: string | null
   /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
    * How they enrolled.
    */
   enrolment_route: CreditRegistrationEnrolmentRoute
-  external_credit_target_id?: string | null
   first_name?: string | null
   is_enrolment_list_empty: boolean
   is_fetch_failing: boolean
@@ -198,18 +195,17 @@ export type AccountLinkingPresser = {
 export type AccountLinkingRecentEmail = {
   claimed_at: string
   /**
-   * `None` for a mooc.fi target's mail.
-   */
-  course_id?: string | null
-  /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
   /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
+  /**
    * In full: support tells the recipients apart by it.
    */
   emailed_to: string
-  external_credit_target_id?: string | null
   id: string
   last_error_message?: string | null
   /**
@@ -264,14 +260,13 @@ export type AccountLinkingSendStatusTotals = {
  */
 export type AccountLinkingStaleAddress = {
   /**
-   * `None` for a mooc.fi target's mails.
-   */
-  course_id?: string | null
-  /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
-  external_credit_target_id?: string | null
+  /**
+   * The course or mooc.fi target the mails were sent for.
+   */
+  course_or_target_id: string
   first_sent_at: string
   last_sent_at: string
   mail_count: number
@@ -349,19 +344,18 @@ export type AccountLinkingStats = {
 export type AccountLinkingUnusedLink = {
   claimed_at: string
   /**
-   * `None` for a mooc.fi target's mail.
-   */
-  course_id?: string | null
-  /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
+  /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
   /**
    * In full: support tells the recipients apart by it.
    */
   emailed_to: string
   expires_at: string
-  external_credit_target_id?: string | null
   id: string
   uh_course_code?: string | null
 }
@@ -371,22 +365,18 @@ export type AccountLinkingUnusedLink = {
  */
 export type AccountLinkingWaitingStudent = {
   completion_date: string
-  /**
-   * `None` on a mooc.fi registration.
-   */
-  course_id?: string | null
   course_module_name?: string | null
   /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
    * Pressed means their "I have enrolled" press stands.
    */
   engagement: Engagement
-  external_credit_target_id?: string | null
   first_name?: string | null
   /**
    * The latest check request the student made themselves.
@@ -582,6 +572,7 @@ export type AdminCreditRegistrationRow = {
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
+  course_or_target_id: string
   created_at: string
   credits?: number | null
   /**
@@ -765,14 +756,13 @@ export type AdminLinkingCandidates = {
   candidates: Array<AdminLinkingCandidate>
   course_code: string
   /**
-   * `None` for a mooc.fi registration.
-   */
-  course_id?: string | null
-  /**
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
-  external_credit_target_id?: string | null
+  /**
+   * The registration's course or mooc.fi target, which mails to a candidate are sent for.
+   */
+  course_or_target_id: string
   /**
    * The study registry gave no usable answer, so an empty `candidates` says nothing.
    */
@@ -859,8 +849,8 @@ export type AdminMaterializePayload = {
 
 export type AdminMaterializeResult = {
   /**
-   * Rows created, both for newly eligible completions and for grades that improved on a
-   * registered one.
+   * Rows created: for newly eligible completions, for grades that improved on a registered one,
+   * and for completions registrable again after a withdrawal.
    */
   created_registration_count: number
   moved_registration_count: number
@@ -957,14 +947,12 @@ export type AdminRequestEnrolmentListFetchResult = {
 }
 
 export type AdminRequeueRetryablePayload = {
-  /**
-   * A course, or a mooc.fi target.
-   */
   course_id?: string | null
   /**
    * A course module, or a mooc.fi target.
    */
   course_module_id?: string | null
+  external_credit_target_id?: string | null
   reason: string
 }
 
@@ -975,15 +963,14 @@ export type AdminRequeueRetryableResult = {
 
 export type AdminResendAccountLinkingEmailPayload = {
   /**
-   * Exactly one of this and `external_credit_target_id`.
+   * The course or mooc.fi target to mail for.
    */
-  course_id?: string | null
+  course_or_target_id: string
   /**
    * The registration whose student the mail is a guess for, from the linking candidates. Must be
    * on the course or target; recorded on the audit row.
    */
   credit_registration_id?: string | null
-  external_credit_target_id?: string | null
   /**
    * Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
    */
@@ -2651,6 +2638,7 @@ export type CreditRegistrationAttentionItem = {
    * The course's name, or "mooc.fi: " and the target's name.
    */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   /**
    * In full: this is the list support works from.
@@ -2659,7 +2647,6 @@ export type CreditRegistrationAttentionItem = {
   engagement?: null | Engagement
   enrolment_route?: null | CreditRegistrationEnrolmentRoute
   error_code?: null | CreditRegistrationErrorCode
-  external_credit_target_id?: string | null
   first_name?: string | null
   /**
    * What the bulk hand transition would allow on this row.
@@ -2866,7 +2853,8 @@ export type CreditRegistrationCourseStats = {
    * Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
    * what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
    * a module opted in mid-course keeps a permanent gap against `registration_count` for the
-   * completions that predate the opt-in.
+   * completions that predate the opt-in. For a mooc.fi target, exactly the completions it is
+   * responsible for, withdrawn ones left out.
    */
   eligible_completion_count: number
   /**
@@ -5088,6 +5076,7 @@ export type PageAdminCreditRegistrationRow = {
      * The course's name, or "mooc.fi: " and the target's name.
      */
     course_name: string
+    course_or_target_id: string
     created_at: string
     credits?: number | null
     /**
@@ -11178,7 +11167,7 @@ export type AdminUpdateExternalCreditTargetData = {
 
 export type AdminUpdateExternalCreditTargetErrors = {
   /**
-   * Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, or a cutoff change on a target with registrations
+   * Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions
    */
   422: unknown
 }

@@ -45,13 +45,12 @@ ORDER BY cm.order_number,
 /// then have been failing.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ModuleDiscoveryReport {
-    /// `None` for a mooc.fi target, as is `course_module_id`.
-    pub course_id: Option<Uuid>,
+    /// The module's or target's id.
+    pub credit_unit_id: Uuid,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Option<Uuid>,
+    /// `None` for a mooc.fi target.
     pub course_module_name: Option<String>,
-    pub external_credit_target_id: Option<Uuid>,
     pub uh_course_code: Option<String>,
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_attempted_at: Option<DateTime<Utc>>,
@@ -66,22 +65,18 @@ pub async fn get_active_discovery_reports(
     let res = sqlx::query_as!(
         ModuleDiscoveryReport,
         r#"
-SELECT r.course_id AS "course_id?",
+SELECT r.credit_unit_id AS "credit_unit_id!",
   r.course_name AS "course_name!",
-  r.course_module_id AS "course_module_id?",
   r.course_module_name AS "course_module_name?",
-  r.external_credit_target_id AS "external_credit_target_id?",
   r.uh_course_code AS "uh_course_code?",
   r.last_listed_at AS "last_listed_at?",
   r.last_listing_attempted_at AS "last_listing_attempted_at?",
   r.last_listing_error AS "last_listing_error?: CreditRegistrationErrorCode",
   r.consecutive_listing_failures AS "consecutive_listing_failures!"
 FROM (
-    SELECT cm.course_id,
+    SELECT conf.course_module_id AS credit_unit_id,
       c.name AS course_name,
-      conf.course_module_id,
       cm.name AS course_module_name,
-      NULL::uuid AS external_credit_target_id,
       cm.uh_course_code,
       conf.last_listed_at,
       conf.last_listing_attempted_at,
@@ -95,11 +90,9 @@ FROM (
       AND c.deleted_at IS NULL
     WHERE conf.deleted_at IS NULL
     UNION ALL
-    SELECT NULL,
+    SELECT target.id,
       'mooc.fi: ' || target.name,
       NULL,
-      NULL,
-      target.id,
       target.uh_course_code,
       target.last_listed_at,
       target.last_listing_attempted_at,

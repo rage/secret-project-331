@@ -229,7 +229,7 @@ pub async fn retire_capped_mails(
     let retired: Vec<Uuid> = mails
         .iter()
         .filter(|mail| {
-            mail.course_id.or(mail.external_credit_target_id) == Some(source.id())
+            source.is_named_by(mail.course_id, mail.external_credit_target_id)
                 || mail.sent_at >= quiet_since
         })
         .map(|mail| mail.id)

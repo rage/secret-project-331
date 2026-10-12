@@ -340,41 +340,17 @@ impl MoocfiConfiguration {
     /// Never fails on a missing variable: delegation is optional, and a missing secret must not
     /// keep the server from booting. Fails only on a set value that does not parse.
     pub fn try_from_env() -> anyhow::Result<Self> {
-        Self::from_values(
-            non_empty_env("MOOCFI_BASE_URL"),
-            non_empty_env("MOOCFI_FRONTEND_URL"),
-            non_empty_env("MOOCFI_ORGANIZATION_SECRET"),
-            non_empty_env("MOOCFI_ORGANIZATION_SLUG"),
-            non_empty_env("MOOCFI_HANDOFF_SECRET"),
-        )
-    }
-
-    /// mooc.fi's GraphQL endpoint.
-    pub fn graphql_url(&self) -> anyhow::Result<Url> {
-        Ok(self.base_url.join("api")?)
-    }
-
-    fn base_url_from_env() -> anyhow::Result<Url> {
-        parse_join_base(
-            non_empty_env("MOOCFI_BASE_URL")
+        let base_url = Self::base_url_from_env()?;
+        let frontend_url = parse_join_base(
+            non_empty_env("MOOCFI_FRONTEND_URL")
                 .as_deref()
                 .unwrap_or(DEFAULT_MOOCFI_URL),
         )
-        .context("Invalid URL in MOOCFI_BASE_URL")
-    }
-
-    fn from_values(
-        base_url: Option<String>,
-        frontend_url: Option<String>,
-        organization_secret: Option<String>,
-        organization_slug: Option<String>,
-        handoff_secret: Option<String>,
-    ) -> anyhow::Result<Self> {
-        let base_url = parse_join_base(base_url.as_deref().unwrap_or(DEFAULT_MOOCFI_URL))
-            .context("Invalid URL in MOOCFI_BASE_URL")?;
-        let frontend_url = parse_join_base(frontend_url.as_deref().unwrap_or(DEFAULT_MOOCFI_URL))
-            .context("Invalid URL in MOOCFI_FRONTEND_URL")?;
-        let delegation = match (organization_secret, organization_slug) {
+        .context("Invalid URL in MOOCFI_FRONTEND_URL")?;
+        let delegation = match (
+            non_empty_env("MOOCFI_ORGANIZATION_SECRET"),
+            non_empty_env("MOOCFI_ORGANIZATION_SLUG"),
+        ) {
             (Some(organization_secret), Some(organization_slug)) => {
                 Some(MoocfiDelegationConfiguration {
                     api_base_url: base_url.clone(),
@@ -394,8 +370,23 @@ impl MoocfiConfiguration {
             base_url,
             frontend_url,
             delegation,
-            handoff_secret: handoff_secret.map(|secret| SecretString::new(secret.into())),
+            handoff_secret: non_empty_env("MOOCFI_HANDOFF_SECRET")
+                .map(|secret| SecretString::new(secret.into())),
         })
+    }
+
+    /// mooc.fi's GraphQL endpoint.
+    pub fn graphql_url(&self) -> anyhow::Result<Url> {
+        Ok(self.base_url.join("api")?)
+    }
+
+    fn base_url_from_env() -> anyhow::Result<Url> {
+        parse_join_base(
+            non_empty_env("MOOCFI_BASE_URL")
+                .as_deref()
+                .unwrap_or(DEFAULT_MOOCFI_URL),
+        )
+        .context("Invalid URL in MOOCFI_BASE_URL")
     }
 }
 

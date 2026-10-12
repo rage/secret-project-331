@@ -129,25 +129,11 @@ impl MoocfiClient {
         let url = self.api_base_url.join(&format!(
             "api/delegated-completions/{moocfi_course_id}/users/{upstream_id}"
         ))?;
-        let started = Instant::now();
-        let result = self.send(REQWEST_CLIENT.get(url)).await;
-        let response = match result {
-            Ok(response) => response,
-            Err(error) => {
-                warn!(elapsed_ms = started.elapsed().as_millis() as u64, %error, "mooc.fi completion lookup failed");
-                return Err(error);
-            }
-        };
-        let completions = response
+        self.send("completion lookup", REQWEST_CLIENT.get(url))
+            .await?
             .json::<Vec<DelegatedCompletion>>()
             .await
-            .map_err(MoocfiError::InvalidResponse)?;
-        info!(
-            elapsed_ms = started.elapsed().as_millis() as u64,
-            completions = completions.len(),
-            "mooc.fi completion lookup succeeded"
-        );
-        Ok(completions)
+            .map_err(MoocfiError::InvalidResponse)
     }
 
     /// Reports our registrations to mooc.fi. mooc.fi records one registration per completion and
@@ -158,46 +144,50 @@ impl MoocfiClient {
         request: &RegisterCompletionsRequest,
     ) -> Result<(), MoocfiError> {
         let url = self.api_base_url.join("api/register-completions")?;
-        let started = Instant::now();
-        let result = self.send(REQWEST_CLIENT.post(url).json(request)).await;
-        match &result {
-            Ok(_) => info!(
-                elapsed_ms = started.elapsed().as_millis() as u64,
-                "mooc.fi registration report succeeded"
-            ),
-            Err(error) => warn!(
-                elapsed_ms = started.elapsed().as_millis() as u64,
-                %error,
-                "mooc.fi registration report failed"
-            ),
-        }
-        result.map(|_| ())
+        self.send(
+            "registration report",
+            REQWEST_CLIENT.post(url).json(request),
+        )
+        .await?;
+        Ok(())
     }
 
+    /// Sends `request` authenticated, logging its outcome and duration under `call`.
     async fn send(
         &self,
+        call: &'static str,
         request: reqwest::RequestBuilder,
     ) -> Result<reqwest::Response, MoocfiError> {
-        let response = request
-            .header(AUTHORIZATION, self.authorization.expose_secret())
-            .timeout(REQUEST_TIMEOUT)
-            .send()
-            .await
-            .map_err(MoocfiError::Unreachable)?;
-        let status = response.status();
-        if status.is_success() {
-            return Ok(response);
+        let started = Instant::now();
+        let result = async {
+            let response = request
+                .header(AUTHORIZATION, self.authorization.expose_secret())
+                .timeout(REQUEST_TIMEOUT)
+                .send()
+                .await
+                .map_err(MoocfiError::Unreachable)?;
+            let status = response.status();
+            if status.is_success() {
+                return Ok(response);
+            }
+            let body = response
+                .text()
+                .await
+                .unwrap_or_default()
+                .chars()
+                .take(MAX_ERROR_BODY_CHARS)
+                .collect();
+            Err(MoocfiError::Status {
+                status: status.as_u16(),
+                body,
+            })
         }
-        let body = response
-            .text()
-            .await
-            .unwrap_or_default()
-            .chars()
-            .take(MAX_ERROR_BODY_CHARS)
-            .collect();
-        Err(MoocfiError::Status {
-            status: status.as_u16(),
-            body,
-        })
+        .await;
+        let elapsed_ms = started.elapsed().as_millis() as u64;
+        match &result {
+            Ok(_) => info!(call, elapsed_ms, "mooc.fi call succeeded"),
+            Err(error) => warn!(call, elapsed_ms, %error, "mooc.fi call failed"),
+        }
+        result
     }
 }

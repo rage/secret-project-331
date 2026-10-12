@@ -137,6 +137,7 @@ COMMENT ON COLUMN credit_registrations.course_module_completion_id IS 'The compl
 COMMENT ON COLUMN credit_registrations.course_id IS 'The course, denormalised from the completion so per-course reads need no join.';
 COMMENT ON COLUMN credit_registrations.course_module_id IS 'The module, which is what carries the per-module configuration and pause.';
 COMMENT ON COLUMN credit_registrations.course_instance_id IS 'The instance the completion was earned on.';
+COMMENT ON COLUMN credit_registrations.improvement_checked_completion_updated_at IS 'The completion''s updated_at as of the last time the grade-improvement scan judged this accepted attempt and found no improvement. A completion touched for any other reason keeps matching the scan''s cheap "changed since the attempt" pre-filter, so without this watermark those rows fill every capped batch and a real regrade further down the queue is never reached.';
 
 DROP TABLE external_completions;
 DROP TABLE external_credit_targets;

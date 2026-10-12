@@ -51,7 +51,7 @@ pub struct CreditRegistrationAttentionItem {
     pub course_name: String,
     pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    pub external_credit_target_id: Option<Uuid>,
+    pub course_or_target_id: Uuid,
     pub uh_course_code: Option<String>,
     pub state: CreditRegistrationState,
     /// When the row entered its state; same-state checks do not move it.
@@ -546,7 +546,7 @@ pub(super) fn to_attention_item(
         course_name: row.course_name,
         course_module_id: row.course_module_id,
         course_module_name: row.course_module_name,
-        external_credit_target_id: row.external_credit_target_id,
+        course_or_target_id: row.course_or_target_id,
         uh_course_code: row.uh_course_code,
         state: row.state,
         state_changed_at: row.state_changed_at,

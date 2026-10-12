@@ -182,7 +182,7 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
                 <AdminResendLinkingEmailDialog
                   {...openState}
                   studentNumber={studentNumber}
-                  source={item}
+                  courseOrTargetId={item.course_or_target_id}
                   courseName={item.course_name}
                 />
               ),

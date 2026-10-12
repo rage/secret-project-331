@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  UPPER(TRIM(s.uh_course_code)) AS \"course_code!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\nWHERE cr.id = ANY($1)\n  AND NULLIF(TRIM(s.uh_course_code), '') IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "5a10b11d3efa50217842a910f634d0bad91adc0dda7c37a87576021c5a36149f"
+}

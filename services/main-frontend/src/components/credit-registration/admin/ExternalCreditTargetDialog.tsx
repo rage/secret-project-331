@@ -17,6 +17,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { validateUUID } from "@/shared-module/common/utils/strings"
 import type { DialogAction } from "@/shared-module/components"
 import {
   Checkbox,
@@ -39,12 +40,12 @@ const CUTOFF_TIME_ZONE = "Europe/Helsinki"
 /** `YYYY-MM-DDTHH:mm`, the minute precision the date-time field edits. */
 const LOCAL_MINUTE_LENGTH = 16
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 /** The database's own check on `external_credit_targets.language_code`. */
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/
 
 const TIERS_OVERLAP = "external_credit_target_tiers_overlap"
 const COURSE_CODE_TAKEN = "external_credit_target_course_code_taken"
+const MOOCFI_COURSE_FIXED = "external_credit_target_moocfi_course_fixed"
 
 const PASS_FAIL: ExternalGrading = "pass_fail"
 const NUMERIC: ExternalGrading = "numeric"
@@ -98,7 +99,7 @@ const initialFields = (target: ExternalCreditTarget | null): Fields => ({
 interface Props extends DialogOpenState {
   /** `null` adds a new target. */
   target: ExternalCreditTarget | null
-  /** The cutoff is fixed once the target has registrations. */
+  /** The cutoff and the mooc.fi course are fixed once the target has registrations. */
   hasRegistrations: boolean
 }
 
@@ -143,6 +144,10 @@ const ExternalCreditTargetDialog: React.FC<Props> = ({
         } else if (messageKey === COURSE_CODE_TAKEN) {
           setError("uh_course_code", {
             message: t("credit-registration-admin-moocfi-course-code-taken"),
+          })
+        } else if (messageKey === MOOCFI_COURSE_FIXED) {
+          setError("moocfi_course_id", {
+            message: t("credit-registration-admin-moocfi-course-id-fixed"),
           })
         } else {
           setError("root", {
@@ -204,12 +209,16 @@ const ExternalCreditTargetDialog: React.FC<Props> = ({
             name="moocfi_course_id"
             control={control}
             label={t("label-moocfi-course-id")}
-            description={t("credit-registration-admin-moocfi-course-id-description")}
+            description={
+              hasRegistrations
+                ? t("credit-registration-admin-moocfi-course-id-fixed")
+                : t("credit-registration-admin-moocfi-course-id-description")
+            }
+            isDisabled={hasRegistrations}
             isRequired
             rules={{
               ...required,
-              validate: (value) =>
-                UUID_PATTERN.test(value.trim()) || t("credit-registration-admin-invalid-uuid"),
+              validate: (value) => validateUUID(value.trim()) || t("invalid-uuid-format"),
             }}
           />
           <TextField

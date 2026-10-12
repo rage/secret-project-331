@@ -163,7 +163,7 @@ pub struct AttentionRegistration {
     pub course_name: String,
     pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    pub external_credit_target_id: Option<Uuid>,
+    pub course_or_target_id: Uuid,
     /// The module or mooc.fi target, whichever kind it is.
     pub credit_unit_id: Uuid,
     /// The module's or target's code now, trimmed; not the one frozen on the row.
@@ -330,7 +330,7 @@ SELECT cr.id,
   COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cr.course_module_id,
   cm.name AS "course_module_name?",
-  cr.external_credit_target_id,
+  COALESCE(cr.course_id, cr.external_credit_target_id) AS "course_or_target_id!",
   cr.credit_unit_id,
   NULLIF(TRIM(subj.uh_course_code), '') AS uh_course_code,
   cr.course_module_completion_id,

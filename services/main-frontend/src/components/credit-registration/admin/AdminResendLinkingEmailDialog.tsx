@@ -22,15 +22,10 @@ import type { DialogOpenState } from "./AdminActionDialog"
 import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
-/** The course or mooc.fi target a linking mail is for; a row carries exactly one of the two. */
-export interface LinkingMailSourceIds {
-  course_id?: string | null
-  external_credit_target_id?: string | null
-}
-
 interface Props extends DialogOpenState {
   studentNumber: string
-  source: LinkingMailSourceIds
+  /** The course or mooc.fi target the mail is for. */
+  courseOrTargetId: string
   courseName: string
 }
 
@@ -49,7 +44,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   isOpen,
   onClose,
   studentNumber,
-  source,
+  courseOrTargetId,
   courseName,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -64,8 +59,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     adminResendAccountLinkingEmail({
       body: {
         student_number: studentNumber,
-        course_id: source.course_id ?? null,
-        external_credit_target_id: source.external_credit_target_id ?? null,
+        course_or_target_id: courseOrTargetId,
         override_rate_caps: fields.override_rate_caps,
         reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
       },

@@ -65,6 +65,7 @@ pub struct AdminCreditRegistrationRow {
     /// Set on a mooc.fi registration only, as is `external_completion_id`.
     pub external_credit_target_id: Option<Uuid>,
     pub external_completion_id: Option<Uuid>,
+    pub course_or_target_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     /// What a `pending` row is waiting on, which the ledger does not store; `null` for every other
@@ -418,8 +419,8 @@ pub struct AdminBulkTransitionResult {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminRequeueRetryablePayload {
-    /// A course, or a mooc.fi target.
     pub course_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     /// A course module, or a mooc.fi target.
     pub course_module_id: Option<Uuid>,
     pub reason: String,
@@ -1036,18 +1037,23 @@ pub async fn admin_requeue_retryable_credit_registrations(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let reason = required_reason(&payload.reason)?;
-    let target_kind = match payload.course_id {
-        Some(id) if models::external_credit_targets::exists(&mut conn, id).await? => {
-            CreditRegistrationAdminActionTarget::ExternalCreditTarget
-        }
-        Some(_) => CreditRegistrationAdminActionTarget::Course,
-        None => CreditRegistrationAdminActionTarget::CreditRegistration,
+    let (target_kind, target_id) = match (payload.course_id, payload.external_credit_target_id) {
+        (Some(id), _) => (CreditRegistrationAdminActionTarget::Course, Some(id)),
+        (None, Some(id)) => (
+            CreditRegistrationAdminActionTarget::ExternalCreditTarget,
+            Some(id),
+        ),
+        (None, None) => (
+            CreditRegistrationAdminActionTarget::CreditRegistration,
+            None,
+        ),
     };
 
     let mut tx = conn.begin().await?;
     let requeued_count = credit_registrations::requeue_retryable_now(
         &mut tx,
         payload.course_id,
+        payload.external_credit_target_id,
         payload.course_module_id,
         MAX_ROWS_PER_REQUEUE,
     )
@@ -1055,10 +1061,11 @@ pub async fn admin_requeue_retryable_credit_registrations(
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {
-            target_id: payload.course_id,
+            target_id,
             reason: Some(reason.to_string()),
             details: Some(serde_json::json!({
                 "course_id": payload.course_id,
+                "external_credit_target_id": payload.external_credit_target_id,
                 "course_module_id": payload.course_module_id,
             })),
             affected_row_count: Some(i32::try_from(requeued_count).unwrap_or(i32::MAX)),
@@ -1365,6 +1372,7 @@ fn to_admin_row(
         course_module_completion_id: row.course_module_completion_id,
         external_credit_target_id: row.external_credit_target_id,
         external_completion_id: row.external_completion_id,
+        course_or_target_id: row.course_or_target_id,
         completion_date: row.completion_date,
         state: row.state,
         state_entered_at: row.state_entered_at,

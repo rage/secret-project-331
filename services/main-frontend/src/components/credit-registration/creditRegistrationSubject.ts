@@ -47,105 +47,83 @@ export const moocfiSubject = (externalCompletionId: string): CreditRegistrationS
   externalCompletionId,
 })
 
+/** Every per-completion request, for the endpoint family `subject` belongs to. */
+const endpointsFor = (subject: CreditRegistrationSubject) => {
+  if (subject.kind === "course_module") {
+    const path = { course_module_id: subject.courseModuleId }
+    return {
+      registrationQueryKey: getMyCreditRegistrationForCourseModuleQueryKey({ path }),
+      getRegistration: (signal: AbortSignal) =>
+        getMyCreditRegistrationForCourseModule({ path, signal, throwOnError: true }),
+      enrolmentRouteQueryKey: getMyEnrolmentRouteQueryKey({ path }),
+      getEnrolmentRoute: (signal: AbortSignal) =>
+        getMyEnrolmentRoute({ path, signal, throwOnError: true }),
+      setEnrolmentRoute: (route: CreditRegistrationEnrolmentRoute) =>
+        setMyEnrolmentRoute({ path, body: { route } }),
+      confirmEnrolment: () => confirmMyEnrolment({ path }),
+      withdrawEnrolmentConfirmation: () => withdrawMyEnrolmentConfirmation({ path }),
+      recordEnrolmentPageVisit: () => recordMyEnrolmentPageVisit({ path }),
+    }
+  }
+  const path = { external_completion_id: subject.externalCompletionId }
+  return {
+    registrationQueryKey: getMyCreditRegistrationForExternalCompletionQueryKey({ path }),
+    getRegistration: (signal: AbortSignal) =>
+      getMyCreditRegistrationForExternalCompletion({ path, signal, throwOnError: true }),
+    enrolmentRouteQueryKey: getMyExternalCompletionEnrolmentRouteQueryKey({ path }),
+    getEnrolmentRoute: (signal: AbortSignal) =>
+      getMyExternalCompletionEnrolmentRoute({ path, signal, throwOnError: true }),
+    setEnrolmentRoute: (route: CreditRegistrationEnrolmentRoute) =>
+      setMyExternalCompletionEnrolmentRoute({ path, body: { route } }),
+    confirmEnrolment: () => confirmMyExternalCompletionEnrolment({ path }),
+    withdrawEnrolmentConfirmation: () =>
+      withdrawMyExternalCompletionEnrolmentConfirmation({ path }),
+    recordEnrolmentPageVisit: () => recordMyExternalCompletionEnrolmentPageVisit({ path }),
+  }
+}
+
 // Built here rather than picked from the generated options: `useQuery` cannot take a union of the
 // two. The keys stay the generated ones, which invalidation matches on.
-export const myRegistrationForSubjectOptions = (subject: CreditRegistrationSubject) =>
-  queryOptions({
-    queryKey:
-      subject.kind === "course_module"
-        ? getMyCreditRegistrationForCourseModuleQueryKey({
-            path: { course_module_id: subject.courseModuleId },
-          })
-        : getMyCreditRegistrationForExternalCompletionQueryKey({
-            path: { external_completion_id: subject.externalCompletionId },
-          }),
-    queryFn: async ({ signal }) =>
-      subject.kind === "course_module"
-        ? await getMyCreditRegistrationForCourseModule({
-            path: { course_module_id: subject.courseModuleId },
-            signal,
-            throwOnError: true,
-          })
-        : await getMyCreditRegistrationForExternalCompletion({
-            path: { external_completion_id: subject.externalCompletionId },
-            signal,
-            throwOnError: true,
-          }),
+export const myRegistrationForSubjectOptions = (subject: CreditRegistrationSubject) => {
+  const endpoints = endpointsFor(subject)
+  return queryOptions({
+    queryKey: endpoints.registrationQueryKey,
+    queryFn: async ({ signal }) => await endpoints.getRegistration(signal),
   })
+}
 
 export const myEnrolmentRouteQueryKey = (subject: CreditRegistrationSubject) =>
-  subject.kind === "course_module"
-    ? getMyEnrolmentRouteQueryKey({ path: { course_module_id: subject.courseModuleId } })
-    : getMyExternalCompletionEnrolmentRouteQueryKey({
-        path: { external_completion_id: subject.externalCompletionId },
-      })
+  endpointsFor(subject).enrolmentRouteQueryKey
 
-export const myEnrolmentRouteOptions = (subject: CreditRegistrationSubject) =>
-  queryOptions({
-    queryKey: myEnrolmentRouteQueryKey(subject),
-    queryFn: async ({ signal }) =>
-      subject.kind === "course_module"
-        ? await getMyEnrolmentRoute({
-            path: { course_module_id: subject.courseModuleId },
-            signal,
-            throwOnError: true,
-          })
-        : await getMyExternalCompletionEnrolmentRoute({
-            path: { external_completion_id: subject.externalCompletionId },
-            signal,
-            throwOnError: true,
-          }),
+export const myEnrolmentRouteOptions = (subject: CreditRegistrationSubject) => {
+  const endpoints = endpointsFor(subject)
+  return queryOptions({
+    queryKey: endpoints.enrolmentRouteQueryKey,
+    queryFn: async ({ signal }) => await endpoints.getEnrolmentRoute(signal),
   })
+}
 
 export const setEnrolmentRoute = async (
   subject: CreditRegistrationSubject,
   route: CreditRegistrationEnrolmentRoute,
 ): Promise<void> => {
-  if (subject.kind === "course_module") {
-    await setMyEnrolmentRoute({
-      path: { course_module_id: subject.courseModuleId },
-      body: { route },
-    })
-  } else {
-    await setMyExternalCompletionEnrolmentRoute({
-      path: { external_completion_id: subject.externalCompletionId },
-      body: { route },
-    })
-  }
+  await endpointsFor(subject).setEnrolmentRoute(route)
 }
 
 export const confirmEnrolment = async (subject: CreditRegistrationSubject): Promise<void> => {
-  if (subject.kind === "course_module") {
-    await confirmMyEnrolment({ path: { course_module_id: subject.courseModuleId } })
-  } else {
-    await confirmMyExternalCompletionEnrolment({
-      path: { external_completion_id: subject.externalCompletionId },
-    })
-  }
+  await endpointsFor(subject).confirmEnrolment()
 }
 
 export const withdrawEnrolmentConfirmation = async (
   subject: CreditRegistrationSubject,
 ): Promise<void> => {
-  if (subject.kind === "course_module") {
-    await withdrawMyEnrolmentConfirmation({ path: { course_module_id: subject.courseModuleId } })
-  } else {
-    await withdrawMyExternalCompletionEnrolmentConfirmation({
-      path: { external_completion_id: subject.externalCompletionId },
-    })
-  }
+  await endpointsFor(subject).withdrawEnrolmentConfirmation()
 }
 
 export const recordEnrolmentPageVisit = async (
   subject: CreditRegistrationSubject,
 ): Promise<void> => {
-  if (subject.kind === "course_module") {
-    await recordMyEnrolmentPageVisit({ path: { course_module_id: subject.courseModuleId } })
-  } else {
-    await recordMyExternalCompletionEnrolmentPageVisit({
-      path: { external_completion_id: subject.externalCompletionId },
-    })
-  }
+  await endpointsFor(subject).recordEnrolmentPageVisit()
 }
 
 /** The page the student follows `registration` on, or `null` for a row that names neither. */

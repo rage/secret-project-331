@@ -436,7 +436,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             control={
               <AdminResendLinkingEmailButton
                 studentNumber={studentNumber}
-                source={registration}
+                courseOrTargetId={registration.course_or_target_id}
                 courseName={registration.course_name}
                 variant={variantFor(offer)}
               />

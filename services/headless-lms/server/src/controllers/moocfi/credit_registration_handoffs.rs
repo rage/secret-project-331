@@ -8,31 +8,47 @@ completion is read from mooc.fi here.
 */
 
 use std::net::IpAddr;
-use std::num::NonZeroU32;
 
-use governor::{Quota, RateLimiter, clock::DefaultClock, state::keyed::DefaultKeyedStateStore};
-use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim};
+use actix_web::http::{StatusCode, header};
+use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim, sign_hs256_claim};
 use headless_lms_utils::services::tmc::TmcClient;
 use once_cell::sync::Lazy;
 use secrecy::{ExposeSecret, SecretString};
 
 use crate::domain::authentication::{
-    authenticate_test_token, constant_time_eq_str, get_or_create_user_from_tmc_mooc_fi_response,
+    authenticate_test_token, authorization_credential, constant_time_eq_str,
+    get_or_create_user_from_tmc_mooc_fi_response,
 };
+use crate::domain::rate_limit_middleware_builder::{EndpointLimiters, RateLimitConfig};
 use crate::prelude::*;
 
 /// The path the returned redirect URL points at.
 pub const REDEEM_PATH: &str = "/api/v0/main-frontend/moocfi-handoffs/redeem";
 
-type UserLimiter = RateLimiter<Uuid, DefaultKeyedStateStore<Uuid>, DefaultClock>;
+/// How often one student may mint a handoff, and one client IP redeem one.
+pub const HANDOFF_RATE_LIMIT: RateLimitConfig = RateLimitConfig {
+    per_second: None,
+    per_minute: Some(10),
+    per_hour: Some(60),
+    per_day: None,
+    per_month: None,
+};
 
 /// Keyed by user, which the route middleware cannot do: the caller is mooc.fi's backend, and the
 /// user is only known once the TMC token checks out.
-static PER_USER_LIMITS: Lazy<[UserLimiter; 2]> = Lazy::new(|| {
-    [
-        RateLimiter::keyed(Quota::per_minute(NonZeroU32::new(10).expect("non-zero"))),
-        RateLimiter::keyed(Quota::per_hour(NonZeroU32::new(60).expect("non-zero"))),
-    ]
+static PER_USER_LIMITS: Lazy<EndpointLimiters> =
+    Lazy::new(|| EndpointLimiters::from_config(&HANDOFF_RATE_LIMIT));
+
+/// At most one error report per mooc.fi course an hour, per replica: a mismatch refuses every
+/// student who presses the button, before TMC has vouched for any of them.
+static CUTOFF_MISMATCH_REPORTS_PER_COURSE: Lazy<EndpointLimiters> = Lazy::new(|| {
+    EndpointLimiters::from_config(&RateLimitConfig {
+        per_second: None,
+        per_minute: None,
+        per_hour: Some(1),
+        per_day: None,
+        per_month: None,
+    })
 });
 
 #[derive(Debug, Deserialize)]
@@ -74,13 +90,15 @@ pub async fn create_credit_registration_handoff(
     let moocfi = &app_conf.moocfi_configuration;
     let (Some(handoff_secret), Some(_)) = (&moocfi.handoff_secret, &moocfi.delegation) else {
         return token.authorized_ok(refusal(
-            HandoffOutcome::NotConfigured,
+            StatusCode::SERVICE_UNAVAILABLE,
+            "not_configured",
             "Credit registration handoffs are not configured.",
         ));
     };
     if !is_authorized(&request, handoff_secret) {
         return token.authorized_ok(refusal(
-            HandoffOutcome::Unauthorized,
+            StatusCode::UNAUTHORIZED,
+            "unauthorized",
             "Invalid authorization.",
         ));
     }
@@ -92,7 +110,8 @@ pub async fn create_credit_registration_handoff(
     } = payload.into_inner();
     let Ok(client_ip) = client_ip.trim().parse::<IpAddr>() else {
         return token.authorized_ok(refusal(
-            HandoffOutcome::InvalidRequest,
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
             "client_ip is not an IP address.",
         ));
     };
@@ -106,53 +125,59 @@ pub async fn create_credit_registration_handoff(
         target.delegated_at.timestamp_millis() == delegated_at.timestamp_millis()
     };
     if targets.is_empty() || !targets.iter().all(is_cutoff_equal) {
-        report_cutoff_mismatch(&pool, moocfi_course_id, delegated_at, &targets).await;
+        if CUTOFF_MISMATCH_REPORTS_PER_COURSE
+            .check_key(moocfi_course_id.to_string())
+            .is_ok()
+        {
+            report_cutoff_mismatch(&pool, moocfi_course_id, delegated_at, &targets).await;
+        }
         return token.authorized_ok(refusal(
-            HandoffOutcome::CutoffMismatch,
+            StatusCode::CONFLICT,
+            "cutoff_mismatch",
             "This course is not set up for credit registration on courses.mooc.fi.",
         ));
     }
 
     let user = match find_user(&mut conn, &app_conf, &tmc_client, &tmc_access_token).await {
         Ok(user) => user,
-        Err(outcome) => {
-            return token.authorized_ok(refusal(outcome, "Could not verify the student with TMC."));
+        Err(TmcFailure::Rejected) => {
+            return token.authorized_ok(refusal(
+                StatusCode::UNAUTHORIZED,
+                "tmc_rejected",
+                TMC_REFUSAL_MESSAGE,
+            ));
+        }
+        Err(TmcFailure::Unavailable) => {
+            return token.authorized_ok(refusal(
+                StatusCode::SERVICE_UNAVAILABLE,
+                "tmc_unavailable",
+                TMC_REFUSAL_MESSAGE,
+            ));
         }
     };
 
-    if PER_USER_LIMITS
-        .iter()
-        .any(|limiter| limiter.check_key(&user.id).is_err())
-    {
-        return token.authorized_ok(refusal(
-            HandoffOutcome::RateLimited,
+    if let Err(retry_after) = PER_USER_LIMITS.check_key(user.id.to_string()) {
+        let mut response = refusal(
+            StatusCode::TOO_MANY_REQUESTS,
+            "rate_limited",
             "Too many requests. Please try again later.",
-        ));
+        );
+        response
+            .headers_mut()
+            .insert(header::RETRY_AFTER, retry_after.as_secs().max(1).into());
+        return token.authorized_ok(response);
     }
 
-    let handoff = MoocfiHandoffClaim::new(user.id, moocfi_course_id, client_ip, &jwt_key)
-        .sign(&jwt_key)
-        .map_err(|error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to sign the handoff".to_string(),
-                Some(error.into()),
-            )
-        })?;
-    let mut redirect_url = url::Url::parse(&app_conf.base_url)
-        .and_then(|base_url| base_url.join(REDEEM_PATH))
-        .map_err(|error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Invalid BASE_URL".to_string(),
-                Some(error.into()),
-            )
-        })?;
-    redirect_url
-        .query_pairs_mut()
-        .append_pair("token", &handoff);
+    let claim = MoocfiHandoffClaim::new(user.id, moocfi_course_id, client_ip, &jwt_key);
+    let redirect_url = redeem_url(&app_conf.base_url, &claim, &jwt_key).map_err(|error| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            error.to_string(),
+            Some(error),
+        )
+    })?;
 
-    info!(outcome = HandoffOutcome::Minted.as_str(), user_id = %user.id, "Minted a mooc.fi handoff");
+    info!(outcome = "minted", user_id = %user.id, "Minted a mooc.fi handoff");
     token.authorized_ok(
         HttpResponse::Created().json(CreditRegistrationHandoffResponse {
             redirect_url: redirect_url.to_string(),
@@ -160,61 +185,40 @@ pub async fn create_credit_registration_handoff(
     )
 }
 
-/// How one mint request ended, for the logs.
-#[derive(Debug, Clone, Copy)]
-enum HandoffOutcome {
-    Minted,
-    NotConfigured,
-    Unauthorized,
-    InvalidRequest,
-    CutoffMismatch,
-    TmcRejected,
-    TmcUnavailable,
-    RateLimited,
+const TMC_REFUSAL_MESSAGE: &str = "Could not verify the student with TMC.";
+
+/// Why [`find_user`] found no one.
+enum TmcFailure {
+    Rejected,
+    Unavailable,
 }
 
-impl HandoffOutcome {
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::Minted => "minted",
-            Self::NotConfigured => "not_configured",
-            Self::Unauthorized => "unauthorized",
-            Self::InvalidRequest => "invalid_request",
-            Self::CutoffMismatch => "cutoff_mismatch",
-            Self::TmcRejected => "tmc_rejected",
-            Self::TmcUnavailable => "tmc_unavailable",
-            Self::RateLimited => "rate_limited",
-        }
-    }
-
-    fn status(self) -> actix_web::http::StatusCode {
-        use actix_web::http::StatusCode;
-        match self {
-            Self::Minted => StatusCode::CREATED,
-            Self::NotConfigured | Self::TmcUnavailable => StatusCode::SERVICE_UNAVAILABLE,
-            Self::Unauthorized | Self::TmcRejected => StatusCode::UNAUTHORIZED,
-            Self::InvalidRequest => StatusCode::BAD_REQUEST,
-            Self::CutoffMismatch => StatusCode::CONFLICT,
-            Self::RateLimited => StatusCode::TOO_MANY_REQUESTS,
-        }
-    }
-}
-
-fn refusal(outcome: HandoffOutcome, message: &str) -> HttpResponse {
-    warn!(outcome = outcome.as_str(), "Refused a mooc.fi handoff");
-    HttpResponse::build(outcome.status()).json(serde_json::json!({
-        "type": outcome.as_str(),
+/// A refused mint, logged under `kind`, which the body's `type` repeats.
+fn refusal(status: StatusCode, kind: &'static str, message: &str) -> HttpResponse {
+    warn!(outcome = kind, "Refused a mooc.fi handoff");
+    HttpResponse::build(status).json(serde_json::json!({
+        "type": kind,
         "message": message,
     }))
 }
 
 fn is_authorized(request: &HttpRequest, handoff_secret: &SecretString) -> bool {
-    request
-        .headers()
-        .get(actix_web::http::header::AUTHORIZATION)
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.strip_prefix("Bearer "))
+    authorization_credential(request, "Bearer")
         .is_some_and(|provided| constant_time_eq_str(provided, handoff_secret.expose_secret()))
+}
+
+/// The redeem URL carrying `claim` signed.
+fn redeem_url(
+    base_url: &str,
+    claim: &MoocfiHandoffClaim,
+    jwt_key: &JwtKey,
+) -> anyhow::Result<url::Url> {
+    let handoff = sign_hs256_claim(claim, jwt_key).context("Failed to sign the handoff")?;
+    let mut url = url::Url::parse(base_url)
+        .and_then(|base_url| base_url.join(REDEEM_PATH))
+        .context("Invalid BASE_URL")?;
+    url.query_pairs_mut().append_pair("token", &handoff);
+    Ok(url)
 }
 
 /// The courses account of the TMC token's owner, created on first sight like a login would.
@@ -223,11 +227,11 @@ async fn find_user(
     app_conf: &ApplicationConfiguration,
     tmc_client: &TmcClient,
     tmc_access_token: &SecretString,
-) -> Result<models::users::User, HandoffOutcome> {
+) -> Result<models::users::User, TmcFailure> {
     if app_conf.test_mode
         && let Some(user) = authenticate_test_token(conn, tmc_access_token, app_conf)
             .await
-            .map_err(|_| HandoffOutcome::TmcUnavailable)?
+            .map_err(|_| TmcFailure::Unavailable)?
     {
         return Ok(user);
     }
@@ -235,18 +239,23 @@ async fn find_user(
         .get_user_from_tmc_mooc_fi_by_tmc_access_token(tmc_access_token)
         .await
         .map_err(|error| match error.error_type() {
-            UtilErrorType::TmcHttpStatusError(401 | 403) => HandoffOutcome::TmcRejected,
+            UtilErrorType::TmcHttpStatusError(401 | 403) => TmcFailure::Rejected,
             _ => {
                 warn!(%error, "TMC did not answer a mooc.fi handoff");
-                HandoffOutcome::TmcUnavailable
+                TmcFailure::Unavailable
             }
         })?;
-    get_or_create_user_from_tmc_mooc_fi_response(conn, tmc_user, tmc_access_token)
-        .await
-        .map_err(|error| {
-            warn!(%error, "Could not find or create the user of a mooc.fi handoff");
-            HandoffOutcome::TmcUnavailable
-        })
+    get_or_create_user_from_tmc_mooc_fi_response(
+        conn,
+        &app_conf.moocfi_configuration,
+        tmc_user,
+        tmc_access_token,
+    )
+    .await
+    .map_err(|error| {
+        warn!(%error, "Could not find or create the user of a mooc.fi handoff");
+        TmcFailure::Unavailable
+    })
 }
 
 /// The two platforms disagree about which completions are whose, so this needs an admin.

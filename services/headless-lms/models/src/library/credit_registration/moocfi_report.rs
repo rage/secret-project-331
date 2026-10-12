@@ -1,8 +1,9 @@
 //! Telling mooc.fi which of its completions we registered, once per completion.
 //!
-//! mooc.fi records every post as a new registration, so a completion is posted only under a lease,
-//! and only after a lookup has shown our registration is not there yet: a post whose answer was
-//! lost is then found on the next try instead of being made again.
+//! mooc.fi skips a completion our organization has already registered, but checks before it
+//! inserts, so two posts racing each other can both land: a completion is posted only under a
+//! lease. Each post follows a lookup, which finds a registration whose answer was lost and a
+//! completion deleted on mooc.fi since.
 
 use chrono::TimeDelta;
 
@@ -65,7 +66,7 @@ WHERE due.deleted_at IS NULL
   AND EXISTS (
     SELECT 1
     FROM credit_registrations cr
-    WHERE cr.external_completion_id = due.id
+    WHERE cr.subject_id = due.id
       AND cr.deleted_at IS NULL
       AND cr.state = ANY($1::credit_registration_state [])
       AND cr.student_number IS NOT NULL
@@ -141,7 +142,7 @@ FROM claimed
     SELECT cr.student_number,
       COALESCE(cr.registered_at, cr.terminal_at, cr.state_entered_at) AS registration_date
     FROM credit_registrations cr
-    WHERE cr.external_completion_id = claimed.id
+    WHERE cr.subject_id = claimed.id
       AND cr.deleted_at IS NULL
       AND cr.state = ANY($3::credit_registration_state [])
       AND cr.student_number IS NOT NULL

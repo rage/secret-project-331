@@ -39,6 +39,7 @@ pub struct AdminCreditRegistration {
     /// Set on a mooc.fi row only, as is `external_completion_id`.
     pub external_credit_target_id: Option<Uuid>,
     pub external_completion_id: Option<Uuid>,
+    pub course_or_target_id: Uuid,
     /// The completion, whichever kind it is.
     pub subject_id: Uuid,
     /// The module or mooc.fi target, whichever kind it is.
@@ -247,6 +248,7 @@ SELECT cr.id,
   cr.course_module_completion_id,
   cr.external_credit_target_id,
   cr.external_completion_id,
+  COALESCE(cr.course_id, cr.external_credit_target_id) AS "course_or_target_id!",
   cr.subject_id,
   cr.credit_unit_id,
   s.completion_date AS "completion_date!",

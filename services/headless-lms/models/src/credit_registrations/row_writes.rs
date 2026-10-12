@@ -394,10 +394,12 @@ WHERE id = $1
 }
 
 /// Points an old attempt at the newer one that replaced it. The old row keeps its state and
-/// `terminal_at`: it really was registered.
+/// `terminal_at`.
 ///
-/// For fixtures planting a finished replacement. The pipeline goes through
-/// [`mark_pending_superseded`], which supersedes the row only once the new attempt is registered.
+/// For a replacement that takes over at once: a fixture planting a finished one, or a new attempt
+/// replacing a cancelled one, which put nothing in the registry. A registered row goes through
+/// [`mark_pending_superseded`] instead, which supersedes it only once the new attempt is
+/// registered.
 ///
 /// `superseded_by_id` may name a row that does not exist yet, as long as it is inserted before the
 /// caller's transaction commits: the foreign key is deferred.
@@ -453,12 +455,12 @@ WHERE id = $1
 /// Records that the grade-improvement scan looked at this accepted attempt against a completion in
 /// the given revision and found nothing better.
 ///
-/// `completion_updated_at` must be the `updated_at` the scan actually read, not `now()`: the point
-/// is that the row stops being a candidate until the completion changes again.
+/// `completion_revised_at` must be the subject's `revised_at` the scan actually read, not `now()`:
+/// the point is that the row stops being a candidate until the completion changes again.
 pub async fn mark_improvement_checked(
     conn: &mut PgConnection,
     id: Uuid,
-    completion_updated_at: DateTime<Utc>,
+    completion_revised_at: DateTime<Utc>,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -468,7 +470,7 @@ WHERE id = $1
   AND deleted_at IS NULL
         "#,
         id,
-        completion_updated_at,
+        completion_revised_at,
     )
     .execute(conn)
     .await?;
@@ -479,11 +481,12 @@ WHERE id = $1
 /// the study registry says an outage is over.
 ///
 /// Only `failed_retryable`: no other state's backoff means "waiting out an outage", and
-/// `submission_uncertain` must never be swept forward in bulk. `course_id` also takes a mooc.fi
-/// target's id, as `credit_unit_id` takes a module's or a target's.
+/// `submission_uncertain` must never be swept forward in bulk. Each filter left `None` matches every
+/// row; `credit_unit_id` takes a module's or a mooc.fi target's id.
 pub async fn requeue_retryable_now(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
+    external_credit_target_id: Option<Uuid>,
     credit_unit_id: Option<Uuid>,
     limit: i64,
 ) -> ModelResult<i64> {
@@ -496,11 +499,8 @@ WITH due AS (
     AND next_attempt_at > now()
     AND superseded_by_id IS NULL
     AND deleted_at IS NULL
-    AND (
-      $2::uuid IS NULL
-      OR course_id = $2
-      OR external_credit_target_id = $2
-    )
+    AND ($2::uuid IS NULL OR course_id = $2)
+    AND ($4::uuid IS NULL OR external_credit_target_id = $4)
     AND ($3::uuid IS NULL OR credit_unit_id = $3)
   ORDER BY next_attempt_at
   LIMIT $1
@@ -518,6 +518,7 @@ FROM updated
         limit,
         course_id,
         credit_unit_id,
+        external_credit_target_id,
     )
     .fetch_one(conn)
     .await?;

@@ -626,6 +626,7 @@ async fn handle_production_login(
             email.to_string(),
             password.clone(),
             tmc_client,
+            &app_conf.moocfi_configuration,
         )
         .await?;
 

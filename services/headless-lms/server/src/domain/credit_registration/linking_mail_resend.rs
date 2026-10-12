@@ -7,6 +7,27 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
+/// The source a course-or-target id from an admin screen names: a live mooc.fi target if there is
+/// one by that id, otherwise a course. An unknown id comes back as a course, which
+/// [`ensure_resend_possible`] then refuses.
+pub async fn resolve_linking_mail_source(
+    conn: &mut PgConnection,
+    course_or_target_id: Uuid,
+) -> Result<LinkingMailSource, ControllerError> {
+    match models::external_credit_targets::get_by_id(conn, course_or_target_id).await {
+        Ok(_) => Ok(LinkingMailSource::ExternalCreditTarget(course_or_target_id)),
+        Err(error)
+            if matches!(
+                error.error_type(),
+                models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound
+            ) =>
+        {
+            Ok(LinkingMailSource::Course(course_or_target_id))
+        }
+        Err(error) => Err(error.into()),
+    }
+}
+
 /// Refuses a resend while account linking is switched off, for a course with no credit
 /// registration module configured, or for a mooc.fi target that is not enabled.
 pub async fn ensure_resend_possible(

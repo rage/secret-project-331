@@ -11,7 +11,7 @@ use headless_lms_models::library::credit_registration::preconditions::{
 use utoipa::ToSchema;
 
 use crate::prelude::*;
-use headless_lms_credit_registration::{CreditRegistrationPhase, Materialized, materialize_now};
+use headless_lms_credit_registration::{CreditRegistrationPhase, materialize_now};
 
 use super::authorize_credit_registration_admin;
 
@@ -22,8 +22,8 @@ pub struct AdminMaterializePayload {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminMaterializeResult {
-    /// Rows created, both for newly eligible completions and for grades that improved on a
-    /// registered one.
+    /// Rows created: for newly eligible completions, for grades that improved on a registered one,
+    /// and for completions registrable again after a withdrawal.
     pub created_registration_count: i64,
     pub moved_registration_count: i64,
 }
@@ -58,11 +58,7 @@ pub async fn admin_materialize_credit_registrations(
     info!(actor = %user.id, "Admin ran materialize and preconditions now");
     let mut tx = conn.begin().await?;
     let scope = credit_registrations::RegistrationScope::default();
-    let Materialized {
-        created,
-        re_attempted,
-    } = materialize_now(&mut tx, &scope).await?;
-    let created_registration_count = created + re_attempted;
+    let created_registration_count = materialize_now(&mut tx, &scope).await?.total();
     let moved_registration_count =
         recompute_preconditions(&mut tx, &scope, PRECONDITIONS_LIMIT).await?;
     info!(

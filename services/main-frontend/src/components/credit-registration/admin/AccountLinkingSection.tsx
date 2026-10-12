@@ -622,7 +622,7 @@ const CourseCodeCell: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) =>
       <code className={codeValueCss}>{row.course_code}</code>
       {row.modules.map((module) => (
         <InlineParts
-          key={module.course_module_id ?? module.external_credit_target_id}
+          key={module.credit_unit_id}
           className={noteCss}
           parts={[module.course_name, module.course_module_name]}
         />
@@ -982,7 +982,7 @@ const StaleAddressActions: React.FC<{
         isOpen={isResendOpen}
         onClose={() => setResendOpen(false)}
         studentNumber={row.student_number}
-        source={row}
+        courseOrTargetId={row.course_or_target_id}
         courseName={row.course_name}
       />
       {isLinkOpen && (
@@ -1046,9 +1046,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
           labelledBy={headingId}
           density={DENSITY_COMPACT}
           responsive={TABLE_STACK}
-          rowKey={(row) =>
-            `${row.student_number}:${row.course_id ?? row.external_credit_target_id}`
-          }
+          rowKey={(row) => `${row.student_number}:${row.course_or_target_id}`}
           rows={stats.stale_addresses}
           emptyState={t("credit-registration-admin-no-stale-addresses")}
           expandableRow={(row) => <StaleAddressSends row={row} />}

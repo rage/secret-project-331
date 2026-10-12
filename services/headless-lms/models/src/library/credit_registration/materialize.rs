@@ -6,7 +6,7 @@
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, NewRegistrationSubject,
-    RegistrationScope, Transition, mark_improvement_checked, transition_batch,
+    RegistrationScope, Transition, mark_improvement_checked, mark_superseded, transition_batch,
 };
 use crate::prelude::*;
 
@@ -245,7 +245,7 @@ SELECT cr.id,
   cr.grade_id AS "registered_grade_id!",
   s.passed AS "passed!",
   s.grade,
-  s.updated_at AS "completion_updated_at!"
+  s.revised_at AS "completion_revised_at!"
 FROM credit_registrations cr
   JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
   -- Membership is the whole eligibility check: the view is the unit opt-in and the completion
@@ -268,20 +268,20 @@ WHERE cr.deleted_at IS NULL
       AND later.attempt_number > cr.attempt_number
       AND later.deleted_at IS NULL
   )
-  -- Two halves of one cheap pre-filter. A completion untouched since the attempt was created cannot
-  -- have been regraded after that attempt froze its grade; but one touched for any other reason
+  -- Two halves of one cheap pre-filter. A completion unrevised since the attempt was created cannot
+  -- have been regraded after that attempt froze its grade; but one revised for any other reason
   -- passes that test forever, and only the grade comparison below can tell the two apart, which is
   -- why the loop stamps the watermark on every candidate it declines. Without the second half the
   -- limit keeps spending itself on the same rows while a real regrade waits behind them.
-  AND s.updated_at > cr.created_at
+  AND s.revised_at > cr.created_at
   AND (
     cr.improvement_checked_completion_updated_at IS NULL
-    OR s.updated_at > cr.improvement_checked_completion_updated_at
+    OR s.revised_at > cr.improvement_checked_completion_updated_at
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
   AND ($5::uuid IS NULL OR cr.external_credit_target_id = $5)
   AND ($3::uuid IS NULL OR cr.user_id = $3)
-ORDER BY s.updated_at FOR
+ORDER BY s.revised_at FOR
 UPDATE OF cr SKIP LOCKED
 LIMIT $1
         "#,
@@ -299,7 +299,7 @@ LIMIT $1
         // Stamped rather than merely skipped, in both refusals below: the query's pre-filter cannot
         // tell a regrade from any other touch of the completion, so a candidate left unstamped comes
         // back on every iteration and eventually fills the batch.
-        let looked_at = candidate.completion_updated_at;
+        let looked_at = candidate.completion_revised_at;
         let Ok(mapped) = map_grade(GradeSource {
             passed: candidate.passed,
             grade: candidate.grade,
@@ -356,6 +356,120 @@ LIMIT $1
         });
     }
     let started = transition_batch(&mut tx, &starts).await?;
+    tx.commit().await?;
+    Ok(started)
+}
+
+/// Starts a new attempt, at `pending`, for every completion registrable again after the pipeline
+/// cancelled its latest attempt on withdrawal; returns how many were started. What brings one back
+/// is mostly mooc.fi: a completion that reappears there, or whose tier or date is corrected.
+///
+/// The cancelled attempt is superseded by the new one and keeps its history. An attempt an admin
+/// cancelled stays the last word.
+pub async fn start_re_attempts_for_restored_completions(
+    conn: &mut PgConnection,
+    scope: &RegistrationScope,
+    limit: i64,
+) -> ModelResult<i64> {
+    let mut tx = conn.begin().await?;
+    let candidates = sqlx::query!(
+        r#"
+SELECT cr.id,
+  cr.attempt_number,
+  cr.course_module_completion_id,
+  cr.user_id,
+  cr.course_id,
+  cr.course_module_id,
+  cr.course_instance_id,
+  cr.external_completion_id,
+  cr.external_credit_target_id
+FROM credit_registrations cr
+  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
+WHERE cr.deleted_at IS NULL
+  AND cr.superseded_by_id IS NULL
+  AND cr.state = 'cancelled'
+  AND (
+    cr.external_credit_target_id IS NULL
+    OR t.enabled_at IS NOT NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations later
+    WHERE later.subject_id = cr.subject_id
+      AND later.attempt_number > cr.attempt_number
+      AND later.deleted_at IS NULL
+  )
+  -- Only withdrawal cancels without an actor; a hand cancellation names the admin.
+  AND (
+    SELECT ev.actor_user_id IS NULL
+    FROM credit_registration_events ev
+    WHERE ev.credit_registration_id = cr.id
+      AND ev.to_state = 'cancelled'
+      AND ev.deleted_at IS NULL
+    ORDER BY ev.created_at DESC
+    LIMIT 1
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_module_completion_registered_to_study_registries r
+    WHERE r.course_module_completion_id = cr.course_module_completion_id
+      AND r.deleted_at IS NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM external_completions ec
+    WHERE ec.id = cr.external_completion_id
+      AND ec.reported_at IS NOT NULL
+  )
+  AND ($2::uuid IS NULL OR cr.course_id = $2)
+  AND ($4::uuid IS NULL OR cr.external_credit_target_id = $4)
+  AND ($3::uuid IS NULL OR cr.user_id = $3)
+ORDER BY cr.state_entered_at FOR
+UPDATE OF cr SKIP LOCKED
+LIMIT $1
+        "#,
+        limit,
+        scope.course_id,
+        scope.user_id,
+        scope.external_credit_target_id,
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+
+    let mut started = 0;
+    for candidate in candidates {
+        let subject = NewRegistrationSubject::from_columns(
+            candidate.course_module_completion_id,
+            candidate.course_id,
+            candidate.course_module_id,
+            candidate.course_instance_id,
+            candidate.external_completion_id,
+            candidate.external_credit_target_id,
+        )
+        .ok_or_else(|| {
+            model_err!(
+                Generic,
+                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
+            )
+        })?;
+        let next = Uuid::new_v4();
+        // Before the insert: the cancelled row holds the completion's slot in
+        // uq_credit_registrations_completion until it is superseded.
+        mark_superseded(&mut tx, candidate.id, next).await?;
+        crate::credit_registrations::insert(
+            &mut tx,
+            PKeyPolicy::Fixed(next),
+            &NewCreditRegistration {
+                subject,
+                user_id: candidate.user_id,
+                attempt_number: candidate.attempt_number + 1,
+            },
+            Some("The completion is registrable again after its previous attempt was withdrawn."),
+        )
+        .await?;
+        started += 1;
+    }
     tx.commit().await?;
     Ok(started)
 }

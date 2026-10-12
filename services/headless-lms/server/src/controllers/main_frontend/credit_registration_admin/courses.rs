@@ -22,6 +22,7 @@ use headless_lms_models::library::credit_registration::config_validation::{
 };
 use utoipa::ToSchema;
 
+use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
 
 use super::dashboard::{CreditRegistrationStepCount, sum_step_counts};
@@ -80,7 +81,8 @@ pub struct CreditRegistrationCourseStats {
     /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
     /// what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
     /// a module opted in mid-course keeps a permanent gap against `registration_count` for the
-    /// completions that predate the opt-in.
+    /// completions that predate the opt-in. For a mooc.fi target, exactly the completions it is
+    /// responsible for, withdrawn ones left out.
     pub eligible_completion_count: i64,
     pub registration_count: i64,
     /// Registered, already in Sisu and better grade in Sisu: the denominator the failure rate is
@@ -539,7 +541,7 @@ PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{e
     request_body = AdminExternalCreditTargetPayload,
     responses(
         (status = 200, description = "Saved"),
-        (status = 422, description = "Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, or a cutoff change on a target with registrations")
+        (status = 422, description = "Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions")
     )
 )]
 pub async fn admin_update_external_credit_target(
@@ -564,6 +566,15 @@ pub async fn admin_update_external_credit_target(
         return Err(controller_err!(
             BadRequest,
             "The cutoff cannot change once the target has registrations.".to_string()
+        ));
+    }
+    // Its completions and their ledger rows were read from the old course.
+    if configuration.moocfi_course_id != before.moocfi_course_id
+        && external_credit_targets::has_completions(&mut tx, id).await?
+    {
+        return Err(bad_request_with_reason(
+            BadRequestReason::ExternalCreditTargetMoocfiCourseFixed,
+            "The mooc.fi course cannot change once the target has completions.".to_string(),
         ));
     }
     require_shared_cutoff(&mut tx, &configuration, Some(id)).await?;

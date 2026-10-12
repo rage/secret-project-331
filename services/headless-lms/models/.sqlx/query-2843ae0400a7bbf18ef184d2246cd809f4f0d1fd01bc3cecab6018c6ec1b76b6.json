@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT due.moocfi_completion_id\nFROM external_completions due\nWHERE due.deleted_at IS NULL\n  AND due.reported_at IS NULL\n  AND due.report_next_attempt_at <= now()\n  AND NOT EXISTS (\n    SELECT 1\n    FROM external_completions leased\n    WHERE leased.moocfi_completion_id = due.moocfi_completion_id\n      AND leased.deleted_at IS NULL\n      AND leased.report_claimed_until > now()\n  )\n  AND EXISTS (\n    SELECT 1\n    FROM credit_registrations cr\n    WHERE cr.external_completion_id = due.id\n      AND cr.deleted_at IS NULL\n      AND cr.state = ANY($1::credit_registration_state [])\n      AND cr.student_number IS NOT NULL\n      AND ($2::uuid IS NULL OR cr.course_id = $2)\n      AND ($3::uuid IS NULL OR cr.external_credit_target_id = $3)\n      AND ($4::uuid IS NULL OR cr.user_id = $4)\n      AND (\n        cardinality($5::uuid []) = 0\n        OR cr.id = ANY($5::uuid [])\n      )\n  )\nORDER BY due.report_next_attempt_at\nLIMIT 1\n            ",
+  "query": "\nSELECT due.moocfi_completion_id\nFROM external_completions due\nWHERE due.deleted_at IS NULL\n  AND due.reported_at IS NULL\n  AND due.report_next_attempt_at <= now()\n  AND NOT EXISTS (\n    SELECT 1\n    FROM external_completions leased\n    WHERE leased.moocfi_completion_id = due.moocfi_completion_id\n      AND leased.deleted_at IS NULL\n      AND leased.report_claimed_until > now()\n  )\n  AND EXISTS (\n    SELECT 1\n    FROM credit_registrations cr\n    WHERE cr.subject_id = due.id\n      AND cr.deleted_at IS NULL\n      AND cr.state = ANY($1::credit_registration_state [])\n      AND cr.student_number IS NOT NULL\n      AND ($2::uuid IS NULL OR cr.course_id = $2)\n      AND ($3::uuid IS NULL OR cr.external_credit_target_id = $3)\n      AND ($4::uuid IS NULL OR cr.user_id = $4)\n      AND (\n        cardinality($5::uuid []) = 0\n        OR cr.id = ANY($5::uuid [])\n      )\n  )\nORDER BY due.report_next_attempt_at\nLIMIT 1\n            ",
   "describe": {
     "columns": [
       {
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "676c327d45d9e53eaba544575ee16c495e90932249cd79d6e36bfc5cf407230e"
+  "hash": "2843ae0400a7bbf18ef184d2246cd809f4f0d1fd01bc3cecab6018c6ec1b76b6"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.id,\n  e.course_id,\n  e.external_credit_target_id,\n  COALESCE(c.name, 'mooc.fi: ' || target.name) AS \"course_name!\",\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  ed.created_at AS \"queued_at?\",\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN courses c ON c.id = e.course_id\n  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n  AND target.deleted_at IS NULL\nORDER BY e.sent_at DESC,\n  e.id\nLIMIT $1\n        ",
+  "query": "\nSELECT e.id,\n  COALESCE(e.course_id, e.external_credit_target_id) AS \"course_or_target_id!\",\n  COALESCE(c.name, 'mooc.fi: ' || target.name) AS \"course_name!\",\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  ed.created_at AS \"queued_at?\",\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN courses c ON c.id = e.course_id\n  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n  AND target.deleted_at IS NULL\nORDER BY e.sent_at DESC,\n  e.id\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -16,34 +16,18 @@
       },
       {
         "ordinal": 1,
-        "name": "course_id",
+        "name": "course_or_target_id!",
         "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "credit_registration_account_linking_emails",
-            "name": "course_id"
-          }
-        }
+        "origin": "Expression"
       },
       {
         "ordinal": 2,
-        "name": "external_credit_target_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "credit_registration_account_linking_emails",
-            "name": "external_credit_target_id"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
         "name": "course_name!",
         "type_info": "Varchar",
         "origin": "Expression"
       },
       {
-        "ordinal": 4,
+        "ordinal": 3,
         "name": "emailed_to",
         "type_info": "Varchar",
         "origin": {
@@ -54,7 +38,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "claimed_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -65,7 +49,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "queued_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -76,7 +60,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "delivery_sent?",
         "type_info": "Bool",
         "origin": {
@@ -87,7 +71,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "retryable?",
         "type_info": "Bool",
         "origin": {
@@ -98,7 +82,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "retry_count?",
         "type_info": "Int4",
         "origin": {
@@ -109,7 +93,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "next_retry_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -120,7 +104,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "first_failed_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -131,7 +115,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 11,
         "name": "last_attempt_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -142,7 +126,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 12,
         "name": "error_code?",
         "type_info": "Text",
         "origin": {
@@ -153,7 +137,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 13,
         "name": "error_message?",
         "type_info": "Text",
         "origin": {
@@ -164,7 +148,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 14,
         "name": "is_transient?",
         "type_info": "Bool",
         "origin": {
@@ -182,8 +166,7 @@
     },
     "nullable": [
       false,
-      true,
-      true,
+      null,
       null,
       false,
       false,
@@ -199,5 +182,5 @@
       false
     ]
   },
-  "hash": "879bdf856c6d729915d91c5e53b5fba8a7bfcbb90dc79750773f5634ee742c59"
+  "hash": "09ce124f2d210abd9c54f9c091ad98b3b8931e92a045d6c798fb3ee91ff4f4aa"
 }

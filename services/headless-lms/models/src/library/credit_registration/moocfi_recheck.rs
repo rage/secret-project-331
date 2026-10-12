@@ -45,7 +45,7 @@ SELECT ec.user_id,
   ec.moocfi_user_upstream_id,
   t.moocfi_course_id
 FROM credit_registrations cr
-  JOIN external_completions ec ON ec.id = cr.external_completion_id
+  JOIN external_completions ec ON ec.id = cr.subject_id
   JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL

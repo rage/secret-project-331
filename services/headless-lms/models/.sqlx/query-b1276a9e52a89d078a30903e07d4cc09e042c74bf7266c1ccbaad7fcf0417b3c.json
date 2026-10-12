@@ -170,6 +170,17 @@
       },
       {
         "ordinal": 15,
+        "name": "revised_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "revised_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
         "name": "upstream_checked_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -180,7 +191,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "upstream_missing_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -191,7 +202,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "registered_upstream_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -202,7 +213,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "reported_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -213,7 +224,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "report_claimed_until",
         "type_info": "Timestamptz",
         "origin": {
@@ -224,7 +235,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "report_attempt_count",
         "type_info": "Int4",
         "origin": {
@@ -235,7 +246,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "report_next_attempt_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -246,7 +257,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "report_last_error",
         "type_info": "Text",
         "origin": {
@@ -279,6 +290,7 @@
       true,
       true,
       true,
+      false,
       false,
       true,
       true,

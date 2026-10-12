@@ -70,12 +70,13 @@ pub async fn claim_due_for_person_lookup(
 
 /// Claims, for resolve-enrolments, `ready_to_submit` rows and parked rows due an enrolment check,
 /// the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first, minus any whose student already has another live row
-/// for the module or target somewhere between resolving and a known outcome. First pulls slow
-/// checks due soon into the batch; see
+/// for the same course code, or the same module or target, somewhere between resolving and a known
+/// outcome. First pulls slow checks due soon into the batch; see
 /// [`crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks`].
 ///
-/// Only one completion per student and module or target goes past resolve at a time, so each is
-/// weighed against the outcome of the one before it rather than racing it to the registry; see
+/// Only one completion per student and course code goes past resolve at a time, whichever module
+/// or target it came from, so each is weighed against the outcome of the one before it rather than
+/// racing it to the registry; see
 /// [`lock_live_successes_for_same_course_code`](super::lock_live_successes_for_same_course_code).
 /// Of two such rows claimed together only the first comes back; the other stays claimable where it
 /// is. A parked row sent for a check must be marked with [`claim_enrolment_checks`] before the
@@ -88,11 +89,55 @@ pub async fn claim_due_for_resolve(
     crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks(conn, scope)
         .await?;
     let claimed = claim(conn, &LOOKUP_STATES, scope, limit, ClaimKind::Resolve).await?;
+    let ids: Vec<Uuid> = claimed.iter().map(|row| row.id).collect();
+    let course_codes = get_unit_course_codes(conn, &ids).await?;
     Ok(first_per(
         claimed,
-        |row| (row.user_id, row.credit_unit_id),
-        "another attempt for the same student and module or target",
+        |row| {
+            let unit = match course_codes.get(&row.id) {
+                Some(code) => ResolveUnit::CourseCode(code.clone()),
+                None => ResolveUnit::CreditUnit(row.credit_unit_id),
+            };
+            (row.user_id, unit)
+        },
+        "another attempt for the same student and course code",
     ))
+}
+
+/// What resolve serializes a student's attempts on: the course code, or for a unit without one,
+/// the unit itself.
+#[derive(Debug, PartialEq, Eq, Hash)]
+enum ResolveUnit {
+    CourseCode(String),
+    CreditUnit(Uuid),
+}
+
+/// The current course code of each row's unit, normalized as
+/// `uq_credit_registrations_person_course_code` compares it. Rows whose unit has none are left out.
+async fn get_unit_course_codes(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<std::collections::HashMap<Uuid, String>> {
+    if ids.is_empty() {
+        return Ok(std::collections::HashMap::new());
+    }
+    let rows = sqlx::query!(
+        r#"
+SELECT cr.id,
+  UPPER(TRIM(s.uh_course_code)) AS "course_code!"
+FROM credit_registrations cr
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+WHERE cr.id = ANY($1)
+  AND NULLIF(TRIM(s.uh_course_code), '') IS NOT NULL
+        "#,
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.id, row.course_code))
+        .collect())
 }
 
 /// Keeps parked rows out of every claim while a lookup for them is out, as `resolving_enrolment`
@@ -338,8 +383,17 @@ WITH due AS (
       OR NOT EXISTS (
         SELECT 1
         FROM credit_registrations ahead
+          JOIN credit_registration_subjects ahead_s ON ahead_s.subject_id = ahead.subject_id
         WHERE ahead.user_id = cr.user_id
-          AND ahead.credit_unit_id = cr.credit_unit_id
+          -- Keyed like uq_credit_registrations_person_course_code: an attempt of another unit with
+          -- the same code must be weighed against this one's outcome, or once this one registers
+          -- it waits behind it in import for good. The frozen code is what an in-flight row is
+          -- sent under, even after its unit's code changed.
+          AND (
+            ahead.credit_unit_id = cr.credit_unit_id
+            OR UPPER(TRIM(ahead_s.uh_course_code)) = NULLIF(UPPER(TRIM(s.uh_course_code)), '')
+            OR UPPER(TRIM(ahead.uh_course_code)) = NULLIF(UPPER(TRIM(s.uh_course_code)), '')
+          )
           AND ahead.id <> cr.id
           AND ahead.deleted_at IS NULL
           AND ahead.superseded_by_id IS NULL

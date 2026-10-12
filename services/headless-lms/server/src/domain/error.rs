@@ -142,6 +142,9 @@ pub enum BadRequestReason {
     /// The mooc.fi course already has a live target with this course code.
     #[display("Course code taken")]
     ExternalCreditTargetCourseCodeTaken,
+    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
+    #[display("mooc.fi course fixed")]
+    ExternalCreditTargetMoocfiCourseFixed,
 }
 
 impl BadRequestReason {
@@ -156,6 +159,9 @@ impl BadRequestReason {
             Self::DuplicateUpload => "duplicate_upload",
             Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
             Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
+            Self::ExternalCreditTargetMoocfiCourseFixed => {
+                "external_credit_target_moocfi_course_fixed"
+            }
         }
     }
 

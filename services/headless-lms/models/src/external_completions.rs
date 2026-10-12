@@ -2,9 +2,7 @@
 
 use std::collections::HashSet;
 
-use headless_lms_base::config::MoocfiDelegationConfiguration;
-use headless_lms_utils::error::util_error::UtilError;
-use headless_lms_utils::services::moocfi::{DelegatedCompletion, MoocfiClient};
+use headless_lms_utils::services::moocfi::DelegatedCompletion;
 use utoipa::ToSchema;
 
 use crate::credit_registrations::CreditRegistrationState;
@@ -34,6 +32,9 @@ pub struct ExternalCompletion {
     /// `None` when the grade was not recognised.
     pub passed: Option<bool>,
     pub grade: Option<i32>,
+    /// When the date, language, tier, eligibility or grade last changed; a re-check finding nothing
+    /// new leaves it alone.
+    pub revised_at: DateTime<Utc>,
     pub upstream_checked_at: DateTime<Utc>,
     pub upstream_missing_at: Option<DateTime<Utc>>,
     pub registered_upstream_at: Option<DateTime<Utc>>,
@@ -117,6 +118,26 @@ SET user_id = EXCLUDED.user_id,
   raw_grade = EXCLUDED.raw_grade,
   passed = EXCLUDED.passed,
   grade = EXCLUDED.grade,
+  revised_at = CASE
+    WHEN (
+      external_completions.completion_date,
+      external_completions.completion_language,
+      external_completions.tier,
+      external_completions.eligible_for_ects,
+      external_completions.raw_grade,
+      external_completions.passed,
+      external_completions.grade
+    ) IS DISTINCT FROM (
+      EXCLUDED.completion_date,
+      EXCLUDED.completion_language,
+      EXCLUDED.tier,
+      EXCLUDED.eligible_for_ects,
+      EXCLUDED.raw_grade,
+      EXCLUDED.passed,
+      EXCLUDED.grade
+    ) THEN now()
+    ELSE external_completions.revised_at
+  END,
   upstream_checked_at = EXCLUDED.upstream_checked_at,
   upstream_missing_at = NULL,
   registered_upstream_at = COALESCE(
@@ -288,60 +309,6 @@ WHERE user_id = $1
 
     tx.commit().await?;
     Ok(())
-}
-
-/// Re-reads the student's completions of one mooc.fi course from mooc.fi and syncs them, as
-/// [`sync_from_upstream`] does. Holds `conn` across the lookup.
-pub async fn fetch_and_sync(
-    conn: &mut PgConnection,
-    delegation: &MoocfiDelegationConfiguration,
-    user_id: Uuid,
-    moocfi_user_upstream_id: i32,
-    moocfi_course_id: Uuid,
-) -> ModelResult<()> {
-    let completions = MoocfiClient::new(delegation)
-        .get_user_completions(moocfi_course_id, moocfi_user_upstream_id)
-        .await
-        .map_err(UtilError::from)?;
-    sync_from_upstream(
-        conn,
-        UpstreamCompletions {
-            user_id,
-            moocfi_user_upstream_id,
-            moocfi_course_id,
-            completions: &completions,
-            organization_slug: &delegation.organization_slug,
-        },
-    )
-    .await
-}
-
-/// Re-checks one external completion against mooc.fi, syncing every completion of the same student
-/// and course with it. Errors with the lookup's error if mooc.fi gives no answer.
-pub async fn recheck(
-    conn: &mut PgConnection,
-    delegation: &MoocfiDelegationConfiguration,
-    external_completion_id: Uuid,
-) -> ModelResult<()> {
-    let completion = get_by_id(conn, external_completion_id).await?;
-    let moocfi_course_id = sqlx::query_scalar!(
-        r#"
-SELECT moocfi_course_id
-FROM external_credit_targets
-WHERE id = $1
-        "#,
-        completion.external_credit_target_id,
-    )
-    .fetch_one(&mut *conn)
-    .await?;
-    fetch_and_sync(
-        conn,
-        delegation,
-        completion.user_id,
-        completion.moocfi_user_upstream_id,
-        moocfi_course_id,
-    )
-    .await
 }
 
 /// The latest live attempt at registering one external completion, with what its student-facing

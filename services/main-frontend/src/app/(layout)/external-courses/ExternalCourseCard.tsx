@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { FloppyDiskSave, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { FormProvider, useForm, useFormState } from "react-hook-form"
+import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -31,10 +32,10 @@ export const buildFormValues = (data: ExternalCourseOutput): ExternalCourseOutpu
 const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse }) => {
   const { confirm } = useDialog()
   const { t } = useTranslation()
-  const useFormReturn = useForm<ExternalCourseOutput>({
+  const method: UseFormReturn<ExternalCourseOutput> = useForm<ExternalCourseOutput>({
     defaultValues: buildFormValues(externalCourse),
   })
-  const { control, handleSubmit, reset } = useFormReturn
+  const { control, handleSubmit, reset } = method
 
   const { isDirty } = useFormState({ control })
 
@@ -123,7 +124,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
   )
 
   return (
-    <FormProvider {...useFormReturn}>
+    <FormProvider {...method}>
       <div
         key={externalCourse.id}
         className={css`

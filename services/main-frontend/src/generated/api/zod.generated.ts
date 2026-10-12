@@ -4663,6 +4663,7 @@ export const zAdminResendAccountLinkingEmailResult = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+  manual_send: zAdminManualLinkingEmailSend.nullish(),
   max_mails_per_person_and_course: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {

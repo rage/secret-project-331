@@ -65,6 +65,20 @@ export const candidateFacts = (
       t("credit-registration-admin-linking-candidate-not-emailed"),
 ]
 
+/** `candidate` as `result` left them, when they are the one `studentNumber` names. */
+export const withSendResult = (
+  candidate: AdminLinkingCandidate,
+  studentNumber: string,
+  result: AdminResendAccountLinkingEmailResult,
+): AdminLinkingCandidate =>
+  candidate.student_number === studentNumber && result.manual_send
+    ? {
+        ...candidate,
+        linking_emails_for_course: result.mails_sent_for_this_course,
+        manual_sends: [result.manual_send, ...candidate.manual_sends],
+      }
+    : candidate
+
 /** What a linking email send did, with where the person's emails for the course now stand. */
 export const ResendOutcomeNotice: React.FC<{
   result: AdminResendAccountLinkingEmailResult

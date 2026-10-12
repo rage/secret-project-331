@@ -6,9 +6,16 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import InlineParts from "@/components/credit-registration/InlineParts"
-import { getCreditRegistrationAttentionItemsQueryKey } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getAccountLinkingUnlinkedEnroleesQueryKey,
+  getCreditRegistrationAttentionItemsQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
-import type { AdminLinkingCandidate, AdminLinkingCourse } from "@/generated/api/types.generated"
+import type {
+  AdminLinkingCandidate,
+  AdminLinkingCourse,
+  AdminUnlinkedEnrolees,
+} from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { ComboBox, Dialog, Infobox, Radio, RadioGroup, TextField } from "@/shared-module/components"
 
@@ -29,6 +36,7 @@ import {
   ResendOutcomeNotice,
   SendFailedNotice,
   showsNotEmailed,
+  withSendResult,
 } from "./linkingCandidate"
 import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
 
@@ -88,7 +96,18 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
           credit_registration_id: null,
         },
       }),
-    () => void enroleesQuery.refetch(),
+    (sent, target) => {
+      queryClient.setQueryData<AdminUnlinkedEnrolees>(
+        getAccountLinkingUnlinkedEnroleesQueryKey({ path: { course_id: target.course_id } }),
+        (current) =>
+          current && {
+            ...current,
+            people: current.people.map((person) =>
+              withSendResult(person, target.student_number, sent),
+            ),
+          },
+      )
+    },
   )
 
   const closeDialog = () => {

@@ -9,8 +9,10 @@ import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
+  getCreditRegistrationLinkingCandidatesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
+import type { AdminLinkingCandidates } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Badge, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
 
@@ -27,6 +29,7 @@ import {
   ResendOutcomeNotice,
   SendFailedNotice,
   showsNotEmailed,
+  withSendResult,
 } from "./linkingCandidate"
 import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
 
@@ -66,7 +69,20 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
           credit_registration_id: registrationId,
         },
       }),
-    () => void candidatesQuery.refetch(),
+    (sent, { fields }) => {
+      queryClient.setQueryData<AdminLinkingCandidates>(
+        getCreditRegistrationLinkingCandidatesQueryKey({
+          path: { credit_registration_id: registrationId },
+        }),
+        (current) =>
+          current && {
+            ...current,
+            candidates: current.candidates.map((candidate) =>
+              withSendResult(candidate, fields.student_number, sent),
+            ),
+          },
+      )
+    },
   )
 
   const closeDialog = () => {

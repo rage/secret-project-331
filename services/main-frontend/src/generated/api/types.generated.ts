@@ -887,6 +887,7 @@ export type AdminResendAccountLinkingEmailPayload = {
 export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
+  manual_send?: null | AdminManualLinkingEmailSend
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
   quiet_period_secs: number

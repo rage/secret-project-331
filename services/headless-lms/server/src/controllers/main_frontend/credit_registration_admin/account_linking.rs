@@ -389,6 +389,8 @@ pub struct AdminResendAccountLinkingEmailResult {
     pub mails_sent_for_this_course: i64,
     pub max_mails_per_person_and_course: i64,
     pub quiet_period_secs: i64,
+    /// The send this attempt made, as the dialogs list it. `None` unless `outcome` is `queued`.
+    pub manual_send: Option<AdminManualLinkingEmailSend>,
 }
 
 /// A person on a course's enrolment list whom no account is linked to, whom support can send a
@@ -1731,6 +1733,21 @@ async fn finish_resend(
     )
     .await?;
     let linking_emails = build_linking_emails(conn, mails).await?;
+    let manual_send = if outcome == ResendOutcome::Queued {
+        credit_registration_admin_actions::get_manual_linking_email_sends(
+            conn,
+            ManualLinkingEmailSendScope::Course {
+                course_id: payload.course_id,
+                student_numbers: &[student_number.expose_secret().to_owned()],
+            },
+        )
+        .await?
+        .into_iter()
+        .next()
+        .map(AdminManualLinkingEmailSend::from)
+    } else {
+        None
+    };
 
     token.authorized_ok(web::Json(AdminResendAccountLinkingEmailResult {
         outcome,
@@ -1739,6 +1756,7 @@ async fn finish_resend(
         mails_sent_for_this_course,
         max_mails_per_person_and_course: MAX_LINKING_MAILS_PER_PERSON_AND_COURSE,
         quiet_period_secs: LINKING_MAIL_QUIET_PERIOD.num_seconds(),
+        manual_send,
     }))
 }
 

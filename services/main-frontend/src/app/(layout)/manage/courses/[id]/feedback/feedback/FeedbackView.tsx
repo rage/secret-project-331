@@ -41,6 +41,13 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
+const CapitalizedFirstLetter = styled.span`
+  display: inline-block;
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`
+
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   courseId,
   feedback,
@@ -133,16 +140,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         <TextInformationWrapper>
           {t("assigned-feedback-category")}
           <i>
-            <span
-              className={css`
-                display: inline-block;
-                &::first-letter {
-                  text-transform: uppercase;
-                }
-              `}
-            >
-              {feedback.feedback_category_name}
-            </span>
+            <CapitalizedFirstLetter>{feedback.feedback_category_name}</CapitalizedFirstLetter>
           </i>
         </TextInformationWrapper>
       )}

@@ -1,4 +1,7 @@
-/// A group of buttons that function like a radio group
+/// A group of buttons that function like a radio group. Cannot be used with
+/// forms and cannot receive children, only button labels. For controlling
+/// page state, mostly.
+/// See also ToggleButtonGroup.
 
 "use client"
 

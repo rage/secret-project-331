@@ -1,4 +1,4 @@
-/// One toggle button in a toggle group
+/// One toggle button in a toggle group. It looks more like a tag.
 
 "use client"
 
@@ -8,20 +8,28 @@ import { mergeProps, useFocusRing, useHover, useToggleButtonGroupItem } from "re
 import type { ToggleGroupState } from "react-aria-components"
 
 import { omitUndefined } from "../../lib/utils/nullability"
-import { Button } from "./../Button"
+import { resolveButtonRootCss } from "../primitives/buttonStyles"
 
 const buttonCss = (selected: boolean) => css`
-  border-radius: 8px;
-  & > span > span::first-letter {
-    text-transform: uppercase;
-  }
+  ${resolveButtonRootCss({ size: "medium", variant: "secondary" })}
+  border-radius: 30px;
+  border: 2px solid #0a0f17;
+
   ${
     selected &&
     `
     color: white;
-    background: black;
+    background: #0A0F17;
     border: white;
   `
+  }
+`
+
+// works? or styled.span
+const CapitalizedFirstLetter = css`
+  display: inline-block;
+  &::first-letter {
+    text-transform: uppercase;
   }
 `
 
@@ -36,19 +44,14 @@ const ToggleGroupToggle: React.FC<{ id: string; label: string; state: ToggleGrou
     state,
     ref,
   )
-  const { formAction: _, "aria-pressed": ariaPressed, tabIndex, ...buttonProps2 } = buttonProps
+  const { formAction: _, ...buttonProps2 } = buttonProps
   let { hoverProps, isHovered } = useHover({})
   let { focusProps, isFocusVisible } = useFocusRing()
   const theProps = omitUndefined(mergeProps(buttonProps2, hoverProps, focusProps))
   return (
-    <Button
+    <button
       {...theProps}
-      domProps={omitUndefined({
-        "aria-pressed": ariaPressed,
-        tabIndex,
-      })}
       ref={ref}
-      variant="secondary"
       className={buttonCss(isSelected)}
       data-selected={isSelected}
       data-pressed={isPressed}
@@ -56,8 +59,8 @@ const ToggleGroupToggle: React.FC<{ id: string; label: string; state: ToggleGrou
       data-focus-visible={isFocusVisible}
       data-disabled={isDisabled}
     >
-      {label}
-    </Button>
+      <span className={CapitalizedFirstLetter}>{label}</span>
+    </button>
   )
 }
 

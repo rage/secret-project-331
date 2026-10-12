@@ -440,6 +440,7 @@ mod tests {
                 .unwrap(),
             1
         );
+        // Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
         sqlx::query(
             "UPDATE credit_registration_account_linking_emails SET sent_at = now() - INTERVAL '1 hour'",
         )

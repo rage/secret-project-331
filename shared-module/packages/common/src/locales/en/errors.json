@@ -1,0 +1,83 @@
+{
+  "error-code": "Code: {{code}}",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Please sign in to view exam exercises.",
+      "title": "Sign in required"
+    },
+    "chapter_not_open_yet": {
+      "message": "This chapter is not open yet.",
+      "title": "Chapter is closed"
+    },
+    "course_slug_already_taken": {
+      "message": "Another course is already using this slug. Please choose a different one.",
+      "title": "Slug is already in use"
+    },
+    "forbidden": {
+      "message": "You do not have permission for this action.",
+      "title": "Forbidden"
+    },
+    "foreign_key_violation": {
+      "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the data related to the constraint and try again.",
+      "title": "Foreign key violation"
+    },
+    "generic_sisu_error": {
+      "message": "Something went wrong in generating description",
+      "title": "Could not generate description"
+    },
+    "internal_error": {
+      "message": "Please try again in a moment.",
+      "title": "Something went wrong"
+    },
+    "invalid_course_code": {
+      "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
+      "title": "Could not generate description"
+    },
+    "not_found": {
+      "message": "The requested resource could not be found.",
+      "title": "Not found"
+    },
+    "oauth_error": {
+      "message": "Please sign in again.",
+      "title": "Authentication failed"
+    },
+    "rate_limited": {
+      "message": "Please wait and try again.",
+      "title": "Too many requests"
+    },
+    "response_validation_error": {
+      "message": "The server responded successfully, but the data was not in the expected format.",
+      "title": "Could not display data"
+    },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
+    },
+    "unauthorized": {
+      "message": "Please sign in and try again.",
+      "title": "Unauthorized"
+    },
+    "validation_error": {
+      "message": "Please check your input and try again.",
+      "title": "Invalid input"
+    },
+    "validation_error_with_metadata": {
+      "message": "Please check the highlighted content and try again.",
+      "title": "Invalid input"
+    }
+  },
+  "error-message-key-line": "Message key: {{messageKey}}",
+  "error-multiple-errors-occurred": "Multiple errors occurred",
+  "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
+  "error-request-cancelled": "Request was cancelled",
+  "error-request-failed": "Request failed",
+  "error-request-id": "Request ID: {{requestId}}",
+  "error-retry-after": "Retry after: {{seconds}}s",
+  "error-source-method": "Method: {{method}}",
+  "error-source-url": "URL: {{url}}",
+  "error-status": "Status: {{status}}",
+  "error-title": "Error",
+  "error-too-many-requests": "Too many requests. Please try again later.",
+  "error-type": "Type: {{type}}",
+  "error-unexpected-error": "Unexpected error"
+}

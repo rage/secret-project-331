@@ -35,9 +35,9 @@ const initI18n = (defaultNS: string): typeof i18n => {
       },
     })
     .init({
-      ns: [defaultNS, "shared-module"],
+      ns: [defaultNS, "shared-module", "errors"],
       // A feature that splits its strings into its own namespace still reads the service's.
-      fallbackNS: [defaultNS, "shared-module"],
+      fallbackNS: [defaultNS, "shared-module", "errors"],
       defaultNS,
       fallbackLng: "en",
       interpolation: {

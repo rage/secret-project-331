@@ -124,6 +124,7 @@ const titleCss = css`
   margin: 0;
   font-size: var(--font-size-4);
   font-weight: 600;
+  line-height: 1.3;
   overflow-wrap: break-word;
 `
 

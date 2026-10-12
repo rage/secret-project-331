@@ -5,14 +5,13 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { MIDDLE_DOT } from "@/components/credit-registration/constants"
 import { headingCss, noteCss, spacedRowCss } from "@/components/credit-registration/styles"
 import { getMyCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserCertificate } from "@/generated/api/types.generated"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, QueryResult } from "@/shared-module/components"
+import { Link, MIDDLE_DOT, QueryResult } from "@/shared-module/components"
 
 import {
   studiesCardBodyCss,

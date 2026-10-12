@@ -3,11 +3,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { QueryResult, Table } from "@/shared-module/components"
 
 import {
-  ABSENT,
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
@@ -23,6 +23,7 @@ import {
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { useSuotarHealth } from "./adminCreditRegistrationHooks"
 import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSelect"
 
@@ -54,8 +55,8 @@ const EndpointSummarySection: React.FC = () => {
             columns={[
               {
                 header: t("label-endpoint"),
-                minWidth: "14rem",
-                cell: (row) => <code className={codeValueCss}>{row.endpoint}</code>,
+                minWidth: "12rem",
+                cell: (row) => suotarEndpointLabel(t, row.endpoint),
               },
               {
                 header: t("credit-registration-admin-column-calls"),
@@ -81,7 +82,7 @@ const EndpointSummarySection: React.FC = () => {
                 align: ALIGN_END,
                 minWidth: "5rem",
                 nowrap: true,
-                cell: (row) => row.p95_duration_ms ?? ABSENT,
+                cell: (row) => row.p95_duration_ms ?? <AbsentValue />,
               },
               {
                 header: t("label-credit-registration-last-failure"),

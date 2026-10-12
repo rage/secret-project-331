@@ -3,21 +3,24 @@
 //! breaker learns from its calls, so one click cannot trip the workers'.
 //!
 //! The addresses come from the study registry rather than the ledger, and the claim goes through
-//! [`claim_linking_mails`], so the caps and dedup guard apply exactly as they do to the worker.
+//! [`claim_linking_mail`], so the caps and dedup guard apply exactly as they do to the worker.
 
 use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
-    ClaimedLinkingMails, DiscoveredPerson, claim_linking_mails, retire_capped_mails,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mail, retire_capped_mails,
 };
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::verified_student_numbers;
+use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{Connection, PgPool};
 use std::collections::BTreeSet;
 use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, InteractiveStudyRegistry, StudentNumber};
+use crate::use_cases::enrolment_discovery::{list_unlinked, list_unlinked_enrolled_before};
 
 /// What one resend attempt came to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -97,16 +100,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         outcome,
         retired_mail_count: 0,
     };
-    let course_codes: Vec<CourseCode> = {
-        let mut conn = pool.acquire().await?;
-        get_active_modules_for_course(&mut conn, course_id)
-            .await?
-            .iter()
-            .filter_map(|module| CourseCode::parse(&module.uh_course_code))
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .collect()
-    };
+    let course_codes = active_course_codes(pool, course_id).await?;
     if course_codes.is_empty() {
         return Ok(not_retired(ResendOutcome::NotOnTheCourseRoster));
     }
@@ -123,7 +117,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     };
 
     let discovered = DiscoveredPerson::listed(&person, course_id);
-    if discovered.addresses.is_empty() {
+    if discovered.address.is_none() {
         return Ok(not_retired(ResendOutcome::NoAddressInStudyRegistry));
     }
 
@@ -143,30 +137,68 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         }
         None => 0,
     };
-    let ClaimedLinkingMails {
-        claimed,
-        suppressed_by_dedup,
-        suppressed_by_rate_cap,
-    } = claim_linking_mails(&mut tx, &discovered).await?;
+    let claim = claim_linking_mail(&mut tx, &discovered).await?;
     tx.commit().await?;
-    debug!(
-        course_id = %course_id,
-        claimed,
-        suppressed_by_dedup,
-        suppressed_by_rate_cap,
-        "Linking mail resend claim result"
-    );
-    let outcome = if claimed > 0 {
-        ResendOutcome::Queued
-    } else if suppressed_by_rate_cap > 0 {
-        ResendOutcome::RefusedByRateCap
-    } else if suppressed_by_dedup > 0 {
-        ResendOutcome::AlreadyMailedToEveryKnownAddress
-    } else {
-        ResendOutcome::NoAddressInStudyRegistry
+    debug!(course_id = %course_id, ?claim, "Linking mail resend claim result");
+    let outcome = match claim {
+        LinkingMailClaim::Claimed => ResendOutcome::Queued,
+        LinkingMailClaim::SuppressedByRateCap => ResendOutcome::RefusedByRateCap,
+        LinkingMailClaim::SuppressedByDedup => ResendOutcome::AlreadyMailedToEveryKnownAddress,
+        LinkingMailClaim::NoAddress => ResendOutcome::NoAddressInStudyRegistry,
     };
     Ok(ResendAttempt {
         outcome,
         retired_mail_count,
     })
+}
+
+/// The distinct course codes of the course's modules that take part in credit registration.
+async fn active_course_codes(
+    pool: &PgPool,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Vec<CourseCode>> {
+    let mut conn = pool.acquire().await?;
+    Ok(get_active_modules_for_course(&mut conn, course_id)
+        .await?
+        .iter()
+        .filter_map(|module| CourseCode::parse(&module.uh_course_code))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect())
+}
+
+/// [`crate::account_linking::list_unlinked_on_course_rosters`] through `registry`.
+pub(crate) async fn unlinked_on_course_rosters<R: InteractiveStudyRegistry>(
+    pool: &PgPool,
+    registry: &R,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let mut people = Vec::new();
+    for code in active_course_codes(pool, course_id).await? {
+        let Some(listed) = registry.fetch_course_roster(&code).await else {
+            return Ok(None);
+        };
+        people.extend(listed);
+    }
+    let mut conn = pool.acquire().await?;
+    Ok(Some(list_unlinked(&mut conn, &people).await?))
+}
+
+/// [`crate::account_linking::list_unlinked_enrolled_before`] through `registry`.
+pub(crate) async fn unlinked_enrolled_before<R: InteractiveStudyRegistry>(
+    pool: &PgPool,
+    registry: &R,
+    course_code: &str,
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let Some(code) = CourseCode::parse(course_code) else {
+        return Ok(Some(Vec::new()));
+    };
+    let Some(people) = registry.fetch_course_roster(&code).await else {
+        return Ok(None);
+    };
+    let mut conn = pool.acquire().await?;
+    Ok(Some(
+        list_unlinked_enrolled_before(&mut conn, &people, since).await?,
+    ))
 }

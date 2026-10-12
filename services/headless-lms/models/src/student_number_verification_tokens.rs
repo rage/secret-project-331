@@ -243,14 +243,12 @@ pub async fn claim(
 ) -> ModelResult<bool> {
     let claimed = sqlx::query!(
         r#"
-UPDATE student_number_verification_tokens
+UPDATE student_number_verification_tokens t
 SET used_at = now(),
   claimed_by_user_id = $2
-WHERE token = $1
-  AND used_at IS NULL
-  AND deleted_at IS NULL
-  AND expires_at > now()
-RETURNING id
+WHERE t.token = $1
+  AND is_usable_verification_token(t)
+RETURNING t.id
         "#,
         token.expose_secret(),
         claimed_by_user_id,

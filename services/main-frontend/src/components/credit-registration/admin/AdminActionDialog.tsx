@@ -43,6 +43,17 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   renderFields: (control: Control<Fields>) => React.ReactNode
   /** Under the trigger. Omit it where the caller reports the result elsewhere, from `onSuccess`. */
   renderResult?: (result: Result) => React.ReactNode
+  /**
+   * Opens the dialog from elsewhere, such as a row's More menu. Renders the dialog alone: no
+   * trigger button and no `renderResult`.
+   */
+  openState?: DialogOpenState
+}
+
+/** A dialog opened by something other than its own trigger button. */
+export interface DialogOpenState {
+  isOpen: boolean
+  onClose: () => void
 }
 
 /**
@@ -63,12 +74,15 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   onSuccess,
   renderFields,
   renderResult,
+  openState,
 }: AdminActionDialogProps<Fields, Result>) {
-  const [open, setOpen] = useState(false)
+  const [ownOpen, setOwnOpen] = useState(false)
+  const open = openState?.isOpen ?? ownOpen
+  const close = () => (openState ? openState.onClose() : setOwnOpen(false))
   const { control, handleSubmit } = useReasonRequiredForm<Fields>(defaultValues)
 
   const { result, mutation } = useActionResult(mutationFn, (data) => {
-    setOpen(false)
+    close()
     onSuccess?.(data)
   })
 
@@ -82,23 +96,29 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
     },
   ]
 
+  const dialog = (
+    <Dialog open={open} onClose={close} title={dialogTitle} actions={actions}>
+      <form className={dialogFormCss} onSubmit={submit}>
+        <div className={cx(proseCss, descriptionCss)}>{description}</div>
+        {renderFields(control)}
+      </form>
+    </Dialog>
+  )
+  if (openState) {
+    return dialog
+  }
   return (
     <div className={dialogFormStartCss}>
       <Button
         variant={triggerVariant}
         size="medium"
         disabled={triggerDisabled ?? false}
-        onClick={() => setOpen(true)}
+        onClick={() => setOwnOpen(true)}
       >
         {triggerLabel}
       </Button>
       {result && renderResult?.(result)}
-      <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle} actions={actions}>
-        <form className={dialogFormCss} onSubmit={submit}>
-          <div className={cx(proseCss, descriptionCss)}>{description}</div>
-          {renderFields(control)}
-        </form>
-      </Dialog>
+      {dialog}
     </div>
   )
 }

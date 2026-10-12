@@ -86,6 +86,8 @@ export interface AdminRegistrationAttempt {
   sisu_attainment_id: string | null
   sisu_person_id: string | null
   next_attempt_at: string
+  /** Suotar's `retryAfter` for a pending submission. */
+  resubmit_not_before: string | null
   /** What the single-row hand transition would allow on this row. */
   hand_actions: {
     resubmission:
@@ -108,15 +110,20 @@ export interface AdminRegistrationDetails {
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
-export interface AccountLinkingModuleCounters {
-  course_id: string
-  last_listed_at: string | null
-  listed_person_count: number | null
+export interface AccountLinkingCourseCode {
+  course_code: string
+  modules: { course_id: string; last_listed_at: string | null }[]
+  linking: { listed_person_count: number } | null
 }
 
 export interface AccountLinkingStats {
-  modules: AccountLinkingModuleCounters[]
+  course_codes: AccountLinkingCourseCode[]
 }
+
+/** When an enrolment list last fed account linking for one of the course's modules. */
+export const linkingListedAt = (stats: AccountLinkingStats, courseId: string): string | null =>
+  stats.course_codes.flatMap((code) => code.modules).find((module) => module.course_id === courseId)
+    ?.last_listed_at ?? null
 
 export interface AdminRegistrationFilter {
   student_number?: string
@@ -124,17 +131,19 @@ export interface AdminRegistrationFilter {
   state?: string
   needs_admin_attention?: boolean
   include_superseded?: boolean
+  /** Defaults to true here, unlike in the API: a spec looking up its own row never wants it hidden. */
+  include_not_started?: boolean
   limit?: number
 }
 
+/** A page of the ledger, including rows waiting on a student who has not started. */
 export const listAdminRegistrations = (
   request: APIRequestContext,
   filter: AdminRegistrationFilter = {},
 ): Promise<AdminRegistrationsPage> =>
-  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
   getJson<AdminRegistrationsPage>(
     request,
-    `${ADMIN_REGISTRATIONS_URL}${queryString({ ...filter })}`,
+    `${ADMIN_REGISTRATIONS_URL}${queryString({ include_not_started: true, ...filter })}`,
   )
 
 export const adminRegistrationDetails = (

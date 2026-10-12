@@ -69,3 +69,15 @@ export const studentNumberLinkSupportMail = (
   ],
   ...omitUndefined({ reference: studentNumber ?? undefined }),
 })
+
+/** A support mail from a student still waiting for a linking email; support needs their number. */
+export const missingLinkingEmailSupportMail = (
+  t: CreditRegistrationTFunction,
+  courseName: string,
+): SupportMailContents => ({
+  subject: t("credit-registration-faq-no-email-support-subject", { course: courseName }),
+  bodyLines: [
+    t("support-mail-line-course", { course: courseName }),
+    t("support-mail-line-student-number", { studentNumber: "" }),
+  ],
+})

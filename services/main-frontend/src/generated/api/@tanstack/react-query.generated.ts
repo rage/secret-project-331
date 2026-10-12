@@ -18,10 +18,13 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   adminBulkTransitionCreditRegistrations,
+  adminDismissCreditRegistrationAttention,
+  adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
   adminPausePhase,
+  adminRequestEnrolmentListFetch,
   adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
@@ -115,7 +118,9 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourses,
   getAccountLinkingStats,
+  getAccountLinkingUnlinkedEnrolees,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
@@ -204,6 +209,7 @@ import {
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
+  getCreditRegistrationLinkingCandidates,
   getCreditRegistrationOverview,
   getCreditRegistrationPipelineHistory,
   getCreditRegistrationReconciliation,
@@ -417,6 +423,9 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionResponse,
+  AdminDismissStudyRegistryConflictData,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
@@ -424,6 +433,8 @@ import type {
   AdminPauseCourseModuleCreditRegistrationData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchResponse,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsResponse,
   AdminResendAccountLinkingEmailData,
@@ -585,8 +596,12 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponse,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -757,6 +772,8 @@ import type {
   GetCreditRegistrationErrorsByCodeResponse,
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminResponse,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesResponse,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponse,
   GetCreditRegistrationPipelineHistoryData,
@@ -6199,8 +6216,9 @@ export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinki
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkingStatsData>) =>
   queryOptions<
@@ -6218,6 +6236,91 @@ export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkin
       }),
     queryKey: getAccountLinkingStatsQueryKey(options),
   })
+
+export const getAccountLinkingCoursesQueryKey = (options?: Options<GetAccountLinkingCoursesData>) =>
+  createQueryKey("getAccountLinkingCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCoursesOptions = (options?: Options<GetAccountLinkingCoursesData>) =>
+  queryOptions<
+    GetAccountLinkingCoursesResponse,
+    DefaultError,
+    GetAccountLinkingCoursesResponse,
+    ReturnType<typeof getAccountLinkingCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCoursesQueryKey(options),
+  })
+
+export const getAccountLinkingUnlinkedEnroleesQueryKey = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) => createQueryKey("getAccountLinkingUnlinkedEnrolees", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnroleesOptions = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    ReturnType<typeof getAccountLinkingUnlinkedEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingUnlinkedEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetchMutation = (
+  options?: Partial<Options<AdminRequestEnrolmentListFetchData>>,
+): UseMutationOptions<
+  AdminRequestEnrolmentListFetchResponse,
+  DefaultError,
+  Options<AdminRequestEnrolmentListFetchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminRequestEnrolmentListFetchResponse,
+    DefaultError,
+    Options<AdminRequestEnrolmentListFetchData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminRequestEnrolmentListFetch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -6311,18 +6414,44 @@ export const adminResolveStudentNumberForLinkingMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflictMutation = (
+  options?: Partial<Options<AdminDismissStudyRegistryConflictData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDismissStudyRegistryConflictData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDismissStudyRegistryConflictData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDismissStudyRegistryConflict({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCreditRegistrationAttentionItemsQueryKey = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
 ) => createQueryKey("getCreditRegistrationAttentionItems", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItemsOptions = (
   options?: Options<GetCreditRegistrationAttentionItemsData>,
@@ -6342,63 +6471,6 @@ export const getCreditRegistrationAttentionItemsOptions = (
       }),
     queryKey: getCreditRegistrationAttentionItemsQueryKey(options),
   })
-
-export const getCreditRegistrationAttentionItemsInfiniteQueryKey = (
-  options?: Options<GetCreditRegistrationAttentionItemsData>,
-): QueryKey<Options<GetCreditRegistrationAttentionItemsData>> =>
-  createQueryKey("getCreditRegistrationAttentionItems", options, true)
-
-/**
- *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
- *
- * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
- */
-export const getCreditRegistrationAttentionItemsInfiniteOptions = (
-  options?: Options<GetCreditRegistrationAttentionItemsData>,
-) => {
-  const opts = infiniteQueryOptions<
-    GetCreditRegistrationAttentionItemsResponse,
-    DefaultError,
-    InfiniteData<GetCreditRegistrationAttentionItemsResponse>,
-    QueryKey<Options<GetCreditRegistrationAttentionItemsData>>,
-    | number
-    | Pick<
-        QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
-        "body" | "headers" | "path" | "query"
-      >
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<GetCreditRegistrationAttentionItemsData>>[0],
-          "body" | "headers" | "path" | "query"
-        > =
-          typeof pageParam === "object"
-            ? pageParam
-            : {
-                query: {
-                  page: pageParam,
-                },
-              }
-        const params = createInfiniteParams(queryKey, page)
-        return await getCreditRegistrationAttentionItems({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true,
-        })
-      },
-      queryKey: getCreditRegistrationAttentionItemsInfiniteQueryKey(options),
-    },
-  )
-  return opts as Omit<typeof opts, "initialData">
-}
 
 export const listCreditRegistrationAdminActionsQueryKey = (
   options?: Options<ListCreditRegistrationAdminActionsData>,
@@ -6579,7 +6651,7 @@ export const getCreditRegistrationEnrolmentChecksQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
- * and findings of the enrolment checks, and the roster schedule per course code.
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
 export const getCreditRegistrationEnrolmentChecksOptions = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,
@@ -6794,7 +6866,8 @@ export const getCreditRegistrationPipelineHistoryQueryKey = (
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
- * ledger state, with what entered and left each state that day.
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
  */
 export const getCreditRegistrationPipelineHistoryOptions = (
   options?: Options<GetCreditRegistrationPipelineHistoryData>,
@@ -7015,6 +7088,68 @@ export const getCreditRegistrationForAdminOptions = (
         throwOnError: true,
       }),
     queryKey: getCreditRegistrationForAdminQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttentionMutation = (
+  options?: Partial<Options<AdminDismissCreditRegistrationAttentionData>>,
+): UseMutationOptions<
+  AdminDismissCreditRegistrationAttentionResponse,
+  DefaultError,
+  Options<AdminDismissCreditRegistrationAttentionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminDismissCreditRegistrationAttentionResponse,
+    DefaultError,
+    Options<AdminDismissCreditRegistrationAttentionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDismissCreditRegistrationAttention({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCreditRegistrationLinkingCandidatesQueryKey = (
+  options: Options<GetCreditRegistrationLinkingCandidatesData>,
+) => createQueryKey("getCreditRegistrationLinkingCandidates", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidatesOptions = (
+  options: Options<GetCreditRegistrationLinkingCandidatesData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationLinkingCandidatesResponse,
+    DefaultError,
+    GetCreditRegistrationLinkingCandidatesResponse,
+    ReturnType<typeof getCreditRegistrationLinkingCandidatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationLinkingCandidates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationLinkingCandidatesQueryKey(options),
   })
 
 /**
@@ -7410,8 +7545,9 @@ export const setMyCreditJustificationMutation = (
  *
  * Moves a waiting registration onto the schedule for students who have looked, or restarts that
  * schedule at most once a day. Recorded against the completion too, so a visit before there is a
- * registration, or before a student number is linked, still counts once there is. Idempotent enough
- * to call on every page load; the page sends it once per load.
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
  */
 export const recordMyEnrolmentPageVisitMutation = (
   options?: Partial<Options<RecordMyEnrolmentPageVisitData>>,
@@ -7517,8 +7653,8 @@ export const withdrawMyEnrolmentConfirmationMutation = (
  *
  * Counts as a check request: a waiting registration restarts its checks on the check-requested
  * schedule, under the limit every check request shares. Recorded against the completion too, so a
- * registration that starts waiting later starts on that schedule. With account linking on, a caller
- * with no linked student number books a roster listing of the course code instead.
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
  */
 export const confirmMyEnrolmentMutation = (
   options?: Partial<Options<ConfirmMyEnrolmentData>>,

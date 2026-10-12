@@ -28,6 +28,7 @@ pub mod student_number;
 pub mod student_number_change;
 pub mod study_registry;
 pub mod submission_context;
+pub mod timeline;
 
 // Only symbols reached from outside this module in more than one place are hoisted here; everything
 // else goes through its submodule's own path (`credit_registration::submodule::Item`).

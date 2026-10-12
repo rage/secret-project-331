@@ -602,10 +602,10 @@ WHERE vsn.id IS NULL
 /// link still stands in the way. A link someone made by hand (the student or an admin) always wins,
 /// but another account's study-registry link on the reported number moves to the account reported
 /// most recently, unless the holder's own report of it is newer: a student with two accounts gets
-/// the number on the later one. A retired link does
-/// not block: the registrar's report is authoritative, so a number the student or an admin unlinked,
-/// or one resolve-person-ids dropped over a conflict, is linked again. Returns how many links were
-/// made.
+/// the number on the later one. A retired link does not block: the registrar's report is
+/// authoritative, so a number the student or an admin unlinked, or one resolve-person-ids dropped
+/// over a conflict, is linked again. A conflict an admin dismissed is not recorded again. Returns
+/// how many links were made.
 pub async fn link_numbers_reported_by_study_registry(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
@@ -717,6 +717,14 @@ FROM study_registry_reported_student_numbers reported
   ) blocker ON TRUE
 WHERE reported.user_id = ANY($1::uuid [])
   AND reported.student_number ~ '^[0-9]{6,12}$'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM study_registry_student_number_conflicts dismissed
+    WHERE dismissed.user_id = reported.user_id
+      AND dismissed.student_number = reported.student_number
+      AND dismissed.dismissed_at IS NOT NULL
+      AND dismissed.deleted_at IS NULL
+  )
 ON CONFLICT DO NOTHING
         "#,
         user_ids,
@@ -724,4 +732,49 @@ ON CONFLICT DO NOTHING
     .execute(conn)
     .await?;
     Ok(linked)
+}
+
+/// A link made by a linking email or by hand, for the linking page's recent list.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RecentStudentNumberLink {
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub verified_at: DateTime<Utc>,
+    pub verified_via: StudentNumberVerificationMethod,
+    pub verified_from_course_id: Option<Uuid>,
+    pub verified_from_course_name: Option<String>,
+}
+
+/// Live links made by a linking email or by hand, newest first. Study registry links are left out:
+/// they arrive by the thousand from imports.
+pub async fn get_recent_linked_by_email_or_hand(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<RecentStudentNumberLink>> {
+    let res = sqlx::query_as!(
+        RecentStudentNumberLink,
+        r#"
+SELECT vsn.user_id,
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  ud.email AS "email?",
+  vsn.verified_at,
+  vsn.verified_via AS "verified_via: StudentNumberVerificationMethod",
+  vsn.verified_from_course_id,
+  c.name AS "verified_from_course_name?"
+FROM verified_student_numbers vsn
+  LEFT JOIN user_details ud ON ud.user_id = vsn.user_id
+  LEFT JOIN courses c ON c.id = vsn.verified_from_course_id
+WHERE vsn.deleted_at IS NULL
+  AND vsn.verified_via IN ('emailed_link', 'admin_manual')
+ORDER BY vsn.verified_at DESC
+LIMIT $1
+        "#,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

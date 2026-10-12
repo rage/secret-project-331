@@ -20,6 +20,9 @@ use utoipa::ToSchema;
 use crate::domain::system_health::HealthStatus;
 use chrono::TimeDelta;
 use headless_lms_credit_registration::CreditRegistrationPhase;
+pub(crate) use headless_lms_credit_registration::attention::{
+    PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
+};
 use headless_lms_credit_registration::registry_health::max_study_registry_wait;
 use headless_lms_models::credit_registration_phase_state::CreditRegistrationPhaseState;
 
@@ -33,32 +36,9 @@ const SERVICE_OUTAGE_WINDOW: TimeDelta = TimeDelta::hours(1);
 /// Below this many items the share below is one bad batch, not a signal.
 const SERVICE_OUTAGE_MIN_ITEMS: i64 = 10;
 const SERVICE_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
-/// The longest `submissionPending` asks verify to wait before polling again.
-const SUOTAR_PENDING_WAIT: TimeDelta = TimeDelta::days(1);
-const STUCK_THRESHOLDS: StuckThresholds = StuckThresholds {
-    stuck_ready_to_submit_secs: 2 * 60 * 60,
-    stuck_submitting_secs: 90 * 60,
-    stuck_awaiting_verification_secs: SUOTAR_PENDING_WAIT.num_seconds() + 2 * 60 * 60,
-    stuck_failed_retryable_secs: 3 * 24 * 60 * 60,
-};
-
-const _: () = assert!(
-    STUCK_THRESHOLDS.stuck_failed_retryable_secs
-        < headless_lms_models::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE
-            .num_seconds(),
-    "a row must be considered stuck before backoff gives up retrying it"
-);
-const _: () = assert!(
-    STUCK_THRESHOLDS.stuck_submitting_secs
-        > headless_lms_models::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE
-            .num_seconds(),
-    "the stuck threshold must outlast the grace period that lets a submit recover on its own"
-);
 /// Above this many stuck rows the backlog stops being something to look at tomorrow.
 const STUCK_CRITICAL_COUNT: i64 = 50;
 const LINKING_MAIL_WINDOW: TimeDelta = TimeDelta::days(7);
-/// A phase is late once this many of its own intervals have passed without a heartbeat.
-pub(crate) const PHASE_HEARTBEAT_INTERVAL_MULTIPLIER: i32 = 2;
 /// Failures in a row before a phase counts as broken rather than unlucky.
 pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
 /// A phase that owns a nonempty queue and has not succeeded within this many of its own intervals
@@ -150,23 +130,7 @@ pub struct CreditRegistrationHealth {
 }
 
 pub fn stuck_thresholds() -> StuckThresholds {
-    STUCK_THRESHOLDS
-}
-
-/// A phase counts as late once more than [`PHASE_HEARTBEAT_INTERVAL_MULTIPLIER`] of its own
-/// interval has passed since its last heartbeat. A paused phase is never late: it is not expected
-/// to be heartbeating at all.
-pub(crate) fn is_heartbeat_late(
-    last_heartbeat_at: Option<DateTime<Utc>>,
-    expected_interval_secs: i32,
-    paused_at: Option<DateTime<Utc>>,
-    now: DateTime<Utc>,
-) -> bool {
-    paused_at.is_none()
-        && last_heartbeat_at.is_some_and(|at| {
-            (now - at).num_seconds()
-                > i64::from(expected_interval_secs) * i64::from(PHASE_HEARTBEAT_INTERVAL_MULTIPLIER)
-        })
+    StuckThresholds::CURRENT
 }
 
 /// Whether a phase counts as failing: too many failures in a row, or a nonempty queue with no
@@ -349,7 +313,7 @@ fn stuck_alert(stuck: &[StuckRegistrationCount]) -> Option<CreditRegistrationAle
         severity,
         count: total,
         total: None,
-        at: worst.and_then(|row| row.oldest_state_entered_at),
+        at: worst.and_then(|row| row.oldest_state_changed_at),
         subject: worst.map(|row| state_name(row.state)),
     })
 }

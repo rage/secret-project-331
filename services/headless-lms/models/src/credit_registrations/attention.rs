@@ -181,8 +181,6 @@ pub struct AttentionRegistration {
     pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     /// The code's last enrolment list listed nobody.
     pub is_enrolment_list_empty: bool,
-    /// See [`crate::credit_registration_roster_schedules::RosterSchedule::unlinked_enrolled_before_count`].
-    pub unlinked_enrolled_before_count: Option<i32>,
     pub reasons: Vec<AttentionReason>,
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
@@ -336,7 +334,6 @@ SELECT cr.id,
   sig.last_visited_at AS "last_visited_at?",
   s.last_mailing_fetch_started_at AS "last_mailing_fetch_started_at?",
   COALESCE(s.last_listed_person_count = 0, FALSE) AS "is_enrolment_list_empty!",
-  s.linking_unlinked_enrolled_before_count AS "unlinked_enrolled_before_count?",
   ARRAY_REMOVE(
     ARRAY [
       CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,

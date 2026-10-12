@@ -9,7 +9,7 @@ import type { StudentNumberVerificationMethod } from "@/generated/api/types.gene
 import { Tooltip } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
-import { noteCss, subheadingCss } from "../styles"
+import { inlineTooltipTriggerCss, noteCss, subheadingCss } from "../styles"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { verificationMethodLabel } from "./adminCreditRegistrationCopy"
 
@@ -53,6 +53,7 @@ const LinkingMethodLabel: React.FC<{
   return (
     <Tooltip
       aria-label={t("credit-registration-admin-linking-method-label", { method: label })}
+      className={inlineTooltipTriggerCss}
       trigger={
         <span className={triggerCss}>
           <Icon size={ICON_SIZE} />

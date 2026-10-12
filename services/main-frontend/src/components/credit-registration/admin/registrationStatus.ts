@@ -19,8 +19,6 @@ export interface RegistrationStatusLines {
   waitsOn: string
   next: React.ReactNode
   tone: RegistrationStatusTone
-  /** A possible cause, worded as one, for a third line. */
-  hint: string | null
 }
 
 /** The row fields a status is worded from. */
@@ -137,30 +135,18 @@ const stepNext = (
  * The two-line status the registration page's timeline and the Needs attention rows share.
  *
  * `schedule` is the course code's linking schedule, which only a student who pressed "I have
- * enrolled" and has no linked number has. `unmailedEarlyEnroleeCount` is the code's count of
- * unlinked people who enrolled before linking emails started.
+ * enrolled" and has no linked number has.
  */
 export const registrationStatusLines = (
   t: CreditRegistrationTFunction,
   row: RegistrationStatusSubject,
   schedule?: AdminLinkingSchedule | null,
-  unmailedEarlyEnroleeCount?: number | null,
 ): RegistrationStatusLines => {
   const needsAttention = row.attention_standing === "needs_attention"
   const isStuckPresser = needsAttention && row.attention_reasons.includes("student_number_stuck")
   const waitsOn = waitsOnLabel(t, row.waits_on)
   if (isStuckPresser) {
-    return {
-      waitsOn,
-      next: t("credit-registration-admin-status-student-number-stuck"),
-      tone: "attention",
-      hint:
-        unmailedEarlyEnroleeCount && unmailedEarlyEnroleeCount > 0
-          ? t("credit-registration-admin-status-unmailed-early-enrolees", {
-              count: unmailedEarlyEnroleeCount,
-            })
-          : null,
-    }
+    return { waitsOn, next: attentionReasonLabel(t, "student_number_stuck"), tone: "attention" }
   }
   const next = stepNext(t, row, schedule)
   // The step's own wording already says what went wrong on an attention step.
@@ -185,7 +171,6 @@ export const registrationStatusLines = (
         : FINISHED_STEPS.has(row.timeline_step)
           ? "done"
           : "neutral",
-    hint: null,
   }
 }
 

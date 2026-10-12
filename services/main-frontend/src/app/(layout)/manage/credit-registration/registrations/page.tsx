@@ -61,9 +61,10 @@ import {
 import InlineParts from "@/components/credit-registration/InlineParts"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   controlCss,
   controlsCss,
-  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -190,7 +191,7 @@ const FILTER_FIELDS: FilterFieldDescriptor<FilterFields>[] = [
 ]
 
 const searchCss = css`
-  min-width: 20rem;
+  min-width: min(20rem, 100%);
   flex: 1 1 20rem;
 `
 
@@ -662,10 +663,10 @@ const RegistrationsPage: React.FC = () => {
                     {
                       header: t("label-course"),
                       grow: 1,
-                      minWidth: "11rem",
+                      minWidth: "9rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
-                          <span>{row.course_name}</span>
+                          <span className={breakAnywhereCss}>{row.course_name}</span>
                           {manyModuleCourseIds.has(row.course_id) && (
                             <span className={noteCss}>{row.course_module_name}</span>
                           )}
@@ -704,13 +705,14 @@ const RegistrationsPage: React.FC = () => {
                     },
                     {
                       header: t("label-status"),
-                      minWidth: "12rem",
+                      minWidth: "10rem",
                       cell: (row) => <StatusCell row={row} />,
                     },
                     {
                       header: t("credit-registration-admin-student-activity"),
                       minWidth: "7rem",
-                      nowrap: true,
+                      // Its badges are narrower than the label, which would leave the column mostly air.
+                      nowrap: false,
                       cell: (row) =>
                         row.engagement && ENGAGEMENT_STEPS.has(row.timeline_step) ? (
                           <Badge

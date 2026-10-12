@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,12 +14,13 @@ import {
   creditRegistrationItemRoute,
   creditRegistrationSuotarApiCallRoute,
 } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, QueryResult, Table } from "@/shared-module/components"
+import { Button, Dialog, Link, QueryResult, Table } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, DENSITY_COMPACT } from "../constants"
 import {
-  emptyStateCss,
+  breakAnywhereCss,
   codeValueCss,
+  emptyStateCss,
   noteCss,
   sectionCss,
   stackedCellCss,
@@ -161,7 +161,10 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
                       <span className={codeValueCss}>{row.student_number ?? <AbsentValue />}</span>
                     ),
                   },
-                  { header: t("label-course"), cell: (row) => row.course_name },
+                  {
+                    header: t("label-course"),
+                    cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
+                  },
                   {
                     header: t("credit-registration-admin-column-effect-of-call"),
                     cell: (row) => {

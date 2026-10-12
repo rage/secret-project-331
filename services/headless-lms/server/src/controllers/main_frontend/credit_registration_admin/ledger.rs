@@ -230,8 +230,6 @@ pub struct AdminLinkingSchedule {
     pub next_fetch_at: DateTime<Utc>,
     pub is_fetch_failing: bool,
     pub is_enrolment_list_empty: bool,
-    /// See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
-    pub unlinked_enrolled_before_count: Option<i32>,
     /// On any course sharing the code. Not attributable to this student until a link is used.
     pub linking_emails_since_press: i64,
     pub last_linking_email_at: Option<DateTime<Utc>>,
@@ -1253,7 +1251,6 @@ async fn linking_schedule_for(
         last_mailing_fetch_started_at: schedule.last_mailing_fetch_started_at,
         is_fetch_failing: schedule.consecutive_failures > 0,
         is_enrolment_list_empty: schedule.last_listed_person_count == Some(0),
-        unlinked_enrolled_before_count: schedule.unlinked_enrolled_before_count,
         linking_emails_since_press: presser.linking_emails_on_code_since_press,
         last_linking_email_at: presser.last_linking_email_on_code_at,
         course_code,

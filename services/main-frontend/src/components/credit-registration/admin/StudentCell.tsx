@@ -1,13 +1,15 @@
 "use client"
 
+import { cx } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { formatUserName } from "@/hooks/useUserDetails"
 import { Link } from "@/shared-module/components"
 
-import { LINK_QUIET } from "../constants"
+import { CREDIT_REGISTRATION_NS, LINK_QUIET } from "../constants"
 import { EmailAddress } from "../EmailAddress"
-import { noteCss, stackedCellCss } from "../styles"
+import { breakAnywhereCss, noteCss, stackedCellCss } from "../styles"
 
 /** `Table.columns[].minWidth` for the `label-student` column, decided once for every table that has one. */
 export const STUDENT_COLUMN_MIN_WIDTH = "12rem"
@@ -19,21 +21,26 @@ interface Props {
 }
 
 /** A table cell's "who": the student's name over their email address. */
-const StudentCell: React.FC<Props> = ({ row, href }) => (
-  <span className={stackedCellCss}>
-    {href ? (
-      <Link href={href} appearance={LINK_QUIET} prefetch={false}>
-        {formatUserName(row)}
-      </Link>
-    ) : (
-      <span>{formatUserName(row)}</span>
-    )}
-    {row.email && (
-      <span className={noteCss}>
-        <EmailAddress address={row.email} />
-      </span>
-    )}
-  </span>
-)
+const StudentCell: React.FC<Props> = ({ row, href }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  // A nameless account still needs link text, or its row has nothing to open it by.
+  const name = formatUserName(row) || t("missing-name")
+  return (
+    <span className={cx(stackedCellCss, breakAnywhereCss)}>
+      {href ? (
+        <Link href={href} appearance={LINK_QUIET} prefetch={false}>
+          {name}
+        </Link>
+      ) : (
+        <span>{name}</span>
+      )}
+      {row.email && (
+        <span className={noteCss}>
+          <EmailAddress address={row.email} />
+        </span>
+      )}
+    </span>
+  )
+}
 
 export default StudentCell

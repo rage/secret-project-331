@@ -34,6 +34,7 @@ import { formatIntervalInWords } from "@/components/credit-registration/duration
 import ScheduledTime from "@/components/credit-registration/ScheduledTime"
 import {
   headingCss,
+  inlineTooltipTriggerCss,
   codeValueCss,
   noteCss,
   proseCss,
@@ -89,6 +90,7 @@ const PhaseTable: React.FC<{
                   aria-label={t("credit-registration-admin-owned-states-tooltip-label", {
                     phase: row.phase,
                   })}
+                  className={inlineTooltipTriggerCss}
                   trigger={
                     <span className={noteCss}>
                       {t("credit-registration-admin-owned-states-trigger", {

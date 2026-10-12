@@ -7160,6 +7160,62 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support\ncan send a linking email for by hand.",
+        "operationId": "getAccountLinkingCourses",
+        "responses": {
+          "200": {
+            "description": "By course name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminLinkingCourse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`\n- Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a\nlinking email by hand.\n\nLists the rosters live. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getAccountLinkingUnlinkedEnrolees",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unlinked people",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUnlinkedEnrolees"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account linking is off, or the course takes no part in credit registration"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -14615,11 +14671,6 @@
           "uh_course_code": {
             "type": ["string", "null"]
           },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be\none of them."
-          },
           "user_id": {
             "type": "string",
             "format": "uuid"
@@ -15791,7 +15842,7 @@
       },
       "AdminLinkingCandidate": {
         "type": "object",
-        "description": "A person on the code's enrolment list whom no linking email reached because they enrolled before\naccount linking began, and who may be the waiting student.",
+        "description": "A person on a course's enrolment list whom no account is linked to, whom support can send a\nlinking email.",
         "required": ["student_number", "linking_emails_for_course", "similarities"],
         "properties": {
           "email": {
@@ -15812,14 +15863,14 @@
           "linking_emails_for_course": {
             "type": "integer",
             "format": "int64",
-            "description": "Linking emails they have had for the registration's course, replaced ones included."
+            "description": "Linking emails they have had for the course, replaced ones included."
           },
           "similarities": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/LinkingCandidateSimilarity"
             },
-            "description": "What they share with the student's account; the list is ordered by these."
+            "description": "What they share with the waiting student's account, by which the linking candidates are\nordered. Always empty in [`AdminUnlinkedEnrolees`]."
           },
           "student_number": {
             "type": "string",
@@ -15862,6 +15913,27 @@
           "study_registry_unavailable": {
             "type": "boolean",
             "description": "The study registry gave no usable answer, so an empty `candidates` says nothing."
+          }
+        }
+      },
+      "AdminLinkingCourse": {
+        "type": "object",
+        "description": "A course support can send a linking email for by hand: one taking part in credit registration\nwith a University of Helsinki course code.",
+        "required": ["course_id", "course_name", "course_codes"],
+        "properties": {
+          "course_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Usually one; a course whose modules have different codes has each of them."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
           }
         }
       },
@@ -15957,11 +16029,6 @@
           "next_fetch_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`]."
           }
         }
       },
@@ -16419,6 +16486,24 @@
             "type": "integer",
             "format": "int64",
             "description": "Registrations that went back to waiting for a number."
+          }
+        }
+      },
+      "AdminUnlinkedEnrolees": {
+        "type": "object",
+        "description": "Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.",
+        "required": ["study_registry_unavailable", "people"],
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingCandidate"
+            },
+            "description": "By last name, then first names, ignoring case; people with no last name last."
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer for some code, so `people` says nothing."
           }
         }
       },
@@ -20866,11 +20951,6 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "From the code's last enrolment list that fed account linking: people who enrolled before\naccount linking began and are linked to no account, so no linking email went to them."
           },
           "user_id": {
             "type": "string",

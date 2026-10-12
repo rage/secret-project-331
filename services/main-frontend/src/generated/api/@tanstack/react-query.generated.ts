@@ -116,7 +116,9 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourses,
   getAccountLinkingStats,
+  getAccountLinkingUnlinkedEnrolees,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
@@ -586,8 +588,12 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponse,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -6217,6 +6223,62 @@ export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkin
         throwOnError: true,
       }),
     queryKey: getAccountLinkingStatsQueryKey(options),
+  })
+
+export const getAccountLinkingCoursesQueryKey = (options?: Options<GetAccountLinkingCoursesData>) =>
+  createQueryKey("getAccountLinkingCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCoursesOptions = (options?: Options<GetAccountLinkingCoursesData>) =>
+  queryOptions<
+    GetAccountLinkingCoursesResponse,
+    DefaultError,
+    GetAccountLinkingCoursesResponse,
+    ReturnType<typeof getAccountLinkingCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCoursesQueryKey(options),
+  })
+
+export const getAccountLinkingUnlinkedEnroleesQueryKey = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) => createQueryKey("getAccountLinkingUnlinkedEnrolees", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnroleesOptions = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    ReturnType<typeof getAccountLinkingUnlinkedEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingUnlinkedEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
 /**

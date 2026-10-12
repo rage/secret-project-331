@@ -74,9 +74,6 @@ pub struct CreditRegistrationAttentionItem {
     /// When the code's latest enrolment list fetch that could send a linking email started.
     pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     pub is_enrolment_list_empty: bool,
-    /// From the code's last enrolment list that fed account linking: people who enrolled before
-    /// account linking began and are linked to no account, so no linking email went to them.
-    pub unlinked_enrolled_before_count: Option<i32>,
     /// The pipeline's own flag; a fact about the row, separate from any dismissal.
     pub needs_admin_attention: bool,
     /// What the bulk hand transition would allow on this row.
@@ -553,7 +550,6 @@ pub(super) fn to_attention_item(
         enrolment_route: row.enrolment_route,
         last_mailing_fetch_started_at: row.last_mailing_fetch_started_at,
         is_enrolment_list_empty: row.is_enrolment_list_empty,
-        unlinked_enrolled_before_count: row.unlinked_enrolled_before_count,
         needs_admin_attention: row.needs_admin_attention,
     }
 }

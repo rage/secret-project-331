@@ -55,7 +55,7 @@ const EnrolmentCheckPopulationSection: React.FC<{ rows: EnrolmentCheckPopulation
             align: ALIGN_END,
             minWidth: "8rem",
             nowrap: true,
-            cell: (row) => (row.never_checked_count === 0 ? null : row.never_checked_count),
+            cell: (row) => row.never_checked_count,
           },
         ]}
       />

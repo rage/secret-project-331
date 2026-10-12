@@ -54,7 +54,6 @@ export const headerCellCss = css`
 
 export const bodyCellCss = css`
   color: var(--color-gray-700);
-  font-variant-numeric: tabular-nums;
 `
 
 export const nowrapCss = css`
@@ -80,8 +79,11 @@ export const alignCss = {
   center: css`
     text-align: center;
   `,
+  /* Tabular figures only here: in Inter they also widen hyphens, which spaces out names, emails
+     and dates in text columns. */
   end: css`
     text-align: end;
+    font-variant-numeric: tabular-nums;
   `,
 } as const
 

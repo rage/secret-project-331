@@ -20,7 +20,7 @@ use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, InteractiveStudyRegistry, StudentNumber};
-use crate::use_cases::enrolment_discovery::list_unlinked_enrolled_before;
+use crate::use_cases::enrolment_discovery::{list_unlinked, list_unlinked_enrolled_before};
 
 /// What one resend attempt came to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -100,16 +100,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         outcome,
         retired_mail_count: 0,
     };
-    let course_codes: Vec<CourseCode> = {
-        let mut conn = pool.acquire().await?;
-        get_active_modules_for_course(&mut conn, course_id)
-            .await?
-            .iter()
-            .filter_map(|module| CourseCode::parse(&module.uh_course_code))
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .collect()
-    };
+    let course_codes = active_course_codes(pool, course_id).await?;
     if course_codes.is_empty() {
         return Ok(not_retired(ResendOutcome::NotOnTheCourseRoster));
     }
@@ -159,6 +150,38 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         outcome,
         retired_mail_count,
     })
+}
+
+/// The distinct course codes of the course's modules that take part in credit registration.
+async fn active_course_codes(
+    pool: &PgPool,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Vec<CourseCode>> {
+    let mut conn = pool.acquire().await?;
+    Ok(get_active_modules_for_course(&mut conn, course_id)
+        .await?
+        .iter()
+        .filter_map(|module| CourseCode::parse(&module.uh_course_code))
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect())
+}
+
+/// [`crate::account_linking::list_unlinked_on_course_rosters`] through `registry`.
+pub(crate) async fn unlinked_on_course_rosters<R: InteractiveStudyRegistry>(
+    pool: &PgPool,
+    registry: &R,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let mut people = Vec::new();
+    for code in active_course_codes(pool, course_id).await? {
+        let Some(listed) = registry.fetch_course_roster(&code).await else {
+            return Ok(None);
+        };
+        people.extend(listed);
+    }
+    let mut conn = pool.acquire().await?;
+    Ok(Some(list_unlinked(&mut conn, &people).await?))
 }
 
 /// [`crate::account_linking::list_unlinked_enrolled_before`] through `registry`.

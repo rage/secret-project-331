@@ -12,14 +12,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
-import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
+import { Checkbox, Dialog } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { RESEND_QUEUED } from "../resendOutcome"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS } from "../constants"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
-import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { ResendOutcomeNotice } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props extends DialogOpenState {
@@ -98,21 +98,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     >
       <div className={dialogFormCss}>
         {result && (
-          <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
-            <div>{resendOutcomeLabel(t, result.outcome)}</div>
-            <div>
-              {t("credit-registration-resend-mails-so-far", {
-                sent: result.mails_sent_for_this_course,
-                max: result.max_mails_per_person_and_course,
-              })}
-            </div>
-            {result.retired_mail_count > 0 && (
-              <div>
-                {t("credit-registration-admin-resend-retired-mails", {
-                  count: result.retired_mail_count,
-                })}
-              </div>
-            )}
+          <ResendOutcomeNotice result={result}>
             {result.linking_emails.map((mail) => (
               <InlineParts
                 key={mail.id}
@@ -122,7 +108,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
                 ]}
               />
             ))}
-          </Infobox>
+          </ResendOutcomeNotice>
         )}
         <form className={dialogFormCss} onSubmit={submit}>
           <p className={proseCss}>

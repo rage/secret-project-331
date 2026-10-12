@@ -70,10 +70,6 @@ const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 const CANDIDATES_CALLER: &str = "admin-linking-candidates";
 const UNLINKED_ENROLEES_CALLER: &str = "admin-unlinked-enrolees";
 
-/// A fat-finger guard on top of the per-person caps, which this endpoint can only override by retiring
-/// ledger rows.
-const RESEND_QUIET_PERIOD_SECS: i64 = 60;
-
 /// The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person
 /// counted once per code, and the `_in_window` ones come from the window: there is no single
 /// denominator.
@@ -989,7 +985,7 @@ retires the ledger rows the cap is counting, as its own audited action, then run
     request_body = AdminResendAccountLinkingEmailPayload,
     responses(
         (status = 200, description = "What the attempt did", body = AdminResendAccountLinkingEmailResult),
-        (status = 422, description = "An override without a reason, or too soon after the last resend")
+        (status = 422, description = "An override without a reason")
     )
 )]
 pub async fn admin_resend_account_linking_email(
@@ -1009,19 +1005,6 @@ pub async fn admin_resend_account_linking_email(
     } else {
         None
     };
-
-    let recent = models::credit_registration_admin_actions::count_queued_resends_by_actor_since(
-        &mut conn,
-        user.id,
-        Utc::now() - chrono::Duration::seconds(RESEND_QUIET_PERIOD_SECS),
-    )
-    .await?;
-    if recent > 0 {
-        return Err(controller_err!(
-            BadRequest,
-            "Wait a minute between resends.".to_string()
-        ));
-    }
 
     if let Some(credit_registration_id) = payload.credit_registration_id
         && credit_registrations::get_by_id(&mut conn, credit_registration_id)

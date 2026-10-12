@@ -7307,7 +7307,7 @@
             }
           },
           "422": {
-            "description": "An override without a reason, or too soon after the last resend"
+            "description": "An override without a reason"
           }
         }
       }

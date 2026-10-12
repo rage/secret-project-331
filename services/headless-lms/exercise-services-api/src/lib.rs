@@ -23,6 +23,34 @@ pub struct Course {
     pub description: Option<String>,
     /// Denormalized so a client needn't resolve the owning organization separately.
     pub organization_name: String,
+    /// The teacher's AI-use policy for the course, uninterpreted: what each value permits is the
+    /// client's decision. Absent from a host that predates the field, which reads as `not_set`.
+    #[serde(default)]
+    pub ai_policy: CourseAiPolicy,
+}
+
+/// A course's AI-use policy as chosen by its teacher.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum CourseAiPolicy {
+    /// The teacher has not chosen a policy.
+    #[default]
+    NotSet,
+    /// AI may not be used at any point.
+    NoAi,
+    /// AI may be used for planning, such as brainstorming or outlining, but not in the final work.
+    PlanningOnly,
+    /// AI may be used for specific tasks only, with disclosure.
+    Limited,
+    /// AI may be used freely, with disclosure.
+    FullUse,
+    /// AI use is expected.
+    Required,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// One selected slide of an exercise, carrying only the tasks whose exercise service can serve
@@ -342,6 +370,61 @@ mod test {
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn course_ai_policy_wire_values() {
+        for (policy, wire) in [
+            (CourseAiPolicy::NotSet, "not_set"),
+            (CourseAiPolicy::NoAi, "no_ai"),
+            (CourseAiPolicy::PlanningOnly, "planning_only"),
+            (CourseAiPolicy::Limited, "limited"),
+            (CourseAiPolicy::FullUse, "full_use"),
+            (CourseAiPolicy::Required, "required"),
+        ] {
+            assert_eq!(serde_json::to_value(policy).unwrap(), json!(wire));
+            assert_eq!(
+                serde_json::from_value::<CourseAiPolicy>(json!(wire)).unwrap(),
+                policy
+            );
+        }
+    }
+
+    #[test]
+    fn course_ai_policy_unknown_value_reads_as_unrecognized() {
+        assert_eq!(
+            serde_json::from_value::<CourseAiPolicy>(json!("some_future_policy")).unwrap(),
+            CourseAiPolicy::Unrecognized
+        );
+        assert!(serde_json::to_value(CourseAiPolicy::Unrecognized).is_err());
+    }
+
+    /// A newer client must still read a host that predates `ai_policy`.
+    #[test]
+    fn course_without_ai_policy_reads_as_not_set() {
+        let course: Course = serde_json::from_value(json!({
+            "id": Uuid::nil(),
+            "slug": "slug",
+            "name": "name",
+            "description": null,
+            "organization_name": "org",
+        }))
+        .unwrap();
+        assert_eq!(course.ai_policy, CourseAiPolicy::NotSet);
+    }
+
+    #[test]
+    fn course_serializes_ai_policy() {
+        let value = serde_json::to_value(Course {
+            id: Uuid::nil(),
+            slug: "slug".to_string(),
+            name: "name".to_string(),
+            description: None,
+            organization_name: "org".to_string(),
+            ai_policy: CourseAiPolicy::FullUse,
+        })
+        .unwrap();
+        assert_eq!(value["ai_policy"], json!("full_use"));
     }
 
     /// A newer client must still read a host that predates `page_url` and `chapter`.

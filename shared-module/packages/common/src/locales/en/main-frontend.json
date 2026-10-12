@@ -32,7 +32,7 @@
   "admin-tools-managed-by-administrators": "These admin support tools are enabled by a global admin and can't be changed here.",
   "advanced-settings": "Advanced settings",
   "ai-metadata-form-title": "Suggested metadata",
-  "ai-policy-help": "Choose the AI policy shown to students in the AI usage notice. If left as “Not set”, the default notice is shown.",
+  "ai-policy-help": "Choose the AI policy shown to students in the AI usage notice. If left as “Not set”, the default notice is shown. Unless the policy is “Full use” or “Required”, AI assistance is also turned off in the TestMyCode editor.",
   "ai-policy-label": "AI policy",
   "ai-policy-option-full-use": "Full use: AI used freely, the student directs it, disclosure required",
   "ai-policy-option-limited": "Limited: AI for specific tasks only, with disclosure",

@@ -26,7 +26,7 @@
   "admin-tools-managed-by-administrators": "Disse admin-støtteverktøyene aktiveres av en global admin og kan ikke endres her.",
   "advanced-settings": "Avanserte innstillinger",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "Etter registrert gjennomføring kan du se denne i Min StudieInfo-tjenesten: <4>{{url}}</4> Merk! Det kan ta noe tid før registrering og studiepoeng blir synlige i Min StudieInfo",
-  "ai-policy-help": "Choose the AI policy shown to students in the AI usage notice. If left as “Not set”, the default notice is shown.",
+  "ai-policy-help": "Choose the AI policy shown to students in the AI usage notice. If left as “Not set”, the default notice is shown. Unless the policy is “Full use” or “Required”, AI assistance is also turned off in the TestMyCode editor.",
   "ai-policy-label": "AI policy",
   "ai-policy-option-full-use": "Full use: AI used freely, the student directs it, disclosure required",
   "ai-policy-option-limited": "Limited: AI for specific tasks only, with disclosure",

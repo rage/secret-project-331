@@ -440,13 +440,21 @@ mod tests {
                 .unwrap(),
             1
         );
-        // Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
-        sqlx::query(
-            "UPDATE credit_registration_account_linking_emails SET sent_at = now() - INTERVAL '1 hour'",
+        let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
+            tx.as_mut(),
+            "hy-hlo-1",
         )
-        .execute(&mut **tx.as_mut())
         .await
         .unwrap();
+        for mail in mails {
+            credit_registration_account_linking_emails::backdate(
+                tx.as_mut(),
+                mail.id,
+                chrono::Duration::hours(1),
+            )
+            .await
+            .unwrap();
+        }
 
         let retired = retire_capped_mails(
             tx.as_mut(),

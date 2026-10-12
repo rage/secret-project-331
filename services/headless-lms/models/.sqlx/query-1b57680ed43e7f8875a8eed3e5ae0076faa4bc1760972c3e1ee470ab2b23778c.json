@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT exercise_id\nFROM user_exercise_states\nWHERE exercise_id = ANY($1::uuid[])\n  AND user_id = $2\n  AND course_id = $3\n  AND deleted_at IS NULL\n  AND activity_progress IN ('completed', 'submitted')\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "exercise_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1b57680ed43e7f8875a8eed3e5ae0076faa4bc1760972c3e1ee470ab2b23778c"
+}

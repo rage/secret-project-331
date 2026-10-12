@@ -434,6 +434,10 @@ export type AdminCreditRegistrationDetails = {
    */
   linking_emails: Array<AdminLinkingEmail>
   linking_schedule?: null | AdminLinkingSchedule
+  /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
   not_improved_attainment?: null | NotImprovedAttainment
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
@@ -653,9 +657,15 @@ export type AdminLinkingCandidate = {
   first_names?: string | null
   last_name?: string | null
   /**
-   * Linking emails they have had for the course, replaced ones included.
+   * Linking emails for the course that count toward its cap: replaced ones included, those a
+   * rate cap override retired not.
    */
   linking_emails_for_course: number
+  /**
+   * Every linking email someone sent by hand for the course, newest first. Unlike
+   * `linking_emails_for_course`, keeps those a rate cap override has since retired.
+   */
+  manual_sends: Array<AdminManualLinkingEmailSend>
   /**
    * What they share with the waiting student's account, by which the linking candidates are
    * ordered. Always empty in [`AdminUnlinkedEnrolees`].
@@ -740,6 +750,21 @@ export type AdminManualLinkOutcome =
   | "already_linked_to_this_account"
   | "study_registry_unavailable"
   | "unexpected_study_registry_answer"
+
+/**
+ * A linking email someone sent by hand, so others do not send the same one again.
+ */
+export type AdminManualLinkingEmailSend = {
+  /**
+   * In full.
+   */
+  emailed_to?: string | null
+  sent_at: string
+  sent_by_email?: string | null
+  sent_by_first_name?: string | null
+  sent_by_last_name?: string | null
+  sent_by_user_id: string
+}
 
 export type AdminManuallyLinkStudentNumberPayload = {
   reason: string
@@ -862,6 +887,7 @@ export type AdminResendAccountLinkingEmailPayload = {
 export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
+  manual_send?: null | AdminManualLinkingEmailSend
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
   quiet_period_secs: number
@@ -2534,6 +2560,10 @@ export type CreditRegistrationAttentionItem = {
    */
   last_mailing_fetch_started_at?: string | null
   last_name?: string | null
+  /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
   /**
    * The pipeline's own flag; a fact about the row, separate from any dismissal.
    */
@@ -5248,6 +5278,7 @@ export type ResendOutcome =
   | "queued"
   | "already_mailed_to_every_known_address"
   | "refused_by_rate_cap"
+  | "just_sent"
   | "no_address_in_study_registry"
   | "not_on_the_course_roster"
   | "already_linked"
@@ -10644,7 +10675,7 @@ export type AdminResendAccountLinkingEmailData = {
 
 export type AdminResendAccountLinkingEmailErrors = {
   /**
-   * An override without a reason, or too soon after the last resend
+   * An override without a reason
    */
   422: unknown
 }

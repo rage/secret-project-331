@@ -21,14 +21,17 @@ use headless_lms_models::library::credit_registration::timeline::{
     Engagement, TimelinePhase, TimelineStep, WaitsOn,
 };
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::stuck_thresholds;
 use crate::prelude::*;
 use headless_lms_utils::secret_string::expose_option;
 
-use super::{attention_rules, authorize_credit_registration_admin, required_reason};
+use super::{
+    AdminManualLinkingEmailSend, attention_rules, authorize_credit_registration_admin,
+    manual_linking_email_sends_by_registration, required_reason,
+};
 
 /// Rows listed per section of the Needs attention tab when the caller names no limit.
 const ATTENTION_SECTION_SIZE: u32 = 50;
@@ -78,6 +81,8 @@ pub struct CreditRegistrationAttentionItem {
     pub needs_admin_attention: bool,
     /// What the bulk hand transition would allow on this row.
     pub hand_actions: HandActionAvailability,
+    /// Linking emails sent by hand as a guess for this row's student, newest first.
+    pub manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -270,6 +275,13 @@ pub async fn get_credit_registration_attention_items(
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
+    let course_ids: Vec<Uuid> = rows
+        .iter()
+        .map(|row| row.course_id)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let mut sends = manual_linking_email_sends_by_registration(&mut conn, &course_ids).await?;
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
         Utc::now() - chrono::Duration::days(RECENT_DISMISSAL_DAYS),
@@ -283,10 +295,10 @@ pub async fn get_credit_registration_attention_items(
     let mut needing: Vec<CreditRegistrationAttentionItem> = Vec::new();
     let mut running_late = Vec::new();
     let mut explained_by_problem: Vec<CreditRegistrationBlockingProblemRows> = Vec::new();
-    for item in rows
-        .into_iter()
-        .map(|row| to_attention_item(row, &rules.blocking))
-    {
+    for item in rows.into_iter().map(|row| {
+        let row_sends = sends.remove(&row.id).unwrap_or_default();
+        to_attention_item(row, &rules.blocking, row_sends)
+    }) {
         match item.standing {
             AttentionStanding::NeedsAttention => needing.push(item),
             AttentionStanding::RunningLate => running_late.push(item),
@@ -507,6 +519,7 @@ pub async fn get_credit_registration_errors_by_code(
 pub(super) fn to_attention_item(
     row: AttentionRegistration,
     problems: &BlockingProblems,
+    manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
 ) -> CreditRegistrationAttentionItem {
     let position = row.position();
     let standing = row.standing(problems);
@@ -551,6 +564,7 @@ pub(super) fn to_attention_item(
         last_mailing_fetch_started_at: row.last_mailing_fetch_started_at,
         is_enrolment_list_empty: row.is_enrolment_list_empty,
         needs_admin_attention: row.needs_admin_attention,
+        manual_linking_email_sends,
     }
 }
 

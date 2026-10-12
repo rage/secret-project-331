@@ -7307,7 +7307,7 @@
             }
           },
           "422": {
-            "description": "An override without a reason, or too soon after the last resend"
+            "description": "An override without a reason"
           }
         }
       }
@@ -15249,6 +15249,7 @@
           "suotar_api_calls",
           "actions",
           "linking_emails",
+          "manual_linking_email_sends",
           "notification_emails"
         ],
         "properties": {
@@ -15308,6 +15309,13 @@
                 "description": "Of the newest attempt, as `journey` is, and only while it waits for a student number after an\n\"I have enrolled\" press."
               }
             ]
+          },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
           },
           "not_improved_attainment": {
             "oneOf": [
@@ -15843,7 +15851,7 @@
       "AdminLinkingCandidate": {
         "type": "object",
         "description": "A person on a course's enrolment list whom no account is linked to, whom support can send a\nlinking email.",
-        "required": ["student_number", "linking_emails_for_course", "similarities"],
+        "required": ["student_number", "linking_emails_for_course", "manual_sends", "similarities"],
         "properties": {
           "email": {
             "type": ["string", "null"],
@@ -15863,7 +15871,14 @@
           "linking_emails_for_course": {
             "type": "integer",
             "format": "int64",
-            "description": "Linking emails they have had for the course, replaced ones included."
+            "description": "Linking emails for the course that count toward its cap: replaced ones included, those a\nrate cap override retired not."
+          },
+          "manual_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Every linking email someone sent by hand for the course, newest first. Unlike\n`linking_emails_for_course`, keeps those a rate cap override has since retired."
           },
           "similarities": {
             "type": "array",
@@ -16043,6 +16058,34 @@
           "study_registry_unavailable",
           "unexpected_study_registry_answer"
         ]
+      },
+      "AdminManualLinkingEmailSend": {
+        "type": "object",
+        "description": "A linking email someone sent by hand, so others do not send the same one again.",
+        "required": ["sent_at", "sent_by_user_id"],
+        "properties": {
+          "emailed_to": {
+            "type": ["string", "null"],
+            "description": "In full."
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sent_by_email": {
+            "type": ["string", "null"]
+          },
+          "sent_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "AdminManuallyLinkStudentNumberPayload": {
         "type": "object",
@@ -16300,6 +16343,17 @@
           "mails_sent_for_this_course": {
             "type": "integer",
             "format": "int64"
+          },
+          "manual_send": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdminManualLinkingEmailSend",
+                "description": "The send this attempt made, as the dialogs list it. `None` unless `outcome` is `queued`."
+              }
+            ]
           },
           "max_mails_per_person_and_course": {
             "type": "integer",
@@ -20816,7 +20870,8 @@
           "standing",
           "is_enrolment_list_empty",
           "needs_admin_attention",
-          "hand_actions"
+          "hand_actions",
+          "manual_linking_email_sends"
         ],
         "properties": {
           "attempt_count": {
@@ -20904,6 +20959,13 @@
           },
           "last_name": {
             "type": ["string", "null"]
+          },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
           },
           "needs_admin_attention": {
             "type": "boolean",
@@ -27903,6 +27965,7 @@
           "queued",
           "already_mailed_to_every_known_address",
           "refused_by_rate_cap",
+          "just_sent",
           "no_address_in_study_registry",
           "not_on_the_course_roster",
           "already_linked",

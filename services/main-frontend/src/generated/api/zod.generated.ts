@@ -376,6 +376,18 @@ export const zAdminManualLinkOutcome = z.enum([
   "unexpected_study_registry_answer",
 ])
 
+/**
+ * A linking email someone sent by hand, so others do not send the same one again.
+ */
+export const zAdminManualLinkingEmailSend = z.object({
+  emailed_to: z.string().nullish(),
+  sent_at: z.iso.datetime(),
+  sent_by_email: z.string().nullish(),
+  sent_by_first_name: z.string().nullish(),
+  sent_by_last_name: z.string().nullish(),
+  sent_by_user_id: z.uuid(),
+})
+
 export const zAdminManuallyLinkStudentNumberPayload = z.object({
   reason: z.string(),
   sisu_person_id: z.string(),
@@ -3434,6 +3446,7 @@ export const zAdminLinkingCandidate = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+  manual_sends: z.array(zAdminManualLinkingEmailSend),
   similarities: z.array(zLinkingCandidateSimilarity),
   student_number: z.string(),
 })
@@ -4633,6 +4646,7 @@ export const zResendOutcome = z.enum([
   "queued",
   "already_mailed_to_every_known_address",
   "refused_by_rate_cap",
+  "just_sent",
   "no_address_in_study_registry",
   "not_on_the_course_roster",
   "already_linked",
@@ -4650,6 +4664,7 @@ export const zAdminResendAccountLinkingEmailResult = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+  manual_send: zAdminManualLinkingEmailSend.nullish(),
   max_mails_per_person_and_course: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -6792,6 +6807,7 @@ export const zAdminCreditRegistrationDetails = z.object({
   journey: zAdminCreditRegistrationJourney,
   linking_emails: z.array(zAdminLinkingEmail),
   linking_schedule: zAdminLinkingSchedule.nullish(),
+  manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   not_improved_attainment: zNotImprovedAttainment.nullish(),
   notification_emails: z.array(zAdminNotificationEmail),
   registration: zAdminCreditRegistrationRow,
@@ -6818,6 +6834,7 @@ export const zCreditRegistrationAttentionItem = z.object({
   is_enrolment_list_empty: z.boolean(),
   last_mailing_fetch_started_at: z.iso.datetime().nullish(),
   last_name: z.string().nullish(),
+  manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
   phase: zTimelinePhase,

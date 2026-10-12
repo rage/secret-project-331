@@ -9,7 +9,7 @@ import type {
   AdminLinkingCandidate,
   AdminResendAccountLinkingEmailResult,
 } from "@/generated/api/types.generated"
-import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { Infobox } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "../constants"
@@ -109,12 +109,13 @@ export const ResendOutcomeNotice: React.FC<{
 /** A send request that failed, in the server's words when it refused it with a reason. */
 export const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  // 5xx bodies carry only a generic "Internal server error".
-  const serverMessage =
-    isAppApiError(error) && error.status !== null && error.status < 500 ? error.userMessage : null
+  const { t: tShared } = useTranslation()
+  const view = normalizeErrorForDisplay(error, tShared)
+  // A server error's message is a generic "Internal server error".
+  const message = view.category === "server" ? null : view.message
   return (
     <Infobox tone={TONE.DANGER} announce>
-      {serverMessage ?? t("credit-registration-admin-send-linking-email-send-failed")}
+      {message || t("credit-registration-admin-send-linking-email-send-failed")}
     </Infobox>
   )
 }

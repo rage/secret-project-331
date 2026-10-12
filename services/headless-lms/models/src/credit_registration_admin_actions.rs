@@ -192,18 +192,6 @@ WHERE actor_user_id = $1
     Ok(count)
 }
 
-/// Which linking emails sent by hand [`get_manual_linking_email_sends`] returns.
-#[derive(Debug, Clone, Copy)]
-pub enum ManualLinkingEmailSendScope<'a> {
-    /// Those to these student numbers on one course.
-    Course {
-        course_id: Uuid,
-        student_numbers: &'a [String],
-    },
-    /// Those sent as a guess for one of these registrations' students.
-    Registrations(&'a [Uuid]),
-}
-
 /// A linking email an admin or a teacher sent by hand: a `resend_link_email` action that queued one.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ManualLinkingEmailSend {
@@ -219,26 +207,15 @@ pub struct ManualLinkingEmailSend {
     pub emailed_to: Option<String>,
 }
 
-/// Linking emails sent by hand, newest first.
+/// The linking emails sent by hand on these courses, newest first.
 ///
 /// An action without `details.emailed_to`, as the earliest ones are, is matched to the ledger row its
 /// send claimed: the newest one for the same course and student number claimed at most a minute before
 /// the action. The per person and course quiet period leaves no other row in that window.
 pub async fn get_manual_linking_email_sends(
     conn: &mut PgConnection,
-    scope: ManualLinkingEmailSendScope<'_>,
+    course_ids: &[Uuid],
 ) -> ModelResult<Vec<ManualLinkingEmailSend>> {
-    let (course_id, student_numbers, registration_ids) = match scope {
-        ManualLinkingEmailSendScope::Course {
-            course_id,
-            student_numbers,
-        } => (Some(course_id), Some(student_numbers.to_vec()), None),
-        ManualLinkingEmailSendScope::Registrations(ids) => (
-            None,
-            None,
-            Some(ids.iter().map(Uuid::to_string).collect::<Vec<_>>()),
-        ),
-    };
     let res = sqlx::query_as!(
         ManualLinkingEmailSend,
         r#"
@@ -265,25 +242,15 @@ FROM credit_registration_admin_actions a
     ORDER BY e.sent_at DESC
     LIMIT 1
   ) claimed ON TRUE
-WHERE a.action = 'resend_link_email'
-  AND a.target_kind = 'course'
+WHERE a.target_kind = 'course'
+  AND a.target_id = ANY($1)
+  AND a.action = 'resend_link_email'
   AND a.details->>'outcome' = 'queued'
   AND a.deleted_at IS NULL
-  AND ($1::uuid IS NULL OR a.target_id = $1)
-  AND (
-    $2::text [] IS NULL
-    OR a.details->>'student_number' = ANY($2)
-  )
-  AND (
-    $3::text [] IS NULL
-    OR a.details->>'credit_registration_id' = ANY($3)
-  )
 ORDER BY a.created_at DESC,
   a.id
         "#,
-        course_id,
-        student_numbers.as_deref(),
-        registration_ids.as_deref(),
+        course_ids,
     )
     .fetch_all(conn)
     .await?;

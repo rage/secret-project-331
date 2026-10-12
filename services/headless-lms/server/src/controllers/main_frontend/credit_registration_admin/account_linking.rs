@@ -8,7 +8,7 @@ use headless_lms_models::credit_registration_account_linking_emails::{
 };
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
-    ManualLinkingEmailSendScope, NewCreditRegistrationAdminAction,
+    NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
 use headless_lms_models::credit_registration_phase_state;
@@ -1616,19 +1616,10 @@ async fn linking_email_history(
             course_id,
         )
         .await?;
-    let student_numbers: Vec<String> = people
-        .iter()
-        .map(|person| person.student_number.expose_secret().to_owned())
-        .collect();
     let mut manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
-    for send in credit_registration_admin_actions::get_manual_linking_email_sends(
-        conn,
-        ManualLinkingEmailSendScope::Course {
-            course_id,
-            student_numbers: &student_numbers,
-        },
-    )
-    .await?
+    for send in
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, &[course_id])
+            .await?
     {
         if let Some(student_number) = send.student_number.clone() {
             manual_sends
@@ -1715,17 +1706,18 @@ async fn finish_resend(
     .await?;
     let linking_emails = build_linking_emails(conn, mails).await?;
     let manual_send = if outcome == ResendOutcome::Queued {
-        credit_registration_admin_actions::get_manual_linking_email_sends(
-            conn,
-            ManualLinkingEmailSendScope::Course {
-                course_id: payload.course_id,
-                student_numbers: &[student_number.expose_secret().to_owned()],
-            },
-        )
-        .await?
-        .into_iter()
-        .next()
-        .map(AdminManualLinkingEmailSend::from)
+        let sender = models::user_details::get_user_details_by_user_id(conn, user.id).await?;
+        Some(AdminManualLinkingEmailSend {
+            sent_at: Utc::now(),
+            sent_by_user_id: user.id,
+            sent_by_first_name: sender.first_name,
+            sent_by_last_name: sender.last_name,
+            sent_by_email: Some(sender.email),
+            emailed_to: attempt
+                .emailed_to
+                .as_ref()
+                .map(|address| address.expose_secret().to_owned()),
+        })
     } else {
         None
     };

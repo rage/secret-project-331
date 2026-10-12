@@ -673,10 +673,11 @@ pub async fn get_credit_registration_for_admin(
         None => Vec::new(),
     };
 
-    let manual_linking_email_sends = manual_linking_email_sends_by_registration(&mut conn, &[id])
-        .await?
-        .remove(&id)
-        .unwrap_or_default();
+    let manual_linking_email_sends =
+        manual_linking_email_sends_by_registration(&mut conn, &[registration.course_id])
+            .await?
+            .remove(&id)
+            .unwrap_or_default();
 
     let notification_emails = student_notifications::get_for_registrations(&mut conn, &attempt_ids)
         .await?

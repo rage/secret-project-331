@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT a.created_at AS sent_at,\n  a.details->>'student_number' AS \"student_number?\",\n  CASE\n    WHEN a.details->>'credit_registration_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'credit_registration_id')::uuid\n  END AS \"credit_registration_id?\",\n  a.actor_user_id AS sent_by_user_id,\n  ud.first_name AS \"sent_by_first_name?\",\n  ud.last_name AS \"sent_by_last_name?\",\n  ud.email AS \"sent_by_email?\",\n  COALESCE(a.details->>'emailed_to', claimed.emailed_to) AS \"emailed_to?\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\n  LEFT JOIN LATERAL (\n    SELECT e.emailed_to\n    FROM credit_registration_account_linking_emails e\n    WHERE a.details->>'emailed_to' IS NULL\n      AND e.course_id = a.target_id\n      AND e.student_number = a.details->>'student_number'\n      AND e.sent_at <= a.created_at\n      AND e.sent_at > a.created_at - INTERVAL '1 minute'\n    ORDER BY e.sent_at DESC\n    LIMIT 1\n  ) claimed ON TRUE\nWHERE a.action = 'resend_link_email'\n  AND a.target_kind = 'course'\n  AND a.details->>'outcome' = 'queued'\n  AND a.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR a.target_id = $1)\n  AND (\n    $2::text [] IS NULL\n    OR a.details->>'student_number' = ANY($2)\n  )\n  AND (\n    $3::text [] IS NULL\n    OR a.details->>'credit_registration_id' = ANY($3)\n  )\nORDER BY a.created_at DESC,\n  a.id\n        ",
+  "query": "\nSELECT a.created_at AS sent_at,\n  a.details->>'student_number' AS \"student_number?\",\n  CASE\n    WHEN a.details->>'credit_registration_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'credit_registration_id')::uuid\n  END AS \"credit_registration_id?\",\n  a.actor_user_id AS sent_by_user_id,\n  ud.first_name AS \"sent_by_first_name?\",\n  ud.last_name AS \"sent_by_last_name?\",\n  ud.email AS \"sent_by_email?\",\n  COALESCE(a.details->>'emailed_to', claimed.emailed_to) AS \"emailed_to?\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\n  LEFT JOIN LATERAL (\n    SELECT e.emailed_to\n    FROM credit_registration_account_linking_emails e\n    WHERE a.details->>'emailed_to' IS NULL\n      AND e.course_id = a.target_id\n      AND e.student_number = a.details->>'student_number'\n      AND e.sent_at <= a.created_at\n      AND e.sent_at > a.created_at - INTERVAL '1 minute'\n    ORDER BY e.sent_at DESC\n    LIMIT 1\n  ) claimed ON TRUE\nWHERE a.target_kind = 'course'\n  AND a.target_id = ANY($1)\n  AND a.action = 'resend_link_email'\n  AND a.details->>'outcome' = 'queued'\n  AND a.deleted_at IS NULL\nORDER BY a.created_at DESC,\n  a.id\n        ",
   "describe": {
     "columns": [
       {
@@ -79,9 +79,7 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "TextArray",
-        "TextArray"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -95,5 +93,5 @@
       null
     ]
   },
-  "hash": "02dff712d31bb9ee31cb70b1f6a80b1fd828b8b4f1b9c027a666973e4fadf10f"
+  "hash": "f90454346154803a60710d32a0b61dc7c1282462d64eb4b2538df1159cc55438"
 }

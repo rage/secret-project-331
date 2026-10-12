@@ -756,7 +756,7 @@ export type AdminManualLinkOutcome =
  */
 export type AdminManualLinkingEmailSend = {
   /**
-   * In full. `None` when the send's address could not be told.
+   * In full.
    */
   emailed_to?: string | null
   sent_at: string

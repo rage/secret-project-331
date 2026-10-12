@@ -42,12 +42,10 @@ pub enum EnrolmentCheckSource {
 }
 
 impl EnrolmentCheckSource {
-    /// Whether someone pressed a button for the check, and so is waiting to see its answer.
-    pub fn is_request(self) -> bool {
-        matches!(
-            self,
-            Self::StudentRequest | Self::TeacherRequest | Self::AdminRequest
-        )
+    /// Whether something other than the row's own ladder set the check off: someone pressed a
+    /// button and is waiting for its answer, or an enrolment just turned up and the check is due now.
+    pub fn is_prompted(self) -> bool {
+        self != Self::Schedule
     }
 }
 
